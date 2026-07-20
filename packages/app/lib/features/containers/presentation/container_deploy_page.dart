@@ -6,11 +6,31 @@ import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/features/containers/logic/hosted_app_hosting_actions.dart';
 import 'package:bot_creator/features/containers/logic/hosted_app_templates.dart';
+import 'package:bot_creator/features/containers/presentation/container_detail_page.dart';
 import 'package:bot_creator/features/containers/presentation/hosted_app_upsell_widgets.dart';
 import 'package:bot_creator/features/containers/presentation/registry_credentials_page.dart';
 import 'package:flutter/material.dart';
 
 const kDefaultHostedAppImage = kEasyMusicBotImage;
+
+/// Reason the Deploy button is currently disabled, derived from the latest
+/// [HostedAppEligibility] snapshot. Drives which banner/snackbar copy is shown.
+enum _DeployBlockReason {
+  /// Nothing is blocking — deploy is allowed.
+  none,
+
+  /// Eligibility is still loading.
+  loading,
+
+  /// The eligibility check failed to load.
+  eligibilityError,
+
+  /// The free/premium container limit has been reached.
+  containerLimit,
+
+  /// No hosting minutes remain (free tier only).
+  noMinutes,
+}
 
 class ContainerDeployPage extends StatefulWidget {
   final MainApiClient? client;
@@ -74,7 +94,9 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
       } catch (_) {}
     }
     await _refreshEligibility();
+    if (!mounted) return;
     await _loadRegistryCredentials();
+    if (!mounted) return;
     await _loadLocalBots();
   }
 
@@ -138,7 +160,7 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
   }
 
   Future<void> _loadRegistryCredentials() async {
-    if (_client == null) return;
+    if (_client == null || !mounted) return;
     setState(() => _loadingCredentials = true);
     try {
       final creds = await _client!.listRegistryCredentials();
@@ -158,6 +180,7 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
       if (mounted) setState(() => _loadingEligibility = false);
       return;
     }
+    if (!mounted) return;
     setState(() => _loadingEligibility = true);
     try {
       final elig = await _client!.getHostedAppEligibility();
@@ -178,6 +201,22 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
   }
 
   bool get _canDeploy => _eligibility?.canDeploy ?? false;
+
+  _DeployBlockReason get _blockReason {
+    if (_loadingEligibility) return _DeployBlockReason.loading;
+    final elig = _eligibility;
+    if (elig == null) return _DeployBlockReason.eligibilityError;
+    if (elig.canDeploy) return _DeployBlockReason.none;
+    if (elig.isBlockedByContainerLimit ||
+        elig.activeContainers >= elig.maxContainers) {
+      return _DeployBlockReason.containerLimit;
+    }
+    if (elig.isBlockedByNoMinutes ||
+        (!elig.premium && elig.hostingMinutesBalance <= 0)) {
+      return _DeployBlockReason.noMinutes;
+    }
+    return _DeployBlockReason.none;
+  }
 
   @override
   void dispose() {
@@ -213,17 +252,28 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
       await _refreshEligibility();
 
       if (mounted && result != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              context.tr.container_deploy_ad_unlock_success(
-                result.grantedMinutes,
-                result.hostingMinutesBalance,
+        if (_blockReason == _DeployBlockReason.containerLimit) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                context.tr.container_deploy_ad_slot_full(result.grantedMinutes),
               ),
+              backgroundColor: Colors.orange,
             ),
-            backgroundColor: Colors.green,
-          ),
-        );
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                context.tr.container_deploy_ad_unlock_success(
+                  result.grantedMinutes,
+                  result.hostingMinutesBalance,
+                ),
+              ),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -254,11 +304,19 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
     }
     if (!_canDeploy) {
       if (mounted) {
+        final tr = context.tr;
+        final message = switch (_blockReason) {
+          _DeployBlockReason.containerLimit =>
+            tr.container_deploy_blocked_container_limit,
+          _DeployBlockReason.noMinutes =>
+            tr.container_deploy_blocked_no_minutes,
+          _DeployBlockReason.eligibilityError =>
+            tr.container_deploy_blocked_eligibility_error,
+          _DeployBlockReason.loading || _DeployBlockReason.none =>
+            tr.container_deploy_requires_premium_or_ad,
+        };
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(context.tr.container_deploy_requires_premium_or_ad),
-            backgroundColor: Colors.orange,
-          ),
+          SnackBar(content: Text(message), backgroundColor: Colors.orange),
         );
       }
       return;
@@ -329,15 +387,26 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
       );
 
       if (mounted) {
+        final containerId = result['container_id']?.toString() ?? '';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              context.tr.container_deploy_success(result['container_id']),
-            ),
+            content: Text(context.tr.container_deploy_submitted_starting),
             backgroundColor: Colors.green,
           ),
         );
-        Navigator.pop(context, true);
+        if (containerId.isNotEmpty) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ContainerDetailPage(
+                containerId: containerId,
+                client: _client,
+              ),
+            ),
+          );
+        } else {
+          Navigator.pop(context, true);
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -407,6 +476,44 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
       claimingAd: _claimingAd,
       onWatchAd: _watchAdForHostingMinutes,
     );
+  }
+
+  /// A clear, actionable notice shown just above the Deploy button explaining
+  /// why deploying is currently blocked (if it is).
+  Widget _buildDeployBlockedNotice() {
+    final tr = context.tr;
+    final reason = _blockReason;
+
+    switch (reason) {
+      case _DeployBlockReason.none:
+      case _DeployBlockReason.loading:
+        return const SizedBox.shrink();
+      case _DeployBlockReason.eligibilityError:
+        return _DeployNoticeCard(
+          icon: Icons.error_outline,
+          color: Colors.red,
+          message: tr.container_deploy_blocked_eligibility_error,
+          actionLabel: tr.container_list_retry,
+          onAction: _refreshEligibility,
+        );
+      case _DeployBlockReason.containerLimit:
+        return _DeployNoticeCard(
+          icon: Icons.block,
+          color: Colors.orange,
+          message: tr.container_deploy_blocked_container_limit,
+          actionLabel: tr.container_list_title,
+          onAction: () => Navigator.pop(context, false),
+        );
+      case _DeployBlockReason.noMinutes:
+        final reward = _eligibility?.adRewardMinutes ?? 0;
+        return _DeployNoticeCard(
+          icon: Icons.play_circle_outline,
+          color: Colors.orange,
+          message: tr.container_deploy_blocked_no_minutes,
+          actionLabel: tr.container_hosted_ad_button(reward),
+          onAction: _claimingAd ? null : _watchAdForHostingMinutes,
+        );
+    }
   }
 
   @override
@@ -734,7 +841,9 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
                 ),
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 24),
+            _buildDeployBlockedNotice(),
+            const SizedBox(height: 8),
             FilledButton.icon(
               onPressed: (_deploying || !_canDeploy) ? null : _deploy,
               icon: _deploying
@@ -757,6 +866,60 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
         ),
       ),
     ),
+    );
+  }
+}
+
+/// Small dismissable-looking notice card explaining why deploying is
+/// currently blocked, with an optional single action.
+class _DeployNoticeCard extends StatelessWidget {
+  const _DeployNoticeCard({
+    required this.icon,
+    required this.color,
+    required this.message,
+    this.actionLabel,
+    this.onAction,
+  });
+
+  final IconData icon;
+  final Color color;
+  final String message;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: color.withValues(alpha: 0.08),
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: color),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(message),
+                  if (actionLabel != null) ...[
+                    const SizedBox(height: 8),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton(
+                        onPressed: onAction,
+                        child: Text(actionLabel!),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

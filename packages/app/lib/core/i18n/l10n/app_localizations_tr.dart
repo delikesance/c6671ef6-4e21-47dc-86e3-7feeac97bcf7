@@ -7861,6 +7861,23 @@ class AppLocalizationsTr extends AppLocalizations {
   String get workflows_import_tooltip => 'İş akışlarını içe aktar';
 
   @override
+  String get workflows_js_event_available_context_copy_hint =>
+      'Komut dosyanıza kopyalamak için dokunun';
+
+  @override
+  String workflows_js_event_available_context_copied(String name) {
+    return '$name kopyalandı';
+  }
+
+  @override
+  String get workflows_js_event_available_context_sparse_note =>
+      'Bu olayın ilk argümanı message/interaction/member/channel/guild olarak bağlanmaz. client ile variables/db kullanın veya tam yük için Discord.js belgelerine bakın.';
+
+  @override
+  String get workflows_js_event_available_context_subtitle =>
+      'Bu global değişkenler bu olay için betiğinize enjekte edilir. ((message.content)) değil, discord.js özelliklerini kullanın (örn. message.author.username).';
+
+  @override
   String get workflows_listen_for => 'Şunu dinle';
 
   @override
@@ -8127,7 +8144,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get container_deploy_image_hint =>
-      'Etiketli Docker görüntüsü (örn. ghcr.io/lazaroagomez/beatdock:latest)';
+      'Etiketli Docker görüntüsü (örn. ghcr.io/albertgmz/beatdock:latest)';
 
   @override
   String get container_deploy_template_label => 'Şablon';
@@ -8207,8 +8224,29 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String get container_deploy_submitted_starting =>
+      'Hosted app submitted — starting up now...';
+
+  @override
   String container_deploy_failed(String error) {
     return 'Dagitim basarisiz: $error';
+  }
+
+  @override
+  String get container_deploy_blocked_container_limit =>
+      'You\'ve reached your hosted app limit. Delete or stop an existing hosted app to free up a slot before deploying another.';
+
+  @override
+  String get container_deploy_blocked_no_minutes =>
+      'You\'re out of free hosting minutes. Watch a rewarded ad to unlock more minutes, or go Premium for unlimited hosting.';
+
+  @override
+  String get container_deploy_blocked_eligibility_error =>
+      'Couldn\'t check whether you can deploy right now.';
+
+  @override
+  String container_deploy_ad_slot_full(int granted) {
+    return '+$granted hosting minutes earned, but your container slot is still full. Delete or stop an existing hosted app to deploy a new one.';
   }
 
   @override
@@ -8312,6 +8350,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get container_state_pending => 'Beklemede';
 
   @override
+  String get container_state_provisioning => 'Provisioning';
+
+  @override
   String get container_state_stopped => 'Durduruldu';
 
   @override
@@ -8319,6 +8360,17 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get container_state_failed => 'Basarisiz';
+
+  @override
+  String get container_health_image_pull_failed =>
+      'Couldn\'t pull the container image. Check that the image name and tag are correct and that any required registry credentials are set.';
+
+  @override
+  String get container_health_crash_loop =>
+      'The container keeps crashing shortly after starting. Check your environment variables and logs.';
+
+  @override
+  String get container_health_starting => 'Still starting up...';
 
   @override
   String get container_hosted_subtitle =>

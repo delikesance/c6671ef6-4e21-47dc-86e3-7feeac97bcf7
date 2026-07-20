@@ -253,6 +253,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
               botId: widget.botId,
               initial: initial,
               initialWorkflowType: initialWorkflowType,
+              eventsOnly: widget.eventsOnly,
               appEmojis: _appEmojis,
               eventCatalog: _workflowEventCatalog
                   .map(
@@ -1447,12 +1448,22 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
     final eventTrigger = normalizeWorkflowEventTrigger(
       workflow['eventTrigger'],
     );
+    final executionMode = normalizeWorkflowExecutionMode(
+      workflow['executionMode'],
+      supportsJavascript: true,
+    );
+    final isJsEventScript =
+        widget.eventsOnly &&
+        workflowType == workflowTypeEvent &&
+        executionMode == workflowExecutionModeJavascript;
     final subtitle =
         workflowType == workflowTypeEvent
-            ? context.tr.workflows_event_subtitle(
-              actions,
-              _eventLabel((eventTrigger['event'] ?? '').toString()),
-            )
+            ? isJsEventScript
+                ? '${context.tr.cmd_execution_mode_javascript} • ${_eventLabel((eventTrigger['event'] ?? '').toString())}'
+                : context.tr.workflows_event_subtitle(
+                  actions,
+                  _eventLabel((eventTrigger['event'] ?? '').toString()),
+                )
             : context.tr.workflows_subtitle(
               actions,
               entryPoint,

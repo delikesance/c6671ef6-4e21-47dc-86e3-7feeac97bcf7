@@ -141,7 +141,8 @@ Future<void> main() async {
       // Network/TLS errors (SocketException, HandshakeException, etc.) are not
       // application bugs — the platform may have a bad connection, VPN issues,
       // or flaky mobile data.  Log as non-fatal to avoid polluting Crashlytics.
-      final fatal = !_isTransientNetworkError(error);
+      final fatal = !AppDiagnostics.isTransientNetworkError(error) &&
+          !AppDiagnostics.isBenignFlutterFrameworkError(error);
       await AppDiagnostics.logError(
         'Uncaught zone error during bootstrap/runtime',
         error,
@@ -150,27 +151,6 @@ Future<void> main() async {
       );
     },
   );
-}
-
-/// Returns `true` when [error] is a transient network/TLS failure that should
-/// NOT be treated as an application crash.
-bool _isTransientNetworkError(Object error) {
-  final name = error.runtimeType.toString();
-  if (name.contains('SocketException') ||
-      name.contains('HandshakeException') ||
-      name.contains('TlsException') ||
-      name.contains('ClientException') ||
-      name.contains('TimeoutException') ||
-      name.contains('HttpException') ||
-      name.contains('WebSocketException')) {
-    return true;
-  }
-  final message = error.toString().toLowerCase();
-  return message.contains('connection timed out') ||
-      message.contains('connection refused') ||
-      message.contains('network is unreachable') ||
-      message.contains('handshake') ||
-      message.contains('no route to host');
 }
 
 Future<void> _bootstrapAndRunApp() async {

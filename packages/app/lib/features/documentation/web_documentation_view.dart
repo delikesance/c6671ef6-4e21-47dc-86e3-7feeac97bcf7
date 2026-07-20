@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/utils/external_link.dart';
 import 'package:bot_creator/features/documentation/documentation_urls.dart';
@@ -56,6 +58,23 @@ class _WebDocumentationViewState extends State<WebDocumentationView> {
   bool _loading = true;
   String? _error;
   bool _canGoBack = false;
+  bool _acceptWebViewCallbacks = true;
+
+  @override
+  void dispose() {
+    _acceptWebViewCallbacks = false;
+    // Detach web content so Android WebChromeClient stops posting platform
+    // messages after this State is torn down.
+    if (widget.controller == null) {
+      final controller = _controller;
+      if (controller != null) {
+        unawaited(controller.loadRequest(Uri.parse('about:blank')));
+      }
+    }
+    super.dispose();
+  }
+
+  bool get _webViewCallbacksActive => _acceptWebViewCallbacks && mounted;
 
   @override
   void initState() {
@@ -74,19 +93,24 @@ class _WebDocumentationViewState extends State<WebDocumentationView> {
         ..setJavaScriptMode(JavaScriptMode.unrestricted)
         ..setNavigationDelegate(
           NavigationDelegate(
-            onPageStarted: (_) => _setLoading(true),
+            onPageStarted: (_) {
+              if (!_webViewCallbacksActive) return;
+              _setLoading(true);
+            },
             onPageFinished: (_) async {
-              final canGoBack = await _controller!.canGoBack();
-              if (mounted) {
-                setState(() {
-                  _loading = false;
-                  _error = null;
-                  _canGoBack = canGoBack;
-                });
-              }
+              if (!_webViewCallbacksActive) return;
+              final controller = _controller;
+              if (controller == null) return;
+              final canGoBack = await controller.canGoBack();
+              if (!_webViewCallbacksActive) return;
+              setState(() {
+                _loading = false;
+                _error = null;
+                _canGoBack = canGoBack;
+              });
             },
             onWebResourceError: (error) {
-              if (!mounted) return;
+              if (!_webViewCallbacksActive) return;
               setState(() {
                 _loading = false;
                 _error = error.description;
@@ -107,7 +131,7 @@ class _WebDocumentationViewState extends State<WebDocumentationView> {
   }
 
   void _setLoading(bool loading) {
-    if (!mounted) return;
+    if (!_webViewCallbacksActive) return;
     setState(() {
       _loading = loading;
       if (loading) {
@@ -121,6 +145,7 @@ class _WebDocumentationViewState extends State<WebDocumentationView> {
       await _openExternally();
       return;
     }
+    if (!_webViewCallbacksActive) return;
     setState(() {
       _loading = true;
       _error = null;

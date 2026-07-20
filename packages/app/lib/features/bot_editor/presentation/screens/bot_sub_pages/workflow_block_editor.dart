@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
+import 'package:bot_creator/features/bot_editor/logic/js_event_context_catalog.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/js_editor_page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder.response.dart';
@@ -21,6 +22,7 @@ import 'package:bot_creator_shared/types/variable_suggestion.dart' as shared;
 import 'package:bot_creator_shared/utils/variable_catalog.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
 
@@ -35,6 +37,7 @@ class WorkflowBlockEditor extends StatefulWidget {
     required this.botId,
     this.initial,
     this.initialWorkflowType,
+    this.eventsOnly = false,
     this.appEmojis = const [],
     required this.eventCatalog,
     required this.eventCategories,
@@ -48,6 +51,9 @@ class WorkflowBlockEditor extends StatefulWidget {
   /// If non-null, we're editing an existing workflow.
   final Map<String, dynamic>? initial;
   final String? initialWorkflowType;
+
+  /// When true (Events tab on JS bots), hide general/command workflow triggers.
+  final bool eventsOnly;
   final List<AppEmoji> appEmojis;
 
   // Event catalog callbacks — delegated from WorkflowsPage because the
@@ -113,6 +119,13 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
 
   bool get _showJavascriptExecutionMode =>
       _supportsJavascriptMode && _workflowType == workflowTypeEvent;
+
+  bool get _isJavascriptEventScriptUi =>
+      _workflowType == workflowTypeEvent &&
+      (_isJavascriptOnlyBot || widget.eventsOnly);
+
+  bool get _hideGeneralWorkflowTriggers =>
+      widget.eventsOnly || _isJavascriptOnlyBot;
 
   bool get _isDesktop =>
       !kIsWeb &&
@@ -276,9 +289,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
         _executionMode,
         supportsJavascript: _supportsJavascriptMode,
       );
-      if (isNewWorkflow &&
-          _isJavascriptOnlyBot &&
-          _workflowType == workflowTypeEvent) {
+      if (_isJavascriptOnlyBot && _workflowType == workflowTypeEvent) {
         _executionMode = workflowExecutionModeJavascript;
       }
     });
@@ -366,11 +377,16 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
       setState(() => _variableSuggestions = deduped.values.toList(growable: false));
     }
 
-    // Add aliased versions of event variables.
-    _refreshAliasedEventSuggestions();
+    // Add aliased versions of event variables (Dart workflows only).
+    if (!_isJavascriptEventScriptUi) {
+      _refreshAliasedEventSuggestions();
+    }
   }
 
   void _refreshAliasedEventSuggestions() {
+    if (_isJavascriptEventScriptUi) {
+      return;
+    }
     if (_workflowType != workflowTypeEvent || _eventVariableAliases.isEmpty) {
       return;
     }
@@ -439,15 +455,25 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
     await appManager.saveWorkflow(
       widget.botId,
       name: name,
-      actions: _actions,
+      actions:
+          _isJavascriptEventScriptUi
+              ? const <Map<String, dynamic>>[]
+              : _actions,
       entryPoint: entryPoint,
       arguments: serializeWorkflowArgumentDefinitions(argDefs),
       workflowType: _workflowType,
       eventTrigger: _workflowType == workflowTypeEvent ? _eventTrigger : null,
       folder: _folderController.text.trim(),
       eventVariableAliases:
-          _eventVariableAliases.isNotEmpty ? Map<String, String>.from(_eventVariableAliases) : null,
-      executionMode: _executionMode,
+          _isJavascriptEventScriptUi
+              ? null
+              : (_eventVariableAliases.isNotEmpty
+                  ? Map<String, String>.from(_eventVariableAliases)
+                  : null),
+      executionMode:
+          _isJavascriptEventScriptUi
+              ? workflowExecutionModeJavascript
+              : _executionMode,
       jsScriptContent: _jsScriptController.text,
     );
 
@@ -512,6 +538,55 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
             );
 
             if (isDesktop) {
+              if (_isJavascriptEventScriptUi) {
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Container(
+                      width: 340,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        border: Border(
+                          right: BorderSide(
+                            color: Theme.of(context).colorScheme.outlineVariant,
+                            width: 1,
+                          ),
+                        ),
+                      ),
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.all(AppTheme.spacingMd),
+                        child: _buildUnifiedTriggerConfig(flat: true),
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).scaffoldBackgroundColor,
+                          gradient: RadialGradient(
+                            colors: [
+                              Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
+                              Theme.of(context).scaffoldBackgroundColor,
+                            ],
+                            center: Alignment.center,
+                            radius: 1.3,
+                          ),
+                        ),
+                        child: Center(
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(maxWidth: maxWidth),
+                            child: SingleChildScrollView(
+                              physics: const BouncingScrollPhysics(),
+                              padding: const EdgeInsets.all(AppTheme.spacingLg),
+                              child: _buildEventJavascriptPanel(),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }
+
               return Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -682,6 +757,10 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
     bool showAddButton = true,
     bool showHeaderBlocks = true,
   }) {
+    if (_isJavascriptEventScriptUi) {
+      return [_buildEventJavascriptPanel()];
+    }
+
     return [
       // ── Metadata block ──
       if (showHeaderBlocks) _buildMetadataBlock(),
@@ -879,12 +958,14 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
           label: context.tr.scratch_wizard_trigger_event_title,
           icon: Icons.flash_on,
         ),
-        const SizedBox(height: 6),
-        _buildTriggerTypeOption(
-          type: 'command',
-          label: context.tr.scratch_wizard_trigger_function_title,
-          icon: Icons.play_arrow,
-        ),
+        if (!_hideGeneralWorkflowTriggers) ...[
+          const SizedBox(height: 6),
+          _buildTriggerTypeOption(
+            type: 'command',
+            label: context.tr.scratch_wizard_trigger_function_title,
+            icon: Icons.play_arrow,
+          ),
+        ],
         const SizedBox(height: 16),
 
         // ── SECTION 3: Trigger Settings ──
@@ -928,7 +1009,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
             ),
             items: widget.eventCategories
                 .map((cat) {
-                  final label = widget.eventCategoryLabel!(cat);
+                  final label = widget.eventCategoryLabel(cat);
                   return DropdownMenuItem(value: cat, child: Text(label));
                 })
                 .toList(growable: false),
@@ -1181,6 +1262,10 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
   /// Shows event-specific variables with optional alias fields.
   /// Only visible when the workflow type is "Event".
   Widget _buildEventVariablesSection() {
+    if (_isJavascriptEventScriptUi) {
+      return _buildJsEventAvailableContextSection();
+    }
+
     final eventVars = VariableCatalog.getSuggestionsForEvent(_selectedEvent);
     if (eventVars.isEmpty) {
       return const SizedBox.shrink();
@@ -1302,6 +1387,116 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
     );
   }
 
+  Widget _buildJsEventAvailableContextSection() {
+    final items = JsEventContextCatalog.itemsForEvent(_selectedEvent);
+    if (items.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    final sparse = JsEventContextCatalog.hasSparseBinding(_selectedEvent);
+    final tr = context.tr;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SizedBox(height: 4),
+        InkWell(
+          onTap:
+              () => setState(
+                () => _eventVariablesExpanded = !_eventVariablesExpanded,
+              ),
+          borderRadius: BorderRadius.circular(6),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+            child: Row(
+              children: [
+                AnimatedRotation(
+                  turns: _eventVariablesExpanded ? 0.25 : 0.0,
+                  duration: const Duration(milliseconds: 200),
+                  child: const Icon(
+                    Icons.chevron_right,
+                    size: 20,
+                    color: AppTheme.grey,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    '${tr.workflows_event_available_vars} (${items.length})',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (_eventVariablesExpanded) ...[
+          const SizedBox(height: 4),
+          Text(
+            tr.workflows_js_event_available_context_subtitle,
+            style: const TextStyle(fontSize: 11, color: AppTheme.grey),
+          ),
+          if (sparse) ...[
+            const SizedBox(height: 4),
+            Text(
+              tr.workflows_js_event_available_context_sparse_note,
+              style: const TextStyle(fontSize: 11, color: AppTheme.grey),
+            ),
+          ],
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              for (final name in items)
+                Tooltip(
+                  message: tr.workflows_js_event_available_context_copy_hint,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(6),
+                    onTap: () async {
+                      await Clipboard.setData(ClipboardData(text: name));
+                      if (!mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            tr.workflows_js_event_available_context_copied(name),
+                          ),
+                          duration: const Duration(seconds: 1),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.05),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.1),
+                        ),
+                      ),
+                      child: Text(
+                        name,
+                        style: const TextStyle(
+                          fontFamily: 'monospace',
+                          fontSize: 12,
+                          color: AppTheme.grey,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+
   // ── Entry Point Block ──
 
   Widget _buildEntryPointBlock({bool flat = false}) {
@@ -1354,14 +1549,102 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
         });
       },
       executionMode: _executionMode,
-      showJavascriptMode: _showJavascriptExecutionMode,
-      onExecutionModeChanged: _showJavascriptExecutionMode
+      showJavascriptMode:
+          _showJavascriptExecutionMode && !_isJavascriptEventScriptUi,
+      onExecutionModeChanged:
+          _showJavascriptExecutionMode && !_isJavascriptEventScriptUi
           ? (value) {
               setState(() {
                 _executionMode = _normalizeExecutionMode(value);
               });
             }
           : null,
+    );
+  }
+
+  Widget _buildEventJavascriptPanel() {
+    final code = _jsScriptController.text;
+    final isEmpty = code.trim().isEmpty;
+    final preview =
+        isEmpty
+            ? context.tr.js_editor_hint
+            : code.length > 300
+            ? '${code.substring(0, 300)}…'
+            : code;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          context.tr.cmd_execution_mode_javascript,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 15,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
+        const SizedBox(height: 12),
+        GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: _openJavascriptEditor,
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 160),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppTheme.codeSurfaceVariant,
+              borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+              border: Border.all(color: AppTheme.grey),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.edit, size: 14, color: AppTheme.grey),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        context.tr.bdfd_editor_tap_hint,
+                        style: const TextStyle(fontSize: 11, color: AppTheme.grey),
+                      ),
+                    ),
+                    if (_isDesktop)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0x332196F3),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text(
+                          context.tr.js_editor_segmented_label,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: Color(0xFF90CAF9),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  preview,
+                  style: const TextStyle(
+                    fontFamily: 'monospace',
+                    fontSize: 12,
+                    color: Color(0xFFCFD8DC),
+                  ),
+                  maxLines: 16,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -1665,6 +1948,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
 
   Widget _buildMobileTabEditor() {
     final theme = Theme.of(context);
+    final scriptUi = _isJavascriptEventScriptUi;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1733,13 +2017,15 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
-                          Icons.view_agenda_outlined,
+                          scriptUi ? Icons.code : Icons.view_agenda_outlined,
                           color: _mobileTab == 1 ? AppTheme.brandPrimary : theme.colorScheme.onSurfaceVariant,
                           size: 18,
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          context.tr.actions_title,
+                          scriptUi
+                              ? context.tr.cmd_execution_mode_javascript
+                              : context.tr.actions_title,
                           style: TextStyle(
                             fontWeight: _mobileTab == 1 ? FontWeight.bold : FontWeight.normal,
                             color: _mobileTab == 1 ? AppTheme.brandPrimary : theme.colorScheme.onSurfaceVariant,
@@ -1764,7 +2050,12 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                 padding: const EdgeInsets.all(AppTheme.spacingLg),
                 child: _buildUnifiedTriggerConfig(flat: true),
               ),
-              _buildStep3Actions(),
+              scriptUi
+                  ? SingleChildScrollView(
+                    padding: const EdgeInsets.all(AppTheme.spacingLg),
+                    child: _buildEventJavascriptPanel(),
+                  )
+                  : _buildStep3Actions(),
             ],
           ),
         ),
@@ -1781,7 +2072,9 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
     final stepsTitles = [
       context.tr.scratch_wizard_step_trigger,
       context.tr.scratch_wizard_step_config,
-      context.tr.scratch_wizard_step_actions,
+      _isJavascriptEventScriptUi
+          ? context.tr.cmd_execution_mode_javascript
+          : context.tr.scratch_wizard_step_actions,
       context.tr.scratch_wizard_step_save,
     ];
 
@@ -1949,7 +2242,12 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
       case 1:
         return _buildStep2TriggerConfig();
       case 2:
-        return _buildStep3Actions();
+        return _isJavascriptEventScriptUi
+            ? SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: _buildEventJavascriptPanel(),
+            )
+            : _buildStep3Actions();
       case 3:
         return _buildStep4SummaryAndSave();
       default:
@@ -1981,13 +2279,15 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
           desc: context.tr.scratch_wizard_trigger_event_desc,
           icon: Icons.flash_on,
         ),
-        const SizedBox(height: 12),
-        _buildTriggerTypeCard(
-          type: 'command',
-          title: context.tr.scratch_wizard_trigger_function_title,
-          desc: context.tr.scratch_wizard_trigger_function_desc,
-          icon: Icons.play_arrow,
-        ),
+        if (!_hideGeneralWorkflowTriggers) ...[
+          const SizedBox(height: 12),
+          _buildTriggerTypeCard(
+            type: 'command',
+            title: context.tr.scratch_wizard_trigger_function_title,
+            desc: context.tr.scratch_wizard_trigger_function_desc,
+            icon: Icons.play_arrow,
+          ),
+        ],
       ],
     );
   }
@@ -2197,16 +2497,32 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                   ],
                 ),
                 const SizedBox(height: 8),
-                Row(
-                  children: [
-                    const Icon(Icons.view_agenda, size: 18, color: AppTheme.success),
-                    const SizedBox(width: 8),
-                    Text(
-                      context.tr.scratch_wizard_summary_actions_count(_actions.length),
-                      style: const TextStyle(fontSize: 13),
-                    ),
-                  ],
-                ),
+                if (_isJavascriptEventScriptUi)
+                  Row(
+                    children: [
+                      const Icon(Icons.code, size: 18, color: AppTheme.success),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _jsScriptController.text.trim().isEmpty
+                              ? context.tr.js_editor_hint
+                              : context.tr.cmd_execution_mode_javascript,
+                          style: const TextStyle(fontSize: 13),
+                        ),
+                      ),
+                    ],
+                  )
+                else
+                  Row(
+                    children: [
+                      const Icon(Icons.view_agenda, size: 18, color: AppTheme.success),
+                      const SizedBox(width: 8),
+                      Text(
+                        context.tr.scratch_wizard_summary_actions_count(_actions.length),
+                        style: const TextStyle(fontSize: 13),
+                      ),
+                    ],
+                  ),
               ],
             ),
           ),

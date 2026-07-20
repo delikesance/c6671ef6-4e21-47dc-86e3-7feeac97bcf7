@@ -39,8 +39,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.9
   provider: ^6.1.5
-  bot_creator_shared:
-    path: ../shared
+  bot_creator_shared: any
   path_provider: ^2.1.5
   http: ^1.6.0
   nyxx: ^6.9.0

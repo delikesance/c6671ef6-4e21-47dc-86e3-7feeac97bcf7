@@ -109,13 +109,23 @@ class _JsEditorPageState extends State<JsEditorPage> {
     _insertAtCursor(snippet.insert, cursorOffset: snippet.cursorOffset);
   }
 
+  (int start, int end) _clampedTextSelection(String text) {
+    final length = text.length;
+    final selection = _controller.selection;
+    if (!selection.isValid || selection.start < 0 || selection.end < 0) {
+      final offset = selection.baseOffset.clamp(0, length);
+      return (offset, offset);
+    }
+    final start = selection.start.clamp(0, length);
+    final end = selection.end.clamp(start, length);
+    return (start, end);
+  }
+
   void _insertAtCursor(String insert, {int? cursorOffset}) {
     final text = _controller.text;
-    final selection = _controller.selection;
-    final start = selection.start;
-    final end = selection.end;
+    final (start, end) = _clampedTextSelection(text);
     final newText = text.replaceRange(start, end, insert);
-    final caret = start + (cursorOffset ?? insert.length);
+    final caret = (start + (cursorOffset ?? insert.length)).clamp(0, newText.length);
     _controller.value = TextEditingValue(
       text: newText,
       selection: TextSelection.collapsed(offset: caret),
@@ -125,7 +135,7 @@ class _JsEditorPageState extends State<JsEditorPage> {
 
   void _applyCompletion(JsCompletionCandidate candidate) {
     final text = _controller.text;
-    final offset = _controller.selection.baseOffset;
+    final offset = _controller.selection.baseOffset.clamp(0, text.length);
     final position = _cursorLineCharacter(text, offset);
     final lines = text.split('\n');
     final line = lines[position.line];

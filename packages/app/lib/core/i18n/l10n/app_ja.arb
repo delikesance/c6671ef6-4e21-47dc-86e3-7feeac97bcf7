@@ -6759,6 +6759,23 @@
   "@workflows_import_tooltip": {
     "description": "Import workflows"
   },
+  "@workflows_js_event_available_context_copy_hint": {
+    "description": "Tap to copy into your script"
+  },
+  "@workflows_js_event_available_context_copied": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Copied {name}"
+  },
+  "@workflows_js_event_available_context_sparse_note": {
+    "description": "Note when JS event context is sparse"
+  },
+  "@workflows_js_event_available_context_subtitle": {
+    "description": "These globals are injected into your script for this event."
+  },
   "@workflows_listen_for": {
     "description": "Listen for"
   },
@@ -9003,6 +9020,10 @@
   "workflows_import_overwrite": "名前が既に存在する場合は置き換え",
   "workflows_import_title": "ワークフローをインポート",
   "workflows_import_tooltip": "ワークフローをインポート",
+  "workflows_js_event_available_context_copy_hint": "タップしてスクリプトにコピー",
+  "workflows_js_event_available_context_copied": "{name} をコピーしました",
+  "workflows_js_event_available_context_sparse_note": "このイベントの第1引数は message/interaction/member/channel/guild としてはバインドされません。client と variables/db を使うか、Discord.js のドキュメントでペイロードを確認してください。",
+  "workflows_js_event_available_context_subtitle": "これらのグローバルはこのイベントのスクリプトに注入されます。((message.content)) ではなく discord.js のプロパティ（例: message.author.username）を使ってください。",
   "workflows_listen_for": "待機対象",
   "workflows_move_to_folder": "フォルダに移動",
   "workflows_name": "ワークフロー名",
@@ -9256,7 +9277,7 @@
   "@container_deploy_image_label": {
     "description": "Label for the Docker image field"
   },
-  "container_deploy_image_hint": "タグ付きのDockerイメージ（例: ghcr.io/lazaroagomez/beatdock:latest）",
+  "container_deploy_image_hint": "タグ付きのDockerイメージ（例: ghcr.io/albertgmz/beatdock:latest）",
   "@container_deploy_image_hint": {
     "description": "Helper text for the image field"
   },
@@ -9361,12 +9382,37 @@
       }
     }
   },
+  "container_deploy_submitted_starting": "Hosted app submitted — starting up now...",
+  "@container_deploy_submitted_starting": {
+    "description": "Snackbar shown after a hosted app deploy request is accepted, before it finishes starting"
+  },
   "container_deploy_failed": "デプロイに失敗しました: {error}",
   "@container_deploy_failed": {
     "description": "Snackbar when deploy fails",
     "placeholders": {
       "error": {
         "type": "String"
+      }
+    }
+  },
+  "container_deploy_blocked_container_limit": "You've reached your hosted app limit. Delete or stop an existing hosted app to free up a slot before deploying another.",
+  "@container_deploy_blocked_container_limit": {
+    "description": "Deploy eligibility banner reason when the container limit is reached"
+  },
+  "container_deploy_blocked_no_minutes": "You're out of free hosting minutes. Watch a rewarded ad to unlock more minutes, or go Premium for unlimited hosting.",
+  "@container_deploy_blocked_no_minutes": {
+    "description": "Deploy eligibility banner reason when there are no hosting minutes left"
+  },
+  "container_deploy_blocked_eligibility_error": "Couldn't check whether you can deploy right now.",
+  "@container_deploy_blocked_eligibility_error": {
+    "description": "Deploy eligibility banner shown when the eligibility check failed to load"
+  },
+  "container_deploy_ad_slot_full": "+{granted} hosting minutes earned, but your container slot is still full. Delete or stop an existing hosted app to deploy a new one.",
+  "@container_deploy_ad_slot_full": {
+    "description": "Warning snackbar after a successful ad watch when the container limit still blocks deployment",
+    "placeholders": {
+      "granted": {
+        "type": "int"
       }
     }
   },
@@ -9472,6 +9518,10 @@
   "@container_state_pending": {
     "description": "Container state label: pending"
   },
+  "container_state_provisioning": "Provisioning",
+  "@container_state_provisioning": {
+    "description": "Container state label: provisioning"
+  },
   "container_state_stopped": "停止済み",
   "@container_state_stopped": {
     "description": "Container state label: stopped"
@@ -9483,6 +9533,18 @@
   "container_state_failed": "失敗",
   "@container_state_failed": {
     "description": "Container state label: failed"
+  },
+  "container_health_image_pull_failed": "Couldn't pull the container image. Check that the image name and tag are correct and that any required registry credentials are set.",
+  "@container_health_image_pull_failed": {
+    "description": "Explains an image_pull_failed health status"
+  },
+  "container_health_crash_loop": "The container keeps crashing shortly after starting. Check your environment variables and logs.",
+  "@container_health_crash_loop": {
+    "description": "Explains a crash_loop health status"
+  },
+  "container_health_starting": "Still starting up...",
+  "@container_health_starting": {
+    "description": "Explains a starting/provisioning health status"
   },
   "container_hosted_subtitle": "Dockerコンテナのデプロイと管理",
   "@container_hosted_subtitle": {

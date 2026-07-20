@@ -7936,6 +7936,23 @@ class AppLocalizationsFr extends AppLocalizations {
   String get workflows_import_tooltip => 'Importer des workflows';
 
   @override
+  String get workflows_js_event_available_context_copy_hint =>
+      'Appuyez pour copier dans votre script';
+
+  @override
+  String workflows_js_event_available_context_copied(String name) {
+    return '$name copié';
+  }
+
+  @override
+  String get workflows_js_event_available_context_sparse_note =>
+      'Le premier argument de cet événement n’est pas lié en tant que message/interaction/member/channel/guild. Utilisez client et vos variables/db, ou consultez la doc Discord.js pour la charge utile complète.';
+
+  @override
+  String get workflows_js_event_available_context_subtitle =>
+      'Ces globales sont injectées dans votre script pour cet événement. Utilisez les propriétés discord.js (ex. message.author.username), pas ((message.content)).';
+
+  @override
   String get workflows_listen_for => 'Écouter';
 
   @override
@@ -8211,7 +8228,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get container_deploy_image_hint =>
-      'Image Docker avec tag (ex. ghcr.io/lazaroagomez/beatdock:latest)';
+      'Image Docker avec tag (ex. ghcr.io/albertgmz/beatdock:latest)';
 
   @override
   String get container_deploy_template_label => 'Modèle';
@@ -8291,8 +8308,29 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get container_deploy_submitted_starting =>
+      'Application envoyée — démarrage en cours...';
+
+  @override
   String container_deploy_failed(String error) {
     return 'Échec du déploiement : $error';
+  }
+
+  @override
+  String get container_deploy_blocked_container_limit =>
+      'Vous avez atteint votre limite d\'applications hébergées. Supprimez ou arrêtez une application existante pour libérer une place avant d\'en déployer une nouvelle.';
+
+  @override
+  String get container_deploy_blocked_no_minutes =>
+      'Vous n\'avez plus de minutes d\'hébergement gratuites. Regardez une publicité récompensée pour en débloquer, ou passez à Premium pour un hébergement illimité.';
+
+  @override
+  String get container_deploy_blocked_eligibility_error =>
+      'Impossible de vérifier si vous pouvez déployer pour le moment.';
+
+  @override
+  String container_deploy_ad_slot_full(int granted) {
+    return '+$granted minutes d\'hébergement gagnées, mais votre emplacement de conteneur est toujours plein. Supprimez ou arrêtez une application existante pour en déployer une nouvelle.';
   }
 
   @override
@@ -8398,6 +8436,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get container_state_pending => 'En attente';
 
   @override
+  String get container_state_provisioning => 'Provisionnement';
+
+  @override
   String get container_state_stopped => 'Arrêté';
 
   @override
@@ -8405,6 +8446,17 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get container_state_failed => 'Échoué';
+
+  @override
+  String get container_health_image_pull_failed =>
+      'Impossible de récupérer l\'image du conteneur. Vérifiez que le nom et le tag de l\'image sont corrects et que les identifiants de registre nécessaires sont configurés.';
+
+  @override
+  String get container_health_crash_loop =>
+      'Le conteneur plante peu après son démarrage. Vérifiez vos variables d\'environnement et les journaux.';
+
+  @override
+  String get container_health_starting => 'Démarrage en cours...';
 
   @override
   String get container_hosted_subtitle =>

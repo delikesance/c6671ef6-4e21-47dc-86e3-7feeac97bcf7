@@ -4,6 +4,7 @@ import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/features/containers/logic/hosted_app_hosting_actions.dart';
+import 'package:bot_creator/features/containers/logic/hosted_app_status.dart';
 import 'package:bot_creator/features/containers/presentation/hosted_app_upsell_widgets.dart';
 
 class ContainerDetailPage extends StatefulWidget {
@@ -85,8 +86,9 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
     return DateTime.tryParse(raw);
   }
 
-  void _syncStatusTimers(String state) {
-    if (state == 'PENDING' || state == 'PROVISIONING') {
+  void _syncStatusTimers(String state, {String? healthStatus}) {
+    final health = (healthStatus ?? '').trim().toLowerCase();
+    if (state == 'PENDING' || state == 'PROVISIONING' || health == 'starting') {
       _metricsTimer?.cancel();
       _metricsTimer = null;
       _pollTimer ??= Timer.periodic(const Duration(seconds: 10), (_) => _loadStatus());
@@ -191,7 +193,10 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
           _loading = false;
         });
       }
-      _syncStatusTimers(status['state']?.toString() ?? '');
+      _syncStatusTimers(
+        status['state']?.toString() ?? '',
+        healthStatus: status['health_status']?.toString(),
+      );
     } catch (_) {
       if (mounted) setState(() => _loading = false);
     }
@@ -314,7 +319,8 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
   String _stateLabel(String state, AppLocalizations tr) {
     switch (state) {
       case 'RUNNING': return tr.container_state_running;
-      case 'PENDING': case 'PROVISIONING': return tr.container_state_pending;
+      case 'PENDING': return tr.container_state_pending;
+      case 'PROVISIONING': return tr.container_state_provisioning;
       case 'STOPPED': return tr.container_state_stopped;
       case 'STOPPING': return tr.container_state_stopping;
       case 'FAILED': return tr.container_state_failed;
@@ -330,6 +336,20 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
     final image = _status?['image']?.toString() ?? '';
     final registryHost = _status?['registry_host']?.toString() ?? '';
     final registryUsername = _status?['registry_username']?.toString() ?? '';
+    final healthStatus = _status?['health_status']?.toString();
+    final statusCode = _status?['status_code']?.toString();
+    final statusMessage = _status?['status_message']?.toString();
+    final isUnhealthy = isHostedAppUnhealthy(
+      healthStatus: healthStatus,
+      statusCode: statusCode,
+    );
+    final statusDescription = describeHostedAppStatus(
+      healthStatus: healthStatus,
+      statusCode: statusCode,
+      statusMessage: statusMessage,
+      state: state,
+      tr: tr,
+    );
 
     return Scaffold(
       appBar: AppBar(title: Text(tr.container_detail_title(widget.containerId.substring(0, 8)))),
@@ -415,6 +435,34 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
                   Text(_formatCpuUsage(_status), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                 ]),
               ]))),
+              if (isUnhealthy && statusDescription.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Card(
+                  color: (state == 'RUNNING' ? Colors.orange : Colors.red)
+                      .withValues(alpha: 0.08),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          state == 'RUNNING'
+                              ? Icons.warning_amber_rounded
+                              : Icons.error_outline,
+                          color: state == 'RUNNING' ? Colors.orange : Colors.red,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            statusDescription,
+                            style: TextStyle(color: colorScheme.onSurfaceVariant),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
               const SizedBox(height: 24),
               if (state == 'RUNNING' || state == 'PROVISIONING') ...[
                 FilledButton.icon(
@@ -444,8 +492,16 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
                 ),
                 ],
               ],
-              if (state == 'PENDING')
-                Center(child: Column(children: [const CircularProgressIndicator(), const SizedBox(height: 12), Text(tr.container_detail_deploying)])),
+              if (state == 'PENDING' || state == 'PROVISIONING')
+                Center(child: Column(children: [
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 12),
+                  Text(
+                    statusDescription.isNotEmpty
+                        ? statusDescription
+                        : tr.container_detail_deploying,
+                  ),
+                ])),
               if (state == 'STOPPED') ...[
                 Text(tr.container_detail_stopped_hint, style: TextStyle(color: colorScheme.onSurfaceVariant)),
                 const SizedBox(height: 16),
