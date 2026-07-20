@@ -51,11 +51,13 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
       continue;
     }
 
+    final discordType = _resolveDiscordCommandType(data['commandType']);
     commands.add({
       'id': (normalized['id'] ?? '').toString(),
       'type': 'command',
       'name': (normalized['name'] ?? '').toString(),
       'description': (data['description'] ?? normalized['name'] ?? '').toString(),
+      'discordType': discordType,
       'options': data['options'] ?? const [],
       'enabled': normalized['enabled'] != false,
       'script': script,
@@ -153,11 +155,52 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
   });
   final includePrefix = prefixRaw.isNotEmpty && hasPrefixCommands;
 
+  final presenceStatusRaw =
+      (appData['presenceStatus'] ?? 'online').toString().trim().toLowerCase();
+  const allowedPresence = {'online', 'idle', 'dnd', 'invisible'};
+  final presenceStatus =
+      allowedPresence.contains(presenceStatusRaw) ? presenceStatusRaw : 'online';
+
+  final presenceActivities = <Map<String, dynamic>>[];
+  final rawActivities =
+      (appData['activities'] as List?) ??
+      (appData['statuses'] as List?) ??
+      const [];
+  for (final entry in rawActivities) {
+    if (entry is! Map) {
+      continue;
+    }
+    final map = Map<String, dynamic>.from(entry);
+    final name = (map['name'] ?? map['text'] ?? '').toString().trim();
+    if (name.isEmpty) {
+      continue;
+    }
+    final typeRaw = (map['type'] ?? 'playing').toString().trim().toLowerCase();
+    const allowedTypes = {
+      'playing',
+      'streaming',
+      'listening',
+      'watching',
+      'competing',
+    };
+    final type = allowedTypes.contains(typeRaw) ? typeRaw : 'playing';
+    final url = (map['url'] ?? '').toString().trim();
+    presenceActivities.add({
+      'type': type,
+      'name': name,
+      if (url.isNotEmpty) 'url': url,
+    });
+  }
+
   return {
     'runtimeEngine': runtimeEngineJavascript,
     'token': token,
     if (includePrefix) 'prefix': prefixRaw,
     'autoRestart': appData['autoRestart'] == true,
+    'presence': {
+      'status': presenceStatus,
+      'activities': presenceActivities,
+    },
     'intents': Map<String, bool>.from(
       (appData['intents'] as Map?)?.map(
             (key, value) => MapEntry(key.toString(), value == true),
@@ -214,4 +257,17 @@ String? _synthesizeJsFromWorkflowActions(
     return 'await interaction.reply(${jsonEncode(content)});';
   }
   return null;
+}
+
+String _resolveDiscordCommandType(Object? rawCommandType) {
+  final raw = (rawCommandType ?? 'chatInput').toString().trim().toLowerCase();
+  if (raw == 'user' || raw == 'usercommand' || raw == 'user_command') {
+    return 'user';
+  }
+  if (raw == 'message' ||
+      raw == 'messagecommand' ||
+      raw == 'message_command') {
+    return 'message';
+  }
+  return 'chatInput';
 }

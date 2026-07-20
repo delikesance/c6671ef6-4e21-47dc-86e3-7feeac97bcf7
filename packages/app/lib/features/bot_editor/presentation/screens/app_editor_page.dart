@@ -210,15 +210,15 @@ class _AppEditPageState extends State<AppEditPage>
   }
 
   List<_AppPageEntry> _applyRuntimeGating(List<_AppPageEntry> entries) {
-    if (_capabilities.supportsWorkflows) {
-      return entries;
-    }
     return entries
-        .where((entry) => !entry.dartOnly)
+        .where((entry) => entry.isAvailable(_capabilities))
         .toList(growable: false);
   }
 
   List<_AppPageEntry> _buildEntries(bool isSmallPhone) {
+    final eventsOnlyWorkflows =
+        _capabilities.supportsEventListeners && !_capabilities.supportsWorkflows;
+
     if (client == null) {
       return _applyRuntimeGating([
         _AppPageEntry(
@@ -241,24 +241,32 @@ class _AppEditPageState extends State<AppEditPage>
         ),
         _AppPageEntry(
           icon: Icons.account_tree,
-          label: context.tr.workflows_tab,
-          compactLabel: context.tr.workflows_tab_short,
-          page: WorkflowsPage(botId: _botId),
-          dartOnly: true,
+          label: eventsOnlyWorkflows
+              ? context.tr.workflows_type_event
+              : context.tr.workflows_tab,
+          compactLabel: eventsOnlyWorkflows
+              ? context.tr.workflows_type_badge_event
+              : context.tr.workflows_tab_short,
+          page: WorkflowsPage(
+            botId: _botId,
+            eventsOnly: eventsOnlyWorkflows,
+          ),
+          isAvailable: (caps) =>
+              caps.supportsWorkflows || caps.supportsEventListeners,
         ),
         _AppPageEntry(
           icon: Icons.schedule,
           label: context.tr.scheduler_tab,
           compactLabel: context.tr.scheduler_tab_short,
           page: SchedulerPage(botId: _botId),
-          dartOnly: true,
+          isAvailable: (caps) => caps.supportsSchedulerUi,
         ),
         _AppPageEntry(
           icon: Icons.webhook,
           label: context.tr.webhooks_page_title,
           compactLabel: context.tr.webhooks_page_title,
           page: InboundWebhooksPage(botId: _botId),
-          dartOnly: true,
+          isAvailable: (caps) => caps.supportsInboundWebhooksUi,
         ),
       ]);
     }
@@ -293,10 +301,18 @@ class _AppEditPageState extends State<AppEditPage>
       ),
       _AppPageEntry(
         icon: Icons.account_tree,
-        label: context.tr.workflows_tab,
-        compactLabel: context.tr.workflows_tab_short,
-        page: WorkflowsPage(botId: _botId),
-        dartOnly: true,
+        label: eventsOnlyWorkflows
+            ? context.tr.workflows_type_event
+            : context.tr.workflows_tab,
+        compactLabel: eventsOnlyWorkflows
+            ? context.tr.workflows_type_badge_event
+            : context.tr.workflows_tab_short,
+        page: WorkflowsPage(
+          botId: _botId,
+          eventsOnly: eventsOnlyWorkflows,
+        ),
+        isAvailable: (caps) =>
+            caps.supportsWorkflows || caps.supportsEventListeners,
       ),
       _AppPageEntry(
         icon: Icons.schedule,
@@ -304,7 +320,7 @@ class _AppEditPageState extends State<AppEditPage>
         compactLabel: context.tr.scheduler_tab_short,
         page: SchedulerPage(botId: _botId),
         mobileSecondary: true,
-        dartOnly: true,
+        isAvailable: (caps) => caps.supportsSchedulerUi,
       ),
       _AppPageEntry(
         icon: Icons.webhook,
@@ -312,7 +328,7 @@ class _AppEditPageState extends State<AppEditPage>
         compactLabel: context.tr.webhooks_page_title,
         page: InboundWebhooksPage(botId: _botId),
         mobileSecondary: true,
-        dartOnly: true,
+        isAvailable: (caps) => caps.supportsInboundWebhooksUi,
       ),
       _AppPageEntry(
         icon: Icons.emoji_emotions_outlined,
@@ -334,7 +350,7 @@ class _AppEditPageState extends State<AppEditPage>
         compactLabel: context.tr.dashboard_title,
         page: CommandDashboardPage(botId: _botId),
         mobileSecondary: true,
-        dartOnly: true,
+        isAvailable: (caps) => caps.supportsCommandDashboard,
       ),
       _AppPageEntry(
         icon: Icons.settings,
@@ -592,7 +608,7 @@ class _AppPageEntry {
   final Widget page;
   final bool mobileSecondary;
   final bool beginnerEssential;
-  final bool dartOnly;
+  final bool Function(BotRuntimeCapabilities caps) isAvailable;
 
   const _AppPageEntry({
     required this.icon,
@@ -601,8 +617,10 @@ class _AppPageEntry {
     required this.page,
     this.mobileSecondary = false,
     this.beginnerEssential = false,
-    this.dartOnly = false,
+    this.isAvailable = _alwaysAvailable,
   });
+
+  static bool _alwaysAvailable(BotRuntimeCapabilities caps) => true;
 }
 
 class _OfflineTokenPage extends StatefulWidget {

@@ -24,10 +24,10 @@ void main() {
     test('builds versioned GitHub release URL', () {
       expect(
         embeddedRunnerReleaseDownloadUrl(
-          'runner-js-v0.4.0',
+          'runner-js-v0.5.0',
           'bot-creator-runner-js-linux-x64',
         ),
-        'https://github.com/ketsuna-org/runner-js/releases/download/runner-js-v0.4.0/bot-creator-runner-js-linux-x64',
+        'https://github.com/ketsuna-org/runner-js/releases/download/runner-js-v0.5.0/bot-creator-runner-js-linux-x64',
       );
     });
   });
@@ -267,14 +267,14 @@ void main() {
         }
         if (request.url.toString() == embeddedRunnerLatestReleaseApiUrl()) {
           return http.Response(
-            jsonEncode({'tag_name': 'runner-js-v0.4.0'}),
+            jsonEncode({'tag_name': 'runner-js-v0.5.0'}),
             200,
             headers: {'content-type': 'application/json'},
           );
         }
         if (request.url.toString() ==
             embeddedRunnerReleaseDownloadUrl(
-              'runner-js-v0.4.0',
+              'runner-js-v0.5.0',
               'bot-creator-runner-js-linux-x64',
             )) {
           return http.Response.bytes(payload, 200);
@@ -293,7 +293,7 @@ void main() {
         requests.map((url) => url.toString()),
         contains(
           embeddedRunnerReleaseDownloadUrl(
-            'runner-js-v0.4.0',
+            'runner-js-v0.5.0',
             'bot-creator-runner-js-linux-x64',
           ),
         ),

@@ -5,6 +5,7 @@ import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 class BotRuntimeCapabilities {
   const BotRuntimeCapabilities._({
     required this.supportsWorkflows,
+    required this.supportsEventListeners,
     required this.supportsSchedulerUi,
     required this.supportsInboundWebhooksUi,
     required this.supportsCommandDashboard,
@@ -15,7 +16,13 @@ class BotRuntimeCapabilities {
     required this.supportsSubcommandWorkflows,
   });
 
+  /// Full visual/general workflows (Dart). When false but
+  /// [supportsEventListeners] is true, the Events UI is still shown.
   final bool supportsWorkflows;
+
+  /// Event-listener workflows (Discord gateway events → JS/Dart handlers).
+  final bool supportsEventListeners;
+
   final bool supportsSchedulerUi;
   final bool supportsInboundWebhooksUi;
   final bool supportsCommandDashboard;
@@ -27,6 +34,7 @@ class BotRuntimeCapabilities {
 
   static const BotRuntimeCapabilities dart = BotRuntimeCapabilities._(
     supportsWorkflows: true,
+    supportsEventListeners: true,
     supportsSchedulerUi: true,
     supportsInboundWebhooksUi: true,
     supportsCommandDashboard: true,
@@ -39,8 +47,9 @@ class BotRuntimeCapabilities {
 
   static const BotRuntimeCapabilities javascript = BotRuntimeCapabilities._(
     supportsWorkflows: false,
-    supportsSchedulerUi: false,
-    supportsInboundWebhooksUi: false,
+    supportsEventListeners: true,
+    supportsSchedulerUi: true,
+    supportsInboundWebhooksUi: true,
     supportsCommandDashboard: false,
     supportsDebugReplay: false,
     supportsBotProcessStats: false,
