@@ -28,8 +28,10 @@ class HostedAppTemplate {
 }
 
 /// BeatDock: public Lavalink nodes, slash commands, only `TOKEN` required.
-/// https://github.com/lazaroagomez/BeatDock
-const kEasyMusicBotImage = 'ghcr.io/lazaroagomez/beatdock:latest';
+/// Official image: https://github.com/albertgmz/BeatDock
+/// Pinned digest for `latest` as of 2026-07 (avoids silent `:latest` drift / pull failures).
+const kEasyMusicBotImage =
+    'ghcr.io/albertgmz/beatdock:latest@sha256:27dc983a9c9215a4db9be6bbe734fd23b8eb3960cd4c35c440658066e3e93ce4';
 
 const easyMusicBotTemplate = HostedAppTemplate(
   id: HostedAppTemplateId.easyMusic,

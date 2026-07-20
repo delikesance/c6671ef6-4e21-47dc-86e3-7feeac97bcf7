@@ -1923,6 +1923,9 @@ class ContainerInfo {
   final String? registryCredentialId;
   final String registryHost;
   final String registryUsername;
+  final String healthStatus;
+  final String statusCode;
+  final String statusMessage;
   final DateTime expiresAt;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -1943,6 +1946,9 @@ class ContainerInfo {
     this.registryCredentialId,
     this.registryHost = '',
     this.registryUsername = '',
+    this.healthStatus = '',
+    this.statusCode = '',
+    this.statusMessage = '',
     required this.expiresAt,
     required this.createdAt,
     required this.updatedAt,
@@ -1968,6 +1974,9 @@ class ContainerInfo {
       registryCredentialId: json['registry_credential_id']?.toString(),
       registryHost: (json['registry_host'] ?? '').toString(),
       registryUsername: (json['registry_username'] ?? '').toString(),
+      healthStatus: (json['health_status'] ?? '').toString(),
+      statusCode: (json['status_code'] ?? '').toString(),
+      statusMessage: (json['status_message'] ?? '').toString(),
       expiresAt: _parseDateTime(json['expires_at']),
       createdAt: _parseDateTime(json['created_at']),
       updatedAt: _parseDateTime(json['updated_at']),
@@ -1976,6 +1985,7 @@ class ContainerInfo {
 
   bool get isRunning => state == 'RUNNING';
   bool get isPending => state == 'PENDING';
+  bool get isProvisioning => state == 'PROVISIONING' || state == 'PENDING';
   bool get isStopped => state == 'STOPPED' || state == 'STOPPING';
   bool get isFailed => state == 'FAILED';
   bool get isTerminal => isStopped || isFailed;
@@ -2006,6 +2016,7 @@ class HostedAppEligibility {
     required this.canDeploy,
     required this.maxContainers,
     required this.adRewardMinutes,
+    this.deployBlockedReason,
   });
 
   final bool premium;
@@ -2014,6 +2025,12 @@ class HostedAppEligibility {
   final bool canDeploy;
   final int maxContainers;
   final int adRewardMinutes;
+
+  /// `container_limit` | `no_minutes` | null when [canDeploy] is true.
+  final String? deployBlockedReason;
+
+  bool get isBlockedByContainerLimit => deployBlockedReason == 'container_limit';
+  bool get isBlockedByNoMinutes => deployBlockedReason == 'no_minutes';
 
   factory HostedAppEligibility.fromJson(Map<String, dynamic> json) {
     return HostedAppEligibility(
@@ -2026,6 +2043,9 @@ class HostedAppEligibility {
       canDeploy: json['can_deploy'] == true,
       maxContainers: ContainerInfo.parseInt(json['max_containers'], 1),
       adRewardMinutes: ContainerInfo.parseInt(json['ad_reward_minutes'], 60),
+      deployBlockedReason: _normalize(
+        json['deploy_blocked_reason']?.toString(),
+      ),
     );
   }
 }

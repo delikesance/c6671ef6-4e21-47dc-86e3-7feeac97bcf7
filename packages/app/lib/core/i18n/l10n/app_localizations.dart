@@ -13678,6 +13678,30 @@ abstract class AppLocalizations {
   /// **'Import workflows'**
   String get workflows_import_tooltip;
 
+  /// Tap to copy into your script
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to copy into your script'**
+  String get workflows_js_event_available_context_copy_hint;
+
+  /// Copied {name}
+  ///
+  /// In en, this message translates to:
+  /// **'Copied {name}'**
+  String workflows_js_event_available_context_copied(String name);
+
+  /// Note when JS event context is sparse
+  ///
+  /// In en, this message translates to:
+  /// **'This event’s first argument is not bound as message/interaction/member/channel/guild. Use client and your stored variables/db, or inspect the Discord.js event docs for the full payload.'**
+  String get workflows_js_event_available_context_sparse_note;
+
+  /// These globals are injected into your script for this event.
+  ///
+  /// In en, this message translates to:
+  /// **'These globals are injected into your script for this event. Use discord.js properties (e.g. message.author.username), not ((message.content)).'**
+  String get workflows_js_event_available_context_subtitle;
+
   /// Listen for
   ///
   /// In en, this message translates to:
@@ -14149,7 +14173,7 @@ abstract class AppLocalizations {
   /// Helper text for the image field
   ///
   /// In en, this message translates to:
-  /// **'Docker image with tag (e.g. ghcr.io/lazaroagomez/beatdock:latest)'**
+  /// **'Docker image with tag (e.g. ghcr.io/albertgmz/beatdock:latest)'**
   String get container_deploy_image_hint;
 
   /// Label for hosted app template picker
@@ -14296,11 +14320,41 @@ abstract class AppLocalizations {
   /// **'Deploying {containerId}...'**
   String container_deploy_success(String containerId);
 
+  /// Snackbar shown after a hosted app deploy request is accepted, before it finishes starting
+  ///
+  /// In en, this message translates to:
+  /// **'Hosted app submitted — starting up now...'**
+  String get container_deploy_submitted_starting;
+
   /// Snackbar when deploy fails
   ///
   /// In en, this message translates to:
   /// **'Deployment failed: {error}'**
   String container_deploy_failed(String error);
+
+  /// Deploy eligibility banner reason when the container limit is reached
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve reached your hosted app limit. Delete or stop an existing hosted app to free up a slot before deploying another.'**
+  String get container_deploy_blocked_container_limit;
+
+  /// Deploy eligibility banner reason when there are no hosting minutes left
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re out of free hosting minutes. Watch a rewarded ad to unlock more minutes, or go Premium for unlimited hosting.'**
+  String get container_deploy_blocked_no_minutes;
+
+  /// Deploy eligibility banner shown when the eligibility check failed to load
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t check whether you can deploy right now.'**
+  String get container_deploy_blocked_eligibility_error;
+
+  /// Warning snackbar after a successful ad watch when the container limit still blocks deployment
+  ///
+  /// In en, this message translates to:
+  /// **'+{granted} hosting minutes earned, but your container slot is still full. Delete or stop an existing hosted app to deploy a new one.'**
+  String container_deploy_ad_slot_full(int granted);
 
   /// Label for container state
   ///
@@ -14488,6 +14542,12 @@ abstract class AppLocalizations {
   /// **'Pending'**
   String get container_state_pending;
 
+  /// Container state label: provisioning
+  ///
+  /// In en, this message translates to:
+  /// **'Provisioning'**
+  String get container_state_provisioning;
+
   /// Container state label: stopped
   ///
   /// In en, this message translates to:
@@ -14505,6 +14565,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed'**
   String get container_state_failed;
+
+  /// Explains an image_pull_failed health status
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t pull the container image. Check that the image name and tag are correct and that any required registry credentials are set.'**
+  String get container_health_image_pull_failed;
+
+  /// Explains a crash_loop health status
+  ///
+  /// In en, this message translates to:
+  /// **'The container keeps crashing shortly after starting. Check your environment variables and logs.'**
+  String get container_health_crash_loop;
+
+  /// Explains a starting/provisioning health status
+  ///
+  /// In en, this message translates to:
+  /// **'Still starting up...'**
+  String get container_health_starting;
 
   /// Subtitle for the hosted apps card on the home page
   ///

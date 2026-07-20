@@ -104,11 +104,23 @@ class AppDiagnostics {
       final isLayoutError = details.exceptionAsString().contains('overflowed');
       final isDebugAssertion =
           details.stack?.toString().contains('._debug') ?? false;
-      unawaited(recordFlutterError(details, fatal: !(isLayoutError || isDebugAssertion)));
+      final isBenign = isBenignFlutterFrameworkError(
+        details.exception,
+        context: details.context?.toDescription(),
+        library: details.library,
+      );
+      unawaited(
+        recordFlutterError(
+          details,
+          fatal: !(isLayoutError || isDebugAssertion || isBenign),
+        ),
+      );
     };
 
     PlatformDispatcher.instance.onError = (error, stack) {
-      unawaited(logError('Uncaught platform error', error, stack, fatal: true));
+      final fatal = !isBenignFlutterFrameworkError(error) &&
+          !isTransientNetworkError(error);
+      unawaited(logError('Uncaught platform error', error, stack, fatal: fatal));
       return true;
     };
   }
@@ -164,7 +176,32 @@ class AppDiagnostics {
         message.contains('handshake') ||
         message.contains('no route to host') ||
         message.contains('circuit breaker open') ||
-        message.contains('request failed after retries');
+        message.contains('request failed after retries') ||
+        message.contains('connection abort') ||
+        message.contains('software caused connection abort') ||
+        message.contains('resolving an image codec');
+  }
+
+  /// Non-fatal framework/platform noise (WebView after dispose, IME selection races).
+  static bool isBenignFlutterFrameworkError(
+    Object error, {
+    String? context,
+    String? library,
+  }) {
+    if (isTransientNetworkError(error)) {
+      return true;
+    }
+    final text =
+        '${error.toString()} ${context ?? ''} ${library ?? ''}'.toLowerCase();
+    return text.contains('invalid selection start') ||
+        text.contains('invalid selection end') ||
+        text.contains('setting text input editing state') ||
+        text.contains('string is not well-formed utf-16') ||
+        text.contains('building a textspan') ||
+        (text.contains('platform message callback') &&
+            (text.contains('webview') ||
+                text.contains('webchromeclient') ||
+                text.contains('android_webkit')));
   }
 
   static Future<void> logError(
@@ -175,10 +212,18 @@ class AppDiagnostics {
     String? reason,
     String? information,
   }) async {
+    final combined =
+        '$message ${reason ?? ''} ${error.toString()} ${information ?? ''}';
+    var reportFatal = fatal;
+    if (reportFatal &&
+        (isTransientNetworkError(error) ||
+            isBenignFlutterFrameworkError(error, context: combined))) {
+      reportFatal = false;
+    }
     final payload =
         StringBuffer()
           ..write('[${DateTime.now().toIso8601String()}] ')
-          ..write(fatal ? 'FATAL' : 'ERROR')
+          ..write(reportFatal ? 'FATAL' : 'ERROR')
           ..write(': $message')
           ..write(' | error=$error');
     if (reason != null && reason.isNotEmpty) {
@@ -204,7 +249,7 @@ class AppDiagnostics {
         stack,
         reason: reason ?? message,
         information: crashInformation,
-        fatal: fatal,
+        fatal: reportFatal,
       );
     } catch (recordError, recordStack) {
       await _appendLine(

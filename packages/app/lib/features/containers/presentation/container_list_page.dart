@@ -2,6 +2,7 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/features/containers/logic/hosted_app_status.dart';
 import 'package:bot_creator/features/containers/presentation/container_deploy_page.dart';
 import 'package:bot_creator/features/containers/presentation/registry_credentials_page.dart';
 import 'package:bot_creator/features/containers/presentation/container_detail_page.dart';
@@ -87,19 +88,21 @@ class _ContainerListPageState extends State<ContainerListPage> {
       }
       return;
     }
-    final deployed = await Navigator.push<bool>(
+    // Deploying now pushReplaces into ContainerDetailPage on success, so the
+    // return value here is unreliable — always refresh to be safe.
+    await Navigator.push<bool>(
       context,
       MaterialPageRoute(
         builder: (_) => ContainerDeployPage(client: _client),
       ),
     );
-    if (deployed == true) _load();
+    _load();
   }
 
   Color _stateColor(String state) {
     switch (state) {
       case 'RUNNING': return Colors.green;
-      case 'PENDING': return Colors.orange;
+      case 'PENDING': case 'PROVISIONING': return Colors.orange;
       case 'STOPPED': case 'STOPPING': return Colors.grey;
       case 'FAILED': return Colors.red;
       default: return Colors.grey;
@@ -110,6 +113,7 @@ class _ContainerListPageState extends State<ContainerListPage> {
     switch (state) {
       case 'RUNNING': return tr.container_state_running;
       case 'PENDING': return tr.container_state_pending;
+      case 'PROVISIONING': return tr.container_state_provisioning;
       case 'STOPPED': return tr.container_state_stopped;
       case 'STOPPING': return tr.container_state_stopping;
       case 'FAILED': return tr.container_state_failed;
@@ -120,7 +124,7 @@ class _ContainerListPageState extends State<ContainerListPage> {
   IconData _stateIcon(String state) {
     switch (state) {
       case 'RUNNING': return Icons.check_circle;
-      case 'PENDING': return Icons.hourglass_top;
+      case 'PENDING': case 'PROVISIONING': return Icons.hourglass_top;
       case 'STOPPED': case 'STOPPING': return Icons.stop_circle;
       case 'FAILED': return Icons.error;
       default: return Icons.help;
@@ -280,6 +284,21 @@ class _ContainerListPageState extends State<ContainerListPage> {
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                         Text(c.image, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                             maxLines: 1, overflow: TextOverflow.ellipsis),
+                        if (isHostedAppUnhealthy(healthStatus: c.healthStatus, statusCode: c.statusCode)) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            describeHostedAppStatus(
+                              healthStatus: c.healthStatus,
+                              statusCode: c.statusCode,
+                              statusMessage: c.statusMessage,
+                              state: c.state,
+                              tr: tr,
+                            ),
+                            style: const TextStyle(color: Colors.red, fontSize: 12, fontWeight: FontWeight.w600),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                         const SizedBox(height: 4),
                         Text(_formatMemory(c), style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13)),
                         if (_formatTimeRemaining(c) case final timeLeft?) ...[

@@ -41,6 +41,7 @@ class _SubscriptionsHubPageState extends State<SubscriptionsHubPage> {
   }
 
   Future<void> _refresh() async {
+    if (!mounted) return;
     setState(() => _loading = true);
     await Future.wait([
       SubscriptionService.resolveEffectivePremiumStatus(forceRefresh: true),
@@ -54,7 +55,7 @@ class _SubscriptionsHubPageState extends State<SubscriptionsHubPage> {
   }
 
   Future<void> _runBusy(Future<void> Function() action) async {
-    if (_busy) return;
+    if (_busy || !mounted) return;
     setState(() => _busy = true);
     try {
       await action();

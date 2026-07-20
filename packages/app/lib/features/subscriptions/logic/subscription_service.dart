@@ -84,6 +84,8 @@ class SubscriptionService {
   static Timer? _expiryTimer;
   static SharedPreferences? _prefs;
   static bool _purchaseHandlerRegistered = false;
+  static DateTime? _lastTransientPremiumRefreshLogAt;
+  static const Duration _transientPremiumRefreshLogCooldown = Duration(minutes: 2);
 
   /// Available products fetched from the store.
   static List<ProductDetails> products = [];
@@ -139,6 +141,23 @@ class SubscriptionService {
       return false;
     }
     return DateTime.now().toUtc().difference(lastSync) < _serverSyncTtl;
+  }
+
+  /// Debug-only, rate-limited — avoids log spam when offline or circuit is open.
+  static void _logTransientPremiumRefreshDeferred() {
+    if (!kDebugMode) {
+      return;
+    }
+    final now = DateTime.now();
+    if (_lastTransientPremiumRefreshLogAt != null &&
+        now.difference(_lastTransientPremiumRefreshLogAt!) <
+            _transientPremiumRefreshLogCooldown) {
+      return;
+    }
+    _lastTransientPremiumRefreshLogAt = now;
+    debugPrint(
+      '[SubscriptionService] Premium refresh deferred (offline/unreachable).',
+    );
   }
 
   static bool get _usesNativeBillingSourceOfTruth =>
@@ -798,9 +817,7 @@ class SubscriptionService {
       return plan;
     } catch (error, stack) {
       if (AppDiagnostics.isTransientNetworkError(error)) {
-        debugPrint(
-          '[SubscriptionService] Premium refresh deferred (transient network): $error',
-        );
+        _logTransientPremiumRefreshDeferred();
       } else {
         unawaited(
           AppDiagnostics.logError(
@@ -873,9 +890,7 @@ class SubscriptionService {
       return plan;
     } catch (error, stack) {
       if (AppDiagnostics.isTransientNetworkError(error)) {
-        debugPrint(
-          '[SubscriptionService] Premium refresh deferred (transient network): $error',
-        );
+        _logTransientPremiumRefreshDeferred();
       } else {
         unawaited(
           AppDiagnostics.logError(

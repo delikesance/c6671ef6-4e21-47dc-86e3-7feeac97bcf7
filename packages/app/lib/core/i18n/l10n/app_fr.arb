@@ -6777,6 +6777,23 @@
   "@workflows_import_tooltip": {
     "description": "Import workflows"
   },
+  "@workflows_js_event_available_context_copy_hint": {
+    "description": "Tap to copy into your script"
+  },
+  "@workflows_js_event_available_context_copied": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    },
+    "description": "Copied {name}"
+  },
+  "@workflows_js_event_available_context_sparse_note": {
+    "description": "Note when JS event context is sparse"
+  },
+  "@workflows_js_event_available_context_subtitle": {
+    "description": "These globals are injected into your script for this event."
+  },
   "@workflows_listen_for": {
     "description": "Listen for"
   },
@@ -9060,6 +9077,10 @@
   "workflows_import_overwrite": "Remplacer si le nom existe",
   "workflows_import_title": "Importer des workflows",
   "workflows_import_tooltip": "Importer des workflows",
+  "workflows_js_event_available_context_copy_hint": "Appuyez pour copier dans votre script",
+  "workflows_js_event_available_context_copied": "{name} copié",
+  "workflows_js_event_available_context_sparse_note": "Le premier argument de cet événement n’est pas lié en tant que message/interaction/member/channel/guild. Utilisez client et vos variables/db, ou consultez la doc Discord.js pour la charge utile complète.",
+  "workflows_js_event_available_context_subtitle": "Ces globales sont injectées dans votre script pour cet événement. Utilisez les propriétés discord.js (ex. message.author.username), pas ((message.content)).",
   "workflows_listen_for": "Écouter",
   "workflows_move_to_folder": "Déplacer dans un dossier",
   "workflows_name": "Nom du workflow",
@@ -9225,7 +9246,7 @@
   "@container_deploy_image_label": {
     "description": "Label for the Docker image field"
   },
-  "container_deploy_image_hint": "Image Docker avec tag (ex. ghcr.io/lazaroagomez/beatdock:latest)",
+  "container_deploy_image_hint": "Image Docker avec tag (ex. ghcr.io/albertgmz/beatdock:latest)",
   "@container_deploy_image_hint": {
     "description": "Helper text for the image field"
   },
@@ -9330,12 +9351,37 @@
       }
     }
   },
+  "container_deploy_submitted_starting": "Application envoyée — démarrage en cours...",
+  "@container_deploy_submitted_starting": {
+    "description": "Snackbar shown after a hosted app deploy request is accepted, before it finishes starting"
+  },
   "container_deploy_failed": "Échec du déploiement : {error}",
   "@container_deploy_failed": {
     "description": "Snackbar when deploy fails",
     "placeholders": {
       "error": {
         "type": "String"
+      }
+    }
+  },
+  "container_deploy_blocked_container_limit": "Vous avez atteint votre limite d'applications hébergées. Supprimez ou arrêtez une application existante pour libérer une place avant d'en déployer une nouvelle.",
+  "@container_deploy_blocked_container_limit": {
+    "description": "Deploy eligibility banner reason when the container limit is reached"
+  },
+  "container_deploy_blocked_no_minutes": "Vous n'avez plus de minutes d'hébergement gratuites. Regardez une publicité récompensée pour en débloquer, ou passez à Premium pour un hébergement illimité.",
+  "@container_deploy_blocked_no_minutes": {
+    "description": "Deploy eligibility banner reason when there are no hosting minutes left"
+  },
+  "container_deploy_blocked_eligibility_error": "Impossible de vérifier si vous pouvez déployer pour le moment.",
+  "@container_deploy_blocked_eligibility_error": {
+    "description": "Deploy eligibility banner shown when the eligibility check failed to load"
+  },
+  "container_deploy_ad_slot_full": "+{granted} minutes d'hébergement gagnées, mais votre emplacement de conteneur est toujours plein. Supprimez ou arrêtez une application existante pour en déployer une nouvelle.",
+  "@container_deploy_ad_slot_full": {
+    "description": "Warning snackbar after a successful ad watch when the container limit still blocks deployment",
+    "placeholders": {
+      "granted": {
+        "type": "int"
       }
     }
   },
@@ -9473,6 +9519,10 @@
   "@container_state_pending": {
     "description": "Container state label: pending"
   },
+  "container_state_provisioning": "Provisionnement",
+  "@container_state_provisioning": {
+    "description": "Container state label: provisioning"
+  },
   "container_state_stopped": "Arrêté",
   "@container_state_stopped": {
     "description": "Container state label: stopped"
@@ -9484,6 +9534,18 @@
   "container_state_failed": "Échoué",
   "@container_state_failed": {
     "description": "Container state label: failed"
+  },
+  "container_health_image_pull_failed": "Impossible de récupérer l'image du conteneur. Vérifiez que le nom et le tag de l'image sont corrects et que les identifiants de registre nécessaires sont configurés.",
+  "@container_health_image_pull_failed": {
+    "description": "Explains an image_pull_failed health status"
+  },
+  "container_health_crash_loop": "Le conteneur plante peu après son démarrage. Vérifiez vos variables d'environnement et les journaux.",
+  "@container_health_crash_loop": {
+    "description": "Explains a crash_loop health status"
+  },
+  "container_health_starting": "Démarrage en cours...",
+  "@container_health_starting": {
+    "description": "Explains a starting/provisioning health status"
   },
   "container_hosted_subtitle": "Déployez et gérez des conteneurs Docker",
   "@container_hosted_subtitle": {
