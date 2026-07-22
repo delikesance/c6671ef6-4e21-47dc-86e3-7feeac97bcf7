@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:bot_creator_shared/actions/send_message.dart';
 import 'package:bot_creator_shared/bot/bot_data_store.dart';
+import 'package:bot_creator_shared/utils/template_resolver.dart';
 import 'package:nyxx/nyxx.dart';
 
 /// Global variable key for a CMS action module message template.
@@ -23,6 +24,41 @@ String substituteCmsPlaceholders(
   // Clear unresolved placeholders.
   out = out.replaceAll(RegExp(r'\{\{[a-zA-Z0-9_-]+\}\}'), '');
   return out;
+}
+
+/// Builds the runtime variable map for `((...))` resolution from CMS field
+/// values. Includes bare field ids, `cms.{module}.{field}`, and
+/// `guild.cms.{module}.{field}` aliases.
+Map<String, String> cmsTemplateUpdates({
+  required String moduleId,
+  required Map<String, String> fieldValues,
+}) {
+  final updates = <String, String>{};
+  for (final entry in fieldValues.entries) {
+    final fieldId = entry.key;
+    final value = entry.value;
+    updates[fieldId] = value;
+    final cmsKey = cmsFieldVariableKey(moduleId, fieldId);
+    updates[cmsKey] = value;
+    updates['guild.$cmsKey'] = value;
+  }
+  return updates;
+}
+
+/// Applies `{{field}}` shortcuts then `((...))` template placeholders.
+String resolveCmsActionTemplate(
+  String input, {
+  required String moduleId,
+  required Map<String, String> fieldValues,
+}) {
+  final afterCurly = substituteCmsPlaceholders(input, fieldValues);
+  if (!afterCurly.contains('((')) {
+    return afterCurly;
+  }
+  return resolveTemplatePlaceholders(
+    afterCurly,
+    cmsTemplateUpdates(moduleId: moduleId, fieldValues: fieldValues),
+  );
 }
 
 Map<String, dynamic> _asStringKeyedMap(dynamic raw) {
@@ -49,8 +85,8 @@ String _stringifyFieldValue(dynamic value) {
 /// Loads `cms.{module}.action` (global) and guild field values, then sends the
 /// templated Discord message via [sendMessageToChannel].
 ///
-/// Field placeholders use `{{field_id}}` and resolve from guild-scoped
-/// `cms.{module}.{field}` variables projected by the Creator Console.
+/// Field placeholders support both `{{field_id}}` and `((guild.cms…))` /
+/// `((field_id))` tokens projected by the Creator Console.
 Future<Map<String, String>> sendCmsModuleActionMessage({
   required NyxxGateway client,
   required BotDataStore store,
@@ -84,7 +120,11 @@ Future<Map<String, String>> sendCmsModuleActionMessage({
     fields.addAll(extraPlaceholders);
   }
 
-  String resolve(String input) => substituteCmsPlaceholders(input, fields);
+  String resolve(String input) => resolveCmsActionTemplate(
+        input,
+        moduleId: moduleId,
+        fieldValues: fields,
+      );
 
   final content = resolve((action['content'] ?? '').toString());
   final payload = <String, dynamic>{
