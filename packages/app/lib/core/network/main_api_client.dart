@@ -49,6 +49,10 @@ class MainApiClient implements RemoteRuntimeClient {
   /// Key format: "${baseUrl}:snapshot:${botId}"
   static final Map<String, String> _lastSavedSnapshots = <String, String>{};
 
+  /// Deduplicates concurrent Discord OAuth code exchanges (codes are single-use).
+  static final Map<String, Future<MainApiSession>> _inflightDiscordExchanges =
+      <String, Future<MainApiSession>>{};
+
   /// Maximum number of entries in each hash cache before LRU eviction.
   static const int _maxHashCacheEntries = 100;
 
@@ -648,15 +652,27 @@ class MainApiClient implements RemoteRuntimeClient {
     required String state,
     required String redirectUri,
   }) async {
-    final json = await _post('/auth/discord/exchange', <String, dynamic>{
+    final key = '${code.trim()}|${state.trim()}|$redirectUri';
+    final existing = _inflightDiscordExchanges[key];
+    if (existing != nil) {
+      return existing;
+    }
+    final future = _post('/auth/discord/exchange', <String, dynamic>{
       'code': code,
       'state': state,
       'redirect_uri': redirectUri,
-    }, includeAuth: false);
-    return _sessionFromAuthPayload(
-      json,
-      authMethod: MainApiAuthMethod.discordOauth,
+    }, includeAuth: false).then(
+      (json) => _sessionFromAuthPayload(
+        json,
+        authMethod: MainApiAuthMethod.discordOauth,
+      ),
     );
+    _inflightDiscordExchanges[key] = future;
+    try {
+      return await future;
+    } finally {
+      _inflightDiscordExchanges.remove(key);
+    }
   }
 
   Future<MainApiSession> exchangeDiscordBotToken({
