@@ -22,6 +22,7 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/features/ads/logic/ad_reward_service.dart';
 import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
+import 'package:bot_creator/core/network/gateway_bot_events.dart';
 import 'package:bot_creator/core/network/main_api_owner_sync.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/features/ads/logic/ad_consent_service.dart';
@@ -79,6 +80,10 @@ class _AppHomePageState extends State<AppHomePage>
   DateTime? _sessionExpiresAt;
   String _fundingMode = '';
   Timer? _runtimeBalanceTimer;
+  StreamSubscription<GatewayBotEvent>? _gatewayEventsSub;
+  StreamSubscription<bool>? _gatewayConnectionSub;
+  bool _gatewayEventsConnected = false;
+  int _httpFallbackTick = 0;
   bool _isAddingTime = false;
   bool _isPushingApp = false;
   bool _isPullingApp = false;
@@ -116,6 +121,85 @@ class _AppHomePageState extends State<AppHomePage>
       return _remainingMinutesUntil(expires);
     }
     return _freeMinutesBalance ?? 0;
+  }
+
+  Future<void> _ensureGatewayBotEvents() async {
+    final remoteRuntime = await _resolveRemoteRuntime(
+      getTimeout: const Duration(seconds: 10),
+      postTimeout: const Duration(seconds: 20),
+    );
+    final remoteClient = remoteRuntime.client;
+    if (remoteClient is! MainApiClient) {
+      return;
+    }
+    final session = remoteClient.connectGatewayBotEvents();
+    await _gatewayEventsSub?.cancel();
+    await _gatewayConnectionSub?.cancel();
+    _gatewayEventsSub = session.events.listen(_onGatewayBotEvent);
+    _gatewayConnectionSub = session.connectionChanges.listen((connected) {
+      if (!mounted) return;
+      _setState(() => _gatewayEventsConnected = connected);
+      if (!connected && !SubscriptionService.isSubscribed) {
+        unawaited(_refreshFreeRuntimeBalance());
+      }
+    });
+    if (session.isConnected && mounted) {
+      _setState(() => _gatewayEventsConnected = true);
+    }
+  }
+
+  void _onGatewayBotEvent(GatewayBotEvent event) {
+    if (!mounted) return;
+    final currentBotId = widget.client.user.id.toString();
+    switch (event.type) {
+      case GatewayBotEventType.snapshot:
+        for (final bot in event.bots) {
+          if (bot.botId == currentBotId) {
+            _applyGatewayBotPayload(bot);
+            return;
+          }
+        }
+        break;
+      case GatewayBotEventType.botUpdated:
+        final bot = event.bot;
+        if (bot != null && bot.botId == currentBotId) {
+          _applyGatewayBotPayload(bot);
+        }
+        break;
+      case GatewayBotEventType.botDeleted:
+        if (event.bot?.botId == currentBotId) {
+          _setState(() {
+            _botLaunched = false;
+            _botStarting = false;
+            _freeMinutesBalance = null;
+            _sessionExpiresAt = null;
+            _fundingMode = '';
+          });
+        }
+        break;
+      case GatewayBotEventType.ping:
+      case GatewayBotEventType.unknown:
+        break;
+    }
+  }
+
+  void _applyGatewayBotPayload(GatewayBotEventPayload bot) {
+    _setState(() {
+      _botLaunched = bot.isRunning;
+      _botStarting = false;
+      _fundingMode = bot.fundingMode;
+      if (bot.fundingMode == 'premium') {
+        _sessionExpiresAt = null;
+        _freeMinutesBalance = 0;
+      } else if (bot.sessionExpiresAt != null && bot.fundingMode == 'free') {
+        _sessionExpiresAt = bot.sessionExpiresAt;
+        _freeMinutesBalance = _remainingMinutesUntil(bot.sessionExpiresAt!);
+      } else {
+        _sessionExpiresAt = null;
+        _freeMinutesBalance = bot.freeMinutesBalance;
+      }
+      _gatewayEventsConnected = true;
+    });
   }
 
   bool _hasFreeRuntimeAvailable(Map<String, dynamic> runtime, int balance) {
@@ -178,20 +262,31 @@ class _AppHomePageState extends State<AppHomePage>
       _initService();
     });
     _init();
-    if (!SubscriptionService.isSubscribed) {
-      _runtimeBalanceTimer = Timer.periodic(const Duration(seconds: 15), (_) {
-        if (!mounted || SubscriptionService.isSubscribed) return;
-        unawaited(_refreshFreeRuntimeBalance());
-        if (_sessionExpiresAt != null) {
-          _setState(() {});
+    unawaited(_ensureGatewayBotEvents());
+    _runtimeBalanceTimer = Timer.periodic(const Duration(seconds: 15), (_) {
+      if (!mounted) return;
+      if (_sessionExpiresAt != null &&
+          !SubscriptionService.isSubscribed &&
+          _fundingMode != 'premium') {
+        _setState(() {});
+      }
+      if (!_gatewayEventsConnected && !SubscriptionService.isSubscribed) {
+        _httpFallbackTick++;
+        if (_httpFallbackTick >= 4) {
+          _httpFallbackTick = 0;
+          unawaited(_refreshFreeRuntimeBalance());
         }
-      });
-    }
+      } else {
+        _httpFallbackTick = 0;
+      }
+    });
   }
 
   @override
   void dispose() {
     _runtimeBalanceTimer?.cancel();
+    unawaited(_gatewayEventsSub?.cancel());
+    unawaited(_gatewayConnectionSub?.cancel());
     final callback = _taskDataCallback;
     if (callback != null) {
       try {

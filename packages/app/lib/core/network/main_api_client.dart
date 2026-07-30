@@ -7,6 +7,7 @@ import 'package:bot_creator_shared/bot/bot_config.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/network/main_api_session_restore.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
+import 'package:bot_creator/core/network/gateway_bot_events.dart';
 import 'package:bot_creator/core/utils/log_redaction.dart';
 import 'package:bot_creator/core/utils/hash_util.dart';
 import 'package:flutter/foundation.dart';
@@ -1795,6 +1796,14 @@ class MainApiClient implements RemoteRuntimeClient {
     final uri = Uri.parse('${_baseUrl.replaceFirst('http', 'ws')}/containers/$id/console');
     return IOWebSocketChannel.connect(
       uri,
+      headers: _headers(includeAuth: true, contentType: null),
+    );
+  }
+
+  /// Returns a shared reconnecting session for owner bot status/runtime events.
+  GatewayBotEventsSession connectGatewayBotEvents() {
+    return GatewayBotEventsManager.obtain(
+      baseUrl: _baseUrl,
       headers: _headers(includeAuth: true, contentType: null),
     );
   }

@@ -29,6 +29,7 @@ import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/utils/string_sanitizer.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
+import 'package:bot_creator/core/network/gateway_bot_events.dart';
 import 'package:bot_creator/features/discord_rpc/logic/discord_rpc_service.dart';
 import 'package:bot_creator/features/ads/logic/ad_reward_service.dart';
 import 'package:bot_creator/features/ads/logic/ad_consent_service.dart';
@@ -122,6 +123,10 @@ class HomePageState extends State<HomePage>
   final Set<String> _skippedMissingBotIds = <String>{};
   static const int _missingBot404Threshold = 3;
   Timer? _statusRefreshTimer;
+  StreamSubscription<GatewayBotEvent>? _gatewayEventsSub;
+  StreamSubscription<bool>? _gatewayConnectionSub;
+  bool _gatewayEventsConnected = false;
+  int _httpFallbackTick = 0;
 
   bool get _supportsForegroundTask => Platform.isAndroid || Platform.isIOS;
   bool get _isDesktop => Platform.isWindows || Platform.isLinux || Platform.isMacOS;
@@ -147,14 +152,24 @@ class HomePageState extends State<HomePage>
       // right away, even if the full manager sync takes longer.
       await _initRunningState();
       await syncAllBotsFromManager(silent: true);
+      await _ensureGatewayBotEvents();
     }());
 
     _statusRefreshTimer = Timer.periodic(const Duration(seconds: 15), (_) {
       if (!mounted) return;
-      _initRunningState();
-      // Tick local FREE-session countdowns between balance polls.
+      // Local FREE countdown tick (no HTTP).
       if (_sessionExpiresAtByBotId.isNotEmpty) {
         setState(() {});
+      }
+      // HTTP fallback only while WebSocket is down (every ~60s).
+      if (!_gatewayEventsConnected) {
+        _httpFallbackTick++;
+        if (_httpFallbackTick >= 4) {
+          _httpFallbackTick = 0;
+          unawaited(_initRunningState());
+        }
+      } else {
+        _httpFallbackTick = 0;
       }
     });
   }
@@ -164,6 +179,8 @@ class HomePageState extends State<HomePage>
     if (current == this) current = null;
     WidgetsBinding.instance.removeObserver(this);
     _statusRefreshTimer?.cancel();
+    unawaited(_gatewayEventsSub?.cancel());
+    unawaited(_gatewayConnectionSub?.cancel());
     for (final ctrl in _pulseControllers.values) {
       ctrl.dispose();
     }
@@ -175,7 +192,10 @@ class HomePageState extends State<HomePage>
     if (state == AppLifecycleState.resumed) {
       // Immediately refresh running state so the UI updates fast,
       // then do the full sync in background.
-      _initRunningState();
+      unawaited(_ensureGatewayBotEvents());
+      if (!_gatewayEventsConnected) {
+        _initRunningState();
+      }
       syncAllBotsFromManager(silent: true);
     }
   }
@@ -488,6 +508,128 @@ class HomePageState extends State<HomePage>
   void _noteBotFound(String botId) {
     _botNotFoundStreak.remove(botId);
     _skippedMissingBotIds.remove(botId);
+  }
+
+  Future<void> _ensureGatewayBotEvents() async {
+    final remoteRuntime = await _resolveRemoteRuntime(
+      getTimeout: const Duration(seconds: 10),
+      postTimeout: const Duration(seconds: 20),
+    );
+    final remoteClient = remoteRuntime.client;
+    if (remoteClient is! MainApiClient) {
+      return;
+    }
+    final session = remoteClient.connectGatewayBotEvents();
+    await _gatewayEventsSub?.cancel();
+    await _gatewayConnectionSub?.cancel();
+    _gatewayEventsSub = session.events.listen(_onGatewayBotEvent);
+    _gatewayConnectionSub = session.connectionChanges.listen((connected) {
+      if (!mounted) return;
+      setState(() => _gatewayEventsConnected = connected);
+      if (connected) {
+        _httpFallbackTick = 0;
+      } else {
+        unawaited(_initRunningState());
+      }
+    });
+    if (session.isConnected && mounted) {
+      setState(() => _gatewayEventsConnected = true);
+    }
+  }
+
+  void _onGatewayBotEvent(GatewayBotEvent event) {
+    if (!mounted) return;
+    switch (event.type) {
+      case GatewayBotEventType.snapshot:
+        _applyGatewayBotSnapshot(event.bots);
+        break;
+      case GatewayBotEventType.botUpdated:
+        final bot = event.bot;
+        if (bot != null) {
+          _applyGatewayBotUpdate(bot);
+        }
+        break;
+      case GatewayBotEventType.botDeleted:
+        final botId = event.bot?.botId.trim() ?? '';
+        if (botId.isNotEmpty) {
+          _applyGatewayBotDeleted(botId);
+        }
+        break;
+      case GatewayBotEventType.ping:
+      case GatewayBotEventType.unknown:
+        break;
+    }
+  }
+
+  void _applyGatewayBotSnapshot(List<GatewayBotEventPayload> bots) {
+    final running = <String>{};
+    final freeMinutes = <String, int>{};
+    final expires = <String, DateTime>{};
+    for (final bot in bots) {
+      final botId = bot.botId.trim();
+      if (botId.isEmpty) continue;
+      _noteBotFound(botId);
+      if (bot.isRunning) {
+        running.add(botId);
+      }
+      if (bot.fundingMode == 'premium') {
+        continue;
+      }
+      if (bot.sessionExpiresAt != null && bot.fundingMode == 'free') {
+        expires[botId] = bot.sessionExpiresAt!;
+        freeMinutes[botId] = _remainingMinutesUntil(bot.sessionExpiresAt!);
+      } else {
+        freeMinutes[botId] = bot.freeMinutesBalance;
+      }
+    }
+    setState(() {
+      _runningBotIds = running;
+      _freeMinutesByBotId = freeMinutes;
+      _sessionExpiresAtByBotId
+        ..clear()
+        ..addAll(expires);
+      _gatewayEventsConnected = true;
+    });
+    _syncPulse(running);
+    unawaited(_syncDiscordRpcPresence(running));
+  }
+
+  void _applyGatewayBotUpdate(GatewayBotEventPayload bot) {
+    final botId = bot.botId.trim();
+    if (botId.isEmpty) return;
+    _noteBotFound(botId);
+    setState(() {
+      if (bot.isRunning) {
+        _runningBotIds = {..._runningBotIds, botId};
+      } else {
+        _runningBotIds = {..._runningBotIds}..remove(botId);
+      }
+      if (bot.fundingMode == 'premium') {
+        _freeMinutesByBotId.remove(botId);
+        _sessionExpiresAtByBotId.remove(botId);
+      } else if (bot.sessionExpiresAt != null && bot.fundingMode == 'free') {
+        _sessionExpiresAtByBotId[botId] = bot.sessionExpiresAt!;
+        _freeMinutesByBotId[botId] =
+            _remainingMinutesUntil(bot.sessionExpiresAt!);
+      } else {
+        _sessionExpiresAtByBotId.remove(botId);
+        _freeMinutesByBotId[botId] = bot.freeMinutesBalance;
+      }
+    });
+    _syncPulse(_runningBotIds);
+    unawaited(_syncDiscordRpcPresence(_runningBotIds));
+  }
+
+  void _applyGatewayBotDeleted(String botId) {
+    setState(() {
+      _runningBotIds = {..._runningBotIds}..remove(botId);
+      _freeMinutesByBotId.remove(botId);
+      _sessionExpiresAtByBotId.remove(botId);
+      _skippedMissingBotIds.add(botId);
+      _botNotFoundStreak.remove(botId);
+    });
+    _syncPulse(_runningBotIds);
+    unawaited(_syncDiscordRpcPresence(_runningBotIds));
   }
 
   bool _hasFreeRuntimeAvailable(Map<String, dynamic> runtime, int balance) {
