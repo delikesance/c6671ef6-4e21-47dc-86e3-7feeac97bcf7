@@ -117,6 +117,10 @@ class HomePageState extends State<HomePage>
   /// Un AnimationController par carte (clé = bot id) pour l'effet pulse.
   final Map<String, AnimationController> _pulseControllers = {};
   Map<String, int> _freeMinutesByBotId = <String, int>{};
+  final Map<String, DateTime> _sessionExpiresAtByBotId = <String, DateTime>{};
+  final Map<String, int> _botNotFoundStreak = <String, int>{};
+  final Set<String> _skippedMissingBotIds = <String>{};
+  static const int _missingBot404Threshold = 3;
   Timer? _statusRefreshTimer;
 
   bool get _supportsForegroundTask => Platform.isAndroid || Platform.isIOS;
@@ -146,8 +150,11 @@ class HomePageState extends State<HomePage>
     }());
 
     _statusRefreshTimer = Timer.periodic(const Duration(seconds: 15), (_) {
-      if (mounted) {
-        _initRunningState();
+      if (!mounted) return;
+      _initRunningState();
+      // Tick local FREE-session countdowns between balance polls.
+      if (_sessionExpiresAtByBotId.isNotEmpty) {
+        setState(() {});
       }
     });
   }
@@ -241,6 +248,7 @@ class HomePageState extends State<HomePage>
             '[_initRunningState] Checking per-bot status with owner-aware client resolution.',
           );
           final runningChecks = localBotIds
+              .where((botId) => !_skippedMissingBotIds.contains(botId))
               .map((botId) async {
                 try {
                   appendBotDebugLog(
@@ -293,14 +301,22 @@ class HomePageState extends State<HomePage>
                   }
                   final status = await statusClient.getStatus(botId: botId);
                   final isRunning = status.isBotRunning(botId);
+                  _noteBotFound(botId);
                   appendBotDebugLog(
                     '[_initRunningState] Bot $botId status fetched: statusRunning=${status.running}, activeBotId=${status.activeBotId ?? 'none'}, botEntries=${status.bots.length}, isBotRunning=$isRunning.',
                   );
                   return isRunning ? botId : null;
                 } catch (error) {
-                  appendBotDebugLog(
-                    'Failed to sync running status for $botId: $error',
-                  );
+                  if (error is MainApiClientException && error.statusCode == 404) {
+                    _noteBotNotFound(botId);
+                    appendBotDebugLog(
+                      '[_initRunningState] Bot $botId missing on manager (404 streak=${_botNotFoundStreak[botId]}).',
+                    );
+                  } else {
+                    appendBotDebugLog(
+                      'Failed to sync running status for $botId: $error',
+                    );
+                  }
                   return null;
                 }
               })
@@ -428,6 +444,52 @@ class HomePageState extends State<HomePage>
     return int.tryParse(raw.toString()) ?? 0;
   }
 
+  DateTime? _extractSessionExpiresAt(Map<String, dynamic> runtime) {
+    final raw =
+        runtime['session_expires_at'] ?? runtime['sessionExpiresAt'];
+    if (raw == null) return null;
+    return DateTime.tryParse(raw.toString())?.toUtc();
+  }
+
+  String _fundingModeOf(Map<String, dynamic> runtime) {
+    return (runtime['funding_mode'] ?? runtime['fundingMode'] ?? '')
+        .toString()
+        .trim()
+        .toLowerCase();
+  }
+
+  int _remainingMinutesUntil(DateTime expiresAt) {
+    final now = DateTime.now().toUtc();
+    if (!expiresAt.isAfter(now)) return 0;
+    final delta = expiresAt.difference(now);
+    var minutes = delta.inMinutes;
+    if (delta.inSeconds % 60 != 0) minutes++;
+    return minutes < 0 ? 0 : minutes;
+  }
+
+  int _displayFreeMinutesForBot(String botId) {
+    final expires = _sessionExpiresAtByBotId[botId];
+    if (expires != null) {
+      return _remainingMinutesUntil(expires);
+    }
+    return _freeMinutesByBotId[botId] ?? 0;
+  }
+
+  void _noteBotNotFound(String botId) {
+    final next = (_botNotFoundStreak[botId] ?? 0) + 1;
+    _botNotFoundStreak[botId] = next;
+    if (next >= _missingBot404Threshold) {
+      _skippedMissingBotIds.add(botId);
+      _sessionExpiresAtByBotId.remove(botId);
+      _freeMinutesByBotId.remove(botId);
+    }
+  }
+
+  void _noteBotFound(String botId) {
+    _botNotFoundStreak.remove(botId);
+    _skippedMissingBotIds.remove(botId);
+  }
+
   bool _hasFreeRuntimeAvailable(Map<String, dynamic> runtime, int balance) {
     final fundingMode =
         (runtime['funding_mode'] ?? runtime['fundingMode'] ?? '')
@@ -450,7 +512,10 @@ class HomePageState extends State<HomePage>
     final remoteClient = remoteRuntime.client;
     if (remoteClient is! MainApiClient) {
       if (mounted && _freeMinutesByBotId.isNotEmpty) {
-        setState(() => _freeMinutesByBotId = <String, int>{});
+        setState(() {
+          _freeMinutesByBotId = <String, int>{};
+          _sessionExpiresAtByBotId.clear();
+        });
       }
       return;
     }
@@ -460,20 +525,39 @@ class HomePageState extends State<HomePage>
       final names = await _loadBotNamesById();
       ids.addAll(names.keys.where((id) => id.trim().isNotEmpty));
     }
+    ids.removeWhere(_skippedMissingBotIds.contains);
     if (ids.isEmpty) {
       return;
     }
 
     final updated = <String, int>{..._freeMinutesByBotId};
+    final updatedExpires = <String, DateTime>{..._sessionExpiresAtByBotId};
     for (final botId in ids) {
       try {
         final runtime = await remoteClient.getBotRuntime(botId);
-        final minutes = _extractFreeMinutes(
-          runtime['free_minutes_balance'] ?? runtime['freeMinutesBalance'],
-        );
-        updated[botId] = minutes;
-      } catch (_) {
-        // Best-effort refresh only.
+        _noteBotFound(botId);
+        final funding = _fundingModeOf(runtime);
+        if (funding == 'premium') {
+          updated.remove(botId);
+          updatedExpires.remove(botId);
+          continue;
+        }
+        final expires = _extractSessionExpiresAt(runtime);
+        if (expires != null && funding == 'free') {
+          updatedExpires[botId] = expires;
+          updated[botId] = _remainingMinutesUntil(expires);
+        } else {
+          updatedExpires.remove(botId);
+          updated[botId] = _extractFreeMinutes(
+            runtime['free_minutes_balance'] ?? runtime['freeMinutesBalance'],
+          );
+        }
+      } catch (error) {
+        if (error is MainApiClientException && error.statusCode == 404) {
+          _noteBotNotFound(botId);
+          updated.remove(botId);
+          updatedExpires.remove(botId);
+        }
       }
     }
 
@@ -482,6 +566,9 @@ class HomePageState extends State<HomePage>
     }
     setState(() {
       _freeMinutesByBotId = updated;
+      _sessionExpiresAtByBotId
+        ..clear()
+        ..addAll(updatedExpires);
     });
   }
 
@@ -1627,7 +1714,7 @@ class HomePageState extends State<HomePage>
       return true;
     }
 
-    if (!force && (_freeMinutesByBotId[botId] ?? 0) > 0) {
+    if (!force && _displayFreeMinutesForBot(botId) > 0) {
       return true;
     }
 
@@ -1948,7 +2035,7 @@ class HomePageState extends State<HomePage>
                                           isRunning
                                               ? _runtimeBadgeLabel(id)
                                               : null,
-                                      freeMinutes: _freeMinutesByBotId[id],
+                                      freeMinutes: _displayFreeMinutesForBot(id),
                                       pulseController: pulseCtrl,
                                       onManage:
                                           () => Navigator.push(

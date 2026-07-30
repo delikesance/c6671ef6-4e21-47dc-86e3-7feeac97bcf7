@@ -794,7 +794,11 @@ class MainApiClient implements RemoteRuntimeClient {
           ),
         ],
       );
-    } on MainApiClientException {
+    } on MainApiClientException catch (error) {
+      // Propagate missing bots so callers can stop polling unknown IDs.
+      if (error.statusCode == 404) {
+        rethrow;
+      }
       return RunnerStatus(
         running: false,
         bots: <RunnerBotRuntime>[

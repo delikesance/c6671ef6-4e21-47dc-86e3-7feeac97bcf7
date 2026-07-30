@@ -67,22 +67,36 @@ extension _AppHomePageSync on _AppHomePageState {
       }
       _setState(() {
         _freeMinutesBalance = null;
+        _sessionExpiresAt = null;
+        _fundingMode = '';
       });
       return;
     }
 
     try {
       final runtime = await remoteClient.getBotRuntime(botId);
-      final balance = _extractFreeMinutes(
-        runtime['free_minutes_balance'] ?? runtime['freeMinutesBalance'],
-      );
+      final funding =
+          (runtime['funding_mode'] ?? runtime['fundingMode'] ?? '')
+              .toString()
+              .trim()
+              .toLowerCase();
+      final expires = _extractSessionExpiresAt(runtime);
+      final balance = funding == 'premium'
+          ? 0
+          : (expires != null && funding == 'free'
+              ? _remainingMinutesUntil(expires)
+              : _extractFreeMinutes(
+                runtime['free_minutes_balance'] ?? runtime['freeMinutesBalance'],
+              ));
       appendBotDebugLog(
-        '[_refreshFreeRuntimeBalance] botId=$botId balance=$balance.',
+        '[_refreshFreeRuntimeBalance] botId=$botId balance=$balance funding=$funding expires=$expires.',
       );
       if (!mounted) {
         return;
       }
       _setState(() {
+        _fundingMode = funding;
+        _sessionExpiresAt = funding == 'free' ? expires : null;
         _freeMinutesBalance = balance;
       });
     } catch (error) {
@@ -624,12 +638,25 @@ extension _AppHomePageSync on _AppHomePageState {
     while (DateTime.now().isBefore(deadline)) {
       try {
         final runtime = await remoteClient.getBotRuntime(botId);
-        final balance = _extractFreeMinutes(
-          runtime['free_minutes_balance'] ?? runtime['freeMinutesBalance'],
-        );
+        final funding =
+            (runtime['funding_mode'] ?? runtime['fundingMode'] ?? '')
+                .toString()
+                .trim()
+                .toLowerCase();
+        final expires = _extractSessionExpiresAt(runtime);
+        final balance = funding == 'premium'
+            ? 0
+            : (expires != null && funding == 'free'
+                ? _remainingMinutesUntil(expires)
+                : _extractFreeMinutes(
+                  runtime['free_minutes_balance'] ??
+                      runtime['freeMinutesBalance'],
+                ));
 
         if (mounted) {
           _setState(() {
+            _fundingMode = funding;
+            _sessionExpiresAt = funding == 'free' ? expires : null;
             _freeMinutesBalance = balance;
           });
         }
