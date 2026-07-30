@@ -100,7 +100,7 @@ extension _AppHomePageAds on _AppHomePageState {
         return true;
       }
 
-      if (!force && _freeMinutesBalance != null && _freeMinutesBalance! > 0) {
+      if (!force && _displayFreeMinutesBalance() > 0) {
         return true;
       }
 
@@ -113,11 +113,24 @@ extension _AppHomePageAds on _AppHomePageState {
           final runtime = await remoteClient.getBotRuntime(botId).timeout(
             const Duration(seconds: 4),
           );
-          final balance = _extractFreeMinutes(
-            runtime['free_minutes_balance'] ?? runtime['freeMinutesBalance'],
-          );
+          final funding =
+              (runtime['funding_mode'] ?? runtime['fundingMode'] ?? '')
+                  .toString()
+                  .trim()
+                  .toLowerCase();
+          final expires = _extractSessionExpiresAt(runtime);
+          final balance = funding == 'premium'
+              ? 0
+              : (expires != null && funding == 'free'
+                  ? _remainingMinutesUntil(expires)
+                  : _extractFreeMinutes(
+                    runtime['free_minutes_balance'] ??
+                        runtime['freeMinutesBalance'],
+                  ));
 
           _setState(() {
+            _fundingMode = funding;
+            _sessionExpiresAt = funding == 'free' ? expires : null;
             _freeMinutesBalance = balance;
           });
 

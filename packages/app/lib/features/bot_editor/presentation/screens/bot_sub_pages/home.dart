@@ -76,6 +76,9 @@ class _AppHomePageState extends State<AppHomePage>
   bool _botLaunched = false;
   bool _botStarting = false;
   int? _freeMinutesBalance;
+  DateTime? _sessionExpiresAt;
+  String _fundingMode = '';
+  Timer? _runtimeBalanceTimer;
   bool _isAddingTime = false;
   bool _isPushingApp = false;
   bool _isPullingApp = false;
@@ -88,6 +91,31 @@ class _AppHomePageState extends State<AppHomePage>
     if (raw == null) return 0;
     if (raw is int) return raw;
     return int.tryParse(raw.toString()) ?? 0;
+  }
+
+  DateTime? _extractSessionExpiresAt(Map<String, dynamic> runtime) {
+    final raw =
+        runtime['session_expires_at'] ?? runtime['sessionExpiresAt'];
+    if (raw == null) return null;
+    return DateTime.tryParse(raw.toString())?.toUtc();
+  }
+
+  int _remainingMinutesUntil(DateTime expiresAt) {
+    final now = DateTime.now().toUtc();
+    if (!expiresAt.isAfter(now)) return 0;
+    final delta = expiresAt.difference(now);
+    var minutes = delta.inMinutes;
+    if (delta.inSeconds % 60 != 0) minutes++;
+    return minutes < 0 ? 0 : minutes;
+  }
+
+  int _displayFreeMinutesBalance() {
+    if (_fundingMode == 'premium') return 0;
+    final expires = _sessionExpiresAt;
+    if (expires != null) {
+      return _remainingMinutesUntil(expires);
+    }
+    return _freeMinutesBalance ?? 0;
   }
 
   bool _hasFreeRuntimeAvailable(Map<String, dynamic> runtime, int balance) {
@@ -150,10 +178,20 @@ class _AppHomePageState extends State<AppHomePage>
       _initService();
     });
     _init();
+    if (!SubscriptionService.isSubscribed) {
+      _runtimeBalanceTimer = Timer.periodic(const Duration(seconds: 15), (_) {
+        if (!mounted || SubscriptionService.isSubscribed) return;
+        unawaited(_refreshFreeRuntimeBalance());
+        if (_sessionExpiresAt != null) {
+          _setState(() {});
+        }
+      });
+    }
   }
 
   @override
   void dispose() {
+    _runtimeBalanceTimer?.cancel();
     final callback = _taskDataCallback;
     if (callback != null) {
       try {
@@ -312,7 +350,8 @@ class _AppHomePageState extends State<AppHomePage>
                         ),
                       ),
                       if (_supportsForegroundTask &&
-                          !SubscriptionService.isSubscribed) ...[
+                          !SubscriptionService.isSubscribed &&
+                          _fundingMode != 'premium') ...[
                         const SizedBox(height: AppTheme.spacingMd),
                         Container(
                           width: double.infinity,
@@ -336,14 +375,14 @@ class _AppHomePageState extends State<AppHomePage>
                               Expanded(
                                 child: Text(
                                   context.tr.home_hosting_time_left(
-                                    formatDuration(_freeMinutesBalance ?? 0),
+                                    formatDuration(_displayFreeMinutesBalance()),
                                   ),
                                   style: Theme.of(
                                     context,
                                   ).textTheme.bodyMedium?.copyWith(
                                     fontWeight: FontWeight.w600,
                                     color: _hostingTimeColor(
-                                      _freeMinutesBalance ?? 0,
+                                      _displayFreeMinutesBalance(),
                                     ).withValues(alpha: 0.95),
                                   ),
                                 ),
