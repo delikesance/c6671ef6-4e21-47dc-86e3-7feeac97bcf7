@@ -872,14 +872,6 @@ class _BotLogsPageState extends State<BotLogsPage> {
     );
   }
 
-  String _formatMemory(int? bytes) {
-    if (bytes == null || bytes <= 0) {
-      return 'N/A';
-    }
-    final mb = bytes / (1024 * 1024);
-    return '${mb.toStringAsFixed(1)} MB';
-  }
-
   _ParsedLog _parseLog(String raw) {
     final source = _stripAnsi(raw).trimLeft();
     final runnerIsoMatch = RegExp(

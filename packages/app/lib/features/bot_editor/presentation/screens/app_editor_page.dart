@@ -97,7 +97,6 @@ class _AppEditPageState extends State<AppEditPage>
 
       if (mounted) {
         setState(() {
-          _currentToken = token;
           _runtimeEngine = runtimeEngine;
         });
       }
