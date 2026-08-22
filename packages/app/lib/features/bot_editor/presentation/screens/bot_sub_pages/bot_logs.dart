@@ -427,8 +427,6 @@ class _BotLogsPageState extends State<BotLogsPage> {
                 source: _runtimeSource,
               ),
               builder: (context, estimatedSnapshot) {
-                final memoryText = _formatMemory(metricsSnapshot.data);
-                final estimatedText = _formatMemory(estimatedSnapshot.data);
                 return Column(
                   children: [
                     if (canSelectBot)

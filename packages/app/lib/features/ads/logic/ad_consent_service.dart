@@ -197,7 +197,8 @@ class AdConsentService {
 
     try {
       await _requestConsentInfoUpdate();
-      return ConsentInformation.instance.getPrivacyOptionsRequirementStatus();
+      return await ConsentInformation.instance
+          .getPrivacyOptionsRequirementStatus();
     } catch (error, stack) {
       unawaited(
         AppDiagnostics.logError(

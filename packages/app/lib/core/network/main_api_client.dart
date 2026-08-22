@@ -655,8 +655,8 @@ class MainApiClient implements RemoteRuntimeClient {
   }) async {
     final key = '${code.trim()}|${state.trim()}|$redirectUri';
     final existing = _inflightDiscordExchanges[key];
-    if (existing != nil) {
-      return existing;
+    if (existing != null) {
+      return await existing;
     }
     final future = _post('/auth/discord/exchange', <String, dynamic>{
       'code': code,

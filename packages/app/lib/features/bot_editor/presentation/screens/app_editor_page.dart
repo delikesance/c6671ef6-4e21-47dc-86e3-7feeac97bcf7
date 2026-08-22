@@ -43,7 +43,6 @@ class _AppEditPageState extends State<AppEditPage>
   NyxxRest? client;
   bool _isLoading = true;
   String? _degradedReason;
-  String? _currentToken;
 
   late int _selectedIndex = 0;
   bool _beginnerMode = false;
