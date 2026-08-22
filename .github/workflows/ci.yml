@@ -153,28 +153,46 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Compute SemVer Tag
+      - name: Compute and Bump SemVer
         id: version
         run: |
           if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             TAG="${GITHUB_REF#refs/tags/}"
+            VERSION="${TAG#v}"
           else
-            LAST_TAG=$(git tag --list 'v[0-9]*' --sort=-v:refname | head -n1 || echo "")
-            if [ -z "$LAST_TAG" ]; then
-              TAG="v2.0.${{ github.run_number }}"
-            else
-              BASE=${LAST_TAG#v}
-              MAJOR=$(echo $BASE | cut -d. -f1)
-              MINOR=$(echo $BASE | cut -d. -f2)
-              PATCH=$(echo $BASE | cut -d. -f3)
-              PATCH=$((PATCH + 1))
-              TAG="v${MAJOR}.${MINOR}.${PATCH}"
+            CURRENT_FULL=$(grep -oP '(?<=version: )\S+' packages/app/pubspec.yaml)
+            CURRENT_VER=$(echo "$CURRENT_FULL" | cut -d+ -f1)
+            CURRENT_BUILD=$(echo "$CURRENT_FULL" | cut -s -d+ -f2)
+            if [ -z "$CURRENT_BUILD" ]; then CURRENT_BUILD="1"; fi
+
+            MAJOR=$(echo "$CURRENT_VER" | cut -d. -f1)
+            MINOR=$(echo "$CURRENT_VER" | cut -d. -f2)
+            PATCH=$(echo "$CURRENT_VER" | cut -d. -f3)
+            PATCH=$((PATCH + 1))
+            BUILD_NUMBER=$((CURRENT_BUILD + 1))
+
+            VERSION="${MAJOR}.${MINOR}.${PATCH}"
+            TAG="v${VERSION}"
+            NEW_FULL="${VERSION}+${BUILD_NUMBER}"
+
+            echo "Bumping Flutter app version to $NEW_FULL"
+            sed -i -E "s/^version: .*/version: $NEW_FULL/" packages/app/pubspec.yaml
+            if [ -f packages/runner/pubspec.yaml ]; then
+              sed -i -E "s/^version: .*/version: $VERSION/" packages/runner/pubspec.yaml
             fi
+
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add packages/app/pubspec.yaml packages/runner/pubspec.yaml
+            git commit -m "chore(release): bump app version to $NEW_FULL [skip ci]" || echo "No changes to commit"
+            git push origin HEAD:${{ github.ref_name }}
           fi
+
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
-          echo "Calculated tag: $TAG"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Calculated tag: $TAG ($VERSION)"
 
       - name: Create Git Tag & Release
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
