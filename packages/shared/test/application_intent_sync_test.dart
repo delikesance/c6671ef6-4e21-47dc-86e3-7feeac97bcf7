@@ -81,7 +81,7 @@ void main() {
   });
 
   group('buildEffectiveIntentsMap', () {
-    test('enables only Guilds when no workflows require more intents', () {
+    test('enables all non-privileged intents by default', () {
       final config = BotConfig.fromJson({
         'builtInLegacyHelpEnabled': false,
       });
@@ -91,7 +91,12 @@ void main() {
       );
 
       expect(effective['Guilds'], isTrue);
-      expect(effective['Guild Messages'], isFalse);
+      expect(effective['Guild Messages'], isTrue);
+      expect(effective['Guild Voice States'], isTrue);
+      expect(effective['Direct Messages'], isTrue);
+      expect(effective['Message Content'], isFalse);
+      expect(effective['Guild Members'], isFalse);
+      expect(effective['Guild Presence'], isFalse);
     });
   });
 
