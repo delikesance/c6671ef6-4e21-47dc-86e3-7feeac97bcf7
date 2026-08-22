@@ -842,7 +842,7 @@ class RunnerWebBootstrapServer {
         config,
       );
       _runtimeController.clearTokenInvalid(botId);
-      return res.json({'ok': true});
+      return await res.json({'ok': true});
     } catch (e) {
       throw AlfredException(HttpStatus.badRequest, {
         'error': 'Invalid config: $e',
@@ -860,7 +860,7 @@ class RunnerWebBootstrapServer {
         botId: botId,
         botName: botName.isEmpty ? null : botName,
       );
-      return res.json(_buildStatusPayload());
+      return await res.json(_buildStatusPayload());
     } on StateError catch (e) {
       if (e.message.contains('invalid Discord token')) {
         throw AlfredException(HttpStatus.unauthorized, {
@@ -901,7 +901,7 @@ class RunnerWebBootstrapServer {
       final config = BotConfig.fromJson(Map<String, dynamic>.from(rawConfig));
       config.validate();
       await _runtimeController.reloadBot(botId, config);
-      return res.json({
+      return await res.json({
         'ok': true,
         'reloaded': _runtimeController.isBotRunning(botId),
       });
@@ -933,7 +933,7 @@ class RunnerWebBootstrapServer {
 
     try {
       await _runtimeController.upsertCommand(botId, command);
-      return res.json({
+      return await res.json({
         'ok': true,
         'botId': botId,
         'commandId': commandId,
@@ -957,7 +957,7 @@ class RunnerWebBootstrapServer {
 
     try {
       await _runtimeController.deleteCommand(botId, commandId);
-      return res.json({
+      return await res.json({
         'ok': true,
         'botId': botId,
         'commandId': commandId,
@@ -990,7 +990,7 @@ class RunnerWebBootstrapServer {
 
     try {
       await _runtimeController.upsertWorkflow(botId, workflow);
-      return res.json({
+      return await res.json({
         'ok': true,
         'botId': botId,
         'workflowName': workflowName,
@@ -1014,7 +1014,7 @@ class RunnerWebBootstrapServer {
 
     try {
       await _runtimeController.deleteWorkflow(botId, workflowName);
-      return res.json({
+      return await res.json({
         'ok': true,
         'botId': botId,
         'workflowName': workflowName,
@@ -1046,7 +1046,7 @@ class RunnerWebBootstrapServer {
         triggerId,
         Map<String, dynamic>.from(trigger),
       );
-      return res.json({'ok': true});
+      return await res.json({'ok': true});
     } on StateError catch (e) {
       throw AlfredException(HttpStatus.notFound, {'error': e.message});
     }
@@ -1068,7 +1068,7 @@ class RunnerWebBootstrapServer {
 
     try {
       await _runtimeController.deleteScheduledTrigger(botId, triggerId);
-      return res.json({'ok': true});
+      return await res.json({'ok': true});
     } on StateError catch (e) {
       throw AlfredException(HttpStatus.notFound, {'error': e.message});
     }
@@ -1095,7 +1095,7 @@ class RunnerWebBootstrapServer {
         webhookId,
         Map<String, dynamic>.from(webhook),
       );
-      return res.json({'ok': true});
+      return await res.json({'ok': true});
     } on StateError catch (e) {
       throw AlfredException(HttpStatus.notFound, {'error': e.message});
     }
@@ -1117,7 +1117,7 @@ class RunnerWebBootstrapServer {
 
     try {
       await _runtimeController.deleteInboundWebhook(botId, webhookId);
-      return res.json({'ok': true});
+      return await res.json({'ok': true});
     } on StateError catch (e) {
       throw AlfredException(HttpStatus.notFound, {'error': e.message});
     }
