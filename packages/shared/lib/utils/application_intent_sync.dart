@@ -68,6 +68,7 @@ Set<String> portalEnabledPrivilegedIntentsFromApplication(Application app) {
 }
 
 /// Full intents map reflecting portal-enabled privileged keys (Guilds baseline only).
+/// Prefer [buildEffectiveIntentsMap] for gateway identify (all non-privileged on).
 Map<String, bool> buildPortalIntentsMapFromPrivileged(
   Set<String> portalPrivileged,
 ) {
@@ -78,7 +79,7 @@ Map<String, bool> buildPortalIntentsMapFromPrivileged(
   return intents;
 }
 
-/// Full intents map reflecting portal flags (non-privileged always on).
+/// Full intents map reflecting portal-enabled privileged keys (Guilds baseline only).
 Map<String, bool> buildPortalIntentsMap(Application app) {
   return buildPortalIntentsMapFromPrivileged(
     portalEnabledPrivilegedIntentsFromApplication(app),
@@ -182,8 +183,9 @@ bool botConfigHasLegacyCommands(BotConfig config) {
   return false;
 }
 
-/// Effective intents for gateway identify: portal base map with privileged keys
-/// set to true only when required by bot config AND enabled in the portal.
+/// Effective intents for gateway identify: all non-privileged intents on by
+/// default; privileged keys set to true only when required by bot config AND
+/// enabled in the portal.
 Map<String, bool> buildEffectiveIntentsMap({
   required BotConfig config,
   required Set<String> portalEnabledPrivileged,
@@ -197,15 +199,13 @@ Map<String, bool> buildEffectiveIntentsMap({
   );
 
   final effective = <String, bool>{
-    for (final key in allIntentKeys) key: false,
+    for (final key in allIntentKeys)
+      key: !privilegedIntentKeys.contains(key),
   };
-  effective['Guilds'] = true;
 
   for (final key in requiredKeys) {
     if (privilegedIntentKeys.contains(key)) {
       effective[key] = portalEnabledPrivileged.contains(key);
-    } else {
-      effective[key] = true;
     }
   }
 
