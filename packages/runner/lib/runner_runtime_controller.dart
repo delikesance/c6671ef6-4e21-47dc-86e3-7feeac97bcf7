@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:bot_creator_shared/bot/bot_config.dart';
 import 'package:bot_creator_shared/bot_creator_shared.dart';
-import 'package:bot_creator_shared/utils/discord_auth_errors.dart';
 import 'package:bot_creator_runner/discord_runner.dart';
 import 'package:bot_creator_runner/runner_bot_store.dart';
 import 'package:bot_creator_runner/stores/command_stats_store.dart';

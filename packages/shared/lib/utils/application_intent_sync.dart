@@ -225,7 +225,7 @@ final _intentKeyToGatewayBit = <String, Flag<GatewayIntents>>{
   'Guilds': GatewayIntents.guilds,
   'Guild Members': GatewayIntents.guildMembers,
   'Guild Moderation': GatewayIntents.guildModeration,
-  'Guild Expressions': GatewayIntents.guildEmojisAndStickers,
+  'Guild Expressions': GatewayIntents.guildExpressions,
   'Guild Integrations': GatewayIntents.guildIntegrations,
   'Guild Webhooks': GatewayIntents.guildWebhooks,
   'Guild Invites': GatewayIntents.guildInvites,

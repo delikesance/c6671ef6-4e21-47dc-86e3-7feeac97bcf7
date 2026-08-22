@@ -3,15 +3,12 @@ import 'dart:convert';
 import 'package:bot_creator_shared/bot/bot_config.dart';
 import 'package:bot_creator_shared/utils/application_intent_sync.dart';
 import 'package:bot_creator_shared/utils/discord_auth_errors.dart';
-import 'package:bot_creator_shared/utils/intent_resolver.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:test/test.dart';
 
 const _membersLimited = 1 << 14;
-const _presenceLimited = 1 << 12;
-const _messageContentLimited = 1 << 18;
 
 void main() {
   group('portalEnabledPrivilegedIntentsFromFlags', () {
