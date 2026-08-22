@@ -164,7 +164,7 @@ class MainApiAuthService {
       );
       await callback.response.close();
 
-      return client.completeDiscordAuthorization(
+      return await client.completeDiscordAuthorization(
         code: code,
         state: expectedState,
         redirectUri: redirectUri,

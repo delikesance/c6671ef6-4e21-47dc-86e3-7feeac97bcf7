@@ -1,5 +1,4 @@
 import 'package:bot_creator/core/network/main_api_owner_sync.dart';
-import 'package:bot_creator/core/network/main_api_session_restore.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';

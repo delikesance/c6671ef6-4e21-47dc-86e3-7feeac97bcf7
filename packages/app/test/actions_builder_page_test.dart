@@ -77,9 +77,6 @@ void main() {
       final id1 = actionBlocks[0].action.id;
       final id2 = actionBlocks[1].action.id;
 
-      print('First Action ID: $id1');
-      print('Second Action ID: $id2');
-
       // Assert that their IDs are NOT equal, thereby preventing parameter update collisions!
       expect(id1, equals('action_1'));
       expect(id2, isNot(equals('action_1')));

@@ -192,11 +192,9 @@ void main() {
       expect(await isEmbeddedRunnerBinaryFileValid(File(resolved!)), isTrue);
 
       await dir.delete(recursive: true);
-      if (resolved != null) {
-        final resolvedFile = File(resolved);
-        if (await resolvedFile.parent.exists()) {
-          await resolvedFile.parent.delete(recursive: true);
-        }
+      final resolvedFile = File(resolved);
+      if (await resolvedFile.parent.exists()) {
+        await resolvedFile.parent.delete(recursive: true);
       }
     });
   });

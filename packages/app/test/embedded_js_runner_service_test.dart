@@ -6,7 +6,9 @@ import 'package:bot_creator/core/runner/embedded_js_runner_service.dart';
 import 'package:bot_creator/core/runner/embedded_runner_platform.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
+// ignore: depend_on_referenced_packages
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
+// ignore: depend_on_referenced_packages
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

@@ -1,11 +1,9 @@
 import 'dart:convert';
 
 import 'package:bot_creator/core/discord/discord_intent_sync.dart';
-import 'package:bot_creator_shared/utils/application_intent_sync.dart';
-import 'package:bot_creator_shared/utils/intent_resolver.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:test/test.dart';
 
 const _membersLimited = 1 << 14;
 
