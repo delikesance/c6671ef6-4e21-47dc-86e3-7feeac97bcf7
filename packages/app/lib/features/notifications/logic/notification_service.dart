@@ -218,6 +218,25 @@ class NotificationService {
   String? get fcmToken => _fcmToken;
   String get topicPrefix => _topicPrefix;
 
+  Future<void> registerWithApi(dynamic client, {String? locale}) async {
+    final token = _fcmToken;
+    if (token == null || token.isEmpty) return;
+    final platform = defaultTargetPlatform.name;
+    final userLocale = locale ?? PlatformDispatcher.instance.locale.languageCode;
+    try {
+      if (client != null && client.registerDeviceToken != null) {
+        await client.registerDeviceToken(
+          fcmToken: token,
+          platform: platform,
+          locale: userLocale,
+        );
+        debugPrint('[NotificationService] Registered FCM device token with backend.');
+      }
+    } catch (e) {
+      debugPrint('[NotificationService] Failed to register FCM token with backend: $e');
+    }
+  }
+
   /// Returns whether notifications for the given [topic] are enabled.
   bool isTopicEnabled(NotificationTopic topic) =>
       _topicEnabled[topic] ?? true;
