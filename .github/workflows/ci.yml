@@ -24,14 +24,15 @@ env:
 jobs:
   quality:
     name: Quality
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       - uses: subosito/flutter-action@v2
         with:
+          flutter-version: "3.44.1"
           channel: "stable"
-          cache: true
+          cache: false
 
       - name: Resolve workspace dependencies
         run: flutter pub get
@@ -43,14 +44,15 @@ jobs:
 
   unit-tests:
     name: Unit tests
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       - uses: subosito/flutter-action@v2
         with:
+          flutter-version: "3.44.1"
           channel: "stable"
-          cache: true
+          cache: false
 
       - name: Resolve workspace dependencies
         run: flutter pub get
@@ -63,14 +65,15 @@ jobs:
 
   api-integration-tests:
     name: API integration tests
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       - uses: subosito/flutter-action@v2
         with:
+          flutter-version: "3.44.1"
           channel: "stable"
-          cache: true
+          cache: false
 
       - name: Resolve workspace dependencies
         run: flutter pub get
@@ -80,14 +83,15 @@ jobs:
 
   swagger-drift:
     name: Swagger drift
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       - uses: subosito/flutter-action@v2
         with:
+          flutter-version: "3.44.1"
           channel: "stable"
-          cache: true
+          cache: false
 
       - name: Check ARB translations and localization sync
         run: |
@@ -98,7 +102,7 @@ jobs:
 
   source-security:
     name: Source security
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -113,7 +117,7 @@ jobs:
 
   container-build-scan:
     name: Container build and scan
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -145,7 +149,7 @@ jobs:
     name: Auto Release & SemVer Tag
     needs: [quality, unit-tests, api-integration-tests, swagger-drift, source-security, container-build-scan]
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v'))
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.version.outputs.tag }}
       version: ${{ steps.version.outputs.version }}
@@ -206,7 +210,7 @@ jobs:
     name: Publish immutable image
     needs: [auto-release]
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v'))
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -272,7 +276,7 @@ jobs:
       - auto-release
       - publish-image
     if: always()
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: ubuntu-latest
     steps:
       - name: Check pipeline results
         run: |
