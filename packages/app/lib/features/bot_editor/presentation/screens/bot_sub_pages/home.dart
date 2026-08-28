@@ -87,6 +87,7 @@ class _AppHomePageState extends State<AppHomePage>
   bool _isAddingTime = false;
   bool _isPushingApp = false;
   bool _isPullingApp = false;
+  DiscordApplicationOwnerMetadata? _ownerMetadata;
   BotRuntimeCapabilities _runtimeCapabilities = BotRuntimeCapabilities.dart;
   void _setState(VoidCallback fn) {
     if (mounted) setState(fn);
@@ -312,6 +313,158 @@ class _AppHomePageState extends State<AppHomePage>
     return commands;
   }
 
+  Future<void> _showAdHistoryDialog() async {
+    final botId = widget.client.user.id.toString();
+    final remoteRuntime = await _resolveRemoteRuntime(
+      getTimeout: const Duration(seconds: 4),
+    );
+    final remoteClient = remoteRuntime.client;
+    if (remoteClient is! MainApiClient) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              _uiCopy(
+                fr: "Impossible de récupérer l'historique (connexion API indisponible)",
+                en: "Cannot fetch ad history (API unavailable)",
+              ),
+            ),
+          ),
+        );
+      }
+      return;
+    }
+
+    if (!mounted) return;
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppTheme.radiusLg)),
+      ),
+      builder: (sheetContext) {
+        return FutureBuilder<List<Map<String, dynamic>>>(
+          future: remoteClient.getBotAdHistory(botId),
+          builder: (ctx, snapshot) {
+            final colorScheme = Theme.of(ctx).colorScheme;
+            return Container(
+              padding: const EdgeInsets.all(AppTheme.spacingLg),
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(ctx).size.height * 0.7,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.history, color: AppTheme.brandPrimary),
+                      const SizedBox(width: AppTheme.spacingSm),
+                      Expanded(
+                        child: Text(
+                          _uiCopy(fr: "Historique des gains publicitaires", en: "Ad Rewards History"),
+                          style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.of(sheetContext).pop(),
+                      ),
+                    ],
+                  ),
+                  const Divider(),
+                  if (snapshot.connectionState == ConnectionState.waiting)
+                    const Padding(
+                      padding: EdgeInsets.all(AppTheme.spacingXl),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  else if (snapshot.hasError)
+                    Padding(
+                      padding: const EdgeInsets.all(AppTheme.spacingXl),
+                      child: Center(
+                        child: Text(
+                          _uiCopy(
+                            fr: "Erreur lors du chargement de l'historique",
+                            en: "Failed to load ad history",
+                          ),
+                          style: TextStyle(color: colorScheme.error),
+                        ),
+                      ),
+                    )
+                  else if (!snapshot.hasData || snapshot.data!.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.all(AppTheme.spacingXl),
+                      child: Center(
+                        child: Column(
+                          children: [
+                            Icon(Icons.tv_off_outlined, size: 48, color: colorScheme.outline),
+                            const SizedBox(height: AppTheme.spacingMd),
+                            Text(
+                              _uiCopy(
+                                fr: "Aucun gain publicitaire récent enregistré pour ce bot.",
+                                en: "No recent ad rewards recorded for this bot.",
+                              ),
+                              style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
+                                color: colorScheme.outline,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  else
+                    Expanded(
+                      child: ListView.separated(
+                        itemCount: snapshot.data!.length,
+                        separatorBuilder: (context, index) => const Divider(height: 1),
+                        itemBuilder: (ctx, i) {
+                          final claim = snapshot.data![i];
+                          final minutes = claim['granted_minutes'] ?? claim['grantedMinutes'] ?? 0;
+                          final placement = (claim['placement'] ?? 'admob_rewarded').toString();
+                          final occurredRaw = claim['occurred_at'] ?? claim['occurredAt'];
+                          final occurred = occurredRaw != null ? DateTime.tryParse(occurredRaw.toString())?.toLocal() : null;
+                          final dateStr = occurred != null
+                              ? '${occurred.day.toString().padLeft(2, '0')}/${occurred.month.toString().padLeft(2, '0')}/${occurred.year} à ${occurred.hour.toString().padLeft(2, '0')}:${occurred.minute.toString().padLeft(2, '0')}'
+                              : '';
+
+                          return ListTile(
+                            leading: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: AppTheme.success.withValues(alpha: 0.15),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.check_circle_outline, color: AppTheme.success, size: 20),
+                            ),
+                            title: Text(
+                              '+$minutes min ($placement)',
+                              style: const TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                            subtitle: Text(dateStr, style: Theme.of(ctx).textTheme.bodySmall),
+                            trailing: Text(
+                              formatDuration(minutes is int ? minutes : int.tryParse(minutes.toString()) ?? 0),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: colorScheme.primary,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -450,52 +603,133 @@ class _AppHomePageState extends State<AppHomePage>
                         const SizedBox(height: AppTheme.spacingMd),
                         Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 12,
-                          ),
+                          padding: const EdgeInsets.all(AppTheme.spacingMd),
                           decoration: BoxDecoration(
                             color: colorScheme.surfaceContainerLow,
-                            borderRadius: BorderRadius.circular(
-                              AppTheme.radiusLg,
-                            ),
+                            borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                             border: Border.all(
-                              color: colorScheme.outlineVariant.withValues(
-                                alpha: 0.35,
-                              ),
+                              color: (_displayFreeMinutesBalance() < 120 && _botLaunched
+                                      ? colorScheme.error
+                                      : colorScheme.outlineVariant)
+                                  .withValues(alpha: 0.4),
                             ),
                           ),
-                          child: Row(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(
-                                child: Text(
-                                  context.tr.home_hosting_time_left(
-                                    formatDuration(_displayFreeMinutesBalance()),
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 8,
+                                    height: 8,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: _botLaunched ? AppTheme.success : AppTheme.warning,
+                                    ),
                                   ),
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: _hostingTimeColor(
-                                      _displayFreeMinutesBalance(),
-                                    ).withValues(alpha: 0.95),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    _botLaunched
+                                        ? _uiCopy(fr: "Session active (en ligne)", en: "Active session (online)")
+                                        : _uiCopy(fr: "Réserve disponible (en pause)", en: "Banked time (paused)"),
+                                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: _botLaunched ? AppTheme.success : AppTheme.warning,
+                                    ),
                                   ),
-                                ),
-                              ),
-                              FilledButton.tonalIcon(
-                                onPressed:
-                                    _isAddingTime ? null : () => _addRuntimeTime(),
-                                icon:
-                                    _isAddingTime
-                                        ? const SizedBox(
-                                          width: 14,
-                                          height: 14,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
+                                  const Spacer(),
+                                  if (_ownerMetadata?.teamId.isNotEmpty == true)
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: AppTheme.discord.withValues(alpha: 0.15),
+                                        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                                        border: Border.all(color: AppTheme.discord.withValues(alpha: 0.3)),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Icon(Icons.groups, size: 13, color: AppTheme.discord),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            _ownerMetadata!.teamName.isNotEmpty ? _ownerMetadata!.teamName : "Team",
+                                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.discord),
                                           ),
-                                        )
-                                        : const Icon(Icons.add_circle_outline),
-                                label: Text(context.tr.home_add_time),
+                                        ],
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: AppTheme.spacingSm),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          _botLaunched
+                                              ? context.tr.home_hosting_time_left(
+                                                  formatDuration(_displayFreeMinutesBalance()),
+                                                )
+                                              : _uiCopy(
+                                                  fr: "Réserve : ${formatDuration(_displayFreeMinutesBalance())}",
+                                                  en: "Banked: ${formatDuration(_displayFreeMinutesBalance())}",
+                                                ),
+                                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                            color: _hostingTimeColor(
+                                              _displayFreeMinutesBalance(),
+                                            ).withValues(alpha: 0.95),
+                                          ),
+                                        ),
+                                        if (!_botLaunched && _displayFreeMinutesBalance() > 0)
+                                          Text(
+                                            _uiCopy(
+                                              fr: "Le temps est préservé tant que le bot est arrêté.",
+                                              en: "Time is preserved while the bot is stopped.",
+                                            ),
+                                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                              color: colorScheme.outline,
+                                              fontSize: 11,
+                                            ),
+                                          ),
+                                        if (_botLaunched && _sessionExpiresAt != null)
+                                          Text(
+                                            _uiCopy(
+                                              fr: "Expire à ${_sessionExpiresAt!.toLocal().hour.toString().padLeft(2, '0')}:${_sessionExpiresAt!.toLocal().minute.toString().padLeft(2, '0')}",
+                                              en: "Expires at ${_sessionExpiresAt!.toLocal().hour.toString().padLeft(2, '0')}:${_sessionExpiresAt!.toLocal().minute.toString().padLeft(2, '0')}",
+                                            ),
+                                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                              color: colorScheme.outline,
+                                              fontSize: 11,
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                  IconButton.outlined(
+                                    tooltip: _uiCopy(fr: "Historique des pubs", en: "Ad History"),
+                                    icon: const Icon(Icons.history, size: 18),
+                                    onPressed: _showAdHistoryDialog,
+                                  ),
+                                  const SizedBox(width: AppTheme.spacingXs),
+                                  FilledButton.tonalIcon(
+                                    onPressed:
+                                        _isAddingTime ? null : () => _addRuntimeTime(),
+                                    icon:
+                                        _isAddingTime
+                                            ? const SizedBox(
+                                              width: 14,
+                                              height: 14,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                              ),
+                                            )
+                                            : const Icon(Icons.add_circle_outline),
+                                    label: Text(context.tr.home_add_time),
+                                  ),
+                                ],
                               ),
                             ],
                           ),

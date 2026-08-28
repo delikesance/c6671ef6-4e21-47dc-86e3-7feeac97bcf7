@@ -77,6 +77,20 @@ extension _AppHomePageLogic on _AppHomePageState {
     final app = await appManager.getApp(botId);
     var isRunning = false;
 
+    final token = (app['token'] ?? '').toString().trim();
+    if (token.isNotEmpty) {
+      unawaited(() async {
+        try {
+          final meta = await getDiscordApplicationOwnerMetadata(token);
+          if (mounted) {
+            _setState(() {
+              _ownerMetadata = meta;
+            });
+          }
+        } catch (_) {}
+      }());
+    }
+
     var remoteRuntime = await _resolveRemoteRuntime(
       getTimeout: const Duration(seconds: 5),
       postTimeout: const Duration(seconds: 10),

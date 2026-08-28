@@ -332,6 +332,12 @@ Future<void> _warmUpServicesAfterLaunch() async {
       await NotificationService.instance.initialize(
         managerBaseUrl: managerUrl,
       );
+      try {
+        if (managerUrl.isNotEmpty) {
+          final client = MainApiClient(baseUrl: managerUrl);
+          await NotificationService.instance.registerWithApi(client);
+        }
+      } catch (_) {}
     },
   );
 
