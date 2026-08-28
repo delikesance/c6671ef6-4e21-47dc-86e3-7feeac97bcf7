@@ -4002,6 +4002,44 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String home_hosting_banked(String time) {
+    return 'Yedek: $time';
+  }
+
+  @override
+  String home_hosting_expires_today(String time) {
+    return 'Bugün saat $time sona eriyor';
+  }
+
+  @override
+  String home_hosting_expires_tomorrow(String time) {
+    return 'Yarın saat $time sona eriyor';
+  }
+
+  @override
+  String get home_hosting_time_preserved =>
+      'Bot durdurulduğu sürece süre korunur.';
+
+  @override
+  String get home_hosting_status_active => 'Aktif oturum (çevrimiçi)';
+
+  @override
+  String get home_hosting_status_paused => 'Yedek süre (duraklatıldı)';
+
+  @override
+  String get home_hosting_ad_history => 'Reklam Geçmişi';
+
+  @override
+  String get home_hosting_ad_rewards_history_title => 'Reklam Ödülleri Geçmişi';
+
+  @override
+  String get home_hosting_ad_history_error => 'Reklam geçmişi yüklenemedi';
+
+  @override
+  String get home_hosting_ad_history_empty =>
+      'Bu bot için kayıtlı yakın tarihli reklam ödülü yok.';
+
+  @override
   String get home_log_desktop_stop_requested => 'Masaüstü bot durdurma istendi';
 
   @override

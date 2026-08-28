@@ -4057,6 +4057,46 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String home_hosting_banked(String time) {
+    return 'Réserve : $time';
+  }
+
+  @override
+  String home_hosting_expires_today(String time) {
+    return 'Expire aujourd\'hui à $time';
+  }
+
+  @override
+  String home_hosting_expires_tomorrow(String time) {
+    return 'Expire demain à $time';
+  }
+
+  @override
+  String get home_hosting_time_preserved =>
+      'Le temps est préservé tant que le bot est arrêté.';
+
+  @override
+  String get home_hosting_status_active => 'Session active (en ligne)';
+
+  @override
+  String get home_hosting_status_paused => 'Réserve disponible (en pause)';
+
+  @override
+  String get home_hosting_ad_history => 'Historique des pubs';
+
+  @override
+  String get home_hosting_ad_rewards_history_title =>
+      'Historique des gains publicitaires';
+
+  @override
+  String get home_hosting_ad_history_error =>
+      'Erreur lors du chargement de l\'historique';
+
+  @override
+  String get home_hosting_ad_history_empty =>
+      'Aucun gain publicitaire récent enregistré pour ce bot.';
+
+  @override
   String get home_log_desktop_stop_requested => 'Arrêt du bot desktop demandé';
 
   @override

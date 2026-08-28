@@ -36,42 +36,8 @@ import 'package:bot_creator/features/ads/logic/ad_consent_service.dart';
 import 'package:bot_creator/features/ads/logic/ads_placement_policy.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/app_editor_page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/bot_logs.dart';
+import 'package:bot_creator/core/utils/duration_formatter.dart';
 import 'package:bot_creator/features/containers/presentation/container_list_page.dart';
-
-String _formatHostingDuration(BuildContext context, int totalMinutes) {
-  if (totalMinutes <= 0) {
-    return context.tr.unit_minute(0);
-  }
-
-  const minutesPerHour = 60;
-  const minutesPerDay = minutesPerHour * 24;
-  const minutesPerMonth = minutesPerDay * 30;
-
-  var remaining = totalMinutes;
-  final months = remaining ~/ minutesPerMonth;
-  remaining %= minutesPerMonth;
-  final days = remaining ~/ minutesPerDay;
-  remaining %= minutesPerDay;
-  final hours = remaining ~/ minutesPerHour;
-  remaining %= minutesPerHour;
-  final minutes = remaining;
-
-  final parts = <String>[];
-  if (months > 0) {
-    parts.add(context.tr.unit_month(months));
-  }
-  if (days > 0) {
-    parts.add(context.tr.unit_day(days));
-  }
-  if (hours > 0) {
-    parts.add(context.tr.unit_hour(hours));
-  }
-  if (minutes > 0 || parts.isEmpty) {
-    parts.add(context.tr.unit_minute(minutes));
-  }
-
-  return parts.join(', ');
-}
 
 Color _hostingTimeColor(BuildContext context, int minutes) {
   const minutesPerDay = 60 * 24; // 1440
@@ -106,7 +72,6 @@ class HomePageState extends State<HomePage>
   /// IDs des bots en cours d'exécution.
   Set<String> _runningBotIds = <String>{};
 
-
   RemoteRuntimeSource _runtimeSource = RemoteRuntimeSource.local;
   String? _runtimeDetailLabel;
   final Map<String, RemoteRuntimeSource> _runtimeSourceByBotId = {};
@@ -129,7 +94,8 @@ class HomePageState extends State<HomePage>
   int _httpFallbackTick = 0;
 
   bool get _supportsForegroundTask => Platform.isAndroid || Platform.isIOS;
-  bool get _isDesktop => Platform.isWindows || Platform.isLinux || Platform.isMacOS;
+  bool get _isDesktop =>
+      Platform.isWindows || Platform.isLinux || Platform.isMacOS;
   bool get _supportsManagerRuntime => !kIsWeb && !_isDesktop;
 
   // ── Lifecycle ──────────────────────────────────────────────────────────────
@@ -210,245 +176,256 @@ class HomePageState extends State<HomePage>
     _isRefreshingRunningState = true;
     try {
       final runningIds = <String>{};
-    _runtimeSourceByBotId.clear();
-    _runtimeDetailLabelByBotId.clear();
-    appendBotDebugLog('[_initRunningState] Starting running-state refresh.');
-    final remoteClient = await _resolveGlobalMainApiClient();
-    final remoteRuntime = await _resolveRemoteRuntime(
-      getTimeout: const Duration(seconds: 30),
-      postTimeout: const Duration(seconds: 90),
-    );
-    appendBotDebugLog(
-      '[_initRunningState] Resolved runtime: source=${remoteRuntime.source}, hasClient=${remoteRuntime.client != null}, blocksLocalFallback=${remoteRuntime.blocksLocalFallback}, detail=${remoteRuntime.detailLabel ?? 'none'}.',
-    );
-    final apps = await appManager.getAllApps();
-    final localBotIds = apps
-        .whereType<Map>()
-        .map((raw) => (raw['id'] ?? '').toString().trim())
-        .where((id) => id.isNotEmpty)
-        .toList(growable: false);
-    appendBotDebugLog(
-      '[_initRunningState] Local bot ids loaded: count=${localBotIds.length}, ids=${localBotIds.join(',')}.',
-    );
-
-    unawaited(
-      SubscriptionService.resolveEffectivePremiumStatus(
-        client: remoteClient,
-        forceRefresh: true,
-      ),
-    );
-
-    final hasActiveRemote = remoteClient != null || remoteRuntime.client != null;
-    if (hasActiveRemote || localBotIds.isNotEmpty) {
-      appendBotDebugLog(
-        '[_initRunningState] Performing running-state detection (remoteClient=${remoteClient?.runtimeType}, remoteRuntime=${remoteRuntime.client?.runtimeType}, localBotIds=${localBotIds.length}).',
+      _runtimeSourceByBotId.clear();
+      _runtimeDetailLabelByBotId.clear();
+      appendBotDebugLog('[_initRunningState] Starting running-state refresh.');
+      final remoteClient = await _resolveGlobalMainApiClient();
+      final remoteRuntime = await _resolveRemoteRuntime(
+        getTimeout: const Duration(seconds: 30),
+        postTimeout: const Duration(seconds: 90),
       );
-      try {
-        if (localBotIds.isEmpty) {
-          appendBotDebugLog(
-            '[_initRunningState] No local bot ids found. Falling back to global status list.',
-          );
-          final statusClient = remoteClient ?? remoteRuntime.client;
-          if (statusClient != null) {
-            final status = await statusClient.getStatus();
+      appendBotDebugLog(
+        '[_initRunningState] Resolved runtime: source=${remoteRuntime.source}, hasClient=${remoteRuntime.client != null}, blocksLocalFallback=${remoteRuntime.blocksLocalFallback}, detail=${remoteRuntime.detailLabel ?? 'none'}.',
+      );
+      final apps = await appManager.getAllApps();
+      final localBotIds = apps
+          .whereType<Map>()
+          .map((raw) => (raw['id'] ?? '').toString().trim())
+          .where((id) => id.isNotEmpty)
+          .toList(growable: false);
+      appendBotDebugLog(
+        '[_initRunningState] Local bot ids loaded: count=${localBotIds.length}, ids=${localBotIds.join(',')}.',
+      );
+
+      unawaited(
+        SubscriptionService.resolveEffectivePremiumStatus(
+          client: remoteClient,
+          forceRefresh: true,
+        ),
+      );
+
+      final hasActiveRemote =
+          remoteClient != null || remoteRuntime.client != null;
+      if (hasActiveRemote || localBotIds.isNotEmpty) {
+        appendBotDebugLog(
+          '[_initRunningState] Performing running-state detection (remoteClient=${remoteClient?.runtimeType}, remoteRuntime=${remoteRuntime.client?.runtimeType}, localBotIds=${localBotIds.length}).',
+        );
+        try {
+          if (localBotIds.isEmpty) {
             appendBotDebugLog(
-              '[_initRunningState] Global status fetched: bots=${status.bots.length}, running=${status.running}.',
+              '[_initRunningState] No local bot ids found. Falling back to global status list.',
             );
-            for (final bot in status.bots) {
-              if (bot.isRunning) {
-                runningIds.add(bot.botId);
+            final statusClient = remoteClient ?? remoteRuntime.client;
+            if (statusClient != null) {
+              final status = await statusClient.getStatus();
+              appendBotDebugLog(
+                '[_initRunningState] Global status fetched: bots=${status.bots.length}, running=${status.running}.',
+              );
+              for (final bot in status.bots) {
+                if (bot.isRunning) {
+                  runningIds.add(bot.botId);
+                  appendBotDebugLog(
+                    '[_initRunningState] Marked running (global): ${bot.botId}.',
+                  );
+                }
+              }
+            }
+          } else {
+            appendBotDebugLog(
+              '[_initRunningState] Checking per-bot status with owner-aware client resolution.',
+            );
+            final runningChecks = localBotIds
+                .where((botId) => !_skippedMissingBotIds.contains(botId))
+                .map((botId) async {
+                  try {
+                    appendBotDebugLog(
+                      '[_initRunningState] Resolving client for bot $botId.',
+                    );
+
+                    // Check local in-app running state first!
+                    final isInternalRunning = _supportsForegroundTask
+                        ? isMobileBotRunning(botId)
+                        : desktopRunningBotIds.contains(botId);
+                    if (isInternalRunning) {
+                      appendBotDebugLog(
+                        '[_initRunningState] Bot $botId is running internally in-app.',
+                      );
+                      if (mounted) {
+                        setState(() {
+                          _runtimeSourceByBotId[botId] =
+                              RemoteRuntimeSource.local;
+                          _runtimeDetailLabelByBotId[botId] = null;
+                        });
+                      }
+                      return botId;
+                    }
+
+                    final perBotClient = await _resolveMainApiClientForBot(
+                      botId: botId,
+                      attemptSessionRestore: false,
+                    );
+                    final botRuntime = remoteRuntime;
+
+                    final associatedId = RunnerSettings.getAssociatedRunnerId(
+                      botId,
+                    );
+                    final isManagerBot =
+                        associatedId == 'manager' ||
+                        (associatedId == null && perBotClient != null);
+
+                    final source = isManagerBot
+                        ? RemoteRuntimeSource.manager
+                        : botRuntime.source;
+                    final detailLabel = isManagerBot
+                        ? (remoteRuntime.detailLabel ?? 'Bot Creator servers')
+                        : botRuntime.detailLabel;
+
+                    if (mounted) {
+                      setState(() {
+                        _runtimeSourceByBotId[botId] = source;
+                        _runtimeDetailLabelByBotId[botId] = detailLabel;
+                      });
+                    }
+                    final statusClient = isManagerBot
+                        ? (perBotClient ?? remoteClient)
+                        : (botRuntime.client ?? perBotClient ?? remoteClient);
+                    appendBotDebugLog(
+                      '[_initRunningState] Bot $botId status client: ${statusClient.runtimeType}, resolvedSource=$source, usedFallbackToGlobal=${!isManagerBot && botRuntime.client == null}.',
+                    );
+                    if (statusClient == null) {
+                      return null;
+                    }
+                    final status = await statusClient.getStatus(botId: botId);
+                    final isRunning = status.isBotRunning(botId);
+                    _noteBotFound(botId);
+                    appendBotDebugLog(
+                      '[_initRunningState] Bot $botId status fetched: statusRunning=${status.running}, activeBotId=${status.activeBotId ?? 'none'}, botEntries=${status.bots.length}, isBotRunning=$isRunning.',
+                    );
+                    return isRunning ? botId : null;
+                  } catch (error) {
+                    if (error is MainApiClientException &&
+                        error.statusCode == 404) {
+                      _noteBotNotFound(botId);
+                      appendBotDebugLog(
+                        '[_initRunningState] Bot $botId missing on manager (404 streak=${_botNotFoundStreak[botId]}).',
+                      );
+                    } else {
+                      appendBotDebugLog(
+                        'Failed to sync running status for $botId: $error',
+                      );
+                    }
+                    return null;
+                  }
+                })
+                .toList(growable: false);
+
+            final resolvedRunningIds = await Future.wait(runningChecks);
+            for (final botId in resolvedRunningIds.whereType<String>()) {
+              runningIds.add(botId);
+              appendBotDebugLog(
+                '[_initRunningState] Marked running (per-bot): $botId.',
+              );
+            }
+          }
+        } catch (_) {}
+
+        appendBotDebugLog(
+          '[_initRunningState] Remote detection completed. Running ids=${runningIds.join(',')}.',
+        );
+
+        if (!mounted) return;
+        setState(() {
+          _runningBotIds = runningIds;
+          _runtimeSource = remoteRuntime.source;
+          _runtimeDetailLabel = remoteRuntime.detailLabel;
+        });
+        _syncPulse(runningIds);
+        await _syncDiscordRpcPresence(runningIds);
+        unawaited(_refreshBotRuntimeBalances());
+        return;
+      }
+
+      if (remoteRuntime.blocksLocalFallback) {
+        appendBotDebugLog(
+          '[_initRunningState] No remote client and local fallback is blocked. Running set remains empty.',
+        );
+        if (!mounted) return;
+        setState(() {
+          _runningBotIds = runningIds;
+          _runtimeSource = remoteRuntime.source;
+          _runtimeDetailLabel = remoteRuntime.detailLabel;
+        });
+        _syncPulse(runningIds);
+        await _syncDiscordRpcPresence(runningIds);
+        unawaited(_refreshBotRuntimeBalances());
+        return;
+      }
+
+      if (_supportsForegroundTask) {
+        try {
+          appendBotDebugLog(
+            '[_initRunningState] Falling back to foreground task running-state detection.',
+          );
+          final running = await FlutterForegroundTask.isRunningService;
+          appendBotDebugLog(
+            '[_initRunningState] Foreground service running=$running.',
+          );
+          if (running) {
+            final configuredIds = await getConfiguredMobileBotIds();
+            appendBotDebugLog(
+              '[_initRunningState] Configured mobile bot ids: count=${configuredIds.length}, ids=${configuredIds.join(',')}.',
+            );
+            if (configuredIds.isNotEmpty) {
+              runningIds.addAll(configuredIds);
+              for (final botId in configuredIds) {
+                addMobileRunningBotId(botId);
+              }
+            } else {
+              final fallbackId =
+                  mobileRunningBotId ??
+                  await FlutterForegroundTask.getData<String>(
+                    key: 'running_bot_id',
+                  );
+              if (fallbackId != null && fallbackId.isNotEmpty) {
+                runningIds.add(fallbackId);
+                addMobileRunningBotId(fallbackId);
                 appendBotDebugLog(
-                  '[_initRunningState] Marked running (global): ${bot.botId}.',
+                  '[_initRunningState] Added fallback running bot id from foreground task data: $fallbackId.',
                 );
               }
             }
           }
-        } else {
+        } on MissingPluginException {
+          // Plateforme non supportée.
           appendBotDebugLog(
-            '[_initRunningState] Checking per-bot status with owner-aware client resolution.',
+            '[_initRunningState] Foreground plugin unavailable on this platform.',
           );
-          final runningChecks = localBotIds
-              .where((botId) => !_skippedMissingBotIds.contains(botId))
-              .map((botId) async {
-                try {
-                  appendBotDebugLog(
-                    '[_initRunningState] Resolving client for bot $botId.',
-                  );
-
-                  // Check local in-app running state first!
-                  final isInternalRunning = _supportsForegroundTask
-                      ? isMobileBotRunning(botId)
-                      : desktopRunningBotIds.contains(botId);
-                  if (isInternalRunning) {
-                    appendBotDebugLog(
-                      '[_initRunningState] Bot $botId is running internally in-app.',
-                    );
-                    if (mounted) {
-                      setState(() {
-                        _runtimeSourceByBotId[botId] = RemoteRuntimeSource.local;
-                        _runtimeDetailLabelByBotId[botId] = null;
-                      });
-                    }
-                    return botId;
-                  }
-
-                   final perBotClient = await _resolveMainApiClientForBot(
-                    botId: botId,
-                    attemptSessionRestore: false,
-                  );
-                  final botRuntime = remoteRuntime;
-                  
-                  final associatedId = RunnerSettings.getAssociatedRunnerId(botId);
-                  final isManagerBot = associatedId == 'manager' || (associatedId == null && perBotClient != null);
-                  
-                  final source = isManagerBot ? RemoteRuntimeSource.manager : botRuntime.source;
-                  final detailLabel = isManagerBot ? (remoteRuntime.detailLabel ?? 'Bot Creator servers') : botRuntime.detailLabel;
-
-                  if (mounted) {
-                    setState(() {
-                      _runtimeSourceByBotId[botId] = source;
-                      _runtimeDetailLabelByBotId[botId] = detailLabel;
-                    });
-                  }
-                  final statusClient = isManagerBot 
-                      ? (perBotClient ?? remoteClient) 
-                      : (botRuntime.client ?? perBotClient ?? remoteClient);
-                  appendBotDebugLog(
-                    '[_initRunningState] Bot $botId status client: ${statusClient.runtimeType}, resolvedSource=$source, usedFallbackToGlobal=${!isManagerBot && botRuntime.client == null}.',
-                  );
-                  if (statusClient == null) {
-                    return null;
-                  }
-                  final status = await statusClient.getStatus(botId: botId);
-                  final isRunning = status.isBotRunning(botId);
-                  _noteBotFound(botId);
-                  appendBotDebugLog(
-                    '[_initRunningState] Bot $botId status fetched: statusRunning=${status.running}, activeBotId=${status.activeBotId ?? 'none'}, botEntries=${status.bots.length}, isBotRunning=$isRunning.',
-                  );
-                  return isRunning ? botId : null;
-                } catch (error) {
-                  if (error is MainApiClientException && error.statusCode == 404) {
-                    _noteBotNotFound(botId);
-                    appendBotDebugLog(
-                      '[_initRunningState] Bot $botId missing on manager (404 streak=${_botNotFoundStreak[botId]}).',
-                    );
-                  } else {
-                    appendBotDebugLog(
-                      'Failed to sync running status for $botId: $error',
-                    );
-                  }
-                  return null;
-                }
-              })
-              .toList(growable: false);
-
-          final resolvedRunningIds = await Future.wait(runningChecks);
-          for (final botId in resolvedRunningIds.whereType<String>()) {
-            runningIds.add(botId);
-            appendBotDebugLog(
-              '[_initRunningState] Marked running (per-bot): $botId.',
-            );
-          }
         }
-      } catch (_) {}
-
-      appendBotDebugLog(
-        '[_initRunningState] Remote detection completed. Running ids=${runningIds.join(',')}.',
-      );
-
+      } else {
+        runningIds.addAll(desktopRunningBotIds);
+        appendBotDebugLog(
+          '[_initRunningState] Using desktop running ids fallback: ${desktopRunningBotIds.join(',')}.',
+        );
+      }
       if (!mounted) return;
       setState(() {
         _runningBotIds = runningIds;
-        _runtimeSource = remoteRuntime.source;
-        _runtimeDetailLabel = remoteRuntime.detailLabel;
+        _runtimeSource = RemoteRuntimeSource.local;
+        _runtimeDetailLabel = null;
       });
-      _syncPulse(runningIds);
-      await _syncDiscordRpcPresence(runningIds);
-      unawaited(_refreshBotRuntimeBalances());
-      return;
-    }
 
-    if (remoteRuntime.blocksLocalFallback) {
-      appendBotDebugLog(
-        '[_initRunningState] No remote client and local fallback is blocked. Running set remains empty.',
-      );
-      if (!mounted) return;
-      setState(() {
-        _runningBotIds = runningIds;
-        _runtimeSource = remoteRuntime.source;
-        _runtimeDetailLabel = remoteRuntime.detailLabel;
-      });
-      _syncPulse(runningIds);
-      await _syncDiscordRpcPresence(runningIds);
-      unawaited(_refreshBotRuntimeBalances());
-      return;
-    }
-
-    if (_supportsForegroundTask) {
-      try {
-        appendBotDebugLog(
-          '[_initRunningState] Falling back to foreground task running-state detection.',
-        );
-        final running = await FlutterForegroundTask.isRunningService;
-        appendBotDebugLog(
-          '[_initRunningState] Foreground service running=$running.',
-        );
-        if (running) {
-          final configuredIds = await getConfiguredMobileBotIds();
-          appendBotDebugLog(
-            '[_initRunningState] Configured mobile bot ids: count=${configuredIds.length}, ids=${configuredIds.join(',')}.',
-          );
-          if (configuredIds.isNotEmpty) {
-            runningIds.addAll(configuredIds);
-            for (final botId in configuredIds) {
-              addMobileRunningBotId(botId);
-            }
-          } else {
-            final fallbackId =
-                mobileRunningBotId ??
-                await FlutterForegroundTask.getData<String>(
-                  key: 'running_bot_id',
-                );
-            if (fallbackId != null && fallbackId.isNotEmpty) {
-              runningIds.add(fallbackId);
-              addMobileRunningBotId(fallbackId);
-              appendBotDebugLog(
-                '[_initRunningState] Added fallback running bot id from foreground task data: $fallbackId.',
-              );
-            }
-          }
+      for (final botId in desktopRunningBotIds) {
+        final guildCount = desktopGatewayForBot(botId)?.guilds.cache.length;
+        if (guildCount != null) {
+          appManager.updateGuildCount(botId, guildCount);
         }
-      } on MissingPluginException {
-        // Plateforme non supportée.
-        appendBotDebugLog(
-          '[_initRunningState] Foreground plugin unavailable on this platform.',
-        );
       }
-    } else {
-      runningIds.addAll(desktopRunningBotIds);
+      _syncPulse(runningIds);
+      await _syncDiscordRpcPresence(runningIds);
+      unawaited(_refreshBotRuntimeBalances());
       appendBotDebugLog(
-        '[_initRunningState] Using desktop running ids fallback: ${desktopRunningBotIds.join(',')}.',
+        '[_initRunningState] Completed with local fallback. Running ids=${runningIds.join(',')}.',
       );
-    }
-    if (!mounted) return;
-    setState(() {
-      _runningBotIds = runningIds;
-      _runtimeSource = RemoteRuntimeSource.local;
-      _runtimeDetailLabel = null;
-    });
-
-    for (final botId in desktopRunningBotIds) {
-      final guildCount = desktopGatewayForBot(botId)?.guilds.cache.length;
-      if (guildCount != null) {
-        appManager.updateGuildCount(botId, guildCount);
-      }
-    }
-    _syncPulse(runningIds);
-    await _syncDiscordRpcPresence(runningIds);
-    unawaited(_refreshBotRuntimeBalances());
-    appendBotDebugLog(
-      '[_initRunningState] Completed with local fallback. Running ids=${runningIds.join(',')}.',
-    );
     } finally {
       _isRefreshingRunningState = false;
     }
@@ -465,8 +442,7 @@ class HomePageState extends State<HomePage>
   }
 
   DateTime? _extractSessionExpiresAt(Map<String, dynamic> runtime) {
-    final raw =
-        runtime['session_expires_at'] ?? runtime['sessionExpiresAt'];
+    final raw = runtime['session_expires_at'] ?? runtime['sessionExpiresAt'];
     if (raw == null) return null;
     return DateTime.tryParse(raw.toString())?.toUtc();
   }
@@ -609,8 +585,9 @@ class HomePageState extends State<HomePage>
         _sessionExpiresAtByBotId.remove(botId);
       } else if (bot.sessionExpiresAt != null && bot.fundingMode == 'free') {
         _sessionExpiresAtByBotId[botId] = bot.sessionExpiresAt!;
-        _freeMinutesByBotId[botId] =
-            _remainingMinutesUntil(bot.sessionExpiresAt!);
+        _freeMinutesByBotId[botId] = _remainingMinutesUntil(
+          bot.sessionExpiresAt!,
+        );
       } else {
         _sessionExpiresAtByBotId.remove(botId);
         _freeMinutesByBotId[botId] = bot.freeMinutesBalance;
@@ -772,7 +749,9 @@ class HomePageState extends State<HomePage>
           if (rawApp is! Map) {
             return;
           }
-          final app = Map<String, dynamic>.from(rawApp.cast<dynamic, dynamic>());
+          final app = Map<String, dynamic>.from(
+            rawApp.cast<dynamic, dynamic>(),
+          );
           final botId = (app['id'] ?? '').toString().trim();
           final token = (app['token'] ?? '').toString().trim();
           if (botId.isEmpty || token.isEmpty) {
@@ -794,9 +773,12 @@ class HomePageState extends State<HomePage>
               if (guildCount != null) {
                 fetchedApproxGuildCount = guildCount;
               } else {
-                final ownerMetadata = await getDiscordApplicationOwnerMetadata(token);
+                final ownerMetadata = await getDiscordApplicationOwnerMetadata(
+                  token,
+                );
                 if (ownerMetadata != null) {
-                  final approx = ownerMetadata.rawJson['approximate_guild_count'];
+                  final approx =
+                      ownerMetadata.rawJson['approximate_guild_count'];
                   if (approx is int) {
                     fetchedApproxGuildCount = approx;
                   } else if (approx != null) {
@@ -880,8 +862,8 @@ class HomePageState extends State<HomePage>
           final botId = (rawApp['id'] ?? '').toString().trim();
           final token = (rawApp['token'] ?? '').toString().trim();
           if (token.isEmpty) continue;
-          final ephemeral =
-              await _ownerSyncHelper.exchangeEphemeralBotTokenClient(token);
+          final ephemeral = await _ownerSyncHelper
+              .exchangeEphemeralBotTokenClient(token);
           if (ephemeral != null) {
             ownerClients['bot:$botId'] = ephemeral;
             break;
@@ -894,20 +876,22 @@ class HomePageState extends State<HomePage>
         appendBotDebugLog(
           '[syncAllBotsFromManager] Fetching listBots for ${ownerClients.length} unique owners in parallel.',
         );
-        final listBotsTasks = ownerClients.entries.map((entry) async {
-          final dedupeKey = entry.key;
-          final client = entry.value;
-          try {
-            appendBotDebugLog(
-              '[syncAllBotsFromManager] Fetching listBots for dedupeKey=$dedupeKey.',
-            );
-            mergeBots(await client.listBots());
-          } catch (error) {
-            appendBotDebugLog(
-              '[syncAllBotsFromManager] listBots failed for dedupeKey=$dedupeKey: $error',
-            );
-          }
-        }).toList(growable: false);
+        final listBotsTasks = ownerClients.entries
+            .map((entry) async {
+              final dedupeKey = entry.key;
+              final client = entry.value;
+              try {
+                appendBotDebugLog(
+                  '[syncAllBotsFromManager] Fetching listBots for dedupeKey=$dedupeKey.',
+                );
+                mergeBots(await client.listBots());
+              } catch (error) {
+                appendBotDebugLog(
+                  '[syncAllBotsFromManager] listBots failed for dedupeKey=$dedupeKey: $error',
+                );
+              }
+            })
+            .toList(growable: false);
         await Future.wait(listBotsTasks);
       }
 
@@ -920,75 +904,78 @@ class HomePageState extends State<HomePage>
         '[syncAllBotsFromManager] Syncing ${bots.length} bots - network phase in parallel.',
       );
 
-      final botSyncTasks = bots.map((bot) async {
-        final botId = bot['bot_id']?.toString() ?? '';
-        if (botId.isEmpty) return null;
+      final botSyncTasks = bots
+          .map((bot) async {
+            final botId = bot['bot_id']?.toString() ?? '';
+            if (botId.isEmpty) return null;
 
-        final botName = bot['bot_name']?.toString() ?? 'Unnamed Bot';
-        final config = bot['config'] as Map<String, dynamic>? ?? {};
+            final botName = bot['bot_name']?.toString() ?? 'Unnamed Bot';
+            final config = bot['config'] as Map<String, dynamic>? ?? {};
 
-        String token = bot['bot_token']?.toString() ?? '';
-        if (token.isEmpty) {
-          try {
-            final existing = await appManager.getApp(botId);
-            token = (existing['token'] ?? '').toString();
-          } catch (_) {}
-        }
-
-        int? fetchedApproxGuildCount;
-        if (token.trim().isNotEmpty) {
-          try {
-            final snapshotClient = await _resolveMainApiClientForBot(
-              botId: botId,
-              botToken: token,
-              attemptSessionRestore: false,
-            );
-            if (snapshotClient != null) {
-              final payload = await buildRemotePayload(botId);
-              await snapshotClient.saveDiscordBotSnapshot(
-                botId: botId,
-                botToken: token,
-                config: payload,
-              );
+            String token = bot['bot_token']?.toString() ?? '';
+            if (token.isEmpty) {
+              try {
+                final existing = await appManager.getApp(botId);
+                token = (existing['token'] ?? '').toString();
+              } catch (_) {}
             }
-          } catch (error) {
-            appendBotDebugLog(
-              '[syncAllBotsFromManager] Bot $botId snapshot sync failed: $error',
-            );
-          }
 
-          try {
-            final guildCount = await getDiscordBotGuildCount(token);
-            if (guildCount != null) {
-              fetchedApproxGuildCount = guildCount;
-            } else {
-              final ownerMetadata =
-                  await getDiscordApplicationOwnerMetadata(token);
-              if (ownerMetadata != null) {
-                final approx = ownerMetadata.rawJson['approximate_guild_count'];
-                if (approx is int) {
-                  fetchedApproxGuildCount = approx;
-                } else if (approx != null) {
-                  fetchedApproxGuildCount = int.tryParse(approx.toString());
+            int? fetchedApproxGuildCount;
+            if (token.trim().isNotEmpty) {
+              try {
+                final snapshotClient = await _resolveMainApiClientForBot(
+                  botId: botId,
+                  botToken: token,
+                  attemptSessionRestore: false,
+                );
+                if (snapshotClient != null) {
+                  final payload = await buildRemotePayload(botId);
+                  await snapshotClient.saveDiscordBotSnapshot(
+                    botId: botId,
+                    botToken: token,
+                    config: payload,
+                  );
                 }
+              } catch (error) {
+                appendBotDebugLog(
+                  '[syncAllBotsFromManager] Bot $botId snapshot sync failed: $error',
+                );
+              }
+
+              try {
+                final guildCount = await getDiscordBotGuildCount(token);
+                if (guildCount != null) {
+                  fetchedApproxGuildCount = guildCount;
+                } else {
+                  final ownerMetadata =
+                      await getDiscordApplicationOwnerMetadata(token);
+                  if (ownerMetadata != null) {
+                    final approx =
+                        ownerMetadata.rawJson['approximate_guild_count'];
+                    if (approx is int) {
+                      fetchedApproxGuildCount = approx;
+                    } else if (approx != null) {
+                      fetchedApproxGuildCount = int.tryParse(approx.toString());
+                    }
+                  }
+                }
+              } catch (error) {
+                appendBotDebugLog(
+                  '[syncAllBotsFromManager] Guild count fetch failed for $botId: $error',
+                );
               }
             }
-          } catch (error) {
-            appendBotDebugLog(
-              '[syncAllBotsFromManager] Guild count fetch failed for $botId: $error',
-            );
-          }
-        }
 
-        return _BotSyncResult(
-          botId: botId,
-          botName: botName,
-          token: token,
-          config: config,
-          bot: bot,
-          guildCount: fetchedApproxGuildCount,
-        );
-      }).toList(growable: false);
+            return _BotSyncResult(
+              botId: botId,
+              botName: botName,
+              token: token,
+              config: config,
+              bot: bot,
+              guildCount: fetchedApproxGuildCount,
+            );
+          })
+          .toList(growable: false);
 
       final syncResults = await Future.wait(botSyncTasks);
 
@@ -999,7 +986,8 @@ class HomePageState extends State<HomePage>
             id: Snowflake.parse(result.botId),
             username: result.botName,
             avatarHash:
-                result.bot['avatar_hash']?.toString() ?? result.bot['avatar']?.toString(),
+                result.bot['avatar_hash']?.toString() ??
+                result.bot['avatar']?.toString(),
             discriminator: result.bot['discriminator']?.toString(),
             token: result.token,
             intents: (result.config['intents'] as Map?)?.cast<String, bool>(),
@@ -1056,14 +1044,14 @@ class HomePageState extends State<HomePage>
     }
   }
 
-
   String _uiCopy({required String fr, required String en}) {
     return Localizations.localeOf(context).languageCode == 'fr' ? fr : en;
   }
 
   String? _runtimeBadgeLabel(String botId) {
     final source = _runtimeSourceByBotId[botId] ?? _runtimeSource;
-    final detailLabel = _runtimeDetailLabelByBotId[botId] ?? _runtimeDetailLabel;
+    final detailLabel =
+        _runtimeDetailLabelByBotId[botId] ?? _runtimeDetailLabel;
     return switch (source) {
       RemoteRuntimeSource.manager => _uiCopy(
         fr: 'Serveurs Bot Creator',
@@ -1208,8 +1196,9 @@ class HomePageState extends State<HomePage>
         if (rawApp is! Map) continue;
         final token = (rawApp['token'] ?? '').toString().trim();
         if (token.isEmpty) continue;
-        final client =
-            await _ownerSyncHelper.exchangeEphemeralBotTokenClient(token);
+        final client = await _ownerSyncHelper.exchangeEphemeralBotTokenClient(
+          token,
+        );
         if (client != null) {
           appendBotDebugLog(
             '[_resolveGlobalMainApiClient] Success: ephemeral client from local bot token.',
@@ -1252,14 +1241,18 @@ class HomePageState extends State<HomePage>
 
         // Sync config from manager before startup (the basic sync)
         try {
-          appendBotDebugLog('[_toggleBot] Fetching latest config from manager before launch...');
+          appendBotDebugLog(
+            '[_toggleBot] Fetching latest config from manager before launch...',
+          );
           final syncClient = await _resolveMainApiClientForBot(
             botId: botId,
             botToken: token,
             attemptSessionRestore: true,
           );
           if (syncClient != null) {
-            final remoteConfig = await syncClient.getBotConfig(botId).timeout(const Duration(seconds: 15));
+            final remoteConfig = await syncClient
+                .getBotConfig(botId)
+                .timeout(const Duration(seconds: 15));
             if (remoteConfig.isNotEmpty) {
               if (remoteConfig['inboundWebhooks'] is bool) {
                 remoteConfig.remove('inboundWebhooks');
@@ -1270,7 +1263,9 @@ class HomePageState extends State<HomePage>
               if (app['name'] != null && remoteConfig['name'] == null) {
                 remoteConfig['name'] = app['name'];
               }
-              final existingToken = (app['token'] ?? token ?? '').toString().trim();
+              final existingToken = (app['token'] ?? token ?? '')
+                  .toString()
+                  .trim();
               remoteConfig['token'] = existingToken;
 
               final localCommands = await appManager.listAppCommands(
@@ -1349,7 +1344,9 @@ class HomePageState extends State<HomePage>
             }
           }
         } catch (e) {
-          appendBotDebugLog('[_toggleBot] Pre-launch config sync failed/skipped: $e');
+          appendBotDebugLog(
+            '[_toggleBot] Pre-launch config sync failed/skipped: $e',
+          );
         }
 
         var usingRunner = runtime.client != null || runtime.blocksLocalFallback;
@@ -1375,10 +1372,8 @@ class HomePageState extends State<HomePage>
             final message =
                 runtime.unavailableReason ??
                 _uiCopy(
-                  fr:
-                      'Connectez-vous a Bot Creator dans les parametres avant de demarrer ce bot.',
-                  en:
-                      'Sign in to Bot Creator in Settings before starting this bot.',
+                  fr: 'Connectez-vous a Bot Creator dans les parametres avant de demarrer ce bot.',
+                  en: 'Sign in to Bot Creator in Settings before starting this bot.',
                 );
             throw Exception(message);
           }
@@ -1479,8 +1474,9 @@ class HomePageState extends State<HomePage>
               RunnerSettings.associateBotWithRunner(botId, 'manager');
             } else {
               await client.startBot(botId, botName: botName);
-              final runnerConfig =
-                  await RunnerSettings.resolveConfigForBot(botId);
+              final runnerConfig = await RunnerSettings.resolveConfigForBot(
+                botId,
+              );
               if (runnerConfig != null) {
                 RunnerSettings.associateBotWithRunner(botId, runnerConfig.id);
               }
@@ -1594,21 +1590,20 @@ class HomePageState extends State<HomePage>
           }
         } else {
           if (await getBotRuntimeEngine(botId) == runtimeEngineJavascript) {
-            final runnerConfig =
-                await RunnerSettings.resolveConfigForBot(botId);
+            final runnerConfig = await RunnerSettings.resolveConfigForBot(
+              botId,
+            );
             if (runnerConfig == null) {
               final startupDetail =
                   await RunnerSettings.embeddedRunnerStartupFailureDetail();
               final detailSuffix =
                   startupDetail == null || startupDetail.isEmpty
-                      ? ''
-                      : ' ($startupDetail)';
+                  ? ''
+                  : ' ($startupDetail)';
               throw Exception(
                 _uiCopy(
-                  fr:
-                      'Le runner JS embarque n\'a pas pu demarrer. Relancez completement l\'application (pas un hot reload).$detailSuffix',
-                  en:
-                      'The embedded JS runner could not start. Fully restart the app (not hot reload).$detailSuffix',
+                  fr: 'Le runner JS embarque n\'a pas pu demarrer. Relancez completement l\'application (pas un hot reload).$detailSuffix',
+                  en: 'The embedded JS runner could not start. Fully restart the app (not hot reload).$detailSuffix',
                 ),
               );
             }
@@ -1786,14 +1781,13 @@ class HomePageState extends State<HomePage>
 
     return AdRewardSsvContext(
       userId: ownerId,
-      customData:
-          Uri(
-            queryParameters: <String, String>{
-              'owner_id': ownerId,
-              'bot_id': botId,
-              'placement': 'admob_rewarded',
-            },
-          ).query,
+      customData: Uri(
+        queryParameters: <String, String>{
+          'owner_id': ownerId,
+          'bot_id': botId,
+          'placement': 'admob_rewarded',
+        },
+      ).query,
     );
   }
 
@@ -1889,8 +1883,7 @@ class HomePageState extends State<HomePage>
           SnackBar(
             content: Text(
               _uiCopy(
-                fr:
-                    "Limite de visionnage ou cooldown actif. Veuillez réessayer plus tard.",
+                fr: "Limite de visionnage ou cooldown actif. Veuillez réessayer plus tard.",
                 en: "Ad cooldown or limit is active. Please try again later.",
               ),
             ),
@@ -1915,8 +1908,7 @@ class HomePageState extends State<HomePage>
           SnackBar(
             content: Text(
               _uiCopy(
-                fr:
-                    "Impossible de synchroniser la configuration du bot avec l'API principale.",
+                fr: "Impossible de synchroniser la configuration du bot avec l'API principale.",
                 en: "Failed to sync bot configuration with the main API.",
               ),
             ),
@@ -1936,10 +1928,8 @@ class HomePageState extends State<HomePage>
           SnackBar(
             content: Text(
               _uiCopy(
-                fr:
-                    "Impossible de générer le contexte publicitaire (compte non connecté ou token manquant).",
-                en:
-                    "Failed to build ad context. Please ensure you are signed in and your bot token is set.",
+                fr: "Impossible de générer le contexte publicitaire (compte non connecté ou token manquant).",
+                en: "Failed to build ad context. Please ensure you are signed in and your bot token is set.",
               ),
             ),
           ),
@@ -2069,12 +2059,11 @@ class HomePageState extends State<HomePage>
         }
 
         final effectiveCrossAxisCount = useIOSPhoneLayout ? 1 : crossAxisCount;
-        final listHorizontalPadding =
-            useIOSPhoneLayout
-                ? 6.0
-                : isIOS
-                ? 10.0
-                : 14.0;
+        final listHorizontalPadding = useIOSPhoneLayout
+            ? 6.0
+            : isIOS
+            ? 10.0
+            : 14.0;
         final contentWidth =
             width - (horizontalPadding * 2) - (listHorizontalPadding * 2);
 
@@ -2103,7 +2092,6 @@ class HomePageState extends State<HomePage>
 
               return Column(
                 children: [
-
                   if (AdsPlacementPolicy.isPlacementEnabled(
                         NativeAdPlacement.homeBots,
                       ) &&
@@ -2135,8 +2123,7 @@ class HomePageState extends State<HomePage>
                               child: Wrap(
                                 spacing: 14,
                                 runSpacing: 14,
-                                children:
-                                    apps.map((app) {
+                                children: apps.map((app) {
                                   final name =
                                       app['name']?.toString().sanitizedUtf16 ??
                                       context.tr.home_unknown_app;
@@ -2144,7 +2131,7 @@ class HomePageState extends State<HomePage>
                                   final avatar = app['avatar']?.toString();
                                   final guildCount =
                                       switch (app['guild_count'] ??
-                                          app['approximate_guild_count']) {
+                                      app['approximate_guild_count']) {
                                         final int value => value,
                                         final String s => int.tryParse(s) ?? 0,
                                         _ => 0,
@@ -2173,46 +2160,38 @@ class HomePageState extends State<HomePage>
                                       isRunning: isRunning,
                                       canToggle: canToggle,
                                       isTogglingThisBot: _botIdInAction == id,
-                                      runtimeBadgeLabel:
-                                          isRunning
-                                              ? _runtimeBadgeLabel(id)
-                                              : null,
-                                      freeMinutes: _displayFreeMinutesForBot(id),
+                                      runtimeBadgeLabel: isRunning
+                                          ? _runtimeBadgeLabel(id)
+                                          : null,
+                                      freeMinutes: _displayFreeMinutesForBot(
+                                        id,
+                                      ),
                                       pulseController: pulseCtrl,
-                                      onManage:
-                                          () => Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder:
-                                                  (_) => AppEditPage(
-                                                    appName: name,
-                                                    id: int.tryParse(id) ?? 0,
-                                                  ),
-                                            ),
-                                          ).then((_) => _initRunningState()),
-                                      onToggle:
-                                          () => _toggleBot(
-                                            botId: id,
-                                            botName: name,
+                                      onManage: () => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => AppEditPage(
+                                            appName: name,
+                                            id: int.tryParse(id) ?? 0,
                                           ),
-                                      onAddTime:
-                                          _supportsForegroundTask
-                                              ? () => _addHostingTime(id)
-                                              : null,
+                                        ),
+                                      ).then((_) => _initRunningState()),
+                                      onToggle: () =>
+                                          _toggleBot(botId: id, botName: name),
+                                      onAddTime: _supportsForegroundTask
+                                          ? () => _addHostingTime(id)
+                                          : null,
                                       showPremiumLabels:
                                           _supportsForegroundTask,
-                                      onLogs:
-                                          isRunning
-                                              ? () => Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder:
-                                                      (_) => BotLogsPage(
-                                                        botId: id,
-                                                      ),
-                                                ),
-                                              )
-                                              : null,
+                                      onLogs: isRunning
+                                          ? () => Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (_) =>
+                                                    BotLogsPage(botId: id),
+                                              ),
+                                            )
+                                          : null,
                                     ),
                                   );
                                 }).toList(),
@@ -2317,8 +2296,9 @@ class _BotCard extends StatelessWidget {
                 child: AnimatedBuilder(
                   animation: pulseController,
                   builder: (_, _) {
-                    final opacity =
-                        isRunning ? 0.5 + 0.5 * pulseController.value : 1.0;
+                    final opacity = isRunning
+                        ? 0.5 + 0.5 * pulseController.value
+                        : 1.0;
                     return Opacity(
                       opacity: opacity,
                       child: Container(
@@ -2340,10 +2320,9 @@ class _BotCard extends StatelessWidget {
                               height: 7,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color:
-                                    isRunning
-                                        ? AppTheme.successAccent
-                                        : AppTheme.grey,
+                                color: isRunning
+                                    ? AppTheme.successAccent
+                                    : AppTheme.grey,
                               ),
                             ),
                             const SizedBox(width: 5),
@@ -2373,54 +2352,51 @@ class _BotCard extends StatelessWidget {
                   SizedBox(height: compact ? 8 : 12),
                   // Avatar with glow ring when running
                   Container(
-                    decoration:
-                        isRunning
-                            ? BoxDecoration(
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppTheme.successAccent.withValues(
-                                    alpha: 0.4,
-                                  ),
-                                  blurRadius: 16,
-                                  spreadRadius: 2,
+                    decoration: isRunning
+                        ? BoxDecoration(
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppTheme.successAccent.withValues(
+                                  alpha: 0.4,
                                 ),
-                              ],
-                            )
-                            : null,
-                    child:
-                        avatar != null && avatar!.isNotEmpty
-                            ? CircleAvatar(
-                              radius: avatarRadius,
-                              backgroundColor: Colors.white.withValues(
-                                alpha: 0.1,
+                                blurRadius: 16,
+                                spreadRadius: 2,
                               ),
-                              child: ClipOval(
-                                child: Image.network(
-                                  avatar!,
-                                  width: avatarRadius * 2,
-                                  height: avatarRadius * 2,
-                                  fit: BoxFit.cover,
-                                  errorBuilder:
-                                      (_, _, _) => Icon(
-                                        Icons.smart_toy_rounded,
-                                        size: avatarFallbackSize * 0.6,
-                                        color: Colors.white70,
-                                      ),
+                            ],
+                          )
+                        : null,
+                    child: avatar != null && avatar!.isNotEmpty
+                        ? CircleAvatar(
+                            radius: avatarRadius,
+                            backgroundColor: Colors.white.withValues(
+                              alpha: 0.1,
+                            ),
+                            child: ClipOval(
+                              child: Image.network(
+                                avatar!,
+                                width: avatarRadius * 2,
+                                height: avatarRadius * 2,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, _, _) => Icon(
+                                  Icons.smart_toy_rounded,
+                                  size: avatarFallbackSize * 0.6,
+                                  color: Colors.white70,
                                 ),
-                              ),
-                            )
-                            : CircleAvatar(
-                              radius: avatarRadius,
-                              backgroundColor: Colors.white.withValues(
-                                alpha: 0.1,
-                              ),
-                              child: Icon(
-                                Icons.smart_toy_rounded,
-                                size: avatarFallbackSize * 0.6,
-                                color: Colors.white70,
                               ),
                             ),
+                          )
+                        : CircleAvatar(
+                            radius: avatarRadius,
+                            backgroundColor: Colors.white.withValues(
+                              alpha: 0.1,
+                            ),
+                            child: Icon(
+                              Icons.smart_toy_rounded,
+                              size: avatarFallbackSize * 0.6,
+                              color: Colors.white70,
+                            ),
+                          ),
                   ),
 
                   SizedBox(height: compact ? 8 : 14),
@@ -2504,7 +2480,7 @@ class _BotCard extends StatelessWidget {
                     const SizedBox(height: 6),
                     Text(
                       context.tr.home_hosting_time_left(
-                        _formatHostingDuration(context, freeMinutes!),
+                        formatHostingDuration(context, freeMinutes!),
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -2527,38 +2503,36 @@ class _BotCard extends StatelessWidget {
                 width: double.infinity,
                 child: FilledButton.icon(
                   onPressed: canToggle ? onToggle : null,
-                  icon:
-                      isTogglingThisBot
-                          ? const SizedBox(
-                            width: 14,
-                            height: 14,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                          : Icon(
-                            isRunning
-                                ? Icons.stop_rounded
-                                : Icons.play_arrow_rounded,
-                            size: 16,
+                  icon: isTogglingThisBot
+                      ? const SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
                           ),
+                        )
+                      : Icon(
+                          isRunning
+                              ? Icons.stop_rounded
+                              : Icons.play_arrow_rounded,
+                          size: 16,
+                        ),
                   label: Text(
                     isRunning
                         ? context.tr.home_stop
                         : (!showPremiumLabels
-                            ? context.tr.bot_home_start
-                            : (SubscriptionService.isSubscribed
-                                ? context.tr.home_start_premium
-                                : ((freeMinutes ?? 0) > 0
-                                    ? context.tr.bot_home_start
-                                    : context.tr.home_start_ads))),
+                              ? context.tr.bot_home_start
+                              : (SubscriptionService.isSubscribed
+                                    ? context.tr.home_start_premium
+                                    : ((freeMinutes ?? 0) > 0
+                                          ? context.tr.bot_home_start
+                                          : context.tr.home_start_ads))),
                   ),
                   style: FilledButton.styleFrom(
-                    backgroundColor:
-                        isRunning
-                            ? Colors.white.withValues(alpha: 0.2)
-                            : AppTheme.success,
+                    backgroundColor: isRunning
+                        ? Colors.white.withValues(alpha: 0.2)
+                        : AppTheme.success,
                     foregroundColor: Colors.white,
                     disabledBackgroundColor: Colors.white.withValues(
                       alpha: 0.1,
@@ -2583,17 +2557,16 @@ class _BotCard extends StatelessWidget {
                   width: double.infinity,
                   child: FilledButton.icon(
                     onPressed: canToggle ? onAddTime : null,
-                    icon:
-                        isTogglingThisBot
-                            ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                            : const Icon(Icons.more_time_rounded, size: 16),
+                    icon: isTogglingThisBot
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.more_time_rounded, size: 16),
                     label: Text(context.tr.home_add_time),
                     style: FilledButton.styleFrom(
                       backgroundColor: AppTheme.success,
@@ -2642,10 +2615,9 @@ class _BotCard extends StatelessWidget {
                     tooltip: context.tr.home_logs_tooltip,
                     style: IconButton.styleFrom(
                       backgroundColor: Colors.white.withValues(alpha: 0.1),
-                      foregroundColor:
-                          onLogs != null
-                              ? Colors.white.withValues(alpha: 0.8)
-                              : Colors.white.withValues(alpha: 0.3),
+                      foregroundColor: onLogs != null
+                          ? Colors.white.withValues(alpha: 0.8)
+                          : Colors.white.withValues(alpha: 0.3),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                       ),
@@ -2759,7 +2731,9 @@ class _HostedAppsHomeCardState extends State<_HostedAppsHomeCard> {
 
   Future<void> _checkSession() async {
     final session = await MainApiSettingsStore.loadSession();
-    if (mounted) setState(() => _hasSession = session != null && !session.isExpired);
+    if (mounted) {
+      setState(() => _hasSession = session != null && !session.isExpired);
+    }
   }
 
   @override
@@ -2787,21 +2761,30 @@ class _HostedAppsHomeCardState extends State<_HostedAppsHomeCard> {
                   color: Colors.teal.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.storage_rounded, color: Colors.teal, size: 28),
+                child: const Icon(
+                  Icons.storage_rounded,
+                  color: Colors.teal,
+                  size: 28,
+                ),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                      Text(
+                    Text(
                       context.tr.container_list_title,
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       context.tr.container_hosted_subtitle,
-                      style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13),
+                      style: TextStyle(
+                        color: colorScheme.onSurfaceVariant,
+                        fontSize: 13,
+                      ),
                     ),
                   ],
                 ),
@@ -2814,5 +2797,3 @@ class _HostedAppsHomeCardState extends State<_HostedAppsHomeCard> {
     );
   }
 }
-
-

@@ -18,6 +18,7 @@ import 'package:bot_creator/features/bot_editor/logic/js_bot_payload_builder.dar
 import 'package:bot_creator/features/bot_editor/logic/js_runner_capabilities.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
+import 'package:bot_creator/core/utils/duration_formatter.dart';
 
 import 'package:bot_creator/features/ads/logic/ad_reward_service.dart';
 import 'package:bot_creator/core/utils/global.dart';
@@ -100,8 +101,7 @@ class _AppHomePageState extends State<AppHomePage>
   }
 
   DateTime? _extractSessionExpiresAt(Map<String, dynamic> runtime) {
-    final raw =
-        runtime['session_expires_at'] ?? runtime['sessionExpiresAt'];
+    final raw = runtime['session_expires_at'] ?? runtime['sessionExpiresAt'];
     if (raw == null) return null;
     return DateTime.tryParse(raw.toString())?.toUtc();
   }
@@ -341,7 +341,9 @@ class _AppHomePageState extends State<AppHomePage>
       isScrollControlled: true,
       backgroundColor: Theme.of(context).colorScheme.surface,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppTheme.radiusLg)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppTheme.radiusLg),
+        ),
       ),
       builder: (sheetContext) {
         return FutureBuilder<List<Map<String, dynamic>>>(
@@ -363,7 +365,7 @@ class _AppHomePageState extends State<AppHomePage>
                       const SizedBox(width: AppTheme.spacingSm),
                       Expanded(
                         child: Text(
-                          _uiCopy(fr: "Historique des gains publicitaires", en: "Ad Rewards History"),
+                          context.tr.home_hosting_ad_rewards_history_title,
                           style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -386,10 +388,7 @@ class _AppHomePageState extends State<AppHomePage>
                       padding: const EdgeInsets.all(AppTheme.spacingXl),
                       child: Center(
                         child: Text(
-                          _uiCopy(
-                            fr: "Erreur lors du chargement de l'historique",
-                            en: "Failed to load ad history",
-                          ),
+                          context.tr.home_hosting_ad_history_error,
                           style: TextStyle(color: colorScheme.error),
                         ),
                       ),
@@ -400,16 +399,16 @@ class _AppHomePageState extends State<AppHomePage>
                       child: Center(
                         child: Column(
                           children: [
-                            Icon(Icons.tv_off_outlined, size: 48, color: colorScheme.outline),
+                            Icon(
+                              Icons.tv_off_outlined,
+                              size: 48,
+                              color: colorScheme.outline,
+                            ),
                             const SizedBox(height: AppTheme.spacingMd),
                             Text(
-                              _uiCopy(
-                                fr: "Aucun gain publicitaire récent enregistré pour ce bot.",
-                                en: "No recent ad rewards recorded for this bot.",
-                              ),
-                              style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
-                                color: colorScheme.outline,
-                              ),
+                              context.tr.home_hosting_ad_history_empty,
+                              style: Theme.of(ctx).textTheme.bodyMedium
+                                  ?.copyWith(color: colorScheme.outline),
                               textAlign: TextAlign.center,
                             ),
                           ],
@@ -420,13 +419,24 @@ class _AppHomePageState extends State<AppHomePage>
                     Expanded(
                       child: ListView.separated(
                         itemCount: snapshot.data!.length,
-                        separatorBuilder: (context, index) => const Divider(height: 1),
+                        separatorBuilder: (context, index) =>
+                            const Divider(height: 1),
                         itemBuilder: (ctx, i) {
                           final claim = snapshot.data![i];
-                          final minutes = claim['granted_minutes'] ?? claim['grantedMinutes'] ?? 0;
-                          final placement = (claim['placement'] ?? 'admob_rewarded').toString();
-                          final occurredRaw = claim['occurred_at'] ?? claim['occurredAt'];
-                          final occurred = occurredRaw != null ? DateTime.tryParse(occurredRaw.toString())?.toLocal() : null;
+                          final minutes =
+                              claim['granted_minutes'] ??
+                              claim['grantedMinutes'] ??
+                              0;
+                          final placement =
+                              (claim['placement'] ?? 'admob_rewarded')
+                                  .toString();
+                          final occurredRaw =
+                              claim['occurred_at'] ?? claim['occurredAt'];
+                          final occurred = occurredRaw != null
+                              ? DateTime.tryParse(
+                                  occurredRaw.toString(),
+                                )?.toLocal()
+                              : null;
                           final dateStr = occurred != null
                               ? '${occurred.day.toString().padLeft(2, '0')}/${occurred.month.toString().padLeft(2, '0')}/${occurred.year} à ${occurred.hour.toString().padLeft(2, '0')}:${occurred.minute.toString().padLeft(2, '0')}'
                               : '';
@@ -438,15 +448,28 @@ class _AppHomePageState extends State<AppHomePage>
                                 color: AppTheme.success.withValues(alpha: 0.15),
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(Icons.check_circle_outline, color: AppTheme.success, size: 20),
+                              child: const Icon(
+                                Icons.check_circle_outline,
+                                color: AppTheme.success,
+                                size: 20,
+                              ),
                             ),
                             title: Text(
                               '+$minutes min ($placement)',
-                              style: const TextStyle(fontWeight: FontWeight.w600),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
-                            subtitle: Text(dateStr, style: Theme.of(ctx).textTheme.bodySmall),
+                            subtitle: Text(
+                              dateStr,
+                              style: Theme.of(ctx).textTheme.bodySmall,
+                            ),
                             trailing: Text(
-                              formatDuration(minutes is int ? minutes : int.tryParse(minutes.toString()) ?? 0),
+                              formatDuration(
+                                minutes is int
+                                    ? minutes
+                                    : int.tryParse(minutes.toString()) ?? 0,
+                              ),
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: colorScheme.primary,
@@ -519,23 +542,22 @@ class _AppHomePageState extends State<AppHomePage>
                           child: CircleAvatar(
                             radius: 40,
                             backgroundColor: colorScheme.surface,
-                            child:
-                                avatar.isNotEmpty
-                                    ? ClipOval(
-                                      child: Image.network(
-                                        avatar,
-                                        width: 76,
-                                        height: 76,
-                                        fit: BoxFit.cover,
-                                        errorBuilder:
-                                            (context, error, stackTrace) =>
-                                                const Icon(
-                                                  Icons.smart_toy,
-                                                  size: 40,
-                                                ),
-                                      ),
-                                    )
-                                    : const Icon(Icons.smart_toy, size: 40),
+                            child: avatar.isNotEmpty
+                                ? ClipOval(
+                                    child: Image.network(
+                                      avatar,
+                                      width: 76,
+                                      height: 76,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              const Icon(
+                                                Icons.smart_toy,
+                                                size: 40,
+                                              ),
+                                    ),
+                                  )
+                                : const Icon(Icons.smart_toy, size: 40),
                           ),
                         ),
                       ),
@@ -552,19 +574,15 @@ class _AppHomePageState extends State<AppHomePage>
                       const SizedBox(height: AppTheme.spacingXl),
                       FilledButton(
                         style: FilledButton.styleFrom(
-                          backgroundColor:
-                              _botLaunched
-                                  ? AppTheme.error
-                                  : _botStarting
-                                  ? AppTheme.warning
-                                  : AppTheme.success,
+                          backgroundColor: _botLaunched
+                              ? AppTheme.error
+                              : _botStarting
+                              ? AppTheme.warning
+                              : AppTheme.success,
                           minimumSize: const Size.fromHeight(48),
                           shape: AppTheme.buttonShape,
                         ),
-                        onPressed:
-                            _botStarting
-                                ? null
-                                : _toggleBotLaunchState,
+                        onPressed: _botStarting ? null : _toggleBotLaunchState,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -606,12 +624,16 @@ class _AppHomePageState extends State<AppHomePage>
                           padding: const EdgeInsets.all(AppTheme.spacingMd),
                           decoration: BoxDecoration(
                             color: colorScheme.surfaceContainerLow,
-                            borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusLg,
+                            ),
                             border: Border.all(
-                              color: (_displayFreeMinutesBalance() < 120 && _botLaunched
-                                      ? colorScheme.error
-                                      : colorScheme.outlineVariant)
-                                  .withValues(alpha: 0.4),
+                              color:
+                                  (_displayFreeMinutesBalance() < 120 &&
+                                              _botLaunched
+                                          ? colorScheme.error
+                                          : colorScheme.outlineVariant)
+                                      .withValues(alpha: 0.4),
                             ),
                           ),
                           child: Column(
@@ -624,112 +646,145 @@ class _AppHomePageState extends State<AppHomePage>
                                     height: 8,
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
-                                      color: _botLaunched ? AppTheme.success : AppTheme.warning,
+                                      color: _botLaunched
+                                          ? AppTheme.success
+                                          : AppTheme.warning,
                                     ),
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
                                     _botLaunched
-                                        ? _uiCopy(fr: "Session active (en ligne)", en: "Active session (online)")
-                                        : _uiCopy(fr: "Réserve disponible (en pause)", en: "Banked time (paused)"),
-                                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: _botLaunched ? AppTheme.success : AppTheme.warning,
-                                    ),
+                                        ? context.tr.home_hosting_status_active
+                                        : context.tr.home_hosting_status_paused,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelMedium
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          color: _botLaunched
+                                              ? AppTheme.success
+                                              : AppTheme.warning,
+                                        ),
                                   ),
                                   const Spacer(),
-                                  if (_ownerMetadata?.teamId.isNotEmpty == true)
+                                  if (_ownerMetadata?.teamId.isNotEmpty ==
+                                      true) ...[
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 2,
+                                      ),
                                       decoration: BoxDecoration(
-                                        color: AppTheme.discord.withValues(alpha: 0.15),
-                                        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                                        border: Border.all(color: AppTheme.discord.withValues(alpha: 0.3)),
+                                        color: AppTheme.discord.withValues(
+                                          alpha: 0.15,
+                                        ),
+                                        borderRadius: BorderRadius.circular(
+                                          AppTheme.radiusSm,
+                                        ),
+                                        border: Border.all(
+                                          color: AppTheme.discord.withValues(
+                                            alpha: 0.3,
+                                          ),
+                                        ),
                                       ),
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          const Icon(Icons.groups, size: 13, color: AppTheme.discord),
+                                          const Icon(
+                                            Icons.groups,
+                                            size: 13,
+                                            color: AppTheme.discord,
+                                          ),
                                           const SizedBox(width: 4),
                                           Text(
-                                            _ownerMetadata!.teamName.isNotEmpty ? _ownerMetadata!.teamName : "Team",
-                                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.discord),
+                                            _ownerMetadata!.teamName.isNotEmpty
+                                                ? _ownerMetadata!.teamName
+                                                : "Team",
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.bold,
+                                              color: AppTheme.discord,
+                                            ),
                                           ),
                                         ],
                                       ),
                                     ),
+                                    const SizedBox(width: AppTheme.spacingXs),
+                                  ],
+                                  IconButton(
+                                    tooltip: context.tr.home_hosting_ad_history,
+                                    icon: const Icon(Icons.history, size: 20),
+                                    visualDensity: VisualDensity.compact,
+                                    onPressed: _showAdHistoryDialog,
+                                  ),
                                 ],
                               ),
                               const SizedBox(height: AppTheme.spacingSm),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          _botLaunched
-                                              ? context.tr.home_hosting_time_left(
-                                                  formatDuration(_displayFreeMinutesBalance()),
-                                                )
-                                              : _uiCopy(
-                                                  fr: "Réserve : ${formatDuration(_displayFreeMinutesBalance())}",
-                                                  en: "Banked: ${formatDuration(_displayFreeMinutesBalance())}",
-                                                ),
-                                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                            fontWeight: FontWeight.w600,
-                                            color: _hostingTimeColor(
-                                              _displayFreeMinutesBalance(),
-                                            ).withValues(alpha: 0.95),
-                                          ),
+                              Text(
+                                _botLaunched
+                                    ? context.tr.home_hosting_time_left(
+                                        formatDuration(
+                                          _displayFreeMinutesBalance(),
                                         ),
-                                        if (!_botLaunched && _displayFreeMinutesBalance() > 0)
-                                          Text(
-                                            _uiCopy(
-                                              fr: "Le temps est préservé tant que le bot est arrêté.",
-                                              en: "Time is preserved while the bot is stopped.",
-                                            ),
-                                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                              color: colorScheme.outline,
-                                              fontSize: 11,
-                                            ),
-                                          ),
-                                        if (_botLaunched && _sessionExpiresAt != null)
-                                          Text(
-                                            _uiCopy(
-                                              fr: "Expire à ${_sessionExpiresAt!.toLocal().hour.toString().padLeft(2, '0')}:${_sessionExpiresAt!.toLocal().minute.toString().padLeft(2, '0')}",
-                                              en: "Expires at ${_sessionExpiresAt!.toLocal().hour.toString().padLeft(2, '0')}:${_sessionExpiresAt!.toLocal().minute.toString().padLeft(2, '0')}",
-                                            ),
-                                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                              color: colorScheme.outline,
-                                              fontSize: 11,
-                                            ),
-                                          ),
-                                      ],
+                                      )
+                                    : context.tr.home_hosting_banked(
+                                        formatDuration(
+                                          _displayFreeMinutesBalance(),
+                                        ),
+                                      ),
+                                style: Theme.of(context).textTheme.titleSmall
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: _hostingTimeColor(
+                                        _displayFreeMinutesBalance(),
+                                      ).withValues(alpha: 0.95),
                                     ),
+                              ),
+                              if (!_botLaunched &&
+                                  _displayFreeMinutesBalance() > 0) ...[
+                                const SizedBox(height: 2),
+                                Text(
+                                  context.tr.home_hosting_time_preserved,
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(
+                                        color: colorScheme.outline,
+                                        fontSize: 11,
+                                      ),
+                                ),
+                              ],
+                              if (_botLaunched &&
+                                  _sessionExpiresAt != null) ...[
+                                const SizedBox(height: 2),
+                                Text(
+                                  formatSessionExpiration(
+                                    context,
+                                    _sessionExpiresAt!,
                                   ),
-                                  IconButton.outlined(
-                                    tooltip: _uiCopy(fr: "Historique des pubs", en: "Ad History"),
-                                    icon: const Icon(Icons.history, size: 18),
-                                    onPressed: _showAdHistoryDialog,
-                                  ),
-                                  const SizedBox(width: AppTheme.spacingXs),
-                                  FilledButton.tonalIcon(
-                                    onPressed:
-                                        _isAddingTime ? null : () => _addRuntimeTime(),
-                                    icon:
-                                        _isAddingTime
-                                            ? const SizedBox(
-                                              width: 14,
-                                              height: 14,
-                                              child: CircularProgressIndicator(
-                                                strokeWidth: 2,
-                                              ),
-                                            )
-                                            : const Icon(Icons.add_circle_outline),
-                                    label: Text(context.tr.home_add_time),
-                                  ),
-                                ],
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(
+                                        color: colorScheme.outline,
+                                        fontSize: 11,
+                                      ),
+                                ),
+                              ],
+                              const SizedBox(height: AppTheme.spacingMd),
+                              SizedBox(
+                                width: double.infinity,
+                                child: FilledButton.tonalIcon(
+                                  onPressed: _isAddingTime
+                                      ? null
+                                      : () => _addRuntimeTime(),
+                                  icon: _isAddingTime
+                                      ? const SizedBox(
+                                          width: 14,
+                                          height: 14,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                      : const Icon(Icons.add_circle_outline),
+                                  label: Text(context.tr.home_add_time),
+                                ),
                               ),
                             ],
                           ),
@@ -791,8 +846,8 @@ class _AppHomePageState extends State<AppHomePage>
                             ),
                           if (_runtimeCapabilities.supportsDebugReplay &&
                               PremiumCapabilities.isCapabilityRolledOut(
-                            PremiumCapability.visualDebuggerReplay,
-                          ))
+                                PremiumCapability.visualDebuggerReplay,
+                              ))
                             _buildActionTile(
                               icon: Icons.play_circle_outline,
                               label: context.tr.bot_home_view_replay,
@@ -801,8 +856,8 @@ class _AppHomePageState extends State<AppHomePage>
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder:
-                                        (_) => DebugReplayPage(botId: botId),
+                                    builder: (_) =>
+                                        DebugReplayPage(botId: botId),
                                   ),
                                 );
                               },
@@ -818,53 +873,49 @@ class _AppHomePageState extends State<AppHomePage>
                             icon: Icons.cloud_download,
                             label: context.tr.bot_home_pull,
                             iconColor: AppTheme.info,
-                            onTap:
-                                _isPullingApp
-                                    ? null
-                                    : () async {
-                                      await _pullFromRemote(showSnack: true);
-                                      unawaited(
-                                        refreshBotRuntime(
-                                          widget.client.user.id.toString(),
-                                        ),
-                                      );
-                                    },
-                            trailing:
-                                _isPullingApp
-                                    ? const SizedBox(
-                                      width: 18,
-                                      height: 18,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
+                            onTap: _isPullingApp
+                                ? null
+                                : () async {
+                                    await _pullFromRemote(showSnack: true);
+                                    unawaited(
+                                      refreshBotRuntime(
+                                        widget.client.user.id.toString(),
                                       ),
-                                    )
-                                    : null,
+                                    );
+                                  },
+                            trailing: _isPullingApp
+                                ? const SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : null,
                           ),
                           _buildActionTile(
                             icon: Icons.cloud_upload,
                             label: context.tr.bot_home_push,
                             iconColor: AppTheme.success,
-                            onTap:
-                                _isPushingApp
-                                    ? null
-                                    : () async {
-                                      await _pushToRemote(showSnack: true);
-                                      unawaited(
-                                        refreshBotRuntime(
-                                          widget.client.user.id.toString(),
-                                        ),
-                                      );
-                                    },
-                            trailing:
-                                _isPushingApp
-                                    ? const SizedBox(
-                                      width: 18,
-                                      height: 18,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
+                            onTap: _isPushingApp
+                                ? null
+                                : () async {
+                                    await _pushToRemote(showSnack: true);
+                                    unawaited(
+                                      refreshBotRuntime(
+                                        widget.client.user.id.toString(),
                                       ),
-                                    )
-                                    : null,
+                                    );
+                                  },
+                            trailing: _isPushingApp
+                                ? const SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : null,
                           ),
                           _buildActionTile(
                             icon: Icons.history,
@@ -873,7 +924,9 @@ class _AppHomePageState extends State<AppHomePage>
                             onTap: () async {
                               final botId = widget.client.user.id.toString();
                               final app = await appManager.getApp(botId);
-                              final token = (app['token'] ?? '').toString().trim();
+                              final token = (app['token'] ?? '')
+                                  .toString()
+                                  .trim();
                               if (token.isEmpty) return;
 
                               if (!mounted) return;
@@ -883,11 +936,12 @@ class _AppHomePageState extends State<AppHomePage>
                                   builder: (_) => BotConfigVersionsPage(
                                     botId: botId,
                                     botToken: token,
-                                    resolveClient: (id, tok) => _resolveMainApiClientForBot(
-                                      botId: id,
-                                      botToken: tok,
-                                      attemptSessionRestore: true,
-                                    ),
+                                    resolveClient: (id, tok) =>
+                                        _resolveMainApiClientForBot(
+                                          botId: id,
+                                          botToken: tok,
+                                          attemptSessionRestore: true,
+                                        ),
                                   ),
                                 ),
                               );
@@ -966,4 +1020,3 @@ class _AppHomePageState extends State<AppHomePage>
     );
   }
 }
-

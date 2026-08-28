@@ -3818,6 +3818,42 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String home_hosting_banked(String time) {
+    return 'リザーブ: $time';
+  }
+
+  @override
+  String home_hosting_expires_today(String time) {
+    return '本日 $time に期限切れ';
+  }
+
+  @override
+  String home_hosting_expires_tomorrow(String time) {
+    return '明日 $time に期限切れ';
+  }
+
+  @override
+  String get home_hosting_time_preserved => 'ボットが停止している間、時間は保持されます。';
+
+  @override
+  String get home_hosting_status_active => 'アクティブなセッション（オンライン）';
+
+  @override
+  String get home_hosting_status_paused => '一時停止中の時間（一時停止）';
+
+  @override
+  String get home_hosting_ad_history => '広告履歴';
+
+  @override
+  String get home_hosting_ad_rewards_history_title => '広告リワード履歴';
+
+  @override
+  String get home_hosting_ad_history_error => '広告履歴の読み込みに失敗しました';
+
+  @override
+  String get home_hosting_ad_history_empty => 'このボットの最近の広告リワードは記録されていません。';
+
+  @override
   String get home_log_desktop_stop_requested => 'デスクトップボット停止が要求されました';
 
   @override
