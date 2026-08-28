@@ -1206,6 +1206,36 @@ class MainApiClient implements RemoteRuntimeClient {
     );
   }
 
+  Future<List<Map<String, dynamic>>> getBotAdHistory(String botId) async {
+    final encodedBotId = Uri.encodeComponent(botId.trim());
+    final json = await _get('/gateway/bots/$encodedBotId/runtime/ad-history');
+    final raw = json['data'] ?? json['claims'] ?? json['history'];
+    if (raw is List) {
+      return raw.whereType<Map>().map((item) => Map<String, dynamic>.from(item)).toList();
+    }
+    return <Map<String, dynamic>>[];
+  }
+
+  Future<bool> registerDeviceToken({
+    required String fcmToken,
+    String platform = '',
+    String locale = '',
+  }) async {
+    try {
+      final json = await _post(
+        '/gateway/account/device',
+        <String, dynamic>{
+          'fcm_token': fcmToken.trim(),
+          'platform': platform.trim(),
+          'locale': locale.trim(),
+        },
+      );
+      return json['success'] == true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   Future<Map<String, dynamic>> getGlobalVariables(String botId) async {
     final encodedBotId = Uri.encodeComponent(botId.trim());
     final json = await _get('/gateway/bots/$encodedBotId/variables/global');

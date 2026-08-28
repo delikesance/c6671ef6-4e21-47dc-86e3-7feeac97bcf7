@@ -7163,6 +7163,66 @@ abstract class AppLocalizations {
   /// **'Hosting left: {time}'**
   String home_hosting_time_left(String time);
 
+  /// Banked: {time}
+  ///
+  /// In en, this message translates to:
+  /// **'Banked: {time}'**
+  String home_hosting_banked(String time);
+
+  /// Expires today at {time}
+  ///
+  /// In en, this message translates to:
+  /// **'Expires today at {time}'**
+  String home_hosting_expires_today(String time);
+
+  /// Expires tomorrow at {time}
+  ///
+  /// In en, this message translates to:
+  /// **'Expires tomorrow at {time}'**
+  String home_hosting_expires_tomorrow(String time);
+
+  /// Time is preserved while the bot is stopped.
+  ///
+  /// In en, this message translates to:
+  /// **'Time is preserved while the bot is stopped.'**
+  String get home_hosting_time_preserved;
+
+  /// Active session (online)
+  ///
+  /// In en, this message translates to:
+  /// **'Active session (online)'**
+  String get home_hosting_status_active;
+
+  /// Banked time (paused)
+  ///
+  /// In en, this message translates to:
+  /// **'Banked time (paused)'**
+  String get home_hosting_status_paused;
+
+  /// Ad History
+  ///
+  /// In en, this message translates to:
+  /// **'Ad History'**
+  String get home_hosting_ad_history;
+
+  /// Ad Rewards History
+  ///
+  /// In en, this message translates to:
+  /// **'Ad Rewards History'**
+  String get home_hosting_ad_rewards_history_title;
+
+  /// Failed to load ad history
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load ad history'**
+  String get home_hosting_ad_history_error;
+
+  /// No recent ad rewards recorded for this bot.
+  ///
+  /// In en, this message translates to:
+  /// **'No recent ad rewards recorded for this bot.'**
+  String get home_hosting_ad_history_empty;
+
   /// Desktop bot stop requested
   ///
   /// In en, this message translates to:

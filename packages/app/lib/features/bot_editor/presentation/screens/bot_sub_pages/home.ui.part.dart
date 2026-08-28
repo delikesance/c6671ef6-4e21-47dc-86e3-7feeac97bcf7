@@ -15,9 +15,7 @@ extension _AppHomePageUI on _AppHomePageState {
   }
 
   String formatDuration(int i) {
-    final hours = i ~/ 60;
-    final minutes = i % 60;
-    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}';
+    return formatHostingDuration(context, i);
   }
 
   Widget _buildSection({
