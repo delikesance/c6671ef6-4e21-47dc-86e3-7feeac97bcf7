@@ -3872,6 +3872,51 @@
     },
     "description": "Hosting left: {time}"
   },
+  "@home_hosting_banked": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    },
+    "description": "Banked: {time}"
+  },
+  "@home_hosting_expires_today": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    },
+    "description": "Expires today at {time}"
+  },
+  "@home_hosting_expires_tomorrow": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    },
+    "description": "Expires tomorrow at {time}"
+  },
+  "@home_hosting_time_preserved": {
+    "description": "Time is preserved while the bot is stopped."
+  },
+  "@home_hosting_status_active": {
+    "description": "Active session (online)"
+  },
+  "@home_hosting_status_paused": {
+    "description": "Banked time (paused)"
+  },
+  "@home_hosting_ad_history": {
+    "description": "Ad History"
+  },
+  "@home_hosting_ad_rewards_history_title": {
+    "description": "Ad Rewards History"
+  },
+  "@home_hosting_ad_history_error": {
+    "description": "Failed to load ad history"
+  },
+  "@home_hosting_ad_history_empty": {
+    "description": "No recent ad rewards recorded for this bot."
+  },
   "@home_log_desktop_stop_requested": {
     "description": "Desktop bot stop requested"
   },
@@ -8582,6 +8627,16 @@
   "home_foreground_service_not_started": "The foreground service did not start.",
   "home_hosting_expired": "Hosting expired",
   "home_hosting_time_left": "Hosting left: {time}",
+  "home_hosting_banked": "Banked: {time}",
+  "home_hosting_expires_today": "Expires today at {time}",
+  "home_hosting_expires_tomorrow": "Expires tomorrow at {time}",
+  "home_hosting_time_preserved": "Time is preserved while the bot is stopped.",
+  "home_hosting_status_active": "Active session (online)",
+  "home_hosting_status_paused": "Banked time (paused)",
+  "home_hosting_ad_history": "Ad History",
+  "home_hosting_ad_rewards_history_title": "Ad Rewards History",
+  "home_hosting_ad_history_error": "Failed to load ad history",
+  "home_hosting_ad_history_empty": "No recent ad rewards recorded for this bot.",
   "home_log_desktop_stop_requested": "Desktop bot stop requested",
   "home_log_start_requested": "Bot start requested",
   "home_log_stop_requested": "Bot stop requested",

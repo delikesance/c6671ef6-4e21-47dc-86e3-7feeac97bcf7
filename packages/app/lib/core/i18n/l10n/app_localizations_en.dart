@@ -3982,6 +3982,44 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String home_hosting_banked(String time) {
+    return 'Banked: $time';
+  }
+
+  @override
+  String home_hosting_expires_today(String time) {
+    return 'Expires today at $time';
+  }
+
+  @override
+  String home_hosting_expires_tomorrow(String time) {
+    return 'Expires tomorrow at $time';
+  }
+
+  @override
+  String get home_hosting_time_preserved =>
+      'Time is preserved while the bot is stopped.';
+
+  @override
+  String get home_hosting_status_active => 'Active session (online)';
+
+  @override
+  String get home_hosting_status_paused => 'Banked time (paused)';
+
+  @override
+  String get home_hosting_ad_history => 'Ad History';
+
+  @override
+  String get home_hosting_ad_rewards_history_title => 'Ad Rewards History';
+
+  @override
+  String get home_hosting_ad_history_error => 'Failed to load ad history';
+
+  @override
+  String get home_hosting_ad_history_empty =>
+      'No recent ad rewards recorded for this bot.';
+
+  @override
   String get home_log_desktop_stop_requested => 'Desktop bot stop requested';
 
   @override
