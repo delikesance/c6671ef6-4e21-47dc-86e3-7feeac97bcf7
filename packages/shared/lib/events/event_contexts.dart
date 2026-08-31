@@ -73,8 +73,8 @@ Map<String, String> _threadExtra(dynamic thread) {
     'thread.owner.id': _idString(thread?.ownerId),
     'thread.archived': ((thread?.isArchived ?? false) == true).toString(),
     'thread.locked': ((thread?.isLocked ?? false) == true).toString(),
-    'thread.autoArchiveDuration':
-        (thread?.autoArchiveDuration ?? '').toString(),
+    'thread.autoArchiveDuration': (thread?.autoArchiveDuration ?? '')
+        .toString(),
   };
 }
 
@@ -84,7 +84,7 @@ Future<Map<String, String>> _guildExtra(
   required Nyxx? client,
 }) async {
   if (guild == null) return <String, String>{};
-  
+
   final count = await getGuildMemberCount(
     guild,
     client: client,
@@ -174,8 +174,7 @@ Map<String, String> _userExtra(User? user, {bool enrichAuthor = false}) {
   String userBannerColor = '';
   final accentColor = user.accentColor;
   if (accentColor != null) {
-    userBannerColor =
-        '#${accentColor.value.toRadixString(16).padLeft(6, '0')}';
+    userBannerColor = '#${accentColor.value.toRadixString(16).padLeft(6, '0')}';
   }
 
   return <String, String>{
@@ -191,22 +190,28 @@ Map<String, String> _userExtra(User? user, {bool enrichAuthor = false}) {
     'user.accentColor': user.accentColor?.value.toString() ?? '',
     'user.flags': user.flags?.value.toString() ?? '',
     'user.publicFlags': user.publicFlags?.value.toString() ?? '',
-    'user.avatarDecoration':
-        user.avatarDecoration?.url.toString() ?? '',
+    'user.avatarDecoration': user.avatarDecoration?.url.toString() ?? '',
     'user.avatarDecorationHash': user.avatarDecorationHash ?? '',
-    'user.avatarDecorationData.skuId':
-        user.avatarDecorationData != null
-            ? user.avatarDecorationData!.skuId.toString()
-            : '',
-    'user.avatarDecorationData.asset':
-        user.avatarDecorationData?.asset ?? '',
+    'user.avatarDecorationData.skuId': user.avatarDecorationData != null
+        ? user.avatarDecorationData!.skuId.toString()
+        : '',
+    'user.avatarDecorationData.asset': user.avatarDecorationData?.asset ?? '',
     'user.primaryGuild.identityGuildId':
         user.primaryGuild?.identityGuildId?.toString() ?? '',
     'user.primaryGuild.identityEnabled':
         user.primaryGuild?.isIdentityEnabled?.toString() ?? 'false',
     'user.primaryGuild.tag': user.primaryGuild?.tag ?? '',
     'user.primaryGuild.badge': (user.primaryGuild?.badge ?? '').toString(),
-    'user.verified': (user.flags?.has(UserFlags.verifiedBot) ?? false).toString(),
+    'user.isBot': user.isBot.toString(),
+    'user[${user.id}].id': user.id.toString(),
+    'user[${user.id}].username': user.username,
+    'user[${user.id}].globalName': user.globalName ?? user.username,
+    'user[${user.id}].tag': user.discriminator,
+    'user[${user.id}].avatar': userAvatarUrl,
+    'user[${user.id}].banner': user.banner?.url.toString() ?? '',
+    'user[${user.id}].displayName': user.globalName ?? user.username,
+    'user[${user.id}].isBot': user.isBot.toString(),
+    'user[${user.id}].exists': 'true',
     if (enrichAuthor) ...{
       'author.id': user.id.toString(),
       'author.username': user.username,
@@ -215,18 +220,16 @@ Map<String, String> _userExtra(User? user, {bool enrichAuthor = false}) {
       'author.avatar': userAvatarUrl,
       'author.banner': user.banner?.url.toString() ?? '',
       'author.displayName': user.globalName ?? user.username,
+      'author.isBot': user.isBot.toString(),
       'author.bannerColor': userBannerColor,
       'author.accentColor': user.accentColor?.value.toString() ?? '',
       'author.flags': user.flags?.value.toString() ?? '',
       'author.publicFlags': user.publicFlags?.value.toString() ?? '',
-      'author.avatarDecoration':
-          user.avatarDecoration?.url.toString() ?? '',
-      'author.avatarDecorationHash':
-          user.avatarDecorationHash ?? '',
-      'author.avatarDecorationData.skuId':
-          user.avatarDecorationData != null
-              ? user.avatarDecorationData!.skuId.toString()
-              : '',
+      'author.avatarDecoration': user.avatarDecoration?.url.toString() ?? '',
+      'author.avatarDecorationHash': user.avatarDecorationHash ?? '',
+      'author.avatarDecorationData.skuId': user.avatarDecorationData != null
+          ? user.avatarDecorationData!.skuId.toString()
+          : '',
       'author.avatarDecorationData.asset':
           user.avatarDecorationData?.asset ?? '',
       'author.primaryGuild.identityGuildId':
@@ -235,7 +238,8 @@ Map<String, String> _userExtra(User? user, {bool enrichAuthor = false}) {
           user.primaryGuild?.isIdentityEnabled?.toString() ?? 'false',
       'author.primaryGuild.tag': user.primaryGuild?.tag ?? '',
       'author.primaryGuild.badge': (user.primaryGuild?.badge ?? '').toString(),
-      'author.verified': (user.flags?.has(UserFlags.verifiedBot) ?? false).toString(),
+      'author.verified': (user.flags?.has(UserFlags.verifiedBot) ?? false)
+          .toString(),
     },
   };
 }
@@ -245,14 +249,16 @@ Map<String, String> _memberExtra(Member? member, {String prefix = 'member'}) {
 
   final user = member.user;
   return <String, String>{
-    if (prefix == 'member') ..._memberBasicExtra(
-      member.id.toString(),
-      user?.username,
-      user?.discriminator,
-    ),
+    if (prefix == 'member')
+      ..._memberBasicExtra(
+        member.id.toString(),
+        user?.username,
+        user?.discriminator,
+      ),
     '$prefix.id': member.id.toString(),
     '$prefix.nick': member.nick ?? '',
-    '$prefix.displayName': member.nick ?? (user?.globalName ?? user?.username ?? ''),
+    '$prefix.displayName':
+        member.nick ?? (user?.globalName ?? user?.username ?? ''),
     '$prefix.avatar': makeAvatarUrl(
       member.id.toString(),
       avatarId: member.avatar?.hash ?? user?.avatar.hash,
@@ -266,16 +272,33 @@ Map<String, String> _memberExtra(Member? member, {String prefix = 'member'}) {
     for (var idx = 0; idx < member.roleIds.length && idx < 10; idx++)
       '$prefix.roles[$idx]': member.roleIds[idx].toString(),
     '$prefix.isBooster': (member.premiumSince != null).toString(),
-    '$prefix.isAdmin': member.permissions?.has(Permissions.administrator) == true
+    '$prefix.isAdmin':
+        member.permissions?.has(Permissions.administrator) == true
         ? 'true'
         : 'false',
     if (member.communicationDisabledUntil != null)
-      '$prefix.communicationDisabledUntil': member.communicationDisabledUntil!.toIso8601String(),
+      '$prefix.communicationDisabledUntil': member.communicationDisabledUntil!
+          .toIso8601String(),
+    'member[${member.id}].id': member.id.toString(),
+    'member[${member.id}].nick': member.nick ?? '',
+    'member[${member.id}].displayName':
+        member.nick ?? (user?.globalName ?? user?.username ?? ''),
+    'member[${member.id}].isBooster': (member.premiumSince != null).toString(),
+    'member[${member.id}].isAdmin':
+        member.permissions?.has(Permissions.administrator) == true
+        ? 'true'
+        : 'false',
+    'member[${member.id}].roles': member.roleIds
+        .map((id) => id.toString())
+        .join(','),
     if (user != null && prefix == 'member') ..._userExtra(user),
   };
 }
 
-Map<String, String> _channelExtra(Channel? channel, {String prefix = 'channel'}) {
+Map<String, String> _channelExtra(
+  Channel? channel, {
+  String prefix = 'channel',
+}) {
   if (channel == null) return const <String, String>{};
   return <String, String>{
     '$prefix.id': channel.id.toString(),
@@ -284,14 +307,18 @@ Map<String, String> _channelExtra(Channel? channel, {String prefix = 'channel'})
   };
 }
 
-Map<String, String> _messageExtra(Message? message, {String prefix = 'message'}) {
+Map<String, String> _messageExtra(
+  Message? message, {
+  String prefix = 'message',
+}) {
   if (message == null) return const <String, String>{};
 
   final content = message.content;
   final words = content.trim().split(RegExp(r'\s+'));
   final mentionIds = message.mentions.map((u) => u.id.toString()).toList();
-  final roleMentionIds =
-      message.roleMentionIds.map((id) => id.toString()).toList();
+  final roleMentionIds = message.roleMentionIds
+      .map((id) => id.toString())
+      .toList();
   final isBot = message.author is User ? (message.author as User).isBot : false;
 
   final map = <String, String>{
@@ -321,8 +348,10 @@ Map<String, String> _messageExtra(Message? message, {String prefix = 'message'})
   };
 
   if (message.editedTimestamp != null) {
-    map['$prefix.editedTimestamp'] =
-        message.editedTimestamp!.millisecondsSinceEpoch.toString();
+    map['$prefix.editedTimestamp'] = message
+        .editedTimestamp!
+        .millisecondsSinceEpoch
+        .toString();
   }
   final referencedMessage = message.referencedMessage;
   if (referencedMessage != null) {
@@ -413,19 +442,22 @@ Map<String, String> _pollVoteExtra({
   if (guildId != null) 'poll.vote.guildId': guildId.toString(),
 };
 
-Map<String, String> _messageContentExtra(Message message, {PartialMember? member}) {
+Map<String, String> _messageContentExtra(
+  Message message, {
+  PartialMember? member,
+}) {
   final author = message.author;
   final authorId = author.id.toString();
   final authorName = author.username;
   final authorTag = author is User ? author.discriminator : '';
   final authorAvatar = author is User
       ? makeAvatarUrl(
-        author.id.toString(),
-        avatarId: author.avatar.hash,
-        isAnimated: author.avatar.isAnimated,
-        legacyFormat: 'webp',
-        discriminator: author.discriminator,
-      )
+          author.id.toString(),
+          avatarId: author.avatar.hash,
+          isAnimated: author.avatar.isAnimated,
+          legacyFormat: 'webp',
+          discriminator: author.discriminator,
+        )
       : '';
 
   final extra = <String, String>{
