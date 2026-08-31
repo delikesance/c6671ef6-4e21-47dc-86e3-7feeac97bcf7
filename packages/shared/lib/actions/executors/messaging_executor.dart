@@ -4,6 +4,7 @@ import 'package:nyxx/nyxx.dart';
 
 import '../../types/action.dart';
 import '../../utils/bdfd_duration_parser.dart';
+import '../../utils/global.dart';
 import '../delete_message.dart';
 import '../edit_message.dart';
 import '../get_message.dart';
@@ -69,23 +70,26 @@ Future<bool> executeMessagingAction({
       final messageId = _toSnowflake(resolvedMessageIdRaw);
 
       final delayRaw = resolveValue((payload['delay'] ?? '').toString());
-      final delayDuration = delayRaw.isNotEmpty ? parseBdfdDuration(delayRaw) : null;
+      final delayDuration = delayRaw.isNotEmpty
+          ? parseBdfdDuration(delayRaw)
+          : null;
 
       final rawCount = payload['messageCount'] ?? payload['count'];
       final resolvedCountRaw = resolveValue((rawCount ?? '').toString());
       final parsedCount = double.tryParse(resolvedCountRaw);
-      final count =
-          parsedCount != null
-              ? parsedCount.round()
-              : (rawCount is num ? rawCount.toInt() : (messageId != null ? 1 : 0));
+      final count = parsedCount != null
+          ? parsedCount.round()
+          : (rawCount is num ? rawCount.toInt() : (messageId != null ? 1 : 0));
 
       final onlyUserId = resolveValue((payload['onlyUserId'] ?? '').toString());
       final reason = resolveValue((payload['reason'] ?? '').toString()).trim();
 
-      final filterBotsRaw =
-          resolveValue((payload['filterBots'] ?? '').toString()).toLowerCase();
-      final filterUsersRaw =
-          resolveValue((payload['filterUsers'] ?? '').toString()).toLowerCase();
+      final filterBotsRaw = resolveValue(
+        (payload['filterBots'] ?? '').toString(),
+      ).toLowerCase();
+      final filterUsersRaw = resolveValue(
+        (payload['filterUsers'] ?? '').toString(),
+      ).toLowerCase();
       final filterBots = filterBotsRaw == 'true' || filterBotsRaw == '1';
       final filterUsers = filterUsersRaw == 'true' || filterUsersRaw == '1';
 
@@ -107,10 +111,9 @@ Future<bool> executeMessagingAction({
       );
       final beforeMessageId = _toSnowflake(beforeRaw);
 
-      final deleteItselfRaw =
-          resolveValue(
-            (payload['deleteItself'] ?? '').toString(),
-          ).toLowerCase();
+      final deleteItselfRaw = resolveValue(
+        (payload['deleteItself'] ?? '').toString(),
+      ).toLowerCase();
       var deleteItself = false;
       if (deleteItselfRaw.isNotEmpty) {
         if (deleteItselfRaw == 'true' ||
@@ -138,8 +141,8 @@ Future<bool> executeMessagingAction({
         Timer(delayDuration, () async {
           try {
             if (messageId != null) {
-              final channel = client.channels[channelId];
-              if (channel is PartialTextChannel) {
+              final channel = await fetchChannelCached(client, channelId);
+              if (channel is TextChannel) {
                 await channel.messages[messageId].delete();
               }
             } else {
@@ -168,8 +171,8 @@ Future<bool> executeMessagingAction({
 
       if (messageId != null) {
         try {
-          final channel = client.channels[channelId];
-          if (channel is PartialTextChannel) {
+          final channel = await fetchChannelCached(client, channelId);
+          if (channel is TextChannel) {
             await channel.messages[messageId].delete();
             results[resultKey] = '1';
             variables['action.$resultKey.count'] = '1';
@@ -221,9 +224,13 @@ Future<bool> executeMessagingAction({
       return true;
 
     case BotCreatorActionType.sendMessage:
-      final targetType =
-          (payload['targetType'] ?? 'channel').toString().trim().toLowerCase();
-      final channelId = _toSnowflake(resolveValue((payload['channelId'] ?? '').toString())) ?? fallbackChannelId;
+      final targetType = (payload['targetType'] ?? 'channel')
+          .toString()
+          .trim()
+          .toLowerCase();
+      final channelId =
+          _toSnowflake(resolveValue((payload['channelId'] ?? '').toString())) ??
+          fallbackChannelId;
 
       if (targetType != 'user' && guildId != null) {
         final permError = await checkBotGuildPermission(
@@ -250,7 +257,7 @@ Future<bool> executeMessagingAction({
           (payload['userId'] ?? '').toString(),
         );
       }
-      
+
       // Resolve messageId if present (important for replies)
       if (payload.containsKey('messageId')) {
         resolvedSendPayload['messageId'] = resolveValue(
@@ -268,10 +275,9 @@ Future<bool> executeMessagingAction({
           if (name.isEmpty) continue;
           try {
             final bytes = base64Decode(entry.value);
-            canvasAttachments.add(AttachmentBuilder(
-              data: bytes,
-              fileName: '$name.png',
-            ));
+            canvasAttachments.add(
+              AttachmentBuilder(data: bytes, fileName: '$name.png'),
+            );
             keysToRemove.add(entry.key);
           } catch (_) {}
         }
@@ -309,8 +315,12 @@ Future<bool> executeMessagingAction({
       final content = resolveValue((payload['content'] ?? '').toString());
       // Resolve variable references in messageId and channelId (e.g. ((action_message)))
       final resolvedPayload = Map<String, dynamic>.from(payload);
-      resolvedPayload['messageId'] = resolveValue((payload['messageId'] ?? '').toString());
-      resolvedPayload['channelId'] = resolveValue((payload['channelId'] ?? '').toString());
+      resolvedPayload['messageId'] = resolveValue(
+        (payload['messageId'] ?? '').toString(),
+      );
+      resolvedPayload['channelId'] = resolveValue(
+        (payload['channelId'] ?? '').toString(),
+      );
       final result = await editMessageAction(
         client,
         payload: resolvedPayload,
@@ -329,8 +339,12 @@ Future<bool> executeMessagingAction({
     case BotCreatorActionType.getMessage:
       // Resolve variable references in messageId and channelId
       final resolvedGetPayload = Map<String, dynamic>.from(payload);
-      resolvedGetPayload['messageId'] = resolveValue((payload['messageId'] ?? '').toString());
-      resolvedGetPayload['channelId'] = resolveValue((payload['channelId'] ?? '').toString());
+      resolvedGetPayload['messageId'] = resolveValue(
+        (payload['messageId'] ?? '').toString(),
+      );
+      resolvedGetPayload['channelId'] = resolveValue(
+        (payload['channelId'] ?? '').toString(),
+      );
       final result = await getMessageAction(
         client,
         payload: resolvedGetPayload,
@@ -347,21 +361,24 @@ Future<bool> executeMessagingAction({
 
     case BotCreatorActionType.deleteTrigger:
       // Try to find the trigger message ID from variables or interaction
-      final triggerMessageIdRaw = variables['message.id'] ??
+      final triggerMessageIdRaw =
+          variables['message.id'] ??
           variables['author.message.id'] ??
           variables['messageId'] ??
           '';
-      final triggerChannelIdRaw = variables['channel.id'] ??
+      final triggerChannelIdRaw =
+          variables['channel.id'] ??
           variables['channelId'] ??
           variables['message.channelId'] ??
           '';
       final triggerMessageId = _toSnowflake(triggerMessageIdRaw);
-      final triggerChannelId = _toSnowflake(triggerChannelIdRaw) ?? fallbackChannelId;
+      final triggerChannelId =
+          _toSnowflake(triggerChannelIdRaw) ?? fallbackChannelId;
 
       if (triggerMessageId != null && triggerChannelId != null) {
         try {
-          final channel = client.channels[triggerChannelId];
-          if (channel is PartialTextChannel) {
+          final channel = await fetchChannelCached(client, triggerChannelId);
+          if (channel is TextChannel) {
             await channel.messages[triggerMessageId].delete();
             results[resultKey] = triggerMessageId.toString();
           } else {
@@ -417,7 +434,9 @@ Future<bool> executeMessagingAction({
         if (interaction is MessageResponse) {
           await interaction.acknowledge(isEphemeral: deferEphemeral);
         } else {
-          await (interaction as dynamic).acknowledge(isEphemeral: deferEphemeral);
+          await (interaction as dynamic).acknowledge(
+            isEphemeral: deferEphemeral,
+          );
         }
         markInteractionAcknowledged(interaction);
         results[resultKey] = 'deferred';
