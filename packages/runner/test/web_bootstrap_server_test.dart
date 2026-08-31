@@ -239,6 +239,44 @@ void main() {
       );
       expect(legacyValues.statusCode, HttpStatus.ok);
       expect(legacyJson['values']['u2'], 'yes');
+
+      // Test setting scoped value via HTTP endpoint
+      final setScopedVal = await http.post(
+        base.resolve('/bots/$botId/variables/scoped-values/set'),
+        headers: {'content-type': 'application/json'},
+        body: jsonEncode({
+          'scope': 'user',
+          'key': 'xp',
+          'scope_id': 'u1',
+          'value': 19,
+        }),
+      );
+      expect(setScopedVal.statusCode, HttpStatus.ok);
+
+      final readXp = await http.get(
+        base.resolve('/bots/$botId/variables/scoped-values?scope=user&key=xp'),
+      );
+      final readXpJson = Map<String, dynamic>.from(
+        jsonDecode(readXp.body) as Map,
+      );
+      expect(readXp.statusCode, HttpStatus.ok);
+      expect(readXpJson['values']['u1'], 19);
+
+      // Test removing scoped value via HTTP endpoint
+      final removeScopedVal = await http.post(
+        base.resolve('/bots/$botId/variables/scoped-values/remove'),
+        headers: {'content-type': 'application/json'},
+        body: jsonEncode({'scope': 'user', 'key': 'xp', 'scope_id': 'u1'}),
+      );
+      expect(removeScopedVal.statusCode, HttpStatus.ok);
+
+      final readXpAfterRemove = await http.get(
+        base.resolve('/bots/$botId/variables/scoped-values?scope=user&key=xp'),
+      );
+      final readXpAfterRemoveJson = Map<String, dynamic>.from(
+        jsonDecode(readXpAfterRemove.body) as Map,
+      );
+      expect(readXpAfterRemoveJson['values']['u1'], null);
     });
 
     test(
