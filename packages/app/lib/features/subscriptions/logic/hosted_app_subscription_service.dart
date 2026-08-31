@@ -138,7 +138,9 @@ class HostedAppSubscriptionService {
   static Future<SubscriptionPurchaseResult> purchaseTwoApps() =>
       _purchase(HostedAppTier.twoApps);
 
-  static Future<SubscriptionPurchaseResult> _purchase(HostedAppTier tier) async {
+  static Future<SubscriptionPurchaseResult> _purchase(
+    HostedAppTier tier,
+  ) async {
     if (!_storeAvailable) {
       return const SubscriptionPurchaseResult.failed(
         SubscriptionPurchaseFailureReason.storeUnavailable,
@@ -284,6 +286,7 @@ class HostedAppSubscriptionService {
   }
 
   static void handleAppResumed() {
+    MainApiClient.resetCircuitBreakers();
     unawaited(refreshStatus());
     unawaited(_revalidateCachedSubscription());
     unawaited(refreshFromServer(forceRefresh: true));
@@ -316,8 +319,7 @@ class HostedAppSubscriptionService {
 
   static Future<void> _verifyAndDeliver(PurchaseDetails purchase) async {
     final pendingTier = _pendingTier;
-    final listing =
-        pendingTier == null ? null : listingFor(pendingTier);
+    final listing = pendingTier == null ? null : listingFor(pendingTier);
     final verification = await _verifyPurchaseWithServer(
       purchase,
       listing: listing,
@@ -329,9 +331,7 @@ class HostedAppSubscriptionService {
 
     final canonicalProductId =
         verification.canonicalProductId ??
-        (pendingTier == null
-            ? null
-            : canonicalHostedAppProductId(pendingTier));
+        (pendingTier == null ? null : canonicalHostedAppProductId(pendingTier));
     if (canonicalProductId == null) {
       return;
     }
@@ -352,25 +352,25 @@ class HostedAppSubscriptionService {
     await _setSubscriptionExpiry(expiresAt);
   }
 
-  static Future<({bool active, DateTime? expiresAt, String? canonicalProductId})>
+  static Future<
+    ({bool active, DateTime? expiresAt, String? canonicalProductId})
+  >
   _verifyPurchaseWithServer(
     PurchaseDetails purchase, {
     HostedAppStoreListing? listing,
   }) async {
     final platform = Platform.isIOS ? 'ios' : 'android';
-    final serverVerificationData =
-        Platform.isIOS
-            ? (purchase.purchaseID ?? '').trim()
-            : purchase.verificationData.serverVerificationData.trim();
+    final serverVerificationData = Platform.isIOS
+        ? (purchase.purchaseID ?? '').trim()
+        : purchase.verificationData.serverVerificationData.trim();
 
     if (serverVerificationData.isEmpty) {
       return (active: false, expiresAt: null, canonicalProductId: null);
     }
 
-    final verifyProductId =
-        listing == null
-            ? purchase.productID
-            : verifyBillingProductIdForListing(listing);
+    final verifyProductId = listing == null
+        ? purchase.productID
+        : verifyBillingProductIdForListing(listing);
 
     try {
       final config = await MainApiSettingsStore.loadConfig();
@@ -399,13 +399,11 @@ class HostedAppSubscriptionService {
         expiresAt = DateTime.tryParse(rawExpiry.toString())?.toUtc();
       }
 
-      final canonical =
-          listing == null
-              ? hostedAppTierFromCanonicalProductId(purchase.productID) ==
-                      null
-                  ? null
-                  : purchase.productID
-              : canonicalHostedAppProductId(listing.tier);
+      final canonical = listing == null
+          ? hostedAppTierFromCanonicalProductId(purchase.productID) == null
+                ? null
+                : purchase.productID
+          : canonicalHostedAppProductId(listing.tier);
 
       return (
         active: active,

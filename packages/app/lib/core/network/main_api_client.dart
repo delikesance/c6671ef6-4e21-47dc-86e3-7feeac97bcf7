@@ -58,13 +58,14 @@ class MainApiClient implements RemoteRuntimeClient {
   static const int _maxHashCacheEntries = 100;
 
   static const String _lastSyncedHashesKey = 'main_api_last_synced_hashes';
-  static const String _lastSavedSnapshotsKey = 'main_api_last_saved_snapshots_v2';
+  static const String _lastSavedSnapshotsKey =
+      'main_api_last_saved_snapshots_v2';
 
   /// Initializes the client by loading persisted hashes from disk.
   static Future<void> initialize() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      
+
       final syncedHashesJson = prefs.getString(_lastSyncedHashesKey);
       if (syncedHashesJson != null) {
         final decoded = jsonDecode(syncedHashesJson);
@@ -80,14 +81,19 @@ class MainApiClient implements RemoteRuntimeClient {
           _lastSavedSnapshots.addAll(decoded.cast<String, String>());
         }
       }
-      
-      debugPrint('[MainApiClient] Initialized with ${_lastSyncedHashes.length} synced hashes and ${_lastSavedSnapshots.length} snapshot hashes.');
+
+      debugPrint(
+        '[MainApiClient] Initialized with ${_lastSyncedHashes.length} synced hashes and ${_lastSavedSnapshots.length} snapshot hashes.',
+      );
     } catch (e) {
       debugPrint('[MainApiClient] Failed to load persisted hashes: $e');
     }
   }
 
-  static Future<void> _persistHashes(String key, Map<String, String> cache) async {
+  static Future<void> _persistHashes(
+    String key,
+    Map<String, String> cache,
+  ) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(key, jsonEncode(cache));
@@ -114,8 +120,9 @@ class MainApiClient implements RemoteRuntimeClient {
   /// Cleans up the hash caches using LRU eviction when they exceed the max size.
   static void _evictOldestHashEntries(Map<String, String> cache) {
     if (cache.length <= _maxHashCacheEntries) return;
-    final keysToRemove =
-        cache.keys.take(cache.length - _maxHashCacheEntries).toList();
+    final keysToRemove = cache.keys
+        .take(cache.length - _maxHashCacheEntries)
+        .toList();
     for (final key in keysToRemove) {
       cache.remove(key);
     }
@@ -149,6 +156,12 @@ class MainApiClient implements RemoteRuntimeClient {
   /// Records a success, resetting the circuit breaker.
   static void _recordCircuitSuccess(String baseUrl) {
     _circuits.remove(baseUrl);
+  }
+
+  /// Resets all circuit breakers and health caches (e.g. when app resumes from background).
+  static void resetCircuitBreakers() {
+    _circuits.clear();
+    _healthCache.clear();
   }
 
   /// Returns a cached health check result if still valid, null otherwise.
@@ -251,14 +264,18 @@ class MainApiClient implements RemoteRuntimeClient {
         return _parseResponse(response);
       } on MainApiClientException catch (error) {
         lastError = error;
-        if ((error.statusCode == 401 || error.statusCode == 403) && includeAuth) {
+        if ((error.statusCode == 401 || error.statusCode == 403) &&
+            includeAuth) {
           final newTokens = await _tryRefreshSession();
           if (newTokens != null) {
             _accessToken = newTokens;
             continue;
           }
         }
-        if (_isClientError(error) || attempt >= _maxRetries) {
+        if (_isClientError(error)) {
+          rethrow;
+        }
+        if (attempt >= _maxRetries) {
           _recordCircuitFailure(_baseUrl);
           rethrow;
         }
@@ -283,7 +300,6 @@ class MainApiClient implements RemoteRuntimeClient {
       }
     }
 
-    _recordCircuitFailure(_baseUrl);
     if (lastError is Exception) throw lastError;
     throw const MainApiClientException('Request failed after retries.');
   }
@@ -322,14 +338,18 @@ class MainApiClient implements RemoteRuntimeClient {
         return _parseResponse(response);
       } on MainApiClientException catch (error) {
         lastError = error;
-        if ((error.statusCode == 401 || error.statusCode == 403) && includeAuth) {
+        if ((error.statusCode == 401 || error.statusCode == 403) &&
+            includeAuth) {
           final newTokens = await _tryRefreshSession();
           if (newTokens != null) {
             _accessToken = newTokens;
             continue;
           }
         }
-        if (_isClientError(error) || attempt >= _maxRetries) {
+        if (_isClientError(error)) {
+          rethrow;
+        }
+        if (attempt >= _maxRetries) {
           _recordCircuitFailure(_baseUrl);
           rethrow;
         }
@@ -354,7 +374,6 @@ class MainApiClient implements RemoteRuntimeClient {
       }
     }
 
-    _recordCircuitFailure(_baseUrl);
     if (lastError is Exception) throw lastError;
     throw const MainApiClientException('Request failed after retries.');
   }
@@ -371,7 +390,9 @@ class MainApiClient implements RemoteRuntimeClient {
     }
 
     final uri = _uri(path, query: query);
-    appendBotDebugLog('[MainApiClient] DELETE ${redactUriForLog(uri.toString())}');
+    appendBotDebugLog(
+      '[MainApiClient] DELETE ${redactUriForLog(uri.toString())}',
+    );
 
     Object? lastError;
     for (var attempt = 0; attempt <= _maxRetries; attempt++) {
@@ -386,14 +407,18 @@ class MainApiClient implements RemoteRuntimeClient {
         return _parseResponse(response);
       } on MainApiClientException catch (error) {
         lastError = error;
-        if ((error.statusCode == 401 || error.statusCode == 403) && includeAuth) {
+        if ((error.statusCode == 401 || error.statusCode == 403) &&
+            includeAuth) {
           final newTokens = await _tryRefreshSession();
           if (newTokens != null) {
             _accessToken = newTokens;
             continue;
           }
         }
-        if (_isClientError(error) || attempt >= _maxRetries) {
+        if (_isClientError(error)) {
+          rethrow;
+        }
+        if (attempt >= _maxRetries) {
           _recordCircuitFailure(_baseUrl);
           rethrow;
         }
@@ -418,7 +443,6 @@ class MainApiClient implements RemoteRuntimeClient {
       }
     }
 
-    _recordCircuitFailure(_baseUrl);
     if (lastError is Exception) throw lastError;
     throw const MainApiClientException('Request failed after retries.');
   }
@@ -442,7 +466,11 @@ class MainApiClient implements RemoteRuntimeClient {
     for (var attempt = 0; attempt <= _maxRetries; attempt++) {
       try {
         final response = await _http
-            .put(uri, headers: _headers(includeAuth: includeAuth), body: encodedBody)
+            .put(
+              uri,
+              headers: _headers(includeAuth: includeAuth),
+              body: encodedBody,
+            )
             .timeout(_timeout);
         appendBotDebugLog(
           '[MainApiClient] PUT $uri responded with ${response.statusCode}',
@@ -451,14 +479,18 @@ class MainApiClient implements RemoteRuntimeClient {
         return _parseResponse(response);
       } on MainApiClientException catch (error) {
         lastError = error;
-        if ((error.statusCode == 401 || error.statusCode == 403) && includeAuth) {
+        if ((error.statusCode == 401 || error.statusCode == 403) &&
+            includeAuth) {
           final newTokens = await _tryRefreshSession();
           if (newTokens != null) {
             _accessToken = newTokens;
             continue;
           }
         }
-        if (_isClientError(error) || attempt >= _maxRetries) {
+        if (_isClientError(error)) {
+          rethrow;
+        }
+        if (attempt >= _maxRetries) {
           _recordCircuitFailure(_baseUrl);
           rethrow;
         }
@@ -477,7 +509,6 @@ class MainApiClient implements RemoteRuntimeClient {
       }
     }
 
-    _recordCircuitFailure(_baseUrl);
     if (lastError is Exception) throw lastError;
     throw const MainApiClientException('Request failed after retries.');
   }
@@ -495,7 +526,9 @@ class MainApiClient implements RemoteRuntimeClient {
 
     final uri = _uri(path);
     final encodedBody = jsonEncode(body);
-    appendBotDebugLog('[MainApiClient] PATCH ${redactUriForLog(uri.toString())}');
+    appendBotDebugLog(
+      '[MainApiClient] PATCH ${redactUriForLog(uri.toString())}',
+    );
 
     Object? lastError;
     for (var attempt = 0; attempt <= _maxRetries; attempt++) {
@@ -514,14 +547,18 @@ class MainApiClient implements RemoteRuntimeClient {
         return _parseResponse(response);
       } on MainApiClientException catch (error) {
         lastError = error;
-        if ((error.statusCode == 401 || error.statusCode == 403) && includeAuth) {
+        if ((error.statusCode == 401 || error.statusCode == 403) &&
+            includeAuth) {
           final newTokens = await _tryRefreshSession();
           if (newTokens != null) {
             _accessToken = newTokens;
             continue;
           }
         }
-        if (_isClientError(error) || attempt >= _maxRetries) {
+        if (_isClientError(error)) {
+          rethrow;
+        }
+        if (attempt >= _maxRetries) {
           _recordCircuitFailure(_baseUrl);
           rethrow;
         }
@@ -540,7 +577,6 @@ class MainApiClient implements RemoteRuntimeClient {
       }
     }
 
-    _recordCircuitFailure(_baseUrl);
     if (lastError is Exception) throw lastError;
     throw const MainApiClientException('Request failed after retries.');
   }
@@ -581,7 +617,9 @@ class MainApiClient implements RemoteRuntimeClient {
 
   Future<String?> _tryRefreshSession() async {
     try {
-      debugPrint('[MainApiClient] Access token expired or invalid (401/403). Attempting central session restore...');
+      debugPrint(
+        '[MainApiClient] Access token expired or invalid (401/403). Attempting central session restore...',
+      );
       final session = await restoreMainApiSessionIfNeeded(
         timeout: _timeout,
         force: true,
@@ -658,16 +696,17 @@ class MainApiClient implements RemoteRuntimeClient {
     if (existing != null) {
       return await existing;
     }
-    final future = _post('/auth/discord/exchange', <String, dynamic>{
-      'code': code,
-      'state': state,
-      'redirect_uri': redirectUri,
-    }, includeAuth: false).then(
-      (json) => _sessionFromAuthPayload(
-        json,
-        authMethod: MainApiAuthMethod.discordOauth,
-      ),
-    );
+    final future =
+        _post('/auth/discord/exchange', <String, dynamic>{
+          'code': code,
+          'state': state,
+          'redirect_uri': redirectUri,
+        }, includeAuth: false).then(
+          (json) => _sessionFromAuthPayload(
+            json,
+            authMethod: MainApiAuthMethod.discordOauth,
+          ),
+        );
     _inflightDiscordExchanges[key] = future;
     try {
       return await future;
@@ -799,11 +838,7 @@ class MainApiClient implements RemoteRuntimeClient {
       return RunnerStatus(
         running: false,
         bots: <RunnerBotRuntime>[
-          RunnerBotRuntime(
-            botId: botId.trim(),
-            botName: '',
-            state: 'stopped',
-          ),
+          RunnerBotRuntime(botId: botId.trim(), botName: '', state: 'stopped'),
         ],
       );
     }
@@ -821,7 +856,10 @@ class MainApiClient implements RemoteRuntimeClient {
       } on MainApiClientException catch (e) {
         if (e.message.contains('pool_mode_active') ||
             e.message.contains('pool mode')) {
-          return RunnerMetrics(running: false, bots: const <RunnerBotRuntime>[]);
+          return RunnerMetrics(
+            running: false,
+            bots: const <RunnerBotRuntime>[],
+          );
         }
         rethrow;
       }
@@ -853,7 +891,7 @@ class MainApiClient implements RemoteRuntimeClient {
     try {
       // 1. Get presigned ticket
       final ticket = await presignBotConfig(botId: botId);
-      
+
       // 2. Upload config JSON to the presigned uploadUrl
       final configJsonBytes = utf8.encode(jsonEncode(config));
       await uploadFileToPresignedUrl(
@@ -872,16 +910,14 @@ class MainApiClient implements RemoteRuntimeClient {
         },
       );
     } catch (error) {
-      debugPrint('[MainApiClient] Presigned config upload failed: $error. Falling back to legacy direct sync.');
-      
+      debugPrint(
+        '[MainApiClient] Presigned config upload failed: $error. Falling back to legacy direct sync.',
+      );
+
       // Fallback: legacy direct POST sync
       await _postFirstAvailable(
         const <String>['/gateway/bots/sync', '/bots/sync'],
-        <String, dynamic>{
-          'botId': botId,
-          'botName': botName,
-          'config': config,
-        },
+        <String, dynamic>{'botId': botId, 'botName': botName, 'config': config},
       );
     }
 
@@ -1147,7 +1183,9 @@ class MainApiClient implements RemoteRuntimeClient {
         if (rawLines is! List) {
           return const <String>[];
         }
-        return rawLines.map((entry) => entry.toString()).toList(growable: false);
+        return rawLines
+            .map((entry) => entry.toString())
+            .toList(growable: false);
       } on MainApiClientException catch (e) {
         if (e.message.contains('pool_mode_active') ||
             e.message.contains('pool mode')) {
@@ -1211,7 +1249,10 @@ class MainApiClient implements RemoteRuntimeClient {
     final json = await _get('/gateway/bots/$encodedBotId/runtime/ad-history');
     final raw = json['data'] ?? json['claims'] ?? json['history'];
     if (raw is List) {
-      return raw.whereType<Map>().map((item) => Map<String, dynamic>.from(item)).toList();
+      return raw
+          .whereType<Map>()
+          .map((item) => Map<String, dynamic>.from(item))
+          .toList();
     }
     return <Map<String, dynamic>>[];
   }
@@ -1222,14 +1263,11 @@ class MainApiClient implements RemoteRuntimeClient {
     String locale = '',
   }) async {
     try {
-      final json = await _post(
-        '/gateway/account/device',
-        <String, dynamic>{
-          'fcm_token': fcmToken.trim(),
-          'platform': platform.trim(),
-          'locale': locale.trim(),
-        },
-      );
+      final json = await _post('/gateway/account/device', <String, dynamic>{
+        'fcm_token': fcmToken.trim(),
+        'platform': platform.trim(),
+        'locale': locale.trim(),
+      });
       return json['success'] == true;
     } catch (_) {
       return false;
@@ -1412,8 +1450,8 @@ class MainApiClient implements RemoteRuntimeClient {
       final scopeAuxId = (item['scope_aux_id'] ?? '').toString().trim();
       final contextId =
           normalizedScope == 'guildMember' && scopeAuxId.isNotEmpty
-              ? '$scopeId:$scopeAuxId'
-              : scopeId;
+          ? '$scopeId:$scopeAuxId'
+          : scopeId;
       valuesByContext[contextId] = item['value'];
     }
     return valuesByContext;
@@ -1506,13 +1544,12 @@ class MainApiClient implements RemoteRuntimeClient {
     }
 
     final scopesRaw = tokens['scopes'] ?? json['scopes'];
-    final scopes =
-        scopesRaw is List
-            ? scopesRaw
-                .map((item) => item.toString().trim())
-                .where((item) => item.isNotEmpty)
-                .toList(growable: false)
-            : const <String>[];
+    final scopes = scopesRaw is List
+        ? scopesRaw
+              .map((item) => item.toString().trim())
+              .where((item) => item.isNotEmpty)
+              .toList(growable: false)
+        : const <String>[];
 
     return MainApiSession(
       accessToken: accessToken,
@@ -1581,13 +1618,13 @@ class MainApiClient implements RemoteRuntimeClient {
     required String contentType,
   }) async {
     final uri = Uri.parse(uploadUrl);
-    final response = await _http.put(
-      uri,
-      headers: <String, String>{
-        'content-type': contentType,
-      },
-      body: fileBytes,
-    ).timeout(_timeout);
+    final response = await _http
+        .put(
+          uri,
+          headers: <String, String>{'content-type': contentType},
+          body: fileBytes,
+        )
+        .timeout(_timeout);
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw MainApiClientException(
@@ -1637,13 +1674,10 @@ class MainApiClient implements RemoteRuntimeClient {
     String botId,
     Map<String, String> variables,
   ) async {
-    return await _post(
-      '/marketplace/$templateId/apply',
-      <String, dynamic>{
-        'botId': botId,
-        'variables': variables,
-      },
-    );
+    return await _post('/marketplace/$templateId/apply', <String, dynamic>{
+      'botId': botId,
+      'variables': variables,
+    });
   }
 
   /// Rate a marketplace template (0.0 - 5.0).
@@ -1663,8 +1697,8 @@ class MainApiClient implements RemoteRuntimeClient {
   /// List all containers for the authenticated owner.
   Future<List<ContainerInfo>> listContainers() async {
     final json = await _get('/containers');
-    final list = (json['containers'] as List<dynamic>?)
-            ?.cast<Map<String, dynamic>>() ??
+    final list =
+        (json['containers'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ??
         <Map<String, dynamic>>[];
     return list.map((e) => ContainerInfo.fromJson(e)).toList();
   }
@@ -1727,8 +1761,8 @@ class MainApiClient implements RemoteRuntimeClient {
 
   Future<List<RegistryCredential>> listRegistryCredentials() async {
     final json = await _get('/registry-credentials');
-    final list = (json['credentials'] as List<dynamic>?)
-            ?.cast<Map<String, dynamic>>() ??
+    final list =
+        (json['credentials'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ??
         <Map<String, dynamic>>[];
     return list.map(RegistryCredential.fromJson).toList();
   }
@@ -1819,7 +1853,9 @@ class MainApiClient implements RemoteRuntimeClient {
   /// Connect to the container console WebSocket.
   /// Returns a connected [WebSocketChannel] ready for bidirectional I/O.
   WebSocketChannel connectContainerConsole(String id) {
-    final uri = Uri.parse('${_baseUrl.replaceFirst('http', 'ws')}/containers/$id/console');
+    final uri = Uri.parse(
+      '${_baseUrl.replaceFirst('http', 'ws')}/containers/$id/console',
+    );
     return IOWebSocketChannel.connect(
       uri,
       headers: _headers(includeAuth: true, contentType: null),
@@ -1939,10 +1975,10 @@ class RegistryAuthInput {
   final String password;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        if (registry != null && registry!.isNotEmpty) 'registry': registry,
-        'username': username,
-        'password': password,
-      };
+    if (registry != null && registry!.isNotEmpty) 'registry': registry,
+    'username': username,
+    'password': password,
+  };
 }
 
 String detectRegistryHostFromImage(String image) {
@@ -2020,8 +2056,9 @@ class ContainerInfo {
       memoryUsageBytes: _parseInt(json['memory_usage_bytes'], 0),
       storageGb: _parseInt(json['storage_gb'], 0),
       env: (json['env'] is Map<String, dynamic>
-          ? (json['env'] as Map<String, dynamic>)
-              .map((k, v) => MapEntry(k, v.toString()))
+          ? (json['env'] as Map<String, dynamic>).map(
+              (k, v) => MapEntry(k, v.toString()),
+            )
           : <String, String>{}),
       state: (json['state'] ?? '').toString(),
       hostPort: _parseInt(json['host_port'], 0),
@@ -2084,7 +2121,8 @@ class HostedAppEligibility {
   /// `container_limit` | `no_minutes` | null when [canDeploy] is true.
   final String? deployBlockedReason;
 
-  bool get isBlockedByContainerLimit => deployBlockedReason == 'container_limit';
+  bool get isBlockedByContainerLimit =>
+      deployBlockedReason == 'container_limit';
   bool get isBlockedByNoMinutes => deployBlockedReason == 'no_minutes';
 
   factory HostedAppEligibility.fromJson(Map<String, dynamic> json) {

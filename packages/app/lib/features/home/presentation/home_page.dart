@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/core/network/main_api_owner_sync.dart';
 import 'package:bot_creator/core/network/main_api_session_restore.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
@@ -156,6 +157,7 @@ class HomePageState extends State<HomePage>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
+      MainApiClient.resetCircuitBreakers();
       // Immediately refresh running state so the UI updates fast,
       // then do the full sync in background.
       unawaited(_ensureGatewayBotEvents());
@@ -984,27 +986,32 @@ class HomePageState extends State<HomePage>
 
       final syncResults = await Future.wait(botSyncTasks);
 
-      for (final result in syncResults) {
-        if (result == null) continue;
-        try {
-          await appManager.createOrUpdateApp(
-            id: Snowflake.parse(result.botId),
-            username: result.botName,
-            avatarHash:
-                result.bot['avatar_hash']?.toString() ??
-                result.bot['avatar']?.toString(),
-            discriminator: result.bot['discriminator']?.toString(),
-            token: result.token,
-            intents: (result.config['intents'] as Map?)?.cast<String, bool>(),
-            prefix: result.config['prefix']?.toString(),
-            approximateGuildCount: result.guildCount,
-          );
-        } catch (e) {
-          developer.log('Failed to sync bot ${result.botId}: $e');
-          appendBotDebugLog(
-            '[syncAllBotsFromManager] Failed to sync bot ${result.botId}: $e',
-          );
+      AppManager.isSyncingFromRemote = true;
+      try {
+        for (final result in syncResults) {
+          if (result == null) continue;
+          try {
+            await appManager.createOrUpdateApp(
+              id: Snowflake.parse(result.botId),
+              username: result.botName,
+              avatarHash:
+                  result.bot['avatar_hash']?.toString() ??
+                  result.bot['avatar']?.toString(),
+              discriminator: result.bot['discriminator']?.toString(),
+              token: result.token,
+              intents: (result.config['intents'] as Map?)?.cast<String, bool>(),
+              prefix: result.config['prefix']?.toString(),
+              approximateGuildCount: result.guildCount,
+            );
+          } catch (e) {
+            developer.log('Failed to sync bot ${result.botId}: $e');
+            appendBotDebugLog(
+              '[syncAllBotsFromManager] Failed to sync bot ${result.botId}: $e',
+            );
+          }
         }
+      } finally {
+        AppManager.isSyncingFromRemote = false;
       }
 
       if (mounted) {
