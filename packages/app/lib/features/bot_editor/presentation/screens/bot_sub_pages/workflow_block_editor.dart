@@ -2431,6 +2431,63 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // ── Workflow Name & Folder at the top ──
+          Text(
+            context.tr.scratch_workflow_metadata,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+              color: AppTheme.brandPrimary,
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextFormField(
+            controller: _nameController,
+            decoration: InputDecoration(
+              labelText: context.tr.scratch_wizard_workflow_name_label,
+              hintText: context.tr.scratch_wizard_workflow_name_hint,
+              border: const OutlineInputBorder(),
+              isDense: true,
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextFormField(
+            controller: _folderController,
+            decoration: InputDecoration(
+              labelText: context.tr.scratch_wizard_folder_label,
+              hintText: context.tr.scratch_wizard_folder_hint,
+              prefixIcon: const Icon(Icons.folder_outlined),
+              suffixIcon: _existingFolders.isNotEmpty
+                  ? PopupMenuButton<String>(
+                      icon: const Icon(Icons.folder_open),
+                      onSelected: (String selection) {
+                        setState(() {
+                          _folderController.text = selection;
+                        });
+                      },
+                      itemBuilder: (BuildContext context) {
+                        return _existingFolders.map((String folder) {
+                          return PopupMenuItem<String>(
+                            value: folder,
+                            child: Text(folder),
+                          );
+                        }).toList();
+                      },
+                    )
+                  : null,
+              border: const OutlineInputBorder(),
+              isDense: true,
+            ),
+          ),
+          const SizedBox(height: 20),
+          Divider(
+            color: Theme.of(
+              context,
+            ).colorScheme.outlineVariant.withValues(alpha: 0.4),
+            height: 1,
+          ),
+          const SizedBox(height: 20),
           if (_mobileTriggerType == 'button') ...[
             Text(
               context.tr.scratch_wizard_config_button_instruction,
