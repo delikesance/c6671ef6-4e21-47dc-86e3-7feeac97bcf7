@@ -248,6 +248,122 @@ String? _lookupVariableValue(String key, Map<String, String> updates) {
     return '0';
   }
 
+  // Contextual fallback for user[<id>].<prop> and member[<id>].<prop>
+  final userBracketMatch = RegExp(
+    r'^(user|member)\[([^\]]+)\]\.(.+)$',
+    caseSensitive: false,
+  ).firstMatch(key);
+  if (userBracketMatch != null) {
+    final targetId = userBracketMatch.group(2)!.trim();
+    final prop = userBracketMatch.group(3)!.trim();
+    final lowerProp = prop.toLowerCase();
+    final authorId = (updates['author.id'] ?? updates['user.id'] ?? '').trim();
+    if (authorId.isNotEmpty && targetId == authorId) {
+      if (lowerProp == 'username') {
+        final u = updates['author.username'] ?? updates['user.username'];
+        if (u != null) return u;
+      } else if (lowerProp == 'avatar') {
+        final a =
+            updates['author.avatar'] ??
+            updates['user.avatar'] ??
+            updates['member.avatar'];
+        if (a != null) return a;
+      } else if (lowerProp == 'displayname') {
+        final d =
+            updates['member.displayName'] ??
+            updates['author.displayName'] ??
+            updates['user.displayName'] ??
+            updates['author.username'];
+        if (d != null) return d;
+      } else if (lowerProp == 'globalname') {
+        final g =
+            updates['author.globalName'] ??
+            updates['user.globalName'] ??
+            updates['author.username'];
+        if (g != null) return g;
+      } else if (lowerProp == 'nick' || lowerProp == 'nickname') {
+        final n =
+            updates['member.nick'] ??
+            updates['author.displayName'] ??
+            updates['author.username'];
+        if (n != null) return n;
+      } else if (lowerProp == 'tag' || lowerProp == 'discriminator') {
+        final t = updates['author.tag'] ?? updates['user.tag'];
+        if (t != null) return t;
+      } else if (lowerProp == 'isbot') {
+        return updates['author.isBot'] ?? updates['user.isBot'] ?? 'false';
+      } else if (lowerProp == 'isadmin') {
+        return updates['member.isAdmin'] ?? 'false';
+      } else if (lowerProp == 'isbooster') {
+        return updates['member.isBooster'] ?? 'false';
+      } else if (lowerProp == 'exists') {
+        return 'true';
+      } else if (lowerProp.startsWith('bc_')) {
+        final customVal =
+            updates['user.$prop'] ??
+            updates['user.${prop.toLowerCase()}'] ??
+            updates['member.$prop'] ??
+            updates['member.${prop.toLowerCase()}'];
+        if (customVal != null) return customVal;
+      } else {
+        final customVal =
+            updates['user.bc_$prop'] ??
+            updates['user.bc_${prop.toLowerCase()}'] ??
+            updates['user.$prop'] ??
+            updates['member.bc_$prop'] ??
+            updates['member.$prop'];
+        if (customVal != null) return customVal;
+      }
+    }
+  }
+
+  // Contextual fallback for guild[<id>].<prop> and server[<id>].<prop>
+  final guildBracketMatch = RegExp(
+    r'^(guild|server)\[([^\]]+)\]\.(.+)$',
+    caseSensitive: false,
+  ).firstMatch(key);
+  if (guildBracketMatch != null) {
+    final targetId = guildBracketMatch.group(2)!.trim();
+    final prop = guildBracketMatch.group(3)!.trim();
+    final lowerProp = prop.toLowerCase();
+    final guildId = (updates['guild.id'] ?? updates['server.id'] ?? '').trim();
+    if (guildId.isNotEmpty && targetId == guildId) {
+      if (lowerProp.startsWith('bc_')) {
+        final customVal = updates['guild.$prop'] ?? updates['server.$prop'];
+        if (customVal != null) return customVal;
+      } else {
+        final customVal =
+            updates['guild.bc_$prop'] ??
+            updates['server.bc_$prop'] ??
+            updates['guild.$prop'] ??
+            updates['server.$prop'];
+        if (customVal != null) return customVal;
+      }
+    }
+  }
+
+  // Contextual fallback for channel[<id>].<prop>
+  final channelBracketMatch = RegExp(
+    r'^channel\[([^\]]+)\]\.(.+)$',
+    caseSensitive: false,
+  ).firstMatch(key);
+  if (channelBracketMatch != null) {
+    final targetId = channelBracketMatch.group(1)!.trim();
+    final prop = channelBracketMatch.group(2)!.trim();
+    final lowerProp = prop.toLowerCase();
+    final channelId = (updates['channel.id'] ?? '').trim();
+    if (channelId.isNotEmpty && targetId == channelId) {
+      if (lowerProp.startsWith('bc_')) {
+        final customVal = updates['channel.$prop'];
+        if (customVal != null) return customVal;
+      } else {
+        final customVal =
+            updates['channel.bc_$prop'] ?? updates['channel.$prop'];
+        if (customVal != null) return customVal;
+      }
+    }
+  }
+
   // Boolean property fallbacks for BDFD compliance
   if (loweredKey.endsWith('.isbot') ||
       loweredKey.endsWith('.isadmin') ||
