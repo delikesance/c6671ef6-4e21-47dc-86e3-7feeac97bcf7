@@ -4,18 +4,10 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('computeBotConfigMergeDiff detects remote updates', () {
     final local = <Map<String, dynamic>>[
-      {
-        'id': 'cmd1',
-        'name': 'ping',
-        'updatedAt': '2026-01-01T10:00:00.000Z',
-      },
+      {'id': 'cmd1', 'name': 'ping', 'updatedAt': '2026-01-01T10:00:00.000Z'},
     ];
     final remote = <Map<String, dynamic>>[
-      {
-        'id': 'cmd1',
-        'name': 'ping',
-        'updatedAt': '2026-01-02T10:00:00.000Z',
-      },
+      {'id': 'cmd1', 'name': 'ping', 'updatedAt': '2026-01-02T10:00:00.000Z'},
     ];
 
     final diff = computeBotConfigMergeDiff(local, remote);
@@ -25,18 +17,30 @@ void main() {
 
   test('botConfigLocalHasNewerEdits detects newer local command', () {
     final local = <Map<String, dynamic>>[
-      {
-        'id': 'cmd1',
-        'updatedAt': '2026-01-03T10:00:00.000Z',
-      },
+      {'id': 'cmd1', 'updatedAt': '2026-01-03T10:00:00.000Z'},
     ];
     final remote = <Map<String, dynamic>>[
-      {
-        'id': 'cmd1',
-        'updatedAt': '2026-01-01T10:00:00.000Z',
-      },
+      {'id': 'cmd1', 'updatedAt': '2026-01-01T10:00:00.000Z'},
     ];
 
     expect(botConfigLocalHasNewerEdits(local, remote), isTrue);
   });
+
+  test(
+    'computeBotConfigMergeDiff handles empty local commands (new device)',
+    () {
+      final local = <Map<String, dynamic>>[];
+      final remote = <Map<String, dynamic>>[
+        {'id': 'cmd1', 'name': 'ping', 'updatedAt': '2026-01-02T10:00:00.000Z'},
+        {'id': 'cmd2', 'name': 'help', 'updatedAt': '2026-01-02T10:00:00.000Z'},
+      ];
+
+      final diff = computeBotConfigMergeDiff(local, remote);
+      expect(diff.newCommands, hasLength(2));
+      expect(diff.updatedCommands, isEmpty);
+      expect(diff.localOnlyCount, 0);
+      expect(diff.hasChanges, isTrue);
+      expect(botConfigLocalHasNewerEdits(local, remote), isFalse);
+    },
+  );
 }
