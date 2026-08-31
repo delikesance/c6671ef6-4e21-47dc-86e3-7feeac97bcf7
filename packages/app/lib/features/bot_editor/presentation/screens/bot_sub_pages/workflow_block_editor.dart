@@ -24,7 +24,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
-import 'package:bot_creator/core/network/runner_settings.dart';
 
 /// Full-screen Scratch-like block editor for creating or editing a workflow.
 ///
@@ -115,7 +114,8 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
   bool _supportsJavascriptMode = false;
   bool _isJavascriptOnlyBot = false;
 
-  bool get _isJavascriptMode => _executionMode == workflowExecutionModeJavascript;
+  bool get _isJavascriptMode =>
+      _executionMode == workflowExecutionModeJavascript;
 
   bool get _showJavascriptExecutionMode =>
       _supportsJavascriptMode && _workflowType == workflowTypeEvent;
@@ -148,11 +148,13 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
   Future<void> _loadExistingFolders() async {
     try {
       final workflows = await appManager.getWorkflows(widget.botId);
-      final folders = workflows
-          .map((w) => (w['folder'] ?? '').toString().trim())
-          .where((f) => f.isNotEmpty)
-          .toSet()
-          .toList()..sort();
+      final folders =
+          workflows
+              .map((w) => (w['folder'] ?? '').toString().trim())
+              .where((f) => f.isNotEmpty)
+              .toSet()
+              .toList()
+            ..sort();
       if (mounted) {
         setState(() {
           _existingFolders = folders;
@@ -166,12 +168,11 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
     super.initState();
     _loadExistingFolders();
 
-    final normalized =
-        widget.initial != null
-            ? normalizeStoredWorkflowDefinition(
-              Map<String, dynamic>.from(widget.initial!),
-            )
-            : null;
+    final normalized = widget.initial != null
+        ? normalizeStoredWorkflowDefinition(
+            Map<String, dynamic>.from(widget.initial!),
+          )
+        : null;
 
     _nameController = TextEditingController(
       text: (normalized?['name'] ?? '').toString(),
@@ -191,16 +192,15 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
     _selectedEvent = (_eventTrigger['event'] ?? 'messageCreate').toString();
 
     final parsed = parseWorkflowArgumentDefinitions(normalized?['arguments']);
-    _arguments =
-        parsed
-            .map(
-              (d) => _EditableArg(
-                name: d.name,
-                required: d.required,
-                defaultValue: d.defaultValue,
-              ),
-            )
-            .toList();
+    _arguments = parsed
+        .map(
+          (d) => _EditableArg(
+            name: d.name,
+            required: d.required,
+            defaultValue: d.defaultValue,
+          ),
+        )
+        .toList();
     if (_arguments.isEmpty) {
       _arguments.add(_EditableArg(name: ''));
     }
@@ -261,21 +261,8 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
 
   Future<void> _loadRuntimeContext(bool isNewWorkflow) async {
     var botRuntimeEngine = runtimeEngineDart;
-    var runnerSupportsJavascript = false;
 
     botRuntimeEngine = await getBotRuntimeEngine(widget.botId);
-
-    if (isJavascriptRuntimeEngine(botRuntimeEngine)) {
-      if (!kIsWeb &&
-          (defaultTargetPlatform == TargetPlatform.windows ||
-              defaultTargetPlatform == TargetPlatform.linux ||
-              defaultTargetPlatform == TargetPlatform.macOS)) {
-        runnerSupportsJavascript = true;
-      } else {
-        final config = await RunnerSettings.resolveConfigForBot(widget.botId);
-        runnerSupportsJavascript = config != null;
-      }
-    }
 
     if (!mounted) {
       return;
@@ -283,14 +270,16 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
 
     setState(() {
       _isJavascriptOnlyBot = botRuntimeEngine == runtimeEngineJavascript;
-      _supportsJavascriptMode =
-          botRuntimeEngine == runtimeEngineJavascript || runnerSupportsJavascript;
+      _supportsJavascriptMode = botRuntimeEngine == runtimeEngineJavascript;
       _executionMode = normalizeWorkflowExecutionMode(
         _executionMode,
         supportsJavascript: _supportsJavascriptMode,
       );
       if (_isJavascriptOnlyBot && _workflowType == workflowTypeEvent) {
         _executionMode = workflowExecutionModeJavascript;
+      } else if (!_supportsJavascriptMode &&
+          _executionMode == workflowExecutionModeJavascript) {
+        _executionMode = workflowExecutionModeWorkflow;
       }
     });
   }
@@ -374,7 +363,9 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
     }
 
     if (mounted) {
-      setState(() => _variableSuggestions = deduped.values.toList(growable: false));
+      setState(
+        () => _variableSuggestions = deduped.values.toList(growable: false),
+      );
     }
 
     // Add aliased versions of event variables (Dart workflows only).
@@ -401,15 +392,16 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
       final originalName = entry.key;
       final alias = entry.value;
       // Find the original suggestion to copy its kind/category
-      final original = _variableSuggestions.cast<VariableSuggestion?>().firstWhere(
-        (s) => s?.name == originalName,
-        orElse: () => null,
+      final original = _variableSuggestions
+          .cast<VariableSuggestion?>()
+          .firstWhere((s) => s?.name == originalName, orElse: () => null);
+      filtered.add(
+        VariableSuggestion(
+          name: alias,
+          kind: original?.kind ?? VariableSuggestionKind.unknown,
+          category: original?.category ?? shared.VariableCategory.other,
+        ),
       );
-      filtered.add(VariableSuggestion(
-        name: alias,
-        kind: original?.kind ?? VariableSuggestionKind.unknown,
-        category: original?.category ?? shared.VariableCategory.other,
-      ));
     }
 
     if (mounted) {
@@ -455,25 +447,22 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
     await appManager.saveWorkflow(
       widget.botId,
       name: name,
-      actions:
-          _isJavascriptEventScriptUi
-              ? const <Map<String, dynamic>>[]
-              : _actions,
+      actions: _isJavascriptEventScriptUi
+          ? const <Map<String, dynamic>>[]
+          : _actions,
       entryPoint: entryPoint,
       arguments: serializeWorkflowArgumentDefinitions(argDefs),
       workflowType: _workflowType,
       eventTrigger: _workflowType == workflowTypeEvent ? _eventTrigger : null,
       folder: _folderController.text.trim(),
-      eventVariableAliases:
-          _isJavascriptEventScriptUi
-              ? null
-              : (_eventVariableAliases.isNotEmpty
-                  ? Map<String, String>.from(_eventVariableAliases)
-                  : null),
-      executionMode:
-          _isJavascriptEventScriptUi
-              ? workflowExecutionModeJavascript
-              : _executionMode,
+      eventVariableAliases: _isJavascriptEventScriptUi
+          ? null
+          : (_eventVariableAliases.isNotEmpty
+                ? Map<String, String>.from(_eventVariableAliases)
+                : null),
+      executionMode: _isJavascriptEventScriptUi
+          ? workflowExecutionModeJavascript
+          : _executionMode,
       jsScriptContent: _jsScriptController.text,
     );
 
@@ -516,12 +505,12 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
         top: false,
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final isDesktop = MediaQuery.of(context).size.width >= 800 &&
+            final isDesktop =
+                MediaQuery.of(context).size.width >= 800 &&
                 !Platform.environment.containsKey('FLUTTER_TEST');
-            final maxWidth =
-                constraints.maxWidth >= 1200
-                    ? 980.0
-                    : (isDesktop ? 860.0 : 680.0);
+            final maxWidth = constraints.maxWidth >= 1200
+                ? 980.0
+                : (isDesktop ? 860.0 : 680.0);
 
             final canvasWidget = Center(
               child: ConstrainedBox(
@@ -530,8 +519,13 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                   physics: const BouncingScrollPhysics(),
                   padding: const EdgeInsets.all(AppTheme.spacingLg),
                   child: ScratchBlockCanvas(
-                    skipConnectorAfterIndices: _buildFinalBlockIndices(showHeaderBlocks: !isDesktop),
-                    children: _buildBlocks(showAddButton: true, showHeaderBlocks: !isDesktop),
+                    skipConnectorAfterIndices: _buildFinalBlockIndices(
+                      showHeaderBlocks: !isDesktop,
+                    ),
+                    children: _buildBlocks(
+                      showAddButton: true,
+                      showHeaderBlocks: !isDesktop,
+                    ),
                   ),
                 ),
               ),
@@ -564,7 +558,10 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                           color: Theme.of(context).scaffoldBackgroundColor,
                           gradient: RadialGradient(
                             colors: [
-                              Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
+                              Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainerHighest
+                                  .withValues(alpha: 0.2),
                               Theme.of(context).scaffoldBackgroundColor,
                             ],
                             center: Alignment.center,
@@ -608,7 +605,10 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                           decoration: BoxDecoration(
                             border: Border(
                               bottom: BorderSide(
-                                color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5),
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .outlineVariant
+                                    .withValues(alpha: 0.5),
                                 width: 1,
                               ),
                             ),
@@ -619,29 +619,44 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                                 child: InkWell(
                                   onTap: () => setState(() => _sidebarTab = 0),
                                   child: Container(
-                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 14,
+                                    ),
                                     decoration: BoxDecoration(
                                       border: Border(
                                         bottom: BorderSide(
-                                          color: _sidebarTab == 0 ? AppTheme.brandPrimary : Colors.transparent,
+                                          color: _sidebarTab == 0
+                                              ? AppTheme.brandPrimary
+                                              : Colors.transparent,
                                           width: 2.5,
                                         ),
                                       ),
                                     ),
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         Icon(
                                           Icons.tune_outlined,
-                                          color: _sidebarTab == 0 ? AppTheme.brandPrimary : Theme.of(context).colorScheme.onSurfaceVariant,
+                                          color: _sidebarTab == 0
+                                              ? AppTheme.brandPrimary
+                                              : Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurfaceVariant,
                                           size: 18,
                                         ),
                                         const SizedBox(width: 8),
                                         Text(
                                           context.tr.scratch_trigger_tab,
                                           style: TextStyle(
-                                            fontWeight: _sidebarTab == 0 ? FontWeight.bold : FontWeight.normal,
-                                            color: _sidebarTab == 0 ? AppTheme.brandPrimary : Theme.of(context).colorScheme.onSurfaceVariant,
+                                            fontWeight: _sidebarTab == 0
+                                                ? FontWeight.bold
+                                                : FontWeight.normal,
+                                            color: _sidebarTab == 0
+                                                ? AppTheme.brandPrimary
+                                                : Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
                                             fontSize: 13.5,
                                           ),
                                         ),
@@ -654,29 +669,44 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                                 child: InkWell(
                                   onTap: () => setState(() => _sidebarTab = 1),
                                   child: Container(
-                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 14,
+                                    ),
                                     decoration: BoxDecoration(
                                       border: Border(
                                         bottom: BorderSide(
-                                          color: _sidebarTab == 1 ? AppTheme.brandPrimary : Colors.transparent,
+                                          color: _sidebarTab == 1
+                                              ? AppTheme.brandPrimary
+                                              : Colors.transparent,
                                           width: 2.5,
                                         ),
                                       ),
                                     ),
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         Icon(
                                           Icons.add_box_outlined,
-                                          color: _sidebarTab == 1 ? AppTheme.brandPrimary : Theme.of(context).colorScheme.onSurfaceVariant,
+                                          color: _sidebarTab == 1
+                                              ? AppTheme.brandPrimary
+                                              : Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurfaceVariant,
                                           size: 18,
                                         ),
                                         const SizedBox(width: 8),
                                         Text(
                                           context.tr.scratch_blocks_tab,
                                           style: TextStyle(
-                                            fontWeight: _sidebarTab == 1 ? FontWeight.bold : FontWeight.normal,
-                                            color: _sidebarTab == 1 ? AppTheme.brandPrimary : Theme.of(context).colorScheme.onSurfaceVariant,
+                                            fontWeight: _sidebarTab == 1
+                                                ? FontWeight.bold
+                                                : FontWeight.normal,
+                                            color: _sidebarTab == 1
+                                                ? AppTheme.brandPrimary
+                                                : Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
                                             fontSize: 13.5,
                                           ),
                                         ),
@@ -693,13 +723,16 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                             index: _sidebarTab,
                             children: [
                               SingleChildScrollView(
-                                padding: const EdgeInsets.all(AppTheme.spacingMd),
+                                padding: const EdgeInsets.all(
+                                  AppTheme.spacingMd,
+                                ),
                                 child: _buildUnifiedTriggerConfig(flat: true),
                               ),
                               ScratchBlockPalette(
                                 onActionSelected: (type) {
                                   setState(() {
-                                    final uniqueId = 'action_${DateTime.now().microsecondsSinceEpoch}';
+                                    final uniqueId =
+                                        'action_${DateTime.now().microsecondsSinceEpoch}';
                                     _actions.add(<String, dynamic>{
                                       'id': uniqueId,
                                       'type': type.name,
@@ -707,7 +740,9 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                                       'key': uniqueId,
                                       'depend_on': <String>[],
                                       'error': {'mode': 'stop'},
-                                      'payload': Map<String, dynamic>.from(type.defaultParameters),
+                                      'payload': Map<String, dynamic>.from(
+                                        type.defaultParameters,
+                                      ),
                                     });
                                   });
                                   _refreshVariableSuggestions();
@@ -728,7 +763,10 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                         color: Theme.of(context).scaffoldBackgroundColor,
                         gradient: RadialGradient(
                           colors: [
-                            Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
+                            Theme.of(context)
+                                .colorScheme
+                                .surfaceContainerHighest
+                                .withValues(alpha: 0.2),
                             Theme.of(context).scaffoldBackgroundColor,
                           ],
                           center: Alignment.center,
@@ -816,7 +854,8 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
             _eventTrigger = {
               'category': 'core',
               'event': 'interactionCreate',
-              'customIdFilter': (_eventTrigger['customIdFilter'] ?? '').toString(),
+              'customIdFilter': (_eventTrigger['customIdFilter'] ?? '')
+                  .toString(),
             };
           } else if (type == 'event') {
             _workflowType = workflowTypeEvent;
@@ -827,7 +866,8 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
             _eventTrigger = {
               'category': _selectedCategory,
               'event': _selectedEvent,
-              'customIdFilter': (_eventTrigger['customIdFilter'] ?? '').toString(),
+              'customIdFilter': (_eventTrigger['customIdFilter'] ?? '')
+                  .toString(),
             };
           } else {
             _workflowType = workflowTypeGeneral;
@@ -933,7 +973,10 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
           ),
         ),
         const SizedBox(height: 16),
-        Divider(color: colorScheme.outlineVariant.withValues(alpha: 0.4), height: 1),
+        Divider(
+          color: colorScheme.outlineVariant.withValues(alpha: 0.4),
+          height: 1,
+        ),
         const SizedBox(height: 16),
 
         // ── SECTION 2: Trigger Type Selector ──
@@ -991,7 +1034,9 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
+              color: theme.colorScheme.surfaceContainerHighest.withValues(
+                alpha: 0.2,
+              ),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
@@ -1001,7 +1046,9 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
           ),
         ] else if (isEvent) ...[
           DropdownButtonFormField<String>(
-            initialValue: _selectedCategory.isNotEmpty ? _selectedCategory : null,
+            initialValue: _selectedCategory.isNotEmpty
+                ? _selectedCategory
+                : null,
             decoration: InputDecoration(
               labelText: context.tr.scratch_event_category,
               border: const OutlineInputBorder(),
@@ -1039,7 +1086,8 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
               border: const OutlineInputBorder(),
               isDense: true,
             ),
-            items: widget.eventsForCategory(_selectedCategory)
+            items: widget
+                .eventsForCategory(_selectedCategory)
                 .map((def) {
                   return DropdownMenuItem(
                     value: def.event,
@@ -1170,8 +1218,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
           const SizedBox(height: 12),
 
           // Event variables aliases (only for event workflows)
-          if (_workflowType == workflowTypeEvent)
-            _buildEventVariablesSection(),
+          if (_workflowType == workflowTypeEvent) _buildEventVariablesSection(),
 
           // Arguments
           _buildArgumentsSection(),
@@ -1220,17 +1267,16 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                       hintText: context.tr.workflow_argument_hint,
                       border: const OutlineInputBorder(),
                       isDense: true,
-                      suffixIcon:
-                          _arguments.length > 1
-                              ? IconButton(
-                                icon: const Icon(Icons.close, size: 16),
-                                onPressed: () {
-                                  setState(() => _arguments.removeAt(i));
-                                  _refreshVariableSuggestions();
-                                },
-                                visualDensity: VisualDensity.compact,
-                              )
-                              : null,
+                      suffixIcon: _arguments.length > 1
+                          ? IconButton(
+                              icon: const Icon(Icons.close, size: 16),
+                              onPressed: () {
+                                setState(() => _arguments.removeAt(i));
+                                _refreshVariableSuggestions();
+                              },
+                              visualDensity: VisualDensity.compact,
+                            )
+                          : null,
                     ),
                     onChanged: (value) {
                       _arguments[i] = _arguments[i].copyWith(name: value);
@@ -1276,10 +1322,9 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
       children: [
         const SizedBox(height: 4),
         InkWell(
-          onTap:
-              () => setState(
-                () => _eventVariablesExpanded = !_eventVariablesExpanded,
-              ),
+          onTap: () => setState(
+            () => _eventVariablesExpanded = !_eventVariablesExpanded,
+          ),
           borderRadius: BorderRadius.circular(6),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
@@ -1400,10 +1445,9 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
       children: [
         const SizedBox(height: 4),
         InkWell(
-          onTap:
-              () => setState(
-                () => _eventVariablesExpanded = !_eventVariablesExpanded,
-              ),
+          onTap: () => setState(
+            () => _eventVariablesExpanded = !_eventVariablesExpanded,
+          ),
           borderRadius: BorderRadius.circular(6),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
@@ -1461,7 +1505,9 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                            tr.workflows_js_event_available_context_copied(name),
+                            tr.workflows_js_event_available_context_copied(
+                              name,
+                            ),
                           ),
                           duration: const Duration(seconds: 1),
                         ),
@@ -1542,10 +1588,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
       customIdFilter: (_eventTrigger['customIdFilter'] ?? '').toString(),
       onCustomIdFilterChanged: (value) {
         setState(() {
-          _eventTrigger = {
-            ..._eventTrigger,
-            'customIdFilter': value.trim(),
-          };
+          _eventTrigger = {..._eventTrigger, 'customIdFilter': value.trim()};
         });
       },
       executionMode: _executionMode,
@@ -1565,12 +1608,11 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
   Widget _buildEventJavascriptPanel() {
     final code = _jsScriptController.text;
     final isEmpty = code.trim().isEmpty;
-    final preview =
-        isEmpty
-            ? context.tr.js_editor_hint
-            : code.length > 300
-            ? '${code.substring(0, 300)}…'
-            : code;
+    final preview = isEmpty
+        ? context.tr.js_editor_hint
+        : code.length > 300
+        ? '${code.substring(0, 300)}…'
+        : code;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1605,7 +1647,10 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                     Expanded(
                       child: Text(
                         context.tr.bdfd_editor_tap_hint,
-                        style: const TextStyle(fontSize: 11, color: AppTheme.grey),
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: AppTheme.grey,
+                        ),
                       ),
                     ),
                     if (_isDesktop)
@@ -1651,12 +1696,11 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
   Widget _buildJavascriptEditorTile() {
     final code = _jsScriptController.text;
     final isEmpty = code.trim().isEmpty;
-    final preview =
-        isEmpty
-            ? context.tr.js_editor_hint
-            : code.length > 300
-            ? '${code.substring(0, 300)}…'
-            : code;
+    final preview = isEmpty
+        ? context.tr.js_editor_hint
+        : code.length > 300
+        ? '${code.substring(0, 300)}…'
+        : code;
 
     return ScratchBlock(
       color: getCategoryColor('Script'),
@@ -1683,7 +1727,10 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                   Expanded(
                     child: Text(
                       context.tr.bdfd_editor_tap_hint,
-                      style: const TextStyle(fontSize: 11, color: AppTheme.grey),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: AppTheme.grey,
+                      ),
                     ),
                   ),
                   if (_isDesktop)
@@ -1729,11 +1776,10 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
     final result = await Navigator.push<String>(
       context,
       MaterialPageRoute<String>(
-        builder:
-            (_) => JsEditorPage(
-              initialCode: _jsScriptController.text,
-              title: context.tr.js_editor_title,
-            ),
+        builder: (_) => JsEditorPage(
+          initialCode: _jsScriptController.text,
+          title: context.tr.js_editor_title,
+        ),
       ),
     );
 
@@ -1802,24 +1848,22 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
             });
             _refreshVariableSuggestions();
           },
-          onMoveUp:
-              i > 0
-                  ? () {
-                    setState(() {
-                      final item = _actions.removeAt(i);
-                      _actions.insert(i - 1, item);
-                    });
-                  }
-                  : null,
-          onMoveDown:
-              i < _actions.length - 1
-                  ? () {
-                    setState(() {
-                      final item = _actions.removeAt(i);
-                      _actions.insert(i + 1, item);
-                    });
-                  }
-                  : null,
+          onMoveUp: i > 0
+              ? () {
+                  setState(() {
+                    final item = _actions.removeAt(i);
+                    _actions.insert(i - 1, item);
+                  });
+                }
+              : null,
+          onMoveDown: i < _actions.length - 1
+              ? () {
+                  setState(() {
+                    final item = _actions.removeAt(i);
+                    _actions.insert(i + 1, item);
+                  });
+                }
+              : null,
           onParameterChanged: (key, value) {
             setState(() {
               if (key == '__enabled__') {
@@ -1831,8 +1875,11 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                   (_actions[i]['error'] as Map?)?.cast<String, dynamic>() ??
                       const {},
                 );
-                error['mode'] = value == 'continue' ? 'continue'
-                    : (value == 'jump' ? 'jump' : (value == 'skip' ? 'skip' : 'stop'));
+                error['mode'] = value == 'continue'
+                    ? 'continue'
+                    : (value == 'jump'
+                          ? 'jump'
+                          : (value == 'skip' ? 'skip' : 'stop'));
                 _actions[i]['error'] = error;
                 return;
               }
@@ -1879,12 +1926,12 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
             _refreshVariableSuggestions();
           },
           fieldRefreshVersionOf: (_) => 0,
-          onEditNestedActions: (current, suggestions, blockName, {onChanged}) async {
-            final result = await Navigator.push<List<Map<String, dynamic>>>(
-              context,
-              MaterialPageRoute<List<Map<String, dynamic>>>(
-                builder:
-                    (_) => ActionsBuilderPage(
+          onEditNestedActions:
+              (current, suggestions, blockName, {onChanged}) async {
+                final result = await Navigator.push<List<Map<String, dynamic>>>(
+                  context,
+                  MaterialPageRoute<List<Map<String, dynamic>>>(
+                    builder: (_) => ActionsBuilderPage(
                       initialActions: current,
                       variableSuggestions: suggestions,
                       emojiSuggestions: widget.appEmojis,
@@ -1894,10 +1941,10 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                       isInteraction: false,
                       isWorkflow: true,
                     ),
-              ),
-            );
-            return result;
-          },
+                  ),
+                );
+                return result;
+              },
           allActions: allActionItems,
         ),
       );
@@ -1918,7 +1965,8 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
             isWorkflow: true,
             onActionSelected: (type) {
               setState(() {
-                final uniqueId = 'action_${DateTime.now().microsecondsSinceEpoch}';
+                final uniqueId =
+                    'action_${DateTime.now().microsecondsSinceEpoch}';
                 _actions.add(<String, dynamic>{
                   'id': uniqueId,
                   'type': type.name,
@@ -1973,7 +2021,9 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                     decoration: BoxDecoration(
                       border: Border(
                         bottom: BorderSide(
-                          color: _mobileTab == 0 ? AppTheme.brandPrimary : Colors.transparent,
+                          color: _mobileTab == 0
+                              ? AppTheme.brandPrimary
+                              : Colors.transparent,
                           width: 2.5,
                         ),
                       ),
@@ -1983,15 +2033,21 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                       children: [
                         Icon(
                           Icons.tune_outlined,
-                          color: _mobileTab == 0 ? AppTheme.brandPrimary : theme.colorScheme.onSurfaceVariant,
+                          color: _mobileTab == 0
+                              ? AppTheme.brandPrimary
+                              : theme.colorScheme.onSurfaceVariant,
                           size: 18,
                         ),
                         const SizedBox(width: 8),
                         Text(
                           context.tr.scratch_trigger_tab,
                           style: TextStyle(
-                            fontWeight: _mobileTab == 0 ? FontWeight.bold : FontWeight.normal,
-                            color: _mobileTab == 0 ? AppTheme.brandPrimary : theme.colorScheme.onSurfaceVariant,
+                            fontWeight: _mobileTab == 0
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                            color: _mobileTab == 0
+                                ? AppTheme.brandPrimary
+                                : theme.colorScheme.onSurfaceVariant,
                             fontSize: 13.5,
                           ),
                         ),
@@ -2008,7 +2064,9 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                     decoration: BoxDecoration(
                       border: Border(
                         bottom: BorderSide(
-                          color: _mobileTab == 1 ? AppTheme.brandPrimary : Colors.transparent,
+                          color: _mobileTab == 1
+                              ? AppTheme.brandPrimary
+                              : Colors.transparent,
                           width: 2.5,
                         ),
                       ),
@@ -2018,7 +2076,9 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                       children: [
                         Icon(
                           scriptUi ? Icons.code : Icons.view_agenda_outlined,
-                          color: _mobileTab == 1 ? AppTheme.brandPrimary : theme.colorScheme.onSurfaceVariant,
+                          color: _mobileTab == 1
+                              ? AppTheme.brandPrimary
+                              : theme.colorScheme.onSurfaceVariant,
                           size: 18,
                         ),
                         const SizedBox(width: 8),
@@ -2027,8 +2087,12 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                               ? context.tr.cmd_execution_mode_javascript
                               : context.tr.actions_title,
                           style: TextStyle(
-                            fontWeight: _mobileTab == 1 ? FontWeight.bold : FontWeight.normal,
-                            color: _mobileTab == 1 ? AppTheme.brandPrimary : theme.colorScheme.onSurfaceVariant,
+                            fontWeight: _mobileTab == 1
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                            color: _mobileTab == 1
+                                ? AppTheme.brandPrimary
+                                : theme.colorScheme.onSurfaceVariant,
                             fontSize: 13.5,
                           ),
                         ),
@@ -2052,9 +2116,9 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
               ),
               scriptUi
                   ? SingleChildScrollView(
-                    padding: const EdgeInsets.all(AppTheme.spacingLg),
-                    child: _buildEventJavascriptPanel(),
-                  )
+                      padding: const EdgeInsets.all(AppTheme.spacingLg),
+                      child: _buildEventJavascriptPanel(),
+                    )
                   : _buildStep3Actions(),
             ],
           ),
@@ -2095,10 +2159,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
               border: Border(
-                bottom: BorderSide(
-                  color: colorScheme.outlineVariant,
-                  width: 1,
-                ),
+                bottom: BorderSide(color: colorScheme.outlineVariant, width: 1),
               ),
             ),
             child: Column(
@@ -2130,7 +2191,9 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                     value: (_wizardStep + 1) / 4,
                     minHeight: 6,
                     backgroundColor: colorScheme.surfaceContainerHighest,
-                    valueColor: AlwaysStoppedAnimation<Color>(AppTheme.brandPrimary),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      AppTheme.brandPrimary,
+                    ),
                   ),
                 ),
               ],
@@ -2154,10 +2217,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
             decoration: BoxDecoration(
               color: colorScheme.surface,
               border: Border(
-                top: BorderSide(
-                  color: colorScheme.outlineVariant,
-                  width: 1,
-                ),
+                top: BorderSide(color: colorScheme.outlineVariant, width: 1),
               ),
             ),
             child: Row(
@@ -2179,7 +2239,9 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                 Expanded(
                   child: FilledButton.icon(
                     onPressed: _wizardStep == 3 ? _save : _advanceWizardStep,
-                    icon: Icon(_wizardStep == 3 ? Icons.save : Icons.arrow_forward),
+                    icon: Icon(
+                      _wizardStep == 3 ? Icons.save : Icons.arrow_forward,
+                    ),
                     label: Text(
                       _wizardStep == 3
                           ? context.tr.save
@@ -2209,7 +2271,8 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
           _eventTrigger = {
             'category': 'core',
             'event': 'interactionCreate',
-            'customIdFilter': (_eventTrigger['customIdFilter'] ?? '').toString(),
+            'customIdFilter': (_eventTrigger['customIdFilter'] ?? '')
+                .toString(),
           };
         } else if (_mobileTriggerType == 'event') {
           _workflowType = workflowTypeEvent;
@@ -2220,7 +2283,8 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
           _eventTrigger = {
             'category': _selectedCategory,
             'event': _selectedEvent,
-            'customIdFilter': (_eventTrigger['customIdFilter'] ?? '').toString(),
+            'customIdFilter': (_eventTrigger['customIdFilter'] ?? '')
+                .toString(),
           };
         } else {
           _workflowType = workflowTypeGeneral;
@@ -2244,9 +2308,9 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
       case 2:
         return _isJavascriptEventScriptUi
             ? SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: _buildEventJavascriptPanel(),
-            )
+                padding: const EdgeInsets.all(16),
+                child: _buildEventJavascriptPanel(),
+              )
             : _buildStep3Actions();
       case 3:
         return _buildStep4SummaryAndSave();
@@ -2394,7 +2458,9 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
+                color: Theme.of(
+                  context,
+                ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
@@ -2420,18 +2486,27 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
 
   Widget _buildStep3Actions() {
     return ScratchBlockCanvas(
-      skipConnectorAfterIndices: _buildFinalBlockIndices(showHeaderBlocks: false),
+      skipConnectorAfterIndices: _buildFinalBlockIndices(
+        showHeaderBlocks: false,
+      ),
       children: [
         if (_actions.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
             child: Column(
               children: [
-                Icon(Icons.view_agenda_outlined, size: 48, color: Theme.of(context).colorScheme.outline),
+                Icon(
+                  Icons.view_agenda_outlined,
+                  size: 48,
+                  color: Theme.of(context).colorScheme.outline,
+                ),
                 const SizedBox(height: 16),
                 Text(
                   context.tr.scratch_wizard_actions_empty_title,
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -2457,9 +2532,13 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
     String triggerSummary = '';
     if (isButton) {
       final cid = _eventTrigger['customIdFilter'] ?? '';
-      triggerSummary = context.tr.scratch_wizard_summary_trigger_button(cid.toString());
+      triggerSummary = context.tr.scratch_wizard_summary_trigger_button(
+        cid.toString(),
+      );
     } else if (isEvent) {
-      triggerSummary = context.tr.scratch_wizard_summary_trigger_event(_selectedEvent);
+      triggerSummary = context.tr.scratch_wizard_summary_trigger_event(
+        _selectedEvent,
+      );
     } else {
       triggerSummary = context.tr.scratch_wizard_summary_trigger_function;
     }
@@ -2472,7 +2551,9 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
+              color: theme.colorScheme.surfaceContainerHighest.withValues(
+                alpha: 0.2,
+              ),
               borderRadius: BorderRadius.circular(AppTheme.radiusMd),
               border: Border.all(color: theme.colorScheme.outlineVariant),
             ),
@@ -2481,12 +2562,19 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
               children: [
                 Text(
                   context.tr.scratch_wizard_summary_title,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    const Icon(Icons.flash_on, size: 18, color: AppTheme.brandPrimary),
+                    const Icon(
+                      Icons.flash_on,
+                      size: 18,
+                      color: AppTheme.brandPrimary,
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -2515,10 +2603,16 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                 else
                   Row(
                     children: [
-                      const Icon(Icons.view_agenda, size: 18, color: AppTheme.success),
+                      const Icon(
+                        Icons.view_agenda,
+                        size: 18,
+                        color: AppTheme.success,
+                      ),
                       const SizedBox(width: 8),
                       Text(
-                        context.tr.scratch_wizard_summary_actions_count(_actions.length),
+                        context.tr.scratch_wizard_summary_actions_count(
+                          _actions.length,
+                        ),
                         style: const TextStyle(fontSize: 13),
                       ),
                     ],
