@@ -136,10 +136,15 @@ class RunnerWebBootstrapServer {
       summary: 'OpenAPI Specification',
       requiresAuth: false,
     );
-    _get('/swagger', (req, res) {
-      res.headers.contentType = ContentType.html;
-      return _apiSpec.generateHtml();
-    }, summary: 'Swagger UI', requiresAuth: false);
+    _get(
+      '/swagger',
+      (req, res) {
+        res.headers.contentType = ContentType.html;
+        return _apiSpec.generateHtml();
+      },
+      summary: 'Swagger UI',
+      requiresAuth: false,
+    );
 
     // Public Routes
     _get(
@@ -209,11 +214,15 @@ class RunnerWebBootstrapServer {
           'apiVersion': Schema.integer(),
           'running': Schema.boolean(),
           'runningCount': Schema.integer(),
-          'bots': Schema.array(items: Schema.object(properties: {
-            'botId': Schema.string(),
-            'botName': Schema.string(),
-            'state': Schema.string(),
-          })),
+          'bots': Schema.array(
+            items: Schema.object(
+              properties: {
+                'botId': Schema.string(),
+                'botName': Schema.string(),
+                'state': Schema.string(),
+              },
+            ),
+          ),
         }),
       },
     );
@@ -223,16 +232,15 @@ class RunnerWebBootstrapServer {
     _get('/bots', (req, res) async {
       final entries = await _runtimeController.botStore.listAll();
       return {
-        'bots':
-            entries
-                .map(
-                  (e) => {
-                    'id': e.id,
-                    'name': e.name,
-                    'syncedAt': e.syncedAt.toUtc().toIso8601String(),
-                  },
-                )
-                .toList(),
+        'bots': entries
+            .map(
+              (e) => {
+                'id': e.id,
+                'name': e.name,
+                'syncedAt': e.syncedAt.toUtc().toIso8601String(),
+              },
+            )
+            .toList(),
       };
     }, summary: 'List All Bots');
 
@@ -250,10 +258,10 @@ class RunnerWebBootstrapServer {
       requestBody: RunnerApiSpec.jsonRequest({
         'botId': Schema.string(),
         'botName': Schema.string(),
-        'config': Schema.object(properties: {
-          'name': Schema.string(),
-          'description': Schema.string(),
-        }, description: 'Full BotConfig JSON object'),
+        'config': Schema.object(
+          properties: {'name': Schema.string(), 'description': Schema.string()},
+          description: 'Full BotConfig JSON object',
+        ),
       }),
       responses: {
         '200': RunnerApiSpec.jsonResponse('Sync Result', {
@@ -263,22 +271,27 @@ class RunnerWebBootstrapServer {
     );
 
     // Scoped Bot Actions
-    _get('/bots/:id/status', (HttpRequest req, HttpResponse res) {
-      final botId = req.params['id'];
-      return {'apiVersion': 2, 'bot': _buildBotStatePayload(botId)};
-    }, summary: 'Get Bot Status', responses: {
-      '200': RunnerApiSpec.jsonResponse('Bot Status', {
-        'apiVersion': Schema.integer(),
-        'bot': Schema.object(properties: {
-          'botId': Schema.string(),
-          'state': Schema.string(),
+    _get(
+      '/bots/:id/status',
+      (HttpRequest req, HttpResponse res) {
+        final botId = req.params['id'];
+        return {'apiVersion': 2, 'bot': _buildBotStatePayload(botId)};
+      },
+      summary: 'Get Bot Status',
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Bot Status', {
+          'apiVersion': Schema.integer(),
+          'bot': Schema.object(
+            properties: {'botId': Schema.string(), 'state': Schema.string()},
+          ),
         }),
-      }),
-    });
+      },
+    );
 
     _get(
       '/bots/:id/metrics',
-      (HttpRequest req, HttpResponse res) => _handleMetrics(botId: req.params['id']),
+      (HttpRequest req, HttpResponse res) =>
+          _handleMetrics(botId: req.params['id']),
       summary: 'Get Bot Metrics',
       responses: {
         '200': RunnerApiSpec.jsonResponse('Bot Metrics', {
@@ -289,18 +302,28 @@ class RunnerWebBootstrapServer {
         }),
       },
     );
-    _get('/bots/:id/command-stats', _handleCommandStats, summary: 'Get Bot Command Statistics', responses: {
-      '200': RunnerApiSpec.jsonResponse('Command Statistics', {
-        'botId': Schema.string(),
-        'totalAllTime': Schema.integer(),
-        'commands': Schema.array(items: Schema.object(properties: {})),
-      }),
-    });
-    _get('/bots/:id/logs', _handleBotLogs, summary: 'Get Bot Logs', responses: {
-      '200': RunnerApiSpec.jsonResponse('Bot Logs', {
-        'lines': Schema.array(items: Schema.string()),
-      }),
-    });
+    _get(
+      '/bots/:id/command-stats',
+      _handleCommandStats,
+      summary: 'Get Bot Command Statistics',
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Command Statistics', {
+          'botId': Schema.string(),
+          'totalAllTime': Schema.integer(),
+          'commands': Schema.array(items: Schema.object(properties: {})),
+        }),
+      },
+    );
+    _get(
+      '/bots/:id/logs',
+      _handleBotLogs,
+      summary: 'Get Bot Logs',
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Bot Logs', {
+          'lines': Schema.array(items: Schema.string()),
+        }),
+      },
+    );
 
     _post(
       '/bots/:id/start',
@@ -313,10 +336,11 @@ class RunnerWebBootstrapServer {
         '200': RunnerApiSpec.jsonResponse('Bot Status', {
           'apiVersion': Schema.integer(),
           'running': Schema.boolean(),
-          'bots': Schema.array(items: Schema.object(properties: {
-            'botId': Schema.string(),
-            'state': Schema.string(),
-          })),
+          'bots': Schema.array(
+            items: Schema.object(
+              properties: {'botId': Schema.string(), 'state': Schema.string()},
+            ),
+          ),
         }),
       },
     );
@@ -336,7 +360,10 @@ class RunnerWebBootstrapServer {
       _handleBotsReload,
       summary: 'Reload Bot Configuration',
       requestBody: RunnerApiSpec.jsonRequest({
-        'config': Schema.object(properties: {}, description: 'Full BotConfig JSON object'),
+        'config': Schema.object(
+          properties: {},
+          description: 'Full BotConfig JSON object',
+        ),
       }),
       responses: {
         '200': RunnerApiSpec.jsonResponse('Reload Result', {
@@ -353,7 +380,10 @@ class RunnerWebBootstrapServer {
       summary: 'Sync Workflow',
       requestBody: RunnerApiSpec.jsonRequest({
         'workflowName': Schema.string(),
-        'workflow': Schema.object(properties: {}, description: 'Workflow definition Map'),
+        'workflow': Schema.object(
+          properties: {},
+          description: 'Workflow definition Map',
+        ),
       }),
       responses: {
         '200': RunnerApiSpec.jsonResponse('Sync Result', {
@@ -367,9 +397,7 @@ class RunnerWebBootstrapServer {
       '/bots/:id/workflows/delete',
       _handleWorkflowDelete,
       summary: 'Delete Workflow',
-      requestBody: RunnerApiSpec.jsonRequest({
-        'workflowName': Schema.string(),
-      }),
+      requestBody: RunnerApiSpec.jsonRequest({'workflowName': Schema.string()}),
       responses: {
         '200': RunnerApiSpec.jsonResponse('Delete Result', {
           'ok': Schema.boolean(),
@@ -383,7 +411,10 @@ class RunnerWebBootstrapServer {
       summary: 'Sync Command',
       requestBody: RunnerApiSpec.jsonRequest({
         'commandId': Schema.string(),
-        'command': Schema.object(properties: {}, description: 'Command definition Map'),
+        'command': Schema.object(
+          properties: {},
+          description: 'Command definition Map',
+        ),
       }),
       responses: {
         '200': RunnerApiSpec.jsonResponse('Sync Result', {
@@ -397,9 +428,7 @@ class RunnerWebBootstrapServer {
       '/bots/:id/commands/delete',
       _handleCommandDelete,
       summary: 'Delete Command',
-      requestBody: RunnerApiSpec.jsonRequest({
-        'commandId': Schema.string(),
-      }),
+      requestBody: RunnerApiSpec.jsonRequest({'commandId': Schema.string()}),
       responses: {
         '200': RunnerApiSpec.jsonResponse('Delete Result', {
           'ok': Schema.boolean(),
@@ -413,7 +442,10 @@ class RunnerWebBootstrapServer {
       summary: 'Sync Scheduled Trigger',
       requestBody: RunnerApiSpec.jsonRequest({
         'triggerId': Schema.string(),
-        'trigger': Schema.object(properties: {}, description: 'Trigger definition Map'),
+        'trigger': Schema.object(
+          properties: {},
+          description: 'Trigger definition Map',
+        ),
       }),
       responses: {
         '200': RunnerApiSpec.jsonResponse('Sync Result', {
@@ -425,9 +457,7 @@ class RunnerWebBootstrapServer {
       '/bots/:id/scheduled-triggers/delete',
       _handleScheduledTriggerDelete,
       summary: 'Delete Scheduled Trigger',
-      requestBody: RunnerApiSpec.jsonRequest({
-        'triggerId': Schema.string(),
-      }),
+      requestBody: RunnerApiSpec.jsonRequest({'triggerId': Schema.string()}),
       responses: {
         '200': RunnerApiSpec.jsonResponse('Delete Result', {
           'ok': Schema.boolean(),
@@ -440,7 +470,10 @@ class RunnerWebBootstrapServer {
       summary: 'Sync Inbound Webhook',
       requestBody: RunnerApiSpec.jsonRequest({
         'webhookId': Schema.string(),
-        'webhook': Schema.object(properties: {}, description: 'Webhook definition Map'),
+        'webhook': Schema.object(
+          properties: {},
+          description: 'Webhook definition Map',
+        ),
       }),
       responses: {
         '200': RunnerApiSpec.jsonResponse('Sync Result', {
@@ -452,9 +485,7 @@ class RunnerWebBootstrapServer {
       '/bots/:id/inbound-webhooks/delete',
       _handleInboundWebhookDelete,
       summary: 'Delete Inbound Webhook',
-      requestBody: RunnerApiSpec.jsonRequest({
-        'webhookId': Schema.string(),
-      }),
+      requestBody: RunnerApiSpec.jsonRequest({'webhookId': Schema.string()}),
       responses: {
         '200': RunnerApiSpec.jsonResponse('Delete Result', {
           'ok': Schema.boolean(),
@@ -470,7 +501,10 @@ class RunnerWebBootstrapServer {
       responses: {
         '200': RunnerApiSpec.jsonResponse('Global Variables', {
           'botId': Schema.string(),
-          'variables': Schema.object(properties: {}, description: 'Key-value map of global variables'),
+          'variables': Schema.object(
+            properties: {},
+            description: 'Key-value map of global variables',
+          ),
         }),
       },
     );
@@ -506,9 +540,7 @@ class RunnerWebBootstrapServer {
       '/bots/:id/variables/global/remove',
       _handleRemoveGlobalVariable,
       summary: 'Remove Global Variable',
-      requestBody: RunnerApiSpec.jsonRequest({
-        'key': Schema.string(),
-      }),
+      requestBody: RunnerApiSpec.jsonRequest({'key': Schema.string()}),
       responses: {
         '200': RunnerApiSpec.jsonResponse('Remove Result', {
           'ok': Schema.boolean(),
@@ -523,12 +555,16 @@ class RunnerWebBootstrapServer {
       responses: {
         '200': RunnerApiSpec.jsonResponse('Scoped Definitions', {
           'botId': Schema.string(),
-          'definitions': Schema.array(items: Schema.object(properties: {
-            'key': Schema.string(),
-            'scope': Schema.string(),
-            'defaultValue': Schema.object(properties: {}),
-            'valueType': Schema.string(),
-          })),
+          'definitions': Schema.array(
+            items: Schema.object(
+              properties: {
+                'key': Schema.string(),
+                'scope': Schema.string(),
+                'defaultValue': Schema.object(properties: {}),
+                'valueType': Schema.string(),
+              },
+            ),
+          ),
         }),
       },
     );
@@ -573,7 +609,50 @@ class RunnerWebBootstrapServer {
           'botId': Schema.string(),
           'scope': Schema.string(),
           'key': Schema.string(),
-          'values': Schema.object(properties: {}, description: 'Map of contextId to value'),
+          'values': Schema.object(
+            properties: {},
+            description: 'Map of contextId to value',
+          ),
+        }),
+      },
+    );
+    _post(
+      '/bots/:id/variables/scoped-values/set',
+      _handleSetScopedValue,
+      summary: 'Set Scoped Variable Value',
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Set Result', {
+          'ok': Schema.boolean(),
+        }),
+      },
+    );
+    _post(
+      '/bots/:id/variables/scoped/set',
+      _handleSetScopedValue,
+      summary: 'Set Scoped Variable Value Alias',
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Set Result', {
+          'ok': Schema.boolean(),
+        }),
+      },
+    );
+    _post(
+      '/bots/:id/variables/scoped-values/remove',
+      _handleRemoveScopedValue,
+      summary: 'Remove Scoped Variable Value',
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Remove Result', {
+          'ok': Schema.boolean(),
+        }),
+      },
+    );
+    _post(
+      '/bots/:id/variables/scoped/remove',
+      _handleRemoveScopedValue,
+      summary: 'Remove Scoped Variable Value Alias',
+      responses: {
+        '200': RunnerApiSpec.jsonResponse('Remove Result', {
+          'ok': Schema.boolean(),
         }),
       },
     );
@@ -605,9 +684,7 @@ class RunnerWebBootstrapServer {
       '/bots/:id/debug-replays/capture',
       _handleSetDebugReplayCapture,
       summary: 'Set Debug Replay Capture State',
-      requestBody: RunnerApiSpec.jsonRequest({
-        'enabled': Schema.boolean(),
-      }),
+      requestBody: RunnerApiSpec.jsonRequest({'enabled': Schema.boolean()}),
     );
 
     // Inbound Webhooks (Dynamic Path)
@@ -616,7 +693,10 @@ class RunnerWebBootstrapServer {
       _handleInboundWebhook,
       summary: 'Trigger Inbound Webhook',
       requiresAuth: false,
-      requestBody: RunnerApiSpec.jsonRequest({}, description: 'Any JSON payload'),
+      requestBody: RunnerApiSpec.jsonRequest(
+        {},
+        description: 'Any JSON payload',
+      ),
       responses: {
         '200': RunnerApiSpec.jsonResponse('Trigger Result', {
           'ok': Schema.boolean(),
@@ -671,8 +751,9 @@ class RunnerWebBootstrapServer {
   Future<void> start() async {
     await _app.listen(port, host);
 
-    final poolMode =
-        (Platform.environment['BOT_CREATOR_POOL_MODE'] ?? '').trim().toLowerCase();
+    final poolMode = (Platform.environment['BOT_CREATOR_POOL_MODE'] ?? '')
+        .trim()
+        .toLowerCase();
     if (poolMode == 'true' || poolMode == '1') {
       unawaited(_bootstrapFromPool());
     } else {
@@ -701,8 +782,8 @@ class RunnerWebBootstrapServer {
   /// Bootstraps this runner from the Manager's pool bootstrap endpoint.
   /// Called on startup when BOT_CREATOR_POOL_MODE is true.
   Future<void> _bootstrapFromPool() async {
-    final nodeId =
-        (Platform.environment['BOT_CREATOR_RUNNER_NODE_ID'] ?? '').trim();
+    final nodeId = (Platform.environment['BOT_CREATOR_RUNNER_NODE_ID'] ?? '')
+        .trim();
     if (nodeId.isEmpty) {
       stderr.writeln(
         '[Pool] BOT_CREATOR_RUNNER_NODE_ID is required in pool mode.',
@@ -722,10 +803,9 @@ class RunnerWebBootstrapServer {
       return;
     }
 
-    final baseUrl =
-        managedApi.endsWith('/')
-            ? managedApi.substring(0, managedApi.length - 1)
-            : managedApi;
+    final baseUrl = managedApi.endsWith('/')
+        ? managedApi.substring(0, managedApi.length - 1)
+        : managedApi;
     final url = baseUrl.endsWith('/internal/pool-runners/$nodeId')
         ? Uri.parse('$baseUrl/bootstrap')
         : Uri.parse('$baseUrl/internal/pool-runners/$nodeId/bootstrap');
@@ -745,8 +825,7 @@ class RunnerWebBootstrapServer {
           return;
         }
 
-        final body =
-            jsonDecode(response.body) as Map<String, dynamic>;
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
         final bots = (body['bots'] as List<dynamic>? ?? []);
 
         stdout.writeln(
@@ -1293,23 +1372,22 @@ class RunnerWebBootstrapServer {
       });
     }
 
-    final scopesToPurge =
-        purgeStoredValues
-            ? <String>{
-              if (scope.isNotEmpty) scope,
-              if (scope.isEmpty)
-                ...entry.config.scopedVariableDefinitions
-                    .where(
-                      (d) =>
-                          _normalizeScopedStorageKey(
-                            (d['key'] ?? '').toString(),
-                          ) ==
-                          key,
-                    )
-                    .map((d) => (d['scope'] ?? '').toString().trim())
-                    .where((v) => v.isNotEmpty),
-            }
-            : const <String>{};
+    final scopesToPurge = purgeStoredValues
+        ? <String>{
+            if (scope.isNotEmpty) scope,
+            if (scope.isEmpty)
+              ...entry.config.scopedVariableDefinitions
+                  .where(
+                    (d) =>
+                        _normalizeScopedStorageKey(
+                          (d['key'] ?? '').toString(),
+                        ) ==
+                        key,
+                  )
+                  .map((d) => (d['scope'] ?? '').toString().trim())
+                  .where((v) => v.isNotEmpty),
+          }
+        : const <String>{};
 
     await _runtimeController.deleteScopedVariableDefinition(
       botId,
@@ -1380,6 +1458,7 @@ class RunnerWebBootstrapServer {
       }
       return null;
     }
+
     bool isMissingOrEmpty(dynamic v) {
       if (v == null) return true;
       if (v is String) return v.trim().isEmpty;
@@ -1416,6 +1495,70 @@ class RunnerWebBootstrapServer {
       'key': storageKey,
       'values': values,
     };
+  }
+
+  Future<void> _handleSetScopedValue(HttpRequest req, HttpResponse res) async {
+    final botId = req.params['id'];
+    final payload = await req.bodyAsJsonMap;
+    final scope = (payload['scope'] ?? '').toString().trim();
+    final key = _normalizeScopedStorageKey((payload['key'] ?? '').toString());
+    var scopeId = (payload['scope_id'] ?? '').toString().trim();
+    final scopeAuxId = (payload['scope_aux_id'] ?? '').toString().trim();
+    if (scope == 'guildMember' &&
+        scopeAuxId.isNotEmpty &&
+        !scopeId.contains(':')) {
+      scopeId = '$scopeId:$scopeAuxId';
+    }
+    final value = payload['value'];
+    if (scope.isEmpty || key.isEmpty || scopeId.isEmpty) {
+      throw AlfredException(HttpStatus.badRequest, {
+        'error': 'Missing scope, key, or scope_id.',
+      });
+    }
+
+    final entry = await _runtimeController.botStore.loadEntry(botId);
+    if (entry == null) {
+      throw AlfredException(HttpStatus.notFound, {
+        'error': 'Bot "$botId" not found.',
+      });
+    }
+
+    await _ensureVariableStoreInitialized();
+    await _variableStore.setScopedVariable(botId, scope, scopeId, key, value);
+    return res.json({'ok': true});
+  }
+
+  Future<void> _handleRemoveScopedValue(
+    HttpRequest req,
+    HttpResponse res,
+  ) async {
+    final botId = req.params['id'];
+    final payload = await req.bodyAsJsonMap;
+    final scope = (payload['scope'] ?? '').toString().trim();
+    final key = _normalizeScopedStorageKey((payload['key'] ?? '').toString());
+    var scopeId = (payload['scope_id'] ?? '').toString().trim();
+    final scopeAuxId = (payload['scope_aux_id'] ?? '').toString().trim();
+    if (scope == 'guildMember' &&
+        scopeAuxId.isNotEmpty &&
+        !scopeId.contains(':')) {
+      scopeId = '$scopeId:$scopeAuxId';
+    }
+    if (scope.isEmpty || key.isEmpty || scopeId.isEmpty) {
+      throw AlfredException(HttpStatus.badRequest, {
+        'error': 'Missing scope, key, or scope_id.',
+      });
+    }
+
+    final entry = await _runtimeController.botStore.loadEntry(botId);
+    if (entry == null) {
+      throw AlfredException(HttpStatus.notFound, {
+        'error': 'Bot "$botId" not found.',
+      });
+    }
+
+    await _ensureVariableStoreInitialized();
+    await _variableStore.removeScopedVariable(botId, scope, scopeId, key);
+    return res.json({'ok': true});
   }
 
   Future<Map<String, dynamic>> _handleDebugReplays(
@@ -1491,8 +1634,10 @@ class RunnerWebBootstrapServer {
         .whereType<Map>()
         .map((raw) => Map<String, dynamic>.from(raw))
         .firstWhere((candidate) {
-          final configuredPath =
-              (candidate['path'] ?? '').toString().trim().toLowerCase();
+          final configuredPath = (candidate['path'] ?? '')
+              .toString()
+              .trim()
+              .toLowerCase();
           return configuredPath == pathKey.trim().toLowerCase() &&
               candidate['enabled'] != false;
         }, orElse: () => const <String, dynamic>{});
@@ -1577,13 +1722,12 @@ class RunnerWebBootstrapServer {
       'runningCount': _runtimeController.runningCount,
       'rssBytes': running ? ProcessInfo.currentRss : null,
       'cpuPercent': running ? _readCurrentProcessCpuPercent() : null,
-      'bots':
-          botId == null
-              ? _runtimeController
-                  .listRuntimeStates()
-                  .map(_runtimeStateToPayload)
-                  .toList()
-              : [_buildBotStatePayload(botId)],
+      'bots': botId == null
+          ? _runtimeController
+                .listRuntimeStates()
+                .map(_runtimeStateToPayload)
+                .toList()
+          : [_buildBotStatePayload(botId)],
     };
   }
 
@@ -1633,11 +1777,10 @@ class RunnerWebBootstrapServer {
       'apiVersion': 2,
       'running': _runtimeController.isRunning,
       'runningCount': _runtimeController.runningCount,
-      'bots':
-          _runtimeController
-              .listRuntimeStates()
-              .map(_runtimeStateToPayload)
-              .toList(),
+      'bots': _runtimeController
+          .listRuntimeStates()
+          .map(_runtimeStateToPayload)
+          .toList(),
     };
   }
 
@@ -1647,7 +1790,8 @@ class RunnerWebBootstrapServer {
   }
 
   Map<String, dynamic> _handlePoolConfig() {
-    final raw = (Platform.environment['BOT_CREATOR_POOL_MAX_BOTS'] ?? '').trim();
+    final raw = (Platform.environment['BOT_CREATOR_POOL_MAX_BOTS'] ?? '')
+        .trim();
     final maxBots = int.tryParse(raw) ?? 40;
     return {'max_bots': maxBots};
   }
@@ -1718,8 +1862,8 @@ class RunnerWebBootstrapServer {
     if (dataDir != null && dataDir.isNotEmpty) {
       return '$dataDir/variables';
     }
-    final configured =
-        (Platform.environment['BOT_CREATOR_DATA_DIR'] ?? '').trim();
+    final configured = (Platform.environment['BOT_CREATOR_DATA_DIR'] ?? '')
+        .trim();
     return configured.isNotEmpty ? '$configured/variables' : './data/variables';
   }
 
