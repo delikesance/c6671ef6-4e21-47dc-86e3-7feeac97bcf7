@@ -163,6 +163,11 @@ class HomePageState extends State<HomePage>
         _initRunningState();
       }
       syncAllBotsFromManager(silent: true);
+    } else if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.detached ||
+        state == AppLifecycleState.hidden) {
+      unawaited(appManager.flushPendingWrites());
     }
   }
 
@@ -1010,7 +1015,7 @@ class HomePageState extends State<HomePage>
       }
     } catch (e) {
       appendBotDebugLog('[syncAllBotsFromManager] Sync failed: $e');
-      if (mounted) {
+      if (mounted && !silent) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text(context.tr.home_sync_failed)));
