@@ -26,9 +26,7 @@ enum SubscriptionPurchaseFailureReason {
   purchaseStartFailed,
 }
 
-String subscriptionPurchaseErrorKey(
-  SubscriptionPurchaseFailureReason? reason,
-) {
+String subscriptionPurchaseErrorKey(SubscriptionPurchaseFailureReason? reason) {
   switch (reason) {
     case SubscriptionPurchaseFailureReason.storeUnavailable:
       return 'subscription_error_store_unavailable';
@@ -85,7 +83,9 @@ class SubscriptionService {
   static SharedPreferences? _prefs;
   static bool _purchaseHandlerRegistered = false;
   static DateTime? _lastTransientPremiumRefreshLogAt;
-  static const Duration _transientPremiumRefreshLogCooldown = Duration(minutes: 2);
+  static const Duration _transientPremiumRefreshLogCooldown = Duration(
+    minutes: 2,
+  );
 
   /// Available products fetched from the store.
   static List<ProductDetails> products = [];
@@ -587,10 +587,9 @@ class SubscriptionService {
   static Future<({bool active, DateTime? expiresAt, String? reason})>
   _verifyPurchaseWithServer(PurchaseDetails purchase) async {
     final platform = Platform.isIOS ? 'ios' : 'android';
-    final serverVerificationData =
-        Platform.isIOS
-            ? (purchase.purchaseID ?? '').trim()
-            : purchase.verificationData.serverVerificationData.trim();
+    final serverVerificationData = Platform.isIOS
+        ? (purchase.purchaseID ?? '').trim()
+        : purchase.verificationData.serverVerificationData.trim();
 
     if (serverVerificationData.isEmpty) {
       return (active: false, expiresAt: null, reason: 'missing_receipt');
@@ -600,7 +599,11 @@ class SubscriptionService {
       final config = await MainApiSettingsStore.loadConfig();
       final session = await MainApiSettingsStore.loadSession();
       if (!config.isConfigured || session == null || session.isExpired) {
-        return (active: false, expiresAt: null, reason: 'missing_manager_session');
+        return (
+          active: false,
+          expiresAt: null,
+          reason: 'missing_manager_session',
+        );
       }
 
       final client = MainApiClient(
@@ -616,8 +619,7 @@ class SubscriptionService {
 
       final activeRaw = response['active'];
       final active =
-          activeRaw == true ||
-          activeRaw?.toString().toLowerCase() == 'true';
+          activeRaw == true || activeRaw?.toString().toLowerCase() == 'true';
       DateTime? expiresAt;
       final rawExpiry = response['expires_at'] ?? response['expiresAt'];
       if (rawExpiry != null && rawExpiry.toString().trim().isNotEmpty) {
@@ -653,7 +655,6 @@ class SubscriptionService {
 
     await _markExpired();
   }
-
 
   /// Called when a subscription expires or is revoked.
   /// The store will stop sending restored purchases and we reset local state.
@@ -985,14 +986,12 @@ class SubscriptionService {
       return _isLocalSubscriptionActive();
     }
 
-    final config =
-        allowStoredManagerSession
-            ? await MainApiSettingsStore.loadConfig()
-            : null;
-    final session =
-        allowStoredManagerSession
-            ? await MainApiSettingsStore.loadSession()
-            : null;
+    final config = allowStoredManagerSession
+        ? await MainApiSettingsStore.loadConfig()
+        : null;
+    final session = allowStoredManagerSession
+        ? await MainApiSettingsStore.loadSession()
+        : null;
     if (client != null ||
         (config?.isConfigured == true &&
             session != null &&
@@ -1080,6 +1079,7 @@ class SubscriptionService {
   }
 
   static void handleAppResumed() {
+    MainApiClient.resetCircuitBreakers();
     unawaited(refreshStatus());
     unawaited(_revalidateCachedSubscription());
     unawaited(refreshPremiumFromServer(forceRefresh: true));
