@@ -8,6 +8,7 @@ class _PendingResponse {
   bool _tts = false;
   bool _removeLinks = false;
   bool _allowMentions = true;
+  String? _deleteAfter;
   List<String>? _allowedUsers;
   List<String>? _allowedRoles;
   String? _currentSelectMenuId;
@@ -312,6 +313,7 @@ class _PendingResponse {
             : <Map<String, dynamic>>[];
     final ephemeral = _ephemeral;
     final tts = _tts;
+    final deleteAfter = _deleteAfter;
     final allowMentions = _allowMentions;
     final allowedUsers = _allowedUsers;
     final allowedRoles = _allowedRoles;
@@ -322,6 +324,7 @@ class _PendingResponse {
     _components.clear();
     _ephemeral = false;
     _tts = false;
+    _deleteAfter = null;
     _removeLinks = false;
     _allowMentions = true;
     _allowedUsers = null;
@@ -366,6 +369,7 @@ class _PendingResponse {
           if (content.trim().isNotEmpty) 'content': content,
           'components': <String, dynamic>{'items': components},
           'ephemeral': ephemeral,
+          if (deleteAfter != null) 'deleteAfter': deleteAfter,
           if (channelId != null && channelId.isNotEmpty) 'channelId': channelId,
         },
       );
@@ -389,6 +393,7 @@ class _PendingResponse {
                   : <String, dynamic>{'items': components},
           'ephemeral': ephemeral,
           if (tts) 'tts': true,
+          if (deleteAfter != null) 'deleteAfter': deleteAfter,
           'allowedMentions': allowedMentionsPayload,
         },
       );
@@ -405,6 +410,7 @@ class _PendingResponse {
                 : <String, dynamic>{'items': components},
         'ephemeral': ephemeral,
         if (tts) 'tts': true,
+        if (deleteAfter != null) 'deleteAfter': deleteAfter,
         'allowedMentions': allowedMentionsPayload,
         if (channelId != null && channelId.isNotEmpty) 'channelId': channelId,
       },
@@ -813,7 +819,6 @@ const Map<String, String> _inlineRuntimeVariables = <String, String>{
   'botlistdescription': '',
   'botlisthide': '',
   'botnode': '',
-  'deletecommand': '',
 };
 
 const Set<String> _knownBdfdPermissionTokens = <String>{

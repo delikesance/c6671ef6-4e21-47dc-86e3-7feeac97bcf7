@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:nyxx/nyxx.dart';
@@ -7,6 +8,7 @@ import 'package:bot_creator_shared/utils/component_workflow_bindings.dart';
 import 'package:bot_creator_shared/utils/embed_fields.dart';
 import 'package:bot_creator_shared/utils/allowed_mentions_parser.dart';
 import 'package:bot_creator_shared/utils/embed_timestamp.dart';
+import 'package:bot_creator_shared/utils/bdfd_duration_parser.dart';
 
 import 'package:bot_creator_shared/actions/send_message.dart';
 import 'package:bot_creator_shared/utils/interaction_ack_state.dart';
@@ -322,6 +324,21 @@ Future<Map<String, dynamic>> respondWithMessageAction(
       channelId: interaction.channelId?.toString(),
       messageId: messageId,
     );
+
+    final deleteAfterRaw =
+        (payload['deleteAfter'] ?? payload['deleteIn'] ?? '').toString().trim();
+    final resolvedDeleteAfter = resolve(deleteAfterRaw);
+    if (resolvedDeleteAfter.isNotEmpty && !isEphemeral) {
+      final delayDuration = parseBdfdDuration(resolvedDeleteAfter);
+      if (delayDuration != null) {
+        Timer(delayDuration, () async {
+          try {
+            await dynInteraction.deleteOriginalResponse();
+          } catch (_) {}
+        });
+      }
+    }
+
     return {
       'messageId': ?messageId,
       'status': 'responded',
