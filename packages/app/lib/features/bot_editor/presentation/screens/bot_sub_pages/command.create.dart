@@ -25,8 +25,6 @@ import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/features/bot_editor/logic/discord_application_command_rules.dart';
 import 'package:bot_creator/features/bot_editor/logic/discord_command_validation_messages.dart';
-import 'package:bot_creator/core/network/runner_kind.dart';
-import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:bot_creator/features/bot_editor/logic/command_variable_catalog.dart';
 import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
@@ -165,7 +163,6 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   final TextEditingController _bdfdScriptController = TextEditingController();
   final TextEditingController _jsScriptController = TextEditingController();
   String _botRuntimeEngine = runtimeEngineDart;
-  bool _runnerSupportsJavascript = false;
   final BdfdCompiler _bdfdCompiler = BdfdCompiler();
   BdfdCompileResult? _bdfdCompileResult;
   bool _legacyModeEnabled = false;
@@ -187,11 +184,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   bool get _isJavascriptMode => _executionMode == _executionModeJavascript;
 
   bool get _supportsJavascriptMode =>
-      _botRuntimeEngine == runtimeEngineJavascript ||
-      _runnerSupportsJavascript;
-
-  bool get _isJavascriptOnlyBot =>
       _botRuntimeEngine == runtimeEngineJavascript;
+
+  bool get _isJavascriptOnlyBot => _botRuntimeEngine == runtimeEngineJavascript;
 
   List<BdfdCompileDiagnostic> get _bdfdDiagnostics =>
       _bdfdCompileResult?.diagnostics ?? const <BdfdCompileDiagnostic>[];
@@ -201,62 +196,32 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   );
 
   String _normalizeExecutionMode(Object? raw) {
-    final value =
-        (raw ?? _executionModeWorkflow).toString().trim().toLowerCase();
-    if (value == _executionModeBdfdScript) return _executionModeBdfdScript;
-    if (value == _executionModeJavascript && _supportsJavascriptMode) {
-      return _executionModeJavascript;
+    if (_botRuntimeEngine != runtimeEngineJavascript) {
+      final value = (raw ?? _executionModeWorkflow)
+          .toString()
+          .trim()
+          .toLowerCase();
+      if (value == _executionModeBdfdScript) return _executionModeBdfdScript;
+      return _executionModeWorkflow;
     }
-    if (_isJavascriptOnlyBot) {
-      return _executionModeJavascript;
-    }
-    return _executionModeWorkflow;
+    return _executionModeJavascript;
   }
 
   Future<void> _loadRuntimeContext() async {
     var botRuntimeEngine = runtimeEngineDart;
-    var runnerSupportsJavascript = false;
 
     final botId = _botIdForConfig;
     if (botId != null) {
       botRuntimeEngine = await getBotRuntimeEngine(botId);
     }
 
-    if (botId != null && isJavascriptRuntimeEngine(botRuntimeEngine)) {
-      if (!kIsWeb &&
-          (defaultTargetPlatform == TargetPlatform.windows ||
-              defaultTargetPlatform == TargetPlatform.linux ||
-              defaultTargetPlatform == TargetPlatform.macOS)) {
-        runnerSupportsJavascript = true;
-      } else {
-        final config = await RunnerSettings.resolveConfigForBot(botId);
-        runnerSupportsJavascript = config != null;
-      }
-    } else {
-      final config =
-          botId != null
-              ? await RunnerSettings.resolveConfigForBot(botId)
-              : await RunnerSettings.getConfig();
-      if (config != null) {
-        if (RunnerSettings.isInternalEmbeddedRunner(config) ||
-            config.kind == RunnerKind.javascript) {
-          runnerSupportsJavascript = true;
-        } else if (config.kind == RunnerKind.auto) {
-          try {
-            final client = config.createClient();
-            final engine = await client.getRunnerEngine();
-            runnerSupportsJavascript = engine == runtimeEngineJavascript;
-          } catch (_) {}
-        }
-      }
-    }
-
     if (!mounted) return;
     _applyStateUpdate(() {
       _botRuntimeEngine = botRuntimeEngine;
-      _runnerSupportsJavascript = runnerSupportsJavascript;
       if (_botRuntimeEngine == runtimeEngineJavascript) {
         _executionMode = _executionModeJavascript;
+      } else if (_executionMode == _executionModeJavascript) {
+        _executionMode = _executionModeWorkflow;
       }
     });
   }
@@ -1604,7 +1569,8 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           _bdfdScriptContent = (normalizedData['bdfdScriptContent'] ?? '')
               .toString();
           _bdfdScriptController.text = _bdfdScriptContent;
-          _jsScriptContent = (normalizedData['jsScriptContent'] ?? '').toString();
+          _jsScriptContent = (normalizedData['jsScriptContent'] ?? '')
+              .toString();
           _jsScriptController.text = _jsScriptContent;
           _bdfdCompileResult = _bdfdCompiler.compile(_bdfdScriptContent);
           _legacyModeEnabled = normalizedData['legacyModeEnabled'] == true;
@@ -1708,7 +1674,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         } else if (currentCommand.options != null) {
           _options = currentCommand.options!
               .map(_buildOptionFromApplicationOption)
-          .toList();
+              .toList();
         } else {
           _options = [];
         }

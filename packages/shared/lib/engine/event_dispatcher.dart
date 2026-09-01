@@ -172,11 +172,7 @@ class EventDispatcher {
     );
 
     // Bans
-    reg(
-      'guildBanAdd',
-      gateway.onGuildBanAdd,
-      buildGuildBanAddEventContext,
-    );
+    reg('guildBanAdd', gateway.onGuildBanAdd, buildGuildBanAddEventContext);
     reg(
       'guildBanRemove',
       gateway.onGuildBanRemove,
@@ -328,21 +324,29 @@ class EventDispatcher {
       final interaction = event.interaction;
       if (interaction is MessageComponentInteraction) {
         final customId = interaction.data.customId;
-        final userId = interaction.user?.id.toString() ?? interaction.member?.user?.id.toString() ?? '';
-        final fallbackChannelId = (interaction as dynamic)?.channel?.id as Snowflake?;
+        final userId =
+            interaction.user?.id.toString() ??
+            interaction.member?.user?.id.toString() ??
+            '';
+        final fallbackChannelId =
+            (interaction as dynamic)?.channel?.id as Snowflake?;
         final guildId = (interaction as dynamic)?.guildId as Snowflake?;
-        final interactionType = (interaction.data.values?.isNotEmpty ?? false) ? 'select' : 'button';
-        final hasListener = InteractionListenerRegistry.instance.getMatching(
-          customId,
-          ListenerMatchRequest(
-            botId: botId,
-            type: interactionType,
-            guildId: guildId?.toString(),
-            channelId: fallbackChannelId?.toString(),
-            messageId: interaction.message?.id.toString(),
-            userId: userId,
-          ),
-        ) != null;
+        final interactionType = (interaction.data.values?.isNotEmpty ?? false)
+            ? 'select'
+            : 'button';
+        final hasListener =
+            InteractionListenerRegistry.instance.getMatching(
+              customId,
+              ListenerMatchRequest(
+                botId: botId,
+                type: interactionType,
+                guildId: guildId?.toString(),
+                channelId: fallbackChannelId?.toString(),
+                messageId: interaction.message?.id.toString(),
+                userId: userId,
+              ),
+            ) !=
+            null;
         if (hasListener) {
           callbacks.onDebugLog?.call(
             'Skipping generic interactionCreate workflows for component interaction handled by registry: $customId',
@@ -352,18 +356,24 @@ class EventDispatcher {
         }
       } else if (interaction is ModalSubmitInteraction) {
         final customId = interaction.data.customId;
-        final userId = interaction.user?.id.toString() ?? interaction.member?.user?.id.toString() ?? '';
-        final hasListener = InteractionListenerRegistry.instance.getMatching(
-          customId,
-          ListenerMatchRequest(
-            botId: botId,
-            type: 'modal',
-            guildId: interaction.guildId?.toString(),
-            channelId: interaction.channelId?.toString(),
-            messageId: ((interaction as dynamic).message?.id as Snowflake?)?.toString(),
-            userId: userId,
-          ),
-        ) != null;
+        final userId =
+            interaction.user?.id.toString() ??
+            interaction.member?.user?.id.toString() ??
+            '';
+        final hasListener =
+            InteractionListenerRegistry.instance.getMatching(
+              customId,
+              ListenerMatchRequest(
+                botId: botId,
+                type: 'modal',
+                guildId: interaction.guildId?.toString(),
+                channelId: interaction.channelId?.toString(),
+                messageId: ((interaction as dynamic).message?.id as Snowflake?)
+                    ?.toString(),
+                userId: userId,
+              ),
+            ) !=
+            null;
         if (hasListener) {
           callbacks.onDebugLog?.call(
             'Skipping generic interactionCreate workflows for modal submit interaction handled by registry: $customId',
@@ -377,14 +387,13 @@ class EventDispatcher {
     // Prevent bots from triggering event workflows for message events to avoid infinite loops.
     if (event is MessageCreateEvent) {
       final author = event.message.author;
-      final isBot =
-          author is User
-              ? (author.isBot
-                  ? true
-                  : author is WebhookAuthor
-                  ? true
-                  : false)
-              : true;
+      final isBot = author is User
+          ? (author.isBot
+                ? true
+                : author is WebhookAuthor
+                ? true
+                : false)
+          : true;
       if (isBot || event.message.application != null) {
         return;
       }
@@ -392,14 +401,13 @@ class EventDispatcher {
     if (event is MessageUpdateEvent) {
       final msg = event.message;
       final author = msg.author;
-      final isBot =
-          author is User
-              ? (author.isBot
-                  ? true
-                  : author is WebhookAuthor
-                  ? true
-                  : false)
-              : true;
+      final isBot = author is User
+          ? (author.isBot
+                ? true
+                : author is WebhookAuthor
+                ? true
+                : false)
+          : true;
       if (isBot || msg.application != null) {
         return;
       }
@@ -411,32 +419,31 @@ class EventDispatcher {
       botId: botId,
     );
 
-    final matching =
-        workflows.where((w) {
-          final trigger = Map<String, dynamic>.from(w['eventTrigger'] ?? {});
-          if (trigger['event']?.toString().toLowerCase() !=
-              eventName.toLowerCase()) {
+    final matching = workflows.where((w) {
+      final trigger = Map<String, dynamic>.from(w['eventTrigger'] ?? {});
+      if (trigger['event']?.toString().toLowerCase() !=
+          eventName.toLowerCase()) {
+        return false;
+      }
+      final customIdFilter = trigger['customIdFilter']?.toString().trim();
+      if (customIdFilter != null && customIdFilter.isNotEmpty) {
+        if (event is InteractionCreateEvent) {
+          final interaction = event.interaction;
+          String? customId;
+          if (interaction is MessageComponentInteraction) {
+            customId = interaction.data.customId;
+          } else if (interaction is ModalSubmitInteraction) {
+            customId = interaction.data.customId;
+          }
+          if (customId != customIdFilter) {
             return false;
           }
-          final customIdFilter = trigger['customIdFilter']?.toString().trim();
-          if (customIdFilter != null && customIdFilter.isNotEmpty) {
-            if (event is InteractionCreateEvent) {
-              final interaction = event.interaction;
-              String? customId;
-              if (interaction is MessageComponentInteraction) {
-                customId = interaction.data.customId;
-              } else if (interaction is ModalSubmitInteraction) {
-                customId = interaction.data.customId;
-              }
-              if (customId != customIdFilter) {
-                return false;
-              }
-            } else {
-              return false;
-            }
-          }
-          return true;
-        }).toList();
+        } else {
+          return false;
+        }
+      }
+      return true;
+    }).toList();
 
     callbacks.onDebugLog?.call(
       'Found ${matching.length} matching workflows for event: $eventName',
@@ -454,8 +461,8 @@ class EventDispatcher {
     final dynamic contextResult = (buildContext as dynamic)(event);
     final EventExecutionContext context =
         contextResult is Future<EventExecutionContext>
-            ? await contextResult
-            : contextResult;
+        ? await contextResult
+        : contextResult;
 
     callbacks.onDebugLog?.call(
       'Built context for event: $eventName',
@@ -496,11 +503,10 @@ class EventDispatcher {
             normalized, // Workflows might have data at top level or in 'data'
       );
 
-      final executionMode =
-          (executionValue['executionMode'] ?? 'workflow')
-              .toString()
-              .trim()
-              .toLowerCase();
+      final executionMode = (executionValue['executionMode'] ?? 'workflow')
+          .toString()
+          .trim()
+          .toLowerCase();
 
       final scriptSource =
           (executionValue['bdfdScriptContent'] ??
@@ -541,14 +547,13 @@ class EventDispatcher {
     callbacks.onDebugLog?.call('_handleMessageCreate started', botId: botId);
 
     final author = event.message.author;
-    final isBot =
-        author is User
-            ? (author.isBot
-                ? true
-                : author is WebhookAuthor
-                ? true
-                : false)
-            : true;
+    final isBot = author is User
+        ? (author.isBot
+              ? true
+              : author is WebhookAuthor
+              ? true
+              : false)
+        : true;
     if (isBot ||
         event.message.application != null ||
         event.message.author.id == gateway.application.id) {
@@ -646,15 +651,17 @@ class EventDispatcher {
 
     final command = allCommands.firstWhere(
       (c) {
-        final name = (c['name'] ?? '').toString().toLowerCase();
+        final rawName = (c['name'] ?? '').toString();
+        final cleanName = cleanCommandTriggerName(rawName);
         final type = (c['type'] ?? '').toString().toLowerCase();
         final data = c['data'] as Map?;
         final legacyMode = data?['legacyModeEnabled'] == true;
         callbacks.onDebugLog?.call(
-          'Checking command: name="$name", type="$type", legacyMode=$legacyMode',
+          'Checking command: name="$rawName", clean="$cleanName", type="$type", legacyMode=$legacyMode',
           botId: botId,
         );
-        return name == commandName &&
+        return (cleanName == commandName ||
+                rawName.toLowerCase() == commandName) &&
             (type == 'chatinput' || type.isEmpty) &&
             legacyMode;
       },
@@ -676,7 +683,7 @@ class EventDispatcher {
             'Built-in legacy help triggered',
             botId: botId,
           );
-          
+
           final legacyCommands = allCommands.where((c) {
             final type = (c['type'] ?? '').toString().toLowerCase();
             final data = c['data'] as Map?;
@@ -695,25 +702,31 @@ class EventDispatcher {
             if (target.isNotEmpty) {
               final name = (target['name'] ?? '').toString();
               final data = target['data'] as Map?;
-              final desc = (target['description'] ??
-                      data?['commandDescription'] ??
-                      data?['description'] ??
-                      'No description provided.')
-                  .toString()
-                  .trim();
-              
+              final desc =
+                  (target['description'] ??
+                          data?['commandDescription'] ??
+                          data?['description'] ??
+                          'No description provided.')
+                      .toString()
+                      .trim();
+
               final buffer = StringBuffer();
               buffer.writeln('**Command:** `$prefix$name`');
               buffer.writeln('**Description:** $desc');
-              
-              final options = (target['options'] as List?) ?? (data?['options'] as List?);
+
+              final options =
+                  (target['options'] as List?) ?? (data?['options'] as List?);
               if (options != null && options.isNotEmpty) {
                 buffer.writeln('\n**Parameters:**');
                 for (final opt in options) {
                   if (opt is Map) {
                     final optName = (opt['name'] ?? '').toString();
-                    final optDesc = (opt['description'] ?? '').toString().trim();
-                    final required = opt['required'] == true ? ' (Required)' : '';
+                    final optDesc = (opt['description'] ?? '')
+                        .toString()
+                        .trim();
+                    final required = opt['required'] == true
+                        ? ' (Required)'
+                        : '';
                     if (optDesc.isNotEmpty) {
                       buffer.writeln('• `$optName`$required - *$optDesc*');
                     } else {
@@ -754,12 +767,13 @@ class EventDispatcher {
             for (final cmd in legacyCommands) {
               final name = (cmd['name'] ?? '').toString();
               final data = cmd['data'] as Map?;
-              final desc = (cmd['description'] ??
-                      data?['commandDescription'] ??
-                      data?['description'] ??
-                      '')
-                  .toString()
-                  .trim();
+              final desc =
+                  (cmd['description'] ??
+                          data?['commandDescription'] ??
+                          data?['description'] ??
+                          '')
+                      .toString()
+                      .trim();
               if (desc.isNotEmpty) {
                 buffer.writeln('• `$prefix$name` - *$desc*');
               } else {
@@ -797,6 +811,24 @@ class EventDispatcher {
       botId: botId,
     );
     unawaited(store.recordCommandExecution(botId, commandName));
+
+    final triggerRawName = (command['name'] ?? '').toString();
+    final timedTriggerDelay = extractTimedTriggerDelay(triggerRawName);
+    if (timedTriggerDelay != null) {
+      if (timedTriggerDelay == Duration.zero) {
+        unawaited(() async {
+          try {
+            await event.message.delete();
+          } catch (_) {}
+        }());
+      } else {
+        Timer(timedTriggerDelay, () async {
+          try {
+            await event.message.delete();
+          } catch (_) {}
+        });
+      }
+    }
 
     // Prepare arguments ($1, $2, etc.)
     final args = parts.skip(1).toList();
@@ -859,11 +891,10 @@ class EventDispatcher {
       (normalized['data'] as Map?)?.cast<String, dynamic>() ?? const {},
     );
 
-    final executionMode =
-        (executionValue['executionMode'] ?? 'workflow')
-            .toString()
-            .trim()
-            .toLowerCase();
+    final executionMode = (executionValue['executionMode'] ?? 'workflow')
+        .toString()
+        .trim()
+        .toLowerCase();
 
     final scriptSource =
         (executionValue['bdfdScriptContent'] ??
@@ -871,7 +902,6 @@ class EventDispatcher {
                 executionValue['bdfdScript'] ??
                 '')
             .toString();
-
 
     final shouldCompileFromBdfdSource =
         executionMode == 'bdfd_script' || scriptSource.trim().isNotEmpty;
@@ -1017,12 +1047,10 @@ class EventDispatcher {
         response: response,
         runtimeVariables: runtimeVariables,
         botId: botId,
-        onLog:
-            (msg, {required botId}) async =>
-                callbacks.onLog?.call(msg, botId: botId),
-        onDebugLog:
-            (msg, {required botId}) async =>
-                callbacks.onDebugLog?.call(msg, botId: botId),
+        onLog: (msg, {required botId}) async =>
+            callbacks.onLog?.call(msg, botId: botId),
+        onDebugLog: (msg, {required botId}) async =>
+            callbacks.onDebugLog?.call(msg, botId: botId),
       );
     }
     callbacks.onDebugLog?.call('_executeEventWorkflow completed', botId: botId);
@@ -1161,7 +1189,8 @@ class EventDispatcher {
               await interaction.respond(builder);
             } else if (interaction is ModalSubmitInteraction) {
               await interaction.respond(builder);
-            } else if (interaction is ApplicationCommandAutocompleteInteraction) {
+            } else if (interaction
+                is ApplicationCommandAutocompleteInteraction) {
               await interaction.respond(const []);
             }
           } catch (_) {
@@ -1206,5 +1235,44 @@ class EventDispatcher {
     const suffix = '…';
     final maxContent = kMaxLength - suffix.length;
     return '❌ ${text.substring(0, maxContent)}$suffix';
+  }
+
+  static String cleanCommandTriggerName(String rawName) {
+    return rawName
+        .replaceAll(RegExp(r'\{\$t(?::[^}]+)?\}', caseSensitive: false), '')
+        .trim()
+        .toLowerCase();
+  }
+
+  static Duration? extractTimedTriggerDelay(String rawName) {
+    final match = RegExp(
+      r'\{\$t(?::([^}]+))?\}',
+      caseSensitive: false,
+    ).firstMatch(rawName);
+    if (match == null) return null;
+    final delayStr = match.group(1)?.trim();
+    if (delayStr == null || delayStr.isEmpty) {
+      return Duration.zero;
+    }
+    final numMatch = RegExp(
+      r'^(\d+(?:\.\d+)?)\s*(ms|s|m|h)?$',
+      caseSensitive: false,
+    ).firstMatch(delayStr);
+    if (numMatch != null) {
+      final value = double.tryParse(numMatch.group(1)!) ?? 0;
+      final unit = numMatch.group(2)?.toLowerCase() ?? 's';
+      switch (unit) {
+        case 'ms':
+          return Duration(milliseconds: value.round());
+        case 'm':
+          return Duration(milliseconds: (value * 60000).round());
+        case 'h':
+          return Duration(milliseconds: (value * 3600000).round());
+        case 's':
+        default:
+          return Duration(milliseconds: (value * 1000).round());
+      }
+    }
+    return Duration.zero;
   }
 }

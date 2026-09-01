@@ -6,8 +6,8 @@ extension _BdfdAstTranspilationScopeInlineRuntime
     // Runtime loop variable placeholders (e.g. $i → ((_loop.var.i))).
     // Also handle $jsonKey[]/$jsonValue[]/$jsonIndex[] whose empty brackets
     // produce a single empty argument rather than zero arguments.
-    final hasEmptyBrackets = node.arguments.length == 1 &&
-        node.arguments.first.isEmpty;
+    final hasEmptyBrackets =
+        node.arguments.length == 1 && node.arguments.first.isEmpty;
     final isEffectivelyEmptyArgs = node.arguments.isEmpty || hasEmptyBrackets;
 
     if (_runtimeLoopVarNames != null &&
@@ -412,21 +412,32 @@ extension _BdfdAstTranspilationScopeInlineRuntime
         return _inlineRuntimeVariables['isbot'];
       // Mentioned helper with index
       case 'mentioned':
-        final returnSelf =
-            node.arguments.length > 1 &&
-            _stringifyArgument(node, 1).trim().toLowerCase() == 'yes';
-        if (node.arguments.isNotEmpty) {
-          final indexRaw = _stringifyArgument(node, 0).trim();
-          final index = int.tryParse(indexRaw);
-          if (index != null && index >= 1) {
-            return returnSelf
-                ? '((message.mentions[${index - 1}]|author.id))'
-                : '((message.mentions[${index - 1}]))';
+        var returnSelf = false;
+        var index = 1;
+        if (node.arguments.length >= 2) {
+          final firstArg = _stringifyArgument(node, 0).trim();
+          final parsedIndex = int.tryParse(firstArg);
+          if (parsedIndex != null && parsedIndex > 0) {
+            index = parsedIndex;
+          }
+          final secondArg = _stringifyArgument(node, 1).trim().toLowerCase();
+          returnSelf =
+              secondArg == 'yes' || secondArg == 'true' || secondArg == '1';
+        } else if (node.arguments.length == 1) {
+          final firstArg = _stringifyArgument(node, 0).trim();
+          final parsedIndex = int.tryParse(firstArg);
+          if (parsedIndex != null && parsedIndex > 0) {
+            index = parsedIndex;
+          } else if (firstArg.toLowerCase() == 'yes' ||
+              firstArg.toLowerCase() == 'true' ||
+              firstArg.toLowerCase() == '1') {
+            returnSelf = true;
           }
         }
+        final zeroIndex = index - 1;
         return returnSelf
-            ? '((message.mentions[0]|author.id))'
-            : '((message.mentions[0]))';
+            ? '((message.mentions[$zeroIndex]|author.id))'
+            : '((message.mentions[$zeroIndex]))';
       // All mentions (comma-separated user IDs)
       case 'mentions':
         return '((message.mentions))';
@@ -1059,8 +1070,7 @@ extension _BdfdAstTranspilationScopeInlineRuntime
     if (funcDef == null) {
       _diagnostics.add(
         BdfdTranspileDiagnostic(
-          message:
-              '${r'$funcCall'} references undefined function "$funcName".',
+          message: '${r'$funcCall'} references undefined function "$funcName".',
           start: node.start,
           end: node.end,
           functionName: node.name,
