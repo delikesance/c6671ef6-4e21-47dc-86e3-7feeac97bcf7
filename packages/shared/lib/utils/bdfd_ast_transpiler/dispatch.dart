@@ -9,6 +9,13 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
       case 'nomention':
         response._allowMentions = false;
         return true;
+      case 'deletein':
+        final delay = _stringifyArgument(node, 0).trim();
+        if (delay.isNotEmpty) {
+          response._deleteAfter = delay;
+          _stickyDeleteAfter = delay;
+        }
+        return true;
       case 'title':
         final index = _parseEmbedIndex(node, 1);
         response.ensureEmbed(index)['title'] = _stringifyArgument(node, 0);
@@ -724,7 +731,7 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         return _transpileJumpToAction(node);
       case 'sendmessage':
         final content = _stringifyArgument(node, 0);
-        // Consume pending response flags so that $ephemeral / $reply
+        // Consume pending response flags so that $ephemeral / $reply / $deleteIn
         // applied before $sendMessage are honored.
         final ephemeral = pendingResponse?._ephemeral ?? _stickyEphemeral;
         final replyMessageId =
@@ -732,12 +739,14 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         final replyChannelId =
             pendingResponse?._replyChannelId ?? _stickyReplyChannelId;
         final tts = pendingResponse?._tts ?? _stickyTts;
+        final deleteAfter = pendingResponse?._deleteAfter ?? _stickyDeleteAfter;
         // Reset the pending response fields directly
         if (pendingResponse != null) {
           pendingResponse._ephemeral = false;
           pendingResponse._replyMessageId = null;
           pendingResponse._replyChannelId = null;
           pendingResponse._tts = false;
+          pendingResponse._deleteAfter = null;
         }
         _consumeStickyFlags();
 
@@ -751,6 +760,7 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
               'content': content,
               'ephemeral': ephemeral,
               if (tts) 'tts': true,
+              if (deleteAfter != null) 'deleteAfter': deleteAfter,
             },
           );
         }
@@ -763,6 +773,7 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
             'components': const <String, dynamic>{},
             'ephemeral': ephemeral,
             if (tts) 'tts': true,
+            if (deleteAfter != null) 'deleteAfter': deleteAfter,
           },
         );
 
@@ -924,8 +935,6 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
       // Message actions
       case 'deletemessage':
         return _buildDeleteMessageAction(node);
-      case 'deletein':
-        return _buildDeleteInAction(node);
       case 'dm':
         return _buildDmAction(node);
       case 'editmessage':

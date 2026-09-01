@@ -505,18 +505,6 @@ extension _BdfdAstTranspilationScopeActionBuilders
     );
   }
 
-  Action? _buildDeleteInAction(BdfdFunctionCallAst node) {
-    final delay = _stringifyArgument(node, 0).trim();
-    return Action(
-      type: BotCreatorActionType.deleteMessages,
-      payload: <String, dynamic>{
-        'channelId': '((channel.id))',
-        'messageId': '((message.id))',
-        'delay': delay,
-      },
-    );
-  }
-
   Action _buildDmAction(BdfdFunctionCallAst node) {
     final userIdArg = _stringifyArgument(node, 0).trim();
     final contentArg = _stringifyArgument(node, 1);
