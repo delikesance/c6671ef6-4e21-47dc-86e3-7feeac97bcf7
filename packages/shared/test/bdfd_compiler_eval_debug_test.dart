@@ -221,13 +221,12 @@ void main() {
         expect(result.actions[0].payload['channelId'], '123');
         expect(result.actions[0].payload['messageId'], '456');
 
-        final result2 = compiler.compile(r'$deleteIn[5s]');
+        final result2 = compiler.compile(r'$deleteIn[5s]Hello!');
         expect(result2.hasErrors, isFalse);
         expect(result2.actions, hasLength(1));
-        expect(result2.actions[0].type, BotCreatorActionType.deleteMessages);
-        expect(result2.actions[0].payload['channelId'], '((channel.id))');
-        expect(result2.actions[0].payload['messageId'], '((message.id))');
-        expect(result2.actions[0].payload['delay'], '5s');
+        expect(result2.actions[0].type, BotCreatorActionType.respondWithMessage);
+        expect(result2.actions[0].payload['content'], 'Hello!');
+        expect(result2.actions[0].payload['deleteAfter'], '5s');
 
         final result3 = compiler.compile(r'$clear');
         expect(result3.hasErrors, isFalse);
