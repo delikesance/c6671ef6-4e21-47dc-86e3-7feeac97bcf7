@@ -1286,6 +1286,30 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
       return '((message.content))';
     }
 
+    if (first.startsWith('>')) {
+      final after = first.substring(1).trim();
+      if (after.isEmpty) {
+        return '((last(split(message.content, " "))))';
+      }
+      final parsedAfter = int.tryParse(after);
+      if (parsedAfter != null && parsedAfter >= 0) {
+        return '((join(slice(split(message.content, " "), $parsedAfter), " ")))';
+      }
+    }
+
+    final parsedFirst = int.tryParse(first);
+    final parsedSecond = int.tryParse(second);
+
+    if (parsedFirst != null && parsedFirst > 0) {
+      if (parsedSecond != null && parsedSecond > 0) {
+        final startIdx = parsedFirst - 1;
+        return '((join(slice(split(message.content, " "), $startIdx, $parsedSecond), " ")))';
+      } else if (node.arguments.length >= 2 && second.isEmpty) {
+        final startIdx = parsedFirst - 1;
+        return '((join(slice(split(message.content, " "), $startIdx), " ")))';
+      }
+    }
+
     final messageExpression = _messageArgumentExpression(first);
     final optionSource =
         second.isNotEmpty ? second : (messageExpression == null ? first : '');
@@ -1310,6 +1334,30 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
 
     if (first.isEmpty && second.isEmpty) {
       return '((message.content))';
+    }
+
+    if (first.startsWith('>')) {
+      final after = first.substring(1).trim();
+      if (after.isEmpty) {
+        return '((last(split(message.content, " "))))';
+      }
+      final parsedAfter = int.tryParse(after);
+      if (parsedAfter != null && parsedAfter >= 0) {
+        return '((join(slice(split(message.content, " "), $parsedAfter), " ")))';
+      }
+    }
+
+    final parsedFirst = int.tryParse(first);
+    final parsedSecond = int.tryParse(second);
+
+    if (parsedFirst != null && parsedFirst > 0) {
+      if (parsedSecond != null && parsedSecond > 0) {
+        final startIdx = parsedFirst - 1;
+        return '((join(slice(split(message.content, " "), $startIdx, $parsedSecond), " ")))';
+      } else if (node.arguments.length >= 2 && second.isEmpty) {
+        final startIdx = parsedFirst - 1;
+        return '((join(slice(split(message.content, " "), $startIdx), " ")))';
+      }
     }
 
     final argsExpression = _argsArgumentExpression(first);
