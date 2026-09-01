@@ -119,6 +119,7 @@ class _BdfdAstTranspilationScope {
   bool _stickyTts = false;
   String? _stickyReplyMessageId;
   String? _stickyReplyChannelId;
+  String? _stickyDeleteAfter;
 
   /// Resets all sticky response flags — called after a message is produced
   /// (either via $sendMessage or via buildAction flush) so that the next
@@ -128,6 +129,7 @@ class _BdfdAstTranspilationScope {
     _stickyTts = false;
     _stickyReplyMessageId = null;
     _stickyReplyChannelId = null;
+    _stickyDeleteAfter = null;
   }
 
   List<Action> transpileScript(BdfdScriptAst script) {
@@ -139,7 +141,8 @@ class _BdfdAstTranspilationScope {
     final actions = <Action>[];
     final pendingResponse = _PendingResponse()
       .._ephemeral = _stickyEphemeral
-      .._tts = _stickyTts;
+      .._tts = _stickyTts
+      .._deleteAfter = _stickyDeleteAfter;
     if (_stickyReplyMessageId != null) {
       pendingResponse._replyMessageId = _stickyReplyMessageId;
       pendingResponse._replyChannelId = _stickyReplyChannelId;

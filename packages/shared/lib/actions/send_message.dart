@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:nyxx/nyxx.dart';
 import 'package:bot_creator_shared/utils/global.dart';
 import '../types/component.dart';
@@ -5,6 +6,7 @@ import '../utils/component_workflow_bindings.dart';
 import '../utils/embed_fields.dart';
 import '../utils/allowed_mentions_parser.dart';
 import '../utils/embed_timestamp.dart';
+import '../utils/bdfd_duration_parser.dart';
 import 'send_component_v2.dart';
 
 Snowflake? _toSnowflake(dynamic value) {
@@ -247,6 +249,21 @@ Future<Map<String, String>> sendMessageToChannel(
         messageId: message.id.toString(),
       );
     }
+
+    final deleteAfterRaw =
+        (payload?['deleteAfter'] ?? payload?['deleteIn'] ?? '').toString().trim();
+    final resolvedDeleteAfter = r(deleteAfterRaw);
+    if (resolvedDeleteAfter.isNotEmpty) {
+      final delayDuration = parseBdfdDuration(resolvedDeleteAfter);
+      if (delayDuration != null) {
+        Timer(delayDuration, () async {
+          try {
+            await message.delete();
+          } catch (_) {}
+        });
+      }
+    }
+
     return {'messageId': message.id.toString()};
   } catch (e) {
     return {'error': 'Failed to send message: $e', 'messageId': ''};
