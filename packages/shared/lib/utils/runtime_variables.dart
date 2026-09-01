@@ -144,10 +144,9 @@ Future<void> injectScopedRuntimeVariables({
         continue;
       }
 
-      final existingValue =
-          values.containsKey(normalizedKey)
-              ? values[normalizedKey]
-              : values['bc_$normalizedKey'];
+      final existingValue = values.containsKey(normalizedKey)
+          ? values[normalizedKey]
+          : values['bc_$normalizedKey'];
       if (!_isMissingOrEmptyValue(existingValue)) {
         continue;
       }
@@ -197,7 +196,7 @@ Future<void> injectScopedRuntimeVariables({
 
     runtimeVariables['$scope.$canonicalKey'] = value;
     runtimeVariables['$scope.$rawKey'] = value;
-    
+
     if (normalizedContextId != null) {
       runtimeVariables['$scope[$normalizedContextId].$canonicalKey'] = value;
       runtimeVariables['$scope[$normalizedContextId].$rawKey'] = value;
@@ -241,8 +240,8 @@ Future<void> hydrateRuntimeVariables({
   final normalizedUserId = _normalizeContextId(userContextId);
   final guildMemberContextId =
       normalizedGuildId != null && normalizedUserId != null
-          ? '$normalizedGuildId:$normalizedUserId'
-          : null;
+      ? '$normalizedGuildId:$normalizedUserId'
+      : null;
 
   await Future.wait([
     injectScopedRuntimeVariables(
@@ -295,6 +294,7 @@ Future<void> hydrateRuntimeVariables({
     ),
   ]);
 }
+
 Future<void> hydrateSpecificScopedVariables({
   required BotDataStore store,
   required String botId,
@@ -305,7 +305,11 @@ Future<void> hydrateSpecificScopedVariables({
   final normalizedContextId = _normalizeContextId(contextId);
   if (normalizedContextId == null) return;
 
-  final values = await store.getScopedVariables(botId, scope, normalizedContextId);
+  final values = await store.getScopedVariables(
+    botId,
+    scope,
+    normalizedContextId,
+  );
   if (values.isEmpty) return;
 
   for (final entry in values.entries) {
@@ -331,7 +335,9 @@ void _collectScopedPlaceholders(
   List<(String, String, String)> out,
 ) {
   // Look for a known scope name followed by '['
-  final scopeStartPattern = RegExp(r'\b(member|user|guild|channel|role|emoji|message|webhook|temp|bot|getMessage|getmessage)\[');
+  final scopeStartPattern = RegExp(
+    r'\b(member|user|guild|channel|role|emoji|message|webhook|temp|bot|getMessage|getmessage)\[',
+  );
   for (final match in scopeStartPattern.allMatches(input)) {
     final scope = match.group(1)!;
     final bracketStart = match.end - 1; // position of '['
@@ -431,16 +437,16 @@ Future<void> hydrateActionPlaceholders({
   void scan(dynamic obj) {
     if (obj == null) return;
     if (activeHydratedActions.contains(obj)) return;
-    
+
     if (obj is String) {
       // String scanning is still needed as its content might contain placeholders
       // that resolve differently based on current variables.
       // However, if the string doesn't contain placeholders, we could skip it.
       if (!obj.contains('((') && !obj.contains(r'$')) {
-         activeHydratedActions.add(obj);
-         return;
+        activeHydratedActions.add(obj);
+        return;
       }
-      
+
       // 1. Scan for internal placeholders ((user[ID].username)) or ((user[ID].bc_var))
       //
       // Use a bracket-depth-aware walker instead of a naive regex so that
@@ -450,12 +456,12 @@ Future<void> hydrateActionPlaceholders({
       // producing a malformed contextId like "((message.mentions[0".
       final matches = <(String, String, String)>[];
       _collectScopedPlaceholders(obj, matches);
-      
+
       for (final match in matches) {
         final scope = match.$1;
         var contextId = match.$2;
         final property = match.$3;
-        
+
         // Resolve any remaining ((...)) in the contextId (e.g. when
         // the ID was a bare placeholder like user[(("author.id"))].username).
         if (contextId.contains('((')) {
@@ -499,12 +505,11 @@ Future<void> hydrateActionPlaceholders({
       // 2. Scan for BDFD functions $getUserVar[name;ID]
       for (final match in bdfdFunctionPattern.allMatches(obj)) {
         final raw = match.group(0)!;
-        final scope =
-            raw.contains('User')
-                ? 'user'
-                : (raw.contains('Guild')
-                    ? 'guild'
-                    : (raw.contains('Channel') ? 'channel' : 'message'));
+        final scope = raw.contains('User')
+            ? 'user'
+            : (raw.contains('Guild')
+                  ? 'guild'
+                  : (raw.contains('Channel') ? 'channel' : 'message'));
         var contextId = match.group(1)!;
         if (contextId.contains('((')) {
           contextId = resolveTemplatePlaceholders(contextId, variables);
@@ -515,8 +520,8 @@ Future<void> hydrateActionPlaceholders({
           scopedContextsToFetch.add((scope, contextId));
         }
       }
-      
-      // We don't mark strings as hydrated because they are values, 
+
+      // We don't mark strings as hydrated because they are values,
       // and the same string literal might appear multiple times.
       // But we can mark the Action objects.
     } else if (obj is Map) {
@@ -535,13 +540,31 @@ Future<void> hydrateActionPlaceholders({
     }
   }
 
+  // Pre-populate temporary variables from setTemporaryVariable actions so
+  // downstream references like ((user[((temp.user))].username)) can be hydrated.
+  for (final action in actions) {
+    if (action is Action &&
+        action.type == BotCreatorActionType.setTemporaryVariable) {
+      final rawKey = (action.payload['key'] ?? '').toString().trim();
+      final storageKey = _normalizeScopedStorageKey(rawKey);
+      final rawVal = (action.payload['value'] ?? '').toString();
+      final resolvedVal = resolveTemplatePlaceholders(rawVal, variables).trim();
+      if (storageKey.isNotEmpty && resolvedVal.isNotEmpty) {
+        variables['temp.$storageKey'] = resolvedVal;
+        if (rawKey != storageKey) {
+          variables['temp.$rawKey'] = resolvedVal;
+        }
+      }
+    }
+  }
+
   // Scan variables first (important for $eval[$message])
   for (final value in variables.values) {
     scan(value);
   }
 
   for (final action in actions) {
-     scan(action);
+    scan(action);
   }
 
   final futures = <Future<void>>[];
@@ -549,15 +572,16 @@ Future<void> hydrateActionPlaceholders({
   if (scopedContextsToFetch.isNotEmpty) {
     futures.addAll(
       scopedContextsToFetch.map(
-        (m) => hydrateSpecificScopedVariables(
-          store: store,
-          botId: botId,
-          scope: m.$1,
-          contextId: m.$2,
-          runtimeVariables: variables,
-        ).catchError((e) {
-          // Ignore individual hydration errors to allow fallbacks
-        }),
+        (m) =>
+            hydrateSpecificScopedVariables(
+              store: store,
+              botId: botId,
+              scope: m.$1,
+              contextId: m.$2,
+              runtimeVariables: variables,
+            ).catchError((e) {
+              // Ignore individual hydration errors to allow fallbacks
+            }),
       ),
     );
   }

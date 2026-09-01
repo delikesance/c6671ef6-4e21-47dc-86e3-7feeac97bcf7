@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -117,12 +119,102 @@ void main() {
       }),
     );
 
-    final session = await client.refreshSession(refreshToken: 'old-refresh-token');
+    final session = await client.refreshSession(
+      refreshToken: 'old-refresh-token',
+    );
 
     expect(session.accessToken, 'new-access-token');
     expect(session.refreshToken, 'new-refresh-token');
     expect(session.userId, 'owner-1');
     expect(session.username, 'owner-one');
     expect(session.expiresAt, DateTime.utc(2030, 1, 1));
+  });
+
+  test('4xx client errors do not trip the circuit breaker', () async {
+    MainApiClient.resetCircuitBreakers();
+    final client = MainApiClient(
+      baseUrl: 'https://circuit-test.example.com',
+      accessToken: 'token',
+      httpClient: MockClient((request) async {
+        return http.Response(
+          '{"error":"not found"}',
+          404,
+          headers: {'content-type': 'application/json'},
+        );
+      }),
+    );
+
+    // Make multiple 404 requests (more than _circuitMaxFailures = 3)
+    for (var i = 0; i < 5; i++) {
+      final status = await client.getStatus(botId: 'bot-$i');
+      expect(status.isBotRunning('bot-$i'), isFalse);
+    }
+
+    // Now send a request with 200 response to verify circuit breaker is still closed
+    final successClient = MainApiClient(
+      baseUrl: 'https://circuit-test.example.com',
+      accessToken: 'token',
+      httpClient: MockClient((request) async {
+        return http.Response(
+          '{"apiVersion":2,"bot":{"botId":"bot-1","state":"running"}}',
+          200,
+          headers: {'content-type': 'application/json'},
+        );
+      }),
+    );
+
+    final status = await successClient.getStatus(botId: 'bot-1');
+    expect(status.isBotRunning('bot-1'), isTrue);
+  });
+
+  test('resetCircuitBreakers clears tripped circuit breakers', () async {
+    MainApiClient.resetCircuitBreakers();
+    final failingClient = MainApiClient(
+      baseUrl: 'https://breaker-test.example.com',
+      accessToken: 'token',
+      httpClient: MockClient((request) async {
+        throw const SocketException(
+          'Failed host lookup: breaker-test.example.com',
+        );
+      }),
+    );
+
+    // Make requests that fail with network error to trip the circuit
+    for (var i = 0; i < 3; i++) {
+      try {
+        await failingClient.getCommandStats('bot-1');
+      } catch (_) {}
+    }
+
+    // Next call should fail because circuit is open
+    expect(
+      () => failingClient.getCommandStats('bot-1'),
+      throwsA(
+        isA<MainApiClientException>().having(
+          (e) => e.message,
+          'message',
+          contains('Circuit breaker open'),
+        ),
+      ),
+    );
+
+    // Reset circuit breaker
+    MainApiClient.resetCircuitBreakers();
+
+    // Now mock a working server
+    final workingClient = MainApiClient(
+      baseUrl: 'https://breaker-test.example.com',
+      accessToken: 'token',
+      httpClient: MockClient((request) async {
+        return http.Response(
+          '{"botId":"bot-1","hours":24,"totalAllTime":1,"commands":[],"timeline":[],"locales":[],"health":{"total":0,"failed":0,"errorRatePct":0,"p50LatencyMs":0,"p95LatencyMs":0}}',
+          200,
+          headers: {'content-type': 'application/json'},
+        );
+      }),
+    );
+
+    final stats = await workingClient.getCommandStats('bot-1');
+    expect(stats['botId'], 'bot-1');
   });
 }
