@@ -2119,12 +2119,12 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 child: Row(
-                  children: const [
-                    Icon(Icons.storage, color: AppTheme.discord),
-                    SizedBox(width: 10),
+                  children: [
+                    const Icon(Icons.storage, color: AppTheme.discord),
+                    const SizedBox(width: 10),
                     Text(
-                      'Base de données externe',
-                      style: TextStyle(
+                      context.tr.bot_settings_database_section_title,
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -2141,9 +2141,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Type de base de données',
-                        style: TextStyle(
+                      Text(
+                        context.tr.bot_settings_database_type_label,
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                         ),
@@ -2153,22 +2153,30 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                         initialValue: _databaseType,
                         decoration: inputDecoration,
                         dropdownColor: AppTheme.discordDarkBg,
-                        items: const [
+                        items: [
                           DropdownMenuItem(
                             value: 'none',
-                            child: Text('Aucune (Désactivé)'),
+                            child: Text(
+                              context.tr.bot_settings_database_type_none,
+                            ),
                           ),
                           DropdownMenuItem(
                             value: 'postgres',
-                            child: Text('PostgreSQL (mot-clé: pgsql)'),
+                            child: Text(
+                              context.tr.bot_settings_database_type_postgres,
+                            ),
                           ),
                           DropdownMenuItem(
                             value: 'mysql',
-                            child: Text('MySQL (mot-clé: sql)'),
+                            child: Text(
+                              context.tr.bot_settings_database_type_mysql,
+                            ),
                           ),
                           DropdownMenuItem(
                             value: 'mongo',
-                            child: Text('MongoDB (mot-clé: mongo)'),
+                            child: Text(
+                              context.tr.bot_settings_database_type_mongo,
+                            ),
                           ),
                         ],
                         onChanged: (val) {
@@ -2207,10 +2215,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       Expanded(
                         child: Text(
                           _databaseType == 'postgres'
-                              ? 'Disponible dans vos scripts via le mot-clé global "pgsql" (ex: await pgsql.query("SELECT * FROM users")).'
+                              ? context.tr.bot_settings_database_info_postgres
                               : _databaseType == 'mysql'
-                              ? 'Disponible dans vos scripts via le mot-clé global "sql" (ex: await sql.query("SELECT * FROM users")).'
-                              : 'Disponible dans vos scripts via le mot-clé global "mongo" (ex: await mongo.collection("users").find()).',
+                              ? context.tr.bot_settings_database_info_mysql
+                              : context.tr.bot_settings_database_info_mongo,
                           style: const TextStyle(
                             fontSize: 13,
                             color: Colors.white70,
@@ -2223,7 +2231,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 const SizedBox(height: 16),
 
                 // URI Connection String
-                const Text('Chaîne de connexion (URI)'),
+                Text(context.tr.bot_settings_database_uri_label),
                 const SizedBox(height: 6),
                 TextField(
                   controller: _databaseUriController,
@@ -2253,8 +2261,12 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     ),
                     label: Text(
                       _showAdvancedDbFields
-                          ? 'Masquer les champs individuels'
-                          : 'Configurer les champs individuels (Hôte, Port, etc.)',
+                          ? context
+                                .tr
+                                .bot_settings_database_hide_discrete_fields
+                          : context
+                                .tr
+                                .bot_settings_database_show_discrete_fields,
                     ),
                   ),
                 ),
@@ -2268,12 +2280,13 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Hôte'),
+                            Text(context.tr.bot_settings_database_host),
                             const SizedBox(height: 6),
                             TextField(
                               controller: _databaseHostController,
                               decoration: inputDecoration.copyWith(
-                                hintText: 'localhost ou adresse IP',
+                                hintText:
+                                    context.tr.bot_settings_database_host_hint,
                               ),
                             ),
                           ],
@@ -2285,7 +2298,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Port'),
+                            Text(context.tr.bot_settings_database_port),
                             const SizedBox(height: 6),
                             TextField(
                               controller: _databasePortController,
@@ -2304,12 +2317,12 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  const Text('Nom de la base de données'),
+                  Text(context.tr.bot_settings_database_name),
                   const SizedBox(height: 6),
                   TextField(
                     controller: _databaseNameController,
                     decoration: inputDecoration.copyWith(
-                      hintText: 'ex: bot_db',
+                      hintText: context.tr.bot_settings_database_name_hint,
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -2319,12 +2332,13 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Utilisateur'),
+                            Text(context.tr.bot_settings_database_user),
                             const SizedBox(height: 6),
                             TextField(
                               controller: _databaseUserController,
                               decoration: inputDecoration.copyWith(
-                                hintText: 'ex: root ou postgres',
+                                hintText:
+                                    context.tr.bot_settings_database_user_hint,
                               ),
                             ),
                           ],
@@ -2335,7 +2349,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Mot de passe'),
+                            Text(context.tr.bot_settings_database_password),
                             const SizedBox(height: 6),
                             TextField(
                               controller: _databasePasswordController,
@@ -2364,7 +2378,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   ),
                   const SizedBox(height: 12),
                   CheckboxListTile(
-                    title: const Text('Activer SSL / TLS'),
+                    title: Text(context.tr.bot_settings_database_ssl),
                     value: _databaseSsl,
                     onChanged: (val) {
                       setState(() {
@@ -2382,7 +2396,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 child: ElevatedButton.icon(
                   onPressed: _isSavingDatabase ? null : _saveDatabaseOnly,
                   icon: const Icon(Icons.save),
-                  label: const Text('Enregistrer la configuration'),
+                  label: Text(context.tr.bot_settings_database_save_btn),
                 ),
               ),
             ],
@@ -2648,7 +2662,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   text: context.tr.bot_settings_tab_lavalink,
                 ),
               if (showDatabase)
-                const Tab(icon: Icon(Icons.storage), text: 'Database'),
+                Tab(
+                  icon: const Icon(Icons.storage),
+                  text: context.tr.bot_settings_tab_database,
+                ),
               Tab(
                 icon: const Icon(Icons.build_outlined),
                 text: context.tr.bot_settings_tab_advanced,

@@ -3545,6 +3545,144 @@ abstract class AppLocalizations {
   /// **'Lavalink'**
   String get bot_settings_tab_lavalink;
 
+  /// External database tab in bot settings
+  ///
+  /// In en, this message translates to:
+  /// **'Database'**
+  String get bot_settings_tab_database;
+
+  /// External database section title
+  ///
+  /// In en, this message translates to:
+  /// **'External Database'**
+  String get bot_settings_database_section_title;
+
+  /// Database type dropdown label
+  ///
+  /// In en, this message translates to:
+  /// **'Database Type'**
+  String get bot_settings_database_type_label;
+
+  /// None database engine option
+  ///
+  /// In en, this message translates to:
+  /// **'None (Disabled)'**
+  String get bot_settings_database_type_none;
+
+  /// PostgreSQL database engine option
+  ///
+  /// In en, this message translates to:
+  /// **'PostgreSQL (keyword: pgsql)'**
+  String get bot_settings_database_type_postgres;
+
+  /// MySQL database engine option
+  ///
+  /// In en, this message translates to:
+  /// **'MySQL (keyword: sql)'**
+  String get bot_settings_database_type_mysql;
+
+  /// MongoDB database engine option
+  ///
+  /// In en, this message translates to:
+  /// **'MongoDB (keyword: mongo)'**
+  String get bot_settings_database_type_mongo;
+
+  /// PostgreSQL info banner message
+  ///
+  /// In en, this message translates to:
+  /// **'Available in your scripts via the global keyword \"pgsql\" (e.g. await pgsql.query(\"SELECT * FROM users\")).'**
+  String get bot_settings_database_info_postgres;
+
+  /// MySQL info banner message
+  ///
+  /// In en, this message translates to:
+  /// **'Available in your scripts via the global keyword \"sql\" (e.g. await sql.query(\"SELECT * FROM users\")).'**
+  String get bot_settings_database_info_mysql;
+
+  /// MongoDB info banner message
+  ///
+  /// In en, this message translates to:
+  /// **'Available in your scripts via the global keyword \"mongo\" (e.g. await mongo.collection(\"users\").find()).'**
+  String get bot_settings_database_info_mongo;
+
+  /// Connection string URI label
+  ///
+  /// In en, this message translates to:
+  /// **'Connection String (URI)'**
+  String get bot_settings_database_uri_label;
+
+  /// Button to show individual database configuration fields
+  ///
+  /// In en, this message translates to:
+  /// **'Configure individual fields (Host, Port, etc.)'**
+  String get bot_settings_database_show_discrete_fields;
+
+  /// Button to hide individual database configuration fields
+  ///
+  /// In en, this message translates to:
+  /// **'Hide individual fields'**
+  String get bot_settings_database_hide_discrete_fields;
+
+  /// Database host label
+  ///
+  /// In en, this message translates to:
+  /// **'Host'**
+  String get bot_settings_database_host;
+
+  /// Database host hint
+  ///
+  /// In en, this message translates to:
+  /// **'localhost or IP address'**
+  String get bot_settings_database_host_hint;
+
+  /// Database port label
+  ///
+  /// In en, this message translates to:
+  /// **'Port'**
+  String get bot_settings_database_port;
+
+  /// Database name label
+  ///
+  /// In en, this message translates to:
+  /// **'Database Name'**
+  String get bot_settings_database_name;
+
+  /// Database name hint
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. bot_db'**
+  String get bot_settings_database_name_hint;
+
+  /// Database user label
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get bot_settings_database_user;
+
+  /// Database user hint
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. root or postgres'**
+  String get bot_settings_database_user_hint;
+
+  /// Database password label
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get bot_settings_database_password;
+
+  /// Database SSL toggle label
+  ///
+  /// In en, this message translates to:
+  /// **'Enable SSL / TLS'**
+  String get bot_settings_database_ssl;
+
+  /// Save database configuration button label
+  ///
+  /// In en, this message translates to:
+  /// **'Save Database Configuration'**
+  String get bot_settings_database_save_btn;
+
   /// Presence & status tab in bot settings
   ///
   /// In en, this message translates to:

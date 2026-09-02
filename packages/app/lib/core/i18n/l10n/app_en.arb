@@ -1839,6 +1839,75 @@
   "@bot_settings_tab_lavalink": {
     "description": "Lavalink (music) tab in bot settings"
   },
+  "@bot_settings_tab_database": {
+    "description": "External database tab in bot settings"
+  },
+  "@bot_settings_database_section_title": {
+    "description": "External database section title"
+  },
+  "@bot_settings_database_type_label": {
+    "description": "Database type dropdown label"
+  },
+  "@bot_settings_database_type_none": {
+    "description": "None database engine option"
+  },
+  "@bot_settings_database_type_postgres": {
+    "description": "PostgreSQL database engine option"
+  },
+  "@bot_settings_database_type_mysql": {
+    "description": "MySQL database engine option"
+  },
+  "@bot_settings_database_type_mongo": {
+    "description": "MongoDB database engine option"
+  },
+  "@bot_settings_database_info_postgres": {
+    "description": "PostgreSQL info banner message"
+  },
+  "@bot_settings_database_info_mysql": {
+    "description": "MySQL info banner message"
+  },
+  "@bot_settings_database_info_mongo": {
+    "description": "MongoDB info banner message"
+  },
+  "@bot_settings_database_uri_label": {
+    "description": "Connection string URI label"
+  },
+  "@bot_settings_database_show_discrete_fields": {
+    "description": "Button to show individual database configuration fields"
+  },
+  "@bot_settings_database_hide_discrete_fields": {
+    "description": "Button to hide individual database configuration fields"
+  },
+  "@bot_settings_database_host": {
+    "description": "Database host label"
+  },
+  "@bot_settings_database_host_hint": {
+    "description": "Database host hint"
+  },
+  "@bot_settings_database_port": {
+    "description": "Database port label"
+  },
+  "@bot_settings_database_name": {
+    "description": "Database name label"
+  },
+  "@bot_settings_database_name_hint": {
+    "description": "Database name hint"
+  },
+  "@bot_settings_database_user": {
+    "description": "Database user label"
+  },
+  "@bot_settings_database_user_hint": {
+    "description": "Database user hint"
+  },
+  "@bot_settings_database_password": {
+    "description": "Database password label"
+  },
+  "@bot_settings_database_ssl": {
+    "description": "Database SSL toggle label"
+  },
+  "@bot_settings_database_save_btn": {
+    "description": "Save database configuration button label"
+  },
   "@bot_settings_tab_presence": {
     "description": "Presence & status tab in bot settings"
   },
@@ -8005,6 +8074,29 @@
   "bot_settings_tab_general": "General",
   "bot_settings_tab_intents": "Intents & Privileges",
   "bot_settings_tab_lavalink": "Lavalink",
+  "bot_settings_tab_database": "Database",
+  "bot_settings_database_section_title": "External Database",
+  "bot_settings_database_type_label": "Database Type",
+  "bot_settings_database_type_none": "None (Disabled)",
+  "bot_settings_database_type_postgres": "PostgreSQL (keyword: pgsql)",
+  "bot_settings_database_type_mysql": "MySQL (keyword: sql)",
+  "bot_settings_database_type_mongo": "MongoDB (keyword: mongo)",
+  "bot_settings_database_info_postgres": "Available in your scripts via the global keyword \"pgsql\" (e.g. await pgsql.query(\"SELECT * FROM users\")).",
+  "bot_settings_database_info_mysql": "Available in your scripts via the global keyword \"sql\" (e.g. await sql.query(\"SELECT * FROM users\")).",
+  "bot_settings_database_info_mongo": "Available in your scripts via the global keyword \"mongo\" (e.g. await mongo.collection(\"users\").find()).",
+  "bot_settings_database_uri_label": "Connection String (URI)",
+  "bot_settings_database_show_discrete_fields": "Configure individual fields (Host, Port, etc.)",
+  "bot_settings_database_hide_discrete_fields": "Hide individual fields",
+  "bot_settings_database_host": "Host",
+  "bot_settings_database_host_hint": "localhost or IP address",
+  "bot_settings_database_port": "Port",
+  "bot_settings_database_name": "Database Name",
+  "bot_settings_database_name_hint": "e.g. bot_db",
+  "bot_settings_database_user": "Username",
+  "bot_settings_database_user_hint": "e.g. root or postgres",
+  "bot_settings_database_password": "Password",
+  "bot_settings_database_ssl": "Enable SSL / TLS",
+  "bot_settings_database_save_btn": "Save Database Configuration",
   "bot_settings_tab_presence": "Presence & Status",
   "bot_settings_title": "Customize Bot / Profile",
   "bot_settings_token_hidden_desc": "Token input is hidden by default for safety.",
