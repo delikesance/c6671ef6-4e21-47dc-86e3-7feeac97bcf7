@@ -12,6 +12,7 @@ class BotRuntimeCapabilities {
     required this.supportsDebugReplay,
     required this.supportsBotProcessStats,
     required this.supportsLavalink,
+    required this.supportsExternalDatabase,
     required this.supportsStatusRotation,
     required this.supportsSubcommandWorkflows,
   });
@@ -29,6 +30,7 @@ class BotRuntimeCapabilities {
   final bool supportsDebugReplay;
   final bool supportsBotProcessStats;
   final bool supportsLavalink;
+  final bool supportsExternalDatabase;
   final bool supportsStatusRotation;
   final bool supportsSubcommandWorkflows;
 
@@ -41,6 +43,7 @@ class BotRuntimeCapabilities {
     supportsDebugReplay: true,
     supportsBotProcessStats: true,
     supportsLavalink: true,
+    supportsExternalDatabase: false,
     supportsStatusRotation: true,
     supportsSubcommandWorkflows: true,
   );
@@ -54,6 +57,7 @@ class BotRuntimeCapabilities {
     supportsDebugReplay: false,
     supportsBotProcessStats: false,
     supportsLavalink: false,
+    supportsExternalDatabase: true,
     supportsStatusRotation: false,
     supportsSubcommandWorkflows: false,
   );
