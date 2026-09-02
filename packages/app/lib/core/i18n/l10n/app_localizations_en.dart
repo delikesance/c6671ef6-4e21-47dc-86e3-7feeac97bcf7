@@ -1961,6 +1961,81 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bot_settings_tab_lavalink => 'Lavalink';
 
   @override
+  String get bot_settings_tab_database => 'Database';
+
+  @override
+  String get bot_settings_database_section_title => 'External Database';
+
+  @override
+  String get bot_settings_database_type_label => 'Database Type';
+
+  @override
+  String get bot_settings_database_type_none => 'None (Disabled)';
+
+  @override
+  String get bot_settings_database_type_postgres =>
+      'PostgreSQL (keyword: pgsql)';
+
+  @override
+  String get bot_settings_database_type_mysql => 'MySQL (keyword: sql)';
+
+  @override
+  String get bot_settings_database_type_mongo => 'MongoDB (keyword: mongo)';
+
+  @override
+  String get bot_settings_database_info_postgres =>
+      'Available in your scripts via the global keyword \"pgsql\" (e.g. await pgsql.query(\"SELECT * FROM users\")).';
+
+  @override
+  String get bot_settings_database_info_mysql =>
+      'Available in your scripts via the global keyword \"sql\" (e.g. await sql.query(\"SELECT * FROM users\")).';
+
+  @override
+  String get bot_settings_database_info_mongo =>
+      'Available in your scripts via the global keyword \"mongo\" (e.g. await mongo.collection(\"users\").find()).';
+
+  @override
+  String get bot_settings_database_uri_label => 'Connection String (URI)';
+
+  @override
+  String get bot_settings_database_show_discrete_fields =>
+      'Configure individual fields (Host, Port, etc.)';
+
+  @override
+  String get bot_settings_database_hide_discrete_fields =>
+      'Hide individual fields';
+
+  @override
+  String get bot_settings_database_host => 'Host';
+
+  @override
+  String get bot_settings_database_host_hint => 'localhost or IP address';
+
+  @override
+  String get bot_settings_database_port => 'Port';
+
+  @override
+  String get bot_settings_database_name => 'Database Name';
+
+  @override
+  String get bot_settings_database_name_hint => 'e.g. bot_db';
+
+  @override
+  String get bot_settings_database_user => 'Username';
+
+  @override
+  String get bot_settings_database_user_hint => 'e.g. root or postgres';
+
+  @override
+  String get bot_settings_database_password => 'Password';
+
+  @override
+  String get bot_settings_database_ssl => 'Enable SSL / TLS';
+
+  @override
+  String get bot_settings_database_save_btn => 'Save Database Configuration';
+
+  @override
   String get bot_settings_tab_presence => 'Presence & Status';
 
   @override

@@ -15,24 +15,29 @@ void main() {
       expect(caps.supportsDebugReplay, isTrue);
       expect(caps.supportsBotProcessStats, isTrue);
       expect(caps.supportsLavalink, isTrue);
+      expect(caps.supportsExternalDatabase, isFalse);
       expect(caps.supportsStatusRotation, isTrue);
       expect(caps.supportsSubcommandWorkflows, isTrue);
     });
 
-    test('javascript engine exposes events/scheduler/webhooks but not Dart-only features', () {
-      final caps = capabilitiesForEngine(runtimeEngineJavascript);
+    test(
+      'javascript engine exposes events/scheduler/webhooks but not Dart-only features',
+      () {
+        final caps = capabilitiesForEngine(runtimeEngineJavascript);
 
-      expect(caps.supportsWorkflows, isFalse);
-      expect(caps.supportsEventListeners, isTrue);
-      expect(caps.supportsSchedulerUi, isTrue);
-      expect(caps.supportsInboundWebhooksUi, isTrue);
-      expect(caps.supportsCommandDashboard, isFalse);
-      expect(caps.supportsDebugReplay, isFalse);
-      expect(caps.supportsBotProcessStats, isFalse);
-      expect(caps.supportsLavalink, isFalse);
-      expect(caps.supportsStatusRotation, isFalse);
-      expect(caps.supportsSubcommandWorkflows, isFalse);
-    });
+        expect(caps.supportsWorkflows, isFalse);
+        expect(caps.supportsEventListeners, isTrue);
+        expect(caps.supportsSchedulerUi, isTrue);
+        expect(caps.supportsInboundWebhooksUi, isTrue);
+        expect(caps.supportsCommandDashboard, isFalse);
+        expect(caps.supportsDebugReplay, isFalse);
+        expect(caps.supportsBotProcessStats, isFalse);
+        expect(caps.supportsLavalink, isFalse);
+        expect(caps.supportsExternalDatabase, isTrue);
+        expect(caps.supportsStatusRotation, isFalse);
+        expect(caps.supportsSubcommandWorkflows, isFalse);
+      },
+    );
 
     test('capabilitiesForEngine defaults unknown values to dart', () {
       final caps = capabilitiesForEngine(null);

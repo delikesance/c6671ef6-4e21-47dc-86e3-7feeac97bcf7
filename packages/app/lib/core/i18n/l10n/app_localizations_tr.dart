@@ -1971,6 +1971,83 @@ class AppLocalizationsTr extends AppLocalizations {
   String get bot_settings_tab_lavalink => 'Lavalink';
 
   @override
+  String get bot_settings_tab_database => 'Veritabanı';
+
+  @override
+  String get bot_settings_database_section_title => 'Harici Veritabanı';
+
+  @override
+  String get bot_settings_database_type_label => 'Veritabanı Türü';
+
+  @override
+  String get bot_settings_database_type_none => 'Yok (Devre dışı)';
+
+  @override
+  String get bot_settings_database_type_postgres =>
+      'PostgreSQL (anahtar kelime: pgsql)';
+
+  @override
+  String get bot_settings_database_type_mysql => 'MySQL (anahtar kelime: sql)';
+
+  @override
+  String get bot_settings_database_type_mongo =>
+      'MongoDB (anahtar kelime: mongo)';
+
+  @override
+  String get bot_settings_database_info_postgres =>
+      'Komut dosyalarınızda genel \"pgsql\" anahtar kelimesi ile kullanılabilir (örn: await pgsql.query(\"SELECT * FROM users\")).';
+
+  @override
+  String get bot_settings_database_info_mysql =>
+      'Komut dosyalarınızda genel \"sql\" anahtar kelimesi ile kullanılabilir (örn: await sql.query(\"SELECT * FROM users\")).';
+
+  @override
+  String get bot_settings_database_info_mongo =>
+      'Komut dosyalarınızda genel \"mongo\" anahtar kelimesi ile kullanılabilir (örn: await mongo.collection(\"users\").find()).';
+
+  @override
+  String get bot_settings_database_uri_label => 'Bağlantı Dizesi (URI)';
+
+  @override
+  String get bot_settings_database_show_discrete_fields =>
+      'Ayrı alanları yapılandır (Sunucu, Port, vb.)';
+
+  @override
+  String get bot_settings_database_hide_discrete_fields =>
+      'Ayrı alanları gizle';
+
+  @override
+  String get bot_settings_database_host => 'Sunucu';
+
+  @override
+  String get bot_settings_database_host_hint => 'localhost veya IP adresi';
+
+  @override
+  String get bot_settings_database_port => 'Port';
+
+  @override
+  String get bot_settings_database_name => 'Veritabanı Adı';
+
+  @override
+  String get bot_settings_database_name_hint => 'örn: bot_db';
+
+  @override
+  String get bot_settings_database_user => 'Kullanıcı Adı';
+
+  @override
+  String get bot_settings_database_user_hint => 'örn: root veya postgres';
+
+  @override
+  String get bot_settings_database_password => 'Parola';
+
+  @override
+  String get bot_settings_database_ssl => 'SSL / TLS\'yi etkinleştir';
+
+  @override
+  String get bot_settings_database_save_btn =>
+      'Veritabanı Yapılandırmasını Kaydet';
+
+  @override
   String get bot_settings_tab_presence => 'Durum & Varlık';
 
   @override

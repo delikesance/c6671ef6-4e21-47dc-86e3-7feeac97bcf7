@@ -35,14 +35,18 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
     final data = Map<String, dynamic>.from(
       (normalized['data'] as Map?)?.cast<String, dynamic>() ?? const {},
     );
-    final executionMode =
-        (data['executionMode'] ?? 'workflow').toString().trim().toLowerCase();
+    final executionMode = (data['executionMode'] ?? 'workflow')
+        .toString()
+        .trim()
+        .toLowerCase();
     var script = (data['jsScriptContent'] ?? data['script'] ?? '').toString();
     if (executionMode != 'javascript') {
       if (script.trim().isEmpty) {
-        script = _synthesizeJsFromWorkflowActions(
-          (data['actions'] as List?) ?? const [],
-        ) ?? '';
+        script =
+            _synthesizeJsFromWorkflowActions(
+              (data['actions'] as List?) ?? const [],
+            ) ??
+            '';
       }
       if (script.trim().isEmpty) {
         continue;
@@ -56,7 +60,8 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
       'id': (normalized['id'] ?? '').toString(),
       'type': 'command',
       'name': (normalized['name'] ?? '').toString(),
-      'description': (data['description'] ?? normalized['name'] ?? '').toString(),
+      'description': (data['description'] ?? normalized['name'] ?? '')
+          .toString(),
       'discordType': discordType,
       'options': data['options'] ?? const [],
       'enabled': normalized['enabled'] != false,
@@ -96,7 +101,8 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
     if (script.trim().isEmpty) {
       continue;
     }
-    final everyMinutes = int.tryParse((map['everyMinutes'] ?? '').toString()) ?? 0;
+    final everyMinutes =
+        int.tryParse((map['everyMinutes'] ?? '').toString()) ?? 0;
     if (everyMinutes <= 0) {
       continue;
     }
@@ -125,11 +131,15 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
       continue;
     }
 
-    final executionMode =
-        (wf['executionMode'] ?? workflowExecutionModeWorkflow).toString().trim().toLowerCase();
+    final executionMode = (wf['executionMode'] ?? workflowExecutionModeWorkflow)
+        .toString()
+        .trim()
+        .toLowerCase();
     var script = normalizeWorkflowJsScriptContent(wf['jsScriptContent']);
-    if (executionMode != workflowExecutionModeJavascript && script.trim().isEmpty) {
-      script = _synthesizeJsFromWorkflowActions(
+    if (executionMode != workflowExecutionModeJavascript &&
+        script.trim().isEmpty) {
+      script =
+          _synthesizeJsFromWorkflowActions(
             (wf['actions'] as List?) ?? const [],
             preferMessage: true,
           ) ??
@@ -155,11 +165,14 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
   });
   final includePrefix = prefixRaw.isNotEmpty && hasPrefixCommands;
 
-  final presenceStatusRaw =
-      (appData['presenceStatus'] ?? 'online').toString().trim().toLowerCase();
+  final presenceStatusRaw = (appData['presenceStatus'] ?? 'online')
+      .toString()
+      .trim()
+      .toLowerCase();
   const allowedPresence = {'online', 'idle', 'dnd', 'invisible'};
-  final presenceStatus =
-      allowedPresence.contains(presenceStatusRaw) ? presenceStatusRaw : 'online';
+  final presenceStatus = allowedPresence.contains(presenceStatusRaw)
+      ? presenceStatusRaw
+      : 'online';
 
   final presenceActivities = <Map<String, dynamic>>[];
   final rawActivities =
@@ -197,10 +210,7 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
     'token': token,
     if (includePrefix) 'prefix': prefixRaw,
     'autoRestart': appData['autoRestart'] == true,
-    'presence': {
-      'status': presenceStatus,
-      'activities': presenceActivities,
-    },
+    'presence': {'status': presenceStatus, 'activities': presenceActivities},
     'intents': Map<String, bool>.from(
       (appData['intents'] as Map?)?.map(
             (key, value) => MapEntry(key.toString(), value == true),
@@ -219,6 +229,9 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
             (entry) => Map<String, dynamic>.from(entry),
           ) ??
           const <Map<String, dynamic>>[],
+    ),
+    'databaseConfig': Map<String, dynamic>.from(
+      (appData['databaseConfig'] as Map?) ?? const {'type': 'none'},
     ),
     'scriptTimeoutMs': 15 * 60 * 1000,
   };
@@ -264,9 +277,7 @@ String _resolveDiscordCommandType(Object? rawCommandType) {
   if (raw == 'user' || raw == 'usercommand' || raw == 'user_command') {
     return 'user';
   }
-  if (raw == 'message' ||
-      raw == 'messagecommand' ||
-      raw == 'message_command') {
+  if (raw == 'message' || raw == 'messagecommand' || raw == 'message_command') {
     return 'message';
   }
   return 'chatInput';
