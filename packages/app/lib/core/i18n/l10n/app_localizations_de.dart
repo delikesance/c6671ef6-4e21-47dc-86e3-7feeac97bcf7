@@ -2002,6 +2002,83 @@ class AppLocalizationsDe extends AppLocalizations {
   String get bot_settings_tab_lavalink => 'Lavalink';
 
   @override
+  String get bot_settings_tab_database => 'Datenbank';
+
+  @override
+  String get bot_settings_database_section_title => 'Externe Datenbank';
+
+  @override
+  String get bot_settings_database_type_label => 'Datenbanktyp';
+
+  @override
+  String get bot_settings_database_type_none => 'Keine (Deaktiviert)';
+
+  @override
+  String get bot_settings_database_type_postgres =>
+      'PostgreSQL (Schlüsselwort: pgsql)';
+
+  @override
+  String get bot_settings_database_type_mysql => 'MySQL (Schlüsselwort: sql)';
+
+  @override
+  String get bot_settings_database_type_mongo =>
+      'MongoDB (Schlüsselwort: mongo)';
+
+  @override
+  String get bot_settings_database_info_postgres =>
+      'In Skripten über das globale Schlüsselwort \"pgsql\" verfügbar (z. B. await pgsql.query(\"SELECT * FROM users\")).';
+
+  @override
+  String get bot_settings_database_info_mysql =>
+      'In Skripten über das globale Schlüsselwort \"sql\" verfügbar (z. B. await sql.query(\"SELECT * FROM users\")).';
+
+  @override
+  String get bot_settings_database_info_mongo =>
+      'In Skripten über das globale Schlüsselwort \"mongo\" verfügbar (z. B. await mongo.collection(\"users\").find()).';
+
+  @override
+  String get bot_settings_database_uri_label => 'Verbindungszeichenfolge (URI)';
+
+  @override
+  String get bot_settings_database_show_discrete_fields =>
+      'Einzelne Felder konfigurieren (Host, Port usw.)';
+
+  @override
+  String get bot_settings_database_hide_discrete_fields =>
+      'Einzelne Felder ausblenden';
+
+  @override
+  String get bot_settings_database_host => 'Host';
+
+  @override
+  String get bot_settings_database_host_hint => 'localhost oder IP-Adresse';
+
+  @override
+  String get bot_settings_database_port => 'Port';
+
+  @override
+  String get bot_settings_database_name => 'Datenbankname';
+
+  @override
+  String get bot_settings_database_name_hint => 'z. B. bot_db';
+
+  @override
+  String get bot_settings_database_user => 'Benutzername';
+
+  @override
+  String get bot_settings_database_user_hint => 'z. B. root oder postgres';
+
+  @override
+  String get bot_settings_database_password => 'Passwort';
+
+  @override
+  String get bot_settings_database_ssl => 'SSL / TLS aktivieren';
+
+  @override
+  String get bot_settings_database_save_btn =>
+      'Datenbankkonfiguration speichern';
+
+  @override
   String get bot_settings_tab_presence => 'Präsenz & Status';
 
   @override

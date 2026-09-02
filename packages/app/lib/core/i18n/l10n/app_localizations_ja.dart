@@ -1868,6 +1868,79 @@ class AppLocalizationsJa extends AppLocalizations {
   String get bot_settings_tab_lavalink => 'Lavalink';
 
   @override
+  String get bot_settings_tab_database => 'データベース';
+
+  @override
+  String get bot_settings_database_section_title => '外部データベース';
+
+  @override
+  String get bot_settings_database_type_label => 'データベースの種類';
+
+  @override
+  String get bot_settings_database_type_none => 'なし (無効)';
+
+  @override
+  String get bot_settings_database_type_postgres => 'PostgreSQL (キーワード: pgsql)';
+
+  @override
+  String get bot_settings_database_type_mysql => 'MySQL (キーワード: sql)';
+
+  @override
+  String get bot_settings_database_type_mongo => 'MongoDB (キーワード: mongo)';
+
+  @override
+  String get bot_settings_database_info_postgres =>
+      'グローバルキーワード「pgsql」経由でスクリプト内で利用可能 (例: await pgsql.query(\"SELECT * FROM users\"))。';
+
+  @override
+  String get bot_settings_database_info_mysql =>
+      'グローバルキーワード「sql」経由でスクリプト内で利用可能 (例: await sql.query(\"SELECT * FROM users\"))。';
+
+  @override
+  String get bot_settings_database_info_mongo =>
+      'グローバルキーワード「mongo」経由でスクリプト内で利用可能 (例: await mongo.collection(\"users\").find())。';
+
+  @override
+  String get bot_settings_database_uri_label => '接続文字列 (URI)';
+
+  @override
+  String get bot_settings_database_show_discrete_fields =>
+      '個別のフィールドを設定 (ホスト、ポートなど)';
+
+  @override
+  String get bot_settings_database_hide_discrete_fields => '個別のフィールドを非表示';
+
+  @override
+  String get bot_settings_database_host => 'ホスト';
+
+  @override
+  String get bot_settings_database_host_hint => 'localhost または IP アドレス';
+
+  @override
+  String get bot_settings_database_port => 'ポート';
+
+  @override
+  String get bot_settings_database_name => 'データベース名';
+
+  @override
+  String get bot_settings_database_name_hint => '例: bot_db';
+
+  @override
+  String get bot_settings_database_user => 'ユーザー名';
+
+  @override
+  String get bot_settings_database_user_hint => '例: root または postgres';
+
+  @override
+  String get bot_settings_database_password => 'パスワード';
+
+  @override
+  String get bot_settings_database_ssl => 'SSL / TLS を有効にする';
+
+  @override
+  String get bot_settings_database_save_btn => 'データベース設定を保存';
+
+  @override
   String get bot_settings_tab_presence => 'プレゼンス & ステータス';
 
   @override
