@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
 
-
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/features/home/presentation/home_page.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
@@ -69,10 +68,24 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   // Lavalink fields
   final TextEditingController _lavalinkHostController = TextEditingController();
   final TextEditingController _lavalinkPortController = TextEditingController();
-  final TextEditingController _lavalinkPasswordController = TextEditingController();
+  final TextEditingController _lavalinkPasswordController =
+      TextEditingController();
   bool _lavalinkSsl = false;
   bool _isSavingLavalink = false;
   bool _lavalinkPasswordVisible = false;
+  // External Database fields (JavaScript bots)
+  String _databaseType = 'none';
+  final TextEditingController _databaseUriController = TextEditingController();
+  final TextEditingController _databaseHostController = TextEditingController();
+  final TextEditingController _databasePortController = TextEditingController();
+  final TextEditingController _databaseNameController = TextEditingController();
+  final TextEditingController _databaseUserController = TextEditingController();
+  final TextEditingController _databasePasswordController =
+      TextEditingController();
+  bool _databaseSsl = false;
+  bool _showAdvancedDbFields = false;
+  bool _isSavingDatabase = false;
+  bool _databasePasswordVisible = false;
   // Connection test
   bool _isTestingConnection = false;
   String? _connectionTestResult;
@@ -90,10 +103,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   ];
 
   bool get _supportsManagerRuntime =>
-      !kIsWeb &&
-      !Platform.isWindows &&
-      !Platform.isLinux &&
-      !Platform.isMacOS;
+      !kIsWeb && !Platform.isWindows && !Platform.isLinux && !Platform.isMacOS;
 
   BotRuntimeCapabilities get _capabilities =>
       capabilitiesForEngine(_runtimeEngine);
@@ -127,7 +137,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       setState(() => _runtimeEngine = value);
       widget.onRuntimeEngineChanged?.call();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.tr.settings_runtime_engine_switch_success)),
+        SnackBar(
+          content: Text(context.tr.settings_runtime_engine_switch_success),
+        ),
       );
     } catch (error) {
       if (!mounted) return;
@@ -203,6 +215,12 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     _lavalinkHostController.dispose();
     _lavalinkPortController.dispose();
     _lavalinkPasswordController.dispose();
+    _databaseUriController.dispose();
+    _databaseHostController.dispose();
+    _databasePortController.dispose();
+    _databaseNameController.dispose();
+    _databaseUserController.dispose();
+    _databasePasswordController.dispose();
     for (final status in _statusDrafts) {
       status.dispose();
     }
@@ -210,8 +228,8 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   }
 
   Future<void> _init() async {
-    final fetchedApp =
-        await widget.client.applications.fetchCurrentApplication();
+    final fetchedApp = await widget.client.applications
+        .fetchCurrentApplication();
     final persistedApp = await appManager.getApp(
       widget.client.user.id.toString(),
     );
@@ -248,7 +266,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       try {
         ownerMetadata = await getDiscordApplicationOwnerMetadata(token);
       } catch (e) {
-        developer.log('Error fetching owner metadata: $e', name: 'AppSettingsPage');
+        developer.log(
+          'Error fetching owner metadata: $e',
+          name: 'AppSettingsPage',
+        );
       }
     }
 
@@ -260,11 +281,12 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       _tokenController.text = _savedToken;
       _prefixController.text =
           (persistedApp['prefix'] ?? '!').toString().trim().isEmpty
-              ? '!'
-              : (persistedApp['prefix'] ?? '!').toString();
+          ? '!'
+          : (persistedApp['prefix'] ?? '!').toString();
       _usernameController.text = '';
       _selectedAvatarPath = null;
-      _runtimeEngine = isJavascriptRuntimeEngine(
+      _runtimeEngine =
+          isJavascriptRuntimeEngine(
             (persistedApp['runtimeEngine'] ?? '').toString(),
           )
           ? runtimeEngineJavascript
@@ -272,13 +294,26 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       // Lavalink config
       final lavalinkConfig =
           (persistedApp['lavalinkConfig'] as Map<String, dynamic>?) ?? {};
-      _lavalinkHostController.text =
-          (lavalinkConfig['host'] ?? '').toString();
-      _lavalinkPortController.text =
-          (lavalinkConfig['port'] ?? '2333').toString();
+      _lavalinkHostController.text = (lavalinkConfig['host'] ?? '').toString();
+      _lavalinkPortController.text = (lavalinkConfig['port'] ?? '2333')
+          .toString();
       _lavalinkPasswordController.text =
           (lavalinkConfig['password'] ?? 'youshallnotpass').toString();
-      _lavalinkSsl = (lavalinkConfig['useSsl'] == true) || (lavalinkConfig['ssl'] == true);
+      _lavalinkSsl =
+          (lavalinkConfig['useSsl'] == true) || (lavalinkConfig['ssl'] == true);
+      // Database config
+      final databaseConfig =
+          (persistedApp['databaseConfig'] as Map<String, dynamic>?) ?? {};
+      _databaseType = (databaseConfig['type'] ?? 'none').toString();
+      _databaseUriController.text = (databaseConfig['uri'] ?? '').toString();
+      _databaseHostController.text = (databaseConfig['host'] ?? '').toString();
+      _databasePortController.text = (databaseConfig['port'] ?? '').toString();
+      _databaseNameController.text = (databaseConfig['database'] ?? '')
+          .toString();
+      _databaseUserController.text = (databaseConfig['user'] ?? '').toString();
+      _databasePasswordController.text = (databaseConfig['password'] ?? '')
+          .toString();
+      _databaseSsl = databaseConfig['ssl'] == true;
     });
   }
 
@@ -358,6 +393,75 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     }
   }
 
+  Future<void> _saveDatabaseOnly() async {
+    setState(() {
+      _isSavingDatabase = true;
+    });
+
+    try {
+      final botId = widget.client.user.id.toString();
+      final appData = Map<String, dynamic>.from(await appManager.getApp(botId));
+      final token = (appData['token'] ?? _savedToken).toString().trim();
+      if (token.isEmpty) {
+        throw Exception(context.tr.bot_settings_save_token_first);
+      }
+
+      final databaseConfig = <String, dynamic>{
+        'type': _databaseType,
+        'uri': _databaseUriController.text.trim(),
+        'host': _databaseHostController.text.trim(),
+        'port': _databasePortController.text.trim(),
+        'database': _databaseNameController.text.trim(),
+        'user': _databaseUserController.text.trim(),
+        'password': _databasePasswordController.text,
+        'ssl': _databaseSsl,
+      };
+
+      final latestAppData = Map<String, dynamic>.from(appData);
+      latestAppData['token'] = token;
+      latestAppData['databaseConfig'] = databaseConfig;
+      latestAppData.remove('username');
+      latestAppData.remove('avatarPath');
+      await appManager.saveApp(botId, latestAppData);
+
+      applyDesktopRuntimeSettings(botId: botId, appData: latestAppData);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.tr.bot_settings_save_success)),
+      );
+      unawaited(refreshBotRuntime(botId));
+    } catch (e) {
+      developer.log('Error saving database: $e', name: 'AppSettingsPage');
+      if (!mounted) return;
+      final dialog = AlertDialog(
+        title: Text(context.tr.error),
+        content: Text(e.toString()),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text(context.tr.ok),
+          ),
+        ],
+      );
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return dialog;
+        },
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSavingDatabase = false;
+        });
+      }
+    }
+  }
+
   Future<void> _testLavalinkConnection() async {
     setState(() {
       _isTestingConnection = true;
@@ -412,13 +516,13 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
             itemBuilder: (ctx, i) {
               final s = _publicServers![i];
               return ListTile(
-                leading: Icon(
-                  s.secure ? Icons.lock : Icons.public,
-                  size: 20,
-                ),
+                leading: Icon(s.secure ? Icons.lock : Icons.public, size: 20),
                 title: Text(s.host, style: const TextStyle(fontSize: 14)),
                 subtitle: Text(
-                  context.tr.bot_settings_lavalink_server_subtitle(s.port.toString(), s.version),
+                  context.tr.bot_settings_lavalink_server_subtitle(
+                    s.port.toString(),
+                    s.version,
+                  ),
                   style: const TextStyle(fontSize: 12),
                 ),
                 onTap: () => Navigator.pop(ctx, s),
@@ -454,10 +558,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
 
       final latestAppData = Map<String, dynamic>.from(appData);
       latestAppData['token'] = token;
-      latestAppData['prefix'] =
-          _prefixController.text.trim().isEmpty
-              ? '!'
-              : _prefixController.text.trim();
+      latestAppData['prefix'] = _prefixController.text.trim().isEmpty
+          ? '!'
+          : _prefixController.text.trim();
       latestAppData['builtInLegacyHelpEnabled'] = _builtInLegacyHelpEnabled;
       latestAppData.remove('username');
       latestAppData.remove('avatarPath');
@@ -540,10 +643,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
         discriminator: discordUser.discriminator.toString(),
         token: effectiveToken,
         intents: computedIntents,
-        prefix:
-            _prefixController.text.trim().isEmpty
-                ? '!'
-                : _prefixController.text,
+        prefix: _prefixController.text.trim().isEmpty
+            ? '!'
+            : _prefixController.text,
       );
 
       final appData = Map<String, dynamic>.from(
@@ -559,7 +661,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
         final apiConfig = await MainApiSettingsStore.loadConfig();
         if (apiConfig.isConfigured) {
           final client = MainApiClient(baseUrl: apiConfig.baseUrl);
-          final session = await client.exchangeDiscordBotToken(botToken: effectiveToken);
+          final session = await client.exchangeDiscordBotToken(
+            botToken: effectiveToken,
+          );
           final apiClient = MainApiClient(
             baseUrl: apiConfig.baseUrl,
             accessToken: session.accessToken,
@@ -571,7 +675,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
           );
         }
       } catch (e) {
-        developer.log('Failed to sync token to cloud: $e', name: 'AppSettingsPage');
+        developer.log(
+          'Failed to sync token to cloud: $e',
+          name: 'AppSettingsPage',
+        );
       }
 
       _savedToken = effectiveToken;
@@ -588,9 +695,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       unawaited(refreshBotRuntime(discordUser.id.toString()));
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
     } finally {
       if (mounted) {
         setState(() {
@@ -652,10 +759,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
           discriminator: discordUser.discriminator.toString(),
           token: token,
           intents: intents,
-          prefix:
-              _prefixController.text.trim().isEmpty
-                  ? '!'
-                  : _prefixController.text,
+          prefix: _prefixController.text.trim().isEmpty
+              ? '!'
+              : _prefixController.text,
         );
       }
 
@@ -794,9 +900,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            context.tr.settings_sync_force_success(deletedCount),
-          ),
+          content: Text(context.tr.settings_sync_force_success(deletedCount)),
         ),
       );
     } catch (e) {
@@ -909,7 +1013,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
             children: [
               _buildProfilePreviewCard(),
               _buildTeamOwnershipSection(),
-              
+
               // Token Update Section
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 12),
@@ -924,10 +1028,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               if (!_isEditingToken) ...[
                 Text(
                   context.tr.bot_settings_token_hidden_desc,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.grey,
-                  ),
+                  style: const TextStyle(fontSize: 12, color: AppTheme.grey),
                 ),
                 const SizedBox(height: 8),
                 SizedBox(
@@ -958,70 +1059,61 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton.icon(
-                    onPressed:
-                        _isSavingToken
-                            ? null
-                            : () {
-                              setState(() {
-                                _tokenController.text = _savedToken;
-                                _isEditingToken = false;
-                              });
-                            },
+                    onPressed: _isSavingToken
+                        ? null
+                        : () {
+                            setState(() {
+                              _tokenController.text = _savedToken;
+                              _isEditingToken = false;
+                            });
+                          },
                     icon: const Icon(Icons.close),
-                    label: Text(
-                      context.tr.bot_settings_cancel_token_edit_btn,
-                    ),
+                    label: Text(context.tr.bot_settings_cancel_token_edit_btn),
                   ),
                 ),
               ],
               const SizedBox(height: 12),
               Text(
                 context.tr.bot_settings_save_token_caption,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppTheme.grey,
-                ),
+                style: const TextStyle(fontSize: 12, color: AppTheme.grey),
               ),
               const SizedBox(height: 8),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed:
-                      (_isSavingToken || !_isEditingToken)
-                          ? null
-                          : () async {
-                            try {
-                              await _saveTokenOnly();
-                            } catch (e) {
-                              developer.log(
-                                'Error saving token: $e',
-                                name: 'AppSettingsPage',
-                              );
-                              if (!mounted) return;
-                              final dialog = AlertDialog(
-                                title: Text(context.tr.error),
-                                content: Text(e.toString()),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: Text(context.tr.ok),
-                                  ),
-                                ],
-                              );
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return dialog;
-                                },
-                              );
-                            }
-                          },
+                  onPressed: (_isSavingToken || !_isEditingToken)
+                      ? null
+                      : () async {
+                          try {
+                            await _saveTokenOnly();
+                          } catch (e) {
+                            developer.log(
+                              'Error saving token: $e',
+                              name: 'AppSettingsPage',
+                            );
+                            if (!mounted) return;
+                            final dialog = AlertDialog(
+                              title: Text(context.tr.error),
+                              content: Text(e.toString()),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Text(context.tr.ok),
+                                ),
+                              ],
+                            );
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return dialog;
+                              },
+                            );
+                          }
+                        },
                   icon: const Icon(Icons.vpn_key_outlined),
-                  label: Text(
-                    context.tr.bot_settings_save_token_only_btn,
-                  ),
+                  label: Text(context.tr.bot_settings_save_token_only_btn),
                 ),
               ),
 
@@ -1055,7 +1147,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     child: Text('JavaScript (runner-js)'),
                   ),
                 ],
-                onChanged: _isSwitchingRuntimeEngine ? null : _onRuntimeEngineChanged,
+                onChanged: _isSwitchingRuntimeEngine
+                    ? null
+                    : _onRuntimeEngineChanged,
               ),
               const SizedBox(height: 24),
               const Divider(),
@@ -1083,18 +1177,13 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               const SizedBox(height: 8),
               Text(
                 context.tr.settings_legacy_prefix_helper,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppTheme.grey,
-                ),
+                style: const TextStyle(fontSize: 12, color: AppTheme.grey),
               ),
               const SizedBox(height: 12),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Text(context.tr.settings_builtin_help),
-                subtitle: Text(
-                  context.tr.settings_builtin_help_subtitle,
-                ),
+                subtitle: Text(context.tr.settings_builtin_help_subtitle),
                 value: _builtInLegacyHelpEnabled,
                 onChanged: (value) {
                   setState(() {
@@ -1107,16 +1196,13 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: _isSavingPrefix ? null : _savePrefixOnly,
-                  icon:
-                      _isSavingPrefix
-                          ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                            ),
-                          )
-                          : const Icon(Icons.save_outlined),
+                  icon: _isSavingPrefix
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.save_outlined),
                   label: Text(context.tr.save),
                 ),
               ),
@@ -1163,7 +1249,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 },
               ),
               const SizedBox(height: 16),
-              
+
               Card(
                 color: AppTheme.discordDarkerBg,
                 shape: RoundedRectangleBorder(
@@ -1207,16 +1293,22 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                           fit: BoxFit.cover,
                                         )
                                       : Image.network(
-                                          (widget.client.user as User).avatar.url.toString(),
+                                          (widget.client.user as User)
+                                              .avatar
+                                              .url
+                                              .toString(),
                                           fit: BoxFit.cover,
-                                          errorBuilder: (context, error, stackTrace) => Container(
-                                            color: AppTheme.discordBorder,
-                                            child: const Icon(
-                                              Icons.person,
-                                              color: Colors.white,
-                                              size: 32,
-                                            ),
-                                          ),
+                                          errorBuilder:
+                                              (context, error, stackTrace) =>
+                                                  Container(
+                                                    color:
+                                                        AppTheme.discordBorder,
+                                                    child: const Icon(
+                                                      Icons.person,
+                                                      color: Colors.white,
+                                                      size: 32,
+                                                    ),
+                                                  ),
                                         ),
                                 ),
                               ),
@@ -1248,11 +1340,19 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                   children: [
                                     ElevatedButton.icon(
                                       onPressed: _pickAvatarFile,
-                                      icon: const Icon(Icons.photo_library_outlined, size: 16),
-                                      style: ElevatedButton.styleFrom(
-                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                      icon: const Icon(
+                                        Icons.photo_library_outlined,
+                                        size: 16,
                                       ),
-                                      label: Text(context.tr.bot_settings_browse),
+                                      style: ElevatedButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 8,
+                                        ),
+                                      ),
+                                      label: Text(
+                                        context.tr.bot_settings_browse,
+                                      ),
                                     ),
                                     if (_selectedAvatarPath != null) ...[
                                       const SizedBox(width: 8),
@@ -1264,11 +1364,20 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                         },
                                         style: OutlinedButton.styleFrom(
                                           foregroundColor: AppTheme.error,
-                                          side: const BorderSide(color: AppTheme.error),
-                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                          side: const BorderSide(
+                                            color: AppTheme.error,
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 8,
+                                          ),
                                         ),
                                         icon: const Icon(Icons.clear, size: 16),
-                                        label: Text(context.tr.bot_settings_avatar_clear_selection),
+                                        label: Text(
+                                          context
+                                              .tr
+                                              .bot_settings_avatar_clear_selection,
+                                        ),
                                       ),
                                     ],
                                   ],
@@ -1284,7 +1393,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                     ),
                                   ),
                                   SelectableText(
-                                    Uri.file(_selectedAvatarPath!).pathSegments.last,
+                                    Uri.file(
+                                      _selectedAvatarPath!,
+                                    ).pathSegments.last,
                                     style: const TextStyle(
                                       fontSize: 11,
                                       fontFamily: 'monospace',
@@ -1292,7 +1403,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                   ),
                                 ] else
                                   Text(
-                                    context.tr.bot_settings_avatar_none_selected,
+                                    context
+                                        .tr
+                                        .bot_settings_avatar_none_selected,
                                     style: const TextStyle(
                                       color: AppTheme.grey,
                                       fontSize: 12,
@@ -1358,8 +1471,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 child: DropdownButtonFormField<String>(
                   initialValue: _presenceStatus,
                   decoration: InputDecoration(
-                    labelText:
-                        context.tr.bot_settings_presence_status_label,
+                    labelText: context.tr.bot_settings_presence_status_label,
                     border: const OutlineInputBorder(),
                   ),
                   items: _presenceStatuses
@@ -1397,251 +1509,228 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     ),
                   ),
                 ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Text(
-                  context.tr.bot_settings_status_rotation_desc,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.grey,
-                  ),
-                ),
-              ),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    setState(() {
-                      _statusDrafts.add(_StatusDraft.empty());
-                    });
-                  },
-                  icon: const Icon(Icons.add),
-                  label: Text(context.tr.bot_settings_add_status),
-                ),
-              ),
-              const SizedBox(height: 8),
-              if (_statusDrafts.isEmpty)
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                  child: Center(
-                    child: Column(
-                      children: [
-                        Icon(
-                          Icons.info_outline,
-                          color: AppTheme.grey.withValues(alpha: 0.5),
-                          size: 48,
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          context.tr.bot_settings_no_activities,
-                          style: const TextStyle(color: AppTheme.grey),
-                        ),
-                      ],
-                    ),
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Text(
+                    context.tr.bot_settings_status_rotation_desc,
+                    style: const TextStyle(fontSize: 12, color: AppTheme.grey),
                   ),
                 ),
-              ...List.generate(_statusDrafts.length, (index) {
-                final draft = _statusDrafts[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 10),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                context.tr
-                                    .bot_settings_status_item_title(
-                                      index + 1,
-                                    ),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                            IconButton(
-                              tooltip:
-                                  context.tr.bot_settings_remove_status,
-                              onPressed: () async {
-                                        final shouldDelete =
-                                            await AppTheme.showConfirmDialog(
-                                              context,
-                                              title:
-                                                  context
-                                                      .tr
-                                                      .bot_settings_remove_status,
-                                              content:
-                                                  context
-                                                      .tr
-                                                      .settings_status_remove_confirm,
-                                              confirmLabel:
-                                                  context.tr.delete,
-                                              isDestructive: true,
-                                            );
-                                        if (!shouldDelete) {
-                                          return;
-                                        }
-                                        setState(() {
-                                          final removed = _statusDrafts
-                                              .removeAt(index);
-                                          removed.dispose();
-                                        });
-                                      },
-                              icon: const Icon(Icons.delete_outline),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        DropdownButtonFormField<String>(
-                          initialValue: draft.type,
-                          decoration: InputDecoration(
-                            labelText:
-                                context
-                                    .tr
-                                    .bot_settings_status_type_label,
-                            border: const OutlineInputBorder(),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        _statusDrafts.add(_StatusDraft.empty());
+                      });
+                    },
+                    icon: const Icon(Icons.add),
+                    label: Text(context.tr.bot_settings_add_status),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                if (_statusDrafts.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            color: AppTheme.grey.withValues(alpha: 0.5),
+                            size: 48,
                           ),
-                          items: _statusTypes
-                              .map(
-                                (type) => DropdownMenuItem<String>(
-                                  value: type,
-                                  child: Text(_statusTypeLabel(type)),
-                                ),
-                              )
-                              .toList(growable: false),
-                          onChanged: (value) {
-                            if (value == null) {
-                              return;
-                            }
-                            setState(() {
-                              draft.type = value;
-                            });
-                          },
-                        ),
-                        const SizedBox(height: 8),
-                        TextField(
-                          controller: draft.textController,
-                          decoration: InputDecoration(
-                            labelText:
-                                context
-                                    .tr
-                                    .bot_settings_status_text_label,
-                            border: const OutlineInputBorder(),
+                          const SizedBox(height: 12),
+                          Text(
+                            context.tr.bot_settings_no_activities,
+                            style: const TextStyle(color: AppTheme.grey),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        TextField(
-                          controller: draft.stateController,
-                          decoration: InputDecoration(
-                            labelText:
-                                context
-                                    .tr
-                                    .bot_settings_activity_state_label,
-                            border: const OutlineInputBorder(),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        TextField(
-                          controller: draft.urlController,
-                          decoration: InputDecoration(
-                            labelText:
-                                context
-                                    .tr
-                                    .bot_settings_activity_url_label,
-                            border: const OutlineInputBorder(),
-                          ),
-                          keyboardType: TextInputType.url,
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                controller: draft.minController,
-                                keyboardType: TextInputType.number,
-                                decoration: InputDecoration(
-                                  labelText:
-                                      context
-                                          .tr
-                                          .bot_settings_status_min_interval,
-                                  border: const OutlineInputBorder(),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: TextField(
-                                controller: draft.maxController,
-                                keyboardType: TextInputType.number,
-                                decoration: InputDecoration(
-                                  labelText:
-                                      context
-                                          .tr
-                                          .bot_settings_status_max_interval,
-                                  border: const OutlineInputBorder(),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                );
-              }),
+                ...List.generate(_statusDrafts.length, (index) {
+                  final draft = _statusDrafts[index];
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  context.tr.bot_settings_status_item_title(
+                                    index + 1,
+                                  ),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                tooltip: context.tr.bot_settings_remove_status,
+                                onPressed: () async {
+                                  final shouldDelete =
+                                      await AppTheme.showConfirmDialog(
+                                        context,
+                                        title: context
+                                            .tr
+                                            .bot_settings_remove_status,
+                                        content: context
+                                            .tr
+                                            .settings_status_remove_confirm,
+                                        confirmLabel: context.tr.delete,
+                                        isDestructive: true,
+                                      );
+                                  if (!shouldDelete) {
+                                    return;
+                                  }
+                                  setState(() {
+                                    final removed = _statusDrafts.removeAt(
+                                      index,
+                                    );
+                                    removed.dispose();
+                                  });
+                                },
+                                icon: const Icon(Icons.delete_outline),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          DropdownButtonFormField<String>(
+                            initialValue: draft.type,
+                            decoration: InputDecoration(
+                              labelText:
+                                  context.tr.bot_settings_status_type_label,
+                              border: const OutlineInputBorder(),
+                            ),
+                            items: _statusTypes
+                                .map(
+                                  (type) => DropdownMenuItem<String>(
+                                    value: type,
+                                    child: Text(_statusTypeLabel(type)),
+                                  ),
+                                )
+                                .toList(growable: false),
+                            onChanged: (value) {
+                              if (value == null) {
+                                return;
+                              }
+                              setState(() {
+                                draft.type = value;
+                              });
+                            },
+                          ),
+                          const SizedBox(height: 8),
+                          TextField(
+                            controller: draft.textController,
+                            decoration: InputDecoration(
+                              labelText:
+                                  context.tr.bot_settings_status_text_label,
+                              border: const OutlineInputBorder(),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          TextField(
+                            controller: draft.stateController,
+                            decoration: InputDecoration(
+                              labelText:
+                                  context.tr.bot_settings_activity_state_label,
+                              border: const OutlineInputBorder(),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          TextField(
+                            controller: draft.urlController,
+                            decoration: InputDecoration(
+                              labelText:
+                                  context.tr.bot_settings_activity_url_label,
+                              border: const OutlineInputBorder(),
+                            ),
+                            keyboardType: TextInputType.url,
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: draft.minController,
+                                  keyboardType: TextInputType.number,
+                                  decoration: InputDecoration(
+                                    labelText: context
+                                        .tr
+                                        .bot_settings_status_min_interval,
+                                    border: const OutlineInputBorder(),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: TextField(
+                                  controller: draft.maxController,
+                                  keyboardType: TextInputType.number,
+                                  decoration: InputDecoration(
+                                    labelText: context
+                                        .tr
+                                        .bot_settings_status_max_interval,
+                                    border: const OutlineInputBorder(),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
               ],
 
               const SizedBox(height: 12),
               Text(
                 context.tr.bot_settings_save_profile_caption,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppTheme.grey,
-                ),
+                style: const TextStyle(fontSize: 12, color: AppTheme.grey),
               ),
               const SizedBox(height: 8),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed:
-                      _isSavingProfile
-                          ? null
-                          : () async {
-                            try {
-                              await _saveProfileAndStatuses();
-                            } catch (e) {
-                              developer.log(
-                                'Error saving profile/statuses: $e',
-                                name: 'AppSettingsPage',
-                              );
-                              if (!mounted) return;
-                              final dialog = AlertDialog(
-                                title: Text(context.tr.error),
-                                content: Text(e.toString()),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: Text(context.tr.ok),
-                                  ),
-                                ],
-                              );
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return dialog;
-                                },
-                              );
-                            }
-                          },
+                  onPressed: _isSavingProfile
+                      ? null
+                      : () async {
+                          try {
+                            await _saveProfileAndStatuses();
+                          } catch (e) {
+                            developer.log(
+                              'Error saving profile/statuses: $e',
+                              name: 'AppSettingsPage',
+                            );
+                            if (!mounted) return;
+                            final dialog = AlertDialog(
+                              title: Text(context.tr.error),
+                              content: Text(e.toString()),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Text(context.tr.ok),
+                                ),
+                              ],
+                            );
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return dialog;
+                              },
+                            );
+                          }
+                        },
                   icon: const Icon(Icons.save_outlined),
-                  label: Text(
-                    context.tr.bot_settings_save_profile_status_btn,
-                  ),
+                  label: Text(context.tr.bot_settings_save_profile_status_btn),
                 ),
               ),
             ],
@@ -1652,7 +1741,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   }
 
   Widget _buildLavalinkTab(double contentMaxWidth) {
-    final isPremium = PremiumCapabilities.hasCapability(PremiumCapability.lavalinkAudio);
+    final isPremium = PremiumCapabilities.hasCapability(
+      PremiumCapability.lavalinkAudio,
+    );
     final canPurchase = PremiumCapabilities.canShowPurchaseUI;
 
     final inputDecoration = InputDecoration(
@@ -1687,51 +1778,55 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color:
-                        AppTheme.discord.withValues(alpha: 0.1),
+                    color: AppTheme.discord.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color:
-                          AppTheme.discord.withValues(alpha: 0.3),
+                      color: AppTheme.discord.withValues(alpha: 0.3),
                     ),
                   ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.lock, color: AppTheme.discord),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
+                  child: Row(
+                    children: [
+                      const Icon(Icons.lock, color: AppTheme.discord),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              context
+                                  .tr
+                                  .bot_settings_lavalink_premium_banner_title,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.discord,
+                              ),
+                            ),
+                            if (canPurchase)
                               Text(
-                                context.tr.bot_settings_lavalink_premium_banner_title,
+                                context
+                                    .tr
+                                    .bot_settings_lavalink_premium_banner_desc,
                                 style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: AppTheme.discord,
+                                  fontSize: 12,
+                                  color: AppTheme.grey,
                                 ),
                               ),
-                              if (canPurchase)
-                                Text(
-                                  context.tr.bot_settings_lavalink_premium_banner_desc,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: AppTheme.grey,
-                                  ),
-                                ),
-                            ],
+                          ],
+                        ),
+                      ),
+                      if (canPurchase) ...[
+                        const SizedBox(width: 12),
+                        ElevatedButton(
+                          onPressed: () {
+                            SubscriptionPage.show(context);
+                          },
+                          child: Text(
+                            context.tr.bot_settings_lavalink_view_offers,
                           ),
                         ),
-                        if (canPurchase) ...[
-                          const SizedBox(width: 12),
-                          ElevatedButton(
-                            onPressed: () {
-                              SubscriptionPage.show(context);
-                            },
-                            child: Text(context.tr.bot_settings_lavalink_view_offers),
-                          ),
-                        ],
                       ],
-                    ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 16),
               ],
@@ -1765,18 +1860,26 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       children: [
                         Row(
                           children: [
-                            const Icon(Icons.public, size: 16, color: AppTheme.discord),
+                            const Icon(
+                              Icons.public,
+                              size: 16,
+                              color: AppTheme.discord,
+                            ),
                             const SizedBox(width: 8),
                             Text(
                               context.tr.bot_settings_lavalink_public_servers,
-                              style: const TextStyle(fontWeight: FontWeight.w600),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                             const Spacer(),
                             if (_isLoadingServers)
                               const SizedBox(
                                 width: 16,
                                 height: 16,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
                               ),
                           ],
                         ),
@@ -1790,8 +1893,13 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                             icon: const Icon(Icons.list),
                             label: Text(
                               _publicServers != null
-                                  ? context.tr.bot_settings_lavalink_servers_available(_publicServers!.length)
-                                  : context.tr.bot_settings_lavalink_choose_server,
+                                  ? context.tr
+                                        .bot_settings_lavalink_servers_available(
+                                          _publicServers!.length,
+                                        )
+                                  : context
+                                        .tr
+                                        .bot_settings_lavalink_choose_server,
                             ),
                           ),
                         ),
@@ -1871,8 +1979,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     ),
                     onPressed: () {
                       setState(() {
-                        _lavalinkPasswordVisible =
-                            !_lavalinkPasswordVisible;
+                        _lavalinkPasswordVisible = !_lavalinkPasswordVisible;
                       });
                     },
                   ),
@@ -1887,8 +1994,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     if (!isPremium)
                       const Padding(
                         padding: EdgeInsets.only(right: 8),
-                        child:
-                            Icon(Icons.lock, size: 16, color: AppTheme.grey),
+                        child: Icon(Icons.lock, size: 16, color: AppTheme.grey),
                       ),
                     Text(context.tr.bot_settings_lavalink_ssl),
                   ],
@@ -1911,10 +2017,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
 
               Text(
                 context.tr.bot_settings_lavalink_save_caption,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppTheme.grey,
-                ),
+                style: const TextStyle(fontSize: 12, color: AppTheme.grey),
               ),
               const SizedBox(height: 8),
               SizedBox(
@@ -1931,8 +2034,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton.icon(
-                    onPressed:
-                        _isTestingConnection ? null : _testLavalinkConnection,
+                    onPressed: _isTestingConnection
+                        ? null
+                        : _testLavalinkConnection,
                     icon: _isTestingConnection
                         ? const SizedBox(
                             width: 16,
@@ -1983,6 +2087,311 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     );
   }
 
+  Widget _buildDatabaseTab(double contentMaxWidth) {
+    final inputDecoration = InputDecoration(
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: AppTheme.discordBorder),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: AppTheme.discordBorder),
+      ),
+      focusedBorder: const OutlineInputBorder(
+        borderRadius: BorderRadius.all(Radius.circular(8)),
+        borderSide: BorderSide(color: AppTheme.discord, width: 2),
+      ),
+      filled: true,
+      fillColor: AppTheme.discordDarkBg,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    );
+
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: contentMaxWidth),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Section title
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Row(
+                  children: const [
+                    Icon(Icons.storage, color: AppTheme.discord),
+                    SizedBox(width: 10),
+                    Text(
+                      'Base de données externe',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              // Database Type Dropdown / Selector
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Type de base de données',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      DropdownButtonFormField<String>(
+                        initialValue: _databaseType,
+                        decoration: inputDecoration,
+                        dropdownColor: AppTheme.discordDarkBg,
+                        items: const [
+                          DropdownMenuItem(
+                            value: 'none',
+                            child: Text('Aucune (Désactivé)'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'postgres',
+                            child: Text('PostgreSQL (mot-clé: pgsql)'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'mysql',
+                            child: Text('MySQL (mot-clé: sql)'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'mongo',
+                            child: Text('MongoDB (mot-clé: mongo)'),
+                          ),
+                        ],
+                        onChanged: (val) {
+                          if (val != null) {
+                            setState(() {
+                              _databaseType = val;
+                            });
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              if (_databaseType != 'none') ...[
+                // Info banner explaining the keyword
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.discord.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: AppTheme.discord.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.info_outline,
+                        color: AppTheme.discord,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          _databaseType == 'postgres'
+                              ? 'Disponible dans vos scripts via le mot-clé global "pgsql" (ex: await pgsql.query("SELECT * FROM users")).'
+                              : _databaseType == 'mysql'
+                              ? 'Disponible dans vos scripts via le mot-clé global "sql" (ex: await sql.query("SELECT * FROM users")).'
+                              : 'Disponible dans vos scripts via le mot-clé global "mongo" (ex: await mongo.collection("users").find()).',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Colors.white70,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // URI Connection String
+                const Text('Chaîne de connexion (URI)'),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: _databaseUriController,
+                  decoration: inputDecoration.copyWith(
+                    hintText: _databaseType == 'postgres'
+                        ? 'postgresql://user:password@localhost:5432/dbname'
+                        : _databaseType == 'mysql'
+                        ? 'mysql://user:password@localhost:3306/dbname'
+                        : 'mongodb+srv://user:password@cluster.mongodb.net/dbname',
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Toggle for advanced discrete fields
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        _showAdvancedDbFields = !_showAdvancedDbFields;
+                      });
+                    },
+                    icon: Icon(
+                      _showAdvancedDbFields
+                          ? Icons.keyboard_arrow_up
+                          : Icons.keyboard_arrow_down,
+                    ),
+                    label: Text(
+                      _showAdvancedDbFields
+                          ? 'Masquer les champs individuels'
+                          : 'Configurer les champs individuels (Hôte, Port, etc.)',
+                    ),
+                  ),
+                ),
+
+                if (_showAdvancedDbFields) ...[
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Hôte'),
+                            const SizedBox(height: 6),
+                            TextField(
+                              controller: _databaseHostController,
+                              decoration: inputDecoration.copyWith(
+                                hintText: 'localhost ou adresse IP',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 1,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Port'),
+                            const SizedBox(height: 6),
+                            TextField(
+                              controller: _databasePortController,
+                              keyboardType: TextInputType.number,
+                              decoration: inputDecoration.copyWith(
+                                hintText: _databaseType == 'postgres'
+                                    ? '5432'
+                                    : _databaseType == 'mysql'
+                                    ? '3306'
+                                    : '27017',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  const Text('Nom de la base de données'),
+                  const SizedBox(height: 6),
+                  TextField(
+                    controller: _databaseNameController,
+                    decoration: inputDecoration.copyWith(
+                      hintText: 'ex: bot_db',
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Utilisateur'),
+                            const SizedBox(height: 6),
+                            TextField(
+                              controller: _databaseUserController,
+                              decoration: inputDecoration.copyWith(
+                                hintText: 'ex: root ou postgres',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Mot de passe'),
+                            const SizedBox(height: 6),
+                            TextField(
+                              controller: _databasePasswordController,
+                              obscureText: !_databasePasswordVisible,
+                              decoration: inputDecoration.copyWith(
+                                hintText: '••••••••',
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _databasePasswordVisible
+                                        ? Icons.visibility_off
+                                        : Icons.visibility,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _databasePasswordVisible =
+                                          !_databasePasswordVisible;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  CheckboxListTile(
+                    title: const Text('Activer SSL / TLS'),
+                    value: _databaseSsl,
+                    onChanged: (val) {
+                      setState(() {
+                        _databaseSsl = val == true;
+                      });
+                    },
+                    controlAffinity: ListTileControlAffinity.trailing,
+                  ),
+                ],
+              ],
+
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: _isSavingDatabase ? null : _saveDatabaseOnly,
+                  icon: const Icon(Icons.save),
+                  label: const Text('Enregistrer la configuration'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildAdvancedTab(double contentMaxWidth) {
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
@@ -1998,9 +2407,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 child: ListTile(
                   leading: const Icon(Icons.menu_book_outlined),
                   title: Text(context.tr.bot_settings_workflow_docs),
-                  subtitle: Text(
-                    context.tr.bot_settings_workflow_docs_desc,
-                  ),
+                  subtitle: Text(context.tr.bot_settings_workflow_docs_desc),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
                     openDocumentationHub(
@@ -2016,20 +2423,15 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 child: ListTile(
                   leading: const Icon(Icons.import_export),
                   title: Text(context.tr.bot_settings_export_import),
-                  subtitle: Text(
-                    context.tr.bot_settings_export_import_desc,
-                  ),
+                  subtitle: Text(context.tr.bot_settings_export_import_desc),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder:
-                            (_) => BotExportImportPage(
-                              botId:
-                                  widget.client.application.id
-                                      .toString(),
-                            ),
+                        builder: (_) => BotExportImportPage(
+                          botId: widget.client.application.id.toString(),
+                        ),
                       ),
                     );
                   },
@@ -2091,9 +2493,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               ),
               Card(
                 shape: RoundedRectangleBorder(
-                  side: BorderSide(
-                    color: AppTheme.grey.withValues(alpha: 0.2),
-                  ),
+                  side: BorderSide(color: AppTheme.grey.withValues(alpha: 0.2)),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Padding(
@@ -2103,9 +2503,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     children: [
                       Text(
                         context.tr.settings_sync_force_title,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -2116,7 +2514,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       SizedBox(
                         width: double.infinity,
                         child: OutlinedButton.icon(
-                          onPressed: _isForceSyncing ? null : _forceSyncDiscordCommands,
+                          onPressed: _isForceSyncing
+                              ? null
+                              : _forceSyncDiscordCommands,
                           icon: _isForceSyncing
                               ? const SizedBox(
                                   width: 18,
@@ -2182,27 +2582,21 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                           onPressed: _isDeletingBot ? null : _deleteBot,
                           style: OutlinedButton.styleFrom(
                             foregroundColor: AppTheme.error,
-                            side: const BorderSide(
-                              color: AppTheme.error,
-                            ),
+                            side: const BorderSide(color: AppTheme.error),
                           ),
-                          icon:
-                              _isDeletingBot
-                                  ? const SizedBox(
-                                    width: 18,
-                                    height: 18,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor:
-                                          AlwaysStoppedAnimation<Color>(
-                                            AppTheme.error,
-                                          ),
+                          icon: _isDeletingBot
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      AppTheme.error,
                                     ),
-                                  )
-                                  : const Icon(Icons.delete_forever),
-                          label: Text(
-                            context.tr.bot_settings_delete_bot_btn,
-                          ),
+                                  ),
+                                )
+                              : const Icon(Icons.delete_forever),
+                          label: Text(context.tr.bot_settings_delete_bot_btn),
                         ),
                       ),
                     ],
@@ -2219,10 +2613,13 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   @override
   Widget build(BuildContext context) {
     final showLavalink = _capabilities.supportsLavalink;
-    final tabCount = showLavalink ? 4 : 3;
+    final showDatabase = _capabilities.supportsExternalDatabase;
+    final tabCount = (showLavalink || showDatabase) ? 4 : 3;
 
     return DefaultTabController(
-      key: ValueKey('bot-settings-tabs-$tabCount'),
+      key: ValueKey(
+        'bot-settings-tabs-$tabCount-${showDatabase ? "db" : "no-db"}',
+      ),
       length: tabCount,
       child: Scaffold(
         appBar: AppBar(
@@ -2250,6 +2647,8 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   icon: const Icon(Icons.music_note),
                   text: context.tr.bot_settings_tab_lavalink,
                 ),
+              if (showDatabase)
+                const Tab(icon: Icon(Icons.storage), text: 'Database'),
               Tab(
                 icon: const Icon(Icons.build_outlined),
                 text: context.tr.bot_settings_tab_advanced,
@@ -2261,12 +2660,15 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
           top: false,
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final contentMaxWidth = constraints.maxWidth >= 900 ? 760.0 : 640.0;
+              final contentMaxWidth = constraints.maxWidth >= 900
+                  ? 760.0
+                  : 640.0;
               return TabBarView(
                 children: [
                   _buildGeneralTab(contentMaxWidth),
                   _buildPresenceTab(contentMaxWidth),
                   if (showLavalink) _buildLavalinkTab(contentMaxWidth),
+                  if (showDatabase) _buildDatabaseTab(contentMaxWidth),
                   _buildAdvancedTab(contentMaxWidth),
                 ],
               );
@@ -2279,10 +2681,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
 
   Widget _buildProfilePreviewCard() {
     final user = widget.client.user as User;
-    final botName =
-        _usernameController.text.trim().isNotEmpty
-            ? _usernameController.text.trim()
-            : user.username;
+    final botName = _usernameController.text.trim().isNotEmpty
+        ? _usernameController.text.trim()
+        : user.username;
 
     // Discord Status Colors
     Color statusColor;
@@ -2373,25 +2774,23 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                             children: [
                               Positioned.fill(
                                 child: ClipOval(
-                                  child:
-                                      _selectedAvatarPath != null
-                                          ? Image.file(
-                                            File(_selectedAvatarPath!),
-                                            fit: BoxFit.cover,
-                                          )
-                                          : Image.network(
-                                            user.avatar.url.toString(),
-                                            fit: BoxFit.cover,
-                                            errorBuilder:
-                                                (_, _, _) => Container(
-                                                  color: AppTheme.discordBorder,
-                                                  child: const Icon(
-                                                    Icons.person,
-                                                    color: Colors.white,
-                                                    size: 40,
-                                                  ),
-                                                ),
+                                  child: _selectedAvatarPath != null
+                                      ? Image.file(
+                                          File(_selectedAvatarPath!),
+                                          fit: BoxFit.cover,
+                                        )
+                                      : Image.network(
+                                          user.avatar.url.toString(),
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (_, _, _) => Container(
+                                            color: AppTheme.discordBorder,
+                                            child: const Icon(
+                                              Icons.person,
+                                              color: Colors.white,
+                                              size: 40,
+                                            ),
                                           ),
+                                        ),
                                 ),
                               ),
                               // Edit Overlay
@@ -2632,7 +3031,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    hasTeam ? context.tr.settings_team_ownership : context.tr.settings_personal_ownership,
+                    hasTeam
+                        ? context.tr.settings_team_ownership
+                        : context.tr.settings_personal_ownership,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
@@ -2641,16 +3042,23 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
-                    color: (hasTeam ? AppTheme.discord : AppTheme.success).withValues(alpha: 0.15),
+                    color: (hasTeam ? AppTheme.discord : AppTheme.success)
+                        .withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: (hasTeam ? AppTheme.discord : AppTheme.success).withValues(alpha: 0.3),
+                      color: (hasTeam ? AppTheme.discord : AppTheme.success)
+                          .withValues(alpha: 0.3),
                     ),
                   ),
                   child: Text(
-                    hasTeam ? context.tr.settings_team_pill : context.tr.settings_solo_pill,
+                    hasTeam
+                        ? context.tr.settings_team_pill
+                        : context.tr.settings_solo_pill,
                     style: TextStyle(
                       color: hasTeam ? AppTheme.discord : AppTheme.success,
                       fontWeight: FontWeight.bold,
@@ -2674,7 +3082,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     children: [
                       Text(
                         context.tr.settings_team_name_label,
-                        style: const TextStyle(color: AppTheme.discordText, fontSize: 13),
+                        style: const TextStyle(
+                          color: AppTheme.discordText,
+                          fontSize: 13,
+                        ),
                       ),
                       Text(
                         meta.teamName,
@@ -2691,7 +3102,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     children: [
                       Text(
                         context.tr.settings_team_id_label,
-                        style: const TextStyle(color: AppTheme.discordText, fontSize: 13),
+                        style: const TextStyle(
+                          color: AppTheme.discordText,
+                          fontSize: 13,
+                        ),
                       ),
                       SelectableText(
                         meta.teamId,
@@ -2750,7 +3164,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                           ),
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.amber.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(4),
@@ -2772,7 +3189,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
 
                   // Team Members
                   Text(
-                    context.tr.settings_team_members_label(meta.teamMembersInfo.length),
+                    context.tr.settings_team_members_label(
+                      meta.teamMembersInfo.length,
+                    ),
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
@@ -2789,7 +3208,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       final member = meta.teamMembersInfo[idx];
                       final isOwner = member['id'] == meta.teamOwnerUserId;
                       return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 8,
+                        ),
                         decoration: BoxDecoration(
                           color: AppTheme.discordDarkBg.withValues(alpha: 0.6),
                           borderRadius: BorderRadius.circular(8),
@@ -2799,11 +3221,24 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                             CircleAvatar(
                               radius: 12,
                               backgroundColor: AppTheme.discord,
-                              backgroundImage: member['avatar'] != null && member['avatar'].toString().isNotEmpty
-                                  ? NetworkImage(makeAvatarUrl(member['id'].toString(), avatarId: member['avatar'].toString()))
+                              backgroundImage:
+                                  member['avatar'] != null &&
+                                      member['avatar'].toString().isNotEmpty
+                                  ? NetworkImage(
+                                      makeAvatarUrl(
+                                        member['id'].toString(),
+                                        avatarId: member['avatar'].toString(),
+                                      ),
+                                    )
                                   : null,
-                              child: member['avatar'] == null || member['avatar'].toString().isEmpty
-                                  ? const Icon(Icons.person, size: 14, color: Colors.white)
+                              child:
+                                  member['avatar'] == null ||
+                                      member['avatar'].toString().isEmpty
+                                  ? const Icon(
+                                      Icons.person,
+                                      size: 14,
+                                      color: Colors.white,
+                                    )
                                   : null,
                             ),
                             const SizedBox(width: 10),
@@ -2831,15 +3266,27 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                               ),
                             ),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
-                                color: (isOwner ? Colors.amber : AppTheme.discord).withValues(alpha: 0.15),
+                                color:
+                                    (isOwner ? Colors.amber : AppTheme.discord)
+                                        .withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
-                                isOwner ? context.tr.settings_owner_badge : member['role']?.toString().toUpperCase() ?? context.tr.settings_member_badge,
+                                isOwner
+                                    ? context.tr.settings_owner_badge
+                                    : member['role']
+                                              ?.toString()
+                                              .toUpperCase() ??
+                                          context.tr.settings_member_badge,
                                 style: TextStyle(
-                                  color: isOwner ? Colors.amber : AppTheme.discord,
+                                  color: isOwner
+                                      ? Colors.amber
+                                      : AppTheme.discord,
                                   fontSize: 8,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -2856,10 +3303,15 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     children: [
                       Text(
                         context.tr.settings_personal_owner_label,
-                        style: const TextStyle(color: AppTheme.discordText, fontSize: 13),
+                        style: const TextStyle(
+                          color: AppTheme.discordText,
+                          fontSize: 13,
+                        ),
                       ),
                       Text(
-                        meta.ownerUsername.isNotEmpty ? meta.ownerUsername : context.tr.settings_personal_owner_fallback,
+                        meta.ownerUsername.isNotEmpty
+                            ? meta.ownerUsername
+                            : context.tr.settings_personal_owner_fallback,
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -2873,7 +3325,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     children: [
                       Text(
                         context.tr.settings_personal_owner_id_label,
-                        style: const TextStyle(color: AppTheme.discordText, fontSize: 13),
+                        style: const TextStyle(
+                          color: AppTheme.discordText,
+                          fontSize: 13,
+                        ),
                       ),
                       SelectableText(
                         meta.ownerId,
@@ -2904,8 +3359,15 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     color: AppTheme.discordText,
                   ),
                 ),
-                leading: const Icon(Icons.code, size: 20, color: AppTheme.discordText),
-                childrenPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                leading: const Icon(
+                  Icons.code,
+                  size: 20,
+                  color: AppTheme.discordText,
+                ),
+                childrenPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 expandedAlignment: Alignment.topLeft,
                 children: [
                   Container(
@@ -2974,8 +3436,9 @@ class _StatusDraft {
 
     final type = (map['type'] ?? 'playing').toString().trim().toLowerCase();
     return _StatusDraft(
-      type:
-          _AppSettingsPageState._statusTypes.contains(type) ? type : 'playing',
+      type: _AppSettingsPageState._statusTypes.contains(type)
+          ? type
+          : 'playing',
       textController: TextEditingController(
         text: ((map['name'] ?? map['text']) ?? '').toString(),
       ),
