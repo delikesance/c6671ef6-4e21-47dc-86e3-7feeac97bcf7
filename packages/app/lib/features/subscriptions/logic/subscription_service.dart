@@ -463,7 +463,20 @@ class SubscriptionService {
         }
       }
 
-      final purchaseParam = PurchaseParam(productDetails: product);
+      final session = await MainApiSettingsStore.loadSession();
+      final currentOwnerId = (session != null && !session.isExpired)
+          ? session.userId?.trim()
+          : null;
+
+      final PurchaseParam purchaseParam = Platform.isAndroid
+          ? GooglePlayPurchaseParam(
+              productDetails: product,
+              applicationUserName: currentOwnerId,
+            )
+          : PurchaseParam(
+              productDetails: product,
+              applicationUserName: currentOwnerId,
+            );
       final started = await iap.buyNonConsumable(purchaseParam: purchaseParam);
       if (!started) {
         unawaited(
