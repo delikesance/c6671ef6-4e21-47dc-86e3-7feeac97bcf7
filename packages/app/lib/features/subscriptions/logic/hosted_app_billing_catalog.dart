@@ -76,10 +76,7 @@ HostedAppStoreListing? findHostedAppListing(
     final productId = canonicalHostedAppProductId(tier);
     for (final product in products) {
       if (product.id == productId) {
-        return HostedAppStoreListing(
-          tier: tier,
-          productDetails: product,
-        );
+        return HostedAppStoreListing(tier: tier, productDetails: product);
       }
     }
     return null;
@@ -89,10 +86,9 @@ HostedAppStoreListing? findHostedAppListing(
     return null;
   }
 
-  final basePlanId =
-      tier == HostedAppTier.oneApp
-          ? kGooglePlayHostOneBasePlanId
-          : kGooglePlayHostTwoBasePlanId;
+  final basePlanId = tier == HostedAppTier.oneApp
+      ? kGooglePlayHostOneBasePlanId
+      : kGooglePlayHostTwoBasePlanId;
 
   for (final product in products) {
     if (product.id != kGooglePlayHostedAppSubscriptionId) {
@@ -117,14 +113,21 @@ HostedAppStoreListing? findHostedAppListing(
   return null;
 }
 
-PurchaseParam hostedAppPurchaseParam(HostedAppStoreListing listing) {
+PurchaseParam hostedAppPurchaseParam(
+  HostedAppStoreListing listing, {
+  String? accountUsername,
+}) {
   if (Platform.isAndroid && listing.offerToken != null) {
     return GooglePlayPurchaseParam(
       productDetails: listing.productDetails,
       offerToken: listing.offerToken,
+      applicationUserName: accountUsername,
     );
   }
-  return PurchaseParam(productDetails: listing.productDetails);
+  return PurchaseParam(
+    productDetails: listing.productDetails,
+    applicationUserName: accountUsername,
+  );
 }
 
 String verifyBillingProductIdForListing(HostedAppStoreListing listing) {
