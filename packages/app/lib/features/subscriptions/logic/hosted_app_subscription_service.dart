@@ -159,9 +159,14 @@ class HostedAppSubscriptionService {
       );
     }
 
+    final session = await MainApiSettingsStore.loadSession();
+    final ownerId = (session != null && !session.isExpired)
+        ? session.userId?.trim()
+        : null;
+
     _pendingTier = tier;
     final started = await InAppPurchase.instance.buyNonConsumable(
-      purchaseParam: hostedAppPurchaseParam(listing),
+      purchaseParam: hostedAppPurchaseParam(listing, accountUsername: ownerId),
     );
     if (!started) {
       _pendingTier = null;
