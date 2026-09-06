@@ -103,20 +103,19 @@ void main() {
     await pumpCreatePage(
       tester,
       page: Builder(
-        builder:
-            (context) => Scaffold(
-              body: Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute<void>(builder: (_) => page),
-                    );
-                  },
-                  child: const Text('Open'),
-                ),
-              ),
+        builder: (context) => Scaffold(
+          body: Center(
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(builder: (_) => page),
+                );
+              },
+              child: const Text('Open'),
             ),
+          ),
+        ),
       ),
     );
 
@@ -152,7 +151,12 @@ void main() {
         await tester.pumpAndSettle();
 
         // Switch to legacy/prefix command type via SegmentedButton
-        await tester.tap(find.text('Prefix command'));
+        final legacyBtn = find.text('Text Message');
+        if (legacyBtn.evaluate().isNotEmpty) {
+          await tester.tap(legacyBtn);
+        } else {
+          await tester.tap(find.text('Prefix command'));
+        }
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
 

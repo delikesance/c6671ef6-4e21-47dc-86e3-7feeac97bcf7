@@ -1,5 +1,6 @@
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:flutter/material.dart';
+import 'package:nyxx/nyxx.dart' hide Builder;
 
 import 'scratch_block.dart';
 import 'scratch_block_palette.dart';
@@ -24,6 +25,10 @@ class EntryPointBlock extends StatefulWidget {
     super.key,
     required this.entryPointType,
     required this.onEntryPointTypeChanged,
+    // Command type (Slash, Legacy, User, Message)
+    this.commandType = ApplicationCommandType.chatInput,
+    this.onCommandTypeChanged,
+    this.canEditCommandType = true,
     // Legacy prefix options
     this.legacyModeEnabled = false,
     this.onLegacyModeChanged,
@@ -37,10 +42,19 @@ class EntryPointBlock extends StatefulWidget {
     this.showWorkflowMode = true,
     this.showBdfdMode = true,
     this.showJavascriptMode = false,
+    this.commandName,
+    this.onOpenSettings,
   });
+
+  final String? commandName;
+  final VoidCallback? onOpenSettings;
 
   final CommandEntryPointType entryPointType;
   final ValueChanged<CommandEntryPointType> onEntryPointTypeChanged;
+
+  final ApplicationCommandType commandType;
+  final ValueChanged<ApplicationCommandType>? onCommandTypeChanged;
+  final bool canEditCommandType;
 
   final bool legacyModeEnabled;
   final ValueChanged<bool>? onLegacyModeChanged;
@@ -64,49 +78,172 @@ class _EntryPointBlockState extends State<EntryPointBlock> {
   bool _collapsed = false;
   bool _legacyExpanded = false;
 
+  String _commandTypeSegmentValue() {
+    if (widget.legacyModeEnabled) return 'legacy';
+    switch (widget.commandType) {
+      case ApplicationCommandType.user:
+        return 'user';
+      case ApplicationCommandType.message:
+        return 'message';
+      case ApplicationCommandType.chatInput:
+      default:
+        return 'slash';
+    }
+  }
+
+  void _onTypeSelected(String selected) {
+    if (selected == 'legacy') {
+      widget.onLegacyModeChanged?.call(true);
+      widget.onCommandTypeChanged?.call(ApplicationCommandType.chatInput);
+      widget.onEntryPointTypeChanged(CommandEntryPointType.message);
+    } else {
+      widget.onLegacyModeChanged?.call(false);
+      final newType = selected == 'user'
+          ? ApplicationCommandType.user
+          : selected == 'message'
+          ? ApplicationCommandType.message
+          : ApplicationCommandType.chatInput;
+      widget.onCommandTypeChanged?.call(newType);
+      widget.onEntryPointTypeChanged(CommandEntryPointType.interaction);
+    }
+  }
+
+  String _commandTypeHelperText() {
+    switch (_commandTypeSegmentValue()) {
+      case 'slash':
+        return context.tr.scratch_meta_type_slash_desc;
+      case 'legacy':
+        return context.tr.scratch_meta_type_prefix_desc;
+      case 'user':
+        return context.tr.scratch_meta_type_user_desc;
+      case 'message':
+        return context.tr.scratch_meta_type_message_desc;
+      default:
+        return '';
+    }
+  }
+
+  String _typeBadgeLabel() {
+    switch (_commandTypeSegmentValue()) {
+      case 'slash':
+        return context.tr.scratch_meta_type_slash;
+      case 'legacy':
+        return context.tr.scratch_meta_type_prefix;
+      case 'user':
+        return context.tr.scratch_meta_type_user;
+      case 'message':
+        return context.tr.scratch_meta_type_message;
+      default:
+        return context.tr.scratch_block_required;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final isInteraction =
-        widget.entryPointType == CommandEntryPointType.interaction;
+    final typeVal = _commandTypeSegmentValue();
+    final isLegacy = typeVal == 'legacy';
     final colorScheme = Theme.of(context).colorScheme;
+    final cmdName = widget.commandName?.trim();
+    final prefix = typeVal == 'slash' ? '/' : (typeVal == 'legacy' ? '!' : '');
+    final blockTitle = (cmdName != null && cmdName.isNotEmpty)
+        ? '${context.tr.scratch_block_entry_point} ($prefix$cmdName)'
+        : context.tr.scratch_block_entry_point;
 
     return ScratchBlock(
       color: getCategoryColor('EntryPoint'),
-      title: context.tr.scratch_block_entry_point,
+      title: blockTitle,
       icon: Icons.play_circle_outline,
       required: true,
       collapsed: _collapsed,
       onToggleCollapse: () => setState(() => _collapsed = !_collapsed),
       badge: ScratchBlockBadge(
-        label: context.tr.scratch_block_required,
+        label: _typeBadgeLabel(),
         color: getCategoryColor('EntryPoint'),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // ── Entry point type selector ──
+          if (widget.onOpenSettings != null) ...[
+            FilledButton.tonalIcon(
+              onPressed: widget.onOpenSettings,
+              icon: const Icon(Icons.tune_rounded, size: 16),
+              label: Text(
+                (cmdName != null && cmdName.isNotEmpty)
+                    ? '${context.tr.edit_shell_command_settings} ($prefix$cmdName)'
+                    : context.tr.edit_shell_command_settings,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 12.5,
+                ),
+              ),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size(0, 38),
+                backgroundColor: AppTheme.brandPrimary.withValues(alpha: 0.12),
+                foregroundColor: AppTheme.brandPrimary,
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
+          // ── Entry point type selector (Slash, Prefix, User, Message) ──
           Text(
             context.tr.scratch_entry_point_listen,
             style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
           ),
           const SizedBox(height: 8),
-          SegmentedButton<CommandEntryPointType>(
-            segments: <ButtonSegment<CommandEntryPointType>>[
-              ButtonSegment<CommandEntryPointType>(
-                value: CommandEntryPointType.interaction,
-                label: Text(context.tr.scratch_entry_interaction),
-                icon: const Icon(Icons.bolt),
-              ),
-              ButtonSegment<CommandEntryPointType>(
-                value: CommandEntryPointType.message,
-                label: Text(context.tr.scratch_entry_message),
-                icon: const Icon(Icons.chat_bubble_outline),
-              ),
-            ],
-            selected: <CommandEntryPointType>{widget.entryPointType},
-            onSelectionChanged: (selection) {
-              widget.onEntryPointTypeChanged(selection.first);
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final compact = constraints.maxWidth < 460;
+              return SegmentedButton<String>(
+                segments: [
+                  ButtonSegment(
+                    value: 'slash',
+                    label: compact
+                        ? const SizedBox.shrink()
+                        : Text(context.tr.scratch_meta_type_slash),
+                    icon: const Icon(Icons.terminal, size: 18),
+                    tooltip: context.tr.scratch_meta_type_slash,
+                  ),
+                  ButtonSegment(
+                    value: 'legacy',
+                    label: compact
+                        ? const SizedBox.shrink()
+                        : Text(context.tr.scratch_entry_message),
+                    icon: const Icon(Icons.textsms_outlined, size: 18),
+                    tooltip: context.tr.scratch_meta_type_prefix,
+                  ),
+                  ButtonSegment(
+                    value: 'user',
+                    label: compact
+                        ? const SizedBox.shrink()
+                        : Text(context.tr.scratch_meta_type_user),
+                    icon: const Icon(Icons.person_outline, size: 18),
+                    tooltip: context.tr.scratch_meta_type_user,
+                  ),
+                  ButtonSegment(
+                    value: 'message',
+                    label: compact
+                        ? const SizedBox.shrink()
+                        : Text(context.tr.scratch_meta_type_message),
+                    icon: const Icon(Icons.message_outlined, size: 18),
+                    tooltip: context.tr.scratch_meta_type_message,
+                  ),
+                ],
+                selected: {typeVal},
+                onSelectionChanged: widget.canEditCommandType
+                    ? (selection) => _onTypeSelected(selection.first)
+                    : null,
+              );
             },
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Text(
+              _commandTypeHelperText(),
+              style: TextStyle(
+                fontSize: 11,
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
           ),
 
           const SizedBox(height: 12),
@@ -151,9 +288,10 @@ class _EntryPointBlockState extends State<EntryPointBlock> {
                 if (segments.isEmpty) {
                   return const SizedBox.shrink();
                 }
-                final selectedValue = segments.any(
-                  (segment) => segment.value == widget.executionMode,
-                )
+                final selectedValue =
+                    segments.any(
+                      (segment) => segment.value == widget.executionMode,
+                    )
                     ? widget.executionMode
                     : segments.first.value;
                 return SegmentedButton<String>(
@@ -169,7 +307,7 @@ class _EntryPointBlockState extends State<EntryPointBlock> {
           ],
 
           // ── Legacy prefix config (expandable) ──
-          if (!isInteraction ||
+          if (isLegacy ||
               (widget.legacyModeEnabled && widget.onLegacyModeChanged != null))
             _buildLegacySection(colorScheme),
         ],
@@ -325,14 +463,15 @@ class _WorkflowEntryPointBlockState extends State<WorkflowEntryPointBlock> {
     return ScratchBlock(
       flat: widget.flat,
       color: getCategoryColor('EntryPoint'),
-      title:
-          isEvent
-              ? context.tr.scratch_entry_event_trigger
-              : context.tr.scratch_entry_function,
+      title: isEvent
+          ? context.tr.scratch_entry_event_trigger
+          : context.tr.scratch_entry_function,
       icon: isEvent ? Icons.flash_on : Icons.play_arrow,
       required: true,
       collapsed: widget.flat ? false : _collapsed,
-      onToggleCollapse: widget.flat ? null : () => setState(() => _collapsed = !_collapsed),
+      onToggleCollapse: widget.flat
+          ? null
+          : () => setState(() => _collapsed = !_collapsed),
       badge: ScratchBlockBadge(
         label: context.tr.scratch_block_required,
         color: getCategoryColor('EntryPoint'),
@@ -362,10 +501,9 @@ class _WorkflowEntryPointBlockState extends State<WorkflowEntryPointBlock> {
       children: [
         // ── Category dropdown ──
         DropdownButtonFormField<String>(
-          initialValue:
-              widget.selectedCategory.isNotEmpty
-                  ? widget.selectedCategory
-                  : null,
+          initialValue: widget.selectedCategory.isNotEmpty
+              ? widget.selectedCategory
+              : null,
           decoration: InputDecoration(
             labelText: context.tr.scratch_event_category,
             border: const OutlineInputBorder(),
@@ -373,10 +511,9 @@ class _WorkflowEntryPointBlockState extends State<WorkflowEntryPointBlock> {
           ),
           items: widget.eventCategories
               .map((cat) {
-                final label =
-                    widget.eventCategoryLabel != null
-                        ? widget.eventCategoryLabel!(cat)
-                        : cat;
+                final label = widget.eventCategoryLabel != null
+                    ? widget.eventCategoryLabel!(cat)
+                    : cat;
                 return DropdownMenuItem(value: cat, child: Text(label));
               })
               .toList(growable: false),
@@ -388,8 +525,9 @@ class _WorkflowEntryPointBlockState extends State<WorkflowEntryPointBlock> {
 
         // ── Event dropdown ──
         DropdownButtonFormField<String>(
-          initialValue:
-              widget.selectedEvent.isNotEmpty ? widget.selectedEvent : null,
+          initialValue: widget.selectedEvent.isNotEmpty
+              ? widget.selectedEvent
+              : null,
           decoration: InputDecoration(
             labelText: context.tr.scratch_event_name,
             border: const OutlineInputBorder(),
@@ -423,7 +561,8 @@ class _WorkflowEntryPointBlockState extends State<WorkflowEntryPointBlock> {
           ),
         ],
 
-        if (widget.onExecutionModeChanged != null && widget.showJavascriptMode) ...[
+        if (widget.onExecutionModeChanged != null &&
+            widget.showJavascriptMode) ...[
           const SizedBox(height: 12),
           Text(
             context.tr.scratch_execution_mode,

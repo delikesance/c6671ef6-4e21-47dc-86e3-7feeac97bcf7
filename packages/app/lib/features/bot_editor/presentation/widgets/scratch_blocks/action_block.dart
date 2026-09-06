@@ -34,6 +34,7 @@ class ActionBlock extends StatefulWidget {
     this.onPasteAbove,
     this.onPasteBelow,
     this.onDuplicate,
+    this.onOpenDocs,
   });
 
   final ActionItem action;
@@ -59,6 +60,7 @@ class ActionBlock extends StatefulWidget {
   final Function(Map<String, dynamic> copiedAction)? onPasteAbove;
   final Function(Map<String, dynamic> copiedAction)? onPasteBelow;
   final VoidCallback? onDuplicate;
+  final VoidCallback? onOpenDocs;
 
   @override
   State<ActionBlock> createState() => _ActionBlockState();
@@ -74,109 +76,147 @@ class _ActionBlockState extends State<ActionBlock> {
     final finalBlock = isFinalAction(widget.action.type);
     final colorScheme = Theme.of(context).colorScheme;
 
-    final trailingWidget = Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SizedBox(
-          width: 28,
-          height: 28,
-          child: IconButton(
-            icon: const Icon(Icons.copy, size: 18),
-            color: colorScheme.onSurfaceVariant,
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
-            onPressed: () async {
-              await ActionClipboard.copyAction(widget.action.toJson());
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(_localString('Action copied to clipboard')),
-                    duration: const Duration(seconds: 1),
-                  ),
-                );
-              }
-            },
-            tooltip: _localString('Copy action'),
+    final trailingWidget = PopupMenuButton<String>(
+      icon: Icon(
+        Icons.more_vert,
+        color: colorScheme.onSurfaceVariant,
+        size: 20,
+      ),
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints(),
+      tooltip: _localString('More actions'),
+      onSelected: (value) async {
+        if (value == 'move_up') {
+          widget.onMoveUp?.call();
+        } else if (value == 'move_down') {
+          widget.onMoveDown?.call();
+        } else if (value == 'copy') {
+          await ActionClipboard.copyAction(widget.action.toJson());
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(_localString('Action copied to clipboard')),
+                duration: const Duration(seconds: 1),
+              ),
+            );
+          }
+        } else if (value == 'duplicate') {
+          widget.onDuplicate?.call();
+        } else if (value == 'paste_above') {
+          final copied = await ActionClipboard.getCopiedAction();
+          if (copied != null) {
+            widget.onPasteAbove?.call(copied);
+          } else {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(_localString('No action in clipboard')),
+                  duration: const Duration(milliseconds: 1500),
+                ),
+              );
+            }
+          }
+        } else if (value == 'paste_below') {
+          final copied = await ActionClipboard.getCopiedAction();
+          if (copied != null) {
+            widget.onPasteBelow?.call(copied);
+          } else {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(_localString('No action in clipboard')),
+                  duration: const Duration(milliseconds: 1500),
+                ),
+              );
+            }
+          }
+        } else if (value == 'docs') {
+          widget.onOpenDocs?.call();
+        }
+      },
+      itemBuilder: (context) => [
+        if (widget.onMoveUp != null)
+          PopupMenuItem(
+            value: 'move_up',
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.arrow_upward, size: 18),
+                const SizedBox(width: 12),
+                Text(_localString('Move up')),
+              ],
+            ),
+          ),
+        if (widget.onMoveDown != null)
+          PopupMenuItem(
+            value: 'move_down',
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.arrow_downward, size: 18),
+                const SizedBox(width: 12),
+                Text(_localString('Move down')),
+              ],
+            ),
+          ),
+        PopupMenuItem(
+          value: 'copy',
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.copy, size: 18),
+              const SizedBox(width: 12),
+              Text(_localString('Copy action')),
+            ],
           ),
         ),
-        const SizedBox(width: 4),
-        PopupMenuButton<String>(
-          icon: Icon(
-            Icons.more_vert,
-            color: colorScheme.onSurfaceVariant,
-            size: 20,
+        PopupMenuItem(
+          value: 'duplicate',
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.copy_all, size: 18),
+              const SizedBox(width: 12),
+              Text(_localString('Duplicate')),
+            ],
           ),
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(),
-          tooltip: _localString('More actions'),
-          onSelected: (value) async {
-            if (value == 'duplicate') {
-              widget.onDuplicate?.call();
-            } else if (value == 'paste_above') {
-              final copied = await ActionClipboard.getCopiedAction();
-              if (copied != null) {
-                widget.onPasteAbove?.call(copied);
-              } else {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(_localString('No action in clipboard')),
-                      duration: const Duration(milliseconds: 1500),
-                    ),
-                  );
-                }
-              }
-            } else if (value == 'paste_below') {
-              final copied = await ActionClipboard.getCopiedAction();
-              if (copied != null) {
-                widget.onPasteBelow?.call(copied);
-              } else {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(_localString('No action in clipboard')),
-                      duration: const Duration(milliseconds: 1500),
-                    ),
-                  );
-                }
-              }
-            }
-          },
-          itemBuilder: (context) => [
-            PopupMenuItem(
-              value: 'duplicate',
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.copy_all, size: 18),
-                  const SizedBox(width: 12),
-                  Text(_localString('Duplicate')),
-                ],
-              ),
+        ),
+        if (widget.onOpenDocs != null) ...[
+          const PopupMenuDivider(),
+          PopupMenuItem(
+            value: 'docs',
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.help_outline_rounded, size: 18),
+                const SizedBox(width: 12),
+                Text(_localString('Documentation & guides')),
+              ],
             ),
-            PopupMenuItem(
-              value: 'paste_above',
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.arrow_upward, size: 18),
-                  const SizedBox(width: 12),
-                  Text(_localString('Paste Above')),
-                ],
-              ),
-            ),
-            PopupMenuItem(
-              value: 'paste_below',
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.arrow_downward, size: 18),
-                  const SizedBox(width: 12),
-                  Text(_localString('Paste Below')),
-                ],
-              ),
-            ),
-          ],
+          ),
+        ],
+        const PopupMenuDivider(),
+        PopupMenuItem(
+          value: 'paste_above',
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.vertical_align_top, size: 18),
+              const SizedBox(width: 12),
+              Text(_localString('Paste Above')),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          value: 'paste_below',
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.vertical_align_bottom, size: 18),
+              const SizedBox(width: 12),
+              Text(_localString('Paste Below')),
+            ],
+          ),
         ),
       ],
     );
@@ -189,8 +229,6 @@ class _ActionBlockState extends State<ActionBlock> {
       collapsed: _collapsed,
       onToggleCollapse: () => setState(() => _collapsed = !_collapsed),
       onDelete: widget.onRemove,
-      onMoveUp: widget.onMoveUp,
-      onMoveDown: widget.onMoveDown,
       badge: ScratchBlockBadge(label: category, color: color),
       trailing: trailingWidget,
       child: ActionCard(

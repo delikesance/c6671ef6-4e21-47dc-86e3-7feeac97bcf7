@@ -5954,7 +5954,12 @@
     "description": "Subscription restored successfully!"
   },
   "@subscription_save_badge": {
-    "description": "SAVE 67%"
+    "description": "Badge d'économie annuelle",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
   },
   "@subscription_subtitle": {
     "description": "Choose a plan to unlock all premium features."
@@ -8879,7 +8884,7 @@
   "subscription_restore": "Restaurer les achats",
   "subscription_restore_not_found": "Aucun abonnement actif trouvé.",
   "subscription_restored": "Abonnement restauré avec succès !",
-  "subscription_save_badge": "-67%",
+  "subscription_save_badge": "-{percent}%",
   "subscription_subtitle": "Choisissez une offre pour débloquer toutes les fonctionnalités premium.",
   "subscription_success": "Bienvenue dans Premium ! Toutes les publicités ont été supprimées.",
   "subscription_terms": "Conditions d'utilisation",

@@ -36,8 +36,7 @@ class GatewayBotEventPayload {
   }
 
   factory GatewayBotEventPayload.fromJson(Map<String, dynamic> json) {
-    final expiresRaw =
-        json['session_expires_at'] ?? json['sessionExpiresAt'];
+    final expiresRaw = json['session_expires_at'] ?? json['sessionExpiresAt'];
     DateTime? expires;
     if (expiresRaw != null) {
       expires = DateTime.tryParse(expiresRaw.toString())?.toUtc();
@@ -45,20 +44,20 @@ class GatewayBotEventPayload {
     return GatewayBotEventPayload(
       botId: (json['bot_id'] ?? json['botId'] ?? '').toString(),
       botName: (json['bot_name'] ?? json['botName'] ?? '').toString(),
-      desiredState:
-          (json['desired_state'] ?? json['desiredState'] ?? '').toString(),
+      desiredState: (json['desired_state'] ?? json['desiredState'] ?? '')
+          .toString(),
       lastRuntimeState:
           (json['last_runtime_state'] ?? json['lastRuntimeState'] ?? '')
               .toString(),
-      fundingMode:
-          (json['funding_mode'] ?? json['fundingMode'] ?? '')
-              .toString()
-              .trim()
-              .toLowerCase(),
+      fundingMode: (json['funding_mode'] ?? json['fundingMode'] ?? '')
+          .toString()
+          .trim()
+          .toLowerCase(),
       freeMinutesBalance: _asInt(
         json['free_minutes_balance'] ?? json['freeMinutesBalance'],
       ),
-      sessionActive: json['session_active'] == true ||
+      sessionActive:
+          json['session_active'] == true ||
           json['sessionActive'] == true ||
           (json['session_active'] ?? json['sessionActive'])
                   ?.toString()
@@ -96,7 +95,9 @@ class GatewayBotEvent {
     final typeRaw = (json['type'] ?? '').toString();
     final type = switch (typeRaw) {
       'snapshot' => GatewayBotEventType.snapshot,
-      'bot.updated' => GatewayBotEventType.botUpdated,
+      'bot.updated' ||
+      'bot.config_updated' ||
+      'bot.synced' => GatewayBotEventType.botUpdated,
       'bot.deleted' => GatewayBotEventType.botDeleted,
       'ping' => GatewayBotEventType.ping,
       _ => GatewayBotEventType.unknown,
@@ -148,8 +149,7 @@ class GatewayBotEventsSession {
 
   final StreamController<GatewayBotEvent> _events =
       StreamController<GatewayBotEvent>.broadcast();
-  final StreamController<bool> _connection =
-      StreamController<bool>.broadcast();
+  final StreamController<bool> _connection = StreamController<bool>.broadcast();
 
   WebSocketChannel? _channel;
   StreamSubscription<dynamic>? _subscription;
@@ -185,7 +185,8 @@ class GatewayBotEventsSession {
     } catch (_) {}
 
     try {
-      final connect = connector ??
+      final connect =
+          connector ??
           (Uri uri) => IOWebSocketChannel.connect(uri, headers: headers);
       final channel = connect(wsUrl);
       _channel = channel;
@@ -211,8 +212,8 @@ class GatewayBotEventsSession {
       final decoded = raw is String
           ? jsonDecode(raw)
           : raw is List<int>
-              ? jsonDecode(utf8.decode(raw))
-              : raw;
+          ? jsonDecode(utf8.decode(raw))
+          : raw;
       if (decoded is! Map) return;
       final event = GatewayBotEvent.fromJson(
         Map<String, dynamic>.from(decoded.cast<dynamic, dynamic>()),

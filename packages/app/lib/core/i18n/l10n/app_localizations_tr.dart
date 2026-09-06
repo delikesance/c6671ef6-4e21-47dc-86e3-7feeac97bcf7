@@ -7131,7 +7131,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get subscription_restored => 'Abonelik başarıyla geri yüklendi!';
 
   @override
-  String get subscription_save_badge => '%67 TASARRUF ET';
+  String subscription_save_badge(int percent) {
+    return '%$percent TASARRUF ET';
+  }
 
   @override
   String get subscription_subtitle =>
