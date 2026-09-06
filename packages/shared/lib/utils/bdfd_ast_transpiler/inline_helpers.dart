@@ -413,11 +413,10 @@ extension _BdfdAstTranspilationScopeInlineHelpers
   String _inlineRandomText(BdfdFunctionCallAst node) {
     final args = List.generate(
       node.arguments.length,
-      (i) => _stringifyArgument(node, i),
+      (i) => _stringifyArgument(node, i).trim(),
     ).join(';');
     return '((randomtext[$args]))';
   }
-
 
   // ── getMessage helper ──────────────────────────────────────
 

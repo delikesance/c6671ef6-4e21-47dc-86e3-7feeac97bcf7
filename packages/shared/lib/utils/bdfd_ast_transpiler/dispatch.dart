@@ -22,7 +22,10 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         return true;
       case 'description':
         final index = _parseEmbedIndex(node, 1);
-        response.ensureEmbed(index)['description'] = _stringifyArgument(node, 0);
+        response.ensureEmbed(index)['description'] = _stringifyArgument(
+          node,
+          0,
+        );
         return true;
       case 'color':
         final index = _parseEmbedIndex(node, 1);
@@ -87,8 +90,9 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
       case 'addtimestamp':
         final timestamp = _stringifyArgument(node, 0);
         final index = _parseEmbedIndex(node, 1);
-        response.ensureEmbed(index)['timestamp'] =
-            timestamp.isEmpty ? 'now' : timestamp;
+        response.ensureEmbed(index)['timestamp'] = timestamp.isEmpty
+            ? 'now'
+            : timestamp;
         return true;
       case 'authoricon':
         final index = _parseEmbedIndex(node, 1);
@@ -325,10 +329,9 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         final soEmoji = _stringifyArgument(node, 3);
         final soDefault = _parseBooleanLike(_stringifyArgument(node, 4));
         final soMenuId = _stringifyArgument(node, 5);
-        final resolvedMenuId =
-            soMenuId.isNotEmpty
-                ? soMenuId
-                : (response._currentSelectMenuId ?? '');
+        final resolvedMenuId = soMenuId.isNotEmpty
+            ? soMenuId
+            : (response._currentSelectMenuId ?? '');
         response.addSelectMenuOption(
           menuId: resolvedMenuId,
           label: soLabel,
@@ -358,8 +361,9 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         return true;
       case 'addselectmenuoption':
         final menuId = _stringifyArgument(node, 0);
-        final resolvedMenuId =
-            menuId.isNotEmpty ? menuId : (response._currentSelectMenuId ?? '');
+        final resolvedMenuId = menuId.isNotEmpty
+            ? menuId
+            : (response._currentSelectMenuId ?? '');
         final label = _stringifyArgument(node, 1);
         final value = _stringifyArgument(node, 2);
         final description = _stringifyArgument(node, 3);
@@ -396,10 +400,12 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         response.editSelectMenu(
           customId: editMenuId,
           placeholder: editMenuPlaceholder.isEmpty ? null : editMenuPlaceholder,
-          minValues:
-              editMenuMinStr.isEmpty ? null : int.tryParse(editMenuMinStr),
-          maxValues:
-              editMenuMaxStr.isEmpty ? null : int.tryParse(editMenuMaxStr),
+          minValues: editMenuMinStr.isEmpty
+              ? null
+              : int.tryParse(editMenuMinStr),
+          maxValues: editMenuMaxStr.isEmpty
+              ? null
+              : int.tryParse(editMenuMaxStr),
         );
         return true;
       case 'editselectmenuoption':
@@ -415,10 +421,9 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
           label: editOptLabel.isEmpty ? null : editOptLabel,
           value: editOptValue.isEmpty ? null : editOptValue,
           description: editOptDesc,
-          isDefault:
-              editOptDefaultStr.isEmpty
-                  ? null
-                  : _parseBooleanLike(editOptDefaultStr),
+          isDefault: editOptDefaultStr.isEmpty
+              ? null
+              : _parseBooleanLike(editOptDefaultStr),
           emoji: editOptEmoji,
         );
         return true;
@@ -432,10 +437,9 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
           buttonIdOrUrl: editBtnIdOrUrl,
           label: editBtnLabel.isEmpty ? null : editBtnLabel,
           style: editBtnStyle.isEmpty ? null : editBtnStyle,
-          disabled:
-              editBtnDisabledStr.isEmpty
-                  ? null
-                  : _parseBooleanLike(editBtnDisabledStr),
+          disabled: editBtnDisabledStr.isEmpty
+              ? null
+              : _parseBooleanLike(editBtnDisabledStr),
           emoji: editBtnEmoji.isEmpty ? null : editBtnEmoji,
         );
         return true;
@@ -479,17 +483,17 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         final rgoLabel = _stringifyArgument(node, 1);
         final rgoValue = _stringifyArgument(node, 2);
         final rgoDesc = _stringifyArgument(node, 3);
-        final rgoDefault =
-            _parseBooleanLike(_stringifyArgument(node, 4));
-        final resolvedGroupId =
-            rgoMenuId.isNotEmpty
-                ? rgoMenuId
-                : (_pendingModalGroupId ?? '');
+        final rgoDefault = _parseBooleanLike(_stringifyArgument(node, 4));
+        final resolvedGroupId = rgoMenuId.isNotEmpty
+            ? rgoMenuId
+            : (_pendingModalGroupId ?? '');
         // Try modal components first, then fall back to message components.
         var appended = false;
-        for (var i = _pendingModalComponents.length - 1;
-            i >= 0 && !appended;
-            i--) {
+        for (
+          var i = _pendingModalComponents.length - 1;
+          i >= 0 && !appended;
+          i--
+        ) {
           final wrapper = _pendingModalComponents[i];
           if (wrapper['type'] != 'label') continue;
           final child = wrapper['component'];
@@ -558,16 +562,16 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         final cgoLabel = _stringifyArgument(node, 1);
         final cgoValue = _stringifyArgument(node, 2);
         final cgoDesc = _stringifyArgument(node, 3);
-        final cgoDefault =
-            _parseBooleanLike(_stringifyArgument(node, 4));
-        final resolvedGroupIdC =
-            cgoMenuId.isNotEmpty
-                ? cgoMenuId
-                : (_pendingModalGroupId ?? '');
+        final cgoDefault = _parseBooleanLike(_stringifyArgument(node, 4));
+        final resolvedGroupIdC = cgoMenuId.isNotEmpty
+            ? cgoMenuId
+            : (_pendingModalGroupId ?? '');
         var appended = false;
-        for (var i = _pendingModalComponents.length - 1;
-            i >= 0 && !appended;
-            i--) {
+        for (
+          var i = _pendingModalComponents.length - 1;
+          i >= 0 && !appended;
+          i--
+        ) {
           final wrapper = _pendingModalComponents[i];
           if (wrapper['type'] != 'label') continue;
           final child = wrapper['component'];
@@ -669,14 +673,16 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         final raw = _stringifyArgument(node, 0).trim().toLowerCase();
         _enableDecimals = raw == 'yes' || raw == 'true' || raw == '1';
         // Emit a temp variable so the runtime bracket handler can check it.
-        _deferredInlineActions.add(Action(
-          type: BotCreatorActionType.setTemporaryVariable,
-          payload: <String, dynamic>{
-            'key': '_enableDecimals',
-            'valueType': 'string',
-            'value': _enableDecimals ? 'yes' : 'no',
-          },
-        ));
+        _deferredInlineActions.add(
+          Action(
+            type: BotCreatorActionType.setTemporaryVariable,
+            payload: <String, dynamic>{
+              'key': '_enableDecimals',
+              'valueType': 'string',
+              'value': _enableDecimals ? 'yes' : 'no',
+            },
+          ),
+        );
         return true;
       default:
         return false;
@@ -720,6 +726,7 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         return _transpileOnlyBotChannelPerms(node);
       case 'checkuserperms':
       case 'checkusersperms':
+      case 'hasperms':
         return _transpileCheckUserPerms(node);
       case 'onlyifmessagecontains':
         return _transpileOnlyIfMessageContains(node);
@@ -984,6 +991,8 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         return _buildAddMessageReactionsAction(node);
       case 'clearreactions':
         return _buildClearReactionsAction(node);
+      case 'removereaction':
+        return _buildRemoveReactionAction(node);
       // Emoji actions
       case 'addemoji':
         return _buildAddEmojiAction(node);
@@ -1056,8 +1065,7 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
             'type': 'textInput',
             'customId': mtiCustomId,
             'style': mtiStyle.isNotEmpty ? mtiStyle : 'short',
-            if (mtiMinStr.isNotEmpty)
-              'minLength': int.tryParse(mtiMinStr) ?? 0,
+            if (mtiMinStr.isNotEmpty) 'minLength': int.tryParse(mtiMinStr) ?? 0,
             if (mtiMaxStr.isNotEmpty)
               'maxLength': int.tryParse(mtiMaxStr) ?? 4000,
             'required': mtiRequired,
@@ -1090,10 +1098,8 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
             'menuType': msType.isNotEmpty ? msType : 'string',
             'customId': msCustomId,
             if (msPlaceholder.isNotEmpty) 'placeholder': msPlaceholder,
-            if (msMinStr.isNotEmpty)
-              'minValues': int.tryParse(msMinStr) ?? 1,
-            if (msMaxStr.isNotEmpty)
-              'maxValues': int.tryParse(msMaxStr) ?? 1,
+            if (msMinStr.isNotEmpty) 'minValues': int.tryParse(msMinStr) ?? 1,
+            if (msMaxStr.isNotEmpty) 'maxValues': int.tryParse(msMaxStr) ?? 1,
             'required': msRequired,
             'disabled': msDisabled,
           },
@@ -1113,10 +1119,8 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
           'component': <String, dynamic>{
             'type': 'fileUpload',
             'customId': mfuCustomId,
-            if (mfuMinStr.isNotEmpty)
-              'minValues': int.tryParse(mfuMinStr) ?? 1,
-            if (mfuMaxStr.isNotEmpty)
-              'maxValues': int.tryParse(mfuMaxStr) ?? 1,
+            if (mfuMinStr.isNotEmpty) 'minValues': int.tryParse(mfuMinStr) ?? 1,
+            if (mfuMaxStr.isNotEmpty) 'maxValues': int.tryParse(mfuMaxStr) ?? 1,
             'required': mfuRequired,
           },
         });
@@ -1153,10 +1157,8 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
           'component': <String, dynamic>{
             'type': 'checkboxGroup',
             'customId': mcgCustomId,
-            if (mcgMinStr.isNotEmpty)
-              'minValues': int.tryParse(mcgMinStr) ?? 1,
-            if (mcgMaxStr.isNotEmpty)
-              'maxValues': int.tryParse(mcgMaxStr) ?? 1,
+            if (mcgMinStr.isNotEmpty) 'minValues': int.tryParse(mcgMinStr) ?? 1,
+            if (mcgMaxStr.isNotEmpty) 'maxValues': int.tryParse(mcgMaxStr) ?? 1,
             'required': mcgRequired,
           },
         });
@@ -1199,8 +1201,9 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
       // Variable operations
       case 'setvar':
         // BDFD wiki: $setVar[Variable name;New value;(User ID)]
-        final svUserId =
-            node.arguments.length > 2 ? _stringifyArgument(node, 2).trim() : '';
+        final svUserId = node.arguments.length > 2
+            ? _stringifyArgument(node, 2).trim()
+            : '';
         return _buildSetScopedVariableAction(
           scope: svUserId.isNotEmpty ? 'user' : 'global',
           node: node,
@@ -1360,23 +1363,17 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
       case 'setmusicvolume':
         return Action(
           type: BotCreatorActionType.setMusicVolume,
-          payload: <String, dynamic>{
-            'volume': _stringifyArgument(node, 0),
-          },
+          payload: <String, dynamic>{'volume': _stringifyArgument(node, 0)},
         );
       case 'setmusicloop':
         return Action(
           type: BotCreatorActionType.setMusicLoop,
-          payload: <String, dynamic>{
-            'loop': _stringifyArgument(node, 0),
-          },
+          payload: <String, dynamic>{'loop': _stringifyArgument(node, 0)},
         );
       case 'seekmusic':
         return Action(
           type: BotCreatorActionType.seekMusic,
-          payload: <String, dynamic>{
-            'position': _stringifyArgument(node, 0),
-          },
+          payload: <String, dynamic>{'position': _stringifyArgument(node, 0)},
         );
       case 'joinvoice':
         return Action(
@@ -1877,8 +1874,9 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
       permissionsStartAt = 0;
     } else {
       final normalizedChannel = _normalizeDiscordIdToken(firstArgumentRaw);
-      channelId =
-          normalizedChannel.isEmpty ? '((channel.id))' : normalizedChannel;
+      channelId = normalizedChannel.isEmpty
+          ? '((channel.id))'
+          : normalizedChannel;
       permissionsStartAt = 1;
     }
 
@@ -2082,8 +2080,9 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
     final hasErrorMessage =
         node.arguments.length >= 3 &&
         _looksLikeLikelyErrorMessage(_stringifyNodes(node.arguments.last));
-    final wordsEndExclusive =
-        hasErrorMessage ? node.arguments.length - 1 : node.arguments.length;
+    final wordsEndExclusive = hasErrorMessage
+        ? node.arguments.length - 1
+        : node.arguments.length;
 
     for (var index = 1; index < wordsEndExclusive; index++) {
       final word = _stringifyArgument(node, index).trim();
@@ -2188,10 +2187,9 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
 
     final lastArgument = _stringifyNodes(node.arguments.last);
     final hasMessage = _looksLikeLikelyErrorMessage(lastArgument);
-    final valueArguments =
-        hasMessage
-            ? node.arguments.sublist(0, node.arguments.length - 1)
-            : node.arguments;
+    final valueArguments = hasMessage
+        ? node.arguments.sublist(0, node.arguments.length - 1)
+        : node.arguments;
     return _GuardValuesAndMessage(
       values: _extractValueArguments(valueArguments),
       message: hasMessage ? lastArgument : '',
@@ -2247,8 +2245,9 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
       return '';
     }
 
-    final digits =
-        RegExp(r'\d+').allMatches(trimmed).map((m) => m.group(0)!).join();
+    final digits = RegExp(
+      r'\d+',
+    ).allMatches(trimmed).map((m) => m.group(0)!).join();
     if (digits.isNotEmpty) {
       return digits;
     }

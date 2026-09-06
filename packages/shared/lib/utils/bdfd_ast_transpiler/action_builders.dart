@@ -928,6 +928,47 @@ extension _BdfdAstTranspilationScopeActionBuilders
     );
   }
 
+  Action _buildRemoveReactionAction(BdfdFunctionCallAst node) {
+    // $removeReaction[channelID;messageID;emoji] or $removeReaction[emoji]
+    if (node.arguments.length >= 3) {
+      final channelId = _stringifyArgument(node, 0).trim();
+      final messageId = _stringifyArgument(node, 1).trim();
+      final emoji = _stringifyArgument(node, 2).trim();
+      return Action(
+        type: BotCreatorActionType.removeReaction,
+        payload: <String, dynamic>{
+          'channelId': channelId.isEmpty ? '((channel.id))' : channelId,
+          'messageId': messageId.isEmpty ? '((message.id))' : messageId,
+          'emoji': emoji,
+          'removeOwn': true,
+        },
+      );
+    } else if (node.arguments.length == 1) {
+      final emoji = _stringifyArgument(node, 0).trim();
+      return Action(
+        type: BotCreatorActionType.removeReaction,
+        payload: <String, dynamic>{
+          'channelId': '((channel.id))',
+          'messageId': '((message.id))',
+          'emoji': emoji,
+          'removeOwn': true,
+        },
+      );
+    } else {
+      final channelId = _stringifyArgument(node, 0).trim();
+      final emoji = _stringifyArgument(node, 1).trim();
+      return Action(
+        type: BotCreatorActionType.removeReaction,
+        payload: <String, dynamic>{
+          'channelId': channelId.isEmpty ? '((channel.id))' : channelId,
+          'messageId': '((message.id))',
+          'emoji': emoji,
+          'removeOwn': true,
+        },
+      );
+    }
+  }
+
   // ── Emoji action builders ──────────────────────────────────────
 
   Action? _buildAddEmojiAction(BdfdFunctionCallAst node) {

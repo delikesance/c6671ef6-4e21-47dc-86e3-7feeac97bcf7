@@ -235,6 +235,53 @@ String? _lookupVariableValue(String key, Map<String, String> updates) {
         '${secs.toString().padLeft(2, '0')}';
   }
 
+  // Dynamic random property fallbacks
+  if (loweredKey == 'random.userid' || loweredKey == 'randomuserid') {
+    final authorId = updates['author.id'] ?? updates['user.id'] ?? '';
+    return authorId.isNotEmpty ? authorId : '0';
+  }
+  if (loweredKey == 'random.user' || loweredKey == 'randomuser') {
+    final name =
+        updates['author.username'] ??
+        updates['user.username'] ??
+        updates['author.displayName'] ??
+        '';
+    return name.isNotEmpty ? name : 'User';
+  }
+  if (loweredKey == 'random.mention' || loweredKey == 'randommention') {
+    final authorId = updates['author.id'] ?? updates['user.id'] ?? '';
+    return authorId.isNotEmpty ? '<@$authorId>' : '<@0>';
+  }
+  if (loweredKey == 'random.channelid' || loweredKey == 'randomchannelid') {
+    final channelId =
+        updates['channel.id'] ?? updates['interaction.channel.id'] ?? '';
+    return channelId.isNotEmpty ? channelId : '0';
+  }
+  if (loweredKey == 'random.guildid' || loweredKey == 'randomguildid') {
+    final guildId =
+        updates['guild.id'] ?? updates['interaction.guild.id'] ?? '';
+    return guildId.isNotEmpty ? guildId : '0';
+  }
+  if (loweredKey == 'random.roleid' || loweredKey == 'randomroleid') {
+    final memberRoles = (updates['member.roles'] ?? '')
+        .split(',')
+        .map((s) => s.trim())
+        .where((s) => s.isNotEmpty)
+        .toList();
+    if (memberRoles.isNotEmpty) {
+      return memberRoles[_random.nextInt(memberRoles.length)];
+    }
+    return updates['guild.id'] ?? '0';
+  }
+  if (loweredKey == 'random.categoryid' || loweredKey == 'randomcategoryid') {
+    final catId =
+        updates['channel.parentId'] ??
+        updates['channel.parent_id'] ??
+        updates['category.id'] ??
+        '';
+    return catId.isNotEmpty ? catId : (updates['channel.id'] ?? '0');
+  }
+
   // Numeric member count fallbacks for BDFD compliance
   if (loweredKey == 'guild.onlinemembers' ||
       loweredKey == 'guild.offlinemembers' ||
@@ -1006,12 +1053,18 @@ dynamic _applyBdfdBracketFunction(
       }
       return min + _random.nextInt(max - min + 1);
     case 'randomtext':
-      if (resolvedArgs.isEmpty) {
+      final sourceArgs = rawArgs.isNotEmpty
+          ? rawArgs
+          : resolvedArgs.map((a) => _stringifyResolvedValue(a)).toList();
+      if (sourceArgs.isEmpty) {
         return '';
       }
-      return _stringifyResolvedValue(
-        resolvedArgs[_random.nextInt(resolvedArgs.length)],
-      );
+      final options = sourceArgs.map((a) => a.trim()).toList();
+      if (options.length == 1 && options.first.isEmpty) {
+        return '';
+      }
+      final chosen = options[_random.nextInt(options.length)];
+      return resolveTemplatePlaceholders(chosen, updates);
     case 'date':
       final now = DateTime.now().toUtc();
       return '${now.year}-'
@@ -1094,6 +1147,47 @@ dynamic _applyBdfdBracketFunction(
           ? bdfdPerms.take(returnAmount).toList()
           : bdfdPerms;
       return resultList.join(separator);
+    case 'authorperms':
+    case 'memberperms':
+      final authorIdVal = _lookupVariableValue('author.id', updates) ?? '';
+      final rawMemberPerms =
+          _lookupVariableValue('member.permissions', updates) ??
+          _lookupVariableValue('permissions.byId.$authorIdVal', updates) ??
+          '';
+      if (rawMemberPerms.isEmpty) return '';
+      final permList = rawMemberPerms
+          .split(',')
+          .map((s) => s.trim())
+          .where((s) => s.isNotEmpty)
+          .toList();
+      final mappedBdfd = <String>[];
+      for (final p in permList) {
+        final bdfdName = _mapToLowercaseToBdfdPerm(p);
+        if (bdfdName != null) mappedBdfd.add(bdfdName);
+      }
+      return mappedBdfd.join(', ');
+    case 'getrole':
+      final targetUserId = resolvedArgs.isNotEmpty
+          ? _stringifyResolvedValue(resolvedArgs[0]).trim()
+          : (_lookupVariableValue('author.id', updates) ?? '');
+      final rawIndex = resolvedArgs.length > 1
+          ? _coerceInt(resolvedArgs[1]) ?? 1
+          : 1;
+      final rolesStr =
+          _lookupVariableValue('member[$targetUserId].roles', updates) ??
+          _lookupVariableValue('member.roles', updates) ??
+          '';
+      if (rolesStr.isEmpty) return '';
+      final roleList = rolesStr
+          .split(',')
+          .map((s) => s.trim())
+          .where((s) => s.isNotEmpty)
+          .toList();
+      final oneBasedIndex = rawIndex - 1;
+      if (oneBasedIndex >= 0 && oneBasedIndex < roleList.length) {
+        return roleList[oneBasedIndex];
+      }
+      return '';
     case 'servernames':
       final amount = resolvedArgs.isNotEmpty
           ? _coerceInt(resolvedArgs[0]) ?? -1
@@ -1563,6 +1657,7 @@ dynamic _applyFunction(
       // random() is kept as a legacy alias.
       return _random.nextBool() ? 'true' : '';
     case 'randomchoice':
+    case 'randomtext':
       // randomchoice("a", "b", "c") → picks one at random
       if (args.isEmpty) {
         return null;
@@ -1643,48 +1738,48 @@ _ResolvedExpression _evaluateSingleExpression(
   final bracketFunctionCall = _parseBracketFunctionCall(trimmed);
   if (bracketFunctionCall != null) {
     final rawArgs = _splitTopLevel(bracketFunctionCall.inner, ';');
-    final resolvedArgs = <dynamic>[];
-    var argsResolved = true;
-    for (final arg in rawArgs) {
-      final outcome = _evaluateExpression(arg, updates);
-      if (!outcome.found) {
-        final nameLower = bracketFunctionCall.name.trim().toLowerCase();
-        if (nameLower == 'and' ||
-            nameLower == 'or' ||
-            nameLower == 'listvar' ||
-            nameLower == 'variablescount' ||
-            nameLower == 'userperms' ||
-            nameLower == 'url' ||
-            nameLower == 'tolowercase' ||
-            nameLower == 'touppercase' ||
-            nameLower == 'totitlecase' ||
-            nameLower == 'trimcontent' ||
-            nameLower == 'trimspace' ||
-            nameLower == 'charcount' ||
-            nameLower == 'linescount' ||
-            nameLower == 'croptext' ||
-            nameLower == 'split' ||
-            nameLower == 'bytecount' ||
-            nameLower == 'servernames' ||
-            nameLower == 'checkcondition') {
-          resolvedArgs.add(arg.trim());
-          continue;
-        }
-        argsResolved = false;
-        break;
-      }
-      resolvedArgs.add(outcome.value);
-    }
-    if (argsResolved) {
+    final nameLower = bracketFunctionCall.name.trim().toLowerCase();
+
+    // Fast-path for functions that operate directly on raw condition/template expressions
+    if (nameLower == 'randomtext' ||
+        nameLower == 'calculate' ||
+        nameLower == 'checkcondition' ||
+        nameLower == 'and' ||
+        nameLower == 'or') {
       final value = _applyBdfdBracketFunction(
         bracketFunctionCall.name,
         rawArgs,
-        resolvedArgs,
+        const [],
         updates,
       );
       if (value != null) {
         return _ResolvedExpression(found: true, value: value);
       }
+    }
+
+    final resolvedArgs = <dynamic>[];
+    for (final arg in rawArgs) {
+      final outcome = _evaluateExpression(arg, updates);
+      if (outcome.found) {
+        resolvedArgs.add(outcome.value);
+      } else {
+        final resolvedText = resolveTemplatePlaceholders(arg.trim(), updates);
+        final numVal = num.tryParse(resolvedText);
+        if (numVal != null) {
+          resolvedArgs.add(numVal);
+        } else {
+          resolvedArgs.add(resolvedText);
+        }
+      }
+    }
+    final value = _applyBdfdBracketFunction(
+      bracketFunctionCall.name,
+      rawArgs,
+      resolvedArgs,
+      updates,
+    );
+    if (value != null) {
+      return _ResolvedExpression(found: true, value: value);
     }
     // Fallback: If argument resolution or function evaluation fails,
     // check if the fully-resolved key exists directly in updates.
