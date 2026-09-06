@@ -59,17 +59,25 @@ class _ScratchBlockCanvasState extends State<ScratchBlockCanvas> {
     final items = <Widget>[];
     for (var i = 0; i < widget.children.length; i++) {
       items.add(widget.children[i]);
-      if (i < widget.children.length - 1 && !widget.skipConnectorAfterIndices.contains(i)) {
-        items.add(ScratchBlockConnector(color: widget.connectorColor));
+      if (i < widget.children.length - 1) {
+        if (!widget.skipConnectorAfterIndices.contains(i)) {
+          items.add(ScratchBlockConnector(color: widget.connectorColor));
+        } else {
+          // Always maintain clean vertical breathing room between blocks even when
+          // the arrow connector line is suppressed.
+          items.add(const SizedBox(height: 12));
+        }
       }
     }
 
     final isRunningTests = Platform.environment.containsKey('FLUTTER_TEST');
-    final isDesktopPlatform = const [
-      TargetPlatform.macOS,
-      TargetPlatform.windows,
-      TargetPlatform.linux,
-    ].contains(Theme.of(context).platform) && !isRunningTests;
+    final isDesktopPlatform =
+        const [
+          TargetPlatform.macOS,
+          TargetPlatform.windows,
+          TargetPlatform.linux,
+        ].contains(Theme.of(context).platform) &&
+        !isRunningTests;
 
     final scrollable = SingleChildScrollView(
       controller: isRunningTests ? null : _scrollController,
@@ -82,10 +90,7 @@ class _ScratchBlockCanvasState extends State<ScratchBlockCanvas> {
 
     return RepaintBoundary(
       child: isDesktopPlatform
-          ? Scrollbar(
-              controller: _scrollController,
-              child: scrollable,
-            )
+          ? Scrollbar(controller: _scrollController, child: scrollable)
           : scrollable,
     );
   }

@@ -67,10 +67,9 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
     });
 
     try {
-      final result =
-          annual
-              ? await SubscriptionService.purchaseAnnual()
-              : await SubscriptionService.purchaseMonthly();
+      final result = annual
+          ? await SubscriptionService.purchaseAnnual()
+          : await SubscriptionService.purchaseMonthly();
 
       if (!result.started && mounted) {
         setState(
@@ -132,6 +131,11 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
       maxChildSize: 0.95,
       expand: false,
       builder: (context, scrollController) {
+        final savingsPercent = _calculateAnnualSavingsPercent();
+        final annualBadge = savingsPercent != null
+            ? context.tr.subscription_save_badge(savingsPercent)
+            : null;
+
         return SingleChildScrollView(
           controller: scrollController,
           padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
@@ -206,9 +210,9 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
               // Annual plan (recommended)
               _PlanCard(
                 title: context.tr.subscription_annual_title,
-                price: _priceForProduct(kAnnualSubscriptionId, '8,00 €'),
+                price: _priceForProduct(kAnnualSubscriptionId, '59,99 €'),
                 period: context.tr.subscription_per_year,
-                badge: context.tr.subscription_save_badge,
+                badge: annualBadge,
                 isPrimary: true,
                 onTap: _purchasing ? null : () => _buy(annual: true),
               ),
@@ -217,7 +221,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
               // Monthly plan
               _PlanCard(
                 title: context.tr.subscription_monthly_title,
-                price: _priceForProduct(kMonthlySubscriptionId, '2,00 €'),
+                price: _priceForProduct(kMonthlySubscriptionId, '5,99 €'),
                 period: context.tr.subscription_per_month,
                 isPrimary: false,
                 onTap: _purchasing ? null : () => _buy(annual: false),
@@ -280,6 +284,33 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
     return fallback;
   }
 
+  double? _extractPriceAmount(String productId, String fallback) {
+    final product = SubscriptionService.products.cast<dynamic>().firstWhere(
+      (p) => p.id == productId,
+      orElse: () => null,
+    );
+    if (product != null &&
+        product.rawPrice != null &&
+        (product.rawPrice as num) > 0) {
+      return (product.rawPrice as num).toDouble();
+    }
+    final priceStr = product?.price as String? ?? fallback;
+    final sanitized = priceStr
+        .replaceAll(RegExp(r'[^\d,\.]'), '')
+        .replaceAll(',', '.');
+    return double.tryParse(sanitized);
+  }
+
+  int? _calculateAnnualSavingsPercent() {
+    final annualAmount = _extractPriceAmount(kAnnualSubscriptionId, '59,99 €');
+    final monthlyAmount = _extractPriceAmount(kMonthlySubscriptionId, '5,99 €');
+    return SubscriptionService.calculateAnnualSavingsPercent(
+      annualPrice: annualAmount,
+      monthlyPrice: monthlyAmount,
+      minThresholdPercent: 10,
+    );
+  }
+
   static String get _termsUrl {
     if (!kIsWeb && Platform.isIOS) {
       return 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
@@ -333,10 +364,9 @@ class _BenefitRow extends StatelessWidget {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color:
-                            Theme.of(
-                              context,
-                            ).colorScheme.surfaceContainerHighest,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(
                           AppTheme.radiusPill,
                         ),
@@ -390,10 +420,9 @@ class _PlanCard extends StatelessWidget {
       elevation: isPrimary ? 4 : 1,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-        side:
-            isPrimary
-                ? const BorderSide(color: AppTheme.premiumGold, width: 2)
-                : BorderSide.none,
+        side: isPrimary
+            ? const BorderSide(color: AppTheme.premiumGold, width: 2)
+            : BorderSide.none,
       ),
       child: InkWell(
         onTap: onTap,

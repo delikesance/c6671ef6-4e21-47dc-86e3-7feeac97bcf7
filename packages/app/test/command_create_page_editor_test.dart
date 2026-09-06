@@ -10,8 +10,7 @@ import 'package:bot_creator/core/storage/database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:nyxx/nyxx.dart'
-    show CommandOptionBuilder, CommandOptionType;
+import 'package:nyxx/nyxx.dart' show CommandOptionBuilder, CommandOptionType;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
@@ -56,38 +55,37 @@ void main() {
     required bool includeSubcommands,
     bool legacyModeEnabled = false,
   }) async {
-    final options =
-        includeSubcommands
-            ? serializeCommandOptions(<CommandOptionBuilder>[
-              CommandOptionBuilder(
-                  type: CommandOptionType.subCommandGroup,
-                  name: 'config',
-                  description: 'Configuration routes',
-                  isRequired: false,
-                )
-                ..options = <CommandOptionBuilder>[
-                  CommandOptionBuilder(
-                    type: CommandOptionType.subCommand,
-                    name: 'status',
-                    description: 'Status route',
-                    isRequired: false,
-                  ),
-                  CommandOptionBuilder(
-                    type: CommandOptionType.subCommand,
-                    name: 'logchannel',
-                    description: 'Log route',
-                    isRequired: false,
-                  ),
-                ],
-            ])
-            : serializeCommandOptions(<CommandOptionBuilder>[
-              CommandOptionBuilder(
-                type: CommandOptionType.string,
-                name: 'target',
-                description: 'Target value',
+    final options = includeSubcommands
+        ? serializeCommandOptions(<CommandOptionBuilder>[
+            CommandOptionBuilder(
+                type: CommandOptionType.subCommandGroup,
+                name: 'config',
+                description: 'Configuration routes',
                 isRequired: false,
-              ),
-            ]);
+              )
+              ..options = <CommandOptionBuilder>[
+                CommandOptionBuilder(
+                  type: CommandOptionType.subCommand,
+                  name: 'status',
+                  description: 'Status route',
+                  isRequired: false,
+                ),
+                CommandOptionBuilder(
+                  type: CommandOptionType.subCommand,
+                  name: 'logchannel',
+                  description: 'Log route',
+                  isRequired: false,
+                ),
+              ],
+          ])
+        : serializeCommandOptions(<CommandOptionBuilder>[
+            CommandOptionBuilder(
+              type: CommandOptionType.string,
+              name: 'target',
+              description: 'Target value',
+              isRequired: false,
+            ),
+          ]);
 
     final workflow = <String, dynamic>{
       'workflowMode': 'visual',
@@ -225,7 +223,7 @@ void main() {
       );
 
       expect(find.text('Metadata'), findsOneWidget);
-      expect(find.text('Command Trigger'), findsOneWidget);
+      expect(find.textContaining('Command Trigger'), findsOneWidget);
       expect(find.text('Response'), findsNothing);
       expect(find.byTooltip('All changes saved'), findsOneWidget);
       expect(find.byTooltip('Import command'), findsNothing);
@@ -249,7 +247,9 @@ void main() {
       );
 
       final metadataY = tester.getTopLeft(find.text('Metadata')).dy;
-      final entryPointY = tester.getTopLeft(find.text('Command Trigger')).dy;
+      final entryPointY = tester
+          .getTopLeft(find.textContaining('Command Trigger'))
+          .dy;
 
       expect(metadataY, lessThan(entryPointY));
     });

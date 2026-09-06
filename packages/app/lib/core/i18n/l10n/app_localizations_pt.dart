@@ -7173,7 +7173,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get subscription_restored => 'Assinatura restaurada com sucesso!';
 
   @override
-  String get subscription_save_badge => 'ECONOMIZE 67%';
+  String subscription_save_badge(int percent) {
+    return 'ECONOMIZE $percent%';
+  }
 
   @override
   String get subscription_subtitle =>

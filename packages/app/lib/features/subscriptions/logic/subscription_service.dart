@@ -1194,6 +1194,28 @@ class SubscriptionService {
       startedAt: startedAt,
     );
   }
+
+  /// Calculates the savings percentage of an annual subscription compared to 12 months.
+  /// Returns null if savings are less than [minThresholdPercent] (default 10) or incoherent.
+  static int? calculateAnnualSavingsPercent({
+    required double? annualPrice,
+    required double? monthlyPrice,
+    int minThresholdPercent = 10,
+  }) {
+    if (annualPrice == null || monthlyPrice == null || monthlyPrice <= 0) {
+      return null;
+    }
+    final annualFromMonthly = 12 * monthlyPrice;
+    if (annualFromMonthly <= 0 || annualPrice >= annualFromMonthly) {
+      return null;
+    }
+    final savingsPercent =
+        ((annualFromMonthly - annualPrice) / annualFromMonthly * 100).round();
+    if (savingsPercent < minThresholdPercent) {
+      return null;
+    }
+    return savingsPercent;
+  }
 }
 
 class _SubscriptionLifecycleObserver extends WidgetsBindingObserver {

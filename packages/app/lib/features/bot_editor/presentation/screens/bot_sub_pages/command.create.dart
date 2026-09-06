@@ -44,13 +44,15 @@ import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blo
 import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/metadata_block.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/entry_point_block.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/action_block.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/blueprint/blueprint_graph_canvas.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/blueprint/blueprint_models.dart';
 import 'package:bot_creator/core/models/types/variable_suggestion.dart';
 import 'package:bot_creator_shared/utils/variable_catalog.dart'
     show inferCategory;
 import 'package:bot_creator/features/bot_editor/logic/command_editor_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:nyxx/nyxx.dart';
+import 'package:nyxx/nyxx.dart' hide ButtonStyle;
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import 'dart:developer' as developer;
@@ -176,6 +178,15 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       <String, Map<String, dynamic>>{};
   String _activeSubcommandRoute = _rootWorkflowRoute;
   int _currentEditorStep = 0;
+
+  /// View layout mode on Desktop: 'linear' (Scratch blocks) or 'blueprint' (Unreal node graph).
+  String _desktopViewMode = 'linear';
+
+  /// Persisted node coordinates on the 2D Blueprint canvas
+  final Map<String, Offset> _blueprintNodePositions = <String, Offset>{};
+
+  /// Set of connection IDs severed by the user in Blueprint mode
+  final Set<String> _blueprintSeveredConnections = <String>{};
 
   bool get _isSimpleMode => false;
 
@@ -2072,7 +2083,18 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         child: Scaffold(
           appBar: AppBar(
             backgroundColor: AppTheme.brandPrimary,
+            title: Text(
+              _commandName.trim().isNotEmpty
+                  ? '/${_commandName.trim()}'
+                  : context.tr.edit_shell_untitled_command,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
             actions: [
+              IconButton(
+                tooltip: context.tr.edit_shell_command_settings,
+                onPressed: _openCommandSettings,
+                icon: const Icon(Icons.tune_rounded),
+              ),
               if (!_isEditingExistingCommand)
                 IconButton(
                   tooltip: context.tr.serialization_import_title,

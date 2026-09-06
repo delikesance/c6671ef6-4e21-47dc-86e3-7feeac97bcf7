@@ -7073,7 +7073,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get subscription_restored => 'Subscription restored successfully!';
 
   @override
-  String get subscription_save_badge => 'SAVE 67%';
+  String subscription_save_badge(int percent) {
+    return 'SAVE $percent%';
+  }
 
   @override
   String get subscription_subtitle =>
