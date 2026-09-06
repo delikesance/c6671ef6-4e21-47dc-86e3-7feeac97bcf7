@@ -474,12 +474,13 @@ class _BdfdAstTranspilationScope {
         // $color, $title, etc.). Resolve them BEFORE response mutation checks.
         if (_loopDepth > 0 &&
             _loopStringVariables.containsKey(node.normalizedName)) {
-          final isEffectivelyEmptyArgs = node.arguments.isEmpty ||
-              (node.arguments.length == 1 &&
-                  node.arguments.first.isEmpty);
+          final isEffectivelyEmptyArgs =
+              node.arguments.isEmpty ||
+              (node.arguments.length == 1 && node.arguments.first.isEmpty);
           if (isEffectivelyEmptyArgs) {
-            pendingResponse
-                .appendContent(_loopStringVariables[node.normalizedName]!);
+            pendingResponse.appendContent(
+              _loopStringVariables[node.normalizedName]!,
+            );
             index += 1;
             continue;
           }
@@ -499,7 +500,8 @@ class _BdfdAstTranspilationScope {
 
         final isCheckUserPermsInlineCandidate =
             node.normalizedName == 'checkuserperms' ||
-            node.normalizedName == 'checkusersperms';
+            node.normalizedName == 'checkusersperms' ||
+            node.normalizedName == 'hasperms';
         final hasTrailingTextNode =
             index + 1 < nodes.length && nodes[index + 1] is BdfdTextAst;
         final allowsTopLevelInline =

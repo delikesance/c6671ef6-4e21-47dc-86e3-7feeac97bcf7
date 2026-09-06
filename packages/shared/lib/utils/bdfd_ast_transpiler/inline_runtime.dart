@@ -72,6 +72,7 @@ extension _BdfdAstTranspilationScopeInlineRuntime
         return '';
       case 'checkuserperms':
       case 'checkusersperms':
+      case 'hasperms':
         return _inlineCheckUserPerms(node);
       case 'message':
         return _inlineMessageArgument(node);
@@ -340,6 +341,14 @@ extension _BdfdAstTranspilationScopeInlineRuntime
           return '((role[$roleId].color))';
         }
         return '';
+      case 'getrole':
+        final userId = node.arguments.isNotEmpty
+            ? _stringifyArgument(node, 0).trim()
+            : '';
+        final index = node.arguments.length > 1
+            ? _stringifyArgument(node, 1).trim()
+            : '1';
+        return '((getrole[$userId;$index]))';
       case 'ishoisted':
         final roleId = _stringifyArgument(node, 0).trim();
         if (roleId.isNotEmpty) {
@@ -392,6 +401,8 @@ extension _BdfdAstTranspilationScopeInlineRuntime
         }
         return _inlineRuntimeVariables['userbanner'];
       case 'userperms':
+      case 'authorperms':
+      case 'memberperms':
         final userId = node.arguments.isNotEmpty
             ? _stringifyArgument(node, 0).trim()
             : '';
@@ -1176,6 +1187,7 @@ extension _BdfdAstTranspilationScopeInlineRuntime
       case 'threadremovemember':
       case 'checkuserperms':
       case 'checkusersperms':
+      case 'hasperms':
       case 'message':
       case 'args':
       case 'i':
@@ -1276,6 +1288,7 @@ extension _BdfdAstTranspilationScopeInlineRuntime
       case 'roleexists':
       case 'roleperms':
       case 'roleposition':
+      case 'getrole':
       case 'getrolecolor':
       case 'isbot':
       case 'ishoisted':
@@ -1352,6 +1365,7 @@ extension _BdfdAstTranspilationScopeInlineRuntime
       case 'onlybotchannelperms':
       case 'checkuserperms':
       case 'checkusersperms':
+      case 'hasperms':
       case 'onlyifmessagecontains':
       case 'argscheck':
       // ── Control flow ──

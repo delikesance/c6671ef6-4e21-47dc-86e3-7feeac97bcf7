@@ -88,8 +88,9 @@ BdfdSignatureContext? bdfdSignatureContextAt(
   return BdfdSignatureContext(
     functionName: funcName,
     parameters: params,
-    activeIndex:
-        params.isEmpty ? 0 : frame.argIndex.clamp(0, params.length - 1),
+    activeIndex: params.isEmpty
+        ? 0
+        : frame.argIndex.clamp(0, params.length - 1),
   );
 }
 
@@ -272,6 +273,7 @@ const Map<String, List<String>> bdfdSignatureHints = <String, List<String>>{
   'giverole': ['userID', 'roleID'],
   'giveroles': ['userID', 'roleID1', 'roleID2 (opt)', '...'],
   'hasrole': ['roleID'],
+  'hasperms': ['userID', 'permission1', 'permission2 (opt)', '...'],
   'modifyrole': [
     'roleID',
     'name (opt)',
@@ -287,40 +289,40 @@ const Map<String, List<String>> bdfdSignatureHints = <String, List<String>>{
   'takeroles': ['userID', 'roleID1', 'roleID2 (opt)', '...'],
 
   // ── Messages ─────────────────────────────────────────────────────────
- 'deletein': ['seconds'],
- 'deletemessage': ['channelID', 'messageID'],
- 'dm': ['userID', 'message'],
+  'deletein': ['seconds'],
+  'deletemessage': ['channelID', 'messageID'],
+  'dm': ['userID', 'message'],
 
- 'editembedin': [
-  'time',
-  'title (opt)',
-  'description (opt)',
-  'footer (opt)',
-  'color (opt)',
- ],
+  'editembedin': [
+    'time',
+    'title (opt)',
+    'description (opt)',
+    'footer (opt)',
+    'color (opt)',
+  ],
 
- 'editin': ['channelID', 'messageID', 'content'],
- 'editmessage': ['messageID', 'content'],
+  'editin': ['channelID', 'messageID', 'content'],
+  'editmessage': ['messageID', 'content'],
 
- 'getmessage': ['channelID', 'messageID'],
+  'getmessage': ['channelID', 'messageID'],
 
- 'mentioned': ['index', 'returnSelf (opt)'],
- 'mentionedchannels': ['index'],
- 'message': ['index (opt)'],
+  'mentioned': ['index', 'returnSelf (opt)'],
+  'mentionedchannels': ['index'],
+  'message': ['index (opt)'],
 
- 'pinmessage': ['messageID (opt)'],
- 'publishmessage': ['messageID (opt)'],
- 'unpinmessage': ['messageID'],
+  'pinmessage': ['messageID (opt)'],
+  'publishmessage': ['messageID (opt)'],
+  'unpinmessage': ['messageID'],
 
- 'reply': ['channelID (opt)', 'messageID (opt)'],
- 'replyin': ['duration'],
+  'reply': ['channelID (opt)', 'messageID (opt)'],
+  'replyin': ['duration'],
 
- 'repeatmessage': ['times', 'message'],
+  'repeatmessage': ['times', 'message'],
 
- 'sendmessage': ['text', 'returnMessageID (opt)'],
- 'sendembedmessage': ['channelID', 'content'],
+  'sendmessage': ['text', 'returnMessageID (opt)'],
+  'sendembedmessage': ['channelID', 'content'],
 
- 'tts': ['enabled'],
+  'tts': ['enabled'],
 
   // ── String / text manipulation ──────────────────────────────────────
   'charcount': ['text'],
@@ -564,7 +566,10 @@ const Map<String, List<String>> bdfdSignatureHints = <String, List<String>>{
   'getmentionableselectuserid': ['Index'],
   'getmentionableselectuserids': ['Separator', 'Limit (opt)'],
   'getreactions': ['channelID', 'messageID', 'emoji'],
+  'getrole': ['userID', 'index', 'guildID (opt)'],
   'getrolecolor': ['roleID'],
+  'authorperms': [],
+  'memberperms': [],
   'getroleselectroleid': ['Index'],
   'getroleselectroleids': ['Separator', 'Limit (opt)'],
   'getstringselectvalue': ['Index'],
@@ -616,6 +621,10 @@ const Map<String, List<String>> bdfdSignatureHints = <String, List<String>>{
   'blacklistservers': ['serverID1', 'serverID2 (opt)', '...'],
   'blacklistusers': ['userID1', 'userID2 (opt)', '...'],
   'clearreactions': ['messageID (opt)', 'emoji (opt)'],
+  'removereaction': ['channelID', 'messageID', 'emoji'],
+  'wait': ['duration'],
+  'setnickname': ['nickname', 'userID (opt)'],
+  'canvascontainer': ['name', 'x', 'y', 'width', 'height', 'color (opt)'],
   'roleinfo': ['roleID'],
   'roleid': ['roleName'],
   'rolename': ['roleID'],

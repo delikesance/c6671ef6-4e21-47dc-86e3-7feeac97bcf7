@@ -12,42 +12,42 @@ class _PendingResponse {
   List<String>? _allowedUsers;
   List<String>? _allowedRoles;
   String? _currentSelectMenuId;
- 
+
   /// When non-null, the pending response should be sent as a Discord reply
   /// (reply chain). The value is the target message ID to reply to.
   /// `'((message.id))'` means reply to the invoking message (author).
   String? _replyMessageId;
- 
+
   /// The channel ID where the target message lives.
   /// Defaults to `'((channel.id))'` when replying to the author.
   String? _replyChannelId;
- 
+
   bool get hasPendingContent =>
       _content.toString().isNotEmpty ||
       _embeds.any((e) => e.isNotEmpty) ||
       _components.isNotEmpty;
- 
+
   void appendContent(String value) {
     _content.write(value);
   }
- 
+
   Map<String, dynamic> ensureEmbed([int index = 0]) {
     while (_embeds.length <= index) {
       _embeds.add(<String, dynamic>{});
     }
     return _embeds[index];
   }
- 
+
   String? get lastComponentType =>
       _components.isEmpty ? null : _components.last['type']?.toString();
- 
+
   Map<String, dynamic>? get lastComponent =>
       _components.isEmpty ? null : _components.last;
- 
+
   void addComponent(Map<String, dynamic> component) {
     _components.add(component);
   }
- 
+
   void addButton({
     required bool newRow,
     required String interactionIdOrUrl,
@@ -60,7 +60,9 @@ class _PendingResponse {
     _components.add(<String, dynamic>{
       'type': 'button',
       'newRow': newRow,
-      'customId': (style != 'link' && style != 'premium') ? interactionIdOrUrl : '',
+      'customId': (style != 'link' && style != 'premium')
+          ? interactionIdOrUrl
+          : '',
       'url': style == 'link' ? interactionIdOrUrl : '',
       if (style == 'premium') 'skuId': interactionIdOrUrl,
       'label': style == 'premium' ? '' : label,
@@ -70,7 +72,7 @@ class _PendingResponse {
       if (messageId.isNotEmpty) 'messageId': messageId,
     });
   }
- 
+
   void addSelectMenuOption({
     required String menuId,
     required String label,
@@ -89,29 +91,29 @@ class _PendingResponse {
       if (emoji.isNotEmpty) 'emoji': emoji,
     });
   }
- 
+
   void clearComponents() {
     _components.clear();
   }
- 
+
   /// Marks this pending response as a Discord reply to the given message.
   /// Pass `null` for both to reply to the invoking message (author).
   void markAsReply({String? channelId, String? messageId}) {
     _replyChannelId = channelId ?? '((channel.id))';
     _replyMessageId = messageId ?? '((message.id))';
   }
- 
+
   void clearButtons() {
     _components.removeWhere((component) => component['type'] == 'button');
   }
- 
+
   void removeComponent(String customId) {
     _components.removeWhere(
       (component) =>
           component['customId'] == customId || component['menuId'] == customId,
     );
   }
- 
+
   /// Edits the button at the given 1-based [row] and [col] position.
   /// Only non-null arguments overwrite the existing value.
   void editButton({
@@ -201,7 +203,7 @@ class _PendingResponse {
       break;
     }
   }
- 
+
   /// Edits the select menu with the given [customId].
   /// Only non-null arguments overwrite the existing value.
   void editSelectMenu({
@@ -221,7 +223,7 @@ class _PendingResponse {
       break;
     }
   }
- 
+
   /// Edits the select menu option at 1-based [index] inside menu [menuId].
   /// Empty string values are treated as "clear the field".
   void editSelectMenuOption({
@@ -260,7 +262,7 @@ class _PendingResponse {
       }
     }
   }
- 
+
   List<Map<String, dynamic>> ensureEmbedFields([int index = 0]) {
     final embed = ensureEmbed(index);
     final current = embed['fields'];
@@ -279,7 +281,7 @@ class _PendingResponse {
     embed['fields'] = fields;
     return fields;
   }
- 
+
   Action? buildAction({String? channelId}) {
     var content = _content.toString();
     final hasEmbed = _embeds.any((e) => e.isNotEmpty);
@@ -287,30 +289,29 @@ class _PendingResponse {
     if (content.trim().isEmpty && !hasEmbed && !hasComponents) {
       return null;
     }
- 
+
     // $removeLinks: strip all URLs from the bot response content.
     if (_removeLinks) {
       content = content.replaceAll(RegExp(r'https?://[^\s]+'), '');
     }
- 
+
     final embeds = _embeds
         .where((e) => e.isNotEmpty)
         .map(_cloneMap)
         .toList(growable: false);
-    final components =
-        hasComponents
-            ? List<Map<String, dynamic>>.from(
-              _components
-                  .where((c) {
-                    if (c['type']?.toString() == 'actionRow') {
-                      final children = c['components'] as List?;
-                      return children != null && children.isNotEmpty;
-                    }
-                    return true;
-                  })
-                  .map(_cloneMap),
-            )
-            : <Map<String, dynamic>>[];
+    final components = hasComponents
+        ? List<Map<String, dynamic>>.from(
+            _components
+                .where((c) {
+                  if (c['type']?.toString() == 'actionRow') {
+                    final children = c['components'] as List?;
+                    return children != null && children.isNotEmpty;
+                  }
+                  return true;
+                })
+                .map(_cloneMap),
+          )
+        : <Map<String, dynamic>>[];
     final ephemeral = _ephemeral;
     final tts = _tts;
     final deleteAfter = _deleteAfter;
@@ -387,10 +388,9 @@ class _PendingResponse {
           'messageId': replyMessageId,
           'content': content,
           'embeds': embeds,
-          'components':
-              components.isEmpty
-                  ? const <String, dynamic>{}
-                  : <String, dynamic>{'items': components},
+          'components': components.isEmpty
+              ? const <String, dynamic>{}
+              : <String, dynamic>{'items': components},
           'ephemeral': ephemeral,
           if (tts) 'tts': true,
           if (deleteAfter != null) 'deleteAfter': deleteAfter,
@@ -404,10 +404,9 @@ class _PendingResponse {
       payload: <String, dynamic>{
         'content': content,
         'embeds': embeds,
-        'components':
-            components.isEmpty
-                ? const <String, dynamic>{}
-                : <String, dynamic>{'items': components},
+        'components': components.isEmpty
+            ? const <String, dynamic>{}
+            : <String, dynamic>{'items': components},
         'ephemeral': ephemeral,
         if (tts) 'tts': true,
         if (deleteAfter != null) 'deleteAfter': deleteAfter,
@@ -650,10 +649,14 @@ const Map<String, String> _inlineRuntimeVariables = <String, String>{
   'displayname': '((member.nick|author.displayName|author.username))',
   'isadmin': '((member.isAdmin))',
   'isbot': '((author.isBot))',
-  'nickname': '((member.nick|member.displayName|author.displayName|author.username))',
+  'nickname':
+      '((member.nick|member.displayName|author.displayName|author.username))',
   'memberid': '((member.id))',
-  'membernick': '((member.nick|member.displayName|author.displayName|author.username))',
+  'membernick':
+      '((member.nick|member.displayName|author.displayName|author.username))',
   'userperms': '((member.permissions))',
+  'authorperms': '((member.permissions))',
+  'memberperms': '((member.permissions))',
   'userserveravatar': '((member.avatar))',
   'finduser': '((user.id))',
   'creationdate': '((user.createdAt))',
