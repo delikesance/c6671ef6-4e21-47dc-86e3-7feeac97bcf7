@@ -12490,11 +12490,11 @@ abstract class AppLocalizations {
   /// **'Subscription restored successfully!'**
   String get subscription_restored;
 
-  /// SAVE 67%
+  /// Annual subscription savings badge
   ///
   /// In en, this message translates to:
-  /// **'SAVE 67%'**
-  String get subscription_save_badge;
+  /// **'SAVE {percent}%'**
+  String subscription_save_badge(int percent);
 
   /// Choose a plan to unlock all premium features.
   ///

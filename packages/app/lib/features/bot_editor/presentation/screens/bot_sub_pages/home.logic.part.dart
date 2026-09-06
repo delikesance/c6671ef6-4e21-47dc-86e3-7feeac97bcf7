@@ -242,6 +242,7 @@ extension _AppHomePageLogic on _AppHomePageState {
     );
 
     unawaited(_refreshFreeRuntimeBalance());
+    unawaited(_reconcileOnLaunch());
     appendBotDebugLog('[AppHome._init] Init completed for botId=$botId.');
   }
 
@@ -264,9 +265,7 @@ extension _AppHomePageLogic on _AppHomePageState {
     });
     bool keepsStartingStateActive = false;
     try {
-      final app = await appManager.getApp(
-        widget.client.user.id.toString(),
-      );
+      final app = await appManager.getApp(widget.client.user.id.toString());
       final token = app["token"]?.toString();
       if (token == null || token.trim().isEmpty) {
         throw Exception("Token not found");
@@ -296,10 +295,8 @@ extension _AppHomePageLogic on _AppHomePageState {
           final message =
               remoteRuntime.unavailableReason ??
               _uiCopy(
-                fr:
-                    'Connectez-vous a Bot Creator dans les parametres avant de demarrer ce bot.',
-                en:
-                    'Sign in to Bot Creator in Settings before starting this bot.',
+                fr: 'Connectez-vous a Bot Creator dans les parametres avant de demarrer ce bot.',
+                en: 'Sign in to Bot Creator in Settings before starting this bot.',
               );
 
           throw Exception(message);
@@ -307,7 +304,6 @@ extension _AppHomePageLogic on _AppHomePageState {
       }
 
       if (!_botLaunched) {
-
         if (remoteRuntime.client == null) {
           try {
             await getDiscordUser(token);
@@ -346,17 +342,11 @@ extension _AppHomePageLogic on _AppHomePageState {
               source: remoteRuntime.source,
             );
             await remoteClient.stopBot(botId);
-            endBotLogSession(
-              botId: botId,
-              source: remoteRuntime.source,
-            );
+            endBotLogSession(botId: botId, source: remoteRuntime.source);
             setBotRuntimeActive(false);
             _setState(() => _botLaunched = false);
           } else {
-            startBotLogSession(
-              botId: botId,
-              source: remoteRuntime.source,
-            );
+            startBotLogSession(botId: botId, source: remoteRuntime.source);
             clearBotBaselineRss();
             appendBotLog(
               'Bot start requested',
@@ -389,13 +379,11 @@ extension _AppHomePageLogic on _AppHomePageState {
               RunnerSettings.associateBotWithRunner(botId, 'manager');
             } else {
               await remoteClient.startBot(botId, botName: _appName);
-              final runnerConfig =
-                  await RunnerSettings.resolveConfigForBot(botId);
+              final runnerConfig = await RunnerSettings.resolveConfigForBot(
+                botId,
+              );
               if (runnerConfig != null) {
-                RunnerSettings.associateBotWithRunner(
-                  botId,
-                  runnerConfig.id,
-                );
+                RunnerSettings.associateBotWithRunner(botId, runnerConfig.id);
               }
             }
             setBotRuntimeActive(true);
@@ -481,25 +469,19 @@ extension _AppHomePageLogic on _AppHomePageState {
           if (runnerConfig == null) {
             final startupDetail =
                 await RunnerSettings.embeddedRunnerStartupFailureDetail();
-            final detailSuffix =
-                startupDetail == null || startupDetail.isEmpty
-                    ? ''
-                    : ' ($startupDetail)';
+            final detailSuffix = startupDetail == null || startupDetail.isEmpty
+                ? ''
+                : ' ($startupDetail)';
             throw Exception(
               _uiCopy(
-                fr:
-                    'Le runner JS embarque n\'a pas pu demarrer. Relancez completement l\'application (pas un hot reload).$detailSuffix',
-                en:
-                    'The embedded JS runner could not start. Fully restart the app (not hot reload).$detailSuffix',
+                fr: 'Le runner JS embarque n\'a pas pu demarrer. Relancez completement l\'application (pas un hot reload).$detailSuffix',
+                en: 'The embedded JS runner could not start. Fully restart the app (not hot reload).$detailSuffix',
               ),
             );
           }
 
           final client = runnerConfig.createClient();
-          startBotLogSession(
-            botId: botId,
-            source: RemoteRuntimeSource.runner,
-          );
+          startBotLogSession(botId: botId, source: RemoteRuntimeSource.runner);
           clearBotBaselineRss();
           appendBotLog(
             'Bot start requested',
@@ -528,15 +510,12 @@ extension _AppHomePageLogic on _AppHomePageState {
         _botStarting = false;
       });
       final deadChannel = _isDeadChannelError(error);
-      final display =
-          deadChannel
-              ? 'Foreground service channel unavailable. Please reopen the app and try again.'
-              : error.toString();
+      final display = deadChannel
+          ? 'Foreground service channel unavailable. Please reopen the app and try again.'
+          : error.toString();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(context.tr.bot_home_start_error(display)),
-          ),
+          SnackBar(content: Text(context.tr.bot_home_start_error(display))),
         );
       }
     } catch (e) {
@@ -545,7 +524,9 @@ extension _AppHomePageLogic on _AppHomePageState {
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.tr.bot_home_start_error(e.toString()))),
+          SnackBar(
+            content: Text(context.tr.bot_home_start_error(e.toString())),
+          ),
         );
       }
     } finally {

@@ -75,19 +75,19 @@ extension _AppHomePageSync on _AppHomePageState {
 
     try {
       final runtime = await remoteClient.getBotRuntime(botId);
-      final funding =
-          (runtime['funding_mode'] ?? runtime['fundingMode'] ?? '')
-              .toString()
-              .trim()
-              .toLowerCase();
+      final funding = (runtime['funding_mode'] ?? runtime['fundingMode'] ?? '')
+          .toString()
+          .trim()
+          .toLowerCase();
       final expires = _extractSessionExpiresAt(runtime);
       final balance = funding == 'premium'
           ? 0
           : (expires != null && funding == 'free'
-              ? _remainingMinutesUntil(expires)
-              : _extractFreeMinutes(
-                runtime['free_minutes_balance'] ?? runtime['freeMinutesBalance'],
-              ));
+                ? _remainingMinutesUntil(expires)
+                : _extractFreeMinutes(
+                    runtime['free_minutes_balance'] ??
+                        runtime['freeMinutesBalance'],
+                  ));
       appendBotDebugLog(
         '[_refreshFreeRuntimeBalance] botId=$botId balance=$balance funding=$funding expires=$expires.',
       );
@@ -114,15 +114,21 @@ extension _AppHomePageSync on _AppHomePageState {
     _setState(() => _isPushingApp = true);
     try {
       appendBotDebugLog('[_pushToRemote] START');
-      final user = await widget.client.user.get().timeout(const Duration(seconds: 10));
+      final user = await widget.client.user.get().timeout(
+        const Duration(seconds: 10),
+      );
       final botId = user.id.toString();
-      appendBotDebugLog('[_pushToRemote] botId=$botId username=${user.username}');
+      appendBotDebugLog(
+        '[_pushToRemote] botId=$botId username=${user.username}',
+      );
       final app = await appManager.getApp(botId);
       final token = (app['token'] ?? '').toString().trim();
       if (token.isEmpty) {
         throw Exception('Token not found');
       }
-      appendBotDebugLog('[_pushToRemote] token present, length=${token.length}');
+      appendBotDebugLog(
+        '[_pushToRemote] token present, length=${token.length}',
+      );
 
       await appManager.createOrUpdateApp(
         id: user.id,
@@ -139,15 +145,23 @@ extension _AppHomePageSync on _AppHomePageState {
         attemptSessionRestore: true,
       );
       if (mainClient != null) {
-        appendBotDebugLog('[_pushToRemote] Manager client ok, building canonical payload...');
+        appendBotDebugLog(
+          '[_pushToRemote] Manager client ok, building canonical payload...',
+        );
 
         // Safety: refuse to push if config is suspiciously small (prevents accidental wipes)
         final localCommands = await appManager.listAppCommands(botId);
         if (localCommands.isEmpty) {
-          final localConfigSize = jsonEncode(await appManager.getApp(botId)).length;
-          appendBotDebugLog('[_pushToRemote] No commands, configSize=$localConfigSize');
+          final localConfigSize = jsonEncode(
+            await appManager.getApp(botId),
+          ).length;
+          appendBotDebugLog(
+            '[_pushToRemote] No commands, configSize=$localConfigSize',
+          );
           if (localConfigSize < 50) {
-            appendBotDebugLog('[_pushToRemote] REFUSING PUSH: config is empty or near-empty ($localConfigSize bytes)');
+            appendBotDebugLog(
+              '[_pushToRemote] REFUSING PUSH: config is empty or near-empty ($localConfigSize bytes)',
+            );
             if (showSnack && mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -168,15 +182,16 @@ extension _AppHomePageSync on _AppHomePageState {
         final payload = await buildRemotePayload(botId);
         final wfCount = (payload['workflows'] as List?)?.length ?? 0;
         final cmdCount = (payload['commands'] as List?)?.length ?? 0;
-        appendBotDebugLog('[_pushToRemote] Payload built: commands=$cmdCount workflows=$wfCount');
+        appendBotDebugLog(
+          '[_pushToRemote] Payload built: commands=$cmdCount workflows=$wfCount',
+        );
 
-        await mainClient.syncBot(
-          botId,
-          user.username,
-          payload,
-          force: true,
-        ).timeout(const Duration(seconds: 20));
-        appendBotDebugLog('[_pushToRemote] Pushed canonical config to Manager for $botId');
+        await mainClient
+            .syncBot(botId, user.username, payload, force: true)
+            .timeout(const Duration(seconds: 20));
+        appendBotDebugLog(
+          '[_pushToRemote] Pushed canonical config to Manager for $botId',
+        );
       }
 
       appendBotDebugLog('[_pushToRemote] DONE — success');
@@ -205,9 +220,13 @@ extension _AppHomePageSync on _AppHomePageState {
     _setState(() => _isPullingApp = true);
     try {
       appendBotDebugLog('[_pullFromRemote] START');
-      final user = await widget.client.user.get().timeout(const Duration(seconds: 10));
+      final user = await widget.client.user.get().timeout(
+        const Duration(seconds: 10),
+      );
       final botId = user.id.toString();
-      appendBotDebugLog('[_pullFromRemote] botId=$botId username=${user.username}');
+      appendBotDebugLog(
+        '[_pullFromRemote] botId=$botId username=${user.username}',
+      );
 
       final mainClient = await _resolveMainApiClientForBot(
         botId: botId,
@@ -222,15 +241,24 @@ extension _AppHomePageSync on _AppHomePageState {
       appendBotDebugLog('[_pullFromRemote] Fetching remote config...');
       final remoteConfig = await mainClient.getBotConfig(botId);
       final remoteCommands = _extractCommandList(remoteConfig['commands']);
-      appendBotDebugLog('[_pullFromRemote] Remote has ${remoteCommands.length} commands');
+      appendBotDebugLog(
+        '[_pullFromRemote] Remote has ${remoteCommands.length} commands',
+      );
 
       // 2. Get local commands
-      final localCommands = await appManager.listAppCommands(botId, forceRefresh: true);
-      appendBotDebugLog('[_pullFromRemote] Local has ${localCommands.length} commands');
+      final localCommands = await appManager.listAppCommands(
+        botId,
+        forceRefresh: true,
+      );
+      appendBotDebugLog(
+        '[_pullFromRemote] Local has ${localCommands.length} commands',
+      );
 
       // 3. Compute merge diff
       final diff = _computeMergeDiff(localCommands, remoteCommands);
-      appendBotDebugLog('[_pullFromRemote] Diff: new=${diff.newCommands.length}, updated=${diff.updatedCommands.length}, unchanged=${diff.unchangedCount}, localOnly=${diff.localOnlyCount}');
+      appendBotDebugLog(
+        '[_pullFromRemote] Diff: new=${diff.newCommands.length}, updated=${diff.updatedCommands.length}, unchanged=${diff.unchangedCount}, localOnly=${diff.localOnlyCount}',
+      );
 
       // 4. Show confirmation dialog
       if (!mounted) return;
@@ -272,9 +300,9 @@ extension _AppHomePageSync on _AppHomePageState {
     } catch (e) {
       appendBotDebugLog('[_pullFromRemote] FAILED: $e');
       if (showSnack && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toString())));
       }
     } finally {
       _setState(() => _isPullingApp = false);
@@ -327,7 +355,10 @@ extension _AppHomePageSync on _AppHomePageState {
   }
 
   Future<String> _getLocalMaxTimestamp(String botId) async {
-    final commands = await appManager.listAppCommands(botId, forceRefresh: true);
+    final commands = await appManager.listAppCommands(
+      botId,
+      forceRefresh: true,
+    );
     DateTime? latest;
     for (final cmd in commands) {
       final t = _parseTimestamp(cmd['updatedAt']);
@@ -365,7 +396,9 @@ extension _AppHomePageSync on _AppHomePageState {
       } else {
         final remoteUpdated = _parseTimestamp(remoteCmd['updatedAt']);
         final localUpdated = _parseTimestamp(localCmd['updatedAt']);
-        if (remoteUpdated != null && localUpdated != null && remoteUpdated.isAfter(localUpdated)) {
+        if (remoteUpdated != null &&
+            localUpdated != null &&
+            remoteUpdated.isAfter(localUpdated)) {
           updatedCommands.add(remoteCmd);
         } else {
           unchangedCount++;
@@ -419,7 +452,10 @@ extension _AppHomePageSync on _AppHomePageState {
             Expanded(
               child: Text(
                 context.tr.bot_home_pull,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],
@@ -518,12 +554,19 @@ extension _AppHomePageSync on _AppHomePageState {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.info_outline, size: 16, color: colorScheme.secondary),
+                      Icon(
+                        Icons.info_outline,
+                        size: 16,
+                        color: colorScheme.secondary,
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           '${diff.localOnlyCount} ${context.tr.bot_home_pull_dialog_local_preserved}',
-                          style: TextStyle(fontSize: 12, color: colorScheme.secondary),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: colorScheme.secondary,
+                          ),
                         ),
                       ),
                     ],
@@ -539,7 +582,9 @@ extension _AppHomePageSync on _AppHomePageState {
             child: Text(context.tr.common_cancel),
           ),
           FilledButton.icon(
-            onPressed: diff.hasChanges ? () => Navigator.of(ctx).pop(true) : null,
+            onPressed: diff.hasChanges
+                ? () => Navigator.of(ctx).pop(true)
+                : null,
             icon: const Icon(Icons.cloud_download, size: 18),
             label: Text(
               diff.hasChanges
@@ -647,11 +692,11 @@ extension _AppHomePageSync on _AppHomePageState {
         final balance = funding == 'premium'
             ? 0
             : (expires != null && funding == 'free'
-                ? _remainingMinutesUntil(expires)
-                : _extractFreeMinutes(
-                  runtime['free_minutes_balance'] ??
-                      runtime['freeMinutesBalance'],
-                ));
+                  ? _remainingMinutesUntil(expires)
+                  : _extractFreeMinutes(
+                      runtime['free_minutes_balance'] ??
+                          runtime['freeMinutesBalance'],
+                    ));
 
         if (mounted) {
           _setState(() {
@@ -673,6 +718,629 @@ extension _AppHomePageSync on _AppHomePageState {
     return false;
   }
 
+  // ─── Reconciliation (Launch & Live WebSocket) ───────────────────
+
+  Future<void> _reconcileOnLaunch() async {
+    final botId = widget.client.user.id.toString();
+    appendBotDebugLog(
+      '[_reconcileOnLaunch] Starting startup reconciliation for botId=$botId',
+    );
+
+    final app = await appManager.getApp(botId);
+    final token = (app['token'] ?? '').toString().trim();
+
+    final mainClient = await _resolveMainApiClientForBot(
+      botId: botId,
+      botToken: token.isNotEmpty ? token : null,
+      attemptSessionRestore: true,
+    );
+
+    if (mainClient == null) {
+      appendBotDebugLog(
+        '[_reconcileOnLaunch] No MainApiClient available; skipping startup reconciliation.',
+      );
+      return;
+    }
+
+    await _performReconciliation(
+      mainClient: mainClient,
+      botId: botId,
+      isLiveUpdate: false,
+    );
+  }
+
+  Future<void> _reconcileLiveUpdate() async {
+    if (_isReconciling || _isConflictDialogOpen || !mounted) return;
+
+    final now = DateTime.now();
+    if (_lastReconcileCheckAt != null &&
+        now.difference(_lastReconcileCheckAt!) < const Duration(seconds: 4)) {
+      return;
+    }
+    _lastReconcileCheckAt = now;
+
+    final botId = widget.client.user.id.toString();
+    appendBotDebugLog(
+      '[_reconcileLiveUpdate] Checking live sync for botId=$botId',
+    );
+
+    final app = await appManager.getApp(botId);
+    final token = (app['token'] ?? '').toString().trim();
+
+    final mainClient = await _resolveMainApiClientForBot(
+      botId: botId,
+      botToken: token.isNotEmpty ? token : null,
+      attemptSessionRestore: true,
+    );
+
+    if (mainClient == null) return;
+
+    await _performReconciliation(
+      mainClient: mainClient,
+      botId: botId,
+      isLiveUpdate: true,
+    );
+  }
+
+  Future<void> _performReconciliation({
+    required MainApiClient mainClient,
+    required String botId,
+    required bool isLiveUpdate,
+  }) async {
+    if (_isReconciling) return;
+    _isReconciling = true;
+
+    try {
+      final result = await BotReconciliationService.checkSyncStatus(
+        botId: botId,
+        client: mainClient,
+        appManager: appManager,
+      );
+
+      appendBotDebugLog(
+        '[_performReconciliation] Status: ${result.status} (isLiveUpdate=$isLiveUpdate)',
+      );
+
+      if (!mounted) return;
+
+      switch (result.status) {
+        case BotSyncStatus.inSync:
+        case BotSyncStatus.noRemoteConfig:
+        case BotSyncStatus.error:
+          break;
+
+        case BotSyncStatus.cloudNewer:
+          if (result.remoteConfig != null) {
+            appendBotDebugLog(
+              '[_performReconciliation] Auto-applying Cloud updates to local...',
+            );
+            await BotReconciliationService.applyCloudToLocal(
+              botId: botId,
+              remoteConfig: result.remoteConfig!,
+              appManager: appManager,
+            );
+            await _reloadAppLocally();
+            if (mounted) {
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Row(
+                    children: [
+                      const Icon(
+                        Icons.cloud_done_rounded,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          isLiveUpdate
+                              ? _uiCopy(
+                                  fr: 'Mise à jour Cloud appliquée avec succès',
+                                  en: 'Cloud update applied successfully',
+                                )
+                              : _uiCopy(
+                                  fr: 'Synchronisé avec la version Cloud',
+                                  en: 'Synced with Cloud version',
+                                ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  backgroundColor: AppTheme.success,
+                  duration: const Duration(seconds: 3),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            }
+          }
+          break;
+
+        case BotSyncStatus.localNewer:
+          // Local has newer edits. It will be pushed by auto-reload batcher or user action.
+          break;
+
+        case BotSyncStatus.conflict:
+          if (result.remoteConfig != null && !_isConflictDialogOpen) {
+            _isConflictDialogOpen = true;
+            try {
+              await _showReconciliationConflictDialog(
+                botId: botId,
+                client: mainClient,
+                result: result,
+              );
+            } finally {
+              _isConflictDialogOpen = false;
+            }
+          }
+          break;
+      }
+    } catch (e) {
+      appendBotDebugLog('[_performReconciliation] Failed: $e');
+    } finally {
+      _isReconciling = false;
+    }
+  }
+
+  Future<void> _reloadAppLocally() async {
+    final botId = widget.client.user.id.toString();
+    final app = await appManager.getApp(botId);
+    final capabilities = await getBotRuntimeCapabilities(botId);
+    if (!mounted) return;
+    _setState(() {
+      _appName = (app['username'] ?? app['name'] ?? _appName).toString();
+      avatar = (app['avatar'] ?? avatar).toString();
+      _runtimeCapabilities = capabilities;
+    });
+    await appManager.refreshApps();
+  }
+
+  Future<void> _showReconciliationConflictDialog({
+    required String botId,
+    required MainApiClient client,
+    required BotReconciliationCheckResult result,
+  }) async {
+    if (!mounted) return;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    final remoteTsStr = result.remoteTimestamp != null
+        ? result.remoteTimestamp!.toLocal().toString().substring(0, 19)
+        : 'Unknown';
+    final localTsStr = result.localTimestamp != null
+        ? result.localTimestamp!.toLocal().toString().substring(0, 19)
+        : 'Unknown';
+
+    final diff = result.diff;
+    final newCount = diff?.newCommands.length ?? 0;
+    final updatedCount = diff?.updatedCommands.length ?? 0;
+    final localOnlyCount = diff?.localOnlyCount ?? 0;
+
+    var isProcessing = false;
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (dialogCtx, setDialogState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+              ),
+              title: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppTheme.warning.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.sync_problem_rounded,
+                      color: AppTheme.warning,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      _uiCopy(
+                        fr: 'Conflit de synchronisation',
+                        en: 'Sync Conflict Detected',
+                      ),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              content: SizedBox(
+                width: 480,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        _uiCopy(
+                          fr: 'Des modifications divergentes existent entre cette session locale et la version Cloud (Mobile). Choisissez comment résoudre ce conflit :',
+                          en: 'Divergent changes exist between this local session and Cloud (Mobile). Choose how to resolve this conflict:',
+                        ),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      // Summary box
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: colorScheme.surfaceContainerLow,
+                          borderRadius: BorderRadius.circular(
+                            AppTheme.radiusMd,
+                          ),
+                          border: Border.all(
+                            color: colorScheme.outlineVariant.withValues(
+                              alpha: 0.5,
+                            ),
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            _buildTimestampRow(
+                              icon: Icons.cloud_outlined,
+                              label: _uiCopy(
+                                fr: 'Version Cloud (Mobile)',
+                                en: 'Cloud Version (Mobile)',
+                              ),
+                              timestamp: remoteTsStr,
+                              color: colorScheme.primary,
+                            ),
+                            const SizedBox(height: 8),
+                            _buildTimestampRow(
+                              icon: Icons.computer_outlined,
+                              label: _uiCopy(
+                                fr: 'Version Locale (Desktop)',
+                                en: 'Local Version (Desktop)',
+                              ),
+                              timestamp: localTsStr,
+                              color: colorScheme.secondary,
+                            ),
+                            if (newCount > 0 ||
+                                updatedCount > 0 ||
+                                localOnlyCount > 0) ...[
+                              const Divider(height: 16),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  if (newCount > 0)
+                                    Text(
+                                      '+$newCount ${_uiCopy(fr: "nouveaux", en: "new")}',
+                                      style: const TextStyle(
+                                        color: AppTheme.successAccent,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  if (updatedCount > 0)
+                                    Text(
+                                      '$updatedCount ${_uiCopy(fr: "modifiés", en: "updated")}',
+                                      style: const TextStyle(
+                                        color: AppTheme.warning,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  if (localOnlyCount > 0)
+                                    Text(
+                                      '$localOnlyCount ${_uiCopy(fr: "locaux", en: "local only")}',
+                                      style: TextStyle(
+                                        color: colorScheme.secondary,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      if (isProcessing)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 24),
+                          child: Center(
+                            child: Column(
+                              children: [
+                                const CircularProgressIndicator(),
+                                const SizedBox(height: 12),
+                                Text(
+                                  _uiCopy(
+                                    fr: 'Synchronisation en cours...',
+                                    en: 'Sync in progress...',
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      else ...[
+                        // Option 1: Smart Merge
+                        _buildReconciliationOptionCard(
+                          icon: Icons.merge_type_rounded,
+                          title: _uiCopy(
+                            fr: 'Fusionner intelligemment (Recommandé)',
+                            en: 'Smart Merge (Recommended)',
+                          ),
+                          description: _uiCopy(
+                            fr: 'Conserve tous les ajouts des deux côtés et retient la commande la plus récente lors d\'un doublon.',
+                            en: 'Combines additions from both sides and keeps the newest command in case of duplicates.',
+                          ),
+                          isRecommended: true,
+                          colorScheme: colorScheme,
+                          onTap: () async {
+                            setDialogState(() => isProcessing = true);
+                            try {
+                              await BotReconciliationService.smartMerge(
+                                botId: botId,
+                                remoteConfig: result.remoteConfig!,
+                                client: client,
+                                appManager: appManager,
+                                botName: _appName,
+                              );
+                              await _reloadAppLocally();
+                              if (dialogCtx.mounted) {
+                                Navigator.of(dialogCtx).pop();
+                              }
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      _uiCopy(
+                                        fr: 'Fusion intelligente effectuée et synchronisée sur le Cloud',
+                                        en: 'Smart merge completed and synced to Cloud',
+                                      ),
+                                    ),
+                                    backgroundColor: AppTheme.success,
+                                  ),
+                                );
+                              }
+                            } catch (e) {
+                              setDialogState(() => isProcessing = false);
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Erreur: $e')),
+                                );
+                              }
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 10),
+
+                        // Option 2: Cloud Version
+                        _buildReconciliationOptionCard(
+                          icon: Icons.cloud_download_outlined,
+                          title: _uiCopy(
+                            fr: 'Prendre la version Cloud (Mobile)',
+                            en: 'Take Cloud Version (Mobile)',
+                          ),
+                          description: _uiCopy(
+                            fr: 'Écrase les modifications locales non envoyées par la version Cloud.',
+                            en: 'Replaces local un-pushed changes with the Cloud version.',
+                          ),
+                          isRecommended: false,
+                          colorScheme: colorScheme,
+                          onTap: () async {
+                            setDialogState(() => isProcessing = true);
+                            try {
+                              await BotReconciliationService.applyCloudToLocal(
+                                botId: botId,
+                                remoteConfig: result.remoteConfig!,
+                                appManager: appManager,
+                              );
+                              await _reloadAppLocally();
+                              if (dialogCtx.mounted) {
+                                Navigator.of(dialogCtx).pop();
+                              }
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      _uiCopy(
+                                        fr: 'Version Cloud appliquée avec succès',
+                                        en: 'Cloud version applied successfully',
+                                      ),
+                                    ),
+                                    backgroundColor: AppTheme.success,
+                                  ),
+                                );
+                              }
+                            } catch (e) {
+                              setDialogState(() => isProcessing = false);
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Erreur: $e')),
+                                );
+                              }
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 10),
+
+                        // Option 3: Keep Local
+                        _buildReconciliationOptionCard(
+                          icon: Icons.computer_rounded,
+                          title: _uiCopy(
+                            fr: 'Conserver la version Locale (Desktop)',
+                            en: 'Keep Local Version (Desktop)',
+                          ),
+                          description: _uiCopy(
+                            fr: 'Conserve vos modifications locales et les envoie pour mettre à jour le Cloud.',
+                            en: 'Keeps your local modifications and pushes them to update Cloud.',
+                          ),
+                          isRecommended: false,
+                          colorScheme: colorScheme,
+                          onTap: () async {
+                            setDialogState(() => isProcessing = true);
+                            try {
+                              await BotReconciliationService.keepLocalAndPushToCloud(
+                                botId: botId,
+                                client: client,
+                                botName: _appName,
+                                appManager: appManager,
+                              );
+                              if (dialogCtx.mounted) {
+                                Navigator.of(dialogCtx).pop();
+                              }
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      _uiCopy(
+                                        fr: 'Version locale conservée et mise à jour sur le Cloud',
+                                        en: 'Local version kept and synced to Cloud',
+                                      ),
+                                    ),
+                                    backgroundColor: AppTheme.success,
+                                  ),
+                                );
+                              }
+                            } catch (e) {
+                              setDialogState(() => isProcessing = false);
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Erreur: $e')),
+                                );
+                              }
+                            }
+                          },
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+              actions: [
+                if (!isProcessing)
+                  TextButton(
+                    onPressed: () => Navigator.of(dialogCtx).pop(),
+                    child: Text(context.tr.common_cancel),
+                  ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildReconciliationOptionCard({
+    required IconData icon,
+    required String title,
+    required String description,
+    required bool isRecommended,
+    required ColorScheme colorScheme,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isRecommended
+              ? colorScheme.primaryContainer.withValues(alpha: 0.3)
+              : colorScheme.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          border: Border.all(
+            color: isRecommended
+                ? colorScheme.primary
+                : colorScheme.outlineVariant.withValues(alpha: 0.6),
+            width: isRecommended ? 1.5 : 1.0,
+          ),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color:
+                    (isRecommended ? colorScheme.primary : colorScheme.surface)
+                        .withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+              ),
+              child: Icon(
+                icon,
+                size: 20,
+                color: isRecommended
+                    ? colorScheme.primary
+                    : colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: isRecommended
+                                ? FontWeight.w700
+                                : FontWeight.w600,
+                            color: isRecommended
+                                ? colorScheme.primary
+                                : colorScheme.onSurface,
+                          ),
+                        ),
+                      ),
+                      if (isRecommended)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colorScheme.primary,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: const Text(
+                            'REC',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    description,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 // ─── Merge diff data class ────────────────────────────────────────

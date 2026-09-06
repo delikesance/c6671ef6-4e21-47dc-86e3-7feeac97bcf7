@@ -7191,7 +7191,9 @@ class AppLocalizationsDe extends AppLocalizations {
       'Abonnement erfolgreich wiederhergestellt!';
 
   @override
-  String get subscription_save_badge => '67% SPAREN';
+  String subscription_save_badge(int percent) {
+    return '$percent% SPAREN';
+  }
 
   @override
   String get subscription_subtitle =>

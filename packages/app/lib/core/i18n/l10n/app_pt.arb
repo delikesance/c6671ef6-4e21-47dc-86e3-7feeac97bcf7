@@ -5882,7 +5882,12 @@
     "description": "Subscription restored successfully!"
   },
   "@subscription_save_badge": {
-    "description": "SAVE 67%"
+    "description": "SAVE 67%",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
   },
   "@subscription_subtitle": {
     "description": "Choose a plan to unlock all premium features."
@@ -8768,7 +8773,7 @@
   "subscription_restore": "Restaurar compras",
   "subscription_restore_not_found": "Nenhuma assinatura ativa encontrada.",
   "subscription_restored": "Assinatura restaurada com sucesso!",
-  "subscription_save_badge": "ECONOMIZE 67%",
+  "subscription_save_badge": "ECONOMIZE {percent}%",
   "subscription_subtitle": "Escolha um plano para desbloquear todos os recursos premium.",
   "subscription_success": "Bem-vindo ao Premium! Todos os anúncios foram removidos.",
   "subscription_terms": "Termos de uso",

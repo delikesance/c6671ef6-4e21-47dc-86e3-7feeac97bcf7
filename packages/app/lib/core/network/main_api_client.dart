@@ -1083,24 +1083,19 @@ class MainApiClient implements RemoteRuntimeClient {
     }
 
     // Download the config JSON from the public R2 URL (no auth needed)
-    final httpClient = http.Client();
-    try {
-      final response = await httpClient
-          .get(Uri.parse(configUrl))
-          .timeout(const Duration(seconds: 15));
-      if (response.statusCode != 200) {
-        throw MainApiClientException(
-          'Failed to download config: ${response.statusCode}',
-        );
-      }
-      final decoded = _decodeUtf8Json(response);
-      if (decoded is! Map) {
-        throw const MainApiClientException('Invalid config format');
-      }
-      return Map<String, dynamic>.from(decoded);
-    } finally {
-      httpClient.close();
+    final response = await _http
+        .get(Uri.parse(configUrl))
+        .timeout(const Duration(seconds: 15));
+    if (response.statusCode != 200) {
+      throw MainApiClientException(
+        'Failed to download config: ${response.statusCode}',
+      );
     }
+    final decoded = _decodeUtf8Json(response);
+    if (decoded is! Map) {
+      throw const MainApiClientException('Invalid config format');
+    }
+    return Map<String, dynamic>.from(decoded);
   }
 
   /// Lists available config versions for a bot from R2 storage.
@@ -1142,24 +1137,19 @@ class MainApiClient implements RemoteRuntimeClient {
       throw const MainApiClientException('No config URL returned for version');
     }
 
-    final httpClient = http.Client();
-    try {
-      final response = await httpClient
-          .get(Uri.parse(configUrl))
-          .timeout(const Duration(seconds: 15));
-      if (response.statusCode != 200) {
-        throw MainApiClientException(
-          'Failed to download version config: ${response.statusCode}',
-        );
-      }
-      final decoded = _decodeUtf8Json(response);
-      if (decoded is! Map) {
-        throw const MainApiClientException('Invalid version config format');
-      }
-      return Map<String, dynamic>.from(decoded);
-    } finally {
-      httpClient.close();
+    final response = await _http
+        .get(Uri.parse(configUrl))
+        .timeout(const Duration(seconds: 15));
+    if (response.statusCode != 200) {
+      throw MainApiClientException(
+        'Failed to download version config: ${response.statusCode}',
+      );
     }
+    final decoded = _decodeUtf8Json(response);
+    if (decoded is! Map) {
+      throw const MainApiClientException('Invalid version config format');
+    }
+    return Map<String, dynamic>.from(decoded);
   }
 
   @override

@@ -5936,7 +5936,12 @@
     "description": "Subscription restored successfully!"
   },
   "@subscription_save_badge": {
-    "description": "SAVE 67%"
+    "description": "SAVE 67%",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
   },
   "@subscription_subtitle": {
     "description": "Choose a plan to unlock all premium features."
@@ -8822,7 +8827,7 @@
   "subscription_restore": "購入を復元",
   "subscription_restore_not_found": "アクティブなサブスクリプションが見つかりません。",
   "subscription_restored": "サブスクリプションが正常に復元されました！",
-  "subscription_save_badge": "67% 割引",
+  "subscription_save_badge": "{percent}% 割引",
   "subscription_subtitle": "すべてのプレミアム機能を解除するプランを選択してください。",
   "subscription_success": "プレミアムへようこそ！すべての広告が削除されました。",
   "subscription_terms": "利用規約",

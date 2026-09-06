@@ -6808,7 +6808,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get subscription_restored => 'サブスクリプションが正常に復元されました！';
 
   @override
-  String get subscription_save_badge => '67% 割引';
+  String subscription_save_badge(int percent) {
+    return '$percent% 割引';
+  }
 
   @override
   String get subscription_subtitle => 'すべてのプレミアム機能を解除するプランを選択してください。';

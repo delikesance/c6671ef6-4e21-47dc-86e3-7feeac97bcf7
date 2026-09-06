@@ -275,6 +275,7 @@ IconData getCategoryIcon(String category) {
       return Icons.extension;
   }
 }
+
 /// Returns true for actions that are ONLY meaningful with a Discord
 /// interaction (slash command / component callback). These are hidden
 /// from prefix-command and event-workflow editors.
@@ -416,7 +417,6 @@ class _ScratchBlockPaletteState extends State<ScratchBlockPalette> {
     final actionsByCategory = <String, List<BotCreatorActionType>>{};
 
     for (final actionType in BotCreatorActionType.values) {
-
       if (_searchQuery.isNotEmpty &&
           !actionType
               .displayName(context)
@@ -427,19 +427,24 @@ class _ScratchBlockPaletteState extends State<ScratchBlockPalette> {
       if (!widget.isWorkflow && isListenerAction(actionType)) {
         continue;
       }
-      if (!widget.isInteraction && !widget.isWorkflow && isInteractionOnlyAction(actionType)) {
+      if (!widget.isInteraction &&
+          !widget.isWorkflow &&
+          isInteractionOnlyAction(actionType)) {
         continue;
       }
       // Autocomplete response is only valid inside an autocomplete handler.
-      if (!widget.isAutocompleteContext && isAutocompleteOnlyAction(actionType)) {
+      if (!widget.isAutocompleteContext &&
+          isAutocompleteOnlyAction(actionType)) {
         continue;
       }
       // Autocomplete context: only show data/logic + respondWithAutocomplete.
-      if (widget.isAutocompleteContext && !isAutocompleteContextAction(actionType)) {
+      if (widget.isAutocompleteContext &&
+          !isAutocompleteContextAction(actionType)) {
         continue;
       }
       // Modal context: deferInteraction doesn't make sense for modals.
-      if (widget.isModalContext && actionType == BotCreatorActionType.deferInteraction) {
+      if (widget.isModalContext &&
+          actionType == BotCreatorActionType.deferInteraction) {
         continue;
       }
       // Skip deprecated canvas visual blocks.
@@ -552,7 +557,7 @@ class _CategorySection extends StatelessWidget {
           ),
         ),
         ...actions.map((type) {
-          return Card(
+          final cardWidget = Card(
             margin: const EdgeInsets.symmetric(vertical: 2),
             child: ListTile(
               dense: true,
@@ -563,6 +568,18 @@ class _CategorySection extends StatelessWidget {
               ),
               onTap: () => onActionSelected(type),
             ),
+          );
+
+          return Draggable<BotCreatorActionType>(
+            data: type,
+            feedback: Material(
+              color: Colors.transparent,
+              child: Opacity(
+                opacity: 0.85,
+                child: SizedBox(width: 200, child: cardWidget),
+              ),
+            ),
+            child: cardWidget,
           );
         }),
       ],
