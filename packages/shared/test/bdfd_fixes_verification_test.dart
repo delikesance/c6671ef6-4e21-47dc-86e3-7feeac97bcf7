@@ -315,5 +315,171 @@ void main() {
         expect(component['label'], '');
       });
     });
+
+    group(r'$randomText resolution & execution', () {
+      test(
+        r'compiles and resolves user scenario $randomText with multiline and $username',
+        () {
+          const code = '''\$randomText[
+  Welcome \$username to the server! 🎉;
+  Hey \$username, glad to see you! 👋;
+  \$username just joined us! 🥳;
+  A new adventurer, \$username, has arrived! ⚔️
+]''';
+
+          final result = BdfdCompiler().compile(code);
+          expect(result.hasErrors, isFalse);
+          expect(result.actions, hasLength(1));
+
+          final content = result.actions.single.payload['content'] as String;
+          expect(content, contains('((randomtext['));
+
+          final expectedOptions = {
+            'Welcome Jeremy to the server! 🎉',
+            'Hey Jeremy, glad to see you! 👋',
+            'Jeremy just joined us! 🥳',
+            'A new adventurer, Jeremy, has arrived! ⚔️',
+          };
+
+          final picked = <String>{};
+          for (var i = 0; i < 200; i++) {
+            final resolved = resolveTemplatePlaceholders(content, {
+              'user.username': 'Jeremy',
+              'author.username': 'Jeremy',
+            });
+            picked.add(resolved);
+          }
+
+          expect(picked, containsAll(expectedOptions));
+          expect(picked.difference(expectedOptions), isEmpty);
+        },
+      );
+
+      test(r'compiles and resolves $randomText inside embed description', () {
+        final result = BdfdCompiler().compile(
+          r'$title[Coin Flip]$description[Result: $randomText[Heads;Tails]]',
+        );
+        expect(result.hasErrors, isFalse);
+        final embeds = result.actions.single.payload['embeds'] as List;
+        final desc = embeds.first['description'] as String;
+
+        final picked = <String>{};
+        for (var i = 0; i < 100; i++) {
+          picked.add(resolveTemplatePlaceholders(desc, {}));
+        }
+        expect(picked, containsAll(['Result: Heads', 'Result: Tails']));
+      });
+    });
+
+    group(
+      'Function wiring checks: removeReaction, setNickname, wait, canvasContainer',
+      () {
+        test(r'compiles $removeReaction with 3 arguments', () {
+          final result = BdfdCompiler().compile(r'$removeReaction[123;456;👍]');
+          expect(result.hasErrors, isFalse);
+          expect(result.actions, hasLength(1));
+          final action = result.actions.first;
+          expect(action.type, BotCreatorActionType.removeReaction);
+          expect(action.payload['channelId'], '123');
+          expect(action.payload['messageId'], '456');
+          expect(action.payload['emoji'], '👍');
+          expect(action.payload['removeOwn'], isTrue);
+        });
+
+        test(r'compiles $removeReaction with 1 argument (emoji only)', () {
+          final result = BdfdCompiler().compile(r'$removeReaction[🔥]');
+          expect(result.hasErrors, isFalse);
+          expect(result.actions, hasLength(1));
+          final action = result.actions.first;
+          expect(action.type, BotCreatorActionType.removeReaction);
+          expect(action.payload['channelId'], '((channel.id))');
+          expect(action.payload['messageId'], '((message.id))');
+          expect(action.payload['emoji'], '🔥');
+        });
+
+        test(r'compiles $setNickname', () {
+          final result = BdfdCompiler().compile(r'$setNickname[NewNick;987]');
+          expect(result.hasErrors, isFalse);
+          expect(result.actions, hasLength(1));
+          final action = result.actions.first;
+          expect(action.type, BotCreatorActionType.setNickname);
+          expect(action.payload['nickname'], 'NewNick');
+          expect(action.payload['userId'], '987');
+        });
+
+        test(r'compiles $wait', () {
+          final result = BdfdCompiler().compile(r'$wait[5s]');
+          expect(result.hasErrors, isFalse);
+          expect(result.actions, hasLength(1));
+          final action = result.actions.first;
+          expect(action.type, BotCreatorActionType.wait);
+          expect(action.payload['duration'], '5s');
+        });
+
+        test(
+          r'compiles $canvasContainer and $canvasCreate without tokenizer errors',
+          () {
+            final result = BdfdCompiler().compile(
+              r'$canvasCreate[myCanvas;400;300;#FFFFFF]$canvasContainer[box;10;10;100;100]$canvasDrawText[Hello;5;5;#000000;16;box]$attachImage[myCanvas]',
+            );
+            expect(result.hasErrors, isFalse);
+          },
+        );
+
+        test(r'compiles and resolves $authorPerms and $memberPerms', () {
+          final result = BdfdCompiler().compile(
+            r'Perms: $authorPerms | $memberPerms',
+          );
+          expect(result.hasErrors, isFalse);
+          final content = result.actions.first.payload['content'] as String;
+          expect(content, contains('((userperms[;-1;, ]))'));
+
+          final resolved = resolveTemplatePlaceholders(content, {
+            'author.id': '123',
+            'member.permissions': 'administrator,manageMessages',
+          });
+          expect(
+            resolved,
+            contains(
+              'Perms: ADMINISTRATOR, MANAGE_MESSAGES | ADMINISTRATOR, MANAGE_MESSAGES',
+            ),
+          );
+        });
+
+        test(r'compiles and resolves $getRole', () {
+          final result = BdfdCompiler().compile(r'Role: $getRole[$authorID;1]');
+          expect(result.hasErrors, isFalse);
+          final content = result.actions.first.payload['content'] as String;
+          expect(content, contains('((getrole[((author.id));1]))'));
+
+          final resolved = resolveTemplatePlaceholders(content, {
+            'author.id': 'user_1',
+            'member[user_1].roles': 'role_admin,role_mod,role_member',
+          });
+          expect(resolved, 'Role: role_admin');
+
+          // Test second role
+          final result2 = BdfdCompiler().compile(
+            r'Role: $getRole[$authorID;2]',
+          );
+          final resolved2 = resolveTemplatePlaceholders(
+            result2.actions.first.payload['content'] as String,
+            {
+              'author.id': 'user_1',
+              'member[user_1].roles': 'role_admin,role_mod,role_member',
+            },
+          );
+          expect(resolved2, 'Role: role_mod');
+        });
+
+        test(r'compiles $hasPerms identical to $checkUserPerms', () {
+          final result = BdfdCompiler().compile(
+            r'$hasPerms[12345;administrator]',
+          );
+          expect(result.hasErrors, isFalse);
+          expect(result.actions, isNotEmpty);
+        });
+      },
+    );
   });
 }

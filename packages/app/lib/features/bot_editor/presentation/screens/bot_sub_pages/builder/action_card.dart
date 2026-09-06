@@ -23,16 +23,20 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/features/components_v2/presentation/component_v2_builder/component_v2_editor.dart';
 import 'package:bot_creator/features/components_v2/presentation/component_v2_builder/modal_builder.dart';
 import 'package:bot_creator/features/components_v2/presentation/component_v2_builder/normal_component_editor.dart';
+import 'package:bot_creator/features/components_v2/presentation/component_v2_builder/component_node_factory.dart';
 import 'package:bot_creator/core/models/types/app_emoji.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/permission_flags_field.dart';
-import 'package:bot_creator_shared/utils/permission_flags.dart' show decomposePermissionBitmasks;
+import 'package:bot_creator_shared/utils/permission_flags.dart'
+    show decomposePermissionBitmasks;
 import 'package:bot_creator/core/widgets/variable_text_field.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/response_embeds_editor.dart';
 import 'package:bot_creator/core/models/types/variable_suggestion.dart';
-import 'package:bot_creator_shared/utils/variable_catalog.dart' show variableDescription;
+import 'package:bot_creator_shared/utils/variable_catalog.dart'
+    show variableDescription;
 import 'package:bot_creator_shared/types/variable_suggestion.dart' as shared;
 import 'action_types.dart';
 import 'action_type_extension.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/scratch_block_palette.dart';
 import 'package:http/http.dart' as http;
 
 enum _ActionCardMenuAction { moveUp, moveDown, remove }
@@ -168,50 +172,48 @@ class ActionCard extends StatelessWidget {
                           await _confirmAndRemoveAction(context);
                         }
                       },
-                      itemBuilder:
-                          (context) => [
-                            PopupMenuItem<_ActionCardMenuAction>(
-                              value: _ActionCardMenuAction.moveUp,
-                              enabled: onMoveUp != null,
-                              child: Row(
-                                children: [
-                                  Icon(Icons.arrow_upward),
-                                  SizedBox(width: 8),
-                                  Text(context.tr.common_move_up),
-                                ],
+                      itemBuilder: (context) => [
+                        PopupMenuItem<_ActionCardMenuAction>(
+                          value: _ActionCardMenuAction.moveUp,
+                          enabled: onMoveUp != null,
+                          child: Row(
+                            children: [
+                              Icon(Icons.arrow_upward),
+                              SizedBox(width: 8),
+                              Text(context.tr.common_move_up),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem<_ActionCardMenuAction>(
+                          value: _ActionCardMenuAction.moveDown,
+                          enabled: onMoveDown != null,
+                          child: Row(
+                            children: [
+                              Icon(Icons.arrow_downward),
+                              SizedBox(width: 8),
+                              Text(context.tr.common_move_down),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem<_ActionCardMenuAction>(
+                          value: _ActionCardMenuAction.remove,
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.delete_outline,
+                                color: Theme.of(context).colorScheme.error,
                               ),
-                            ),
-                            PopupMenuItem<_ActionCardMenuAction>(
-                              value: _ActionCardMenuAction.moveDown,
-                              enabled: onMoveDown != null,
-                              child: Row(
-                                children: [
-                                  Icon(Icons.arrow_downward),
-                                  SizedBox(width: 8),
-                                  Text(context.tr.common_move_down),
-                                ],
+                              const SizedBox(width: 8),
+                              Text(
+                                context.tr.action_remove_menu,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.error,
+                                ),
                               ),
-                            ),
-                            PopupMenuItem<_ActionCardMenuAction>(
-                              value: _ActionCardMenuAction.remove,
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.delete_outline,
-                                    color: Theme.of(context).colorScheme.error,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    context.tr.action_remove_menu,
-                                    style: TextStyle(
-                                      color:
-                                          Theme.of(context).colorScheme.error,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
+                        ),
+                      ],
                     )
                   else if (showManagementControls) ...[
                     IconButton(
@@ -264,7 +266,9 @@ class ActionCard extends StatelessWidget {
                   .map((paramDef) {
                     final currentValue = action.parameters[paramDef.key];
                     return Padding(
-                      key: ValueKey('param-padding-${action.runtimeId}-${paramDef.key}'),
+                      key: ValueKey(
+                        'param-padding-${action.runtimeId}-${paramDef.key}',
+                      ),
                       padding: const EdgeInsets.only(bottom: 12),
                       child: _buildParameterField(
                         context,
@@ -280,7 +284,9 @@ class ActionCard extends StatelessWidget {
   }
 
   Widget _buildJumpTargetField(BuildContext context) {
-    if (allActions == null || allActions!.isEmpty) return const SizedBox.shrink();
+    if (allActions == null || allActions!.isEmpty) {
+      return const SizedBox.shrink();
+    }
 
     // Show only subsequent actions (after current)
     final items = <DropdownMenuItem<String>>[];
@@ -293,10 +299,12 @@ class ActionCard extends StatelessWidget {
         continue;
       }
       final label = a.actionKey.isNotEmpty ? a.actionKey : a.type.name;
-      items.add(DropdownMenuItem(
-        value: a.actionKey.isNotEmpty ? a.actionKey : a.runtimeId,
-        child: Text(label, overflow: TextOverflow.ellipsis),
-      ));
+      items.add(
+        DropdownMenuItem(
+          value: a.actionKey.isNotEmpty ? a.actionKey : a.runtimeId,
+          child: Text(label, overflow: TextOverflow.ellipsis),
+        ),
+      );
     }
     if (items.isEmpty) return const SizedBox.shrink();
 
@@ -442,8 +450,9 @@ class ActionCard extends StatelessWidget {
   // Parses a JSON response and returns a flat list of JSON Path dot notations.
   // Includes the root path (`$`) so top-level arrays can be selected directly.
   List<String> _extractPaths(dynamic data, [String currentPath = '\$']) {
-    List<String> paths =
-        currentPath == r'$' ? <String>[currentPath] : <String>[];
+    List<String> paths = currentPath == r'$'
+        ? <String>[currentPath]
+        : <String>[];
     if (data is Map) {
       for (final key in data.keys) {
         final newPath = '$currentPath.$key';
@@ -504,8 +513,8 @@ class ActionCard extends StatelessWidget {
                   if (method == 'POST') {
                     final dynamic bodyData =
                         action.parameters['bodyMode'] == 'json'
-                            ? jsonEncode(action.parameters['bodyJson'])
-                            : action.parameters['bodyText'];
+                        ? jsonEncode(action.parameters['bodyJson'])
+                        : action.parameters['bodyText'];
                     if (action.parameters['bodyMode'] == 'json' &&
                         !requestHeaders.containsKey('Content-Type')) {
                       requestHeaders['Content-Type'] = 'application/json';
@@ -518,8 +527,8 @@ class ActionCard extends StatelessWidget {
                   } else if (method == 'PUT') {
                     final dynamic bodyData =
                         action.parameters['bodyMode'] == 'json'
-                            ? jsonEncode(action.parameters['bodyJson'])
-                            : action.parameters['bodyText'];
+                        ? jsonEncode(action.parameters['bodyJson'])
+                        : action.parameters['bodyText'];
                     if (action.parameters['bodyMode'] == 'json' &&
                         !requestHeaders.containsKey('Content-Type')) {
                       requestHeaders['Content-Type'] = 'application/json';
@@ -532,8 +541,8 @@ class ActionCard extends StatelessWidget {
                   } else if (method == 'PATCH') {
                     final dynamic bodyData =
                         action.parameters['bodyMode'] == 'json'
-                            ? jsonEncode(action.parameters['bodyJson'])
-                            : action.parameters['bodyText'];
+                        ? jsonEncode(action.parameters['bodyJson'])
+                        : action.parameters['bodyText'];
                     if (action.parameters['bodyMode'] == 'json' &&
                         !requestHeaders.containsKey('Content-Type')) {
                       requestHeaders['Content-Type'] = 'application/json';
@@ -643,22 +652,20 @@ class ActionCard extends StatelessWidget {
                               decoration: BoxDecoration(
                                 color:
                                     statusCode != null &&
-                                            statusCode! >= 200 &&
-                                            statusCode! < 300
-                                        ? AppTheme.success.withValues(
-                                          alpha: 0.2,
-                                        )
-                                        : AppTheme.error.withValues(alpha: 0.2),
+                                        statusCode! >= 200 &&
+                                        statusCode! < 300
+                                    ? AppTheme.success.withValues(alpha: 0.2)
+                                    : AppTheme.error.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(
                                   AppTheme.radiusXs,
                                 ),
                                 border: Border.all(
                                   color:
                                       statusCode != null &&
-                                              statusCode! >= 200 &&
-                                              statusCode! < 300
-                                          ? AppTheme.success
-                                          : AppTheme.error,
+                                          statusCode! >= 200 &&
+                                          statusCode! < 300
+                                      ? AppTheme.success
+                                      : AppTheme.error,
                                 ),
                               ),
                               child: Text(
@@ -668,10 +675,10 @@ class ActionCard extends StatelessWidget {
                                 style: TextStyle(
                                   color:
                                       statusCode != null &&
-                                              statusCode! >= 200 &&
-                                              statusCode! < 300
-                                          ? AppTheme.successAccent
-                                          : AppTheme.error,
+                                          statusCode! >= 200 &&
+                                          statusCode! < 300
+                                      ? AppTheme.successAccent
+                                      : AppTheme.error,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -837,14 +844,22 @@ class ActionCard extends StatelessWidget {
           bodyText: (action.parameters['bodyText'] ?? '').toString(),
           bodyJson: bodyJson,
           variableSuggestions: variableSuggestions,
-          onSaved: ({required String url, required String method, required Map<String, String> headers, required String bodyMode, required String bodyText, required Map<String, dynamic> bodyJson}) {
-            onParameterChanged('url', url);
-            onParameterChanged('method', method);
-            onParameterChanged('headers', headers);
-            onParameterChanged('bodyMode', bodyMode);
-            onParameterChanged('bodyText', bodyText);
-            onParameterChanged('bodyJson', bodyJson);
-          },
+          onSaved:
+              ({
+                required String url,
+                required String method,
+                required Map<String, String> headers,
+                required String bodyMode,
+                required String bodyText,
+                required Map<String, dynamic> bodyJson,
+              }) {
+                onParameterChanged('url', url);
+                onParameterChanged('method', method);
+                onParameterChanged('headers', headers);
+                onParameterChanged('bodyMode', bodyMode);
+                onParameterChanged('bodyText', bodyText);
+                onParameterChanged('bodyJson', bodyJson);
+              },
         ),
       ),
     );
@@ -866,16 +881,11 @@ class ActionCard extends StatelessWidget {
             }
           }
         }
-        final current =
-            (rawValue ?? '')
-                .toString()
-                .trim()
-                .toLowerCase();
-        final allowed =
-            entry.value
-                .map((value) => value.trim().toLowerCase())
-                .where((value) => value.isNotEmpty)
-                .toSet();
+        final current = (rawValue ?? '').toString().trim().toLowerCase();
+        final allowed = entry.value
+            .map((value) => value.trim().toLowerCase())
+            .where((value) => value.isNotEmpty)
+            .toSet();
         if (allowed.isNotEmpty && !allowed.contains(current)) {
           return false;
         }
@@ -900,10 +910,12 @@ class ActionCard extends StatelessWidget {
   /// Shows a dialog with a [VariableTextField] pre-populated with `((`
   /// so autocomplete suggestions appear immediately. On accept, inserts
   /// the selected variable into the parameter field.
-  void _showVariablePickerDialog(BuildContext context, String paramKey, dynamic currentValue) {
-    final vc = TextEditingController(
-      text: (currentValue ?? '').toString(),
-    );
+  void _showVariablePickerDialog(
+    BuildContext context,
+    String paramKey,
+    dynamic currentValue,
+  ) {
+    final vc = TextEditingController(text: (currentValue ?? '').toString());
     // If the current value is empty, pre-populate with (( for autocomplete.
     if (vc.text.isEmpty) {
       vc.text = '((';
@@ -961,13 +973,18 @@ class ActionCard extends StatelessWidget {
   /// Returns a compact [IconButton] for inserting variables via the
   /// [VariableTextField] dialog. Returns null when no suggestions are
   /// available.
-  Widget? _buildVariableIcon(BuildContext context, String paramKey, dynamic currentValue) {
+  Widget? _buildVariableIcon(
+    BuildContext context,
+    String paramKey,
+    dynamic currentValue,
+  ) {
     if (variableSuggestions.isEmpty) return null;
     return IconButton(
       icon: const Icon(Icons.data_object, size: 18),
       tooltip: 'Insert variable',
       visualDensity: VisualDensity.compact,
-      onPressed: () => _showVariablePickerDialog(context, paramKey, currentValue),
+      onPressed: () =>
+          _showVariablePickerDialog(context, paramKey, currentValue),
     );
   }
 
@@ -1033,8 +1050,8 @@ class ActionCard extends StatelessWidget {
                     currentValue,
                     _coerceBoolValue(paramDef.defaultValue, false),
                   ),
-                  onChanged:
-                      (newValue) => onParameterChanged(paramDef.key, newValue),
+                  onChanged: (newValue) =>
+                      onParameterChanged(paramDef.key, newValue),
                 ),
               ],
             ),
@@ -1065,8 +1082,8 @@ class ActionCard extends StatelessWidget {
                 ),
                 IconButton(
                   icon: const Icon(Icons.edit, size: 20),
-                  onPressed:
-                      () => _showListEditor(context, paramDef, currentValue),
+                  onPressed: () =>
+                      _showListEditor(context, paramDef, currentValue),
                 ),
               ],
             ),
@@ -1108,10 +1125,9 @@ class ActionCard extends StatelessWidget {
       case ParameterType.multiSelect:
         final options = paramDef.options ?? const <String>[];
         final rawValue = (currentValue ?? paramDef.defaultValue).toString();
-        final selectedValue =
-            options.contains(rawValue)
-                ? rawValue
-                : (options.isNotEmpty ? options.first : rawValue);
+        final selectedValue = options.contains(rawValue)
+            ? rawValue
+            : (options.isNotEmpty ? options.first : rawValue);
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1135,15 +1151,14 @@ class ActionCard extends StatelessWidget {
                 border: const OutlineInputBorder(),
                 isDense: true,
               ),
-              items:
-                  paramDef.options?.map((option) {
-                    return DropdownMenuItem(
-                      value: option,
-                      child: Text(option, overflow: TextOverflow.ellipsis),
-                    );
-                  }).toList(),
-              onChanged:
-                  (newValue) => onParameterChanged(paramDef.key, newValue),
+              items: paramDef.options?.map((option) {
+                return DropdownMenuItem(
+                  value: option,
+                  child: Text(option, overflow: TextOverflow.ellipsis),
+                );
+              }).toList(),
+              onChanged: (newValue) =>
+                  onParameterChanged(paramDef.key, newValue),
             ),
             ..._buildVariableSuggestionsForParam(
               paramKey: paramDef.key,
@@ -1184,7 +1199,8 @@ class ActionCard extends StatelessWidget {
           key: _parameterInputKey(paramDef.key),
           label: _formatParameterName(paramDef.key),
           initialValue: (currentValue ?? paramDef.defaultValue).toString(),
-          hint: _localizeHint(paramDef.hint) ??
+          hint:
+              _localizeHint(paramDef.hint) ??
               context.tr.action_hint_enter_type(paramDef.type.name),
           suggestions: variableSuggestions,
           emojiSuggestions: emojiSuggestions,
@@ -1231,8 +1247,8 @@ class ActionCard extends StatelessWidget {
                 ?_buildVariableIcon(context, paramDef.key, currentValue),
                 IconButton(
                   icon: const Icon(Icons.edit, size: 20),
-                  onPressed:
-                      () => _showMapEditor(context, paramDef, currentValue),
+                  onPressed: () =>
+                      _showMapEditor(context, paramDef, currentValue),
                 ),
               ],
             ),
@@ -1251,38 +1267,20 @@ class ActionCard extends StatelessWidget {
 
       case ParameterType.embeds:
         final embeds = normalizeResponseEmbedsPayload(currentValue);
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              _formatParameterName(paramDef.key),
-              style: const TextStyle(fontWeight: FontWeight.w500),
-            ),
-            const SizedBox(height: 8),
-            ResponseEmbedsEditor(
-              key: _parameterInputKey(paramDef.key),
-              embeds: embeds,
-              variableSuggestions: variableSuggestions,
-              emojiSuggestions: emojiSuggestions,
-              onChanged: (updated) {
-                onParameterChanged(paramDef.key, updated);
-              },
-            ),
-          ],
-        );
+        return _buildEmbedsTile(context, paramDef: paramDef, embeds: embeds);
 
       case ParameterType.nestedActions:
-        final nestedList =
-            currentValue is List
-                ? currentValue
-                    .whereType<Map>()
-                    .map((m) => Map<String, dynamic>.from(m))
-                    .toList()
-                : <Map<String, dynamic>>[];
+        final nestedList = currentValue is List
+            ? currentValue
+                  .whereType<Map>()
+                  .map((m) => Map<String, dynamic>.from(m))
+                  .toList()
+            : <Map<String, dynamic>>[];
         final blockLabel =
             _localizeHint(paramDef.hint) ?? _formatParameterName(paramDef.key);
-        final blockColor =
-            paramDef.key == 'thenActions' ? AppTheme.success : AppTheme.warning;
+        final blockColor = paramDef.key == 'thenActions'
+            ? AppTheme.success
+            : AppTheme.warning;
 
         // ── Image Editor entry point ──────────────────────────────────────
         final isImageBlock =
@@ -1297,12 +1295,14 @@ class ActionCard extends StatelessWidget {
                 builder: (_) => ImageEditorPage(
                   operations: nestedList,
                   variableSuggestions: variableSuggestions
-                      .map((s) => shared.VariableSuggestion(
-                            name: s.name,
-                            kind: shared.VariableSuggestionKind.unknown,
-                            category: s.category,
-                            description: s.description,
-                          ))
+                      .map(
+                        (s) => shared.VariableSuggestion(
+                          name: s.name,
+                          kind: shared.VariableSuggestionKind.unknown,
+                          category: s.category,
+                          description: s.description,
+                        ),
+                      )
                       .toList(),
                 ),
               ),
@@ -1344,105 +1344,57 @@ class ActionCard extends StatelessWidget {
           nestedList: nestedList,
           blockLabel: blockLabel,
           blockColor: blockColor,
-          icon:
-              paramDef.key == 'thenActions'
-                  ? Icons.check_circle_outline
-                  : Icons.cancel_outlined,
+          icon: paramDef.key == 'thenActions'
+              ? Icons.check_circle_outline
+              : Icons.cancel_outlined,
           onEdit: openEditor,
         );
 
       case ParameterType.componentV2:
-        final compDef =
-            currentValue is Map<String, dynamic>
-                ? ComponentV2Definition.fromJson(currentValue)
-                : currentValue is Map
-                ? ComponentV2Definition.fromJson(
-                  Map<String, dynamic>.from(
-                    currentValue.map((k, v) => MapEntry(k.toString(), v)),
-                  ),
-                )
-                : ComponentV2Definition();
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              _formatParameterName(paramDef.key),
-              style: const TextStyle(fontWeight: FontWeight.w500),
-            ),
-            const SizedBox(height: 8),
-            ComponentV2EditorWidget(
-              key: _parameterInputKey(paramDef.key),
-              definition: compDef,
-              variableSuggestions: variableSuggestions,
-              botIdForConfig: botIdForConfig,
-              onChanged: (updated) {
-                onParameterChanged(paramDef.key, updated.toJson());
-              },
-            ),
-          ],
+        final compDef = currentValue is Map<String, dynamic>
+            ? ComponentV2Definition.fromJson(currentValue)
+            : currentValue is Map
+            ? ComponentV2Definition.fromJson(
+                Map<String, dynamic>.from(
+                  currentValue.map((k, v) => MapEntry(k.toString(), v)),
+                ),
+              )
+            : ComponentV2Definition();
+        return _buildComponentsTile(
+          context,
+          paramDef: paramDef,
+          compDef: compDef,
+          isComponentV2: true,
         );
 
       case ParameterType.normalComponents:
-        final compDef =
-            currentValue is Map<String, dynamic>
-                ? ComponentV2Definition.fromJson(currentValue)
-                : currentValue is Map
-                ? ComponentV2Definition.fromJson(
-                  Map<String, dynamic>.from(
-                    currentValue.map((k, v) => MapEntry(k.toString(), v)),
-                  ),
-                )
-                : ComponentV2Definition();
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              _formatParameterName(paramDef.key),
-              style: const TextStyle(fontWeight: FontWeight.w500),
-            ),
-            const SizedBox(height: 8),
-            NormalComponentEditorWidget(
-              key: _parameterInputKey(paramDef.key),
-              definition: compDef,
-              variableSuggestions: variableSuggestions,
-              botIdForConfig: botIdForConfig,
-              onChanged: (updated) {
-                onParameterChanged(paramDef.key, updated.toJson());
-              },
-            ),
-          ],
+        final compDef = currentValue is Map<String, dynamic>
+            ? ComponentV2Definition.fromJson(currentValue)
+            : currentValue is Map
+            ? ComponentV2Definition.fromJson(
+                Map<String, dynamic>.from(
+                  currentValue.map((k, v) => MapEntry(k.toString(), v)),
+                ),
+              )
+            : ComponentV2Definition();
+        return _buildComponentsTile(
+          context,
+          paramDef: paramDef,
+          compDef: compDef,
+          isComponentV2: false,
         );
 
       case ParameterType.modalDefinition:
-        final modalDef =
-            currentValue is Map<String, dynamic>
-                ? ModalDefinition.fromJson(currentValue)
-                : currentValue is Map
-                ? ModalDefinition.fromJson(
-                  Map<String, dynamic>.from(
-                    currentValue.map((k, v) => MapEntry(k.toString(), v)),
-                  ),
-                )
-                : ModalDefinition();
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              _formatParameterName(paramDef.key),
-              style: const TextStyle(fontWeight: FontWeight.w500),
-            ),
-            const SizedBox(height: 8),
-            ModalBuilderWidget(
-              key: _parameterInputKey(paramDef.key),
-              modal: modalDef,
-              variableSuggestions: variableSuggestions,
-              botIdForConfig: botIdForConfig,
-              onChanged: (updated) {
-                onParameterChanged(paramDef.key, updated.toJson());
-              },
-            ),
-          ],
-        );
+        final modalDef = currentValue is Map<String, dynamic>
+            ? ModalDefinition.fromJson(currentValue)
+            : currentValue is Map
+            ? ModalDefinition.fromJson(
+                Map<String, dynamic>.from(
+                  currentValue.map((k, v) => MapEntry(k.toString(), v)),
+                ),
+              )
+            : ModalDefinition();
+        return _buildModalTile(context, paramDef: paramDef, modalDef: modalDef);
 
       case ParameterType.bdfdScript:
         return _BdfdScriptParameterField(
@@ -1457,8 +1409,7 @@ class ActionCard extends StatelessWidget {
           label: _formatParameterName(paramDef.key),
           currentValue: _coercePermissionFlagsValue(currentValue),
           hint: _localizeHint(paramDef.hint),
-          onChanged: (newValue) =>
-              onParameterChanged(paramDef.key, newValue),
+          onChanged: (newValue) => onParameterChanged(paramDef.key, newValue),
         );
 
       default: // ParameterType.string and ParameterType.url and others
@@ -1469,8 +1420,9 @@ class ActionCard extends StatelessWidget {
           return _WorkflowNameParameterField(
             key: _parameterInputKey(paramDef.key),
             label: _formatParameterName(paramDef.key),
-            currentValue:
-                (currentValue ?? paramDef.defaultValue).toString().trim(),
+            currentValue: (currentValue ?? paramDef.defaultValue)
+                .toString()
+                .trim(),
             hint:
                 _localizeHint(paramDef.hint) ?? context.tr.action_hint_workflow,
             botId: botIdForConfig!,
@@ -1491,7 +1443,7 @@ class ActionCard extends StatelessWidget {
               action.type == BotCreatorActionType.listScopedVariableIndex ||
               action.type == BotCreatorActionType.appendArrayElement ||
               action.type == BotCreatorActionType.removeArrayElement;
- 
+
           return _VariableKeyParameterField(
             key: _parameterInputKey(paramDef.key),
             label: _formatParameterName(paramDef.key),
@@ -1536,40 +1488,35 @@ class ActionCard extends StatelessWidget {
                 onSelected: (String selection) {
                   onParameterChanged(paramDef.key, selection);
                 },
-                fieldViewBuilder: (
-                  context,
-                  controller,
-                  focusNode,
-                  onEditingComplete,
-                ) {
-                  if (controller.text != (currentValue?.toString() ?? '') &&
-                      controller.text.isEmpty) {
-                    controller.text = currentValue?.toString() ?? '';
-                  }
-                  return TextField(
-                    controller: controller,
-                    focusNode: focusNode,
-                    onEditingComplete: () {
-                      onParameterChanged(paramDef.key, controller.text);
-                      onEditingComplete();
-                    },
-                    onChanged: (val) {
-                      onParameterChanged(paramDef.key, val);
-                    },
-                    decoration: InputDecoration(
-                      border: const OutlineInputBorder(),
-                      isDense: true,
-                      hintText: _localizeHint(paramDef.hint),
-                      suffixIcon:
-                          stringPaths.isNotEmpty
+                fieldViewBuilder:
+                    (context, controller, focusNode, onEditingComplete) {
+                      if (controller.text != (currentValue?.toString() ?? '') &&
+                          controller.text.isEmpty) {
+                        controller.text = currentValue?.toString() ?? '';
+                      }
+                      return TextField(
+                        controller: controller,
+                        focusNode: focusNode,
+                        onEditingComplete: () {
+                          onParameterChanged(paramDef.key, controller.text);
+                          onEditingComplete();
+                        },
+                        onChanged: (val) {
+                          onParameterChanged(paramDef.key, val);
+                        },
+                        decoration: InputDecoration(
+                          border: const OutlineInputBorder(),
+                          isDense: true,
+                          hintText: _localizeHint(paramDef.hint),
+                          suffixIcon: stringPaths.isNotEmpty
                               ? const Icon(
-                                Icons.arrow_drop_down,
-                                color: AppTheme.info,
-                              )
+                                  Icons.arrow_drop_down,
+                                  color: AppTheme.info,
+                                )
                               : null,
-                    ),
-                  );
-                },
+                        ),
+                      );
+                    },
               ),
             ],
           );
@@ -1752,10 +1699,9 @@ class ActionCard extends StatelessWidget {
                   key: ValueKey(
                     'elseif-${action.runtimeId}-$branchIndex-operator',
                   ),
-                  initialValue:
-                      _conditionOperators.contains(operatorValue)
-                          ? operatorValue
-                          : 'equals',
+                  initialValue: _conditionOperators.contains(operatorValue)
+                      ? operatorValue
+                      : 'equals',
                   isExpanded: true,
                   decoration: InputDecoration(
                     labelText: context.tr.common_operator,
@@ -1860,25 +1806,17 @@ class ActionCard extends StatelessWidget {
   }) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isCompact = constraints.maxWidth < 560;
+        final theme = Theme.of(context);
+        final colorScheme = theme.colorScheme;
 
-        final editButton = FilledButton.tonalIcon(
-          onPressed: onEditNestedActions == null ? null : onEdit,
-          icon: const Icon(Icons.edit, size: 15),
-          label: Text(
-            isCompact
-                ? context.tr.action_edit_nested(nestedList.length)
-                : context.tr.action_edit_nested_parens(nestedList.length),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 13),
-          ),
-          style: FilledButton.styleFrom(
-            backgroundColor: blockColor.withValues(alpha: 0.16),
-            foregroundColor: blockColor,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          ),
-        );
+        // Parse up to 3 nested items to show concrete action preview chips
+        final previewItems = nestedList.take(3).map((a) {
+          final rawType = a['type']?.toString();
+          final type = BotCreatorActionType.values
+              .cast<BotCreatorActionType?>()
+              .firstWhere((t) => t?.name == rawType, orElse: () => null);
+          return (raw: a, type: type);
+        }).toList();
 
         return Material(
           color: Colors.transparent,
@@ -1888,119 +1826,237 @@ class ActionCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(AppTheme.radiusMd),
             child: Ink(
               decoration: BoxDecoration(
-                border: Border.all(color: blockColor.withValues(alpha: 0.5)),
+                border: Border.all(
+                  color: blockColor.withValues(alpha: 0.35),
+                  width: 1.2,
+                ),
                 borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                color: blockColor.withValues(alpha: 0.05),
+                color: blockColor.withValues(alpha: 0.04),
               ),
               child: Padding(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (isCompact) ...[
-                      Row(
-                        children: [
-                          Icon(icon, color: blockColor, size: 18),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              blockLabel,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: blockColor,
-                              ),
+                    // Header row: Icon + Branch Label + Action count badge
+                    Row(
+                      children: [
+                        Icon(icon, color: blockColor, size: 18),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            blockLabel,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                              color: blockColor,
                             ),
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      SizedBox(width: double.infinity, child: editButton),
-                    ] else
-                      Row(
-                        children: [
-                          Icon(icon, color: blockColor, size: 18),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              blockLabel,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: blockColor,
-                              ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: blockColor.withValues(alpha: 0.14),
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusPill,
                             ),
                           ),
-                          editButton,
-                        ],
-                      ),
-                    const SizedBox(height: 8),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                        color: blockColor.withValues(alpha: 0.08),
-                      ),
-                      child:
-                          nestedList.isEmpty
-                              ? Text(
-                                context.tr.action_no_actions_yet,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: AppTheme.grey,
+                          child: Text(
+                            context.tr.action_edit_nested_parens(
+                              nestedList.length,
+                            ),
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: blockColor,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+
+                    // Visual pipeline: concrete action chips or empty message
+                    if (nestedList.isEmpty)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: colorScheme.surface.withValues(alpha: 0.5),
+                          borderRadius: BorderRadius.circular(
+                            AppTheme.radiusSm,
+                          ),
+                          border: Border.all(
+                            color: colorScheme.outlineVariant.withValues(
+                              alpha: 0.3,
+                            ),
+                          ),
+                        ),
+                        child: Text(
+                          context.tr.action_no_actions_yet,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontStyle: FontStyle.italic,
+                            color: colorScheme.onSurfaceVariant.withValues(
+                              alpha: 0.7,
+                            ),
+                          ),
+                        ),
+                      )
+                    else
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            for (var i = 0; i < previewItems.length; i++) ...[
+                              if (i > 0)
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 4,
+                                  ),
+                                  child: Icon(
+                                    Icons.arrow_forward_rounded,
+                                    size: 13,
+                                    color: colorScheme.outlineVariant,
+                                  ),
                                 ),
-                              )
-                              : Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  ...nestedList
-                                      .take(3)
-                                      .map(
-                                        (a) => Padding(
-                                          padding: const EdgeInsets.only(
-                                            bottom: 4,
-                                          ),
-                                          child: Row(
-                                            children: [
-                                              const Icon(
-                                                Icons.arrow_right,
-                                                size: 16,
-                                                color: AppTheme.grey,
-                                              ),
-                                              const SizedBox(width: 4),
-                                              Expanded(
-                                                child: Text(
-                                                  a['type']?.toString() ?? '?',
-                                                  maxLines: 1,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: const TextStyle(
-                                                    fontSize: 12,
-                                                    color: AppTheme.grey,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
+                              Builder(
+                                builder: (context) {
+                                  final item = previewItems[i];
+                                  final actionType = item.type;
+                                  final actionIcon =
+                                      actionType?.icon ??
+                                      Icons.extension_outlined;
+                                  final actionName =
+                                      actionType?.displayName(context) ??
+                                      item.raw['type']?.toString() ??
+                                      '?';
+                                  final chipCat = actionType != null
+                                      ? getCategoryForAction(actionType)
+                                      : 'General';
+                                  final chipColor = actionType != null
+                                      ? getCategoryColor(chipCat)
+                                      : colorScheme.primary;
+
+                                  return Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 5,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: colorScheme.surface,
+                                      borderRadius: BorderRadius.circular(
+                                        AppTheme.radiusSm,
                                       ),
-                                  if (nestedList.length > 3)
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 20),
-                                      child: Text(
-                                        context.tr.action_and_more(
-                                          nestedList.length - 3,
-                                        ),
-                                        style: const TextStyle(
-                                          fontSize: 11,
-                                          color: AppTheme.grey,
+                                      border: Border.all(
+                                        color: chipColor.withValues(
+                                          alpha: 0.35,
                                         ),
                                       ),
                                     ),
-                                ],
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          actionIcon,
+                                          size: 14,
+                                          color: chipColor,
+                                        ),
+                                        const SizedBox(width: 5),
+                                        ConstrainedBox(
+                                          constraints: const BoxConstraints(
+                                            maxWidth: 110,
+                                          ),
+                                          child: Text(
+                                            actionName,
+                                            style: TextStyle(
+                                              fontSize: 11.5,
+                                              fontWeight: FontWeight.w600,
+                                              color: colorScheme.onSurface,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
                               ),
+                            ],
+                            if (nestedList.length > 3) ...[
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 4,
+                                ),
+                                child: Icon(
+                                  Icons.arrow_forward_rounded,
+                                  size: 13,
+                                  color: colorScheme.outlineVariant,
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 7,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: colorScheme.surfaceContainerHighest,
+                                  borderRadius: BorderRadius.circular(
+                                    AppTheme.radiusSm,
+                                  ),
+                                ),
+                                child: Text(
+                                  '+${nestedList.length - 3}',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    const SizedBox(height: 10),
+
+                    // Clear drill-down action button
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.tonalIcon(
+                        onPressed: onEditNestedActions == null ? null : onEdit,
+                        icon: const Icon(Icons.open_in_new_rounded, size: 14),
+                        label: Text(
+                          nestedList.isEmpty
+                              ? context.tr.cmd_block_editor_add_action
+                              : context.tr.action_edit_nested(
+                                  nestedList.length,
+                                ),
+                          style: const TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: blockColor.withValues(alpha: 0.14),
+                          foregroundColor: blockColor,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          minimumSize: const Size(0, 36),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -2043,13 +2099,14 @@ class ActionCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.photo_library_outlined,
-                        color: color, size: 20),
+                    Icon(Icons.photo_library_outlined, color: color, size: 20),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         hasOps
-                            ? context.tr.image_editor_edit_canvas(nestedList.length)
+                            ? context.tr.image_editor_edit_canvas(
+                                nestedList.length,
+                              )
                             : context.tr.image_editor_create_canvas,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
@@ -2060,10 +2117,7 @@ class ActionCard extends StatelessWidget {
                     ),
                     FilledButton.tonalIcon(
                       onPressed: onEdit,
-                      icon: Icon(
-                        hasOps ? Icons.edit : Icons.add,
-                        size: 16,
-                      ),
+                      icon: Icon(hasOps ? Icons.edit : Icons.add, size: 16),
                       label: Text(
                         hasOps
                             ? context.tr.image_editor_open
@@ -2074,7 +2128,9 @@ class ActionCard extends StatelessWidget {
                         backgroundColor: color.withValues(alpha: 0.16),
                         foregroundColor: color,
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 6),
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
                       ),
                     ),
                   ],
@@ -2084,47 +2140,53 @@ class ActionCard extends StatelessWidget {
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 8),
+                      horizontal: 10,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
-                      borderRadius:
-                          BorderRadius.circular(AppTheme.radiusSm),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                       color: color.withValues(alpha: 0.08),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        ...nestedList.take(3).map((a) => Padding(
-                              padding:
-                                  const EdgeInsets.only(bottom: 4),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.arrow_right,
+                        ...nestedList
+                            .take(3)
+                            .map(
+                              (a) => Padding(
+                                padding: const EdgeInsets.only(bottom: 4),
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.arrow_right,
                                       size: 16,
-                                      color: AppTheme.grey),
-                                  const SizedBox(width: 4),
-                                  Expanded(
-                                    child: Text(
-                                      a['op']?.toString() ?? '?',
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                          fontSize: 12,
-                                          color: AppTheme.grey),
+                                      color: AppTheme.grey,
                                     ),
-                                  ),
-                                ],
+                                    const SizedBox(width: 4),
+                                    Expanded(
+                                      child: Text(
+                                        a['op']?.toString() ?? '?',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: AppTheme.grey,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            )),
+                            ),
                         if (nestedList.length > 3)
                           Padding(
-                            padding:
-                                const EdgeInsets.only(left: 20),
+                            padding: const EdgeInsets.only(left: 20),
                             child: Text(
-                              context.tr.action_and_more(
-                                  nestedList.length - 3),
+                              context.tr.action_and_more(nestedList.length - 3),
                               style: const TextStyle(
-                                  fontSize: 11,
-                                  color: AppTheme.grey),
+                                fontSize: 11,
+                                color: AppTheme.grey,
+                              ),
                             ),
                           ),
                       ],
@@ -2160,10 +2222,10 @@ class ActionCard extends StatelessWidget {
         .map((entry) {
           final branch = Map<String, dynamic>.from(entry);
           return <String, dynamic>{
-            'condition.variable':
-                (branch['condition.variable'] ?? '').toString(),
-            'condition.operator':
-                (branch['condition.operator'] ?? 'equals').toString(),
+            'condition.variable': (branch['condition.variable'] ?? '')
+                .toString(),
+            'condition.operator': (branch['condition.operator'] ?? 'equals')
+                .toString(),
             'condition.value': (branch['condition.value'] ?? '').toString(),
             'actions': _normalizeNestedActions(branch['actions']),
           };
@@ -2177,10 +2239,10 @@ class ActionCard extends StatelessWidget {
     return branches
         .map(
           (branch) => <String, dynamic>{
-            'condition.variable':
-                (branch['condition.variable'] ?? '').toString(),
-            'condition.operator':
-                (branch['condition.operator'] ?? 'equals').toString(),
+            'condition.variable': (branch['condition.variable'] ?? '')
+                .toString(),
+            'condition.operator': (branch['condition.operator'] ?? 'equals')
+                .toString(),
             'condition.value': (branch['condition.value'] ?? '').toString(),
             'actions': _normalizeNestedActions(branch['actions']),
           },
@@ -2200,12 +2262,9 @@ class ActionCard extends StatelessWidget {
     }
 
     final normalizedQuery = query.trim().toLowerCase();
-    final filteredByKind =
-        isNumericField
-            ? variableSuggestions.where(
-              (item) => item.isNumeric || item.isUnknown,
-            )
-            : variableSuggestions;
+    final filteredByKind = isNumericField
+        ? variableSuggestions.where((item) => item.isNumeric || item.isUnknown)
+        : variableSuggestions;
 
     final dedupedByName = <String, VariableSuggestion>{};
     for (final item in filteredByKind) {
@@ -2223,14 +2282,13 @@ class ActionCard extends StatelessWidget {
       );
     }
 
-    final suggestions =
-        dedupedByName.values
-            .where(
-              (item) =>
-                  normalizedQuery.isEmpty ||
-                  item.name.toLowerCase().contains(normalizedQuery),
-            )
-            .toList();
+    final suggestions = dedupedByName.values
+        .where(
+          (item) =>
+              normalizedQuery.isEmpty ||
+              item.name.toLowerCase().contains(normalizedQuery),
+        )
+        .toList();
 
     if (!isNumericField) {
       suggestions.addAll(
@@ -2258,9 +2316,7 @@ class ActionCard extends StatelessWidget {
     return [
       const SizedBox(height: 8),
       Text(
-        isNumericField
-            ? 'Dynamic numeric suggestions'
-            : 'Available variables',
+        isNumericField ? 'Dynamic numeric suggestions' : 'Available variables',
         style: TextStyle(fontSize: 11, color: AppTheme.grey),
       ),
       const SizedBox(height: 4),
@@ -2272,16 +2328,18 @@ class ActionCard extends StatelessWidget {
             for (final cat in categoryOrder)
               if (grouped.containsKey(cat)) ...[
                 _buildSuggestionCategoryHeaderStatic(cat, grouped[cat]!.length),
-                ...grouped[cat]!.map((item) => _buildSuggestionListTileStatic(
-                      item,
-                      onTap: () {
-                        final nextValue = _insertVariableInOpenPlaceholder(
-                          rawValue,
-                          item.name,
-                        );
-                        onSuggestionSelected(paramKey, nextValue);
-                      },
-                    )),
+                ...grouped[cat]!.map(
+                  (item) => _buildSuggestionListTileStatic(
+                    item,
+                    onTap: () {
+                      final nextValue = _insertVariableInOpenPlaceholder(
+                        rawValue,
+                        item.name,
+                      );
+                      onSuggestionSelected(paramKey, nextValue);
+                    },
+                  ),
+                ),
                 const SizedBox(height: 4),
               ],
           ],
@@ -2292,9 +2350,8 @@ class ActionCard extends StatelessWidget {
 
   // ── Grouped suggestion helpers (static so they can be shared) ────────────
 
-  static Map<shared.VariableCategory, List<VariableSuggestion>> _groupByCategoryStatic(
-    List<VariableSuggestion> items,
-  ) {
+  static Map<shared.VariableCategory, List<VariableSuggestion>>
+  _groupByCategoryStatic(List<VariableSuggestion> items) {
     final map = <shared.VariableCategory, List<VariableSuggestion>>{};
     for (final item in items) {
       final cat = item.category;
@@ -2324,7 +2381,10 @@ class ActionCard extends StatelessWidget {
     return cats;
   }
 
-  static Widget _buildSuggestionCategoryHeaderStatic(shared.VariableCategory cat, int count) {
+  static Widget _buildSuggestionCategoryHeaderStatic(
+    shared.VariableCategory cat,
+    int count,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(top: 8, bottom: 4, left: 4),
       child: Row(
@@ -2368,8 +2428,8 @@ class ActionCard extends StatelessWidget {
                   color: item.isNumeric
                       ? Colors.orange
                       : item.isUnknown
-                          ? Colors.purple
-                          : Colors.green,
+                      ? Colors.purple
+                      : Colors.green,
                 ),
               ),
               const SizedBox(width: 8),
@@ -2470,17 +2530,17 @@ class ActionCard extends StatelessWidget {
       return const [];
     }
 
-    final baseQuery =
-        query.endsWith('.') ? query.substring(0, query.length - 1) : query;
+    final baseQuery = query.endsWith('.')
+        ? query.substring(0, query.length - 1)
+        : query;
     if (baseQuery.isEmpty) {
       return const [];
     }
 
-    final matchingBases =
-        baseSuggestions
-            .where((item) => item.name.toLowerCase() == baseQuery)
-            .map((item) => item.name)
-            .toSet();
+    final matchingBases = baseSuggestions
+        .where((item) => item.name.toLowerCase() == baseQuery)
+        .map((item) => item.name)
+        .toSet();
 
     if (matchingBases.isEmpty) {
       return const [];
@@ -2554,8 +2614,9 @@ class ActionCard extends StatelessWidget {
     }
 
     final parts = afterStart.split('|');
-    final prefixParts =
-        parts.length > 1 ? parts.sublist(0, parts.length - 1) : <String>[];
+    final prefixParts = parts.length > 1
+        ? parts.sublist(0, parts.length - 1)
+        : <String>[];
     final previous = prefixParts
         .map((entry) => entry.trim())
         .where((e) => e.isNotEmpty);
@@ -2577,91 +2638,82 @@ class ActionCard extends StatelessWidget {
 
     showDialog(
       context: context,
-      builder:
-          (dialogContext) => StatefulBuilder(
-            builder:
-                (context, setDialogState) => AlertDialog(
-                  title: Text(
-                    context.tr.action_edit_param(
-                      _formatParameterName(paramDef.key),
-                    ),
-                  ),
-                  content: SizedBox(
-                    width: double.maxFinite,
-                    height: maxHeight,
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                controller: controller,
-                                decoration: InputDecoration(
-                                  hintText: context.tr.action_add_new_item,
-                                  border: OutlineInputBorder(),
-                                ),
-                                onSubmitted: (value) {
-                                  if (value.trim().isNotEmpty) {
-                                    setDialogState(() {
-                                      items.add(value.trim());
-                                      controller.clear();
-                                    });
-                                  }
-                                },
-                              ),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.add),
-                              onPressed: () {
-                                if (controller.text.trim().isNotEmpty) {
-                                  setDialogState(() {
-                                    items.add(controller.text.trim());
-                                    controller.clear();
-                                  });
-                                }
-                              },
-                            ),
-                          ],
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text(
+            context.tr.action_edit_param(_formatParameterName(paramDef.key)),
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            height: maxHeight,
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: controller,
+                        decoration: InputDecoration(
+                          hintText: context.tr.action_add_new_item,
+                          border: OutlineInputBorder(),
                         ),
-                        const SizedBox(height: 16),
-                        Expanded(
-                          child: ListView.builder(
-                            itemCount: items.length,
-                            itemBuilder: (context, index) {
-                              return ListTile(
-                                title: Text(items[index]),
-                                trailing: IconButton(
-                                  icon: const Icon(
-                                    Icons.delete,
-                                    color: AppTheme.error,
-                                  ),
-                                  onPressed:
-                                      () => setDialogState(
-                                        () => items.removeAt(index),
-                                      ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ],
+                        onSubmitted: (value) {
+                          if (value.trim().isNotEmpty) {
+                            setDialogState(() {
+                              items.add(value.trim());
+                              controller.clear();
+                            });
+                          }
+                        },
+                      ),
                     ),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(dialogContext),
-                      child: Text(context.tr.common_cancel),
-                    ),
-                    ElevatedButton(
+                    IconButton(
+                      icon: const Icon(Icons.add),
                       onPressed: () {
-                        onParameterChanged(paramDef.key, items);
-                        Navigator.pop(dialogContext);
+                        if (controller.text.trim().isNotEmpty) {
+                          setDialogState(() {
+                            items.add(controller.text.trim());
+                            controller.clear();
+                          });
+                        }
                       },
-                      child: Text(context.tr.common_save),
                     ),
                   ],
                 ),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: items.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        title: Text(items[index]),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete, color: AppTheme.error),
+                          onPressed: () =>
+                              setDialogState(() => items.removeAt(index)),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(context.tr.common_cancel),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                onParameterChanged(paramDef.key, items);
+                Navigator.pop(dialogContext);
+              },
+              child: Text(context.tr.common_save),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -2679,10 +2731,9 @@ class ActionCard extends StatelessWidget {
       return;
     }
     final maxHeight = MediaQuery.of(context).size.height * 0.7;
-    final rawMap =
-        (currentValue is Map)
-            ? Map<String, dynamic>.from(currentValue.cast<String, dynamic>())
-            : <String, dynamic>{};
+    final rawMap = (currentValue is Map)
+        ? Map<String, dynamic>.from(currentValue.cast<String, dynamic>())
+        : <String, dynamic>{};
 
     // We start in edit mode but with validation checking
     showDialog(
@@ -2727,10 +2778,9 @@ class ActionCard extends StatelessWidget {
                   ),
                   IconButton(
                     icon: Icon(isPreviewMode ? Icons.code : Icons.visibility),
-                    tooltip:
-                        isPreviewMode
-                            ? context.tr.action_edit_raw_json
-                            : context.tr.action_preview_json,
+                    tooltip: isPreviewMode
+                        ? context.tr.action_edit_raw_json
+                        : context.tr.action_preview_json,
                     onPressed: () {
                       if (!isPreviewMode) {
                         // Before switching to preview, format the JSON to ensure it's pretty
@@ -2764,9 +2814,8 @@ class ActionCard extends StatelessWidget {
                         }
                       } catch (e) {
                         setDialogState(
-                          () =>
-                              errorMessage =
-                                  context.tr.action_cannot_format_json,
+                          () => errorMessage =
+                              context.tr.action_cannot_format_json,
                         );
                       }
                     },
@@ -2786,44 +2835,43 @@ class ActionCard extends StatelessWidget {
                       ),
                     const SizedBox(height: 8),
                     Expanded(
-                      child:
-                          isPreviewMode
-                              ? Container(
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: AppTheme.grey),
-                                  borderRadius: BorderRadius.circular(
-                                    AppTheme.radiusXs,
-                                  ),
+                      child: isPreviewMode
+                          ? Container(
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: AppTheme.grey),
+                                borderRadius: BorderRadius.circular(
+                                  AppTheme.radiusXs,
                                 ),
-                                child: SingleChildScrollView(
-                                  child: HighlightView(
-                                    jsonController.text.trim().isEmpty
-                                        ? '{}'
-                                        : jsonController.text,
-                                    language: 'json',
-                                    theme: darculaTheme,
-                                    padding: const EdgeInsets.all(12),
-                                    textStyle: const TextStyle(
-                                      fontFamily: 'monospace',
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ),
-                              )
-                              : TextField(
-                                controller: jsonController,
-                                maxLines: null,
-                                expands: true,
-                                keyboardType: TextInputType.multiline,
-                                onChanged: validateJson,
-                                decoration: InputDecoration(
-                                  border: const OutlineInputBorder(),
-                                  alignLabelWithHint: true,
-                                  errorText: errorMessage,
-                                ),
-                                style: const TextStyle(fontFamily: 'monospace'),
                               ),
+                              child: SingleChildScrollView(
+                                child: HighlightView(
+                                  jsonController.text.trim().isEmpty
+                                      ? '{}'
+                                      : jsonController.text,
+                                  language: 'json',
+                                  theme: darculaTheme,
+                                  padding: const EdgeInsets.all(12),
+                                  textStyle: const TextStyle(
+                                    fontFamily: 'monospace',
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                            )
+                          : TextField(
+                              controller: jsonController,
+                              maxLines: null,
+                              expands: true,
+                              keyboardType: TextInputType.multiline,
+                              onChanged: validateJson,
+                              decoration: InputDecoration(
+                                border: const OutlineInputBorder(),
+                                alignLabelWithHint: true,
+                                errorText: errorMessage,
+                              ),
+                              style: const TextStyle(fontFamily: 'monospace'),
+                            ),
                     ),
                   ],
                 ),
@@ -2834,41 +2882,39 @@ class ActionCard extends StatelessWidget {
                   child: Text(context.tr.common_cancel),
                 ),
                 ElevatedButton(
-                  onPressed:
-                      errorMessage != null
-                          ? null
-                          : () {
-                            try {
-                              final text = jsonController.text.trim();
-                              if (text.isEmpty) {
-                                onParameterChanged(
-                                  paramDef.key,
-                                  <String, dynamic>{},
-                                );
-                                Navigator.pop(dialogContext);
-                                return;
-                              }
-                              final decoded = jsonDecode(text);
-                              if (decoded is! Map) {
-                                setDialogState(
-                                  () =>
-                                      errorMessage =
-                                          context.tr.action_root_must_json,
-                                );
-                                return;
-                              }
-
+                  onPressed: errorMessage != null
+                      ? null
+                      : () {
+                          try {
+                            final text = jsonController.text.trim();
+                            if (text.isEmpty) {
                               onParameterChanged(
                                 paramDef.key,
-                                Map<String, dynamic>.from(decoded),
+                                <String, dynamic>{},
                               );
                               Navigator.pop(dialogContext);
-                            } catch (error) {
-                              setDialogState(
-                                () => errorMessage = error.toString(),
-                              );
+                              return;
                             }
-                          },
+                            final decoded = jsonDecode(text);
+                            if (decoded is! Map) {
+                              setDialogState(
+                                () => errorMessage =
+                                    context.tr.action_root_must_json,
+                              );
+                              return;
+                            }
+
+                            onParameterChanged(
+                              paramDef.key,
+                              Map<String, dynamic>.from(decoded),
+                            );
+                            Navigator.pop(dialogContext);
+                          } catch (error) {
+                            setDialogState(
+                              () => errorMessage = error.toString(),
+                            );
+                          }
+                        },
                   child: Text(context.tr.common_save),
                 ),
               ],
@@ -2934,22 +2980,20 @@ class ActionCard extends StatelessWidget {
     dynamic currentValue,
   ) {
     final maxHeight = MediaQuery.of(context).size.height * 0.7;
-    final Map<String, dynamic> rawMap =
-        (currentValue is Map)
-            ? Map<String, dynamic>.from(currentValue.cast<String, dynamic>())
-            : <String, dynamic>{};
+    final Map<String, dynamic> rawMap = (currentValue is Map)
+        ? Map<String, dynamic>.from(currentValue.cast<String, dynamic>())
+        : <String, dynamic>{};
 
-    final List<Map<String, TextEditingController>> pairs =
-        rawMap.entries
-            .map(
-              (entry) => {
-                'keyController': TextEditingController(text: entry.key),
-                'valueController': TextEditingController(
-                  text: entry.value?.toString() ?? '',
-                ),
-              },
-            )
-            .toList();
+    final List<Map<String, TextEditingController>> pairs = rawMap.entries
+        .map(
+          (entry) => {
+            'keyController': TextEditingController(text: entry.key),
+            'valueController': TextEditingController(
+              text: entry.value?.toString() ?? '',
+            ),
+          },
+        )
+        .toList();
 
     if (pairs.isEmpty) {
       pairs.add({
@@ -2960,126 +3004,120 @@ class ActionCard extends StatelessWidget {
 
     showDialog(
       context: context,
-      builder:
-          (dialogContext) => StatefulBuilder(
-            builder:
-                (context, setDialogState) => AlertDialog(
-                  title: Text(
-                    context.tr.action_edit_param(
-                      _formatParameterName(paramDef.key),
-                    ),
-                  ),
-                  content: SizedBox(
-                    width: double.maxFinite,
-                    height: maxHeight,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          context.tr.action_key_value_pairs,
-                          style: TextStyle(fontSize: 12, color: AppTheme.grey),
-                        ),
-                        const SizedBox(height: 8),
-                        Expanded(
-                          child: ListView.builder(
-                            itemCount: pairs.length,
-                            itemBuilder: (context, index) {
-                              final keyController =
-                                  pairs[index]['keyController']!;
-                              final valueController =
-                                  pairs[index]['valueController']!;
-
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 12),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Expanded(
-                                      flex: 4,
-                                      child: TextField(
-                                        controller: keyController,
-                                        decoration: InputDecoration(
-                                          hintText: context.tr.common_key,
-                                          border: const OutlineInputBorder(),
-                                          isDense: true,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      flex: 6,
-                                      child: TextField(
-                                        controller: valueController,
-                                        decoration: InputDecoration(
-                                          hintText: context.tr.common_value,
-                                          border: const OutlineInputBorder(),
-                                          isDense: true,
-                                        ),
-                                        maxLines: null,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 4),
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.delete,
-                                        color: AppTheme.error,
-                                      ),
-                                      onPressed: () {
-                                        setDialogState(() {
-                                          if (pairs.length > 1) {
-                                            pairs.removeAt(index);
-                                          } else {
-                                            keyController.clear();
-                                            valueController.clear();
-                                          }
-                                        });
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            setDialogState(() {
-                              pairs.add({
-                                'keyController': TextEditingController(),
-                                'valueController': TextEditingController(),
-                              });
-                            });
-                          },
-                          icon: const Icon(Icons.add),
-                          label: Text(context.tr.common_add_argument),
-                        ),
-                      ],
-                    ),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(dialogContext),
-                      child: Text(context.tr.common_cancel),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        final result = <String, dynamic>{};
-                        for (final pair in pairs) {
-                          final key = pair['keyController']!.text.trim();
-                          final value = pair['valueController']!.text.trim();
-                          if (key.isNotEmpty) {
-                            result[key] = value;
-                          }
-                        }
-                        onParameterChanged(paramDef.key, result);
-                        Navigator.pop(dialogContext);
-                      },
-                      child: Text(context.tr.common_save),
-                    ),
-                  ],
-                ),
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text(
+            context.tr.action_edit_param(_formatParameterName(paramDef.key)),
           ),
+          content: SizedBox(
+            width: double.maxFinite,
+            height: maxHeight,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  context.tr.action_key_value_pairs,
+                  style: TextStyle(fontSize: 12, color: AppTheme.grey),
+                ),
+                const SizedBox(height: 8),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: pairs.length,
+                    itemBuilder: (context, index) {
+                      final keyController = pairs[index]['keyController']!;
+                      final valueController = pairs[index]['valueController']!;
+
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              flex: 4,
+                              child: TextField(
+                                controller: keyController,
+                                decoration: InputDecoration(
+                                  hintText: context.tr.common_key,
+                                  border: const OutlineInputBorder(),
+                                  isDense: true,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              flex: 6,
+                              child: TextField(
+                                controller: valueController,
+                                decoration: InputDecoration(
+                                  hintText: context.tr.common_value,
+                                  border: const OutlineInputBorder(),
+                                  isDense: true,
+                                ),
+                                maxLines: null,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.delete,
+                                color: AppTheme.error,
+                              ),
+                              onPressed: () {
+                                setDialogState(() {
+                                  if (pairs.length > 1) {
+                                    pairs.removeAt(index);
+                                  } else {
+                                    keyController.clear();
+                                    valueController.clear();
+                                  }
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    setDialogState(() {
+                      pairs.add({
+                        'keyController': TextEditingController(),
+                        'valueController': TextEditingController(),
+                      });
+                    });
+                  },
+                  icon: const Icon(Icons.add),
+                  label: Text(context.tr.common_add_argument),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(context.tr.common_cancel),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final result = <String, dynamic>{};
+                for (final pair in pairs) {
+                  final key = pair['keyController']!.text.trim();
+                  final value = pair['valueController']!.text.trim();
+                  if (key.isNotEmpty) {
+                    result[key] = value;
+                  }
+                }
+                onParameterChanged(paramDef.key, result);
+                Navigator.pop(dialogContext);
+              },
+              child: Text(context.tr.common_save),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -3089,22 +3127,20 @@ class ActionCard extends StatelessWidget {
     dynamic currentValue,
   ) {
     final maxHeight = MediaQuery.of(context).size.height * 0.7;
-    final Map<String, dynamic> rawMap =
-        (currentValue is Map)
-            ? Map<String, dynamic>.from(currentValue.cast<String, dynamic>())
-            : <String, dynamic>{};
+    final Map<String, dynamic> rawMap = (currentValue is Map)
+        ? Map<String, dynamic>.from(currentValue.cast<String, dynamic>())
+        : <String, dynamic>{};
 
-    final List<Map<String, TextEditingController>> headers =
-        rawMap.entries
-            .map(
-              (entry) => {
-                'keyController': TextEditingController(text: entry.key),
-                'valueController': TextEditingController(
-                  text: entry.value?.toString() ?? '',
-                ),
-              },
-            )
-            .toList();
+    final List<Map<String, TextEditingController>> headers = rawMap.entries
+        .map(
+          (entry) => {
+            'keyController': TextEditingController(text: entry.key),
+            'valueController': TextEditingController(
+              text: entry.value?.toString() ?? '',
+            ),
+          },
+        )
+        .toList();
 
     if (headers.isEmpty) {
       headers.add({
@@ -3131,283 +3167,261 @@ class ActionCard extends StatelessWidget {
 
     showDialog(
       context: context,
-      builder:
-          (dialogContext) => StatefulBuilder(
-            builder:
-                (context, setDialogState) => AlertDialog(
-                  title: Text(
-                    context.tr.action_edit_param(
-                      _formatParameterName(paramDef.key),
-                    ),
-                  ),
-                  content: SizedBox(
-                    width: double.maxFinite,
-                    height: maxHeight,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          context.tr.action_http_headers_title,
-                          style: TextStyle(fontSize: 12, color: AppTheme.grey),
-                        ),
-                        const SizedBox(height: 8),
-                        Expanded(
-                          child: ListView.builder(
-                            itemCount: headers.length,
-                            itemBuilder: (context, index) {
-                              final keyController =
-                                  headers[index]['keyController']!;
-                              final valueController =
-                                  headers[index]['valueController']!;
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text(
+            context.tr.action_edit_param(_formatParameterName(paramDef.key)),
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            height: maxHeight,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  context.tr.action_http_headers_title,
+                  style: TextStyle(fontSize: 12, color: AppTheme.grey),
+                ),
+                const SizedBox(height: 8),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: headers.length,
+                    itemBuilder: (context, index) {
+                      final keyController = headers[index]['keyController']!;
+                      final valueController =
+                          headers[index]['valueController']!;
 
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 12),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Expanded(
-                                      flex: 4,
-                                      child: Autocomplete<String>(
-                                        optionsBuilder: (
-                                          TextEditingValue textEditingValue,
-                                        ) {
-                                          if (textEditingValue.text == '') {
-                                            return commonHeaders;
-                                          }
-                                          return commonHeaders.where((
-                                            String option,
-                                          ) {
-                                            return option
-                                                .toLowerCase()
-                                                .contains(
-                                                  textEditingValue.text
-                                                      .toLowerCase(),
-                                                );
-                                          });
-                                        },
-                                        onSelected: (String selection) {
-                                          keyController.text = selection;
-                                        },
-                                        fieldViewBuilder: (
-                                          context,
-                                          controller,
-                                          focusNode,
-                                          onEditingComplete,
-                                        ) {
-                                          // Sync initial value since Autocomplete creates its own controller initially empty
-                                          if (controller.text !=
-                                                  keyController.text &&
-                                              controller.text.isEmpty) {
-                                            controller.text =
-                                                keyController.text;
-                                          }
-                                          controller.addListener(() {
-                                            keyController.text =
-                                                controller.text;
-                                          });
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              flex: 4,
+                              child: Autocomplete<String>(
+                                optionsBuilder:
+                                    (TextEditingValue textEditingValue) {
+                                      if (textEditingValue.text == '') {
+                                        return commonHeaders;
+                                      }
+                                      return commonHeaders.where((
+                                        String option,
+                                      ) {
+                                        return option.toLowerCase().contains(
+                                          textEditingValue.text.toLowerCase(),
+                                        );
+                                      });
+                                    },
+                                onSelected: (String selection) {
+                                  keyController.text = selection;
+                                },
+                                fieldViewBuilder:
+                                    (
+                                      context,
+                                      controller,
+                                      focusNode,
+                                      onEditingComplete,
+                                    ) {
+                                      // Sync initial value since Autocomplete creates its own controller initially empty
+                                      if (controller.text !=
+                                              keyController.text &&
+                                          controller.text.isEmpty) {
+                                        controller.text = keyController.text;
+                                      }
+                                      controller.addListener(() {
+                                        keyController.text = controller.text;
+                                      });
 
-                                          return TextField(
-                                            controller: controller,
-                                            focusNode: focusNode,
-                                            onEditingComplete:
-                                                onEditingComplete,
-                                            decoration: InputDecoration(
-                                              hintText: context.tr.common_key,
-                                              border:
-                                                  const OutlineInputBorder(),
-                                              isDense: true,
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      flex: 6,
-                                      child: TextField(
-                                        controller: valueController,
+                                      return TextField(
+                                        controller: controller,
+                                        focusNode: focusNode,
+                                        onEditingComplete: onEditingComplete,
                                         decoration: InputDecoration(
-                                          hintText: context.tr.common_value,
+                                          hintText: context.tr.common_key,
                                           border: const OutlineInputBorder(),
                                           isDense: true,
                                         ),
-                                        maxLines: null,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 4),
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.delete,
-                                        color: AppTheme.error,
-                                      ),
-                                      onPressed: () {
-                                        setDialogState(() {
-                                          if (headers.length > 1) {
-                                            headers.removeAt(index);
-                                          } else {
-                                            keyController.clear();
-                                            valueController.clear();
-                                          }
-                                        });
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            ElevatedButton.icon(
-                              onPressed: () {
-                                setDialogState(() {
-                                  headers.add({
-                                    'keyController': TextEditingController(),
-                                    'valueController': TextEditingController(),
-                                  });
-                                });
-                              },
-                              icon: const Icon(Icons.add),
-                              label: Text(context.tr.action_add_header),
-                            ),
-                            const SizedBox(width: 8),
-                            TextButton(
-                              onPressed: () {
-                                setDialogState(() {
-                                  for (final entry in headers) {
-                                    entry['keyController']!.clear();
-                                    entry['valueController']!.clear();
-                                  }
-                                  // Keep at least one empty row
-                                  if (headers.length > 1) {
-                                    headers.removeRange(1, headers.length);
-                                  }
-                                });
-                              },
-                              child: Text(context.tr.action_clear_all),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        const Divider(),
-                        Text(
-                          context.tr.action_bulk_import_hint,
-                          style: TextStyle(fontSize: 12, color: AppTheme.grey),
-                        ),
-                        const SizedBox(height: 6),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                controller: pasteController,
-                                maxLines: 3,
-                                decoration: const InputDecoration(
-                                  hintText:
-                                      'Authorization: Bearer ...\nAccept: application/json',
-                                  border: OutlineInputBorder(),
-                                  isDense: true,
-                                ),
+                                      );
+                                    },
                               ),
                             ),
                             const SizedBox(width: 8),
-                            ElevatedButton(
+                            Expanded(
+                              flex: 6,
+                              child: TextField(
+                                controller: valueController,
+                                decoration: InputDecoration(
+                                  hintText: context.tr.common_value,
+                                  border: const OutlineInputBorder(),
+                                  isDense: true,
+                                ),
+                                maxLines: null,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.delete,
+                                color: AppTheme.error,
+                              ),
                               onPressed: () {
-                                final raw = pasteController.text.trim();
-                                if (raw.isEmpty) {
-                                  return;
-                                }
-                                final lines = raw.split(RegExp(r'\r?\n'));
                                 setDialogState(() {
-                                  // Remove empty rows if any
-                                  headers.removeWhere(
-                                    (entry) =>
-                                        entry['keyController']!.text
-                                            .trim()
-                                            .isEmpty &&
-                                        entry['valueController']!.text
-                                            .trim()
-                                            .isEmpty,
-                                  );
-
-                                  for (final line in lines) {
-                                    final separatorIndex = line.indexOf(':');
-                                    if (separatorIndex <= 0) {
-                                      continue;
-                                    }
-                                    final key =
-                                        line
-                                            .substring(0, separatorIndex)
-                                            .trim();
-                                    final value =
-                                        line
-                                            .substring(separatorIndex + 1)
-                                            .trim();
-                                    if (key.isEmpty) {
-                                      continue;
-                                    }
-                                    headers.add({
-                                      'keyController': TextEditingController(
-                                        text: key,
-                                      ),
-                                      'valueController': TextEditingController(
-                                        text: value,
-                                      ),
-                                    });
-                                  }
-                                  pasteController.clear();
-
-                                  // Add empty row if everything is clear
-                                  if (headers.isEmpty) {
-                                    headers.add({
-                                      'keyController': TextEditingController(),
-                                      'valueController':
-                                          TextEditingController(),
-                                    });
+                                  if (headers.length > 1) {
+                                    headers.removeAt(index);
+                                  } else {
+                                    keyController.clear();
+                                    valueController.clear();
                                   }
                                 });
                               },
-                              child: Text(context.tr.common_import),
                             ),
                           ],
                         ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(dialogContext),
-                      child: Text(context.tr.common_cancel),
-                    ),
-                    ElevatedButton(
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    ElevatedButton.icon(
                       onPressed: () {
-                        final Map<String, dynamic> result = {};
-                        for (final entry in headers) {
-                          final key = entry['keyController']!.text.trim();
-                          final value = entry['valueController']!.text.trim();
-                          if (key.isNotEmpty) {
-                            result[key] = value;
-                          }
-                        }
-                        onParameterChanged(paramDef.key, result);
-                        Navigator.pop(dialogContext);
+                        setDialogState(() {
+                          headers.add({
+                            'keyController': TextEditingController(),
+                            'valueController': TextEditingController(),
+                          });
+                        });
                       },
-                      child: Text(context.tr.common_save),
+                      icon: const Icon(Icons.add),
+                      label: Text(context.tr.action_add_header),
+                    ),
+                    const SizedBox(width: 8),
+                    TextButton(
+                      onPressed: () {
+                        setDialogState(() {
+                          for (final entry in headers) {
+                            entry['keyController']!.clear();
+                            entry['valueController']!.clear();
+                          }
+                          // Keep at least one empty row
+                          if (headers.length > 1) {
+                            headers.removeRange(1, headers.length);
+                          }
+                        });
+                      },
+                      child: Text(context.tr.action_clear_all),
                     ),
                   ],
                 ),
+                const SizedBox(height: 16),
+                const Divider(),
+                Text(
+                  context.tr.action_bulk_import_hint,
+                  style: TextStyle(fontSize: 12, color: AppTheme.grey),
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: pasteController,
+                        maxLines: 3,
+                        decoration: const InputDecoration(
+                          hintText:
+                              'Authorization: Bearer ...\nAccept: application/json',
+                          border: OutlineInputBorder(),
+                          isDense: true,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () {
+                        final raw = pasteController.text.trim();
+                        if (raw.isEmpty) {
+                          return;
+                        }
+                        final lines = raw.split(RegExp(r'\r?\n'));
+                        setDialogState(() {
+                          // Remove empty rows if any
+                          headers.removeWhere(
+                            (entry) =>
+                                entry['keyController']!.text.trim().isEmpty &&
+                                entry['valueController']!.text.trim().isEmpty,
+                          );
+
+                          for (final line in lines) {
+                            final separatorIndex = line.indexOf(':');
+                            if (separatorIndex <= 0) {
+                              continue;
+                            }
+                            final key = line
+                                .substring(0, separatorIndex)
+                                .trim();
+                            final value = line
+                                .substring(separatorIndex + 1)
+                                .trim();
+                            if (key.isEmpty) {
+                              continue;
+                            }
+                            headers.add({
+                              'keyController': TextEditingController(text: key),
+                              'valueController': TextEditingController(
+                                text: value,
+                              ),
+                            });
+                          }
+                          pasteController.clear();
+
+                          // Add empty row if everything is clear
+                          if (headers.isEmpty) {
+                            headers.add({
+                              'keyController': TextEditingController(),
+                              'valueController': TextEditingController(),
+                            });
+                          }
+                        });
+                      },
+                      child: Text(context.tr.common_import),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(context.tr.common_cancel),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final Map<String, dynamic> result = {};
+                for (final entry in headers) {
+                  final key = entry['keyController']!.text.trim();
+                  final value = entry['valueController']!.text.trim();
+                  if (key.isNotEmpty) {
+                    result[key] = value;
+                  }
+                }
+                onParameterChanged(paramDef.key, result);
+                Navigator.pop(dialogContext);
+              },
+              child: Text(context.tr.common_save),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
   String _formatParameterName(String key) {
     if (action.type == BotCreatorActionType.calculate) {
-      final operation =
-          (action.parameters['operation'] ?? '')
-              .toString()
-              .trim()
-              .toLowerCase();
+      final operation = (action.parameters['operation'] ?? '')
+          .toString()
+          .trim()
+          .toLowerCase();
       final isRandom = operation == 'random' || operation == 'randomfloat';
       if (isRandom && key == 'operandA') {
         return 'Minimum';
@@ -3611,6 +3625,696 @@ class ActionCard extends StatelessWidget {
         return false;
     }
   }
+
+  Widget _buildEmbedsTile(
+    BuildContext context, {
+    required ParameterDefinition paramDef,
+    required List<Map<String, dynamic>> embeds,
+  }) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final count = embeds.length;
+
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+      child: InkWell(
+        onTap: () =>
+            _openEmbedsEditor(context, paramDef: paramDef, embeds: embeds),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        child: Ink(
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: AppTheme.discord.withValues(alpha: 0.35),
+              width: 1.2,
+            ),
+            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+            color: AppTheme.discord.withValues(alpha: 0.04),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.dashboard_customize_rounded,
+                      color: AppTheme.discord,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _formatParameterName(paramDef.key),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: AppTheme.discord,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppTheme.discord.withValues(alpha: 0.14),
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.radiusPill,
+                        ),
+                      ),
+                      child: Text(
+                        '$count embed${count > 1 ? 's' : ''}',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.discord,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                if (count == 0)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: colorScheme.surface.withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                      border: Border.all(
+                        color: colorScheme.outlineVariant.withValues(
+                          alpha: 0.3,
+                        ),
+                      ),
+                    ),
+                    child: Text(
+                      context.tr.embed_empty_message(10),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontStyle: FontStyle.italic,
+                        color: colorScheme.onSurfaceVariant.withValues(
+                          alpha: 0.7,
+                        ),
+                      ),
+                    ),
+                  )
+                else
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        for (var i = 0; i < embeds.length; i++) ...[
+                          if (i > 0)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 4,
+                              ),
+                              child: Icon(
+                                Icons.arrow_forward_rounded,
+                                size: 13,
+                                color: colorScheme.outlineVariant,
+                              ),
+                            ),
+                          Builder(
+                            builder: (context) {
+                              final e = embeds[i];
+                              final title = (e['title']?.toString() ?? '')
+                                  .trim();
+                              final displayTitle = title.isNotEmpty
+                                  ? title
+                                  : context.tr.embed_number(i + 1);
+                              final fields =
+                                  (e['fields'] as List?)?.length ?? 0;
+
+                              return Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 5,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: colorScheme.surface,
+                                  borderRadius: BorderRadius.circular(
+                                    AppTheme.radiusSm,
+                                  ),
+                                  border: Border.all(
+                                    color: AppTheme.discord.withValues(
+                                      alpha: 0.35,
+                                    ),
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(
+                                      Icons.style_outlined,
+                                      size: 14,
+                                      color: AppTheme.discord,
+                                    ),
+                                    const SizedBox(width: 5),
+                                    ConstrainedBox(
+                                      constraints: const BoxConstraints(
+                                        maxWidth: 130,
+                                      ),
+                                      child: Text(
+                                        displayTitle,
+                                        style: TextStyle(
+                                          fontSize: 11.5,
+                                          fontWeight: FontWeight.w600,
+                                          color: colorScheme.onSurface,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                      ),
+                                    ),
+                                    if (fields > 0) ...[
+                                      const SizedBox(width: 4),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 4,
+                                          vertical: 1,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: AppTheme.discord.withValues(
+                                            alpha: 0.1,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            3,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          '$fields fld',
+                                          style: const TextStyle(
+                                            fontSize: 10,
+                                            color: AppTheme.discord,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.tonalIcon(
+                    onPressed: () => _openEmbedsEditor(
+                      context,
+                      paramDef: paramDef,
+                      embeds: embeds,
+                    ),
+                    icon: const Icon(Icons.open_in_new_rounded, size: 14),
+                    label: Text(
+                      count == 0
+                          ? context.tr.embed_add_tooltip
+                          : context.tr.embed_response_header(count, 10),
+                      style: const TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppTheme.discord.withValues(alpha: 0.14),
+                      foregroundColor: AppTheme.discord,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      minimumSize: const Size(0, 36),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _openEmbedsEditor(
+    BuildContext context, {
+    required ParameterDefinition paramDef,
+    required List<Map<String, dynamic>> embeds,
+  }) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (ctx) => Scaffold(
+          appBar: AppBar(
+            title: Text(_formatParameterName(paramDef.key)),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.check),
+                tooltip: ctx.tr.common_ok,
+                onPressed: () => Navigator.pop(ctx),
+              ),
+            ],
+          ),
+          body: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: ResponseEmbedsEditor(
+                key: _parameterInputKey(paramDef.key),
+                embeds: embeds,
+                variableSuggestions: variableSuggestions,
+                emojiSuggestions: emojiSuggestions,
+                onChanged: (updated) {
+                  onParameterChanged(paramDef.key, updated);
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildComponentsTile(
+    BuildContext context, {
+    required ParameterDefinition paramDef,
+    required ComponentV2Definition compDef,
+    required bool isComponentV2,
+  }) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final count = compDef.components.length;
+
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+      child: InkWell(
+        onTap: () => _openComponentsEditor(
+          context,
+          paramDef: paramDef,
+          compDef: compDef,
+          isComponentV2: isComponentV2,
+        ),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        child: Ink(
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: AppTheme.success.withValues(alpha: 0.35),
+              width: 1.2,
+            ),
+            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+            color: AppTheme.success.withValues(alpha: 0.04),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.widgets_rounded,
+                      color: AppTheme.success,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _formatParameterName(paramDef.key),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: AppTheme.success,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppTheme.success.withValues(alpha: 0.14),
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.radiusPill,
+                        ),
+                      ),
+                      child: Text(
+                        '$count élément${count > 1 ? 's' : ''}',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.success,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                if (count == 0)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: colorScheme.surface.withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                      border: Border.all(
+                        color: colorScheme.outlineVariant.withValues(
+                          alpha: 0.3,
+                        ),
+                      ),
+                    ),
+                    child: Text(
+                      context.tr.component_empty_option,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontStyle: FontStyle.italic,
+                        color: colorScheme.onSurfaceVariant.withValues(
+                          alpha: 0.7,
+                        ),
+                      ),
+                    ),
+                  )
+                else
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        for (var i = 0; i < compDef.components.length; i++) ...[
+                          if (i > 0)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 4,
+                              ),
+                              child: Icon(
+                                Icons.arrow_forward_rounded,
+                                size: 13,
+                                color: colorScheme.outlineVariant,
+                              ),
+                            ),
+                          Builder(
+                            builder: (context) {
+                              final node = compDef.components[i];
+                              final label = ComponentNodeFactory.labelFor(
+                                node.type,
+                              );
+
+                              return Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 5,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: colorScheme.surface,
+                                  borderRadius: BorderRadius.circular(
+                                    AppTheme.radiusSm,
+                                  ),
+                                  border: Border.all(
+                                    color: AppTheme.success.withValues(
+                                      alpha: 0.35,
+                                    ),
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(
+                                      Icons.smart_button_outlined,
+                                      size: 14,
+                                      color: AppTheme.success,
+                                    ),
+                                    const SizedBox(width: 5),
+                                    ConstrainedBox(
+                                      constraints: const BoxConstraints(
+                                        maxWidth: 130,
+                                      ),
+                                      child: Text(
+                                        label,
+                                        style: TextStyle(
+                                          fontSize: 11.5,
+                                          fontWeight: FontWeight.w600,
+                                          color: colorScheme.onSurface,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.tonalIcon(
+                    onPressed: () => _openComponentsEditor(
+                      context,
+                      paramDef: paramDef,
+                      compDef: compDef,
+                      isComponentV2: isComponentV2,
+                    ),
+                    icon: const Icon(Icons.open_in_new_rounded, size: 14),
+                    label: Text(
+                      count == 0
+                          ? context.tr.component_add_action_row
+                          : '${_formatParameterName(paramDef.key)} ($count)',
+                      style: const TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppTheme.success.withValues(alpha: 0.14),
+                      foregroundColor: AppTheme.success,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      minimumSize: const Size(0, 36),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _openComponentsEditor(
+    BuildContext context, {
+    required ParameterDefinition paramDef,
+    required ComponentV2Definition compDef,
+    required bool isComponentV2,
+  }) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (ctx) => Scaffold(
+          appBar: AppBar(
+            title: Text(_formatParameterName(paramDef.key)),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.check),
+                tooltip: ctx.tr.common_ok,
+                onPressed: () => Navigator.pop(ctx),
+              ),
+            ],
+          ),
+          body: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: isComponentV2
+                  ? ComponentV2EditorWidget(
+                      key: _parameterInputKey(paramDef.key),
+                      definition: compDef,
+                      variableSuggestions: variableSuggestions,
+                      botIdForConfig: botIdForConfig,
+                      onChanged: (updated) {
+                        onParameterChanged(paramDef.key, updated.toJson());
+                      },
+                    )
+                  : NormalComponentEditorWidget(
+                      key: _parameterInputKey(paramDef.key),
+                      definition: compDef,
+                      variableSuggestions: variableSuggestions,
+                      botIdForConfig: botIdForConfig,
+                      onChanged: (updated) {
+                        onParameterChanged(paramDef.key, updated.toJson());
+                      },
+                    ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildModalTile(
+    BuildContext context, {
+    required ParameterDefinition paramDef,
+    required ModalDefinition modalDef,
+  }) {
+    final count = modalDef.components.length;
+
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+      child: InkWell(
+        onTap: () =>
+            _openModalEditor(context, paramDef: paramDef, modalDef: modalDef),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        child: Ink(
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: AppTheme.discord.withValues(alpha: 0.35),
+              width: 1.2,
+            ),
+            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+            color: AppTheme.discord.withValues(alpha: 0.04),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.feed_outlined,
+                      color: AppTheme.discord,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        modalDef.title.isNotEmpty
+                            ? modalDef.title
+                            : _formatParameterName(paramDef.key),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: AppTheme.discord,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppTheme.discord.withValues(alpha: 0.14),
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.radiusPill,
+                        ),
+                      ),
+                      child: Text(
+                        '$count champ${count > 1 ? 's' : ''}',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.discord,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.tonalIcon(
+                    onPressed: () => _openModalEditor(
+                      context,
+                      paramDef: paramDef,
+                      modalDef: modalDef,
+                    ),
+                    icon: const Icon(Icons.open_in_new_rounded, size: 14),
+                    label: Text(
+                      count == 0
+                          ? _formatParameterName(paramDef.key)
+                          : '${_formatParameterName(paramDef.key)} ($count)',
+                      style: const TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppTheme.discord.withValues(alpha: 0.14),
+                      foregroundColor: AppTheme.discord,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      minimumSize: const Size(0, 36),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _openModalEditor(
+    BuildContext context, {
+    required ParameterDefinition paramDef,
+    required ModalDefinition modalDef,
+  }) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (ctx) => Scaffold(
+          appBar: AppBar(
+            title: Text(
+              modalDef.title.isNotEmpty
+                  ? modalDef.title
+                  : _formatParameterName(paramDef.key),
+            ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.check),
+                tooltip: ctx.tr.common_ok,
+                onPressed: () => Navigator.pop(ctx),
+              ),
+            ],
+          ),
+          body: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: ModalBuilderWidget(
+                key: _parameterInputKey(paramDef.key),
+                modal: modalDef,
+                variableSuggestions: variableSuggestions,
+                botIdForConfig: botIdForConfig,
+                onChanged: (updated) {
+                  onParameterChanged(paramDef.key, updated.toJson());
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _VariableKeyParameterField extends StatefulWidget {
@@ -3781,8 +4485,8 @@ class _VariableKeyParameterFieldState
 
     final selectedValue =
         trimmedCurrent.isNotEmpty && items.contains(trimmedCurrent)
-            ? trimmedCurrent
-            : null;
+        ? trimmedCurrent
+        : null;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -3814,10 +4518,9 @@ class _VariableKeyParameterFieldState
                     .map((key) {
                       final canonicalRef = _toScopedReferenceKey(key);
                       final legacyRef = _toLegacyScopedReferenceKey(key);
-                      final scopedLabel =
-                          canonicalRef == legacyRef
-                              ? '$key  (ref: $canonicalRef)'
-                              : '$key  (ref: $canonicalRef, legacy: $legacyRef)';
+                      final scopedLabel = canonicalRef == legacyRef
+                          ? '$key  (ref: $canonicalRef)'
+                          : '$key  (ref: $canonicalRef, legacy: $legacyRef)';
                       return DropdownMenuItem<String>(
                         value: key,
                         child: Text(
@@ -3827,22 +4530,20 @@ class _VariableKeyParameterFieldState
                       );
                     })
                     .toList(growable: false),
-                onChanged:
-                    _loading
-                        ? null
-                        : (value) {
-                          widget.onChanged((value ?? '').trim());
-                        },
+                onChanged: _loading
+                    ? null
+                    : (value) {
+                        widget.onChanged((value ?? '').trim());
+                      },
                 decoration: InputDecoration(
                   hintText: widget.hint,
                   border: const OutlineInputBorder(),
                   isDense: true,
-                  helperText:
-                      _loading
-                          ? context.tr.action_loading_keys
-                          : (items.isEmpty
-                              ? context.tr.action_no_saved_keys
-                              : (widget.scoped
+                  helperText: _loading
+                      ? context.tr.action_loading_keys
+                      : (items.isEmpty
+                            ? context.tr.action_no_saved_keys
+                            : (widget.scoped
                                   ? context.tr.action_select_stored_key
                                   : context.tr.action_select_saved_key)),
                 ),
@@ -3923,11 +4624,13 @@ class _WorkflowNameParameterFieldState
     if (!mounted) {
       return;
     }
-    final names = workflows
-      .map((workflow) => (workflow['name'] ?? '').toString().trim())
-      .where((name) => name.isNotEmpty)
-      .toSet()
-      .toList(growable: false)..sort();
+    final names =
+        workflows
+            .map((workflow) => (workflow['name'] ?? '').toString().trim())
+            .where((name) => name.isNotEmpty)
+            .toSet()
+            .toList(growable: false)
+          ..sort();
     setState(() {
       _workflowNames = names;
       _loading = false;
@@ -3944,8 +4647,8 @@ class _WorkflowNameParameterFieldState
 
     final dropdownValue =
         trimmedCurrent.isNotEmpty && items.contains(trimmedCurrent)
-            ? trimmedCurrent
-            : null;
+        ? trimmedCurrent
+        : null;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -3961,31 +4664,28 @@ class _WorkflowNameParameterFieldState
                 ),
                 initialValue: dropdownValue,
                 isExpanded: true,
-                items:
-                    items
-                        .map(
-                          (name) => DropdownMenuItem<String>(
-                            value: name,
-                            child: Text(name),
-                          ),
-                        )
-                        .toList(),
-                onChanged:
-                    _loading
-                        ? null
-                        : (value) {
-                          widget.onChanged((value ?? '').trim());
-                        },
+                items: items
+                    .map(
+                      (name) => DropdownMenuItem<String>(
+                        value: name,
+                        child: Text(name),
+                      ),
+                    )
+                    .toList(),
+                onChanged: _loading
+                    ? null
+                    : (value) {
+                        widget.onChanged((value ?? '').trim());
+                      },
                 decoration: InputDecoration(
                   hintText: widget.hint,
                   border: const OutlineInputBorder(),
                   isDense: true,
-                  helperText:
-                      _loading
-                          ? context.tr.autocomplete_loading
-                          : (_workflowNames.isEmpty
-                              ? context.tr.autocomplete_no_workflows
-                              : context.tr.autocomplete_select_workflow),
+                  helperText: _loading
+                      ? context.tr.autocomplete_loading
+                      : (_workflowNames.isEmpty
+                            ? context.tr.autocomplete_no_workflows
+                            : context.tr.autocomplete_select_workflow),
                 ),
               ),
             ),
@@ -4067,8 +4767,8 @@ class _NumberParameterFieldState extends State<_NumberParameterField> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.currentValue != widget.currentValue &&
         !_numberFocusNode.hasFocus) {
-      _controller.text =
-          (widget.currentValue ?? widget.paramDef.defaultValue).toString();
+      _controller.text = (widget.currentValue ?? widget.paramDef.defaultValue)
+          .toString();
     }
   }
 
@@ -4127,9 +4827,9 @@ class _NumberParameterFieldState extends State<_NumberParameterField> {
             errorText: _getErrorMessage(),
             suffixText:
                 widget.paramDef.minValue != null &&
-                        widget.paramDef.maxValue != null
-                    ? '${widget.paramDef.minValue}-${widget.paramDef.maxValue}'
-                    : null,
+                    widget.paramDef.maxValue != null
+                ? '${widget.paramDef.minValue}-${widget.paramDef.maxValue}'
+                : null,
           ),
           onChanged: (newValue) {
             final trimmed = newValue.trim();
@@ -4211,12 +4911,11 @@ class _NumberParameterFieldState extends State<_NumberParameterField> {
     }
 
     final normalizedQuery = query.trim().toLowerCase();
-    final filteredByKind =
-        isNumericField
-            ? widget.variableSuggestions.where(
-              (item) => item.isNumeric || item.isUnknown,
-            )
-            : widget.variableSuggestions;
+    final filteredByKind = isNumericField
+        ? widget.variableSuggestions.where(
+            (item) => item.isNumeric || item.isUnknown,
+          )
+        : widget.variableSuggestions;
 
     final dedupedByName = <String, VariableSuggestion>{};
     for (final item in filteredByKind) {
@@ -4232,14 +4931,13 @@ class _NumberParameterFieldState extends State<_NumberParameterField> {
       );
     }
 
-    final suggestions =
-        dedupedByName.values
-            .where(
-              (item) =>
-                  normalizedQuery.isEmpty ||
-                  item.name.toLowerCase().contains(normalizedQuery),
-            )
-            .toList();
+    final suggestions = dedupedByName.values
+        .where(
+          (item) =>
+              normalizedQuery.isEmpty ||
+              item.name.toLowerCase().contains(normalizedQuery),
+        )
+        .toList();
 
     if (suggestions.isEmpty) {
       return const [];
@@ -4247,14 +4945,14 @@ class _NumberParameterFieldState extends State<_NumberParameterField> {
 
     // Group by category for a mobile-friendly scrollable list with descriptions.
     final grouped = ActionCard._groupByCategoryStatic(suggestions);
-    final categoryOrder = ActionCard._orderedCategoriesStatic(grouped.keys.toList());
+    final categoryOrder = ActionCard._orderedCategoriesStatic(
+      grouped.keys.toList(),
+    );
 
     return [
       const SizedBox(height: 8),
       Text(
-        isNumericField
-            ? 'Dynamic numeric suggestions'
-            : 'Available variables',
+        isNumericField ? 'Dynamic numeric suggestions' : 'Available variables',
         style: TextStyle(fontSize: 11, color: AppTheme.grey),
       ),
       const SizedBox(height: 4),
@@ -4265,19 +4963,24 @@ class _NumberParameterFieldState extends State<_NumberParameterField> {
           children: [
             for (final cat in categoryOrder)
               if (grouped.containsKey(cat)) ...[
-                ActionCard._buildSuggestionCategoryHeaderStatic(cat, grouped[cat]!.length),
-                ...grouped[cat]!.map((item) => ActionCard._buildSuggestionListTileStatic(
-                      item,
-                      onTap: () {
-                        final nextValue = _insertVariableInOpenPlaceholder(
-                          rawValue,
-                          item.name,
-                        );
-                        _controller.text = nextValue;
-                        widget.onParameterChanged(widget.paramKey, nextValue);
-                        setState(() {});
-                      },
-                    )),
+                ActionCard._buildSuggestionCategoryHeaderStatic(
+                  cat,
+                  grouped[cat]!.length,
+                ),
+                ...grouped[cat]!.map(
+                  (item) => ActionCard._buildSuggestionListTileStatic(
+                    item,
+                    onTap: () {
+                      final nextValue = _insertVariableInOpenPlaceholder(
+                        rawValue,
+                        item.name,
+                      );
+                      _controller.text = nextValue;
+                      widget.onParameterChanged(widget.paramKey, nextValue);
+                      setState(() {});
+                    },
+                  ),
+                ),
                 const SizedBox(height: 4),
               ],
           ],
@@ -4326,10 +5029,8 @@ class _TextParameterField extends StatefulWidget {
   final Function(String key, dynamic value) onSuggestionSelected;
   final List<VariableSuggestion> variableSuggestions;
   final String paramKey;
-  final Widget Function({
-    required String paramKey,
-    required dynamic value,
-  }) buildVariableSuggestions;
+  final Widget Function({required String paramKey, required dynamic value})
+  buildVariableSuggestions;
 
   const _TextParameterField({
     required this.paramDef,
@@ -4362,7 +5063,8 @@ class _TextParameterFieldState extends State<_TextParameterField> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.currentValue != widget.currentValue &&
         !_textFocusNode.hasFocus) {
-      final newText = (widget.currentValue ?? widget.paramDef.defaultValue).toString();
+      final newText = (widget.currentValue ?? widget.paramDef.defaultValue)
+          .toString();
       if (_controller.text != newText) {
         _controller.text = newText;
         _controller.selection = TextSelection.fromPosition(
@@ -4548,8 +5250,9 @@ class _BdfdScriptParameterFieldState extends State<_BdfdScriptParameterField> {
   );
 
   String _formatDiagnostic(BdfdCompileDiagnostic d) {
-    final loc =
-        (d.line != null && d.column != null) ? 'L${d.line}:C${d.column} ' : '';
+    final loc = (d.line != null && d.column != null)
+        ? 'L${d.line}:C${d.column} '
+        : '';
     return '$loc${d.message}';
   }
 
@@ -4557,12 +5260,11 @@ class _BdfdScriptParameterFieldState extends State<_BdfdScriptParameterField> {
   Widget build(BuildContext context) {
     final code = _controller.text;
     final isEmpty = code.trim().isEmpty;
-    final preview =
-        isEmpty
-            ? context.tr.bdfd_editor_tap_hint
-            : code.length > 150
-            ? '${code.substring(0, 150)}…'
-            : code;
+    final preview = isEmpty
+        ? context.tr.bdfd_editor_tap_hint
+        : code.length > 150
+        ? '${code.substring(0, 150)}…'
+        : code;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -4697,12 +5399,12 @@ class _BdfdScriptParameterFieldState extends State<_BdfdScriptParameterField> {
           const SizedBox(height: 6),
           ...diagnostics.map((d) {
             final isError = d.severity == BdfdCompileDiagnosticSeverity.error;
-            final icon =
-                isError ? Icons.error_outline : Icons.warning_amber_rounded;
-            final label =
-                isError
-                    ? 'cmd_bdfd_diagnostics_error'
-                    : 'cmd_bdfd_diagnostics_warning';
+            final icon = isError
+                ? Icons.error_outline
+                : Icons.warning_amber_rounded;
+            final label = isError
+                ? 'cmd_bdfd_diagnostics_error'
+                : 'cmd_bdfd_diagnostics_warning';
             final color = isError ? AppTheme.error : AppTheme.warning;
             return Padding(
               padding: const EdgeInsets.only(bottom: 6),

@@ -5849,7 +5849,12 @@
     "description": "Subscription restored successfully!"
   },
   "@subscription_save_badge": {
-    "description": "SAVE 67%"
+    "description": "SAVE 67%",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
   },
   "@subscription_subtitle": {
     "description": "Choose a plan to unlock all premium features."
@@ -8735,7 +8740,7 @@
   "subscription_restore": "Satın almaları geri yükle",
   "subscription_restore_not_found": "Aktif abonelik bulunamadı.",
   "subscription_restored": "Abonelik başarıyla geri yüklendi!",
-  "subscription_save_badge": "%67 TASARRUF ET",
+  "subscription_save_badge": "%{percent} TASARRUF ET",
   "subscription_subtitle": "Tüm premium özelliklerin kilidini açmak için bir plan seçin.",
   "subscription_success": "Premium'a hoş geldiniz! Tüm reklamlar kaldırıldı.",
   "subscription_terms": "Kullanım şartları",

@@ -21,6 +21,7 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/utils/duration_formatter.dart';
 
 import 'package:bot_creator/features/ads/logic/ad_reward_service.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_reconciliation_service.dart';
 import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/gateway_bot_events.dart';
@@ -71,7 +72,7 @@ class AppHomePage extends StatefulWidget {
 }
 
 class _AppHomePageState extends State<AppHomePage>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   String _appName = "";
   NyxxRest? client;
   String avatar = "";
@@ -88,6 +89,9 @@ class _AppHomePageState extends State<AppHomePage>
   bool _isAddingTime = false;
   bool _isPushingApp = false;
   bool _isPullingApp = false;
+  bool _isReconciling = false;
+  bool _isConflictDialogOpen = false;
+  DateTime? _lastReconcileCheckAt;
   DiscordApplicationOwnerMetadata? _ownerMetadata;
   BotRuntimeCapabilities _runtimeCapabilities = BotRuntimeCapabilities.dart;
   void _setState(VoidCallback fn) {
@@ -165,6 +169,7 @@ class _AppHomePageState extends State<AppHomePage>
         final bot = event.bot;
         if (bot != null && bot.botId == currentBotId) {
           _applyGatewayBotPayload(bot);
+          unawaited(_reconcileLiveUpdate());
         }
         break;
       case GatewayBotEventType.botDeleted:
@@ -222,6 +227,7 @@ class _AppHomePageState extends State<AppHomePage>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     if (_supportsForegroundTask) {
       _taskDataCallback = (Object data) {
         consumeForegroundTaskDataForBotLogs(data);
@@ -284,7 +290,16 @@ class _AppHomePageState extends State<AppHomePage>
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed &&
+        ResponsiveHelper.isDesktopPlatform()) {
+      unawaited(_reconcileLiveUpdate());
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _runtimeBalanceTimer?.cancel();
     unawaited(_gatewayEventsSub?.cancel());
     unawaited(_gatewayConnectionSub?.cancel());

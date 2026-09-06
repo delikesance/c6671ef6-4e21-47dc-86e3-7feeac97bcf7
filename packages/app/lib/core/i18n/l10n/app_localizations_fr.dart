@@ -7200,7 +7200,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get subscription_restored => 'Abonnement restauré avec succès !';
 
   @override
-  String get subscription_save_badge => '-67%';
+  String subscription_save_badge(int percent) {
+    return '-$percent%';
+  }
 
   @override
   String get subscription_subtitle =>

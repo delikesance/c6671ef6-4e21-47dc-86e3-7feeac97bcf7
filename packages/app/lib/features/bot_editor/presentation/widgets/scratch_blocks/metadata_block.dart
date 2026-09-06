@@ -47,7 +47,10 @@ class MetadataBlock extends StatefulWidget {
     // Folder
     this.folderController,
     this.onFolderChanged,
+    this.showCommandTypeSelector = false,
   });
+
+  final bool showCommandTypeSelector;
 
   final String commandName;
   final String commandDescription;
@@ -106,11 +109,13 @@ class _MetadataBlockState extends State<MetadataBlock> {
     if (botId != null) {
       try {
         final commands = await appManager.listAppCommands(botId);
-        final folders = commands
-            .map((c) => (c['folder'] ?? '').toString().trim())
-            .where((f) => f.isNotEmpty)
-            .toSet()
-            .toList()..sort();
+        final folders =
+            commands
+                .map((c) => (c['folder'] ?? '').toString().trim())
+                .where((f) => f.isNotEmpty)
+                .toSet()
+                .toList()
+              ..sort();
         if (mounted) {
           setState(() {
             _existingFolders = folders;
@@ -214,69 +219,63 @@ class _MetadataBlockState extends State<MetadataBlock> {
             ),
           ],
 
-          // ── Command type (simplified) ──
-          const SizedBox(height: 12),
-          Text(
-            context.tr.scratch_meta_type_label,
-            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
-          ),
-          const SizedBox(height: 8),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final compact = constraints.maxWidth < 420;
-              return SegmentedButton<String>(
-                segments: [
-                  ButtonSegment(
-                    value: 'slash',
-                    label:
-                        compact
-                            ? const SizedBox.shrink()
-                            : Text(context.tr.scratch_meta_type_slash),
-                    icon: const Icon(Icons.terminal, size: 18),
-                    tooltip:
-                        compact
-                            ? context.tr.scratch_meta_type_slash
-                            : null,
-                  ),
-                  ButtonSegment(
-                    value: 'legacy',
-                    label:
-                        compact
-                            ? const SizedBox.shrink()
-                            : Text(context.tr.scratch_meta_type_prefix),
-                    icon: const Icon(Icons.textsms_outlined, size: 18),
-                    tooltip:
-                        compact
-                            ? context.tr.scratch_meta_type_prefix
-                            : null,
-                  ),
-                  ButtonSegment(
-                    value: 'user',
-                    label:
-                        compact
-                            ? const SizedBox.shrink()
-                            : Text(context.tr.scratch_meta_type_user),
-                    icon: const Icon(Icons.person_outline, size: 18),
-                    tooltip:
-                        compact ? context.tr.scratch_meta_type_user : null,
-                  ),
-                  ButtonSegment(
-                    value: 'message',
-                    label:
-                        compact
-                            ? const SizedBox.shrink()
-                            : Text(context.tr.scratch_meta_type_message),
-                    icon: const Icon(Icons.message_outlined, size: 18),
-                    tooltip:
-                        compact
-                            ? context.tr.scratch_meta_type_message
-                            : null,
-                  ),
-                ],
-                selected: {_commandTypeSegmentValue()},
-                onSelectionChanged:
-                    widget.canEditCommandType
-                        ? (value) {
+          // ── Command type (simplified, omitted by default as EntryPointBlock handles it) ──
+          if (widget.showCommandTypeSelector) ...[
+            const SizedBox(height: 12),
+            Text(
+              context.tr.scratch_meta_type_label,
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+            ),
+            const SizedBox(height: 8),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final compact = constraints.maxWidth < 420;
+                return SegmentedButton<String>(
+                  segments: [
+                    ButtonSegment(
+                      value: 'slash',
+                      label: compact
+                          ? const SizedBox.shrink()
+                          : Text(context.tr.scratch_meta_type_slash),
+                      icon: const Icon(Icons.terminal, size: 18),
+                      tooltip: compact
+                          ? context.tr.scratch_meta_type_slash
+                          : null,
+                    ),
+                    ButtonSegment(
+                      value: 'legacy',
+                      label: compact
+                          ? const SizedBox.shrink()
+                          : Text(context.tr.scratch_meta_type_prefix),
+                      icon: const Icon(Icons.textsms_outlined, size: 18),
+                      tooltip: compact
+                          ? context.tr.scratch_meta_type_prefix
+                          : null,
+                    ),
+                    ButtonSegment(
+                      value: 'user',
+                      label: compact
+                          ? const SizedBox.shrink()
+                          : Text(context.tr.scratch_meta_type_user),
+                      icon: const Icon(Icons.person_outline, size: 18),
+                      tooltip: compact
+                          ? context.tr.scratch_meta_type_user
+                          : null,
+                    ),
+                    ButtonSegment(
+                      value: 'message',
+                      label: compact
+                          ? const SizedBox.shrink()
+                          : Text(context.tr.scratch_meta_type_message),
+                      icon: const Icon(Icons.message_outlined, size: 18),
+                      tooltip: compact
+                          ? context.tr.scratch_meta_type_message
+                          : null,
+                    ),
+                  ],
+                  selected: {_commandTypeSegmentValue()},
+                  onSelectionChanged: widget.canEditCommandType
+                      ? (value) {
                           final selected = value.first;
                           if (selected == 'legacy') {
                             widget.onLegacyCommandChanged(true);
@@ -294,21 +293,22 @@ class _MetadataBlockState extends State<MetadataBlock> {
                             );
                           }
                         }
-                        : null,
-              );
-            },
-          ),
-          // Type helper text
-          Padding(
-            padding: const EdgeInsets.only(top: 6),
-            child: Text(
-              _commandTypeHelperText(),
-              style: TextStyle(
-                fontSize: 11,
-                color: colorScheme.onSurfaceVariant,
+                      : null,
+                );
+              },
+            ),
+            // Type helper text
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(
+                _commandTypeHelperText(),
+                style: TextStyle(
+                  fontSize: 11,
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
             ),
-          ),
+          ],
 
           // ── Folder ──
           if (widget.folderController != null) ...[
@@ -332,91 +332,114 @@ class _MetadataBlockState extends State<MetadataBlock> {
                   widget.onFolderChanged!(selection);
                 }
               },
-              optionsViewBuilder: (BuildContext context, AutocompleteOnSelected<String> onSelected, Iterable<String> options) {
-                return Align(
-                  alignment: Alignment.topLeft,
-                  child: Material(
-                    elevation: 4.0,
-                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                    color: Theme.of(context).colorScheme.surface,
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxHeight: 200, maxWidth: 300),
-                      child: ListView.builder(
-                        padding: EdgeInsets.zero,
-                        shrinkWrap: true,
-                        itemCount: options.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          final String option = options.elementAt(index);
-                          return InkWell(
-                            onTap: () => onSelected(option),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                              child: Row(
-                                children: [
-                                  Icon(Icons.folder_outlined, size: 18, color: Theme.of(context).colorScheme.primary),
-                                  const SizedBox(width: 10),
-                                  Text(option, style: const TextStyle(fontSize: 14)),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
+              optionsViewBuilder:
+                  (
+                    BuildContext context,
+                    AutocompleteOnSelected<String> onSelected,
+                    Iterable<String> options,
+                  ) {
+                    return Align(
+                      alignment: Alignment.topLeft,
+                      child: Material(
+                        elevation: 4.0,
+                        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                        color: Theme.of(context).colorScheme.surface,
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(
+                            maxHeight: 200,
+                            maxWidth: 300,
+                          ),
+                          child: ListView.builder(
+                            padding: EdgeInsets.zero,
+                            shrinkWrap: true,
+                            itemCount: options.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              final String option = options.elementAt(index);
+                              return InkWell(
+                                onTap: () => onSelected(option),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                    horizontal: 16,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.folder_outlined,
+                                        size: 18,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.primary,
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Text(
+                                        option,
+                                        style: const TextStyle(fontSize: 14),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                );
-              },
-              fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
-                final folderController = widget.folderController;
-                if (folderController != null && controller.text != folderController.text) {
-                  controller.text = folderController.text;
-                }
-                controller.addListener(() {
-                  if (folderController != null && folderController.text != controller.text) {
-                    folderController.text = controller.text;
-                    if (widget.onFolderChanged != null) {
-                      widget.onFolderChanged!(controller.text.trim());
+                    );
+                  },
+              fieldViewBuilder:
+                  (context, controller, focusNode, onFieldSubmitted) {
+                    final folderController = widget.folderController;
+                    if (folderController != null &&
+                        controller.text != folderController.text) {
+                      controller.text = folderController.text;
                     }
-                  }
-                });
-                return TextField(
-                  controller: controller,
-                  focusNode: focusNode,
-                  decoration: InputDecoration(
-                    labelText: context.tr.commands_folder_label,
-                    hintText: context.tr.commands_folder_hint,
-                    prefixIcon: const Icon(Icons.folder_outlined),
-                    suffixIcon: _existingFolders.isNotEmpty
-                        ? PopupMenuButton<String>(
-                            icon: const Icon(Icons.folder_open),
-                            tooltip: 'Dossiers existants',
-                            onSelected: (String selection) {
-                              setState(() {
-                                controller.text = selection;
-                                if (folderController != null) {
-                                  folderController.text = selection;
-                                }
-                              });
-                              if (widget.onFolderChanged != null) {
-                                widget.onFolderChanged!(selection);
-                              }
-                            },
-                            itemBuilder: (BuildContext context) {
-                              return _existingFolders.map((String folder) {
-                                return PopupMenuItem<String>(
-                                  value: folder,
-                                  child: Text(folder),
-                                );
-                              }).toList();
-                            },
-                          )
-                        : null,
-                    border: const OutlineInputBorder(),
-                    isDense: true,
-                  ),
-                  onSubmitted: (_) => onFieldSubmitted(),
-                );
-              },
+                    controller.addListener(() {
+                      if (folderController != null &&
+                          folderController.text != controller.text) {
+                        folderController.text = controller.text;
+                        if (widget.onFolderChanged != null) {
+                          widget.onFolderChanged!(controller.text.trim());
+                        }
+                      }
+                    });
+                    return TextField(
+                      controller: controller,
+                      focusNode: focusNode,
+                      decoration: InputDecoration(
+                        labelText: context.tr.commands_folder_label,
+                        hintText: context.tr.commands_folder_hint,
+                        prefixIcon: const Icon(Icons.folder_outlined),
+                        suffixIcon: _existingFolders.isNotEmpty
+                            ? PopupMenuButton<String>(
+                                icon: const Icon(Icons.folder_open),
+                                tooltip: 'Dossiers existants',
+                                onSelected: (String selection) {
+                                  setState(() {
+                                    controller.text = selection;
+                                    if (folderController != null) {
+                                      folderController.text = selection;
+                                    }
+                                  });
+                                  if (widget.onFolderChanged != null) {
+                                    widget.onFolderChanged!(selection);
+                                  }
+                                },
+                                itemBuilder: (BuildContext context) {
+                                  return _existingFolders.map((String folder) {
+                                    return PopupMenuItem<String>(
+                                      value: folder,
+                                      child: Text(folder),
+                                    );
+                                  }).toList();
+                                },
+                              )
+                            : null,
+                        border: const OutlineInputBorder(),
+                        isDense: true,
+                      ),
+                      onSubmitted: (_) => onFieldSubmitted(),
+                    );
+                  },
             ),
           ],
 
