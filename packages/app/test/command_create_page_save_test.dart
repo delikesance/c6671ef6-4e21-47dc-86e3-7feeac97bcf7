@@ -324,5 +324,68 @@ void main() {
       expect(saved['id'], commandId);
       expect(saved.containsKey('updatedAt'), isTrue);
     });
+
+    testWidgets(
+      'saving a legacy prefix command saves locally and enforces legacyLocalOnly',
+      (tester) async {
+        const botId = 'bot-legacy-save';
+        const commandId = 'local-legacy-save';
+        await seedLocalCommand(
+          botId: botId,
+          commandId: commandId,
+          includeSubcommands: false,
+          legacyModeEnabled: true,
+        );
+
+        await openPageFromHost(
+          tester,
+          page: const CommandCreatePage(
+            botId: botId,
+            localCommandId: commandId,
+          ),
+        );
+
+        // Make the page dirty by editing the command name
+        await tester.enterText(
+          find.byType(TextFormField).first,
+          'prefixcommand',
+        );
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+
+        // Trigger save inside runAsync so async I/O can complete
+        await tester.runAsync(() async {
+          final saveButton = tester.widget<FloatingActionButton>(
+            find.byType(FloatingActionButton),
+          );
+          saveButton.onPressed?.call();
+          final deadline = DateTime.now().add(const Duration(seconds: 2));
+          while (DateTime.now().isBefore(deadline)) {
+            await tester.pump();
+            try {
+              final saved = await readLocalCommand(
+                botId: botId,
+                commandId: commandId,
+              );
+              if (saved.containsKey('updatedAt')) {
+                return;
+              }
+            } catch (_) {}
+            await Future<void>.delayed(const Duration(milliseconds: 50));
+          }
+        });
+        await tester.pump(const Duration(milliseconds: 800));
+
+        final saved = await readLocalCommand(
+          botId: botId,
+          commandId: commandId,
+        );
+        expect(saved['id'], commandId);
+        expect(saved.containsKey('updatedAt'), isTrue);
+        final data = saved['data'] as Map<String, dynamic>;
+        expect(data['legacyModeEnabled'], isTrue);
+        expect(data['legacyLocalOnly'], isTrue);
+      },
+    );
   });
 }

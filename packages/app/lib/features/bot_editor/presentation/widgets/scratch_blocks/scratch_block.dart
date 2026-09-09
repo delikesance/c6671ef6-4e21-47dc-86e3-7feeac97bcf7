@@ -21,8 +21,12 @@ class ScratchBlock extends StatelessWidget {
     this.onMoveDown,
     this.badge,
     this.trailing,
+    this.dragHandle,
     this.flat = false,
   });
+
+  /// Optional drag handle widget shown in the header for reordering.
+  final Widget? dragHandle;
 
   /// Whether to render without card borders/margins and colored header bar.
   final bool flat;
@@ -151,6 +155,10 @@ class ScratchBlock extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
+                    if (dragHandle != null) ...[
+                      dragHandle!,
+                      const SizedBox(width: 6),
+                    ],
                     Icon(icon, color: color, size: 20),
                     const SizedBox(width: 8),
                     Expanded(
