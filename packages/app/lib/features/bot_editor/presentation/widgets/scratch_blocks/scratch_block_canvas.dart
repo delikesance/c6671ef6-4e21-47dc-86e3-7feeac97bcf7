@@ -6,8 +6,8 @@ import 'scratch_block_connector.dart';
 /// A vertically scrollable canvas that lays out [ScratchBlock] widgets with
 /// visual connectors between them.
 ///
-/// Fixed blocks (metadata, entry point) are listed first, followed by
-/// user-added action blocks that can be reordered via move-up/move-down.
+/// Supports high-performance virtualized rendering and optional tactile
+/// reordering via [onReorder].
 class ScratchBlockCanvas extends StatefulWidget {
   const ScratchBlockCanvas({
     super.key,
@@ -15,6 +15,10 @@ class ScratchBlockCanvas extends StatefulWidget {
     this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
     this.connectorColor,
     this.skipConnectorAfterIndices = const {},
+    this.onReorder,
+    this.onInsertAfter,
+    this.shrinkWrap = false,
+    this.physics,
   });
 
   /// The ordered list of block widgets to display. Connectors are inserted
@@ -30,6 +34,18 @@ class ScratchBlockCanvas extends StatefulWidget {
   /// Indices of children after which the connector should be omitted
   /// (e.g. final / cap blocks that terminate execution).
   final Set<int> skipConnectorAfterIndices;
+
+  /// Optional callback for drag-and-drop reordering of blocks.
+  final void Function(int oldIndex, int newIndex)? onReorder;
+
+  /// Optional callback to insert a new block after child at [index].
+  final void Function(int index)? onInsertAfter;
+
+  /// Whether the list should shrink-wrap its contents (e.g. when nested).
+  final bool shrinkWrap;
+
+  /// Scroll physics for the list.
+  final ScrollPhysics? physics;
 
   @override
   State<ScratchBlockCanvas> createState() => _ScratchBlockCanvasState();
@@ -50,24 +66,37 @@ class _ScratchBlockCanvasState extends State<ScratchBlockCanvas> {
     super.dispose();
   }
 
+  Widget _buildItem(int index) {
+    final child = widget.children[index];
+    final childKey = child.key ?? ValueKey('scratch-canvas-child-$index');
+    final showConnector = index < widget.children.length - 1;
+    final isConnectorSuppressed = widget.skipConnectorAfterIndices.contains(index);
+
+    return Column(
+      key: childKey,
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        RepaintBoundary(child: child),
+        if (showConnector) ...[
+          if (!isConnectorSuppressed)
+            ScratchBlockConnector(
+              color: widget.connectorColor,
+              onInsert: widget.onInsertAfter != null
+                  ? () => widget.onInsertAfter!(index)
+                  : null,
+            )
+          else
+            const SizedBox(height: 12),
+        ],
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.children.isEmpty) {
       return const SizedBox.shrink();
-    }
-
-    final items = <Widget>[];
-    for (var i = 0; i < widget.children.length; i++) {
-      items.add(widget.children[i]);
-      if (i < widget.children.length - 1) {
-        if (!widget.skipConnectorAfterIndices.contains(i)) {
-          items.add(ScratchBlockConnector(color: widget.connectorColor));
-        } else {
-          // Always maintain clean vertical breathing room between blocks even when
-          // the arrow connector line is suppressed.
-          items.add(const SizedBox(height: 12));
-        }
-      }
     }
 
     final isRunningTests = Platform.environment.containsKey('FLUTTER_TEST');
@@ -79,14 +108,28 @@ class _ScratchBlockCanvasState extends State<ScratchBlockCanvas> {
         ].contains(Theme.of(context).platform) &&
         !isRunningTests;
 
-    final scrollable = SingleChildScrollView(
-      controller: isRunningTests ? null : _scrollController,
-      padding: widget.padding,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: items,
-      ),
-    );
+    final Widget scrollable;
+    if (widget.onReorder != null) {
+      scrollable = ReorderableListView.builder(
+        scrollController: isRunningTests ? null : _scrollController,
+        padding: widget.padding,
+        shrinkWrap: widget.shrinkWrap,
+        physics: widget.physics,
+        buildDefaultDragHandles: false,
+        itemCount: widget.children.length,
+        itemBuilder: (context, index) => _buildItem(index),
+        onReorder: widget.onReorder!,
+      );
+    } else {
+      scrollable = ListView.builder(
+        controller: isRunningTests ? null : _scrollController,
+        padding: widget.padding,
+        shrinkWrap: widget.shrinkWrap,
+        physics: widget.physics,
+        itemCount: widget.children.length,
+        itemBuilder: (context, index) => _buildItem(index),
+      );
+    }
 
     return RepaintBoundary(
       child: isDesktopPlatform

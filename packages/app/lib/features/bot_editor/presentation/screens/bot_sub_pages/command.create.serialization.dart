@@ -44,7 +44,7 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
       'bdfdScriptContent': _bdfdScriptController.text,
       'jsScriptContent': _jsScriptController.text,
       'legacyModeEnabled': _legacyModeEnabled,
-      'legacyLocalOnly': _localOnlyCommand,
+      'legacyLocalOnly': _localOnlyCommand || _legacyModeEnabled,
       'legacyPrefixOverride': _legacyPrefixOverride.trim(),
       'legacyResponseTarget': _legacyResponseTarget,
       'simpleConfig': const <String, dynamic>{},

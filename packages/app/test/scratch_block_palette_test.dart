@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/scratch_block_palette.dart';
 import 'package:bot_creator_shared/types/action.dart' show BotCreatorActionType;
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder/action_type_extension.dart';
@@ -90,6 +92,68 @@ void main() {
       expect(params[0].required, isTrue);
       expect(params[1].key, equals('userId'));
       expect(params[2].key, equals('channelId'));
+    });
+  });
+
+  group('ScratchBlockPalette Drag & Drop behavior', () {
+    testWidgets('disables Draggable when enableDrag is false', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: ScratchBlockPalette(
+              onActionSelected: (_) {},
+              enableDrag: false,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(Draggable<BotCreatorActionType>), findsNothing);
+    });
+
+    testWidgets('enables Draggable when enableDrag is true', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: ScratchBlockPalette(
+              onActionSelected: (_) {},
+              enableDrag: true,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(Draggable<BotCreatorActionType>), findsWidgets);
+    });
+
+    testWidgets('disables Draggable by default on mobile screen size', (tester) async {
+      tester.view.physicalSize = const Size(400, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: ScratchBlockPalette(
+              onActionSelected: (_) {},
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(Draggable<BotCreatorActionType>), findsNothing);
     });
   });
 }

@@ -35,6 +35,7 @@ class ActionBlock extends StatefulWidget {
     this.onPasteBelow,
     this.onDuplicate,
     this.onOpenDocs,
+    this.dragHandle,
   });
 
   final ActionItem action;
@@ -61,6 +62,7 @@ class ActionBlock extends StatefulWidget {
   final Function(Map<String, dynamic> copiedAction)? onPasteBelow;
   final VoidCallback? onDuplicate;
   final VoidCallback? onOpenDocs;
+  final Widget? dragHandle;
 
   @override
   State<ActionBlock> createState() => _ActionBlockState();
@@ -231,6 +233,7 @@ class _ActionBlockState extends State<ActionBlock> {
       onDelete: widget.onRemove,
       badge: ScratchBlockBadge(label: category, color: color),
       trailing: trailingWidget,
+      dragHandle: widget.dragHandle,
       child: ActionCard(
         action: widget.action,
         index: widget.index,
