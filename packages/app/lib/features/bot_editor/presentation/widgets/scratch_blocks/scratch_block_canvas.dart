@@ -118,6 +118,7 @@ class _ScratchBlockCanvasState extends State<ScratchBlockCanvas> {
         buildDefaultDragHandles: false,
         itemCount: widget.children.length,
         itemBuilder: (context, index) => _buildItem(index),
+        // ignore: deprecated_member_use
         onReorder: widget.onReorder!,
       );
     } else {
