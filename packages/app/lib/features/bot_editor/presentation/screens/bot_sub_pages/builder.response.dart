@@ -1723,6 +1723,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
                             isAutocompleteContext: widget.isAutocompleteContext,
                             isModalContext: widget.isModalContext,
                             popOnSelect: false,
+                            enableDrag: false,
                           ),
                         ),
                         Expanded(child: canvasWidget),

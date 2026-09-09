@@ -916,7 +916,7 @@ class HomePageState extends State<HomePage>
             final botId = bot['bot_id']?.toString() ?? '';
             if (botId.isEmpty) return null;
 
-            final botName = bot['bot_name']?.toString() ?? 'Unnamed Bot';
+            var botName = bot['bot_name']?.toString() ?? 'Unnamed Bot';
             final config = bot['config'] as Map<String, dynamic>? ?? {};
 
             String token = bot['bot_token']?.toString() ?? '';
@@ -927,8 +927,39 @@ class HomePageState extends State<HomePage>
               } catch (_) {}
             }
 
+            String? avatarHash =
+                bot['avatar_hash']?.toString() ?? bot['avatar']?.toString();
+            String? discriminator = bot['discriminator']?.toString();
+
             int? fetchedApproxGuildCount;
             if (token.trim().isNotEmpty) {
+              // If avatar is missing, fetch full bot user profile from Discord REST
+              if (avatarHash == null || avatarHash.isEmpty) {
+                try {
+                  final profile = await getDiscordBotUserProfile(token);
+                  if (profile != null) {
+                    final fetchedAvatar = profile['avatar'];
+                    if (fetchedAvatar != null && fetchedAvatar.isNotEmpty) {
+                      avatarHash = fetchedAvatar;
+                    }
+                    final fetchedDiscrim = profile['discriminator'];
+                    if (fetchedDiscrim != null && fetchedDiscrim.isNotEmpty) {
+                      discriminator = fetchedDiscrim;
+                    }
+                    final fetchedName = profile['username'];
+                    if (fetchedName != null &&
+                        fetchedName.isNotEmpty &&
+                        botName == 'Unnamed Bot') {
+                      botName = fetchedName;
+                    }
+                  }
+                } catch (error) {
+                  appendBotDebugLog(
+                    '[syncAllBotsFromManager] Avatar profile fetch failed for $botId: $error',
+                  );
+                }
+              }
+
               try {
                 final guildCount = await getDiscordBotGuildCount(token);
                 if (guildCount != null) {
@@ -960,6 +991,8 @@ class HomePageState extends State<HomePage>
               config: config,
               bot: bot,
               guildCount: fetchedApproxGuildCount,
+              avatarHash: avatarHash,
+              discriminator: discriminator,
             );
           })
           .toList(growable: false);
@@ -974,10 +1007,8 @@ class HomePageState extends State<HomePage>
             await appManager.createOrUpdateApp(
               id: Snowflake.parse(result.botId),
               username: result.botName,
-              avatarHash:
-                  result.bot['avatar_hash']?.toString() ??
-                  result.bot['avatar']?.toString(),
-              discriminator: result.bot['discriminator']?.toString(),
+              avatarHash: result.avatarHash,
+              discriminator: result.discriminator,
               token: result.token,
               intents: (result.config['intents'] as Map?)?.cast<String, bool>(),
               prefix: result.config['prefix']?.toString(),
@@ -2735,6 +2766,8 @@ class _BotSyncResult {
     required this.config,
     required this.bot,
     required this.guildCount,
+    this.avatarHash,
+    this.discriminator,
   });
 
   final String botId;
@@ -2743,6 +2776,8 @@ class _BotSyncResult {
   final Map<String, dynamic> config;
   final Map<String, dynamic> bot;
   final int? guildCount;
+  final String? avatarHash;
+  final String? discriminator;
 }
 
 class _HostedAppsHomeCard extends StatefulWidget {

@@ -1,5 +1,7 @@
 import 'package:bot_creator/core/i18n/extensions.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:bot_creator/core/utils/responsive.dart';
 import 'package:bot_creator_shared/types/action.dart' show BotCreatorActionType;
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder/action_type_extension.dart';
 
@@ -389,6 +391,7 @@ class ScratchBlockPalette extends StatefulWidget {
     this.isAutocompleteContext = false,
     this.isModalContext = false,
     this.popOnSelect = true,
+    this.enableDrag,
   });
 
   final ValueChanged<BotCreatorActionType> onActionSelected;
@@ -404,6 +407,12 @@ class ScratchBlockPalette extends StatefulWidget {
 
   /// When true, Navigator.pop(context) is called automatically when an action is selected.
   final bool popOnSelect;
+
+  /// Whether action cards can be dragged (e.g. into a Blueprint canvas).
+  ///
+  /// Defaults to false on mobile (devices or viewports with width < 800)
+  /// and true on desktop when not explicitly set.
+  final bool? enableDrag;
 
   @override
   State<ScratchBlockPalette> createState() => _ScratchBlockPaletteState();
@@ -463,16 +472,62 @@ class _ScratchBlockPaletteState extends State<ScratchBlockPalette> {
       );
     }
 
+    // Predefined quick action recommendations for fast insertion
+    const quickActionCandidates = [
+      BotCreatorActionType.respondWithMessage,
+      BotCreatorActionType.sendMessage,
+      BotCreatorActionType.ifBlock,
+      BotCreatorActionType.setTemporaryVariable,
+      BotCreatorActionType.addRole,
+      BotCreatorActionType.banUser,
+      BotCreatorActionType.cooldown,
+    ];
+
+    final allowedQuickActions = quickActionCandidates.where((type) {
+      if (!widget.isWorkflow && isListenerAction(type)) return false;
+      if (!widget.isInteraction &&
+          !widget.isWorkflow &&
+          isInteractionOnlyAction(type)) {
+        return false;
+      }
+      if (!widget.isAutocompleteContext && isAutocompleteOnlyAction(type)) {
+        return false;
+      }
+      if (widget.isAutocompleteContext && !isAutocompleteContextAction(type)) {
+        return false;
+      }
+      return true;
+    }).toList();
+
+    // Collect all matching actions for flat-list search view
+    final allMatchingActions = <BotCreatorActionType>[];
+    if (_searchQuery.isNotEmpty) {
+      for (final list in actionsByCategory.values) {
+        allMatchingActions.addAll(list);
+      }
+      allMatchingActions.sort(
+        (a, b) => a.displayName(context).compareTo(b.displayName(context)),
+      );
+    }
+
+    final canDrag = _resolveEnableDrag(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // ── Search bar ──
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
           child: TextField(
             decoration: InputDecoration(
               hintText: context.tr.actions_search_hint,
               prefixIcon: const Icon(Icons.search),
+              suffixIcon: _searchQuery.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear, size: 18),
+                      onPressed: () => setState(() => _searchQuery = ''),
+                    )
+                  : null,
               border: const OutlineInputBorder(),
               isDense: true,
             ),
@@ -483,13 +538,46 @@ class _ScratchBlockPaletteState extends State<ScratchBlockPalette> {
             },
           ),
         ),
-        // ── Categories ──
+
+        // ── Quick action chips (visible when not searching) ──
+        if (_searchQuery.isEmpty && allowedQuickActions.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: SizedBox(
+              height: 40,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: allowedQuickActions.length,
+                separatorBuilder: (_, _) => const SizedBox(width: 8),
+                itemBuilder: (context, index) {
+                  final type = allowedQuickActions[index];
+                  final cat = getCategoryForAction(type);
+                  final color = getCategoryColor(cat);
+                  return ActionChip(
+                    avatar: Icon(type.icon, size: 16, color: color),
+                    label: Text(
+                      type.displayName(context),
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                    backgroundColor: color.withValues(alpha: 0.1),
+                    side: BorderSide(color: color.withValues(alpha: 0.3)),
+                    onPressed: () {
+                      widget.onActionSelected(type);
+                      if (widget.popOnSelect) {
+                        Navigator.pop(context);
+                      }
+                    },
+                  );
+                },
+              ),
+            ),
+          ),
+
+        // ── Actions list (Flat list on search, categorized otherwise) ──
         Expanded(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            children: [
-              if (actionsByCategory.isEmpty)
-                Padding(
+          child: actionsByCategory.isEmpty
+              ? Padding(
                   padding: const EdgeInsets.only(top: 60),
                   child: Center(
                     child: Text(
@@ -500,23 +588,83 @@ class _ScratchBlockPaletteState extends State<ScratchBlockPalette> {
                     ),
                   ),
                 )
-              else
-                for (final entry in actionsByCategory.entries)
-                  _CategorySection(
-                    category: entry.key,
-                    actions: entry.value,
-                    onActionSelected: (type) {
-                      widget.onActionSelected(type);
-                      if (widget.popOnSelect) {
-                        Navigator.pop(context);
-                      }
-                    },
-                  ),
-            ],
-          ),
+              : _searchQuery.isNotEmpty
+                  ? ListView.builder(
+                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                      itemCount: allMatchingActions.length,
+                      itemBuilder: (context, index) {
+                        final type = allMatchingActions[index];
+                        final cat = getCategoryForAction(type);
+                        final color = getCategoryColor(cat);
+                        final card = Card(
+                          margin: const EdgeInsets.symmetric(vertical: 3),
+                          child: ListTile(
+                            dense: true,
+                            leading: Icon(type.icon, size: 20, color: color),
+                            title: Text(
+                              type.displayName(context),
+                              style: const TextStyle(fontSize: 13),
+                            ),
+                            subtitle: Text(
+                              localizeCategory(context, cat),
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: color,
+                              ),
+                            ),
+                            onTap: () {
+                              widget.onActionSelected(type);
+                              if (widget.popOnSelect) {
+                                Navigator.pop(context);
+                              }
+                            },
+                          ),
+                        );
+                        if (!canDrag) return card;
+                        return Draggable<BotCreatorActionType>(
+                          data: type,
+                          feedback: Material(
+                            color: Colors.transparent,
+                            child: Opacity(
+                              opacity: 0.85,
+                              child: SizedBox(width: 200, child: card),
+                            ),
+                          ),
+                          child: card,
+                        );
+                      },
+                    )
+                  : ListView(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                      children: [
+                        for (final entry in actionsByCategory.entries)
+                          _CategorySection(
+                            category: entry.key,
+                            actions: entry.value,
+                            enableDrag: canDrag,
+                            onActionSelected: (type) {
+                              widget.onActionSelected(type);
+                              if (widget.popOnSelect) {
+                                Navigator.pop(context);
+                              }
+                            },
+                          ),
+                      ],
+                    ),
         ),
       ],
     );
+  }
+
+  bool _resolveEnableDrag(BuildContext context) {
+    if (widget.enableDrag != null) {
+      return widget.enableDrag!;
+    }
+    final isMobile = ResponsiveHelper.isMobile(context) ||
+        MediaQuery.of(context).size.width < 800 ||
+        defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS;
+    return !isMobile;
   }
 }
 
@@ -525,11 +673,13 @@ class _CategorySection extends StatelessWidget {
     required this.category,
     required this.actions,
     required this.onActionSelected,
+    this.enableDrag = true,
   });
 
   final String category;
   final List<BotCreatorActionType> actions;
   final ValueChanged<BotCreatorActionType> onActionSelected;
+  final bool enableDrag;
 
   @override
   Widget build(BuildContext context) {
@@ -570,6 +720,10 @@ class _CategorySection extends StatelessWidget {
             ),
           );
 
+          if (!enableDrag) {
+            return cardWidget;
+          }
+
           return Draggable<BotCreatorActionType>(
             data: type,
             feedback: Material(
@@ -596,6 +750,7 @@ void showBlockPalette(
   bool isWorkflow = false,
   bool isAutocompleteContext = false,
   bool isModalContext = false,
+  bool enableDrag = false,
 }) {
   final isMobile = MediaQuery.of(context).size.width < 600;
 
@@ -615,6 +770,7 @@ void showBlockPalette(
               isWorkflow: isWorkflow,
               isAutocompleteContext: isAutocompleteContext,
               isModalContext: isModalContext,
+              enableDrag: enableDrag,
             ),
           ),
         );
@@ -636,6 +792,7 @@ void showBlockPalette(
               isWorkflow: isWorkflow,
               isAutocompleteContext: isAutocompleteContext,
               isModalContext: isModalContext,
+              enableDrag: enableDrag,
             ),
           ),
         );

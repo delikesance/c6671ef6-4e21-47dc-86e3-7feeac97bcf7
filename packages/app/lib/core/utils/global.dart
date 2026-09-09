@@ -103,8 +103,65 @@ String supportedDiscordAvatarFormatsLabel() {
 
 Future<User> getDiscordUser(String botToken) async {
   final client = await Nyxx.connectRest(botToken);
-  return await client.user.fetch();
+  try {
+    return await client.user.fetch();
+  } finally {
+    try {
+      await client.close();
+    } catch (_) {}
+  }
 }
+
+/// Fetch bot's basic user profile from Discord REST API using bot token.
+/// Returns null if the token is invalid or request fails.
+Future<Map<String, String>?> getDiscordBotUserProfile(String botToken) async {
+  final trimmedToken = botToken.trim();
+  if (trimmedToken.isEmpty) {
+    return null;
+  }
+
+  final client = HttpClient();
+  try {
+    final request = await client.getUrl(
+      Uri.parse('$discordUrl/users/@me'),
+    );
+    request.headers.set(HttpHeaders.authorizationHeader, 'Bot $trimmedToken');
+    request.headers.set(HttpHeaders.acceptHeader, 'application/json');
+
+    final response = await request.close();
+    final payload = await utf8.decodeStream(response);
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      return null;
+    }
+
+    final decoded = jsonDecode(payload);
+    if (decoded is! Map) {
+      return null;
+    }
+
+    final map = Map<String, dynamic>.from(decoded.cast<dynamic, dynamic>());
+    final id = map['id']?.toString() ?? '';
+    final username = map['username']?.toString() ?? '';
+    final avatar = map['avatar']?.toString() ?? '';
+    final discriminator = map['discriminator']?.toString() ?? '';
+
+    return <String, String>{
+      'id': id,
+      'username': username,
+      'avatar': avatar,
+      'discriminator': discriminator,
+    };
+  } catch (e) {
+    developer.log(
+      'Failed to fetch bot user profile: $e',
+      name: 'GlobalUtils',
+    );
+    return null;
+  } finally {
+    client.close(force: true);
+  }
+}
+
 
 Future<String?> getDiscordApplicationOwnerId(String botToken) async {
   final metadata = await getDiscordApplicationOwnerMetadata(botToken);
@@ -321,22 +378,25 @@ String makeAvatarUrl(
   String legacyFormat = "webp",
   String? discriminator,
 }) {
-  if (avatarId == null || avatarId.isEmpty) {
-    if (discriminator != null) {
-      return "https://cdn.discordapp.com/embed/avatars/${int.parse(discriminator) % 5}.png";
+  if (avatarId == null || avatarId.isEmpty || avatarId == "0") {
+    if (discriminator != null &&
+        discriminator != "0" &&
+        discriminator != "0000") {
+      final parsedDiscrim = int.tryParse(discriminator);
+      if (parsedDiscrim != null) {
+        return "https://cdn.discordapp.com/embed/avatars/${parsedDiscrim % 5}.png";
+      }
     }
-    return "https://cdn.discordapp.com/embed/avatars/${(int.parse(userId) >> 22) % 6}.png";
+    final parsedId = BigInt.tryParse(userId);
+    if (parsedId != null) {
+      return "https://cdn.discordapp.com/embed/avatars/${(parsedId >> 22).toInt() % 6}.png";
+    }
+    return "https://cdn.discordapp.com/embed/avatars/0.png";
   }
   if (isAnimated && legacyFormat == "gif") {
     return "https://cdn.discordapp.com/avatars/$userId/$avatarId.gif?size=1024";
   }
 
-  if (avatarId == "0") {
-    if (discriminator != null) {
-      return "https://cdn.discordapp.com/embed/avatars/${int.parse(discriminator) % 5}.png";
-    }
-    return "https://cdn.discordapp.com/embed/avatars/${(int.parse(userId) >> 22) % 6}.png";
-  }
   return "https://cdn.discordapp.com/avatars/$userId/$avatarId.$legacyFormat?size=1024";
 }
 

@@ -20,179 +20,18 @@ extension _CommandBlockEditor on _CommandCreatePageState {
         _executionMode == _CommandCreatePageState._executionModeJavascript;
     final isCodeMode = isBdfdMode || isJavascriptMode;
 
-    // Collect action blocks
-    final actionBlocks = <Widget>[];
-
     // Precompute ActionItem list for Jump to action dropdown
     final allActionItems = List<ActionItem>.generate(
       _actions.length,
       (i) => ActionItem.fromJson(_actions[i], fallbackId: 'action_$i'),
     );
 
-    if (!isCodeMode) {
-      for (var i = 0; i < _actions.length; i++) {
-        final action = ActionItem.fromJson(
-          _actions[i],
-          fallbackId: 'action_$i',
-        );
-        actionBlocks.add(
-          ActionBlock(
-            key: ValueKey('action-block-${action.id}'),
-            action: action,
-            index: i,
-            totalCount: _actions.length,
-            variableSuggestions: _actionVariableSuggestions,
-            emojiSuggestions: _appEmojis,
-            botIdForConfig: _botIdForConfig,
-            onRemove: () {
-              _applyStateUpdate(() {
-                _actions.removeAt(i);
-                _persistActiveSubcommandWorkflow();
-              });
-            },
-            onPasteAbove: (copiedAction) {
-              _applyStateUpdate(() {
-                final copy = Map<String, dynamic>.from(
-                  jsonDecode(jsonEncode(copiedAction)),
-                );
-                copy['id'] = 'action_${DateTime.now().microsecondsSinceEpoch}';
-                _actions.insert(i, copy);
-                _persistActiveSubcommandWorkflow();
-              });
-            },
-            onPasteBelow: (copiedAction) {
-              _applyStateUpdate(() {
-                final copy = Map<String, dynamic>.from(
-                  jsonDecode(jsonEncode(copiedAction)),
-                );
-                copy['id'] = 'action_${DateTime.now().microsecondsSinceEpoch}';
-                _actions.insert(i + 1, copy);
-                _persistActiveSubcommandWorkflow();
-              });
-            },
-            onDuplicate: () {
-              _applyStateUpdate(() {
-                final copy = Map<String, dynamic>.from(
-                  jsonDecode(jsonEncode(_actions[i])),
-                );
-                copy['id'] = 'action_${DateTime.now().microsecondsSinceEpoch}';
-                _actions.insert(i + 1, copy);
-                _persistActiveSubcommandWorkflow();
-              });
-            },
-            onMoveUp: i > 0
-                ? () {
-                    _applyStateUpdate(() {
-                      final item = _actions.removeAt(i);
-                      _actions.insert(i - 1, item);
-                      _persistActiveSubcommandWorkflow();
-                    });
-                  }
-                : null,
-            onMoveDown: i < _actions.length - 1
-                ? () {
-                    _applyStateUpdate(() {
-                      final item = _actions.removeAt(i);
-                      _actions.insert(i + 1, item);
-                      _persistActiveSubcommandWorkflow();
-                    });
-                  }
-                : null,
-            onParameterChanged: (key, value) {
-              _applyStateUpdate(() {
-                if (key == '__enabled__') {
-                  _actions[i]['enabled'] = value == true;
-                  return;
-                }
-                if (key == '__onErrorMode__') {
-                  final error = Map<String, dynamic>.from(
-                    (_actions[i]['error'] as Map?)?.cast<String, dynamic>() ??
-                        const {},
-                  );
-                  error['mode'] = value == 'continue'
-                      ? 'continue'
-                      : (value == 'jump'
-                            ? 'jump'
-                            : (value == 'skip' ? 'skip' : 'stop'));
-                  _actions[i]['error'] = error;
-                  return;
-                }
-                if (key == '__onErrorJumpTarget__') {
-                  final error = Map<String, dynamic>.from(
-                    (_actions[i]['error'] as Map?)?.cast<String, dynamic>() ??
-                        const {},
-                  );
-                  error['jumpToActionId'] = value?.toString();
-                  _actions[i]['error'] = error;
-                  return;
-                }
-                if (key == '__onErrorSkipCount__') {
-                  final error = Map<String, dynamic>.from(
-                    (_actions[i]['error'] as Map?)?.cast<String, dynamic>() ??
-                        const {},
-                  );
-                  error['skipCount'] = value?.toString();
-                  _actions[i]['error'] = error;
-                  return;
-                }
-                if (key == '__actionKey__') {
-                  _actions[i]['key'] = value.toString();
-                  _persistActiveSubcommandWorkflow();
-                  return;
-                }
-                final payload = Map<String, dynamic>.from(
-                  (_actions[i]['payload'] as Map?)?.cast<String, dynamic>() ??
-                      const {},
-                );
-                payload[key] = value;
-                _actions[i]['payload'] = payload;
-                _persistActiveSubcommandWorkflow();
-              });
-            },
-            onSuggestionSelected: (key, value) {
-              _applyStateUpdate(() {
-                final payload = Map<String, dynamic>.from(
-                  (_actions[i]['payload'] as Map?)?.cast<String, dynamic>() ??
-                      const {},
-                );
-                payload[key] = value;
-                _actions[i]['payload'] = payload;
-              });
-            },
-            fieldRefreshVersionOf: (_) => 0,
-            onEditNestedActions:
-                (current, suggestions, blockName, {onChanged}) async {
-                  final result =
-                      await Navigator.push<List<Map<String, dynamic>>>(
-                        context,
-                        MaterialPageRoute<List<Map<String, dynamic>>>(
-                          builder: (_) => ActionsBuilderPage(
-                            initialActions: current,
-                            variableSuggestions: suggestions,
-                            emojiSuggestions: _appEmojis,
-                            botIdForConfig: _botIdForConfig,
-                            editPath: ['Racine', blockName],
-                            onChanged: onChanged,
-                            isInteraction: !_legacyModeEnabled,
-                          ),
-                        ),
-                      );
-                  return result;
-                },
-            allActions: allActionItems,
-            onOpenDocs: _openDocumentationCenter,
-          ),
-        );
-      }
-    }
-
     final showMetadataOnCanvas =
         MediaQuery.of(context).size.width >= 900 ||
         Platform.environment.containsKey('FLUTTER_TEST');
 
-    // Build the canvas blocks
-    final canvasChildren = <Widget>[
-      // ── Fixed: Metadata Block (Desktop or wide screens) ──
+    // ── Static Prefix Blocks ──
+    final prefixBlocks = <Widget>[
       if (showMetadataOnCanvas)
         MetadataBlock(
           commandName: _commandName,
@@ -235,7 +74,6 @@ extension _CommandBlockEditor on _CommandCreatePageState {
           }),
           nameValidator: _validateName,
           nameMaxLength: _commandNameMaxLength,
-          // Options
           showOptions: _supportsCommandOptions,
           options: _options,
           onOptionsChanged: (value) => _applyStateUpdate(() {
@@ -243,7 +81,6 @@ extension _CommandBlockEditor on _CommandCreatePageState {
           }),
           botIdForConfig: _botIdForConfig,
           variableSuggestions: _actionVariableSuggestions,
-          // Folder
           folderController: _folderController,
           onFolderChanged: (value) {
             _applyStateUpdate(() {
@@ -251,8 +88,6 @@ extension _CommandBlockEditor on _CommandCreatePageState {
             });
           },
         ),
-
-      // ── Fixed: Entry Point Block ──
       EntryPointBlock(
         entryPointType: entryPointType,
         commandName: _commandName,
@@ -312,42 +147,212 @@ extension _CommandBlockEditor on _CommandCreatePageState {
                 }
               }),
       ),
-
-      // ── Subcommand route selector (if applicable) ──
       if (_subcommandWorkflows.isNotEmpty) _buildBlockSubcommandSelector(),
-
-      // ── BDFD Script editor (if BDFD mode) ──
       if (isBdfdMode) _buildBdfdBlock(),
-
-      // ── JavaScript editor (if JS mode) ──
       if (isJavascriptMode) _buildJavascriptBlock(),
-
-      // ── Empty state ──
       if (!isCodeMode && _actions.isEmpty) _buildActionsEmptyState(),
-
-      // ── Inline action validation ──
       if (!isCodeMode) ..._buildActionValidationBanners(),
+    ];
 
-      // ── Action blocks ──
-      ...actionBlocks,
+    final firstActionIdx = prefixBlocks.length;
 
-      // ── Add block button ──
+    // Collect action blocks
+    final actionBlocks = <Widget>[];
+
+    if (!isCodeMode) {
+      for (var i = 0; i < _actions.length; i++) {
+        final action = ActionItem.fromJson(
+          _actions[i],
+          fallbackId: 'action_$i',
+        );
+        actionBlocks.add(
+          ActionBlock(
+            key: ValueKey('action-block-${action.id}'),
+            action: action,
+            index: i,
+            totalCount: _actions.length,
+            variableSuggestions: _actionVariableSuggestions,
+            emojiSuggestions: _appEmojis,
+            botIdForConfig: _botIdForConfig,
+            dragHandle: !isDesktop && _actions.length > 1
+                ? ReorderableDragStartListener(
+                    index: firstActionIdx + i,
+                    child: const Padding(
+                      padding: EdgeInsets.only(right: 6),
+                      child: Icon(
+                        Icons.drag_indicator,
+                        size: 20,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  )
+                : null,
+            onRemove: () {
+              _applyStateUpdate(() {
+                _actions.removeAt(i);
+                _persistActiveSubcommandWorkflow();
+              });
+            },
+            onPasteAbove: (copiedAction) {
+              _applyStateUpdate(() {
+                final copy = Map<String, dynamic>.from(
+                  jsonDecode(jsonEncode(copiedAction)),
+                );
+                copy['id'] = 'action_${DateTime.now().microsecondsSinceEpoch}';
+                _actions.insert(i, copy);
+                _persistActiveSubcommandWorkflow();
+              });
+            },
+            onPasteBelow: (copiedAction) {
+              _applyStateUpdate(() {
+                final copy = Map<String, dynamic>.from(
+                  jsonDecode(jsonEncode(copiedAction)),
+                );
+                copy['id'] = 'action_${DateTime.now().microsecondsSinceEpoch}';
+                _actions.insert(i + 1, copy);
+                _persistActiveSubcommandWorkflow();
+              });
+            },
+            onDuplicate: () {
+              _applyStateUpdate(() {
+                final copy = Map<String, dynamic>.from(
+                  jsonDecode(jsonEncode(_actions[i])),
+                );
+                copy['id'] = 'action_${DateTime.now().microsecondsSinceEpoch}';
+                _actions.insert(i + 1, copy);
+                _persistActiveSubcommandWorkflow();
+              });
+            },
+            onMoveUp: i > 0
+                ? () {
+                    _applyStateUpdate(() {
+                      final item = _actions.removeAt(i);
+                      _actions.insert(i - 1, item);
+                      _persistActiveSubcommandWorkflow();
+                    });
+                  }
+                : null,
+            onMoveDown: i < _actions.length - 1
+                ? () {
+                    _applyStateUpdate(() {
+                      final item = _actions.removeAt(i);
+                      _actions.insert(i + 1, item);
+                      _persistActiveSubcommandWorkflow();
+                    });
+                  }
+                : null,
+            onParameterChanged: (key, value) {
+              _hasUnsavedChanges = true;
+              if (key == '__enabled__') {
+                _applyStateUpdate(() {
+                  _actions[i]['enabled'] = value == true;
+                });
+                return;
+              }
+              if (key == '__onErrorMode__') {
+                _applyStateUpdate(() {
+                  final error = Map<String, dynamic>.from(
+                    (_actions[i]['error'] as Map?)?.cast<String, dynamic>() ??
+                        const {},
+                  );
+                  error['mode'] = value == 'continue'
+                      ? 'continue'
+                      : (value == 'jump'
+                            ? 'jump'
+                            : (value == 'skip' ? 'skip' : 'stop'));
+                  _actions[i]['error'] = error;
+                });
+                return;
+              }
+              if (key == '__onErrorJumpTarget__') {
+                _applyStateUpdate(() {
+                  final error = Map<String, dynamic>.from(
+                    (_actions[i]['error'] as Map?)?.cast<String, dynamic>() ??
+                        const {},
+                  );
+                  error['jumpToActionId'] = value?.toString();
+                  _actions[i]['error'] = error;
+                });
+                return;
+              }
+              if (key == '__onErrorSkipCount__') {
+                _applyStateUpdate(() {
+                  final error = Map<String, dynamic>.from(
+                    (_actions[i]['error'] as Map?)?.cast<String, dynamic>() ??
+                        const {},
+                  );
+                  error['skipCount'] = value?.toString();
+                  _actions[i]['error'] = error;
+                });
+                return;
+              }
+              if (key == '__actionKey__') {
+                _actions[i]['key'] = value.toString();
+                _persistActiveSubcommandWorkflow();
+                return;
+              }
+              final payload = Map<String, dynamic>.from(
+                (_actions[i]['payload'] as Map?)?.cast<String, dynamic>() ??
+                    const {},
+              );
+              payload[key] = value;
+              _actions[i]['payload'] = payload;
+              _persistActiveSubcommandWorkflow();
+            },
+            onSuggestionSelected: (key, value) {
+              _hasUnsavedChanges = true;
+              final payload = Map<String, dynamic>.from(
+                (_actions[i]['payload'] as Map?)?.cast<String, dynamic>() ??
+                    const {},
+              );
+              payload[key] = value;
+              _actions[i]['payload'] = payload;
+            },
+            fieldRefreshVersionOf: (_) => 0,
+            onEditNestedActions:
+                (current, suggestions, blockName, {onChanged}) async {
+                  final result =
+                      await Navigator.push<List<Map<String, dynamic>>>(
+                        context,
+                        MaterialPageRoute<List<Map<String, dynamic>>>(
+                          builder: (_) => ActionsBuilderPage(
+                            initialActions: current,
+                            variableSuggestions: suggestions,
+                            emojiSuggestions: _appEmojis,
+                            botIdForConfig: _botIdForConfig,
+                            editPath: ['Racine', blockName],
+                            onChanged: onChanged,
+                            isInteraction: !_legacyModeEnabled,
+                          ),
+                        ),
+                      );
+                  return result;
+                },
+            allActions: allActionItems,
+            onOpenDocs: _openDocumentationCenter,
+          ),
+        );
+      }
+    }
+
+    // ── Suffix Blocks ──
+    final suffixBlocks = <Widget>[
       if (!isCodeMode && !isDesktop) _buildAddBlockButton(),
-
-      // ── Documentation Tip Card ──
       if (!isCodeMode) _buildDocumentationTipCard(),
+    ];
+
+    // Build the canvas blocks
+    final canvasChildren = <Widget>[
+      ...prefixBlocks,
+      ...actionBlocks,
+      ...suffixBlocks,
     ];
 
     // Compute indices of elements after which the canvas skips connectors
     final skipConnectorAfter = <int>{};
 
     if (!isCodeMode && canvasChildren.isNotEmpty) {
-      // Find the index of the first action block if present
-      final firstActionIdx = actionBlocks.isNotEmpty
-          ? canvasChildren.indexOf(actionBlocks.first)
-          : -1;
-
-      if (firstActionIdx != -1) {
+      if (actionBlocks.isNotEmpty) {
         for (var i = 0; i < _actions.length; i++) {
           final type = BotCreatorActionType.values.firstWhere(
             (t) => t.name == _actions[i]['type'],
@@ -361,13 +366,53 @@ extension _CommandBlockEditor on _CommandCreatePageState {
       }
 
       // Omit connectors leading to and from the trailing tip card
-      skipConnectorAfter.add(canvasChildren.length - 2);
-      skipConnectorAfter.add(canvasChildren.length - 1);
+      if (suffixBlocks.isNotEmpty) {
+        skipConnectorAfter.add(canvasChildren.length - 2);
+        skipConnectorAfter.add(canvasChildren.length - 1);
+      }
+    }
+
+    void handleReorder(int oldIndex, int newIndex) {
+      if (isCodeMode || _actions.length <= 1) return;
+      // Check if oldIndex belongs to the action blocks
+      final oldActionIndex = oldIndex - firstActionIdx;
+      if (oldActionIndex < 0 || oldActionIndex >= _actions.length) return;
+
+      // In Flutter ReorderableListView, if moving downwards, newIndex is decremented by 1
+      var targetActionIndex = newIndex - firstActionIdx;
+      if (oldIndex < newIndex) {
+        targetActionIndex -= 1;
+      }
+      targetActionIndex = targetActionIndex.clamp(0, _actions.length - 1);
+      if (targetActionIndex == oldActionIndex) return;
+
+      HapticFeedback.selectionClick();
+      _applyStateUpdate(() {
+        final item = _actions.removeAt(oldActionIndex);
+        _actions.insert(targetActionIndex, item);
+        _persistActiveSubcommandWorkflow();
+      });
+    }
+
+    void handleInsertAfter(int canvasIndex) {
+      // If tapped connector is before first action
+      if (canvasIndex < firstActionIdx) {
+        _openBlockPalette(insertIndex: 0);
+      } else {
+        final actionIdx = canvasIndex - firstActionIdx;
+        _openBlockPalette(
+          insertIndex: (actionIdx + 1).clamp(0, _actions.length),
+        );
+      }
     }
 
     final canvasWidget = ScratchBlockCanvas(
       padding: EdgeInsets.fromLTRB(16, 12, 16, _showEditShell ? 88 : 12),
       skipConnectorAfterIndices: skipConnectorAfter,
+      onReorder: !isDesktop && !isCodeMode && _actions.length > 1
+          ? handleReorder
+          : null,
+      onInsertAfter: !isCodeMode ? handleInsertAfter : null,
       children: canvasChildren,
     );
 
@@ -477,12 +522,15 @@ extension _CommandBlockEditor on _CommandCreatePageState {
                     return result;
                   },
               onParameterChanged: (index, key, value) {
-                _applyStateUpdate(() {
-                  if (key == '__enabled__') {
+                _hasUnsavedChanges = true;
+                if (key == '__enabled__') {
+                  _applyStateUpdate(() {
                     _actions[index]['enabled'] = value == true;
-                    return;
-                  }
-                  if (key == '__onErrorMode__') {
+                  });
+                  return;
+                }
+                if (key == '__onErrorMode__') {
+                  _applyStateUpdate(() {
                     final error = Map<String, dynamic>.from(
                       (_actions[index]['error'] as Map?)
                               ?.cast<String, dynamic>() ??
@@ -494,33 +542,32 @@ extension _CommandBlockEditor on _CommandCreatePageState {
                               ? 'jump'
                               : (value == 'skip' ? 'skip' : 'stop'));
                     _actions[index]['error'] = error;
-                    return;
-                  }
-                  if (key == '__actionKey__') {
-                    _actions[index]['key'] = value.toString();
-                    _persistActiveSubcommandWorkflow();
-                    return;
-                  }
-                  final payload = Map<String, dynamic>.from(
-                    (_actions[index]['payload'] as Map?)
-                            ?.cast<String, dynamic>() ??
-                        const {},
-                  );
-                  payload[key] = value;
-                  _actions[index]['payload'] = payload;
+                  });
+                  return;
+                }
+                if (key == '__actionKey__') {
+                  _actions[index]['key'] = value.toString();
                   _persistActiveSubcommandWorkflow();
-                });
+                  return;
+                }
+                final payload = Map<String, dynamic>.from(
+                  (_actions[index]['payload'] as Map?)
+                          ?.cast<String, dynamic>() ??
+                      const {},
+                );
+                payload[key] = value;
+                _actions[index]['payload'] = payload;
+                _persistActiveSubcommandWorkflow();
               },
               onSuggestionSelected: (index, key, value) {
-                _applyStateUpdate(() {
-                  final payload = Map<String, dynamic>.from(
-                    (_actions[index]['payload'] as Map?)
-                            ?.cast<String, dynamic>() ??
-                        const {},
-                  );
-                  payload[key] = value;
-                  _actions[index]['payload'] = payload;
-                });
+                _hasUnsavedChanges = true;
+                final payload = Map<String, dynamic>.from(
+                  (_actions[index]['payload'] as Map?)
+                          ?.cast<String, dynamic>() ??
+                      const {},
+                );
+                payload[key] = value;
+                _actions[index]['payload'] = payload;
               },
               onRemoveAction: (nodeId, index) {
                 _applyStateUpdate(() {
@@ -640,6 +687,7 @@ extension _CommandBlockEditor on _CommandCreatePageState {
               isInteraction: !_legacyModeEnabled,
               isWorkflow: false,
               popOnSelect: false,
+              enableDrag: isBlueprint,
             ),
           ),
           Expanded(
@@ -884,7 +932,7 @@ extension _CommandBlockEditor on _CommandCreatePageState {
     );
   }
 
-  void _openBlockPalette() {
+  void _openBlockPalette({int? insertIndex}) {
     showBlockPalette(
       context,
       isInteraction: !_legacyModeEnabled,
@@ -901,10 +949,22 @@ extension _CommandBlockEditor on _CommandCreatePageState {
             'payload': Map<String, dynamic>.from(type.defaultParameters),
           };
           try {
-            _actions.add(newAction);
+            if (insertIndex != null &&
+                insertIndex >= 0 &&
+                insertIndex <= _actions.length) {
+              _actions.insert(insertIndex, newAction);
+            } else {
+              _actions.add(newAction);
+            }
           } on UnsupportedError {
             _actions = List<Map<String, dynamic>>.from(_actions);
-            _actions.add(newAction);
+            if (insertIndex != null &&
+                insertIndex >= 0 &&
+                insertIndex <= _actions.length) {
+              _actions.insert(insertIndex, newAction);
+            } else {
+              _actions.add(newAction);
+            }
           }
           _persistActiveSubcommandWorkflow();
         });
