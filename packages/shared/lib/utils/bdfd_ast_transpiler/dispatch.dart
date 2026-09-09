@@ -767,7 +767,7 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
               'content': content,
               'ephemeral': ephemeral,
               if (tts) 'tts': true,
-              if (deleteAfter != null) 'deleteAfter': deleteAfter,
+              'deleteAfter': ?deleteAfter,
             },
           );
         }
@@ -780,7 +780,7 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
             'components': const <String, dynamic>{},
             'ephemeral': ephemeral,
             if (tts) 'tts': true,
-            if (deleteAfter != null) 'deleteAfter': deleteAfter,
+            'deleteAfter': ?deleteAfter,
           },
         );
 
