@@ -370,7 +370,7 @@ class _PendingResponse {
           if (content.trim().isNotEmpty) 'content': content,
           'components': <String, dynamic>{'items': components},
           'ephemeral': ephemeral,
-          if (deleteAfter != null) 'deleteAfter': deleteAfter,
+          'deleteAfter': ?deleteAfter,
           if (channelId != null && channelId.isNotEmpty) 'channelId': channelId,
         },
       );
@@ -393,7 +393,7 @@ class _PendingResponse {
               : <String, dynamic>{'items': components},
           'ephemeral': ephemeral,
           if (tts) 'tts': true,
-          if (deleteAfter != null) 'deleteAfter': deleteAfter,
+          'deleteAfter': ?deleteAfter,
           'allowedMentions': allowedMentionsPayload,
         },
       );
@@ -409,7 +409,7 @@ class _PendingResponse {
             : <String, dynamic>{'items': components},
         'ephemeral': ephemeral,
         if (tts) 'tts': true,
-        if (deleteAfter != null) 'deleteAfter': deleteAfter,
+        'deleteAfter': ?deleteAfter,
         'allowedMentions': allowedMentionsPayload,
         if (channelId != null && channelId.isNotEmpty) 'channelId': channelId,
       },
