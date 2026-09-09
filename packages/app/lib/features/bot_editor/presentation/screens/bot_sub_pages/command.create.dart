@@ -46,6 +46,7 @@ import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blo
 import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/action_block.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/blueprint/blueprint_graph_canvas.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/blueprint/blueprint_models.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/mobile_keyboard_accessory_bar.dart';
 import 'package:bot_creator/core/models/types/variable_suggestion.dart';
 import 'package:bot_creator_shared/utils/variable_catalog.dart'
     show inferCategory;
@@ -502,8 +503,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
               onChanged: !_supportsCommandOptions
                   ? null
                   : (enabled) {
-                      setState(() {
+                      _applyStateUpdate(() {
                         _legacyModeEnabled = enabled;
+                        _localOnlyCommand = enabled;
                       });
                     },
             ),
@@ -751,7 +753,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   bool get _isEditingExistingCommand => _existingCommandStorageId != null;
 
   bool get _canToggleLegacyOnlyLocal =>
-      !_isEditingExistingCommand || _isLocalOnlyCommand;
+      !_isEditingExistingCommand || _isLocalOnlyCommand || _legacyModeEnabled;
 
   String _generateLegacyOnlyCommandId() => _uuid.v4();
 
@@ -1475,7 +1477,8 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         _legacyModeEnabled = normalizedData['legacyModeEnabled'] == true;
         _localOnlyCommand =
             normalizedData['legacyLocalOnly'] == true ||
-            normalizedData['localOnly'] == true;
+            normalizedData['localOnly'] == true ||
+            _legacyModeEnabled;
         _legacyPrefixOverride = (normalizedData['legacyPrefixOverride'] ?? '')
             .toString();
         final loadedLegacyResponseTarget =
@@ -1587,7 +1590,8 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           _legacyModeEnabled = normalizedData['legacyModeEnabled'] == true;
           _localOnlyCommand =
               normalizedData['legacyLocalOnly'] == true ||
-              normalizedData['localOnly'] == true;
+              normalizedData['localOnly'] == true ||
+              _legacyModeEnabled;
           _legacyPrefixOverride = (normalizedData['legacyPrefixOverride'] ?? '')
               .toString();
           final loadedLegacyResponseTarget =
@@ -1861,11 +1865,11 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       };
 
       try {
-        if (client == null || _localOnlyCommand) {
+        if (client == null || _localOnlyCommand || _legacyModeEnabled) {
           updateStatus('local_save');
           final localCommandId =
               existingStorageId ??
-              (_localOnlyCommand
+              ((_localOnlyCommand || _legacyModeEnabled)
                   ? _generateLegacyOnlyCommandId()
                   : DateTime.now().microsecondsSinceEpoch.toString());
 
@@ -2052,7 +2056,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           botId: botId,
           commandName: _commandName,
           isEditing: _isEditingExistingCommand,
-          isLocalOnly: _localOnlyCommand,
+          isLocalOnly: _localOnlyCommand || _legacyModeEnabled,
           client: client,
           onSave: performSave,
         );
@@ -2207,6 +2211,14 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                         ? (_isDirty ? Icons.save : Icons.check)
                         : Icons.add,
                   ),
+                )
+              : null,
+          bottomNavigationBar: MediaQuery.of(context).viewInsets.bottom > 0 &&
+                  (MediaQuery.of(context).size.width < 800 ||
+                      defaultTargetPlatform == TargetPlatform.android ||
+                      defaultTargetPlatform == TargetPlatform.iOS)
+              ? MobileKeyboardAccessoryBar(
+                  variableSuggestions: _actionVariableSuggestions,
                 )
               : null,
           body: SafeArea(

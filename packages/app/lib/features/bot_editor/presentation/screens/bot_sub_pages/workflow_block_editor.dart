@@ -750,6 +750,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                                 isInteraction: false,
                                 isWorkflow: true,
                                 popOnSelect: false,
+                                enableDrag: false,
                               ),
                             ],
                           ),
