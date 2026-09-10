@@ -139,7 +139,7 @@ class _HostedAppSubscriptionPageState extends State<HostedAppSubscriptionPage> {
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
-                  Icons.storage_rounded,
+                  Icons.smart_toy_outlined,
                   size: 48,
                   color: Colors.teal,
                 ),

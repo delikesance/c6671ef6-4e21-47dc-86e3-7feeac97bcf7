@@ -9207,7 +9207,7 @@
   "command_created_sample_success": "Commande /ping créée ! Elle répond « Pong ! »",
   "onboarding_create_now": "Créer mon bot maintenant",
   "onboarding_command_now": "Créer ta première commande",
-  "container_list_title": "Applications Hébergées",
+  "container_list_title": "Bots Clé en main",
   "@container_list_title": {
     "description": "Title of the container list page"
   },
@@ -9219,7 +9219,7 @@
   "@container_list_session_hint": {
     "description": "Hint below the session error"
   },
-  "container_list_error": "Échec du chargement des conteneurs",
+  "container_list_error": "Échec du chargement des bots",
   "@container_list_error": {
     "description": "Error message when container list fails to load"
   },
@@ -9227,15 +9227,15 @@
   "@container_list_retry": {
     "description": "Retry button label"
   },
-  "container_list_empty": "Aucune application hébergée",
+  "container_list_empty": "Aucun bot clé en main",
   "@container_list_empty": {
     "description": "Empty state title"
   },
-  "container_list_empty_hint": "Déployez votre première application pour commencer.",
+  "container_list_empty_hint": "Déployez votre premier bot prêt à l'emploi en 1 clic.",
   "@container_list_empty_hint": {
     "description": "Empty state description"
   },
-  "container_list_deploy_btn": "Déployer une Application",
+  "container_list_deploy_btn": "Déployer un Bot Clé en main",
   "@container_list_deploy_btn": {
     "description": "Button to deploy a new container"
   },
@@ -9585,7 +9585,7 @@
   "@container_health_starting": {
     "description": "Explains a starting/provisioning health status"
   },
-  "container_hosted_subtitle": "Déployez et gérez des conteneurs Docker",
+  "container_hosted_subtitle": "Déployez des bots prêts à l'emploi (musique, etc.) en 1 clic",
   "@container_hosted_subtitle": {
     "description": "Subtitle for the hosted apps card on the home page"
   },
@@ -9593,7 +9593,7 @@
   "@container_premium_badge": {
     "description": "Badge text for premium-gated container feature"
   },
-  "container_detail_title": "Conteneur {id}",
+  "container_detail_title": "Bot {id}",
   "@container_detail_title": {
     "description": "Title of the container detail page, {id} is the short container ID",
     "placeholders": {
@@ -9604,19 +9604,19 @@
   },
   "container_list_premium_host_anytime_tooltip": "Premium — hébergez à tout moment",
   "container_list_premium_host_anytime_fab": "Héberger à tout moment",
-  "container_list_free_limit_reached": "Limite gratuite atteinte (1 conteneur). Abonnez-vous pour en héberger plus.",
+  "container_list_free_limit_reached": "Limite gratuite atteinte (1 bot). Abonnez-vous pour en héberger plus.",
   "container_hosted_premium_host_anytime": "Hébergez à tout moment",
   "container_hosted_premium_host_anytime_compact": "S'abonner — héberger à tout moment",
-  "container_hosted_premium_desc": "Abonnez-vous pour héberger des conteneurs Docker sans limite — sans publicité.",
+  "container_hosted_premium_desc": "Abonnez-vous pour héberger vos bots clé en main 24/7 — sans publicité.",
   "container_hosted_premium_view_btn": "Voir les offres",
-  "hosted_app_subscription_title": "Applications hébergées",
-  "hosted_app_subscription_subtitle": "Exécutez des conteneurs Docker dans le cloud sans regarder de publicités.",
+  "hosted_app_subscription_title": "Bots Clé en main",
+  "hosted_app_subscription_subtitle": "Hébergez vos bots prêts à l'emploi dans le cloud 24/7 sans interruption.",
   "hosted_app_subscription_benefit_unlimited": "Temps d'hébergement illimité",
   "hosted_app_subscription_benefit_no_ads": "Aucune publicité récompensée requise",
-  "hosted_app_subscription_one_app_title": "1 conteneur",
-  "hosted_app_subscription_one_app_desc": "Hébergez un conteneur Docker à tout moment",
-  "hosted_app_subscription_two_app_title": "2 conteneurs",
-  "hosted_app_subscription_two_app_desc": "Hébergez jusqu'à deux conteneurs Docker",
+  "hosted_app_subscription_one_app_title": "1 bot hébergé",
+  "hosted_app_subscription_one_app_desc": "Hébergez un bot clé en main à tout moment",
+  "hosted_app_subscription_two_app_title": "2 bots hébergés",
+  "hosted_app_subscription_two_app_desc": "Hébergez jusqu'à deux bots clé en main",
   "hosted_app_subscription_recommended": "Meilleur choix",
   "container_hosted_free_title": "Hébergement gratuit (1 conteneur max)",
   "container_hosted_expires_at": "Expire le {dateTime}",

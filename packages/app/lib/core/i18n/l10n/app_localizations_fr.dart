@@ -8294,7 +8294,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get onboarding_command_now => 'Créer ta première commande';
 
   @override
-  String get container_list_title => 'Applications Hébergées';
+  String get container_list_title => 'Bots Clé en main';
 
   @override
   String get container_list_session_missing => 'Session indisponible';
@@ -8304,20 +8304,20 @@ class AppLocalizationsFr extends AppLocalizations {
       'Veuillez d\'abord vous connecter à votre compte.';
 
   @override
-  String get container_list_error => 'Échec du chargement des conteneurs';
+  String get container_list_error => 'Échec du chargement des bots';
 
   @override
   String get container_list_retry => 'Réessayer';
 
   @override
-  String get container_list_empty => 'Aucune application hébergée';
+  String get container_list_empty => 'Aucun bot clé en main';
 
   @override
   String get container_list_empty_hint =>
-      'Déployez votre première application pour commencer.';
+      'Déployez votre premier bot prêt à l\'emploi en 1 clic.';
 
   @override
-  String get container_list_deploy_btn => 'Déployer une Application';
+  String get container_list_deploy_btn => 'Déployer un Bot Clé en main';
 
   @override
   String get container_list_expired => 'Expiré';
@@ -8577,14 +8577,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get container_hosted_subtitle =>
-      'Déployez et gérez des conteneurs Docker';
+      'Déployez des bots prêts à l\'emploi (musique, etc.) en 1 clic';
 
   @override
   String get container_premium_badge => 'Premium';
 
   @override
   String container_detail_title(String id) {
-    return 'Conteneur $id';
+    return 'Bot $id';
   }
 
   @override
@@ -8597,7 +8597,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get container_list_free_limit_reached =>
-      'Limite gratuite atteinte (1 conteneur). Abonnez-vous pour en héberger plus.';
+      'Limite gratuite atteinte (1 bot). Abonnez-vous pour en héberger plus.';
 
   @override
   String get container_hosted_premium_host_anytime => 'Hébergez à tout moment';
@@ -8608,17 +8608,17 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get container_hosted_premium_desc =>
-      'Abonnez-vous pour héberger des conteneurs Docker sans limite — sans publicité.';
+      'Abonnez-vous pour héberger vos bots clé en main 24/7 — sans publicité.';
 
   @override
   String get container_hosted_premium_view_btn => 'Voir les offres';
 
   @override
-  String get hosted_app_subscription_title => 'Applications hébergées';
+  String get hosted_app_subscription_title => 'Bots Clé en main';
 
   @override
   String get hosted_app_subscription_subtitle =>
-      'Exécutez des conteneurs Docker dans le cloud sans regarder de publicités.';
+      'Hébergez vos bots prêts à l\'emploi dans le cloud 24/7 sans interruption.';
 
   @override
   String get hosted_app_subscription_benefit_unlimited =>
@@ -8629,18 +8629,18 @@ class AppLocalizationsFr extends AppLocalizations {
       'Aucune publicité récompensée requise';
 
   @override
-  String get hosted_app_subscription_one_app_title => '1 conteneur';
+  String get hosted_app_subscription_one_app_title => '1 bot hébergé';
 
   @override
   String get hosted_app_subscription_one_app_desc =>
-      'Hébergez un conteneur Docker à tout moment';
+      'Hébergez un bot clé en main à tout moment';
 
   @override
-  String get hosted_app_subscription_two_app_title => '2 conteneurs';
+  String get hosted_app_subscription_two_app_title => '2 bots hébergés';
 
   @override
   String get hosted_app_subscription_two_app_desc =>
-      'Hébergez jusqu\'à deux conteneurs Docker';
+      'Hébergez jusqu\'à deux bots clé en main';
 
   @override
   String get hosted_app_subscription_recommended => 'Meilleur choix';

@@ -8155,7 +8155,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboarding_command_now => 'Create your first command';
 
   @override
-  String get container_list_title => 'Hosted Applications';
+  String get container_list_title => 'Turnkey Bots';
 
   @override
   String get container_list_session_missing => 'Session not available';
@@ -8165,20 +8165,20 @@ class AppLocalizationsEn extends AppLocalizations {
       'Please connect to your account first.';
 
   @override
-  String get container_list_error => 'Failed to load containers';
+  String get container_list_error => 'Failed to load bots';
 
   @override
   String get container_list_retry => 'Retry';
 
   @override
-  String get container_list_empty => 'No hosted applications';
+  String get container_list_empty => 'No turnkey bots';
 
   @override
   String get container_list_empty_hint =>
-      'Deploy your first application to get started.';
+      'Deploy your first ready-to-use bot in 1 click.';
 
   @override
-  String get container_list_deploy_btn => 'Deploy Application';
+  String get container_list_deploy_btn => 'Deploy Turnkey Bot';
 
   @override
   String get container_list_expired => 'Expired';
@@ -8435,14 +8435,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get container_health_starting => 'Still starting up...';
 
   @override
-  String get container_hosted_subtitle => 'Deploy and manage Docker containers';
+  String get container_hosted_subtitle =>
+      'Deploy ready-to-use bots (music, etc.) in 1 click';
 
   @override
   String get container_premium_badge => 'Premium';
 
   @override
   String container_detail_title(String id) {
-    return 'Container $id';
+    return 'Bot $id';
   }
 
   @override
@@ -8454,7 +8455,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get container_list_free_limit_reached =>
-      'Free limit reached (1 container). Subscribe to host more containers.';
+      'Free limit reached (1 bot). Subscribe to host more bots.';
 
   @override
   String get container_hosted_premium_host_anytime => 'Host anytime';
@@ -8465,17 +8466,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get container_hosted_premium_desc =>
-      'Subscribe to host Docker containers with unlimited uptime — no ads required.';
+      'Subscribe to host turnkey bots with 24/7 uptime — no ads required.';
 
   @override
   String get container_hosted_premium_view_btn => 'View plans';
 
   @override
-  String get hosted_app_subscription_title => 'Hosted applications';
+  String get hosted_app_subscription_title => 'Turnkey Bots';
 
   @override
   String get hosted_app_subscription_subtitle =>
-      'Run Docker containers in the cloud without watching ads.';
+      'Host ready-to-use bots in the cloud 24/7 with zero interruption.';
 
   @override
   String get hosted_app_subscription_benefit_unlimited =>
@@ -8486,18 +8487,18 @@ class AppLocalizationsEn extends AppLocalizations {
       'No rewarded ads required';
 
   @override
-  String get hosted_app_subscription_one_app_title => '1 container';
+  String get hosted_app_subscription_one_app_title => '1 Turnkey Bot';
 
   @override
   String get hosted_app_subscription_one_app_desc =>
-      'Host one Docker container anytime';
+      'Host one turnkey bot anytime';
 
   @override
-  String get hosted_app_subscription_two_app_title => '2 containers';
+  String get hosted_app_subscription_two_app_title => '2 Turnkey Bots';
 
   @override
   String get hosted_app_subscription_two_app_desc =>
-      'Host up to two Docker containers';
+      'Host up to two turnkey bots';
 
   @override
   String get hosted_app_subscription_recommended => 'Best value';
