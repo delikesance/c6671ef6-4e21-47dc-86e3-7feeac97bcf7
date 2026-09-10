@@ -9151,19 +9151,19 @@
   "command_created_sample_success": "/ping komutu oluşturuldu! \"Pong!\" diye yanıt verir.",
   "onboarding_create_now": "Botu şimdi oluştur",
   "onboarding_command_now": "İlk komutunu oluştur",
-  "container_list_title": "Barindirilan Uygulamalar",
+  "container_list_title": "Hazır Botlar",
   "@container_list_title": {
     "description": "Title of the container list page"
   },
-  "container_list_session_missing": "Oturum kullanilamiyor",
+  "container_list_session_missing": "Oturum kullanılamıyor",
   "@container_list_session_missing": {
     "description": "Shown when no API session is found"
   },
-  "container_list_session_hint": "Lütfen önce hesabiniza baglanin.",
+  "container_list_session_hint": "Lütfen önce hesabınıza bağlanın.",
   "@container_list_session_hint": {
     "description": "Hint below the session error"
   },
-  "container_list_error": "Kapsayicilar yüklenirken basarisiz oldu",
+  "container_list_error": "Botlar yüklenirken başarısız oldu",
   "@container_list_error": {
     "description": "Error message when container list fails to load"
   },
@@ -9171,23 +9171,27 @@
   "@container_list_retry": {
     "description": "Retry button label"
   },
-  "container_list_empty": "Barindirilan uygulama yok",
+  "container_list_empty": "Hazır bot yok",
   "@container_list_empty": {
     "description": "Empty state title"
   },
-  "container_list_empty_hint": "Baslamak için ilk uygulamanizi dagitin.",
+  "container_list_empty_hint": "1 tıkla ilk kullanıma hazır botunuzu dağıtın.",
   "@container_list_empty_hint": {
     "description": "Empty state description"
   },
-  "container_list_deploy_btn": "Uygulama Dagit",
+  "container_list_deploy_btn": "Hazır Bot Dağıt",
   "@container_list_deploy_btn": {
     "description": "Button to deploy a new container"
+  },
+  "container_list_unsupported_badge": "Desteklenmiyor",
+  "@container_list_unsupported_badge": {
+    "description": "Badge shown on legacy custom containers"
   },
   "container_list_expired": "Süresi doldu",
   "@container_list_expired": {
     "description": "Label when a container has expired"
   },
-  "container_list_expiry_minutes": "{minutes} dakika kaldi",
+  "container_list_expiry_minutes": "{minutes} dakika kaldı",
   "@container_list_expiry_minutes": {
     "description": "Container expiry in minutes",
     "placeholders": {
@@ -9196,7 +9200,7 @@
       }
     }
   },
-  "container_list_expiry_hours": "{hours} saat {minutes} dakika kaldi",
+  "container_list_expiry_hours": "{hours} saat {minutes} dakika kaldı",
   "@container_list_expiry_hours": {
     "description": "Container expiry in hours and minutes",
     "placeholders": {
@@ -9208,7 +9212,7 @@
       }
     }
   },
-  "container_list_expiry_days": "{days} gün {hours} saat kaldi",
+  "container_list_expiry_days": "{days} gün {hours} saat kaldı",
   "@container_list_expiry_days": {
     "description": "Container expiry in days and hours",
     "placeholders": {
@@ -9220,9 +9224,33 @@
       }
     }
   },
-  "container_deploy_title": "Uygulama Dagit",
+  "container_deploy_title": "Hazır Bot Dağıt",
   "@container_deploy_title": {
     "description": "Title of the deploy container page"
+  },
+  "container_deploy_template_section": "Kullanıma Hazır Şablon",
+  "@container_deploy_template_section": {
+    "description": "Section header for turnkey bot templates"
+  },
+  "container_deploy_managed_hosting": "7/24 Yönetilen Barındırma",
+  "@container_deploy_managed_hosting": {
+    "description": "Subtitle tag on turnkey bot card"
+  },
+  "container_deploy_bot_config_section": "Discord Bot Yapılandırması",
+  "@container_deploy_bot_config_section": {
+    "description": "Section header for bot token config"
+  },
+  "container_deploy_paste_token_hint": "Discord bot belirtecini (token) buraya yapıştırın",
+  "@container_deploy_paste_token_hint": {
+    "description": "Hint text for Discord bot token field"
+  },
+  "container_deploy_discord_prereqs": "Discord Ön Koşulları",
+  "@container_deploy_discord_prereqs": {
+    "description": "Header for Discord prerequisites advice box"
+  },
+  "container_deploy_launch_btn": "Hazır Botu Başlat",
+  "@container_deploy_launch_btn": {
+    "description": "Button to launch the turnkey bot"
   },
   "container_deploy_image_label": "Görüntü",
   "@container_deploy_image_label": {
@@ -9497,7 +9525,7 @@
   "@container_health_starting": {
     "description": "Explains a starting/provisioning health status"
   },
-  "container_hosted_subtitle": "Docker kapsayicilarini dagitin ve yönetin",
+  "container_hosted_subtitle": "Kullanıma hazır botları (müzik vb.) 1 tıkla dağıtın",
   "@container_hosted_subtitle": {
     "description": "Subtitle for the hosted apps card on the home page"
   },
@@ -9505,7 +9533,7 @@
   "@container_premium_badge": {
     "description": "Badge text for premium-gated container feature"
   },
-  "container_detail_title": "Kapsayici {id}",
+  "container_detail_title": "Bot {id}",
   "@container_detail_title": {
     "description": "Title of the container detail page, {id} is the short container ID",
     "placeholders": {
@@ -9514,21 +9542,21 @@
       }
     }
   },
-  "container_list_premium_host_anytime_tooltip": "Premium — istediginiz zaman barindirin",
-  "container_list_premium_host_anytime_fab": "Istediginiz zaman barindirin",
-  "container_list_free_limit_reached": "Ucretsiz limit doldu (1 konteyner). Daha fazlasi icin abone olun.",
-  "container_hosted_premium_host_anytime": "Istediginiz zaman barindirin",
-  "container_hosted_premium_host_anytime_compact": "Abone ol — istediginiz zaman barindirin",
-  "container_hosted_premium_desc": "Docker konteynerlerini sinirsiz barindirin — reklam yok. Abonelik gerekir.",
-  "container_hosted_premium_view_btn": "Planlari gor",
-  "hosted_app_subscription_title": "Barindirilan uygulamalar",
-  "hosted_app_subscription_subtitle": "Reklam izlemeden Docker konteynerlerini bulutta calistirin.",
-  "hosted_app_subscription_benefit_unlimited": "Sinirsiz barindirma suresi",
-  "hosted_app_subscription_benefit_no_ads": "Odullu reklam gerekmez",
-  "hosted_app_subscription_one_app_title": "1 konteyner",
-  "hosted_app_subscription_one_app_desc": "Bir Docker konteynerini istediginiz zaman barindirin",
-  "hosted_app_subscription_two_app_title": "2 konteyner",
-  "hosted_app_subscription_two_app_desc": "En fazla iki Docker konteyneri barindirin",
+  "container_list_premium_host_anytime_tooltip": "Premium — istediğiniz zaman barındırın",
+  "container_list_premium_host_anytime_fab": "İstediğiniz zaman barındırın",
+  "container_list_free_limit_reached": "Ücretsiz limit doldu (1 bot). Daha fazlası için abone olun.",
+  "container_hosted_premium_host_anytime": "İstediğiniz zaman barındırın",
+  "container_hosted_premium_host_anytime_compact": "Abone ol — istediğiniz zaman barındırın",
+  "container_hosted_premium_desc": "Hazır botları 7/24 sınırsız barındırın — reklam yok. Abonelik gerekir.",
+  "container_hosted_premium_view_btn": "Planları gör",
+  "hosted_app_subscription_title": "Hazır Botlar",
+  "hosted_app_subscription_subtitle": "Kullanıma hazır botları bulutta kesintisiz 7/24 barındırın.",
+  "hosted_app_subscription_benefit_unlimited": "Sınırsız barındırma süresi",
+  "hosted_app_subscription_benefit_no_ads": "Ödüllü reklam gerekmez",
+  "hosted_app_subscription_one_app_title": "1 barındırılan bot",
+  "hosted_app_subscription_one_app_desc": "İstediğiniz zaman 1 hazır bot barındırın",
+  "hosted_app_subscription_two_app_title": "2 barındırılan bot",
+  "hosted_app_subscription_two_app_desc": "En fazla iki hazır bot barındırın",
   "hosted_app_subscription_recommended": "En iyi deger",
   "container_hosted_free_title": "Ucretsiz barindirma (en fazla 1 konteyner)",
   "container_hosted_expires_at": "Bitis: {dateTime}",

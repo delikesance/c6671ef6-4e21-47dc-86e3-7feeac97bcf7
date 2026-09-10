@@ -8211,50 +8211,73 @@ class AppLocalizationsTr extends AppLocalizations {
   String get onboarding_command_now => 'İlk komutunu oluştur';
 
   @override
-  String get container_list_title => 'Barindirilan Uygulamalar';
+  String get container_list_title => 'Hazır Botlar';
 
   @override
-  String get container_list_session_missing => 'Oturum kullanilamiyor';
+  String get container_list_session_missing => 'Oturum kullanılamıyor';
 
   @override
-  String get container_list_session_hint => 'Lütfen önce hesabiniza baglanin.';
+  String get container_list_session_hint => 'Lütfen önce hesabınıza bağlanın.';
 
   @override
-  String get container_list_error => 'Kapsayicilar yüklenirken basarisiz oldu';
+  String get container_list_error => 'Botlar yüklenirken başarısız oldu';
 
   @override
   String get container_list_retry => 'Tekrar Dene';
 
   @override
-  String get container_list_empty => 'Barindirilan uygulama yok';
+  String get container_list_empty => 'Hazır bot yok';
 
   @override
   String get container_list_empty_hint =>
-      'Baslamak için ilk uygulamanizi dagitin.';
+      '1 tıkla ilk kullanıma hazır botunuzu dağıtın.';
 
   @override
-  String get container_list_deploy_btn => 'Uygulama Dagit';
+  String get container_list_deploy_btn => 'Hazır Bot Dağıt';
+
+  @override
+  String get container_list_unsupported_badge => 'Desteklenmiyor';
 
   @override
   String get container_list_expired => 'Süresi doldu';
 
   @override
   String container_list_expiry_minutes(int minutes) {
-    return '$minutes dakika kaldi';
+    return '$minutes dakika kaldı';
   }
 
   @override
   String container_list_expiry_hours(int hours, int minutes) {
-    return '$hours saat $minutes dakika kaldi';
+    return '$hours saat $minutes dakika kaldı';
   }
 
   @override
   String container_list_expiry_days(int days, int hours) {
-    return '$days gün $hours saat kaldi';
+    return '$days gün $hours saat kaldı';
   }
 
   @override
-  String get container_deploy_title => 'Uygulama Dagit';
+  String get container_deploy_title => 'Hazır Bot Dağıt';
+
+  @override
+  String get container_deploy_template_section => 'Kullanıma Hazır Şablon';
+
+  @override
+  String get container_deploy_managed_hosting => '7/24 Yönetilen Barındırma';
+
+  @override
+  String get container_deploy_bot_config_section =>
+      'Discord Bot Yapılandırması';
+
+  @override
+  String get container_deploy_paste_token_hint =>
+      'Discord bot belirtecini (token) buraya yapıştırın';
+
+  @override
+  String get container_deploy_discord_prereqs => 'Discord Ön Koşulları';
+
+  @override
+  String get container_deploy_launch_btn => 'Hazır Botu Başlat';
 
   @override
   String get container_deploy_image_label => 'Görüntü';
@@ -8491,70 +8514,70 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get container_hosted_subtitle =>
-      'Docker kapsayicilarini dagitin ve yönetin';
+      'Kullanıma hazır botları (müzik vb.) 1 tıkla dağıtın';
 
   @override
   String get container_premium_badge => 'Premium';
 
   @override
   String container_detail_title(String id) {
-    return 'Kapsayici $id';
+    return 'Bot $id';
   }
 
   @override
   String get container_list_premium_host_anytime_tooltip =>
-      'Premium — istediginiz zaman barindirin';
+      'Premium — istediğiniz zaman barındırın';
 
   @override
   String get container_list_premium_host_anytime_fab =>
-      'Istediginiz zaman barindirin';
+      'İstediğiniz zaman barındırın';
 
   @override
   String get container_list_free_limit_reached =>
-      'Ucretsiz limit doldu (1 konteyner). Daha fazlasi icin abone olun.';
+      'Ücretsiz limit doldu (1 bot). Daha fazlası için abone olun.';
 
   @override
   String get container_hosted_premium_host_anytime =>
-      'Istediginiz zaman barindirin';
+      'İstediğiniz zaman barındırın';
 
   @override
   String get container_hosted_premium_host_anytime_compact =>
-      'Abone ol — istediginiz zaman barindirin';
+      'Abone ol — istediğiniz zaman barındırın';
 
   @override
   String get container_hosted_premium_desc =>
-      'Docker konteynerlerini sinirsiz barindirin — reklam yok. Abonelik gerekir.';
+      'Hazır botları 7/24 sınırsız barındırın — reklam yok. Abonelik gerekir.';
 
   @override
-  String get container_hosted_premium_view_btn => 'Planlari gor';
+  String get container_hosted_premium_view_btn => 'Planları gör';
 
   @override
-  String get hosted_app_subscription_title => 'Barindirilan uygulamalar';
+  String get hosted_app_subscription_title => 'Hazır Botlar';
 
   @override
   String get hosted_app_subscription_subtitle =>
-      'Reklam izlemeden Docker konteynerlerini bulutta calistirin.';
+      'Kullanıma hazır botları bulutta kesintisiz 7/24 barındırın.';
 
   @override
   String get hosted_app_subscription_benefit_unlimited =>
-      'Sinirsiz barindirma suresi';
+      'Sınırsız barındırma süresi';
 
   @override
-  String get hosted_app_subscription_benefit_no_ads => 'Odullu reklam gerekmez';
+  String get hosted_app_subscription_benefit_no_ads => 'Ödüllü reklam gerekmez';
 
   @override
-  String get hosted_app_subscription_one_app_title => '1 konteyner';
+  String get hosted_app_subscription_one_app_title => '1 barındırılan bot';
 
   @override
   String get hosted_app_subscription_one_app_desc =>
-      'Bir Docker konteynerini istediginiz zaman barindirin';
+      'İstediğiniz zaman 1 hazır bot barındırın';
 
   @override
-  String get hosted_app_subscription_two_app_title => '2 konteyner';
+  String get hosted_app_subscription_two_app_title => '2 barındırılan bot';
 
   @override
   String get hosted_app_subscription_two_app_desc =>
-      'En fazla iki Docker konteyneri barindirin';
+      'En fazla iki hazır bot barındırın';
 
   @override
   String get hosted_app_subscription_recommended => 'En iyi deger';

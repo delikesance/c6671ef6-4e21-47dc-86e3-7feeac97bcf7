@@ -7849,7 +7849,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get onboarding_command_now => '最初のコマンドを作成';
 
   @override
-  String get container_list_title => 'ホスト型アプリケーション';
+  String get container_list_title => 'ターンキーBot';
 
   @override
   String get container_list_session_missing => 'セッションが利用できません';
@@ -7858,19 +7858,22 @@ class AppLocalizationsJa extends AppLocalizations {
   String get container_list_session_hint => '最初にアカウントに接続してください。';
 
   @override
-  String get container_list_error => 'コンテナの読み込みに失敗しました';
+  String get container_list_error => 'Botの読み込みに失敗しました';
 
   @override
   String get container_list_retry => '再試行';
 
   @override
-  String get container_list_empty => 'ホスト型アプリケーションはありません';
+  String get container_list_empty => 'ターンキーBotはありません';
 
   @override
-  String get container_list_empty_hint => '開始するには、最初のアプリケーションをデプロイしてください。';
+  String get container_list_empty_hint => '設定不要ですぐに使えるBotを1クリックでデプロイできます。';
 
   @override
-  String get container_list_deploy_btn => 'アプリケーションをデプロイ';
+  String get container_list_deploy_btn => 'ターンキーBotをデプロイ';
+
+  @override
+  String get container_list_unsupported_badge => '非対応';
 
   @override
   String get container_list_expired => '期限切れ';
@@ -7891,7 +7894,25 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get container_deploy_title => 'アプリケーションをデプロイ';
+  String get container_deploy_title => 'ターンキーBotをデプロイ';
+
+  @override
+  String get container_deploy_template_section => 'すぐに使えるテンプレート';
+
+  @override
+  String get container_deploy_managed_hosting => '24時間365日マネージドホスティング';
+
+  @override
+  String get container_deploy_bot_config_section => 'Discord Botの設定';
+
+  @override
+  String get container_deploy_paste_token_hint => 'Discord Botのトークンをここに貼り付け';
+
+  @override
+  String get container_deploy_discord_prereqs => 'Discordの前提条件';
+
+  @override
+  String get container_deploy_launch_btn => 'ターンキーBotを起動';
 
   @override
   String get container_deploy_image_label => 'イメージ';
@@ -8125,14 +8146,14 @@ class AppLocalizationsJa extends AppLocalizations {
   String get container_health_starting => 'Still starting up...';
 
   @override
-  String get container_hosted_subtitle => 'Dockerコンテナのデプロイと管理';
+  String get container_hosted_subtitle => '設定不要のBot（音楽など）を1クリックでデプロイ';
 
   @override
   String get container_premium_badge => 'プレミアム';
 
   @override
   String container_detail_title(String id) {
-    return 'コンテナ $id';
+    return 'Bot $id';
   }
 
   @override
@@ -8143,7 +8164,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get container_list_free_limit_reached =>
-      '無料上限に達しました（コンテナ1つ）。Premiumにアップグレードして追加ホスト。';
+      '無料上限に達しました（Bot 1体）。Premiumにアップグレードして追加ホスト。';
 
   @override
   String get container_hosted_premium_host_anytime => 'いつでもホスト';
@@ -8153,16 +8174,17 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get container_hosted_premium_desc =>
-      'Dockerコンテナを無制限にホスト — 広告不要。サブスク登録で利用できます。';
+      'ターンキーBotを無制限にホスト — 広告不要。サブスク登録で利用できます。';
 
   @override
   String get container_hosted_premium_view_btn => 'プランを見る';
 
   @override
-  String get hosted_app_subscription_title => 'ホストアプリケーション';
+  String get hosted_app_subscription_title => 'ターンキーBot';
 
   @override
-  String get hosted_app_subscription_subtitle => '広告を見ずにDockerコンテナをクラウドで実行。';
+  String get hosted_app_subscription_subtitle =>
+      '設定不要のBotをクラウドで24時間365日中断なくホスト。';
 
   @override
   String get hosted_app_subscription_benefit_unlimited => 'ホスティング時間無制限';
@@ -8171,16 +8193,16 @@ class AppLocalizationsJa extends AppLocalizations {
   String get hosted_app_subscription_benefit_no_ads => 'リワード広告不要';
 
   @override
-  String get hosted_app_subscription_one_app_title => '1コンテナ';
+  String get hosted_app_subscription_one_app_title => '1体のホストBot';
 
   @override
-  String get hosted_app_subscription_one_app_desc => 'Dockerコンテナを1ついつでもホスト';
+  String get hosted_app_subscription_one_app_desc => 'いつでも1体のターンキーBotをホスト';
 
   @override
-  String get hosted_app_subscription_two_app_title => '2コンテナ';
+  String get hosted_app_subscription_two_app_title => '2体のホストBot';
 
   @override
-  String get hosted_app_subscription_two_app_desc => '最大2つのDockerコンテナをホスト';
+  String get hosted_app_subscription_two_app_desc => '最大2体のターンキーBotをホスト';
 
   @override
   String get hosted_app_subscription_recommended => 'おすすめ';
