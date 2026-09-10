@@ -9150,7 +9150,7 @@
   "command_created_sample_success": "/ping-Befehl erstellt! Er antwortet \"Pong!\"",
   "onboarding_create_now": "Bot jetzt erstellen",
   "onboarding_command_now": "Erstelle deinen ersten Befehl",
-  "container_list_title": "Gehostete Anwendungen",
+  "container_list_title": "Turnkey-Bots",
   "@container_list_title": {
     "description": "Title of the container list page"
   },
@@ -9162,7 +9162,7 @@
   "@container_list_session_hint": {
     "description": "Hint below the session error"
   },
-  "container_list_error": "Fehler beim Laden der Container",
+  "container_list_error": "Fehler beim Laden der Bots",
   "@container_list_error": {
     "description": "Error message when container list fails to load"
   },
@@ -9170,17 +9170,21 @@
   "@container_list_retry": {
     "description": "Retry button label"
   },
-  "container_list_empty": "Keine gehosteten Anwendungen",
+  "container_list_empty": "Keine Turnkey-Bots",
   "@container_list_empty": {
     "description": "Empty state title"
   },
-  "container_list_empty_hint": "Stellen Sie Ihre erste Anwendung bereit, um loszulegen.",
+  "container_list_empty_hint": "Stellen Sie Ihren ersten einsatzbereiten Bot mit 1 Klick bereit.",
   "@container_list_empty_hint": {
     "description": "Empty state description"
   },
-  "container_list_deploy_btn": "Anwendung bereitstellen",
+  "container_list_deploy_btn": "Turnkey-Bot bereitstellen",
   "@container_list_deploy_btn": {
     "description": "Button to deploy a new container"
+  },
+  "container_list_unsupported_badge": "Nicht unterstützt",
+  "@container_list_unsupported_badge": {
+    "description": "Badge shown on legacy custom containers"
   },
   "container_list_expired": "Abgelaufen",
   "@container_list_expired": {
@@ -9219,9 +9223,33 @@
       }
     }
   },
-  "container_deploy_title": "Anwendung bereitstellen",
+  "container_deploy_title": "Turnkey-Bot bereitstellen",
   "@container_deploy_title": {
     "description": "Title of the deploy container page"
+  },
+  "container_deploy_template_section": "Einsatzbereite Vorlage",
+  "@container_deploy_template_section": {
+    "description": "Section header for turnkey bot templates"
+  },
+  "container_deploy_managed_hosting": "24/7 Verwaltetes Hosting",
+  "@container_deploy_managed_hosting": {
+    "description": "Subtitle tag on turnkey bot card"
+  },
+  "container_deploy_bot_config_section": "Discord-Bot-Konfiguration",
+  "@container_deploy_bot_config_section": {
+    "description": "Section header for bot token config"
+  },
+  "container_deploy_paste_token_hint": "Discord-Bot-Token hier einfügen",
+  "@container_deploy_paste_token_hint": {
+    "description": "Hint text for Discord bot token field"
+  },
+  "container_deploy_discord_prereqs": "Discord-Voraussetzungen",
+  "@container_deploy_discord_prereqs": {
+    "description": "Header for Discord prerequisites advice box"
+  },
+  "container_deploy_launch_btn": "Turnkey-Bot starten",
+  "@container_deploy_launch_btn": {
+    "description": "Button to launch the turnkey bot"
   },
   "container_deploy_image_label": "Image",
   "@container_deploy_image_label": {
@@ -9496,7 +9524,7 @@
   "@container_health_starting": {
     "description": "Explains a starting/provisioning health status"
   },
-  "container_hosted_subtitle": "Docker-Container bereitstellen und verwalten",
+  "container_hosted_subtitle": "Einsatzbereite Bots (Musik usw.) mit 1 Klick bereitstellen",
   "@container_hosted_subtitle": {
     "description": "Subtitle for the hosted apps card on the home page"
   },
@@ -9504,7 +9532,7 @@
   "@container_premium_badge": {
     "description": "Badge text for premium-gated container feature"
   },
-  "container_detail_title": "Container {id}",
+  "container_detail_title": "Bot {id}",
   "@container_detail_title": {
     "description": "Title of the container detail page, {id} is the short container ID",
     "placeholders": {
@@ -9515,19 +9543,19 @@
   },
   "container_list_premium_host_anytime_tooltip": "Premium — jederzeit hosten",
   "container_list_premium_host_anytime_fab": "Jederzeit hosten",
-  "container_list_free_limit_reached": "Kostenloses Limit erreicht (1 Container). Abonnieren Sie, um mehr zu hosten.",
+  "container_list_free_limit_reached": "Kostenloses Limit erreicht (1 Bot). Abonnieren Sie, um mehr zu hosten.",
   "container_hosted_premium_host_anytime": "Jederzeit hosten",
   "container_hosted_premium_host_anytime_compact": "Abonnieren — jederzeit hosten",
-  "container_hosted_premium_desc": "Abonnieren Sie, um Docker-Container ohne Limit zu hosten — ohne Werbung.",
+  "container_hosted_premium_desc": "Abonnieren Sie, um Turnkey-Bots 24/7 zu hosten — ohne Werbung.",
   "container_hosted_premium_view_btn": "Angebote ansehen",
-  "hosted_app_subscription_title": "Gehostete Anwendungen",
-  "hosted_app_subscription_subtitle": "Docker-Container in der Cloud betreiben — ohne Werbung.",
+  "hosted_app_subscription_title": "Turnkey-Bots",
+  "hosted_app_subscription_subtitle": "Hosten Sie einsatzbereite Bots in der Cloud 24/7 ohne Unterbrechung.",
   "hosted_app_subscription_benefit_unlimited": "Unbegrenzte Hosting-Zeit",
   "hosted_app_subscription_benefit_no_ads": "Keine belohnten Werbungen nötig",
-  "hosted_app_subscription_one_app_title": "1 Container",
-  "hosted_app_subscription_one_app_desc": "Einen Docker-Container jederzeit hosten",
-  "hosted_app_subscription_two_app_title": "2 Container",
-  "hosted_app_subscription_two_app_desc": "Bis zu zwei Docker-Container hosten",
+  "hosted_app_subscription_one_app_title": "1 gehosteter Bot",
+  "hosted_app_subscription_one_app_desc": "Einen Turnkey-Bot jederzeit hosten",
+  "hosted_app_subscription_two_app_title": "2 gehostete Bots",
+  "hosted_app_subscription_two_app_desc": "Bis zu zwei Turnkey-Bots hosten",
   "hosted_app_subscription_recommended": "Bestes Angebot",
   "container_hosted_free_title": "Kostenloses Hosting (max. 1 Container)",
   "container_hosted_expires_at": "Läuft ab am {dateTime}",

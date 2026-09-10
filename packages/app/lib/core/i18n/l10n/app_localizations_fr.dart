@@ -8320,6 +8320,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get container_list_deploy_btn => 'Déployer un Bot Clé en main';
 
   @override
+  String get container_list_unsupported_badge => 'Non supporté';
+
+  @override
   String get container_list_expired => 'Expiré';
 
   @override
@@ -8338,7 +8341,26 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get container_deploy_title => 'Déployer une Application';
+  String get container_deploy_title => 'Déployer un Bot Clé en main';
+
+  @override
+  String get container_deploy_template_section => 'Modèle prêt à l\'emploi';
+
+  @override
+  String get container_deploy_managed_hosting => 'Hébergement managé 24/7';
+
+  @override
+  String get container_deploy_bot_config_section =>
+      'Configuration du Bot Discord';
+
+  @override
+  String get container_deploy_paste_token_hint => 'Collez le token Discord ici';
+
+  @override
+  String get container_deploy_discord_prereqs => 'Prérequis Discord';
+
+  @override
+  String get container_deploy_launch_btn => 'Lancer le bot clé en main';
 
   @override
   String get container_deploy_image_label => 'Image';

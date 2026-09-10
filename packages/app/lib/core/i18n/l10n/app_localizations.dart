@@ -14332,6 +14332,12 @@ abstract class AppLocalizations {
   /// **'Deploy Turnkey Bot'**
   String get container_list_deploy_btn;
 
+  /// Badge shown on legacy custom containers
+  ///
+  /// In en, this message translates to:
+  /// **'Unsupported'**
+  String get container_list_unsupported_badge;
+
   /// Label when a container has expired
   ///
   /// In en, this message translates to:
@@ -14359,8 +14365,44 @@ abstract class AppLocalizations {
   /// Title of the deploy container page
   ///
   /// In en, this message translates to:
-  /// **'Deploy Application'**
+  /// **'Deploy Turnkey Bot'**
   String get container_deploy_title;
+
+  /// Section header for turnkey bot templates
+  ///
+  /// In en, this message translates to:
+  /// **'Ready-to-use Template'**
+  String get container_deploy_template_section;
+
+  /// Subtitle tag on turnkey bot card
+  ///
+  /// In en, this message translates to:
+  /// **'24/7 Managed Hosting'**
+  String get container_deploy_managed_hosting;
+
+  /// Section header for bot token config
+  ///
+  /// In en, this message translates to:
+  /// **'Discord Bot Configuration'**
+  String get container_deploy_bot_config_section;
+
+  /// Hint text for Discord bot token field
+  ///
+  /// In en, this message translates to:
+  /// **'Paste Discord bot token here'**
+  String get container_deploy_paste_token_hint;
+
+  /// Header for Discord prerequisites advice box
+  ///
+  /// In en, this message translates to:
+  /// **'Discord Prerequisites'**
+  String get container_deploy_discord_prereqs;
+
+  /// Button to launch the turnkey bot
+  ///
+  /// In en, this message translates to:
+  /// **'Launch Turnkey Bot'**
+  String get container_deploy_launch_btn;
 
   /// Label for the Docker image field
   ///

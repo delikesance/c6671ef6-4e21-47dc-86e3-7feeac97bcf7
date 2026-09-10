@@ -8260,7 +8260,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get onboarding_command_now => 'Crie seu primeiro comando';
 
   @override
-  String get container_list_title => 'Aplicações Hospedadas';
+  String get container_list_title => 'Bots Prontos para Uso';
 
   @override
   String get container_list_session_missing => 'Sessão indisponível';
@@ -8270,20 +8270,23 @@ class AppLocalizationsPt extends AppLocalizations {
       'Por favor, conecte-se à sua conta primeiro.';
 
   @override
-  String get container_list_error => 'Falha ao carregar contêineres';
+  String get container_list_error => 'Falha ao carregar bots';
 
   @override
   String get container_list_retry => 'Tentar novamente';
 
   @override
-  String get container_list_empty => 'Nenhuma aplicação hospedada';
+  String get container_list_empty => 'Nenhum bot pronto para uso';
 
   @override
   String get container_list_empty_hint =>
-      'Implante sua primeira aplicação para começar.';
+      'Implante seu primeiro bot pronto para uso em 1 clique.';
 
   @override
-  String get container_list_deploy_btn => 'Implantar Aplicação';
+  String get container_list_deploy_btn => 'Implantar Bot Pronto para Uso';
+
+  @override
+  String get container_list_unsupported_badge => 'Não suportado';
 
   @override
   String get container_list_expired => 'Expirado';
@@ -8304,7 +8307,27 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String get container_deploy_title => 'Implantar Aplicação';
+  String get container_deploy_title => 'Implantar Bot Pronto para Uso';
+
+  @override
+  String get container_deploy_template_section => 'Modelo Pronto para Uso';
+
+  @override
+  String get container_deploy_managed_hosting => 'Hospedagem Gerenciada 24/7';
+
+  @override
+  String get container_deploy_bot_config_section =>
+      'Configuração do Bot do Discord';
+
+  @override
+  String get container_deploy_paste_token_hint =>
+      'Cole o token do bot do Discord aqui';
+
+  @override
+  String get container_deploy_discord_prereqs => 'Pré-requisitos do Discord';
+
+  @override
+  String get container_deploy_launch_btn => 'Iniciar Bot Pronto para Uso';
 
   @override
   String get container_deploy_image_label => 'Imagem';
@@ -8541,14 +8564,14 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get container_hosted_subtitle =>
-      'Implante e gerencie contêineres Docker';
+      'Implante bots prontos para uso (música, etc.) em 1 clique';
 
   @override
   String get container_premium_badge => 'Premium';
 
   @override
   String container_detail_title(String id) {
-    return 'Contêiner $id';
+    return 'Bot $id';
   }
 
   @override
@@ -8561,7 +8584,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get container_list_free_limit_reached =>
-      'Limite gratuito atingido (1 contêiner). Assine para hospedar mais.';
+      'Limite gratuito atingido (1 bot). Assine para hospedar mais.';
 
   @override
   String get container_hosted_premium_host_anytime =>
@@ -8573,17 +8596,17 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get container_hosted_premium_desc =>
-      'Assine para hospedar contêineres Docker sem limite — sem anúncios.';
+      'Assine para hospedar bots prontos para uso 24/7 — sem anúncios.';
 
   @override
   String get container_hosted_premium_view_btn => 'Ver planos';
 
   @override
-  String get hosted_app_subscription_title => 'Aplicações hospedadas';
+  String get hosted_app_subscription_title => 'Bots Prontos para Uso';
 
   @override
   String get hosted_app_subscription_subtitle =>
-      'Execute contêineres Docker na nuvem sem ver anúncios.';
+      'Hospede bots prontos para uso na nuvem 24/7 sem interrupções.';
 
   @override
   String get hosted_app_subscription_benefit_unlimited =>
@@ -8594,18 +8617,18 @@ class AppLocalizationsPt extends AppLocalizations {
       'Sem anúncios recompensados';
 
   @override
-  String get hosted_app_subscription_one_app_title => '1 contêiner';
+  String get hosted_app_subscription_one_app_title => '1 bot hospedado';
 
   @override
   String get hosted_app_subscription_one_app_desc =>
-      'Hospede um contêiner Docker a qualquer momento';
+      'Hospede um bot pronto para uso a qualquer momento';
 
   @override
-  String get hosted_app_subscription_two_app_title => '2 contêineres';
+  String get hosted_app_subscription_two_app_title => '2 bots hospedados';
 
   @override
   String get hosted_app_subscription_two_app_desc =>
-      'Hospede até dois contêineres Docker';
+      'Hospede até dois bots prontos para uso';
 
   @override
   String get hosted_app_subscription_recommended => 'Melhor valor';

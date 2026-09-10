@@ -8181,6 +8181,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get container_list_deploy_btn => 'Deploy Turnkey Bot';
 
   @override
+  String get container_list_unsupported_badge => 'Unsupported';
+
+  @override
   String get container_list_expired => 'Expired';
 
   @override
@@ -8199,7 +8202,26 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get container_deploy_title => 'Deploy Application';
+  String get container_deploy_title => 'Deploy Turnkey Bot';
+
+  @override
+  String get container_deploy_template_section => 'Ready-to-use Template';
+
+  @override
+  String get container_deploy_managed_hosting => '24/7 Managed Hosting';
+
+  @override
+  String get container_deploy_bot_config_section => 'Discord Bot Configuration';
+
+  @override
+  String get container_deploy_paste_token_hint =>
+      'Paste Discord bot token here';
+
+  @override
+  String get container_deploy_discord_prereqs => 'Discord Prerequisites';
+
+  @override
+  String get container_deploy_launch_btn => 'Launch Turnkey Bot';
 
   @override
   String get container_deploy_image_label => 'Image';

@@ -378,7 +378,7 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Déployer un Bot Clé en main'),
+        title: Text(context.tr.container_deploy_title),
       ),
       body: SafeArea(
         child: Form(
@@ -390,7 +390,7 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
 
               // Modèles de bots prêts à l'emploi
               Text(
-                'Modèle prêt à l\'emploi',
+                context.tr.container_deploy_template_section,
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -442,14 +442,16 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      template.title,
+                                      template.id == HostedAppTemplateId.easyMusic
+                                          ? context.tr.container_deploy_template_easy_music
+                                          : template.title,
                                       style: theme.textTheme.titleSmall?.copyWith(
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
-                                      'Hébergement managé 24/7',
+                                      context.tr.container_deploy_managed_hosting,
                                       style: TextStyle(
                                         color: colorScheme.onSurfaceVariant,
                                         fontSize: 12,
@@ -467,7 +469,9 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            template.description,
+                            template.id == HostedAppTemplateId.easyMusic
+                                ? context.tr.container_deploy_easy_music_hint
+                                : template.description,
                             style: TextStyle(
                               color: colorScheme.onSurfaceVariant,
                               fontSize: 13,
@@ -485,7 +489,7 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
 
               // Configuration du Token Discord
               Text(
-                'Configuration du Bot Discord',
+                context.tr.container_deploy_bot_config_section,
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -521,7 +525,7 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
                 obscureText: _obscureBotToken,
                 decoration: InputDecoration(
                   labelText: context.tr.app_bot_token,
-                  hintText: 'Collez le token Discord ici',
+                  hintText: context.tr.container_deploy_paste_token_hint,
                   prefixIcon: const Icon(Icons.key_outlined),
                   suffixIcon: IconButton(
                     icon: Icon(
@@ -567,7 +571,7 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            'Prérequis Discord',
+                            context.tr.container_deploy_discord_prereqs,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 13,
@@ -628,7 +632,7 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
                 label: Text(
                   _deploying
                       ? context.tr.container_deploy_submitting
-                      : 'Lancer le bot clé en main',
+                      : context.tr.container_deploy_launch_btn,
                 ),
               ),
             ],

@@ -9184,7 +9184,7 @@
   "command_created_sample_success": "Comando /ping criado! Ele responde \"Pong!\"",
   "onboarding_create_now": "Criar meu bot agora",
   "onboarding_command_now": "Crie seu primeiro comando",
-  "container_list_title": "Aplicações Hospedadas",
+  "container_list_title": "Bots Prontos para Uso",
   "@container_list_title": {
     "description": "Title of the container list page"
   },
@@ -9196,7 +9196,7 @@
   "@container_list_session_hint": {
     "description": "Hint below the session error"
   },
-  "container_list_error": "Falha ao carregar contêineres",
+  "container_list_error": "Falha ao carregar bots",
   "@container_list_error": {
     "description": "Error message when container list fails to load"
   },
@@ -9204,17 +9204,21 @@
   "@container_list_retry": {
     "description": "Retry button label"
   },
-  "container_list_empty": "Nenhuma aplicação hospedada",
+  "container_list_empty": "Nenhum bot pronto para uso",
   "@container_list_empty": {
     "description": "Empty state title"
   },
-  "container_list_empty_hint": "Implante sua primeira aplicação para começar.",
+  "container_list_empty_hint": "Implante seu primeiro bot pronto para uso em 1 clique.",
   "@container_list_empty_hint": {
     "description": "Empty state description"
   },
-  "container_list_deploy_btn": "Implantar Aplicação",
+  "container_list_deploy_btn": "Implantar Bot Pronto para Uso",
   "@container_list_deploy_btn": {
     "description": "Button to deploy a new container"
+  },
+  "container_list_unsupported_badge": "Não suportado",
+  "@container_list_unsupported_badge": {
+    "description": "Badge shown on legacy custom containers"
   },
   "container_list_expired": "Expirado",
   "@container_list_expired": {
@@ -9253,9 +9257,33 @@
       }
     }
   },
-  "container_deploy_title": "Implantar Aplicação",
+  "container_deploy_title": "Implantar Bot Pronto para Uso",
   "@container_deploy_title": {
     "description": "Title of the deploy container page"
+  },
+  "container_deploy_template_section": "Modelo Pronto para Uso",
+  "@container_deploy_template_section": {
+    "description": "Section header for turnkey bot templates"
+  },
+  "container_deploy_managed_hosting": "Hospedagem Gerenciada 24/7",
+  "@container_deploy_managed_hosting": {
+    "description": "Subtitle tag on turnkey bot card"
+  },
+  "container_deploy_bot_config_section": "Configuração do Bot do Discord",
+  "@container_deploy_bot_config_section": {
+    "description": "Section header for bot token config"
+  },
+  "container_deploy_paste_token_hint": "Cole o token do bot do Discord aqui",
+  "@container_deploy_paste_token_hint": {
+    "description": "Hint text for Discord bot token field"
+  },
+  "container_deploy_discord_prereqs": "Pré-requisitos do Discord",
+  "@container_deploy_discord_prereqs": {
+    "description": "Header for Discord prerequisites advice box"
+  },
+  "container_deploy_launch_btn": "Iniciar Bot Pronto para Uso",
+  "@container_deploy_launch_btn": {
+    "description": "Button to launch the turnkey bot"
   },
   "container_deploy_image_label": "Imagem",
   "@container_deploy_image_label": {
@@ -9530,7 +9558,7 @@
   "@container_health_starting": {
     "description": "Explains a starting/provisioning health status"
   },
-  "container_hosted_subtitle": "Implante e gerencie contêineres Docker",
+  "container_hosted_subtitle": "Implante bots prontos para uso (música, etc.) em 1 clique",
   "@container_hosted_subtitle": {
     "description": "Subtitle for the hosted apps card on the home page"
   },
@@ -9538,7 +9566,7 @@
   "@container_premium_badge": {
     "description": "Badge text for premium-gated container feature"
   },
-  "container_detail_title": "Contêiner {id}",
+  "container_detail_title": "Bot {id}",
   "@container_detail_title": {
     "description": "Title of the container detail page, {id} is the short container ID",
     "placeholders": {
@@ -9549,19 +9577,19 @@
   },
   "container_list_premium_host_anytime_tooltip": "Premium — hospede a qualquer momento",
   "container_list_premium_host_anytime_fab": "Hospedar a qualquer momento",
-  "container_list_free_limit_reached": "Limite gratuito atingido (1 contêiner). Assine para hospedar mais.",
+  "container_list_free_limit_reached": "Limite gratuito atingido (1 bot). Assine para hospedar mais.",
   "container_hosted_premium_host_anytime": "Hospede a qualquer momento",
   "container_hosted_premium_host_anytime_compact": "Assinar — hospede a qualquer momento",
-  "container_hosted_premium_desc": "Assine para hospedar contêineres Docker sem limite — sem anúncios.",
+  "container_hosted_premium_desc": "Assine para hospedar bots prontos para uso 24/7 — sem anúncios.",
   "container_hosted_premium_view_btn": "Ver planos",
-  "hosted_app_subscription_title": "Aplicações hospedadas",
-  "hosted_app_subscription_subtitle": "Execute contêineres Docker na nuvem sem ver anúncios.",
+  "hosted_app_subscription_title": "Bots Prontos para Uso",
+  "hosted_app_subscription_subtitle": "Hospede bots prontos para uso na nuvem 24/7 sem interrupções.",
   "hosted_app_subscription_benefit_unlimited": "Tempo de hospedagem ilimitado",
   "hosted_app_subscription_benefit_no_ads": "Sem anúncios recompensados",
-  "hosted_app_subscription_one_app_title": "1 contêiner",
-  "hosted_app_subscription_one_app_desc": "Hospede um contêiner Docker a qualquer momento",
-  "hosted_app_subscription_two_app_title": "2 contêineres",
-  "hosted_app_subscription_two_app_desc": "Hospede até dois contêineres Docker",
+  "hosted_app_subscription_one_app_title": "1 bot hospedado",
+  "hosted_app_subscription_one_app_desc": "Hospede um bot pronto para uso a qualquer momento",
+  "hosted_app_subscription_two_app_title": "2 bots hospedados",
+  "hosted_app_subscription_two_app_desc": "Hospede até dois bots prontos para uso",
   "hosted_app_subscription_recommended": "Melhor valor",
   "container_hosted_free_title": "Hospedagem gratuita (máx. 1 contêiner)",
   "container_hosted_expires_at": "Expira em {dateTime}",

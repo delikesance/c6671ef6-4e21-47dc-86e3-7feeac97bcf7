@@ -219,10 +219,10 @@ class _ContainerListPageState extends State<ContainerListPage> {
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             Icon(Icons.smart_toy_outlined, size: 64, color: colorScheme.primary),
             const SizedBox(height: 16),
-            Text('Aucun bot clé en main', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+            Text(tr.container_list_empty, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Text(
-              'Déployez un bot prêt à l\'emploi (musique, etc.) hébergé 24/7 en 1 clic sans aucune configuration technique.',
+              tr.container_list_empty_hint,
               style: TextStyle(color: colorScheme.onSurfaceVariant),
               textAlign: TextAlign.center,
             ),
@@ -230,7 +230,7 @@ class _ContainerListPageState extends State<ContainerListPage> {
             FilledButton.icon(
               onPressed: _openDeploy,
               icon: const Icon(Icons.rocket_launch_rounded),
-              label: const Text('Déployer un bot clé en main'),
+              label: Text(tr.container_list_deploy_btn),
             ),
           ]),
         ),
@@ -251,7 +251,9 @@ class _ContainerListPageState extends State<ContainerListPage> {
           }
           final c = _containers![index - (_atFreeContainerLimit ? 1 : 0)];
           final template = templateForImage(c.image);
-          final title = template?.title ?? (c.image.toLowerCase().contains('beatdock') ? 'Bot Musique' : c.image);
+          final title = (template?.id == HostedAppTemplateId.easyMusic || c.image.toLowerCase().contains('beatdock'))
+              ? tr.container_deploy_template_easy_music
+              : (template?.title ?? c.image);
           final icon = template?.icon ?? (c.image.toLowerCase().contains('beatdock') ? Icons.music_note_rounded : Icons.smart_toy_outlined);
           final isLegacyCustom = template == null && !c.image.toLowerCase().contains('beatdock');
 
@@ -298,9 +300,9 @@ class _ContainerListPageState extends State<ContainerListPage> {
                                   color: Colors.red.withValues(alpha: 0.12),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
-                                child: const Text(
-                                  'Non supporté',
-                                  style: TextStyle(color: Colors.red, fontSize: 10, fontWeight: FontWeight.bold),
+                                child: Text(
+                                  tr.container_list_unsupported_badge,
+                                  style: const TextStyle(color: Colors.red, fontSize: 10, fontWeight: FontWeight.bold),
                                 ),
                               ),
                             ],
