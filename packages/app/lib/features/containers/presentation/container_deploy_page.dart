@@ -8,10 +8,7 @@ import 'package:bot_creator/features/containers/logic/hosted_app_hosting_actions
 import 'package:bot_creator/features/containers/logic/hosted_app_templates.dart';
 import 'package:bot_creator/features/containers/presentation/container_detail_page.dart';
 import 'package:bot_creator/features/containers/presentation/hosted_app_upsell_widgets.dart';
-import 'package:bot_creator/features/containers/presentation/registry_credentials_page.dart';
 import 'package:flutter/material.dart';
-
-const kDefaultHostedAppImage = kEasyMusicBotImage;
 
 /// Reason the Deploy button is currently disabled, derived from the latest
 /// [HostedAppEligibility] snapshot. Drives which banner/snackbar copy is shown.
@@ -43,32 +40,18 @@ class ContainerDeployPage extends StatefulWidget {
 
 class _ContainerDeployPageState extends State<ContainerDeployPage> {
   final _formKey = GlobalKey<FormState>();
-  final _imageCtrl = TextEditingController(text: kDefaultHostedAppImage);
   final _botTokenCtrl = TextEditingController();
-  final _envKeyCtrl = TextEditingController();
-  final _envValCtrl = TextEditingController();
-  final _registryUserCtrl = TextEditingController();
-  final _registryPassCtrl = TextEditingController();
-  final _saveRegistryLabelCtrl = TextEditingController();
 
-  final List<MapEntry<String, String>> _envVars = [];
-  HostedAppTemplateId _templateId = HostedAppTemplateId.easyMusic;
+  HostedAppTemplate _selectedTemplate = easyMusicBotTemplate;
   List<Map<String, dynamic>> _localBots = const [];
   String? _selectedBotId;
   bool _obscureBotToken = true;
   bool _deploying = false;
   bool _claimingAd = false;
   bool _loadingEligibility = true;
-  bool _loadingCredentials = false;
-  bool _privateImage = false;
-  bool _useInlineCredentials = false;
-  bool _saveRegistryAuth = false;
-  bool _obscureRegistryPassword = true;
   MainApiClient? _client;
   HostedAppEligibility? _eligibility;
   String? _ownerId;
-  List<RegistryCredential> _registryCredentials = const [];
-  String? _selectedCredentialId;
 
   @override
   void initState() {
@@ -95,8 +78,6 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
     }
     await _refreshEligibility();
     if (!mounted) return;
-    await _loadRegistryCredentials();
-    if (!mounted) return;
     await _loadLocalBots();
   }
 
@@ -122,24 +103,6 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
     } catch (_) {}
   }
 
-  bool get _isEasyMusicTemplate =>
-      _templateId == HostedAppTemplateId.easyMusic;
-
-  void _applyTemplate(HostedAppTemplateId templateId) {
-    final template = templateFor(templateId);
-    setState(() {
-      _templateId = templateId;
-      _privateImage = template.requiresPrivateRegistry;
-      if (template.image.isNotEmpty) {
-        _imageCtrl.text = template.image;
-      }
-      if (templateId != HostedAppTemplateId.easyMusic) {
-        _botTokenCtrl.clear();
-        _selectedBotId = null;
-      }
-    });
-  }
-
   Future<void> _fillTokenFromBot(String? botId) async {
     if (botId == null || botId.isEmpty) {
       setState(() {
@@ -148,31 +111,17 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
       });
       return;
     }
-    final bot = _localBots.firstWhere(
+    final match = _localBots.firstWhere(
       (b) => b['id'] == botId,
       orElse: () => const {},
     );
-    final token = bot['token']?.toString() ?? '';
+    final token = match['token']?.toString() ?? '';
     setState(() {
       _selectedBotId = botId;
-      _botTokenCtrl.text = token;
-    });
-  }
-
-  Future<void> _loadRegistryCredentials() async {
-    if (_client == null || !mounted) return;
-    setState(() => _loadingCredentials = true);
-    try {
-      final creds = await _client!.listRegistryCredentials();
-      if (mounted) {
-        setState(() {
-          _registryCredentials = creds;
-          _loadingCredentials = false;
-        });
+      if (token.isNotEmpty) {
+        _botTokenCtrl.text = token;
       }
-    } catch (_) {
-      if (mounted) setState(() => _loadingCredentials = false);
-    }
+    });
   }
 
   Future<void> _refreshEligibility() async {
@@ -180,7 +129,6 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
       if (mounted) setState(() => _loadingEligibility = false);
       return;
     }
-    if (!mounted) return;
     setState(() => _loadingEligibility = true);
     try {
       final elig = await _client!.getHostedAppEligibility();
@@ -191,89 +139,41 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
         });
       }
     } catch (_) {
-      if (mounted) {
-        setState(() {
-          _eligibility = null;
-          _loadingEligibility = false;
-        });
-      }
+      if (mounted) setState(() => _loadingEligibility = false);
     }
-  }
-
-  bool get _canDeploy => _eligibility?.canDeploy ?? false;
-
-  _DeployBlockReason get _blockReason {
-    if (_loadingEligibility) return _DeployBlockReason.loading;
-    final elig = _eligibility;
-    if (elig == null) return _DeployBlockReason.eligibilityError;
-    if (elig.canDeploy) return _DeployBlockReason.none;
-    if (elig.isBlockedByContainerLimit ||
-        elig.activeContainers >= elig.maxContainers) {
-      return _DeployBlockReason.containerLimit;
-    }
-    if (elig.isBlockedByNoMinutes ||
-        (!elig.premium && elig.hostingMinutesBalance <= 0)) {
-      return _DeployBlockReason.noMinutes;
-    }
-    return _DeployBlockReason.none;
-  }
-
-  @override
-  void dispose() {
-    _imageCtrl.dispose();
-    _botTokenCtrl.dispose();
-    _envKeyCtrl.dispose();
-    _envValCtrl.dispose();
-    _registryUserCtrl.dispose();
-    _registryPassCtrl.dispose();
-    _saveRegistryLabelCtrl.dispose();
-    super.dispose();
-  }
-
-  void _addEnvVar() {
-    final key = _envKeyCtrl.text.trim();
-    final val = _envValCtrl.text.trim();
-    if (key.isEmpty) return;
-    setState(() => _envVars.add(MapEntry(key, val)));
-    _envKeyCtrl.clear();
-    _envValCtrl.clear();
   }
 
   Future<void> _watchAdForHostingMinutes() async {
     if (_client == null || _claimingAd) return;
-
     setState(() => _claimingAd = true);
     try {
       final result = await HostedAppHostingActions.watchAdAndClaim(
         client: _client!,
         ownerId: _ownerId,
-        placement: 'hosted_app_deploy',
+        placement: 'turnkey_bot_deploy',
       );
-      await _refreshEligibility();
-
-      if (mounted && result != null) {
-        if (_blockReason == _DeployBlockReason.containerLimit) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                context.tr.container_deploy_ad_slot_full(result.grantedMinutes),
-              ),
-              backgroundColor: Colors.orange,
+      if (result != null && mounted) {
+        await _refreshEligibility();
+        if (!mounted) return;
+        final tr = context.tr;
+        final elig = _eligibility;
+        final isSlotFull =
+            elig != null &&
+            !elig.premium &&
+            elig.activeContainers >= elig.maxContainers;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              isSlotFull
+                  ? tr.container_deploy_ad_slot_full(result.grantedMinutes)
+                  : tr.container_deploy_ad_unlock_success(
+                      result.grantedMinutes,
+                      result.hostingMinutesBalance,
+                    ),
             ),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                context.tr.container_deploy_ad_unlock_success(
-                  result.grantedMinutes,
-                  result.hostingMinutesBalance,
-                ),
-              ),
-              backgroundColor: Colors.green,
-            ),
-          );
-        }
+            backgroundColor: isSlotFull ? Colors.orange : Colors.green,
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -289,101 +189,76 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
     }
   }
 
-  Future<void> _deploy() async {
-    if (!_formKey.currentState!.validate()) return;
-    if (_client == null) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(context.tr.container_deploy_not_auth),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-      return;
+  _DeployBlockReason get _blockReason {
+    if (_loadingEligibility) return _DeployBlockReason.loading;
+    final elig = _eligibility;
+    if (elig == null) return _DeployBlockReason.eligibilityError;
+    if (!elig.premium && elig.activeContainers >= elig.maxContainers) {
+      return _DeployBlockReason.containerLimit;
     }
-    if (!_canDeploy) {
-      if (mounted) {
-        final tr = context.tr;
-        final message = switch (_blockReason) {
-          _DeployBlockReason.containerLimit =>
-            tr.container_deploy_blocked_container_limit,
-          _DeployBlockReason.noMinutes =>
-            tr.container_deploy_blocked_no_minutes,
-          _DeployBlockReason.eligibilityError =>
-            tr.container_deploy_blocked_eligibility_error,
-          _DeployBlockReason.loading || _DeployBlockReason.none =>
-            tr.container_deploy_requires_premium_or_ad,
-        };
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message), backgroundColor: Colors.orange),
-        );
-      }
+    if (!elig.premium && elig.hostingMinutesBalance <= 0) {
+      return _DeployBlockReason.noMinutes;
+    }
+    return _DeployBlockReason.none;
+  }
+
+  bool get _canDeploy => _blockReason == _DeployBlockReason.none;
+
+  Future<void> _deploy() async {
+    if (_client == null) return;
+    if (!_formKey.currentState!.validate()) return;
+
+    final token = _botTokenCtrl.text.trim();
+    if (token.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.tr.container_deploy_bot_token_required),
+          backgroundColor: Colors.red,
+        ),
+      );
       return;
     }
 
-    if (_isEasyMusicTemplate) {
-      final token = _botTokenCtrl.text.trim();
-      if (token.isEmpty) {
-        if (mounted) {
+    final reason = _blockReason;
+    if (reason != _DeployBlockReason.none) {
+      final tr = context.tr;
+      switch (reason) {
+        case _DeployBlockReason.containerLimit:
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(context.tr.container_deploy_bot_token_required),
+              content: Text(tr.container_deploy_blocked_container_limit),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        case _DeployBlockReason.noMinutes:
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(tr.container_deploy_blocked_no_minutes),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        case _DeployBlockReason.eligibilityError:
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(tr.container_deploy_blocked_eligibility_error),
               backgroundColor: Colors.red,
             ),
           );
-        }
-        return;
+        case _DeployBlockReason.loading:
+        case _DeployBlockReason.none:
+          break;
       }
+      return;
     }
 
     setState(() => _deploying = true);
     try {
-      final image = _imageCtrl.text.trim();
-      final env = {for (final e in _envVars) e.key: e.value};
-      if (_isEasyMusicTemplate) {
-        env['TOKEN'] = _botTokenCtrl.text.trim();
-      }
-
-      String? registryCredentialId;
-      RegistryAuthInput? registryAuth;
-      var saveRegistryAuth = false;
-      String? saveRegistryLabel;
-
-      if (_privateImage) {
-        if (_useInlineCredentials) {
-          final username = _registryUserCtrl.text.trim();
-          final password = _registryPassCtrl.text;
-          if (username.isEmpty || password.isEmpty) {
-            throw Exception(context.tr.container_deploy_registry_auth_required);
-          }
-          registryAuth = RegistryAuthInput(
-            registry: detectRegistryHostFromImage(image),
-            username: username,
-            password: password,
-          );
-          saveRegistryAuth = _saveRegistryAuth;
-          if (saveRegistryAuth) {
-            saveRegistryLabel = _saveRegistryLabelCtrl.text.trim();
-          }
-        } else {
-          if (_selectedCredentialId == null || _selectedCredentialId!.isEmpty) {
-            throw Exception(context.tr.container_deploy_registry_profile_required);
-          }
-          registryCredentialId = _selectedCredentialId;
-        }
-      }
-
       final result = await _client!.deployContainer(
-        image: image,
-        cpuMillis: 250,
-        memoryMb: 192,
-        storageGb: 1,
-        env: env,
-        registryCredentialId: registryCredentialId,
-        registryAuth: registryAuth,
-        saveRegistryAuth: saveRegistryAuth,
-        saveRegistryLabel: saveRegistryLabel,
+        image: _selectedTemplate.image,
+        cpuMillis: _selectedTemplate.cpuMillis,
+        memoryMb: _selectedTemplate.memoryMb,
+        storageGb: _selectedTemplate.storageGb,
+        env: {'TOKEN': token},
       );
 
       if (mounted) {
@@ -431,9 +306,7 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
     }
 
     final elig = _eligibility;
-    if (elig == null) {
-      return const SizedBox.shrink();
-    }
+    if (elig == null) return const SizedBox.shrink();
 
     if (elig.premium) {
       return Card(
@@ -455,22 +328,6 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
       );
     }
 
-    final atLimit = elig.activeContainers >= elig.maxContainers;
-    if (atLimit) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (_eligibility != null && !_eligibility!.premium)
-            HostedAppPremiumUpsell(eligibility: _eligibility),
-          HostedAppFreeHostingBanner(
-            eligibility: elig,
-            claimingAd: false,
-            onWatchAd: null,
-          ),
-        ],
-      );
-    }
-
     return HostedAppFreeHostingBanner(
       eligibility: elig,
       claimingAd: _claimingAd,
@@ -478,8 +335,6 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
     );
   }
 
-  /// A clear, actionable notice shown just above the Deploy button explaining
-  /// why deploying is currently blocked (if it is).
   Widget _buildDeployBlockedNotice() {
     final tr = context.tr;
     final reason = _blockReason;
@@ -518,76 +373,131 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      appBar: AppBar(title: Text(context.tr.container_deploy_title)),
+      appBar: AppBar(
+        title: const Text('Déployer un Bot Clé en main'),
+      ),
       body: SafeArea(
         child: Form(
           key: _formKey,
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
             children: [
-            _buildEligibilityBanner(),
-            Text(
-              context.tr.container_deploy_template_label,
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-            const SizedBox(height: 8),
-            SegmentedButton<HostedAppTemplateId>(
-              segments: [
-                ButtonSegment(
-                  value: HostedAppTemplateId.easyMusic,
-                  label: Text(context.tr.container_deploy_template_easy_music),
-                  icon: const Icon(Icons.music_note_outlined),
-                ),
-                ButtonSegment(
-                  value: HostedAppTemplateId.custom,
-                  label: Text(context.tr.container_deploy_template_custom),
-                  icon: const Icon(Icons.tune_outlined),
-                ),
-              ],
-              selected: {_templateId},
-              onSelectionChanged: (selection) {
-                if (selection.isEmpty) return;
-                _applyTemplate(selection.first);
-              },
-            ),
-            if (_isEasyMusicTemplate) ...[
-              const SizedBox(height: 16),
-              Card(
-                color: Theme.of(context).colorScheme.primaryContainer.withValues(
-                  alpha: 0.35,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(
-                        Icons.check_circle_outline,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          context.tr.container_deploy_easy_music_hint,
-                          style: TextStyle(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurfaceVariant,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+              _buildEligibilityBanner(),
+
+              // Modèles de bots prêts à l'emploi
+              Text(
+                'Modèle prêt à l\'emploi',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
+              ...kTurnkeyBotTemplates.map((template) {
+                final isSelected = _selectedTemplate.id == template.id;
+                return Card(
+                  elevation: isSelected ? 2 : 0,
+                  color: isSelected
+                      ? colorScheme.primaryContainer.withValues(alpha: 0.3)
+                      : theme.cardColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    side: BorderSide(
+                      color: isSelected
+                          ? colorScheme.primary
+                          : colorScheme.outlineVariant.withValues(alpha: 0.5),
+                      width: isSelected ? 2 : 1,
+                    ),
+                  ),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: () {
+                      setState(() => _selectedTemplate = template);
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: colorScheme.primary.withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(
+                                  template.icon,
+                                  color: colorScheme.primary,
+                                  size: 24,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      template.title,
+                                      style: theme.textTheme.titleSmall?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      'Hébergement managé 24/7',
+                                      style: TextStyle(
+                                        color: colorScheme.onSurfaceVariant,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              if (isSelected)
+                                Icon(
+                                  Icons.check_circle_rounded,
+                                  color: colorScheme.primary,
+                                ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            template.description,
+                            style: TextStyle(
+                              color: colorScheme.onSurfaceVariant,
+                              fontSize: 13,
+                              height: 1.3,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }),
+
+              const SizedBox(height: 24),
+
+              // Configuration du Token Discord
+              Text(
+                'Configuration du Bot Discord',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+
               if (_localBots.isNotEmpty) ...[
                 DropdownButtonFormField<String?>(
                   initialValue: _selectedBotId,
                   decoration: InputDecoration(
                     labelText: context.tr.container_deploy_pick_bot,
+                    prefixIcon: const Icon(Icons.smart_toy_outlined),
                   ),
                   items: [
                     DropdownMenuItem<String?>(
@@ -605,12 +515,14 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
                 ),
                 const SizedBox(height: 12),
               ],
+
               TextFormField(
                 controller: _botTokenCtrl,
                 obscureText: _obscureBotToken,
                 decoration: InputDecoration(
                   labelText: context.tr.app_bot_token,
-                  helperText: context.tr.container_deploy_bot_token_hint,
+                  hintText: 'Collez le token Discord ici',
+                  prefixIcon: const Icon(Icons.key_outlined),
                   suffixIcon: IconButton(
                     icon: Icon(
                       _obscureBotToken
@@ -622,250 +534,107 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
                     ),
                   ),
                 ),
+                validator: (val) {
+                  if (val == null || val.trim().isEmpty) {
+                    return context.tr.container_deploy_bot_token_required;
+                  }
+                  return null;
+                },
               ),
-            ] else ...[
-              Text(
-                context.tr.container_deploy_image_label,
-                style: Theme.of(context).textTheme.titleSmall,
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _imageCtrl,
-                decoration: InputDecoration(
-                  hintText: kDefaultHostedAppImage,
-                  helperText: context.tr.container_deploy_image_hint,
-                ),
-                onChanged: (_) => setState(() {}),
-                validator: (v) => (v == null || v.trim().isEmpty)
-                    ? context.tr.container_deploy_image_required
-                    : null,
-              ),
-              const SizedBox(height: 8),
-            ],
-            if (!_isEasyMusicTemplate) ...[
-              SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(context.tr.container_deploy_private_image),
-              subtitle: Text(context.tr.container_deploy_private_image_hint),
-              value: _privateImage,
-              onChanged: (v) => setState(() => _privateImage = v),
-            ),
-            if (_privateImage) ...[
-              if (_loadingCredentials)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8),
-                  child: LinearProgressIndicator(),
-                ),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(context.tr.container_deploy_use_custom_credentials),
-                value: _useInlineCredentials,
-                onChanged: (v) => setState(() => _useInlineCredentials = v),
-              ),
-              if (!_useInlineCredentials) ...[
-                DropdownButtonFormField<String?>(
-                  initialValue: _selectedCredentialId,
-                  decoration: InputDecoration(
-                    labelText: context.tr.container_deploy_registry_profile,
-                  ),
-                  items: [
-                    DropdownMenuItem<String?>(
-                      value: null,
-                      child: Text(context.tr.container_deploy_registry_profile_none),
-                    ),
-                    ..._registryCredentials.map(
-                      (cred) => DropdownMenuItem<String?>(
-                        value: cred.id,
-                        child: Text('${cred.label} (${cred.registryHost})'),
-                      ),
-                    ),
-                  ],
-                  onChanged: (v) => setState(() => _selectedCredentialId = v),
-                ),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: TextButton.icon(
-                    onPressed: () async {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              RegistryCredentialsPage(client: _client),
-                        ),
-                      );
-                      await _loadRegistryCredentials();
-                    },
-                    icon: const Icon(Icons.vpn_key_outlined),
-                    label: Text(context.tr.registry_credentials_manage),
+
+              const SizedBox(height: 16),
+
+              // Guide / Prérequis Discord
+              Card(
+                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(
+                    color: colorScheme.outlineVariant.withValues(alpha: 0.3),
                   ),
                 ),
-              ] else ...[
-                Text(
-                  context.tr.container_deploy_registry_detected(
-                    detectRegistryHostFromImage(_imageCtrl.text),
-                  ),
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    fontSize: 13,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: _registryUserCtrl,
-                  decoration: InputDecoration(
-                    labelText: context.tr.registry_credentials_username,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: _registryPassCtrl,
-                  obscureText: _obscureRegistryPassword,
-                  decoration: InputDecoration(
-                    labelText: context.tr.registry_credentials_password,
-                    helperText: context.tr.registry_credentials_ghcr_hint,
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscureRegistryPassword
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                      ),
-                      onPressed: () => setState(
-                        () => _obscureRegistryPassword = !_obscureRegistryPassword,
-                      ),
-                    ),
-                  ),
-                ),
-                CheckboxListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(context.tr.container_deploy_save_registry_auth),
-                  value: _saveRegistryAuth,
-                  onChanged: (v) => setState(() => _saveRegistryAuth = v ?? false),
-                ),
-                if (_saveRegistryAuth)
-                  TextFormField(
-                    controller: _saveRegistryLabelCtrl,
-                    decoration: InputDecoration(
-                      labelText: context.tr.registry_credentials_label,
-                      hintText: detectRegistryHostFromImage(_imageCtrl.text),
-                    ),
-                  ),
-              ],
-              const SizedBox(height: 8),
-            ],
-            ],
-            if (!_isEasyMusicTemplate) ...[
-              const SizedBox(height: 24),
-              Text(
-                context.tr.container_deploy_env_label,
-                style: Theme.of(context).textTheme.titleSmall,
-              ),
-              const SizedBox(height: 8),
-              ..._envVars.map(
-                (e) => Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Row(
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Text(
-                          '${e.key}=${e.value}',
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.lightbulb_outline_rounded,
+                            size: 18,
+                            color: colorScheme.primary,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Prérequis Discord',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                              color: colorScheme.primary,
+                            ),
+                          ),
+                        ],
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.remove_circle_outline, size: 20),
-                        onPressed: () => setState(() => _envVars.remove(e)),
+                      const SizedBox(height: 8),
+                      ..._selectedTemplate.tips.map(
+                        (tip) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 2),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '• ',
+                                style: TextStyle(
+                                  color: colorScheme.onSurfaceVariant,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  tip,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: colorScheme.onSurfaceVariant,
+                                    height: 1.3,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ],
                   ),
                 ),
               ),
+
+              const SizedBox(height: 24),
+              _buildDeployBlockedNotice(),
               const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _envKeyCtrl,
-                      decoration: InputDecoration(
-                        hintText: context.tr.container_deploy_env_key_hint,
-                        isDense: true,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: TextFormField(
-                      controller: _envValCtrl,
-                      decoration: InputDecoration(
-                        hintText: context.tr.container_deploy_env_value_hint,
-                        isDense: true,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    icon: const Icon(Icons.add_circle_outline),
-                    onPressed: _addEnvVar,
-                  ),
-                ],
-              ),
-            ],
-            const SizedBox(height: 24),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    const Icon(Icons.info_outline, size: 20, color: Colors.teal),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '0.25 CPU · 192 MB RAM',
-                            style: Theme.of(context).textTheme.titleSmall
-                                ?.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            context.tr.container_deploy_ephemeral_storage,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+
+              FilledButton.icon(
+                onPressed: (_deploying || !_canDeploy) ? null : _deploy,
+                icon: _deploying
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Icon(Icons.rocket_launch_rounded),
+                label: Text(
+                  _deploying
+                      ? context.tr.container_deploy_submitting
+                      : 'Lancer le bot clé en main',
                 ),
               ),
-            ),
-            const SizedBox(height: 24),
-            _buildDeployBlockedNotice(),
-            const SizedBox(height: 8),
-            FilledButton.icon(
-              onPressed: (_deploying || !_canDeploy) ? null : _deploy,
-              icon: _deploying
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : const Icon(Icons.rocket_launch),
-              label: Text(
-                _deploying
-                    ? context.tr.container_deploy_submitting
-                    : context.tr.container_deploy_submit,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
     );
   }
 }

@@ -10057,7 +10057,7 @@
   "command_created_sample_success": "Sample /ping command created! It responds \"Pong!\"",
   "onboarding_create_now": "Create my bot now",
   "onboarding_command_now": "Create your first command",
-  "container_list_title": "Hosted Applications",
+  "container_list_title": "Turnkey Bots",
   "@container_list_title": {
     "description": "Title of the container list page"
   },
@@ -10069,7 +10069,7 @@
   "@container_list_session_hint": {
     "description": "Hint below the session error"
   },
-  "container_list_error": "Failed to load containers",
+  "container_list_error": "Failed to load bots",
   "@container_list_error": {
     "description": "Error message when container list fails to load"
   },
@@ -10077,15 +10077,15 @@
   "@container_list_retry": {
     "description": "Retry button label"
   },
-  "container_list_empty": "No hosted applications",
+  "container_list_empty": "No turnkey bots",
   "@container_list_empty": {
     "description": "Empty state title"
   },
-  "container_list_empty_hint": "Deploy your first application to get started.",
+  "container_list_empty_hint": "Deploy your first ready-to-use bot in 1 click.",
   "@container_list_empty_hint": {
     "description": "Empty state description"
   },
-  "container_list_deploy_btn": "Deploy Application",
+  "container_list_deploy_btn": "Deploy Turnkey Bot",
   "@container_list_deploy_btn": {
     "description": "Button to deploy a new container"
   },
@@ -10435,7 +10435,7 @@
   "@container_health_starting": {
     "description": "Explains a starting/provisioning health status"
   },
-  "container_hosted_subtitle": "Deploy and manage Docker containers",
+  "container_hosted_subtitle": "Deploy ready-to-use bots (music, etc.) in 1 click",
   "@container_hosted_subtitle": {
     "description": "Subtitle for the hosted apps card on the home page"
   },
@@ -10443,7 +10443,7 @@
   "@container_premium_badge": {
     "description": "Badge text for premium-gated container feature"
   },
-  "container_detail_title": "Container {id}",
+  "container_detail_title": "Bot {id}",
   "@container_detail_title": {
     "description": "Title of the container detail page, {id} is the short container ID",
     "placeholders": {
@@ -10460,7 +10460,7 @@
   "@container_list_premium_host_anytime_fab": {
     "description": "FAB label for premium upsell on container list"
   },
-  "container_list_free_limit_reached": "Free limit reached (1 container). Subscribe to host more containers.",
+  "container_list_free_limit_reached": "Free limit reached (1 bot). Subscribe to host more bots.",
   "@container_list_free_limit_reached": {
     "description": "Snackbar when free user tries to deploy another container"
   },
@@ -10472,7 +10472,7 @@
   "@container_hosted_premium_host_anytime_compact": {
     "description": "Compact hosted app subscription upsell button label"
   },
-  "container_hosted_premium_desc": "Subscribe to host Docker containers with unlimited uptime — no ads required.",
+  "container_hosted_premium_desc": "Subscribe to host turnkey bots with 24/7 uptime — no ads required.",
   "@container_hosted_premium_desc": {
     "description": "Hosted app subscription upsell description"
   },
@@ -10480,14 +10480,14 @@
   "@container_hosted_premium_view_btn": {
     "description": "Button to open hosted app subscription page"
   },
-  "hosted_app_subscription_title": "Hosted applications",
-  "hosted_app_subscription_subtitle": "Run Docker containers in the cloud without watching ads.",
+  "hosted_app_subscription_title": "Turnkey Bots",
+  "hosted_app_subscription_subtitle": "Host ready-to-use bots in the cloud 24/7 with zero interruption.",
   "hosted_app_subscription_benefit_unlimited": "Unlimited hosting time",
   "hosted_app_subscription_benefit_no_ads": "No rewarded ads required",
-  "hosted_app_subscription_one_app_title": "1 container",
-  "hosted_app_subscription_one_app_desc": "Host one Docker container anytime",
-  "hosted_app_subscription_two_app_title": "2 containers",
-  "hosted_app_subscription_two_app_desc": "Host up to two Docker containers",
+  "hosted_app_subscription_one_app_title": "1 Turnkey Bot",
+  "hosted_app_subscription_one_app_desc": "Host one turnkey bot anytime",
+  "hosted_app_subscription_two_app_title": "2 Turnkey Bots",
+  "hosted_app_subscription_two_app_desc": "Host up to two turnkey bots",
   "hosted_app_subscription_recommended": "Best value",
   "container_hosted_free_title": "Free hosting (1 container max)",
   "@container_hosted_free_title": {

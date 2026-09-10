@@ -2827,7 +2827,7 @@ class _HostedAppsHomeCardState extends State<_HostedAppsHomeCard> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
-                  Icons.storage_rounded,
+                  Icons.smart_toy_outlined,
                   color: Colors.teal,
                   size: 28,
                 ),

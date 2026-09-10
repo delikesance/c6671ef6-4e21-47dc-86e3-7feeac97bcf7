@@ -14287,7 +14287,7 @@ abstract class AppLocalizations {
   /// Title of the container list page
   ///
   /// In en, this message translates to:
-  /// **'Hosted Applications'**
+  /// **'Turnkey Bots'**
   String get container_list_title;
 
   /// Shown when no API session is found
@@ -14305,7 +14305,7 @@ abstract class AppLocalizations {
   /// Error message when container list fails to load
   ///
   /// In en, this message translates to:
-  /// **'Failed to load containers'**
+  /// **'Failed to load bots'**
   String get container_list_error;
 
   /// Retry button label
@@ -14317,19 +14317,19 @@ abstract class AppLocalizations {
   /// Empty state title
   ///
   /// In en, this message translates to:
-  /// **'No hosted applications'**
+  /// **'No turnkey bots'**
   String get container_list_empty;
 
   /// Empty state description
   ///
   /// In en, this message translates to:
-  /// **'Deploy your first application to get started.'**
+  /// **'Deploy your first ready-to-use bot in 1 click.'**
   String get container_list_empty_hint;
 
   /// Button to deploy a new container
   ///
   /// In en, this message translates to:
-  /// **'Deploy Application'**
+  /// **'Deploy Turnkey Bot'**
   String get container_list_deploy_btn;
 
   /// Label when a container has expired
@@ -14785,7 +14785,7 @@ abstract class AppLocalizations {
   /// Subtitle for the hosted apps card on the home page
   ///
   /// In en, this message translates to:
-  /// **'Deploy and manage Docker containers'**
+  /// **'Deploy ready-to-use bots (music, etc.) in 1 click'**
   String get container_hosted_subtitle;
 
   /// Badge text for premium-gated container feature
@@ -14797,7 +14797,7 @@ abstract class AppLocalizations {
   /// Title of the container detail page, {id} is the short container ID
   ///
   /// In en, this message translates to:
-  /// **'Container {id}'**
+  /// **'Bot {id}'**
   String container_detail_title(String id);
 
   /// Tooltip for premium upsell icon on container list
@@ -14815,7 +14815,7 @@ abstract class AppLocalizations {
   /// Snackbar when free user tries to deploy another container
   ///
   /// In en, this message translates to:
-  /// **'Free limit reached (1 container). Subscribe to host more containers.'**
+  /// **'Free limit reached (1 bot). Subscribe to host more bots.'**
   String get container_list_free_limit_reached;
 
   /// Hosted app subscription upsell card title
@@ -14833,7 +14833,7 @@ abstract class AppLocalizations {
   /// Hosted app subscription upsell description
   ///
   /// In en, this message translates to:
-  /// **'Subscribe to host Docker containers with unlimited uptime — no ads required.'**
+  /// **'Subscribe to host turnkey bots with 24/7 uptime — no ads required.'**
   String get container_hosted_premium_desc;
 
   /// Button to open hosted app subscription page
@@ -14845,13 +14845,13 @@ abstract class AppLocalizations {
   /// No description provided for @hosted_app_subscription_title.
   ///
   /// In en, this message translates to:
-  /// **'Hosted applications'**
+  /// **'Turnkey Bots'**
   String get hosted_app_subscription_title;
 
   /// No description provided for @hosted_app_subscription_subtitle.
   ///
   /// In en, this message translates to:
-  /// **'Run Docker containers in the cloud without watching ads.'**
+  /// **'Host ready-to-use bots in the cloud 24/7 with zero interruption.'**
   String get hosted_app_subscription_subtitle;
 
   /// No description provided for @hosted_app_subscription_benefit_unlimited.
@@ -14869,25 +14869,25 @@ abstract class AppLocalizations {
   /// No description provided for @hosted_app_subscription_one_app_title.
   ///
   /// In en, this message translates to:
-  /// **'1 container'**
+  /// **'1 Turnkey Bot'**
   String get hosted_app_subscription_one_app_title;
 
   /// No description provided for @hosted_app_subscription_one_app_desc.
   ///
   /// In en, this message translates to:
-  /// **'Host one Docker container anytime'**
+  /// **'Host one turnkey bot anytime'**
   String get hosted_app_subscription_one_app_desc;
 
   /// No description provided for @hosted_app_subscription_two_app_title.
   ///
   /// In en, this message translates to:
-  /// **'2 containers'**
+  /// **'2 Turnkey Bots'**
   String get hosted_app_subscription_two_app_title;
 
   /// No description provided for @hosted_app_subscription_two_app_desc.
   ///
   /// In en, this message translates to:
-  /// **'Host up to two Docker containers'**
+  /// **'Host up to two turnkey bots'**
   String get hosted_app_subscription_two_app_desc;
 
   /// No description provided for @hosted_app_subscription_recommended.

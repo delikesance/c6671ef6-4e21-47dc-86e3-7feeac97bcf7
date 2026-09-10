@@ -3,8 +3,8 @@ import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/containers/logic/hosted_app_status.dart';
+import 'package:bot_creator/features/containers/logic/hosted_app_templates.dart';
 import 'package:bot_creator/features/containers/presentation/container_deploy_page.dart';
-import 'package:bot_creator/features/containers/presentation/registry_credentials_page.dart';
 import 'package:bot_creator/features/containers/presentation/container_detail_page.dart';
 import 'package:bot_creator/features/containers/presentation/hosted_app_upsell_widgets.dart';
 import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
@@ -121,15 +121,6 @@ class _ContainerListPageState extends State<ContainerListPage> {
     }
   }
 
-  IconData _stateIcon(String state) {
-    switch (state) {
-      case 'RUNNING': return Icons.check_circle;
-      case 'PENDING': case 'PROVISIONING': return Icons.hourglass_top;
-      case 'STOPPED': case 'STOPPING': return Icons.stop_circle;
-      case 'FAILED': return Icons.error;
-      default: return Icons.help;
-    }
-  }
 
   String _formatMemory(ContainerInfo c) {
     if (c.memoryUsageBytes > 0) {
@@ -160,18 +151,6 @@ class _ContainerListPageState extends State<ContainerListPage> {
       appBar: AppBar(
         title: Text(tr.container_list_title),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.vpn_key_outlined),
-            tooltip: tr.registry_credentials_title,
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => RegistryCredentialsPage(client: _client),
-                ),
-              );
-            },
-          ),
           IconButton(icon: const Icon(Icons.refresh), onPressed: _load),
           if (_atFreeContainerLimit &&
               SubscriptionService.supportsNativeBilling &&
@@ -235,19 +214,26 @@ class _ContainerListPageState extends State<ContainerListPage> {
 
     if (_containers == null || _containers!.isEmpty) {
       return Center(
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(Icons.storage_rounded, size: 64, color: colorScheme.onSurfaceVariant),
-          const SizedBox(height: 16),
-          Text(tr.container_list_empty, style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
-          Text(tr.container_list_empty_hint, style: TextStyle(color: colorScheme.onSurfaceVariant)),
-          const SizedBox(height: 16),
-          FilledButton.icon(
-            onPressed: _openDeploy,
-            icon: const Icon(Icons.add),
-            label: Text(tr.container_list_deploy_btn),
-          ),
-        ]),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Icon(Icons.smart_toy_outlined, size: 64, color: colorScheme.primary),
+            const SizedBox(height: 16),
+            Text('Aucun bot clé en main', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Text(
+              'Déployez un bot prêt à l\'emploi (musique, etc.) hébergé 24/7 en 1 clic sans aucune configuration technique.',
+              style: TextStyle(color: colorScheme.onSurfaceVariant),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            FilledButton.icon(
+              onPressed: _openDeploy,
+              icon: const Icon(Icons.rocket_launch_rounded),
+              label: const Text('Déployer un bot clé en main'),
+            ),
+          ]),
+        ),
       );
     }
 
@@ -264,6 +250,11 @@ class _ContainerListPageState extends State<ContainerListPage> {
             );
           }
           final c = _containers![index - (_atFreeContainerLimit ? 1 : 0)];
+          final template = templateForImage(c.image);
+          final title = template?.title ?? (c.image.toLowerCase().contains('beatdock') ? 'Bot Musique' : c.image);
+          final icon = template?.icon ?? (c.image.toLowerCase().contains('beatdock') ? Icons.music_note_rounded : Icons.smart_toy_outlined);
+          final isLegacyCustom = template == null && !c.image.toLowerCase().contains('beatdock');
+
           return Card(
             clipBehavior: Clip.antiAlias,
             margin: const EdgeInsets.symmetric(vertical: 6),
@@ -278,12 +269,43 @@ class _ContainerListPageState extends State<ContainerListPage> {
                 padding: const EdgeInsets.all(16),
                 child: Row(
                   children: [
-                    Icon(_stateIcon(c.state), color: _stateColor(c.state), size: 32),
-                    const SizedBox(width: 16),
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: colorScheme.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(icon, color: colorScheme.primary, size: 24),
+                    ),
+                    const SizedBox(width: 14),
                     Expanded(
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Text(c.image, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-                            maxLines: 1, overflow: TextOverflow.ellipsis),
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                title,
+                                style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            if (isLegacyCustom) ...[
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.red.withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: const Text(
+                                  'Non supporté',
+                                  style: TextStyle(color: Colors.red, fontSize: 10, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
                         if (isHostedAppUnhealthy(healthStatus: c.healthStatus, statusCode: c.statusCode)) ...[
                           const SizedBox(height: 2),
                           Text(
