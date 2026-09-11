@@ -8068,6 +8068,7 @@
   "guilds_tab_short": "Serveurs",
   "hint_use_variables": "Utilisez des variables/templates si nécessaire",
   "home_add_time": "Ajouter du temps",
+  "home_overline": "MES PROJETS",
   "home_empty_support_btn": "Support Discord",
   "home_empty_support_hint": "Besoin d'aide ? Rejoignez notre communauté !",
   "home_foreground_service_not_started": "Le service foreground n'a pas démarré.",

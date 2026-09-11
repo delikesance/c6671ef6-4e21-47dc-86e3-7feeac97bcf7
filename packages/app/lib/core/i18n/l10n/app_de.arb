@@ -7927,6 +7927,7 @@
   "guilds_tab_short": "Server",
   "hint_use_variables": "Verwenden Sie bei Bedarf Variablen/Vorlagen",
   "home_add_time": "Zeit hinzufügen",
+  "home_overline": "MEINE PROJEKTE",
   "home_empty_support_btn": "Discord-Support",
   "home_empty_support_hint": "Brauchen Sie Hilfe? Treten Sie unserer Community bei!",
   "home_foreground_service_not_started": "Der Vordergrunddienst wurde nicht gestartet.",

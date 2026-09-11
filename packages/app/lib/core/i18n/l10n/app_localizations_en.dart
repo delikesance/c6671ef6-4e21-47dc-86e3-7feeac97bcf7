@@ -4039,6 +4039,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get home_add_time => 'Add Time';
 
   @override
+  String get home_overline => 'MY PROJECTS';
+
+  @override
   String get home_empty_support_btn => 'Discord Support';
 
   @override

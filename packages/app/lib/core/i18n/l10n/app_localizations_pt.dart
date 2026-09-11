@@ -4096,6 +4096,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get home_add_time => 'Adicionar Tempo';
 
   @override
+  String get home_overline => 'MEUS PROJETOS';
+
+  @override
   String get home_empty_support_btn => 'Junte-se ao nosso Discord';
 
   @override

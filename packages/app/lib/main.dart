@@ -13,7 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:nyxx/nyxx.dart' hide Locale, Builder;
 import 'package:bot_creator/features/home/presentation/home_page.dart';
-import 'package:bot_creator/features/settings/presentation/settings_page.dart';
 import 'package:provider/provider.dart';
 import 'package:bot_creator/features/bot_management/presentation/create_page.dart';
 import 'package:bot_creator/features/onboarding/presentation/onboarding_page.dart';
@@ -41,7 +40,6 @@ import 'package:bot_creator/features/onboarding/logic/onboarding_manager.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/features/auth/presentation/mobile_account_gate_shell.dart';
-import 'package:bot_creator/features/documentation/documentation_navigation.dart';
 import 'package:bot_creator/features/documentation/webview_platform_bootstrap.dart';
 
 
@@ -544,11 +542,8 @@ class _MyAppState extends State<MyApp> {
       locale: Locale(localeProvider.locale.code),
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: AppTheme.brandPrimary),
-        useMaterial3: true,
-      ),
-      darkTheme: ThemeData.dark(useMaterial3: true),
+      theme: AppTheme.lightTheme(),
+      darkTheme: AppTheme.darkTheme(),
       themeMode: themeProvider.themeMode,
       debugShowCheckedModeBanner: false,
       home:
@@ -599,51 +594,30 @@ class _MyMainPageState extends State<MyMainPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isWide =
+        MediaQuery.sizeOf(context).width >= AppTheme.desktopBreakpoint;
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color.fromRGBO(106, 15, 162, 1),
-        title: Text(context.tr.app_title),
-        centerTitle: true,
-        automaticallyImplyLeading: false,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: context.tr.common_refresh,
-            onPressed: () {
-              HomePageState.current?.triggerRefresh();
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.menu_book_outlined),
-            tooltip: context.tr.docs_hub_title,
-            onPressed: () {
-              openDocumentationHub(context, showDiscordJsTab: true);
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SettingPage()),
-              );
-            },
-          ),
-        ],
-      ),
-      body: const HomePage(),
+      body: const SafeArea(bottom: false, child: HomePage()),
       floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const AppCreatePage()),
-          );
-        },
-        backgroundColor: const Color.fromRGBO(106, 15, 162, 1),
-        icon: const Icon(Icons.add),
-        label: Text(context.tr.app_create_button),
-      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: isWide
+          ? null
+          : FloatingActionButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AppCreatePage(),
+                  ),
+                );
+              },
+              backgroundColor: AppTheme.brandPrimary,
+              foregroundColor: Colors.white,
+              elevation: 6,
+              highlightElevation: 10,
+              tooltip: context.tr.app_create_button,
+              child: const Icon(Icons.add_rounded),
+            ),
     );
   }
 }

@@ -7271,6 +7271,12 @@ abstract class AppLocalizations {
   /// **'Add Time'**
   String get home_add_time;
 
+  /// MY PROJECTS
+  ///
+  /// In en, this message translates to:
+  /// **'MY PROJECTS'**
+  String get home_overline;
+
   /// Discord Support
   ///
   /// In en, this message translates to:

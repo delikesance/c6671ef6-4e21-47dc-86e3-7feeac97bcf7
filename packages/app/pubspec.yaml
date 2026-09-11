@@ -87,6 +87,7 @@ dependencies:
   encrypt: ^5.0.3
   web_socket_channel: ^3.0.1
   re_highlight: ^0.0.3
+  google_fonts: ^6.2.1
 
 
 dependency_overrides:
