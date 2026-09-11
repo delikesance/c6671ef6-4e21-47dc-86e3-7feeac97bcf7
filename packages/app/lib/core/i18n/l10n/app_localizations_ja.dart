@@ -3874,6 +3874,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get home_add_time => '時間を追加';
 
   @override
+  String get home_overline => 'マイプロジェクト';
+
+  @override
   String get home_empty_support_btn => 'Discord サポート';
 
   @override

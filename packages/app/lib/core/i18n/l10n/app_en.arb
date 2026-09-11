@@ -8719,6 +8719,7 @@
   "guilds_tab_short": "Servers",
   "hint_use_variables": "Use variables/templates if needed",
   "home_add_time": "Add Time",
+  "home_overline": "MY PROJECTS",
   "home_empty_support_btn": "Discord Support",
   "home_empty_support_hint": "Need help? Join our community!",
   "home_foreground_service_not_started": "The foreground service did not start.",

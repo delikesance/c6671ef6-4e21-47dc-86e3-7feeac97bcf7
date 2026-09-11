@@ -4060,6 +4060,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get home_add_time => 'Zaman Ekle';
 
   @override
+  String get home_overline => 'PROJELERİM';
+
+  @override
   String get home_empty_support_btn => 'Discord Desteği';
 
   @override

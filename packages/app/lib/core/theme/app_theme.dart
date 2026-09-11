@@ -25,6 +25,24 @@ abstract final class AppTheme {
   /// Violet vif — couleur secondaire pour les gradients.
   static const brandSecondary = Color(0xFF9B30FF);
 
+  /// Violet clair lisible en texte/icône sur fond sombre (refonte home).
+  static const brandPurpleSoft = Color(0xFFA64DE0);
+
+  /// Fond scaffold sombre de la refonte.
+  static const scaffoldDark = Color(0xFF0D0E12);
+
+  /// Gris moyen pour métadonnées (WCAG-friendly sur fond sombre).
+  static const metaText = Color(0xFFA1A1AA);
+
+  /// Accent pastel pour données dynamiques (compteurs, badges).
+  static const dataAccent = Color(0xFFC4B5FD);
+
+  /// Vert « en ligne » de la refonte.
+  static const online = Color(0xFF3BD671);
+
+  /// Rouge danger / arrêt de la refonte.
+  static const danger = Color(0xFFE5484D);
+
   /// Gradient standard de la marque (AppBar, FAB, éléments de marque).
   static const brandGradient = LinearGradient(
     colors: [brandPrimary, brandSecondary],
@@ -116,6 +134,9 @@ abstract final class AppTheme {
   /// Modals, grandes cartes, onboarding cards.
   static const radiusLg = 16.0;
 
+  /// Cartes home refonte (collapsible bot cards, turnkey).
+  static const radiusCard = 22.0;
+
   /// Pills, badges de statut, capsules.
   static const radiusPill = 999.0;
 
@@ -146,6 +167,9 @@ abstract final class AppTheme {
 
   /// Desktop : breakpoint largeur ≥ 1200.
   static const expandedWidth = 1200.0;
+
+  /// Refonte home : bascule layout desktop (2 colonnes, FAB masqué, header create).
+  static const desktopBreakpoint = 720.0;
 
   /// Vrai si la largeur d'écran est < [smallPhoneWidth].
   static bool isSmallPhone(BuildContext context) =>
@@ -295,33 +319,44 @@ abstract final class AppTheme {
     );
 
     final colorScheme = baseScheme.copyWith(
-      surface: const Color(0xFF2B2D31),
-      onSurface: const Color(0xFFF2F3F5),
-      surfaceContainer: const Color(0xFF2B2D31),
-      surfaceContainerLow: const Color(0xFF1E1F22),
-      surfaceContainerHigh: const Color(0xFF313338),
-      surfaceContainerHighest: const Color(0xFF35363C),
-      outline: const Color(0xFF404249),
-      outlineVariant: const Color(0xFF4E5058),
+      primary: brandPrimary,
+      secondary: brandPurpleSoft,
+      surface: const Color(0xFF1A1B23),
+      surfaceContainerLowest: const Color(0xFF101118),
+      surfaceContainerLow: const Color(0xFF15161D),
+      surfaceContainer: const Color(0xFF1A1B23),
+      surfaceContainerHigh: const Color(0xFF22232D),
+      surfaceContainerHighest: const Color(0xFF2A2B36),
+      onSurface: const Color(0xFFF1F2F5),
+      onSurfaceVariant: const Color(0xFF9A9CA8),
+      outline: const Color(0x24FFFFFF),
+      outlineVariant: const Color(0x1AFFFFFF),
+      error: danger,
     );
 
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
       brightness: Brightness.dark,
-      scaffoldBackgroundColor: const Color(0xFF1E1F22),
-      canvasColor: const Color(0xFF1E1F22),
+      scaffoldBackgroundColor: scaffoldDark,
+      canvasColor: scaffoldDark,
       // ── AppBar ──
       appBarTheme: AppBarTheme(
-        centerTitle: true,
-        backgroundColor: brandPrimary,
-        foregroundColor: Colors.white,
+        centerTitle: false,
+        backgroundColor: scaffoldDark,
+        foregroundColor: colorScheme.onSurface,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
       ),
       // ── Cards ──
       cardTheme: CardThemeData(
-        shape: cardShape,
-        elevation: elevationMedium,
+        color: colorScheme.surfaceContainer,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(radiusCard),
+          side: BorderSide(color: colorScheme.outlineVariant),
+        ),
+        elevation: elevationNone,
+        margin: EdgeInsets.zero,
         clipBehavior: Clip.antiAlias,
         surfaceTintColor: Colors.transparent,
       ),

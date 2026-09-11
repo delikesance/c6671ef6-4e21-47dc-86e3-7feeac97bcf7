@@ -8015,6 +8015,7 @@
   "guilds_tab_short": "サーバー",
   "hint_use_variables": "必要に応じて変数/テンプレートを使用",
   "home_add_time": "時間を追加",
+  "home_overline": "マイプロジェクト",
   "home_empty_support_btn": "Discord サポート",
   "home_empty_support_hint": "ヘルプが必要ですか？コミュニティに参加しましょう！",
   "home_foreground_service_not_started": "フォアグラウンドサービスが起動しませんでした。",
