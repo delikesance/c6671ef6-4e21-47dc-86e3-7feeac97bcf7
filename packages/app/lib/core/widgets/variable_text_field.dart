@@ -4,7 +4,8 @@ import 'package:bot_creator/core/models/types/app_emoji.dart';
 import 'package:bot_creator/core/models/types/variable_suggestion.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator_shared/types/variable_suggestion.dart' as shared;
-import 'package:bot_creator_shared/utils/variable_catalog.dart' show variableDescription;
+import 'package:bot_creator_shared/utils/variable_catalog.dart'
+    show variableDescription;
 import 'package:bot_creator/core/i18n/i18n.dart';
 
 /// A text field that shows autocomplete suggestions when the user types `((`
@@ -28,6 +29,7 @@ class VariableTextField extends StatefulWidget {
   final List<String>? options;
   final List<AppEmoji>? emojiSuggestions;
   final bool useLabelText;
+
   /// When true, all variable suggestions are always visible (no need to type (( first).
   final bool alwaysShowSuggestions;
 
@@ -182,8 +184,10 @@ class _VariableTextFieldState extends State<VariableTextField> {
             children: [
               Text(
                 widget.label,
-                style:
-                    const TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 13,
+                ),
               ),
               if (widget.required)
                 const Text(
@@ -218,7 +222,8 @@ class _VariableTextFieldState extends State<VariableTextField> {
         ),
         if (widget.alwaysShowSuggestions)
           Expanded(
-            child: _buildSuggestionWidget(currentText, cursor) ??
+            child:
+                _buildSuggestionWidget(currentText, cursor) ??
                 const SizedBox.shrink(),
           )
         else ...[
@@ -252,45 +257,55 @@ class _VariableTextFieldState extends State<VariableTextField> {
                 style: TextStyle(fontSize: 11, color: AppTheme.grey),
               ),
               const SizedBox(height: 6),
-              ...filteredEmojis.map((e) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 2),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(8),
-                  onTap: () => _insertEmoji(e),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                    child: Row(
-                      children: [
-                        Image.network(
-                          e.imageUrl,
-                          width: 20,
-                          height: 20,
-                          errorBuilder: (context, error, stackTrace) => const Icon(Icons.emoji_emotions, size: 20),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          e.name,
-                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
-                        ),
-                        const Spacer(),
-                        Text(
-                          e.mention,
-                          style: TextStyle(fontSize: 11, color: AppTheme.grey, fontFamily: 'monospace'),
-                        ),
-                      ],
+              ...filteredEmojis.map(
+                (e) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(8),
+                    onTap: () => _insertEmoji(e),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 8,
+                      ),
+                      child: Row(
+                        children: [
+                          Image.network(
+                            e.imageUrl,
+                            width: 20,
+                            height: 20,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(Icons.emoji_emotions, size: 20),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            e.name,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const Spacer(),
+                          Text(
+                            e.mention,
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: AppTheme.grey,
+                              fontFamily: 'monospace',
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              )),
+              ),
             ],
           );
           if (widget.alwaysShowSuggestions) {
             return emojiList;
           }
-          return SizedBox(
-            height: 220,
-            child: emojiList,
-          );
+          return SizedBox(height: 220, child: emojiList);
         }
       }
     }
@@ -353,10 +368,7 @@ class _VariableTextFieldState extends State<VariableTextField> {
     if (widget.alwaysShowSuggestions) {
       return listView;
     }
-    return SizedBox(
-      height: 220,
-      child: listView,
-    );
+    return SizedBox(height: 220, child: listView);
   }
 
   Map<shared.VariableCategory, List<VariableSuggestion>> _groupByCategory(
@@ -435,8 +447,10 @@ class _VariableTextFieldState extends State<VariableTextField> {
                   color: item.isNumeric
                       ? Colors.orange
                       : item.isUnknown
-                          ? Colors.purple
-                          : Colors.green,
+                      // « Type inconnu » : gris neutre, plus juste
+                      // sémantiquement que le violet (et plus de violet).
+                      ? Colors.grey
+                      : Colors.green,
                 ),
               ),
               const SizedBox(width: 8),
@@ -601,7 +615,10 @@ class _VariableTextFieldState extends State<VariableTextField> {
 
   void _insertVariable(String variableName) {
     final input = _effectiveController.text;
-    final cursor = _safeCursor(input, _effectiveController.selection.baseOffset);
+    final cursor = _safeCursor(
+      input,
+      _effectiveController.selection.baseOffset,
+    );
     final start = input.lastIndexOf('((', cursor);
 
     if (start == -1) {
@@ -642,8 +659,9 @@ class _VariableTextFieldState extends State<VariableTextField> {
 
     final rawInner = input.substring(start + 2, cursor);
     final parts = rawInner.split('|');
-    final prefixParts =
-        parts.length > 1 ? parts.sublist(0, parts.length - 1) : <String>[];
+    final prefixParts = parts.length > 1
+        ? parts.sublist(0, parts.length - 1)
+        : <String>[];
     final previous = prefixParts
         .map((e) => e.trim())
         .where((e) => e.isNotEmpty)
@@ -651,8 +669,9 @@ class _VariableTextFieldState extends State<VariableTextField> {
     final inner = [...previous, variableName].join(' | ');
     final replacement = '(($inner))';
 
-    final replaceEnd =
-        (closing != -1 && closing >= cursor) ? closing + 2 : cursor;
+    final replaceEnd = (closing != -1 && closing >= cursor)
+        ? closing + 2
+        : cursor;
     final nextText = input.replaceRange(start, replaceEnd, replacement);
     final nextCursor = start + replacement.length;
 
@@ -664,8 +683,11 @@ class _VariableTextFieldState extends State<VariableTextField> {
 
   void _insertEmoji(AppEmoji emoji) {
     final input = _effectiveController.text;
-    final cursor = _safeCursor(input, _effectiveController.selection.baseOffset);
-    
+    final cursor = _safeCursor(
+      input,
+      _effectiveController.selection.baseOffset,
+    );
+
     int start = -1;
     for (int i = cursor - 1; i >= 0; i--) {
       final char = input[i];

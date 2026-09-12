@@ -313,9 +313,9 @@ class ActionCard extends StatelessWidget {
       child: DropdownButtonFormField<String>(
         initialValue: action.jumpToActionId,
         isExpanded: true,
-        decoration: const InputDecoration(
-          labelText: 'Jump to',
-          border: OutlineInputBorder(),
+        decoration: InputDecoration(
+          labelText: context.tr.action_card_jump_to,
+          border: const OutlineInputBorder(),
           isDense: true,
         ),
         items: items,
@@ -331,9 +331,9 @@ class ActionCard extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 12, top: 4),
       child: TextFormField(
         initialValue: action.skipCount > 0 ? '${action.skipCount}' : '1',
-        decoration: const InputDecoration(
-          labelText: 'Skip count',
-          border: OutlineInputBorder(),
+        decoration: InputDecoration(
+          labelText: context.tr.action_card_skip_count,
+          border: const OutlineInputBorder(),
           isDense: true,
         ),
         keyboardType: TextInputType.number,
@@ -386,11 +386,11 @@ class ActionCard extends StatelessWidget {
               ),
               DropdownMenuItem(
                 value: 'jump',
-                child: const Text('Jump to action'),
+                child: Text(context.tr.action_error_jump),
               ),
               DropdownMenuItem(
                 value: 'skip',
-                child: const Text('Skip N actions'),
+                child: Text(context.tr.action_error_skip),
               ),
             ],
             onChanged: (value) {
@@ -780,7 +780,7 @@ class ActionCard extends StatelessWidget {
           child: OutlinedButton.icon(
             onPressed: () => _openHttpRequestEditor(context),
             icon: const Icon(Icons.http, size: 20),
-            label: const Text('Edit Request'),
+            label: Text(context.tr.action_edit_request),
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 14),
             ),
@@ -925,11 +925,11 @@ class ActionCard extends StatelessWidget {
     showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Insert Variable'),
+        title: Text(context.tr.image_editor_insert_variable),
         content: SizedBox(
           width: 420,
           child: VariableTextField(
-            label: 'Expression',
+            label: context.tr.action_expression,
             hint: 'Type (( to see variable suggestions',
             suggestions: variableSuggestions,
             emojiSuggestions: emojiSuggestions,
@@ -944,7 +944,7 @@ class ActionCard extends StatelessWidget {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, vc.text.trim()),
-            child: const Text('Insert'),
+            child: Text(context.tr.image_editor_insert),
           ),
         ],
       ),
@@ -1040,7 +1040,7 @@ class ActionCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    _formatParameterName(paramDef.key),
+                    _formatParameterName(context.tr, paramDef.key),
                     style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                 ),
@@ -1076,7 +1076,7 @@ class ActionCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    _formatParameterName(paramDef.key),
+                    _formatParameterName(context.tr, paramDef.key),
                     style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                 ),
@@ -1135,7 +1135,7 @@ class ActionCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    _formatParameterName(paramDef.key),
+                    _formatParameterName(context.tr, paramDef.key),
                     style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                 ),
@@ -1163,6 +1163,7 @@ class ActionCard extends StatelessWidget {
             ..._buildVariableSuggestionsForParam(
               paramKey: paramDef.key,
               value: currentValue,
+              tr: context.tr,
             ),
           ],
         );
@@ -1170,7 +1171,7 @@ class ActionCard extends StatelessWidget {
       case ParameterType.duration:
         return VariableTextField(
           key: _parameterInputKey(paramDef.key),
-          label: _formatParameterName(paramDef.key),
+          label: _formatParameterName(context.tr, paramDef.key),
           initialValue: (currentValue ?? paramDef.defaultValue).toString(),
           hint: _localizeHint(paramDef.hint) ?? context.tr.action_hint_duration,
           suggestions: variableSuggestions,
@@ -1182,7 +1183,7 @@ class ActionCard extends StatelessWidget {
       case ParameterType.url:
         return VariableTextField(
           key: _parameterInputKey(paramDef.key),
-          label: _formatParameterName(paramDef.key),
+          label: _formatParameterName(context.tr, paramDef.key),
           initialValue: (currentValue ?? paramDef.defaultValue).toString(),
           hint: _localizeHint(paramDef.hint) ?? 'https://example.com',
           suggestions: variableSuggestions,
@@ -1197,7 +1198,7 @@ class ActionCard extends StatelessWidget {
       case ParameterType.roleId:
         return VariableTextField(
           key: _parameterInputKey(paramDef.key),
-          label: _formatParameterName(paramDef.key),
+          label: _formatParameterName(context.tr, paramDef.key),
           initialValue: (currentValue ?? paramDef.defaultValue).toString(),
           hint:
               _localizeHint(paramDef.hint) ??
@@ -1211,7 +1212,7 @@ class ActionCard extends StatelessWidget {
       case ParameterType.emoji:
         return VariableTextField(
           key: _parameterInputKey(paramDef.key),
-          label: _formatParameterName(paramDef.key),
+          label: _formatParameterName(context.tr, paramDef.key),
           initialValue: (currentValue ?? paramDef.defaultValue).toString(),
           hint: _localizeHint(paramDef.hint) ?? context.tr.action_hint_emoji,
           suggestions: variableSuggestions,
@@ -1223,7 +1224,7 @@ class ActionCard extends StatelessWidget {
       case ParameterType.color:
         return VariableTextField(
           key: _parameterInputKey(paramDef.key),
-          label: _formatParameterName(paramDef.key),
+          label: _formatParameterName(context.tr, paramDef.key),
           initialValue: (currentValue ?? paramDef.defaultValue).toString(),
           hint: _localizeHint(paramDef.hint) ?? context.tr.action_hint_color,
           suggestions: variableSuggestions,
@@ -1240,7 +1241,7 @@ class ActionCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    _formatParameterName(paramDef.key),
+                    _formatParameterName(context.tr, paramDef.key),
                     style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                 ),
@@ -1277,7 +1278,8 @@ class ActionCard extends StatelessWidget {
                   .toList()
             : <Map<String, dynamic>>[];
         final blockLabel =
-            _localizeHint(paramDef.hint) ?? _formatParameterName(paramDef.key);
+            _localizeHint(paramDef.hint) ??
+            _formatParameterName(context.tr, paramDef.key);
         final blockColor = paramDef.key == 'thenActions'
             ? AppTheme.success
             : AppTheme.warning;
@@ -1406,7 +1408,7 @@ class ActionCard extends StatelessWidget {
 
       case ParameterType.permissionFlags:
         return PermissionFlagsField(
-          label: _formatParameterName(paramDef.key),
+          label: _formatParameterName(context.tr, paramDef.key),
           currentValue: _coercePermissionFlagsValue(currentValue),
           hint: _localizeHint(paramDef.hint),
           onChanged: (newValue) => onParameterChanged(paramDef.key, newValue),
@@ -1419,7 +1421,7 @@ class ActionCard extends StatelessWidget {
             botIdForConfig!.trim().isNotEmpty) {
           return _WorkflowNameParameterField(
             key: _parameterInputKey(paramDef.key),
-            label: _formatParameterName(paramDef.key),
+            label: _formatParameterName(context.tr, paramDef.key),
             currentValue: (currentValue ?? paramDef.defaultValue)
                 .toString()
                 .trim(),
@@ -1446,7 +1448,7 @@ class ActionCard extends StatelessWidget {
 
           return _VariableKeyParameterField(
             key: _parameterInputKey(paramDef.key),
-            label: _formatParameterName(paramDef.key),
+            label: _formatParameterName(context.tr, paramDef.key),
             currentValue: (currentValue ?? paramDef.defaultValue).toString(),
             hint:
                 _localizeHint(paramDef.hint) ??
@@ -1470,7 +1472,7 @@ class ActionCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                _formatParameterName(paramDef.key),
+                _formatParameterName(context.tr, paramDef.key),
                 style: const TextStyle(fontWeight: FontWeight.w500),
               ),
               const SizedBox(height: 4),
@@ -1530,7 +1532,7 @@ class ActionCard extends StatelessWidget {
             }.contains(paramDef.key)) {
           return VariableTextField(
             key: _parameterInputKey(paramDef.key),
-            label: _formatParameterName(paramDef.key),
+            label: _formatParameterName(context.tr, paramDef.key),
             initialValue: (currentValue ?? paramDef.defaultValue).toString(),
             hint: _localizeHint(paramDef.hint),
             suggestions: variableSuggestions,
@@ -1541,7 +1543,7 @@ class ActionCard extends StatelessWidget {
 
         return VariableTextField(
           key: _parameterInputKey(paramDef.key),
-          label: _formatParameterName(paramDef.key),
+          label: _formatParameterName(context.tr, paramDef.key),
           initialValue: (currentValue ?? paramDef.defaultValue).toString(),
           hint: _localizeHint(paramDef.hint),
           suggestions: variableSuggestions,
@@ -1560,7 +1562,8 @@ class ActionCard extends StatelessWidget {
   ) {
     final branches = _normalizeElseIfBranches(currentValue);
     final label =
-        _localizeHint(paramDef.hint) ?? _formatParameterName(paramDef.key);
+        _localizeHint(paramDef.hint) ??
+        _formatParameterName(context.tr, paramDef.key);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -2254,6 +2257,7 @@ class ActionCard extends StatelessWidget {
     required String paramKey,
     required dynamic value,
     bool isNumericField = false,
+    required AppLocalizations tr,
   }) {
     final rawValue = value?.toString() ?? '';
     final query = _extractPlaceholderQuery(rawValue);
@@ -2316,7 +2320,9 @@ class ActionCard extends StatelessWidget {
     return [
       const SizedBox(height: 8),
       Text(
-        isNumericField ? 'Dynamic numeric suggestions' : 'Available variables',
+        isNumericField
+            ? tr.action_dynamic_numeric
+            : tr.workflows_event_available_vars,
         style: TextStyle(fontSize: 11, color: AppTheme.grey),
       ),
       const SizedBox(height: 4),
@@ -2327,7 +2333,11 @@ class ActionCard extends StatelessWidget {
           children: [
             for (final cat in categoryOrder)
               if (grouped.containsKey(cat)) ...[
-                _buildSuggestionCategoryHeaderStatic(cat, grouped[cat]!.length),
+                _buildSuggestionCategoryHeaderStatic(
+                  tr,
+                  cat,
+                  grouped[cat]!.length,
+                ),
                 ...grouped[cat]!.map(
                   (item) => _buildSuggestionListTileStatic(
                     item,
@@ -2382,6 +2392,7 @@ class ActionCard extends StatelessWidget {
   }
 
   static Widget _buildSuggestionCategoryHeaderStatic(
+    AppLocalizations tr,
     shared.VariableCategory cat,
     int count,
   ) {
@@ -2392,7 +2403,7 @@ class ActionCard extends StatelessWidget {
           Icon(_categoryIconStatic(cat), size: 14, color: AppTheme.grey),
           const SizedBox(width: 4),
           Text(
-            _categoryLabel(cat),
+            _categoryLabel(tr, cat),
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -2428,7 +2439,7 @@ class ActionCard extends StatelessWidget {
                   color: item.isNumeric
                       ? Colors.orange
                       : item.isUnknown
-                      ? Colors.purple
+                      ? Colors.grey
                       : Colors.green,
                 ),
               ),
@@ -2492,32 +2503,35 @@ class ActionCard extends StatelessWidget {
     }
   }
 
-  static String _categoryLabel(shared.VariableCategory cat) {
+  static String _categoryLabel(
+    AppLocalizations tr,
+    shared.VariableCategory cat,
+  ) {
     switch (cat) {
       case shared.VariableCategory.context_:
-        return 'Context';
+        return tr.variable_category_context;
       case shared.VariableCategory.interaction:
-        return 'Interaction';
+        return tr.variable_category_interaction;
       case shared.VariableCategory.bot:
-        return 'Bot';
+        return tr.variable_category_bot;
       case shared.VariableCategory.guild:
-        return 'Server';
+        return tr.variable_category_guild;
       case shared.VariableCategory.channel:
-        return 'Channel';
+        return tr.variable_category_channel;
       case shared.VariableCategory.member:
-        return 'Member';
+        return tr.variable_category_member;
       case shared.VariableCategory.message:
-        return 'Message';
+        return tr.variable_category_message;
       case shared.VariableCategory.author:
-        return 'Author';
+        return tr.variable_category_author;
       case shared.VariableCategory.user:
-        return 'User';
+        return tr.variable_category_user;
       case shared.VariableCategory.temp:
-        return 'Temporary';
+        return tr.variable_category_temp;
       case shared.VariableCategory.function_:
-        return 'Functions';
+        return tr.variable_category_functions;
       case shared.VariableCategory.other:
-        return 'Other';
+        return tr.variable_category_other;
     }
   }
 
@@ -2641,7 +2655,9 @@ class ActionCard extends StatelessWidget {
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
           title: Text(
-            context.tr.action_edit_param(_formatParameterName(paramDef.key)),
+            context.tr.action_edit_param(
+              _formatParameterName(context.tr, paramDef.key),
+            ),
           ),
           content: SizedBox(
             width: double.maxFinite,
@@ -2772,7 +2788,7 @@ class ActionCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       context.tr.action_edit_param(
-                        _formatParameterName(paramDef.key),
+                        _formatParameterName(context.tr, paramDef.key),
                       ),
                     ),
                   ),
@@ -3007,7 +3023,9 @@ class ActionCard extends StatelessWidget {
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
           title: Text(
-            context.tr.action_edit_param(_formatParameterName(paramDef.key)),
+            context.tr.action_edit_param(
+              _formatParameterName(context.tr, paramDef.key),
+            ),
           ),
           content: SizedBox(
             width: double.maxFinite,
@@ -3170,7 +3188,9 @@ class ActionCard extends StatelessWidget {
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
           title: Text(
-            context.tr.action_edit_param(_formatParameterName(paramDef.key)),
+            context.tr.action_edit_param(
+              _formatParameterName(context.tr, paramDef.key),
+            ),
           ),
           content: SizedBox(
             width: double.maxFinite,
@@ -3416,7 +3436,7 @@ class ActionCard extends StatelessWidget {
     );
   }
 
-  String _formatParameterName(String key) {
+  String _formatParameterName(AppLocalizations tr, String key) {
     if (action.type == BotCreatorActionType.calculate) {
       final operation = (action.parameters['operation'] ?? '')
           .toString()
@@ -3424,16 +3444,16 @@ class ActionCard extends StatelessWidget {
           .toLowerCase();
       final isRandom = operation == 'random' || operation == 'randomfloat';
       if (isRandom && key == 'operandA') {
-        return 'Minimum';
+        return tr.action_card_minimum;
       }
       if (isRandom && key == 'operandB') {
-        return 'Maximum';
+        return tr.action_card_maximum;
       }
     }
 
     if (action.type == BotCreatorActionType.cooldown) {
-      if (key == 'time') return 'Duration';
-      if (key == 'error') return 'Error Message';
+      if (key == 'time') return tr.action_card_duration;
+      if (key == 'error') return tr.action_card_error_message;
     }
 
     return key
@@ -3666,7 +3686,7 @@ class ActionCard extends StatelessWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        _formatParameterName(paramDef.key),
+                        _formatParameterName(context.tr, paramDef.key),
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 13,
@@ -3874,7 +3894,7 @@ class ActionCard extends StatelessWidget {
       MaterialPageRoute(
         builder: (ctx) => Scaffold(
           appBar: AppBar(
-            title: Text(_formatParameterName(paramDef.key)),
+            title: Text(_formatParameterName(context.tr, paramDef.key)),
             actions: [
               IconButton(
                 icon: const Icon(Icons.check),
@@ -3947,7 +3967,7 @@ class ActionCard extends StatelessWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        _formatParameterName(paramDef.key),
+                        _formatParameterName(context.tr, paramDef.key),
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 13,
@@ -4092,7 +4112,7 @@ class ActionCard extends StatelessWidget {
                     label: Text(
                       count == 0
                           ? context.tr.component_add_action_row
-                          : '${_formatParameterName(paramDef.key)} ($count)',
+                          : '${_formatParameterName(context.tr, paramDef.key)} ($count)',
                       style: const TextStyle(
                         fontSize: 12.5,
                         fontWeight: FontWeight.w600,
@@ -4128,7 +4148,7 @@ class ActionCard extends StatelessWidget {
       MaterialPageRoute(
         builder: (ctx) => Scaffold(
           appBar: AppBar(
-            title: Text(_formatParameterName(paramDef.key)),
+            title: Text(_formatParameterName(context.tr, paramDef.key)),
             actions: [
               IconButton(
                 icon: const Icon(Icons.check),
@@ -4206,7 +4226,7 @@ class ActionCard extends StatelessWidget {
                       child: Text(
                         modalDef.title.isNotEmpty
                             ? modalDef.title
-                            : _formatParameterName(paramDef.key),
+                            : _formatParameterName(context.tr, paramDef.key),
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 13,
@@ -4248,8 +4268,8 @@ class ActionCard extends StatelessWidget {
                     icon: const Icon(Icons.open_in_new_rounded, size: 14),
                     label: Text(
                       count == 0
-                          ? _formatParameterName(paramDef.key)
-                          : '${_formatParameterName(paramDef.key)} ($count)',
+                          ? _formatParameterName(context.tr, paramDef.key)
+                          : '${_formatParameterName(context.tr, paramDef.key)} ($count)',
                       style: const TextStyle(
                         fontSize: 12.5,
                         fontWeight: FontWeight.w600,
@@ -4287,7 +4307,7 @@ class ActionCard extends StatelessWidget {
             title: Text(
               modalDef.title.isNotEmpty
                   ? modalDef.title
-                  : _formatParameterName(paramDef.key),
+                  : _formatParameterName(context.tr, paramDef.key),
             ),
             actions: [
               IconButton(
@@ -4952,7 +4972,9 @@ class _NumberParameterFieldState extends State<_NumberParameterField> {
     return [
       const SizedBox(height: 8),
       Text(
-        isNumericField ? 'Dynamic numeric suggestions' : 'Available variables',
+        isNumericField
+            ? context.tr.action_dynamic_numeric
+            : context.tr.workflows_event_available_vars,
         style: TextStyle(fontSize: 11, color: AppTheme.grey),
       ),
       const SizedBox(height: 4),
@@ -4964,6 +4986,7 @@ class _NumberParameterFieldState extends State<_NumberParameterField> {
             for (final cat in categoryOrder)
               if (grouped.containsKey(cat)) ...[
                 ActionCard._buildSuggestionCategoryHeaderStatic(
+                  context.tr,
                   cat,
                   grouped[cat]!.length,
                 ),

@@ -1349,6 +1349,58 @@ class AppLocalizationsEn extends AppLocalizations {
       'Keep this token private. Anyone with it can control your bot.';
 
   @override
+  String get appearance_preset_graphite => 'Graphite';
+
+  @override
+  String get appearance_preset_graphite_desc =>
+      'Neutral gray surfaces, the historic default look.';
+
+  @override
+  String get appearance_preset_violet_bc => 'Violet Bot Creator';
+
+  @override
+  String get appearance_preset_violet_bc_desc =>
+      'The Bot Creator brand signature, tinted surfaces included.';
+
+  @override
+  String get appearance_preset_discord => 'Discord';
+
+  @override
+  String get appearance_preset_discord_desc =>
+      'Discord\'s blurple, for a familiar feel.';
+
+  @override
+  String get appearance_preset_ocean => 'Ocean';
+
+  @override
+  String get appearance_preset_ocean_desc => 'Cyan tones, like deep water.';
+
+  @override
+  String get appearance_preset_forest => 'Forest';
+
+  @override
+  String get appearance_preset_forest_desc => 'Deep green, calm and natural.';
+
+  @override
+  String get appearance_preset_amber => 'Amber';
+
+  @override
+  String get appearance_preset_amber_desc => 'Warm orange for a vivid look.';
+
+  @override
+  String get appearance_preset_rose => 'Rose';
+
+  @override
+  String get appearance_preset_rose_desc => 'Magenta pink, bold and modern.';
+
+  @override
+  String get appearance_preset_high_contrast => 'High contrast';
+
+  @override
+  String get appearance_preset_high_contrast_desc =>
+      'Maximum readability for the interface.';
+
+  @override
   String get autocomplete_dynamic => 'Dynamic Autocomplete';
 
   @override
@@ -1484,6 +1536,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bot_home_section_getting_started => 'GETTING STARTED';
 
   @override
+  String get bot_home_section_modules => 'MODULES';
+
+  @override
   String get bot_home_section_monitoring => 'MONITORING';
 
   @override
@@ -1503,6 +1558,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bot_home_starting => 'Starting…';
+
+  @override
+  String get bot_home_restart => 'Restart';
 
   @override
   String get bot_home_stop => 'Stop Bot';
@@ -2694,6 +2752,156 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cmd_variables_title => 'Command Variables';
 
   @override
+  String get code_editor_settings_title => 'Code editor';
+
+  @override
+  String get code_editor_settings_subtitle =>
+      'Theme, font and editing behaviour for the BDFD and JavaScript editors';
+
+  @override
+  String get code_editor_settings_reset_tooltip => 'Reset to defaults';
+
+  @override
+  String get code_editor_settings_reset_title => 'Reset configuration';
+
+  @override
+  String get code_editor_settings_reset_confirm =>
+      'Restore all editor settings to their default values?';
+
+  @override
+  String get code_editor_settings_reset_action => 'Reset';
+
+  @override
+  String get code_editor_settings_reset_done =>
+      'Editor settings restored to defaults';
+
+  @override
+  String get code_editor_settings_preview_title => 'Live preview';
+
+  @override
+  String get code_editor_settings_section_theme_title =>
+      'Syntax highlighting theme';
+
+  @override
+  String get code_editor_settings_section_theme_subtitle =>
+      'Choose the visual style applied to BDFD and JavaScript';
+
+  @override
+  String get code_editor_settings_theme_mode_dark => 'Dark mode';
+
+  @override
+  String get code_editor_settings_theme_mode_light => 'Light mode';
+
+  @override
+  String get code_editor_settings_section_font_title => 'Font & typography';
+
+  @override
+  String get code_editor_settings_section_font_subtitle =>
+      'Adjust the font family and text size';
+
+  @override
+  String get code_editor_settings_font_family => 'Font family';
+
+  @override
+  String get code_editor_settings_font_system => 'System monospace';
+
+  @override
+  String get code_editor_settings_font_jetbrains_mono => 'JetBrains Mono';
+
+  @override
+  String get code_editor_settings_font_fira_code => 'Fira Code';
+
+  @override
+  String get code_editor_settings_font_consolas => 'Consolas';
+
+  @override
+  String get code_editor_settings_font_size => 'Font size';
+
+  @override
+  String get code_editor_settings_line_height => 'Line height (spacing)';
+
+  @override
+  String get code_editor_settings_section_display_title =>
+      'Display & visual guides';
+
+  @override
+  String get code_editor_settings_section_display_subtitle =>
+      'Line numbers, indent guides and word wrap';
+
+  @override
+  String get code_editor_settings_line_numbers => 'Line numbers';
+
+  @override
+  String get code_editor_settings_line_numbers_desc =>
+      'Show numbering in the left gutter';
+
+  @override
+  String get code_editor_settings_indent_guides => 'Indent guides';
+
+  @override
+  String get code_editor_settings_indent_guides_desc =>
+      'Vertical lines to visualize code blocks';
+
+  @override
+  String get code_editor_settings_word_wrap => 'Word wrap';
+
+  @override
+  String get code_editor_settings_word_wrap_desc =>
+      'Wrap long lines instead of scrolling horizontally';
+
+  @override
+  String get code_editor_settings_quick_chars =>
+      'Quick characters bar (Mobile)';
+
+  @override
+  String get code_editor_settings_quick_chars_desc =>
+      'Quick buttons to insert the BDFD prefix, arguments, separators and brackets above the keyboard';
+
+  @override
+  String get code_editor_settings_section_editing_title => 'Editing behaviour';
+
+  @override
+  String get code_editor_settings_section_editing_subtitle =>
+      'Auto-closing and spacing';
+
+  @override
+  String get code_editor_settings_auto_close => 'Automatic symbol closing';
+
+  @override
+  String get code_editor_settings_auto_close_desc =>
+      'Automatically close brackets, braces, parentheses and quotes';
+
+  @override
+  String get code_editor_settings_tab_size => 'Tab size (spaces)';
+
+  @override
+  String get code_editor_settings_tab_size_desc =>
+      'Number of spaces inserted when indenting';
+
+  @override
+  String get command_alias_label => 'Alias';
+
+  @override
+  String get command_alias_hint => '!p';
+
+  @override
+  String get command_alias_help =>
+      'The command also responds to these trigger words.';
+
+  @override
+  String get command_alias_duplicate => 'This alias is already used.';
+
+  @override
+  String command_alias_limit(int max) {
+    return 'Maximum $max aliases.';
+  }
+
+  @override
+  String command_alias_collision(String command) {
+    return 'Already used by the command $command.';
+  }
+
+  @override
   String get command_awaited_error => 'Error';
 
   @override
@@ -3085,6 +3293,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get common_disabled => 'Disabled';
+
+  @override
+  String get common_discard => 'Discard';
 
   @override
   String get common_edit => 'Edit';
@@ -3636,6 +3847,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get edit_shell_untitled_command => 'Untitled command';
 
   @override
+  String get editor_sidebar_collapse => 'Collapse sidebar';
+
+  @override
+  String get editor_sidebar_expand => 'Expand sidebar';
+
+  @override
   String get embed_add_field => 'Add Field';
 
   @override
@@ -4037,6 +4254,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get home_add_time => 'Add Time';
+
+  @override
+  String get home_overline => 'MY PROJECTS';
+
+  @override
+  String get home_create_bot_title => 'Create a bot';
+
+  @override
+  String get home_create_bot_subtitle => 'Your Discord bot in two clicks';
+
+  @override
+  String home_active_on_servers_one(int count) {
+    return 'Active on $count server';
+  }
+
+  @override
+  String home_active_on_servers_other(int count) {
+    return 'Active on $count servers';
+  }
+
+  @override
+  String get home_synced_active => 'Synced & Active';
 
   @override
   String get home_empty_support_btn => 'Discord Support';
@@ -5820,7 +6059,51 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings_app_version => 'App';
 
   @override
-  String get settings_appearance_title => 'Appearance & language';
+  String get settings_appearance_accent_label => 'Accent';
+
+  @override
+  String settings_appearance_contrast_ratio(String ratio) {
+    return 'Accent/surface contrast: $ratio';
+  }
+
+  @override
+  String settings_appearance_contrast_warning(String ratio) {
+    return 'Low contrast ($ratio): the accent barely stands out from the background. The app adapts it where needed, but a lighter or darker accent improves readability.';
+  }
+
+  @override
+  String get settings_appearance_custom_badge => 'Custom';
+
+  @override
+  String get settings_appearance_custom_title => 'Custom colors';
+
+  @override
+  String get settings_appearance_mode_dark => 'Dark';
+
+  @override
+  String get settings_appearance_mode_light => 'Light';
+
+  @override
+  String get settings_appearance_mode_system => 'System';
+
+  @override
+  String get settings_appearance_mode_title => 'Mode';
+
+  @override
+  String get settings_appearance_presets_title => 'Preset themes';
+
+  @override
+  String get settings_appearance_reset => 'Reset';
+
+  @override
+  String get settings_appearance_seed_label => 'Main color';
+
+  @override
+  String get settings_appearance_subtitle =>
+      'Pick a mode, a preset theme, or your own colors.';
+
+  @override
+  String get settings_appearance_title => 'Appearance';
 
   @override
   String get settings_auto_backup_check_loading => 'Auto-backup check…';
@@ -7620,7 +7903,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Write the complete BDFD code for this workflow response. Diagnostics are displayed live.';
 
   @override
-  String get workflow_bdfd_editor_title => 'BDFD Script Editor';
+  String get workflow_bdfd_editor_title => 'BDFD Editor';
 
   @override
   String get workflow_condition_off => 'Condition off';
@@ -8155,7 +8438,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboarding_command_now => 'Create your first command';
 
   @override
-  String get container_list_title => 'Hosted Applications';
+  String get container_list_title => 'Turnkey Bots';
 
   @override
   String get container_list_session_missing => 'Session not available';
@@ -8165,20 +8448,23 @@ class AppLocalizationsEn extends AppLocalizations {
       'Please connect to your account first.';
 
   @override
-  String get container_list_error => 'Failed to load containers';
+  String get container_list_error => 'Failed to load bots';
 
   @override
   String get container_list_retry => 'Retry';
 
   @override
-  String get container_list_empty => 'No hosted applications';
+  String get container_list_empty => 'No turnkey bots';
 
   @override
   String get container_list_empty_hint =>
-      'Deploy your first application to get started.';
+      'Deploy your first ready-to-use bot in 1 click.';
 
   @override
-  String get container_list_deploy_btn => 'Deploy Application';
+  String get container_list_deploy_btn => 'Deploy Turnkey Bot';
+
+  @override
+  String get container_list_unsupported_badge => 'Unsupported';
 
   @override
   String get container_list_expired => 'Expired';
@@ -8199,7 +8485,26 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get container_deploy_title => 'Deploy Application';
+  String get container_deploy_title => 'Deploy Turnkey Bot';
+
+  @override
+  String get container_deploy_template_section => 'Ready-to-use Template';
+
+  @override
+  String get container_deploy_managed_hosting => '24/7 Managed Hosting';
+
+  @override
+  String get container_deploy_bot_config_section => 'Discord Bot Configuration';
+
+  @override
+  String get container_deploy_paste_token_hint =>
+      'Paste Discord bot token here';
+
+  @override
+  String get container_deploy_discord_prereqs => 'Discord Prerequisites';
+
+  @override
+  String get container_deploy_launch_btn => 'Launch Turnkey Bot';
 
   @override
   String get container_deploy_image_label => 'Image';
@@ -8435,14 +8740,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get container_health_starting => 'Still starting up...';
 
   @override
-  String get container_hosted_subtitle => 'Deploy and manage Docker containers';
+  String get container_hosted_subtitle =>
+      'Deploy ready-to-use bots (music, etc.) in 1 click';
 
   @override
   String get container_premium_badge => 'Premium';
 
   @override
   String container_detail_title(String id) {
-    return 'Container $id';
+    return 'Bot $id';
   }
 
   @override
@@ -8454,7 +8760,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get container_list_free_limit_reached =>
-      'Free limit reached (1 container). Subscribe to host more containers.';
+      'Free limit reached (1 bot). Subscribe to host more bots.';
 
   @override
   String get container_hosted_premium_host_anytime => 'Host anytime';
@@ -8465,17 +8771,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get container_hosted_premium_desc =>
-      'Subscribe to host Docker containers with unlimited uptime — no ads required.';
+      'Subscribe to host turnkey bots with 24/7 uptime — no ads required.';
 
   @override
   String get container_hosted_premium_view_btn => 'View plans';
 
   @override
-  String get hosted_app_subscription_title => 'Hosted applications';
+  String get hosted_app_subscription_title => 'Turnkey Bots';
 
   @override
   String get hosted_app_subscription_subtitle =>
-      'Run Docker containers in the cloud without watching ads.';
+      'Host ready-to-use bots in the cloud 24/7 with zero interruption.';
 
   @override
   String get hosted_app_subscription_benefit_unlimited =>
@@ -8486,18 +8792,18 @@ class AppLocalizationsEn extends AppLocalizations {
       'No rewarded ads required';
 
   @override
-  String get hosted_app_subscription_one_app_title => '1 container';
+  String get hosted_app_subscription_one_app_title => '1 Turnkey Bot';
 
   @override
   String get hosted_app_subscription_one_app_desc =>
-      'Host one Docker container anytime';
+      'Host one turnkey bot anytime';
 
   @override
-  String get hosted_app_subscription_two_app_title => '2 containers';
+  String get hosted_app_subscription_two_app_title => '2 Turnkey Bots';
 
   @override
   String get hosted_app_subscription_two_app_desc =>
-      'Host up to two Docker containers';
+      'Host up to two turnkey bots';
 
   @override
   String get hosted_app_subscription_recommended => 'Best value';
@@ -8726,4 +9032,281 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get docs_reload => 'Reload';
+
+  @override
+  String get common_duplicate => 'Duplicate';
+
+  @override
+  String get commands_batch_select => 'Batch select';
+
+  @override
+  String commands_selected_count(int count) {
+    return '$count selected';
+  }
+
+  @override
+  String get image_editor_title => 'Image Editor';
+
+  @override
+  String get image_editor_add_operation => 'Add operation';
+
+  @override
+  String get image_editor_add_layer => 'Add Layer';
+
+  @override
+  String get image_editor_operations => 'Operations';
+
+  @override
+  String get image_editor_op_container => 'Container / Frame';
+
+  @override
+  String get image_editor_op_progress_bar => 'Progress Bar';
+
+  @override
+  String get image_editor_op_composite_image => 'Composite Image';
+
+  @override
+  String get image_editor_op_set_pixel => 'Set Pixel';
+
+  @override
+  String get image_editor_op_invert => 'Invert Colors';
+
+  @override
+  String get image_editor_op_grayscale => 'Convert to Grayscale';
+
+  @override
+  String get image_editor_op_rotate => 'Rotate Canvas';
+
+  @override
+  String get image_editor_zoom_in => 'Zoom in';
+
+  @override
+  String get image_editor_zoom_out => 'Zoom out';
+
+  @override
+  String get image_editor_zoom_fit => 'Fit to screen';
+
+  @override
+  String get image_editor_undo => 'Undo';
+
+  @override
+  String get image_editor_redo => 'Redo';
+
+  @override
+  String get image_editor_canvas => 'Canvas';
+
+  @override
+  String get image_editor_width => 'Width';
+
+  @override
+  String get image_editor_height => 'Height';
+
+  @override
+  String get image_editor_properties => 'Properties';
+
+  @override
+  String get image_editor_visible => 'Visible';
+
+  @override
+  String get image_editor_opacity => 'Opacity';
+
+  @override
+  String image_editor_ops_summary(int count, int hidden) {
+    return '$count operations, $hidden hidden';
+  }
+
+  @override
+  String image_editor_empty_hint(String op) {
+    return 'Add a \"$op\" operation to start';
+  }
+
+  @override
+  String get image_editor_tap_to_edit => 'Tap to edit';
+
+  @override
+  String get image_editor_no_operations => 'No operations yet';
+
+  @override
+  String get image_editor_select_operation =>
+      'Select an operation to edit its properties';
+
+  @override
+  String get image_editor_insert_variable => 'Insert Variable';
+
+  @override
+  String get image_editor_variable_label => 'Variable';
+
+  @override
+  String get image_editor_variable_hint =>
+      'Type to filter, or tap a suggestion below';
+
+  @override
+  String get image_editor_insert => 'Insert';
+
+  @override
+  String get image_editor_pick_image => 'Pick image file';
+
+  @override
+  String get image_editor_color_picker => 'Color Picker';
+
+  @override
+  String get image_editor_hue => 'Hue';
+
+  @override
+  String get image_editor_saturation => 'Saturation';
+
+  @override
+  String get image_editor_no_url => 'no URL';
+
+  @override
+  String get image_editor_unknown => 'Unknown';
+
+  @override
+  String get image_editor_field_text => 'Text';
+
+  @override
+  String get image_editor_field_font_size => 'Font Size';
+
+  @override
+  String get image_editor_field_max_width => 'Max Width';
+
+  @override
+  String get image_editor_field_text_align => 'Text Align';
+
+  @override
+  String get image_editor_field_blend => 'Blend';
+
+  @override
+  String get image_editor_field_fill => 'Fill';
+
+  @override
+  String get image_editor_field_radius => 'Radius';
+
+  @override
+  String get image_editor_field_thickness => 'Thickness';
+
+  @override
+  String get image_editor_field_shape => 'Shape';
+
+  @override
+  String get image_editor_field_percentage => 'Percentage';
+
+  @override
+  String get image_editor_field_bar_color => 'Bar Color';
+
+  @override
+  String get image_editor_field_track_color => 'Track Color';
+
+  @override
+  String get image_editor_field_text_color => 'Text Color';
+
+  @override
+  String get image_editor_field_border_width => 'Border Width';
+
+  @override
+  String get image_editor_field_border_radius => 'Border Radius';
+
+  @override
+  String get image_editor_field_orientation => 'Orientation';
+
+  @override
+  String get image_editor_field_angle => 'Angle (Degrees)';
+
+  @override
+  String get image_editor_field_container => 'Container';
+
+  @override
+  String get image_editor_field_background_color => 'Background Color';
+
+  @override
+  String get image_editor_hint_auto_size => 'auto (native size)';
+
+  @override
+  String get image_editor_hint_optional_background => 'optional background';
+
+  @override
+  String get image_editor_hint_parent_container => 'parent container name';
+
+  @override
+  String get image_editor_hint_container_width =>
+      'container width for alignment';
+
+  @override
+  String get action_card_duration => 'Duration';
+
+  @override
+  String get action_card_error_message => 'Error Message';
+
+  @override
+  String get action_card_jump_to => 'Jump to';
+
+  @override
+  String get action_card_maximum => 'Maximum';
+
+  @override
+  String get action_card_minimum => 'Minimum';
+
+  @override
+  String get action_card_skip_count => 'Skip count';
+
+  @override
+  String get action_edit_request => 'Edit Request';
+
+  @override
+  String get action_error_jump => 'Jump to action';
+
+  @override
+  String get action_error_skip => 'Skip N actions';
+
+  @override
+  String get component_max_length => 'Max Length';
+
+  @override
+  String get component_min_length => 'Min Length';
+
+  @override
+  String get http_request_header_name => 'Header name';
+
+  @override
+  String get http_request_json_body => 'JSON Body';
+
+  @override
+  String get http_request_section_body => 'Body';
+
+  @override
+  String get http_request_section_headers => 'Headers';
+
+  @override
+  String get http_request_section_request => 'Request';
+
+  @override
+  String get http_request_text_body => 'Text Body';
+
+  @override
+  String marketplace_summary_commands(int count) {
+    return '$count commands';
+  }
+
+  @override
+  String marketplace_summary_variables(int count, int required) {
+    return '$count variables ($required required)';
+  }
+
+  @override
+  String marketplace_summary_workflows(int count) {
+    return '$count workflows';
+  }
+
+  @override
+  String get modal_builder_configure_submit_actions =>
+      'Configure Submit Actions';
+
+  @override
+  String get modal_builder_edit_submit_actions => 'Edit Submit Actions';
+
+  @override
+  String get modal_builder_identity => 'Identity';
+
+  @override
+  String get modal_builder_submit_actions => 'Submit Actions';
 }

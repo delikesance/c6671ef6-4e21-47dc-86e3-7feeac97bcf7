@@ -46,6 +46,7 @@ class CommandEditorState {
     this.localOnlyCommand = false,
     this.folder = '',
     this.legacyPrefixOverride = '',
+    this.legacyAliases = const [],
     this.legacyResponseTarget = 'reply',
     this.subcommandWorkflows = const {},
     this.activeSubcommandRoute = '__root__',
@@ -95,6 +96,10 @@ class CommandEditorState {
   final bool localOnlyCommand;
   final String folder;
   final String legacyPrefixOverride;
+
+  /// Mots déclencheurs alternatifs de la commande message (legacy), en plus du
+  /// nom effectif. Normalisés côté shared (`normalizeLegacyCommandAliases`).
+  final List<String> legacyAliases;
   final String legacyResponseTarget;
 
   // ── Subcommand workflows ──
@@ -182,6 +187,7 @@ class CommandEditorState {
     bool? localOnlyCommand,
     String? folder,
     String? legacyPrefixOverride,
+    List<String>? legacyAliases,
     String? legacyResponseTarget,
     Map<String, Map<String, dynamic>>? subcommandWorkflows,
     String? activeSubcommandRoute,
@@ -223,6 +229,7 @@ class CommandEditorState {
       localOnlyCommand: localOnlyCommand ?? this.localOnlyCommand,
       folder: folder ?? this.folder,
       legacyPrefixOverride: legacyPrefixOverride ?? this.legacyPrefixOverride,
+      legacyAliases: legacyAliases ?? this.legacyAliases,
       legacyResponseTarget: legacyResponseTarget ?? this.legacyResponseTarget,
       subcommandWorkflows: subcommandWorkflows ?? this.subcommandWorkflows,
       activeSubcommandRoute:

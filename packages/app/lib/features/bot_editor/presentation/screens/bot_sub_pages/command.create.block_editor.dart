@@ -130,6 +130,11 @@ extension _CommandBlockEditor on _CommandCreatePageState {
         onLegacyPrefixOverrideChanged: (value) => _applyStateUpdate(() {
           _legacyPrefixOverride = value;
         }),
+        legacyAliases: _legacyAliases,
+        onLegacyAliasesChanged: (aliases) => _applyStateUpdate(() {
+          _legacyAliases = normalizeLegacyCommandAliases(aliases);
+        }),
+        legacyAliasOwners: _legacyAliasOwners,
         legacyResponseTarget: _legacyResponseTarget,
         onLegacyResponseTargetChanged: (value) => _applyStateUpdate(() {
           _legacyResponseTarget = value;
@@ -843,7 +848,10 @@ extension _CommandBlockEditor on _CommandCreatePageState {
         : code;
 
     return ScratchBlock(
-      color: AppTheme.brandPrimary,
+      // Accent de bloc (bandeau gauche + icône) : on reste sur l'accent du
+      // thème au lieu du violet de charte codé en dur, pour que le code
+      // couleur JS(orange)/BDFD(accent) reste distinct sans figer la teinte.
+      color: Theme.of(context).colorScheme.primary,
       title: context.tr.scratch_bdfd_script,
       icon: Icons.code,
       required: true,
@@ -1029,7 +1037,7 @@ extension _CommandBlockEditor on _CommandCreatePageState {
             Icon(
               Icons.touch_app_outlined,
               size: 32,
-              color: Theme.of(context).colorScheme.primary,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             const SizedBox(height: 8),
             Text(
@@ -1090,7 +1098,7 @@ extension _CommandBlockEditor on _CommandCreatePageState {
           color: colorScheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(AppTheme.radiusMd),
           border: Border.all(
-            color: colorScheme.primary.withValues(alpha: 0.25),
+            color: colorScheme.outlineVariant.withValues(alpha: 0.5),
             width: 1,
           ),
         ),
@@ -1101,12 +1109,12 @@ extension _CommandBlockEditor on _CommandCreatePageState {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: colorScheme.primary.withValues(alpha: 0.12),
+                    color: colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                   ),
                   child: Icon(
                     Icons.menu_book_rounded,
-                    color: colorScheme.primary,
+                    color: colorScheme.onSurfaceVariant,
                     size: 20,
                   ),
                 ),
@@ -1150,8 +1158,6 @@ extension _CommandBlockEditor on _CommandCreatePageState {
                   style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600),
                 ),
                 style: FilledButton.styleFrom(
-                  backgroundColor: colorScheme.primary.withValues(alpha: 0.12),
-                  foregroundColor: colorScheme.primary,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 10,
@@ -1174,7 +1180,6 @@ extension _CommandBlockEditor on _CommandCreatePageState {
           animation: _editorNotifier,
           builder: (context, _) => Scaffold(
             appBar: AppBar(
-              backgroundColor: AppTheme.brandPrimary,
               title: Text(
                 _commandName.trim().isNotEmpty
                     ? '${context.tr.edit_shell_command_settings} (/${_commandName.trim()})'

@@ -537,4 +537,20 @@ extension _AppHomePageLogic on _AppHomePageState {
       }
     }
   }
+
+  Future<void> _restartBot() async {
+    if (_botStarting) return;
+    if (_botLaunched) {
+      await _toggleBotLaunchState();
+      if (!mounted || _botLaunched) return;
+    }
+    await _toggleBotLaunchState();
+  }
+
+  Future<void> _refreshOverview() async {
+    await _init();
+    if (!SubscriptionService.isSubscribed) {
+      await _refreshFreeRuntimeBalance();
+    }
+  }
 }

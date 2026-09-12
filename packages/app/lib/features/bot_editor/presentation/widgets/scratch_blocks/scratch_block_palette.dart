@@ -221,21 +221,26 @@ Color getCategoryColor(String category) {
     case 'Moderation':
       return AppTheme.error;
     case 'Components':
-      return AppTheme.brandPrimary;
+      // Ex-`AppTheme.brandPrimary` (violet #6A0FA2) : 1.77:1 sur une carte
+      // sombre, donc quasi invisible, et c'était le dernier violet de
+      // l'interface. Remplacé par une teinte lisible et distincte.
+      return Colors.lightBlue.shade200;
     case 'Webhooks':
       return Colors.teal;
     case 'Guild & Members':
-      return Colors.indigo;
+      return Colors.indigo.shade200;
+    case 'Utilities':
+      return Colors.brown.shade200;
     case 'HTTP & Variables':
       return Colors.cyan;
     case 'Workflows':
-      return AppTheme.brandPrimary;
+      return Colors.deepOrangeAccent;
     case 'Logic & Flow':
       return Colors.pink;
     case 'Interactions':
       return AppTheme.premiumGold;
     case 'Music':
-      return Colors.deepPurpleAccent;
+      return Colors.lightGreenAccent;
     // Fixed blocks
     case 'Metadata':
       return AppTheme.info;
@@ -589,68 +594,65 @@ class _ScratchBlockPaletteState extends State<ScratchBlockPalette> {
                   ),
                 )
               : _searchQuery.isNotEmpty
-                  ? ListView.builder(
-                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
-                      itemCount: allMatchingActions.length,
-                      itemBuilder: (context, index) {
-                        final type = allMatchingActions[index];
-                        final cat = getCategoryForAction(type);
-                        final color = getCategoryColor(cat);
-                        final card = Card(
-                          margin: const EdgeInsets.symmetric(vertical: 3),
-                          child: ListTile(
-                            dense: true,
-                            leading: Icon(type.icon, size: 20, color: color),
-                            title: Text(
-                              type.displayName(context),
-                              style: const TextStyle(fontSize: 13),
-                            ),
-                            subtitle: Text(
-                              localizeCategory(context, cat),
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: color,
-                              ),
-                            ),
-                            onTap: () {
-                              widget.onActionSelected(type);
-                              if (widget.popOnSelect) {
-                                Navigator.pop(context);
-                              }
-                            },
-                          ),
-                        );
-                        if (!canDrag) return card;
-                        return Draggable<BotCreatorActionType>(
-                          data: type,
-                          feedback: Material(
-                            color: Colors.transparent,
-                            child: Opacity(
-                              opacity: 0.85,
-                              child: SizedBox(width: 200, child: card),
-                            ),
-                          ),
-                          child: card,
-                        );
-                      },
-                    )
-                  : ListView(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                      children: [
-                        for (final entry in actionsByCategory.entries)
-                          _CategorySection(
-                            category: entry.key,
-                            actions: entry.value,
-                            enableDrag: canDrag,
-                            onActionSelected: (type) {
-                              widget.onActionSelected(type);
-                              if (widget.popOnSelect) {
-                                Navigator.pop(context);
-                              }
-                            },
-                          ),
-                      ],
-                    ),
+              ? ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                  itemCount: allMatchingActions.length,
+                  itemBuilder: (context, index) {
+                    final type = allMatchingActions[index];
+                    final cat = getCategoryForAction(type);
+                    final color = getCategoryColor(cat);
+                    final card = Card(
+                      margin: const EdgeInsets.symmetric(vertical: 3),
+                      child: ListTile(
+                        dense: true,
+                        leading: Icon(type.icon, size: 20, color: color),
+                        title: Text(
+                          type.displayName(context),
+                          style: const TextStyle(fontSize: 13),
+                        ),
+                        subtitle: Text(
+                          localizeCategory(context, cat),
+                          style: TextStyle(fontSize: 11, color: color),
+                        ),
+                        onTap: () {
+                          widget.onActionSelected(type);
+                          if (widget.popOnSelect) {
+                            Navigator.pop(context);
+                          }
+                        },
+                      ),
+                    );
+                    if (!canDrag) return card;
+                    return Draggable<BotCreatorActionType>(
+                      data: type,
+                      feedback: Material(
+                        color: Colors.transparent,
+                        child: Opacity(
+                          opacity: 0.85,
+                          child: SizedBox(width: 200, child: card),
+                        ),
+                      ),
+                      child: card,
+                    );
+                  },
+                )
+              : ListView(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  children: [
+                    for (final entry in actionsByCategory.entries)
+                      _CategorySection(
+                        category: entry.key,
+                        actions: entry.value,
+                        enableDrag: canDrag,
+                        onActionSelected: (type) {
+                          widget.onActionSelected(type);
+                          if (widget.popOnSelect) {
+                            Navigator.pop(context);
+                          }
+                        },
+                      ),
+                  ],
+                ),
         ),
       ],
     );
@@ -660,7 +662,8 @@ class _ScratchBlockPaletteState extends State<ScratchBlockPalette> {
     if (widget.enableDrag != null) {
       return widget.enableDrag!;
     }
-    final isMobile = ResponsiveHelper.isMobile(context) ||
+    final isMobile =
+        ResponsiveHelper.isMobile(context) ||
         MediaQuery.of(context).size.width < 800 ||
         defaultTargetPlatform == TargetPlatform.android ||
         defaultTargetPlatform == TargetPlatform.iOS;

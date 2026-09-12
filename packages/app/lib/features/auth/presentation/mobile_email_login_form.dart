@@ -1,8 +1,10 @@
+import 'package:bot_creator/core/auth/main_api_account_bootstrap.dart';
+import 'package:bot_creator/core/auth/mobile_account_session.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_credentials_auth_service.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
-import 'package:bot_creator/core/theme/app_theme.dart';
+
 import 'package:flutter/material.dart';
 
 class MobileEmailLoginForm extends StatefulWidget {
@@ -49,11 +51,18 @@ class _MobileEmailLoginFormState extends State<MobileEmailLoginForm> {
     try {
       final config = await MainApiSettingsStore.loadConfig();
       final client = MainApiClient(baseUrl: config.baseUrl);
-      await MainApiCredentialsAuthService.login(
+      final session = await MainApiCredentialsAuthService.login(
         client: client,
         email: email,
         password: password,
       );
+      try {
+        await syncManagedBotsAfterDiscordLogin(
+          baseUrl: config.baseUrl,
+          accessToken: session.accessToken,
+        );
+      } catch (_) {}
+      await MobileAccountSession.instance.recheck();
       if (!mounted) {
         return;
       }
@@ -114,9 +123,9 @@ class _MobileEmailLoginFormState extends State<MobileEmailLoginForm> {
           const SizedBox(height: 16),
           Text(
             tr.mobile_login_email_title,
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
@@ -164,11 +173,9 @@ class _MobileEmailLoginFormState extends State<MobileEmailLoginForm> {
         FilledButton(
           onPressed: isBusy ? null : _submit,
           style: FilledButton.styleFrom(
-            backgroundColor: AppTheme.brandPrimary,
+            backgroundColor: Theme.of(context).colorScheme.primary,
             foregroundColor: Colors.white,
-            padding: EdgeInsets.symmetric(
-              vertical: widget.compact ? 12 : 14,
-            ),
+            padding: EdgeInsets.symmetric(vertical: widget.compact ? 12 : 14),
           ),
           child: isBusy
               ? const SizedBox(

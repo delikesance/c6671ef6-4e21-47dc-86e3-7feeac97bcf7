@@ -16,23 +16,23 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
     final hasSubcommandWorkflows = subcommandWorkflows.isNotEmpty;
     final fallbackRoute =
         subcommandWorkflows.containsKey(_activeSubcommandRoute)
-            ? _activeSubcommandRoute
-            : (hasSubcommandWorkflows
-                ? subcommandWorkflows.keys.first
-                : _CommandCreatePageState._rootWorkflowRoute);
+        ? _activeSubcommandRoute
+        : (hasSubcommandWorkflows
+              ? subcommandWorkflows.keys.first
+              : _CommandCreatePageState._rootWorkflowRoute);
 
-    final fallbackPayload =
-        hasSubcommandWorkflows ? subcommandWorkflows[fallbackRoute] : null;
+    final fallbackPayload = hasSubcommandWorkflows
+        ? subcommandWorkflows[fallbackRoute]
+        : null;
 
-    final actionsPayload =
-        fallbackPayload != null
-            ? List<Map<String, dynamic>>.from(
-              (fallbackPayload['actions'] as List?)?.whereType<Map>().map(
-                    (entry) => Map<String, dynamic>.from(entry),
-                  ) ??
-                  const <Map<String, dynamic>>[],
-            )
-            : effectiveActions;
+    final actionsPayload = fallbackPayload != null
+        ? List<Map<String, dynamic>>.from(
+            (fallbackPayload['actions'] as List?)?.whereType<Map>().map(
+                  (entry) => Map<String, dynamic>.from(entry),
+                ) ??
+                const <Map<String, dynamic>>[],
+          )
+        : effectiveActions;
 
     final data = <String, dynamic>{
       'version': 1,
@@ -47,6 +47,9 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
       'legacyLocalOnly': _localOnlyCommand || _legacyModeEnabled,
       'legacyPrefixOverride': _legacyPrefixOverride.trim(),
       'legacyResponseTarget': _legacyResponseTarget,
+      // Alias « Message Texte » : normalisés ici puis à la sauvegarde
+      // (normalizeCommandData) — sérialisés tels quels dans le payload local.
+      'legacyAliases': List<String>.from(_legacyAliases),
       'simpleConfig': const <String, dynamic>{},
       'defaultMemberPermissions': _defaultMemberPermissions.trim(),
       if (_supportsCommandOptions && _effectiveOptions.isNotEmpty)
@@ -379,19 +382,17 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
     }
 
     final map = Map<String, dynamic>.from(decoded);
-    final commandRoot =
-        map['command'] is Map
-            ? Map<String, dynamic>.from(
-              (map['command'] as Map).cast<String, dynamic>(),
-            )
-            : map;
+    final commandRoot = map['command'] is Map
+        ? Map<String, dynamic>.from(
+            (map['command'] as Map).cast<String, dynamic>(),
+          )
+        : map;
 
-    final commandDataRaw =
-        commandRoot['data'] is Map
-            ? Map<String, dynamic>.from(
-              (commandRoot['data'] as Map).cast<String, dynamic>(),
-            )
-            : commandRoot;
+    final commandDataRaw = commandRoot['data'] is Map
+        ? Map<String, dynamic>.from(
+            (commandRoot['data'] as Map).cast<String, dynamic>(),
+          )
+        : commandRoot;
 
     final normalizedData = appManager.normalizeCommandData(<String, dynamic>{
       'data': commandDataRaw,
@@ -420,10 +421,9 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
         .whereType<ApplicationIntegrationType>()
         .toList(growable: false);
 
-    final contextNames =
-        ((commandRoot['contexts'] as List?) ?? const [])
-            .map((entry) => entry.toString())
-            .toSet();
+    final contextNames = ((commandRoot['contexts'] as List?) ?? const [])
+        .map((entry) => entry.toString())
+        .toSet();
     final importedContexts = contextNames
         .map(_contextTypeFromText)
         .whereType<InteractionContextType>()
@@ -444,13 +444,14 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
       _executionMode = _normalizeExecutionMode(
         normalizedPayload['executionMode'],
       );
-      _bdfdScriptContent =
-          (normalizedPayload['bdfdScriptContent'] ?? '').toString();
-      _bdfdScriptController.text = _bdfdScriptContent;
-      _jsScriptContent = (normalizedPayload['jsScriptContent'] ??
-              normalizedPayload['script'] ??
-              '')
+      _bdfdScriptContent = (normalizedPayload['bdfdScriptContent'] ?? '')
           .toString();
+      _bdfdScriptController.text = _bdfdScriptContent;
+      _jsScriptContent =
+          (normalizedPayload['jsScriptContent'] ??
+                  normalizedPayload['script'] ??
+                  '')
+              .toString();
       _jsScriptController.text = _jsScriptContent;
 
       final persistedEditorMode =
@@ -460,24 +461,25 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
               .toLowerCase();
       _editorMode =
           persistedEditorMode == _CommandCreatePageState._editorModeSimple
-              ? _CommandCreatePageState._editorModeSimple
-              : _CommandCreatePageState._editorModeAdvanced;
+          ? _CommandCreatePageState._editorModeSimple
+          : _CommandCreatePageState._editorModeAdvanced;
       if (!_supportsSimpleMode) {
         _editorMode = _CommandCreatePageState._editorModeAdvanced;
         _legacyModeEnabled = false;
       }
       _editorMode == _CommandCreatePageState._editorModeAdvanced;
       _legacyModeEnabled = normalizedPayload['legacyModeEnabled'] == true;
-      _legacyPrefixOverride =
-          (normalizedPayload['legacyPrefixOverride'] ?? '').toString();
+      _legacyPrefixOverride = (normalizedPayload['legacyPrefixOverride'] ?? '')
+          .toString();
+      _legacyAliases = List<String>.from(
+        (normalizedPayload['legacyAliases'] as List?)?.whereType<String>() ??
+            const <String>[],
+      );
       final importedLegacyResponseTarget =
           (normalizedPayload['legacyResponseTarget'] ?? 'reply').toString();
-      _legacyResponseTarget =
-          importedLegacyResponseTarget == 'channelSend'
-              ? 'channelSend'
-              : 'reply';
-
-
+      _legacyResponseTarget = importedLegacyResponseTarget == 'channelSend'
+          ? 'channelSend'
+          : 'reply';
 
       _defaultMemberPermissions =
           (normalizedPayload['defaultMemberPermissions'] ?? '')
@@ -496,23 +498,20 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
       final importedSubcommandWorkflows = _normalizeStoredSubcommandWorkflows(
         normalizedPayload['subcommandWorkflows'],
       );
-      _subcommandWorkflows =
-          importedSubcommandWorkflows
-              .map(
-                (route, workflowPayload) => MapEntry(route, {
-                  'actions': _normalizeImportedScopedActionKeys(
-                    List<Map<String, dynamic>>.from(
-                      (workflowPayload['actions'] as List?)
-                              ?.whereType<Map>()
-                              .map(
-                                (entry) => Map<String, dynamic>.from(entry),
-                              ) ??
-                          const <Map<String, dynamic>>[],
-                    ),
-                  ),
-                }),
-              )
-              .cast<String, Map<String, dynamic>>();
+      _subcommandWorkflows = importedSubcommandWorkflows
+          .map(
+            (route, workflowPayload) => MapEntry(route, {
+              'actions': _normalizeImportedScopedActionKeys(
+                List<Map<String, dynamic>>.from(
+                  (workflowPayload['actions'] as List?)?.whereType<Map>().map(
+                        (entry) => Map<String, dynamic>.from(entry),
+                      ) ??
+                      const <Map<String, dynamic>>[],
+                ),
+              ),
+            }),
+          )
+          .cast<String, Map<String, dynamic>>();
       _activeSubcommandRoute =
           (normalizedPayload['activeSubcommandRoute'] ??
                   _CommandCreatePageState._rootWorkflowRoute)

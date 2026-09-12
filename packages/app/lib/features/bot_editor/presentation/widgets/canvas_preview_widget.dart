@@ -79,7 +79,8 @@ class CanvasPreviewWidget extends StatelessWidget {
   ///
   /// The [dx] and [dy] values are in canvas coordinates (not widget pixels).
   /// The caller should add these deltas to the operation's current x/y values.
-  final void Function(int index, double canvasDx, double canvasDy)? onElementMoved;
+  final void Function(int index, double canvasDx, double canvasDy)?
+  onElementMoved;
 
   /// Override scale factor (for zoom). When null, auto-scales to fit.
   final double? zoom;
@@ -114,7 +115,8 @@ class CanvasPreviewWidget extends StatelessWidget {
     return ClipRRect(
       borderRadius: borderRadius ?? BorderRadius.zero,
       child: Container(
-        color: backgroundColor ??
+        color:
+            backgroundColor ??
             Theme.of(context).colorScheme.surfaceContainerHighest,
         constraints: BoxConstraints(maxWidth: maxWidth, maxHeight: maxHeight),
         child: _CanvasPreview(
@@ -137,7 +139,8 @@ class _CanvasPreview extends StatefulWidget {
   final List<Map<String, dynamic>> operations;
   final int? selectedIndex;
   final ValueChanged<int?>? onElementSelected;
-  final void Function(int index, double canvasDx, double canvasDy)? onElementMoved;
+  final void Function(int index, double canvasDx, double canvasDy)?
+  onElementMoved;
   final double? zoom;
   final Set<int> hiddenIndices;
   final List<VariableSuggestion> variableSuggestions;
@@ -160,6 +163,7 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
   // Cached canvas dimensions from the 'create' operation.
   int _canvasWidth = 400;
   int _canvasHeight = 300;
+
   /// Render area may be larger than the canvas to accommodate elements
   /// that extend beyond the canvas boundary (e.g. after resize).
   int _renderWidth = 400;
@@ -175,6 +179,7 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
 
   /// Maximum number of [ui.Image] objects to keep in the preview cache.
   static const _maxCachedImages = 15;
+
   /// Maximum total pixel area (width × height) across all cached images.
   /// A 1024×1024 image = ~1M pixels. Budget of 20M pixels ≈ ~20 such images.
   static const _maxCachedPixelArea = 20 * 1000 * 1000;
@@ -211,10 +216,10 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
   void _parseCanvasSize() {
     for (final op in widget.operations) {
       if ((op['op'] ?? '') == 'create') {
-        _canvasWidth =
-            (int.tryParse(op['width']?.toString() ?? '') ?? 400).clamp(1, 10000);
-        _canvasHeight =
-            (int.tryParse(op['height']?.toString() ?? '') ?? 300).clamp(1, 10000);
+        _canvasWidth = (int.tryParse(op['width']?.toString() ?? '') ?? 400)
+            .clamp(1, 10000);
+        _canvasHeight = (int.tryParse(op['height']?.toString() ?? '') ?? 300)
+            .clamp(1, 10000);
         _updateRenderBounds();
         return;
       }
@@ -291,13 +296,10 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
           _loadingUrls.remove(url);
           return;
         }
-        bytes = const Base64Decoder()
-            .convert(url.substring(commaIndex + 1));
+        bytes = const Base64Decoder().convert(url.substring(commaIndex + 1));
       } else {
         // Fetch from HTTP URL
-        final response = await NetworkAssetBundle(
-          Uri.parse(url),
-        ).load(url);
+        final response = await NetworkAssetBundle(Uri.parse(url)).load(url);
         bytes = response.buffer.asUint8List();
       }
 
@@ -311,7 +313,7 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
           final newPixels = image.width * image.height;
           while (_loadedImages.isNotEmpty &&
               (_loadedImages.length >= _maxCachedImages ||
-               _cachedPixelArea + newPixels > _maxCachedPixelArea)) {
+                  _cachedPixelArea + newPixels > _maxCachedPixelArea)) {
             _evictLruOne();
           }
           _loadedImages[url] = image;
@@ -408,7 +410,10 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
       case 'setPixel':
         final cx = _parseDouble(op, 'x');
         final cy = _parseDouble(op, 'y');
-        return pos.dx >= cx - 5 && pos.dx <= cx + 5 && pos.dy >= cy - 5 && pos.dy <= cy + 5;
+        return pos.dx >= cx - 5 &&
+            pos.dx <= cx + 5 &&
+            pos.dy >= cy - 5 &&
+            pos.dy <= cy + 5;
       default:
         return false;
     }
@@ -480,8 +485,7 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
     final projX = x1 + t * dx;
     final projY = y1 + t * dy;
     final dist = math.sqrt(
-      (pos.dx - projX) * (pos.dx - projX) +
-          (pos.dy - projY) * (pos.dy - projY),
+      (pos.dx - projX) * (pos.dx - projX) + (pos.dy - projY) * (pos.dy - projY),
     );
     // Hit area: half thickness + generous finger-sized margin in canvas space
     return dist <= (thickness / 2) + 8;
@@ -538,7 +542,11 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
           textDirection: TextDirection.ltr,
         )..layout(maxWidth: maxWidth > 0 ? maxWidth : double.infinity);
         return Rect.fromLTWH(
-            x, y, maxWidth > 0 ? maxWidth : tp.width, tp.height);
+          x,
+          y,
+          maxWidth > 0 ? maxWidth : tp.width,
+          tp.height,
+        );
       case 'drawLine':
         final x1 = _parseDouble(op, 'x1');
         final y1 = _parseDouble(op, 'y1');
@@ -628,8 +636,12 @@ class _CanvasPreviewState extends State<_CanvasPreview> {
     return LayoutBuilder(
       builder: (context, constraints) {
         // Compute scale to fit canvas within constraints
-        final maxW = constraints.maxWidth.isFinite ? constraints.maxWidth : 800.0;
-        final maxH = constraints.maxHeight.isFinite ? constraints.maxHeight : 600.0;
+        final maxW = constraints.maxWidth.isFinite
+            ? constraints.maxWidth
+            : 800.0;
+        final maxH = constraints.maxHeight.isFinite
+            ? constraints.maxHeight
+            : 600.0;
         if (maxW <= 0 || maxH <= 0) return const SizedBox.shrink();
         final aspect = _renderWidth / _renderHeight;
 
@@ -710,6 +722,7 @@ class _CanvasPreviewPainter extends CustomPainter {
   final int? selectedIndex;
   final int canvasWidth;
   final int canvasHeight;
+
   /// Render area may be larger than the canvas to include out-of-bounds elements.
   final int renderWidth;
   final int renderHeight;
@@ -717,6 +730,7 @@ class _CanvasPreviewPainter extends CustomPainter {
   final Rect? Function(Map<String, dynamic> op) getBoundingBox;
   final Set<int> hiddenIndices;
   final List<VariableSuggestion> variableSuggestions;
+
   /// Pre-loaded images keyed by their source URL.
   final Map<String, ui.Image> loadedImages;
 
@@ -805,10 +819,7 @@ class _CanvasPreviewPainter extends CustomPainter {
             hy = c.y;
           }
         }
-        _paintSelectionHighlight(
-          canvas,
-          bounds.translate(hx, hy),
-        );
+        _paintSelectionHighlight(canvas, bounds.translate(hx, hy));
       }
     }
 
@@ -905,8 +916,10 @@ class _CanvasPreviewPainter extends CustomPainter {
     final y = _parseDouble(op, 'y');
     final fontSize = _parseDouble(op, 'fontSize', 14);
     final color = _parseUiColor(op['color']) ?? const ui.Color(0xFFFFFFFF);
-    final textAlignStr =
-        (op['textAlign'] ?? '').toString().toLowerCase().trim();
+    final textAlignStr = (op['textAlign'] ?? '')
+        .toString()
+        .toLowerCase()
+        .trim();
     final maxWidth = _parseDouble(op, 'maxWidth', -1);
 
     if (text.contains('((')) {
@@ -915,10 +928,11 @@ class _CanvasPreviewPainter extends CustomPainter {
     }
 
     final formattedColor = Color.fromARGB(
-        (color.a * 255).round().clamp(0, 255),
-        (color.r * 255).round().clamp(0, 255),
-        (color.g * 255).round().clamp(0, 255),
-        (color.b * 255).round().clamp(0, 255));
+      (color.a * 255).round().clamp(0, 255),
+      (color.r * 255).round().clamp(0, 255),
+      (color.g * 255).round().clamp(0, 255),
+      (color.b * 255).round().clamp(0, 255),
+    );
 
     TextAlign align = TextAlign.left;
     if (textAlignStr == 'center') {
@@ -961,7 +975,10 @@ class _CanvasPreviewPainter extends CustomPainter {
       ..strokeWidth = thickness
       ..strokeCap = StrokeCap.round;
 
-    final bounds = Rect.fromPoints(Offset(x1, y1), Offset(x2, y2)).inflate(thickness);
+    final bounds = Rect.fromPoints(
+      Offset(x1, y1),
+      Offset(x2, y2),
+    ).inflate(thickness);
     _drawWithBlend(canvas, bounds, blend, () {
       canvas.drawLine(Offset(x1, y1), Offset(x2, y2), paint);
     });
@@ -1025,19 +1042,30 @@ class _CanvasPreviewPainter extends CustomPainter {
     final y = _parseDouble(op, 'y');
     final w = _parseDouble(op, 'width', 100);
     final h = _parseDouble(op, 'height', 20);
-    var percentage = (double.tryParse((op['percentage'] ?? '0').toString()) ?? 0.0).clamp(0.0, 100.0);
-    final barColor = _parseUiColor(op['barColor']) ?? const ui.Color(0xFF4285F4);
-    final trackColor = _parseUiColor(op['trackColor']) ?? const ui.Color(0xFFE0E0E0);
-    final textColor = _parseUiColor(op['textColor']) ?? const ui.Color(0xFFFFFFFF);
+    var percentage =
+        (double.tryParse((op['percentage'] ?? '0').toString()) ?? 0.0).clamp(
+          0.0,
+          100.0,
+        );
+    final barColor =
+        _parseUiColor(op['barColor']) ?? const ui.Color(0xFF4285F4);
+    final trackColor =
+        _parseUiColor(op['trackColor']) ?? const ui.Color(0xFFE0E0E0);
+    final textColor =
+        _parseUiColor(op['textColor']) ?? const ui.Color(0xFFFFFFFF);
     final borderWidth = _parseDouble(op, 'borderWidth', 0).clamp(0.0, 50.0);
-    final vertical = (op['orientation'] ?? '').toString().toLowerCase().trim() == 'vertical';
+    final vertical =
+        (op['orientation'] ?? '').toString().toLowerCase().trim() == 'vertical';
     final fontSize = _parseDouble(op, 'fontSize', 14);
     final borderRadius = _parseDouble(op, 'borderRadius', 0).clamp(0.0, 500.0);
 
     // Draw Track
     final rect = Rect.fromLTWH(x, y, w, h);
     if (borderRadius > 0.0) {
-      final rrect = RRect.fromRectAndRadius(rect, Radius.circular(borderRadius));
+      final rrect = RRect.fromRectAndRadius(
+        rect,
+        Radius.circular(borderRadius),
+      );
       canvas.drawRRect(rrect, Paint()..color = trackColor);
     } else {
       canvas.drawRect(rect, Paint()..color = trackColor);
@@ -1056,7 +1084,10 @@ class _CanvasPreviewPainter extends CustomPainter {
       }
       if (borderRadius > 0.0) {
         canvas.save();
-        final rrect = RRect.fromRectAndRadius(rect, Radius.circular(borderRadius));
+        final rrect = RRect.fromRectAndRadius(
+          rect,
+          Radius.circular(borderRadius),
+        );
         canvas.clipRRect(rrect);
         canvas.drawRect(fillRect, Paint()..color = barColor);
         canvas.restore();
@@ -1072,7 +1103,10 @@ class _CanvasPreviewPainter extends CustomPainter {
         ..style = PaintingStyle.stroke
         ..strokeWidth = borderWidth;
       if (borderRadius > 0.0) {
-        final rrect = RRect.fromRectAndRadius(rect, Radius.circular(borderRadius));
+        final rrect = RRect.fromRectAndRadius(
+          rect,
+          Radius.circular(borderRadius),
+        );
         canvas.drawRRect(rrect.deflate(borderWidth / 2), borderPaint);
       } else {
         canvas.drawRect(rect.deflate(borderWidth / 2), borderPaint);
@@ -1114,7 +1148,12 @@ class _CanvasPreviewPainter extends CustomPainter {
   }
 
   void _paintInvert(Canvas canvas, Map<String, dynamic> op) {
-    final rect = Rect.fromLTWH(0, 0, canvasWidth.toDouble(), canvasHeight.toDouble());
+    final rect = Rect.fromLTWH(
+      0,
+      0,
+      canvasWidth.toDouble(),
+      canvasHeight.toDouble(),
+    );
     final paint = Paint()
       ..color = const ui.Color(0xFFFFFFFF)
       ..blendMode = ui.BlendMode.difference;
@@ -1122,7 +1161,12 @@ class _CanvasPreviewPainter extends CustomPainter {
   }
 
   void _paintGrayscale(Canvas canvas, Map<String, dynamic> op) {
-    final rect = Rect.fromLTWH(0, 0, canvasWidth.toDouble(), canvasHeight.toDouble());
+    final rect = Rect.fromLTWH(
+      0,
+      0,
+      canvasWidth.toDouble(),
+      canvasHeight.toDouble(),
+    );
     final paint = Paint()
       ..color = const ui.Color(0xFF000000)
       ..blendMode = ui.BlendMode.saturation;
@@ -1147,8 +1191,12 @@ class _CanvasPreviewPainter extends CustomPainter {
   /// When [blend] is empty or 'normal', draws directly without a layer
   /// (no performance overhead). Otherwise creates a temporary offscreen
   /// layer using the corresponding Flutter [BlendMode] and composites it.
-  void _drawWithBlend(Canvas canvas, Rect bounds, String blend,
-      void Function() drawFn) {
+  void _drawWithBlend(
+    Canvas canvas,
+    Rect bounds,
+    String blend,
+    void Function() drawFn,
+  ) {
     final blendMode = _parseFlutterBlendMode(blend);
     if (blendMode == null) {
       drawFn();
@@ -1219,8 +1267,11 @@ class _CanvasPreviewPainter extends CustomPainter {
       Rect.fromCenter(center: Offset(cx, cy), width: s * 2, height: s * 1.2),
       iconPaint,
     );
-    canvas.drawCircle(Offset(cx - s * 0.3, cy - s * 0.3), s * 0.15,
-        Paint()..color = const ui.Color(0x66FFFFFF));
+    canvas.drawCircle(
+      Offset(cx - s * 0.3, cy - s * 0.3),
+      s * 0.15,
+      Paint()..color = const ui.Color(0x66FFFFFF),
+    );
 
     // Show a subtle loading indicator for URLs actively being fetched
     // (vs empty URLs that don't trigger loading at all)
@@ -1245,7 +1296,12 @@ class _CanvasPreviewPainter extends CustomPainter {
     final specifiedH = _parseDouble(op, 'height', -1);
     final shape = (op['shape'] ?? '').toString().toLowerCase().trim();
 
-    final src = Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble());
+    final src = Rect.fromLTWH(
+      0,
+      0,
+      image.width.toDouble(),
+      image.height.toDouble(),
+    );
 
     Rect dst;
     if (specifiedW > 0 && specifiedH > 0) {
@@ -1257,7 +1313,12 @@ class _CanvasPreviewPainter extends CustomPainter {
       final ratio = image.width / image.height;
       dst = Rect.fromLTWH(x, y, specifiedH * ratio, specifiedH);
     } else {
-      dst = Rect.fromLTWH(x, y, image.width.toDouble(), image.height.toDouble());
+      dst = Rect.fromLTWH(
+        x,
+        y,
+        image.width.toDouble(),
+        image.height.toDouble(),
+      );
     }
 
     final needsClip = shape.isNotEmpty && shape != 'none';
@@ -1275,8 +1336,10 @@ class _CanvasPreviewPainter extends CustomPainter {
 
   /// Builds a clip [Path] for the given shape inside [rect].
   Path _shapeClipPath(String shape, Rect rect) {
-    if (shape == 'circle' || shape == 'round' ||
-        shape == 'oval' || shape == 'ellipse') {
+    if (shape == 'circle' ||
+        shape == 'round' ||
+        shape == 'oval' ||
+        shape == 'ellipse') {
       return Path()..addOval(rect);
     }
     if (shape.startsWith('rounded') || shape.startsWith('roundrect')) {
@@ -1326,7 +1389,11 @@ class _CanvasPreviewPainter extends CustomPainter {
   /// unknown variables are displayed with a warning (orange/red) badge.
   /// Plain text between placeholders is rendered normally.
   void _paintVariableText(
-    Canvas canvas, String text, double x, double y, double fontSize,
+    Canvas canvas,
+    String text,
+    double x,
+    double y,
+    double fontSize,
   ) {
     // Parse the text into segments: plain text + placeholder segments
     final segments = _parsePlaceholderSegments(text);
@@ -1351,25 +1418,28 @@ class _CanvasPreviewPainter extends CustomPainter {
     for (final match in regex.allMatches(text)) {
       // Plain text before this placeholder
       if (match.start > lastEnd) {
-        segments.add(_PlaceholderSegment(
-          text: text.substring(lastEnd, match.start),
-          isPlaceholder: false,
-        ));
+        segments.add(
+          _PlaceholderSegment(
+            text: text.substring(lastEnd, match.start),
+            isPlaceholder: false,
+          ),
+        );
       }
       // The placeholder (including the ((...)) wrapper for display)
-      segments.add(_PlaceholderSegment(
-        text: match.group(0)!,
-        isPlaceholder: true,
-      ));
+      segments.add(
+        _PlaceholderSegment(text: match.group(0)!, isPlaceholder: true),
+      );
       lastEnd = match.end;
     }
 
     // Trailing plain text
     if (lastEnd < text.length) {
-      segments.add(_PlaceholderSegment(
-        text: text.substring(lastEnd),
-        isPlaceholder: false,
-      ));
+      segments.add(
+        _PlaceholderSegment(
+          text: text.substring(lastEnd),
+          isPlaceholder: false,
+        ),
+      );
     }
 
     return segments;
@@ -1377,7 +1447,11 @@ class _CanvasPreviewPainter extends CustomPainter {
 
   /// Renders a plain text span and returns its width.
   double _paintPlainTextSpan(
-    Canvas canvas, String text, double x, double y, double fontSize,
+    Canvas canvas,
+    String text,
+    double x,
+    double y,
+    double fontSize,
   ) {
     if (text.isEmpty) return 0;
     final tp = TextPainter(
@@ -1402,7 +1476,11 @@ class _CanvasPreviewPainter extends CustomPainter {
   /// category color; unknown variables get a warning orange badge with
   /// an error indicator.
   double _paintVariableChip(
-    Canvas canvas, String rawPlaceholder, double x, double y, double fontSize,
+    Canvas canvas,
+    String rawPlaceholder,
+    double x,
+    double y,
+    double fontSize,
   ) {
     // Extract the variable name without ((...)) wrapper
     final varName = rawPlaceholder
@@ -1421,9 +1499,7 @@ class _CanvasPreviewPainter extends CustomPainter {
         ? ui.Color((categoryColor.toARGB32() & 0x00FFFFFF) | 0x33000000)
         : const ui.Color(0x33FF6B35);
 
-    final textColor = isKnown
-        ? categoryColor
-        : const ui.Color(0xFFFF6B35);
+    final textColor = isKnown ? categoryColor : const ui.Color(0xFFFF6B35);
 
     final textPainter = TextPainter(
       text: TextSpan(
@@ -1445,15 +1521,14 @@ class _CanvasPreviewPainter extends CustomPainter {
     // Background chip
     final rrect = RRect.fromRectAndRadius(
       Rect.fromLTWH(
-        x - 2, y - 2,
-        textPainter.width + 4, textPainter.height + 4,
+        x - 2,
+        y - 2,
+        textPainter.width + 4,
+        textPainter.height + 4,
       ),
       const Radius.circular(4),
     );
-    canvas.drawRRect(
-      rrect,
-      Paint()..color = bgColor,
-    );
+    canvas.drawRRect(rrect, Paint()..color = bgColor);
 
     // Draw a subtle border for unknown variables
     if (!isKnown) {
@@ -1482,7 +1557,9 @@ class _CanvasPreviewPainter extends CustomPainter {
   ui.Color _categoryColor(shared.VariableCategory category) {
     switch (category) {
       case shared.VariableCategory.author:
-        return const ui.Color(0xFF7C4DFF); // Deep purple
+        // Violet retiré (dernier reste de la charte violette) : rose accent,
+        // distinct des 11 autres teintes et lisible sur fond sombre.
+        return const ui.Color(0xFFFF5252); // Red accent
       case shared.VariableCategory.user:
         return const ui.Color(0xFF448AFF); // Blue
       case shared.VariableCategory.member:
@@ -1494,7 +1571,7 @@ class _CanvasPreviewPainter extends CustomPainter {
       case shared.VariableCategory.message:
         return const ui.Color(0xFFFFD740); // Amber
       case shared.VariableCategory.bot:
-        return const ui.Color(0xFFE040FB); // Purple
+        return const ui.Color(0xFFFF80AB); // Pink accent
       case shared.VariableCategory.temp:
         return const ui.Color(0xFFFF6E40); // Deep orange
       case shared.VariableCategory.context_:
@@ -1520,7 +1597,8 @@ class _CanvasPreviewPainter extends CustomPainter {
     // Inflate bounds slightly so the highlight is visible around the element
     final pad = 3.0;
     final r = bounds.inflate(pad);
-    final path = Path()..addRRect(RRect.fromRectAndRadius(r, const Radius.circular(2)));
+    final path = Path()
+      ..addRRect(RRect.fromRectAndRadius(r, const Radius.circular(2)));
 
     // Draw dashed border
     final dashedPath = _dashPath(path, dashLength: 6, gapLength: 4);
@@ -1531,15 +1609,9 @@ class _CanvasPreviewPainter extends CustomPainter {
     final handlePaint = Paint()
       ..color = selectionColor
       ..style = PaintingStyle.fill;
-    for (final corner in [
-      r.topLeft,
-      r.topRight,
-      r.bottomLeft,
-      r.bottomRight,
-    ]) {
+    for (final corner in [r.topLeft, r.topRight, r.bottomLeft, r.bottomRight]) {
       canvas.drawRect(
-        Rect.fromCenter(
-            center: corner, width: handleSize, height: handleSize),
+        Rect.fromCenter(center: corner, width: handleSize, height: handleSize),
         handlePaint,
       );
     }
@@ -1576,15 +1648,21 @@ class _CanvasPreviewPainter extends CustomPainter {
 
   // ─── Helpers ──────────────────────────────────────────────────────────
 
-  double _parseDouble(Map<String, dynamic> op, String key,
-      [double defaultValue = 0]) {
+  double _parseDouble(
+    Map<String, dynamic> op,
+    String key, [
+    double defaultValue = 0,
+  ]) {
     final value = op[key];
     if (value == null) return defaultValue;
     return double.tryParse(value.toString()) ?? defaultValue;
   }
 
-  bool _parseBool(Map<String, dynamic> op, String key,
-      [bool defaultValue = false]) {
+  bool _parseBool(
+    Map<String, dynamic> op,
+    String key, [
+    bool defaultValue = false,
+  ]) {
     final value = op[key];
     if (value == null) return defaultValue;
     final s = value.toString().toLowerCase().trim();
@@ -1608,13 +1686,27 @@ class _CanvasPreviewPainter extends CustomPainter {
     if (s.isEmpty) return null;
 
     const named = <String, int>{
-      'red': 0xFFFF0000, 'green': 0xFF00FF00, 'blue': 0xFF0000FF,
-      'white': 0xFFFFFFFF, 'black': 0xFF000000, 'transparent': 0x00000000,
-      'yellow': 0xFFFFFF00, 'cyan': 0xFF00FFFF, 'magenta': 0xFFFF00FF,
-      'orange': 0xFFFFA500, 'purple': 0xFF800080, 'pink': 0xFFFFC0CB,
-      'gray': 0xFF808080, 'grey': 0xFF808080, 'lime': 0xFF00FF00,
-      'navy': 0xFF000080, 'teal': 0xFF008080, 'aqua': 0xFF00FFFF,
-      'maroon': 0xFF800000, 'silver': 0xFFC0C0C0, 'gold': 0xFFFFD700,
+      'red': 0xFFFF0000,
+      'green': 0xFF00FF00,
+      'blue': 0xFF0000FF,
+      'white': 0xFFFFFFFF,
+      'black': 0xFF000000,
+      'transparent': 0x00000000,
+      'yellow': 0xFFFFFF00,
+      'cyan': 0xFF00FFFF,
+      'magenta': 0xFFFF00FF,
+      'orange': 0xFFFFA500,
+      'purple': 0xFF800080,
+      'pink': 0xFFFFC0CB,
+      'gray': 0xFF808080,
+      'grey': 0xFF808080,
+      'lime': 0xFF00FF00,
+      'navy': 0xFF000080,
+      'teal': 0xFF008080,
+      'aqua': 0xFF00FFFF,
+      'maroon': 0xFF800000,
+      'silver': 0xFFC0C0C0,
+      'gold': 0xFFFFD700,
     };
 
     final lower = s.toLowerCase();
@@ -1639,10 +1731,7 @@ class _PlaceholderSegment {
   final String text;
   final bool isPlaceholder;
 
-  const _PlaceholderSegment({
-    required this.text,
-    required this.isPlaceholder,
-  });
+  const _PlaceholderSegment({required this.text, required this.isPlaceholder});
 }
 
 /// Container metadata for relative positioning in the preview painter.
@@ -1661,8 +1750,11 @@ class _PreviewContainer {
 
 // ─── Reusable parse helpers (module-level for _CanvasPreviewState) ─────
 
-double _parseDouble(Map<String, dynamic> op, String key,
-    [double defaultValue = 0]) {
+double _parseDouble(
+  Map<String, dynamic> op,
+  String key, [
+  double defaultValue = 0,
+]) {
   final value = op[key];
   if (value == null) return defaultValue;
   return double.tryParse(value.toString()) ?? defaultValue;

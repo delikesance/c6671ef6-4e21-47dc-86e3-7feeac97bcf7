@@ -1169,6 +1169,9 @@
   "@bot_home_section_getting_started": {
     "description": "GETTING STARTED"
   },
+  "@bot_home_section_modules": {
+    "description": "MODULES"
+  },
   "@bot_home_section_monitoring": {
     "description": "MONITORING"
   },
@@ -1177,6 +1180,9 @@
   },
   "@bot_home_service_not_started": {
     "description": "Foreground service did not start."
+  },
+  "@bot_home_restart": {
+    "description": "Restart"
   },
   "@bot_home_start": {
     "description": "Start Bot"
@@ -2944,6 +2950,12 @@
   },
   "@edit_shell_untitled_command": {
     "description": "Untitled command"
+  },
+  "@editor_sidebar_collapse": {
+    "description": "Collapse the editor sidebar into an icon rail"
+  },
+  "@editor_sidebar_expand": {
+    "description": "Expand the collapsed editor sidebar"
   },
   "@embed_add_field": {
     "description": "Add Field"
@@ -7152,6 +7164,22 @@
   "app_token_section_desc": "Jeton kopyalandıktan sonra, botunuzu uygulamaya eklemek için aşağıya yapıştırın.",
   "app_token_section_title": "Bot jetonunuzu yapıştırın",
   "app_token_security_hint": "Bu jetonu gizli tutun. Ona sahip olan herkes botunuzu kontrol edebilir.",
+  "appearance_preset_graphite": "Grafit",
+  "appearance_preset_graphite_desc": "Nötr gri yüzeyler — özgün varsayılan görünüm.",
+  "appearance_preset_violet_bc": "Mor Bot Creator",
+  "appearance_preset_violet_bc_desc": "Bot Creator marka imzası; renkli yüzeyler dahil.",
+  "appearance_preset_discord": "Discord",
+  "appearance_preset_discord_desc": "Alışıldık bir görünüm için Discord blurple rengi.",
+  "appearance_preset_ocean": "Okyanus",
+  "appearance_preset_ocean_desc": "Derin su gibi camgöbeği tonları.",
+  "appearance_preset_forest": "Orman",
+  "appearance_preset_forest_desc": "Sakin ve doğal koyu yeşil.",
+  "appearance_preset_amber": "Amber",
+  "appearance_preset_amber_desc": "Canlı bir görünüm için sıcak turuncu.",
+  "appearance_preset_rose": "Gül",
+  "appearance_preset_rose_desc": "Cesur ve modern magenta pembe.",
+  "appearance_preset_high_contrast": "Yüksek kontrast",
+  "appearance_preset_high_contrast_desc": "Arayüz için maksimum okunabilirlik.",
   "autocomplete_dynamic": "Dinamik Otomatik Tamamlama",
   "autocomplete_dynamic_desc": "Seçenekleri statik değerler yerine bir iş akışından çözün.",
   "autocomplete_filter_hint": "Öneriler, kullanıcının yazdığına göre filtrelenir.",
@@ -7192,12 +7220,14 @@
   "bot_home_notif_required": "Bot hizmetini başlatmak için bildirim izni gereklidir.",
   "bot_home_section_danger": "TEHLİKELİ BÖLGE",
   "bot_home_section_getting_started": "BAŞLARKEN",
+  "bot_home_section_modules": "MODÜLLER",
   "bot_home_section_monitoring": "İZLEME",
   "bot_home_section_tools": "ARAÇLAR",
   "bot_home_service_not_started": "Ön plan hizmeti başlamadı.",
   "bot_home_start": "Botu Başlat",
   "bot_home_start_error": "Başlatılamadı: {error}",
   "bot_home_starting": "Başlatılıyor…",
+  "bot_home_restart": "Yeniden Başlat",
   "bot_home_stop": "Botu Durdur",
   "bot_home_sync": "Uygulamayı Senkronize Et",
   "bot_home_sync_success": "Uygulama başarıyla senkronize edildi",
@@ -7527,6 +7557,49 @@
   "cmd_simple_response_visibility_public": "Genel",
   "cmd_simple_send_message_required": "Lütfen kaydetmeden önce eylem mesajını doldurun.",
   "cmd_variables_title": "Komut Değişkenleri",
+  "code_editor_settings_title": "Kod düzenleyici",
+  "code_editor_settings_subtitle": "BDFD ve JavaScript düzenleyicileri için tema, yazı tipi ve düzenleme davranışı",
+  "code_editor_settings_reset_tooltip": "Varsayılanlara sıfırla",
+  "code_editor_settings_reset_title": "Yapılandırmayı sıfırla",
+  "code_editor_settings_reset_confirm": "Tüm düzenleyici ayarları varsayılan değerlerine sıfırlansın mı?",
+  "code_editor_settings_reset_action": "Sıfırla",
+  "code_editor_settings_reset_done": "Düzenleyici ayarları varsayılana sıfırlandı",
+  "code_editor_settings_preview_title": "Canlı önizleme",
+  "code_editor_settings_section_theme_title": "Sözdizimi renklendirme teması",
+  "code_editor_settings_section_theme_subtitle": "BDFD ve JavaScript için uygulanan görsel stili seçin",
+  "code_editor_settings_theme_mode_dark": "Koyu mod",
+  "code_editor_settings_theme_mode_light": "Açık mod",
+  "code_editor_settings_section_font_title": "Yazı tipi ve tipografi",
+  "code_editor_settings_section_font_subtitle": "Yazı tipi ailesini ve metin boyutunu ayarlayın",
+  "code_editor_settings_font_family": "Yazı tipi ailesi",
+  "code_editor_settings_font_system": "Sistem tek aralıklı",
+  "code_editor_settings_font_jetbrains_mono": "JetBrains Mono",
+  "code_editor_settings_font_fira_code": "Fira Code",
+  "code_editor_settings_font_consolas": "Consolas",
+  "code_editor_settings_font_size": "Yazı tipi boyutu",
+  "code_editor_settings_line_height": "Satır yüksekliği (satır aralığı)",
+  "code_editor_settings_section_display_title": "Görünüm ve görsel kılavuzlar",
+  "code_editor_settings_section_display_subtitle": "Satır numaraları, girinti kılavuzları ve satır kaydırma",
+  "code_editor_settings_line_numbers": "Satır numaraları",
+  "code_editor_settings_line_numbers_desc": "Numaralandırmayı sol kenar boşluğunda gösterir",
+  "code_editor_settings_indent_guides": "Girinti kılavuzları",
+  "code_editor_settings_indent_guides_desc": "Kod bloklarını görmek için dikey çizgiler",
+  "code_editor_settings_word_wrap": "Otomatik satır kaydırma",
+  "code_editor_settings_word_wrap_desc": "Uzun satırları yatay kaydırmak yerine kaydırır",
+  "code_editor_settings_quick_chars": "Hızlı karakter çubuğu (mobil)",
+  "code_editor_settings_quick_chars_desc": "Klavyenin üzerinde BDFD ön eki, bağımsız değişkenler, ayırıcılar ve parantezler eklemek için hızlı düğmeler",
+  "code_editor_settings_section_editing_title": "Düzenleme davranışı",
+  "code_editor_settings_section_editing_subtitle": "Otomatik kapatma ve boşluklar",
+  "code_editor_settings_auto_close": "Sembollerin otomatik kapanması",
+  "code_editor_settings_auto_close_desc": "Köşeli parantezleri, küme parantezlerini, normal parantezleri ve tırnak işaretlerini otomatik kapatır",
+  "code_editor_settings_tab_size": "Sekme boyutu (boşluk)",
+  "code_editor_settings_tab_size_desc": "Girintilerken eklenen boşluk sayısı",
+  "command_alias_label": "Takma ad",
+  "command_alias_hint": "!p",
+  "command_alias_help": "Komut bu tetikleyici sözcüklere de yanıt verir.",
+  "command_alias_duplicate": "Bu takma ad zaten kullanılıyor.",
+  "command_alias_limit": "En fazla {max} takma ad.",
+  "command_alias_collision": "{command} komutu tarafından zaten kullanılıyor.",
   "command_awaited_error": "Hata",
   "command_awaited_filter_hint": "Örnek: <numeric> veya <yes/no/cancel>",
   "command_awaited_filter_label": "Filtre (isteğe bağlı)",
@@ -7638,6 +7711,7 @@
   "common_delete": "Sil",
   "common_description": "Açıklama",
   "common_disabled": "Devre Dışı",
+  "common_discard": "Vazgeç",
   "common_edit": "Düzenle",
   "common_enabled": "Etkin",
   "common_import": "İçe Aktar",
@@ -7810,6 +7884,8 @@
   "edit_shell_type_user": "Kullanıcı komutu",
   "edit_shell_unsaved": "Kaydedilmemiş değişiklikler",
   "edit_shell_untitled_command": "Adsız komut",
+  "editor_sidebar_collapse": "Kenar çubuğunu daralt",
+  "editor_sidebar_expand": "Kenar çubuğunu genişlet",
   "embed_add_field": "Alan Ekle",
   "embed_add_section": "Bölüm Ekle",
   "embed_add_tooltip": "Gömülü mesaj ekle",
@@ -7928,6 +8004,12 @@
   "guilds_tab_short": "Sunucular",
   "hint_use_variables": "Gerekiyorsa değişkenleri/şablonları kullanın",
   "home_add_time": "Zaman Ekle",
+  "home_overline": "PROJELERİM",
+  "home_create_bot_title": "Bot oluştur",
+  "home_create_bot_subtitle": "Discord botun iki tıkta",
+  "home_active_on_servers_one": "{count} sunucuda aktif",
+  "home_active_on_servers_other": "{count} sunucuda aktif",
+  "home_synced_active": "Senkron ve aktif",
   "home_empty_support_btn": "Discord Desteği",
   "home_empty_support_hint": "Yardıma mı ihtiyacınız var? Topluluğumuza katılın!",
   "home_foreground_service_not_started": "Ön plan hizmeti başlamadı.",
@@ -8403,7 +8485,20 @@
   "settings_ads_privacy_open_error": "Reklam gizliliği seçenekleri açılamadı",
   "settings_ads_privacy_opened": "Reklam gizliliği seçenekleri açıldı",
   "settings_app_version": "Uygulama",
-  "settings_appearance_title": "Görünüm ve dil",
+  "settings_appearance_accent_label": "Vurgu",
+  "settings_appearance_contrast_ratio": "Vurgu/yüzey kontrastı: {ratio}",
+  "settings_appearance_contrast_warning": "Düşük kontrast ({ratio}): Vurgu arka plandan zor ayrılıyor. Uygulama gerektiğinde bunu uyarlar; daha açık veya koyu bir vurgu okunabilirliği artırır.",
+  "settings_appearance_custom_badge": "Özel",
+  "settings_appearance_custom_title": "Özel renkler",
+  "settings_appearance_mode_dark": "Koyu",
+  "settings_appearance_mode_light": "Açık",
+  "settings_appearance_mode_system": "Sistem",
+  "settings_appearance_mode_title": "Mod",
+  "settings_appearance_presets_title": "Hazır temalar",
+  "settings_appearance_reset": "Sıfırla",
+  "settings_appearance_seed_label": "Ana renk",
+  "settings_appearance_subtitle": "Bir mod, hazır bir tema veya kendi renklerini seç.",
+  "settings_appearance_title": "Görünüm",
   "settings_auto_backup_check_loading": "Otomatik yedekleme kontrolü…",
   "settings_auto_backup_every_12h": "Her 12 saatte bir",
   "settings_auto_backup_every_24h": "Her 24 saatte bir",
@@ -8611,6 +8706,8 @@
   "settings_runner_connected": "Runner erişilebilir ✓",
   "settings_runner_connecting": "Bağlantı kontrol ediliyor…",
   "settings_runner_desc": "Uygulamayı bir Bot Creator Runner'a bağlayın. Uzak çalıştırıcılar güvenilir ağlarda kalmalı ve bir taşıyıcı jeton (bearer token) kullanmalıdır.",
+  "settings_runner_use_remote": "Uzak çalıştırıcı kullan",
+  "settings_runner_use_remote_desc": "Uzak bir Bot Creator Runner'a bağlanın. Kapalı bırakırsanız botlar bu cihazda yerel olarak çalışır.",
   "settings_runner_disable_temp": "Runner'ı geçici olarak devre dışı bırak",
   "settings_runner_disable_temp_desc": "Runner ayarlarını koru ancak yeniden etkinleştirilene kadar yerel modu zorla.",
   "settings_runner_disconnected": "Runner bağlantısı kesildi",
@@ -9151,19 +9248,19 @@
   "command_created_sample_success": "/ping komutu oluşturuldu! \"Pong!\" diye yanıt verir.",
   "onboarding_create_now": "Botu şimdi oluştur",
   "onboarding_command_now": "İlk komutunu oluştur",
-  "container_list_title": "Barindirilan Uygulamalar",
+  "container_list_title": "Hazır Botlar",
   "@container_list_title": {
     "description": "Title of the container list page"
   },
-  "container_list_session_missing": "Oturum kullanilamiyor",
+  "container_list_session_missing": "Oturum kullanılamıyor",
   "@container_list_session_missing": {
     "description": "Shown when no API session is found"
   },
-  "container_list_session_hint": "Lütfen önce hesabiniza baglanin.",
+  "container_list_session_hint": "Lütfen önce hesabınıza bağlanın.",
   "@container_list_session_hint": {
     "description": "Hint below the session error"
   },
-  "container_list_error": "Kapsayicilar yüklenirken basarisiz oldu",
+  "container_list_error": "Botlar yüklenirken başarısız oldu",
   "@container_list_error": {
     "description": "Error message when container list fails to load"
   },
@@ -9171,23 +9268,27 @@
   "@container_list_retry": {
     "description": "Retry button label"
   },
-  "container_list_empty": "Barindirilan uygulama yok",
+  "container_list_empty": "Hazır bot yok",
   "@container_list_empty": {
     "description": "Empty state title"
   },
-  "container_list_empty_hint": "Baslamak için ilk uygulamanizi dagitin.",
+  "container_list_empty_hint": "1 tıkla ilk kullanıma hazır botunuzu dağıtın.",
   "@container_list_empty_hint": {
     "description": "Empty state description"
   },
-  "container_list_deploy_btn": "Uygulama Dagit",
+  "container_list_deploy_btn": "Hazır Bot Dağıt",
   "@container_list_deploy_btn": {
     "description": "Button to deploy a new container"
+  },
+  "container_list_unsupported_badge": "Desteklenmiyor",
+  "@container_list_unsupported_badge": {
+    "description": "Badge shown on legacy custom containers"
   },
   "container_list_expired": "Süresi doldu",
   "@container_list_expired": {
     "description": "Label when a container has expired"
   },
-  "container_list_expiry_minutes": "{minutes} dakika kaldi",
+  "container_list_expiry_minutes": "{minutes} dakika kaldı",
   "@container_list_expiry_minutes": {
     "description": "Container expiry in minutes",
     "placeholders": {
@@ -9196,7 +9297,7 @@
       }
     }
   },
-  "container_list_expiry_hours": "{hours} saat {minutes} dakika kaldi",
+  "container_list_expiry_hours": "{hours} saat {minutes} dakika kaldı",
   "@container_list_expiry_hours": {
     "description": "Container expiry in hours and minutes",
     "placeholders": {
@@ -9208,7 +9309,7 @@
       }
     }
   },
-  "container_list_expiry_days": "{days} gün {hours} saat kaldi",
+  "container_list_expiry_days": "{days} gün {hours} saat kaldı",
   "@container_list_expiry_days": {
     "description": "Container expiry in days and hours",
     "placeholders": {
@@ -9220,9 +9321,33 @@
       }
     }
   },
-  "container_deploy_title": "Uygulama Dagit",
+  "container_deploy_title": "Hazır Bot Dağıt",
   "@container_deploy_title": {
     "description": "Title of the deploy container page"
+  },
+  "container_deploy_template_section": "Kullanıma Hazır Şablon",
+  "@container_deploy_template_section": {
+    "description": "Section header for turnkey bot templates"
+  },
+  "container_deploy_managed_hosting": "7/24 Yönetilen Barındırma",
+  "@container_deploy_managed_hosting": {
+    "description": "Subtitle tag on turnkey bot card"
+  },
+  "container_deploy_bot_config_section": "Discord Bot Yapılandırması",
+  "@container_deploy_bot_config_section": {
+    "description": "Section header for bot token config"
+  },
+  "container_deploy_paste_token_hint": "Discord bot belirtecini (token) buraya yapıştırın",
+  "@container_deploy_paste_token_hint": {
+    "description": "Hint text for Discord bot token field"
+  },
+  "container_deploy_discord_prereqs": "Discord Ön Koşulları",
+  "@container_deploy_discord_prereqs": {
+    "description": "Header for Discord prerequisites advice box"
+  },
+  "container_deploy_launch_btn": "Hazır Botu Başlat",
+  "@container_deploy_launch_btn": {
+    "description": "Button to launch the turnkey bot"
   },
   "container_deploy_image_label": "Görüntü",
   "@container_deploy_image_label": {
@@ -9497,7 +9622,7 @@
   "@container_health_starting": {
     "description": "Explains a starting/provisioning health status"
   },
-  "container_hosted_subtitle": "Docker kapsayicilarini dagitin ve yönetin",
+  "container_hosted_subtitle": "Kullanıma hazır botları (müzik vb.) 1 tıkla dağıtın",
   "@container_hosted_subtitle": {
     "description": "Subtitle for the hosted apps card on the home page"
   },
@@ -9505,7 +9630,7 @@
   "@container_premium_badge": {
     "description": "Badge text for premium-gated container feature"
   },
-  "container_detail_title": "Kapsayici {id}",
+  "container_detail_title": "Bot {id}",
   "@container_detail_title": {
     "description": "Title of the container detail page, {id} is the short container ID",
     "placeholders": {
@@ -9514,21 +9639,21 @@
       }
     }
   },
-  "container_list_premium_host_anytime_tooltip": "Premium — istediginiz zaman barindirin",
-  "container_list_premium_host_anytime_fab": "Istediginiz zaman barindirin",
-  "container_list_free_limit_reached": "Ucretsiz limit doldu (1 konteyner). Daha fazlasi icin abone olun.",
-  "container_hosted_premium_host_anytime": "Istediginiz zaman barindirin",
-  "container_hosted_premium_host_anytime_compact": "Abone ol — istediginiz zaman barindirin",
-  "container_hosted_premium_desc": "Docker konteynerlerini sinirsiz barindirin — reklam yok. Abonelik gerekir.",
-  "container_hosted_premium_view_btn": "Planlari gor",
-  "hosted_app_subscription_title": "Barindirilan uygulamalar",
-  "hosted_app_subscription_subtitle": "Reklam izlemeden Docker konteynerlerini bulutta calistirin.",
-  "hosted_app_subscription_benefit_unlimited": "Sinirsiz barindirma suresi",
-  "hosted_app_subscription_benefit_no_ads": "Odullu reklam gerekmez",
-  "hosted_app_subscription_one_app_title": "1 konteyner",
-  "hosted_app_subscription_one_app_desc": "Bir Docker konteynerini istediginiz zaman barindirin",
-  "hosted_app_subscription_two_app_title": "2 konteyner",
-  "hosted_app_subscription_two_app_desc": "En fazla iki Docker konteyneri barindirin",
+  "container_list_premium_host_anytime_tooltip": "Premium — istediğiniz zaman barındırın",
+  "container_list_premium_host_anytime_fab": "İstediğiniz zaman barındırın",
+  "container_list_free_limit_reached": "Ücretsiz limit doldu (1 bot). Daha fazlası için abone olun.",
+  "container_hosted_premium_host_anytime": "İstediğiniz zaman barındırın",
+  "container_hosted_premium_host_anytime_compact": "Abone ol — istediğiniz zaman barındırın",
+  "container_hosted_premium_desc": "Hazır botları 7/24 sınırsız barındırın — reklam yok. Abonelik gerekir.",
+  "container_hosted_premium_view_btn": "Planları gör",
+  "hosted_app_subscription_title": "Hazır Botlar",
+  "hosted_app_subscription_subtitle": "Kullanıma hazır botları bulutta kesintisiz 7/24 barındırın.",
+  "hosted_app_subscription_benefit_unlimited": "Sınırsız barındırma süresi",
+  "hosted_app_subscription_benefit_no_ads": "Ödüllü reklam gerekmez",
+  "hosted_app_subscription_one_app_title": "1 barındırılan bot",
+  "hosted_app_subscription_one_app_desc": "İstediğiniz zaman 1 hazır bot barındırın",
+  "hosted_app_subscription_two_app_title": "2 barındırılan bot",
+  "hosted_app_subscription_two_app_desc": "En fazla iki hazır bot barındırın",
   "hosted_app_subscription_recommended": "En iyi deger",
   "container_hosted_free_title": "Ucretsiz barindirma (en fazla 1 konteyner)",
   "container_hosted_expires_at": "Bitis: {dateTime}",
@@ -9751,5 +9876,389 @@
   "docs_reload": "Yeniden yukle",
   "@docs_reload": {
     "description": "docs reload"
+  },
+  "common_duplicate": "Çoğalt",
+  "@common_duplicate": {
+    "description": "Duplicate"
+  },
+  "commands_batch_select": "Toplu seçim",
+  "@commands_batch_select": {
+    "description": "Batch select"
+  },
+  "commands_selected_count": "{count} seçili",
+  "@commands_selected_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "{count} selected"
+  },
+  "image_editor_title": "Görüntü Düzenleyici",
+  "@image_editor_title": {
+    "description": "Image Editor"
+  },
+  "image_editor_add_operation": "İşlem ekle",
+  "@image_editor_add_operation": {
+    "description": "Add operation"
+  },
+  "image_editor_add_layer": "Katman ekle",
+  "@image_editor_add_layer": {
+    "description": "Add Layer"
+  },
+  "image_editor_operations": "İşlemler",
+  "@image_editor_operations": {
+    "description": "Operations"
+  },
+  "image_editor_op_container": "Kapsayıcı / Çerçeve",
+  "@image_editor_op_container": {
+    "description": "Container / Frame"
+  },
+  "image_editor_op_progress_bar": "İlerleme çubuğu",
+  "@image_editor_op_progress_bar": {
+    "description": "Progress Bar"
+  },
+  "image_editor_op_composite_image": "Görüntüyü birleştir",
+  "@image_editor_op_composite_image": {
+    "description": "Composite Image"
+  },
+  "image_editor_op_set_pixel": "Piksel ayarla",
+  "@image_editor_op_set_pixel": {
+    "description": "Set Pixel"
+  },
+  "image_editor_op_invert": "Renkleri ters çevir",
+  "@image_editor_op_invert": {
+    "description": "Invert Colors"
+  },
+  "image_editor_op_grayscale": "Gri tonlamaya dönüştür",
+  "@image_editor_op_grayscale": {
+    "description": "Convert to Grayscale"
+  },
+  "image_editor_op_rotate": "Tuvali döndür",
+  "@image_editor_op_rotate": {
+    "description": "Rotate Canvas"
+  },
+  "image_editor_zoom_in": "Yakınlaştır",
+  "@image_editor_zoom_in": {
+    "description": "Zoom in"
+  },
+  "image_editor_zoom_out": "Uzaklaştır",
+  "@image_editor_zoom_out": {
+    "description": "Zoom out"
+  },
+  "image_editor_zoom_fit": "Ekrana sığdır",
+  "@image_editor_zoom_fit": {
+    "description": "Fit to screen"
+  },
+  "image_editor_undo": "Geri al",
+  "@image_editor_undo": {
+    "description": "Undo"
+  },
+  "image_editor_redo": "Yinele",
+  "@image_editor_redo": {
+    "description": "Redo"
+  },
+  "image_editor_canvas": "Tuval",
+  "@image_editor_canvas": {
+    "description": "Canvas"
+  },
+  "image_editor_width": "Genişlik",
+  "@image_editor_width": {
+    "description": "Width"
+  },
+  "image_editor_height": "Yükseklik",
+  "@image_editor_height": {
+    "description": "Height"
+  },
+  "image_editor_properties": "Özellikler",
+  "@image_editor_properties": {
+    "description": "Properties"
+  },
+  "image_editor_visible": "Görünür",
+  "@image_editor_visible": {
+    "description": "Visible"
+  },
+  "image_editor_opacity": "Opaklık",
+  "@image_editor_opacity": {
+    "description": "Opacity"
+  },
+  "image_editor_ops_summary": "{count} işlem, {hidden} gizli",
+  "@image_editor_ops_summary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "hidden": {
+        "type": "int"
+      }
+    },
+    "description": "{count} operations, {hidden} hidden"
+  },
+  "image_editor_empty_hint": "Başlamak için bir \"{op}\" işlemi ekleyin",
+  "@image_editor_empty_hint": {
+    "placeholders": {
+      "op": {
+        "type": "String"
+      }
+    },
+    "description": "Add a \"{op}\" operation to start"
+  },
+  "image_editor_tap_to_edit": "Düzenlemek için dokunun",
+  "@image_editor_tap_to_edit": {
+    "description": "Tap to edit"
+  },
+  "image_editor_no_operations": "Henüz işlem yok",
+  "@image_editor_no_operations": {
+    "description": "No operations yet"
+  },
+  "image_editor_select_operation": "Özelliklerini düzenlemek için bir işlem seçin",
+  "@image_editor_select_operation": {
+    "description": "Select an operation to edit its properties"
+  },
+  "image_editor_insert_variable": "Değişken ekle",
+  "@image_editor_insert_variable": {
+    "description": "Insert Variable"
+  },
+  "image_editor_variable_label": "Değişken",
+  "@image_editor_variable_label": {
+    "description": "Variable"
+  },
+  "image_editor_variable_hint": "Filtrelemek için yazın veya aşağıdaki öneriye dokunun",
+  "@image_editor_variable_hint": {
+    "description": "Type to filter, or tap a suggestion below"
+  },
+  "image_editor_insert": "Ekle",
+  "@image_editor_insert": {
+    "description": "Insert"
+  },
+  "image_editor_pick_image": "Resim dosyası seç",
+  "@image_editor_pick_image": {
+    "description": "Pick image file"
+  },
+  "image_editor_color_picker": "Renk seçici",
+  "@image_editor_color_picker": {
+    "description": "Color Picker"
+  },
+  "image_editor_hue": "Ton",
+  "@image_editor_hue": {
+    "description": "Hue"
+  },
+  "image_editor_saturation": "Doygunluk",
+  "@image_editor_saturation": {
+    "description": "Saturation"
+  },
+  "image_editor_no_url": "URL yok",
+  "@image_editor_no_url": {
+    "description": "no URL"
+  },
+  "image_editor_unknown": "Bilinmiyor",
+  "@image_editor_unknown": {
+    "description": "Unknown"
+  },
+  "image_editor_field_text": "Metin",
+  "@image_editor_field_text": {
+    "description": "Text"
+  },
+  "image_editor_field_font_size": "Yazı boyutu",
+  "@image_editor_field_font_size": {
+    "description": "Font Size"
+  },
+  "image_editor_field_max_width": "Maks. genişlik",
+  "@image_editor_field_max_width": {
+    "description": "Max Width"
+  },
+  "image_editor_field_text_align": "Metin hizası",
+  "@image_editor_field_text_align": {
+    "description": "Text Align"
+  },
+  "image_editor_field_blend": "Karışım",
+  "@image_editor_field_blend": {
+    "description": "Blend"
+  },
+  "image_editor_field_fill": "Doldur",
+  "@image_editor_field_fill": {
+    "description": "Fill"
+  },
+  "image_editor_field_radius": "Yarıçap",
+  "@image_editor_field_radius": {
+    "description": "Radius"
+  },
+  "image_editor_field_thickness": "Kalınlık",
+  "@image_editor_field_thickness": {
+    "description": "Thickness"
+  },
+  "image_editor_field_shape": "Şekil",
+  "@image_editor_field_shape": {
+    "description": "Shape"
+  },
+  "image_editor_field_percentage": "Yüzde",
+  "@image_editor_field_percentage": {
+    "description": "Percentage"
+  },
+  "image_editor_field_bar_color": "Çubuk rengi",
+  "@image_editor_field_bar_color": {
+    "description": "Bar Color"
+  },
+  "image_editor_field_track_color": "Hat rengi",
+  "@image_editor_field_track_color": {
+    "description": "Track Color"
+  },
+  "image_editor_field_text_color": "Metin rengi",
+  "@image_editor_field_text_color": {
+    "description": "Text Color"
+  },
+  "image_editor_field_border_width": "Kenarlık genişliği",
+  "@image_editor_field_border_width": {
+    "description": "Border Width"
+  },
+  "image_editor_field_border_radius": "Kenarlık yarıçapı",
+  "@image_editor_field_border_radius": {
+    "description": "Border Radius"
+  },
+  "image_editor_field_orientation": "Yön",
+  "@image_editor_field_orientation": {
+    "description": "Orientation"
+  },
+  "image_editor_field_angle": "Açı (derece)",
+  "@image_editor_field_angle": {
+    "description": "Angle (Degrees)"
+  },
+  "image_editor_field_container": "Kapsayıcı",
+  "@image_editor_field_container": {
+    "description": "Container"
+  },
+  "image_editor_field_background_color": "Arka plan rengi",
+  "@image_editor_field_background_color": {
+    "description": "Background Color"
+  },
+  "image_editor_hint_auto_size": "otomatik (özgün boyut)",
+  "@image_editor_hint_auto_size": {
+    "description": "auto (native size)"
+  },
+  "image_editor_hint_optional_background": "isteğe bağlı arka plan",
+  "@image_editor_hint_optional_background": {
+    "description": "optional background"
+  },
+  "image_editor_hint_parent_container": "üst kapsayıcı adı",
+  "@image_editor_hint_parent_container": {
+    "description": "parent container name"
+  },
+  "image_editor_hint_container_width": "hizalama için kapsayıcı genişliği",
+  "@image_editor_hint_container_width": {
+    "description": "container width for alignment"
+  },
+  "action_card_duration": "Süre",
+  "@action_card_duration": {
+    "description": "Duration"
+  },
+  "action_card_error_message": "Hata Mesajı",
+  "@action_card_error_message": {
+    "description": "Error Message"
+  },
+  "action_card_jump_to": "Şuraya atla",
+  "@action_card_jump_to": {
+    "description": "Jump to"
+  },
+  "action_card_maximum": "Maksimum",
+  "@action_card_maximum": {
+    "description": "Maximum"
+  },
+  "action_card_minimum": "Minimum",
+  "@action_card_minimum": {
+    "description": "Minimum"
+  },
+  "action_card_skip_count": "Atlanacak sayı",
+  "@action_card_skip_count": {
+    "description": "Skip count"
+  },
+  "action_edit_request": "İsteği düzenle",
+  "@action_edit_request": {
+    "description": "Edit Request"
+  },
+  "action_error_jump": "Eyleme Atla",
+  "@action_error_jump": {
+    "description": "Jump to action"
+  },
+  "action_error_skip": "N eylemi atla",
+  "@action_error_skip": {
+    "description": "Skip N actions"
+  },
+  "component_max_length": "Maksimum Uzunluk",
+  "@component_max_length": {
+    "description": "Max Length"
+  },
+  "component_min_length": "Minimum Uzunluk",
+  "@component_min_length": {
+    "description": "Min Length"
+  },
+  "http_request_header_name": "Başlık adı",
+  "@http_request_header_name": {
+    "description": "Header name"
+  },
+  "http_request_json_body": "JSON Gövdesi",
+  "@http_request_json_body": {
+    "description": "JSON Body"
+  },
+  "http_request_section_body": "Gövde",
+  "@http_request_section_body": {
+    "description": "Body"
+  },
+  "http_request_section_headers": "Başlıklar",
+  "@http_request_section_headers": {
+    "description": "Headers"
+  },
+  "http_request_section_request": "İstek",
+  "@http_request_section_request": {
+    "description": "Request"
+  },
+  "http_request_text_body": "Metin Gövdesi",
+  "@http_request_text_body": {
+    "description": "Text Body"
+  },
+  "marketplace_summary_commands": "{count} komut",
+  "@marketplace_summary_commands": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "{count} commands"
+  },
+  "marketplace_summary_variables": "{count} değişken ({required} gerekli)",
+  "@marketplace_summary_variables": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "required": {
+        "type": "int"
+      }
+    },
+    "description": "{count} variables ({required} required)"
+  },
+  "marketplace_summary_workflows": "{count} iş akışı",
+  "@marketplace_summary_workflows": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "{count} workflows"
+  },
+  "modal_builder_configure_submit_actions": "Gönderme Eylemlerini Yapılandır",
+  "@modal_builder_configure_submit_actions": {
+    "description": "Configure Submit Actions"
+  },
+  "modal_builder_edit_submit_actions": "Gönderme Eylemlerini Düzenle",
+  "@modal_builder_edit_submit_actions": {
+    "description": "Edit Submit Actions"
+  },
+  "modal_builder_identity": "Kimlik",
+  "@modal_builder_identity": {
+    "description": "Identity"
+  },
+  "modal_builder_submit_actions": "Gönderme Eylemleri",
+  "@modal_builder_submit_actions": {
+    "description": "Submit Actions"
   }
 }

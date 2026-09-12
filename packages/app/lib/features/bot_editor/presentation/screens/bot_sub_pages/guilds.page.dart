@@ -1,106 +1,76 @@
+import 'dart:async';
+
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/storage/database.dart';
+import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
+import 'package:bot_creator/features/home/presentation/guild_avatar.dart';
+import 'package:bot_creator/features/home/presentation/home_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:nyxx/nyxx.dart';
 
-/// Lightweight guild info fetched via REST API.
-class _GuildInfo {
-  final String id;
-  final String name;
-  final String? iconHash;
-  final bool isOwner;
-  final int? approximateMemberCount;
-
-  const _GuildInfo({
-    required this.id,
-    required this.name,
-    this.iconHash,
-    this.isOwner = false,
-    this.approximateMemberCount,
-  });
-
-  String? get iconUrl => iconHash != null
-      ? 'https://cdn.discordapp.com/icons/$id/$iconHash.png'
-      : null;
-}
-
-/// Servers page — 100% REST API, no gateway.
+/// Page « Serveurs » d'un bot.
+///
+/// La liste vient de [GuildDirectory] : c'est la *même* entrée de session que
+/// la carte bot de la Home. Conséquences :
+///
+///   * une seule requête REST par bot et par lancement de l'app, quel que soit
+///     le nombre de fois où cette page est ouverte dans la session ;
+///   * premier chargement : spinner (état `loading`) ; ensuite la liste est
+///     peinte immédiatement depuis l'entrée de session ;
+///   * le bouton « Actualiser » (et le tirer-pour-rafraîchir) force une
+///     nouvelle requête via [GuildDirectory.refresh] ;
+///   * après avoir quitté un serveur, l'entrée partagée est rafraîchie : la
+///     Home ne peut pas continuer à afficher un serveur quitté.
 class GuildsPage extends StatefulWidget {
+  const GuildsPage({super.key, required this.botId, this.directory});
+
+  /// Bot dont on liste les serveurs.
   final String botId;
 
-  const GuildsPage({super.key, required this.botId});
+  /// Répertoire injectable (tests) ; par défaut l'instance partagée.
+  final GuildDirectory? directory;
 
   @override
   State<GuildsPage> createState() => _GuildsPageState();
 }
 
 class _GuildsPageState extends State<GuildsPage> {
-  final _leavingGuilds = <String>{};
-  List<_GuildInfo>? _guilds;
-  bool _loading = true;
-  String? _error;
-  NyxxRest? _restClient;
+  /// Serveurs en cours de sortie (spinner sur leur ligne).
+  final Set<String> _leavingGuilds = <String>{};
+
+  GuildDirectory get _directory => widget.directory ?? GuildDirectory.instance;
 
   @override
   void initState() {
     super.initState();
-    _fetch();
+    // Idempotent : sert l'entrée de session, ou partage la requête déjà en vol
+    // (carte bot de la Home, autre écran).
+    unawaited(_directory.load(widget.botId));
   }
 
-  @override
-  void dispose() {
-    _restClient?.close();
-    super.dispose();
-  }
+  Future<void> _refresh() => _directory.refresh(widget.botId);
 
-  Future<NyxxRest> _ensureClient() async {
-    if (_restClient != null) return _restClient!;
-    final appManager = AppManager();
-    final appData = await appManager.getApp(widget.botId);
-    final token = (appData['token'] ?? '').toString().trim();
-    if (token.isEmpty) throw Exception('No bot token configured');
-    _restClient = await Nyxx.connectRest(token);
-    return _restClient!;
-  }
-
-  Future<void> _fetch() async {
-    setState(() { _loading = true; _error = null; });
-    try {
-      final rest = await _ensureClient();
-      final route = HttpRoute()
-        ..add(HttpRoutePart('users'))
-        ..add(HttpRoutePart('@me'))
-        ..add(HttpRoutePart('guilds'));
-      final response = await rest.httpHandler.executeSafe(
-        BasicRequest(route, method: 'GET', queryParameters: {'with_counts': 'true'}),
-      );
-      final rawList = response.jsonBody as List;
-      final guilds = rawList.map((raw) {
-        final map = raw as Map<String, Object?>;
-        return _GuildInfo(
-          id: map['id'] as String,
-          name: map['name'] as String,
-          iconHash: map['icon'] as String?,
-          isOwner: map['owner'] as bool? ?? false,
-          approximateMemberCount: map['approximate_member_count'] as int?,
-        );
-      }).toList()..sort((a, b) => a.name.compareTo(b.name));
-      if (mounted) setState(() { _guilds = guilds; _loading = false; });
-    } catch (e) {
-      if (mounted) setState(() { _error = e.toString(); _loading = false; });
-    }
-  }
-
-  Future<void> _leaveGuild(_GuildInfo info) async {
+  /// Quitte un serveur (action destructive : confirmation puis DELETE), et
+  /// rafraîchit l'entrée partagée pour que la session redevienne exacte.
+  Future<void> _leaveGuild(GuildAvatarInfo info) async {
+    final name = info.name ?? info.id;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(context.tr.guilds_leave_title),
-        content: Text(context.tr.guilds_leave_confirm(info.name)),
+        content: Text(context.tr.guilds_leave_confirm(name)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(context.tr.cancel)),
-          TextButton(onPressed: () => Navigator.pop(ctx, true),
-              child: Text(context.tr.delete, style: const TextStyle(color: Colors.red))),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(context.tr.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(
+              context.tr.delete,
+              style: const TextStyle(color: Colors.red),
+            ),
+          ),
         ],
       ),
     );
@@ -108,105 +78,176 @@ class _GuildsPageState extends State<GuildsPage> {
 
     setState(() => _leavingGuilds.add(info.id));
     try {
-      final rest = await _ensureClient();
+      await _deleteGuild(info.id);
+      if (!mounted) return;
+      setState(() => _leavingGuilds.remove(info.id));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.tr.guilds_left_success(name))),
+      );
+      unawaited(_refresh());
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _leavingGuilds.remove(info.id));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.tr.guilds_leave_failed(e.toString()))),
+      );
+    }
+  }
+
+  /// `DELETE /users/@me/guilds/{id}`.
+  ///
+  /// Client REST éphémère, créé et refermé pour cette seule action : la lecture
+  /// de la liste, elle, passe par le répertoire partagé.
+  Future<void> _deleteGuild(String guildId) async {
+    final appData = await AppManager().getApp(widget.botId);
+    final token = (appData['token'] ?? '').toString().trim();
+    if (token.isEmpty) throw Exception('missing bot token');
+
+    final rest = await Nyxx.connectRest(token);
+    try {
       final route = HttpRoute()
         ..add(HttpRoutePart('users'))
         ..add(HttpRoutePart('@me'))
         ..add(HttpRoutePart('guilds'))
-        ..add(HttpRoutePart(info.id));
+        ..add(HttpRoutePart(guildId));
       await rest.httpHandler.executeSafe(BasicRequest(route, method: 'DELETE'));
-      if (mounted) {
-        setState(() {
-          _leavingGuilds.remove(info.id);
-          _guilds?.removeWhere((g) => g.id == info.id);
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.tr.guilds_left_success(info.name))),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _leavingGuilds.remove(info.id));
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.tr.guilds_leave_failed(e.toString()))),
-        );
-      }
+    } finally {
+      rest.close();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(context.tr.guilds_tab),
-        actions: [
-          if (_guilds != null && _guilds!.isNotEmpty)
-            Text(context.tr.guilds_server_count_other(_guilds!.length),
-                style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
-          const SizedBox(width: 8),
-          IconButton(icon: const Icon(Icons.refresh, size: 20),
-              onPressed: _loading ? null : _fetch),
-        ],
-      ),
-      body: _buildBody(cs),
+    return ValueListenableBuilder<GuildsLoadState>(
+      valueListenable: _directory.watch(widget.botId),
+      builder: (context, state, _) {
+        final cs = Theme.of(context).colorScheme;
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(context.tr.guilds_tab),
+            actions: [
+              if (state.guilds.isNotEmpty)
+                Text(
+                  context.tr.guilds_server_count_other(state.guilds.length),
+                  style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
+                ),
+              const SizedBox(width: 8),
+              IconButton(
+                icon: const Icon(Icons.refresh, size: 20),
+                tooltip: context.tr.common_refresh,
+                onPressed: state.isLoading ? null : () => unawaited(_refresh()),
+              ),
+            ],
+          ),
+          body: _buildBody(context, state),
+        );
+      },
     );
   }
 
-  Widget _buildBody(ColorScheme cs) {
-    if (_loading) return const Center(child: CircularProgressIndicator());
-    if (_error != null) {
-      return Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Icon(Icons.error_outline, size: 48, color: cs.error),
-        const SizedBox(height: 12),
-        Text(_error!, style: TextStyle(color: cs.error)),
-        const SizedBox(height: 12),
-        FilledButton.tonal(onPressed: _fetch, child: Text(context.tr.common_retry)),
-      ]));
+  Widget _buildBody(BuildContext context, GuildsLoadState state) {
+    final cs = Theme.of(context).colorScheme;
+    final guilds = _sortedByName(state.guilds);
+
+    // Des serveurs sont connus (y compris pendant un rafraîchissement) : on
+    // garde la liste affichée plutôt que de repasser par un spinner.
+    if (guilds.isNotEmpty) {
+      return RefreshIndicator(
+        onRefresh: _refresh,
+        child: ListView.separated(
+          padding: EdgeInsets.only(
+            top: 8,
+            bottom: FloatingGlassNavBar.contentClearanceOf(context) + 24,
+          ),
+          physics: const AlwaysScrollableScrollPhysics(),
+          itemCount: guilds.length,
+          separatorBuilder: (_, i2) => const Divider(height: 1),
+          itemBuilder: (ctx, i) {
+            final guild = guilds[i];
+            final isLeaving = _leavingGuilds.contains(guild.id);
+            return ListTile(
+              leading: HomeBotAvatar(
+                imageUrl: guild.iconUrl,
+                size: 40,
+                fallbackLabel: guildAvatarInitial(guild.name),
+              ),
+              title: Text(guild.name ?? guild.id),
+              subtitle: Text(
+                [
+                  'ID: ${guild.id}',
+                  if (guild.memberCount != null)
+                    context.tr.guilds_members_count_other(guild.memberCount!),
+                  if (guild.isOwner) context.tr.guilds_owner_label,
+                ].join(' · '),
+                style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
+              ),
+              trailing: IconButton(
+                icon: isLeaving
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.exit_to_app, color: Colors.red),
+                tooltip: context.tr.guilds_leave_tooltip,
+                onPressed: isLeaving ? null : () => _leaveGuild(guild),
+              ),
+            );
+          },
+        ),
+      );
     }
-    final guilds = _guilds ?? [];
-    if (guilds.isEmpty) {
-      return Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Icon(Icons.dns_outlined, size: 48, color: cs.onSurfaceVariant),
-        const SizedBox(height: 12),
-        Text(context.tr.guilds_empty_state,
+
+    // Aucun serveur affichable : chargement initial, échec (jamais mis en
+    // cache, donc « Réessayer » retente réellement), ou liste réellement vide.
+    if (state.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (state.status == GuildsLoadStatus.error) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.error_outline, size: 48, color: cs.error),
+            const SizedBox(height: 12),
+            Text(
+              context.tr.error_with_details(state.errorMessage ?? ''),
+              style: TextStyle(color: cs.error),
+            ),
+            const SizedBox(height: 12),
+            FilledButton.tonal(
+              onPressed: () => unawaited(_refresh()),
+              child: Text(context.tr.common_retry),
+            ),
+          ],
+        ),
+      );
+    }
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.dns_outlined, size: 48, color: cs.onSurfaceVariant),
+          const SizedBox(height: 12),
+          Text(
+            context.tr.guilds_empty_state,
             textAlign: TextAlign.center,
-            style: TextStyle(color: cs.onSurfaceVariant)),
-      ]));
-    }
-    return RefreshIndicator(
-      onRefresh: _fetch,
-      child: ListView.separated(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        itemCount: guilds.length,
-        separatorBuilder: (_, i2) => const Divider(height: 1),
-        itemBuilder: (ctx, i) {
-          final guild = guilds[i];
-          final isLeaving = _leavingGuilds.contains(guild.id);
-          return ListTile(
-            leading: CircleAvatar(
-              backgroundImage: guild.iconUrl != null ? NetworkImage(guild.iconUrl!) : null,
-              child: guild.iconUrl == null
-                  ? Text(guild.name.substring(0, 1).toUpperCase()) : null,
-            ),
-            title: Text(guild.name),
-            subtitle: Text([
-              'ID: ${guild.id}',
-              if (guild.approximateMemberCount != null)
-                context.tr.guilds_members_count_other(guild.approximateMemberCount!),
-              if (guild.isOwner) context.tr.guilds_owner_label,
-            ].join(' · '), style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
-            trailing: IconButton(
-              icon: isLeaving
-                  ? const SizedBox(width: 18, height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.exit_to_app, color: Colors.red),
-              tooltip: context.tr.guilds_leave_tooltip,
-              onPressed: isLeaving ? null : () => _leaveGuild(guild),
-            ),
-          );
-        },
+            style: TextStyle(color: cs.onSurfaceVariant),
+          ),
+        ],
       ),
     );
+  }
+
+  /// Ordre d'affichage alphabétique de la page. La carte bot de la Home, elle,
+  /// garde l'ordre déterministe par id du répertoire (avatars superposés).
+  List<GuildAvatarInfo> _sortedByName(List<GuildAvatarInfo> guilds) {
+    final sorted = <GuildAvatarInfo>[...guilds];
+    sorted.sort(
+      (a, b) => (a.name ?? a.id).toLowerCase().compareTo(
+        (b.name ?? b.id).toLowerCase(),
+      ),
+    );
+    return sorted;
   }
 }

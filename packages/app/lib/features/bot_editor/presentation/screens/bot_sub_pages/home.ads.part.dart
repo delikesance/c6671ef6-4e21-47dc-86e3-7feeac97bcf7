@@ -41,35 +41,30 @@ extension _AppHomePageAds on _AppHomePageState {
       if (!rewardCredited && mounted) {
         await showDialog<void>(
           context: context,
-          builder:
-              (dialogContext) => AlertDialog(
-                title: Text(
-                  _uiCopy(fr: 'Crédit en cours', en: 'Credit is still syncing'),
-                ),
-                content: Text(
-                  _uiCopy(
-                    fr:
-                        'La récompense pub est en cours de synchronisation. Réessaie le démarrage dans quelques secondes.',
-                    en:
-                        'Your ad reward is still syncing. Try starting the bot again in a few seconds.',
-                  ),
-                ),
-                actions: [
-                  FilledButton(
-                    onPressed: () => Navigator.of(dialogContext).pop(),
-                    child: Text(_uiCopy(fr: 'OK', en: 'OK')),
-                  ),
-                ],
+          builder: (dialogContext) => AlertDialog(
+            title: Text(
+              _uiCopy(fr: 'Crédit en cours', en: 'Credit is still syncing'),
+            ),
+            content: Text(
+              _uiCopy(
+                fr: 'La récompense pub est en cours de synchronisation. Réessaie le démarrage dans quelques secondes.',
+                en: 'Your ad reward is still syncing. Try starting the bot again in a few seconds.',
               ),
+            ),
+            actions: [
+              FilledButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: Text(_uiCopy(fr: 'OK', en: 'OK')),
+              ),
+            ],
+          ),
         );
       }
     } catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              context.tr.error_with_details(error.toString()),
-            ),
+            content: Text(context.tr.error_with_details(error.toString())),
           ),
         );
       }
@@ -110,9 +105,9 @@ extension _AppHomePageAds on _AppHomePageState {
         );
         final remoteClient = remoteRuntime.client;
         if (remoteClient is MainApiClient) {
-          final runtime = await remoteClient.getBotRuntime(botId).timeout(
-            const Duration(seconds: 4),
-          );
+          final runtime = await remoteClient
+              .getBotRuntime(botId)
+              .timeout(const Duration(seconds: 4));
           final funding =
               (runtime['funding_mode'] ?? runtime['fundingMode'] ?? '')
                   .toString()
@@ -122,11 +117,11 @@ extension _AppHomePageAds on _AppHomePageState {
           final balance = funding == 'premium'
               ? 0
               : (expires != null && funding == 'free'
-                  ? _remainingMinutesUntil(expires)
-                  : _extractFreeMinutes(
-                    runtime['free_minutes_balance'] ??
-                        runtime['freeMinutesBalance'],
-                  ));
+                    ? _remainingMinutesUntil(expires)
+                    : _extractFreeMinutes(
+                        runtime['free_minutes_balance'] ??
+                            runtime['freeMinutesBalance'],
+                      ));
 
           _setState(() {
             _fundingMode = funding;
@@ -160,18 +155,16 @@ extension _AppHomePageAds on _AppHomePageState {
         }
       }
 
-      final snapshotReady = await _ensureMainApiBotSnapshotForAd(botId).timeout(
-        const Duration(seconds: 4),
-        onTimeout: () => false,
-      );
+      final snapshotReady = await _ensureMainApiBotSnapshotForAd(
+        botId,
+      ).timeout(const Duration(seconds: 4), onTimeout: () => false);
       if (!snapshotReady) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
                 _uiCopy(
-                  fr:
-                      "Impossible de synchroniser la configuration du bot avec l'API principale.",
+                  fr: "Impossible de synchroniser la configuration du bot avec l'API principale.",
                   en: "Failed to sync bot configuration with the main API.",
                 ),
               ),
@@ -181,20 +174,17 @@ extension _AppHomePageAds on _AppHomePageState {
         return false;
       }
 
-      final ssvContext = await _buildMainApiAdSsvContext(botId).timeout(
-        const Duration(seconds: 4),
-        onTimeout: () => null,
-      );
+      final ssvContext = await _buildMainApiAdSsvContext(
+        botId,
+      ).timeout(const Duration(seconds: 4), onTimeout: () => null);
       if (ssvContext == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
                 _uiCopy(
-                  fr:
-                      "Impossible de générer le contexte publicitaire (compte non connecté ou token manquant).",
-                  en:
-                      "Failed to build ad context. Please ensure you are signed in and your bot token is set.",
+                  fr: "Impossible de générer le contexte publicitaire (compte non connecté ou token manquant).",
+                  en: "Failed to build ad context. Please ensure you are signed in and your bot token is set.",
                 ),
               ),
             ),
@@ -212,8 +202,7 @@ extension _AppHomePageAds on _AppHomePageState {
             SnackBar(
               content: Text(
                 _uiCopy(
-                  fr:
-                      "Limite de visionnage ou cooldown actif. Veuillez réessayer plus tard.",
+                  fr: "Limite de visionnage ou cooldown actif. Veuillez réessayer plus tard.",
                   en: "Ad cooldown or limit is active. Please try again later.",
                 ),
               ),
@@ -236,10 +225,9 @@ extension _AppHomePageAds on _AppHomePageState {
 
       final effectivePreviousBalance =
           previousBalance ??
-          await _fetchMainApiRuntimeBalance(botId).timeout(
-            const Duration(seconds: 4),
-            onTimeout: () => 0,
-          );
+          await _fetchMainApiRuntimeBalance(
+            botId,
+          ).timeout(const Duration(seconds: 4), onTimeout: () => 0);
 
       var rewardEarned = false;
       final adShown = await AdRewardService.showRewardedAd(
@@ -354,16 +342,15 @@ extension _AppHomePageAds on _AppHomePageState {
 
     return AdRewardSsvContext(
       userId: ownerId,
-      customData:
-          Uri(
-            queryParameters: <String, String>{
-              'owner_id': ownerId,
-              'bot_id': botId,
-              'placement': 'admob_rewarded',
-              if (ownerIdFromDiscord.isNotEmpty)
-                'discord_owner_id': ownerIdFromDiscord,
-            },
-          ).query,
+      customData: Uri(
+        queryParameters: <String, String>{
+          'owner_id': ownerId,
+          'bot_id': botId,
+          'placement': 'admob_rewarded',
+          if (ownerIdFromDiscord.isNotEmpty)
+            'discord_owner_id': ownerIdFromDiscord,
+        },
+      ).query,
     );
   }
 

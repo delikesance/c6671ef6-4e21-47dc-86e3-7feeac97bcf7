@@ -108,6 +108,9 @@ class AppManager implements BotDataStore {
   final StreamController<List<dynamic>> _appsStreamController =
       StreamController<List<dynamic>>.broadcast();
   List<dynamic> _apps = [];
+  bool _initialized = false;
+  bool get isInitialized => _initialized;
+  List<dynamic> get currentApps => List.unmodifiable(_apps);
   late SqliteVariableStore _variableStore;
   bool _sqliteAvailable = false;
   final Map<String, Future<void>> _appWriteChains = <String, Future<void>>{};
@@ -149,6 +152,8 @@ class AppManager implements BotDataStore {
     } catch (error) {
       debugPrint('[AppManager._init] App list load failed: $error');
       _apps = [];
+    } finally {
+      _initialized = true;
     }
 
     _appsStreamController.add(_apps);
@@ -190,73 +195,71 @@ class AppManager implements BotDataStore {
       final existingAvatar = existingData['avatar']?.toString();
       final avatarUri =
           (avatarHash == null &&
-                  discriminator == null &&
-                  existingAvatar != null &&
-                  existingAvatar.isNotEmpty)
-              ? existingAvatar
-              : makeAvatarUrl(
-                botId,
-                avatarId: avatarHash,
-                discriminator: discriminator,
-              );
-
-      final data =
-          Map<String, dynamic>.from(existingData)
-            ..['name'] = username.sanitizedUtf16
-            ..['id'] = botId
-            ..['avatar'] = avatarUri
-            ..['token'] = token
-            ..['prefix'] = () {
-              final raw =
-                  (prefix ?? existingData['prefix'] ?? '!').toString().trim();
-              return raw.isEmpty ? '!' : raw;
-            }()
-            ..['createdAt'] =
-                existingData['createdAt'] ?? DateTime.now().toIso8601String()
-            ..['intents'] = intents ?? existingData['intents'] ?? {}
-            ..['approximate_guild_count'] = approximateGuildCount ??
-                existingData['approximate_guild_count']
-            ..['guild_count'] = approximateGuildCount ??
-                existingData['guild_count'] ??
-                existingData['approximate_guild_count']
-            ..['globalVariables'] = Map<String, dynamic>.from(
-              (existingData['globalVariables'] as Map?)
-                      ?.cast<String, dynamic>() ??
-                  const {},
-            )
-            ..['scopedVariables'] = Map<String, dynamic>.from(
-              (existingData['scopedVariables'] as Map?)
-                      ?.cast<String, dynamic>() ??
-                  const {},
-            )
-            ..['scopedVariableDefinitions'] = List<Map<String, dynamic>>.from(
-              ((existingData['scopedVariableDefinitions']) as List?)
-                      ?.whereType<Map>()
-                      .map((entry) => Map<String, dynamic>.from(entry)) ??
-                  const <Map<String, dynamic>>[],
-            )
-            ..['workflows'] = List<Map<String, dynamic>>.from(
-              _coerceWorkflowList(existingData['workflows']),
-            )
-            ..['scheduledTriggers'] = List<Map<String, dynamic>>.from(
-              ((existingData['scheduledTriggers']) as List?)
-                      ?.whereType<Map>()
-                      .map((entry) => Map<String, dynamic>.from(entry)) ??
-                  const <Map<String, dynamic>>[],
-            )
-            ..['statuses'] = List<Map<String, dynamic>>.from(
-              (existingData['statuses'] as List?)?.whereType<Map>().map(
-                    (status) => Map<String, dynamic>.from(status),
-                  ) ??
-                  const <Map<String, dynamic>>[],
-            )
-            ..['activities'] = List<Map<String, dynamic>>.from(
-              ((existingData['activities'] ?? existingData['statuses'])
-                          as List?)
-                      ?.whereType<Map>()
-                      .map((activity) => Map<String, dynamic>.from(activity)) ??
-                  const <Map<String, dynamic>>[],
+              discriminator == null &&
+              existingAvatar != null &&
+              existingAvatar.isNotEmpty)
+          ? existingAvatar
+          : makeAvatarUrl(
+              botId,
+              avatarId: avatarHash,
+              discriminator: discriminator,
             );
+
+      final data = Map<String, dynamic>.from(existingData)
+        ..['name'] = username.sanitizedUtf16
+        ..['id'] = botId
+        ..['avatar'] = avatarUri
+        ..['token'] = token
+        ..['prefix'] = () {
+          final raw = (prefix ?? existingData['prefix'] ?? '!')
+              .toString()
+              .trim();
+          return raw.isEmpty ? '!' : raw;
+        }()
+        ..['createdAt'] =
+            existingData['createdAt'] ?? DateTime.now().toIso8601String()
+        ..['intents'] = intents ?? existingData['intents'] ?? {}
+        ..['approximate_guild_count'] =
+            approximateGuildCount ?? existingData['approximate_guild_count']
+        ..['guild_count'] =
+            approximateGuildCount ??
+            existingData['guild_count'] ??
+            existingData['approximate_guild_count']
+        ..['globalVariables'] = Map<String, dynamic>.from(
+          (existingData['globalVariables'] as Map?)?.cast<String, dynamic>() ??
+              const {},
+        )
+        ..['scopedVariables'] = Map<String, dynamic>.from(
+          (existingData['scopedVariables'] as Map?)?.cast<String, dynamic>() ??
+              const {},
+        )
+        ..['scopedVariableDefinitions'] = List<Map<String, dynamic>>.from(
+          ((existingData['scopedVariableDefinitions']) as List?)
+                  ?.whereType<Map>()
+                  .map((entry) => Map<String, dynamic>.from(entry)) ??
+              const <Map<String, dynamic>>[],
+        )
+        ..['workflows'] = List<Map<String, dynamic>>.from(
+          _coerceWorkflowList(existingData['workflows']),
+        )
+        ..['scheduledTriggers'] = List<Map<String, dynamic>>.from(
+          ((existingData['scheduledTriggers']) as List?)?.whereType<Map>().map(
+                (entry) => Map<String, dynamic>.from(entry),
+              ) ??
+              const <Map<String, dynamic>>[],
+        )
+        ..['statuses'] = List<Map<String, dynamic>>.from(
+          (existingData['statuses'] as List?)?.whereType<Map>().map(
+                (status) => Map<String, dynamic>.from(status),
+              ) ??
+              const <Map<String, dynamic>>[],
+        )
+        ..['activities'] = List<Map<String, dynamic>>.from(
+          ((existingData['activities'] ?? existingData['statuses']) as List?)
+                  ?.whereType<Map>()
+                  .map((activity) => Map<String, dynamic>.from(activity)) ??
+              const <Map<String, dynamic>>[],
+        );
 
       await _writeAppToDisk(botId, data);
       // Dual-write token to secure storage
@@ -345,8 +348,9 @@ class AppManager implements BotDataStore {
     if (!await allAppsFile.exists()) return;
 
     final content = await allAppsFile.readAsString();
-    final appsList =
-        content.isNotEmpty ? jsonDecode(content) as List<dynamic> : [];
+    final appsList = content.isNotEmpty
+        ? jsonDecode(content) as List<dynamic>
+        : [];
     appsList.removeWhere((a) => a['id'] == id);
 
     await allAppsFile.writeAsString(jsonEncode(appsList));
@@ -460,11 +464,10 @@ class AppManager implements BotDataStore {
         final content = await allAppsFile.readAsString();
         final decoded = content.isNotEmpty ? jsonDecode(content) : const [];
         if (decoded is List) {
-          final appsList =
-              decoded
-                  .whereType<Map>()
-                  .map((raw) => Map<String, dynamic>.from(raw))
-                  .toList();
+          final appsList = decoded
+              .whereType<Map>()
+              .map((raw) => Map<String, dynamic>.from(raw))
+              .toList();
           if (appsList.isNotEmpty) {
             _apps = appsList;
             return appsList;
@@ -514,9 +517,7 @@ class AppManager implements BotDataStore {
 
     final data = await file.readAsString();
     final result = data.isNotEmpty
-        ? Map<String, dynamic>.from(
-            jsonDecode(data) as Map<String, dynamic>,
-          )
+        ? Map<String, dynamic>.from(jsonDecode(data) as Map<String, dynamic>)
         : <String, dynamic>{};
 
     // Try to read token from secure storage; fall back to legacy JSON token
@@ -669,7 +670,7 @@ class AppManager implements BotDataStore {
         await appFile.writeAsString(jsonEncode(data));
       }
     }
-    
+
     final allAppsFile = File("$path/apps/all_apps.json");
     if (await allAppsFile.exists()) {
       await allAppsFile.writeAsString(jsonEncode(_apps));
@@ -734,10 +735,9 @@ class AppManager implements BotDataStore {
       });
 
       const maxEntries = 50000;
-      final kept =
-          normalized.length > maxEntries
-              ? normalized.sublist(normalized.length - maxEntries)
-              : normalized;
+      final kept = normalized.length > maxEntries
+          ? normalized.sublist(normalized.length - maxEntries)
+          : normalized;
       await file.writeAsString(jsonEncode(kept));
     });
   }
@@ -814,15 +814,16 @@ class AppManager implements BotDataStore {
       );
     }
 
-    final commands = countsByCommand.entries
-        .map(
-          (entry) => <String, dynamic>{
-            'command': entry.key,
-            'count': entry.value,
-          },
-        )
-        .toList(growable: false)
-      ..sort((a, b) => (b['count'] as int).compareTo(a['count'] as int));
+    final commands =
+        countsByCommand.entries
+            .map(
+              (entry) => <String, dynamic>{
+                'command': entry.key,
+                'count': entry.value,
+              },
+            )
+            .toList(growable: false)
+          ..sort((a, b) => (b['count'] as int).compareTo(a['count'] as int));
 
     final sortedBuckets = countsByHourBucket.keys.toList(growable: false)
       ..sort();
@@ -993,7 +994,12 @@ class AppManager implements BotDataStore {
     String key,
   ) async {
     if (_sqliteAvailable) {
-      return await _variableStore.getScopedVariableTtl(id, scope, contextId, key);
+      return await _variableStore.getScopedVariableTtl(
+        id,
+        scope,
+        contextId,
+        key,
+      );
     }
     return null;
   }
@@ -1063,8 +1069,9 @@ class AppManager implements BotDataStore {
     }
     await _mutateScopedContextInJson(id, scope, contextId, (contextMap) {
       final existing = contextMap[key];
-      final list =
-          existing is List ? List<dynamic>.from(existing) : <dynamic>[];
+      final list = existing is List
+          ? List<dynamic>.from(existing)
+          : <dynamic>[];
       list.add(element);
       contextMap[key] = list;
     });
@@ -1212,21 +1219,21 @@ class AppManager implements BotDataStore {
     final safeLimit = limit.clamp(1, 25);
     final contextMap = await _getScopedContextFromJson(id, scope, contextId);
     final existing = contextMap[key];
-    final source =
-        existing is List ? List<dynamic>.from(existing) : <dynamic>[];
+    final source = existing is List
+        ? List<dynamic>.from(existing)
+        : <dynamic>[];
     final filtered = source
         .where((entry) => _arrayElementMatchesFilter(entry, filter))
         .toList(growable: false);
-    final ordered =
-        descending ? filtered.reversed.toList(growable: false) : filtered;
-    final end =
-        (safeOffset + safeLimit) > ordered.length
-            ? ordered.length
-            : (safeOffset + safeLimit);
-    final page =
-        safeOffset >= ordered.length
-            ? const <dynamic>[]
-            : ordered.sublist(safeOffset, end);
+    final ordered = descending
+        ? filtered.reversed.toList(growable: false)
+        : filtered;
+    final end = (safeOffset + safeLimit) > ordered.length
+        ? ordered.length
+        : (safeOffset + safeLimit);
+    final page = safeOffset >= ordered.length
+        ? const <dynamic>[]
+        : ordered.sublist(safeOffset, end);
 
     return <String, dynamic>{
       'items': page,
@@ -1261,9 +1268,7 @@ class AppManager implements BotDataStore {
     String storageKey,
   ) {
     for (final def in definitions) {
-      final defKey = _normalizeScopedStorageKey(
-        (def['key'] ?? '').toString(),
-      );
+      final defKey = _normalizeScopedStorageKey((def['key'] ?? '').toString());
       final defScope = (def['scope'] ?? '').toString().trim();
       if (defKey == storageKey && defScope == scope.trim()) {
         final dv = def['defaultValue'];
@@ -1553,20 +1558,19 @@ class AppManager implements BotDataStore {
     }
 
     if (purgeStoredValues) {
-      final scopesToPurge =
-          normalizedScope.isNotEmpty
-              ? <String>{normalizedScope}
-              : (await getScopedVariableDefinitions(botId))
-                  .where(
-                    (entry) =>
-                        _normalizeScopedStorageKey(
-                          (entry['key'] ?? '').toString(),
-                        ) ==
-                        normalizedKey,
-                  )
-                  .map((entry) => (entry['scope'] ?? '').toString().trim())
-                  .where((value) => value.isNotEmpty)
-                  .toSet();
+      final scopesToPurge = normalizedScope.isNotEmpty
+          ? <String>{normalizedScope}
+          : (await getScopedVariableDefinitions(botId))
+                .where(
+                  (entry) =>
+                      _normalizeScopedStorageKey(
+                        (entry['key'] ?? '').toString(),
+                      ) ==
+                      normalizedKey,
+                )
+                .map((entry) => (entry['scope'] ?? '').toString().trim())
+                .where((value) => value.isNotEmpty)
+                .toSet();
       for (final scopeName in scopesToPurge) {
         await _removeAllScopedValuesForKey(botId, scopeName, normalizedKey);
       }
@@ -1618,30 +1622,29 @@ class AppManager implements BotDataStore {
     final contextIds = List<String>.from(
       _sqliteAvailable
           ? await _variableStore.listContextIds(
-            botId,
-            normalizedScope,
-            searchKey: storageKey,
-          )
+              botId,
+              normalizedScope,
+              searchKey: storageKey,
+            )
           : await _listContextIdsFromJson(
-            botId,
-            normalizedScope,
-            searchKey: storageKey,
-          ),
+              botId,
+              normalizedScope,
+              searchKey: storageKey,
+            ),
       growable: true,
     );
     if (legacyKey != storageKey) {
-      final legacyContextIds =
-          _sqliteAvailable
-              ? await _variableStore.listContextIds(
-                botId,
-                normalizedScope,
-                searchKey: legacyKey,
-              )
-              : await _listContextIdsFromJson(
-                botId,
-                normalizedScope,
-                searchKey: legacyKey,
-              );
+      final legacyContextIds = _sqliteAvailable
+          ? await _variableStore.listContextIds(
+              botId,
+              normalizedScope,
+              searchKey: legacyKey,
+            )
+          : await _listContextIdsFromJson(
+              botId,
+              normalizedScope,
+              searchKey: legacyKey,
+            );
       contextIds.addAll(legacyContextIds);
     }
 
@@ -1719,14 +1722,12 @@ class AppManager implements BotDataStore {
 
     final safeOffset = offset < 0 ? 0 : offset;
     final safeLimit = limit.clamp(1, 1000);
-    final end =
-        (safeOffset + safeLimit) > items.length
-            ? items.length
-            : (safeOffset + safeLimit);
-    final page =
-        safeOffset >= items.length
-            ? const <Map<String, dynamic>>[]
-            : items.sublist(safeOffset, end);
+    final end = (safeOffset + safeLimit) > items.length
+        ? items.length
+        : (safeOffset + safeLimit);
+    final page = safeOffset >= items.length
+        ? const <Map<String, dynamic>>[]
+        : items.sublist(safeOffset, end);
 
     return <String, dynamic>{
       'items': page,
@@ -1746,22 +1747,17 @@ class AppManager implements BotDataStore {
     final contextIds = List<String>.from(
       _sqliteAvailable
           ? await _variableStore.listContextIds(
-            id,
-            scope,
-            searchKey: storageKey,
-          )
+              id,
+              scope,
+              searchKey: storageKey,
+            )
           : await _listContextIdsFromJson(id, scope, searchKey: storageKey),
       growable: true,
     );
     if (legacyKey != storageKey) {
-      final legacyContextIds =
-          _sqliteAvailable
-              ? await _variableStore.listContextIds(
-                id,
-                scope,
-                searchKey: legacyKey,
-              )
-              : await _listContextIdsFromJson(id, scope, searchKey: legacyKey);
+      final legacyContextIds = _sqliteAvailable
+          ? await _variableStore.listContextIds(id, scope, searchKey: legacyKey)
+          : await _listContextIdsFromJson(id, scope, searchKey: legacyKey);
       contextIds.addAll(legacyContextIds);
     }
     final dedupedContextIds = contextIds.toSet().toList(growable: false);
@@ -1805,10 +1801,9 @@ class AppManager implements BotDataStore {
 
     final exported = <String, Map<String, Map<String, dynamic>>>{};
     for (final scope in scopes) {
-      final contextIds =
-          _sqliteAvailable
-              ? await _variableStore.listContextIds(botId, scope)
-              : await _listContextIdsFromJson(botId, scope);
+      final contextIds = _sqliteAvailable
+          ? await _variableStore.listContextIds(botId, scope)
+          : await _listContextIdsFromJson(botId, scope);
       if (contextIds.isEmpty) {
         continue;
       }
@@ -1872,34 +1867,31 @@ class AppManager implements BotDataStore {
           (workflow['name'] ?? '').toString().toLowerCase() ==
           normalizedName.toLowerCase(),
     );
-    final existing =
-        index >= 0
-            ? _normalizeStoredWorkflow(
-              Map<String, dynamic>.from(workflows[index]),
-            )
-            : null;
-    final normalizedEntryPoint =
-        entryPoint == null
-            ? normalizeWorkflowEntryPoint(existing?['entryPoint'])
-            : normalizeWorkflowEntryPoint(entryPoint);
-    final normalizedWorkflowType =
-        workflowType == null
-            ? normalizeWorkflowType(existing?['workflowType'])
-            : normalizeWorkflowType(workflowType);
+    final existing = index >= 0
+        ? _normalizeStoredWorkflow(Map<String, dynamic>.from(workflows[index]))
+        : null;
+    final normalizedEntryPoint = entryPoint == null
+        ? normalizeWorkflowEntryPoint(existing?['entryPoint'])
+        : normalizeWorkflowEntryPoint(entryPoint);
+    final normalizedWorkflowType = workflowType == null
+        ? normalizeWorkflowType(existing?['workflowType'])
+        : normalizeWorkflowType(workflowType);
     final normalizedArguments = serializeWorkflowArgumentDefinitions(
       parseWorkflowArgumentDefinitions(
         arguments ?? existing?['arguments'] ?? const [],
       ),
     );
 
-    final resolvedFolder =
-        (folder ?? existing?['folder'] ?? '').toString().trim();
+    final resolvedFolder = (folder ?? existing?['folder'] ?? '')
+        .toString()
+        .trim();
 
     // Preserve existing aliases when not explicitly passed.
     final resolvedAliases =
         eventVariableAliases ??
-        (existing?['eventVariableAliases'] as Map<String, dynamic>?)
-            ?.map((k, v) => MapEntry(k.toString(), v.toString()));
+        (existing?['eventVariableAliases'] as Map<String, dynamic>?)?.map(
+          (k, v) => MapEntry(k.toString(), v.toString()),
+        );
 
     final resolvedExecutionMode = normalizeWorkflowExecutionMode(
       executionMode ?? existing?['executionMode'],
@@ -2000,10 +1992,9 @@ class AppManager implements BotDataStore {
       throw ArgumentError('workflowName is required');
     }
 
-    final normalizedId =
-        (triggerId ?? '').trim().isEmpty
-            ? 'sch_${DateTime.now().microsecondsSinceEpoch}'
-            : triggerId!.trim();
+    final normalizedId = (triggerId ?? '').trim().isEmpty
+        ? 'sch_${DateTime.now().microsecondsSinceEpoch}'
+        : triggerId!.trim();
 
     final index = triggers.indexWhere(
       (entry) => (entry['id'] ?? '').toString() == normalizedId,
@@ -2110,10 +2101,9 @@ class AppManager implements BotDataStore {
       throw ArgumentError('path, workflowName and secret are required');
     }
 
-    final normalizedId =
-        (webhookId ?? '').trim().isEmpty
-            ? 'wh_${DateTime.now().microsecondsSinceEpoch}'
-            : webhookId!.trim();
+    final normalizedId = (webhookId ?? '').trim().isEmpty
+        ? 'wh_${DateTime.now().microsecondsSinceEpoch}'
+        : webhookId!.trim();
 
     final duplicatePath = webhooks.any((entry) {
       return (entry['id'] ?? '').toString() != normalizedId &&
@@ -2190,10 +2180,9 @@ class AppManager implements BotDataStore {
     final workflowName = (raw['workflowName'] ?? '').toString().trim();
     final label = (raw['label'] ?? workflowName).toString().trim();
     final minutesRaw = int.tryParse((raw['everyMinutes'] ?? '').toString());
-    final everyMinutes =
-        (minutesRaw != null && minutesRaw > 0)
-            ? minutesRaw.clamp(1, 10080)
-            : 60;
+    final everyMinutes = (minutesRaw != null && minutesRaw > 0)
+        ? minutesRaw.clamp(1, 10080)
+        : 60;
 
     return <String, dynamic>{
       'id': id,
@@ -2307,24 +2296,24 @@ class AppManager implements BotDataStore {
             .map((entry) => _normalizeStoredWorkflow(entry))
             .toList(growable: false);
         final commandRefsByFile = await _collectCommandWorkflowReferences(id);
-        final referencedWorkflowNames =
-            commandRefsByFile.values.expand((names) => names).toSet();
-        final normalizedWorkflowNames =
-            normalized
-                .map((entry) => (entry['name'] ?? '').toString().trim())
-                .where((name) => name.isNotEmpty)
-                .toSet();
-        final missingReferencedWorkflows = referencedWorkflowNames
-          .where((name) => !normalizedWorkflowNames.contains(name))
-          .toList(growable: false)..sort();
+        final referencedWorkflowNames = commandRefsByFile.values
+            .expand((names) => names)
+            .toSet();
+        final normalizedWorkflowNames = normalized
+            .map((entry) => (entry['name'] ?? '').toString().trim())
+            .where((name) => name.isNotEmpty)
+            .toSet();
+        final missingReferencedWorkflows =
+            referencedWorkflowNames
+                .where((name) => !normalizedWorkflowNames.contains(name))
+                .toList(growable: false)
+              ..sort();
 
-        final missingNames =
-            normalized
-                .where(
-                  (workflow) =>
-                      (workflow['name'] ?? '').toString().trim().isEmpty,
-                )
-                .length;
+        final missingNames = normalized
+            .where(
+              (workflow) => (workflow['name'] ?? '').toString().trim().isEmpty,
+            )
+            .length;
 
         (report['apps'] as List<Map<String, dynamic>>).add({
           'id': id,
@@ -2337,8 +2326,9 @@ class AppManager implements BotDataStore {
           'commandWorkflowReferenceCount': referencedWorkflowNames.length,
           'missingReferencedWorkflows': missingReferencedWorkflows,
           'commandWorkflowReferencesByFile': commandRefsByFile,
-          'rawTypes':
-              rawList.map((entry) => entry.runtimeType.toString()).toList(),
+          'rawTypes': rawList
+              .map((entry) => entry.runtimeType.toString())
+              .toList(),
           'normalizedPreview': normalized.take(20).toList(),
         });
       }
@@ -2490,9 +2480,12 @@ class AppManager implements BotDataStore {
         final fallbackId = fileName.substring(0, fileName.length - 5);
 
         normalized['id'] = (normalized['id'] ?? fallbackId).toString();
-        normalized['name'] = (normalized['name'] ?? 'unknown').toString();
-        normalized['description'] =
-            (normalized['description'] ?? '').toString();
+        final rawName = (normalized['name'] ?? '').toString().trim();
+        normalized['name'] = rawName.isEmpty
+            ? _fallbackCommandName(fallbackId)
+            : rawName;
+        normalized['description'] = (normalized['description'] ?? '')
+            .toString();
         commands.add(normalized);
       } catch (_) {
         // Ignore malformed command files to keep list rendering resilient.
@@ -2581,4 +2574,15 @@ class AppManager implements BotDataStore {
       await deleteApp(app['id']);
     }
   }
+}
+
+/// Deterministic, non-colliding fallback command name derived from the command
+/// file name, so several nameless commands no longer share one name.
+String _fallbackCommandName(String fallbackId) {
+  final slug = fallbackId
+      .toLowerCase()
+      .replaceAll(RegExp(r'[^a-z0-9]+'), '_')
+      .replaceAll(RegExp(r'^_+|_+$'), '');
+  final safe = slug.isEmpty ? 'unnamed' : slug;
+  return 'cmd_${safe.length > 32 ? safe.substring(0, 32) : safe}';
 }

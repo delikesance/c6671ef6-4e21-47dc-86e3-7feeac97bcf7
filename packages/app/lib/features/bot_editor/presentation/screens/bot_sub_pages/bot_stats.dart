@@ -188,12 +188,11 @@ class _BotStatsPageState extends State<BotStatsPage> {
         try {
           final metrics = await client.getMetrics(botId: _selectedBotId);
           final runtimeBotId = _selectedBotId ?? metrics.activeBotId;
-          final isRunningForSelectedBot =
-              runtimeBotId == null
-                  ? metrics.running
-                  : metrics.bots.any(
-                    (bot) => bot.botId == runtimeBotId && bot.isRunning,
-                  );
+          final isRunningForSelectedBot = runtimeBotId == null
+              ? metrics.running
+              : metrics.bots.any(
+                  (bot) => bot.botId == runtimeBotId && bot.isRunning,
+                );
           updateBotRuntimeMetricsFromRemote(
             running: isRunningForSelectedBot,
             botId: runtimeBotId,
@@ -251,49 +250,53 @@ class _BotStatsPageState extends State<BotStatsPage> {
     _cpuSub?.cancel();
     _storageSub?.cancel();
 
-    _rssSub = getBotProcessRssStreamForBotFromSource(
-      _selectedBotId,
-      source: _runtimeSource,
-    ).listen((value) {
-      if (!mounted) return;
-      setState(() {
-        _rssBytes = value;
-        _pushMetric(_ramHistory, value?.toDouble());
-      });
-    });
+    _rssSub =
+        getBotProcessRssStreamForBotFromSource(
+          _selectedBotId,
+          source: _runtimeSource,
+        ).listen((value) {
+          if (!mounted) return;
+          setState(() {
+            _rssBytes = value;
+            _pushMetric(_ramHistory, value?.toDouble());
+          });
+        });
 
-    _rssEstimatedSub = getBotEstimatedRssStreamForBotFromSource(
-      _selectedBotId,
-      source: _runtimeSource,
-    ).listen((value) {
-      if (!mounted) return;
-      setState(() {
-        _rssEstimatedBytes = value;
-        _pushMetric(_ramEstimatedHistory, value?.toDouble());
-      });
-    });
+    _rssEstimatedSub =
+        getBotEstimatedRssStreamForBotFromSource(
+          _selectedBotId,
+          source: _runtimeSource,
+        ).listen((value) {
+          if (!mounted) return;
+          setState(() {
+            _rssEstimatedBytes = value;
+            _pushMetric(_ramEstimatedHistory, value?.toDouble());
+          });
+        });
 
-    _cpuSub = getBotProcessCpuStreamForBotFromSource(
-      _selectedBotId,
-      source: _runtimeSource,
-    ).listen((value) {
-      if (!mounted) return;
-      setState(() {
-        _cpuPercent = value;
-        _pushMetric(_cpuHistory, value);
-      });
-    });
+    _cpuSub =
+        getBotProcessCpuStreamForBotFromSource(
+          _selectedBotId,
+          source: _runtimeSource,
+        ).listen((value) {
+          if (!mounted) return;
+          setState(() {
+            _cpuPercent = value;
+            _pushMetric(_cpuHistory, value);
+          });
+        });
 
-    _storageSub = getBotProcessStorageStreamForBotFromSource(
-      _selectedBotId,
-      source: _runtimeSource,
-    ).listen((value) {
-      if (!mounted) return;
-      setState(() {
-        _storageBytes = value;
-        _pushMetric(_storageHistory, value?.toDouble());
-      });
-    });
+    _storageSub =
+        getBotProcessStorageStreamForBotFromSource(
+          _selectedBotId,
+          source: _runtimeSource,
+        ).listen((value) {
+          if (!mounted) return;
+          setState(() {
+            _storageBytes = value;
+            _pushMetric(_storageHistory, value?.toDouble());
+          });
+        });
   }
 
   @override
@@ -333,21 +336,35 @@ class _BotStatsPageState extends State<BotStatsPage> {
                             labelText: context.tr.common_bot,
                             prefixIcon: const Icon(Icons.smart_toy_outlined),
                             filled: true,
-                            fillColor: Theme.of(context).colorScheme.surfaceContainerLow,
+                            fillColor: Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainerLow,
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                              borderRadius: BorderRadius.circular(
+                                AppTheme.radiusMd,
+                              ),
                               borderSide: BorderSide(
-                                color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .outlineVariant
+                                    .withValues(alpha: 0.3),
                               ),
                             ),
                             enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                              borderRadius: BorderRadius.circular(
+                                AppTheme.radiusMd,
+                              ),
                               borderSide: BorderSide(
-                                color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.2),
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .outlineVariant
+                                    .withValues(alpha: 0.2),
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                              borderRadius: BorderRadius.circular(
+                                AppTheme.radiusMd,
+                              ),
                               borderSide: BorderSide(
                                 color: Theme.of(context).colorScheme.primary,
                                 width: 1.5,
@@ -377,14 +394,16 @@ class _BotStatsPageState extends State<BotStatsPage> {
                                     value,
                                     source: _runtimeSource,
                                   );
-                              _cpuPercent = getBotProcessCpuPercentForBotFromSource(
-                                value,
-                                source: _runtimeSource,
-                              );
-                              _storageBytes = getBotProcessStorageBytesForBotFromSource(
-                                value,
-                                source: _runtimeSource,
-                              );
+                              _cpuPercent =
+                                  getBotProcessCpuPercentForBotFromSource(
+                                    value,
+                                    source: _runtimeSource,
+                                  );
+                              _storageBytes =
+                                  getBotProcessStorageBytesForBotFromSource(
+                                    value,
+                                    source: _runtimeSource,
+                                  );
                               _ramHistory.clear();
                               _ramEstimatedHistory.clear();
                               _cpuHistory.clear();
@@ -395,7 +414,10 @@ class _BotStatsPageState extends State<BotStatsPage> {
                                 _rssEstimatedBytes?.toDouble(),
                               );
                               _pushMetric(_cpuHistory, _cpuPercent);
-                              _pushMetric(_storageHistory, _storageBytes?.toDouble());
+                              _pushMetric(
+                                _storageHistory,
+                                _storageBytes?.toDouble(),
+                              );
                             });
                             _subscribeMetricStreams();
                             unawaited(_syncMetricsTick());
@@ -406,24 +428,35 @@ class _BotStatsPageState extends State<BotStatsPage> {
                     _buildMetricsLayout(context, constraints),
                     const SizedBox(height: 20),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
+                      // Neutral surface: the active source (remote/local) is
+                      // already spelled out by the label + icon below, so no
+                      // brand tint is needed here.
                       decoration: BoxDecoration(
-                        color: _usingRemoteMetrics
-                            ? Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.12)
-                            : Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .surfaceContainerHighest
+                            .withValues(alpha: 0.4),
                         borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                         border: Border.all(
-                          color: _usingRemoteMetrics
-                              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)
-                              : Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.2),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.outlineVariant.withValues(alpha: 0.2),
                         ),
                       ),
                       child: Row(
                         children: [
                           Icon(
-                            _usingRemoteMetrics ? Icons.dns_outlined : Icons.lan,
+                            _usingRemoteMetrics
+                                ? Icons.dns_outlined
+                                : Icons.lan,
                             size: 18,
-                            color: Theme.of(context).colorScheme.primary,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                           ),
                           const SizedBox(width: 10),
                           Expanded(
@@ -431,19 +464,28 @@ class _BotStatsPageState extends State<BotStatsPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  _uiCopy(fr: 'Source des métriques', en: 'Metrics Source'),
-                                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                    color: Theme.of(context).colorScheme.outline,
-                                    fontWeight: FontWeight.bold,
+                                  _uiCopy(
+                                    fr: 'Source des métriques',
+                                    en: 'Metrics Source',
                                   ),
+                                  style: Theme.of(context).textTheme.labelSmall
+                                      ?.copyWith(
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.outline,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
                                   _runtimeSourceLabel(),
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Theme.of(context).colorScheme.onSurface,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                 ),
                               ],
                             ),
@@ -451,13 +493,16 @@ class _BotStatsPageState extends State<BotStatsPage> {
                         ],
                       ),
                     ),
-                    if (_runtimeUnavailableReason?.trim().isNotEmpty ?? false) ...[
+                    if (_runtimeUnavailableReason?.trim().isNotEmpty ??
+                        false) ...[
                       const SizedBox(height: 12),
                       Container(
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           color: AppTheme.warning.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                          borderRadius: BorderRadius.circular(
+                            AppTheme.radiusMd,
+                          ),
                           border: Border.all(
                             color: AppTheme.warning.withValues(alpha: 0.35),
                           ),
@@ -477,17 +522,23 @@ class _BotStatsPageState extends State<BotStatsPage> {
                                 children: [
                                   Text(
                                     _uiCopy(fr: 'Avertissement', en: 'Warning'),
-                                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                      color: AppTheme.warning,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelSmall
+                                        ?.copyWith(
+                                          color: AppTheme.warning,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
                                     _runtimeUnavailableReason!,
-                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Theme.of(context).colorScheme.onSurface,
-                                    ),
+                                    style: Theme.of(context).textTheme.bodySmall
+                                        ?.copyWith(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
+                                        ),
                                   ),
                                 ],
                               ),
@@ -527,22 +578,15 @@ class _BotStatsPageState extends State<BotStatsPage> {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(AppTheme.spacingLg),
       decoration: BoxDecoration(
-        gradient: isRunning
-            ? LinearGradient(
-                colors: [
-                  AppTheme.brandPrimary.withValues(alpha: isDark ? 0.15 : 0.08),
-                  AppTheme.brandSecondary.withValues(alpha: isDark ? 0.05 : 0.03),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              )
-            : null,
-        color: isRunning ? null : (isDark ? AppTheme.darkSurface : theme.colorScheme.surface),
+        // The running/offline state is carried by the pulsing status dot and
+        // the status label below; the card itself stays on the neutral
+        // surface instead of a brand-tinted wash.
+        color: isDark ? AppTheme.darkSurface : theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(AppTheme.radiusMd),
         border: Border.all(
-          color: isRunning
-              ? AppTheme.brandPrimary.withValues(alpha: 0.25)
-              : theme.colorScheme.outlineVariant.withValues(alpha: isDark ? 0.15 : 0.4),
+          color: theme.colorScheme.outlineVariant.withValues(
+            alpha: isDark ? 0.15 : 0.4,
+          ),
           width: 1.0,
         ),
       ),
@@ -557,7 +601,10 @@ class _BotStatsPageState extends State<BotStatsPage> {
                 Text(
                   _selectedBotId != null
                       ? (_botNamesById[_selectedBotId] ?? _selectedBotId!)
-                      : _uiCopy(fr: 'Aucun robot sélectionné', en: 'No bot selected'),
+                      : _uiCopy(
+                          fr: 'Aucun robot sélectionné',
+                          en: 'No bot selected',
+                        ),
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: theme.colorScheme.onSurface,
@@ -576,7 +623,10 @@ class _BotStatsPageState extends State<BotStatsPage> {
                     const SizedBox(width: 6),
                     Text(
                       '•',
-                      style: TextStyle(color: theme.colorScheme.outline, fontSize: 8),
+                      style: TextStyle(
+                        color: theme.colorScheme.outline,
+                        fontSize: 8,
+                      ),
                     ),
                     const SizedBox(width: 6),
                     Expanded(
@@ -594,11 +644,12 @@ class _BotStatsPageState extends State<BotStatsPage> {
             ),
           ),
           IconButton.filledTonal(
-            icon: Icon(
-              Icons.refresh,
-              color: theme.colorScheme.primary,
-            ),
-            onPressed: _syncInFlight ? null : () => unawaited(_syncMetricsTick()),
+            // Tonal button: the icon takes the container's on-colour from the
+            // theme instead of forcing the brand accent.
+            icon: const Icon(Icons.refresh),
+            onPressed: _syncInFlight
+                ? null
+                : () => unawaited(_syncMetricsTick()),
             tooltip: _uiCopy(fr: 'Rafraîchir maintenant', en: 'Refresh now'),
           ),
         ],
@@ -615,7 +666,11 @@ class _BotStatsPageState extends State<BotStatsPage> {
         value: _formatBytes(_rssBytes),
         icon: Icons.memory,
         history: _ramHistory,
-        color: AppTheme.brandPrimary,
+        // Code couleur par métrique (bleu/vert/orange/cyan distincts) : les
+        // deux entrées violettes de la charte sont remplacées par des teintes
+        // existantes conformes AA (online 6.7:1, discordLight 5.1:1 sur la
+        // surface carte, là où brandPrimary tombait à 1.8:1).
+        color: AppTheme.online,
         valueFormatter: (v) => _formatBytes(v.toInt()),
       ),
       _MetricCard(
@@ -623,7 +678,7 @@ class _BotStatsPageState extends State<BotStatsPage> {
         value: _formatBytes(_rssEstimatedBytes),
         icon: Icons.auto_graph,
         history: _ramEstimatedHistory,
-        color: AppTheme.brandSecondary,
+        color: AppTheme.discordLight,
         valueFormatter: (v) => _formatBytes(v.toInt()),
         subtitle: _formatBaselineText(),
       ),
@@ -707,10 +762,9 @@ class _BotStatsPageState extends State<BotStatsPage> {
       return null;
     }
     final capturedAt = getBotBaselineCapturedAt();
-    final time =
-        capturedAt == null
-            ? ''
-            : ' • ${capturedAt.hour.toString().padLeft(2, '0')}:${capturedAt.minute.toString().padLeft(2, '0')}:${capturedAt.second.toString().padLeft(2, '0')}';
+    final time = capturedAt == null
+        ? ''
+        : ' • ${capturedAt.hour.toString().padLeft(2, '0')}:${capturedAt.minute.toString().padLeft(2, '0')}:${capturedAt.second.toString().padLeft(2, '0')}';
     return 'Baseline: ${_formatBytes(baseline)}$time';
   }
 }
@@ -745,7 +799,9 @@ class _MetricCard extends StatelessWidget {
         color: isDark ? AppTheme.darkSurface : theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(AppTheme.radiusMd),
         border: Border.all(
-          color: theme.colorScheme.outlineVariant.withValues(alpha: isDark ? 0.15 : 0.4),
+          color: theme.colorScheme.outlineVariant.withValues(
+            alpha: isDark ? 0.15 : 0.4,
+          ),
           width: 1.0,
         ),
         boxShadow: [
@@ -795,7 +851,8 @@ class _MetricCard extends StatelessWidget {
                 ),
               ),
               if (history.isNotEmpty)
-                _buildTrendChip(context, history, color) ?? const SizedBox.shrink(),
+                _buildTrendChip(context, history, color) ??
+                    const SizedBox.shrink(),
             ],
           ),
           const SizedBox(height: 16),
@@ -821,7 +878,11 @@ class _MetricCard extends StatelessWidget {
     );
   }
 
-  Widget? _buildTrendChip(BuildContext context, List<double> history, Color accentColor) {
+  Widget? _buildTrendChip(
+    BuildContext context,
+    List<double> history,
+    Color accentColor,
+  ) {
     if (history.length < 2) return null;
     final current = history.last;
     final previous = history[history.length - 2];
@@ -856,9 +917,11 @@ class _MetricCard extends StatelessWidget {
     final isUp = change > 0;
     final isUpwardHeavy = title.contains('RAM') || title.contains('CPU');
     final isGood = isUpwardHeavy ? !isUp : isUp;
-    
+
     final color = isGood ? AppTheme.successLight : AppTheme.errorLight;
-    final bgColor = isGood ? AppTheme.successLight.withValues(alpha: 0.12) : AppTheme.errorLight.withValues(alpha: 0.12);
+    final bgColor = isGood
+        ? AppTheme.successLight.withValues(alpha: 0.12)
+        : AppTheme.errorLight.withValues(alpha: 0.12);
     final icon = isUp ? Icons.arrow_upward : Icons.arrow_downward;
     final sign = isUp ? '+' : '';
 
@@ -902,7 +965,8 @@ class _InteractiveChart extends StatefulWidget {
   State<_InteractiveChart> createState() => _InteractiveChartState();
 }
 
-class _InteractiveChartState extends State<_InteractiveChart> with SingleTickerProviderStateMixin {
+class _InteractiveChartState extends State<_InteractiveChart>
+    with SingleTickerProviderStateMixin {
   int? _selectedIndex;
   late final AnimationController _pulseController;
 
@@ -936,10 +1000,13 @@ class _InteractiveChartState extends State<_InteractiveChart> with SingleTickerP
     return LayoutBuilder(
       builder: (context, constraints) {
         return GestureDetector(
-          onHorizontalDragStart: (details) => _updateTouch(details.localPosition, constraints.maxWidth),
-          onHorizontalDragUpdate: (details) => _updateTouch(details.localPosition, constraints.maxWidth),
+          onHorizontalDragStart: (details) =>
+              _updateTouch(details.localPosition, constraints.maxWidth),
+          onHorizontalDragUpdate: (details) =>
+              _updateTouch(details.localPosition, constraints.maxWidth),
           onHorizontalDragEnd: (_) => _clearTouch(),
-          onTapDown: (details) => _updateTouch(details.localPosition, constraints.maxWidth),
+          onTapDown: (details) =>
+              _updateTouch(details.localPosition, constraints.maxWidth),
           onTapUp: (_) => _clearTouch(),
           onTapCancel: () => _clearTouch(),
           child: AnimatedBuilder(
@@ -967,7 +1034,10 @@ class _InteractiveChartState extends State<_InteractiveChart> with SingleTickerP
     if (values.isEmpty) return;
 
     final double xPercent = (localPosition.dx / width).clamp(0.0, 1.0);
-    final int index = (xPercent * (values.length - 1)).round().clamp(0, values.length - 1);
+    final int index = (xPercent * (values.length - 1)).round().clamp(
+      0,
+      values.length - 1,
+    );
 
     setState(() {
       _selectedIndex = index;
@@ -1014,7 +1084,14 @@ class _ChartPainter extends CustomPainter {
 
     for (int i = 1; i <= 3; i++) {
       final double y = gridPadding + (graphHeight * (i / 4.0));
-      _drawDashedLine(canvas, Offset(0, y), Offset(size.width, y), gridPaint, 4.0, 4.0);
+      _drawDashedLine(
+        canvas,
+        Offset(0, y),
+        Offset(size.width, y),
+        gridPaint,
+        4.0,
+        4.0,
+      );
     }
 
     final List<Offset> points = [];
@@ -1025,8 +1102,7 @@ class _ChartPainter extends CustomPainter {
       points.add(Offset(x, y));
     }
 
-    final fillPath = Path()
-      ..moveTo(points.first.dx, points.first.dy);
+    final fillPath = Path()..moveTo(points.first.dx, points.first.dy);
     for (int i = 1; i < points.length; i++) {
       fillPath.lineTo(points[i].dx, points[i].dy);
     }
@@ -1036,26 +1112,23 @@ class _ChartPainter extends CustomPainter {
       ..close();
 
     final fillPaint = Paint()
-      ..shader = ui.Gradient.linear(
-        Offset(0, 0),
-        Offset(0, size.height),
-        [color.withValues(alpha: 0.20), color.withValues(alpha: 0.0)],
-      )
+      ..shader = ui.Gradient.linear(Offset(0, 0), Offset(0, size.height), [
+        color.withValues(alpha: 0.20),
+        color.withValues(alpha: 0.0),
+      ])
       ..style = PaintingStyle.fill;
     canvas.drawPath(fillPath, fillPaint);
 
-    final strokePath = Path()
-      ..moveTo(points.first.dx, points.first.dy);
+    final strokePath = Path()..moveTo(points.first.dx, points.first.dy);
     for (int i = 1; i < points.length; i++) {
       strokePath.lineTo(points[i].dx, points[i].dy);
     }
 
     final strokePaint = Paint()
-      ..shader = ui.Gradient.linear(
-        Offset(0, 0),
-        Offset(size.width, 0),
-        [color, color.withValues(alpha: 0.7)],
-      )
+      ..shader = ui.Gradient.linear(Offset(0, 0), Offset(size.width, 0), [
+        color,
+        color.withValues(alpha: 0.7),
+      ])
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.5
       ..strokeCap = StrokeCap.round
@@ -1069,7 +1142,14 @@ class _ChartPainter extends CustomPainter {
         ..color = color.withValues(alpha: 0.35)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.0;
-      _drawDashedLine(canvas, Offset(activePoint.dx, 0), Offset(activePoint.dx, size.height), trackingPaint, 3.0, 3.0);
+      _drawDashedLine(
+        canvas,
+        Offset(activePoint.dx, 0),
+        Offset(activePoint.dx, size.height),
+        trackingPaint,
+        3.0,
+        3.0,
+      );
 
       final haloPaint = Paint()
         ..color = color.withValues(alpha: 0.25)
@@ -1102,9 +1182,15 @@ class _ChartPainter extends CustomPainter {
 
       final double tooltipW = tp.width + 16;
       final double tooltipH = tp.height + 8;
-      
-      double tooltipX = (activePoint.dx - tooltipW / 2).clamp(4.0, size.width - tooltipW - 4.0);
-      double tooltipY = (activePoint.dy - tooltipH - 10).clamp(2.0, size.height - tooltipH - 2.0);
+
+      double tooltipX = (activePoint.dx - tooltipW / 2).clamp(
+        4.0,
+        size.width - tooltipW - 4.0,
+      );
+      double tooltipY = (activePoint.dy - tooltipH - 10).clamp(
+        2.0,
+        size.height - tooltipH - 2.0,
+      );
 
       final rrect = RRect.fromRectAndRadius(
         Rect.fromLTWH(tooltipX, tooltipY, tooltipW, tooltipH),
@@ -1128,10 +1214,9 @@ class _ChartPainter extends CustomPainter {
       canvas.drawRRect(rrect, tooltipBorderPaint);
 
       tp.paint(canvas, Offset(tooltipX + 8, tooltipY + 4));
-
     } else {
       final lastPoint = points.last;
-      
+
       final pulsePaint = Paint()
         ..color = color.withValues(alpha: 0.4 * (1.0 - pulseProgress))
         ..style = PaintingStyle.fill;
@@ -1151,12 +1236,19 @@ class _ChartPainter extends CustomPainter {
     }
   }
 
-  void _drawDashedLine(Canvas canvas, Offset start, Offset end, Paint paint, double dashLength, double gapLength) {
+  void _drawDashedLine(
+    Canvas canvas,
+    Offset start,
+    Offset end,
+    Paint paint,
+    double dashLength,
+    double gapLength,
+  ) {
     final dx = end.dx - start.dx;
     final dy = end.dy - start.dy;
     final length = math.sqrt(dx * dx + dy * dy);
     final direction = Offset(dx / length, dy / length);
-    
+
     double currentLength = 0;
     while (currentLength < length) {
       final dashStart = start + direction * currentLength;
@@ -1184,7 +1276,8 @@ class _PulsingStatusDot extends StatefulWidget {
   State<_PulsingStatusDot> createState() => _PulsingStatusDotState();
 }
 
-class _PulsingStatusDotState extends State<_PulsingStatusDot> with SingleTickerProviderStateMixin {
+class _PulsingStatusDotState extends State<_PulsingStatusDot>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
 
   @override

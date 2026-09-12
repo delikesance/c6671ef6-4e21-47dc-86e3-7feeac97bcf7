@@ -1,56 +1,57 @@
 import 'dart:async';
+import 'dart:developer' as developer;
 import 'dart:io';
-import 'package:bot_creator/core/storage/database.dart';
+import 'package:bot_creator/core/analytics/analytics.dart';
+import 'package:bot_creator/core/i18n/i18n.dart';
+import 'package:bot_creator/core/network/gateway_bot_events.dart';
+import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_owner_sync.dart';
 import 'package:bot_creator/core/network/main_api_session_restore.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/network/remote_runtime.dart';
-import 'package:bot_creator/core/network/runner_settings.dart';
-import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
+import 'package:bot_creator/core/network/runner_settings.dart';
+import 'package:bot_creator/core/storage/database.dart';
+import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/core/utils/duration_formatter.dart';
+import 'package:bot_creator/core/utils/global.dart';
+import 'package:bot_creator/core/utils/string_sanitizer.dart';
+import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
+import 'package:bot_creator/features/ads/logic/ad_consent_service.dart';
+import 'package:bot_creator/features/ads/logic/ad_reward_service.dart';
+import 'package:bot_creator/features/ads/logic/ads_placement_policy.dart';
 import 'package:bot_creator/features/ads/presentation/native_ad_slot.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_config_import.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_config_merge.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
+import 'package:bot_creator/features/bot_editor/logic/js_bot_payload_builder.dart';
+import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/app_editor_page.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/bot_logs.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/bot_config_pull_dialog.dart';
+import 'package:bot_creator/features/bot_management/presentation/create_page.dart';
+import 'package:bot_creator/features/containers/presentation/container_list_page.dart';
+import 'package:bot_creator/features/discord_rpc/logic/discord_rpc_service.dart';
+import 'package:bot_creator/features/documentation/documentation_navigation.dart';
+import 'package:bot_creator/features/home/presentation/guild_avatar.dart';
+import 'package:bot_creator/features/home/presentation/home_ui.dart';
+import 'package:bot_creator/features/settings/presentation/settings_page.dart';
+import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
+import 'package:bot_creator/main.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:nyxx/nyxx.dart' hide Locale, Logger;
-import 'dart:developer' as developer;
-import 'package:bot_creator/main.dart';
-import 'package:bot_creator/core/theme/app_theme.dart';
-import 'package:bot_creator/core/i18n/i18n.dart';
-import 'package:bot_creator/core/analytics/analytics.dart';
-import 'package:bot_creator/features/bot_editor/logic/bot.dart';
-import 'package:bot_creator/features/bot_editor/logic/bot_config_import.dart';
-import 'package:bot_creator/features/bot_editor/logic/bot_config_merge.dart';
-import 'package:bot_creator/features/bot_editor/presentation/widgets/bot_config_pull_dialog.dart';
-import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
-import 'package:bot_creator/features/bot_editor/logic/js_bot_payload_builder.dart';
-import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
-import 'package:bot_creator/core/utils/global.dart';
-import 'package:bot_creator/core/utils/string_sanitizer.dart';
-import 'package:bot_creator/core/network/main_api_client.dart';
-import 'package:bot_creator/core/network/gateway_bot_events.dart';
-import 'package:bot_creator/features/discord_rpc/logic/discord_rpc_service.dart';
-import 'package:bot_creator/features/ads/logic/ad_reward_service.dart';
-import 'package:bot_creator/features/ads/logic/ad_consent_service.dart';
-import 'package:bot_creator/features/ads/logic/ads_placement_policy.dart';
-import 'package:bot_creator/features/bot_editor/presentation/screens/app_editor_page.dart';
-import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/bot_logs.dart';
-import 'package:bot_creator/core/utils/duration_formatter.dart';
-import 'package:bot_creator/features/containers/presentation/container_list_page.dart';
-
-Color _hostingTimeColor(BuildContext context, int minutes) {
-  const minutesPerDay = 60 * 24; // 1440
-  const minutesThreeDays = minutesPerDay * 3; // 4320
-
-  if (minutes < minutesPerDay) return AppTheme.error;
-  if (minutes < minutesThreeDays) return AppTheme.warning;
-  return AppTheme.successAccent;
-}
+import 'package:url_launcher/url_launcher.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({super.key, this.onManageBot});
+
+  /// When set, Manage opens inside the shell instead of pushing [AppEditPage].
+  final void Function(String id, String name)? onManageBot;
 
   @override
   State<HomePage> createState() => HomePageState();
@@ -83,6 +84,14 @@ class HomePageState extends State<HomePage>
 
   /// Un AnimationController par carte (clé = bot id) pour l'effet pulse.
   final Map<String, AnimationController> _pulseControllers = {};
+
+  /// Contrôleur de secours si une carte est construite alors qu'aucun
+  /// contrôleur dédié n'existe encore (aucun crash, aucune mutation au build).
+  late final AnimationController _fallbackPulseController;
+
+  /// Ids du dernier snapshot reçu du stream d'apps.
+  Set<String> _knownAppIds = <String>{};
+  StreamSubscription<List<dynamic>>? _appsSub;
   Map<String, int> _freeMinutesByBotId = <String, int>{};
   final Map<String, DateTime> _sessionExpiresAtByBotId = <String, DateTime>{};
   final Map<String, int> _botNotFoundStreak = <String, int>{};
@@ -105,6 +114,12 @@ class HomePageState extends State<HomePage>
   void initState() {
     super.initState();
     current = this;
+    _fallbackPulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+    // Controllers are created from the app stream (never during build).
+    _appsSub = appManager.getAppStream().listen(_handleAppsSnapshot);
     appendBotDebugLog('>>>> [BOT_DEBUG] HomePage.initState ENTERED <<<<');
     WidgetsBinding.instance.addObserver(this);
     AppAnalytics.logScreenView(screenName: 'HomePage', screenClass: 'HomePage');
@@ -146,11 +161,13 @@ class HomePageState extends State<HomePage>
     if (current == this) current = null;
     WidgetsBinding.instance.removeObserver(this);
     _statusRefreshTimer?.cancel();
+    unawaited(_appsSub?.cancel());
     unawaited(_gatewayEventsSub?.cancel());
     unawaited(_gatewayConnectionSub?.cancel());
     for (final ctrl in _pulseControllers.values) {
       ctrl.dispose();
     }
+    _fallbackPulseController.dispose();
     super.dispose();
   }
 
@@ -989,7 +1006,6 @@ class HomePageState extends State<HomePage>
               botName: botName,
               token: token,
               config: config,
-              bot: bot,
               guildCount: fetchedApproxGuildCount,
               avatarHash: avatarHash,
               discriminator: discriminator,
@@ -1016,7 +1032,17 @@ class HomePageState extends State<HomePage>
             );
 
             // Rehydrate commands and workflows from remote config
-            final remoteConfig = result.config;
+            var remoteConfig = result.config;
+            if (remoteConfig['commands'] == null) {
+              try {
+                final fullRemote = await remoteClient.getBotConfig(
+                  result.botId,
+                );
+                if (fullRemote.isNotEmpty) {
+                  remoteConfig = fullRemote;
+                }
+              } catch (_) {}
+            }
             final remoteCommands = extractCommandListFromConfig(
               remoteConfig['commands'],
             );
@@ -1104,6 +1130,33 @@ class HomePageState extends State<HomePage>
         duration: const Duration(milliseconds: 900),
       ),
     );
+  }
+
+  /// Creates pulse controllers ahead of build (stream listener, not build) and
+  /// disposes the ones belonging to bots that no longer exist.
+  void _handleAppsSnapshot(List<dynamic> apps) {
+    final ids = <String>{
+      for (final app in apps)
+        if (app is Map && (app['id'] ?? '').toString().trim().isNotEmpty)
+          (app['id']).toString().trim(),
+    };
+    _knownAppIds = ids;
+    for (final id in ids) {
+      _getOrCreatePulseController(id);
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _disposeStalePulseControllers(_knownAppIds);
+    });
+  }
+
+  void _disposeStalePulseControllers(Set<String> liveBotIds) {
+    final stale = _pulseControllers.keys
+        .where((id) => !liveBotIds.contains(id))
+        .toList(growable: false);
+    for (final id in stale) {
+      _pulseControllers.remove(id)?.dispose();
+    }
   }
 
   void _syncPulse(Set<String> runningIds) {
@@ -1869,6 +1922,12 @@ class HomePageState extends State<HomePage>
       if (rewarded && mounted) {
         unawaited(_refreshBotRuntimeBalances(botIds: [botId]));
       }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.tr.error_with_details(e.toString()))),
+        );
+      }
     } finally {
       if (mounted) {
         setState(() => _botIdInAction = null);
@@ -2079,232 +2138,376 @@ class HomePageState extends State<HomePage>
 
   // ── Build ──────────────────────────────────────────────────────────────────
 
+  Object? _lastReportedStreamError;
+
+  /// [StreamBuilder] errors only surface during build, so the log is deferred to
+  /// the end of the frame (and deduplicated) instead of spamming every rebuild.
+  void _reportStreamError(Object? error) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || identical(error, _lastReportedStreamError)) return;
+      _lastReportedStreamError = error;
+      developer.log('Error loading data: $error', name: 'HomePage');
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = constraints.maxWidth;
-        final isIOS = defaultTargetPlatform == TargetPlatform.iOS;
-        final useIOSPhoneLayout = isIOS && width < 600;
-        final int crossAxisCount;
-        final double horizontalPadding;
-        // Responsive grid based on screen width
-        if (width < 480) {
-          // Phone - single column
-          crossAxisCount = 1;
-          horizontalPadding = isIOS ? 8.0 : 12.0;
-        } else if (width < 600) {
-          // Mobile - 2 columns
-          crossAxisCount = 2;
-          horizontalPadding = isIOS ? 8.0 : 12.0;
-        } else if (width >= 1500) {
-          // Extra large desktop - 5 columns
-          crossAxisCount = 5;
-          horizontalPadding = 24.0;
-        } else if (width >= 1200) {
-          // Large desktop - 4 columns
-          crossAxisCount = 4;
-          horizontalPadding = 24.0;
-        } else if (width >= 900) {
-          // Tablet - 3 columns
-          crossAxisCount = 3;
-          horizontalPadding = 20.0;
-        } else if (width >= 760) {
-          // Medium tablet - 3 columns
-          crossAxisCount = 3;
-          horizontalPadding = 16.0;
-        } else {
-          // Small tablet - 2 columns
-          crossAxisCount = 2;
-          horizontalPadding = isIOS ? 12.0 : 16.0;
-        }
+    return StreamBuilder<List<dynamic>>(
+      stream: appManager.getAppStream(),
+      initialData: appManager.isInitialized ? appManager.currentApps : null,
+      builder: (context, snapshot) {
+        final apps = snapshot.data;
 
-        final effectiveCrossAxisCount = useIOSPhoneLayout ? 1 : crossAxisCount;
-        final listHorizontalPadding = useIOSPhoneLayout
-            ? 6.0
-            : isIOS
-            ? 10.0
-            : 14.0;
-        final contentWidth =
-            width - (horizontalPadding * 2) - (listHorizontalPadding * 2);
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final width = constraints.maxWidth;
+            final isWide = width >= AppTheme.desktopBreakpoint;
+            final columns = isWide ? 2 : 1;
+            final contentMaxWidth = isWide ? 1000.0 : 640.0;
+            final sidePad = isWide ? 28.0 : 16.0;
+            final horizontal = width > contentMaxWidth
+                ? (width - contentMaxWidth) / 2 + sidePad
+                : sidePad;
+            final innerWidth = width - horizontal * 2;
 
-        final cardWidth =
-            (contentWidth - ((effectiveCrossAxisCount - 1) * 12)) /
-            effectiveCrossAxisCount;
-
-        return Padding(
-          padding: EdgeInsets.all(horizontalPadding),
-          child: StreamBuilder<List<dynamic>>(
-            stream: appManager.getAppStream(),
-            initialData: const <dynamic>[],
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                developer.log(
-                  'Error loading data: ${snapshot.error}',
-                  name: 'HomePage',
-                );
-                return Center(child: Text(context.tr.app_loading_error));
-              }
-
-              final apps = snapshot.data;
-              if (apps == null || apps.isEmpty) {
-                return const _EmptyStateWithSupport();
-              }
-
-              return Column(
-                children: [
-                  if (AdsPlacementPolicy.isPlacementEnabled(
-                        NativeAdPlacement.homeBots,
-                      ) &&
-                      apps.length >= AdsPlacementPolicy.listInterval)
-                    const NativeAdSlot(
-                      placement: NativeAdPlacement.homeBots,
-                      height: 118,
-                      margin: EdgeInsets.only(bottom: 12),
-                    ),
-                  Expanded(
-                    child: RefreshIndicator(
-                      key: _refreshIndicatorKey,
-                      onRefresh: () => syncAllBotsFromManager(silent: false),
-                      child: SingleChildScrollView(
-                        padding: EdgeInsets.only(
-                          bottom: 80,
-                          left: listHorizontalPadding,
-                          right: listHorizontalPadding,
-                        ),
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        child: Column(
-                          children: [
-                            if (!_isDesktop) ...[
-                              _HostedAppsHomeCard(),
-                              const SizedBox(height: 16),
-                            ],
-                            Align(
-                              alignment: Alignment.topCenter,
-                              child: Wrap(
-                                spacing: 14,
-                                runSpacing: 14,
-                                children: apps.map((app) {
-                                  final name =
-                                      app['name']?.toString().sanitizedUtf16 ??
-                                      context.tr.home_unknown_app;
-                                  final id = app['id']?.toString() ?? '';
-                                  final avatar = app['avatar']?.toString();
-                                  final guildCount =
-                                      switch (app['guild_count'] ??
-                                      app['approximate_guild_count']) {
-                                        final int value => value,
-                                        final String s => int.tryParse(s) ?? 0,
-                                        _ => 0,
-                                      };
-
-                                  final isRunning = _runningBotIds.contains(id);
-
-                                  const runtimeToggleAllowed = true;
-
-                                  final canToggle =
-                                      runtimeToggleAllowed &&
-                                      _botIdInAction == null;
-
-                                  final pulseCtrl = _getOrCreatePulseController(
-                                    id,
-                                  );
-
-                                  return SizedBox(
-                                    width: cardWidth,
-                                    child: _BotCard(
-                                      name: name,
-                                      id: id,
-                                      avatar: avatar,
-                                      guildCount: guildCount,
-                                      compact: width < 760,
-                                      isRunning: isRunning,
-                                      canToggle: canToggle,
-                                      isTogglingThisBot: _botIdInAction == id,
-                                      runtimeBadgeLabel: isRunning
-                                          ? _runtimeBadgeLabel(id)
-                                          : null,
-                                      freeMinutes: _displayFreeMinutesForBot(
-                                        id,
-                                      ),
-                                      pulseController: pulseCtrl,
-                                      onManage: () => Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) => AppEditPage(
-                                            appName: name,
-                                            id: int.tryParse(id) ?? 0,
-                                          ),
-                                        ),
-                                      ).then((_) => _initRunningState()),
-                                      onToggle: () =>
-                                          _toggleBot(botId: id, botName: name),
-                                      onAddTime: _supportsForegroundTask
-                                          ? () => _addHostingTime(id)
-                                          : null,
-                                      showPremiumLabels:
-                                          _supportsForegroundTask,
-                                      onLogs: isRunning
-                                          ? () => Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (_) =>
-                                                    BotLogsPage(botId: id),
-                                              ),
-                                            )
-                                          : null,
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+            void openCreate() {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AppCreatePage()),
               );
-            },
-          ),
+            }
+
+            final children = <Widget>[
+              _HomeHeader(
+                onRefresh: () {
+                  unawaited(triggerRefresh());
+                },
+                onDocs: () {
+                  openDocumentationHub(context, showDiscordJsTab: true);
+                },
+                onSettings: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const SettingPage()),
+                  );
+                },
+                // Compact: create lives in the dashed CTA. Wide keeps a
+                // header shortcut plus docs/settings (no bottom tabs).
+                showCreate: isWide,
+                showShellActions: isWide,
+                onCreate: openCreate,
+              ),
+              const SizedBox(height: 20),
+              _CreateBotCard(onTap: openCreate),
+              if (!_isDesktop) const _HostedAppsHomeCard(),
+              const SizedBox(height: 20),
+            ];
+
+            if (snapshot.hasError) {
+              _reportStreamError(snapshot.error);
+              children.add(
+                _buildHomeInfoCard(
+                  context,
+                  Icons.error_outline_rounded,
+                  context.tr.app_loading_error,
+                ),
+              );
+            } else if (apps == null) {
+              children.add(
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 48),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+              );
+            } else if (apps.isEmpty) {
+              children.add(const _EmptyStateWithSupport());
+            } else {
+              if (AdsPlacementPolicy.isPlacementEnabled(
+                    NativeAdPlacement.homeBots,
+                  ) &&
+                  apps.length >= AdsPlacementPolicy.listInterval) {
+                children.add(
+                  const NativeAdSlot(
+                    placement: NativeAdPlacement.homeBots,
+                    height: 118,
+                    margin: EdgeInsets.only(bottom: 16),
+                  ),
+                );
+              }
+
+              final cards = <Widget>[
+                for (final app in apps)
+                  _buildRedesignBotCard(
+                    context,
+                    app,
+                    // The primary action of a running bot stays visible without
+                    // an extra tap on compact layouts.
+                    initiallyExpanded:
+                        isWide ||
+                        _runningBotIds.contains(app['id']?.toString() ?? ''),
+                  ),
+              ];
+
+              if (columns == 1) {
+                for (var i = 0; i < cards.length; i++) {
+                  children.add(
+                    Padding(
+                      padding: EdgeInsets.only(
+                        bottom: i == cards.length - 1 ? 0 : 20,
+                      ),
+                      child: cards[i],
+                    ),
+                  );
+                }
+              } else {
+                const gap = 20.0;
+                final cardWidth = (innerWidth - (columns - 1) * gap) / columns;
+                children.add(
+                  Wrap(
+                    spacing: gap,
+                    runSpacing: gap,
+                    children: [
+                      for (final card in cards)
+                        SizedBox(width: cardWidth, child: card),
+                    ],
+                  ),
+                );
+              }
+            }
+
+            return RefreshIndicator(
+              key: _refreshIndicatorKey,
+              onRefresh: () => syncAllBotsFromManager(silent: false),
+              child: ListView(
+                padding: EdgeInsets.fromLTRB(
+                  horizontal,
+                  24,
+                  horizontal,
+                  isWide
+                      ? 40
+                      : FloatingGlassNavBar.contentClearanceOf(context) + 24,
+                ),
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: children,
+              ),
+            );
+          },
         );
       },
     );
   }
+
+  Widget _buildRedesignBotCard(
+    BuildContext context,
+    dynamic app, {
+    required bool initiallyExpanded,
+  }) {
+    final name =
+        app['name']?.toString().sanitizedUtf16 ?? context.tr.home_unknown_app;
+    final id = app['id']?.toString() ?? '';
+    final avatar = app['avatar']?.toString();
+    final guildCount = switch (app['guild_count'] ??
+        app['approximate_guild_count']) {
+      final int value => value,
+      final String s => int.tryParse(s) ?? 0,
+      _ => 0,
+    };
+    final isRunning = _runningBotIds.contains(id);
+    final canToggle = _botIdInAction == null;
+    // Controllers are created by the app-stream listener, never during build.
+    final pulseCtrl = _pulseControllers[id] ?? _fallbackPulseController;
+    final freeMinutes = _displayFreeMinutesForBot(id);
+
+    return _BotCard(
+      key: ValueKey<String>(id),
+      name: name,
+      id: id,
+      avatar: avatar,
+      guildCount: guildCount,
+      isRunning: isRunning,
+      canToggle: canToggle,
+      isTogglingThisBot: _botIdInAction == id,
+      initiallyExpanded: initiallyExpanded,
+      runtimeBadgeLabel: isRunning ? _runtimeBadgeLabel(id) : null,
+      freeMinutes: freeMinutes,
+      pulseController: pulseCtrl,
+      showPremiumLabels: _supportsForegroundTask,
+      onManage: () {
+        final parsedId = int.tryParse(id) ?? 0;
+        final manage = widget.onManageBot;
+        if (manage != null) {
+          manage(id, name);
+          return;
+        }
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) =>
+                AppEditPage(appName: name, id: parsedId, avatarUrl: avatar),
+          ),
+        ).then((_) => _initRunningState());
+      },
+      onToggle: () => _toggleBot(botId: id, botName: name),
+      onAddTime: () => _addHostingTime(id),
+      onLogs: isRunning
+          ? () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => BotLogsPage(botId: id)),
+            )
+          : null,
+    );
+  }
+
+  Widget _buildHomeInfoCard(
+    BuildContext context,
+    IconData icon,
+    String message,
+  ) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(AppTheme.radiusCard),
+        border: Border.all(color: scheme.outlineVariant),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: scheme.onSurfaceVariant),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              message,
+              style: TextStyle(color: scheme.onSurfaceVariant),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-// ── Widget carte ─────────────────────────────────────────────────────────────
+// ── En-tête d'accueil ─────────────────────────────────────────────────────────
 
-class _BotCard extends StatelessWidget {
+class _HomeHeader extends StatelessWidget {
+  const _HomeHeader({
+    required this.onRefresh,
+    required this.onDocs,
+    required this.onSettings,
+    required this.onCreate,
+    this.showCreate = true,
+    this.showShellActions = true,
+  });
+
+  final VoidCallback onRefresh;
+  final VoidCallback onDocs;
+  final VoidCallback onSettings;
+  final VoidCallback onCreate;
+  final bool showCreate;
+  final bool showShellActions;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                context.tr.home_overline,
+                style: homeSectionLabelStyle(context),
+              ),
+              const SizedBox(height: 2),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  context.tr.app_title,
+                  maxLines: 1,
+                  softWrap: false,
+                  style: GoogleFonts.getFont(
+                    'Alexandria',
+                    fontSize: 32,
+                    fontWeight: FontWeight.w900,
+                    height: 1.22,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 12),
+        if (showCreate) ...[
+          HomeHeaderIconButton(
+            icon: Icons.add_rounded,
+            iconSize: 16,
+            tooltip: context.tr.app_create_button,
+            onTap: onCreate,
+          ),
+          const SizedBox(width: 10),
+        ],
+        HomeHeaderIconButton(
+          icon: Icons.sync_rounded,
+          iconSize: 13,
+          tooltip: context.tr.common_refresh,
+          onTap: onRefresh,
+        ),
+        if (showShellActions) ...[
+          const SizedBox(width: 10),
+          HomeHeaderIconButton(
+            icon: Icons.menu_book_outlined,
+            iconSize: 16,
+            tooltip: context.tr.docs_hub_title,
+            onTap: onDocs,
+          ),
+          const SizedBox(width: 10),
+          HomeHeaderIconButton(
+            icon: Icons.settings_outlined,
+            iconSize: 16,
+            tooltip: context.tr.settings_tab,
+            onTap: onSettings,
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+// ── Carte bot (collapsible) ───────────────────────────────────────────────────
+
+class _BotCard extends StatefulWidget {
   const _BotCard({
+    super.key,
     required this.name,
     required this.id,
     required this.avatar,
     required this.guildCount,
-    required this.compact,
     required this.isRunning,
     required this.canToggle,
     required this.isTogglingThisBot,
+    required this.initiallyExpanded,
     required this.pulseController,
     required this.onManage,
     required this.onToggle,
     required this.onAddTime,
     required this.onLogs,
     required this.showPremiumLabels,
+    required this.freeMinutes,
     this.runtimeBadgeLabel,
-    this.freeMinutes,
   });
 
   final String name;
   final String id;
   final String? avatar;
-  final int? guildCount;
-  final bool compact;
+  final int guildCount;
   final bool isRunning;
   final bool canToggle;
   final bool isTogglingThisBot;
+  final bool initiallyExpanded;
   final String? runtimeBadgeLabel;
-  final int? freeMinutes;
+  final int freeMinutes;
   final AnimationController pulseController;
   final bool showPremiumLabels;
   final VoidCallback onManage;
@@ -2312,383 +2515,284 @@ class _BotCard extends StatelessWidget {
   final VoidCallback? onAddTime;
   final VoidCallback? onLogs;
 
-  static const _onlineGradient = AppTheme.botCardOnlineGradient;
-  static const _offlineGradient = AppTheme.botCardOfflineGradient;
+  @override
+  State<_BotCard> createState() => _BotCardState();
+}
+
+class _BotCardState extends State<_BotCard> {
+  bool _hovered = false;
+  late bool _expanded = widget.initiallyExpanded;
+  bool get _supportsForegroundTask => Platform.isAndroid || Platform.isIOS;
+
+  @override
+  void didUpdateWidget(covariant _BotCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Realign on the layout-driven default when the window width changes
+    // (desktop resize / rotation).
+    if (oldWidget.initiallyExpanded != widget.initiallyExpanded) {
+      _expanded = widget.initiallyExpanded;
+    }
+  }
+
+  void _toggleExpanded() => setState(() => _expanded = !_expanded);
+
+  String _startLabel(BuildContext context) {
+    if (widget.isRunning) return context.tr.home_stop;
+    if (!widget.showPremiumLabels) return context.tr.bot_home_start;
+    if (SubscriptionService.isSubscribed) return context.tr.home_start_premium;
+    if (widget.freeMinutes > 0) return context.tr.bot_home_start;
+    return context.tr.home_start_ads;
+  }
 
   String _serverCountLabel(BuildContext context) {
-    final count = guildCount ?? 0;
-    return count > 1
-        ? context.tr.home_server_count_other(count)
-        : context.tr.home_server_count_one(count);
+    final count = widget.guildCount;
+    return count == 1
+        ? context.tr.home_active_on_servers_one(count)
+        : context.tr.home_active_on_servers_other(count);
+  }
+
+  /// Adding time only makes sense for a bot that is actually running, and only
+  /// on platforms able to host the foreground task. Desktop has no hosting
+  /// concept at all, so the action is never offered there.
+  bool get _showAddHosting {
+    if (!widget.isRunning) return false;
+    if (!_supportsForegroundTask) return false;
+    return !SubscriptionService.isSubscribed;
+  }
+
+  Widget _buildExpandedContent(BuildContext context, ColorScheme scheme) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final tokens = HomeTokens.of(context);
+    final String expirationLabel;
+    if (widget.freeMinutes <= 0) {
+      expirationLabel = context.tr.home_hosting_status_paused;
+    } else {
+      final expiresAt = DateTime.now().add(
+        Duration(minutes: widget.freeMinutes),
+      );
+      expirationLabel = formatSessionExpiration(context, expiresAt);
+    }
+    String? statusLabel;
+    if (widget.isRunning) {
+      statusLabel =
+          '${widget.runtimeBadgeLabel ?? context.tr.home_synced_active} • $expirationLabel';
+    } else {
+      statusLabel = expirationLabel;
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 16),
+        Divider(
+          height: 1,
+          thickness: 1,
+          color: isDark ? tokens.cardBorder : scheme.outlineVariant,
+        ),
+        const SizedBox(height: 16),
+        _ServerPresenceRow(
+          botId: widget.id,
+          guildCount: widget.guildCount,
+          title: _serverCountLabel(context),
+          statusLabel: statusLabel,
+          isRunning: widget.isRunning,
+        ),
+        if (widget.showPremiumLabels && SubscriptionService.isSubscribed) ...[
+          const SizedBox(height: 10),
+          _InfoChip(
+            icon: Icons.all_inclusive_rounded,
+            value: context.tr.hosted_app_subscription_benefit_unlimited,
+            badge: true,
+          ),
+        ],
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: HomeCardActionButton(
+                icon: widget.isRunning
+                    ? Icons.stop_rounded
+                    : Icons.play_arrow_rounded,
+                label: _startLabel(context),
+                onTap: widget.canToggle ? widget.onToggle : null,
+                loading: widget.isTogglingThisBot,
+                accent: widget.isRunning ? AppTheme.danger : null,
+                stopSquare: widget.isRunning,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: HomeCardActionButton(
+                icon: Icons.tune_rounded,
+                iconSize: 14,
+                label: context.tr.home_manage,
+                onTap: widget.onManage,
+              ),
+            ),
+          ],
+        ),
+        if (_showAddHosting) ...[
+          const SizedBox(height: 10),
+          SizedBox(
+            width: double.infinity,
+            child: HomeCardActionButton(
+              icon: Icons.add_rounded,
+              iconSize: 14,
+              label: context.tr.home_add_time,
+              onTap: widget.canToggle ? widget.onAddTime : null,
+            ),
+          ),
+        ],
+        if (widget.onLogs != null) ...[
+          const SizedBox(height: 10),
+          SizedBox(
+            width: double.infinity,
+            child: HomeCardActionButton(
+              icon: Icons.article_outlined,
+              iconSize: 14,
+              label: context.tr.home_logs_tooltip,
+              onTap: widget.onLogs,
+            ),
+          ),
+        ],
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final avatarRadius = compact ? 24.0 : 34.0;
-    final avatarFallbackSize = compact ? 48.0 : 68.0;
-    final titleFontSize = compact ? 13.0 : 16.0;
-    final buttonVerticalPadding = compact ? 4.0 : 10.0;
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final tokens = HomeTokens.of(context);
+    final cardColor = isDark ? tokens.card : scheme.surfaceContainer;
+    final borderColor = isDark ? tokens.cardBorder : scheme.outlineVariant;
 
-    final gradientColors = isRunning ? _onlineGradient : _offlineGradient;
-
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-      ),
-      elevation: isRunning ? 8 : 3,
-      child: DecoratedBox(
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 140),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: gradientColors,
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          color: cardColor,
+          borderRadius: BorderRadius.circular(AppTheme.radiusCard),
+          border: Border.all(color: borderColor),
+          boxShadow: _hovered
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.45),
+                    blurRadius: 28,
+                    spreadRadius: -4,
+                    offset: const Offset(0, 14),
+                  ),
+                ]
+              : null,
         ),
-        child: Padding(
-          padding: EdgeInsets.all(compact ? 10.0 : 14.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // ── Status badge pill ──────────────────────────────────────────
-              Align(
-                alignment: Alignment.topRight,
-                child: AnimatedBuilder(
-                  animation: pulseController,
-                  builder: (_, _) {
-                    final opacity = isRunning
-                        ? 0.5 + 0.5 * pulseController.value
-                        : 1.0;
-                    return Opacity(
-                      opacity: opacity,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(
-                            AppTheme.radiusPill,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              width: 7,
-                              height: 7,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: isRunning
-                                    ? AppTheme.successAccent
-                                    : AppTheme.grey,
-                              ),
-                            ),
-                            const SizedBox(width: 5),
-                            Text(
-                              isRunning
-                                  ? context.tr.home_status_online
-                                  : context.tr.home_status_offline,
-                              style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.9),
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-
-              // ── Avatar + Identity ──────────────────────────────────────────
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.start,
+        child: Material(
+          type: MaterialType.transparency,
+          child: InkWell(
+            onTap: _toggleExpanded,
+            borderRadius: BorderRadius.circular(AppTheme.radiusCard),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: compact ? 8 : 12),
-                  // Avatar with glow ring when running
-                  Container(
-                    decoration: isRunning
-                        ? BoxDecoration(
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppTheme.successAccent.withValues(
-                                  alpha: 0.4,
-                                ),
-                                blurRadius: 16,
-                                spreadRadius: 2,
-                              ),
-                            ],
-                          )
-                        : null,
-                    child: avatar != null && avatar!.isNotEmpty
-                        ? CircleAvatar(
-                            radius: avatarRadius,
-                            backgroundColor: Colors.white.withValues(
-                              alpha: 0.1,
-                            ),
-                            child: ClipOval(
-                              child: Image.network(
-                                avatar!,
-                                width: avatarRadius * 2,
-                                height: avatarRadius * 2,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, _, _) => Icon(
-                                  Icons.smart_toy_rounded,
-                                  size: avatarFallbackSize * 0.6,
-                                  color: Colors.white70,
-                                ),
-                              ),
-                            ),
-                          )
-                        : CircleAvatar(
-                            radius: avatarRadius,
-                            backgroundColor: Colors.white.withValues(
-                              alpha: 0.1,
-                            ),
-                            child: Icon(
-                              Icons.smart_toy_rounded,
-                              size: avatarFallbackSize * 0.6,
-                              color: Colors.white70,
-                            ),
-                          ),
-                  ),
-
-                  SizedBox(height: compact ? 8 : 14),
-
-                  // Name
-                  Text(
-                    name,
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: titleFontSize,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-
-                  const SizedBox(height: 2),
-
-                  // Server count + runner label
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        Icons.groups_rounded,
-                        size: 14,
-                        color: Colors.white.withValues(alpha: 0.6),
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        _serverCountLabel(context),
-                        style: TextStyle(
-                          fontSize: compact ? 10.5 : 11.0,
-                          color: Colors.white.withValues(alpha: 0.6),
+                      HomeBotAvatar(imageUrl: widget.avatar),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          widget.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: homeDisplayStyle(16, color: scheme.onSurface),
                         ),
+                      ),
+                      const SizedBox(width: 10),
+                      HomeStatusPill(
+                        isRunning: widget.isRunning,
+                        pulseController: widget.pulseController,
+                      ),
+                      const SizedBox(width: 10),
+                      Icon(
+                        _expanded
+                            ? Icons.keyboard_arrow_up_rounded
+                            : Icons.keyboard_arrow_down_rounded,
+                        color: isDark ? tokens.muted : scheme.onSurfaceVariant,
+                        size: 16,
                       ),
                     ],
                   ),
-
-                  // Runner badge (hidden in compact to save space)
-                  if (runtimeBadgeLabel != null && !compact) ...[
-                    const SizedBox(height: 4),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(
-                          AppTheme.radiusPill,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.dns_outlined,
-                            size: 11,
-                            color: Colors.white.withValues(alpha: 0.7),
-                          ),
-                          const SizedBox(width: 3),
-                          Flexible(
-                            child: Text(
-                              runtimeBadgeLabel!,
-                              style: TextStyle(
-                                fontSize: compact ? 9.0 : 9.5,
-                                color: Colors.white.withValues(alpha: 0.7),
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                  if (!SubscriptionService.isSubscribed &&
-                      freeMinutes != null &&
-                      onAddTime != null) ...[
-                    const SizedBox(height: 6),
-                    Text(
-                      context.tr.home_hosting_time_left(
-                        formatHostingDuration(context, freeMinutes!),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: compact ? 10 : 11,
-                        color: _hostingTimeColor(
-                          context,
-                          freeMinutes!,
-                        ).withValues(alpha: 0.95),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-
-              // ── Action buttons ─────────────────────────────────────────────
-              SizedBox(height: compact ? 10 : 14),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.icon(
-                  onPressed: canToggle ? onToggle : null,
-                  icon: isTogglingThisBot
-                      ? const SizedBox(
-                          width: 14,
-                          height: 14,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : Icon(
-                          isRunning
-                              ? Icons.stop_rounded
-                              : Icons.play_arrow_rounded,
-                          size: 16,
-                        ),
-                  label: Text(
-                    isRunning
-                        ? context.tr.home_stop
-                        : (!showPremiumLabels
-                              ? context.tr.bot_home_start
-                              : (SubscriptionService.isSubscribed
-                                    ? context.tr.home_start_premium
-                                    : ((freeMinutes ?? 0) > 0
-                                          ? context.tr.bot_home_start
-                                          : context.tr.home_start_ads))),
-                  ),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: isRunning
-                        ? Colors.white.withValues(alpha: 0.2)
-                        : AppTheme.success,
-                    foregroundColor: Colors.white,
-                    disabledBackgroundColor: Colors.white.withValues(
-                      alpha: 0.1,
-                    ),
-                    disabledForegroundColor: Colors.white38,
-                    textStyle: const TextStyle(fontWeight: FontWeight.bold),
-                    padding: EdgeInsets.symmetric(
-                      vertical: buttonVerticalPadding,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                    ),
-                  ),
-                ),
-              ),
-
-              if (isRunning &&
-                  !SubscriptionService.isSubscribed &&
-                  onAddTime != null) ...[
-                const SizedBox(height: 14),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton.icon(
-                    onPressed: canToggle ? onAddTime : null,
-                    icon: isTogglingThisBot
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Icon(Icons.more_time_rounded, size: 16),
-                    label: Text(context.tr.home_add_time),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AppTheme.success,
-                      foregroundColor: Colors.white,
-                      textStyle: const TextStyle(fontWeight: FontWeight.bold),
-                      padding: EdgeInsets.symmetric(
-                        vertical: buttonVerticalPadding,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-
-              SizedBox(height: compact ? 4 : 6),
-
-              // Manage + Logs row
-              Row(
-                children: [
-                  Expanded(
-                    child: FilledButton.icon(
-                      onPressed: onManage,
-                      icon: const Icon(Icons.tune_rounded, size: 14),
-                      label: Text(context.tr.home_manage),
-                      style: FilledButton.styleFrom(
-                        backgroundColor: Colors.white.withValues(alpha: 0.15),
-                        foregroundColor: Colors.white,
-                        textStyle: const TextStyle(fontWeight: FontWeight.w600),
-                        padding: EdgeInsets.symmetric(
-                          vertical: buttonVerticalPadding,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                            AppTheme.radiusMd,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    onPressed: onLogs,
-                    icon: const Icon(Icons.article_outlined, size: 18),
-                    tooltip: context.tr.home_logs_tooltip,
-                    style: IconButton.styleFrom(
-                      backgroundColor: Colors.white.withValues(alpha: 0.1),
-                      foregroundColor: onLogs != null
-                          ? Colors.white.withValues(alpha: 0.8)
-                          : Colors.white.withValues(alpha: 0.3),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                      ),
-                    ),
+                  AnimatedCrossFade(
+                    firstChild: const SizedBox(width: double.infinity),
+                    secondChild: _buildExpandedContent(context, scheme),
+                    crossFadeState: _expanded
+                        ? CrossFadeState.showSecond
+                        : CrossFadeState.showFirst,
+                    duration: const Duration(milliseconds: 200),
+                    sizeCurve: Curves.easeInOut,
                   ),
                 ],
               ),
-            ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _InfoChip extends StatelessWidget {
+  const _InfoChip({
+    required this.icon,
+    required this.value,
+    this.badge = false,
+  });
+
+  final IconData icon;
+  final String value;
+  final bool badge;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final tokens = HomeTokens.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: badge
+            ? tokens.dataAccent.withValues(alpha: 0.12)
+            : scheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+        border: Border.all(
+          color: badge
+              ? tokens.dataAccent.withValues(alpha: 0.35)
+              : scheme.outlineVariant,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 13, color: badge ? tokens.dataAccent : tokens.muted),
+          const SizedBox(width: 5),
+          Flexible(
+            child: RichText(
+              maxLines: 1,
+              softWrap: false,
+              overflow: TextOverflow.ellipsis,
+              text: TextSpan(
+                style: GoogleFonts.jetBrainsMono(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w600,
+                  color: tokens.dataAccent,
+                ),
+                text: value,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -2712,75 +2816,257 @@ class _EmptyStateWithSupport extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.smart_toy_outlined,
-              size: 64,
-              color: scheme.onSurfaceVariant.withValues(alpha: 0.4),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 40, 20, 0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.smart_toy_outlined,
+            size: 64,
+            color: scheme.onSurfaceVariant.withValues(alpha: 0.4),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            context.tr.app_no_apps,
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(color: scheme.onSurfaceVariant),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 32),
+          const Divider(),
+          const SizedBox(height: 16),
+          Text(
+            context.tr.home_empty_support_hint,
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 12),
+          FilledButton.icon(
+            onPressed: _openDiscord,
+            icon: const Icon(Icons.forum_rounded, size: 18),
+            label: Text(context.tr.home_empty_support_btn),
+            style: FilledButton.styleFrom(
+              backgroundColor: _discordColor,
+              foregroundColor: Colors.white,
+              textStyle: const TextStyle(fontWeight: FontWeight.w600),
             ),
-            const SizedBox(height: 16),
-            Text(
-              context.tr.app_no_apps,
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(color: scheme.onSurfaceVariant),
-              textAlign: TextAlign.center,
-            ),
-            const Divider(),
-            const SizedBox(height: 16),
-            Text(
-              context.tr.home_empty_support_hint,
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 12),
-            FilledButton.icon(
-              onPressed: _openDiscord,
-              icon: const Icon(Icons.forum_rounded, size: 18),
-              label: Text(context.tr.home_empty_support_btn),
-              style: FilledButton.styleFrom(
-                backgroundColor: _discordColor,
-                foregroundColor: Colors.white,
-                textStyle: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _BotSyncResult {
-  const _BotSyncResult({
+class _CreateBotCard extends StatelessWidget {
+  const _CreateBotCard({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final scheme = Theme.of(context).colorScheme;
+    final tokens = HomeTokens.of(context);
+    final fill = isDark ? tokens.createFill : scheme.surfaceContainerHighest;
+    final border = isDark ? tokens.createBorder : scheme.primary;
+    final avatarFill = isDark ? tokens.createBorder : scheme.primary;
+
+    return Stack(
+      children: [
+        Material(
+          color: fill,
+          borderRadius: BorderRadius.circular(AppTheme.radiusCard),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: avatarFill,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.add_rounded,
+                      size: 26,
+                      color: isDark ? tokens.createFill : scheme.onPrimary,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.tr.home_create_bot_title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: homeDisplayStyle(16, color: scheme.onSurface),
+                        ),
+                        Text(
+                          context.tr.home_create_bot_subtitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: homeDisplayStyle(
+                            12,
+                            weight: FontWeight.w400,
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.30)
+                                : scheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    size: 18,
+                    color: isDark
+                        ? tokens.muted
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        Positioned.fill(
+          child: IgnorePointer(
+            child: CustomPaint(
+              painter: HomeDashedRoundedRectPainter(
+                color: border,
+                radius: AppTheme.radiusCard,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ServerPresenceRow extends StatelessWidget {
+  const _ServerPresenceRow({
     required this.botId,
-    required this.botName,
-    required this.token,
-    required this.config,
-    required this.bot,
     required this.guildCount,
-    this.avatarHash,
-    this.discriminator,
+    required this.title,
+    required this.statusLabel,
+    required this.isRunning,
   });
 
+  /// Id du bot : sert à résoudre les vrais serveurs (cache gateway puis REST).
   final String botId;
-  final String botName;
-  final String token;
-  final Map<String, dynamic> config;
-  final Map<String, dynamic> bot;
-  final int? guildCount;
-  final String? avatarHash;
-  final String? discriminator;
+  final int guildCount;
+  final String title;
+  final String? statusLabel;
+  final bool isRunning;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final scheme = Theme.of(context).colorScheme;
+    final tokens = HomeTokens.of(context);
+    final clusterBg = isDark ? tokens.clusterBg : scheme.surfaceContainerLow;
+    final clusterBorder = isDark ? tokens.clusterBorder : scheme.outlineVariant;
+    // Serveurs réels du bot qui tourne dans ce processus (synchrone, gratuit).
+    // `null`/vide hors desktop ou bot à l'arrêt : `GuildAvatarStrip` bascule
+    // alors sur la *source partagée de session* (`GuildDirectory`, la même que
+    // la page « Serveurs ») puis sur le repli neutre. Une seule requête HTTP
+    // par bot et par lancement de l'app ; l'état `loading` affiche le repli
+    // discret, et les avatars apparaissent ensuite sans re-fetch.
+    final localGuilds = guildAvatarsFromGateway(
+      desktopGatewayForBot(botId),
+      limit: kMaxVisibleGuildAvatars,
+    );
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: clusterBg,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: clusterBorder),
+      ),
+      child: Row(
+        children: [
+          GuildAvatarStrip(
+            botId: botId,
+            guildCount: guildCount,
+            guilds: localGuilds,
+            ringColor: clusterBg,
+            // Source unique de vérité de la session : la page « Serveurs »
+            // écrit dans ce même répertoire, la carte ne refait donc jamais
+            // de requête pour afficher ses avatars.
+            directory: GuildDirectory.instance,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: isDark
+                        ? tokens.dataAccent
+                        : Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+                if (statusLabel != null) ...[
+                  const SizedBox(height: 2),
+                  Row(
+                    children: [
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: isRunning ? AppTheme.online : tokens.muted,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Flexible(
+                        child: Text(
+                          statusLabel!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.inter(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w400,
+                            color: isDark
+                                ? tokens.muted
+                                : scheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _HostedAppsHomeCard extends StatefulWidget {
+  const _HostedAppsHomeCard();
+
   @override
   State<_HostedAppsHomeCard> createState() => _HostedAppsHomeCardState();
 }
@@ -2805,60 +3091,101 @@ class _HostedAppsHomeCardState extends State<_HostedAppsHomeCard> {
   Widget build(BuildContext context) {
     if (!_hasSession) return const SizedBox.shrink();
 
-    final colorScheme = Theme.of(context).colorScheme;
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const ContainerListPage()),
-          );
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: Colors.teal.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(12),
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final tokens = HomeTokens.of(context);
+    final cardColor = isDark ? tokens.card : scheme.surfaceContainer;
+    final borderColor = isDark ? tokens.cardBorder : scheme.outlineVariant;
+    return Padding(
+      padding: const EdgeInsets.only(top: 20),
+      child: Material(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(AppTheme.radiusCard),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ContainerListPage()),
+            );
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppTheme.radiusCard),
+              border: Border.all(color: borderColor),
+            ),
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  alignment: Alignment.center,
+                  decoration: const BoxDecoration(
+                    color: AppTheme.discord,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.smart_toy_rounded,
+                    color: Colors.white,
+                    size: 26,
+                  ),
                 ),
-                child: const Icon(
-                  Icons.storage_rounded,
-                  color: Colors.teal,
-                  size: 28,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      context.tr.container_list_title,
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        context.tr.container_list_title,
+                        style: homeDisplayStyle(16),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      context.tr.container_hosted_subtitle,
-                      style: TextStyle(
-                        color: colorScheme.onSurfaceVariant,
-                        fontSize: 13,
+                      Text(
+                        context.tr.container_hosted_subtitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: homeDisplayStyle(
+                          12,
+                          weight: FontWeight.w400,
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.30)
+                              : scheme.onSurfaceVariant,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              const Icon(Icons.chevron_right, color: Colors.grey),
-            ],
+                const SizedBox(width: 8),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  size: 18,
+                  color: isDark ? tokens.muted : scheme.onSurfaceVariant,
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+}
+
+class _BotSyncResult {
+  const _BotSyncResult({
+    required this.botId,
+    required this.botName,
+    required this.token,
+    required this.config,
+    required this.guildCount,
+    this.avatarHash,
+    this.discriminator,
+  });
+
+  final String botId;
+  final String botName;
+  final String token;
+  final Map<String, dynamic> config;
+  final int? guildCount;
+  final String? avatarHash;
+  final String? discriminator;
 }

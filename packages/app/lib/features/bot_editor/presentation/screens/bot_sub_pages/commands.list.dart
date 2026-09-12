@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:bot_creator/core/storage/app_storage_directory.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command.create.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/editor_sub_page_ui.dart';
 import 'package:bot_creator/features/marketplace/presentation/marketplace_page.dart';
 import 'package:bot_creator/features/marketplace/presentation/publish_template_page.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
@@ -16,10 +17,12 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 
 import 'package:bot_creator/features/ads/presentation/native_ad_slot.dart';
 import 'package:bot_creator/core/widgets/notion_filter_bar.dart';
+import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
+import 'package:bot_creator_shared/utils/legacy_command_triggers.dart';
 import 'package:flutter/material.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
-import 'package:bot_creator/core/utils/responsive.dart';
+
 import 'package:bot_creator/core/utils/external_link.dart';
 import 'package:bot_creator/core/network/remote_runtime.dart';
 
@@ -198,8 +201,9 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                       templateId,
                       style: TextStyle(
                         fontSize: 11,
-                        color:
-                            Theme.of(context).colorScheme.onTertiaryContainer,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onTertiaryContainer,
                       ),
                     ),
                   ],
@@ -207,7 +211,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
               ),
           ],
         ),
-        subtitle: Row(children: _buildCommandMetaChips(command)),
+        subtitle: _buildCommandSubtitle(command),
         isThreeLine: false,
         minVerticalPadding: 8,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -219,13 +223,12 @@ class _AppCommandsPageState extends State<AppCommandsPage>
           await Navigator.push(
             context,
             MaterialPageRoute(
-              builder:
-                  (context) => CommandCreatePage(
-                    client: widget.client,
-                    botId: widget.botId,
-                    id: snowflake ?? Snowflake.zero,
-                    localCommandId: snowflake == null ? commandId : null,
-                  ),
+              builder: (context) => CommandCreatePage(
+                client: widget.client,
+                botId: widget.botId,
+                id: snowflake ?? Snowflake.zero,
+                localCommandId: snowflake == null ? commandId : null,
+              ),
             ),
           );
           if (!mounted) {
@@ -271,6 +274,58 @@ class _AppCommandsPageState extends State<AppCommandsPage>
     }
     return chips;
   }
+
+  /// Sous-titre d'une carte de commande : badges existants, puis chips d'alias
+  /// pour les commandes Message Texte qui en ont. Sans alias, la rangée de
+  /// badges est identique à avant.
+  Widget _buildCommandSubtitle(Map<String, dynamic> command) {
+    final aliasChips = _buildCommandAliasChips(command);
+    return Row(
+      children: [
+        ..._buildCommandMetaChips(command),
+        if (aliasChips.isNotEmpty)
+          Flexible(
+            child: Wrap(spacing: 4, runSpacing: 4, children: aliasChips),
+          ),
+      ],
+    );
+  }
+
+  /// Chips discrètes des alias (`!alias`) d'une commande Message Texte.
+  ///
+  /// Renvoie une liste vide pour les commandes sans alias, afin de ne pas
+  /// changer leur rendu.
+  List<Widget> _buildCommandAliasChips(Map<String, dynamic> command) {
+    final data = Map<String, dynamic>.from(
+      (command['data'] as Map?)?.cast<String, dynamic>() ?? const {},
+    );
+    if (data['legacyModeEnabled'] != true) {
+      return const <Widget>[];
+    }
+    final aliases = normalizeLegacyCommandAliases(data['legacyAliases']);
+    final colorScheme = Theme.of(context).colorScheme;
+    return [
+      for (final alias in aliases)
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+          ),
+          child: Text(
+            _aliasChipLabel(alias),
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+    ];
+  }
+
+  /// Étiquette affichée sur une chip d'alias : `!mot`.
+  String _aliasChipLabel(String alias) => '!$alias';
 
   Future<void> _deleteCommand(String commandId, String name) async {
     final confirmed = await AppTheme.showConfirmDialog(
@@ -328,9 +383,8 @@ class _AppCommandsPageState extends State<AppCommandsPage>
           final data = Map<String, dynamic>.from(
             (command['data'] as Map?)?.cast<String, dynamic>() ?? const {},
           );
-          final type =
-              (command['type'] ?? data['commandType'] ?? 'chatInput')
-                  .toString();
+          final type = (command['type'] ?? data['commandType'] ?? 'chatInput')
+              .toString();
           final folder = (command['folder'] ?? '').toString().trim();
           final templateId =
               ((command['templateOrigin']
@@ -341,8 +395,13 @@ class _AppCommandsPageState extends State<AppCommandsPage>
           final legacyMode = data['legacyModeEnabled'] == true;
           final legacyLocal = data['legacyLocalOnly'] == true;
           final name = (command['name'] ?? '').toString().toLowerCase();
-          final description =
-              (command['description'] ?? '').toString().toLowerCase();
+          final description = (command['description'] ?? '')
+              .toString()
+              .toLowerCase();
+          // Les alias des commandes Message Texte comptent comme des
+          // correspondances : taper `p` ou `!p` retrouve la commande.
+          final aliasQuery = query.startsWith('!') ? query.substring(1) : query;
+          final aliases = normalizeLegacyCommandAliases(data['legacyAliases']);
           if (_typeFilter == 'legacy') {
             if (!legacyMode) return false;
           } else if (_typeFilter != 'all' && type != _typeFilter) {
@@ -360,10 +419,14 @@ class _AppCommandsPageState extends State<AppCommandsPage>
           if (query.isEmpty) {
             return true;
           }
+          final matchesAlias =
+              aliasQuery.isNotEmpty &&
+              aliases.any((alias) => alias.contains(aliasQuery));
           return name.contains(query) ||
               description.contains(query) ||
               folder.toLowerCase().contains(query) ||
-              templateId.toLowerCase().contains(query);
+              templateId.toLowerCase().contains(query) ||
+              matchesAlias;
         })
         .toList(growable: false);
   }
@@ -413,10 +476,8 @@ class _AppCommandsPageState extends State<AppCommandsPage>
         final applied = await Navigator.push<bool>(
           context,
           MaterialPageRoute(
-            builder: (_) => MarketplacePage(
-              botId: widget.botId,
-              apiClient: client,
-            ),
+            builder: (_) =>
+                MarketplacePage(botId: widget.botId, apiClient: client),
           ),
         );
         if (applied == true && mounted) {
@@ -424,9 +485,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
         }
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(context.tr.marketplace_connect_manager),
-          ),
+          SnackBar(content: Text(context.tr.marketplace_connect_manager)),
         );
       }
       return;
@@ -509,17 +568,61 @@ class _AppCommandsPageState extends State<AppCommandsPage>
         await Navigator.push(
           context,
           MaterialPageRoute(
-            builder:
-                (_) => CommandCreatePage(
-                  client: widget.client,
-                  botId: widget.botId,
-                  prefillName: query,
-                ),
+            builder: (_) => CommandCreatePage(
+              client: widget.client,
+              botId: widget.botId,
+              prefillName: query,
+            ),
           ),
         );
         if (!mounted) return;
         _load();
       },
+      trailingAction: _isReorderMode
+          ? null
+          : Container(
+              height: 40,
+              decoration: BoxDecoration(
+                gradient: AppTheme.brandGradient,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.brandPrimary.withValues(alpha: 0.35),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(10),
+                  onTap: _showCreateMenu,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.add_rounded,
+                          color: Colors.white,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          context.tr.create,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
     );
   }
 
@@ -535,9 +638,8 @@ class _AppCommandsPageState extends State<AppCommandsPage>
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder:
-            (context) =>
-                CommandCreatePage(client: widget.client, botId: widget.botId),
+        builder: (context) =>
+            CommandCreatePage(client: widget.client, botId: widget.botId),
       ),
     );
     if (!mounted) return;
@@ -611,9 +713,9 @@ class _AppCommandsPageState extends State<AppCommandsPage>
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('${context.tr.error}: $e')));
       }
     }
   }
@@ -648,10 +750,8 @@ class _AppCommandsPageState extends State<AppCommandsPage>
       final applied = await Navigator.push<bool>(
         context,
         MaterialPageRoute(
-          builder: (_) => MarketplacePage(
-            botId: widget.botId,
-            apiClient: client,
-          ),
+          builder: (_) =>
+              MarketplacePage(botId: widget.botId, apiClient: client),
         ),
       );
       if (applied == true && mounted) {
@@ -661,6 +761,34 @@ class _AppCommandsPageState extends State<AppCommandsPage>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(context.tr.marketplace_connect_manager)),
       );
+    }
+  }
+
+  Future<void> _openPublishTemplate() async {
+    final client = await _resolveApiClient();
+    final authorName = await _resolveAuthorName();
+    final session = await MainApiSettingsStore.loadSession();
+    final authorId = session?.userId ?? 'unknown';
+    if (!mounted) return;
+    if (client == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.tr.marketplace_connect_publish)),
+      );
+      return;
+    }
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PublishTemplatePage(
+          botId: widget.botId,
+          apiClient: client,
+          authorId: authorId,
+          authorName: authorName,
+        ),
+      ),
+    );
+    if (result == true && mounted) {
+      _load();
     }
   }
 
@@ -739,9 +867,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                       final messenger = ScaffoldMessenger.of(this.context);
                       final hint = context.tr.command_created_start_bot_hint;
                       Navigator.of(context).pop();
-                      messenger.showSnackBar(
-                        SnackBar(content: Text(hint)),
-                      );
+                      messenger.showSnackBar(SnackBar(content: Text(hint)));
                     },
                   ),
                   const SizedBox(height: AppTheme.spacingSm),
@@ -762,17 +888,15 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                     );
                     final opened = await openExternalUrl(inviteUrl);
                     if (!opened) {
-                      messenger.showSnackBar(
-                        SnackBar(content: Text(errorMsg)),
-                      );
+                      messenger.showSnackBar(SnackBar(content: Text(errorMsg)));
                     }
                   },
                 ),
                 const SizedBox(height: AppTheme.spacingSm),
                 _GuidanceActionTile(
                   icon: Icons.add_circle_outline_rounded,
-                  iconColor: AppTheme.brandPrimary,
-                  iconBg: AppTheme.brandPrimary.withValues(alpha: 0.12),
+                  iconColor: Theme.of(context).colorScheme.onSurfaceVariant,
+                  iconBg: Theme.of(context).colorScheme.surfaceContainerHighest,
                   label: context.tr.command_created_create_another,
                   onTap: () {
                     Navigator.of(context).pop();
@@ -1080,12 +1204,12 @@ class _AppCommandsPageState extends State<AppCommandsPage>
       if (f.isNotEmpty) grouped.putIfAbsent(f, () => []);
     }
 
-    final sortedFolders =
-        grouped.keys.toList()..sort((a, b) {
-          if (a.isEmpty) return -1;
-          if (b.isEmpty) return 1;
-          return a.compareTo(b);
-        });
+    final sortedFolders = grouped.keys.toList()
+      ..sort((a, b) {
+        if (a.isEmpty) return -1;
+        if (b.isEmpty) return 1;
+        return a.compareTo(b);
+      });
 
     final children = <Widget>[];
     for (final folder in sortedFolders) {
@@ -1099,7 +1223,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                 Icon(
                   Icons.folder,
                   size: 18,
-                  color: Theme.of(context).colorScheme.primary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 const SizedBox(width: 8),
                 Text(
@@ -1107,7 +1231,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: Theme.of(context).colorScheme.primary,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(width: 6),
@@ -1146,12 +1270,12 @@ class _AppCommandsPageState extends State<AppCommandsPage>
       grouped.putIfAbsent(folder, () => []);
     }
 
-    final sortedFolders =
-        grouped.keys.toList()..sort((a, b) {
-          if (a.isEmpty) return -1;
-          if (b.isEmpty) return 1;
-          return a.compareTo(b);
-        });
+    final sortedFolders = grouped.keys.toList()
+      ..sort((a, b) {
+        if (a.isEmpty) return -1;
+        if (b.isEmpty) return 1;
+        return a.compareTo(b);
+      });
 
     final children = <Widget>[];
     final adsEnabled = AdsPlacementPolicy.isPlacementEnabled(
@@ -1243,15 +1367,47 @@ class _AppCommandsPageState extends State<AppCommandsPage>
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: const Color.fromRGBO(106, 15, 162, 1),
-        title: Text(
-          _isSelectMode
-              ? '${_selectedCommandIds.length} selected'
-              : _isReorderMode
-                  ? context.tr.commands_reorder_title
-                  : context.tr.commands_title,
-        ),
-        centerTitle: true,
+        centerTitle: false,
+        title: _isSelectMode
+            ? Text(
+                context.tr.commands_selected_count(_selectedCommandIds.length),
+              )
+            : _isReorderMode
+            ? Text(context.tr.commands_reorder_title)
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    context.tr.commands_title,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  if (_commands.isNotEmpty) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(
+                          AppTheme.radiusPill,
+                        ),
+                      ),
+                      child: Text(
+                        '${_commands.length}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
         leading: _isSelectMode
             ? IconButton(
                 icon: const Icon(Icons.close),
@@ -1259,21 +1415,16 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                 onPressed: _cancelSelectMode,
               )
             : _isReorderMode
-                ? IconButton(
-                    icon: const Icon(Icons.close),
-                    tooltip: context.tr.cancel,
-                    onPressed: _cancelReorderMode,
-                  )
-                : (!ResponsiveHelper.isDesktopPlatform()
-                    ? IconButton(
-                        icon: const Icon(Icons.menu),
-                        onPressed: () => context.openParentDrawer(),
-                      )
-                    : null),
+            ? IconButton(
+                icon: const Icon(Icons.close),
+                tooltip: context.tr.cancel,
+                onPressed: _cancelReorderMode,
+              )
+            : editorSubPageLeading(context),
         actions: _isSelectMode
             ? [
                 IconButton(
-                  icon: const Icon(Icons.delete),
+                  icon: const Icon(Icons.delete_outline_rounded),
                   tooltip: context.tr.delete,
                   onPressed: _selectedCommandIds.isNotEmpty
                       ? _batchDeleteSelected
@@ -1281,88 +1432,69 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                 ),
               ]
             : _isReorderMode
-                ? [
-                    IconButton(
-                      icon: const Icon(Icons.check),
-                      tooltip: context.tr.save,
-                      onPressed: _saveReorderMode,
+            ? [
+                IconButton(
+                  icon: const Icon(Icons.check_rounded),
+                  tooltip: context.tr.save,
+                  onPressed: _saveReorderMode,
+                ),
+              ]
+            : [
+                IconButton(
+                  icon: const Icon(Icons.auto_awesome_rounded),
+                  tooltip: context.tr.marketplace_title,
+                  color: AppTheme.brandSecondary,
+                  onPressed: _openMarketplace,
+                ),
+                PopupMenuButton<String>(
+                  icon: const Icon(Icons.more_vert_rounded),
+                  tooltip: context.tr.more_options_title,
+                  onSelected: (value) async {
+                    switch (value) {
+                      case 'select':
+                        if (_commands.isNotEmpty) _enterSelectMode();
+                      case 'reorder':
+                        if (_commands.isNotEmpty) _enterReorderMode();
+                      case 'publish':
+                        await _openPublishTemplate();
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'select',
+                      enabled: _commands.isNotEmpty,
+                      child: Row(
+                        children: [
+                          const Icon(Icons.checklist_rounded, size: 20),
+                          const SizedBox(width: 12),
+                          Text(context.tr.commands_batch_select),
+                        ],
+                      ),
                     ),
-                  ]
-                : [
-                    IconButton(
-                      icon: const Icon(Icons.checklist),
-                      tooltip: 'Select',
-                      onPressed:
-                          _commands.isNotEmpty ? _enterSelectMode : null,
+                    PopupMenuItem(
+                      value: 'reorder',
+                      enabled: _commands.isNotEmpty,
+                      child: Row(
+                        children: [
+                          const Icon(Icons.swap_vert_rounded, size: 20),
+                          const SizedBox(width: 12),
+                          Text(context.tr.commands_reorder_title),
+                        ],
+                      ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.swap_vert),
-                      tooltip: context.tr.commands_reorder_title,
-                      onPressed:
-                          _commands.isNotEmpty ? _enterReorderMode : null,
+                    PopupMenuItem(
+                      value: 'publish',
+                      child: Row(
+                        children: [
+                          const Icon(Icons.cloud_upload_outlined, size: 20),
+                          const SizedBox(width: 12),
+                          Text(context.tr.marketplace_publish_title),
+                        ],
+                      ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.auto_awesome),
-                      tooltip: context.tr.marketplace_title,
-                      onPressed: () async {
-                      final client = await _resolveApiClient();
-                      if (!mounted) return;
-                      if (client == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(context.tr.marketplace_connect_manager),
-                          ),
-                        );
-                        return;
-                      }
-                      final applied = await Navigator.push<bool>(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => MarketplacePage(
-                            botId: widget.botId,
-                            apiClient: client,
-                          ),
-                        ),
-                      );
-                      if (applied == true && mounted) {
-                        _load();
-                      }
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.cloud_upload_outlined),
-                    tooltip: context.tr.marketplace_publish_title,
-                    onPressed: () async {
-                      final client = await _resolveApiClient();
-                      final authorName = await _resolveAuthorName();
-                      final session = await MainApiSettingsStore.loadSession();
-                      final authorId = session?.userId ?? 'unknown';
-                      if (!mounted) return;
-                      if (client == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(context.tr.marketplace_connect_publish),
-                          ),
-                        );
-                        return;
-                      }
-                      final result = await Navigator.push<bool>(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => PublishTemplatePage(
-                            botId: widget.botId,
-                            apiClient: client,
-                            authorId: authorId,
-                            authorName: authorName,
-                          ),
-                        ),
-                      );
-                      if (result == true && mounted) {
-                        _load();
-                      }
-                    },
-                  ),
-                ],
+                  ],
+                ),
+              ],
       ),
       body: SafeArea(
         top: false,
@@ -1401,35 +1533,37 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                           width: 128,
                           height: 128,
                           decoration: BoxDecoration(
-                            color: AppTheme.brandPrimary.withValues(alpha: 0.12),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainerHighest,
                             shape: BoxShape.circle,
                           ),
                           alignment: Alignment.center,
-                          child: const Icon(
+                          child: Icon(
                             Icons.smart_toy_rounded,
                             size: 80,
-                            color: AppTheme.brandPrimary,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                           ),
                         ),
                         const SizedBox(height: AppTheme.spacingXxl),
                         Text(
                           context.tr.commands_empty_title,
                           textAlign: TextAlign.center,
-                          style: Theme.of(
-                            context,
-                          ).textTheme.headlineSmall?.copyWith(
-                            fontWeight: AppTheme.fontWeightBold,
-                          ),
+                          style: Theme.of(context).textTheme.headlineSmall
+                              ?.copyWith(fontWeight: AppTheme.fontWeightBold),
                         ),
                         const SizedBox(height: AppTheme.spacingSm),
                         Text(
                           context.tr.commands_empty_description,
                           textAlign: TextAlign.center,
-                          style: Theme.of(
-                            context,
-                          ).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
                         ),
                         const SizedBox(height: AppTheme.spacingXxl),
                         SizedBox(
@@ -1437,8 +1571,6 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                           child: FilledButton.icon(
                             onPressed: _navigateToCreateCommand,
                             style: FilledButton.styleFrom(
-                              backgroundColor: AppTheme.brandPrimary,
-                              foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(
                                 horizontal: AppTheme.spacingLg,
                                 vertical: AppTheme.spacingMd,
@@ -1465,12 +1597,12 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                           icon: Icon(
                             Icons.auto_awesome,
                             size: 18,
-                            color: AppTheme.brandSecondary,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                           label: Text(
                             context.tr.commands_empty_marketplace_link,
                             style: TextStyle(
-                              color: AppTheme.brandSecondary,
+                              color: Theme.of(context).colorScheme.primary,
                               fontWeight: AppTheme.fontWeightSemiBold,
                             ),
                           ),
@@ -1503,43 +1635,43 @@ class _AppCommandsPageState extends State<AppCommandsPage>
             return Center(
               child: ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: contentMaxWidth),
-                child:
-                    _isReorderMode
-                        ? ListView(
-                          padding: const EdgeInsets.fromLTRB(12, 16, 12, 80),
-                          children: _buildReorderList(),
-                        )
-                        : ListView(
-                          padding: const EdgeInsets.fromLTRB(12, 8, 12, 80),
-                          children: [
-                            _buildFiltersBar(),
-                            if (visibleCommands.isEmpty)
-                              Padding(
-                                padding: EdgeInsets.only(top: 48),
-                                child: Center(
-                                  child: Text(
-                                    context.tr.commands_no_match_filters,
-                                  ),
-                                ),
-                              )
-                            else
-                              ..._buildGroupedCommandList(),
-                          ],
+                child: _isReorderMode
+                    ? ListView(
+                        padding: EdgeInsets.fromLTRB(
+                          12,
+                          16,
+                          12,
+                          FloatingGlassNavBar.contentClearanceOf(context) + 16,
                         ),
+                        children: _buildReorderList(),
+                      )
+                    : ListView(
+                        padding: EdgeInsets.fromLTRB(
+                          12,
+                          8,
+                          12,
+                          FloatingGlassNavBar.contentClearanceOf(context) + 16,
+                        ),
+                        children: [
+                          _buildFiltersBar(),
+                          if (visibleCommands.isEmpty)
+                            Padding(
+                              padding: EdgeInsets.only(top: 48),
+                              child: Center(
+                                child: Text(
+                                  context.tr.commands_no_match_filters,
+                                ),
+                              ),
+                            )
+                          else
+                            ..._buildGroupedCommandList(),
+                        ],
+                      ),
               ),
             );
           },
         ),
       ),
-      floatingActionButton:
-          _isReorderMode
-              ? null
-              : FloatingActionButton.extended(
-                onPressed: _showCreateMenu,
-                tooltip: context.tr.commands_create_button,
-                icon: const Icon(Icons.add),
-                label: Text(context.tr.create),
-              ),
     );
   }
 }
@@ -1575,14 +1707,14 @@ class _CommandFolderHeader extends StatelessWidget {
               child: Icon(
                 Icons.chevron_right,
                 size: 20,
-                color: Theme.of(context).colorScheme.primary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(width: 4),
             Icon(
               isExpanded ? Icons.folder_open : Icons.folder,
               size: 18,
-              color: Theme.of(context).colorScheme.primary,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -1591,7 +1723,7 @@ class _CommandFolderHeader extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.primary,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ),
@@ -1610,29 +1742,28 @@ class _CommandFolderHeader extends StatelessWidget {
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               padding: EdgeInsets.zero,
-              itemBuilder:
-                  (context) => [
-                    PopupMenuItem(
-                      value: 'rename',
-                      child: Row(
-                        children: [
-                          const Icon(Icons.edit, size: 18),
-                          const SizedBox(width: 8),
-                          Text(context.tr.commands_rename_folder),
-                        ],
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 'delete',
-                      child: Row(
-                        children: [
-                          const Icon(Icons.delete_outline, size: 18),
-                          const SizedBox(width: 8),
-                          Text(context.tr.commands_delete_folder),
-                        ],
-                      ),
-                    ),
-                  ],
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: 'rename',
+                  child: Row(
+                    children: [
+                      const Icon(Icons.edit, size: 18),
+                      const SizedBox(width: 8),
+                      Text(context.tr.commands_rename_folder),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'delete',
+                  child: Row(
+                    children: [
+                      const Icon(Icons.delete_outline, size: 18),
+                      const SizedBox(width: 8),
+                      Text(context.tr.commands_delete_folder),
+                    ],
+                  ),
+                ),
+              ],
               onSelected: (value) {
                 if (value == 'rename') {
                   onRename();

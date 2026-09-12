@@ -5,6 +5,7 @@ import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/features/containers/logic/hosted_app_hosting_actions.dart';
 import 'package:bot_creator/features/containers/logic/hosted_app_status.dart';
+import 'package:bot_creator/features/containers/logic/hosted_app_templates.dart';
 import 'package:bot_creator/features/containers/presentation/hosted_app_upsell_widgets.dart';
 
 class ContainerDetailPage extends StatefulWidget {
@@ -334,8 +335,6 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
     final tr = context.tr;
     final state = _status?['state']?.toString() ?? '';
     final image = _status?['image']?.toString() ?? '';
-    final registryHost = _status?['registry_host']?.toString() ?? '';
-    final registryUsername = _status?['registry_username']?.toString() ?? '';
     final healthStatus = _status?['health_status']?.toString();
     final statusCode = _status?['status_code']?.toString();
     final statusMessage = _status?['status_message']?.toString();
@@ -350,9 +349,12 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
       state: state,
       tr: tr,
     );
+    final template = templateForImage(image);
+    final botTitle = template?.title ?? (image.toLowerCase().contains('beatdock') ? 'Bot Musique' : (image.isNotEmpty ? image : 'Bot'));
+    final botIcon = template?.icon ?? (image.toLowerCase().contains('beatdock') ? Icons.music_note_rounded : Icons.smart_toy_outlined);
 
     return Scaffold(
-      appBar: AppBar(title: Text(tr.container_detail_title(widget.containerId.substring(0, 8)))),
+      appBar: AppBar(title: Text(botTitle)),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : ListView(padding: const EdgeInsets.all(16), children: [
@@ -384,23 +386,35 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
                 const SizedBox(height: 8),
               ],
               Card(child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                if (image.isNotEmpty) ...[
-                  Text(image, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 12),
-                ],
-                if (registryHost.isNotEmpty || registryUsername.isNotEmpty) ...[
-                  Row(children: [
-                    const Icon(Icons.vpn_key_outlined, size: 18),
-                    const SizedBox(width: 8),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: colorScheme.primary.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(botIcon, color: colorScheme.primary, size: 24),
+                    ),
+                    const SizedBox(width: 12),
                     Expanded(
-                      child: Text(
-                        tr.container_detail_private_registry(registryHost, registryUsername),
-                        style: TextStyle(color: colorScheme.onSurfaceVariant),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(botTitle, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+                          if (template != null)
+                            Text(
+                              template.description,
+                              style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                        ],
                       ),
                     ),
-                  ]),
-                  const SizedBox(height: 12),
-                ],
+                  ],
+                ),
+                const SizedBox(height: 16),
                 Row(children: [
                   Container(width: 12, height: 12, decoration: BoxDecoration(color: _stateColor(state), shape: BoxShape.circle)),
                   const SizedBox(width: 8),

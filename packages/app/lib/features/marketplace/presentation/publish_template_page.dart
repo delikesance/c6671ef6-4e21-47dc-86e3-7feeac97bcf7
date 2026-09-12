@@ -104,7 +104,9 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
 
       if (mounted) {
         setState(() {
-          _allCommands = commands.map((c) => Map<String, dynamic>.from(c)).toList();
+          _allCommands = commands
+              .map((c) => Map<String, dynamic>.from(c))
+              .toList();
           _allWorkflows = workflows;
           _appData = appData;
 
@@ -114,7 +116,9 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
               t.commands.map((c) => c.name).where((n) => n.isNotEmpty),
             );
             _selectedWorkflows.addAll(
-              t.workflows.map((w) => (w['name'] ?? '').toString()).where((n) => n.isNotEmpty),
+              t.workflows
+                  .map((w) => (w['name'] ?? '').toString())
+                  .where((n) => n.isNotEmpty),
             );
             for (final v in t.globalVariables) {
               _selectedVars[v.name] = v.required;
@@ -129,9 +133,7 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
         setState(() => _loadingData = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              context.tr.marketplace_load_error(e.toString()),
-            ),
+            content: Text(context.tr.marketplace_load_error(e.toString())),
           ),
         );
       }
@@ -139,12 +141,14 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
   }
 
   List<Map<String, dynamic>> get _globalVars {
-    final vars = (_appData?['globalVariables'] as Map?)?.cast<String, dynamic>();
+    final vars = (_appData?['globalVariables'] as Map?)
+        ?.cast<String, dynamic>();
     if (vars == null) return [];
     return vars.entries.map((e) => {'name': e.key, 'value': e.value}).toList();
   }
 
-  int get _selectedCount => _selectedCommands.length + _selectedWorkflows.length;
+  int get _selectedCount =>
+      _selectedCommands.length + _selectedWorkflows.length;
 
   @override
   Widget build(BuildContext context) {
@@ -194,12 +198,16 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
         children: [
           Text(
             tr.marketplace_publish_select,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 4),
           Text(
             tr.marketplace_publish_select_hint,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
           ),
           const SizedBox(height: 16),
 
@@ -210,7 +218,9 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
                 const SizedBox(width: 8),
                 Text(
                   tr.marketplace_publish_commands(commands.length.toString()),
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
                 ),
                 const Spacer(),
                 TextButton(
@@ -219,7 +229,9 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
                       if (_selectedCommands.length == commands.length) {
                         _selectedCommands.clear();
                       } else {
-                        _selectedCommands.addAll(commands.map((c) => c['name']?.toString() ?? ''));
+                        _selectedCommands.addAll(
+                          commands.map((c) => c['name']?.toString() ?? ''),
+                        );
                       }
                     });
                   },
@@ -238,11 +250,22 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
               return CheckboxListTile(
                 dense: true,
                 value: _selectedCommands.contains(name),
-                title: Text('/$name', style: const TextStyle(fontFamily: 'monospace')),
-                subtitle: Text(desc, maxLines: 1, overflow: TextOverflow.ellipsis),
+                title: Text(
+                  '/$name',
+                  style: const TextStyle(fontFamily: 'monospace'),
+                ),
+                subtitle: Text(
+                  desc,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
                 onChanged: (v) {
                   setState(() {
-                    if (v == true) { _selectedCommands.add(name); } else { _selectedCommands.remove(name); }
+                    if (v == true) {
+                      _selectedCommands.add(name);
+                    } else {
+                      _selectedCommands.remove(name);
+                    }
                   });
                 },
               );
@@ -257,7 +280,9 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
                 const SizedBox(width: 8),
                 Text(
                   tr.marketplace_publish_workflows(workflows.length.toString()),
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
                 ),
                 const Spacer(),
                 TextButton(
@@ -266,7 +291,9 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
                       if (_selectedWorkflows.length == workflows.length) {
                         _selectedWorkflows.clear();
                       } else {
-                        _selectedWorkflows.addAll(workflows.map((w) => w['name']?.toString() ?? ''));
+                        _selectedWorkflows.addAll(
+                          workflows.map((w) => w['name']?.toString() ?? ''),
+                        );
                       }
                     });
                   },
@@ -289,7 +316,11 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
                 subtitle: Text(type),
                 onChanged: (v) {
                   setState(() {
-                    if (v == true) { _selectedWorkflows.add(name); } else { _selectedWorkflows.remove(name); }
+                    if (v == true) {
+                      _selectedWorkflows.add(name);
+                    } else {
+                      _selectedWorkflows.remove(name);
+                    }
                   });
                 },
               );
@@ -325,12 +356,16 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
         children: [
           Text(
             tr.marketplace_publish_variables,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 4),
           Text(
             tr.marketplace_publish_variables_hint,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
           ),
           const SizedBox(height: 16),
 
@@ -338,7 +373,10 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
             Padding(
               padding: const EdgeInsets.all(32),
               child: Center(
-                child: Text(tr.marketplace_no_variables, style: TextStyle(color: cs.onSurfaceVariant)),
+                child: Text(
+                  tr.marketplace_no_variables,
+                  style: TextStyle(color: cs.onSurfaceVariant),
+                ),
               ),
             )
           else
@@ -361,9 +399,22 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(name, style: const TextStyle(fontWeight: FontWeight.w600, fontFamily: 'monospace')),
-                                Text(value, maxLines: 1, overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
+                                Text(
+                                  name,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontFamily: 'monospace',
+                                  ),
+                                ),
+                                Text(
+                                  value,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: cs.onSurfaceVariant,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -371,7 +422,11 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
                             value: included,
                             onChanged: (v) {
                               setState(() {
-                                if (v) { _selectedVars[name] = false; } else { _selectedVars.remove(name); }
+                                if (v) {
+                                  _selectedVars[name] = false;
+                                } else {
+                                  _selectedVars.remove(name);
+                                }
                               });
                             },
                           ),
@@ -382,7 +437,9 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
                           dense: true,
                           value: required,
                           title: Text(tr.marketplace_publish_user_must_define),
-                          subtitle: Text(tr.marketplace_publish_user_must_define_hint),
+                          subtitle: Text(
+                            tr.marketplace_publish_user_must_define_hint,
+                          ),
                           onChanged: (v) {
                             setState(() => _selectedVars[name] = v ?? false);
                           },
@@ -445,7 +502,10 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
                 setState(() {
                   _selectedVars[name] = false;
                   if (_appData != null) {
-                    final gv = (_appData!['globalVariables'] as Map?)?.cast<String, dynamic>() ?? {};
+                    final gv =
+                        (_appData!['globalVariables'] as Map?)
+                            ?.cast<String, dynamic>() ??
+                        {};
                     gv[name] = '';
                     _appData!['globalVariables'] = gv;
                   }
@@ -472,12 +532,16 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
         children: [
           Text(
             tr.marketplace_publish_metadata,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 4),
           Text(
             tr.marketplace_publish_metadata_hint,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
           ),
           const SizedBox(height: 16),
 
@@ -497,11 +561,19 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
                       style: const TextStyle(fontSize: 28),
                       decoration: InputDecoration(
                         hintText: '\ud83d\udce6',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                         contentPadding: const EdgeInsets.all(8),
                       ),
                       maxLength: 2,
-                      buildCounter: (_, {required currentLength, required isFocused, maxLength}) => null,
+                      buildCounter:
+                          (
+                            _, {
+                            required currentLength,
+                            required isFocused,
+                            maxLength,
+                          }) => null,
                     ),
                   ),
                 ),
@@ -513,7 +585,9 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
                   decoration: InputDecoration(
                     labelText: '${tr.marketplace_publish_name_label} *',
                     hintText: tr.marketplace_publish_name_hint,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ),
               ),
@@ -527,7 +601,9 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
             decoration: InputDecoration(
               labelText: '${tr.marketplace_publish_desc_label} *',
               hintText: tr.marketplace_publish_desc_hint,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -538,7 +614,9 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
             decoration: InputDecoration(
               labelText: tr.marketplace_publish_desc_long_label,
               hintText: tr.marketplace_publish_desc_long_hint,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -551,7 +629,9 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
                   decoration: InputDecoration(
                     labelText: tr.marketplace_publish_category_label,
                     hintText: tr.marketplace_publish_category_hint,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ),
               ),
@@ -562,7 +642,9 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
                   controller: _versionCtrl,
                   decoration: InputDecoration(
                     labelText: '${tr.marketplace_publish_version_label} *',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ),
               ),
@@ -575,7 +657,9 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
             decoration: InputDecoration(
               labelText: tr.marketplace_publish_tags_label,
               hintText: tr.marketplace_publish_tags_hint,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           ),
         ],
@@ -598,12 +682,23 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
           children: [
             Text(
               tr.marketplace_publish_summary,
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
-            _summaryRow(Icons.arrow_forward, '$cmdCount commands'),
-            _summaryRow(Icons.account_tree, '$wfCount workflows'),
-            _summaryRow(Icons.data_object, '$varCount variables ($requiredVarCount required)'),
+            _summaryRow(
+              Icons.arrow_forward,
+              tr.marketplace_summary_commands(cmdCount),
+            ),
+            _summaryRow(
+              Icons.account_tree,
+              tr.marketplace_summary_workflows(wfCount),
+            ),
+            _summaryRow(
+              Icons.data_object,
+              tr.marketplace_summary_variables(varCount, requiredVarCount),
+            ),
           ],
         ),
       ),
@@ -648,11 +743,19 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
                 onPressed: _publishing || !_metadataValid ? null : _publish,
                 icon: _publishing
                     ? const SizedBox(
-                        width: 18, height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
                       )
                     : const Icon(Icons.cloud_upload),
-                label: Text(_publishing ? tr.marketplace_publishing : tr.marketplace_publish_button),
+                label: Text(
+                  _publishing
+                      ? tr.marketplace_publishing
+                      : tr.marketplace_publish_button,
+                ),
               ),
           ],
         ),
@@ -673,12 +776,197 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
 
   void _showEmojiPicker() {
     const emojis = <String, List<String>>{
-      'Smileys': ['😀','😃','😄','😁','😅','😂','🤣','😊','😇','🙂','😉','😌','😍','🥰','😘','😗','😋','😛','😜','🤪','😎','🤩','🥳','😏','😒','😔','😢','😭','😤','😡','🥺','😱'],
-      'Gestures': ['👍','👎','👏','🙌','🤝','💪','✌️','🤞','👌','🤌','🤏','👋','🤚','🖐️','✋','🖖','🤟','🤘','🤙','🫶','🙏','💅','🤳','🦾','🦿'],
-      'Objects': ['📦','🎁','🎉','🎊','🎈','🏆','🏅','🥇','🥈','🥉','💎','🔮','🎵','🎶','🎤','🎧','📱','💻','🖥️','⌨️','🖱️','🖨️','📷','📹','🔦','💡','🔋','💰','💳'],
-      'Symbols': ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❣️','💕','💞','💓','💗','💖','💝','💘','💌','☮️','✝️','☪️','🕉️','☸️','✡️','🔯','🕎','☯️','☦️','🛐','⚛️'],
-      'Nature': ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🐤','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🐛','🦋','🐌'],
-      'Misc': ['🔥','⭐','🌟','✨','💫','🌈','☀️','🌤️','⛅','🌧️','⛈️','🌩️','❄️','☃️','⛄','💧','💦','🌊','🎯','🏹','⚔️','🛡️','🗡️','🔧','🔨','⚒️','🛠️','⛏️','🔩','⚙️','🗜️'],
+      'Smileys': [
+        '😀',
+        '😃',
+        '😄',
+        '😁',
+        '😅',
+        '😂',
+        '🤣',
+        '😊',
+        '😇',
+        '🙂',
+        '😉',
+        '😌',
+        '😍',
+        '🥰',
+        '😘',
+        '😗',
+        '😋',
+        '😛',
+        '😜',
+        '🤪',
+        '😎',
+        '🤩',
+        '🥳',
+        '😏',
+        '😒',
+        '😔',
+        '😢',
+        '😭',
+        '😤',
+        '😡',
+        '🥺',
+        '😱',
+      ],
+      'Gestures': [
+        '👍',
+        '👎',
+        '👏',
+        '🙌',
+        '🤝',
+        '💪',
+        '✌️',
+        '🤞',
+        '👌',
+        '🤌',
+        '🤏',
+        '👋',
+        '🤚',
+        '🖐️',
+        '✋',
+        '🖖',
+        '🤟',
+        '🤘',
+        '🤙',
+        '🫶',
+        '🙏',
+        '💅',
+        '🤳',
+        '🦾',
+        '🦿',
+      ],
+      'Objects': [
+        '📦',
+        '🎁',
+        '🎉',
+        '🎊',
+        '🎈',
+        '🏆',
+        '🏅',
+        '🥇',
+        '🥈',
+        '🥉',
+        '💎',
+        '🔮',
+        '🎵',
+        '🎶',
+        '🎤',
+        '🎧',
+        '📱',
+        '💻',
+        '🖥️',
+        '⌨️',
+        '🖱️',
+        '🖨️',
+        '📷',
+        '📹',
+        '🔦',
+        '💡',
+        '🔋',
+        '💰',
+        '💳',
+      ],
+      'Symbols': [
+        '❤️',
+        '🧡',
+        '💛',
+        '💚',
+        '💙',
+        '💜',
+        '🖤',
+        '🤍',
+        '🤎',
+        '💔',
+        '❣️',
+        '💕',
+        '💞',
+        '💓',
+        '💗',
+        '💖',
+        '💝',
+        '💘',
+        '💌',
+        '☮️',
+        '✝️',
+        '☪️',
+        '🕉️',
+        '☸️',
+        '✡️',
+        '🔯',
+        '🕎',
+        '☯️',
+        '☦️',
+        '🛐',
+        '⚛️',
+      ],
+      'Nature': [
+        '🐶',
+        '🐱',
+        '🐭',
+        '🐹',
+        '🐰',
+        '🦊',
+        '🐻',
+        '🐼',
+        '🐨',
+        '🐯',
+        '🦁',
+        '🐮',
+        '🐷',
+        '🐸',
+        '🐵',
+        '🐔',
+        '🐧',
+        '🐦',
+        '🐤',
+        '🦆',
+        '🦅',
+        '🦉',
+        '🦇',
+        '🐺',
+        '🐗',
+        '🐴',
+        '🦄',
+        '🐝',
+        '🐛',
+        '🦋',
+        '🐌',
+      ],
+      'Misc': [
+        '🔥',
+        '⭐',
+        '🌟',
+        '✨',
+        '💫',
+        '🌈',
+        '☀️',
+        '🌤️',
+        '⛅',
+        '🌧️',
+        '⛈️',
+        '🌩️',
+        '❄️',
+        '☃️',
+        '⛄',
+        '💧',
+        '💦',
+        '🌊',
+        '🎯',
+        '🏹',
+        '⚔️',
+        '🛡️',
+        '🗡️',
+        '🔧',
+        '🔨',
+        '⚒️',
+        '🛠️',
+        '⛏️',
+        '🔩',
+        '⚙️',
+        '🗜️',
+      ],
     };
 
     showModalBottomSheet(
@@ -701,7 +989,8 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
                   const SizedBox(height: 8),
                   Center(
                     child: Container(
-                      width: 40, height: 4,
+                      width: 40,
+                      height: 4,
                       decoration: BoxDecoration(
                         color: cs.onSurfaceVariant.withAlpha(60),
                         borderRadius: BorderRadius.circular(2),
@@ -711,7 +1000,10 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
                   TabBar(
                     isScrollable: true,
                     tabAlignment: TabAlignment.start,
-                    labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                    labelStyle: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
                     unselectedLabelStyle: const TextStyle(fontSize: 13),
                     tabs: emojis.keys.map((cat) => Tab(text: cat)).toList(),
                   ),
@@ -720,11 +1012,12 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
                       children: emojis.values.map((list) {
                         return GridView.builder(
                           padding: const EdgeInsets.all(12),
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 8,
-                            mainAxisSpacing: 6,
-                            crossAxisSpacing: 6,
-                          ),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 8,
+                                mainAxisSpacing: 6,
+                                crossAxisSpacing: 6,
+                              ),
                           itemCount: list.length,
                           itemBuilder: (ctx, i) {
                             return InkWell(
@@ -741,7 +1034,10 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
                                       ? cs.primary.withAlpha(30)
                                       : null,
                                 ),
-                                child: Text(list[i], style: const TextStyle(fontSize: 24)),
+                                child: Text(
+                                  list[i],
+                                  style: const TextStyle(fontSize: 24),
+                                ),
                               ),
                             );
                           },
@@ -771,9 +1067,9 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
 
     final client = widget.apiClient;
     if (client == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(tr.marketplace_api_unavailable)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(tr.marketplace_api_unavailable)));
       return;
     }
 
@@ -782,15 +1078,19 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
     try {
       final commands = (_allCommands ?? [])
           .where((c) => _selectedCommands.contains(c['name']?.toString() ?? ''))
-          .map((c) => {
-                'name': c['name'],
-                'description': c['description'] ?? '',
-                'data': Map<String, dynamic>.from(c['data'] ?? c),
-              })
+          .map(
+            (c) => {
+              'name': c['name'],
+              'description': c['description'] ?? '',
+              'data': Map<String, dynamic>.from(c['data'] ?? c),
+            },
+          )
           .toList();
 
       final workflows = (_allWorkflows ?? [])
-          .where((w) => _selectedWorkflows.contains(w['name']?.toString() ?? ''))
+          .where(
+            (w) => _selectedWorkflows.contains(w['name']?.toString() ?? ''),
+          )
           .toList();
 
       final globalVariables = _selectedVars.entries.map((e) {
@@ -814,12 +1114,18 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
       final template = <String, dynamic>{
         'name': _nameCtrl.text.trim(),
         'description': _descCtrl.text.trim(),
-        'descriptionLong': _descLongCtrl.text.trim().isEmpty ? null : _descLongCtrl.text.trim(),
+        'descriptionLong': _descLongCtrl.text.trim().isEmpty
+            ? null
+            : _descLongCtrl.text.trim(),
         'authorId': widget.authorId,
         'authorName': widget.authorName,
         'version': _versionCtrl.text.trim(),
         'category': _categoryCtrl.text.trim(),
-        'tags': _tagsCtrl.text.split(',').map((t) => t.trim()).where((t) => t.isNotEmpty).toList(),
+        'tags': _tagsCtrl.text
+            .split(',')
+            .map((t) => t.trim())
+            .where((t) => t.isNotEmpty)
+            .toList(),
         'icon': _iconCtrl.text.trim(),
         'intents': intents,
         'commands': commands,
@@ -829,23 +1135,23 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
 
       if (_isEditing) {
         await client.updateMarketplaceTemplate(
-          widget.existingTemplate!.id, template);
+          widget.existingTemplate!.id,
+          template,
+        );
       } else {
         await client.createMarketplaceTemplate(template);
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(tr.marketplace_publish_success)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(tr.marketplace_publish_success)));
         Navigator.of(context).pop(true);
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(tr.marketplace_publish_error(e.toString())),
-          ),
+          SnackBar(content: Text(tr.marketplace_publish_error(e.toString()))),
         );
       }
     } finally {

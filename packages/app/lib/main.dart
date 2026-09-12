@@ -11,11 +11,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:nyxx/nyxx.dart' hide Locale, Builder;
 import 'package:bot_creator/features/home/presentation/home_page.dart';
-import 'package:bot_creator/features/settings/presentation/settings_page.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/app_editor_page.dart';
 import 'package:provider/provider.dart';
-import 'package:bot_creator/features/bot_management/presentation/create_page.dart';
 import 'package:bot_creator/features/onboarding/presentation/onboarding_page.dart';
 import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
@@ -38,12 +38,15 @@ import 'package:bot_creator/core/runner/embedded_js_runner_service.dart';
 import 'package:bot_creator/features/subscriptions/logic/hosted_app_subscription_service.dart';
 import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
 import 'package:bot_creator/features/onboarding/logic/onboarding_manager.dart';
+import 'package:bot_creator/core/code_editor/code_editor_settings_provider.dart';
+import 'package:bot_creator/core/theme/app_appearance.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/utils/global.dart';
+import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 import 'package:bot_creator/features/auth/presentation/mobile_account_gate_shell.dart';
-import 'package:bot_creator/features/documentation/documentation_navigation.dart';
+import 'package:bot_creator/features/documentation/documentation_hub_page.dart';
 import 'package:bot_creator/features/documentation/webview_platform_bootstrap.dart';
-
+import 'package:bot_creator/features/settings/presentation/settings_page.dart';
 
 @pragma('vm:entry-point')
 AppManager? _appManager;
@@ -105,6 +108,26 @@ Future<void> main() async {
     () async {
       WidgetsFlutterBinding.ensureInitialized();
 
+      // ── Google Fonts: fully offline (no fonts.gstatic.com round-trip) ──
+      // The 5 families used by the app (Inter, SpaceGrotesk, JetBrainsMono,
+      // FiraCode, Alexandria) are bundled as local assets under
+      // assets/fonts/<family>/ (declared in pubspec.yaml), so google_fonts
+      // finds them in the AssetManifest and never needs the network.
+      //
+      // Left at its default `true`, google_fonts would issue a GET to
+      // fonts.gstatic.com on the first render of any family that is not
+      // bundled: a font flash (FOUT) on first paint, and — ugly on desktop,
+      // where the page is CSS-rendered — a silent loss of the whole
+      // typography when the device is offline or gstatic is blocked by a
+      // firewall/DNS. Setting this to false makes such a miss throw a clear
+      // "font was not found in the application assets" error instead of
+      // quietly degrading, which is exactly what we want: a loud failure at
+      // the source rather than a silent visual regression.
+      //
+      // Must run before the first GoogleFonts.* call, hence here in main()
+      // right after the binding is initialised and well before runApp().
+      GoogleFonts.config.allowRuntimeFetching = false;
+
       ensureDocumentationWebViewPlatform();
 
       // Windows TLS compatibility override — required for HTTP requests to
@@ -141,7 +164,8 @@ Future<void> main() async {
       // Network/TLS errors (SocketException, HandshakeException, etc.) are not
       // application bugs — the platform may have a bad connection, VPN issues,
       // or flaky mobile data.  Log as non-fatal to avoid polluting Crashlytics.
-      final fatal = !AppDiagnostics.isTransientNetworkError(error) &&
+      final fatal =
+          !AppDiagnostics.isTransientNetworkError(error) &&
           !AppDiagnostics.isBenignFlutterFrameworkError(error);
       await AppDiagnostics.logError(
         'Uncaught zone error during bootstrap/runtime',
@@ -174,6 +198,13 @@ Future<void> _bootstrapAndRunApp() async {
           providers: [
             ChangeNotifierProvider(create: (_) => ThemeProvider()),
             ChangeNotifierProvider(create: (_) => LocaleProvider()),
+            // Personnalisation de l'editeur de code (theme, police, indentation).
+            // Rose Pine est le defaut ; `load()` est fire-and-forget : la page
+            // affiche d'abord les defauts puis se reconstruit quand les reglages
+            // persistes arrivent (notifyListeners).
+            ChangeNotifierProvider(
+              create: (_) => CodeEditorSettingsProvider()..load(),
+            ),
             Provider(create: (_) => onboardingManager),
           ],
           child: const MyApp(),
@@ -329,9 +360,7 @@ Future<void> _warmUpServicesAfterLaunch() async {
         final config = await MainApiSettingsStore.loadConfig();
         managerUrl = config.baseUrl;
       } catch (_) {}
-      await NotificationService.instance.initialize(
-        managerBaseUrl: managerUrl,
-      );
+      await NotificationService.instance.initialize(managerBaseUrl: managerUrl);
       try {
         if (managerUrl.isNotEmpty) {
           final client = MainApiClient(baseUrl: managerUrl);
@@ -450,7 +479,8 @@ class OAuthCallbackRedirectPage extends StatefulWidget {
   const OAuthCallbackRedirectPage({super.key});
 
   @override
-  State<OAuthCallbackRedirectPage> createState() => _OAuthCallbackRedirectPageState();
+  State<OAuthCallbackRedirectPage> createState() =>
+      _OAuthCallbackRedirectPageState();
 }
 
 class _OAuthCallbackRedirectPageState extends State<OAuthCallbackRedirectPage> {
@@ -477,11 +507,7 @@ class _OAuthCallbackRedirectPageState extends State<OAuthCallbackRedirectPage> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }
 
@@ -544,29 +570,22 @@ class _MyAppState extends State<MyApp> {
       locale: Locale(localeProvider.locale.code),
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: AppTheme.brandPrimary),
-        useMaterial3: true,
-      ),
-      darkTheme: ThemeData.dark(useMaterial3: true),
+      theme: AppTheme.lightTheme(appearance: themeProvider.appearance),
+      darkTheme: AppTheme.darkTheme(appearance: themeProvider.appearance),
       themeMode: themeProvider.themeMode,
       debugShowCheckedModeBanner: false,
-      home:
-          onboardingManager.isFirstRun
-              ? OnboardingPage(
-                onComplete: () {
-                  // When onboarding completes, navigate to main app.
-                  // Use the app navigator key instead of outer build context.
-                  final navigator = MyApp.navigatorKey.currentState;
-                  if (navigator != null) {
-                    navigator.pushNamedAndRemoveUntil(
-                      '/home',
-                      (route) => false,
-                    );
-                  }
-                },
-              )
-              : const MobileAccountGateShell(child: MyMainPage()),
+      home: onboardingManager.isFirstRun
+          ? OnboardingPage(
+              onComplete: () {
+                // When onboarding completes, navigate to main app.
+                // Use the app navigator key instead of outer build context.
+                final navigator = MyApp.navigatorKey.currentState;
+                if (navigator != null) {
+                  navigator.pushNamedAndRemoveUntil('/home', (route) => false);
+                }
+              },
+            )
+          : const MobileAccountGateShell(child: MyMainPage()),
       routes: {
         '/home': (context) => const MobileAccountGateShell(child: MyMainPage()),
       },
@@ -596,64 +615,150 @@ class MyMainPage extends StatefulWidget {
 }
 
 class _MyMainPageState extends State<MyMainPage> {
+  int _compactTabIndex = 0;
+  int? _managingBotId;
+  String? _managingBotName;
+
+  void _openManageBot(String id, String name) {
+    setState(() {
+      _managingBotId = int.tryParse(id) ?? 0;
+      _managingBotName = name;
+      _compactTabIndex = 0;
+    });
+  }
+
+  void _closeManageBot() {
+    setState(() {
+      _managingBotId = null;
+      _managingBotName = null;
+    });
+    // Refresh home running state after leaving the editor.
+    unawaited(HomePageState.current?.triggerRefresh());
+  }
+
+  Widget _homeOrManage() {
+    final botId = _managingBotId;
+    final botName = _managingBotName;
+    if (botId != null && botName != null) {
+      return AppEditPage(
+        key: ValueKey<int>(botId),
+        appName: botName,
+        id: botId,
+        embedded: true,
+        onExit: _closeManageBot,
+      );
+    }
+    return HomePage(onManageBot: _openManageBot);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final isWide =
+        MediaQuery.sizeOf(context).width >= AppTheme.desktopBreakpoint;
+
+    if (isWide) {
+      return Scaffold(body: SafeArea(bottom: false, child: _homeOrManage()));
+    }
+
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color.fromRGBO(106, 15, 162, 1),
-        title: Text(context.tr.app_title),
-        centerTitle: true,
-        automaticallyImplyLeading: false,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: context.tr.common_refresh,
-            onPressed: () {
-              HomePageState.current?.triggerRefresh();
-            },
+      extendBody: true,
+      body: Stack(
+        children: [
+          SafeArea(
+            bottom: false,
+            child: IndexedStack(
+              index: _compactTabIndex,
+              children: [
+                _homeOrManage(),
+                _aboveFloatingNav(
+                  const DocumentationHubPage(
+                    showDiscordJsTab: true,
+                    embedded: true,
+                  ),
+                ),
+                _aboveFloatingNav(const SettingPage(embedded: true)),
+              ],
+            ),
           ),
-          IconButton(
-            icon: const Icon(Icons.menu_book_outlined),
-            tooltip: context.tr.docs_hub_title,
-            onPressed: () {
-              openDocumentationHub(context, showDiscordJsTab: true);
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SettingPage()),
-              );
-            },
-          ),
+          if (_managingBotId == null)
+            Positioned(
+              left: FloatingGlassNavBar.margin,
+              right: FloatingGlassNavBar.margin,
+              bottom: FloatingGlassNavBar.bottomOffsetOf(context),
+              child: FloatingGlassNavBar(items: _shellNavItems(context)),
+            ),
         ],
-      ),
-      body: const HomePage(),
-      floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const AppCreatePage()),
-          );
-        },
-        backgroundColor: const Color.fromRGBO(106, 15, 162, 1),
-        icon: const Icon(Icons.add),
-        label: Text(context.tr.app_create_button),
       ),
     );
   }
+
+  /// Réserve la hauteur de la barre flottante sous [child] : sans cela, le bas
+  /// des pages du shell (`DocumentationHubPage`, `SettingPage`) est masqué,
+  /// puisque `extendBody: true` fait passer le contenu sous la barre.
+  ///
+  /// `HomePage` est volontairement exclue : elle réserve déjà l'espace
+  /// nécessaire dans son propre `ListView` (padding bas codé en dur), et
+  /// cumuler les deux ajouterait un vide en fin de liste.
+  Widget _aboveFloatingNav(Widget child) {
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: FloatingGlassNavBar.contentClearanceOf(context),
+      ),
+      child: child,
+    );
+  }
+
+  /// Les 3 destinations du shell : Accueil / Documentation / Réglages.
+  List<FloatingGlassNavItem> _shellNavItems(BuildContext context) {
+    final tr = context.tr;
+    return [
+      FloatingGlassNavItem(
+        icon: Icons.home_outlined,
+        selectedIcon: Icons.home_rounded,
+        label: tr.home_tab,
+        selected: _compactTabIndex == 0,
+        onTap: () => setState(() => _compactTabIndex = 0),
+      ),
+      FloatingGlassNavItem(
+        icon: Icons.menu_book_outlined,
+        selectedIcon: Icons.menu_book_rounded,
+        label: tr.docs_hub_title,
+        selected: _compactTabIndex == 1,
+        onTap: () => setState(() => _compactTabIndex = 1),
+      ),
+      FloatingGlassNavItem(
+        icon: Icons.settings_outlined,
+        selectedIcon: Icons.settings_rounded,
+        label: tr.settings_tab,
+        selected: _compactTabIndex == 2,
+        onTap: () => setState(() => _compactTabIndex = 2),
+      ),
+    ];
+  }
 }
 
+/// Apparence de l'application : mode clair/sombre, preset de couleurs et
+/// personnalisations (graine + accent), persistés en JSON.
+///
+/// Deux clés de `SharedPreferences` cohabitent le temps de la migration :
+///   * `app_appearance` — configuration complète (JSON), écrite par ce
+///     provider ;
+///   * `theme_mode` — ANCIENNE clé (mode seul) : lue une dernière fois au
+///     démarrage pour initialiser le mode, puis supprimée.
 class ThemeProvider extends ChangeNotifier {
-  static const _key = 'theme_mode';
+  /// Clé de la configuration d'apparence complète.
+  static const _key = 'app_appearance';
 
-  ThemeMode _themeMode = ThemeMode.dark;
+  /// Ancienne clé, conservée uniquement pour la migration.
+  static const _legacyKey = 'theme_mode';
 
-  ThemeMode get themeMode => _themeMode;
+  AppAppearanceConfig _appearance = AppAppearanceConfig.defaults;
+
+  /// Config d'apparence courante (mode + couleurs).
+  AppAppearanceConfig get appearance => _appearance;
+
+  /// Mode clair/sombre/système (raccourci consommé par `MaterialApp`).
+  ThemeMode get themeMode => _appearance.mode;
 
   ThemeProvider() {
     _load();
@@ -662,26 +767,83 @@ class ThemeProvider extends ChangeNotifier {
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
     final saved = prefs.getString(_key);
-    _themeMode = saved == 'light' ? ThemeMode.light : ThemeMode.dark;
+    if (saved != null) {
+      _appearance = AppAppearanceConfig.decode(saved);
+      // Migration déjà faite : l'ancienne clé de mode n'a plus de raison d'être.
+      if (prefs.containsKey(_legacyKey)) {
+        await prefs.remove(_legacyKey);
+      }
+    } else {
+      // Migration : la seule information disponible est l'ancien mode.
+      final legacyMode = _legacyModeFrom(prefs);
+      _appearance = _appearance.copyWith(mode: legacyMode);
+      if (prefs.containsKey(_legacyKey)) {
+        await _persist();
+        await prefs.remove(_legacyKey);
+      }
+    }
     notifyListeners();
   }
 
-  Future<void> toggleTheme() async {
-    _themeMode =
-        _themeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
-    notifyListeners();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(
-      _key,
-      _themeMode == ThemeMode.dark ? 'dark' : 'light',
-    );
-  }
+  /// Mode lu dans l'ancienne clé `theme_mode` (cette version ne l'écrit plus) ;
+  /// toute valeur absente ou inconnue vaut sombre, comme avant.
+  ThemeMode _legacyModeFrom(SharedPreferences prefs) =>
+      prefs.getString(_legacyKey) == 'light' ? ThemeMode.light : ThemeMode.dark;
 
-  Future<void> resetToDefault() async {
-    _themeMode = ThemeMode.dark;
+  Future<void> setMode(ThemeMode mode) =>
+      _update(_appearance.copyWith(mode: mode));
+
+  /// Applique un preset : graine et accent reprennent ses couleurs (les
+  /// personnalisations précédentes sont donc remplacées). L'accent persisté
+  /// est la variante CLAIRE ([AppAppearancePreset.accentLight]) — référence
+  /// stable du preset, indépendante du mode : la variante peinte suit le mode
+  /// courant (`AppAppearanceConfig.accentFor`).
+  Future<void> setPreset(AppAppearancePreset preset) => _update(
+    _appearance.copyWith(
+      presetId: preset.id,
+      seedColor: preset.seed,
+      accentColor: preset.accentLight,
+    ),
+  );
+
+  /// Personnalisation de l'accent d'action (boutons, focus, états actifs).
+  Future<void> setAccent(Color accentColor) =>
+      _update(_appearance.copyWith(accentColor: accentColor));
+
+  /// Personnalisation de la graine (teinte des surfaces du thème).
+  Future<void> setSeed(Color seedColor) =>
+      _update(_appearance.copyWith(seedColor: seedColor));
+
+  /// Bascule clair ↔ sombre (bouton de la page Paramètres).
+  Future<void> toggleTheme() => setMode(
+    _appearance.mode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light,
+  );
+
+  /// Réinitialise l'apparence aux valeurs d'usine (graphite sombre).
+  Future<void> resetToDefaults() async {
+    _appearance = AppAppearanceConfig.defaults;
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_key);
+    // Sans cela, l'ancienne clé de mode rejouerait un mode après la
+    // réinitialisation, au prochain démarrage.
+    await prefs.remove(_legacyKey);
+  }
+
+  /// Ancien nom de [resetToDefaults] — `settings_page.dart` l'appelle encore
+  /// (la page Apparence le remplacera).
+  Future<void> resetToDefault() => resetToDefaults();
+
+  /// Applique [config] en mémoire, notifie puis la persiste.
+  Future<void> _update(AppAppearanceConfig config) async {
+    _appearance = config;
+    notifyListeners();
+    await _persist();
+  }
+
+  Future<void> _persist() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_key, _appearance.encode());
   }
 }
 
@@ -760,8 +922,9 @@ class _StartupFailureAppState extends State<StartupFailureApp> {
                   Row(
                     children: [
                       ElevatedButton(
-                        onPressed:
-                            _copying ? null : () => _copyDiagnostics(context),
+                        onPressed: _copying
+                            ? null
+                            : () => _copyDiagnostics(context),
                         child: Text(context.tr.startup_copy_diagnostics),
                       ),
                       const SizedBox(width: 8),

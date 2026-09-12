@@ -1,7 +1,8 @@
 import 'dart:io';
 
-import '../tools/hardcoded_string_guard.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../tools/hardcoded_string_guard.dart';
 
 void main() {
   test('flags hardcoded UI literal', () {
@@ -28,6 +29,51 @@ void main() {
     );
 
     expect(findings, isEmpty);
+  });
+
+  test('flags case-insensitive named labels (confirmLabel/cancelLabel)', () {
+    final findings = findHardcodedStringFindings(
+      rootPath: '.',
+      filesOverride: <File>[
+        _fakeFile(
+          '/tmp/sample_dialog_labels.dart',
+          "confirmLabel: 'Discard',\ncancelLabel: 'Cancel',\nConfirmLabel: 'Ok',\n",
+        ),
+      ],
+    );
+
+    expect(findings, hasLength(3));
+  });
+
+  test('flags extended named params (subtitle, description, message, '
+      'semanticsLabel)', () {
+    final findings = findHardcodedStringFindings(
+      rootPath: '.',
+      filesOverride: <File>[
+        _fakeFile(
+          '/tmp/sample_extended_params.dart',
+          "subtitle: 'Sous-titre',\ndescription: 'Description',\n"
+              "message: 'Message',\nsemanticsLabel: 'Étiquette',\n",
+        ),
+      ],
+    );
+
+    expect(findings, hasLength(4));
+  });
+
+  test('keeps Text(...) detection case-sensitive', () {
+    final findings = findHardcodedStringFindings(
+      rootPath: '.',
+      filesOverride: <File>[
+        _fakeFile(
+          '/tmp/sample_text_case.dart',
+          "text('not a widget label');\nText('Hardcoded label');\n",
+        ),
+      ],
+    );
+
+    expect(findings, hasLength(1));
+    expect(findings.single.content, contains('Hardcoded label'));
   });
 }
 

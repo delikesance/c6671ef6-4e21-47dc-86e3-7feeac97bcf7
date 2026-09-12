@@ -6,6 +6,7 @@ import 'package:bot_creator/main.dart';
 import 'package:bot_creator/features/home/presentation/home_page.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/export_import.page.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command_dashboard.dart';
 import 'package:bot_creator/features/documentation/documentation_navigation.dart';
 import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
@@ -15,6 +16,7 @@ import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
 import 'package:bot_creator/core/network/runner_settings.dart';
+import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:file_picker/file_picker.dart';
@@ -23,7 +25,7 @@ import 'package:flutter/material.dart';
 import 'package:bot_creator/core/discord/discord_intent_sync.dart';
 import 'package:bot_creator/core/discord/portal_intent_feedback.dart';
 import 'package:nyxx/nyxx.dart';
-import 'package:bot_creator/core/utils/responsive.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/editor_sub_page_ui.dart';
 import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
 import 'package:bot_creator/features/subscriptions/presentation/subscription_page.dart';
 import 'package:bot_creator_shared/services/lavalink_list_service.dart';
@@ -1001,10 +1003,19 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     });
   }
 
+  EdgeInsets _tabContentPadding(BuildContext context) {
+    return EdgeInsets.fromLTRB(
+      16,
+      16,
+      16,
+      FloatingGlassNavBar.contentClearanceOf(context) + 24,
+    );
+  }
+
   Widget _buildGeneralTab(double contentMaxWidth) {
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      padding: _tabContentPadding(context),
       child: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: contentMaxWidth),
@@ -1216,7 +1227,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   Widget _buildPresenceTab(double contentMaxWidth) {
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      padding: _tabContentPadding(context),
       child: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: contentMaxWidth),
@@ -1251,10 +1262,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               const SizedBox(height: 16),
 
               Card(
-                color: AppTheme.discordDarkerBg,
+                color: Theme.of(context).colorScheme.surfaceContainer,
                 shape: RoundedRectangleBorder(
                   side: BorderSide(
-                    color: AppTheme.discordBorder.withValues(alpha: 0.5),
+                    color: Theme.of(context).colorScheme.outlineVariant,
                   ),
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -1746,27 +1757,28 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     );
     final canPurchase = PremiumCapabilities.canShowPurchaseUI;
 
+    final scheme = Theme.of(context).colorScheme;
     final inputDecoration = InputDecoration(
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: AppTheme.discordBorder),
+        borderSide: BorderSide(color: scheme.outlineVariant),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: AppTheme.discordBorder),
+        borderSide: BorderSide(color: scheme.outlineVariant),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: AppTheme.discord, width: 2),
+        borderSide: BorderSide(color: scheme.primary, width: 2),
       ),
       filled: true,
-      fillColor: AppTheme.discordDarkBg,
+      fillColor: scheme.surfaceContainerHighest.withValues(alpha: 0.5),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     );
 
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      padding: _tabContentPadding(context),
       child: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: contentMaxWidth),
@@ -2088,27 +2100,28 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   }
 
   Widget _buildDatabaseTab(double contentMaxWidth) {
+    final scheme = Theme.of(context).colorScheme;
     final inputDecoration = InputDecoration(
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: AppTheme.discordBorder),
+        borderSide: BorderSide(color: scheme.outlineVariant),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: AppTheme.discordBorder),
+        borderSide: BorderSide(color: scheme.outlineVariant),
       ),
-      focusedBorder: const OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(8)),
-        borderSide: BorderSide(color: AppTheme.discord, width: 2),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: const BorderRadius.all(Radius.circular(8)),
+        borderSide: BorderSide(color: scheme.primary, width: 2),
       ),
       filled: true,
-      fillColor: AppTheme.discordDarkBg,
+      fillColor: scheme.surfaceContainerHighest.withValues(alpha: 0.5),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     );
 
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      padding: _tabContentPadding(context),
       child: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: contentMaxWidth),
@@ -2152,7 +2165,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       DropdownButtonFormField<String>(
                         initialValue: _databaseType,
                         decoration: inputDecoration,
-                        dropdownColor: AppTheme.discordDarkBg,
+                        dropdownColor: scheme.surfaceContainer,
                         items: [
                           DropdownMenuItem(
                             value: 'none',
@@ -2409,7 +2422,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   Widget _buildAdvancedTab(double contentMaxWidth) {
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      padding: _tabContentPadding(context),
       child: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: contentMaxWidth),
@@ -2639,36 +2652,60 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
         appBar: AppBar(
           title: Text(context.tr.bot_settings_title),
           automaticallyImplyLeading: false,
-          leading: !ResponsiveHelper.isDesktopPlatform()
-              ? IconButton(
-                  icon: const Icon(Icons.menu),
-                  onPressed: () => context.openParentDrawer(),
-                )
-              : null,
-          bottom: TabBar(
-            isScrollable: true,
-            tabs: [
-              Tab(
-                icon: const Icon(Icons.settings),
-                text: context.tr.bot_settings_tab_general,
+          // Le garde d'origine testait la *plateforme* (`isDesktopPlatform`) et
+          // non la largeur : sur desktop / tablette large, le burger
+          // s'affichait alors que le shell ne crée AUCUN tiroir (la sidebar est
+          // permanente) — un bouton mort. `editorSubPageLeading` interroge le
+          // Scaffold parent : null quand la sidebar est là, bouton tiroir en
+          // layout compact, bouton retour pour une route poussée.
+          leading: editorSubPageLeading(context),
+          actions: [
+            if (_capabilities.supportsCommandDashboard)
+              IconButton(
+                icon: const Icon(Icons.bar_chart_rounded),
+                tooltip: context.tr.dashboard_title,
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => CommandDashboardPage(
+                        botId: widget.client.user.id.toString(),
+                      ),
+                    ),
+                  );
+                },
               ),
-              Tab(
-                icon: const Icon(Icons.emoji_emotions_outlined),
-                text: context.tr.bot_settings_tab_presence,
+          ],
+          // Les onglets sont rendus par le composant de navigation partagé
+          // (variante inline) au lieu d'un `TabBar` Material : même identité
+          // visuelle que la nav de la Home et les pastilles de modules.
+          bottom: _SettingsTabsNav(
+            tabs: [
+              (
+                icon: Icons.settings,
+                selectedIcon: Icons.settings_rounded,
+                label: context.tr.bot_settings_tab_general,
+              ),
+              (
+                icon: Icons.emoji_emotions_outlined,
+                selectedIcon: Icons.emoji_emotions,
+                label: context.tr.bot_settings_tab_presence,
               ),
               if (showLavalink)
-                Tab(
-                  icon: const Icon(Icons.music_note),
-                  text: context.tr.bot_settings_tab_lavalink,
+                (
+                  icon: Icons.music_note,
+                  selectedIcon: null,
+                  label: context.tr.bot_settings_tab_lavalink,
                 ),
               if (showDatabase)
-                Tab(
-                  icon: const Icon(Icons.storage),
-                  text: context.tr.bot_settings_tab_database,
+                (
+                  icon: Icons.storage,
+                  selectedIcon: null,
+                  label: context.tr.bot_settings_tab_database,
                 ),
-              Tab(
-                icon: const Icon(Icons.build_outlined),
-                text: context.tr.bot_settings_tab_advanced,
+              (
+                icon: Icons.build_outlined,
+                selectedIcon: Icons.build,
+                label: context.tr.bot_settings_tab_advanced,
               ),
             ],
           ),
@@ -2737,21 +2774,14 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       activityTypeLabel = _statusTypeLabel(first.type).toUpperCase();
     }
 
+    final scheme = Theme.of(context).colorScheme;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       decoration: BoxDecoration(
-        color: AppTheme.discordDarkerBg,
+        color: scheme.surfaceContainer,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppTheme.discordBorder.withValues(alpha: 0.5),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: Border.all(color: scheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -2781,9 +2811,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                           height: 90,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: AppTheme.discordDarkerBg,
+                            color: scheme.surfaceContainer,
                             border: Border.all(
-                              color: AppTheme.discordDarkerBg,
+                              color: scheme.surfaceContainer,
                               width: 6,
                             ),
                           ),
@@ -2800,7 +2830,8 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                           user.avatar.url.toString(),
                                           fit: BoxFit.cover,
                                           errorBuilder: (_, _, _) => Container(
-                                            color: AppTheme.discordBorder,
+                                            color:
+                                                scheme.surfaceContainerHighest,
                                             child: const Icon(
                                               Icons.person,
                                               color: Colors.white,
@@ -2837,9 +2868,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                             height: 22,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: AppTheme.discordDarkerBg,
+                              color: scheme.surfaceContainer,
                               border: Border.all(
-                                color: AppTheme.discordDarkerBg,
+                                color: scheme.surfaceContainer,
                                 width: 3,
                               ),
                             ),
@@ -3013,21 +3044,14 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       prettyJson = meta.rawJson.toString();
     }
 
+    final scheme = Theme.of(context).colorScheme;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       decoration: BoxDecoration(
-        color: AppTheme.discordDarkerBg,
+        color: scheme.surfaceContainer,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppTheme.discordBorder.withValues(alpha: 0.5),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: Border.all(color: scheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -3035,9 +3059,11 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
           // Header
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: const BoxDecoration(
-              color: AppTheme.discordDarkBg,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
+            decoration: BoxDecoration(
+              color: scheme.surfaceContainerHighest.withValues(alpha: 0.5),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(15),
+              ),
             ),
             child: Row(
               children: [
@@ -3391,10 +3417,13 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: AppTheme.discordDarkBg,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surfaceContainerHighest
+                          .withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: AppTheme.discordBorder.withValues(alpha: 0.4),
+                        color: Theme.of(context).colorScheme.outlineVariant,
                       ),
                     ),
                     child: SelectableText(
@@ -3474,5 +3503,65 @@ class _StatusDraft {
     urlController.dispose();
     minController.dispose();
     maxController.dispose();
+  }
+}
+
+/// Bandeau d'onglets (Général / Présence & Statut / Lavalink / …) de la page
+/// Paramètres du bot.
+///
+/// Il remplace le `TabBar` Material par le composant de navigation partagé
+/// [FloatingGlassNavBar] en variante inline, pour n'avoir qu'une seule
+/// identité visuelle dans l'app. Il se branche sur le `TabController` du
+/// `DefaultTabController` parent : le swipe entre les sections (`TabBarView`),
+/// l'index sélectionné et les libellés i18n restent inchangés.
+class _SettingsTabsNav extends StatelessWidget implements PreferredSizeWidget {
+  const _SettingsTabsNav({required this.tabs});
+
+  final List<({IconData icon, IconData? selectedIcon, String label})> tabs;
+
+  @override
+  Size get preferredSize =>
+      const Size.fromHeight(FloatingGlassNavBar.inlinePreferredHeight);
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = DefaultTabController.of(context);
+    final animation = controller.animation;
+    if (animation == null) {
+      // Ne peut pas arriver pour un `DefaultTabController` monté (le contrôleur
+      // n'est détaché que lorsqu'il est remplacé/disposé).
+      return const SizedBox.shrink();
+    }
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: FloatingGlassNavBar.inlineHorizontalMargin,
+        vertical: FloatingGlassNavBar.inlineVerticalMargin,
+      ),
+      child: AnimatedBuilder(
+        // `animation` (et non le contrôleur) se met à jour à chaque image :
+        // l'item sélectionné suit ainsi le swipe au lieu de ne changer qu'à
+        // l'arrêt de l'animation.
+        animation: animation,
+        builder: (context, _) {
+          final selectedIndex = animation.value.round().clamp(
+            0,
+            tabs.length - 1,
+          );
+          return FloatingGlassNavBar.inline(
+            scrollable: true,
+            items: [
+              for (var i = 0; i < tabs.length; i++)
+                FloatingGlassNavItem(
+                  icon: tabs[i].icon,
+                  selectedIcon: tabs[i].selectedIcon,
+                  label: tabs[i].label,
+                  selected: selectedIndex == i,
+                  onTap: () => controller.animateTo(i),
+                ),
+            ],
+          );
+        },
+      ),
+    );
   }
 }

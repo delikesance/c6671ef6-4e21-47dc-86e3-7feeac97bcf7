@@ -20,8 +20,9 @@ String localCommandTypeFromRemote(
   Map<String, dynamic> cmd,
   Map<String, dynamic> cmdData,
 ) {
-  final raw =
-      (cmdData['commandType'] ?? cmd['type'] ?? 'chatInput').toString().trim();
+  final raw = (cmdData['commandType'] ?? cmd['type'] ?? 'chatInput')
+      .toString()
+      .trim();
   switch (raw.toLowerCase()) {
     case 'command':
     case 'chatinput':
@@ -48,6 +49,7 @@ Future<void> applyManagerConfigToLocal({
   required String botId,
   required Map<String, dynamic> remoteConfig,
   bool saveAppMetadata = true,
+  bool deleteMissingLocalCommands = false,
 }) async {
   AppManager.isSyncingFromRemote = true;
   try {
@@ -55,7 +57,9 @@ Future<void> applyManagerConfigToLocal({
       await appManager.saveApp(botId, remoteConfig);
     }
 
-    final remoteCommands = extractCommandListFromConfig(remoteConfig['commands']);
+    final remoteCommands = extractCommandListFromConfig(
+      remoteConfig['commands'],
+    );
     final remoteCommandIds = <String>{};
     for (final cmd in remoteCommands) {
       final cmdId = (cmd['id'] ?? cmd['commandId'] ?? '').toString();
@@ -79,19 +83,20 @@ Future<void> applyManagerConfigToLocal({
         'type': localCommandTypeFromRemote(cmd, cmdData),
         'id': cmdId,
         'data': cmdData,
-        'createdAt':
-            (localCmd['createdAt'] ?? DateTime.now().toIso8601String())
-                .toString(),
-        'updatedAt':
-            (cmd['updatedAt'] ?? DateTime.now().toIso8601String()).toString(),
+        'createdAt': (localCmd['createdAt'] ?? DateTime.now().toIso8601String())
+            .toString(),
+        'updatedAt': (cmd['updatedAt'] ?? DateTime.now().toIso8601String())
+            .toString(),
       });
     }
 
-    final localCommands = await appManager.listAppCommands(botId);
-    for (final localCmd in localCommands) {
-      final localCmdId = (localCmd['id'] ?? '').toString();
-      if (localCmdId.isNotEmpty && !remoteCommandIds.contains(localCmdId)) {
-        await appManager.deleteAppCommand(botId, localCmdId);
+    if (deleteMissingLocalCommands) {
+      final localCommands = await appManager.listAppCommands(botId);
+      for (final localCmd in localCommands) {
+        final localCmdId = (localCmd['id'] ?? '').toString();
+        if (localCmdId.isNotEmpty && !remoteCommandIds.contains(localCmdId)) {
+          await appManager.deleteAppCommand(botId, localCmdId);
+        }
       }
     }
 
@@ -99,6 +104,7 @@ Future<void> applyManagerConfigToLocal({
       appManager: appManager,
       botId: botId,
       remoteConfig: remoteConfig,
+      deleteMissingLocalWorkflows: deleteMissingLocalCommands,
     );
   } finally {
     AppManager.isSyncingFromRemote = false;
@@ -109,6 +115,7 @@ Future<void> applyManagerWorkflowsToLocal({
   required AppManager appManager,
   required String botId,
   required Map<String, dynamic> remoteConfig,
+  bool deleteMissingLocalWorkflows = false,
 }) async {
   final remoteWorkflows = remoteConfig['workflows'];
   final remoteWorkflowNames = <String>{};
@@ -142,13 +149,15 @@ Future<void> applyManagerWorkflowsToLocal({
     }
   }
 
-  final localApp = await appManager.getApp(botId);
-  final localWorkflows =
-      (localApp['workflows'] as List?)?.whereType<Map>().toList() ?? [];
-  for (final wf in localWorkflows) {
-    final wfName = (wf['name'] ?? '').toString();
-    if (wfName.isNotEmpty && !remoteWorkflowNames.contains(wfName)) {
-      await appManager.deleteWorkflow(botId, wfName);
+  if (deleteMissingLocalWorkflows) {
+    final localApp = await appManager.getApp(botId);
+    final localWorkflows =
+        (localApp['workflows'] as List?)?.whereType<Map>().toList() ?? [];
+    for (final wf in localWorkflows) {
+      final wfName = (wf['name'] ?? '').toString();
+      if (wfName.isNotEmpty && !remoteWorkflowNames.contains(wfName)) {
+        await appManager.deleteWorkflow(botId, wfName);
+      }
     }
   }
 }

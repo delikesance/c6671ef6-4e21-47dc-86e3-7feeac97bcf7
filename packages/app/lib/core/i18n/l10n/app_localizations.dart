@@ -2446,6 +2446,102 @@ abstract class AppLocalizations {
   /// **'Keep this token private. Anyone with it can control your bot.'**
   String get app_token_security_hint;
 
+  /// Graphite
+  ///
+  /// In en, this message translates to:
+  /// **'Graphite'**
+  String get appearance_preset_graphite;
+
+  /// Neutral gray surfaces, the historic default look.
+  ///
+  /// In en, this message translates to:
+  /// **'Neutral gray surfaces, the historic default look.'**
+  String get appearance_preset_graphite_desc;
+
+  /// Violet Bot Creator
+  ///
+  /// In en, this message translates to:
+  /// **'Violet Bot Creator'**
+  String get appearance_preset_violet_bc;
+
+  /// The Bot Creator brand signature, tinted surfaces included.
+  ///
+  /// In en, this message translates to:
+  /// **'The Bot Creator brand signature, tinted surfaces included.'**
+  String get appearance_preset_violet_bc_desc;
+
+  /// Discord
+  ///
+  /// In en, this message translates to:
+  /// **'Discord'**
+  String get appearance_preset_discord;
+
+  /// Discord's blurple, for a familiar feel.
+  ///
+  /// In en, this message translates to:
+  /// **'Discord\'s blurple, for a familiar feel.'**
+  String get appearance_preset_discord_desc;
+
+  /// Ocean
+  ///
+  /// In en, this message translates to:
+  /// **'Ocean'**
+  String get appearance_preset_ocean;
+
+  /// Cyan tones, like deep water.
+  ///
+  /// In en, this message translates to:
+  /// **'Cyan tones, like deep water.'**
+  String get appearance_preset_ocean_desc;
+
+  /// Forest
+  ///
+  /// In en, this message translates to:
+  /// **'Forest'**
+  String get appearance_preset_forest;
+
+  /// Deep green, calm and natural.
+  ///
+  /// In en, this message translates to:
+  /// **'Deep green, calm and natural.'**
+  String get appearance_preset_forest_desc;
+
+  /// Amber
+  ///
+  /// In en, this message translates to:
+  /// **'Amber'**
+  String get appearance_preset_amber;
+
+  /// Warm orange for a vivid look.
+  ///
+  /// In en, this message translates to:
+  /// **'Warm orange for a vivid look.'**
+  String get appearance_preset_amber_desc;
+
+  /// Rose
+  ///
+  /// In en, this message translates to:
+  /// **'Rose'**
+  String get appearance_preset_rose;
+
+  /// Magenta pink, bold and modern.
+  ///
+  /// In en, this message translates to:
+  /// **'Magenta pink, bold and modern.'**
+  String get appearance_preset_rose_desc;
+
+  /// High contrast
+  ///
+  /// In en, this message translates to:
+  /// **'High contrast'**
+  String get appearance_preset_high_contrast;
+
+  /// Maximum readability for the interface.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum readability for the interface.'**
+  String get appearance_preset_high_contrast_desc;
+
   /// Dynamic Autocomplete
   ///
   /// In en, this message translates to:
@@ -2687,6 +2783,12 @@ abstract class AppLocalizations {
   /// **'GETTING STARTED'**
   String get bot_home_section_getting_started;
 
+  /// MODULES
+  ///
+  /// In en, this message translates to:
+  /// **'MODULES'**
+  String get bot_home_section_modules;
+
   /// MONITORING
   ///
   /// In en, this message translates to:
@@ -2722,6 +2824,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Starting…'**
   String get bot_home_starting;
+
+  /// Restart
+  ///
+  /// In en, this message translates to:
+  /// **'Restart'**
+  String get bot_home_restart;
 
   /// Stop Bot
   ///
@@ -4829,6 +4937,264 @@ abstract class AppLocalizations {
   /// **'Command Variables'**
   String get cmd_variables_title;
 
+  /// Title of the code editor settings page
+  ///
+  /// In en, this message translates to:
+  /// **'Code editor'**
+  String get code_editor_settings_title;
+
+  /// Subtitle of the code editor entry in the settings page
+  ///
+  /// In en, this message translates to:
+  /// **'Theme, font and editing behaviour for the BDFD and JavaScript editors'**
+  String get code_editor_settings_subtitle;
+
+  /// Tooltip of the reset action in the code editor settings page
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to defaults'**
+  String get code_editor_settings_reset_tooltip;
+
+  /// Title of the reset confirmation dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Reset configuration'**
+  String get code_editor_settings_reset_title;
+
+  /// Content of the reset confirmation dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Restore all editor settings to their default values?'**
+  String get code_editor_settings_reset_confirm;
+
+  /// Confirm button of the reset dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get code_editor_settings_reset_action;
+
+  /// Snackbar shown after the settings were reset
+  ///
+  /// In en, this message translates to:
+  /// **'Editor settings restored to defaults'**
+  String get code_editor_settings_reset_done;
+
+  /// Header of the live code preview card
+  ///
+  /// In en, this message translates to:
+  /// **'Live preview'**
+  String get code_editor_settings_preview_title;
+
+  /// Section header for the syntax theme picker
+  ///
+  /// In en, this message translates to:
+  /// **'Syntax highlighting theme'**
+  String get code_editor_settings_section_theme_title;
+
+  /// Subtitle of the syntax theme section
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the visual style applied to BDFD and JavaScript'**
+  String get code_editor_settings_section_theme_subtitle;
+
+  /// Subtitle shown under a dark syntax theme
+  ///
+  /// In en, this message translates to:
+  /// **'Dark mode'**
+  String get code_editor_settings_theme_mode_dark;
+
+  /// Subtitle shown under a light syntax theme
+  ///
+  /// In en, this message translates to:
+  /// **'Light mode'**
+  String get code_editor_settings_theme_mode_light;
+
+  /// Section header for the font settings
+  ///
+  /// In en, this message translates to:
+  /// **'Font & typography'**
+  String get code_editor_settings_section_font_title;
+
+  /// Subtitle of the font section
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust the font family and text size'**
+  String get code_editor_settings_section_font_subtitle;
+
+  /// Label of the font family dropdown
+  ///
+  /// In en, this message translates to:
+  /// **'Font family'**
+  String get code_editor_settings_font_family;
+
+  /// Label of the system monospace font option
+  ///
+  /// In en, this message translates to:
+  /// **'System monospace'**
+  String get code_editor_settings_font_system;
+
+  /// Label of the JetBrains Mono font option
+  ///
+  /// In en, this message translates to:
+  /// **'JetBrains Mono'**
+  String get code_editor_settings_font_jetbrains_mono;
+
+  /// Label of the Fira Code font option
+  ///
+  /// In en, this message translates to:
+  /// **'Fira Code'**
+  String get code_editor_settings_font_fira_code;
+
+  /// Label of the Consolas font option
+  ///
+  /// In en, this message translates to:
+  /// **'Consolas'**
+  String get code_editor_settings_font_consolas;
+
+  /// Label of the font size slider
+  ///
+  /// In en, this message translates to:
+  /// **'Font size'**
+  String get code_editor_settings_font_size;
+
+  /// Label of the line height slider
+  ///
+  /// In en, this message translates to:
+  /// **'Line height (spacing)'**
+  String get code_editor_settings_line_height;
+
+  /// Section header for the display settings
+  ///
+  /// In en, this message translates to:
+  /// **'Display & visual guides'**
+  String get code_editor_settings_section_display_title;
+
+  /// Subtitle of the display section
+  ///
+  /// In en, this message translates to:
+  /// **'Line numbers, indent guides and word wrap'**
+  String get code_editor_settings_section_display_subtitle;
+
+  /// Toggle: show line numbers
+  ///
+  /// In en, this message translates to:
+  /// **'Line numbers'**
+  String get code_editor_settings_line_numbers;
+
+  /// Description of the line numbers toggle
+  ///
+  /// In en, this message translates to:
+  /// **'Show numbering in the left gutter'**
+  String get code_editor_settings_line_numbers_desc;
+
+  /// Toggle: show indent guides
+  ///
+  /// In en, this message translates to:
+  /// **'Indent guides'**
+  String get code_editor_settings_indent_guides;
+
+  /// Description of the indent guides toggle
+  ///
+  /// In en, this message translates to:
+  /// **'Vertical lines to visualize code blocks'**
+  String get code_editor_settings_indent_guides_desc;
+
+  /// Toggle: wrap long lines
+  ///
+  /// In en, this message translates to:
+  /// **'Word wrap'**
+  String get code_editor_settings_word_wrap;
+
+  /// Description of the word wrap toggle
+  ///
+  /// In en, this message translates to:
+  /// **'Wrap long lines instead of scrolling horizontally'**
+  String get code_editor_settings_word_wrap_desc;
+
+  /// Toggle: quick characters bar above the keyboard
+  ///
+  /// In en, this message translates to:
+  /// **'Quick characters bar (Mobile)'**
+  String get code_editor_settings_quick_chars;
+
+  /// Description of the quick characters bar toggle
+  ///
+  /// In en, this message translates to:
+  /// **'Quick buttons to insert the BDFD prefix, arguments, separators and brackets above the keyboard'**
+  String get code_editor_settings_quick_chars_desc;
+
+  /// Section header for the editing behaviour settings
+  ///
+  /// In en, this message translates to:
+  /// **'Editing behaviour'**
+  String get code_editor_settings_section_editing_title;
+
+  /// Subtitle of the editing behaviour section
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-closing and spacing'**
+  String get code_editor_settings_section_editing_subtitle;
+
+  /// Toggle: auto close brackets and quotes
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic symbol closing'**
+  String get code_editor_settings_auto_close;
+
+  /// Description of the auto close toggle
+  ///
+  /// In en, this message translates to:
+  /// **'Automatically close brackets, braces, parentheses and quotes'**
+  String get code_editor_settings_auto_close_desc;
+
+  /// Label of the tab size selector
+  ///
+  /// In en, this message translates to:
+  /// **'Tab size (spaces)'**
+  String get code_editor_settings_tab_size;
+
+  /// Description of the tab size selector
+  ///
+  /// In en, this message translates to:
+  /// **'Number of spaces inserted when indenting'**
+  String get code_editor_settings_tab_size_desc;
+
+  /// No description provided for @command_alias_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Alias'**
+  String get command_alias_label;
+
+  /// No description provided for @command_alias_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'!p'**
+  String get command_alias_hint;
+
+  /// No description provided for @command_alias_help.
+  ///
+  /// In en, this message translates to:
+  /// **'The command also responds to these trigger words.'**
+  String get command_alias_help;
+
+  /// No description provided for @command_alias_duplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'This alias is already used.'**
+  String get command_alias_duplicate;
+
+  /// Maximum number of aliases for a message command
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum {max} aliases.'**
+  String command_alias_limit(int max);
+
+  /// Warning shown when an alias is already used by another command
+  ///
+  /// In en, this message translates to:
+  /// **'Already used by the command {command}.'**
+  String command_alias_collision(String command);
+
   /// Error
   ///
   /// In en, this message translates to:
@@ -5530,6 +5896,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Disabled'**
   String get common_disabled;
+
+  /// No description provided for @common_discard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get common_discard;
 
   /// Edit
   ///
@@ -6563,6 +6935,18 @@ abstract class AppLocalizations {
   /// **'Untitled command'**
   String get edit_shell_untitled_command;
 
+  /// Collapse the editor sidebar into an icon rail
+  ///
+  /// In en, this message translates to:
+  /// **'Collapse sidebar'**
+  String get editor_sidebar_collapse;
+
+  /// Expand the collapsed editor sidebar
+  ///
+  /// In en, this message translates to:
+  /// **'Expand sidebar'**
+  String get editor_sidebar_expand;
+
   /// Add Field
   ///
   /// In en, this message translates to:
@@ -7270,6 +7654,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add Time'**
   String get home_add_time;
+
+  /// No description provided for @home_overline.
+  ///
+  /// In en, this message translates to:
+  /// **'MY PROJECTS'**
+  String get home_overline;
+
+  /// Create a bot
+  ///
+  /// In en, this message translates to:
+  /// **'Create a bot'**
+  String get home_create_bot_title;
+
+  /// Your Discord bot in two clicks
+  ///
+  /// In en, this message translates to:
+  /// **'Your Discord bot in two clicks'**
+  String get home_create_bot_subtitle;
+
+  /// Active on {count} server
+  ///
+  /// In en, this message translates to:
+  /// **'Active on {count} server'**
+  String home_active_on_servers_one(int count);
+
+  /// Active on {count} servers
+  ///
+  /// In en, this message translates to:
+  /// **'Active on {count} servers'**
+  String home_active_on_servers_other(int count);
+
+  /// Synced & Active
+  ///
+  /// In en, this message translates to:
+  /// **'Synced & Active'**
+  String get home_synced_active;
 
   /// Discord Support
   ///
@@ -10333,10 +10753,88 @@ abstract class AppLocalizations {
   /// **'App'**
   String get settings_app_version;
 
-  /// Appearance & language
+  /// Accent
   ///
   /// In en, this message translates to:
-  /// **'Appearance & language'**
+  /// **'Accent'**
+  String get settings_appearance_accent_label;
+
+  /// Accent/surface contrast: {ratio}
+  ///
+  /// In en, this message translates to:
+  /// **'Accent/surface contrast: {ratio}'**
+  String settings_appearance_contrast_ratio(String ratio);
+
+  /// Low contrast ({ratio}): the accent barely stands out from the background. The app adapts it where needed, but a lighter or darker accent improves readability.
+  ///
+  /// In en, this message translates to:
+  /// **'Low contrast ({ratio}): the accent barely stands out from the background. The app adapts it where needed, but a lighter or darker accent improves readability.'**
+  String settings_appearance_contrast_warning(String ratio);
+
+  /// Custom
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get settings_appearance_custom_badge;
+
+  /// Custom colors
+  ///
+  /// In en, this message translates to:
+  /// **'Custom colors'**
+  String get settings_appearance_custom_title;
+
+  /// Dark
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get settings_appearance_mode_dark;
+
+  /// Light
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get settings_appearance_mode_light;
+
+  /// System
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get settings_appearance_mode_system;
+
+  /// Mode
+  ///
+  /// In en, this message translates to:
+  /// **'Mode'**
+  String get settings_appearance_mode_title;
+
+  /// Preset themes
+  ///
+  /// In en, this message translates to:
+  /// **'Preset themes'**
+  String get settings_appearance_presets_title;
+
+  /// Reset
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get settings_appearance_reset;
+
+  /// Main color
+  ///
+  /// In en, this message translates to:
+  /// **'Main color'**
+  String get settings_appearance_seed_label;
+
+  /// Pick a mode, a preset theme, or your own colors.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a mode, a preset theme, or your own colors.'**
+  String get settings_appearance_subtitle;
+
+  /// Appearance
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
   String get settings_appearance_title;
 
   /// Auto-backup check…
@@ -13345,7 +13843,7 @@ abstract class AppLocalizations {
   /// BDFD Script Editor
   ///
   /// In en, this message translates to:
-  /// **'BDFD Script Editor'**
+  /// **'BDFD Editor'**
   String get workflow_bdfd_editor_title;
 
   /// Condition off
@@ -14287,7 +14785,7 @@ abstract class AppLocalizations {
   /// Title of the container list page
   ///
   /// In en, this message translates to:
-  /// **'Hosted Applications'**
+  /// **'Turnkey Bots'**
   String get container_list_title;
 
   /// Shown when no API session is found
@@ -14305,7 +14803,7 @@ abstract class AppLocalizations {
   /// Error message when container list fails to load
   ///
   /// In en, this message translates to:
-  /// **'Failed to load containers'**
+  /// **'Failed to load bots'**
   String get container_list_error;
 
   /// Retry button label
@@ -14317,20 +14815,26 @@ abstract class AppLocalizations {
   /// Empty state title
   ///
   /// In en, this message translates to:
-  /// **'No hosted applications'**
+  /// **'No turnkey bots'**
   String get container_list_empty;
 
   /// Empty state description
   ///
   /// In en, this message translates to:
-  /// **'Deploy your first application to get started.'**
+  /// **'Deploy your first ready-to-use bot in 1 click.'**
   String get container_list_empty_hint;
 
   /// Button to deploy a new container
   ///
   /// In en, this message translates to:
-  /// **'Deploy Application'**
+  /// **'Deploy Turnkey Bot'**
   String get container_list_deploy_btn;
+
+  /// Badge shown on legacy custom containers
+  ///
+  /// In en, this message translates to:
+  /// **'Unsupported'**
+  String get container_list_unsupported_badge;
 
   /// Label when a container has expired
   ///
@@ -14359,8 +14863,44 @@ abstract class AppLocalizations {
   /// Title of the deploy container page
   ///
   /// In en, this message translates to:
-  /// **'Deploy Application'**
+  /// **'Deploy Turnkey Bot'**
   String get container_deploy_title;
+
+  /// Section header for turnkey bot templates
+  ///
+  /// In en, this message translates to:
+  /// **'Ready-to-use Template'**
+  String get container_deploy_template_section;
+
+  /// Subtitle tag on turnkey bot card
+  ///
+  /// In en, this message translates to:
+  /// **'24/7 Managed Hosting'**
+  String get container_deploy_managed_hosting;
+
+  /// Section header for bot token config
+  ///
+  /// In en, this message translates to:
+  /// **'Discord Bot Configuration'**
+  String get container_deploy_bot_config_section;
+
+  /// Hint text for Discord bot token field
+  ///
+  /// In en, this message translates to:
+  /// **'Paste Discord bot token here'**
+  String get container_deploy_paste_token_hint;
+
+  /// Header for Discord prerequisites advice box
+  ///
+  /// In en, this message translates to:
+  /// **'Discord Prerequisites'**
+  String get container_deploy_discord_prereqs;
+
+  /// Button to launch the turnkey bot
+  ///
+  /// In en, this message translates to:
+  /// **'Launch Turnkey Bot'**
+  String get container_deploy_launch_btn;
 
   /// Label for the Docker image field
   ///
@@ -14785,7 +15325,7 @@ abstract class AppLocalizations {
   /// Subtitle for the hosted apps card on the home page
   ///
   /// In en, this message translates to:
-  /// **'Deploy and manage Docker containers'**
+  /// **'Deploy ready-to-use bots (music, etc.) in 1 click'**
   String get container_hosted_subtitle;
 
   /// Badge text for premium-gated container feature
@@ -14797,7 +15337,7 @@ abstract class AppLocalizations {
   /// Title of the container detail page, {id} is the short container ID
   ///
   /// In en, this message translates to:
-  /// **'Container {id}'**
+  /// **'Bot {id}'**
   String container_detail_title(String id);
 
   /// Tooltip for premium upsell icon on container list
@@ -14815,7 +15355,7 @@ abstract class AppLocalizations {
   /// Snackbar when free user tries to deploy another container
   ///
   /// In en, this message translates to:
-  /// **'Free limit reached (1 container). Subscribe to host more containers.'**
+  /// **'Free limit reached (1 bot). Subscribe to host more bots.'**
   String get container_list_free_limit_reached;
 
   /// Hosted app subscription upsell card title
@@ -14833,7 +15373,7 @@ abstract class AppLocalizations {
   /// Hosted app subscription upsell description
   ///
   /// In en, this message translates to:
-  /// **'Subscribe to host Docker containers with unlimited uptime — no ads required.'**
+  /// **'Subscribe to host turnkey bots with 24/7 uptime — no ads required.'**
   String get container_hosted_premium_desc;
 
   /// Button to open hosted app subscription page
@@ -14845,13 +15385,13 @@ abstract class AppLocalizations {
   /// No description provided for @hosted_app_subscription_title.
   ///
   /// In en, this message translates to:
-  /// **'Hosted applications'**
+  /// **'Turnkey Bots'**
   String get hosted_app_subscription_title;
 
   /// No description provided for @hosted_app_subscription_subtitle.
   ///
   /// In en, this message translates to:
-  /// **'Run Docker containers in the cloud without watching ads.'**
+  /// **'Host ready-to-use bots in the cloud 24/7 with zero interruption.'**
   String get hosted_app_subscription_subtitle;
 
   /// No description provided for @hosted_app_subscription_benefit_unlimited.
@@ -14869,25 +15409,25 @@ abstract class AppLocalizations {
   /// No description provided for @hosted_app_subscription_one_app_title.
   ///
   /// In en, this message translates to:
-  /// **'1 container'**
+  /// **'1 Turnkey Bot'**
   String get hosted_app_subscription_one_app_title;
 
   /// No description provided for @hosted_app_subscription_one_app_desc.
   ///
   /// In en, this message translates to:
-  /// **'Host one Docker container anytime'**
+  /// **'Host one turnkey bot anytime'**
   String get hosted_app_subscription_one_app_desc;
 
   /// No description provided for @hosted_app_subscription_two_app_title.
   ///
   /// In en, this message translates to:
-  /// **'2 containers'**
+  /// **'2 Turnkey Bots'**
   String get hosted_app_subscription_two_app_title;
 
   /// No description provided for @hosted_app_subscription_two_app_desc.
   ///
   /// In en, this message translates to:
-  /// **'Host up to two Docker containers'**
+  /// **'Host up to two turnkey bots'**
   String get hosted_app_subscription_two_app_desc;
 
   /// No description provided for @hosted_app_subscription_recommended.
@@ -15243,6 +15783,528 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reload'**
   String get docs_reload;
+
+  /// Duplicate
+  ///
+  /// In en, this message translates to:
+  /// **'Duplicate'**
+  String get common_duplicate;
+
+  /// Batch select
+  ///
+  /// In en, this message translates to:
+  /// **'Batch select'**
+  String get commands_batch_select;
+
+  /// {count} selected
+  ///
+  /// In en, this message translates to:
+  /// **'{count} selected'**
+  String commands_selected_count(int count);
+
+  /// Image Editor
+  ///
+  /// In en, this message translates to:
+  /// **'Image Editor'**
+  String get image_editor_title;
+
+  /// Add operation
+  ///
+  /// In en, this message translates to:
+  /// **'Add operation'**
+  String get image_editor_add_operation;
+
+  /// Add Layer
+  ///
+  /// In en, this message translates to:
+  /// **'Add Layer'**
+  String get image_editor_add_layer;
+
+  /// Operations
+  ///
+  /// In en, this message translates to:
+  /// **'Operations'**
+  String get image_editor_operations;
+
+  /// Container / Frame
+  ///
+  /// In en, this message translates to:
+  /// **'Container / Frame'**
+  String get image_editor_op_container;
+
+  /// Progress Bar
+  ///
+  /// In en, this message translates to:
+  /// **'Progress Bar'**
+  String get image_editor_op_progress_bar;
+
+  /// Composite Image
+  ///
+  /// In en, this message translates to:
+  /// **'Composite Image'**
+  String get image_editor_op_composite_image;
+
+  /// Set Pixel
+  ///
+  /// In en, this message translates to:
+  /// **'Set Pixel'**
+  String get image_editor_op_set_pixel;
+
+  /// Invert Colors
+  ///
+  /// In en, this message translates to:
+  /// **'Invert Colors'**
+  String get image_editor_op_invert;
+
+  /// Convert to Grayscale
+  ///
+  /// In en, this message translates to:
+  /// **'Convert to Grayscale'**
+  String get image_editor_op_grayscale;
+
+  /// Rotate Canvas
+  ///
+  /// In en, this message translates to:
+  /// **'Rotate Canvas'**
+  String get image_editor_op_rotate;
+
+  /// Zoom in
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom in'**
+  String get image_editor_zoom_in;
+
+  /// Zoom out
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom out'**
+  String get image_editor_zoom_out;
+
+  /// Fit to screen
+  ///
+  /// In en, this message translates to:
+  /// **'Fit to screen'**
+  String get image_editor_zoom_fit;
+
+  /// Undo
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get image_editor_undo;
+
+  /// Redo
+  ///
+  /// In en, this message translates to:
+  /// **'Redo'**
+  String get image_editor_redo;
+
+  /// Canvas
+  ///
+  /// In en, this message translates to:
+  /// **'Canvas'**
+  String get image_editor_canvas;
+
+  /// Width
+  ///
+  /// In en, this message translates to:
+  /// **'Width'**
+  String get image_editor_width;
+
+  /// Height
+  ///
+  /// In en, this message translates to:
+  /// **'Height'**
+  String get image_editor_height;
+
+  /// Properties
+  ///
+  /// In en, this message translates to:
+  /// **'Properties'**
+  String get image_editor_properties;
+
+  /// Visible
+  ///
+  /// In en, this message translates to:
+  /// **'Visible'**
+  String get image_editor_visible;
+
+  /// Opacity
+  ///
+  /// In en, this message translates to:
+  /// **'Opacity'**
+  String get image_editor_opacity;
+
+  /// {count} operations, {hidden} hidden
+  ///
+  /// In en, this message translates to:
+  /// **'{count} operations, {hidden} hidden'**
+  String image_editor_ops_summary(int count, int hidden);
+
+  /// Add a "{op}" operation to start
+  ///
+  /// In en, this message translates to:
+  /// **'Add a \"{op}\" operation to start'**
+  String image_editor_empty_hint(String op);
+
+  /// Tap to edit
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to edit'**
+  String get image_editor_tap_to_edit;
+
+  /// No operations yet
+  ///
+  /// In en, this message translates to:
+  /// **'No operations yet'**
+  String get image_editor_no_operations;
+
+  /// Select an operation to edit its properties
+  ///
+  /// In en, this message translates to:
+  /// **'Select an operation to edit its properties'**
+  String get image_editor_select_operation;
+
+  /// Insert Variable
+  ///
+  /// In en, this message translates to:
+  /// **'Insert Variable'**
+  String get image_editor_insert_variable;
+
+  /// Variable
+  ///
+  /// In en, this message translates to:
+  /// **'Variable'**
+  String get image_editor_variable_label;
+
+  /// Type to filter, or tap a suggestion below
+  ///
+  /// In en, this message translates to:
+  /// **'Type to filter, or tap a suggestion below'**
+  String get image_editor_variable_hint;
+
+  /// Insert
+  ///
+  /// In en, this message translates to:
+  /// **'Insert'**
+  String get image_editor_insert;
+
+  /// Pick image file
+  ///
+  /// In en, this message translates to:
+  /// **'Pick image file'**
+  String get image_editor_pick_image;
+
+  /// Color Picker
+  ///
+  /// In en, this message translates to:
+  /// **'Color Picker'**
+  String get image_editor_color_picker;
+
+  /// Hue
+  ///
+  /// In en, this message translates to:
+  /// **'Hue'**
+  String get image_editor_hue;
+
+  /// Saturation
+  ///
+  /// In en, this message translates to:
+  /// **'Saturation'**
+  String get image_editor_saturation;
+
+  /// no URL
+  ///
+  /// In en, this message translates to:
+  /// **'no URL'**
+  String get image_editor_no_url;
+
+  /// Unknown
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get image_editor_unknown;
+
+  /// Text
+  ///
+  /// In en, this message translates to:
+  /// **'Text'**
+  String get image_editor_field_text;
+
+  /// Font Size
+  ///
+  /// In en, this message translates to:
+  /// **'Font Size'**
+  String get image_editor_field_font_size;
+
+  /// Max Width
+  ///
+  /// In en, this message translates to:
+  /// **'Max Width'**
+  String get image_editor_field_max_width;
+
+  /// Text Align
+  ///
+  /// In en, this message translates to:
+  /// **'Text Align'**
+  String get image_editor_field_text_align;
+
+  /// Blend
+  ///
+  /// In en, this message translates to:
+  /// **'Blend'**
+  String get image_editor_field_blend;
+
+  /// Fill
+  ///
+  /// In en, this message translates to:
+  /// **'Fill'**
+  String get image_editor_field_fill;
+
+  /// Radius
+  ///
+  /// In en, this message translates to:
+  /// **'Radius'**
+  String get image_editor_field_radius;
+
+  /// Thickness
+  ///
+  /// In en, this message translates to:
+  /// **'Thickness'**
+  String get image_editor_field_thickness;
+
+  /// Shape
+  ///
+  /// In en, this message translates to:
+  /// **'Shape'**
+  String get image_editor_field_shape;
+
+  /// Percentage
+  ///
+  /// In en, this message translates to:
+  /// **'Percentage'**
+  String get image_editor_field_percentage;
+
+  /// Bar Color
+  ///
+  /// In en, this message translates to:
+  /// **'Bar Color'**
+  String get image_editor_field_bar_color;
+
+  /// Track Color
+  ///
+  /// In en, this message translates to:
+  /// **'Track Color'**
+  String get image_editor_field_track_color;
+
+  /// Text Color
+  ///
+  /// In en, this message translates to:
+  /// **'Text Color'**
+  String get image_editor_field_text_color;
+
+  /// Border Width
+  ///
+  /// In en, this message translates to:
+  /// **'Border Width'**
+  String get image_editor_field_border_width;
+
+  /// Border Radius
+  ///
+  /// In en, this message translates to:
+  /// **'Border Radius'**
+  String get image_editor_field_border_radius;
+
+  /// Orientation
+  ///
+  /// In en, this message translates to:
+  /// **'Orientation'**
+  String get image_editor_field_orientation;
+
+  /// Angle (Degrees)
+  ///
+  /// In en, this message translates to:
+  /// **'Angle (Degrees)'**
+  String get image_editor_field_angle;
+
+  /// Container
+  ///
+  /// In en, this message translates to:
+  /// **'Container'**
+  String get image_editor_field_container;
+
+  /// Background Color
+  ///
+  /// In en, this message translates to:
+  /// **'Background Color'**
+  String get image_editor_field_background_color;
+
+  /// auto (native size)
+  ///
+  /// In en, this message translates to:
+  /// **'auto (native size)'**
+  String get image_editor_hint_auto_size;
+
+  /// optional background
+  ///
+  /// In en, this message translates to:
+  /// **'optional background'**
+  String get image_editor_hint_optional_background;
+
+  /// parent container name
+  ///
+  /// In en, this message translates to:
+  /// **'parent container name'**
+  String get image_editor_hint_parent_container;
+
+  /// container width for alignment
+  ///
+  /// In en, this message translates to:
+  /// **'container width for alignment'**
+  String get image_editor_hint_container_width;
+
+  /// Duration
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get action_card_duration;
+
+  /// Error Message
+  ///
+  /// In en, this message translates to:
+  /// **'Error Message'**
+  String get action_card_error_message;
+
+  /// Jump to
+  ///
+  /// In en, this message translates to:
+  /// **'Jump to'**
+  String get action_card_jump_to;
+
+  /// Maximum
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum'**
+  String get action_card_maximum;
+
+  /// Minimum
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum'**
+  String get action_card_minimum;
+
+  /// Skip count
+  ///
+  /// In en, this message translates to:
+  /// **'Skip count'**
+  String get action_card_skip_count;
+
+  /// Edit Request
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Request'**
+  String get action_edit_request;
+
+  /// Jump to action
+  ///
+  /// In en, this message translates to:
+  /// **'Jump to action'**
+  String get action_error_jump;
+
+  /// Skip N actions
+  ///
+  /// In en, this message translates to:
+  /// **'Skip N actions'**
+  String get action_error_skip;
+
+  /// Max Length
+  ///
+  /// In en, this message translates to:
+  /// **'Max Length'**
+  String get component_max_length;
+
+  /// Min Length
+  ///
+  /// In en, this message translates to:
+  /// **'Min Length'**
+  String get component_min_length;
+
+  /// Header name
+  ///
+  /// In en, this message translates to:
+  /// **'Header name'**
+  String get http_request_header_name;
+
+  /// JSON Body
+  ///
+  /// In en, this message translates to:
+  /// **'JSON Body'**
+  String get http_request_json_body;
+
+  /// Body
+  ///
+  /// In en, this message translates to:
+  /// **'Body'**
+  String get http_request_section_body;
+
+  /// Headers
+  ///
+  /// In en, this message translates to:
+  /// **'Headers'**
+  String get http_request_section_headers;
+
+  /// Request
+  ///
+  /// In en, this message translates to:
+  /// **'Request'**
+  String get http_request_section_request;
+
+  /// Text Body
+  ///
+  /// In en, this message translates to:
+  /// **'Text Body'**
+  String get http_request_text_body;
+
+  /// {count} commands
+  ///
+  /// In en, this message translates to:
+  /// **'{count} commands'**
+  String marketplace_summary_commands(int count);
+
+  /// {count} variables ({required} required)
+  ///
+  /// In en, this message translates to:
+  /// **'{count} variables ({required} required)'**
+  String marketplace_summary_variables(int count, int required);
+
+  /// {count} workflows
+  ///
+  /// In en, this message translates to:
+  /// **'{count} workflows'**
+  String marketplace_summary_workflows(int count);
+
+  /// Configure Submit Actions
+  ///
+  /// In en, this message translates to:
+  /// **'Configure Submit Actions'**
+  String get modal_builder_configure_submit_actions;
+
+  /// Edit Submit Actions
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Submit Actions'**
+  String get modal_builder_edit_submit_actions;
+
+  /// Identity
+  ///
+  /// In en, this message translates to:
+  /// **'Identity'**
+  String get modal_builder_identity;
+
+  /// Submit Actions
+  ///
+  /// In en, this message translates to:
+  /// **'Submit Actions'**
+  String get modal_builder_submit_actions;
 }
 
 class _AppLocalizationsDelegate

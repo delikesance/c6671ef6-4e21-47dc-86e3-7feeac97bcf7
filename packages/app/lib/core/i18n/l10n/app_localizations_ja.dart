@@ -1271,6 +1271,56 @@ class AppLocalizationsJa extends AppLocalizations {
       'このトークンは秘密にしてください。トークンを知っている人は誰でもボットを操作できます。';
 
   @override
+  String get appearance_preset_graphite => 'グラファイト';
+
+  @override
+  String get appearance_preset_graphite_desc =>
+      'ニュートラルなグレーの表面。従来からのデフォルトの外観です。';
+
+  @override
+  String get appearance_preset_violet_bc => 'バイオレット Bot Creator';
+
+  @override
+  String get appearance_preset_violet_bc_desc =>
+      'Bot Creatorのブランドカラー。表面にも色が付きます。';
+
+  @override
+  String get appearance_preset_discord => 'Discord';
+
+  @override
+  String get appearance_preset_discord_desc => 'Discordのブループルで親しみのある見た目に。';
+
+  @override
+  String get appearance_preset_ocean => 'オーシャン';
+
+  @override
+  String get appearance_preset_ocean_desc => '深い海のようなシアンの色合い。';
+
+  @override
+  String get appearance_preset_forest => 'フォレスト';
+
+  @override
+  String get appearance_preset_forest_desc => '落ち着いた自然な深いグリーン。';
+
+  @override
+  String get appearance_preset_amber => 'アンバー';
+
+  @override
+  String get appearance_preset_amber_desc => '鮮やかな暖色系のオレンジ。';
+
+  @override
+  String get appearance_preset_rose => 'ローズ';
+
+  @override
+  String get appearance_preset_rose_desc => '大胆でモダンなマゼンタピンク。';
+
+  @override
+  String get appearance_preset_high_contrast => 'ハイコントラスト';
+
+  @override
+  String get appearance_preset_high_contrast_desc => 'インターフェースの視認性を最大化。';
+
+  @override
   String get autocomplete_dynamic => '動的オートコンプリート';
 
   @override
@@ -1399,6 +1449,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get bot_home_section_getting_started => 'はじめに';
 
   @override
+  String get bot_home_section_modules => 'モジュール';
+
+  @override
   String get bot_home_section_monitoring => '監視';
 
   @override
@@ -1417,6 +1470,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get bot_home_starting => '起動中…';
+
+  @override
+  String get bot_home_restart => '再起動';
 
   @override
   String get bot_home_stop => 'ボット停止';
@@ -2563,6 +2619,144 @@ class AppLocalizationsJa extends AppLocalizations {
   String get cmd_variables_title => 'コマンド変数';
 
   @override
+  String get code_editor_settings_title => 'コードエディター';
+
+  @override
+  String get code_editor_settings_subtitle =>
+      'BDFD と JavaScript エディターのテーマ、フォント、編集動作';
+
+  @override
+  String get code_editor_settings_reset_tooltip => 'デフォルトに戻す';
+
+  @override
+  String get code_editor_settings_reset_title => '設定をリセット';
+
+  @override
+  String get code_editor_settings_reset_confirm => 'エディターのすべての設定をデフォルトに戻しますか？';
+
+  @override
+  String get code_editor_settings_reset_action => 'リセット';
+
+  @override
+  String get code_editor_settings_reset_done => 'エディター設定をデフォルトに戻しました';
+
+  @override
+  String get code_editor_settings_preview_title => 'ライブプレビュー';
+
+  @override
+  String get code_editor_settings_section_theme_title => 'シンタックスハイライトのテーマ';
+
+  @override
+  String get code_editor_settings_section_theme_subtitle =>
+      'BDFD と JavaScript に適用する表示スタイルを選択します';
+
+  @override
+  String get code_editor_settings_theme_mode_dark => 'ダークモード';
+
+  @override
+  String get code_editor_settings_theme_mode_light => 'ライトモード';
+
+  @override
+  String get code_editor_settings_section_font_title => 'フォントとタイポグラフィ';
+
+  @override
+  String get code_editor_settings_section_font_subtitle =>
+      'フォントファミリーと文字サイズを調整します';
+
+  @override
+  String get code_editor_settings_font_family => 'フォントファミリー';
+
+  @override
+  String get code_editor_settings_font_system => 'システム等幅フォント';
+
+  @override
+  String get code_editor_settings_font_jetbrains_mono => 'JetBrains Mono';
+
+  @override
+  String get code_editor_settings_font_fira_code => 'Fira Code';
+
+  @override
+  String get code_editor_settings_font_consolas => 'Consolas';
+
+  @override
+  String get code_editor_settings_font_size => '文字サイズ';
+
+  @override
+  String get code_editor_settings_line_height => '行の高さ（行間）';
+
+  @override
+  String get code_editor_settings_section_display_title => '表示と視覚ガイド';
+
+  @override
+  String get code_editor_settings_section_display_subtitle =>
+      '行番号、インデントガイド、折り返し';
+
+  @override
+  String get code_editor_settings_line_numbers => '行番号';
+
+  @override
+  String get code_editor_settings_line_numbers_desc => '左の余白に行番号を表示します';
+
+  @override
+  String get code_editor_settings_indent_guides => 'インデントガイド';
+
+  @override
+  String get code_editor_settings_indent_guides_desc => 'コードブロックを可視化する縦線';
+
+  @override
+  String get code_editor_settings_word_wrap => '自動折り返し';
+
+  @override
+  String get code_editor_settings_word_wrap_desc => '長い行を折り返して横スクロールを避けます';
+
+  @override
+  String get code_editor_settings_quick_chars => 'クイック文字バー（モバイル）';
+
+  @override
+  String get code_editor_settings_quick_chars_desc =>
+      'キーボードの上に BDFD プレフィックス、引数、区切り、括弧を挿入するボタンを表示します';
+
+  @override
+  String get code_editor_settings_section_editing_title => '編集動作';
+
+  @override
+  String get code_editor_settings_section_editing_subtitle => '自動閉じとスペース';
+
+  @override
+  String get code_editor_settings_auto_close => '記号の自動閉じ';
+
+  @override
+  String get code_editor_settings_auto_close_desc => '角括弧、中括弧、丸括弧、引用符を自動で閉じます';
+
+  @override
+  String get code_editor_settings_tab_size => 'タブサイズ（スペース）';
+
+  @override
+  String get code_editor_settings_tab_size_desc => 'インデント時に挿入するスペースの数';
+
+  @override
+  String get command_alias_label => 'エイリアス';
+
+  @override
+  String get command_alias_hint => '!p';
+
+  @override
+  String get command_alias_help => 'このコマンドはこれらのトリガーワードにも応答します。';
+
+  @override
+  String get command_alias_duplicate => 'このエイリアスはすでに使用されています。';
+
+  @override
+  String command_alias_limit(int max) {
+    return 'エイリアスは最大$max個です。';
+  }
+
+  @override
+  String command_alias_collision(String command) {
+    return 'コマンド $command で既に使用されています。';
+  }
+
+  @override
   String get command_awaited_error => 'エラー';
 
   @override
@@ -2936,6 +3130,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get common_disabled => '無効';
+
+  @override
+  String get common_discard => '破棄';
 
   @override
   String get common_edit => '編集';
@@ -3475,6 +3672,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get edit_shell_untitled_command => '無題のコマンド';
 
   @override
+  String get editor_sidebar_collapse => 'サイドバーを折りたたむ';
+
+  @override
+  String get editor_sidebar_expand => 'サイドバーを展開する';
+
+  @override
   String get embed_add_field => 'フィールドを追加';
 
   @override
@@ -3872,6 +4075,28 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get home_add_time => '時間を追加';
+
+  @override
+  String get home_overline => 'マイプロジェクト';
+
+  @override
+  String get home_create_bot_title => 'ボットを作成';
+
+  @override
+  String get home_create_bot_subtitle => '2クリックでDiscordボット';
+
+  @override
+  String home_active_on_servers_one(int count) {
+    return '$countサーバーで稼働中';
+  }
+
+  @override
+  String home_active_on_servers_other(int count) {
+    return '$countサーバーで稼働中';
+  }
+
+  @override
+  String get home_synced_active => '同期済み・稼働中';
 
   @override
   String get home_empty_support_btn => 'Discord サポート';
@@ -5599,7 +5824,50 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settings_app_version => 'アプリ';
 
   @override
-  String get settings_appearance_title => '外観と言語';
+  String get settings_appearance_accent_label => 'アクセント';
+
+  @override
+  String settings_appearance_contrast_ratio(String ratio) {
+    return 'アクセントと背景のコントラスト：$ratio';
+  }
+
+  @override
+  String settings_appearance_contrast_warning(String ratio) {
+    return 'コントラストが低めです（$ratio）：アクセントと背景の区別がつきにくい状態です。アプリが必要に応じて調整しますが、明るめまたは暗めのアクセントにすると視認性が上がります。';
+  }
+
+  @override
+  String get settings_appearance_custom_badge => 'カスタム';
+
+  @override
+  String get settings_appearance_custom_title => 'カスタムカラー';
+
+  @override
+  String get settings_appearance_mode_dark => 'ダーク';
+
+  @override
+  String get settings_appearance_mode_light => 'ライト';
+
+  @override
+  String get settings_appearance_mode_system => 'システム';
+
+  @override
+  String get settings_appearance_mode_title => 'モード';
+
+  @override
+  String get settings_appearance_presets_title => 'プリセットテーマ';
+
+  @override
+  String get settings_appearance_reset => 'リセット';
+
+  @override
+  String get settings_appearance_seed_label => 'メインカラー';
+
+  @override
+  String get settings_appearance_subtitle => 'モード、プリセットテーマ、または独自の色を選べます。';
+
+  @override
+  String get settings_appearance_title => '外観';
 
   @override
   String get settings_auto_backup_check_loading => '自動バックアップ確認中…';
@@ -6295,11 +6563,11 @@ class AppLocalizationsJa extends AppLocalizations {
       'アプリをBot Creatorランナーに接続します。リモートランナーは信頼できるネットワークに配置してください。';
 
   @override
-  String get settings_runner_use_remote => 'Use remote runner';
+  String get settings_runner_use_remote => 'リモートランナーを使用';
 
   @override
   String get settings_runner_use_remote_desc =>
-      'Connect to a remote Bot Creator Runner. Leave off to run bots locally on this device.';
+      'リモートのBot Creatorランナーに接続します。オフのままにすると、この端末でローカルにボットを実行します。';
 
   @override
   String get settings_runner_disable_temp => 'ランナーを一時的に無効化';
@@ -7849,7 +8117,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get onboarding_command_now => '最初のコマンドを作成';
 
   @override
-  String get container_list_title => 'ホスト型アプリケーション';
+  String get container_list_title => 'ターンキーBot';
 
   @override
   String get container_list_session_missing => 'セッションが利用できません';
@@ -7858,19 +8126,22 @@ class AppLocalizationsJa extends AppLocalizations {
   String get container_list_session_hint => '最初にアカウントに接続してください。';
 
   @override
-  String get container_list_error => 'コンテナの読み込みに失敗しました';
+  String get container_list_error => 'Botの読み込みに失敗しました';
 
   @override
   String get container_list_retry => '再試行';
 
   @override
-  String get container_list_empty => 'ホスト型アプリケーションはありません';
+  String get container_list_empty => 'ターンキーBotはありません';
 
   @override
-  String get container_list_empty_hint => '開始するには、最初のアプリケーションをデプロイしてください。';
+  String get container_list_empty_hint => '設定不要ですぐに使えるBotを1クリックでデプロイできます。';
 
   @override
-  String get container_list_deploy_btn => 'アプリケーションをデプロイ';
+  String get container_list_deploy_btn => 'ターンキーBotをデプロイ';
+
+  @override
+  String get container_list_unsupported_badge => '非対応';
 
   @override
   String get container_list_expired => '期限切れ';
@@ -7891,7 +8162,25 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get container_deploy_title => 'アプリケーションをデプロイ';
+  String get container_deploy_title => 'ターンキーBotをデプロイ';
+
+  @override
+  String get container_deploy_template_section => 'すぐに使えるテンプレート';
+
+  @override
+  String get container_deploy_managed_hosting => '24時間365日マネージドホスティング';
+
+  @override
+  String get container_deploy_bot_config_section => 'Discord Botの設定';
+
+  @override
+  String get container_deploy_paste_token_hint => 'Discord Botのトークンをここに貼り付け';
+
+  @override
+  String get container_deploy_discord_prereqs => 'Discordの前提条件';
+
+  @override
+  String get container_deploy_launch_btn => 'ターンキーBotを起動';
 
   @override
   String get container_deploy_image_label => 'イメージ';
@@ -8125,14 +8414,14 @@ class AppLocalizationsJa extends AppLocalizations {
   String get container_health_starting => 'Still starting up...';
 
   @override
-  String get container_hosted_subtitle => 'Dockerコンテナのデプロイと管理';
+  String get container_hosted_subtitle => '設定不要のBot（音楽など）を1クリックでデプロイ';
 
   @override
   String get container_premium_badge => 'プレミアム';
 
   @override
   String container_detail_title(String id) {
-    return 'コンテナ $id';
+    return 'Bot $id';
   }
 
   @override
@@ -8143,7 +8432,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get container_list_free_limit_reached =>
-      '無料上限に達しました（コンテナ1つ）。Premiumにアップグレードして追加ホスト。';
+      '無料上限に達しました（Bot 1体）。Premiumにアップグレードして追加ホスト。';
 
   @override
   String get container_hosted_premium_host_anytime => 'いつでもホスト';
@@ -8153,16 +8442,17 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get container_hosted_premium_desc =>
-      'Dockerコンテナを無制限にホスト — 広告不要。サブスク登録で利用できます。';
+      'ターンキーBotを無制限にホスト — 広告不要。サブスク登録で利用できます。';
 
   @override
   String get container_hosted_premium_view_btn => 'プランを見る';
 
   @override
-  String get hosted_app_subscription_title => 'ホストアプリケーション';
+  String get hosted_app_subscription_title => 'ターンキーBot';
 
   @override
-  String get hosted_app_subscription_subtitle => '広告を見ずにDockerコンテナをクラウドで実行。';
+  String get hosted_app_subscription_subtitle =>
+      '設定不要のBotをクラウドで24時間365日中断なくホスト。';
 
   @override
   String get hosted_app_subscription_benefit_unlimited => 'ホスティング時間無制限';
@@ -8171,16 +8461,16 @@ class AppLocalizationsJa extends AppLocalizations {
   String get hosted_app_subscription_benefit_no_ads => 'リワード広告不要';
 
   @override
-  String get hosted_app_subscription_one_app_title => '1コンテナ';
+  String get hosted_app_subscription_one_app_title => '1体のホストBot';
 
   @override
-  String get hosted_app_subscription_one_app_desc => 'Dockerコンテナを1ついつでもホスト';
+  String get hosted_app_subscription_one_app_desc => 'いつでも1体のターンキーBotをホスト';
 
   @override
-  String get hosted_app_subscription_two_app_title => '2コンテナ';
+  String get hosted_app_subscription_two_app_title => '2体のホストBot';
 
   @override
-  String get hosted_app_subscription_two_app_desc => '最大2つのDockerコンテナをホスト';
+  String get hosted_app_subscription_two_app_desc => '最大2体のターンキーBotをホスト';
 
   @override
   String get hosted_app_subscription_recommended => 'おすすめ';
@@ -8404,4 +8694,277 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get docs_reload => '再読み込み';
+
+  @override
+  String get common_duplicate => '複製';
+
+  @override
+  String get commands_batch_select => '一括選択';
+
+  @override
+  String commands_selected_count(int count) {
+    return '$count 件選択中';
+  }
+
+  @override
+  String get image_editor_title => '画像エディタ';
+
+  @override
+  String get image_editor_add_operation => '操作を追加';
+
+  @override
+  String get image_editor_add_layer => 'レイヤーを追加';
+
+  @override
+  String get image_editor_operations => '操作';
+
+  @override
+  String get image_editor_op_container => 'コンテナ / フレーム';
+
+  @override
+  String get image_editor_op_progress_bar => 'プログレスバー';
+
+  @override
+  String get image_editor_op_composite_image => '画像を合成';
+
+  @override
+  String get image_editor_op_set_pixel => 'ピクセル設定';
+
+  @override
+  String get image_editor_op_invert => '色を反転';
+
+  @override
+  String get image_editor_op_grayscale => 'グレースケールに変換';
+
+  @override
+  String get image_editor_op_rotate => 'キャンバスを回転';
+
+  @override
+  String get image_editor_zoom_in => 'ズームイン';
+
+  @override
+  String get image_editor_zoom_out => 'ズームアウト';
+
+  @override
+  String get image_editor_zoom_fit => '画面に合わせる';
+
+  @override
+  String get image_editor_undo => '元に戻す';
+
+  @override
+  String get image_editor_redo => 'やり直す';
+
+  @override
+  String get image_editor_canvas => 'キャンバス';
+
+  @override
+  String get image_editor_width => '幅';
+
+  @override
+  String get image_editor_height => '高さ';
+
+  @override
+  String get image_editor_properties => 'プロパティ';
+
+  @override
+  String get image_editor_visible => '表示';
+
+  @override
+  String get image_editor_opacity => '不透明度';
+
+  @override
+  String image_editor_ops_summary(int count, int hidden) {
+    return '$count 操作、$hidden 件非表示';
+  }
+
+  @override
+  String image_editor_empty_hint(String op) {
+    return '開始するには「$op」操作を追加してください';
+  }
+
+  @override
+  String get image_editor_tap_to_edit => 'タップして編集';
+
+  @override
+  String get image_editor_no_operations => '操作はまだありません';
+
+  @override
+  String get image_editor_select_operation => '操作を選択してプロパティを編集';
+
+  @override
+  String get image_editor_insert_variable => '変数を挿入';
+
+  @override
+  String get image_editor_variable_label => '変数';
+
+  @override
+  String get image_editor_variable_hint => '入力して絞り込むか、下の候補をタップ';
+
+  @override
+  String get image_editor_insert => '挿入';
+
+  @override
+  String get image_editor_pick_image => '画像ファイルを選択';
+
+  @override
+  String get image_editor_color_picker => 'カラーピッカー';
+
+  @override
+  String get image_editor_hue => '色相';
+
+  @override
+  String get image_editor_saturation => '彩度';
+
+  @override
+  String get image_editor_no_url => 'URL なし';
+
+  @override
+  String get image_editor_unknown => '不明';
+
+  @override
+  String get image_editor_field_text => 'テキスト';
+
+  @override
+  String get image_editor_field_font_size => '文字サイズ';
+
+  @override
+  String get image_editor_field_max_width => '最大幅';
+
+  @override
+  String get image_editor_field_text_align => 'テキスト配置';
+
+  @override
+  String get image_editor_field_blend => 'ブレンド';
+
+  @override
+  String get image_editor_field_fill => '塗りつぶし';
+
+  @override
+  String get image_editor_field_radius => '半径';
+
+  @override
+  String get image_editor_field_thickness => '太さ';
+
+  @override
+  String get image_editor_field_shape => '形状';
+
+  @override
+  String get image_editor_field_percentage => 'パーセンテージ';
+
+  @override
+  String get image_editor_field_bar_color => 'バーの色';
+
+  @override
+  String get image_editor_field_track_color => 'トラックの色';
+
+  @override
+  String get image_editor_field_text_color => '文字色';
+
+  @override
+  String get image_editor_field_border_width => '枠線の太さ';
+
+  @override
+  String get image_editor_field_border_radius => '枠線の角丸';
+
+  @override
+  String get image_editor_field_orientation => '向き';
+
+  @override
+  String get image_editor_field_angle => '角度（度）';
+
+  @override
+  String get image_editor_field_container => 'コンテナ';
+
+  @override
+  String get image_editor_field_background_color => '背景色';
+
+  @override
+  String get image_editor_hint_auto_size => '自動（元のサイズ）';
+
+  @override
+  String get image_editor_hint_optional_background => '背景（任意）';
+
+  @override
+  String get image_editor_hint_parent_container => '親コンテナ名';
+
+  @override
+  String get image_editor_hint_container_width => '配置用のコンテナ幅';
+
+  @override
+  String get action_card_duration => '期間';
+
+  @override
+  String get action_card_error_message => 'エラーメッセージ';
+
+  @override
+  String get action_card_jump_to => 'ジャンプ先';
+
+  @override
+  String get action_card_maximum => '最大値';
+
+  @override
+  String get action_card_minimum => '最小値';
+
+  @override
+  String get action_card_skip_count => 'スキップ数';
+
+  @override
+  String get action_edit_request => 'リクエストを編集';
+
+  @override
+  String get action_error_jump => 'アクションにジャンプ';
+
+  @override
+  String get action_error_skip => 'N個のアクションをスキップ';
+
+  @override
+  String get component_max_length => '最大文字数';
+
+  @override
+  String get component_min_length => '最小文字数';
+
+  @override
+  String get http_request_header_name => 'ヘッダー名';
+
+  @override
+  String get http_request_json_body => 'JSONボディ';
+
+  @override
+  String get http_request_section_body => 'ボディ';
+
+  @override
+  String get http_request_section_headers => 'ヘッダー';
+
+  @override
+  String get http_request_section_request => 'リクエスト';
+
+  @override
+  String get http_request_text_body => 'テキストボディ';
+
+  @override
+  String marketplace_summary_commands(int count) {
+    return '$count コマンド';
+  }
+
+  @override
+  String marketplace_summary_variables(int count, int required) {
+    return '$count 変数（$required 必須）';
+  }
+
+  @override
+  String marketplace_summary_workflows(int count) {
+    return '$count ワークフロー';
+  }
+
+  @override
+  String get modal_builder_configure_submit_actions => '送信アクションを設定';
+
+  @override
+  String get modal_builder_edit_submit_actions => '送信アクションを編集';
+
+  @override
+  String get modal_builder_identity => '識別情報';
+
+  @override
+  String get modal_builder_submit_actions => '送信アクション';
 }
