@@ -1378,6 +1378,59 @@ class AppLocalizationsFr extends AppLocalizations {
       'Gardez ce token privé. Toute personne qui le possède peut contrôler votre bot.';
 
   @override
+  String get appearance_preset_graphite => 'Graphite';
+
+  @override
+  String get appearance_preset_graphite_desc =>
+      'Surfaces gris neutre, l\'apparence historique par défaut.';
+
+  @override
+  String get appearance_preset_violet_bc => 'Violet Bot Creator';
+
+  @override
+  String get appearance_preset_violet_bc_desc =>
+      'La signature Bot Creator, surfaces teintées comprises.';
+
+  @override
+  String get appearance_preset_discord => 'Discord';
+
+  @override
+  String get appearance_preset_discord_desc =>
+      'Le blurple de Discord, pour un rendu familier.';
+
+  @override
+  String get appearance_preset_ocean => 'Océan';
+
+  @override
+  String get appearance_preset_ocean_desc =>
+      'Tons cyan, comme l\'eau profonde.';
+
+  @override
+  String get appearance_preset_forest => 'Forêt';
+
+  @override
+  String get appearance_preset_forest_desc => 'Vert profond, calme et naturel.';
+
+  @override
+  String get appearance_preset_amber => 'Ambre';
+
+  @override
+  String get appearance_preset_amber_desc => 'Orange chaud, pour un rendu vif.';
+
+  @override
+  String get appearance_preset_rose => 'Rose';
+
+  @override
+  String get appearance_preset_rose_desc => 'Rose magenta, vif et moderne.';
+
+  @override
+  String get appearance_preset_high_contrast => 'Contraste élevé';
+
+  @override
+  String get appearance_preset_high_contrast_desc =>
+      'Lisibilité maximale de l\'interface.';
+
+  @override
   String get autocomplete_dynamic => 'Autocomplétion dynamique';
 
   @override
@@ -1429,7 +1482,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get bdfd_editor_auto_indent =>
-      '€¢ Indentation automatique intelligente sur Entrée';
+      '• Indentation automatique intelligente sur Entrée';
 
   @override
   String get bdfd_editor_diagnostics_toggle =>
@@ -1447,11 +1500,11 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get bdfd_editor_indent_guides =>
-      '€¢ Guides d\'indentation en temps réel';
+      '• Guides d\'indentation en temps réel';
 
   @override
   String get bdfd_editor_quick_keys =>
-      '€¢ Touches rapides mobiles pour les symboles BDFD';
+      '• Touches rapides mobiles pour les symboles BDFD';
 
   @override
   String get bdfd_editor_tap_hint => 'Appuyez pour ouvrir l\'éditeur';
@@ -2887,6 +2940,29 @@ class AppLocalizationsFr extends AppLocalizations {
       'Nombre d\'espaces insérés lors de l\'indentation';
 
   @override
+  String get command_alias_label => 'Alias';
+
+  @override
+  String get command_alias_hint => '!p';
+
+  @override
+  String get command_alias_help =>
+      'La commande répond aussi à ces mots déclencheurs.';
+
+  @override
+  String get command_alias_duplicate => 'Cet alias est déjà utilisé.';
+
+  @override
+  String command_alias_limit(int max) {
+    return 'Maximum $max alias.';
+  }
+
+  @override
+  String command_alias_collision(String command) {
+    return 'Déjà utilisé par la commande $command.';
+  }
+
+  @override
   String get command_awaited_error => 'Erreur';
 
   @override
@@ -3283,6 +3359,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get common_disabled => 'Désactivé';
+
+  @override
+  String get common_discard => 'Abandonner';
 
   @override
   String get common_edit => 'Modifier';
@@ -5604,7 +5683,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String scheduler_subtitle(String workflow, int minutes) {
-    return 'Workflow : $workflow €¢ Toutes les $minutes min';
+    return 'Workflow : $workflow • Toutes les $minutes min';
   }
 
   @override
@@ -6090,7 +6169,51 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settings_app_version => 'App';
 
   @override
-  String get settings_appearance_title => 'Apparence et langue';
+  String get settings_appearance_accent_label => 'Accent';
+
+  @override
+  String settings_appearance_contrast_ratio(String ratio) {
+    return 'Contraste accent/surface : $ratio';
+  }
+
+  @override
+  String settings_appearance_contrast_warning(String ratio) {
+    return 'Contraste faible ($ratio) : l\'accent se distingue peu du fond. L\'app l\'adapte là où c\'est nécessaire, mais un accent plus clair ou plus sombre améliore la lisibilité.';
+  }
+
+  @override
+  String get settings_appearance_custom_badge => 'Personnalisé';
+
+  @override
+  String get settings_appearance_custom_title => 'Couleurs personnalisées';
+
+  @override
+  String get settings_appearance_mode_dark => 'Sombre';
+
+  @override
+  String get settings_appearance_mode_light => 'Clair';
+
+  @override
+  String get settings_appearance_mode_system => 'Système';
+
+  @override
+  String get settings_appearance_mode_title => 'Mode';
+
+  @override
+  String get settings_appearance_presets_title => 'Thèmes prédéfinis';
+
+  @override
+  String get settings_appearance_reset => 'Réinitialiser';
+
+  @override
+  String get settings_appearance_seed_label => 'Couleur principale';
+
+  @override
+  String get settings_appearance_subtitle =>
+      'Choisissez un mode, un thème prédéfini ou vos propres couleurs.';
+
+  @override
+  String get settings_appearance_title => 'Apparence';
 
   @override
   String get settings_auto_backup_check_loading =>
@@ -7918,7 +8041,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Écrivez le code BDFD complet pour cette réponse workflow. Les diagnostics s\'affichent en direct.';
 
   @override
-  String get workflow_bdfd_editor_title => 'Éditeur de script BDFD';
+  String get workflow_bdfd_editor_title => 'Éditeur BDFD';
 
   @override
   String get workflow_condition_off => 'Condition désactivée';
@@ -8156,7 +8279,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String workflows_event_subtitle(int count, String event) {
-    return '$count action(s) €¢ Listen for : $event';
+    return '$count action(s) • Listen for : $event';
   }
 
   @override
@@ -8262,7 +8385,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String workflows_subtitle(int count, String entry, String args) {
-    return '$count action(s) €¢ entrée : $entry €¢ args : $args';
+    return '$count action(s) • entrée : $entry • args : $args';
   }
 
   @override
@@ -9064,4 +9187,202 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get docs_reload => 'Recharger';
+
+  @override
+  String get common_duplicate => 'Dupliquer';
+
+  @override
+  String get commands_batch_select => 'Sélection groupée';
+
+  @override
+  String commands_selected_count(int count) {
+    return '$count sélectionnée(s)';
+  }
+
+  @override
+  String get image_editor_title => 'Éditeur d\'images';
+
+  @override
+  String get image_editor_add_operation => 'Ajouter une opération';
+
+  @override
+  String get image_editor_add_layer => 'Ajouter un calque';
+
+  @override
+  String get image_editor_operations => 'Opérations';
+
+  @override
+  String get image_editor_op_container => 'Conteneur / Cadre';
+
+  @override
+  String get image_editor_op_progress_bar => 'Barre de progression';
+
+  @override
+  String get image_editor_op_composite_image => 'Image composite';
+
+  @override
+  String get image_editor_op_set_pixel => 'Définir un pixel';
+
+  @override
+  String get image_editor_op_invert => 'Inverser les couleurs';
+
+  @override
+  String get image_editor_op_grayscale => 'Convertir en niveaux de gris';
+
+  @override
+  String get image_editor_op_rotate => 'Pivoter le canvas';
+
+  @override
+  String get image_editor_zoom_in => 'Zoom avant';
+
+  @override
+  String get image_editor_zoom_out => 'Zoom arrière';
+
+  @override
+  String get image_editor_zoom_fit => 'Ajuster à l\'écran';
+
+  @override
+  String get image_editor_undo => 'Annuler';
+
+  @override
+  String get image_editor_redo => 'Rétablir';
+
+  @override
+  String get image_editor_canvas => 'Canvas';
+
+  @override
+  String get image_editor_width => 'Largeur';
+
+  @override
+  String get image_editor_height => 'Hauteur';
+
+  @override
+  String get image_editor_properties => 'Propriétés';
+
+  @override
+  String get image_editor_visible => 'Visible';
+
+  @override
+  String get image_editor_opacity => 'Opacité';
+
+  @override
+  String image_editor_ops_summary(int count, int hidden) {
+    return '$count opérations, $hidden masquée(s)';
+  }
+
+  @override
+  String image_editor_empty_hint(String op) {
+    return 'Ajoutez une opération « $op » pour commencer';
+  }
+
+  @override
+  String get image_editor_tap_to_edit => 'Appuyer pour modifier';
+
+  @override
+  String get image_editor_no_operations => 'Aucune opération pour le moment';
+
+  @override
+  String get image_editor_select_operation =>
+      'Sélectionnez une opération pour modifier ses propriétés';
+
+  @override
+  String get image_editor_insert_variable => 'Insérer une variable';
+
+  @override
+  String get image_editor_variable_label => 'Variable';
+
+  @override
+  String get image_editor_variable_hint =>
+      'Tapez pour filtrer ou appuyez sur une suggestion ci-dessous';
+
+  @override
+  String get image_editor_insert => 'Insérer';
+
+  @override
+  String get image_editor_pick_image => 'Choisir un fichier image';
+
+  @override
+  String get image_editor_color_picker => 'Sélecteur de couleur';
+
+  @override
+  String get image_editor_hue => 'Teinte';
+
+  @override
+  String get image_editor_saturation => 'Saturation';
+
+  @override
+  String get image_editor_no_url => 'sans URL';
+
+  @override
+  String get image_editor_unknown => 'Inconnu';
+
+  @override
+  String get image_editor_field_text => 'Texte';
+
+  @override
+  String get image_editor_field_font_size => 'Taille de police';
+
+  @override
+  String get image_editor_field_max_width => 'Largeur maximale';
+
+  @override
+  String get image_editor_field_text_align => 'Alignement du texte';
+
+  @override
+  String get image_editor_field_blend => 'Fusion';
+
+  @override
+  String get image_editor_field_fill => 'Remplir';
+
+  @override
+  String get image_editor_field_radius => 'Rayon';
+
+  @override
+  String get image_editor_field_thickness => 'Épaisseur';
+
+  @override
+  String get image_editor_field_shape => 'Forme';
+
+  @override
+  String get image_editor_field_percentage => 'Pourcentage';
+
+  @override
+  String get image_editor_field_bar_color => 'Couleur de la barre';
+
+  @override
+  String get image_editor_field_track_color => 'Couleur de la piste';
+
+  @override
+  String get image_editor_field_text_color => 'Couleur du texte';
+
+  @override
+  String get image_editor_field_border_width => 'Largeur de bordure';
+
+  @override
+  String get image_editor_field_border_radius => 'Rayon de bordure';
+
+  @override
+  String get image_editor_field_orientation => 'Orientation';
+
+  @override
+  String get image_editor_field_angle => 'Angle (degrés)';
+
+  @override
+  String get image_editor_field_container => 'Conteneur';
+
+  @override
+  String get image_editor_field_background_color => 'Couleur d\'arrière-plan';
+
+  @override
+  String get image_editor_hint_auto_size => 'auto (taille d\'origine)';
+
+  @override
+  String get image_editor_hint_optional_background => 'arrière-plan facultatif';
+
+  @override
+  String get image_editor_hint_parent_container => 'nom du conteneur parent';
+
+  @override
+  String get image_editor_hint_container_width =>
+      'largeur du conteneur pour l\'alignement';
 }

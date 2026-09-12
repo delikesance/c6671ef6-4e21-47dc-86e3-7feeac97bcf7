@@ -7164,6 +7164,22 @@
   "app_token_section_desc": "Jeton kopyalandıktan sonra, botunuzu uygulamaya eklemek için aşağıya yapıştırın.",
   "app_token_section_title": "Bot jetonunuzu yapıştırın",
   "app_token_security_hint": "Bu jetonu gizli tutun. Ona sahip olan herkes botunuzu kontrol edebilir.",
+  "appearance_preset_graphite": "Grafit",
+  "appearance_preset_graphite_desc": "Nötr gri yüzeyler — özgün varsayılan görünüm.",
+  "appearance_preset_violet_bc": "Mor Bot Creator",
+  "appearance_preset_violet_bc_desc": "Bot Creator marka imzası; renkli yüzeyler dahil.",
+  "appearance_preset_discord": "Discord",
+  "appearance_preset_discord_desc": "Alışıldık bir görünüm için Discord blurple rengi.",
+  "appearance_preset_ocean": "Okyanus",
+  "appearance_preset_ocean_desc": "Derin su gibi camgöbeği tonları.",
+  "appearance_preset_forest": "Orman",
+  "appearance_preset_forest_desc": "Sakin ve doğal koyu yeşil.",
+  "appearance_preset_amber": "Amber",
+  "appearance_preset_amber_desc": "Canlı bir görünüm için sıcak turuncu.",
+  "appearance_preset_rose": "Gül",
+  "appearance_preset_rose_desc": "Cesur ve modern magenta pembe.",
+  "appearance_preset_high_contrast": "Yüksek kontrast",
+  "appearance_preset_high_contrast_desc": "Arayüz için maksimum okunabilirlik.",
   "autocomplete_dynamic": "Dinamik Otomatik Tamamlama",
   "autocomplete_dynamic_desc": "Seçenekleri statik değerler yerine bir iş akışından çözün.",
   "autocomplete_filter_hint": "Öneriler, kullanıcının yazdığına göre filtrelenir.",
@@ -7578,6 +7594,12 @@
   "code_editor_settings_auto_close_desc": "Köşeli parantezleri, küme parantezlerini, normal parantezleri ve tırnak işaretlerini otomatik kapatır",
   "code_editor_settings_tab_size": "Sekme boyutu (boşluk)",
   "code_editor_settings_tab_size_desc": "Girintilerken eklenen boşluk sayısı",
+  "command_alias_label": "Takma ad",
+  "command_alias_hint": "!p",
+  "command_alias_help": "Komut bu tetikleyici sözcüklere de yanıt verir.",
+  "command_alias_duplicate": "Bu takma ad zaten kullanılıyor.",
+  "command_alias_limit": "En fazla {max} takma ad.",
+  "command_alias_collision": "{command} komutu tarafından zaten kullanılıyor.",
   "command_awaited_error": "Hata",
   "command_awaited_filter_hint": "Örnek: <numeric> veya <yes/no/cancel>",
   "command_awaited_filter_label": "Filtre (isteğe bağlı)",
@@ -7689,6 +7711,7 @@
   "common_delete": "Sil",
   "common_description": "Açıklama",
   "common_disabled": "Devre Dışı",
+  "common_discard": "Vazgeç",
   "common_edit": "Düzenle",
   "common_enabled": "Etkin",
   "common_import": "İçe Aktar",
@@ -8462,7 +8485,20 @@
   "settings_ads_privacy_open_error": "Reklam gizliliği seçenekleri açılamadı",
   "settings_ads_privacy_opened": "Reklam gizliliği seçenekleri açıldı",
   "settings_app_version": "Uygulama",
-  "settings_appearance_title": "Görünüm ve dil",
+  "settings_appearance_accent_label": "Vurgu",
+  "settings_appearance_contrast_ratio": "Vurgu/yüzey kontrastı: {ratio}",
+  "settings_appearance_contrast_warning": "Düşük kontrast ({ratio}): Vurgu arka plandan zor ayrılıyor. Uygulama gerektiğinde bunu uyarlar; daha açık veya koyu bir vurgu okunabilirliği artırır.",
+  "settings_appearance_custom_badge": "Özel",
+  "settings_appearance_custom_title": "Özel renkler",
+  "settings_appearance_mode_dark": "Koyu",
+  "settings_appearance_mode_light": "Açık",
+  "settings_appearance_mode_system": "Sistem",
+  "settings_appearance_mode_title": "Mod",
+  "settings_appearance_presets_title": "Hazır temalar",
+  "settings_appearance_reset": "Sıfırla",
+  "settings_appearance_seed_label": "Ana renk",
+  "settings_appearance_subtitle": "Bir mod, hazır bir tema veya kendi renklerini seç.",
+  "settings_appearance_title": "Görünüm",
   "settings_auto_backup_check_loading": "Otomatik yedekleme kontrolü…",
   "settings_auto_backup_every_12h": "Her 12 saatte bir",
   "settings_auto_backup_every_24h": "Her 24 saatte bir",
@@ -8670,6 +8706,8 @@
   "settings_runner_connected": "Runner erişilebilir ✓",
   "settings_runner_connecting": "Bağlantı kontrol ediliyor…",
   "settings_runner_desc": "Uygulamayı bir Bot Creator Runner'a bağlayın. Uzak çalıştırıcılar güvenilir ağlarda kalmalı ve bir taşıyıcı jeton (bearer token) kullanmalıdır.",
+  "settings_runner_use_remote": "Uzak çalıştırıcı kullan",
+  "settings_runner_use_remote_desc": "Uzak bir Bot Creator Runner'a bağlanın. Kapalı bırakırsanız botlar bu cihazda yerel olarak çalışır.",
   "settings_runner_disable_temp": "Runner'ı geçici olarak devre dışı bırak",
   "settings_runner_disable_temp_desc": "Runner ayarlarını koru ancak yeniden etkinleştirilene kadar yerel modu zorla.",
   "settings_runner_disconnected": "Runner bağlantısı kesildi",
@@ -9838,5 +9876,275 @@
   "docs_reload": "Yeniden yukle",
   "@docs_reload": {
     "description": "docs reload"
+  },
+  "common_duplicate": "Çoğalt",
+  "@common_duplicate": {
+    "description": "Duplicate"
+  },
+  "commands_batch_select": "Toplu seçim",
+  "@commands_batch_select": {
+    "description": "Batch select"
+  },
+  "commands_selected_count": "{count} seçili",
+  "@commands_selected_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "{count} selected"
+  },
+  "image_editor_title": "Görüntü Düzenleyici",
+  "@image_editor_title": {
+    "description": "Image Editor"
+  },
+  "image_editor_add_operation": "İşlem ekle",
+  "@image_editor_add_operation": {
+    "description": "Add operation"
+  },
+  "image_editor_add_layer": "Katman ekle",
+  "@image_editor_add_layer": {
+    "description": "Add Layer"
+  },
+  "image_editor_operations": "İşlemler",
+  "@image_editor_operations": {
+    "description": "Operations"
+  },
+  "image_editor_op_container": "Kapsayıcı / Çerçeve",
+  "@image_editor_op_container": {
+    "description": "Container / Frame"
+  },
+  "image_editor_op_progress_bar": "İlerleme çubuğu",
+  "@image_editor_op_progress_bar": {
+    "description": "Progress Bar"
+  },
+  "image_editor_op_composite_image": "Görüntüyü birleştir",
+  "@image_editor_op_composite_image": {
+    "description": "Composite Image"
+  },
+  "image_editor_op_set_pixel": "Piksel ayarla",
+  "@image_editor_op_set_pixel": {
+    "description": "Set Pixel"
+  },
+  "image_editor_op_invert": "Renkleri ters çevir",
+  "@image_editor_op_invert": {
+    "description": "Invert Colors"
+  },
+  "image_editor_op_grayscale": "Gri tonlamaya dönüştür",
+  "@image_editor_op_grayscale": {
+    "description": "Convert to Grayscale"
+  },
+  "image_editor_op_rotate": "Tuvali döndür",
+  "@image_editor_op_rotate": {
+    "description": "Rotate Canvas"
+  },
+  "image_editor_zoom_in": "Yakınlaştır",
+  "@image_editor_zoom_in": {
+    "description": "Zoom in"
+  },
+  "image_editor_zoom_out": "Uzaklaştır",
+  "@image_editor_zoom_out": {
+    "description": "Zoom out"
+  },
+  "image_editor_zoom_fit": "Ekrana sığdır",
+  "@image_editor_zoom_fit": {
+    "description": "Fit to screen"
+  },
+  "image_editor_undo": "Geri al",
+  "@image_editor_undo": {
+    "description": "Undo"
+  },
+  "image_editor_redo": "Yinele",
+  "@image_editor_redo": {
+    "description": "Redo"
+  },
+  "image_editor_canvas": "Tuval",
+  "@image_editor_canvas": {
+    "description": "Canvas"
+  },
+  "image_editor_width": "Genişlik",
+  "@image_editor_width": {
+    "description": "Width"
+  },
+  "image_editor_height": "Yükseklik",
+  "@image_editor_height": {
+    "description": "Height"
+  },
+  "image_editor_properties": "Özellikler",
+  "@image_editor_properties": {
+    "description": "Properties"
+  },
+  "image_editor_visible": "Görünür",
+  "@image_editor_visible": {
+    "description": "Visible"
+  },
+  "image_editor_opacity": "Opaklık",
+  "@image_editor_opacity": {
+    "description": "Opacity"
+  },
+  "image_editor_ops_summary": "{count} işlem, {hidden} gizli",
+  "@image_editor_ops_summary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "hidden": {
+        "type": "int"
+      }
+    },
+    "description": "{count} operations, {hidden} hidden"
+  },
+  "image_editor_empty_hint": "Başlamak için bir \"{op}\" işlemi ekleyin",
+  "@image_editor_empty_hint": {
+    "placeholders": {
+      "op": {
+        "type": "String"
+      }
+    },
+    "description": "Add a \"{op}\" operation to start"
+  },
+  "image_editor_tap_to_edit": "Düzenlemek için dokunun",
+  "@image_editor_tap_to_edit": {
+    "description": "Tap to edit"
+  },
+  "image_editor_no_operations": "Henüz işlem yok",
+  "@image_editor_no_operations": {
+    "description": "No operations yet"
+  },
+  "image_editor_select_operation": "Özelliklerini düzenlemek için bir işlem seçin",
+  "@image_editor_select_operation": {
+    "description": "Select an operation to edit its properties"
+  },
+  "image_editor_insert_variable": "Değişken ekle",
+  "@image_editor_insert_variable": {
+    "description": "Insert Variable"
+  },
+  "image_editor_variable_label": "Değişken",
+  "@image_editor_variable_label": {
+    "description": "Variable"
+  },
+  "image_editor_variable_hint": "Filtrelemek için yazın veya aşağıdaki öneriye dokunun",
+  "@image_editor_variable_hint": {
+    "description": "Type to filter, or tap a suggestion below"
+  },
+  "image_editor_insert": "Ekle",
+  "@image_editor_insert": {
+    "description": "Insert"
+  },
+  "image_editor_pick_image": "Resim dosyası seç",
+  "@image_editor_pick_image": {
+    "description": "Pick image file"
+  },
+  "image_editor_color_picker": "Renk seçici",
+  "@image_editor_color_picker": {
+    "description": "Color Picker"
+  },
+  "image_editor_hue": "Ton",
+  "@image_editor_hue": {
+    "description": "Hue"
+  },
+  "image_editor_saturation": "Doygunluk",
+  "@image_editor_saturation": {
+    "description": "Saturation"
+  },
+  "image_editor_no_url": "URL yok",
+  "@image_editor_no_url": {
+    "description": "no URL"
+  },
+  "image_editor_unknown": "Bilinmiyor",
+  "@image_editor_unknown": {
+    "description": "Unknown"
+  },
+  "image_editor_field_text": "Metin",
+  "@image_editor_field_text": {
+    "description": "Text"
+  },
+  "image_editor_field_font_size": "Yazı boyutu",
+  "@image_editor_field_font_size": {
+    "description": "Font Size"
+  },
+  "image_editor_field_max_width": "Maks. genişlik",
+  "@image_editor_field_max_width": {
+    "description": "Max Width"
+  },
+  "image_editor_field_text_align": "Metin hizası",
+  "@image_editor_field_text_align": {
+    "description": "Text Align"
+  },
+  "image_editor_field_blend": "Karışım",
+  "@image_editor_field_blend": {
+    "description": "Blend"
+  },
+  "image_editor_field_fill": "Doldur",
+  "@image_editor_field_fill": {
+    "description": "Fill"
+  },
+  "image_editor_field_radius": "Yarıçap",
+  "@image_editor_field_radius": {
+    "description": "Radius"
+  },
+  "image_editor_field_thickness": "Kalınlık",
+  "@image_editor_field_thickness": {
+    "description": "Thickness"
+  },
+  "image_editor_field_shape": "Şekil",
+  "@image_editor_field_shape": {
+    "description": "Shape"
+  },
+  "image_editor_field_percentage": "Yüzde",
+  "@image_editor_field_percentage": {
+    "description": "Percentage"
+  },
+  "image_editor_field_bar_color": "Çubuk rengi",
+  "@image_editor_field_bar_color": {
+    "description": "Bar Color"
+  },
+  "image_editor_field_track_color": "Hat rengi",
+  "@image_editor_field_track_color": {
+    "description": "Track Color"
+  },
+  "image_editor_field_text_color": "Metin rengi",
+  "@image_editor_field_text_color": {
+    "description": "Text Color"
+  },
+  "image_editor_field_border_width": "Kenarlık genişliği",
+  "@image_editor_field_border_width": {
+    "description": "Border Width"
+  },
+  "image_editor_field_border_radius": "Kenarlık yarıçapı",
+  "@image_editor_field_border_radius": {
+    "description": "Border Radius"
+  },
+  "image_editor_field_orientation": "Yön",
+  "@image_editor_field_orientation": {
+    "description": "Orientation"
+  },
+  "image_editor_field_angle": "Açı (derece)",
+  "@image_editor_field_angle": {
+    "description": "Angle (Degrees)"
+  },
+  "image_editor_field_container": "Kapsayıcı",
+  "@image_editor_field_container": {
+    "description": "Container"
+  },
+  "image_editor_field_background_color": "Arka plan rengi",
+  "@image_editor_field_background_color": {
+    "description": "Background Color"
+  },
+  "image_editor_hint_auto_size": "otomatik (özgün boyut)",
+  "@image_editor_hint_auto_size": {
+    "description": "auto (native size)"
+  },
+  "image_editor_hint_optional_background": "isteğe bağlı arka plan",
+  "@image_editor_hint_optional_background": {
+    "description": "optional background"
+  },
+  "image_editor_hint_parent_container": "üst kapsayıcı adı",
+  "@image_editor_hint_parent_container": {
+    "description": "parent container name"
+  },
+  "image_editor_hint_container_width": "hizalama için kapsayıcı genişliği",
+  "@image_editor_hint_container_width": {
+    "description": "container width for alignment"
   }
 }

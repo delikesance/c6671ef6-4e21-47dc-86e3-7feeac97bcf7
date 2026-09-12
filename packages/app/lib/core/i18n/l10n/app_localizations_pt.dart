@@ -1376,6 +1376,61 @@ class AppLocalizationsPt extends AppLocalizations {
       'Mantenha este token privado. Qualquer pessoa com ele pode controlar o seu bot.';
 
   @override
+  String get appearance_preset_graphite => 'Grafite';
+
+  @override
+  String get appearance_preset_graphite_desc =>
+      'Superfícies cinzentas neutras — o visual padrão original.';
+
+  @override
+  String get appearance_preset_violet_bc => 'Violeta Bot Creator';
+
+  @override
+  String get appearance_preset_violet_bc_desc =>
+      'A assinatura Bot Creator, com superfícies tingidas.';
+
+  @override
+  String get appearance_preset_discord => 'Discord';
+
+  @override
+  String get appearance_preset_discord_desc =>
+      'O blurple do Discord, para um visual familiar.';
+
+  @override
+  String get appearance_preset_ocean => 'Oceano';
+
+  @override
+  String get appearance_preset_ocean_desc =>
+      'Tons ciano, como águas profundas.';
+
+  @override
+  String get appearance_preset_forest => 'Floresta';
+
+  @override
+  String get appearance_preset_forest_desc =>
+      'Verde profundo, calmo e natural.';
+
+  @override
+  String get appearance_preset_amber => 'Âmbar';
+
+  @override
+  String get appearance_preset_amber_desc =>
+      'Laranja quente, para um visual vivo.';
+
+  @override
+  String get appearance_preset_rose => 'Rosa';
+
+  @override
+  String get appearance_preset_rose_desc => 'Rosa magenta, ousado e moderno.';
+
+  @override
+  String get appearance_preset_high_contrast => 'Contraste elevado';
+
+  @override
+  String get appearance_preset_high_contrast_desc =>
+      'Legibilidade máxima da interface.';
+
+  @override
   String get autocomplete_dynamic => 'Autocompletar Dinâmico';
 
   @override
@@ -2877,6 +2932,29 @@ class AppLocalizationsPt extends AppLocalizations {
       'Número de espaços inseridos ao indentar';
 
   @override
+  String get command_alias_label => 'Alias';
+
+  @override
+  String get command_alias_hint => '!p';
+
+  @override
+  String get command_alias_help =>
+      'O comando também responde a estas palavras de ativação.';
+
+  @override
+  String get command_alias_duplicate => 'Este alias já está a ser utilizado.';
+
+  @override
+  String command_alias_limit(int max) {
+    return 'Máximo de $max aliases.';
+  }
+
+  @override
+  String command_alias_collision(String command) {
+    return 'Já utilizado pelo comando $command.';
+  }
+
+  @override
   String get command_awaited_error => 'Erro';
 
   @override
@@ -3272,6 +3350,9 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get common_disabled => 'Desativado';
+
+  @override
+  String get common_discard => 'Descartar';
 
   @override
   String get common_edit => 'Editar';
@@ -6061,7 +6142,51 @@ class AppLocalizationsPt extends AppLocalizations {
   String get settings_app_version => 'App';
 
   @override
-  String get settings_appearance_title => 'Aspeto e idioma';
+  String get settings_appearance_accent_label => 'Destaque';
+
+  @override
+  String settings_appearance_contrast_ratio(String ratio) {
+    return 'Contraste destaque/superfície: $ratio';
+  }
+
+  @override
+  String settings_appearance_contrast_warning(String ratio) {
+    return 'Contraste baixo ($ratio): o destaque quase não se distingue do fundo. A app adapta-o quando necessário, mas um destaque mais claro ou mais escuro melhora a legibilidade.';
+  }
+
+  @override
+  String get settings_appearance_custom_badge => 'Personalizado';
+
+  @override
+  String get settings_appearance_custom_title => 'Cores personalizadas';
+
+  @override
+  String get settings_appearance_mode_dark => 'Escuro';
+
+  @override
+  String get settings_appearance_mode_light => 'Claro';
+
+  @override
+  String get settings_appearance_mode_system => 'Sistema';
+
+  @override
+  String get settings_appearance_mode_title => 'Modo';
+
+  @override
+  String get settings_appearance_presets_title => 'Temas predefinidos';
+
+  @override
+  String get settings_appearance_reset => 'Repor';
+
+  @override
+  String get settings_appearance_seed_label => 'Cor principal';
+
+  @override
+  String get settings_appearance_subtitle =>
+      'Escolha um modo, um tema predefinido ou as suas próprias cores.';
+
+  @override
+  String get settings_appearance_title => 'Aspeto';
 
   @override
   String get settings_auto_backup_check_loading =>
@@ -6796,11 +6921,11 @@ class AppLocalizationsPt extends AppLocalizations {
       'Ligue a app a um Bot Creator Runner. Runners remotos devem permanecer em redes fidedignas e usar um token bearer.';
 
   @override
-  String get settings_runner_use_remote => 'Use remote runner';
+  String get settings_runner_use_remote => 'Usar Runner remoto';
 
   @override
   String get settings_runner_use_remote_desc =>
-      'Connect to a remote Bot Creator Runner. Leave off to run bots locally on this device.';
+      'Ligar a um Bot Creator Runner remoto. Deixe desativado para executar os bots localmente neste dispositivo.';
 
   @override
   String get settings_runner_disable_temp => 'Desativar Runner temporariamente';
@@ -9025,4 +9150,202 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get docs_reload => 'Recarregar';
+
+  @override
+  String get common_duplicate => 'Duplicar';
+
+  @override
+  String get commands_batch_select => 'Seleção em lote';
+
+  @override
+  String commands_selected_count(int count) {
+    return '$count selecionado(s)';
+  }
+
+  @override
+  String get image_editor_title => 'Editor de Imagem';
+
+  @override
+  String get image_editor_add_operation => 'Adicionar operação';
+
+  @override
+  String get image_editor_add_layer => 'Adicionar camada';
+
+  @override
+  String get image_editor_operations => 'Operações';
+
+  @override
+  String get image_editor_op_container => 'Contêiner / Moldura';
+
+  @override
+  String get image_editor_op_progress_bar => 'Barra de progresso';
+
+  @override
+  String get image_editor_op_composite_image => 'Imagem composta';
+
+  @override
+  String get image_editor_op_set_pixel => 'Definir pixel';
+
+  @override
+  String get image_editor_op_invert => 'Inverter cores';
+
+  @override
+  String get image_editor_op_grayscale => 'Converter para escala de cinza';
+
+  @override
+  String get image_editor_op_rotate => 'Girar tela';
+
+  @override
+  String get image_editor_zoom_in => 'Ampliar zoom';
+
+  @override
+  String get image_editor_zoom_out => 'Reduzir zoom';
+
+  @override
+  String get image_editor_zoom_fit => 'Ajustar à tela';
+
+  @override
+  String get image_editor_undo => 'Desfazer';
+
+  @override
+  String get image_editor_redo => 'Refazer';
+
+  @override
+  String get image_editor_canvas => 'Tela';
+
+  @override
+  String get image_editor_width => 'Largura';
+
+  @override
+  String get image_editor_height => 'Altura';
+
+  @override
+  String get image_editor_properties => 'Propriedades';
+
+  @override
+  String get image_editor_visible => 'Visível';
+
+  @override
+  String get image_editor_opacity => 'Opacidade';
+
+  @override
+  String image_editor_ops_summary(int count, int hidden) {
+    return '$count operações, $hidden oculta(s)';
+  }
+
+  @override
+  String image_editor_empty_hint(String op) {
+    return 'Adicione uma operação \"$op\" para começar';
+  }
+
+  @override
+  String get image_editor_tap_to_edit => 'Toque para editar';
+
+  @override
+  String get image_editor_no_operations => 'Nenhuma operação ainda';
+
+  @override
+  String get image_editor_select_operation =>
+      'Selecione uma operação para editar suas propriedades';
+
+  @override
+  String get image_editor_insert_variable => 'Inserir variável';
+
+  @override
+  String get image_editor_variable_label => 'Variável';
+
+  @override
+  String get image_editor_variable_hint =>
+      'Digite para filtrar ou toque numa sugestão abaixo';
+
+  @override
+  String get image_editor_insert => 'Inserir';
+
+  @override
+  String get image_editor_pick_image => 'Escolher ficheiro de imagem';
+
+  @override
+  String get image_editor_color_picker => 'Seletor de cores';
+
+  @override
+  String get image_editor_hue => 'Matiz';
+
+  @override
+  String get image_editor_saturation => 'Saturação';
+
+  @override
+  String get image_editor_no_url => 'sem URL';
+
+  @override
+  String get image_editor_unknown => 'Desconhecido';
+
+  @override
+  String get image_editor_field_text => 'Texto';
+
+  @override
+  String get image_editor_field_font_size => 'Tamanho da fonte';
+
+  @override
+  String get image_editor_field_max_width => 'Largura máxima';
+
+  @override
+  String get image_editor_field_text_align => 'Alinhamento do texto';
+
+  @override
+  String get image_editor_field_blend => 'Mesclagem';
+
+  @override
+  String get image_editor_field_fill => 'Preencher';
+
+  @override
+  String get image_editor_field_radius => 'Raio';
+
+  @override
+  String get image_editor_field_thickness => 'Espessura';
+
+  @override
+  String get image_editor_field_shape => 'Forma';
+
+  @override
+  String get image_editor_field_percentage => 'Percentagem';
+
+  @override
+  String get image_editor_field_bar_color => 'Cor da barra';
+
+  @override
+  String get image_editor_field_track_color => 'Cor da faixa';
+
+  @override
+  String get image_editor_field_text_color => 'Cor do texto';
+
+  @override
+  String get image_editor_field_border_width => 'Largura da borda';
+
+  @override
+  String get image_editor_field_border_radius => 'Raio da borda';
+
+  @override
+  String get image_editor_field_orientation => 'Orientação';
+
+  @override
+  String get image_editor_field_angle => 'Ângulo (graus)';
+
+  @override
+  String get image_editor_field_container => 'Contêiner';
+
+  @override
+  String get image_editor_field_background_color => 'Cor de fundo';
+
+  @override
+  String get image_editor_hint_auto_size => 'auto (tamanho original)';
+
+  @override
+  String get image_editor_hint_optional_background => 'fundo opcional';
+
+  @override
+  String get image_editor_hint_parent_container => 'nome do contêiner pai';
+
+  @override
+  String get image_editor_hint_container_width =>
+      'largura do contêiner para alinhamento';
 }

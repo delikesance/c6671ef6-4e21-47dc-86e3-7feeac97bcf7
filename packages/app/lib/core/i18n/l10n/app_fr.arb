@@ -7269,6 +7269,22 @@
   "app_token_section_desc": "Une fois le token copié, collez-le ci-dessous pour ajouter votre bot à l'application.",
   "app_token_section_title": "Collez votre token de bot",
   "app_token_security_hint": "Gardez ce token privé. Toute personne qui le possède peut contrôler votre bot.",
+  "appearance_preset_graphite": "Graphite",
+  "appearance_preset_graphite_desc": "Surfaces gris neutre, l'apparence historique par défaut.",
+  "appearance_preset_violet_bc": "Violet Bot Creator",
+  "appearance_preset_violet_bc_desc": "La signature Bot Creator, surfaces teintées comprises.",
+  "appearance_preset_discord": "Discord",
+  "appearance_preset_discord_desc": "Le blurple de Discord, pour un rendu familier.",
+  "appearance_preset_ocean": "Océan",
+  "appearance_preset_ocean_desc": "Tons cyan, comme l'eau profonde.",
+  "appearance_preset_forest": "Forêt",
+  "appearance_preset_forest_desc": "Vert profond, calme et naturel.",
+  "appearance_preset_amber": "Ambre",
+  "appearance_preset_amber_desc": "Orange chaud, pour un rendu vif.",
+  "appearance_preset_rose": "Rose",
+  "appearance_preset_rose_desc": "Rose magenta, vif et moderne.",
+  "appearance_preset_high_contrast": "Contraste élevé",
+  "appearance_preset_high_contrast_desc": "Lisibilité maximale de l'interface.",
   "autocomplete_dynamic": "Autocomplétion dynamique",
   "autocomplete_dynamic_desc": "Résoudre les choix depuis un workflow au lieu de valeurs statiques.",
   "autocomplete_filter_hint": "Les suggestions sont filtrées selon ce que l'utilisateur tape.",
@@ -7282,13 +7298,13 @@
   "bdfd_compile_error_detailed": "Ce script BDFD n'a pas pu être compilé :\n{summary}",
   "bdfd_compile_error_simple": "Ce script BDFD n'a pas pu être compilé.",
   "bdfd_compiled_no_actions": "Ce script BDFD a été compilé avec succès mais n'a produit aucune action.",
-  "bdfd_editor_auto_indent": "€¢ Indentation automatique intelligente sur Entrée",
+  "bdfd_editor_auto_indent": "• Indentation automatique intelligente sur Entrée",
   "bdfd_editor_diagnostics_toggle": "Afficher/masquer le panneau de diagnostics",
   "bdfd_editor_docs": "Documentation",
   "bdfd_editor_empty": "Script vide — commencez à écrire pour voir les diagnostics.",
   "bdfd_editor_includes": "Inclut :",
-  "bdfd_editor_indent_guides": "€¢ Guides d'indentation en temps réel",
-  "bdfd_editor_quick_keys": "€¢ Touches rapides mobiles pour les symboles BDFD",
+  "bdfd_editor_indent_guides": "• Guides d'indentation en temps réel",
+  "bdfd_editor_quick_keys": "• Touches rapides mobiles pour les symboles BDFD",
   "bdfd_editor_tap_hint": "Appuyez pour ouvrir l'éditeur",
   "bdfd_editor_title": "Éditeur BDFD",
   "bdfd_editor_toggle_indent": "Activer/désactiver les guides d'indentation",
@@ -7705,6 +7721,12 @@
   "code_editor_settings_auto_close_desc": "Ferme automatiquement les crochets, accolades, parenthèses et guillemets",
   "code_editor_settings_tab_size": "Taille de tabulation (espaces)",
   "code_editor_settings_tab_size_desc": "Nombre d'espaces insérés lors de l'indentation",
+  "command_alias_label": "Alias",
+  "command_alias_hint": "!p",
+  "command_alias_help": "La commande répond aussi à ces mots déclencheurs.",
+  "command_alias_duplicate": "Cet alias est déjà utilisé.",
+  "command_alias_limit": "Maximum {max} alias.",
+  "command_alias_collision": "Déjà utilisé par la commande {command}.",
   "command_awaited_error": "Erreur",
   "command_awaited_filter_hint": "Exemple : <numeric> ou <yes/no/cancel>",
   "command_awaited_filter_label": "Filtre (optionnel)",
@@ -7829,6 +7851,7 @@
   "common_delete": "Supprimer",
   "common_description": "Description",
   "common_disabled": "Désactivé",
+  "common_discard": "Abandonner",
   "common_edit": "Modifier",
   "common_enabled": "Activé",
   "common_import": "Importer",
@@ -8489,7 +8512,7 @@
   "scheduler_no_workflows": "Créez au moins un workflow avant d'ajouter un planning.",
   "scheduler_page_title": "Planificateur",
   "scheduler_save_failed": "Échec de l'enregistrement du planning : {error}",
-  "scheduler_subtitle": "Workflow : {workflow} €¢ Toutes les {minutes} min",
+  "scheduler_subtitle": "Workflow : {workflow} • Toutes les {minutes} min",
   "scheduler_tab": "Planificateur",
   "scheduler_tab_short": "Planif",
   "scheduler_triggers_count": "Déclencheurs : {count}{limit}",
@@ -8602,7 +8625,20 @@
   "settings_ads_privacy_open_error": "Impossible d'ouvrir les options de confidentialité pub",
   "settings_ads_privacy_opened": "Options de confidentialité pub ouvertes",
   "settings_app_version": "App",
-  "settings_appearance_title": "Apparence et langue",
+  "settings_appearance_accent_label": "Accent",
+  "settings_appearance_contrast_ratio": "Contraste accent/surface : {ratio}",
+  "settings_appearance_contrast_warning": "Contraste faible ({ratio}) : l'accent se distingue peu du fond. L'app l'adapte là où c'est nécessaire, mais un accent plus clair ou plus sombre améliore la lisibilité.",
+  "settings_appearance_custom_badge": "Personnalisé",
+  "settings_appearance_custom_title": "Couleurs personnalisées",
+  "settings_appearance_mode_dark": "Sombre",
+  "settings_appearance_mode_light": "Clair",
+  "settings_appearance_mode_system": "Système",
+  "settings_appearance_mode_title": "Mode",
+  "settings_appearance_presets_title": "Thèmes prédéfinis",
+  "settings_appearance_reset": "Réinitialiser",
+  "settings_appearance_seed_label": "Couleur principale",
+  "settings_appearance_subtitle": "Choisissez un mode, un thème prédéfini ou vos propres couleurs.",
+  "settings_appearance_title": "Apparence",
   "settings_auto_backup_check_loading": "Vérification auto-sauvegarde...",
   "settings_auto_backup_every_12h": "Toutes les 12 h",
   "settings_auto_backup_every_24h": "Toutes les 24 h",
@@ -9085,7 +9121,7 @@
   "workflow_auto_defer": "Différé auto",
   "workflow_auto_defer_actions": "Différé auto si actions",
   "workflow_bdfd_editor_desc": "Écrivez le code BDFD complet pour cette réponse workflow. Les diagnostics s'affichent en direct.",
-  "workflow_bdfd_editor_title": "Éditeur de script BDFD",
+  "workflow_bdfd_editor_title": "Éditeur BDFD",
   "workflow_condition_off": "Condition désactivée",
   "workflow_condition_off_upper": "Condition DÉSACTIVÉE",
   "workflow_condition_on": "Condition activée",
@@ -9155,7 +9191,7 @@
   "workflows_event_message_update_desc": "Declenche quand un message existant est modifie.",
   "workflows_event_preview": "Listen for : {event}",
   "workflows_event_section": "Workflows d'event",
-  "workflows_event_subtitle": "{count} action(s) €¢ Listen for : {event}",
+  "workflows_event_subtitle": "{count} action(s) • Listen for : {event}",
   "workflows_export_base64": "Copier en Base64",
   "workflows_export_base64_desc": "Pratique pour partage compact.",
   "workflows_export_json": "Copier en JSON",
@@ -9186,7 +9222,7 @@
   "workflows_no_matches": "Aucun workflow ne correspond aux filtres.",
   "workflows_remove_from_folder": "Retirer du dossier",
   "workflows_search_hint": "Rechercher des workflows...",
-  "workflows_subtitle": "{count} action(s) €¢ entrée : {entry} €¢ args : {args}",
+  "workflows_subtitle": "{count} action(s) • entrée : {entry} • args : {args}",
   "workflows_tab": "Workflows",
   "workflows_tab_short": "Flux",
   "workflows_title": "Workflows",
@@ -9889,5 +9925,275 @@
   "docs_reload": "Recharger",
   "@docs_reload": {
     "description": "docs reload"
+  },
+  "common_duplicate": "Dupliquer",
+  "@common_duplicate": {
+    "description": "Duplicate"
+  },
+  "commands_batch_select": "Sélection groupée",
+  "@commands_batch_select": {
+    "description": "Batch select"
+  },
+  "commands_selected_count": "{count} sélectionnée(s)",
+  "@commands_selected_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "{count} selected"
+  },
+  "image_editor_title": "Éditeur d'images",
+  "@image_editor_title": {
+    "description": "Image Editor"
+  },
+  "image_editor_add_operation": "Ajouter une opération",
+  "@image_editor_add_operation": {
+    "description": "Add operation"
+  },
+  "image_editor_add_layer": "Ajouter un calque",
+  "@image_editor_add_layer": {
+    "description": "Add Layer"
+  },
+  "image_editor_operations": "Opérations",
+  "@image_editor_operations": {
+    "description": "Operations"
+  },
+  "image_editor_op_container": "Conteneur / Cadre",
+  "@image_editor_op_container": {
+    "description": "Container / Frame"
+  },
+  "image_editor_op_progress_bar": "Barre de progression",
+  "@image_editor_op_progress_bar": {
+    "description": "Progress Bar"
+  },
+  "image_editor_op_composite_image": "Image composite",
+  "@image_editor_op_composite_image": {
+    "description": "Composite Image"
+  },
+  "image_editor_op_set_pixel": "Définir un pixel",
+  "@image_editor_op_set_pixel": {
+    "description": "Set Pixel"
+  },
+  "image_editor_op_invert": "Inverser les couleurs",
+  "@image_editor_op_invert": {
+    "description": "Invert Colors"
+  },
+  "image_editor_op_grayscale": "Convertir en niveaux de gris",
+  "@image_editor_op_grayscale": {
+    "description": "Convert to Grayscale"
+  },
+  "image_editor_op_rotate": "Pivoter le canvas",
+  "@image_editor_op_rotate": {
+    "description": "Rotate Canvas"
+  },
+  "image_editor_zoom_in": "Zoom avant",
+  "@image_editor_zoom_in": {
+    "description": "Zoom in"
+  },
+  "image_editor_zoom_out": "Zoom arrière",
+  "@image_editor_zoom_out": {
+    "description": "Zoom out"
+  },
+  "image_editor_zoom_fit": "Ajuster à l'écran",
+  "@image_editor_zoom_fit": {
+    "description": "Fit to screen"
+  },
+  "image_editor_undo": "Annuler",
+  "@image_editor_undo": {
+    "description": "Undo"
+  },
+  "image_editor_redo": "Rétablir",
+  "@image_editor_redo": {
+    "description": "Redo"
+  },
+  "image_editor_canvas": "Canvas",
+  "@image_editor_canvas": {
+    "description": "Canvas"
+  },
+  "image_editor_width": "Largeur",
+  "@image_editor_width": {
+    "description": "Width"
+  },
+  "image_editor_height": "Hauteur",
+  "@image_editor_height": {
+    "description": "Height"
+  },
+  "image_editor_properties": "Propriétés",
+  "@image_editor_properties": {
+    "description": "Properties"
+  },
+  "image_editor_visible": "Visible",
+  "@image_editor_visible": {
+    "description": "Visible"
+  },
+  "image_editor_opacity": "Opacité",
+  "@image_editor_opacity": {
+    "description": "Opacity"
+  },
+  "image_editor_ops_summary": "{count} opérations, {hidden} masquée(s)",
+  "@image_editor_ops_summary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "hidden": {
+        "type": "int"
+      }
+    },
+    "description": "{count} operations, {hidden} hidden"
+  },
+  "image_editor_empty_hint": "Ajoutez une opération « {op} » pour commencer",
+  "@image_editor_empty_hint": {
+    "placeholders": {
+      "op": {
+        "type": "String"
+      }
+    },
+    "description": "Add a \"{op}\" operation to start"
+  },
+  "image_editor_tap_to_edit": "Appuyer pour modifier",
+  "@image_editor_tap_to_edit": {
+    "description": "Tap to edit"
+  },
+  "image_editor_no_operations": "Aucune opération pour le moment",
+  "@image_editor_no_operations": {
+    "description": "No operations yet"
+  },
+  "image_editor_select_operation": "Sélectionnez une opération pour modifier ses propriétés",
+  "@image_editor_select_operation": {
+    "description": "Select an operation to edit its properties"
+  },
+  "image_editor_insert_variable": "Insérer une variable",
+  "@image_editor_insert_variable": {
+    "description": "Insert Variable"
+  },
+  "image_editor_variable_label": "Variable",
+  "@image_editor_variable_label": {
+    "description": "Variable"
+  },
+  "image_editor_variable_hint": "Tapez pour filtrer ou appuyez sur une suggestion ci-dessous",
+  "@image_editor_variable_hint": {
+    "description": "Type to filter, or tap a suggestion below"
+  },
+  "image_editor_insert": "Insérer",
+  "@image_editor_insert": {
+    "description": "Insert"
+  },
+  "image_editor_pick_image": "Choisir un fichier image",
+  "@image_editor_pick_image": {
+    "description": "Pick image file"
+  },
+  "image_editor_color_picker": "Sélecteur de couleur",
+  "@image_editor_color_picker": {
+    "description": "Color Picker"
+  },
+  "image_editor_hue": "Teinte",
+  "@image_editor_hue": {
+    "description": "Hue"
+  },
+  "image_editor_saturation": "Saturation",
+  "@image_editor_saturation": {
+    "description": "Saturation"
+  },
+  "image_editor_no_url": "sans URL",
+  "@image_editor_no_url": {
+    "description": "no URL"
+  },
+  "image_editor_unknown": "Inconnu",
+  "@image_editor_unknown": {
+    "description": "Unknown"
+  },
+  "image_editor_field_text": "Texte",
+  "@image_editor_field_text": {
+    "description": "Text"
+  },
+  "image_editor_field_font_size": "Taille de police",
+  "@image_editor_field_font_size": {
+    "description": "Font Size"
+  },
+  "image_editor_field_max_width": "Largeur maximale",
+  "@image_editor_field_max_width": {
+    "description": "Max Width"
+  },
+  "image_editor_field_text_align": "Alignement du texte",
+  "@image_editor_field_text_align": {
+    "description": "Text Align"
+  },
+  "image_editor_field_blend": "Fusion",
+  "@image_editor_field_blend": {
+    "description": "Blend"
+  },
+  "image_editor_field_fill": "Remplir",
+  "@image_editor_field_fill": {
+    "description": "Fill"
+  },
+  "image_editor_field_radius": "Rayon",
+  "@image_editor_field_radius": {
+    "description": "Radius"
+  },
+  "image_editor_field_thickness": "Épaisseur",
+  "@image_editor_field_thickness": {
+    "description": "Thickness"
+  },
+  "image_editor_field_shape": "Forme",
+  "@image_editor_field_shape": {
+    "description": "Shape"
+  },
+  "image_editor_field_percentage": "Pourcentage",
+  "@image_editor_field_percentage": {
+    "description": "Percentage"
+  },
+  "image_editor_field_bar_color": "Couleur de la barre",
+  "@image_editor_field_bar_color": {
+    "description": "Bar Color"
+  },
+  "image_editor_field_track_color": "Couleur de la piste",
+  "@image_editor_field_track_color": {
+    "description": "Track Color"
+  },
+  "image_editor_field_text_color": "Couleur du texte",
+  "@image_editor_field_text_color": {
+    "description": "Text Color"
+  },
+  "image_editor_field_border_width": "Largeur de bordure",
+  "@image_editor_field_border_width": {
+    "description": "Border Width"
+  },
+  "image_editor_field_border_radius": "Rayon de bordure",
+  "@image_editor_field_border_radius": {
+    "description": "Border Radius"
+  },
+  "image_editor_field_orientation": "Orientation",
+  "@image_editor_field_orientation": {
+    "description": "Orientation"
+  },
+  "image_editor_field_angle": "Angle (degrés)",
+  "@image_editor_field_angle": {
+    "description": "Angle (Degrees)"
+  },
+  "image_editor_field_container": "Conteneur",
+  "@image_editor_field_container": {
+    "description": "Container"
+  },
+  "image_editor_field_background_color": "Couleur d'arrière-plan",
+  "@image_editor_field_background_color": {
+    "description": "Background Color"
+  },
+  "image_editor_hint_auto_size": "auto (taille d'origine)",
+  "@image_editor_hint_auto_size": {
+    "description": "auto (native size)"
+  },
+  "image_editor_hint_optional_background": "arrière-plan facultatif",
+  "@image_editor_hint_optional_background": {
+    "description": "optional background"
+  },
+  "image_editor_hint_parent_container": "nom du conteneur parent",
+  "@image_editor_hint_parent_container": {
+    "description": "parent container name"
+  },
+  "image_editor_hint_container_width": "largeur du conteneur pour l'alignement",
+  "@image_editor_hint_container_width": {
+    "description": "container width for alignment"
   }
 }

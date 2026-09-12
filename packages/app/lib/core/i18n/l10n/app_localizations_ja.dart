@@ -1271,6 +1271,56 @@ class AppLocalizationsJa extends AppLocalizations {
       'このトークンは秘密にしてください。トークンを知っている人は誰でもボットを操作できます。';
 
   @override
+  String get appearance_preset_graphite => 'グラファイト';
+
+  @override
+  String get appearance_preset_graphite_desc =>
+      'ニュートラルなグレーの表面。従来からのデフォルトの外観です。';
+
+  @override
+  String get appearance_preset_violet_bc => 'バイオレット Bot Creator';
+
+  @override
+  String get appearance_preset_violet_bc_desc =>
+      'Bot Creatorのブランドカラー。表面にも色が付きます。';
+
+  @override
+  String get appearance_preset_discord => 'Discord';
+
+  @override
+  String get appearance_preset_discord_desc => 'Discordのブループルで親しみのある見た目に。';
+
+  @override
+  String get appearance_preset_ocean => 'オーシャン';
+
+  @override
+  String get appearance_preset_ocean_desc => '深い海のようなシアンの色合い。';
+
+  @override
+  String get appearance_preset_forest => 'フォレスト';
+
+  @override
+  String get appearance_preset_forest_desc => '落ち着いた自然な深いグリーン。';
+
+  @override
+  String get appearance_preset_amber => 'アンバー';
+
+  @override
+  String get appearance_preset_amber_desc => '鮮やかな暖色系のオレンジ。';
+
+  @override
+  String get appearance_preset_rose => 'ローズ';
+
+  @override
+  String get appearance_preset_rose_desc => '大胆でモダンなマゼンタピンク。';
+
+  @override
+  String get appearance_preset_high_contrast => 'ハイコントラスト';
+
+  @override
+  String get appearance_preset_high_contrast_desc => 'インターフェースの視認性を最大化。';
+
+  @override
   String get autocomplete_dynamic => '動的オートコンプリート';
 
   @override
@@ -2685,6 +2735,28 @@ class AppLocalizationsJa extends AppLocalizations {
   String get code_editor_settings_tab_size_desc => 'インデント時に挿入するスペースの数';
 
   @override
+  String get command_alias_label => 'エイリアス';
+
+  @override
+  String get command_alias_hint => '!p';
+
+  @override
+  String get command_alias_help => 'このコマンドはこれらのトリガーワードにも応答します。';
+
+  @override
+  String get command_alias_duplicate => 'このエイリアスはすでに使用されています。';
+
+  @override
+  String command_alias_limit(int max) {
+    return 'エイリアスは最大$max個です。';
+  }
+
+  @override
+  String command_alias_collision(String command) {
+    return 'コマンド $command で既に使用されています。';
+  }
+
+  @override
   String get command_awaited_error => 'エラー';
 
   @override
@@ -3058,6 +3130,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get common_disabled => '無効';
+
+  @override
+  String get common_discard => '破棄';
 
   @override
   String get common_edit => '編集';
@@ -5749,7 +5824,50 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settings_app_version => 'アプリ';
 
   @override
-  String get settings_appearance_title => '外観と言語';
+  String get settings_appearance_accent_label => 'アクセント';
+
+  @override
+  String settings_appearance_contrast_ratio(String ratio) {
+    return 'アクセントと背景のコントラスト：$ratio';
+  }
+
+  @override
+  String settings_appearance_contrast_warning(String ratio) {
+    return 'コントラストが低めです（$ratio）：アクセントと背景の区別がつきにくい状態です。アプリが必要に応じて調整しますが、明るめまたは暗めのアクセントにすると視認性が上がります。';
+  }
+
+  @override
+  String get settings_appearance_custom_badge => 'カスタム';
+
+  @override
+  String get settings_appearance_custom_title => 'カスタムカラー';
+
+  @override
+  String get settings_appearance_mode_dark => 'ダーク';
+
+  @override
+  String get settings_appearance_mode_light => 'ライト';
+
+  @override
+  String get settings_appearance_mode_system => 'システム';
+
+  @override
+  String get settings_appearance_mode_title => 'モード';
+
+  @override
+  String get settings_appearance_presets_title => 'プリセットテーマ';
+
+  @override
+  String get settings_appearance_reset => 'リセット';
+
+  @override
+  String get settings_appearance_seed_label => 'メインカラー';
+
+  @override
+  String get settings_appearance_subtitle => 'モード、プリセットテーマ、または独自の色を選べます。';
+
+  @override
+  String get settings_appearance_title => '外観';
 
   @override
   String get settings_auto_backup_check_loading => '自動バックアップ確認中…';
@@ -6445,11 +6563,11 @@ class AppLocalizationsJa extends AppLocalizations {
       'アプリをBot Creatorランナーに接続します。リモートランナーは信頼できるネットワークに配置してください。';
 
   @override
-  String get settings_runner_use_remote => 'Use remote runner';
+  String get settings_runner_use_remote => 'リモートランナーを使用';
 
   @override
   String get settings_runner_use_remote_desc =>
-      'Connect to a remote Bot Creator Runner. Leave off to run bots locally on this device.';
+      'リモートのBot Creatorランナーに接続します。オフのままにすると、この端末でローカルにボットを実行します。';
 
   @override
   String get settings_runner_disable_temp => 'ランナーを一時的に無効化';
@@ -8576,4 +8694,199 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get docs_reload => '再読み込み';
+
+  @override
+  String get common_duplicate => '複製';
+
+  @override
+  String get commands_batch_select => '一括選択';
+
+  @override
+  String commands_selected_count(int count) {
+    return '$count 件選択中';
+  }
+
+  @override
+  String get image_editor_title => '画像エディタ';
+
+  @override
+  String get image_editor_add_operation => '操作を追加';
+
+  @override
+  String get image_editor_add_layer => 'レイヤーを追加';
+
+  @override
+  String get image_editor_operations => '操作';
+
+  @override
+  String get image_editor_op_container => 'コンテナ / フレーム';
+
+  @override
+  String get image_editor_op_progress_bar => 'プログレスバー';
+
+  @override
+  String get image_editor_op_composite_image => '画像を合成';
+
+  @override
+  String get image_editor_op_set_pixel => 'ピクセル設定';
+
+  @override
+  String get image_editor_op_invert => '色を反転';
+
+  @override
+  String get image_editor_op_grayscale => 'グレースケールに変換';
+
+  @override
+  String get image_editor_op_rotate => 'キャンバスを回転';
+
+  @override
+  String get image_editor_zoom_in => 'ズームイン';
+
+  @override
+  String get image_editor_zoom_out => 'ズームアウト';
+
+  @override
+  String get image_editor_zoom_fit => '画面に合わせる';
+
+  @override
+  String get image_editor_undo => '元に戻す';
+
+  @override
+  String get image_editor_redo => 'やり直す';
+
+  @override
+  String get image_editor_canvas => 'キャンバス';
+
+  @override
+  String get image_editor_width => '幅';
+
+  @override
+  String get image_editor_height => '高さ';
+
+  @override
+  String get image_editor_properties => 'プロパティ';
+
+  @override
+  String get image_editor_visible => '表示';
+
+  @override
+  String get image_editor_opacity => '不透明度';
+
+  @override
+  String image_editor_ops_summary(int count, int hidden) {
+    return '$count 操作、$hidden 件非表示';
+  }
+
+  @override
+  String image_editor_empty_hint(String op) {
+    return '開始するには「$op」操作を追加してください';
+  }
+
+  @override
+  String get image_editor_tap_to_edit => 'タップして編集';
+
+  @override
+  String get image_editor_no_operations => '操作はまだありません';
+
+  @override
+  String get image_editor_select_operation => '操作を選択してプロパティを編集';
+
+  @override
+  String get image_editor_insert_variable => '変数を挿入';
+
+  @override
+  String get image_editor_variable_label => '変数';
+
+  @override
+  String get image_editor_variable_hint => '入力して絞り込むか、下の候補をタップ';
+
+  @override
+  String get image_editor_insert => '挿入';
+
+  @override
+  String get image_editor_pick_image => '画像ファイルを選択';
+
+  @override
+  String get image_editor_color_picker => 'カラーピッカー';
+
+  @override
+  String get image_editor_hue => '色相';
+
+  @override
+  String get image_editor_saturation => '彩度';
+
+  @override
+  String get image_editor_no_url => 'URL なし';
+
+  @override
+  String get image_editor_unknown => '不明';
+
+  @override
+  String get image_editor_field_text => 'テキスト';
+
+  @override
+  String get image_editor_field_font_size => '文字サイズ';
+
+  @override
+  String get image_editor_field_max_width => '最大幅';
+
+  @override
+  String get image_editor_field_text_align => 'テキスト配置';
+
+  @override
+  String get image_editor_field_blend => 'ブレンド';
+
+  @override
+  String get image_editor_field_fill => '塗りつぶし';
+
+  @override
+  String get image_editor_field_radius => '半径';
+
+  @override
+  String get image_editor_field_thickness => '太さ';
+
+  @override
+  String get image_editor_field_shape => '形状';
+
+  @override
+  String get image_editor_field_percentage => 'パーセンテージ';
+
+  @override
+  String get image_editor_field_bar_color => 'バーの色';
+
+  @override
+  String get image_editor_field_track_color => 'トラックの色';
+
+  @override
+  String get image_editor_field_text_color => '文字色';
+
+  @override
+  String get image_editor_field_border_width => '枠線の太さ';
+
+  @override
+  String get image_editor_field_border_radius => '枠線の角丸';
+
+  @override
+  String get image_editor_field_orientation => '向き';
+
+  @override
+  String get image_editor_field_angle => '角度（度）';
+
+  @override
+  String get image_editor_field_container => 'コンテナ';
+
+  @override
+  String get image_editor_field_background_color => '背景色';
+
+  @override
+  String get image_editor_hint_auto_size => '自動（元のサイズ）';
+
+  @override
+  String get image_editor_hint_optional_background => '背景（任意）';
+
+  @override
+  String get image_editor_hint_parent_container => '親コンテナ名';
+
+  @override
+  String get image_editor_hint_container_width => '配置用のコンテナ幅';
 }
