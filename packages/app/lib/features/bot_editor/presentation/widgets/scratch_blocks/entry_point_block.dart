@@ -1,10 +1,11 @@
 import 'package:bot_creator/core/i18n/i18n.dart';
+import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator_shared/utils/legacy_command_triggers.dart';
 import 'package:flutter/material.dart';
 import 'package:nyxx/nyxx.dart' hide Builder;
 
 import 'scratch_block.dart';
 import 'scratch_block_palette.dart';
-import 'package:bot_creator/core/theme/app_theme.dart';
 
 /// Describes what the command listens for.
 enum CommandEntryPointType {
@@ -13,6 +14,30 @@ enum CommandEntryPointType {
 
   /// Legacy prefix-based message command.
   message,
+}
+
+/// Associe chaque mot déclencheur des commandes Message Texte [commands] au
+/// nom de la commande qui le porte (nom effectif puis alias).
+///
+/// La commande d'identifiant [excludeId] est ignorée : un alias ne doit pas
+/// être signalé en collision avec sa propre commande. Le premier porteur d'un
+/// déclencheur gagne (ordre de [commands]).
+Map<String, String> legacyTriggerOwners(
+  List<Map<String, dynamic>> commands, {
+  String? excludeId,
+}) {
+  final owners = <String, String>{};
+  for (final command in commands) {
+    final id = (command['id'] ?? '').toString();
+    if (excludeId != null && id == excludeId) {
+      continue;
+    }
+    final name = (command['name'] ?? '').toString().trim();
+    for (final trigger in legacyCommandTriggerNames(command)) {
+      owners.putIfAbsent(trigger, () => name);
+    }
+  }
+  return owners;
 }
 
 /// A fixed (non-deletable) block that shows what triggers the command.
@@ -34,6 +59,9 @@ class EntryPointBlock extends StatefulWidget {
     this.onLegacyModeChanged,
     this.legacyPrefixOverride = '',
     this.onLegacyPrefixOverrideChanged,
+    this.legacyAliases = const <String>[],
+    this.onLegacyAliasesChanged,
+    this.legacyAliasOwners = const <String, String>{},
     this.legacyResponseTarget = 'reply',
     this.onLegacyResponseTargetChanged,
     // Execution mode
@@ -60,6 +88,18 @@ class EntryPointBlock extends StatefulWidget {
   final ValueChanged<bool>? onLegacyModeChanged;
   final String legacyPrefixOverride;
   final ValueChanged<String>? onLegacyPrefixOverrideChanged;
+
+  /// Alias (mots déclencheurs supplémentaires) de la commande Message Texte.
+  final List<String> legacyAliases;
+
+  /// Notifié avec la liste normalisée après chaque ajout ou retrait d'alias.
+  final ValueChanged<List<String>>? onLegacyAliasesChanged;
+
+  /// Mots déclencheurs déjà portés par les AUTRES commandes Message Texte du
+  /// bot (déclencheur → nom de la commande). Sert uniquement à afficher un
+  /// avertissement de collision non bloquant.
+  final Map<String, String> legacyAliasOwners;
+
   final String legacyResponseTarget;
   final ValueChanged<String>? onLegacyResponseTargetChanged;
 
@@ -77,6 +117,135 @@ class EntryPointBlock extends StatefulWidget {
 class _EntryPointBlockState extends State<EntryPointBlock> {
   bool _collapsed = false;
   bool _legacyExpanded = false;
+
+  /// Champ de saisie du prochain alias à ajouter.
+  late final TextEditingController _aliasController;
+
+  /// Message d'erreur transitoire (alias déjà présent dans la liste).
+  String? _aliasError;
+
+  @override
+  void initState() {
+    super.initState();
+    _aliasController = TextEditingController();
+  }
+
+  @override
+  void didUpdateWidget(covariant EntryPointBlock oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.legacyAliases != widget.legacyAliases) {
+      // Liste remplacée par le parent : l'erreur de saisie n'est plus
+      // forcément d'actualité.
+      _aliasError = null;
+    }
+  }
+
+  @override
+  void dispose() {
+    _aliasController.dispose();
+    super.dispose();
+  }
+
+  /// Alias affichés (normalisés) de la commande.
+  List<String> get _aliases =>
+      normalizeLegacyCommandAliases(widget.legacyAliases);
+
+  /// Vrai si [candidate] désigne déjà un alias de [aliases], en comparant les
+  /// mots déclencheurs nettoyés (`!`/`{$t}` ignorés, casse repliée).
+  bool _isAliasDuplicate(String candidate, List<String> aliases) {
+    final trigger = cleanLegacyCommandTriggerName(candidate);
+    return aliases.any(
+      (alias) => cleanLegacyCommandTriggerName(alias) == trigger,
+    );
+  }
+
+  /// Ajoute l'alias tapé à la liste, ou affiche pourquoi il est refusé.
+  ///
+  /// Retourne `true` quand le champ de saisie peut être vidé.
+  bool _appendAlias(String raw) {
+    final candidate = normalizeLegacyCommandAliases(<String>[raw]);
+    if (candidate.isEmpty) {
+      // Entrée vide ou invalide (espace interne) : aucun alias à ajouter.
+      if (_aliasError != null) {
+        setState(() => _aliasError = null);
+      }
+      return true;
+    }
+    if (_isAliasDuplicate(candidate.single, _aliases)) {
+      setState(() => _aliasError = context.tr.command_alias_duplicate);
+      return false;
+    }
+    setState(() => _aliasError = null);
+    widget.onLegacyAliasesChanged?.call(
+      normalizeLegacyCommandAliases(<String>[..._aliases, ...candidate]),
+    );
+    return true;
+  }
+
+  /// Ajout par Entrée (ou validation du clavier).
+  void _commitAliasInput() {
+    if (_aliasController.text.trim().isEmpty) {
+      return;
+    }
+    if (_appendAlias(_aliasController.text)) {
+      _aliasController.clear();
+    }
+  }
+
+  /// Ajout par virgule : tous les fragments terminés sont ajoutés, le dernier
+  /// (encore en cours de saisie) reste dans le champ.
+  void _onAliasInputChanged(String raw) {
+    if (!raw.contains(',')) {
+      return;
+    }
+    final parts = raw.split(',');
+    final remainder = parts.removeLast();
+    // Les fragments sont fusionnés localement puis remontés en UNE mise à
+    // jour : tant que le parent n'a pas reconstruit le widget, `_aliases` ne
+    // reflète pas encore les ajouts précédents.
+    final merged = <String>[..._aliases];
+    var hasNewAlias = false;
+    var hasDuplicate = false;
+    for (final part in parts) {
+      final candidate = normalizeLegacyCommandAliases(<String>[part]);
+      if (candidate.isEmpty) {
+        continue;
+      }
+      if (_isAliasDuplicate(candidate.single, merged)) {
+        hasDuplicate = true;
+        continue;
+      }
+      merged.add(candidate.single);
+      hasNewAlias = true;
+    }
+    if (hasNewAlias) {
+      setState(() => _aliasError = null);
+      widget.onLegacyAliasesChanged?.call(
+        normalizeLegacyCommandAliases(merged),
+      );
+    } else if (hasDuplicate) {
+      setState(() => _aliasError = context.tr.command_alias_duplicate);
+    }
+    _aliasController.value = TextEditingValue(
+      text: remainder,
+      selection: TextSelection.collapsed(offset: remainder.length),
+    );
+  }
+
+  /// Retire un alias de la liste (croix de la chip).
+  void _removeAlias(String alias) {
+    final trigger = cleanLegacyCommandTriggerName(alias);
+    final updated = _aliases
+        .where(
+          (candidate) => cleanLegacyCommandTriggerName(candidate) != trigger,
+        )
+        .toList(growable: false);
+    setState(() => _aliasError = null);
+    widget.onLegacyAliasesChanged?.call(updated);
+  }
+
+  /// Étiquette affichée pour une chip d'alias : `!mot`.
+  String _aliasTriggerLabel(String alias) => '!$alias';
 
   String _commandTypeSegmentValue() {
     if (widget.legacyModeEnabled) return 'legacy';
@@ -145,9 +314,16 @@ class _EntryPointBlockState extends State<EntryPointBlock> {
     final colorScheme = Theme.of(context).colorScheme;
     final cmdName = widget.commandName?.trim();
     final prefix = typeVal == 'slash' ? '/' : (typeVal == 'legacy' ? '!' : '');
-    final blockTitle = (cmdName != null && cmdName.isNotEmpty)
-        ? '${context.tr.scratch_block_entry_point} ($prefix$cmdName)'
-        : context.tr.scratch_block_entry_point;
+    // Le titre résume les mots déclencheurs : `!nom, !alias1, !alias2…`.
+    final triggerLabel = <String>[
+      if (cmdName != null && cmdName.isNotEmpty) '$prefix$cmdName',
+      if (isLegacy)
+        for (final alias in normalizeLegacyCommandAliases(widget.legacyAliases))
+          '!$alias',
+    ].join(', ');
+    final blockTitle = triggerLabel.isEmpty
+        ? context.tr.scratch_block_entry_point
+        : '${context.tr.scratch_block_entry_point} ($triggerLabel)';
 
     return ScratchBlock(
       color: getCategoryColor('EntryPoint'),
@@ -360,6 +536,8 @@ class _EntryPointBlockState extends State<EntryPointBlock> {
                 ),
                 onChanged: widget.onLegacyPrefixOverrideChanged,
               ),
+            if (widget.onLegacyAliasesChanged != null)
+              _buildAliasesEditor(colorScheme),
             if (widget.onLegacyResponseTargetChanged != null) ...[
               const SizedBox(height: 10),
               DropdownButtonFormField<String>(
@@ -388,6 +566,117 @@ class _EntryPointBlockState extends State<EntryPointBlock> {
           ],
         ],
       ],
+    );
+  }
+
+  /// Éditeur des alias « Message Texte » : saisie, chips supprimables,
+  /// messages d'aide/erreur/limite et avertissement de collision non bloquant.
+  ///
+  /// Le champ accepte plusieurs mots séparés par des virgules ; les entrées
+  /// sont nettoyées par [normalizeLegacyCommandAliases] afin de rester
+  /// cohérentes avec le moteur (minuscules, préfixe `!` retiré, doublons et
+  /// espaces internes refusés, limite de [kMaxLegacyCommandAliases] alias).
+  Widget _buildAliasesEditor(ColorScheme colorScheme) {
+    final aliases = _aliases;
+    final isFull = aliases.length >= kMaxLegacyCommandAliases;
+
+    // Avertissement purement informatif : un alias déjà porté par une AUTRE
+    // commande Message Texte du bot ne déclenchera jamais celle-ci, mais la
+    // sauvegarde n'est jamais bloquée pour autant.
+    final collisions = <String, String>{};
+    for (final alias in aliases) {
+      final owner =
+          widget.legacyAliasOwners[cleanLegacyCommandTriggerName(alias)];
+      if (owner != null && owner.isNotEmpty) {
+        collisions[alias] = owner;
+      }
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextFormField(
+            controller: _aliasController,
+            enabled: !isFull,
+            textInputAction: TextInputAction.done,
+            onFieldSubmitted: (_) => _commitAliasInput(),
+            onChanged: _onAliasInputChanged,
+            decoration: InputDecoration(
+              labelText: context.tr.command_alias_label,
+              hintText: context.tr.command_alias_hint,
+              border: const OutlineInputBorder(),
+            ),
+          ),
+          if (aliases.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                for (final alias in aliases)
+                  InputChip(
+                    label: Text(
+                      _aliasTriggerLabel(alias),
+                      style: const TextStyle(fontSize: 12.5),
+                    ),
+                    deleteIcon: const Icon(Icons.close, size: 16),
+                    onDeleted: () => _removeAlias(alias),
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    visualDensity: VisualDensity.compact,
+                  ),
+              ],
+            ),
+          ],
+          const SizedBox(height: 6),
+          Text(
+            context.tr.command_alias_help,
+            style: TextStyle(fontSize: 11, color: colorScheme.onSurfaceVariant),
+          ),
+          if (_aliasError != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              _aliasError!,
+              style: TextStyle(fontSize: 11.5, color: colorScheme.error),
+            ),
+          ],
+          if (isFull) ...[
+            const SizedBox(height: 4),
+            Text(
+              context.tr.command_alias_limit(kMaxLegacyCommandAliases),
+              style: TextStyle(
+                fontSize: 11.5,
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+          for (final collision in collisions.entries) ...[
+            const SizedBox(height: 6),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.warning_amber_rounded,
+                  size: 15,
+                  color: AppTheme.warning,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    '${_aliasTriggerLabel(collision.key)} · '
+                    '${context.tr.command_alias_collision(collision.value)}',
+                    style: const TextStyle(
+                      fontSize: 11.5,
+                      color: AppTheme.warning,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

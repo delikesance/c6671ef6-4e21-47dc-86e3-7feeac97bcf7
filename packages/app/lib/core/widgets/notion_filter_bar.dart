@@ -93,11 +93,15 @@ class NotionFilterBar extends StatefulWidget {
     this.createFromQueryLabel,
     this.showCreateSuggestion = false,
     this.addFilterLabel = 'Filter',
+    this.trailingAction,
   });
 
   final String searchQuery;
   final ValueChanged<String> onSearchChanged;
   final String searchHint;
+
+  /// Optional action widget placed next to the search field (e.g. "+ Create").
+  final Widget? trailingAction;
 
   /// Dropdown-style filters (Type, Folder, etc.).
   final List<NotionFilter> filters;
@@ -175,33 +179,42 @@ class _NotionFilterBarState extends State<NotionFilterBar> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // ── Search field ──
-          TextField(
-            controller: _searchController,
-            onChanged: widget.onSearchChanged,
-            decoration: InputDecoration(
-              hintText: widget.searchHint,
-              prefixIcon: const Icon(Icons.search, size: 20),
-              border: const OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(10)),
+          // ── Search field + optional trailing action ──
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: widget.onSearchChanged,
+                  decoration: InputDecoration(
+                    hintText: widget.searchHint,
+                    prefixIcon: const Icon(Icons.search, size: 20),
+                    border: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
+                    suffixIcon: widget.searchQuery.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear, size: 18),
+                            onPressed: () {
+                              _searchController.clear();
+                              widget.onSearchChanged('');
+                            },
+                            visualDensity: VisualDensity.compact,
+                          )
+                        : null,
+                  ),
+                ),
               ),
-              isDense: true,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 10,
-              ),
-              suffixIcon:
-                  widget.searchQuery.isNotEmpty
-                      ? IconButton(
-                        icon: const Icon(Icons.clear, size: 18),
-                        onPressed: () {
-                          _searchController.clear();
-                          widget.onSearchChanged('');
-                        },
-                        visualDensity: VisualDensity.compact,
-                      )
-                      : null,
-            ),
+              if (widget.trailingAction != null) ...[
+                const SizedBox(width: 8),
+                widget.trailingAction!,
+              ],
+            ],
           ),
 
           // ── Active filter chips + add filter button ──
@@ -255,12 +268,11 @@ class _NotionFilterBarState extends State<NotionFilterBar> {
                     side: BorderSide(
                       color: colorScheme.primary.withValues(alpha: 0.3),
                     ),
-                    onPressed:
-                        () => _showAddFilterMenu(
-                          context,
-                          inactiveFilters,
-                          inactiveToggles,
-                        ),
+                    onPressed: () => _showAddFilterMenu(
+                      context,
+                      inactiveFilters,
+                      inactiveToggles,
+                    ),
                   ),
               ],
             ),
@@ -341,14 +353,13 @@ class _NotionFilterBarState extends State<NotionFilterBar> {
                 return ListTile(
                   dense: true,
                   title: Text(entry.value),
-                  leading:
-                      isSelected
-                          ? Icon(
-                            Icons.check_circle,
-                            color: colorScheme.primary,
-                            size: 20,
-                          )
-                          : const Icon(Icons.radio_button_unchecked, size: 20),
+                  leading: isSelected
+                      ? Icon(
+                          Icons.check_circle,
+                          color: colorScheme.primary,
+                          size: 20,
+                        )
+                      : const Icon(Icons.radio_button_unchecked, size: 20),
                   onTap: () {
                     Navigator.pop(sheetContext);
                     widget.onFilterChanged?.call(filter.id, entry.key);

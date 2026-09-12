@@ -202,6 +202,14 @@ class CommandEditorNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Remplace la liste des alias (mots déclencheurs supplémentaires) de la
+  /// commande message. La normalisation est faite par l'appelant via
+  /// `normalizeLegacyCommandAliases`.
+  void updateLegacyAliases(List<String> aliases) {
+    _state = _state.copyWith(legacyAliases: aliases);
+    notifyListeners();
+  }
+
   void updateLegacyResponseTarget(String target) {
     _state = _state.copyWith(legacyResponseTarget: target);
     notifyListeners();
@@ -287,9 +295,9 @@ class CommandEditorNotifier extends ChangeNotifier {
   /// Builds a JSON snapshot of the current editor state for dirty-checking.
   String buildEditSnapshot() {
     final s = _state;
-    final integrationTypes = s.integrationTypes
-      .map(_integrationTypeToText)
-      .toList(growable: false)..sort();
+    final integrationTypes =
+        s.integrationTypes.map(_integrationTypeToText).toList(growable: false)
+          ..sort();
     final contexts = s.contexts.map(_contextTypeToText).toList(growable: false)
       ..sort();
 
