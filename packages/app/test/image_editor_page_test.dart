@@ -7,6 +7,7 @@
 library;
 
 import 'package:bot_creator/core/models/types/variable_suggestion.dart';
+import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -76,19 +77,35 @@ List<VariableSuggestion> _sampleVars() => [
 
 /// Wraps widget in a MaterialApp+Scaffold for testing.
 Widget _wrap(Widget child) {
-  return MaterialApp(home: Scaffold(body: child));
+  return MaterialApp(
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
+    home: Scaffold(body: child),
+  );
 }
 
 // ─── ImageEditorPage Tests ─────────────────────────────────────────────────
 
 void main() {
+  /// Textes localisés (locale de test = anglais) : les assertions portent sur
+  /// les mêmes libellés qu'avant, mais via `AppLocalizations` pour rester
+  /// valides quelle que soit la langue résolue par le widget.
+  late AppLocalizations l10n;
+
+  setUpAll(() async {
+    l10n = await AppLocalizations.delegate.load(const Locale('en'));
+  });
+
   group('ImageEditorPage — Integration', () {
     testWidgets('empty editor shows placeholder', (tester) async {
       await tester.pumpWidget(
         _wrap(ImageEditorPage(operations: [], variableSuggestions: [])),
       );
       await tester.pumpAndSettle();
-      expect(find.text('Create Canvas'), findsAtLeastNWidgets(1));
+      expect(
+        find.text(l10n.action_name_canvasCreateBlock),
+        findsAtLeastNWidgets(1),
+      );
     });
 
     testWidgets('renders canvas preview with create op present', (
@@ -109,7 +126,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      final createBtns = find.text('Create Canvas');
+      final createBtns = find.text(l10n.action_name_canvasCreateBlock);
       expect(createBtns, findsAtLeastNWidgets(1));
 
       // Tap the first 'Create Canvas' button (placeholder in canvas panel)
@@ -119,7 +136,7 @@ void main() {
       // After adding, should still have 'Create Canvas (800×600)' somewhere
       // (both the operations tile and the properties panel label)
       expect(
-        find.textContaining('Create Canvas (800×600)'),
+        find.textContaining('${l10n.action_name_canvasCreateBlock} (800×600)'),
         findsAtLeastNWidgets(1),
       );
     });
@@ -136,8 +153,8 @@ void main() {
       await tester.pumpAndSettle();
 
       // Find IconButtons by tooltip and verify they exist
-      final undoBtn = find.byTooltip('Undo');
-      final redoBtn = find.byTooltip('Redo');
+      final undoBtn = find.byTooltip(l10n.image_editor_undo);
+      final redoBtn = find.byTooltip(l10n.image_editor_redo);
       expect(undoBtn, findsOneWidget);
       expect(redoBtn, findsOneWidget);
     });
@@ -156,26 +173,32 @@ void main() {
       expect(find.byType(TabBar), findsNothing);
     });
 
-    testWidgets('mobile layout does not have TabBar but shows operations list', (tester) async {
-      tester.view.physicalSize = const Size(375 * 2, 812 * 2);
-      tester.view.devicePixelRatio = 2.0;
-      addTearDown(() {
-        tester.view.resetPhysicalSize();
-        tester.view.resetDevicePixelRatio();
-      });
+    testWidgets(
+      'mobile layout does not have TabBar but shows operations list',
+      (tester) async {
+        tester.view.physicalSize = const Size(375 * 2, 812 * 2);
+        tester.view.devicePixelRatio = 2.0;
+        addTearDown(() {
+          tester.view.resetPhysicalSize();
+          tester.view.resetDevicePixelRatio();
+        });
 
-      await tester.pumpWidget(
-        _wrap(
-          ImageEditorPage(
-            operations: _fullComposition(),
-            variableSuggestions: [],
+        await tester.pumpWidget(
+          _wrap(
+            ImageEditorPage(
+              operations: _fullComposition(),
+              variableSuggestions: [],
+            ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
-      expect(find.byType(TabBar), findsNothing);
-      expect(find.text('Operations'), findsAtLeastNWidgets(1));
-    });
+        );
+        await tester.pumpAndSettle();
+        expect(find.byType(TabBar), findsNothing);
+        expect(
+          find.text(l10n.image_editor_operations),
+          findsAtLeastNWidgets(1),
+        );
+      },
+    );
 
     testWidgets('operations panel shows operation count', (tester) async {
       await tester.pumpWidget(
@@ -187,7 +210,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text('Operations'), findsAtLeastNWidgets(1));
+      expect(find.text(l10n.image_editor_operations), findsAtLeastNWidgets(1));
       expect(find.text('5'), findsOneWidget); // _fullComposition has 5 ops
     });
 
@@ -218,46 +241,51 @@ void main() {
       await tester.pumpAndSettle();
 
       // Tap the draw text tile to select it
-      final textTile = find.textContaining('Draw Text');
+      final textTile = find.textContaining(
+        l10n.action_name_canvasDrawTextBlock,
+      );
       expect(textTile, findsOneWidget);
       await tester.tap(textTile);
       await tester.pumpAndSettle();
 
       // Properties panel should now show 'Properties' and 'Duplicate'
-      expect(find.text('Properties'), findsOneWidget);
-      expect(find.text('Duplicate'), findsOneWidget);
+      expect(find.text(l10n.image_editor_properties), findsOneWidget);
+      expect(find.text(l10n.common_duplicate), findsOneWidget);
     });
 
-    testWidgets('selecting create canvas operation does not show duplicate button', (
-      tester,
-    ) async {
-      await tester.pumpWidget(
-        _wrap(
-          ImageEditorPage(
-            operations: [
-              {
-                'op': 'create',
-                'width': '400',
-                'height': '300',
-                'color': '#2c2f33',
-              },
-            ],
-            variableSuggestions: [],
+    testWidgets(
+      'selecting create canvas operation does not show duplicate button',
+      (tester) async {
+        await tester.pumpWidget(
+          _wrap(
+            ImageEditorPage(
+              operations: [
+                {
+                  'op': 'create',
+                  'width': '400',
+                  'height': '300',
+                  'color': '#2c2f33',
+                },
+              ],
+              variableSuggestions: [],
+            ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      // Tap the create canvas tile to select it
-      final createTile = find.textContaining('Create Canvas');
-      expect(createTile, findsOneWidget);
-      await tester.tap(createTile);
-      await tester.pumpAndSettle();
+        // Tap the create canvas tile to select it
+        final createTile = find.textContaining(
+          l10n.action_name_canvasCreateBlock,
+        );
+        expect(createTile, findsOneWidget);
+        await tester.tap(createTile);
+        await tester.pumpAndSettle();
 
-      // Properties panel should show 'Properties' but NOT 'Duplicate'
-      expect(find.text('Properties'), findsOneWidget);
-      expect(find.text('Duplicate'), findsNothing);
-    });
+        // Properties panel should show 'Properties' but NOT 'Duplicate'
+        expect(find.text(l10n.image_editor_properties), findsOneWidget);
+        expect(find.text(l10n.common_duplicate), findsNothing);
+      },
+    );
 
     testWidgets('delete operation from properties panel shows delete icon', (
       tester,
@@ -289,7 +317,9 @@ void main() {
       await tester.pumpAndSettle();
 
       // Select rectangle
-      final rectTile = find.textContaining('Draw Rectangle');
+      final rectTile = find.textContaining(
+        l10n.action_name_canvasDrawRectBlock,
+      );
       await tester.tap(rectTile);
       await tester.pumpAndSettle();
 
@@ -343,12 +373,14 @@ void main() {
       await tester.pumpAndSettle();
 
       // Select text operation
-      final textTile = find.textContaining('Draw Text');
+      final textTile = find.textContaining(
+        l10n.action_name_canvasDrawTextBlock,
+      );
       await tester.tap(textTile);
       await tester.pumpAndSettle();
 
       // Variable insert icon (Icons.data_object) appears on all property fields
-      final varIcons = find.byTooltip('Insert variable');
+      final varIcons = find.byTooltip(l10n.image_editor_insert_variable);
       expect(varIcons, findsAtLeastNWidgets(1));
     });
 
@@ -372,7 +404,9 @@ void main() {
       await tester.pumpAndSettle();
 
       // Select loadImage
-      final imgTile = find.textContaining('Load Image');
+      final imgTile = find.textContaining(
+        l10n.action_name_canvasLoadImageBlock,
+      );
       await tester.tap(imgTile);
       await tester.pumpAndSettle();
 
@@ -392,7 +426,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Add a text operation to create unsaved changes
-      final addLayerBtns = find.text('Add Layer');
+      final addLayerBtns = find.text(l10n.image_editor_add_layer);
       expect(addLayerBtns, findsOneWidget);
     });
 
