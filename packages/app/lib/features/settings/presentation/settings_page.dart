@@ -2160,7 +2160,10 @@ class _SettingPageState extends State<SettingPage> {
                   Icon(
                     Icons.settings,
                     size: iconSize,
-                    color: Theme.of(context).colorScheme.primary,
+                    // Icône décorative : neutre du thème (le violet n'est
+                    // réservé qu'aux états sélectionnés et aux actions
+                    // principales).
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                   const SizedBox(height: 24),
                   Text(
@@ -2276,7 +2279,7 @@ class _SettingPageState extends State<SettingPage> {
                     child: ListTile(
                       leading: Icon(
                         Icons.code_outlined,
-                        color: Theme.of(context).colorScheme.primary,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                       title: Text(context.tr.code_editor_settings_title),
                       subtitle: Text(context.tr.code_editor_settings_subtitle),
@@ -3554,7 +3557,7 @@ class _PrivacyPolicyCard extends StatelessWidget {
                         child: Icon(
                           Icons.smart_toy_outlined,
                           size: 48,
-                          color: Theme.of(context).colorScheme.primary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                     );
@@ -3582,7 +3585,7 @@ class _DocumentationCard extends StatelessWidget {
       child: ListTile(
         leading: Icon(
           Icons.menu_book_outlined,
-          color: Theme.of(context).colorScheme.primary,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
         ),
         title: Text(context.tr.docs_hub_title),
         subtitle: Text(context.tr.bot_settings_workflow_docs_desc),
