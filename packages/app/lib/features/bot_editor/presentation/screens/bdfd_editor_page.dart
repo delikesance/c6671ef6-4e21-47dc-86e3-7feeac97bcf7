@@ -921,6 +921,11 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
     _colors = codeEditorColorsOf(context);
     _controller.themeColors = _colors;
 
+    // Au-delà de ce seuil les 5 réglages de l'éditeur s'affichent en icônes ;
+    // en dessous, ils sont regroupés dans un menu « ⋮ » : la barre débordait de
+    // 17 px à 360 dp avec 5 icônes + l'action principale.
+    final isWideToolbar = MediaQuery.sizeOf(context).width >= 700;
+
     return Scaffold(
       backgroundColor: _colors.background,
       appBar: AppBar(
@@ -931,59 +936,10 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
         ),
         iconTheme: IconThemeData(color: _colors.text),
         actions: [
-          IconButton(
-            tooltip: context.tr.bdfd_editor_docs,
-            icon: Icon(
-              Icons.menu_book,
-              color: _colors.text.withValues(alpha: 0.7),
-            ),
-            onPressed: () {
-              openDocumentationHub(
-                context,
-                initialSection: DocumentationSection.botCreatorDocs,
-              );
-            },
-          ),
-          IconButton(
-            tooltip: context.tr.bdfd_editor_wrap_toggle,
-            icon: Icon(
-              _wordWrap ? Icons.wrap_text : Icons.format_align_left,
-              color: _colors.text.withValues(alpha: 0.7),
-            ),
-            onPressed: () => setState(() => _wordWrap = !_wordWrap),
-          ),
-          IconButton(
-            tooltip: context.tr.bdfd_editor_ux_title,
-            icon: Icon(
-              Icons.tips_and_updates_outlined,
-              color: _colors.text.withValues(alpha: 0.7),
-            ),
-            onPressed: _showEditorUxSheet,
-          ),
-          IconButton(
-            tooltip: context.tr.bdfd_editor_diagnostics_toggle,
-            icon: Icon(
-              _showDiagnostics ? Icons.bug_report : Icons.bug_report_outlined,
-              color: _hasErrors
-                  ? AppTheme.error
-                  : (_diagnostics.isNotEmpty
-                        ? AppTheme.warning
-                        : AppTheme.success),
-            ),
-            onPressed: () =>
-                setState(() => _showDiagnostics = !_showDiagnostics),
-          ),
-          IconButton(
-            tooltip: context.tr.bdfd_editor_toggle_indent,
-            icon: Icon(
-              _showIndentGuides
-                  ? Icons.format_indent_increase
-                  : Icons.format_indent_decrease,
-              color: _colors.text.withValues(alpha: 0.7),
-            ),
-            onPressed: () =>
-                setState(() => _showIndentGuides = !_showIndentGuides),
-          ),
+          if (isWideToolbar)
+            ..._buildToolbarToggles()
+          else
+            _buildToolbarOverflowMenu(),
           TextButton(
             onPressed: _done,
             child: Text(
@@ -1000,13 +956,119 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
         top: false,
         child: Column(
           children: [
-            Expanded(child: _buildEditorBody()),
+            Expanded(
+              child: Container(
+                // La zone de code est un PANNEAU : elle prend la surface de la
+                // palette choisie (et non le fond de la page, comme dans un
+                // vrai éditeur). Un panneau sombre sur une page claire — ou
+                // l'inverse — devient donc impossible.
+                margin: const EdgeInsets.all(AppTheme.spacingSm),
+                decoration: BoxDecoration(
+                  color: _colors.surface,
+                  borderRadius: BorderRadius.circular(AppTheme.radiusCard),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: _buildEditorBody(),
+              ),
+            ),
             if (!_isDesktopLike && _editorSettings.showQuickCharsBar)
               _buildMobileSpecialCharsBar(),
             if (_showDiagnostics) _buildDiagnosticsBar(),
           ],
         ),
       ),
+    );
+  }
+
+  /// Les réglages de l'éditeur affichés en icônes dans la barre d'outils.
+  List<Widget> _buildToolbarToggles() {
+    return [
+      IconButton(
+        tooltip: context.tr.bdfd_editor_docs,
+        icon: Icon(Icons.menu_book, color: _colors.text.withValues(alpha: 0.7)),
+        onPressed: () {
+          openDocumentationHub(
+            context,
+            initialSection: DocumentationSection.botCreatorDocs,
+          );
+        },
+      ),
+      IconButton(
+        tooltip: context.tr.bdfd_editor_wrap_toggle,
+        icon: Icon(
+          _wordWrap ? Icons.wrap_text : Icons.format_align_left,
+          color: _colors.text.withValues(alpha: 0.7),
+        ),
+        onPressed: () => setState(() => _wordWrap = !_wordWrap),
+      ),
+      IconButton(
+        tooltip: context.tr.bdfd_editor_ux_title,
+        icon: Icon(
+          Icons.tips_and_updates_outlined,
+          color: _colors.text.withValues(alpha: 0.7),
+        ),
+        onPressed: () => _showEditorUxSheet(),
+      ),
+      IconButton(
+        tooltip: context.tr.bdfd_editor_diagnostics_toggle,
+        icon: Icon(
+          _showDiagnostics ? Icons.bug_report : Icons.bug_report_outlined,
+          color: _hasErrors
+              ? AppTheme.error
+              : (_diagnostics.isNotEmpty ? AppTheme.warning : AppTheme.success),
+        ),
+        onPressed: () => setState(() => _showDiagnostics = !_showDiagnostics),
+      ),
+      IconButton(
+        tooltip: context.tr.bdfd_editor_toggle_indent,
+        icon: Icon(
+          _showIndentGuides
+              ? Icons.format_indent_increase
+              : Icons.format_indent_decrease,
+          color: _colors.text.withValues(alpha: 0.7),
+        ),
+        onPressed: () => setState(() => _showIndentGuides = !_showIndentGuides),
+      ),
+    ];
+  }
+
+  /// Les mêmes réglages regroupés dans un menu « ⋮ » (fenêtre étroite) : les
+  /// coches montrent l'état de chaque bascule.
+  Widget _buildToolbarOverflowMenu() {
+    return PopupMenuButton<VoidCallback>(
+      tooltip: context.tr.more_options_title,
+      icon: Icon(Icons.more_vert, color: _colors.text.withValues(alpha: 0.7)),
+      onSelected: (action) => action(),
+      itemBuilder: (context) => [
+        CheckedPopupMenuItem<VoidCallback>(
+          value: () => setState(() => _wordWrap = !_wordWrap),
+          checked: _wordWrap,
+          child: Text(context.tr.bdfd_editor_wrap_toggle),
+        ),
+        CheckedPopupMenuItem<VoidCallback>(
+          value: () => setState(() => _showDiagnostics = !_showDiagnostics),
+          checked: _showDiagnostics,
+          child: Text(context.tr.bdfd_editor_diagnostics_toggle),
+        ),
+        CheckedPopupMenuItem<VoidCallback>(
+          value: () => setState(() => _showIndentGuides = !_showIndentGuides),
+          checked: _showIndentGuides,
+          child: Text(context.tr.bdfd_editor_toggle_indent),
+        ),
+        PopupMenuItem<VoidCallback>(
+          value: () => _showEditorUxSheet(),
+          child: Text(context.tr.bdfd_editor_ux_title),
+        ),
+        PopupMenuItem<VoidCallback>(
+          value: () {
+            openDocumentationHub(
+              context,
+              initialSection: DocumentationSection.botCreatorDocs,
+            );
+          },
+          child: Text(context.tr.bdfd_editor_docs),
+        ),
+      ],
     );
   }
 
@@ -1044,7 +1106,21 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
                   child: SingleChildScrollView(
                     controller: _editorHorizontalScrollController,
                     scrollDirection: Axis.horizontal,
-                    child: IntrinsicWidth(child: editorField),
+                    // `IntrinsicWidth` dimensionne la zone sur sa plus longue
+                    // ligne (défilement horizontal) mais la laissait plus
+                    // étroite que la fenêtre sur un script court : le
+                    // `ConstrainedBox` lui impose au minimum la largeur
+                    // réellement disponible.
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minWidth:
+                            constraints.maxWidth -
+                            (_editorSettings.showLineNumbers
+                                ? _lineNumberGutterWidth
+                                : 0),
+                      ),
+                      child: IntrinsicWidth(child: editorField),
+                    ),
                   ),
                 ),
               ],
@@ -1126,31 +1202,38 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
               ),
             ),
             Expanded(
-              child: Row(
-                children: chars
-                    .map(
-                      (char) => Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 3),
-                        child: OutlinedButton(
-                          style: OutlinedButton.styleFrom(
-                            visualDensity: VisualDensity.compact,
-                            minimumSize: const Size(48, 38),
-                            padding: EdgeInsets.zero,
-                          ),
-                          onPressed: () => _insertAtCaret(char),
-                          child: Text(
-                            char,
-                            style: TextStyle(
-                              fontFamily: 'monospace',
-                              fontWeight: FontWeight.w700,
-                              fontSize: 16,
-                              color: _colors.text,
+              // Défilable horizontalement : 5 boutons de 48 px + la pastille
+              // ne tiennent pas dans 360 dp (débordement de 17 px mesuré en
+              // test), et un écran plus étroit doit garder tous les caractères
+              // accessibles plutôt que de les rogner.
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: chars
+                      .map(
+                        (char) => Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 3),
+                          child: OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              visualDensity: VisualDensity.compact,
+                              minimumSize: const Size(48, 38),
+                              padding: EdgeInsets.zero,
+                            ),
+                            onPressed: () => _insertAtCaret(char),
+                            child: Text(
+                              char,
+                              style: TextStyle(
+                                fontFamily: 'monospace',
+                                fontWeight: FontWeight.w700,
+                                fontSize: 16,
+                                color: _colors.text,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    )
-                    .toList(growable: false),
+                      )
+                      .toList(growable: false),
+                ),
               ),
             ),
           ],

@@ -33,56 +33,54 @@ extension _AppHomePageUI on _AppHomePageState {
     required String botId,
     required String displayName,
   }) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Left Column: Controls, Hosting, Cloud
-              Expanded(
-                flex: 5,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _buildHeroControlCard(
-                      context,
-                      botId: botId,
-                      displayName: displayName,
-                    ),
-                    if (_shouldShowHostingCard) ...[
-                      const SizedBox(height: 16),
-                      _buildHostingCard(context),
-                    ],
-                    const SizedBox(height: 16),
-                    _buildCloudSyncCard(context, botId: botId),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 20),
-              // Right Column: Live Console, Observability, Danger Zone
-              Expanded(
-                flex: 6,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _buildLiveConsoleCard(context, botId: botId),
-                    if (_shouldShowObservability) ...[
-                      const SizedBox(height: 16),
-                      _buildQuickObservabilityCard(context, botId: botId),
-                    ],
-                    const SizedBox(height: 20),
-                    _buildDangerZoneCard(context, botId: botId),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+    return BotHomeDesktopOverview(
+      leftBuilder: (context, fillViewport) =>
+          _buildWideLeftColumn(context, botId: botId, displayName: displayName),
+      rightBuilder: (context, fillViewport) => _buildWideRightColumn(
+        context,
+        botId: botId,
+        fillViewport: fillViewport,
       ),
     );
+  }
+
+  List<Widget> _buildWideLeftColumn(
+    BuildContext context, {
+    required String botId,
+    required String displayName,
+  }) {
+    return [
+      _buildHeroControlCard(context, botId: botId, displayName: displayName),
+      if (_shouldShowHostingCard) ...[
+        const SizedBox(height: 16),
+        _buildHostingCard(context),
+      ],
+      const SizedBox(height: 16),
+      _buildCloudSyncCard(context, botId: botId),
+    ];
+  }
+
+  List<Widget> _buildWideRightColumn(
+    BuildContext context, {
+    required String botId,
+    required bool fillViewport,
+  }) {
+    return [
+      // En mode « pleine hauteur », la console absorbe tout l'espace vertical
+      // restant de la colonne au lieu d'être plafonnée à 160 px.
+      if (fillViewport)
+        Expanded(
+          child: _buildLiveConsoleCard(context, botId: botId, fillHeight: true),
+        )
+      else
+        _buildLiveConsoleCard(context, botId: botId),
+      if (_shouldShowObservability) ...[
+        const SizedBox(height: 16),
+        _buildQuickObservabilityCard(context, botId: botId),
+      ],
+      const SizedBox(height: 20),
+      _buildDangerZoneCard(context, botId: botId),
+    ];
   }
 
   Widget _buildNarrowOverview(
@@ -281,172 +279,23 @@ extension _AppHomePageUI on _AppHomePageState {
     );
   }
 
-  Widget _buildLiveConsoleCard(BuildContext context, {required String botId}) {
-    final scheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = isDark ? AppTheme.homeCard : scheme.surfaceContainer;
-    final borderColor = isDark
-        ? AppTheme.homeCardBorder
-        : scheme.outlineVariant;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(AppTheme.radiusCard),
-        border: Border.all(color: borderColor),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 12, 8),
-            child: Row(
-              children: [
-                Icon(Icons.terminal_rounded, size: 18, color: scheme.primary),
-                const SizedBox(width: 8),
-                Text(
-                  context.tr.bot_logs_title,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: scheme.onSurface,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                if (_botLaunched)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppTheme.online.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                      border: Border.all(
-                        color: AppTheme.online.withValues(alpha: 0.3),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 6,
-                          height: 6,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: AppTheme.online,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          'LIVE',
-                          style: GoogleFonts.inter(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.online,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                const Spacer(),
-                TextButton.icon(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => BotLogsPage(botId: botId),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.open_in_new_rounded, size: 14),
-                  label: Text(
-                    context.tr.bot_home_view_logs,
-                    style: const TextStyle(fontSize: 12),
-                  ),
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    visualDensity: VisualDensity.compact,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Divider(height: 1, thickness: 1, color: borderColor),
-          InkWell(
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => BotLogsPage(botId: botId)),
-              );
-            },
-            child: Container(
-              color: isDark ? const Color(0xFF0B0D13) : const Color(0xFF1B1D28),
-              padding: const EdgeInsets.all(12),
-              constraints: const BoxConstraints(minHeight: 110, maxHeight: 160),
-              child: StreamBuilder<List<String>>(
-                stream: getBotLogsStreamForBot(botId),
-                initialData: getBotLogsSnapshotForBot(botId),
-                builder: (context, snapshot) {
-                  final logs = snapshot.data ?? const <String>[];
-                  if (logs.isEmpty) {
-                    return Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.code_rounded,
-                            size: 16,
-                            color: Colors.white.withValues(alpha: 0.35),
-                          ),
-                          const SizedBox(width: 8),
-                          Flexible(
-                            child: Text(
-                              context.tr.bot_logs_empty,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: GoogleFonts.firaCode(
-                                fontSize: 12,
-                                color: Colors.white.withValues(alpha: 0.45),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-                  final recentLogs = logs.length > 5
-                      ? logs.sublist(logs.length - 5)
-                      : logs;
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      for (final line in recentLogs)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 1.5),
-                          child: Text(
-                            line,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.firaCode(
-                              fontSize: 11,
-                              color: const Color(0xFFC9D1D9),
-                              height: 1.2,
-                            ),
-                          ),
-                        ),
-                    ],
-                  );
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
+  Widget _buildLiveConsoleCard(
+    BuildContext context, {
+    required String botId,
+    bool fillHeight = false,
+  }) {
+    return BotHomeLiveConsoleCard(
+      botId: botId,
+      isLive: _botLaunched,
+      fillHeight: fillHeight,
+      onOpenLogs: () => _openBotLogsPage(botId),
     );
+  }
+
+  void _openBotLogsPage(String botId) {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => BotLogsPage(botId: botId)));
   }
 
   Widget _buildCloudSyncCard(BuildContext context, {required String botId}) {
@@ -821,6 +670,350 @@ class _DashedDeleteTile extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Hauteur minimale (px) de la zone de contenu à partir de laquelle la home
+/// desktop passe en mode « pleine hauteur » : les deux colonnes occupent alors
+/// toute la fenêtre et la console de logs absorbe l'espace vertical restant.
+/// En dessous (fenêtre courte), on retombe sur la mise en page scrollable
+/// historique pour ne jamais déborder.
+const double kBotHomeDesktopFillMinHeight = 560;
+
+/// Largeur sous laquelle l'en-tête de la console réduit son action à une icône.
+///
+/// Mesuré : à EXACTEMENT 380 px (l'ancienne valeur), la variante « large »
+/// débordait encore de 7 px — le seuil était trop juste d'un cheveu. La marge
+/// est portée à 400 px, et un test de frontière verrouille les deux côtés.
+const double kBotHomeLogsHeaderCompactWidth = 400;
+
+/// Mise en page desktop de la home d'un bot.
+///
+/// Les builders reçoivent `fillViewport` :
+/// - `true` : la fenêtre est assez haute, les colonnes s'étirent sur toute la
+///   hauteur (`CrossAxisAlignment.stretch`) et la colonne de gauche devient
+///   défilable seule si son contenu dépasse. C'est ce flag qui autorise
+///   l'appelant à placer un `Expanded` (ex. la console de logs) dans la
+///   colonne de droite.
+/// - `false` : fenêtre courte, mise en page scrollable historique inchangée.
+class BotHomeDesktopOverview extends StatelessWidget {
+  const BotHomeDesktopOverview({
+    super.key,
+    required this.leftBuilder,
+    required this.rightBuilder,
+    this.maxContentWidth = 1200,
+  });
+
+  final List<Widget> Function(BuildContext context, bool fillViewport)
+  leftBuilder;
+  final List<Widget> Function(BuildContext context, bool fillViewport)
+  rightBuilder;
+  final double maxContentWidth;
+
+  static const EdgeInsets _padding = EdgeInsets.fromLTRB(24, 16, 24, 32);
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final fillViewport =
+            constraints.maxHeight.isFinite &&
+            constraints.maxHeight >= kBotHomeDesktopFillMinHeight;
+        final left = Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: leftBuilder(context, fillViewport),
+        );
+        final right = Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: rightBuilder(context, fillViewport),
+        );
+
+        if (!fillViewport) {
+          return SingleChildScrollView(
+            padding: _padding,
+            child: Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: maxContentWidth),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(flex: 5, child: left),
+                    const SizedBox(width: 20),
+                    Expanded(flex: 6, child: right),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+
+        return Padding(
+          padding: _padding,
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: maxContentWidth),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // La colonne de gauche défile seule si son contenu dépasse
+                  // la hauteur de la fenêtre (aucun débordement possible).
+                  Expanded(
+                    flex: 5,
+                    child: SingleChildScrollView(primary: false, child: left),
+                  ),
+                  const SizedBox(width: 20),
+                  Expanded(flex: 6, child: right),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Carte « Logs du bot » : en-tête (titre + pastille LIVE + action) et console
+/// intégrée alimentée par le même flux que la page des logs.
+class BotHomeLiveConsoleCard extends StatelessWidget {
+  const BotHomeLiveConsoleCard({
+    super.key,
+    required this.botId,
+    required this.isLive,
+    required this.onOpenLogs,
+    this.fillHeight = false,
+  });
+
+  final String botId;
+  final bool isLive;
+  final VoidCallback onOpenLogs;
+
+  /// `true` : la console s'étire sur la hauteur fournie par le parent (qui doit
+  /// être bornée). `false` : hauteur historique bornée 110 → 160 px.
+  final bool fillHeight;
+
+  /// Nombre de lignes affichées quand la console a une hauteur bornée.
+  static const int _compactLineCount = 5;
+
+  /// Plafond du nombre de lignes rendues quand la console s'étire.
+  static const int _maxVisibleLines = 200;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = isDark ? AppTheme.homeCard : scheme.surfaceContainer;
+    final borderColor = isDark
+        ? AppTheme.homeCardBorder
+        : scheme.outlineVariant;
+
+    final console = Container(
+      color: isDark ? const Color(0xFF0B0D13) : const Color(0xFF1B1D28),
+      padding: const EdgeInsets.all(12),
+      constraints: fillHeight
+          ? null
+          : const BoxConstraints(minHeight: 110, maxHeight: 160),
+      child: StreamBuilder<List<String>>(
+        stream: getBotLogsStreamForBot(botId),
+        initialData: getBotLogsSnapshotForBot(botId),
+        builder: (context, snapshot) {
+          final logs = snapshot.data ?? const <String>[];
+          if (logs.isEmpty) {
+            return Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.code_rounded,
+                    size: 16,
+                    color: Colors.white.withValues(alpha: 0.35),
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      context.tr.bot_logs_empty,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.firaCode(
+                        fontSize: 12,
+                        color: Colors.white.withValues(alpha: 0.45),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+          final visibleCount = fillHeight
+              ? _maxVisibleLines
+              : _compactLineCount;
+          final recentLogs = logs.length > visibleCount
+              ? logs.sublist(logs.length - visibleCount)
+              : logs;
+          final lines = Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final line in recentLogs)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 1.5),
+                  child: Text(
+                    line,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.firaCode(
+                      fontSize: 11,
+                      color: const Color(0xFFC9D1D9),
+                      height: 1.2,
+                    ),
+                  ),
+                ),
+            ],
+          );
+          if (!fillHeight) {
+            return lines;
+          }
+          // Console étirée : les dernières lignes restent collées en bas et
+          // l'historique défile au lieu de déborder.
+          return SingleChildScrollView(
+            primary: false,
+            reverse: true,
+            child: lines,
+          );
+        },
+      ),
+    );
+
+    return Container(
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(AppTheme.radiusCard),
+        border: Border.all(color: borderColor),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: fillHeight ? MainAxisSize.max : MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 12, 8),
+            child: _buildHeader(context, scheme),
+          ),
+          Divider(height: 1, thickness: 1, color: borderColor),
+          if (fillHeight)
+            Expanded(
+              child: InkWell(onTap: onOpenLogs, child: console),
+            )
+          else
+            InkWell(onTap: onOpenLogs, child: console),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context, ColorScheme scheme) {
+    // L'en-tête s'adapte à la largeur réellement disponible : sous
+    // [kBotHomeLogsHeaderCompactWidth], l'action « Voir les logs » se réduit à
+    // une icône + tooltip. Le titre est élastique (ellipsis) et ne pousse donc
+    // jamais le reste du Row hors de la carte.
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxWidth < kBotHomeLogsHeaderCompactWidth;
+        return Row(
+          children: [
+            Icon(Icons.terminal_rounded, size: 18, color: scheme.primary),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      context.tr.bot_logs_title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: scheme.onSurface,
+                      ),
+                    ),
+                  ),
+                  if (isLive) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppTheme.online.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                        border: Border.all(
+                          color: AppTheme.online.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 6,
+                            height: 6,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: AppTheme.online,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'LIVE',
+                            style: GoogleFonts.inter(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.online,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            if (compact)
+              IconButton(
+                onPressed: onOpenLogs,
+                tooltip: context.tr.bot_home_view_logs,
+                iconSize: 16,
+                color: scheme.primary,
+                visualDensity: VisualDensity.compact,
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                constraints: const BoxConstraints(minWidth: 34, minHeight: 34),
+                icon: const Icon(Icons.open_in_new_rounded),
+              )
+            else
+              TextButton.icon(
+                onPressed: onOpenLogs,
+                icon: const Icon(Icons.open_in_new_rounded, size: 14),
+                label: Text(
+                  context.tr.bot_home_view_logs,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 12),
+                ),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  visualDensity: VisualDensity.compact,
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 }
