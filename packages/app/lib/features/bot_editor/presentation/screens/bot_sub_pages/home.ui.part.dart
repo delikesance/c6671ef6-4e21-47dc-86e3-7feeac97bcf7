@@ -97,11 +97,7 @@ extension _AppHomePageUI on _AppHomePageState {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
       children: [
-        _buildHeroControlCard(
-          context,
-          botId: botId,
-          displayName: displayName,
-        ),
+        _buildHeroControlCard(context, botId: botId, displayName: displayName),
         if (_shouldShowHostingCard) ...[
           const SizedBox(height: 12),
           _buildHostingCard(context),
@@ -128,7 +124,9 @@ extension _AppHomePageUI on _AppHomePageState {
     final scheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardColor = isDark ? AppTheme.homeCard : scheme.surfaceContainer;
-    final borderColor = isDark ? AppTheme.homeCardBorder : scheme.outlineVariant;
+    final borderColor = isDark
+        ? AppTheme.homeCardBorder
+        : scheme.outlineVariant;
     final muted = isDark ? AppTheme.homeMuted : scheme.onSurfaceVariant;
 
     return Container(
@@ -143,9 +141,7 @@ extension _AppHomePageUI on _AppHomePageState {
         children: [
           Row(
             children: [
-              HomeBotAvatar(
-                imageUrl: avatar.isEmpty ? null : avatar,
-              ),
+              HomeBotAvatar(imageUrl: avatar.isEmpty ? null : avatar),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
@@ -182,13 +178,15 @@ extension _AppHomePageUI on _AppHomePageState {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: (_displayFreeMinutesBalance() < 120 &&
-                                          _botLaunched
-                                      ? scheme.error
-                                      : scheme.primary)
-                                  .withValues(alpha: 0.12),
-                              borderRadius:
-                                  BorderRadius.circular(AppTheme.radiusSm),
+                              color:
+                                  (_displayFreeMinutesBalance() < 120 &&
+                                              _botLaunched
+                                          ? scheme.error
+                                          : scheme.primary)
+                                      .withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(
+                                AppTheme.radiusSm,
+                              ),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -196,7 +194,8 @@ extension _AppHomePageUI on _AppHomePageState {
                                 Icon(
                                   Icons.timer_outlined,
                                   size: 11,
-                                  color: _displayFreeMinutesBalance() < 120 &&
+                                  color:
+                                      _displayFreeMinutesBalance() < 120 &&
                                           _botLaunched
                                       ? scheme.error
                                       : scheme.primary,
@@ -207,7 +206,8 @@ extension _AppHomePageUI on _AppHomePageState {
                                   style: GoogleFonts.inter(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w600,
-                                    color: _displayFreeMinutesBalance() < 120 &&
+                                    color:
+                                        _displayFreeMinutesBalance() < 120 &&
                                             _botLaunched
                                         ? scheme.error
                                         : scheme.primary,
@@ -281,7 +281,9 @@ extension _AppHomePageUI on _AppHomePageState {
     final scheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardColor = isDark ? AppTheme.homeCard : scheme.surfaceContainer;
-    final borderColor = isDark ? AppTheme.homeCardBorder : scheme.outlineVariant;
+    final borderColor = isDark
+        ? AppTheme.homeCardBorder
+        : scheme.outlineVariant;
 
     return Container(
       decoration: BoxDecoration(
@@ -373,15 +375,11 @@ extension _AppHomePageUI on _AppHomePageState {
           InkWell(
             onTap: () {
               Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => BotLogsPage(botId: botId),
-                ),
+                MaterialPageRoute(builder: (_) => BotLogsPage(botId: botId)),
               );
             },
             child: Container(
-              color: isDark
-                  ? const Color(0xFF0B0D13)
-                  : const Color(0xFF1B1D28),
+              color: isDark ? const Color(0xFF0B0D13) : const Color(0xFF1B1D28),
               padding: const EdgeInsets.all(12),
               constraints: const BoxConstraints(minHeight: 110, maxHeight: 160),
               child: StreamBuilder<List<String>>(
@@ -514,9 +512,7 @@ extension _AppHomePageUI on _AppHomePageState {
             title: context.tr.bot_home_view_stats,
             onTap: () {
               Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => BotStatsPage(botId: botId),
-                ),
+                MaterialPageRoute(builder: (_) => BotStatsPage(botId: botId)),
               );
             },
           ),
@@ -553,7 +549,9 @@ extension _AppHomePageUI on _AppHomePageState {
     final borderColor =
         (_displayFreeMinutesBalance() < 120 && _botLaunched
                 ? colorScheme.error
-                : (isDark ? AppTheme.homeCardBorder : colorScheme.outlineVariant))
+                : (isDark
+                      ? AppTheme.homeCardBorder
+                      : colorScheme.outlineVariant))
             .withValues(alpha: 0.9);
 
     return Container(
@@ -651,7 +649,9 @@ extension _AppHomePageUI on _AppHomePageState {
               style: GoogleFonts.inter(
                 fontSize: 12,
                 fontWeight: FontWeight.w400,
-                color: isDark ? AppTheme.homeMuted : colorScheme.onSurfaceVariant,
+                color: isDark
+                    ? AppTheme.homeMuted
+                    : colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -680,7 +680,9 @@ class _WireframeSection extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardColor = isDark ? AppTheme.homeCard : scheme.surfaceContainer;
-    final borderColor = isDark ? AppTheme.homeCardBorder : scheme.outlineVariant;
+    final borderColor = isDark
+        ? AppTheme.homeCardBorder
+        : scheme.outlineVariant;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -697,8 +699,7 @@ class _WireframeSection extends StatelessWidget {
           child: Column(
             children: [
               for (var i = 0; i < children.length; i++) ...[
-                if (i > 0)
-                  Divider(height: 1, thickness: 1, color: borderColor),
+                if (i > 0) Divider(height: 1, thickness: 1, color: borderColor),
                 children[i],
               ],
             ],
