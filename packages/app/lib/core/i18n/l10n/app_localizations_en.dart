@@ -3769,6 +3769,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get edit_shell_untitled_command => 'Untitled command';
 
   @override
+  String get editor_sidebar_collapse => 'Collapse sidebar';
+
+  @override
+  String get editor_sidebar_expand => 'Expand sidebar';
+
+  @override
   String get embed_add_field => 'Add Field';
 
   @override

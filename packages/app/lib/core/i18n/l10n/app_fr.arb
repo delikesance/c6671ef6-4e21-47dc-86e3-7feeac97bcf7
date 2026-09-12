@@ -3017,6 +3017,12 @@
   "@edit_shell_untitled_command": {
     "description": "Untitled command"
   },
+  "@editor_sidebar_collapse": {
+    "description": "Collapse the editor sidebar into an icon rail"
+  },
+  "@editor_sidebar_expand": {
+    "description": "Expand the collapsed editor sidebar"
+  },
   "@embed_add_field": {
     "description": "Add Field"
   },
@@ -7995,6 +8001,8 @@
   "edit_shell_type_user": "Commande utilisateur",
   "edit_shell_unsaved": "Modifications non enregistrées",
   "edit_shell_untitled_command": "Commande sans titre",
+  "editor_sidebar_collapse": "Replier le menu",
+  "editor_sidebar_expand": "Déplier le menu",
   "embed_add_field": "Ajouter un champ",
   "embed_add_section": "Ajouter une section",
   "embed_add_tooltip": "Ajouter un embed",

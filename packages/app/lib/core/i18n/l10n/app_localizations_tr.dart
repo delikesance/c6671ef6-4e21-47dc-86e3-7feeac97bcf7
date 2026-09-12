@@ -3790,6 +3790,12 @@ class AppLocalizationsTr extends AppLocalizations {
   String get edit_shell_untitled_command => 'Adsız komut';
 
   @override
+  String get editor_sidebar_collapse => 'Kenar çubuğunu daralt';
+
+  @override
+  String get editor_sidebar_expand => 'Kenar çubuğunu genişlet';
+
+  @override
   String get embed_add_field => 'Alan Ekle';
 
   @override

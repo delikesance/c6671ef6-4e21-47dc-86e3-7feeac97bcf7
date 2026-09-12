@@ -3826,6 +3826,12 @@ class AppLocalizationsPt extends AppLocalizations {
   String get edit_shell_untitled_command => 'Comando sem título';
 
   @override
+  String get editor_sidebar_collapse => 'Recolher barra lateral';
+
+  @override
+  String get editor_sidebar_expand => 'Expandir barra lateral';
+
+  @override
   String get embed_add_field => 'Adicionar Campo';
 
   @override

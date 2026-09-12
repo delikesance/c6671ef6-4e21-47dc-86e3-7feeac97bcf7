@@ -14,7 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nyxx/nyxx.dart' hide Builder;
 import 'package:bot_creator/core/theme/app_theme.dart';
-import 'package:bot_creator/core/utils/responsive.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/editor_sub_page_ui.dart';
 
 enum _VariableMode { global, scoped }
 
@@ -104,14 +104,14 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
       getTimeout: const Duration(seconds: 10),
       postTimeout: const Duration(seconds: 30),
     );
-    final managerClient =
-        remoteRuntime.client is MainApiClient
-            ? remoteRuntime.client as MainApiClient
-            : null;
+    final managerClient = remoteRuntime.client is MainApiClient
+        ? remoteRuntime.client as MainApiClient
+        : null;
 
     if (!mounted) return;
     final mergedRunners = List<RunnerConnectionConfig>.from(runners);
-    if (active != null && !mergedRunners.any((runner) => runner.id == active.id)) {
+    if (active != null &&
+        !mergedRunners.any((runner) => runner.id == active.id)) {
       mergedRunners.insert(0, active);
     }
     setState(() {
@@ -452,75 +452,74 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
 
     final save = await showDialog<bool>(
       context: context,
-      builder:
-          (ctx) => AlertDialog(
-            title: Row(
-              children: [
-                Icon(
-                  Icons.public,
-                  size: 22,
-                  color: Theme.of(ctx).colorScheme.primary,
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    key == null
-                        ? context.tr.globals_add_global
-                        : context.tr.globals_edit_global,
-                  ),
-                ),
-              ],
+      builder: (ctx) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(
+              Icons.public,
+              size: 22,
+              color: Theme.of(ctx).colorScheme.primary,
             ),
-            content: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 420),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    context.tr.globals_dialog_global_desc,
-                    style: Theme.of(ctx).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(ctx).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: keyCtrl,
-                    enabled: key == null,
-                    autofocus: key == null,
-                    decoration: InputDecoration(
-                      labelText: context.tr.globals_key,
-                      hintText: context.tr.globals_key_hint,
-                      prefixIcon: const Icon(Icons.vpn_key_outlined, size: 20),
-                      border: const OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: valueCtrl,
-                    maxLines: 4,
-                    minLines: 1,
-                    autofocus: key != null,
-                    decoration: InputDecoration(
-                      labelText: context.tr.globals_value,
-                      helperText: context.tr.globals_value_auto_type_hint,
-                      helperMaxLines: 2,
-                      border: const OutlineInputBorder(),
-                    ),
-                  ),
-                ],
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                key == null
+                    ? context.tr.globals_add_global
+                    : context.tr.globals_edit_global,
               ),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
-                child: Text(context.tr.cancel),
+          ],
+        ),
+        content: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                context.tr.globals_dialog_global_desc,
+                style: Theme.of(ctx).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(ctx).colorScheme.onSurfaceVariant,
+                ),
               ),
-              FilledButton(
-                onPressed: () => Navigator.pop(ctx, true),
-                child: Text(context.tr.app_save),
+              const SizedBox(height: 16),
+              TextField(
+                controller: keyCtrl,
+                enabled: key == null,
+                autofocus: key == null,
+                decoration: InputDecoration(
+                  labelText: context.tr.globals_key,
+                  hintText: context.tr.globals_key_hint,
+                  prefixIcon: const Icon(Icons.vpn_key_outlined, size: 20),
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: valueCtrl,
+                maxLines: 4,
+                minLines: 1,
+                autofocus: key != null,
+                decoration: InputDecoration(
+                  labelText: context.tr.globals_value,
+                  helperText: context.tr.globals_value_auto_type_hint,
+                  helperMaxLines: 2,
+                  border: const OutlineInputBorder(),
+                ),
               ),
             ],
           ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(context.tr.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(context.tr.app_save),
+          ),
+        ],
+      ),
     );
 
     if (save != true) return;
@@ -533,9 +532,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
     } on MainApiClientException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to sync variable: ${e.message}'),
-        ),
+        SnackBar(content: Text('Failed to sync variable: ${e.message}')),
       );
       return;
     }
@@ -575,161 +572,147 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
 
     final save = await showDialog<bool>(
       context: context,
-      builder:
-          (ctx) => StatefulBuilder(
-            builder:
-                (ctx, setInner) => AlertDialog(
-                  title: Row(
-                    children: [
-                      Icon(
-                        Icons.account_tree_outlined,
-                        size: 22,
-                        color: Theme.of(ctx).colorScheme.primary,
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          existing == null
-                              ? context.tr.globals_add_scoped
-                              : context.tr.globals_edit_scoped,
-                        ),
-                      ),
-                    ],
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setInner) => AlertDialog(
+          title: Row(
+            children: [
+              Icon(
+                Icons.account_tree_outlined,
+                size: 22,
+                color: Theme.of(ctx).colorScheme.primary,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  existing == null
+                      ? context.tr.globals_add_scoped
+                      : context.tr.globals_edit_scoped,
+                ),
+              ),
+            ],
+          ),
+          content: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 420),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  context.tr.globals_dialog_scoped_desc(scope),
+                  style: Theme.of(ctx).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(ctx).colorScheme.onSurfaceVariant,
                   ),
-                  content: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 420),
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  initialValue: scope,
+                  decoration: InputDecoration(
+                    labelText: context.tr.scoped_scope,
+                    helperText: context.tr.scoped_scope_help,
+                    helperMaxLines: 2,
+                    border: const OutlineInputBorder(),
+                  ),
+                  items: _scopes
+                      .map(
+                        (s) => DropdownMenuItem<String>(
+                          value: s,
+                          child: Row(
+                            children: [
+                              Icon(
+                                _scopeIcon(s),
+                                size: 18,
+                                color: Theme.of(
+                                  ctx,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
+                              const SizedBox(width: 10),
+                              Text(s),
+                            ],
+                          ),
+                        ),
+                      )
+                      .toList(growable: false),
+                  onChanged: (v) {
+                    if (v != null) setInner(() => scope = v);
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: keyCtrl,
+                  autofocus: existing == null,
+                  decoration: InputDecoration(
+                    labelText: context.tr.globals_key,
+                    hintText: context.tr.globals_key_hint,
+                    prefixIcon: const Icon(Icons.vpn_key_outlined, size: 20),
+                    border: const OutlineInputBorder(),
+                  ),
+                  onChanged: (_) => setInner(() {}),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: valueCtrl,
+                  maxLines: 4,
+                  minLines: 1,
+                  decoration: InputDecoration(
+                    labelText: context.tr.scoped_default_value,
+                    hintText: context.tr.scoped_default_value_hint,
+                    helperText: context.tr.globals_value_auto_type_hint,
+                    helperMaxLines: 2,
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+                if (keyCtrl.text.trim().isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(ctx).colorScheme.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                    ),
                     child: Column(
-                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          context.tr.globals_dialog_scoped_desc(scope),
-                          style: Theme.of(ctx).textTheme.bodySmall?.copyWith(
+                          context.tr.globals_dialog_ref_preview(
+                            '$scope.${_toScopedReferenceKey(keyCtrl.text)}',
+                          ),
+                          style: TextStyle(
+                            fontFamily: 'monospace',
+                            fontSize: 12,
+                            color: Theme.of(ctx).colorScheme.primary,
+                          ),
+                        ),
+                        Text(
+                          context.tr.scoped_ref(
+                            '$scope.${_toScopedReferenceKey(keyCtrl.text)}',
+                          ),
+                          style: TextStyle(
+                            fontSize: 11,
                             color: Theme.of(ctx).colorScheme.onSurfaceVariant,
                           ),
                         ),
-                        const SizedBox(height: 16),
-                        DropdownButtonFormField<String>(
-                          initialValue: scope,
-                          decoration: InputDecoration(
-                            labelText: context.tr.scoped_scope,
-                            helperText: context.tr.scoped_scope_help,
-                            helperMaxLines: 2,
-                            border: const OutlineInputBorder(),
-                          ),
-                          items: _scopes
-                              .map(
-                                (s) => DropdownMenuItem<String>(
-                                  value: s,
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        _scopeIcon(s),
-                                        size: 18,
-                                        color:
-                                            Theme.of(
-                                              ctx,
-                                            ).colorScheme.onSurfaceVariant,
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Text(s),
-                                    ],
-                                  ),
-                                ),
-                              )
-                              .toList(growable: false),
-                          onChanged: (v) {
-                            if (v != null) setInner(() => scope = v);
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        TextField(
-                          controller: keyCtrl,
-                          autofocus: existing == null,
-                          decoration: InputDecoration(
-                            labelText: context.tr.globals_key,
-                            hintText: context.tr.globals_key_hint,
-                            prefixIcon: const Icon(
-                              Icons.vpn_key_outlined,
-                              size: 20,
-                            ),
-                            border: const OutlineInputBorder(),
-                          ),
-                          onChanged: (_) => setInner(() {}),
-                        ),
-                        const SizedBox(height: 16),
-                        TextField(
-                          controller: valueCtrl,
-                          maxLines: 4,
-                          minLines: 1,
-                          decoration: InputDecoration(
-                            labelText: context.tr.scoped_default_value,
-                            hintText: context.tr.scoped_default_value_hint,
-                            helperText: context.tr.globals_value_auto_type_hint,
-                            helperMaxLines: 2,
-                            border: const OutlineInputBorder(),
-                          ),
-                        ),
-                        if (keyCtrl.text.trim().isNotEmpty) ...[
-                          const SizedBox(height: 12),
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color:
-                                  Theme.of(
-                                    ctx,
-                                  ).colorScheme.surfaceContainerHighest,
-                              borderRadius: BorderRadius.circular(
-                                AppTheme.radiusSm,
-                              ),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  context.tr.globals_dialog_ref_preview(
-                                    '$scope.${_toScopedReferenceKey(keyCtrl.text)}',
-                                  ),
-                                  style: TextStyle(
-                                    fontFamily: 'monospace',
-                                    fontSize: 12,
-                                    color: Theme.of(ctx).colorScheme.primary,
-                                  ),
-                                ),
-                                Text(
-                                  context.tr.scoped_ref(
-                                    '$scope.${_toScopedReferenceKey(keyCtrl.text)}',
-                                  ),
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color:
-                                        Theme.of(
-                                          ctx,
-                                        ).colorScheme.onSurfaceVariant,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
                       ],
                     ),
                   ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(ctx, false),
-                      child: Text(context.tr.cancel),
-                    ),
-                    FilledButton(
-                      onPressed: () => Navigator.pop(ctx, true),
-                      child: Text(context.tr.app_save),
-                    ),
-                  ],
-                ),
+                ],
+              ],
+            ),
           ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(context.tr.cancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(context.tr.app_save),
+            ),
+          ],
+        ),
+      ),
     );
 
     if (save != true) return;
@@ -884,158 +867,147 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      builder:
-          (ctx) => DraggableScrollableSheet(
-            expand: false,
-            initialChildSize: 0.55,
-            minChildSize: 0.35,
-            maxChildSize: 0.9,
-            builder: (ctx, scrollCtrl) {
-              var runtimeSearch = '';
-              return StatefulBuilder(
-                builder: (ctx, setLocalState) {
-                  return SafeArea(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ListTile(
-                          title: Text(context.tr.scoped_runtime_title(key)),
-                          subtitle: Text(
-                            context.tr.scoped_runtime_subtitle(
-                              scope,
-                              values.length,
-                            ),
-                          ),
-                          trailing:
-                              values.isNotEmpty
-                                  ? IconButton(
-                                    tooltip: context.tr.scoped_runtime_copy_all,
-                                    icon: const Icon(Icons.copy, size: 20),
-                                    onPressed: () {
-                                      Clipboard.setData(
-                                        ClipboardData(
-                                          text: const JsonEncoder.withIndent(
-                                            '  ',
-                                          ).convert(values),
-                                        ),
-                                      );
-                                      ScaffoldMessenger.of(ctx).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            context.tr.scoped_runtime_copy_all,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  )
-                                  : null,
+      builder: (ctx) => DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.55,
+        minChildSize: 0.35,
+        maxChildSize: 0.9,
+        builder: (ctx, scrollCtrl) {
+          var runtimeSearch = '';
+          return StatefulBuilder(
+            builder: (ctx, setLocalState) {
+              return SafeArea(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ListTile(
+                      title: Text(context.tr.scoped_runtime_title(key)),
+                      subtitle: Text(
+                        context.tr.scoped_runtime_subtitle(
+                          scope,
+                          values.length,
                         ),
-                        if (values.isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 4,
-                            ),
-                            child: TextField(
-                              decoration: InputDecoration(
-                                hintText: context.tr.scoped_runtime_search,
-                                prefixIcon: const Icon(Icons.search, size: 20),
-                                isDense: true,
-                                border: const OutlineInputBorder(),
-                              ),
-                              onChanged: (v) {
-                                setLocalState(() {
-                                  runtimeSearch = v;
-                                });
+                      ),
+                      trailing: values.isNotEmpty
+                          ? IconButton(
+                              tooltip: context.tr.scoped_runtime_copy_all,
+                              icon: const Icon(Icons.copy, size: 20),
+                              onPressed: () {
+                                Clipboard.setData(
+                                  ClipboardData(
+                                    text: const JsonEncoder.withIndent(
+                                      '  ',
+                                    ).convert(values),
+                                  ),
+                                );
+                                ScaffoldMessenger.of(ctx).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      context.tr.scoped_runtime_copy_all,
+                                    ),
+                                  ),
+                                );
                               },
-                            ),
+                            )
+                          : null,
+                    ),
+                    if (values.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 4,
+                        ),
+                        child: TextField(
+                          decoration: InputDecoration(
+                            hintText: context.tr.scoped_runtime_search,
+                            prefixIcon: const Icon(Icons.search, size: 20),
+                            isDense: true,
+                            border: const OutlineInputBorder(),
                           ),
-                        const Divider(height: 1),
-                        Expanded(
-                          child:
-                              values.isEmpty
-                                  ? Center(
+                          onChanged: (v) {
+                            setLocalState(() {
+                              runtimeSearch = v;
+                            });
+                          },
+                        ),
+                      ),
+                    const Divider(height: 1),
+                    Expanded(
+                      child: values.isEmpty
+                          ? Center(
+                              child: Text(
+                                context.tr.scoped_runtime_empty,
+                                textAlign: TextAlign.center,
+                              ),
+                            )
+                          : Builder(
+                              builder: (ctx) {
+                                final q = runtimeSearch.toLowerCase();
+                                final filtered = values.entries
+                                    .where((e) {
+                                      if (q.isEmpty) return true;
+                                      final label = labels[e.key];
+                                      return e.key.toLowerCase().contains(q) ||
+                                          (label != null &&
+                                              label.toLowerCase().contains(q));
+                                    })
+                                    .toList(growable: false);
+                                if (filtered.isEmpty) {
+                                  return Center(
                                     child: Text(
                                       context.tr.scoped_runtime_empty,
                                       textAlign: TextAlign.center,
                                     ),
-                                  )
-                                  : Builder(
-                                    builder: (ctx) {
-                                      final q = runtimeSearch.toLowerCase();
-                                      final filtered = values.entries
-                                          .where((e) {
-                                            if (q.isEmpty) return true;
-                                            final label = labels[e.key];
-                                            return e.key.toLowerCase().contains(
-                                                  q,
-                                                ) ||
-                                                (label != null &&
-                                                    label
-                                                        .toLowerCase()
-                                                        .contains(q));
-                                          })
-                                          .toList(growable: false);
-                                      if (filtered.isEmpty) {
-                                        return Center(
-                                          child: Text(
-                                            context.tr.scoped_runtime_empty,
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        );
-                                      }
-                                      return ListView.separated(
-                                        controller: scrollCtrl,
-                                        itemCount: filtered.length,
-                                        separatorBuilder:
-                                            (_, _) => const Divider(height: 1),
-                                        itemBuilder: (ctx, i) {
-                                          final entry = filtered[i];
-                                          final label = labels[entry.key];
-                                          return ListTile(
-                                            dense: true,
-                                            title: Text(
-                                              label ?? entry.key,
-                                              style: TextStyle(
-                                                fontFamily:
-                                                    label != null
-                                                        ? null
-                                                        : 'monospace',
-                                                fontWeight: FontWeight.w600,
-                                                fontSize:
-                                                    label != null ? 14 : 12,
+                                  );
+                                }
+                                return ListView.separated(
+                                  controller: scrollCtrl,
+                                  itemCount: filtered.length,
+                                  separatorBuilder: (_, _) =>
+                                      const Divider(height: 1),
+                                  itemBuilder: (ctx, i) {
+                                    final entry = filtered[i];
+                                    final label = labels[entry.key];
+                                    return ListTile(
+                                      dense: true,
+                                      title: Text(
+                                        label ?? entry.key,
+                                        style: TextStyle(
+                                          fontFamily: label != null
+                                              ? null
+                                              : 'monospace',
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: label != null ? 14 : 12,
+                                        ),
+                                      ),
+                                      subtitle: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          if (label != null)
+                                            Text(
+                                              entry.key,
+                                              style: const TextStyle(
+                                                fontFamily: 'monospace',
+                                                fontSize: 11,
                                               ),
                                             ),
-                                            subtitle: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                if (label != null)
-                                                  Text(
-                                                    entry.key,
-                                                    style: const TextStyle(
-                                                      fontFamily: 'monospace',
-                                                      fontSize: 11,
-                                                    ),
-                                                  ),
-                                                Text(
-                                                  entry.value?.toString() ?? '',
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        },
-                                      );
-                                    },
-                                  ),
-                        ),
-                      ],
+                                          Text(entry.value?.toString() ?? ''),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                            ),
                     ),
-                  );
-                },
+                  ],
+                ),
               );
             },
-          ),
+          );
+        },
+      ),
     );
   }
 
@@ -1057,18 +1029,15 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
   /// Returns scoped definitions grouped by scope, filtered by search query.
   Map<String, List<Map<String, dynamic>>> get _filteredScopedByScope {
     final q = _searchQuery.toLowerCase();
-    final filtered =
-        _searchQuery.isEmpty
-            ? _scopedDefinitions
-            : _scopedDefinitions
-                .where(
-                  (d) =>
-                      (d['key']?.toString().toLowerCase().contains(q) ??
-                          false) ||
-                      (d['scope']?.toString().toLowerCase().contains(q) ??
-                          false),
-                )
-                .toList();
+    final filtered = _searchQuery.isEmpty
+        ? _scopedDefinitions
+        : _scopedDefinitions
+              .where(
+                (d) =>
+                    (d['key']?.toString().toLowerCase().contains(q) ?? false) ||
+                    (d['scope']?.toString().toLowerCase().contains(q) ?? false),
+              )
+              .toList();
 
     final grouped = <String, List<Map<String, dynamic>>>{};
     for (final def in filtered) {
@@ -1108,13 +1077,12 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
             horizontal: 12,
             vertical: 10,
           ),
-          suffixIcon:
-              _searchQuery.isNotEmpty
-                  ? IconButton(
-                    icon: const Icon(Icons.clear, size: 18),
-                    onPressed: () => setState(() => _searchQuery = ''),
-                  )
-                  : null,
+          suffixIcon: _searchQuery.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.clear, size: 18),
+                  onPressed: () => setState(() => _searchQuery = ''),
+                )
+              : null,
         ),
         onChanged: (v) => setState(() => _searchQuery = v),
       ),
@@ -1309,45 +1277,42 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
           ),
           onTap: () => _editGlobalVariable(key: entry.key),
           trailing: PopupMenuButton<String>(
-            itemBuilder:
-                (ctx) => [
-                  PopupMenuItem<String>(
-                    value: 'edit',
-                    child: ListTile(
-                      leading: const Icon(Icons.edit_outlined, size: 20),
-                      title: Text(context.tr.globals_edit),
-                      dense: true,
-                      contentPadding: EdgeInsets.zero,
-                    ),
+            itemBuilder: (ctx) => [
+              PopupMenuItem<String>(
+                value: 'edit',
+                child: ListTile(
+                  leading: const Icon(Icons.edit_outlined, size: 20),
+                  title: Text(context.tr.globals_edit),
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              PopupMenuItem<String>(
+                value: 'copy',
+                child: ListTile(
+                  leading: const Icon(Icons.copy, size: 20),
+                  title: Text(context.tr.globals_copy_value),
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              PopupMenuItem<String>(
+                value: 'delete',
+                child: ListTile(
+                  leading: Icon(
+                    Icons.delete_outline,
+                    size: 20,
+                    color: Theme.of(ctx).colorScheme.error,
                   ),
-                  PopupMenuItem<String>(
-                    value: 'copy',
-                    child: ListTile(
-                      leading: const Icon(Icons.copy, size: 20),
-                      title: Text(context.tr.globals_copy_value),
-                      dense: true,
-                      contentPadding: EdgeInsets.zero,
-                    ),
+                  title: Text(
+                    context.tr.delete,
+                    style: TextStyle(color: Theme.of(ctx).colorScheme.error),
                   ),
-                  PopupMenuItem<String>(
-                    value: 'delete',
-                    child: ListTile(
-                      leading: Icon(
-                        Icons.delete_outline,
-                        size: 20,
-                        color: Theme.of(ctx).colorScheme.error,
-                      ),
-                      title: Text(
-                        context.tr.delete,
-                        style: TextStyle(
-                          color: Theme.of(ctx).colorScheme.error,
-                        ),
-                      ),
-                      dense: true,
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                  ),
-                ],
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+            ],
             onSelected: (action) {
               switch (action) {
                 case 'edit':
@@ -1507,45 +1472,42 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
           ),
           isThreeLine: true,
           trailing: PopupMenuButton<String>(
-            itemBuilder:
-                (ctx) => [
-                  PopupMenuItem<String>(
-                    value: 'explore',
-                    child: ListTile(
-                      leading: const Icon(Icons.travel_explore, size: 20),
-                      title: Text(context.tr.scoped_explore_runtime),
-                      dense: true,
-                      contentPadding: EdgeInsets.zero,
-                    ),
+            itemBuilder: (ctx) => [
+              PopupMenuItem<String>(
+                value: 'explore',
+                child: ListTile(
+                  leading: const Icon(Icons.travel_explore, size: 20),
+                  title: Text(context.tr.scoped_explore_runtime),
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              PopupMenuItem<String>(
+                value: 'edit',
+                child: ListTile(
+                  leading: const Icon(Icons.edit_outlined, size: 20),
+                  title: Text(context.tr.globals_edit),
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              PopupMenuItem<String>(
+                value: 'delete',
+                child: ListTile(
+                  leading: Icon(
+                    Icons.delete_outline,
+                    size: 20,
+                    color: Theme.of(ctx).colorScheme.error,
                   ),
-                  PopupMenuItem<String>(
-                    value: 'edit',
-                    child: ListTile(
-                      leading: const Icon(Icons.edit_outlined, size: 20),
-                      title: Text(context.tr.globals_edit),
-                      dense: true,
-                      contentPadding: EdgeInsets.zero,
-                    ),
+                  title: Text(
+                    context.tr.delete,
+                    style: TextStyle(color: Theme.of(ctx).colorScheme.error),
                   ),
-                  PopupMenuItem<String>(
-                    value: 'delete',
-                    child: ListTile(
-                      leading: Icon(
-                        Icons.delete_outline,
-                        size: 20,
-                        color: Theme.of(ctx).colorScheme.error,
-                      ),
-                      title: Text(
-                        context.tr.delete,
-                        style: TextStyle(
-                          color: Theme.of(ctx).colorScheme.error,
-                        ),
-                      ),
-                      dense: true,
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                  ),
-                ],
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+            ],
             onSelected: (action) {
               switch (action) {
                 case 'explore':
@@ -1592,14 +1554,12 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
 
   Widget _buildPanel(_VariableMode mode) {
     final isGlobal = mode == _VariableMode.global;
-    final title =
-        isGlobal
-            ? context.tr.globals_mode_global
-            : context.tr.globals_mode_scoped;
-    final help =
-        isGlobal
-            ? context.tr.globals_help_global
-            : context.tr.globals_help_scoped;
+    final title = isGlobal
+        ? context.tr.globals_mode_global
+        : context.tr.globals_mode_scoped;
+    final help = isGlobal
+        ? context.tr.globals_help_global
+        : context.tr.globals_help_scoped;
     return Column(
       children: [
         Container(
@@ -1627,10 +1587,9 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                   IconButton(
                     icon: const Icon(Icons.add, size: 20),
                     tooltip: context.tr.globals_add,
-                    onPressed:
-                        isGlobal
-                            ? () => _editGlobalVariable()
-                            : () => _editScopedDefinition(),
+                    onPressed: isGlobal
+                        ? () => _editGlobalVariable()
+                        : () => _editScopedDefinition(),
                   ),
                 ],
               ),
@@ -1681,56 +1640,54 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
             _VariablesSource.runner => Icons.cloud_outlined,
             _VariablesSource.manager => Icons.hub_outlined,
           }, size: 22),
-          itemBuilder:
-              (ctx) => [
-                PopupMenuItem<String>(
-                  value: 'local',
+          itemBuilder: (ctx) => [
+            PopupMenuItem<String>(
+              value: 'local',
+              child: ListTile(
+                leading: const Icon(Icons.storage_outlined, size: 20),
+                title: Text(context.tr.globals_source_local),
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+                selected: _source == _VariablesSource.local,
+              ),
+            ),
+            if (hasManagerSource) const PopupMenuDivider(),
+            if (hasManagerSource)
+              PopupMenuItem<String>(
+                value: 'manager',
+                child: ListTile(
+                  leading: const Icon(Icons.hub_outlined, size: 20),
+                  title: Text(context.tr.app_title),
+                  subtitle: (_managerDetailLabel?.trim().isNotEmpty ?? false)
+                      ? Text(
+                          _managerDetailLabel!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        )
+                      : null,
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  selected: _isManagerMode,
+                ),
+              ),
+            if (hasManagerSource && _runners.isNotEmpty && !_isMobile)
+              const PopupMenuDivider(),
+            if (!_isMobile)
+              ..._runners.map(
+                (runner) => PopupMenuItem<String>(
+                  value: runner.id,
                   child: ListTile(
-                    leading: const Icon(Icons.storage_outlined, size: 20),
-                    title: Text(context.tr.globals_source_local),
+                    leading: const Icon(Icons.cloud_outlined, size: 20),
+                    title: Text(
+                      context.tr.globals_source_runner(runner.name ?? '?'),
+                    ),
                     dense: true,
                     contentPadding: EdgeInsets.zero,
-                    selected: _source == _VariablesSource.local,
+                    selected: _isRunnerMode && _activeRunnerId == runner.id,
                   ),
                 ),
-                if (hasManagerSource) const PopupMenuDivider(),
-                if (hasManagerSource)
-                  PopupMenuItem<String>(
-                    value: 'manager',
-                    child: ListTile(
-                      leading: const Icon(Icons.hub_outlined, size: 20),
-                      title: Text(context.tr.app_title),
-                      subtitle:
-                          (_managerDetailLabel?.trim().isNotEmpty ?? false)
-                              ? Text(
-                                _managerDetailLabel!,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              )
-                              : null,
-                      dense: true,
-                      contentPadding: EdgeInsets.zero,
-                      selected: _isManagerMode,
-                    ),
-                  ),
-                if (hasManagerSource && _runners.isNotEmpty && !_isMobile)
-                  const PopupMenuDivider(),
-                if (!_isMobile)
-                  ..._runners.map(
-                  (runner) => PopupMenuItem<String>(
-                    value: runner.id,
-                    child: ListTile(
-                      leading: const Icon(Icons.cloud_outlined, size: 20),
-                      title: Text(
-                        context.tr.globals_source_runner(runner.name ?? '?'),
-                      ),
-                      dense: true,
-                      contentPadding: EdgeInsets.zero,
-                      selected: _isRunnerMode && _activeRunnerId == runner.id,
-                    ),
-                  ),
-                ),
-              ],
+              ),
+          ],
           onSelected: (id) => unawaited(_switchSource(id)),
         ),
       IconButton(
@@ -1743,12 +1700,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        leading: !ResponsiveHelper.isDesktopPlatform()
-            ? IconButton(
-                icon: const Icon(Icons.menu),
-                onPressed: () => context.openParentDrawer(),
-              )
-            : null,
+        leading: editorSubPageLeading(context),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1769,26 +1721,22 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
           final isWide = MediaQuery.of(context).size.width >= _wideBreakpoint;
           if (isWide) return const SizedBox.shrink();
           return FloatingActionButton(
-            onPressed:
-                () =>
-                    _isScopedMode
-                        ? _editScopedDefinition()
-                        : _editGlobalVariable(),
+            onPressed: () =>
+                _isScopedMode ? _editScopedDefinition() : _editGlobalVariable(),
             child: const Icon(Icons.add),
           );
         },
       ),
       body: SafeArea(
         top: false,
-        child:
-            _loading
-                ? const Center(child: CircularProgressIndicator())
-                : LayoutBuilder(
-                  builder: (ctx, constraints) {
-                    final isWide = constraints.maxWidth >= _wideBreakpoint;
-                    return _buildVariablesContent(isWide: isWide);
-                  },
-                ),
+        child: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : LayoutBuilder(
+                builder: (ctx, constraints) {
+                  final isWide = constraints.maxWidth >= _wideBreakpoint;
+                  return _buildVariablesContent(isWide: isWide);
+                },
+              ),
       ),
     );
   }

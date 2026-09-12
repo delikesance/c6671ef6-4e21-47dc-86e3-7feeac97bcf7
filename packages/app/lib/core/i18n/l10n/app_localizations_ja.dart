@@ -3597,6 +3597,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get edit_shell_untitled_command => '無題のコマンド';
 
   @override
+  String get editor_sidebar_collapse => 'サイドバーを折りたたむ';
+
+  @override
+  String get editor_sidebar_expand => 'サイドバーを展開する';
+
+  @override
   String get embed_add_field => 'フィールドを追加';
 
   @override

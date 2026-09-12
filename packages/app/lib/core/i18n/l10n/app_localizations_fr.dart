@@ -3841,6 +3841,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get edit_shell_untitled_command => 'Commande sans titre';
 
   @override
+  String get editor_sidebar_collapse => 'Replier le menu';
+
+  @override
+  String get editor_sidebar_expand => 'Déplier le menu';
+
+  @override
   String get embed_add_field => 'Ajouter un champ';
 
   @override

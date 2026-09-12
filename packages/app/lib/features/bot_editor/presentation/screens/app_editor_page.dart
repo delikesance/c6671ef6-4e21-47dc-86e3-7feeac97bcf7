@@ -9,12 +9,12 @@ import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/utils/global.dart';
-import 'package:bot_creator/core/utils/responsive.dart';
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 import 'package:bot_creator/features/bot_editor/logic/js_runner_capabilities.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command_dashboard.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/commands.list.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/editor_sub_page_ui.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/emojis.page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/global.variables.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/guilds.page.dart';
@@ -23,13 +23,30 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pag
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/scheduler.page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/settings.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/workflows.page.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/editor_sidebar.dart';
 import 'package:bot_creator/features/home/presentation/home_page.dart';
 import 'package:bot_creator/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+/// Repasse un libellé i18n en casse normale (« MODULES » → « Modules »).
+///
+/// `bot_home_section_modules` est un titre de SECTION : sa valeur localisée est
+/// écrite en capitales et convient aux en-têtes de la sidebar, mais pas aux
+/// items de la nav du bas, qui doivent rester homogènes avec « Accueil »,
+/// « Cmd » et « Paramètres ». Aucune chaîne n'est codée en dur : le texte reste
+/// celui de l'i18n, seule la casse est ajustée.
+String _sentenceCased(String localizedLabel) {
+  final lowered = localizedLabel.toLowerCase();
+  final runes = lowered.runes;
+  if (runes.isEmpty) {
+    return lowered;
+  }
+  final first = String.fromCharCode(runes.first);
+  return first.toUpperCase() + lowered.substring(first.length);
+}
 
 class AppEditPage extends StatefulWidget {
   final String appName;
@@ -61,6 +78,8 @@ class _AppEditPageState extends State<AppEditPage>
 
   bool _beginnerMode = false;
   bool _beginnerModeLoaded = false;
+  bool _sidebarCollapsed = false;
+  bool _sidebarCollapsedLoaded = false;
   String _runtimeEngine = runtimeEngineDart;
 
   @override
@@ -112,6 +131,10 @@ class _AppEditPageState extends State<AppEditPage>
       screenClass: "AppEditPage",
       parameters: {"app_name": widget.appName, "app_id": widget.id.toString()},
     );
+
+    // Préférence « sidebar repliée » : chargée avant le premier rendu qui peut
+    // afficher la sidebar, pour ne jamais montrer le mauvais état une frame.
+    await _loadSidebarCollapsed();
     try {
       final app = await appManager.getApp(widget.id.toString());
       final runtimeEngine = await getBotRuntimeEngine(widget.id.toString());
@@ -221,6 +244,38 @@ class _AppEditPageState extends State<AppEditPage>
     AppAnalytics.logEvent(
       name: 'beginner_mode_toggled',
       parameters: {'enabled': value.toString(), 'bot_id': _botId},
+    );
+  }
+
+  static const String _sidebarCollapsedKey = 'editor_sidebar_collapsed';
+
+  Future<void> _loadSidebarCollapsed() async {
+    var collapsed = false;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      collapsed = prefs.getBool(_sidebarCollapsedKey) ?? false;
+    } catch (e) {
+      developer.log('Failed to load sidebar state: $e', name: 'AppEditPage');
+    }
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _sidebarCollapsed = collapsed;
+      _sidebarCollapsedLoaded = true;
+    });
+  }
+
+  Future<void> _toggleSidebarCollapsed() async {
+    final value = !_sidebarCollapsed;
+    setState(() {
+      _sidebarCollapsed = value;
+    });
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_sidebarCollapsedKey, value);
+    AppAnalytics.logEvent(
+      name: 'sidebar_collapsed_toggled',
+      parameters: {'collapsed': value.toString(), 'bot_id': _botId},
     );
   }
 
@@ -425,188 +480,85 @@ class _AppEditPageState extends State<AppEditPage>
     ]);
   }
 
-  Widget _buildSidebarContent(
+  /// Regroupe les entrées de l'éditeur par catégorie, dans l'ordre historique
+  /// (accueil, commandes, modules, système) : la sidebar extraite ne connaît
+  /// que des sections prêtes à rendre. Les catégories vides sont omises.
+  List<EditorSidebarSection> _buildSidebarSections(
     BuildContext context,
-    ColorScheme colorScheme,
-    List<_AppPageEntry> entries, {
-    required String activeSectionId,
-    bool isDrawer = false,
-  }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final muted = isDark ? AppTheme.homeMuted : colorScheme.onSurfaceVariant;
-
-    final categories = <String, List<_AppPageEntry>>{
-      context.tr.home_tab.toUpperCase(): entries
-          .where((e) => e.category == 'overview')
-          .toList(),
-      context.tr.commands_tab.toUpperCase(): entries
-          .where((e) => e.category == 'commands')
-          .toList(),
-      context.tr.bot_home_section_modules: entries
-          .where((e) => e.category == 'modules')
-          .toList(),
-      context.tr.settings_tab.toUpperCase(): entries
-          .where((e) => e.category == 'system')
-          .toList(),
+    List<_AppPageEntry> entries,
+  ) {
+    final titles = <String, String>{
+      'overview': context.tr.home_tab.toUpperCase(),
+      'commands': context.tr.commands_tab.toUpperCase(),
+      'modules': context.tr.bot_home_section_modules,
+      'system': context.tr.settings_tab.toUpperCase(),
     };
 
-    return SafeArea(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 14, 14, 8),
-            child: Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  tooltip: context.tr.common_back,
-                  onPressed: () => _exitEditor(closeDrawerFirst: isDrawer),
+    return [
+      for (final section in titles.entries)
+        if (entries.any((e) => e.category == section.key))
+          EditorSidebarSection(
+            title: section.value,
+            items: [
+              for (final item in entries.where(
+                (e) => e.category == section.key,
+              ))
+                EditorSidebarItem(
+                  id: item.id,
+                  icon: item.icon,
+                  label: item.label,
                 ),
-                const SizedBox(width: 4),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.appName,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.inter(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          color: colorScheme.onSurface,
-                        ),
-                      ),
-                      Text(
-                        'ID $_botId',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.inter(fontSize: 11, color: muted),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+            ],
           ),
-          Divider(
-            height: 1,
-            thickness: 1,
-            color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-          ),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-              children: [
-                for (final cat in categories.entries)
-                  if (cat.value.isNotEmpty) ...[
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 12, 8, 6),
-                      child: Text(
-                        cat.key,
-                        style: GoogleFonts.inter(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: muted,
-                          letterSpacing: 0.8,
-                        ),
-                      ),
-                    ),
-                    for (final item in cat.value)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 2),
-                        child: _SidebarItemTile(
-                          icon: item.icon,
-                          label: item.label,
-                          selected: activeSectionId == item.id,
-                          onTap: () {
-                            if (isDrawer) {
-                              Navigator.of(context).pop();
-                            }
-                            HapticFeedback.selectionClick();
-                            setState(() {
-                              _activeSectionId = item.id;
-                              if (item.category == 'modules') {
-                                _activeModuleId = item.id;
-                              } else if (item.category == 'system') {
-                                _activeSettingsSubTab = item.id;
-                              }
-                            });
-                          },
-                        ),
-                      ),
-                  ],
-              ],
-            ),
-          ),
-          if (_beginnerModeLoaded && client != null)
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Material(
-                borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                color: _beginnerMode
-                    ? AppTheme.info.withValues(alpha: 0.08)
-                    : Colors.transparent,
-                child: SwitchListTile(
-                  dense: true,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 0,
-                  ),
-                  title: Text(
-                    context.tr.beginner_mode_label,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: _beginnerMode
-                          ? AppTheme.info
-                          : colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  subtitle: Text(
-                    _beginnerMode
-                        ? context.tr.beginner_mode_on_hint
-                        : context.tr.beginner_mode_off_hint,
-                    style: const TextStyle(fontSize: 10),
-                  ),
-                  value: _beginnerMode,
-                  onChanged: (val) => _toggleBeginnerMode(val),
-                ),
-              ),
-            ),
-        ],
-      ),
+    ];
+  }
+
+  /// Sidebar partagée desktop/tiroir : le parent garde l'état (préférence
+  /// repliée persistée, section active) et reçoit les intentions.
+  Widget _buildSidebar(
+    BuildContext context,
+    List<_AppPageEntry> entries,
+    String activeId, {
+    required bool isDrawer,
+  }) {
+    return EditorSidebar(
+      appName: widget.appName,
+      botId: _botId,
+      sections: _buildSidebarSections(context, entries),
+      activeItemId: activeId,
+      collapsed: !isDrawer && _sidebarCollapsed,
+      onToggleCollapsed: _toggleSidebarCollapsed,
+      onSelectItem: (itemId) =>
+          _onSidebarItemSelected(entries, itemId, isDrawer: isDrawer),
+      onBack: () => _exitEditor(closeDrawerFirst: isDrawer),
+      isDrawer: isDrawer,
+      showBeginnerMode: _beginnerModeLoaded && client != null,
+      beginnerMode: _beginnerMode,
+      onBeginnerModeChanged: _toggleBeginnerMode,
     );
   }
 
-  Widget _buildDesktopSidebar(
-    BuildContext context,
-    ColorScheme colorScheme,
+  void _onSidebarItemSelected(
     List<_AppPageEntry> entries,
-    String activeSectionId,
-  ) {
-    return Container(
-      width: 256,
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        border: Border(
-          right: BorderSide(
-            color: colorScheme.outlineVariant.withValues(alpha: 0.6),
-          ),
-        ),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: _buildSidebarContent(
-          context,
-          colorScheme,
-          entries,
-          activeSectionId: activeSectionId,
-          isDrawer: false,
-        ),
-      ),
+    String itemId, {
+    required bool isDrawer,
+  }) {
+    if (isDrawer) {
+      Navigator.of(context).pop();
+    }
+    HapticFeedback.selectionClick();
+    final entry = entries.firstWhere(
+      (e) => e.id == itemId,
+      orElse: () => entries.first,
     );
+    setState(() {
+      _activeSectionId = itemId;
+      if (entry.category == 'modules') {
+        _activeModuleId = itemId;
+      } else if (entry.category == 'system') {
+        _activeSettingsSubTab = itemId;
+      }
+    });
   }
 
   Widget _buildModulesView(
@@ -624,33 +576,18 @@ class _AppEditPageState extends State<AppEditPage>
 
     return Column(
       children: [
-        Container(
-          color: colorScheme.surface,
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Row(
-              children: [
-                for (final entry in moduleEntries)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: _ModulePill(
-                      icon: entry.icon,
-                      label: entry.compactLabel,
-                      selected: activeModuleEntry.id == entry.id,
-                      onTap: () {
-                        HapticFeedback.selectionClick();
-                        setState(() {
-                          _activeModuleId = entry.id;
-                          _activeSectionId = entry.id;
-                        });
-                      },
-                    ),
-                  ),
-              ],
-            ),
-          ),
+        _buildEntriesNavBar(
+          colorScheme: colorScheme,
+          entries: moduleEntries,
+          activeId: activeModuleEntry.id,
+          scrollable: true,
+          onSelect: (entry) {
+            HapticFeedback.selectionClick();
+            setState(() {
+              _activeModuleId = entry.id;
+              _activeSectionId = entry.id;
+            });
+          },
         ),
         Divider(
           height: 1,
@@ -666,52 +603,53 @@ class _AppEditPageState extends State<AppEditPage>
     ColorScheme colorScheme,
     List<_AppPageEntry> systemEntries,
   ) {
-    if (systemEntries.length <= 1) {
-      return systemEntries.first.page;
-    }
-
     final activeSystemEntry = systemEntries.firstWhere(
       (e) => e.id == _activeSettingsSubTab,
       orElse: () => systemEntries.first,
     );
 
-    return Column(
-      children: [
-        Container(
-          color: colorScheme.surface,
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Row(
-              children: [
-                for (final entry in systemEntries)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: _ModulePill(
-                      icon: entry.icon,
-                      label: entry.compactLabel,
-                      selected: activeSystemEntry.id == entry.id,
-                      onTap: () {
-                        HapticFeedback.selectionClick();
-                        setState(() {
-                          _activeSettingsSubTab = entry.id;
-                          _activeSectionId = entry.id;
-                        });
-                      },
-                    ),
-                  ),
-              ],
+    // Plus de bandeau « Tableau de bord | Paramètres » ajouté par le shell sur
+    // mobile : la page de réglages fournit DÉJÀ sa propre barre d'application
+    // ET son bandeau d'onglets, et le bottom menu porte déjà le pilier
+    // « Paramètres ». Trois barres empilées pour une seule navigation, ça
+    // réservait ~68 px de haut d'écran au-dessus du contenu pour rien.
+    // Le pilier « Paramètres » du bottom menu (et la sidebar sur desktop)
+    // gardent l'accès aux deux entrées système.
+    return activeSystemEntry.page;
+  }
+
+  /// Bandeau de sous-navigation de l'éditeur (pastilles modules/système) rendu
+  /// par le composant partagé [FloatingGlassNavBar] : c'est le même design que
+  /// la nav flottante du bas et que la Home, en variante inline.
+  ///
+  /// [scrollable] est activé quand les entrées sont nombreuses (modules) pour
+  /// que les libellés ne soient pas comprimés ; sinon les items se partagent la
+  /// largeur disponible.
+  Widget _buildEntriesNavBar({
+    required ColorScheme colorScheme,
+    required List<_AppPageEntry> entries,
+    required String activeId,
+    required bool scrollable,
+    required void Function(_AppPageEntry entry) onSelect,
+  }) {
+    return Container(
+      color: colorScheme.surface,
+      padding: const EdgeInsets.symmetric(
+        horizontal: FloatingGlassNavBar.inlineHorizontalMargin,
+        vertical: FloatingGlassNavBar.inlineVerticalMargin,
+      ),
+      child: FloatingGlassNavBar.inline(
+        scrollable: scrollable,
+        items: [
+          for (final entry in entries)
+            FloatingGlassNavItem(
+              icon: entry.icon,
+              label: entry.compactLabel,
+              selected: entry.id == activeId,
+              onTap: () => onSelect(entry),
             ),
-          ),
-        ),
-        Divider(
-          height: 1,
-          thickness: 1,
-          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-        ),
-        Expanded(child: activeSystemEntry.page),
-      ],
+        ],
+      ),
     );
   }
 
@@ -744,7 +682,10 @@ class _AppEditPageState extends State<AppEditPage>
               id: 'modules',
               icon: Icons.widgets_outlined,
               selectedIcon: Icons.widgets_rounded,
-              label: tr.bot_home_section_modules,
+              // Le libellé i18n est un titre de section écrit en capitales :
+              // on le repasse en casse normale pour la nav du bas, homogène
+              // avec « Accueil », « Cmd » et « Paramètres ».
+              label: _sentenceCased(tr.bot_home_section_modules),
             ),
           if (!isOffline)
             (
@@ -811,7 +752,7 @@ class _AppEditPageState extends State<AppEditPage>
       entries = entries.where((e) => e.beginnerEssential).toList();
     }
 
-    if (_isLoading || entries.isEmpty) {
+    if (_isLoading || !_sidebarCollapsedLoaded || entries.isEmpty) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
@@ -832,7 +773,7 @@ class _AppEditPageState extends State<AppEditPage>
       return Scaffold(
         body: Row(
           children: [
-            _buildDesktopSidebar(context, colorScheme, entries, activeId),
+            _buildSidebar(context, entries, activeId, isDrawer: false),
             Expanded(child: activeEntry.page),
           ],
         ),
@@ -873,13 +814,7 @@ class _AppEditPageState extends State<AppEditPage>
         extendBody: true,
         drawer: Drawer(
           backgroundColor: colorScheme.surface,
-          child: _buildSidebarContent(
-            context,
-            colorScheme,
-            entries,
-            activeSectionId: activeId,
-            isDrawer: true,
-          ),
+          child: _buildSidebar(context, entries, activeId, isDrawer: true),
         ),
         body: Stack(
           children: [
@@ -901,127 +836,6 @@ class _AppEditPageState extends State<AppEditPage>
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SidebarItemTile extends StatelessWidget {
-  const _SidebarItemTile({
-    required this.icon,
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return InkWell(
-      borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-          color: selected
-              ? colorScheme.primary.withValues(alpha: 0.12)
-              : Colors.transparent,
-        ),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              size: 18,
-              color: selected
-                  ? colorScheme.primary
-                  : colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                  color: selected ? colorScheme.primary : colorScheme.onSurface,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ModulePill extends StatelessWidget {
-  const _ModulePill({
-    required this.icon,
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Material(
-      color: selected
-          ? scheme.primary
-          : (isDark ? AppTheme.homeCard : scheme.surfaceContainer),
-      borderRadius: BorderRadius.circular(AppTheme.radiusPill),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppTheme.radiusPill),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppTheme.radiusPill),
-            border: Border.all(
-              color: selected
-                  ? scheme.primary
-                  : (isDark ? AppTheme.homeCardBorder : scheme.outlineVariant),
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                icon,
-                size: 15,
-                color: selected
-                    ? scheme.onPrimary
-                    : (isDark ? AppTheme.homeMuted : scheme.onSurfaceVariant),
-              ),
-              const SizedBox(width: 6),
-              Text(
-                label,
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                  color: selected ? scheme.onPrimary : scheme.onSurface,
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );
@@ -1187,12 +1001,10 @@ class _OfflineTokenPageState extends State<_OfflineTokenPage> {
       appBar: AppBar(
         title: Text(context.tr.bot_settings_token_title),
         automaticallyImplyLeading: false,
-        leading: !ResponsiveHelper.isDesktopPlatform()
-            ? IconButton(
-                icon: const Icon(Icons.menu),
-                onPressed: () => context.openParentDrawer(),
-              )
-            : null,
+        // Même règle que les autres pages : le burger n'existe que si le shell
+        // crée réellement un tiroir (layout compact). Sur desktop la sidebar
+        // est permanente, il ne servait à rien.
+        leading: editorSubPageLeading(context),
       ),
       body: Center(
         child: ConstrainedBox(

@@ -2951,6 +2951,12 @@
   "@edit_shell_untitled_command": {
     "description": "Untitled command"
   },
+  "@editor_sidebar_collapse": {
+    "description": "Collapse the editor sidebar into an icon rail"
+  },
+  "@editor_sidebar_expand": {
+    "description": "Expand the collapsed editor sidebar"
+  },
   "@embed_add_field": {
     "description": "Add Field"
   },
@@ -7888,6 +7894,8 @@
   "edit_shell_type_user": "Comando de usuário",
   "edit_shell_unsaved": "Alterações não salvas",
   "edit_shell_untitled_command": "Comando sem título",
+  "editor_sidebar_collapse": "Recolher barra lateral",
+  "editor_sidebar_expand": "Expandir barra lateral",
   "embed_add_field": "Adicionar Campo",
   "embed_add_section": "Adicionar Seção",
   "embed_add_tooltip": "Adicionar embed",
