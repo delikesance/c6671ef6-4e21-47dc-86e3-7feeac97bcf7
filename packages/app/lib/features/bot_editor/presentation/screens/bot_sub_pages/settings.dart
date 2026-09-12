@@ -15,6 +15,7 @@ import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
 import 'package:bot_creator/core/network/runner_settings.dart';
+import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:file_picker/file_picker.dart';
@@ -23,7 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:bot_creator/core/discord/discord_intent_sync.dart';
 import 'package:bot_creator/core/discord/portal_intent_feedback.dart';
 import 'package:nyxx/nyxx.dart';
-import 'package:bot_creator/core/utils/responsive.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/editor_sub_page_ui.dart';
 import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
 import 'package:bot_creator/features/subscriptions/presentation/subscription_page.dart';
 import 'package:bot_creator_shared/services/lavalink_list_service.dart';
@@ -2639,36 +2640,44 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
         appBar: AppBar(
           title: Text(context.tr.bot_settings_title),
           automaticallyImplyLeading: false,
-          leading: !ResponsiveHelper.isDesktopPlatform()
-              ? IconButton(
-                  icon: const Icon(Icons.menu),
-                  onPressed: () => context.openParentDrawer(),
-                )
-              : null,
-          bottom: TabBar(
-            isScrollable: true,
+          // Le garde d'origine testait la *plateforme* (`isDesktopPlatform`) et
+          // non la largeur : sur desktop / tablette large, le burger
+          // s'affichait alors que le shell ne crée AUCUN tiroir (la sidebar est
+          // permanente) — un bouton mort. `editorSubPageLeading` interroge le
+          // Scaffold parent : null quand la sidebar est là, bouton tiroir en
+          // layout compact, bouton retour pour une route poussée.
+          leading: editorSubPageLeading(context),
+          // Les onglets sont rendus par le composant de navigation partagé
+          // (variante inline) au lieu d'un `TabBar` Material : même identité
+          // visuelle que la nav de la Home et les pastilles de modules.
+          bottom: _SettingsTabsNav(
             tabs: [
-              Tab(
-                icon: const Icon(Icons.settings),
-                text: context.tr.bot_settings_tab_general,
+              (
+                icon: Icons.settings,
+                selectedIcon: Icons.settings_rounded,
+                label: context.tr.bot_settings_tab_general,
               ),
-              Tab(
-                icon: const Icon(Icons.emoji_emotions_outlined),
-                text: context.tr.bot_settings_tab_presence,
+              (
+                icon: Icons.emoji_emotions_outlined,
+                selectedIcon: Icons.emoji_emotions,
+                label: context.tr.bot_settings_tab_presence,
               ),
               if (showLavalink)
-                Tab(
-                  icon: const Icon(Icons.music_note),
-                  text: context.tr.bot_settings_tab_lavalink,
+                (
+                  icon: Icons.music_note,
+                  selectedIcon: null,
+                  label: context.tr.bot_settings_tab_lavalink,
                 ),
               if (showDatabase)
-                Tab(
-                  icon: const Icon(Icons.storage),
-                  text: context.tr.bot_settings_tab_database,
+                (
+                  icon: Icons.storage,
+                  selectedIcon: null,
+                  label: context.tr.bot_settings_tab_database,
                 ),
-              Tab(
-                icon: const Icon(Icons.build_outlined),
-                text: context.tr.bot_settings_tab_advanced,
+              (
+                icon: Icons.build_outlined,
+                selectedIcon: Icons.build,
+                label: context.tr.bot_settings_tab_advanced,
               ),
             ],
           ),
@@ -3474,5 +3483,65 @@ class _StatusDraft {
     urlController.dispose();
     minController.dispose();
     maxController.dispose();
+  }
+}
+
+/// Bandeau d'onglets (Général / Présence & Statut / Lavalink / …) de la page
+/// Paramètres du bot.
+///
+/// Il remplace le `TabBar` Material par le composant de navigation partagé
+/// [FloatingGlassNavBar] en variante inline, pour n'avoir qu'une seule
+/// identité visuelle dans l'app. Il se branche sur le `TabController` du
+/// `DefaultTabController` parent : le swipe entre les sections (`TabBarView`),
+/// l'index sélectionné et les libellés i18n restent inchangés.
+class _SettingsTabsNav extends StatelessWidget implements PreferredSizeWidget {
+  const _SettingsTabsNav({required this.tabs});
+
+  final List<({IconData icon, IconData? selectedIcon, String label})> tabs;
+
+  @override
+  Size get preferredSize =>
+      const Size.fromHeight(FloatingGlassNavBar.inlinePreferredHeight);
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = DefaultTabController.of(context);
+    final animation = controller.animation;
+    if (animation == null) {
+      // Ne peut pas arriver pour un `DefaultTabController` monté (le contrôleur
+      // n'est détaché que lorsqu'il est remplacé/disposé).
+      return const SizedBox.shrink();
+    }
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: FloatingGlassNavBar.inlineHorizontalMargin,
+        vertical: FloatingGlassNavBar.inlineVerticalMargin,
+      ),
+      child: AnimatedBuilder(
+        // `animation` (et non le contrôleur) se met à jour à chaque image :
+        // l'item sélectionné suit ainsi le swipe au lieu de ne changer qu'à
+        // l'arrêt de l'animation.
+        animation: animation,
+        builder: (context, _) {
+          final selectedIndex = animation.value.round().clamp(
+            0,
+            tabs.length - 1,
+          );
+          return FloatingGlassNavBar.inline(
+            scrollable: true,
+            items: [
+              for (var i = 0; i < tabs.length; i++)
+                FloatingGlassNavItem(
+                  icon: tabs[i].icon,
+                  selectedIcon: tabs[i].selectedIcon,
+                  label: tabs[i].label,
+                  selected: selectedIndex == i,
+                  onTap: () => controller.animateTo(i),
+                ),
+            ],
+          );
+        },
+      ),
+    );
   }
 }

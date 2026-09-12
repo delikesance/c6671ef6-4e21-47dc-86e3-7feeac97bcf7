@@ -2951,6 +2951,12 @@
   "@edit_shell_untitled_command": {
     "description": "Untitled command"
   },
+  "@editor_sidebar_collapse": {
+    "description": "Collapse the editor sidebar into an icon rail"
+  },
+  "@editor_sidebar_expand": {
+    "description": "Expand the collapsed editor sidebar"
+  },
   "@embed_add_field": {
     "description": "Add Field"
   },
@@ -7855,6 +7861,8 @@
   "edit_shell_type_user": "Kullanıcı komutu",
   "edit_shell_unsaved": "Kaydedilmemiş değişiklikler",
   "edit_shell_untitled_command": "Adsız komut",
+  "editor_sidebar_collapse": "Kenar çubuğunu daralt",
+  "editor_sidebar_expand": "Kenar çubuğunu genişlet",
   "embed_add_field": "Alan Ekle",
   "embed_add_section": "Bölüm Ekle",
   "embed_add_tooltip": "Gömülü mesaj ekle",

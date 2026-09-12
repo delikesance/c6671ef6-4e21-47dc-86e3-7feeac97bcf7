@@ -6,10 +6,10 @@ import 'package:bot_creator/core/models/types/app_emoji.dart';
 import 'package:bot_creator/features/bot_editor/logic/app_emoji_api.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/editor_sub_page_ui.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
-import 'package:bot_creator/core/utils/responsive.dart';
 
 class EmojisPage extends StatefulWidget {
   final String botId;
@@ -120,15 +120,14 @@ class _EmojisPageState extends State<EmojisPage> {
                   child: Text(context.tr.cancel),
                 ),
                 FilledButton(
-                  onPressed:
-                      pickedFilePath == null
-                          ? null
-                          : () async {
-                            final name = nameController.text.trim();
-                            if (name.isEmpty || pickedFilePath == null) return;
-                            Navigator.of(ctx).pop();
-                            await _uploadEmoji(name, pickedFilePath!);
-                          },
+                  onPressed: pickedFilePath == null
+                      ? null
+                      : () async {
+                          final name = nameController.text.trim();
+                          if (name.isEmpty || pickedFilePath == null) return;
+                          Navigator.of(ctx).pop();
+                          await _uploadEmoji(name, pickedFilePath!);
+                        },
                   child: Text(context.tr.emojis_upload),
                 ),
               ],
@@ -170,28 +169,27 @@ class _EmojisPageState extends State<EmojisPage> {
     final controller = TextEditingController(text: emoji.name);
     final confirmed = await showDialog<bool>(
       context: context,
-      builder:
-          (ctx) => AlertDialog(
-            title: Text(context.tr.emojis_rename_title),
-            content: TextField(
-              controller: controller,
-              autofocus: true,
-              decoration: InputDecoration(
-                labelText: context.tr.emojis_rename_hint,
-                border: const OutlineInputBorder(),
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(ctx).pop(false),
-                child: Text(context.tr.cancel),
-              ),
-              FilledButton(
-                onPressed: () => Navigator.of(ctx).pop(true),
-                child: Text(context.tr.emojis_rename_title),
-              ),
-            ],
+      builder: (ctx) => AlertDialog(
+        title: Text(context.tr.emojis_rename_title),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: InputDecoration(
+            labelText: context.tr.emojis_rename_hint,
+            border: const OutlineInputBorder(),
           ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(context.tr.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(context.tr.emojis_rename_title),
+          ),
+        ],
+      ),
     );
     if (confirmed != true) return;
     final newName = controller.text.trim();
@@ -261,15 +259,8 @@ class _EmojisPageState extends State<EmojisPage> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        leading: !ResponsiveHelper.isDesktopPlatform()
-            ? IconButton(
-                icon: const Icon(Icons.menu),
-                onPressed: () => context.openParentDrawer(),
-              )
-            : null,
-        backgroundColor: const Color.fromRGBO(106, 15, 162, 1),
+        leading: editorSubPageLeading(context),
         title: Text(context.tr.emojis_title),
-        centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -280,7 +271,7 @@ class _EmojisPageState extends State<EmojisPage> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _showUploadDialog,
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         label: Text(context.tr.emojis_upload),
       ),
       body: SafeArea(top: false, child: _buildBody()),
@@ -311,23 +302,11 @@ class _EmojisPageState extends State<EmojisPage> {
     }
 
     if (_emojis.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              Icons.emoji_emotions_outlined,
-              size: 64,
-              color: AppTheme.grey,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              context.tr.emojis_empty,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 15),
-            ),
-          ],
-        ),
+      return EditorEmptyState(
+        icon: Icons.emoji_emotions_outlined,
+        title: context.tr.emojis_empty,
+        actionLabel: context.tr.emojis_upload,
+        onAction: _showUploadDialog,
       );
     }
 
@@ -335,11 +314,16 @@ class _EmojisPageState extends State<EmojisPage> {
       builder: (context, constraints) {
         final crossAxisCount = (constraints.maxWidth / 160).floor().clamp(2, 6);
         return GridView.builder(
-          padding: const EdgeInsets.fromLTRB(12, 12, 12, 80),
+          padding: const EdgeInsets.fromLTRB(
+            AppTheme.spacingMd,
+            AppTheme.spacingMd,
+            AppTheme.spacingMd,
+            80,
+          ),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
+            crossAxisSpacing: AppTheme.spacingMd,
+            mainAxisSpacing: AppTheme.spacingMd,
             childAspectRatio: 0.9,
           ),
           itemCount: _emojis.length,
@@ -380,12 +364,11 @@ class _EmojiCard extends StatelessWidget {
               child: Image.network(
                 emoji.imageUrl,
                 fit: BoxFit.contain,
-                errorBuilder:
-                    (context, error, stackTrace) => const Icon(
-                      Icons.broken_image_outlined,
-                      size: 40,
-                      color: AppTheme.grey,
-                    ),
+                errorBuilder: (context, error, stackTrace) => const Icon(
+                  Icons.broken_image_outlined,
+                  size: 40,
+                  color: AppTheme.grey,
+                ),
               ),
             ),
           ),

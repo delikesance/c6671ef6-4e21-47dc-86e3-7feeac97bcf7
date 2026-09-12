@@ -3834,6 +3834,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get edit_shell_untitled_command => 'Unbenannter Befehl';
 
   @override
+  String get editor_sidebar_collapse => 'Seitenleiste einklappen';
+
+  @override
+  String get editor_sidebar_expand => 'Seitenleiste ausklappen';
+
+  @override
   String get embed_add_field => 'Feld hinzufügen';
 
   @override

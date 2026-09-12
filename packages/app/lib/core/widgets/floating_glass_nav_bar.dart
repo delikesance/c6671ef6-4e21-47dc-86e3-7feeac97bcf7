@@ -1,10 +1,21 @@
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-/// Une entrée de [FloatingGlassNavBar].
-///
-/// Le libellé sert à la fois de texte sous l'icône et de tooltip : c'est aussi
-/// la signature sur laquelle s'appuient les tests de navigation
+/// Variante de rendu de [FloatingGlassNavBar] : mêmes items, même fond « verre
+/// dépoli », même animation et mêmes dimensions d'item — seule la mise en page
+/// diffère.
+enum FloatingGlassNavVariant {
+  /// Barre flottante du bottom menu : positionnée par l'appelant dans un
+  /// `Stack` via [FloatingGlassNavBar.bottomOffsetOf].
+  floating,
+
+  /// Bandeau intégré au flux (`Column`, `AppBar.bottom`, en-tête de section) :
+  /// plus court, sans ombre portée ni positionnement flottant.
+  inline,
+}
+
+/// Une entrée de [FloatingGlassNavBar]. Le libellé sert de texte sous l'icône et
+/// de tooltip : c'est la signature des tests de navigation
 /// (`find.byTooltip(libellé localisé)`), donc il doit toujours être localisé.
 class FloatingGlassNavItem {
   const FloatingGlassNavItem({
@@ -26,13 +37,13 @@ class FloatingGlassNavItem {
   final VoidCallback onTap;
 }
 
-/// Barre de navigation flottante « verre dépoli », partagée par le shell
-/// mobile de la Home (`MyMainPage`) et l'éditeur de bot (`AppEditPage`), afin
-/// que les deux bottom menus aient exactement le même design.
+/// Barre de navigation « verre dépoli » partagée par toute l'application :
+/// bottom menu du shell mobile (`MyMainPage`), bottom menu de l'éditeur de bot
+/// (`AppEditPage`), pastilles de modules/système et onglets de l'éditeur.
 ///
-/// Le widget ne se positionne pas lui-même : l'appelant l'insère dans un
-/// `Stack` d'un `Scaffold(extendBody: true)` via les constantes de mise en page
-/// partagées, pour que les deux écrans placent la barre à l'identique :
+/// En variante [FloatingGlassNavVariant.floating], le widget ne se positionne
+/// pas lui-même : l'appelant l'insère dans un `Stack` (`Scaffold(extendBody:
+/// true)`) via les constantes partagées, pour un placement identique partout :
 ///
 /// ```dart
 /// Positioned(
@@ -43,19 +54,40 @@ class FloatingGlassNavItem {
 /// )
 /// ```
 ///
-/// Les contenus placés sous la barre doivent réserver
-/// [FloatingGlassNavBar.contentClearanceOf] en bas pour ne rien masquer.
+/// Les contenus sous la barre réservent [FloatingGlassNavBar.contentClearanceOf].
+///
+/// En variante [FloatingGlassNavVariant.inline] (`FloatingGlassNavBar.inline`),
+/// le bandeau se place dans un flux : `Column`, `AppBar.bottom` (dimensionné
+/// avec [FloatingGlassNavBar.inlinePreferredHeight]) ou tout autre en-tête.
 class FloatingGlassNavBar extends StatelessWidget {
+  /// Barre flottante (bottom menu). Voir [FloatingGlassNavBar.inline] pour le
+  /// bandeau intégré au flux.
   const FloatingGlassNavBar({
     super.key,
     required this.items,
     this.height = defaultHeight,
-  });
+  }) : variant = FloatingGlassNavVariant.floating,
+       scrollable = false;
 
-  /// Hauteur de référence de la barre.
+  /// Bandeau inline : mêmes items que la barre flottante, mais intégré au flux.
+  ///
+  /// Avec [scrollable], les items gardent leur largeur intrinsèque et le
+  /// bandeau défile horizontalement (utile au-delà de 3 items sur mobile) ;
+  /// sinon ils se répartissent toute la largeur disponible.
+  const FloatingGlassNavBar.inline({
+    super.key,
+    required this.items,
+    this.scrollable = false,
+    this.height = inlineHeight,
+  }) : variant = FloatingGlassNavVariant.inline;
+
+  /// Hauteur de référence de la barre flottante.
   static const double defaultHeight = 64;
 
-  /// Marge entre la barre et les bords gauche/droit/bas de l'écran.
+  /// Hauteur de référence du bandeau inline (plus court que la barre).
+  static const double inlineHeight = 56;
+
+  /// Marge entre la barre flottante et les bords gauche/droit/bas de l'écran.
   static const double margin = 16;
 
   /// Rayon des coins extérieurs (identique au rayon des cartes).
@@ -70,22 +102,45 @@ class FloatingGlassNavBar extends StatelessWidget {
   /// Rayon des items et de leur fond sélectionné.
   static const double itemRadius = 16;
 
-  /// Hauteur d'un item.
+  /// Hauteur d'un item de la barre flottante.
   static const double itemHeight = 48;
 
-  /// Décalage bas à passer au `Positioned` qui accueille la barre.
+  /// Hauteur d'un item du bandeau inline.
+  static const double inlineItemHeight = 40;
+
+  /// Marge horizontale recommandée autour d'un bandeau inline.
+  static const double inlineHorizontalMargin = 12;
+
+  /// Marge verticale recommandée autour d'un bandeau inline.
+  static const double inlineVerticalMargin = 6;
+
+  /// Hauteur à réserver par un bandeau inline, marges comprises : à passer comme
+  /// `preferredSize` dans `AppBar.bottom`.
+  static const double inlinePreferredHeight =
+      inlineHeight + inlineVerticalMargin * 2;
+
+  /// Largeur minimale d'un item du bandeau inline [scrollable] : garantit une
+  /// cible tactile confortable même pour un libellé court.
+  static const double inlineScrollItemMinWidth = 84;
+
+  /// Décalage bas à passer au `Positioned` qui accueille la barre flottante.
   static double bottomOffsetOf(BuildContext context) =>
       margin + MediaQuery.paddingOf(context).bottom;
 
-  /// Espace vertical occupé en bas de l'écran par la barre (décalage bas +
-  /// hauteur) : le padding bas minimum à réserver par le contenu.
+  /// Espace vertical à réserver sous le contenu pour ne pas masquer la barre.
   static double contentClearanceOf(BuildContext context) =>
       bottomOffsetOf(context) + defaultHeight;
 
   final List<FloatingGlassNavItem> items;
 
-  /// Hauteur de la barre. Exposée pour permettre un override explicite, mais
-  /// la valeur par défaut est celle partagée par les deux écrans.
+  /// [FloatingGlassNavVariant.floating] ou [FloatingGlassNavVariant.inline].
+  final FloatingGlassNavVariant variant;
+
+  /// Bandeau inline uniquement : items à largeur intrinsèque et défilement
+  /// horizontal au lieu d'un partage de la largeur disponible.
+  final bool scrollable;
+
+  /// Hauteur du conteneur : surchargeable, défaut dépendant de la variante.
   final double height;
 
   @override
@@ -93,20 +148,59 @@ class FloatingGlassNavBar extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final radius = BorderRadius.circular(FloatingGlassNavBar.radius);
+    final isInline = variant == FloatingGlassNavVariant.inline;
+    final itemHeight = isInline
+        ? FloatingGlassNavBar.inlineItemHeight
+        : FloatingGlassNavBar.itemHeight;
+
+    final Widget itemsRow;
+    if (isInline && scrollable) {
+      itemsRow = SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            for (var i = 0; i < items.length; i++) ...[
+              if (i > 0) const SizedBox(width: itemGap),
+              ConstrainedBox(
+                constraints: const BoxConstraints(
+                  minWidth: inlineScrollItemMinWidth,
+                ),
+                child: _FloatingGlassNavItemView(items[i], height: itemHeight),
+              ),
+            ],
+          ],
+        ),
+      );
+    } else {
+      itemsRow = Row(
+        children: [
+          for (var i = 0; i < items.length; i++) ...[
+            if (i > 0) const SizedBox(width: itemGap),
+            Expanded(
+              child: _FloatingGlassNavItemView(items[i], height: itemHeight),
+            ),
+          ],
+        ],
+      );
+    }
 
     return Material(
       type: MaterialType.transparency,
       child: DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: radius,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.85 : 0.16),
-              blurRadius: isDark ? 48 : 24,
-              spreadRadius: isDark ? 4 : 0,
-              offset: Offset(0, isDark ? 8 : 10),
-            ),
-          ],
+          // Le bandeau inline n'est pas posé au-dessus du contenu : pas
+          // d'ombre portée, seulement la même surface en verre dépoli.
+          boxShadow: isInline
+              ? null
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isDark ? 0.85 : 0.16),
+                    blurRadius: isDark ? 48 : 24,
+                    spreadRadius: isDark ? 4 : 0,
+                    offset: Offset(0, isDark ? 8 : 10),
+                  ),
+                ],
         ),
         child: ClipRRect(
           borderRadius: radius,
@@ -124,14 +218,7 @@ class FloatingGlassNavBar extends StatelessWidget {
               height: height,
               child: Padding(
                 padding: const EdgeInsets.all(inset),
-                child: Row(
-                  children: [
-                    for (var i = 0; i < items.length; i++) ...[
-                      if (i > 0) const SizedBox(width: itemGap),
-                      Expanded(child: _FloatingGlassNavItemView(items[i])),
-                    ],
-                  ],
-                ),
+                child: itemsRow,
               ),
             ),
           ),
@@ -142,20 +229,23 @@ class FloatingGlassNavBar extends StatelessWidget {
 }
 
 class _FloatingGlassNavItemView extends StatelessWidget {
-  const _FloatingGlassNavItemView(this.item);
+  const _FloatingGlassNavItemView(this.item, {required this.height});
 
   final FloatingGlassNavItem item;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final selectedColor = isDark
-        ? AppTheme.brandPurpleSoft
-        : AppTheme.brandPrimary;
-    final idleColor = isDark
-        ? AppTheme.homeMuted
-        : Theme.of(context).colorScheme.onSurfaceVariant;
-    final color = item.selected ? selectedColor : idleColor;
+    final scheme = Theme.of(context).colorScheme;
+    // Sélection NEUTRE dans les deux thèmes (rôle M3 `secondaryContainer`) :
+    // l'item sélectionné se distingue par sa pastille teintée et son icône
+    // pleine, pas par du violet. `primary`/`brandPurpleSoft` restaient du
+    // violet décoratif dans la navigation, en clair comme en sombre.
+    final selectedForeground = scheme.onSecondaryContainer;
+    final selectedFill = scheme.secondaryContainer;
+    final idleColor = isDark ? AppTheme.homeMuted : scheme.onSurfaceVariant;
+    final color = item.selected ? selectedForeground : idleColor;
     final radius = BorderRadius.circular(FloatingGlassNavBar.itemRadius);
 
     return Tooltip(
@@ -167,19 +257,15 @@ class _FloatingGlassNavItemView extends StatelessWidget {
         child: InkWell(
           onTap: item.onTap,
           borderRadius: radius,
-          splashColor: selectedColor.withValues(alpha: 0.12),
-          highlightColor: selectedColor.withValues(alpha: 0.06),
+          splashColor: selectedFill.withValues(alpha: 0.5),
+          highlightColor: selectedFill.withValues(alpha: 0.35),
           child: AnimatedContainer(
             duration: AppTheme.animFast,
             curve: Curves.easeOutCubic,
-            height: FloatingGlassNavBar.itemHeight,
+            height: height,
             decoration: BoxDecoration(
               borderRadius: radius,
-              color: item.selected
-                  ? (isDark
-                        ? AppTheme.homeNavSelected
-                        : AppTheme.brandPrimary.withValues(alpha: 0.12))
-                  : Colors.transparent,
+              color: item.selected ? selectedFill : Colors.transparent,
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,

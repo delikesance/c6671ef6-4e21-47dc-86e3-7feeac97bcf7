@@ -6797,6 +6797,18 @@ abstract class AppLocalizations {
   /// **'Untitled command'**
   String get edit_shell_untitled_command;
 
+  /// Collapse the editor sidebar into an icon rail
+  ///
+  /// In en, this message translates to:
+  /// **'Collapse sidebar'**
+  String get editor_sidebar_collapse;
+
+  /// Expand the collapsed editor sidebar
+  ///
+  /// In en, this message translates to:
+  /// **'Expand sidebar'**
+  String get editor_sidebar_expand;
+
   /// Add Field
   ///
   /// In en, this message translates to:

@@ -2996,6 +2996,12 @@
   "@edit_shell_untitled_command": {
     "description": "Untitled command"
   },
+  "@editor_sidebar_collapse": {
+    "description": "Collapse the editor sidebar into an icon rail"
+  },
+  "@editor_sidebar_expand": {
+    "description": "Expand the collapsed editor sidebar"
+  },
   "@embed_add_field": {
     "description": "Add Field"
   },
@@ -7942,6 +7948,8 @@
   "edit_shell_type_user": "ユーザーコマンド",
   "edit_shell_unsaved": "未保存の変更",
   "edit_shell_untitled_command": "無題のコマンド",
+  "editor_sidebar_collapse": "サイドバーを折りたたむ",
+  "editor_sidebar_expand": "サイドバーを展開する",
   "embed_add_field": "フィールドを追加",
   "embed_add_section": "セクションを追加",
   "embed_add_tooltip": "埋め込みを追加",
