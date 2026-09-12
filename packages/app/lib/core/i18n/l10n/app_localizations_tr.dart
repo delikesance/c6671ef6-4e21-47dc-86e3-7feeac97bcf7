@@ -2714,6 +2714,137 @@ class AppLocalizationsTr extends AppLocalizations {
   String get cmd_variables_title => 'Komut Değişkenleri';
 
   @override
+  String get code_editor_settings_title => 'Kod düzenleyici';
+
+  @override
+  String get code_editor_settings_subtitle =>
+      'BDFD ve JavaScript düzenleyicileri için tema, yazı tipi ve düzenleme davranışı';
+
+  @override
+  String get code_editor_settings_reset_tooltip => 'Varsayılanlara sıfırla';
+
+  @override
+  String get code_editor_settings_reset_title => 'Yapılandırmayı sıfırla';
+
+  @override
+  String get code_editor_settings_reset_confirm =>
+      'Tüm düzenleyici ayarları varsayılan değerlerine sıfırlansın mı?';
+
+  @override
+  String get code_editor_settings_reset_action => 'Sıfırla';
+
+  @override
+  String get code_editor_settings_reset_done =>
+      'Düzenleyici ayarları varsayılana sıfırlandı';
+
+  @override
+  String get code_editor_settings_preview_title => 'Canlı önizleme';
+
+  @override
+  String get code_editor_settings_section_theme_title =>
+      'Sözdizimi renklendirme teması';
+
+  @override
+  String get code_editor_settings_section_theme_subtitle =>
+      'BDFD ve JavaScript için uygulanan görsel stili seçin';
+
+  @override
+  String get code_editor_settings_theme_mode_dark => 'Koyu mod';
+
+  @override
+  String get code_editor_settings_theme_mode_light => 'Açık mod';
+
+  @override
+  String get code_editor_settings_section_font_title =>
+      'Yazı tipi ve tipografi';
+
+  @override
+  String get code_editor_settings_section_font_subtitle =>
+      'Yazı tipi ailesini ve metin boyutunu ayarlayın';
+
+  @override
+  String get code_editor_settings_font_family => 'Yazı tipi ailesi';
+
+  @override
+  String get code_editor_settings_font_system => 'Sistem tek aralıklı';
+
+  @override
+  String get code_editor_settings_font_jetbrains_mono => 'JetBrains Mono';
+
+  @override
+  String get code_editor_settings_font_fira_code => 'Fira Code';
+
+  @override
+  String get code_editor_settings_font_consolas => 'Consolas';
+
+  @override
+  String get code_editor_settings_font_size => 'Yazı tipi boyutu';
+
+  @override
+  String get code_editor_settings_line_height =>
+      'Satır yüksekliği (satır aralığı)';
+
+  @override
+  String get code_editor_settings_section_display_title =>
+      'Görünüm ve görsel kılavuzlar';
+
+  @override
+  String get code_editor_settings_section_display_subtitle =>
+      'Satır numaraları, girinti kılavuzları ve satır kaydırma';
+
+  @override
+  String get code_editor_settings_line_numbers => 'Satır numaraları';
+
+  @override
+  String get code_editor_settings_line_numbers_desc =>
+      'Numaralandırmayı sol kenar boşluğunda gösterir';
+
+  @override
+  String get code_editor_settings_indent_guides => 'Girinti kılavuzları';
+
+  @override
+  String get code_editor_settings_indent_guides_desc =>
+      'Kod bloklarını görmek için dikey çizgiler';
+
+  @override
+  String get code_editor_settings_word_wrap => 'Otomatik satır kaydırma';
+
+  @override
+  String get code_editor_settings_word_wrap_desc =>
+      'Uzun satırları yatay kaydırmak yerine kaydırır';
+
+  @override
+  String get code_editor_settings_quick_chars =>
+      'Hızlı karakter çubuğu (mobil)';
+
+  @override
+  String get code_editor_settings_quick_chars_desc =>
+      'Klavyenin üzerinde BDFD ön eki, bağımsız değişkenler, ayırıcılar ve parantezler eklemek için hızlı düğmeler';
+
+  @override
+  String get code_editor_settings_section_editing_title =>
+      'Düzenleme davranışı';
+
+  @override
+  String get code_editor_settings_section_editing_subtitle =>
+      'Otomatik kapatma ve boşluklar';
+
+  @override
+  String get code_editor_settings_auto_close =>
+      'Sembollerin otomatik kapanması';
+
+  @override
+  String get code_editor_settings_auto_close_desc =>
+      'Köşeli parantezleri, küme parantezlerini, normal parantezleri ve tırnak işaretlerini otomatik kapatır';
+
+  @override
+  String get code_editor_settings_tab_size => 'Sekme boyutu (boşluk)';
+
+  @override
+  String get code_editor_settings_tab_size_desc =>
+      'Girintilerken eklenen boşluk sayısı';
+
+  @override
   String get command_awaited_error => 'Hata';
 
   @override

@@ -2569,6 +2569,122 @@ class AppLocalizationsJa extends AppLocalizations {
   String get cmd_variables_title => 'コマンド変数';
 
   @override
+  String get code_editor_settings_title => 'コードエディター';
+
+  @override
+  String get code_editor_settings_subtitle =>
+      'BDFD と JavaScript エディターのテーマ、フォント、編集動作';
+
+  @override
+  String get code_editor_settings_reset_tooltip => 'デフォルトに戻す';
+
+  @override
+  String get code_editor_settings_reset_title => '設定をリセット';
+
+  @override
+  String get code_editor_settings_reset_confirm => 'エディターのすべての設定をデフォルトに戻しますか？';
+
+  @override
+  String get code_editor_settings_reset_action => 'リセット';
+
+  @override
+  String get code_editor_settings_reset_done => 'エディター設定をデフォルトに戻しました';
+
+  @override
+  String get code_editor_settings_preview_title => 'ライブプレビュー';
+
+  @override
+  String get code_editor_settings_section_theme_title => 'シンタックスハイライトのテーマ';
+
+  @override
+  String get code_editor_settings_section_theme_subtitle =>
+      'BDFD と JavaScript に適用する表示スタイルを選択します';
+
+  @override
+  String get code_editor_settings_theme_mode_dark => 'ダークモード';
+
+  @override
+  String get code_editor_settings_theme_mode_light => 'ライトモード';
+
+  @override
+  String get code_editor_settings_section_font_title => 'フォントとタイポグラフィ';
+
+  @override
+  String get code_editor_settings_section_font_subtitle =>
+      'フォントファミリーと文字サイズを調整します';
+
+  @override
+  String get code_editor_settings_font_family => 'フォントファミリー';
+
+  @override
+  String get code_editor_settings_font_system => 'システム等幅フォント';
+
+  @override
+  String get code_editor_settings_font_jetbrains_mono => 'JetBrains Mono';
+
+  @override
+  String get code_editor_settings_font_fira_code => 'Fira Code';
+
+  @override
+  String get code_editor_settings_font_consolas => 'Consolas';
+
+  @override
+  String get code_editor_settings_font_size => '文字サイズ';
+
+  @override
+  String get code_editor_settings_line_height => '行の高さ（行間）';
+
+  @override
+  String get code_editor_settings_section_display_title => '表示と視覚ガイド';
+
+  @override
+  String get code_editor_settings_section_display_subtitle =>
+      '行番号、インデントガイド、折り返し';
+
+  @override
+  String get code_editor_settings_line_numbers => '行番号';
+
+  @override
+  String get code_editor_settings_line_numbers_desc => '左の余白に行番号を表示します';
+
+  @override
+  String get code_editor_settings_indent_guides => 'インデントガイド';
+
+  @override
+  String get code_editor_settings_indent_guides_desc => 'コードブロックを可視化する縦線';
+
+  @override
+  String get code_editor_settings_word_wrap => '自動折り返し';
+
+  @override
+  String get code_editor_settings_word_wrap_desc => '長い行を折り返して横スクロールを避けます';
+
+  @override
+  String get code_editor_settings_quick_chars => 'クイック文字バー（モバイル）';
+
+  @override
+  String get code_editor_settings_quick_chars_desc =>
+      'キーボードの上に BDFD プレフィックス、引数、区切り、括弧を挿入するボタンを表示します';
+
+  @override
+  String get code_editor_settings_section_editing_title => '編集動作';
+
+  @override
+  String get code_editor_settings_section_editing_subtitle => '自動閉じとスペース';
+
+  @override
+  String get code_editor_settings_auto_close => '記号の自動閉じ';
+
+  @override
+  String get code_editor_settings_auto_close_desc => '角括弧、中括弧、丸括弧、引用符を自動で閉じます';
+
+  @override
+  String get code_editor_settings_tab_size => 'タブサイズ（スペース）';
+
+  @override
+  String get code_editor_settings_tab_size_desc => 'インデント時に挿入するスペースの数';
+
+  @override
   String get command_awaited_error => 'エラー';
 
   @override

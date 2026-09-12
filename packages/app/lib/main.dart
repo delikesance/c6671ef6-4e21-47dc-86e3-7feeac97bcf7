@@ -38,6 +38,7 @@ import 'package:bot_creator/core/runner/embedded_js_runner_service.dart';
 import 'package:bot_creator/features/subscriptions/logic/hosted_app_subscription_service.dart';
 import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
 import 'package:bot_creator/features/onboarding/logic/onboarding_manager.dart';
+import 'package:bot_creator/core/code_editor/code_editor_settings_provider.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
@@ -196,6 +197,13 @@ Future<void> _bootstrapAndRunApp() async {
           providers: [
             ChangeNotifierProvider(create: (_) => ThemeProvider()),
             ChangeNotifierProvider(create: (_) => LocaleProvider()),
+            // Personnalisation de l'editeur de code (theme, police, indentation).
+            // Rose Pine est le defaut ; `load()` est fire-and-forget : la page
+            // affiche d'abord les defauts puis se reconstruit quand les reglages
+            // persistes arrivent (notifyListeners).
+            ChangeNotifierProvider(
+              create: (_) => CodeEditorSettingsProvider()..load(),
+            ),
             Provider(create: (_) => onboardingManager),
           ],
           child: const MyApp(),

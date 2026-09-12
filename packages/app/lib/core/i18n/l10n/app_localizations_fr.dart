@@ -2756,6 +2756,137 @@ class AppLocalizationsFr extends AppLocalizations {
   String get cmd_variables_title => 'Variables de la commande';
 
   @override
+  String get code_editor_settings_title => 'Éditeur de code';
+
+  @override
+  String get code_editor_settings_subtitle =>
+      'Thème, police et comportement d\'édition des éditeurs BDFD et JavaScript';
+
+  @override
+  String get code_editor_settings_reset_tooltip => 'Réinitialiser par défaut';
+
+  @override
+  String get code_editor_settings_reset_title =>
+      'Réinitialiser la configuration';
+
+  @override
+  String get code_editor_settings_reset_confirm =>
+      'Voulez-vous restaurer tous les réglages de l\'éditeur par défaut ?';
+
+  @override
+  String get code_editor_settings_reset_action => 'Réinitialiser';
+
+  @override
+  String get code_editor_settings_reset_done =>
+      'Réglages de l\'éditeur restaurés par défaut';
+
+  @override
+  String get code_editor_settings_preview_title => 'Aperçu en direct';
+
+  @override
+  String get code_editor_settings_section_theme_title =>
+      'Thème de coloration syntaxique';
+
+  @override
+  String get code_editor_settings_section_theme_subtitle =>
+      'Choisissez le style visuel appliqué à BDFD et JavaScript';
+
+  @override
+  String get code_editor_settings_theme_mode_dark => 'Mode sombre';
+
+  @override
+  String get code_editor_settings_theme_mode_light => 'Mode clair';
+
+  @override
+  String get code_editor_settings_section_font_title => 'Police et typographie';
+
+  @override
+  String get code_editor_settings_section_font_subtitle =>
+      'Ajustez la famille de police et la taille du texte';
+
+  @override
+  String get code_editor_settings_font_family => 'Famille de police';
+
+  @override
+  String get code_editor_settings_font_system => 'Monospace système';
+
+  @override
+  String get code_editor_settings_font_jetbrains_mono => 'JetBrains Mono';
+
+  @override
+  String get code_editor_settings_font_fira_code => 'Fira Code';
+
+  @override
+  String get code_editor_settings_font_consolas => 'Consolas';
+
+  @override
+  String get code_editor_settings_font_size => 'Taille de police';
+
+  @override
+  String get code_editor_settings_line_height =>
+      'Hauteur de ligne (interligne)';
+
+  @override
+  String get code_editor_settings_section_display_title =>
+      'Affichage et repères visuels';
+
+  @override
+  String get code_editor_settings_section_display_subtitle =>
+      'Numérotation, guides d\'indentation et retours à la ligne';
+
+  @override
+  String get code_editor_settings_line_numbers => 'Numéros de ligne';
+
+  @override
+  String get code_editor_settings_line_numbers_desc =>
+      'Affiche la numérotation dans la marge gauche';
+
+  @override
+  String get code_editor_settings_indent_guides => 'Guides d\'indentation';
+
+  @override
+  String get code_editor_settings_indent_guides_desc =>
+      'Lignes verticales pour visualiser les blocs de code';
+
+  @override
+  String get code_editor_settings_word_wrap => 'Retour à la ligne automatique';
+
+  @override
+  String get code_editor_settings_word_wrap_desc =>
+      'Enroule les lignes longues au lieu de défiler horizontalement';
+
+  @override
+  String get code_editor_settings_quick_chars =>
+      'Barre de caractères rapides (mobile)';
+
+  @override
+  String get code_editor_settings_quick_chars_desc =>
+      'Boutons rapides pour insérer le préfixe BDFD, les arguments, les séparateurs et les crochets au-dessus du clavier';
+
+  @override
+  String get code_editor_settings_section_editing_title =>
+      'Comportement d\'édition';
+
+  @override
+  String get code_editor_settings_section_editing_subtitle =>
+      'Auto-clôture et espacements';
+
+  @override
+  String get code_editor_settings_auto_close =>
+      'Fermeture automatique des symboles';
+
+  @override
+  String get code_editor_settings_auto_close_desc =>
+      'Ferme automatiquement les crochets, accolades, parenthèses et guillemets';
+
+  @override
+  String get code_editor_settings_tab_size => 'Taille de tabulation (espaces)';
+
+  @override
+  String get code_editor_settings_tab_size_desc =>
+      'Nombre d\'espaces insérés lors de l\'indentation';
+
+  @override
   String get command_awaited_error => 'Erreur';
 
   @override

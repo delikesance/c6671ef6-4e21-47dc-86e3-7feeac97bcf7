@@ -4841,6 +4841,228 @@ abstract class AppLocalizations {
   /// **'Command Variables'**
   String get cmd_variables_title;
 
+  /// Title of the code editor settings page
+  ///
+  /// In en, this message translates to:
+  /// **'Code editor'**
+  String get code_editor_settings_title;
+
+  /// Subtitle of the code editor entry in the settings page
+  ///
+  /// In en, this message translates to:
+  /// **'Theme, font and editing behaviour for the BDFD and JavaScript editors'**
+  String get code_editor_settings_subtitle;
+
+  /// Tooltip of the reset action in the code editor settings page
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to defaults'**
+  String get code_editor_settings_reset_tooltip;
+
+  /// Title of the reset confirmation dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Reset configuration'**
+  String get code_editor_settings_reset_title;
+
+  /// Content of the reset confirmation dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Restore all editor settings to their default values?'**
+  String get code_editor_settings_reset_confirm;
+
+  /// Confirm button of the reset dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get code_editor_settings_reset_action;
+
+  /// Snackbar shown after the settings were reset
+  ///
+  /// In en, this message translates to:
+  /// **'Editor settings restored to defaults'**
+  String get code_editor_settings_reset_done;
+
+  /// Header of the live code preview card
+  ///
+  /// In en, this message translates to:
+  /// **'Live preview'**
+  String get code_editor_settings_preview_title;
+
+  /// Section header for the syntax theme picker
+  ///
+  /// In en, this message translates to:
+  /// **'Syntax highlighting theme'**
+  String get code_editor_settings_section_theme_title;
+
+  /// Subtitle of the syntax theme section
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the visual style applied to BDFD and JavaScript'**
+  String get code_editor_settings_section_theme_subtitle;
+
+  /// Subtitle shown under a dark syntax theme
+  ///
+  /// In en, this message translates to:
+  /// **'Dark mode'**
+  String get code_editor_settings_theme_mode_dark;
+
+  /// Subtitle shown under a light syntax theme
+  ///
+  /// In en, this message translates to:
+  /// **'Light mode'**
+  String get code_editor_settings_theme_mode_light;
+
+  /// Section header for the font settings
+  ///
+  /// In en, this message translates to:
+  /// **'Font & typography'**
+  String get code_editor_settings_section_font_title;
+
+  /// Subtitle of the font section
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust the font family and text size'**
+  String get code_editor_settings_section_font_subtitle;
+
+  /// Label of the font family dropdown
+  ///
+  /// In en, this message translates to:
+  /// **'Font family'**
+  String get code_editor_settings_font_family;
+
+  /// Label of the system monospace font option
+  ///
+  /// In en, this message translates to:
+  /// **'System monospace'**
+  String get code_editor_settings_font_system;
+
+  /// Label of the JetBrains Mono font option
+  ///
+  /// In en, this message translates to:
+  /// **'JetBrains Mono'**
+  String get code_editor_settings_font_jetbrains_mono;
+
+  /// Label of the Fira Code font option
+  ///
+  /// In en, this message translates to:
+  /// **'Fira Code'**
+  String get code_editor_settings_font_fira_code;
+
+  /// Label of the Consolas font option
+  ///
+  /// In en, this message translates to:
+  /// **'Consolas'**
+  String get code_editor_settings_font_consolas;
+
+  /// Label of the font size slider
+  ///
+  /// In en, this message translates to:
+  /// **'Font size'**
+  String get code_editor_settings_font_size;
+
+  /// Label of the line height slider
+  ///
+  /// In en, this message translates to:
+  /// **'Line height (spacing)'**
+  String get code_editor_settings_line_height;
+
+  /// Section header for the display settings
+  ///
+  /// In en, this message translates to:
+  /// **'Display & visual guides'**
+  String get code_editor_settings_section_display_title;
+
+  /// Subtitle of the display section
+  ///
+  /// In en, this message translates to:
+  /// **'Line numbers, indent guides and word wrap'**
+  String get code_editor_settings_section_display_subtitle;
+
+  /// Toggle: show line numbers
+  ///
+  /// In en, this message translates to:
+  /// **'Line numbers'**
+  String get code_editor_settings_line_numbers;
+
+  /// Description of the line numbers toggle
+  ///
+  /// In en, this message translates to:
+  /// **'Show numbering in the left gutter'**
+  String get code_editor_settings_line_numbers_desc;
+
+  /// Toggle: show indent guides
+  ///
+  /// In en, this message translates to:
+  /// **'Indent guides'**
+  String get code_editor_settings_indent_guides;
+
+  /// Description of the indent guides toggle
+  ///
+  /// In en, this message translates to:
+  /// **'Vertical lines to visualize code blocks'**
+  String get code_editor_settings_indent_guides_desc;
+
+  /// Toggle: wrap long lines
+  ///
+  /// In en, this message translates to:
+  /// **'Word wrap'**
+  String get code_editor_settings_word_wrap;
+
+  /// Description of the word wrap toggle
+  ///
+  /// In en, this message translates to:
+  /// **'Wrap long lines instead of scrolling horizontally'**
+  String get code_editor_settings_word_wrap_desc;
+
+  /// Toggle: quick characters bar above the keyboard
+  ///
+  /// In en, this message translates to:
+  /// **'Quick characters bar (Mobile)'**
+  String get code_editor_settings_quick_chars;
+
+  /// Description of the quick characters bar toggle
+  ///
+  /// In en, this message translates to:
+  /// **'Quick buttons to insert the BDFD prefix, arguments, separators and brackets above the keyboard'**
+  String get code_editor_settings_quick_chars_desc;
+
+  /// Section header for the editing behaviour settings
+  ///
+  /// In en, this message translates to:
+  /// **'Editing behaviour'**
+  String get code_editor_settings_section_editing_title;
+
+  /// Subtitle of the editing behaviour section
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-closing and spacing'**
+  String get code_editor_settings_section_editing_subtitle;
+
+  /// Toggle: auto close brackets and quotes
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic symbol closing'**
+  String get code_editor_settings_auto_close;
+
+  /// Description of the auto close toggle
+  ///
+  /// In en, this message translates to:
+  /// **'Automatically close brackets, braces, parentheses and quotes'**
+  String get code_editor_settings_auto_close_desc;
+
+  /// Label of the tab size selector
+  ///
+  /// In en, this message translates to:
+  /// **'Tab size (spaces)'**
+  String get code_editor_settings_tab_size;
+
+  /// Description of the tab size selector
+  ///
+  /// In en, this message translates to:
+  /// **'Number of spaces inserted when indenting'**
+  String get code_editor_settings_tab_size_desc;
+
   /// Error
   ///
   /// In en, this message translates to:

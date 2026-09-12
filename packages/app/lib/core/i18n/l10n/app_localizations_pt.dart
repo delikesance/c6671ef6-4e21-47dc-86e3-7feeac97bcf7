@@ -2748,6 +2748,135 @@ class AppLocalizationsPt extends AppLocalizations {
   String get cmd_variables_title => 'Variáveis de Comando';
 
   @override
+  String get code_editor_settings_title => 'Editor de código';
+
+  @override
+  String get code_editor_settings_subtitle =>
+      'Tema, fonte e comportamento de edição dos editores BDFD e JavaScript';
+
+  @override
+  String get code_editor_settings_reset_tooltip => 'Restaurar padrões';
+
+  @override
+  String get code_editor_settings_reset_title => 'Redefinir configuração';
+
+  @override
+  String get code_editor_settings_reset_confirm =>
+      'Restaurar todas as configurações do editor para os valores padrão?';
+
+  @override
+  String get code_editor_settings_reset_action => 'Redefinir';
+
+  @override
+  String get code_editor_settings_reset_done =>
+      'Configurações do editor restauradas para o padrão';
+
+  @override
+  String get code_editor_settings_preview_title => 'Pré-visualização ao vivo';
+
+  @override
+  String get code_editor_settings_section_theme_title =>
+      'Tema de realce de sintaxe';
+
+  @override
+  String get code_editor_settings_section_theme_subtitle =>
+      'Escolha o estilo visual aplicado ao BDFD e ao JavaScript';
+
+  @override
+  String get code_editor_settings_theme_mode_dark => 'Modo escuro';
+
+  @override
+  String get code_editor_settings_theme_mode_light => 'Modo claro';
+
+  @override
+  String get code_editor_settings_section_font_title => 'Fonte e tipografia';
+
+  @override
+  String get code_editor_settings_section_font_subtitle =>
+      'Ajuste a família da fonte e o tamanho do texto';
+
+  @override
+  String get code_editor_settings_font_family => 'Família da fonte';
+
+  @override
+  String get code_editor_settings_font_system => 'Monoespaçada do sistema';
+
+  @override
+  String get code_editor_settings_font_jetbrains_mono => 'JetBrains Mono';
+
+  @override
+  String get code_editor_settings_font_fira_code => 'Fira Code';
+
+  @override
+  String get code_editor_settings_font_consolas => 'Consolas';
+
+  @override
+  String get code_editor_settings_font_size => 'Tamanho da fonte';
+
+  @override
+  String get code_editor_settings_line_height => 'Altura da linha (entrelinha)';
+
+  @override
+  String get code_editor_settings_section_display_title =>
+      'Exibição e guias visuais';
+
+  @override
+  String get code_editor_settings_section_display_subtitle =>
+      'Números de linha, guias de indentação e quebra de linha';
+
+  @override
+  String get code_editor_settings_line_numbers => 'Números de linha';
+
+  @override
+  String get code_editor_settings_line_numbers_desc =>
+      'Mostra a numeração na margem esquerda';
+
+  @override
+  String get code_editor_settings_indent_guides => 'Guias de indentação';
+
+  @override
+  String get code_editor_settings_indent_guides_desc =>
+      'Linhas verticais para visualizar blocos de código';
+
+  @override
+  String get code_editor_settings_word_wrap => 'Quebra automática de linha';
+
+  @override
+  String get code_editor_settings_word_wrap_desc =>
+      'Quebra linhas longas em vez de rolar horizontalmente';
+
+  @override
+  String get code_editor_settings_quick_chars =>
+      'Barra de caracteres rápidos (celular)';
+
+  @override
+  String get code_editor_settings_quick_chars_desc =>
+      'Botões rápidos para inserir o prefixo BDFD, argumentos, separadores e colchetes acima do teclado';
+
+  @override
+  String get code_editor_settings_section_editing_title =>
+      'Comportamento de edição';
+
+  @override
+  String get code_editor_settings_section_editing_subtitle =>
+      'Fechamento automático e espaçamento';
+
+  @override
+  String get code_editor_settings_auto_close =>
+      'Fechamento automático de símbolos';
+
+  @override
+  String get code_editor_settings_auto_close_desc =>
+      'Fecha automaticamente colchetes, chaves, parênteses e aspas';
+
+  @override
+  String get code_editor_settings_tab_size => 'Tamanho da tabulação (espaços)';
+
+  @override
+  String get code_editor_settings_tab_size_desc =>
+      'Número de espaços inseridos ao indentar';
+
+  @override
   String get command_awaited_error => 'Erro';
 
   @override
