@@ -44,16 +44,19 @@ abstract final class AppTheme {
   static const homeNavSelected = Color(0xFF2A2140);
 
   /// CTA « créer un bot » (fond + avatar).
-  static const homeCreateFill = Color(0xFF2A2140);
+  static const homeCreateFill = homeNavSelected;
 
   /// Bordure dashed du CTA créer.
-  static const homeCreateBorder = Color(0xFFB19DF7);
+  static const homeCreateBorder = brandPurpleSoft;
 
   /// Fond du bloc serveurs dans une carte bot.
   static const homeClusterBg = Color(0xFF151226);
 
   /// Bordure du bloc serveurs.
   static const homeClusterBorder = Color(0xFF2B264D);
+
+  /// Fond le plus bas de la refonte (rôle M3 surfaceContainerLowest, Figma #0C0B12).
+  static const homeContainerLowest = Color(0xFF0C0B12);
 
   /// Bordure des boutons ghost (Manage / Add time).
   static const homeGhostBorder = Color(0xFF362F4C);
@@ -62,7 +65,7 @@ abstract final class AppTheme {
   static const homeMuted = Color(0xFF8A84A3);
 
   /// Gris moyen pour métadonnées (WCAG-friendly sur fond sombre).
-  static const metaText = Color(0xFF8A84A3);
+  static const metaText = homeMuted;
 
   /// Accent pastel pour données dynamiques (compteurs, badges).
   static const dataAccent = Color(0xFFDCF0FF);
@@ -116,9 +119,6 @@ abstract final class AppTheme {
   /// Couleur syntaxe : orange pour mots-clés / avertissements dans BDFD.
   static const syntaxOrange = Color(0xFFFF9800);
 
-  /// Couleur syntaxe : rouge clair pour erreurs.
-  static const syntaxRed = Color(0xFFEF5350);
-
   /// Couleur syntaxe : cyan pour types / infos BDFD.
   static const syntaxCyan = Color(0xFF00ACC1);
 
@@ -128,18 +128,12 @@ abstract final class AppTheme {
   // ─── Surfaces sombres (BotCard, éditeurs de code) ───────────────────────
 
   static const darkSurface = Color(0xFF2C2C3A);
-  static const darkSurfaceVariant = Color(0xFF3A3A4A);
 
   static const codeSurface = Color(0xFF1E1E1E);
   static const codeSurfaceVariant = Color(0xFF263238);
 
   /// Background Darcula (éditeurs de code avancés).
   static const codeSurfaceDarcula = Color(0xFF2B2B2B);
-
-  // ─── BotCard gradients ──────────────────────────────────────────────────
-
-  static const botCardOnlineGradient = [Color(0xFF1B5E20), Color(0xFF2E7D32)];
-  static const botCardOfflineGradient = [darkSurface, darkSurfaceVariant];
 
   // ─── Espacement ─────────────────────────────────────────────────────────
 
@@ -216,22 +210,12 @@ abstract final class AppTheme {
   // ─── Élévation ──────────────────────────────────────────────────────────
 
   static const elevationNone = 0.0;
-  static const elevationLow = 1.0;
   static const elevationMedium = 3.0;
-  static const elevationHigh = 6.0;
 
   // ─── Typographie (compléments au thème M3) ──────────────────────────────
 
   static const fontWeightSemiBold = FontWeight.w600;
   static const fontWeightBold = FontWeight.w700;
-
-  // ─── Opacités standard ──────────────────────────────────────────────────
-
-  static const opacityDisabled = 0.38;
-  static const opacitySubtle = 0.10;
-  static const opacityOverlay = 0.15;
-  static const opacitySecondaryText = 0.60;
-  static const opacityPrimaryText = 0.90;
 
   // ─── Durées d'animation ─────────────────────────────────────────────────
 
@@ -257,6 +241,11 @@ abstract final class AppTheme {
         elevation: 0,
       ),
       // ── Cards ──
+      // Divergence connue clair/sombre : darkTheme suit la refonte home (rayon
+      // radiusCard, bordure outlineVariant, elevationNone) alors que le thème
+      // clair conserve la forme M3 d'origine (cardShape = radiusMd, élévation
+      // moyenne). Aligner le clair sur le sombre changerait l'aspect du mode
+      // clair : arbitrage produit laissé hors de ce correctif (voir rapport).
       cardTheme: CardThemeData(
         shape: cardShape,
         elevation: elevationMedium,
@@ -348,20 +337,32 @@ abstract final class AppTheme {
       brightness: Brightness.dark,
     );
 
+    // Les rôles `on*` doivent être fournis explicitement : `ColorScheme.fromSeed`
+    // les dérive du `primary`/`secondary`/`error` générés (ton 80 clair + ton 20
+    // sombre) et deviennent illisibles dès qu'on écrase ces rôles par des teintes
+    // de la marque. Contrastes WCAG mesurés sur cette palette :
+    // onPrimary/primary 8.09:1 — onSecondary/secondary 8.09:1 — onError/error 5.75:1
+    // — primary/card 7.26:1 — onPrimaryContainer/primaryContainer 6.50:1
+    // (seuil texte ≥ 4.5:1).
     final colorScheme = baseScheme.copyWith(
-      primary: brandPrimary,
+      primary: brandPurpleSoft,
+      onPrimary: scaffoldDark,
+      primaryContainer: homeNavSelected,
+      onPrimaryContainer: brandPurpleSoft,
       secondary: brandPurpleSoft,
+      onSecondary: scaffoldDark,
       surface: homeCard,
-      surfaceContainerLowest: const Color(0xFF0C0B12),
-      surfaceContainerLow: const Color(0xFF151226),
+      surfaceContainerLowest: homeContainerLowest,
+      surfaceContainerLow: homeClusterBg,
       surfaceContainer: homeCard,
       surfaceContainerHigh: homeCard,
       surfaceContainerHighest: homeNavSelected,
-      onSurface: const Color(0xFFFFFFFF),
+      onSurface: Colors.white,
       onSurfaceVariant: homeMuted,
       outline: homeGhostBorder,
       outlineVariant: homeCardBorder,
       error: danger,
+      onError: scaffoldDark,
     );
 
     return ThemeData(
@@ -429,20 +430,23 @@ abstract final class AppTheme {
         style: OutlinedButton.styleFrom(shape: buttonShape),
       ),
       // ── Input Decoration ──
+      // Remplissage et bordure issus de la palette Discord dark de la charte
+      // (discordDarkerBg / discordBorder) : valeurs identiques à celles codées
+      // en dur auparavant, désormais référencées par token.
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: const Color(0xFF1E1F22),
+        fillColor: discordDarkerBg,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: spacingLg,
           vertical: spacingLg,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(radiusMd),
-          borderSide: const BorderSide(color: Color(0xFF404249)),
+          borderSide: const BorderSide(color: discordBorder),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(radiusMd),
-          borderSide: const BorderSide(color: Color(0xFF404249)),
+          borderSide: const BorderSide(color: discordBorder),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(radiusMd),
@@ -535,6 +539,10 @@ abstract final class AppTheme {
               onPressed: () => Navigator.pop(dialogContext, true),
               style: FilledButton.styleFrom(
                 backgroundColor: scheme.error,
+                // `filledButtonTheme` force un premier plan blanc (pensé pour le
+                // remplissage brandPrimary) ; sur `error` ce blanc ne donne que
+                // 3.27:1, alors que `onError` atteint 5.75:1 en sombre.
+                foregroundColor: scheme.onError,
                 padding: const EdgeInsets.symmetric(
                   horizontal: spacingLg,
                   vertical: spacingMd,
@@ -631,42 +639,6 @@ abstract final class AppTheme {
   }
 
   // ─── Widget helpers ─────────────────────────────────────────────────────
-
-  /// Construit un badge pill (capsule) avec texte et point coloré.
-  static Widget statusPill({
-    required String label,
-    required Color dotColor,
-    Color? backgroundColor,
-    Color textColor = Colors.white,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color:
-            backgroundColor ?? Colors.white.withValues(alpha: opacityOverlay),
-        borderRadius: BorderRadius.circular(radiusPill),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 7,
-            height: 7,
-            decoration: BoxDecoration(shape: BoxShape.circle, color: dotColor),
-          ),
-          const SizedBox(width: 5),
-          Text(
-            label,
-            style: TextStyle(
-              color: textColor.withValues(alpha: opacityPrimaryText),
-              fontSize: 10,
-              fontWeight: fontWeightSemiBold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   /// Construit un AppBar avec le gradient de marque.
   static PreferredSizeWidget brandAppBar({
