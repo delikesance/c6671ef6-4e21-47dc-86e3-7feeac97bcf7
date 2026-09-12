@@ -176,11 +176,7 @@ class _EntryPointBlockState extends State<EntryPointBlock> {
                   fontSize: 12.5,
                 ),
               ),
-              style: FilledButton.styleFrom(
-                minimumSize: const Size(0, 38),
-                backgroundColor: AppTheme.brandPrimary.withValues(alpha: 0.12),
-                foregroundColor: AppTheme.brandPrimary,
-              ),
+              style: FilledButton.styleFrom(minimumSize: const Size(0, 38)),
             ),
             const SizedBox(height: 12),
           ],
