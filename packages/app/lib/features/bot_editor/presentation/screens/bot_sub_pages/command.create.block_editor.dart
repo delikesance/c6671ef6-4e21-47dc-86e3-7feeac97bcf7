@@ -130,6 +130,11 @@ extension _CommandBlockEditor on _CommandCreatePageState {
         onLegacyPrefixOverrideChanged: (value) => _applyStateUpdate(() {
           _legacyPrefixOverride = value;
         }),
+        legacyAliases: _legacyAliases,
+        onLegacyAliasesChanged: (aliases) => _applyStateUpdate(() {
+          _legacyAliases = normalizeLegacyCommandAliases(aliases);
+        }),
+        legacyAliasOwners: _legacyAliasOwners,
         legacyResponseTarget: _legacyResponseTarget,
         onLegacyResponseTargetChanged: (value) => _applyStateUpdate(() {
           _legacyResponseTarget = value;

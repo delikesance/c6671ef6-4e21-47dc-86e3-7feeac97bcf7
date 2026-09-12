@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:bot_creator/features/bot_editor/logic/embed_normalization.dart';
 import 'package:bot_creator_shared/utils/command_migration.dart' as migration;
+import 'package:bot_creator_shared/utils/legacy_command_triggers.dart';
 
 Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {
   var normalized = Map<String, dynamic>.from(command);
@@ -13,13 +14,16 @@ Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {
       (normalized['actions'] != null ||
           normalized['response'] != null ||
           normalized['legacyPrefixOverride'] != null ||
+          normalized['legacyAliases'] != null ||
           normalized['script'] != null ||
           normalized['type']?.toString() == 'command')) {
     final healedData = Map<String, dynamic>.from(normalized);
     normalized.clear();
     normalized['data'] = healedData;
 
-    final prefixOverride = (healedData['legacyPrefixOverride'] ?? '').toString().trim();
+    final prefixOverride = (healedData['legacyPrefixOverride'] ?? '')
+        .toString()
+        .trim();
     if (prefixOverride.isNotEmpty) {
       normalized['name'] = prefixOverride;
     }
@@ -35,24 +39,24 @@ Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {
           .toLowerCase();
   final commandType =
       (rawCommandType == 'user' ||
-              rawCommandType == 'usercommand' ||
-              rawCommandType == 'user_command')
-          ? 'user'
-          : (rawCommandType == 'message' ||
-              rawCommandType == 'messagecommand' ||
-              rawCommandType == 'message_command')
-          ? 'message'
-          : 'chatInput';
+          rawCommandType == 'usercommand' ||
+          rawCommandType == 'user_command')
+      ? 'user'
+      : (rawCommandType == 'message' ||
+            rawCommandType == 'messagecommand' ||
+            rawCommandType == 'message_command')
+      ? 'message'
+      : 'chatInput';
 
   final legacyResponse = rawData['response'];
   final response = Map<String, dynamic>.from(
     (legacyResponse is Map)
         ? legacyResponse.cast<String, dynamic>()
         : {
-          'mode': 'message',
-          'text': legacyResponse?.toString() ?? '',
-          'embeds': <Map<String, dynamic>>[],
-        },
+            'mode': 'message',
+            'text': legacyResponse?.toString() ?? '',
+            'embeds': <Map<String, dynamic>>[],
+          },
   );
 
   final embeds = normalizeResponseEmbedsPayload(
@@ -61,25 +65,23 @@ Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {
     deepNormalize: false,
   );
 
-  final actions =
-      (rawData['actions'] is List)
-          ? List<Map<String, dynamic>>.from(
-            (rawData['actions'] as List).whereType<Map>().map(
-              (action) => Map<String, dynamic>.from(action),
-            ),
-          )
-          : <Map<String, dynamic>>[];
+  final actions = (rawData['actions'] is List)
+      ? List<Map<String, dynamic>>.from(
+          (rawData['actions'] as List).whereType<Map>().map(
+            (action) => Map<String, dynamic>.from(action),
+          ),
+        )
+      : <Map<String, dynamic>>[];
 
-  final options =
-      (rawData['options'] is List)
-          ? List<Map<String, dynamic>>.from(
-            (rawData['options'] as List).whereType<Map>().map(
-              (option) => Map<String, dynamic>.from(
-                jsonDecode(jsonEncode(option)) as Map,
-              ),
+  final options = (rawData['options'] is List)
+      ? List<Map<String, dynamic>>.from(
+          (rawData['options'] as List).whereType<Map>().map(
+            (option) => Map<String, dynamic>.from(
+              jsonDecode(jsonEncode(option)) as Map,
             ),
-          )
-          : <Map<String, dynamic>>[];
+          ),
+        )
+      : <Map<String, dynamic>>[];
 
   final normalizedSubcommandWorkflows = <String, Map<String, dynamic>>{};
   final rawSubcommandWorkflows = rawData['subcommandWorkflows'];
@@ -102,22 +104,23 @@ Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {
       (rawData['activeSubcommandRoute'] ?? '').toString().trim();
   final normalizedActiveSubcommandRoute =
       normalizedSubcommandWorkflows.containsKey(requestedActiveSubcommandRoute)
-          ? requestedActiveSubcommandRoute
-          : (normalizedSubcommandWorkflows.isNotEmpty
-              ? normalizedSubcommandWorkflows.keys.first
-              : '');
+      ? requestedActiveSubcommandRoute
+      : (normalizedSubcommandWorkflows.isNotEmpty
+            ? normalizedSubcommandWorkflows.keys.first
+            : '');
 
   const editorMode = 'advanced';
-  final rawExecutionMode =
-      (rawData['executionMode'] ?? 'workflow').toString().toLowerCase();
+  final rawExecutionMode = (rawData['executionMode'] ?? 'workflow')
+      .toString()
+      .toLowerCase();
   var executionMode = rawExecutionMode == 'bdfd_script'
       ? 'bdfd_script'
       : rawExecutionMode == 'javascript'
-          ? 'javascript'
-          : 'workflow';
+      ? 'javascript'
+      : 'workflow';
   final bdfdScriptContent = (rawData['bdfdScriptContent'] ?? '').toString();
-  final jsScriptContent = (rawData['jsScriptContent'] ?? rawData['script'] ?? '')
-      .toString();
+  final jsScriptContent =
+      (rawData['jsScriptContent'] ?? rawData['script'] ?? '').toString();
   if (jsScriptContent.isNotEmpty &&
       executionMode == 'workflow' &&
       (rawData.containsKey('script') || rawData['type'] == 'command')) {
@@ -125,12 +128,18 @@ Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {
   }
   final legacyModeEnabled = rawData['legacyModeEnabled'] == true;
   final legacyLocalOnly = rawData['legacyLocalOnly'] == true;
-  final legacyPrefixOverride =
-      (rawData['legacyPrefixOverride'] ?? '').toString().trim();
-  final rawLegacyResponseTarget =
-      (rawData['legacyResponseTarget'] ?? 'reply').toString().trim();
-  final legacyResponseTarget =
-      rawLegacyResponseTarget == 'channelSend' ? 'channelSend' : 'reply';
+  final legacyPrefixOverride = (rawData['legacyPrefixOverride'] ?? '')
+      .toString()
+      .trim();
+  final rawLegacyResponseTarget = (rawData['legacyResponseTarget'] ?? 'reply')
+      .toString()
+      .trim();
+  final legacyResponseTarget = rawLegacyResponseTarget == 'channelSend'
+      ? 'channelSend'
+      : 'reply';
+  // Plusieurs mots déclencheurs possibles pour une commande message : les alias
+  // sont normalisés (casse, préfixe `!`, doublons, limites) côté shared.
+  final legacyAliases = normalizeLegacyCommandAliases(rawData['legacyAliases']);
 
   final simpleConfig = <String, dynamic>{};
 
@@ -145,26 +154,25 @@ Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {
     'autoDeferIfActions': rawWorkflow['autoDeferIfActions'] != false,
     'visibility':
         (rawWorkflow['visibility']?.toString().toLowerCase() == 'ephemeral')
-            ? 'ephemeral'
-            : 'public',
+        ? 'ephemeral'
+        : 'public',
     'onError': 'edit_error',
     'conditional': {
       'enabled': rawConditional['enabled'] == true,
       'variable': (rawConditional['variable'] ?? '').toString(),
       'whenTrueType': (rawConditional['whenTrueType'] ?? 'message').toString(),
-      'whenFalseType': (rawConditional['whenFalseType'] ?? 'message').toString(),
+      'whenFalseType': (rawConditional['whenFalseType'] ?? 'message')
+          .toString(),
       'whenTrueText': (rawConditional['whenTrueText'] ?? '').toString(),
       'whenFalseText': (rawConditional['whenFalseText'] ?? '').toString(),
-      'whenTrueEmbeds':
-          (rawConditional['whenTrueEmbeds'] as List? ?? [])
-              .whereType<Map>()
-              .map((e) => Map<String, dynamic>.from(e))
-              .toList(),
-      'whenFalseEmbeds':
-          (rawConditional['whenFalseEmbeds'] as List? ?? [])
-              .whereType<Map>()
-              .map((e) => Map<String, dynamic>.from(e))
-              .toList(),
+      'whenTrueEmbeds': (rawConditional['whenTrueEmbeds'] as List? ?? [])
+          .whereType<Map>()
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList(),
+      'whenFalseEmbeds': (rawConditional['whenFalseEmbeds'] as List? ?? [])
+          .whereType<Map>()
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList(),
       'whenTrueNormalComponents': Map<String, dynamic>.from(
         (rawConditional['whenTrueNormalComponents'] as Map?)
                 ?.cast<String, dynamic>() ??
@@ -212,16 +220,18 @@ Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {
     'legacyLocalOnly': legacyLocalOnly,
     'legacyPrefixOverride': legacyPrefixOverride,
     'legacyResponseTarget': legacyResponseTarget,
+    'legacyAliases': legacyAliases,
     'simpleConfig': simpleConfig,
-    'defaultMemberPermissions':
-        (rawData['defaultMemberPermissions'] ?? '').toString().trim(),
+    'defaultMemberPermissions': (rawData['defaultMemberPermissions'] ?? '')
+        .toString()
+        .trim(),
     'response': _normalizeResponseStrict({
       'mode':
           ((response['mode'] == 'text' ||
-                  response['mode'] == 'normal' ||
-                  response['mode'] == 'embed')
-              ? 'message'
-              : (response['mode'] ?? 'message')),
+              response['mode'] == 'normal' ||
+              response['mode'] == 'embed')
+          ? 'message'
+          : (response['mode'] ?? 'message')),
       'text': (response['text'] ?? '').toString(),
       'type': 'normal',
       'embeds': embeds.take(10).toList(),

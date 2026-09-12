@@ -489,3 +489,43 @@ Interaction autocomplete
   }
 }
 ```
+
+---
+
+## 12. Commandes « Message Texte » (legacy) et alias
+
+Une commande déclenchée par un message texte (et non par une interaction Discord)
+porte `legacyModeEnabled: true` dans `data`. Son **mot déclencheur principal** est
+`legacyPrefixOverride` s'il est non vide, sinon le `name` racine de la commande.
+
+```jsonc
+{
+  "name": "ping",
+  "type": "chatInput",
+  "data": {
+    "legacyModeEnabled": true,
+    "legacyPrefixOverride": "",
+    "legacyAliases": ["p", "pi"],
+    "legacyResponseTarget": "reply"
+  }
+}
+```
+
+| Champ | Rôle |
+|-------|------|
+| `legacyModeEnabled` | `true` = la commande répond à un message texte (préfixe du bot, `!` par défaut) |
+| `legacyPrefixOverride` | Remplace le `name` comme mot déclencheur (vide = on garde `name`) |
+| `legacyAliases` | **Mots déclencheurs supplémentaires** : avec l'exemple ci-dessus, `!ping`, `!p` et `!pi` lancent la même commande |
+| `legacyResponseTarget` | `reply` (réponse au message) ou `channelSend` (message simple dans le salon) |
+
+Règles des alias (normalisation partagée `normalizeLegacyCommandAliases`) :
+
+- 10 alias maximum, 32 caractères chacun ;
+- normalisation : minuscules, espaces externes retirés, préfixe `!` retiré, doublons ignorés ;
+- un alias vide ou contenant un espace interne est rejeté ;
+- `{$t:5s}` (déclencheur temporisé) est accepté sur le nom **comme** sur un alias ;
+- la comparaison est **exacte** et insensible à la casse ; en cas de collision entre
+  deux commandes, c'est la **première commande enregistrée** qui répond (l'app affiche
+  un avertissement, jamais un blocage) ;
+- le nom reste prioritaire sur les alias dans la fiche `!help`, qui liste les alias
+  disponibles quand il y en a.

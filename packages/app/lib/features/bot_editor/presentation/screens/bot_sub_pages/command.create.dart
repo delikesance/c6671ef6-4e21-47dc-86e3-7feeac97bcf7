@@ -32,6 +32,7 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
+import 'package:bot_creator_shared/utils/legacy_command_triggers.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bdfd_editor_page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/js_editor_page.dart';
 
@@ -174,6 +175,14 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   final TextEditingController _folderController = TextEditingController();
   List<String> _existingFolders = const <String>[];
   String _legacyPrefixOverride = '';
+
+  /// Alias (mots déclencheurs supplémentaires) de la commande message legacy.
+  List<String> _legacyAliases = const <String>[];
+
+  /// Mots déclencheurs déjà portés par les autres commandes Message Texte du
+  /// bot (déclencheur → nom de la commande), utilisés par [EntryPointBlock]
+  /// pour afficher un avertissement de collision non bloquant.
+  Map<String, String> _legacyAliasOwners = const <String, String>{};
   String _legacyResponseTarget = 'reply';
   Map<String, Map<String, dynamic>> _subcommandWorkflows =
       <String, Map<String, dynamic>>{};
@@ -1031,7 +1040,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       title: context.tr.command_unsaved_title,
       content: context.tr.command_unsaved_confirm,
       cancelLabel: context.tr.command_unsaved_keep,
-      confirmLabel: 'Discard',
+      confirmLabel: context.tr.common_discard,
       isDestructive: true,
     );
 
@@ -1394,8 +1403,16 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                 .toSet()
                 .toList()
               ..sort();
+        // Mots déclencheurs déjà pris par les autres commandes Message Texte :
+        // l'éditeur d'alias s'en sert pour son avertissement de collision
+        // (jamais bloquant). La commande éditée est exclue de la carte.
+        final aliasOwners = legacyTriggerOwners(
+          commands,
+          excludeId: _existingCommandStorageId,
+        );
         _applyStateUpdate(() {
           _existingFolders = folders;
+          _legacyAliasOwners = aliasOwners;
         });
       } catch (_) {}
     }
@@ -1483,6 +1500,10 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
             _legacyModeEnabled;
         _legacyPrefixOverride = (normalizedData['legacyPrefixOverride'] ?? '')
             .toString();
+        _legacyAliases = List<String>.from(
+          (normalizedData['legacyAliases'] as List?)?.whereType<String>() ??
+              const <String>[],
+        );
         final loadedLegacyResponseTarget =
             (normalizedData['legacyResponseTarget'] ?? 'reply').toString();
         _legacyResponseTarget = loadedLegacyResponseTarget == 'channelSend'
@@ -1596,6 +1617,10 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
               _legacyModeEnabled;
           _legacyPrefixOverride = (normalizedData['legacyPrefixOverride'] ?? '')
               .toString();
+          _legacyAliases = List<String>.from(
+            (normalizedData['legacyAliases'] as List?)?.whereType<String>() ??
+                const <String>[],
+          );
           final loadedLegacyResponseTarget =
               (normalizedData['legacyResponseTarget'] ?? 'reply').toString();
           _legacyResponseTarget = loadedLegacyResponseTarget == 'channelSend'
