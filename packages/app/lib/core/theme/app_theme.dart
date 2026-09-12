@@ -28,41 +28,69 @@ abstract final class AppTheme {
   /// Violet clair lisible en texte/icône sur fond sombre (refonte home).
   static const brandPurpleSoft = Color(0xFFB19DF7);
 
-  /// Fond scaffold sombre de la refonte (Figma #111117).
-  static const scaffoldDark = Color(0xFF111117);
+  // ─── Graine neutre ───────────────────────────────────────────────────────
 
-  /// Surface des cartes home (Figma #1F1A2D).
-  static const homeCard = Color(0xFF1F1A2D);
+  /// Graine des `ColorScheme` : graphite sombre désaturé.
+  ///
+  /// Un seed `tonalSpot` (variante M3 par défaut) **ré-injecte** de la chroma
+  /// sur la teinte du seed : même une graine grise ressort saturée (bleu/teal),
+  /// et l'ancienne graine violette teintait *tous* les rôles dérivés
+  /// (`primaryContainer`, `secondary`, `tertiary`, `surfaceTint`, les rôles
+  /// `surfaceContainer*` non surchargés…), d'où l'aspect « lavande » de l'app.
+  /// On combine donc deux leviers : une graine graphite + la variante
+  /// [DynamicSchemeVariant.neutral] (chroma ≈ 6), qui produit des gris/graphites
+  /// de même *ton* M3 — donc de même luminance, à teinte près — que la palette
+  /// violette précédente : les contrastes WCAG sont préservés (voir darkTheme).
+  static const neutralSeed = Color(0xFF33343B);
 
-  /// Bordure des cartes home (Figma #2C2540).
-  static const homeCardBorder = Color(0xFF2C2540);
+  // ─── Surfaces neutres (graphite) ─────────────────────────────────────────
+  // Valeurs obtenues en conservant la *luminance relative* de chaque ancienne
+  // teinte violette (donc les ratios de contraste) en annulant sa saturation.
 
-  /// Fond de la barre d'onglets flottante (Figma #120F1C).
-  static const homeNavBar = Color(0xFF120F1C);
+  /// Fond scaffold sombre de la refonte (graphite neutre ; ex-Figma #111117).
+  static const scaffoldDark = Color(0xFF111111);
 
-  /// Fond de l'onglet sélectionné (Figma #2A2140).
-  static const homeNavSelected = Color(0xFF2A2140);
+  /// Surface des cartes home (graphite neutre ; ex-Figma #1F1A2D).
+  static const homeCard = Color(0xFF1D1D1D);
+
+  /// Bordure des cartes home (graphite neutre ; ex-Figma #2C2540).
+  static const homeCardBorder = Color(0xFF292929);
+
+  /// Fond de la barre d'onglets flottante (graphite neutre ; ex-Figma #120F1C).
+  ///
+  /// Une unité plus sombre que [scaffoldDark] (même famille de luminance) pour
+  /// rester une signature de couleur unique : les tests de navigation
+  /// identifient la barre flottante par `BoxDecoration.color == homeNavBar`.
+  static const homeNavBar = Color(0xFF101010);
+
+  /// Fond de l'onglet sélectionné (graphite neutre ; ex-Figma #2A2140).
+  static const homeNavSelected = Color(0xFF262626);
 
   /// CTA « créer un bot » (fond + avatar).
   static const homeCreateFill = homeNavSelected;
 
-  /// Bordure dashed du CTA créer.
-  static const homeCreateBorder = brandPurpleSoft;
+  /// Bordure dashed / pastille du CTA créer.
+  ///
+  /// Graphite de même luminance que l'ancienne lavande [brandPurpleSoft] :
+  /// le violet n'est plus un remplissage, seulement un accent (sélection +
+  /// action principale).
+  static const homeCreateBorder = Color(0xFFAAAAAA);
 
-  /// Fond du bloc serveurs dans une carte bot.
-  static const homeClusterBg = Color(0xFF151226);
+  /// Fond du bloc serveurs dans une carte bot (graphite neutre ; ex #151226).
+  static const homeClusterBg = Color(0xFF151515);
 
-  /// Bordure du bloc serveurs.
-  static const homeClusterBorder = Color(0xFF2B264D);
+  /// Bordure du bloc serveurs (graphite neutre ; ex #2B264D).
+  static const homeClusterBorder = Color(0xFF2B2B2B);
 
-  /// Fond le plus bas de la refonte (rôle M3 surfaceContainerLowest, Figma #0C0B12).
-  static const homeContainerLowest = Color(0xFF0C0B12);
+  /// Fond le plus bas de la refonte (rôle M3 surfaceContainerLowest, graphite
+  /// neutre ; ex-Figma #0C0B12).
+  static const homeContainerLowest = Color(0xFF0C0C0C);
 
-  /// Bordure des boutons ghost (Manage / Add time).
-  static const homeGhostBorder = Color(0xFF362F4C);
+  /// Bordure des boutons ghost (Manage / Add time) — graphite neutre (#333333).
+  static const homeGhostBorder = Color(0xFF333333);
 
-  /// Texte secondaire home (Figma #8A84A3).
-  static const homeMuted = Color(0xFF8A84A3);
+  /// Texte secondaire home (graphite neutre de même luminance que #8A84A3).
+  static const homeMuted = Color(0xFF888888);
 
   /// Gris moyen pour métadonnées (WCAG-friendly sur fond sombre).
   static const metaText = homeMuted;
@@ -75,13 +103,6 @@ abstract final class AppTheme {
 
   /// Rouge danger / arrêt de la refonte (Figma #FF4D4D).
   static const danger = Color(0xFFFF4D4D);
-
-  /// Gradient standard de la marque (AppBar, FAB, éléments de marque).
-  static const brandGradient = LinearGradient(
-    colors: [brandPrimary, brandSecondary],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
 
   // ─── Couleurs neutres ──────────────────────────────────────────────────
 
@@ -127,7 +148,8 @@ abstract final class AppTheme {
 
   // ─── Surfaces sombres (BotCard, éditeurs de code) ───────────────────────
 
-  static const darkSurface = Color(0xFF2C2C3A);
+  /// Surface sombre neutre (graphite de même luminance que l'ancien #2C2C3A).
+  static const darkSurface = Color(0xFF2D2D2D);
 
   static const codeSurface = Color(0xFF1E1E1E);
   static const codeSurfaceVariant = Color(0xFF263238);
@@ -226,9 +248,18 @@ abstract final class AppTheme {
   // ThemeData — thèmes Light & Dark
   // ═══════════════════════════════════════════════════════════════════════════
 
-  /// Thème clair Material 3 avec seed color brand.
+  /// Thème clair Material 3, dérivé du seed neutre graphite.
+  ///
+  /// Le violet n'y subsiste que comme accent explicite : seul le
+  /// `FilledButton` (action principale) garde `brandPrimary`. L'AppBar est
+  /// NEUTRE (`surface` + `onSurface`), comme dans les apps Material 3 :
+  /// une barre pleine couleur de marque faisait « ancienne colorisation » et
+  /// écrasait toute la page de violet en thème clair.
   static ThemeData lightTheme() {
-    final colorScheme = ColorScheme.fromSeed(seedColor: brandPrimary);
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: neutralSeed,
+      dynamicSchemeVariant: DynamicSchemeVariant.neutral,
+    );
 
     return ThemeData(
       useMaterial3: true,
@@ -236,8 +267,9 @@ abstract final class AppTheme {
       // ── AppBar ──
       appBarTheme: AppBarTheme(
         centerTitle: true,
-        backgroundColor: brandPrimary,
-        foregroundColor: Colors.white,
+        backgroundColor: colorScheme.surface,
+        foregroundColor: colorScheme.onSurface,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
       ),
       // ── Cards ──
@@ -263,8 +295,8 @@ abstract final class AppTheme {
       // ── Filled Buttons ──
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: brandPrimary,
-          foregroundColor: Colors.white,
+          backgroundColor: colorScheme.primary,
+          foregroundColor: colorScheme.onPrimary,
           shape: buttonShape,
           padding: const EdgeInsets.symmetric(
             horizontal: spacingLg,
@@ -330,27 +362,38 @@ abstract final class AppTheme {
     );
   }
 
-  /// Thème sombre Material 3 avec seed color brand.
+  /// Thème sombre Material 3, dérivé du seed neutre graphite.
+  ///
+  /// Le violet n'y subsiste que comme accent explicite : `primary`/`secondary`
+  /// (sélection + action principale) gardent [brandPurpleSoft].
   static ThemeData darkTheme() {
     final baseScheme = ColorScheme.fromSeed(
-      seedColor: brandPrimary,
+      seedColor: neutralSeed,
       brightness: Brightness.dark,
+      dynamicSchemeVariant: DynamicSchemeVariant.neutral,
     );
 
     // Les rôles `on*` doivent être fournis explicitement : `ColorScheme.fromSeed`
     // les dérive du `primary`/`secondary`/`error` générés (ton 80 clair + ton 20
     // sombre) et deviennent illisibles dès qu'on écrase ces rôles par des teintes
     // de la marque. Contrastes WCAG mesurés sur cette palette :
-    // onPrimary/primary 8.09:1 — onSecondary/secondary 8.09:1 — onError/error 5.75:1
-    // — primary/card 7.26:1 — onPrimaryContainer/primaryContainer 6.50:1
-    // (seuil texte ≥ 4.5:1).
+    // onPrimary/primary 8.12:1 — onSecondary/secondary 8.12:1 — onError/error 5.77:1
+    // — primary/card 7.25:1 — onPrimaryContainer/primaryContainer 6.51:1
+    // — onSurfaceVariant/card 4.76:1 (seuil texte ≥ 4.5:1).
+    //
+    // Les rôles non surchargés (`secondaryContainer`, `tertiary`,
+    // `surfaceTint`, `errorContainer`…) restent dérivés du seed graphite :
+    // plus aucune surface lavande, et leurs paires `on*` conservent le ton M3
+    // d'origine (donc ≥ 4.5:1 : ex. onSecondaryContainer/secondaryContainer
+    // 7.23:1, onTertiary/tertiary 7.68:1).
     final colorScheme = baseScheme.copyWith(
-      primary: brandPurpleSoft,
-      onPrimary: scaffoldDark,
-      primaryContainer: homeNavSelected,
-      onPrimaryContainer: brandPurpleSoft,
-      secondary: brandPurpleSoft,
-      onSecondary: scaffoldDark,
+      // AUCUN override de l'accent : `primary`, `secondary` et leurs conteneurs
+      // restent les rôles M3 dérivés de la graine graphite (variante
+      // `neutral`). C'était la dernière source de violet « dans plein de
+      // pages » : les ~43 usages de `colorScheme.primary` (états sélectionnés,
+      // liens, accents) reprenaient `brandPurpleSoft` partout, dans TOUS les
+      // écrans. Les paires `on*` dérivées par M3 sont correctes par
+      // construction (contrastes mesurés : `tool/contrast_check.dart`).
       surface: homeCard,
       surfaceContainerLowest: homeContainerLowest,
       surfaceContainerLow: homeClusterBg,
@@ -402,8 +445,8 @@ abstract final class AppTheme {
       // ── Filled Buttons ──
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: brandPrimary,
-          foregroundColor: Colors.white,
+          backgroundColor: colorScheme.primary,
+          foregroundColor: colorScheme.onPrimary,
           shape: buttonShape,
           padding: const EdgeInsets.symmetric(
             horizontal: spacingLg,
@@ -488,7 +531,7 @@ abstract final class AppTheme {
     IconData? icon,
   }) async {
     final scheme = Theme.of(context).colorScheme;
-    final accentColor = isDestructive ? scheme.error : brandPrimary;
+    final accentColor = isDestructive ? scheme.error : scheme.primary;
     final result = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -640,7 +683,12 @@ abstract final class AppTheme {
 
   // ─── Widget helpers ─────────────────────────────────────────────────────
 
-  /// Construit un AppBar avec le gradient de marque.
+  /// Construit un AppBar standard (titre centré, actions, `bottom`).
+  ///
+  /// L'ancien `flexibleSpace` peignait le gradient violet de la marque
+  /// (`AppTheme.brandGradient`) : retiré avec le reste de la charte violette, la
+  /// barre suit désormais la surface du thème. Le helper est conservé car
+  /// `bot_stats.dart` l'utilise.
   static PreferredSizeWidget brandAppBar({
     required String title,
     List<Widget>? actions,
@@ -655,9 +703,6 @@ abstract final class AppTheme {
       leading: leading,
       actions: actions,
       bottom: bottom,
-      flexibleSpace: Container(
-        decoration: const BoxDecoration(gradient: brandGradient),
-      ),
     );
   }
 }

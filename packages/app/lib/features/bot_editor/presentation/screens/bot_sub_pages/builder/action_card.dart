@@ -2428,7 +2428,7 @@ class ActionCard extends StatelessWidget {
                   color: item.isNumeric
                       ? Colors.orange
                       : item.isUnknown
-                      ? Colors.purple
+                      ? Colors.grey
                       : Colors.green,
                 ),
               ),
