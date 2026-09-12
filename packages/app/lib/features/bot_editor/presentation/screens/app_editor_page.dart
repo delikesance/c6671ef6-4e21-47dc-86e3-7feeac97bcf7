@@ -1,7 +1,17 @@
+import 'dart:async';
 import 'dart:developer' as developer;
 
-import 'package:bot_creator/main.dart';
-import 'package:bot_creator/features/home/presentation/home_page.dart';
+import 'package:bot_creator/core/analytics/analytics.dart';
+import 'package:bot_creator/core/discord/discord_intent_sync.dart';
+import 'package:bot_creator/core/discord/portal_intent_feedback.dart';
+import 'package:bot_creator/core/i18n/i18n.dart';
+import 'package:bot_creator/core/network/main_api_client.dart';
+import 'package:bot_creator/core/network/main_api_settings.dart';
+import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/core/utils/global.dart';
+import 'package:bot_creator/core/utils/responsive.dart';
+import 'package:bot_creator/features/bot_editor/logic/js_runner_capabilities.dart';
+import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command_dashboard.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/commands.list.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/emojis.page.dart';
@@ -12,21 +22,11 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pag
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/scheduler.page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/settings.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/workflows.page.dart';
-import 'package:bot_creator/core/analytics/analytics.dart';
-import 'package:bot_creator/core/network/main_api_client.dart';
-import 'package:bot_creator/core/network/main_api_settings.dart';
-import 'package:bot_creator/core/utils/global.dart';
-import 'package:bot_creator/core/i18n/i18n.dart';
-import 'package:bot_creator/features/bot_editor/logic/js_runner_capabilities.dart';
-import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
-
-import 'package:bot_creator/core/utils/responsive.dart';
+import 'package:bot_creator/features/home/presentation/home_page.dart';
+import 'package:bot_creator/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:bot_creator/core/theme/app_theme.dart';
-import 'package:bot_creator/core/discord/discord_intent_sync.dart';
-import 'package:bot_creator/core/discord/portal_intent_feedback.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -68,21 +68,43 @@ class _AppEditPageState extends State<AppEditPage>
     _init();
   }
 
-  Future<List<ApplicationCommand>> getCommands() async {
-    if (client == null) {
-      throw Exception("Client is not initialized");
+  @override
+  void dispose() {
+    // `_init()` can be re-run from `_OfflineTokenPage` (onTokenSaved), so the
+    // REST client and its underlying HttpClient must be released instead of
+    // leaked.
+    final activeClient = client;
+    if (activeClient != null) {
+      unawaited(
+        activeClient.close().catchError((Object error) {
+          developer.log(
+            'Failed to close REST client: $error',
+            name: 'AppEditPage',
+          );
+        }),
+      );
     }
-    final commands = await client!.commands.list();
-    return commands;
+    super.dispose();
   }
 
   Future<void> _init() async {
+    final previousClient = client;
     if (mounted) {
       setState(() {
         _isLoading = true;
         client = null;
         _degradedReason = null;
       });
+    }
+    if (previousClient != null) {
+      try {
+        await previousClient.close();
+      } catch (e) {
+        developer.log(
+          'Failed to close previous REST client: $e',
+          name: 'AppEditPage',
+        );
+      }
     }
     await AppAnalytics.logScreenView(
       screenName: "AppEditPage",
@@ -163,7 +185,12 @@ class _AppEditPageState extends State<AppEditPage>
     final optedOut = prefs.getBool(_beginnerModeKey) == false;
 
     if (optedOut) {
-      if (mounted) setState(() { _beginnerMode = false; _beginnerModeLoaded = true; });
+      if (mounted) {
+        setState(() {
+          _beginnerMode = false;
+          _beginnerModeLoaded = true;
+        });
+      }
       return;
     }
 
@@ -208,26 +235,6 @@ class _AppEditPageState extends State<AppEditPage>
     Navigator.of(context).pop();
   }
 
-  void _navigateToSection(String sectionId) {
-    final isSmallPhone = ResponsiveHelper.isSmallPhone(context);
-    var entries = _buildEntries(isSmallPhone);
-    if (_beginnerMode && client != null) {
-      entries = entries.where((e) => e.beginnerEssential).toList();
-    }
-    final target = entries.firstWhere(
-      (e) => e.id == sectionId,
-      orElse: () => entries.first,
-    );
-    setState(() {
-      _activeSectionId = target.id;
-      if (target.category == 'modules') {
-        _activeModuleId = target.id;
-      } else if (target.category == 'system') {
-        _activeSettingsSubTab = target.id;
-      }
-    });
-  }
-
   String get _botId => widget.id.toString();
 
   BotRuntimeCapabilities get _capabilities =>
@@ -250,9 +257,10 @@ class _AppEditPageState extends State<AppEditPage>
         .toList(growable: false);
   }
 
-  List<_AppPageEntry> _buildEntries(bool isSmallPhone) {
+  List<_AppPageEntry> _buildEntries() {
     final eventsOnlyWorkflows =
-        _capabilities.supportsEventListeners && !_capabilities.supportsWorkflows;
+        _capabilities.supportsEventListeners &&
+        !_capabilities.supportsWorkflows;
 
     if (client == null) {
       return _applyRuntimeGating([
@@ -292,10 +300,7 @@ class _AppEditPageState extends State<AppEditPage>
               ? context.tr.workflows_type_badge_event
               : context.tr.workflows_tab_short,
           category: 'modules',
-          page: WorkflowsPage(
-            botId: _botId,
-            eventsOnly: eventsOnlyWorkflows,
-          ),
+          page: WorkflowsPage(botId: _botId, eventsOnly: eventsOnlyWorkflows),
           isAvailable: (caps) =>
               caps.supportsWorkflows || caps.supportsEventListeners,
         ),
@@ -328,12 +333,7 @@ class _AppEditPageState extends State<AppEditPage>
         compactLabel: context.tr.home_tab,
         category: 'overview',
         beginnerEssential: true,
-        page: AppHomePage(
-          client: client!,
-          embedded: widget.embedded,
-          onExit: widget.onExit,
-          onNavigateToSection: _navigateToSection,
-        ),
+        page: AppHomePage(client: client!, onExit: widget.onExit),
       ),
       _AppPageEntry(
         id: 'commands',
@@ -354,10 +354,7 @@ class _AppEditPageState extends State<AppEditPage>
             ? context.tr.workflows_type_badge_event
             : context.tr.workflows_tab_short,
         category: 'modules',
-        page: WorkflowsPage(
-          botId: _botId,
-          eventsOnly: eventsOnlyWorkflows,
-        ),
+        page: WorkflowsPage(botId: _botId, eventsOnly: eventsOnlyWorkflows),
         isAvailable: (caps) =>
             caps.supportsWorkflows || caps.supportsEventListeners,
       ),
@@ -431,20 +428,25 @@ class _AppEditPageState extends State<AppEditPage>
     BuildContext context,
     ColorScheme colorScheme,
     List<_AppPageEntry> entries, {
+    required String activeSectionId,
     bool isDrawer = false,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final muted = isDark ? AppTheme.homeMuted : colorScheme.onSurfaceVariant;
 
     final categories = <String, List<_AppPageEntry>>{
-      context.tr.home_tab.toUpperCase():
-          entries.where((e) => e.category == 'overview').toList(),
-      context.tr.commands_tab.toUpperCase():
-          entries.where((e) => e.category == 'commands').toList(),
-      context.tr.bot_home_section_modules:
-          entries.where((e) => e.category == 'modules').toList(),
-      context.tr.settings_tab.toUpperCase():
-          entries.where((e) => e.category == 'system').toList(),
+      context.tr.home_tab.toUpperCase(): entries
+          .where((e) => e.category == 'overview')
+          .toList(),
+      context.tr.commands_tab.toUpperCase(): entries
+          .where((e) => e.category == 'commands')
+          .toList(),
+      context.tr.bot_home_section_modules: entries
+          .where((e) => e.category == 'modules')
+          .toList(),
+      context.tr.settings_tab.toUpperCase(): entries
+          .where((e) => e.category == 'system')
+          .toList(),
     };
 
     return SafeArea(
@@ -479,10 +481,7 @@ class _AppEditPageState extends State<AppEditPage>
                         'ID $_botId',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.inter(
-                          fontSize: 11,
-                          color: muted,
-                        ),
+                        style: GoogleFonts.inter(fontSize: 11, color: muted),
                       ),
                     ],
                   ),
@@ -519,7 +518,7 @@ class _AppEditPageState extends State<AppEditPage>
                         child: _SidebarItemTile(
                           icon: item.icon,
                           label: item.label,
-                          selected: _activeSectionId == item.id,
+                          selected: activeSectionId == item.id,
                           onTap: () {
                             if (isDrawer) {
                               Navigator.of(context).pop();
@@ -584,6 +583,7 @@ class _AppEditPageState extends State<AppEditPage>
     BuildContext context,
     ColorScheme colorScheme,
     List<_AppPageEntry> entries,
+    String activeSectionId,
   ) {
     return Container(
       width: 256,
@@ -597,13 +597,18 @@ class _AppEditPageState extends State<AppEditPage>
       ),
       child: Material(
         color: Colors.transparent,
-        child: _buildSidebarContent(context, colorScheme, entries, isDrawer: false),
+        child: _buildSidebarContent(
+          context,
+          colorScheme,
+          entries,
+          activeSectionId: activeSectionId,
+          isDrawer: false,
+        ),
       ),
     );
   }
 
   Widget _buildModulesView(
-    BuildContext context,
     ColorScheme colorScheme,
     List<_AppPageEntry> moduleEntries,
   ) {
@@ -651,15 +656,12 @@ class _AppEditPageState extends State<AppEditPage>
           thickness: 1,
           color: colorScheme.outlineVariant.withValues(alpha: 0.5),
         ),
-        Expanded(
-          child: activeModuleEntry.page,
-        ),
+        Expanded(child: activeModuleEntry.page),
       ],
     );
   }
 
   Widget _buildSettingsView(
-    BuildContext context,
     ColorScheme colorScheme,
     List<_AppPageEntry> systemEntries,
   ) {
@@ -707,9 +709,7 @@ class _AppEditPageState extends State<AppEditPage>
           thickness: 1,
           color: colorScheme.outlineVariant.withValues(alpha: 0.5),
         ),
-        Expanded(
-          child: activeSystemEntry.page,
-        ),
+        Expanded(child: activeSystemEntry.page),
       ],
     );
   }
@@ -717,7 +717,7 @@ class _AppEditPageState extends State<AppEditPage>
   Widget _buildMobileBottomBar(
     BuildContext context,
     ColorScheme colorScheme,
-    List<_AppPageEntry> allEntries,
+    String activeSectionId,
   ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isOffline = client == null;
@@ -748,7 +748,7 @@ class _AppEditPageState extends State<AppEditPage>
     ];
 
     int activePillarIndex = 0;
-    if (_activeSectionId == 'commands') {
+    if (activeSectionId == 'commands') {
       activePillarIndex = 1;
     } else if ([
       'workflows',
@@ -757,9 +757,9 @@ class _AppEditPageState extends State<AppEditPage>
       'webhooks',
       'emojis',
       'guilds',
-    ].contains(_activeSectionId)) {
+    ].contains(activeSectionId)) {
       activePillarIndex = (!_beginnerMode || isOffline) ? 2 : 0;
-    } else if (['settings', 'dashboard'].contains(_activeSectionId)) {
+    } else if (['settings', 'dashboard'].contains(activeSectionId)) {
       activePillarIndex = (!_beginnerMode || isOffline) ? 3 : 2;
     } else {
       activePillarIndex = 0;
@@ -770,7 +770,9 @@ class _AppEditPageState extends State<AppEditPage>
         color: isDark ? AppTheme.homeNavBar : colorScheme.surface,
         border: Border(
           top: BorderSide(
-            color: isDark ? AppTheme.homeCardBorder : colorScheme.outlineVariant,
+            color: isDark
+                ? AppTheme.homeCardBorder
+                : colorScheme.outlineVariant,
           ),
         ),
         boxShadow: [
@@ -820,10 +822,9 @@ class _AppEditPageState extends State<AppEditPage>
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final isSmallPhone = ResponsiveHelper.isSmallPhone(context);
     final isWide =
         MediaQuery.sizeOf(context).width >= AppTheme.desktopBreakpoint;
-    var entries = _buildEntries(isSmallPhone);
+    var entries = _buildEntries();
 
     if (_beginnerMode && client != null) {
       entries = entries.where((e) => e.beginnerEssential).toList();
@@ -833,55 +834,48 @@ class _AppEditPageState extends State<AppEditPage>
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    final hasActiveSection = entries.any((e) => e.id == _activeSectionId);
-    if (!hasActiveSection) {
-      _activeSectionId = entries.first.id;
-    }
+    // `build()` must stay pure: derive the active section instead of writing to
+    // `_activeSectionId`. The field is reset by the callbacks that legitimately
+    // change it (`_init`, `_toggleBeginnerMode`, `_onRuntimeEngineChanged`,
+    // sidebar/pill/bottom-bar taps).
+    final activeId = entries.any((e) => e.id == _activeSectionId)
+        ? _activeSectionId
+        : entries.first.id;
 
     if (isWide) {
       final activeEntry = entries.firstWhere(
-        (e) => e.id == _activeSectionId,
+        (e) => e.id == activeId,
         orElse: () => entries.first,
       );
 
       return Scaffold(
         body: Row(
           children: [
-            _buildDesktopSidebar(context, colorScheme, entries),
-            Expanded(
-              child: activeEntry.page,
-            ),
+            _buildDesktopSidebar(context, colorScheme, entries, activeId),
+            Expanded(child: activeEntry.page),
           ],
         ),
       );
     }
 
-    final moduleEntries =
-        entries.where((e) => e.category == 'modules').toList();
-    final systemEntries =
-        entries.where((e) => e.category == 'system').toList();
+    final moduleEntries = entries
+        .where((e) => e.category == 'modules')
+        .toList();
+    final systemEntries = entries.where((e) => e.category == 'system').toList();
 
     Widget activeMobileBody;
-    if (_activeSectionId == 'home' || _activeSectionId == 'offline_token') {
+    if (activeId == 'home' || activeId == 'offline_token') {
       activeMobileBody = entries
-          .firstWhere(
-            (e) => e.id == _activeSectionId,
-            orElse: () => entries.first,
-          )
+          .firstWhere((e) => e.id == activeId, orElse: () => entries.first)
           .page;
-    } else if (_activeSectionId == 'commands') {
+    } else if (activeId == 'commands') {
       activeMobileBody = entries
-          .firstWhere(
-            (e) => e.id == 'commands',
-            orElse: () => entries.first,
-          )
+          .firstWhere((e) => e.id == 'commands', orElse: () => entries.first)
           .page;
-    } else if (moduleEntries.any((e) => e.id == _activeSectionId)) {
-      activeMobileBody =
-          _buildModulesView(context, colorScheme, moduleEntries);
-    } else if (systemEntries.any((e) => e.id == _activeSectionId)) {
-      activeMobileBody =
-          _buildSettingsView(context, colorScheme, systemEntries);
+    } else if (moduleEntries.any((e) => e.id == activeId)) {
+      activeMobileBody = _buildModulesView(colorScheme, moduleEntries);
+    } else if (systemEntries.any((e) => e.id == activeId)) {
+      activeMobileBody = _buildSettingsView(colorScheme, systemEntries);
     } else {
       activeMobileBody = entries.first.page;
     }
@@ -899,6 +893,7 @@ class _AppEditPageState extends State<AppEditPage>
             context,
             colorScheme,
             entries,
+            activeSectionId: activeId,
             isDrawer: true,
           ),
         ),
@@ -906,7 +901,7 @@ class _AppEditPageState extends State<AppEditPage>
         bottomNavigationBar: _buildMobileBottomBar(
           context,
           colorScheme,
-          entries,
+          activeId,
         ),
       ),
     );
@@ -960,9 +955,7 @@ class _SidebarItemTile extends StatelessWidget {
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                  color: selected
-                      ? colorScheme.primary
-                      : colorScheme.onSurface,
+                  color: selected ? colorScheme.primary : colorScheme.onSurface,
                 ),
               ),
             ),
@@ -1083,9 +1076,7 @@ class _ModulePill extends StatelessWidget {
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                  color: selected
-                      ? scheme.onPrimary
-                      : scheme.onSurface,
+                  color: selected ? scheme.onPrimary : scheme.onSurface,
                 ),
               ),
             ],
@@ -1189,7 +1180,9 @@ class _OfflineTokenPageState extends State<_OfflineTokenPage> {
             await appManager.getApp(discordUser.id.toString()),
           );
           final client = MainApiClient(baseUrl: apiConfig.baseUrl);
-          final session = await client.exchangeDiscordBotToken(botToken: newToken);
+          final session = await client.exchangeDiscordBotToken(
+            botToken: newToken,
+          );
           final apiClient = MainApiClient(
             baseUrl: apiConfig.baseUrl,
             accessToken: session.accessToken,
@@ -1239,9 +1232,9 @@ class _OfflineTokenPageState extends State<_OfflineTokenPage> {
       });
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -1253,13 +1246,12 @@ class _OfflineTokenPageState extends State<_OfflineTokenPage> {
       appBar: AppBar(
         title: Text(context.tr.bot_settings_token_title),
         automaticallyImplyLeading: false,
-        leading:
-            !ResponsiveHelper.isDesktopPlatform()
-                ? IconButton(
-                  icon: const Icon(Icons.menu),
-                  onPressed: () => context.openParentDrawer(),
-                )
-                : null,
+        leading: !ResponsiveHelper.isDesktopPlatform()
+            ? IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () => context.openParentDrawer(),
+              )
+            : null,
       ),
       body: Center(
         child: ConstrainedBox(
@@ -1300,14 +1292,13 @@ class _OfflineTokenPageState extends State<_OfflineTokenPage> {
                 const SizedBox(height: 16),
                 ElevatedButton.icon(
                   onPressed: _saving ? null : _save,
-                  icon:
-                      _saving
-                          ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                          : const Icon(Icons.save_outlined),
+                  icon: _saving
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.save_outlined),
                   label: Text(context.tr.bot_settings_save_token_only_btn),
                 ),
                 const SizedBox(height: 24),
