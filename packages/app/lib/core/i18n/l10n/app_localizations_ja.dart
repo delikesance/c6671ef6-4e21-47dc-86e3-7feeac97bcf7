@@ -1399,6 +1399,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get bot_home_section_getting_started => 'はじめに';
 
   @override
+  String get bot_home_section_modules => 'モジュール';
+
+  @override
   String get bot_home_section_monitoring => '監視';
 
   @override
@@ -1417,6 +1420,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get bot_home_starting => '起動中…';
+
+  @override
+  String get bot_home_restart => '再起動';
 
   @override
   String get bot_home_stop => 'ボット停止';
@@ -3875,6 +3881,25 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get home_overline => 'マイプロジェクト';
+
+  @override
+  String get home_create_bot_title => 'ボットを作成';
+
+  @override
+  String get home_create_bot_subtitle => '2クリックでDiscordボット';
+
+  @override
+  String home_active_on_servers_one(int count) {
+    return '$countサーバーで稼働中';
+  }
+
+  @override
+  String home_active_on_servers_other(int count) {
+    return '$countサーバーで稼働中';
+  }
+
+  @override
+  String get home_synced_active => '同期済み・稼働中';
 
   @override
   String get home_empty_support_btn => 'Discord サポート';

@@ -15,6 +15,7 @@ let
     sysprof
     fontconfig
     freetype
+    sqlite
   ];
 in
 pkgs.mkShell {
@@ -28,6 +29,7 @@ pkgs.mkShell {
   buildInputs = libraries;
 
   shellHook = ''
+    export PATH="/nix/store/ssvifqky480dqd5kv5dvcjvn3drfhiw7-flutter-wrapped-3.47.0-sdk-links/bin:$PATH"
     export LD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath libraries}:$LD_LIBRARY_PATH"
   '';
 }

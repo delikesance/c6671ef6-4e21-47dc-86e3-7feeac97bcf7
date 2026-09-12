@@ -1492,6 +1492,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get bot_home_section_getting_started => 'BAŞLARKEN';
 
   @override
+  String get bot_home_section_modules => 'MODÜLLER';
+
+  @override
   String get bot_home_section_monitoring => 'İZLEME';
 
   @override
@@ -1510,6 +1513,9 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get bot_home_starting => 'Başlatılıyor…';
+
+  @override
+  String get bot_home_restart => 'Yeniden Başlat';
 
   @override
   String get bot_home_stop => 'Botu Durdur';
@@ -4061,6 +4067,25 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get home_overline => 'PROJELERİM';
+
+  @override
+  String get home_create_bot_title => 'Bot oluştur';
+
+  @override
+  String get home_create_bot_subtitle => 'Discord botun iki tıkta';
+
+  @override
+  String home_active_on_servers_one(int count) {
+    return '$count sunucuda aktif';
+  }
+
+  @override
+  String home_active_on_servers_other(int count) {
+    return '$count sunucuda aktif';
+  }
+
+  @override
+  String get home_synced_active => 'Senkron ve aktif';
 
   @override
   String get home_empty_support_btn => 'Discord Desteği';

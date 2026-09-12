@@ -1169,6 +1169,9 @@
   "@bot_home_section_getting_started": {
     "description": "GETTING STARTED"
   },
+  "@bot_home_section_modules": {
+    "description": "MODULES"
+  },
   "@bot_home_section_monitoring": {
     "description": "MONITORING"
   },
@@ -1177,6 +1180,9 @@
   },
   "@bot_home_service_not_started": {
     "description": "Foreground service did not start."
+  },
+  "@bot_home_restart": {
+    "description": "Restart"
   },
   "@bot_home_start": {
     "description": "Start Bot"
@@ -7279,12 +7285,14 @@
   "bot_home_notif_required": "ボットサービスを起動するには通知権限が必要です。",
   "bot_home_section_danger": "危険ゾーン",
   "bot_home_section_getting_started": "はじめに",
+  "bot_home_section_modules": "モジュール",
   "bot_home_section_monitoring": "監視",
   "bot_home_section_tools": "ツール",
   "bot_home_service_not_started": "フォアグラウンドサービスが起動しませんでした。",
   "bot_home_start": "ボット起動",
   "bot_home_start_error": "起動できませんでした: {error}",
   "bot_home_starting": "起動中…",
+  "bot_home_restart": "再起動",
   "bot_home_stop": "ボット停止",
   "bot_home_sync": "アプリを同期",
   "bot_home_sync_success": "アプリが正常に同期されました",
@@ -8016,6 +8024,11 @@
   "hint_use_variables": "必要に応じて変数/テンプレートを使用",
   "home_add_time": "時間を追加",
   "home_overline": "マイプロジェクト",
+  "home_create_bot_title": "ボットを作成",
+  "home_create_bot_subtitle": "2クリックでDiscordボット",
+  "home_active_on_servers_one": "{count}サーバーで稼働中",
+  "home_active_on_servers_other": "{count}サーバーで稼働中",
+  "home_synced_active": "同期済み・稼働中",
   "home_empty_support_btn": "Discord サポート",
   "home_empty_support_hint": "ヘルプが必要ですか？コミュニティに参加しましょう！",
   "home_foreground_service_not_started": "フォアグラウンドサービスが起動しませんでした。",

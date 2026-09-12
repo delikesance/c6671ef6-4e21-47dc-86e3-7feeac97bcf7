@@ -1169,6 +1169,9 @@
   "@bot_home_section_getting_started": {
     "description": "GETTING STARTED"
   },
+  "@bot_home_section_modules": {
+    "description": "MODULES"
+  },
   "@bot_home_section_monitoring": {
     "description": "MONITORING"
   },
@@ -1177,6 +1180,9 @@
   },
   "@bot_home_service_not_started": {
     "description": "Foreground service did not start."
+  },
+  "@bot_home_restart": {
+    "description": "Restart"
   },
   "@bot_home_start": {
     "description": "Start Bot"
@@ -7225,12 +7231,14 @@
   "bot_home_notif_required": "A permissão de notificação é necessária para iniciar o serviço do bot.",
   "bot_home_section_danger": "ZONA DE PERIGO",
   "bot_home_section_getting_started": "INTRODUÇÃO",
+  "bot_home_section_modules": "MÓDULOS",
   "bot_home_section_monitoring": "MONITORIZAÇÃO",
   "bot_home_section_tools": "FERRAMENTAS",
   "bot_home_service_not_started": "O serviço de primeiro plano não iniciou.",
   "bot_home_start": "Iniciar Bot",
   "bot_home_start_error": "Não foi possível iniciar: {error}",
   "bot_home_starting": "A iniciar…",
+  "bot_home_restart": "Reiniciar",
   "bot_home_stop": "Parar Bot",
   "bot_home_sync": "Sincronizar App",
   "bot_home_sync_success": "App sincronizada com sucesso",
@@ -7962,6 +7970,11 @@
   "hint_use_variables": "Use variáveis/modelos se necessário",
   "home_add_time": "Adicionar Tempo",
   "home_overline": "MEUS PROJETOS",
+  "home_create_bot_title": "Criar um bot",
+  "home_create_bot_subtitle": "O teu bot Discord em dois cliques",
+  "home_active_on_servers_one": "Ativo em {count} servidor",
+  "home_active_on_servers_other": "Ativo em {count} servidores",
+  "home_synced_active": "Sincronizado e ativo",
   "home_empty_support_btn": "Junte-se ao nosso Discord",
   "home_empty_support_hint": "Precisa de ajuda para começar?",
   "home_foreground_service_not_started": "O serviço de primeiro plano não iniciou.",

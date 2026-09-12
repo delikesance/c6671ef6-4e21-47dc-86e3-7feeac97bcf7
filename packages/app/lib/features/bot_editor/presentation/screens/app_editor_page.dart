@@ -21,8 +21,9 @@ import 'package:bot_creator/features/bot_editor/logic/js_runner_capabilities.dar
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 
 import 'package:bot_creator/core/utils/responsive.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/discord/discord_intent_sync.dart';
 import 'package:bot_creator/core/discord/portal_intent_feedback.dart';
@@ -32,7 +33,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AppEditPage extends StatefulWidget {
   final String appName;
   final int id;
-  const AppEditPage({super.key, required this.appName, required this.id});
+  final bool embedded;
+  final VoidCallback? onExit;
+
+  const AppEditPage({
+    super.key,
+    required this.appName,
+    required this.id,
+    this.embedded = false,
+    this.onExit,
+  });
 
   @override
   State<AppEditPage> createState() => _AppEditPageState();
@@ -44,21 +54,13 @@ class _AppEditPageState extends State<AppEditPage>
   bool _isLoading = true;
   String? _degradedReason;
 
-  late int _selectedIndex = 0;
+  String _activeSectionId = 'home';
+  String _activeModuleId = 'workflows';
+  String _activeSettingsSubTab = 'settings';
+
   bool _beginnerMode = false;
   bool _beginnerModeLoaded = false;
   String _runtimeEngine = runtimeEngineDart;
-  bool get _isDesktopPlatform {
-    if (kIsWeb) {
-      return false;
-    }
-    return switch (defaultTargetPlatform) {
-      TargetPlatform.windows => true,
-      TargetPlatform.linux => true,
-      TargetPlatform.macOS => true,
-      _ => false,
-    };
-  }
 
   @override
   void initState() {
@@ -107,6 +109,7 @@ class _AppEditPageState extends State<AppEditPage>
         }
         setState(() {
           _degradedReason = 'Token missing. Local edit mode enabled.';
+          _activeSectionId = 'offline_token';
           _isLoading = false;
         });
         return;
@@ -132,6 +135,9 @@ class _AppEditPageState extends State<AppEditPage>
         if (client == null) {
           _degradedReason ??=
               'Token invalid or network unavailable. Local edit mode enabled.';
+          _activeSectionId = 'offline_token';
+        } else {
+          _activeSectionId = 'home';
         }
         _isLoading = false;
       });
@@ -141,12 +147,12 @@ class _AppEditPageState extends State<AppEditPage>
       }
       setState(() {
         _degradedReason = 'Unable to load bot data. Local edit mode enabled.';
+        _activeSectionId = 'offline_token';
         _isLoading = false;
       });
     }
 
-    // S7: Load beginner mode preference. Auto-enable for bots with 0 commands
-    // unless the user has previously opted out.
+    // Load beginner mode preference
     await _loadBeginnerMode();
   }
 
@@ -157,12 +163,10 @@ class _AppEditPageState extends State<AppEditPage>
     final optedOut = prefs.getBool(_beginnerModeKey) == false;
 
     if (optedOut) {
-      // User previously disabled beginner mode for this bot.
       if (mounted) setState(() { _beginnerMode = false; _beginnerModeLoaded = true; });
       return;
     }
 
-    // Auto-detect: beginner mode is on when the bot has no commands yet.
     try {
       final commands = await appManager.listAppCommands(_botId);
       if (!mounted) return;
@@ -180,15 +184,48 @@ class _AppEditPageState extends State<AppEditPage>
   }
 
   Future<void> _toggleBeginnerMode(bool value) async {
-    setState(() => _beginnerMode = value);
+    setState(() {
+      _beginnerMode = value;
+      _activeSectionId = client == null ? 'offline_token' : 'home';
+    });
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_beginnerModeKey, value);
-    // Reset to Home tab when switching modes to avoid invalid indices.
-    if (mounted) setState(() => _selectedIndex = 0);
     AppAnalytics.logEvent(
       name: 'beginner_mode_toggled',
       parameters: {'enabled': value.toString(), 'bot_id': _botId},
     );
+  }
+
+  void _exitEditor({bool closeDrawerFirst = false}) {
+    if (closeDrawerFirst) {
+      Navigator.of(context).pop();
+    }
+    final onExit = widget.onExit;
+    if (onExit != null) {
+      onExit();
+      return;
+    }
+    Navigator.of(context).pop();
+  }
+
+  void _navigateToSection(String sectionId) {
+    final isSmallPhone = ResponsiveHelper.isSmallPhone(context);
+    var entries = _buildEntries(isSmallPhone);
+    if (_beginnerMode && client != null) {
+      entries = entries.where((e) => e.beginnerEssential).toList();
+    }
+    final target = entries.firstWhere(
+      (e) => e.id == sectionId,
+      orElse: () => entries.first,
+    );
+    setState(() {
+      _activeSectionId = target.id;
+      if (target.category == 'modules') {
+        _activeModuleId = target.id;
+      } else if (target.category == 'system') {
+        _activeSettingsSubTab = target.id;
+      }
+    });
   }
 
   String get _botId => widget.id.toString();
@@ -203,7 +240,7 @@ class _AppEditPageState extends State<AppEditPage>
     }
     setState(() {
       _runtimeEngine = engine;
-      _selectedIndex = 0;
+      _activeSectionId = client == null ? 'offline_token' : 'home';
     });
   }
 
@@ -220,31 +257,41 @@ class _AppEditPageState extends State<AppEditPage>
     if (client == null) {
       return _applyRuntimeGating([
         _AppPageEntry(
+          id: 'offline_token',
           icon: Icons.vpn_key_outlined,
           label: context.tr.settings_tab,
           compactLabel: context.tr.settings_tab,
+          category: 'overview',
+          beginnerEssential: true,
           page: _OfflineTokenPage(botId: _botId, onTokenSaved: _init),
         ),
         _AppPageEntry(
-          icon: Icons.add_circle,
+          id: 'commands',
+          icon: Icons.terminal_rounded,
           label: context.tr.commands_tab,
           compactLabel: context.tr.commands_tab_short,
+          category: 'commands',
+          beginnerEssential: true,
           page: AppCommandsPage(botId: _botId),
         ),
         _AppPageEntry(
-          icon: Icons.key,
+          id: 'globals',
+          icon: Icons.data_object_rounded,
           label: context.tr.globals_tab,
           compactLabel: context.tr.globals_tab_short,
+          category: 'modules',
           page: GlobalVariablesPage(botId: _botId),
         ),
         _AppPageEntry(
-          icon: Icons.account_tree,
+          id: 'workflows',
+          icon: Icons.account_tree_outlined,
           label: eventsOnlyWorkflows
               ? context.tr.workflows_type_event
               : context.tr.workflows_tab,
           compactLabel: eventsOnlyWorkflows
               ? context.tr.workflows_type_badge_event
               : context.tr.workflows_tab_short,
+          category: 'modules',
           page: WorkflowsPage(
             botId: _botId,
             eventsOnly: eventsOnlyWorkflows,
@@ -253,16 +300,20 @@ class _AppEditPageState extends State<AppEditPage>
               caps.supportsWorkflows || caps.supportsEventListeners,
         ),
         _AppPageEntry(
-          icon: Icons.schedule,
+          id: 'scheduler',
+          icon: Icons.schedule_rounded,
           label: context.tr.scheduler_tab,
           compactLabel: context.tr.scheduler_tab_short,
+          category: 'modules',
           page: SchedulerPage(botId: _botId),
           isAvailable: (caps) => caps.supportsSchedulerUi,
         ),
         _AppPageEntry(
-          icon: Icons.webhook,
+          id: 'webhooks',
+          icon: Icons.webhook_rounded,
           label: context.tr.webhooks_page_title,
           compactLabel: context.tr.webhooks_page_title,
+          category: 'modules',
           page: InboundWebhooksPage(botId: _botId),
           isAvailable: (caps) => caps.supportsInboundWebhooksUi,
         ),
@@ -271,40 +322,38 @@ class _AppEditPageState extends State<AppEditPage>
 
     return _applyRuntimeGating([
       _AppPageEntry(
-        icon: Icons.home,
+        id: 'home',
+        icon: Icons.dashboard_rounded,
         label: context.tr.home_tab,
         compactLabel: context.tr.home_tab,
+        category: 'overview',
         beginnerEssential: true,
         page: AppHomePage(
           client: client!,
-          onNavigateToSection: (index) {
-            setState(() {
-              _selectedIndex = index;
-            });
-          },
+          embedded: widget.embedded,
+          onExit: widget.onExit,
+          onNavigateToSection: _navigateToSection,
         ),
       ),
       _AppPageEntry(
-        icon: Icons.add_circle,
+        id: 'commands',
+        icon: Icons.terminal_rounded,
         label: context.tr.commands_tab,
         compactLabel: context.tr.commands_tab_short,
+        category: 'commands',
         beginnerEssential: true,
         page: AppCommandsPage(client: client!, botId: _botId),
       ),
       _AppPageEntry(
-        icon: Icons.key,
-        label: context.tr.globals_tab,
-        compactLabel: context.tr.globals_tab_short,
-        page: GlobalVariablesPage(botId: _botId),
-      ),
-      _AppPageEntry(
-        icon: Icons.account_tree,
+        id: 'workflows',
+        icon: Icons.account_tree_outlined,
         label: eventsOnlyWorkflows
             ? context.tr.workflows_type_event
             : context.tr.workflows_tab,
         compactLabel: eventsOnlyWorkflows
             ? context.tr.workflows_type_badge_event
             : context.tr.workflows_tab_short,
+        category: 'modules',
         page: WorkflowsPage(
           botId: _botId,
           eventsOnly: eventsOnlyWorkflows,
@@ -313,53 +362,67 @@ class _AppEditPageState extends State<AppEditPage>
             caps.supportsWorkflows || caps.supportsEventListeners,
       ),
       _AppPageEntry(
-        icon: Icons.schedule,
+        id: 'globals',
+        icon: Icons.data_object_rounded,
+        label: context.tr.globals_tab,
+        compactLabel: context.tr.globals_tab_short,
+        category: 'modules',
+        page: GlobalVariablesPage(botId: _botId),
+      ),
+      _AppPageEntry(
+        id: 'scheduler',
+        icon: Icons.schedule_rounded,
         label: context.tr.scheduler_tab,
         compactLabel: context.tr.scheduler_tab_short,
+        category: 'modules',
         page: SchedulerPage(botId: _botId),
-        mobileSecondary: true,
         isAvailable: (caps) => caps.supportsSchedulerUi,
       ),
       _AppPageEntry(
-        icon: Icons.webhook,
+        id: 'webhooks',
+        icon: Icons.webhook_rounded,
         label: context.tr.webhooks_page_title,
         compactLabel: context.tr.webhooks_page_title,
+        category: 'modules',
         page: InboundWebhooksPage(botId: _botId),
-        mobileSecondary: true,
         isAvailable: (caps) => caps.supportsInboundWebhooksUi,
       ),
       _AppPageEntry(
+        id: 'emojis',
         icon: Icons.emoji_emotions_outlined,
         label: context.tr.emojis_tab,
         compactLabel: context.tr.emojis_tab_short,
+        category: 'modules',
         page: EmojisPage(botId: _botId),
-        mobileSecondary: true,
       ),
       _AppPageEntry(
+        id: 'guilds',
         icon: Icons.dns_outlined,
         label: context.tr.guilds_tab,
         compactLabel: context.tr.guilds_tab_short,
+        category: 'modules',
         page: GuildsPage(botId: _botId),
-        mobileSecondary: true,
       ),
       _AppPageEntry(
-        icon: Icons.bar_chart,
+        id: 'dashboard',
+        icon: Icons.bar_chart_rounded,
         label: context.tr.dashboard_title,
         compactLabel: context.tr.dashboard_title,
+        category: 'system',
         page: CommandDashboardPage(botId: _botId),
-        mobileSecondary: true,
         isAvailable: (caps) => caps.supportsCommandDashboard,
       ),
       _AppPageEntry(
-        icon: Icons.settings,
+        id: 'settings',
+        icon: Icons.settings_outlined,
         label: context.tr.settings_tab,
         compactLabel: context.tr.settings_tab,
+        category: 'system',
+        beginnerEssential: true,
         page: AppSettingsPage(
           client: client!,
           onRuntimeEngineChanged: _onRuntimeEngineChanged,
         ),
-        mobileSecondary: true,
-        beginnerEssential: true,
       ),
     ]);
   }
@@ -367,144 +430,152 @@ class _AppEditPageState extends State<AppEditPage>
   Widget _buildSidebarContent(
     BuildContext context,
     ColorScheme colorScheme,
-    List<_AppNavItem> navItems, {
+    List<_AppPageEntry> entries, {
     bool isDrawer = false,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final muted = isDark ? AppTheme.homeMuted : colorScheme.onSurfaceVariant;
+
+    final categories = <String, List<_AppPageEntry>>{
+      context.tr.home_tab.toUpperCase():
+          entries.where((e) => e.category == 'overview').toList(),
+      context.tr.commands_tab.toUpperCase():
+          entries.where((e) => e.category == 'commands').toList(),
+      context.tr.bot_home_section_modules:
+          entries.where((e) => e.category == 'modules').toList(),
+      context.tr.settings_tab.toUpperCase():
+          entries.where((e) => e.category == 'system').toList(),
+    };
+
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back),
-                    tooltip: context.tr.common_back,
-                    onPressed: () {
-                      if (isDrawer) {
-                        Navigator.of(context).pop(); // Close drawer
-                      }
-                      Navigator.of(context).pop(); // Exit editor
-                    },
-                  ),
-                  Expanded(
-                    child: Text(
-                      widget.appName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-            Expanded(
-              child: ListView.builder(
-                itemCount: navItems.length,
-                itemBuilder: (context, index) {
-                  final item = navItems[index];
-                  final selected = _selectedIndex == index;
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 3),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-                      onTap: () {
-                        if (isDrawer) {
-                          Navigator.of(context).pop(); // Close drawer
-                        }
-                        setState(() {
-                          _selectedIndex = index;
-                        });
-                      },
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 150),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-                          color: selected
-                              ? colorScheme.primaryContainer
-                              : Colors.transparent,
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              item.icon,
-                              size: 20,
-                              color: selected
-                                  ? colorScheme.onPrimaryContainer
-                                  : colorScheme.onSurfaceVariant,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                item.label,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontWeight: selected
-                                      ? FontWeight.w700
-                                      : FontWeight.w500,
-                                  color: selected
-                                      ? colorScheme.onPrimaryContainer
-                                      : colorScheme.onSurface,
-                                ),
-                              ),
-                            ),
-                          ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 14, 14, 8),
+            child: Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  tooltip: context.tr.common_back,
+                  onPressed: () => _exitEditor(closeDrawerFirst: isDrawer),
+                ),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.appName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.inter(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: colorScheme.onSurface,
                         ),
                       ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            // S7: Beginner mode toggle at the bottom of the sidebar
-            if (_beginnerModeLoaded)
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Material(
-                  borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                  color: _beginnerMode
-                      ? AppTheme.info.withValues(alpha: 0.08)
-                      : Colors.transparent,
-                  child: SwitchListTile(
-                    dense: true,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 0,
-                    ),
-                    title: Text(
-                      context.tr.beginner_mode_label,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: _beginnerMode
-                            ? AppTheme.info
-                            : colorScheme.onSurfaceVariant,
+                      Text(
+                        'ID $_botId',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          color: muted,
+                        ),
                       ),
-                    ),
-                    subtitle: Text(
-                      _beginnerMode
-                          ? context.tr.beginner_mode_on_hint
-                          : context.tr.beginner_mode_off_hint,
-                      style: const TextStyle(fontSize: 11),
-                    ),
-                    value: _beginnerMode,
-                    onChanged: (val) => _toggleBeginnerMode(val),
+                    ],
                   ),
                 ),
+              ],
+            ),
+          ),
+          Divider(
+            height: 1,
+            thickness: 1,
+            color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+          ),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+              children: [
+                for (final cat in categories.entries)
+                  if (cat.value.isNotEmpty) ...[
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 12, 8, 6),
+                      child: Text(
+                        cat.key,
+                        style: GoogleFonts.inter(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: muted,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                    ),
+                    for (final item in cat.value)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 2),
+                        child: _SidebarItemTile(
+                          icon: item.icon,
+                          label: item.label,
+                          selected: _activeSectionId == item.id,
+                          onTap: () {
+                            if (isDrawer) {
+                              Navigator.of(context).pop();
+                            }
+                            HapticFeedback.selectionClick();
+                            setState(() {
+                              _activeSectionId = item.id;
+                              if (item.category == 'modules') {
+                                _activeModuleId = item.id;
+                              } else if (item.category == 'system') {
+                                _activeSettingsSubTab = item.id;
+                              }
+                            });
+                          },
+                        ),
+                      ),
+                  ],
+              ],
+            ),
+          ),
+          if (_beginnerModeLoaded && client != null)
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Material(
+                borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                color: _beginnerMode
+                    ? AppTheme.info.withValues(alpha: 0.08)
+                    : Colors.transparent,
+                child: SwitchListTile(
+                  dense: true,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 0,
+                  ),
+                  title: Text(
+                    context.tr.beginner_mode_label,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: _beginnerMode
+                          ? AppTheme.info
+                          : colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  subtitle: Text(
+                    _beginnerMode
+                        ? context.tr.beginner_mode_on_hint
+                        : context.tr.beginner_mode_off_hint,
+                    style: const TextStyle(fontSize: 10),
+                  ),
+                  value: _beginnerMode,
+                  onChanged: (val) => _toggleBeginnerMode(val),
+                ),
               ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }
@@ -512,10 +583,10 @@ class _AppEditPageState extends State<AppEditPage>
   Widget _buildDesktopSidebar(
     BuildContext context,
     ColorScheme colorScheme,
-    List<_AppNavItem> navItems,
+    List<_AppPageEntry> entries,
   ) {
     return Container(
-      width: 248,
+      width: 256,
       decoration: BoxDecoration(
         color: colorScheme.surface,
         border: Border(
@@ -526,7 +597,222 @@ class _AppEditPageState extends State<AppEditPage>
       ),
       child: Material(
         color: Colors.transparent,
-        child: _buildSidebarContent(context, colorScheme, navItems, isDrawer: false),
+        child: _buildSidebarContent(context, colorScheme, entries, isDrawer: false),
+      ),
+    );
+  }
+
+  Widget _buildModulesView(
+    BuildContext context,
+    ColorScheme colorScheme,
+    List<_AppPageEntry> moduleEntries,
+  ) {
+    if (moduleEntries.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final activeModuleEntry = moduleEntries.firstWhere(
+      (e) => e.id == _activeModuleId,
+      orElse: () => moduleEntries.first,
+    );
+
+    return Column(
+      children: [
+        Container(
+          color: colorScheme.surface,
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              children: [
+                for (final entry in moduleEntries)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: _ModulePill(
+                      icon: entry.icon,
+                      label: entry.compactLabel,
+                      selected: activeModuleEntry.id == entry.id,
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        setState(() {
+                          _activeModuleId = entry.id;
+                          _activeSectionId = entry.id;
+                        });
+                      },
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        Divider(
+          height: 1,
+          thickness: 1,
+          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+        ),
+        Expanded(
+          child: activeModuleEntry.page,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSettingsView(
+    BuildContext context,
+    ColorScheme colorScheme,
+    List<_AppPageEntry> systemEntries,
+  ) {
+    if (systemEntries.length <= 1) {
+      return systemEntries.first.page;
+    }
+
+    final activeSystemEntry = systemEntries.firstWhere(
+      (e) => e.id == _activeSettingsSubTab,
+      orElse: () => systemEntries.first,
+    );
+
+    return Column(
+      children: [
+        Container(
+          color: colorScheme.surface,
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              children: [
+                for (final entry in systemEntries)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: _ModulePill(
+                      icon: entry.icon,
+                      label: entry.compactLabel,
+                      selected: activeSystemEntry.id == entry.id,
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        setState(() {
+                          _activeSettingsSubTab = entry.id;
+                          _activeSectionId = entry.id;
+                        });
+                      },
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        Divider(
+          height: 1,
+          thickness: 1,
+          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+        ),
+        Expanded(
+          child: activeSystemEntry.page,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMobileBottomBar(
+    BuildContext context,
+    ColorScheme colorScheme,
+    List<_AppPageEntry> allEntries,
+  ) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isOffline = client == null;
+
+    final pillars = <({String id, IconData icon, String label})>[
+      (
+        id: isOffline ? 'offline_token' : 'home',
+        icon: isOffline ? Icons.vpn_key_outlined : Icons.dashboard_rounded,
+        label: isOffline ? context.tr.settings_tab : context.tr.home_tab,
+      ),
+      (
+        id: 'commands',
+        icon: Icons.terminal_rounded,
+        label: context.tr.commands_tab_short,
+      ),
+      if (!_beginnerMode || isOffline)
+        (
+          id: 'modules',
+          icon: Icons.widgets_rounded,
+          label: context.tr.bot_home_section_modules,
+        ),
+      if (!isOffline)
+        (
+          id: 'settings',
+          icon: Icons.settings_outlined,
+          label: context.tr.settings_tab,
+        ),
+    ];
+
+    int activePillarIndex = 0;
+    if (_activeSectionId == 'commands') {
+      activePillarIndex = 1;
+    } else if ([
+      'workflows',
+      'globals',
+      'scheduler',
+      'webhooks',
+      'emojis',
+      'guilds',
+    ].contains(_activeSectionId)) {
+      activePillarIndex = (!_beginnerMode || isOffline) ? 2 : 0;
+    } else if (['settings', 'dashboard'].contains(_activeSectionId)) {
+      activePillarIndex = (!_beginnerMode || isOffline) ? 3 : 2;
+    } else {
+      activePillarIndex = 0;
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? AppTheme.homeNavBar : colorScheme.surface,
+        border: Border(
+          top: BorderSide(
+            color: isDark ? AppTheme.homeCardBorder : colorScheme.outlineVariant,
+          ),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.06),
+            blurRadius: 10,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: SizedBox(
+          height: 56,
+          child: Row(
+            children: [
+              for (var i = 0; i < pillars.length; i++)
+                Expanded(
+                  child: _BottomNavItem(
+                    icon: pillars[i].icon,
+                    label: pillars[i].label,
+                    selected: activePillarIndex == i,
+                    onTap: () {
+                      HapticFeedback.selectionClick();
+                      final pillarId = pillars[i].id;
+                      setState(() {
+                        if (pillarId == 'home' || pillarId == 'offline_token') {
+                          _activeSectionId = pillarId;
+                        } else if (pillarId == 'commands') {
+                          _activeSectionId = 'commands';
+                        } else if (pillarId == 'modules') {
+                          _activeSectionId = _activeModuleId;
+                        } else if (pillarId == 'settings') {
+                          _activeSectionId = _activeSettingsSubTab;
+                        }
+                      });
+                    },
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -535,85 +821,298 @@ class _AppEditPageState extends State<AppEditPage>
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isSmallPhone = ResponsiveHelper.isSmallPhone(context);
-    final useDesktopSidebar = _isDesktopPlatform;
+    final isWide =
+        MediaQuery.sizeOf(context).width >= AppTheme.desktopBreakpoint;
     var entries = _buildEntries(isSmallPhone);
 
-    // S7: Beginner mode — show only essential tabs (Home, Commands, Settings).
-    // Only filter when online (offline mode already shows a reduced set).
     if (_beginnerMode && client != null) {
       entries = entries.where((e) => e.beginnerEssential).toList();
     }
 
-    final navItems = entries
-        .map(
-          (entry) => _AppNavItem(
-            icon: entry.icon,
-            label: entry.label,
-            compactLabel: entry.compactLabel,
-          ),
-        )
-        .toList();
-    final pages = entries.map((entry) => entry.page).toList();
-
-    if (_isLoading) {
+    if (_isLoading || entries.isEmpty) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    if (pages.isEmpty) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    final hasActiveSection = entries.any((e) => e.id == _activeSectionId);
+    if (!hasActiveSection) {
+      _activeSectionId = entries.first.id;
     }
 
-    final activeIndex =
-        _selectedIndex < pages.length ? _selectedIndex : pages.length - 1;
+    if (isWide) {
+      final activeEntry = entries.firstWhere(
+        (e) => e.id == _activeSectionId,
+        orElse: () => entries.first,
+      );
 
-    if (useDesktopSidebar) {
       return Scaffold(
         body: Row(
           children: [
-            _buildDesktopSidebar(context, colorScheme, navItems),
-            Expanded(child: pages[activeIndex]),
+            _buildDesktopSidebar(context, colorScheme, entries),
+            Expanded(
+              child: activeEntry.page,
+            ),
           ],
         ),
       );
     }
 
-    return Scaffold(
-      drawer: Drawer(
-        backgroundColor: colorScheme.surface,
-        child: _buildSidebarContent(context, colorScheme, navItems, isDrawer: true),
+    final moduleEntries =
+        entries.where((e) => e.category == 'modules').toList();
+    final systemEntries =
+        entries.where((e) => e.category == 'system').toList();
+
+    Widget activeMobileBody;
+    if (_activeSectionId == 'home' || _activeSectionId == 'offline_token') {
+      activeMobileBody = entries
+          .firstWhere(
+            (e) => e.id == _activeSectionId,
+            orElse: () => entries.first,
+          )
+          .page;
+    } else if (_activeSectionId == 'commands') {
+      activeMobileBody = entries
+          .firstWhere(
+            (e) => e.id == 'commands',
+            orElse: () => entries.first,
+          )
+          .page;
+    } else if (moduleEntries.any((e) => e.id == _activeSectionId)) {
+      activeMobileBody =
+          _buildModulesView(context, colorScheme, moduleEntries);
+    } else if (systemEntries.any((e) => e.id == _activeSectionId)) {
+      activeMobileBody =
+          _buildSettingsView(context, colorScheme, systemEntries);
+    } else {
+      activeMobileBody = entries.first.page;
+    }
+
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        _exitEditor();
+      },
+      child: Scaffold(
+        drawer: Drawer(
+          backgroundColor: colorScheme.surface,
+          child: _buildSidebarContent(
+            context,
+            colorScheme,
+            entries,
+            isDrawer: true,
+          ),
+        ),
+        body: activeMobileBody,
+        bottomNavigationBar: _buildMobileBottomBar(
+          context,
+          colorScheme,
+          entries,
+        ),
       ),
-      body: pages[activeIndex],
     );
   }
 }
 
-class _AppNavItem {
-  final IconData icon;
-  final String label;
-  final String compactLabel;
-
-  const _AppNavItem({
+class _SidebarItemTile extends StatelessWidget {
+  const _SidebarItemTile({
     required this.icon,
     required this.label,
-    required this.compactLabel,
+    required this.selected,
+    required this.onTap,
   });
+
+  final IconData icon;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+          color: selected
+              ? colorScheme.primary.withValues(alpha: 0.12)
+              : Colors.transparent,
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              size: 18,
+              color: selected
+                  ? colorScheme.primary
+                  : colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                  color: selected
+                      ? colorScheme.primary
+                      : colorScheme.onSurface,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BottomNavItem extends StatelessWidget {
+  const _BottomNavItem({
+    required this.icon,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final selectedColor = isDark
+        ? AppTheme.brandPurpleSoft
+        : colorScheme.primary;
+    final idleColor = isDark
+        ? AppTheme.homeMuted
+        : colorScheme.onSurfaceVariant;
+    final color = selected ? selectedColor : idleColor;
+
+    return InkWell(
+      onTap: onTap,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 3),
+            decoration: BoxDecoration(
+              color: selected
+                  ? colorScheme.primary.withValues(alpha: isDark ? 0.2 : 0.1)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+            ),
+            child: Icon(icon, size: 20, color: color),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ModulePill extends StatelessWidget {
+  const _ModulePill({
+    required this.icon,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Material(
+      color: selected
+          ? scheme.primary
+          : (isDark ? AppTheme.homeCard : scheme.surfaceContainer),
+      borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+            border: Border.all(
+              color: selected
+                  ? scheme.primary
+                  : (isDark ? AppTheme.homeCardBorder : scheme.outlineVariant),
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: 15,
+                color: selected
+                    ? scheme.onPrimary
+                    : (isDark ? AppTheme.homeMuted : scheme.onSurfaceVariant),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                  color: selected
+                      ? scheme.onPrimary
+                      : scheme.onSurface,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _AppPageEntry {
+  final String id;
   final IconData icon;
   final String label;
   final String compactLabel;
   final Widget page;
-  final bool mobileSecondary;
+  final String category;
   final bool beginnerEssential;
   final bool Function(BotRuntimeCapabilities caps) isAvailable;
 
   const _AppPageEntry({
+    required this.id,
     required this.icon,
     required this.label,
     required this.compactLabel,
     required this.page,
-    this.mobileSecondary = false,
+    required this.category,
     this.beginnerEssential = false,
     this.isAvailable = _alwaysAvailable,
   });

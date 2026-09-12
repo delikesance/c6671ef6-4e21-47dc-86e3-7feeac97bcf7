@@ -1516,6 +1516,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get bot_home_section_getting_started => 'INTRODUÇÃO';
 
   @override
+  String get bot_home_section_modules => 'MÓDULOS';
+
+  @override
   String get bot_home_section_monitoring => 'MONITORIZAÇÃO';
 
   @override
@@ -1535,6 +1538,9 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get bot_home_starting => 'A iniciar…';
+
+  @override
+  String get bot_home_restart => 'Reiniciar';
 
   @override
   String get bot_home_stop => 'Parar Bot';
@@ -4097,6 +4103,25 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get home_overline => 'MEUS PROJETOS';
+
+  @override
+  String get home_create_bot_title => 'Criar um bot';
+
+  @override
+  String get home_create_bot_subtitle => 'O teu bot Discord em dois cliques';
+
+  @override
+  String home_active_on_servers_one(int count) {
+    return 'Ativo em $count servidor';
+  }
+
+  @override
+  String home_active_on_servers_other(int count) {
+    return 'Ativo em $count servidores';
+  }
+
+  @override
+  String get home_synced_active => 'Sincronizado e ativo';
 
   @override
   String get home_empty_support_btn => 'Junte-se ao nosso Discord';

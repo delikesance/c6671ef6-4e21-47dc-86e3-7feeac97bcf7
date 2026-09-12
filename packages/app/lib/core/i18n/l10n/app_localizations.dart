@@ -2687,6 +2687,12 @@ abstract class AppLocalizations {
   /// **'GETTING STARTED'**
   String get bot_home_section_getting_started;
 
+  /// MODULES
+  ///
+  /// In en, this message translates to:
+  /// **'MODULES'**
+  String get bot_home_section_modules;
+
   /// MONITORING
   ///
   /// In en, this message translates to:
@@ -2722,6 +2728,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Starting…'**
   String get bot_home_starting;
+
+  /// Restart
+  ///
+  /// In en, this message translates to:
+  /// **'Restart'**
+  String get bot_home_restart;
 
   /// Stop Bot
   ///
@@ -7271,11 +7283,41 @@ abstract class AppLocalizations {
   /// **'Add Time'**
   String get home_add_time;
 
-  /// MY PROJECTS
+  /// No description provided for @home_overline.
   ///
   /// In en, this message translates to:
   /// **'MY PROJECTS'**
   String get home_overline;
+
+  /// Create a bot
+  ///
+  /// In en, this message translates to:
+  /// **'Create a bot'**
+  String get home_create_bot_title;
+
+  /// Your Discord bot in two clicks
+  ///
+  /// In en, this message translates to:
+  /// **'Your Discord bot in two clicks'**
+  String get home_create_bot_subtitle;
+
+  /// Active on {count} server
+  ///
+  /// In en, this message translates to:
+  /// **'Active on {count} server'**
+  String home_active_on_servers_one(int count);
+
+  /// Active on {count} servers
+  ///
+  /// In en, this message translates to:
+  /// **'Active on {count} servers'**
+  String home_active_on_servers_other(int count);
+
+  /// Synced & Active
+  ///
+  /// In en, this message translates to:
+  /// **'Synced & Active'**
+  String get home_synced_active;
 
   /// Discord Support
   ///
