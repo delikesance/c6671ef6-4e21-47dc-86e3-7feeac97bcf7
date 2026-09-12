@@ -2572,6 +2572,117 @@
   "@cmd_variables_title": {
     "description": "Command Variables"
   },
+  "@code_editor_settings_title": {
+    "description": "Title of the code editor settings page"
+  },
+  "@code_editor_settings_subtitle": {
+    "description": "Subtitle of the code editor entry in the settings page"
+  },
+  "@code_editor_settings_reset_tooltip": {
+    "description": "Tooltip of the reset action in the code editor settings page"
+  },
+  "@code_editor_settings_reset_title": {
+    "description": "Title of the reset confirmation dialog"
+  },
+  "@code_editor_settings_reset_confirm": {
+    "description": "Content of the reset confirmation dialog"
+  },
+  "@code_editor_settings_reset_action": {
+    "description": "Confirm button of the reset dialog"
+  },
+  "@code_editor_settings_reset_done": {
+    "description": "Snackbar shown after the settings were reset"
+  },
+  "@code_editor_settings_preview_title": {
+    "description": "Header of the live code preview card"
+  },
+  "@code_editor_settings_section_theme_title": {
+    "description": "Section header for the syntax theme picker"
+  },
+  "@code_editor_settings_section_theme_subtitle": {
+    "description": "Subtitle of the syntax theme section"
+  },
+  "@code_editor_settings_theme_mode_dark": {
+    "description": "Subtitle shown under a dark syntax theme"
+  },
+  "@code_editor_settings_theme_mode_light": {
+    "description": "Subtitle shown under a light syntax theme"
+  },
+  "@code_editor_settings_section_font_title": {
+    "description": "Section header for the font settings"
+  },
+  "@code_editor_settings_section_font_subtitle": {
+    "description": "Subtitle of the font section"
+  },
+  "@code_editor_settings_font_family": {
+    "description": "Label of the font family dropdown"
+  },
+  "@code_editor_settings_font_system": {
+    "description": "Label of the system monospace font option"
+  },
+  "@code_editor_settings_font_jetbrains_mono": {
+    "description": "Label of the JetBrains Mono font option"
+  },
+  "@code_editor_settings_font_fira_code": {
+    "description": "Label of the Fira Code font option"
+  },
+  "@code_editor_settings_font_consolas": {
+    "description": "Label of the Consolas font option"
+  },
+  "@code_editor_settings_font_size": {
+    "description": "Label of the font size slider"
+  },
+  "@code_editor_settings_line_height": {
+    "description": "Label of the line height slider"
+  },
+  "@code_editor_settings_section_display_title": {
+    "description": "Section header for the display settings"
+  },
+  "@code_editor_settings_section_display_subtitle": {
+    "description": "Subtitle of the display section"
+  },
+  "@code_editor_settings_line_numbers": {
+    "description": "Toggle: show line numbers"
+  },
+  "@code_editor_settings_line_numbers_desc": {
+    "description": "Description of the line numbers toggle"
+  },
+  "@code_editor_settings_indent_guides": {
+    "description": "Toggle: show indent guides"
+  },
+  "@code_editor_settings_indent_guides_desc": {
+    "description": "Description of the indent guides toggle"
+  },
+  "@code_editor_settings_word_wrap": {
+    "description": "Toggle: wrap long lines"
+  },
+  "@code_editor_settings_word_wrap_desc": {
+    "description": "Description of the word wrap toggle"
+  },
+  "@code_editor_settings_quick_chars": {
+    "description": "Toggle: quick characters bar above the keyboard"
+  },
+  "@code_editor_settings_quick_chars_desc": {
+    "description": "Description of the quick characters bar toggle"
+  },
+  "@code_editor_settings_section_editing_title": {
+    "description": "Section header for the editing behaviour settings"
+  },
+  "@code_editor_settings_section_editing_subtitle": {
+    "description": "Subtitle of the editing behaviour section"
+  },
+  "@code_editor_settings_auto_close": {
+    "description": "Toggle: auto close brackets and quotes"
+  },
+  "@code_editor_settings_auto_close_desc": {
+    "description": "Description of the auto close toggle"
+  },
+  "@code_editor_settings_tab_size": {
+    "description": "Label of the tab size selector"
+  },
+  "@code_editor_settings_tab_size_desc": {
+    "description": "Description of the tab size selector"
+  },
   "@command_awaited_error": {
     "description": "Error"
   },
@@ -8326,6 +8437,43 @@
   "cmd_simple_response_visibility_public": "Public",
   "cmd_simple_send_message_required": "Please fill the action message before saving.",
   "cmd_variables_title": "Command Variables",
+  "code_editor_settings_title": "Code editor",
+  "code_editor_settings_subtitle": "Theme, font and editing behaviour for the BDFD and JavaScript editors",
+  "code_editor_settings_reset_tooltip": "Reset to defaults",
+  "code_editor_settings_reset_title": "Reset configuration",
+  "code_editor_settings_reset_confirm": "Restore all editor settings to their default values?",
+  "code_editor_settings_reset_action": "Reset",
+  "code_editor_settings_reset_done": "Editor settings restored to defaults",
+  "code_editor_settings_preview_title": "Live preview",
+  "code_editor_settings_section_theme_title": "Syntax highlighting theme",
+  "code_editor_settings_section_theme_subtitle": "Choose the visual style applied to BDFD and JavaScript",
+  "code_editor_settings_theme_mode_dark": "Dark mode",
+  "code_editor_settings_theme_mode_light": "Light mode",
+  "code_editor_settings_section_font_title": "Font & typography",
+  "code_editor_settings_section_font_subtitle": "Adjust the font family and text size",
+  "code_editor_settings_font_family": "Font family",
+  "code_editor_settings_font_system": "System monospace",
+  "code_editor_settings_font_jetbrains_mono": "JetBrains Mono",
+  "code_editor_settings_font_fira_code": "Fira Code",
+  "code_editor_settings_font_consolas": "Consolas",
+  "code_editor_settings_font_size": "Font size",
+  "code_editor_settings_line_height": "Line height (spacing)",
+  "code_editor_settings_section_display_title": "Display & visual guides",
+  "code_editor_settings_section_display_subtitle": "Line numbers, indent guides and word wrap",
+  "code_editor_settings_line_numbers": "Line numbers",
+  "code_editor_settings_line_numbers_desc": "Show numbering in the left gutter",
+  "code_editor_settings_indent_guides": "Indent guides",
+  "code_editor_settings_indent_guides_desc": "Vertical lines to visualize code blocks",
+  "code_editor_settings_word_wrap": "Word wrap",
+  "code_editor_settings_word_wrap_desc": "Wrap long lines instead of scrolling horizontally",
+  "code_editor_settings_quick_chars": "Quick characters bar (Mobile)",
+  "code_editor_settings_quick_chars_desc": "Quick buttons to insert the BDFD prefix, arguments, separators and brackets above the keyboard",
+  "code_editor_settings_section_editing_title": "Editing behaviour",
+  "code_editor_settings_section_editing_subtitle": "Auto-closing and spacing",
+  "code_editor_settings_auto_close": "Automatic symbol closing",
+  "code_editor_settings_auto_close_desc": "Automatically close brackets, braces, parentheses and quotes",
+  "code_editor_settings_tab_size": "Tab size (spaces)",
+  "code_editor_settings_tab_size_desc": "Number of spaces inserted when indenting",
   "command_awaited_error": "Error",
   "command_awaited_filter_hint": "Example: <numeric> or <yes/no/cancel>",
   "command_awaited_filter_label": "Filter (optional)",

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/diagnostics/diagnostics_logs_page.dart';
+import 'package:bot_creator/features/settings/presentation/code_editor_settings_page.dart';
 import 'package:bot_creator/features/onboarding/presentation/onboarding_page.dart';
 import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/features/ads/logic/ad_consent_service.dart';
@@ -2266,6 +2267,24 @@ class _SettingPageState extends State<SettingPage> {
                             },
                           ),
                         ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  // ── Code editor customization card ──────────────────
+                  Card(
+                    child: ListTile(
+                      leading: Icon(
+                        Icons.code_outlined,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      title: Text(context.tr.code_editor_settings_title),
+                      subtitle: Text(context.tr.code_editor_settings_subtitle),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const CodeEditorSettingsPage(),
+                        ),
                       ),
                     ),
                   ),

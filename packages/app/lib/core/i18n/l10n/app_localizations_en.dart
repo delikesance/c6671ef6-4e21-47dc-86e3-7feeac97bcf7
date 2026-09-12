@@ -2700,6 +2700,133 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cmd_variables_title => 'Command Variables';
 
   @override
+  String get code_editor_settings_title => 'Code editor';
+
+  @override
+  String get code_editor_settings_subtitle =>
+      'Theme, font and editing behaviour for the BDFD and JavaScript editors';
+
+  @override
+  String get code_editor_settings_reset_tooltip => 'Reset to defaults';
+
+  @override
+  String get code_editor_settings_reset_title => 'Reset configuration';
+
+  @override
+  String get code_editor_settings_reset_confirm =>
+      'Restore all editor settings to their default values?';
+
+  @override
+  String get code_editor_settings_reset_action => 'Reset';
+
+  @override
+  String get code_editor_settings_reset_done =>
+      'Editor settings restored to defaults';
+
+  @override
+  String get code_editor_settings_preview_title => 'Live preview';
+
+  @override
+  String get code_editor_settings_section_theme_title =>
+      'Syntax highlighting theme';
+
+  @override
+  String get code_editor_settings_section_theme_subtitle =>
+      'Choose the visual style applied to BDFD and JavaScript';
+
+  @override
+  String get code_editor_settings_theme_mode_dark => 'Dark mode';
+
+  @override
+  String get code_editor_settings_theme_mode_light => 'Light mode';
+
+  @override
+  String get code_editor_settings_section_font_title => 'Font & typography';
+
+  @override
+  String get code_editor_settings_section_font_subtitle =>
+      'Adjust the font family and text size';
+
+  @override
+  String get code_editor_settings_font_family => 'Font family';
+
+  @override
+  String get code_editor_settings_font_system => 'System monospace';
+
+  @override
+  String get code_editor_settings_font_jetbrains_mono => 'JetBrains Mono';
+
+  @override
+  String get code_editor_settings_font_fira_code => 'Fira Code';
+
+  @override
+  String get code_editor_settings_font_consolas => 'Consolas';
+
+  @override
+  String get code_editor_settings_font_size => 'Font size';
+
+  @override
+  String get code_editor_settings_line_height => 'Line height (spacing)';
+
+  @override
+  String get code_editor_settings_section_display_title =>
+      'Display & visual guides';
+
+  @override
+  String get code_editor_settings_section_display_subtitle =>
+      'Line numbers, indent guides and word wrap';
+
+  @override
+  String get code_editor_settings_line_numbers => 'Line numbers';
+
+  @override
+  String get code_editor_settings_line_numbers_desc =>
+      'Show numbering in the left gutter';
+
+  @override
+  String get code_editor_settings_indent_guides => 'Indent guides';
+
+  @override
+  String get code_editor_settings_indent_guides_desc =>
+      'Vertical lines to visualize code blocks';
+
+  @override
+  String get code_editor_settings_word_wrap => 'Word wrap';
+
+  @override
+  String get code_editor_settings_word_wrap_desc =>
+      'Wrap long lines instead of scrolling horizontally';
+
+  @override
+  String get code_editor_settings_quick_chars =>
+      'Quick characters bar (Mobile)';
+
+  @override
+  String get code_editor_settings_quick_chars_desc =>
+      'Quick buttons to insert the BDFD prefix, arguments, separators and brackets above the keyboard';
+
+  @override
+  String get code_editor_settings_section_editing_title => 'Editing behaviour';
+
+  @override
+  String get code_editor_settings_section_editing_subtitle =>
+      'Auto-closing and spacing';
+
+  @override
+  String get code_editor_settings_auto_close => 'Automatic symbol closing';
+
+  @override
+  String get code_editor_settings_auto_close_desc =>
+      'Automatically close brackets, braces, parentheses and quotes';
+
+  @override
+  String get code_editor_settings_tab_size => 'Tab size (spaces)';
+
+  @override
+  String get code_editor_settings_tab_size_desc =>
+      'Number of spaces inserted when indenting';
+
+  @override
   String get command_awaited_error => 'Error';
 
   @override

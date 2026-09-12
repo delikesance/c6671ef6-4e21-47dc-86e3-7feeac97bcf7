@@ -2752,6 +2752,136 @@ class AppLocalizationsDe extends AppLocalizations {
   String get cmd_variables_title => 'Befehlsvariablen';
 
   @override
+  String get code_editor_settings_title => 'Code-Editor';
+
+  @override
+  String get code_editor_settings_subtitle =>
+      'Design, Schriftart und Bearbeitungsverhalten der BDFD- und JavaScript-Editoren';
+
+  @override
+  String get code_editor_settings_reset_tooltip => 'Auf Standard zurücksetzen';
+
+  @override
+  String get code_editor_settings_reset_title => 'Konfiguration zurücksetzen';
+
+  @override
+  String get code_editor_settings_reset_confirm =>
+      'Alle Editor-Einstellungen auf die Standardwerte zurücksetzen?';
+
+  @override
+  String get code_editor_settings_reset_action => 'Zurücksetzen';
+
+  @override
+  String get code_editor_settings_reset_done =>
+      'Editor-Einstellungen auf Standard zurückgesetzt';
+
+  @override
+  String get code_editor_settings_preview_title => 'Live-Vorschau';
+
+  @override
+  String get code_editor_settings_section_theme_title =>
+      'Syntaxhervorhebungs-Design';
+
+  @override
+  String get code_editor_settings_section_theme_subtitle =>
+      'Wählen Sie den visuellen Stil für BDFD und JavaScript';
+
+  @override
+  String get code_editor_settings_theme_mode_dark => 'Dunkelmodus';
+
+  @override
+  String get code_editor_settings_theme_mode_light => 'Hellmodus';
+
+  @override
+  String get code_editor_settings_section_font_title =>
+      'Schriftart & Typografie';
+
+  @override
+  String get code_editor_settings_section_font_subtitle =>
+      'Passen Sie Schriftfamilie und Textgröße an';
+
+  @override
+  String get code_editor_settings_font_family => 'Schriftfamilie';
+
+  @override
+  String get code_editor_settings_font_system => 'System-Monospace';
+
+  @override
+  String get code_editor_settings_font_jetbrains_mono => 'JetBrains Mono';
+
+  @override
+  String get code_editor_settings_font_fira_code => 'Fira Code';
+
+  @override
+  String get code_editor_settings_font_consolas => 'Consolas';
+
+  @override
+  String get code_editor_settings_font_size => 'Schriftgröße';
+
+  @override
+  String get code_editor_settings_line_height => 'Zeilenhöhe (Zeilenabstand)';
+
+  @override
+  String get code_editor_settings_section_display_title =>
+      'Anzeige & visuelle Hilfen';
+
+  @override
+  String get code_editor_settings_section_display_subtitle =>
+      'Zeilennummern, Einzugslinien und Zeilenumbruch';
+
+  @override
+  String get code_editor_settings_line_numbers => 'Zeilennummern';
+
+  @override
+  String get code_editor_settings_line_numbers_desc =>
+      'Nummerierung im linken Rand anzeigen';
+
+  @override
+  String get code_editor_settings_indent_guides => 'Einzugslinien';
+
+  @override
+  String get code_editor_settings_indent_guides_desc =>
+      'Vertikale Linien zur Visualisierung von Codeblöcken';
+
+  @override
+  String get code_editor_settings_word_wrap => 'Automatischer Zeilenumbruch';
+
+  @override
+  String get code_editor_settings_word_wrap_desc =>
+      'Lange Zeilen umbrechen statt horizontal zu scrollen';
+
+  @override
+  String get code_editor_settings_quick_chars =>
+      'Leiste für Schnellzeichen (Mobil)';
+
+  @override
+  String get code_editor_settings_quick_chars_desc =>
+      'Schnellschaltflächen zum Einfügen von BDFD-Präfix, Argumenten, Trennzeichen und Klammern über der Tastatur';
+
+  @override
+  String get code_editor_settings_section_editing_title =>
+      'Bearbeitungsverhalten';
+
+  @override
+  String get code_editor_settings_section_editing_subtitle =>
+      'Automatisches Schließen und Abstände';
+
+  @override
+  String get code_editor_settings_auto_close =>
+      'Automatisches Schließen von Symbolen';
+
+  @override
+  String get code_editor_settings_auto_close_desc =>
+      'Schließt Klammern, geschweifte Klammern, runde Klammern und Anführungszeichen automatisch';
+
+  @override
+  String get code_editor_settings_tab_size => 'Tab-Größe (Leerzeichen)';
+
+  @override
+  String get code_editor_settings_tab_size_desc =>
+      'Anzahl der beim Einrücken eingefügten Leerzeichen';
+
+  @override
   String get command_awaited_error => 'Fehler';
 
   @override
