@@ -7197,6 +7197,22 @@
   "app_token_section_desc": "Assim que o token for copiado, cole-o abaixo para adicionar o seu bot à app.",
   "app_token_section_title": "Cole o token do seu bot",
   "app_token_security_hint": "Mantenha este token privado. Qualquer pessoa com ele pode controlar o seu bot.",
+  "appearance_preset_graphite": "Grafite",
+  "appearance_preset_graphite_desc": "Superfícies cinzentas neutras — o visual padrão original.",
+  "appearance_preset_violet_bc": "Violeta Bot Creator",
+  "appearance_preset_violet_bc_desc": "A assinatura Bot Creator, com superfícies tingidas.",
+  "appearance_preset_discord": "Discord",
+  "appearance_preset_discord_desc": "O blurple do Discord, para um visual familiar.",
+  "appearance_preset_ocean": "Oceano",
+  "appearance_preset_ocean_desc": "Tons ciano, como águas profundas.",
+  "appearance_preset_forest": "Floresta",
+  "appearance_preset_forest_desc": "Verde profundo, calmo e natural.",
+  "appearance_preset_amber": "Âmbar",
+  "appearance_preset_amber_desc": "Laranja quente, para um visual vivo.",
+  "appearance_preset_rose": "Rosa",
+  "appearance_preset_rose_desc": "Rosa magenta, ousado e moderno.",
+  "appearance_preset_high_contrast": "Contraste elevado",
+  "appearance_preset_high_contrast_desc": "Legibilidade máxima da interface.",
   "autocomplete_dynamic": "Autocompletar Dinâmico",
   "autocomplete_dynamic_desc": "Resolva as escolhas de um fluxo em vez de valores estáticos.",
   "autocomplete_filter_hint": "As sugestões são filtradas pelo que o usuário digita.",
@@ -7611,6 +7627,12 @@
   "code_editor_settings_auto_close_desc": "Fecha automaticamente colchetes, chaves, parênteses e aspas",
   "code_editor_settings_tab_size": "Tamanho da tabulação (espaços)",
   "code_editor_settings_tab_size_desc": "Número de espaços inseridos ao indentar",
+  "command_alias_label": "Alias",
+  "command_alias_hint": "!p",
+  "command_alias_help": "O comando também responde a estas palavras de ativação.",
+  "command_alias_duplicate": "Este alias já está a ser utilizado.",
+  "command_alias_limit": "Máximo de {max} aliases.",
+  "command_alias_collision": "Já utilizado pelo comando {command}.",
   "command_awaited_error": "Erro",
   "command_awaited_filter_hint": "Exemplo: <numeric> ou <yes/no/cancel>",
   "command_awaited_filter_label": "Filtro (opcional)",
@@ -7722,6 +7744,7 @@
   "common_delete": "Excluir",
   "common_description": "Descrição",
   "common_disabled": "Desativado",
+  "common_discard": "Descartar",
   "common_edit": "Editar",
   "common_enabled": "Ativado",
   "common_import": "Importar",
@@ -8495,7 +8518,20 @@
   "settings_ads_privacy_open_error": "Não foi possível abrir as opções de privacidade de anúncios",
   "settings_ads_privacy_opened": "Opções de privacidade de anúncios abertas",
   "settings_app_version": "App",
-  "settings_appearance_title": "Aspeto e idioma",
+  "settings_appearance_accent_label": "Destaque",
+  "settings_appearance_contrast_ratio": "Contraste destaque/superfície: {ratio}",
+  "settings_appearance_contrast_warning": "Contraste baixo ({ratio}): o destaque quase não se distingue do fundo. A app adapta-o quando necessário, mas um destaque mais claro ou mais escuro melhora a legibilidade.",
+  "settings_appearance_custom_badge": "Personalizado",
+  "settings_appearance_custom_title": "Cores personalizadas",
+  "settings_appearance_mode_dark": "Escuro",
+  "settings_appearance_mode_light": "Claro",
+  "settings_appearance_mode_system": "Sistema",
+  "settings_appearance_mode_title": "Modo",
+  "settings_appearance_presets_title": "Temas predefinidos",
+  "settings_appearance_reset": "Repor",
+  "settings_appearance_seed_label": "Cor principal",
+  "settings_appearance_subtitle": "Escolha um modo, um tema predefinido ou as suas próprias cores.",
+  "settings_appearance_title": "Aspeto",
   "settings_auto_backup_check_loading": "A verificar cópia automática…",
   "settings_auto_backup_every_12h": "A cada 12h",
   "settings_auto_backup_every_24h": "A cada 24h",
@@ -8703,6 +8739,8 @@
   "settings_runner_connected": "Runner acessível ✓",
   "settings_runner_connecting": "A verificar ligação…",
   "settings_runner_desc": "Ligue a app a um Bot Creator Runner. Runners remotos devem permanecer em redes fidedignas e usar um token bearer.",
+  "settings_runner_use_remote": "Usar Runner remoto",
+  "settings_runner_use_remote_desc": "Ligar a um Bot Creator Runner remoto. Deixe desativado para executar os bots localmente neste dispositivo.",
   "settings_runner_disable_temp": "Desativar Runner temporariamente",
   "settings_runner_disable_temp_desc": "Manter definições do Runner mas forçar modo local até ser reativado.",
   "settings_runner_disconnected": "Runner desconectado",
@@ -9871,5 +9909,275 @@
   "docs_reload": "Recarregar",
   "@docs_reload": {
     "description": "docs reload"
+  },
+  "common_duplicate": "Duplicar",
+  "@common_duplicate": {
+    "description": "Duplicate"
+  },
+  "commands_batch_select": "Seleção em lote",
+  "@commands_batch_select": {
+    "description": "Batch select"
+  },
+  "commands_selected_count": "{count} selecionado(s)",
+  "@commands_selected_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "{count} selected"
+  },
+  "image_editor_title": "Editor de Imagem",
+  "@image_editor_title": {
+    "description": "Image Editor"
+  },
+  "image_editor_add_operation": "Adicionar operação",
+  "@image_editor_add_operation": {
+    "description": "Add operation"
+  },
+  "image_editor_add_layer": "Adicionar camada",
+  "@image_editor_add_layer": {
+    "description": "Add Layer"
+  },
+  "image_editor_operations": "Operações",
+  "@image_editor_operations": {
+    "description": "Operations"
+  },
+  "image_editor_op_container": "Contêiner / Moldura",
+  "@image_editor_op_container": {
+    "description": "Container / Frame"
+  },
+  "image_editor_op_progress_bar": "Barra de progresso",
+  "@image_editor_op_progress_bar": {
+    "description": "Progress Bar"
+  },
+  "image_editor_op_composite_image": "Imagem composta",
+  "@image_editor_op_composite_image": {
+    "description": "Composite Image"
+  },
+  "image_editor_op_set_pixel": "Definir pixel",
+  "@image_editor_op_set_pixel": {
+    "description": "Set Pixel"
+  },
+  "image_editor_op_invert": "Inverter cores",
+  "@image_editor_op_invert": {
+    "description": "Invert Colors"
+  },
+  "image_editor_op_grayscale": "Converter para escala de cinza",
+  "@image_editor_op_grayscale": {
+    "description": "Convert to Grayscale"
+  },
+  "image_editor_op_rotate": "Girar tela",
+  "@image_editor_op_rotate": {
+    "description": "Rotate Canvas"
+  },
+  "image_editor_zoom_in": "Ampliar zoom",
+  "@image_editor_zoom_in": {
+    "description": "Zoom in"
+  },
+  "image_editor_zoom_out": "Reduzir zoom",
+  "@image_editor_zoom_out": {
+    "description": "Zoom out"
+  },
+  "image_editor_zoom_fit": "Ajustar à tela",
+  "@image_editor_zoom_fit": {
+    "description": "Fit to screen"
+  },
+  "image_editor_undo": "Desfazer",
+  "@image_editor_undo": {
+    "description": "Undo"
+  },
+  "image_editor_redo": "Refazer",
+  "@image_editor_redo": {
+    "description": "Redo"
+  },
+  "image_editor_canvas": "Tela",
+  "@image_editor_canvas": {
+    "description": "Canvas"
+  },
+  "image_editor_width": "Largura",
+  "@image_editor_width": {
+    "description": "Width"
+  },
+  "image_editor_height": "Altura",
+  "@image_editor_height": {
+    "description": "Height"
+  },
+  "image_editor_properties": "Propriedades",
+  "@image_editor_properties": {
+    "description": "Properties"
+  },
+  "image_editor_visible": "Visível",
+  "@image_editor_visible": {
+    "description": "Visible"
+  },
+  "image_editor_opacity": "Opacidade",
+  "@image_editor_opacity": {
+    "description": "Opacity"
+  },
+  "image_editor_ops_summary": "{count} operações, {hidden} oculta(s)",
+  "@image_editor_ops_summary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "hidden": {
+        "type": "int"
+      }
+    },
+    "description": "{count} operations, {hidden} hidden"
+  },
+  "image_editor_empty_hint": "Adicione uma operação \"{op}\" para começar",
+  "@image_editor_empty_hint": {
+    "placeholders": {
+      "op": {
+        "type": "String"
+      }
+    },
+    "description": "Add a \"{op}\" operation to start"
+  },
+  "image_editor_tap_to_edit": "Toque para editar",
+  "@image_editor_tap_to_edit": {
+    "description": "Tap to edit"
+  },
+  "image_editor_no_operations": "Nenhuma operação ainda",
+  "@image_editor_no_operations": {
+    "description": "No operations yet"
+  },
+  "image_editor_select_operation": "Selecione uma operação para editar suas propriedades",
+  "@image_editor_select_operation": {
+    "description": "Select an operation to edit its properties"
+  },
+  "image_editor_insert_variable": "Inserir variável",
+  "@image_editor_insert_variable": {
+    "description": "Insert Variable"
+  },
+  "image_editor_variable_label": "Variável",
+  "@image_editor_variable_label": {
+    "description": "Variable"
+  },
+  "image_editor_variable_hint": "Digite para filtrar ou toque numa sugestão abaixo",
+  "@image_editor_variable_hint": {
+    "description": "Type to filter, or tap a suggestion below"
+  },
+  "image_editor_insert": "Inserir",
+  "@image_editor_insert": {
+    "description": "Insert"
+  },
+  "image_editor_pick_image": "Escolher ficheiro de imagem",
+  "@image_editor_pick_image": {
+    "description": "Pick image file"
+  },
+  "image_editor_color_picker": "Seletor de cores",
+  "@image_editor_color_picker": {
+    "description": "Color Picker"
+  },
+  "image_editor_hue": "Matiz",
+  "@image_editor_hue": {
+    "description": "Hue"
+  },
+  "image_editor_saturation": "Saturação",
+  "@image_editor_saturation": {
+    "description": "Saturation"
+  },
+  "image_editor_no_url": "sem URL",
+  "@image_editor_no_url": {
+    "description": "no URL"
+  },
+  "image_editor_unknown": "Desconhecido",
+  "@image_editor_unknown": {
+    "description": "Unknown"
+  },
+  "image_editor_field_text": "Texto",
+  "@image_editor_field_text": {
+    "description": "Text"
+  },
+  "image_editor_field_font_size": "Tamanho da fonte",
+  "@image_editor_field_font_size": {
+    "description": "Font Size"
+  },
+  "image_editor_field_max_width": "Largura máxima",
+  "@image_editor_field_max_width": {
+    "description": "Max Width"
+  },
+  "image_editor_field_text_align": "Alinhamento do texto",
+  "@image_editor_field_text_align": {
+    "description": "Text Align"
+  },
+  "image_editor_field_blend": "Mesclagem",
+  "@image_editor_field_blend": {
+    "description": "Blend"
+  },
+  "image_editor_field_fill": "Preencher",
+  "@image_editor_field_fill": {
+    "description": "Fill"
+  },
+  "image_editor_field_radius": "Raio",
+  "@image_editor_field_radius": {
+    "description": "Radius"
+  },
+  "image_editor_field_thickness": "Espessura",
+  "@image_editor_field_thickness": {
+    "description": "Thickness"
+  },
+  "image_editor_field_shape": "Forma",
+  "@image_editor_field_shape": {
+    "description": "Shape"
+  },
+  "image_editor_field_percentage": "Percentagem",
+  "@image_editor_field_percentage": {
+    "description": "Percentage"
+  },
+  "image_editor_field_bar_color": "Cor da barra",
+  "@image_editor_field_bar_color": {
+    "description": "Bar Color"
+  },
+  "image_editor_field_track_color": "Cor da faixa",
+  "@image_editor_field_track_color": {
+    "description": "Track Color"
+  },
+  "image_editor_field_text_color": "Cor do texto",
+  "@image_editor_field_text_color": {
+    "description": "Text Color"
+  },
+  "image_editor_field_border_width": "Largura da borda",
+  "@image_editor_field_border_width": {
+    "description": "Border Width"
+  },
+  "image_editor_field_border_radius": "Raio da borda",
+  "@image_editor_field_border_radius": {
+    "description": "Border Radius"
+  },
+  "image_editor_field_orientation": "Orientação",
+  "@image_editor_field_orientation": {
+    "description": "Orientation"
+  },
+  "image_editor_field_angle": "Ângulo (graus)",
+  "@image_editor_field_angle": {
+    "description": "Angle (Degrees)"
+  },
+  "image_editor_field_container": "Contêiner",
+  "@image_editor_field_container": {
+    "description": "Container"
+  },
+  "image_editor_field_background_color": "Cor de fundo",
+  "@image_editor_field_background_color": {
+    "description": "Background Color"
+  },
+  "image_editor_hint_auto_size": "auto (tamanho original)",
+  "@image_editor_hint_auto_size": {
+    "description": "auto (native size)"
+  },
+  "image_editor_hint_optional_background": "fundo opcional",
+  "@image_editor_hint_optional_background": {
+    "description": "optional background"
+  },
+  "image_editor_hint_parent_container": "nome do contêiner pai",
+  "@image_editor_hint_parent_container": {
+    "description": "parent container name"
+  },
+  "image_editor_hint_container_width": "largura do contêiner para alinhamento",
+  "@image_editor_hint_container_width": {
+    "description": "container width for alignment"
   }
 }

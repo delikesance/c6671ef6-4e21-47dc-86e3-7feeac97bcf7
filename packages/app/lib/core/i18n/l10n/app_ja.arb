@@ -7251,6 +7251,22 @@
   "app_token_section_desc": "トークンをコピーしたら、以下に貼り付けてボットをアプリに追加します。",
   "app_token_section_title": "ボットトークンを貼り付け",
   "app_token_security_hint": "このトークンは秘密にしてください。トークンを知っている人は誰でもボットを操作できます。",
+  "appearance_preset_graphite": "グラファイト",
+  "appearance_preset_graphite_desc": "ニュートラルなグレーの表面。従来からのデフォルトの外観です。",
+  "appearance_preset_violet_bc": "バイオレット Bot Creator",
+  "appearance_preset_violet_bc_desc": "Bot Creatorのブランドカラー。表面にも色が付きます。",
+  "appearance_preset_discord": "Discord",
+  "appearance_preset_discord_desc": "Discordのブループルで親しみのある見た目に。",
+  "appearance_preset_ocean": "オーシャン",
+  "appearance_preset_ocean_desc": "深い海のようなシアンの色合い。",
+  "appearance_preset_forest": "フォレスト",
+  "appearance_preset_forest_desc": "落ち着いた自然な深いグリーン。",
+  "appearance_preset_amber": "アンバー",
+  "appearance_preset_amber_desc": "鮮やかな暖色系のオレンジ。",
+  "appearance_preset_rose": "ローズ",
+  "appearance_preset_rose_desc": "大胆でモダンなマゼンタピンク。",
+  "appearance_preset_high_contrast": "ハイコントラスト",
+  "appearance_preset_high_contrast_desc": "インターフェースの視認性を最大化。",
   "autocomplete_dynamic": "動的オートコンプリート",
   "autocomplete_dynamic_desc": "静的な値の代わりにワークフローから選択肢を解決します。",
   "autocomplete_filter_hint": "ユーザーの入力に応じて候補がフィルタリングされます。",
@@ -7665,6 +7681,12 @@
   "code_editor_settings_auto_close_desc": "角括弧、中括弧、丸括弧、引用符を自動で閉じます",
   "code_editor_settings_tab_size": "タブサイズ（スペース）",
   "code_editor_settings_tab_size_desc": "インデント時に挿入するスペースの数",
+  "command_alias_label": "エイリアス",
+  "command_alias_hint": "!p",
+  "command_alias_help": "このコマンドはこれらのトリガーワードにも応答します。",
+  "command_alias_duplicate": "このエイリアスはすでに使用されています。",
+  "command_alias_limit": "エイリアスは最大{max}個です。",
+  "command_alias_collision": "コマンド {command} で既に使用されています。",
   "command_awaited_error": "エラー",
   "command_awaited_filter_hint": "例: <numeric> または <yes/no/cancel>",
   "command_awaited_filter_label": "フィルター (オプション)",
@@ -7776,6 +7798,7 @@
   "common_delete": "削除",
   "common_description": "説明",
   "common_disabled": "無効",
+  "common_discard": "破棄",
   "common_edit": "編集",
   "common_enabled": "有効",
   "common_import": "インポート",
@@ -8549,7 +8572,20 @@
   "settings_ads_privacy_open_error": "広告プライバシーオプションを開けませんでした",
   "settings_ads_privacy_opened": "広告プライバシーオプションが開かれました",
   "settings_app_version": "アプリ",
-  "settings_appearance_title": "外観と言語",
+  "settings_appearance_accent_label": "アクセント",
+  "settings_appearance_contrast_ratio": "アクセントと背景のコントラスト：{ratio}",
+  "settings_appearance_contrast_warning": "コントラストが低めです（{ratio}）：アクセントと背景の区別がつきにくい状態です。アプリが必要に応じて調整しますが、明るめまたは暗めのアクセントにすると視認性が上がります。",
+  "settings_appearance_custom_badge": "カスタム",
+  "settings_appearance_custom_title": "カスタムカラー",
+  "settings_appearance_mode_dark": "ダーク",
+  "settings_appearance_mode_light": "ライト",
+  "settings_appearance_mode_system": "システム",
+  "settings_appearance_mode_title": "モード",
+  "settings_appearance_presets_title": "プリセットテーマ",
+  "settings_appearance_reset": "リセット",
+  "settings_appearance_seed_label": "メインカラー",
+  "settings_appearance_subtitle": "モード、プリセットテーマ、または独自の色を選べます。",
+  "settings_appearance_title": "外観",
   "settings_auto_backup_check_loading": "自動バックアップ確認中…",
   "settings_auto_backup_every_12h": "12時間ごと",
   "settings_auto_backup_every_24h": "24時間ごと",
@@ -8757,6 +8793,8 @@
   "settings_runner_connected": "ランナー到達可能 ✓",
   "settings_runner_connecting": "接続を確認中…",
   "settings_runner_desc": "アプリをBot Creatorランナーに接続します。リモートランナーは信頼できるネットワークに配置してください。",
+  "settings_runner_use_remote": "リモートランナーを使用",
+  "settings_runner_use_remote_desc": "リモートのBot Creatorランナーに接続します。オフのままにすると、この端末でローカルにボットを実行します。",
   "settings_runner_disable_temp": "ランナーを一時的に無効化",
   "settings_runner_disable_temp_desc": "ランナー設定を保持したまま、再有効化までローカルモードを強制します。",
   "settings_runner_disconnected": "ランナーが切断されました",
@@ -9925,5 +9963,275 @@
   "docs_reload": "再読み込み",
   "@docs_reload": {
     "description": "docs reload"
+  },
+  "common_duplicate": "複製",
+  "@common_duplicate": {
+    "description": "Duplicate"
+  },
+  "commands_batch_select": "一括選択",
+  "@commands_batch_select": {
+    "description": "Batch select"
+  },
+  "commands_selected_count": "{count} 件選択中",
+  "@commands_selected_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "{count} selected"
+  },
+  "image_editor_title": "画像エディタ",
+  "@image_editor_title": {
+    "description": "Image Editor"
+  },
+  "image_editor_add_operation": "操作を追加",
+  "@image_editor_add_operation": {
+    "description": "Add operation"
+  },
+  "image_editor_add_layer": "レイヤーを追加",
+  "@image_editor_add_layer": {
+    "description": "Add Layer"
+  },
+  "image_editor_operations": "操作",
+  "@image_editor_operations": {
+    "description": "Operations"
+  },
+  "image_editor_op_container": "コンテナ / フレーム",
+  "@image_editor_op_container": {
+    "description": "Container / Frame"
+  },
+  "image_editor_op_progress_bar": "プログレスバー",
+  "@image_editor_op_progress_bar": {
+    "description": "Progress Bar"
+  },
+  "image_editor_op_composite_image": "画像を合成",
+  "@image_editor_op_composite_image": {
+    "description": "Composite Image"
+  },
+  "image_editor_op_set_pixel": "ピクセル設定",
+  "@image_editor_op_set_pixel": {
+    "description": "Set Pixel"
+  },
+  "image_editor_op_invert": "色を反転",
+  "@image_editor_op_invert": {
+    "description": "Invert Colors"
+  },
+  "image_editor_op_grayscale": "グレースケールに変換",
+  "@image_editor_op_grayscale": {
+    "description": "Convert to Grayscale"
+  },
+  "image_editor_op_rotate": "キャンバスを回転",
+  "@image_editor_op_rotate": {
+    "description": "Rotate Canvas"
+  },
+  "image_editor_zoom_in": "ズームイン",
+  "@image_editor_zoom_in": {
+    "description": "Zoom in"
+  },
+  "image_editor_zoom_out": "ズームアウト",
+  "@image_editor_zoom_out": {
+    "description": "Zoom out"
+  },
+  "image_editor_zoom_fit": "画面に合わせる",
+  "@image_editor_zoom_fit": {
+    "description": "Fit to screen"
+  },
+  "image_editor_undo": "元に戻す",
+  "@image_editor_undo": {
+    "description": "Undo"
+  },
+  "image_editor_redo": "やり直す",
+  "@image_editor_redo": {
+    "description": "Redo"
+  },
+  "image_editor_canvas": "キャンバス",
+  "@image_editor_canvas": {
+    "description": "Canvas"
+  },
+  "image_editor_width": "幅",
+  "@image_editor_width": {
+    "description": "Width"
+  },
+  "image_editor_height": "高さ",
+  "@image_editor_height": {
+    "description": "Height"
+  },
+  "image_editor_properties": "プロパティ",
+  "@image_editor_properties": {
+    "description": "Properties"
+  },
+  "image_editor_visible": "表示",
+  "@image_editor_visible": {
+    "description": "Visible"
+  },
+  "image_editor_opacity": "不透明度",
+  "@image_editor_opacity": {
+    "description": "Opacity"
+  },
+  "image_editor_ops_summary": "{count} 操作、{hidden} 件非表示",
+  "@image_editor_ops_summary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "hidden": {
+        "type": "int"
+      }
+    },
+    "description": "{count} operations, {hidden} hidden"
+  },
+  "image_editor_empty_hint": "開始するには「{op}」操作を追加してください",
+  "@image_editor_empty_hint": {
+    "placeholders": {
+      "op": {
+        "type": "String"
+      }
+    },
+    "description": "Add a \"{op}\" operation to start"
+  },
+  "image_editor_tap_to_edit": "タップして編集",
+  "@image_editor_tap_to_edit": {
+    "description": "Tap to edit"
+  },
+  "image_editor_no_operations": "操作はまだありません",
+  "@image_editor_no_operations": {
+    "description": "No operations yet"
+  },
+  "image_editor_select_operation": "操作を選択してプロパティを編集",
+  "@image_editor_select_operation": {
+    "description": "Select an operation to edit its properties"
+  },
+  "image_editor_insert_variable": "変数を挿入",
+  "@image_editor_insert_variable": {
+    "description": "Insert Variable"
+  },
+  "image_editor_variable_label": "変数",
+  "@image_editor_variable_label": {
+    "description": "Variable"
+  },
+  "image_editor_variable_hint": "入力して絞り込むか、下の候補をタップ",
+  "@image_editor_variable_hint": {
+    "description": "Type to filter, or tap a suggestion below"
+  },
+  "image_editor_insert": "挿入",
+  "@image_editor_insert": {
+    "description": "Insert"
+  },
+  "image_editor_pick_image": "画像ファイルを選択",
+  "@image_editor_pick_image": {
+    "description": "Pick image file"
+  },
+  "image_editor_color_picker": "カラーピッカー",
+  "@image_editor_color_picker": {
+    "description": "Color Picker"
+  },
+  "image_editor_hue": "色相",
+  "@image_editor_hue": {
+    "description": "Hue"
+  },
+  "image_editor_saturation": "彩度",
+  "@image_editor_saturation": {
+    "description": "Saturation"
+  },
+  "image_editor_no_url": "URL なし",
+  "@image_editor_no_url": {
+    "description": "no URL"
+  },
+  "image_editor_unknown": "不明",
+  "@image_editor_unknown": {
+    "description": "Unknown"
+  },
+  "image_editor_field_text": "テキスト",
+  "@image_editor_field_text": {
+    "description": "Text"
+  },
+  "image_editor_field_font_size": "文字サイズ",
+  "@image_editor_field_font_size": {
+    "description": "Font Size"
+  },
+  "image_editor_field_max_width": "最大幅",
+  "@image_editor_field_max_width": {
+    "description": "Max Width"
+  },
+  "image_editor_field_text_align": "テキスト配置",
+  "@image_editor_field_text_align": {
+    "description": "Text Align"
+  },
+  "image_editor_field_blend": "ブレンド",
+  "@image_editor_field_blend": {
+    "description": "Blend"
+  },
+  "image_editor_field_fill": "塗りつぶし",
+  "@image_editor_field_fill": {
+    "description": "Fill"
+  },
+  "image_editor_field_radius": "半径",
+  "@image_editor_field_radius": {
+    "description": "Radius"
+  },
+  "image_editor_field_thickness": "太さ",
+  "@image_editor_field_thickness": {
+    "description": "Thickness"
+  },
+  "image_editor_field_shape": "形状",
+  "@image_editor_field_shape": {
+    "description": "Shape"
+  },
+  "image_editor_field_percentage": "パーセンテージ",
+  "@image_editor_field_percentage": {
+    "description": "Percentage"
+  },
+  "image_editor_field_bar_color": "バーの色",
+  "@image_editor_field_bar_color": {
+    "description": "Bar Color"
+  },
+  "image_editor_field_track_color": "トラックの色",
+  "@image_editor_field_track_color": {
+    "description": "Track Color"
+  },
+  "image_editor_field_text_color": "文字色",
+  "@image_editor_field_text_color": {
+    "description": "Text Color"
+  },
+  "image_editor_field_border_width": "枠線の太さ",
+  "@image_editor_field_border_width": {
+    "description": "Border Width"
+  },
+  "image_editor_field_border_radius": "枠線の角丸",
+  "@image_editor_field_border_radius": {
+    "description": "Border Radius"
+  },
+  "image_editor_field_orientation": "向き",
+  "@image_editor_field_orientation": {
+    "description": "Orientation"
+  },
+  "image_editor_field_angle": "角度（度）",
+  "@image_editor_field_angle": {
+    "description": "Angle (Degrees)"
+  },
+  "image_editor_field_container": "コンテナ",
+  "@image_editor_field_container": {
+    "description": "Container"
+  },
+  "image_editor_field_background_color": "背景色",
+  "@image_editor_field_background_color": {
+    "description": "Background Color"
+  },
+  "image_editor_hint_auto_size": "自動（元のサイズ）",
+  "@image_editor_hint_auto_size": {
+    "description": "auto (native size)"
+  },
+  "image_editor_hint_optional_background": "背景（任意）",
+  "@image_editor_hint_optional_background": {
+    "description": "optional background"
+  },
+  "image_editor_hint_parent_container": "親コンテナ名",
+  "@image_editor_hint_parent_container": {
+    "description": "parent container name"
+  },
+  "image_editor_hint_container_width": "配置用のコンテナ幅",
+  "@image_editor_hint_container_width": {
+    "description": "container width for alignment"
   }
 }
