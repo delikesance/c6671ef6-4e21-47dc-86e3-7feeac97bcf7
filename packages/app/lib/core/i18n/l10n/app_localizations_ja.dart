@@ -8889,4 +8889,82 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get image_editor_hint_container_width => '配置用のコンテナ幅';
+
+  @override
+  String get action_card_duration => '期間';
+
+  @override
+  String get action_card_error_message => 'エラーメッセージ';
+
+  @override
+  String get action_card_jump_to => 'ジャンプ先';
+
+  @override
+  String get action_card_maximum => '最大値';
+
+  @override
+  String get action_card_minimum => '最小値';
+
+  @override
+  String get action_card_skip_count => 'スキップ数';
+
+  @override
+  String get action_edit_request => 'リクエストを編集';
+
+  @override
+  String get action_error_jump => 'アクションにジャンプ';
+
+  @override
+  String get action_error_skip => 'N個のアクションをスキップ';
+
+  @override
+  String get component_max_length => '最大文字数';
+
+  @override
+  String get component_min_length => '最小文字数';
+
+  @override
+  String get http_request_header_name => 'ヘッダー名';
+
+  @override
+  String get http_request_json_body => 'JSONボディ';
+
+  @override
+  String get http_request_section_body => 'ボディ';
+
+  @override
+  String get http_request_section_headers => 'ヘッダー';
+
+  @override
+  String get http_request_section_request => 'リクエスト';
+
+  @override
+  String get http_request_text_body => 'テキストボディ';
+
+  @override
+  String marketplace_summary_commands(int count) {
+    return '$count コマンド';
+  }
+
+  @override
+  String marketplace_summary_variables(int count, int required) {
+    return '$count 変数（$required 必須）';
+  }
+
+  @override
+  String marketplace_summary_workflows(int count) {
+    return '$count ワークフロー';
+  }
+
+  @override
+  String get modal_builder_configure_submit_actions => '送信アクションを設定';
+
+  @override
+  String get modal_builder_edit_submit_actions => '送信アクションを編集';
+
+  @override
+  String get modal_builder_identity => '識別情報';
+
+  @override
+  String get modal_builder_submit_actions => '送信アクション';
 }

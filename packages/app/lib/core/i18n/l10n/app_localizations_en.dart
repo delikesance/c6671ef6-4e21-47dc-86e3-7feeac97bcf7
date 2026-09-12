@@ -9230,4 +9230,83 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get image_editor_hint_container_width =>
       'container width for alignment';
+
+  @override
+  String get action_card_duration => 'Duration';
+
+  @override
+  String get action_card_error_message => 'Error Message';
+
+  @override
+  String get action_card_jump_to => 'Jump to';
+
+  @override
+  String get action_card_maximum => 'Maximum';
+
+  @override
+  String get action_card_minimum => 'Minimum';
+
+  @override
+  String get action_card_skip_count => 'Skip count';
+
+  @override
+  String get action_edit_request => 'Edit Request';
+
+  @override
+  String get action_error_jump => 'Jump to action';
+
+  @override
+  String get action_error_skip => 'Skip N actions';
+
+  @override
+  String get component_max_length => 'Max Length';
+
+  @override
+  String get component_min_length => 'Min Length';
+
+  @override
+  String get http_request_header_name => 'Header name';
+
+  @override
+  String get http_request_json_body => 'JSON Body';
+
+  @override
+  String get http_request_section_body => 'Body';
+
+  @override
+  String get http_request_section_headers => 'Headers';
+
+  @override
+  String get http_request_section_request => 'Request';
+
+  @override
+  String get http_request_text_body => 'Text Body';
+
+  @override
+  String marketplace_summary_commands(int count) {
+    return '$count commands';
+  }
+
+  @override
+  String marketplace_summary_variables(int count, int required) {
+    return '$count variables ($required required)';
+  }
+
+  @override
+  String marketplace_summary_workflows(int count) {
+    return '$count workflows';
+  }
+
+  @override
+  String get modal_builder_configure_submit_actions =>
+      'Configure Submit Actions';
+
+  @override
+  String get modal_builder_edit_submit_actions => 'Edit Submit Actions';
+
+  @override
+  String get modal_builder_identity => 'Identity';
+
+  @override
+  String get modal_builder_submit_actions => 'Submit Actions';
 }

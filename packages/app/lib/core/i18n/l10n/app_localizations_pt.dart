@@ -9348,4 +9348,83 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get image_editor_hint_container_width =>
       'largura do contêiner para alinhamento';
+
+  @override
+  String get action_card_duration => 'Duração';
+
+  @override
+  String get action_card_error_message => 'Mensagem de erro';
+
+  @override
+  String get action_card_jump_to => 'Ir para';
+
+  @override
+  String get action_card_maximum => 'Máximo';
+
+  @override
+  String get action_card_minimum => 'Mínimo';
+
+  @override
+  String get action_card_skip_count => 'Quantidade a pular';
+
+  @override
+  String get action_edit_request => 'Editar requisição';
+
+  @override
+  String get action_error_jump => 'Saltar para ação';
+
+  @override
+  String get action_error_skip => 'Pular N ações';
+
+  @override
+  String get component_max_length => 'Comprimento máximo';
+
+  @override
+  String get component_min_length => 'Comprimento mínimo';
+
+  @override
+  String get http_request_header_name => 'Nome do cabeçalho';
+
+  @override
+  String get http_request_json_body => 'Corpo JSON';
+
+  @override
+  String get http_request_section_body => 'Corpo';
+
+  @override
+  String get http_request_section_headers => 'Cabeçalhos';
+
+  @override
+  String get http_request_section_request => 'Requisição';
+
+  @override
+  String get http_request_text_body => 'Corpo de texto';
+
+  @override
+  String marketplace_summary_commands(int count) {
+    return '$count comandos';
+  }
+
+  @override
+  String marketplace_summary_variables(int count, int required) {
+    return '$count variáveis ($required obrigatórias)';
+  }
+
+  @override
+  String marketplace_summary_workflows(int count) {
+    return '$count workflows';
+  }
+
+  @override
+  String get modal_builder_configure_submit_actions =>
+      'Configurar Ações de Envio';
+
+  @override
+  String get modal_builder_edit_submit_actions => 'Editar Ações de Envio';
+
+  @override
+  String get modal_builder_identity => 'Identidade';
+
+  @override
+  String get modal_builder_submit_actions => 'Ações de Envio';
 }

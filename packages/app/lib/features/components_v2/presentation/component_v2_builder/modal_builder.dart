@@ -417,11 +417,11 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
               // ── Title & Custom ID ──
               _buildMiniBlock(
                 icon: Icons.title,
-                label: 'Identity',
+                label: context.tr.modal_builder_identity,
                 child: Column(
                   children: [
                     _buildField(
-                      label: 'Title',
+                      label: context.tr.embed_label_title,
                       initialValue: _titleCtrl.text,
                       onChanged: (v) {
                         _titleCtrl.text = v;
@@ -479,7 +479,7 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                   child: Row(
                     children: [
                       PopupMenuButton<ComponentV2Type>(
-                        tooltip: 'Add Field',
+                        tooltip: context.tr.embed_add_field,
                         onSelected: _addV2Component,
                         itemBuilder: (BuildContext context) {
                           final v2Types = [
@@ -545,7 +545,7 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                'Add Field',
+                                context.tr.embed_add_field,
                                 style: TextStyle(
                                   color: Theme.of(context).colorScheme.primary,
                                   fontWeight: FontWeight.bold,
@@ -565,13 +565,15 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
               // ── Submit Actions ──
               _buildMiniBlock(
                 icon: Icons.play_circle_outline,
-                label: 'Submit Actions',
+                label: context.tr.modal_builder_submit_actions,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     if (_modalActions.isNotEmpty) ...[
                       Text(
-                        '${_modalActions.length} action(s) configured',
+                        context.tr.actions_summary_configured(
+                          _modalActions.length,
+                        ),
                         style: TextStyle(
                           fontSize: 13,
                           color: Theme.of(context).colorScheme.primary,
@@ -584,8 +586,8 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                       icon: const Icon(Icons.edit_note, size: 18),
                       label: Text(
                         _modalActions.isEmpty
-                            ? 'Configure Submit Actions'
-                            : 'Edit Submit Actions',
+                            ? context.tr.modal_builder_configure_submit_actions
+                            : context.tr.modal_builder_edit_submit_actions,
                       ),
                       style: FilledButton.styleFrom(
                         shape: RoundedRectangleBorder(
@@ -813,9 +815,9 @@ class _InputEditorState extends State<_InputEditor> {
               Expanded(
                 child: DropdownButtonFormField<BcTextInputStyle>(
                   initialValue: widget.input.style,
-                  decoration: const InputDecoration(
-                    labelText: 'Style',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: context.tr.common_style,
+                    border: const OutlineInputBorder(),
                     isDense: true,
                   ),
                   items: BcTextInputStyle.values

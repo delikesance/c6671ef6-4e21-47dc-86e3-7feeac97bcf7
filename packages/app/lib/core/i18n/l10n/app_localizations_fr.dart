@@ -9385,4 +9385,84 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get image_editor_hint_container_width =>
       'largeur du conteneur pour l\'alignement';
+
+  @override
+  String get action_card_duration => 'Durée';
+
+  @override
+  String get action_card_error_message => 'Message d\'erreur';
+
+  @override
+  String get action_card_jump_to => 'Aller à';
+
+  @override
+  String get action_card_maximum => 'Maximum';
+
+  @override
+  String get action_card_minimum => 'Minimum';
+
+  @override
+  String get action_card_skip_count => 'Nombre à sauter';
+
+  @override
+  String get action_edit_request => 'Modifier la requête';
+
+  @override
+  String get action_error_jump => 'Aller à l\'action';
+
+  @override
+  String get action_error_skip => 'Sauter N actions';
+
+  @override
+  String get component_max_length => 'Longueur maximale';
+
+  @override
+  String get component_min_length => 'Longueur minimale';
+
+  @override
+  String get http_request_header_name => 'Nom de l\'en-tête';
+
+  @override
+  String get http_request_json_body => 'Corps JSON';
+
+  @override
+  String get http_request_section_body => 'Corps';
+
+  @override
+  String get http_request_section_headers => 'En-têtes';
+
+  @override
+  String get http_request_section_request => 'Requête';
+
+  @override
+  String get http_request_text_body => 'Corps texte';
+
+  @override
+  String marketplace_summary_commands(int count) {
+    return '$count commandes';
+  }
+
+  @override
+  String marketplace_summary_variables(int count, int required) {
+    return '$count variables ($required requises)';
+  }
+
+  @override
+  String marketplace_summary_workflows(int count) {
+    return '$count workflows';
+  }
+
+  @override
+  String get modal_builder_configure_submit_actions =>
+      'Configurer les actions de soumission';
+
+  @override
+  String get modal_builder_edit_submit_actions =>
+      'Modifier les actions de soumission';
+
+  @override
+  String get modal_builder_identity => 'Identité';
+
+  @override
+  String get modal_builder_submit_actions => 'Actions de soumission';
 }

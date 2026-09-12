@@ -9300,4 +9300,84 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get image_editor_hint_container_width =>
       'hizalama için kapsayıcı genişliği';
+
+  @override
+  String get action_card_duration => 'Süre';
+
+  @override
+  String get action_card_error_message => 'Hata Mesajı';
+
+  @override
+  String get action_card_jump_to => 'Şuraya atla';
+
+  @override
+  String get action_card_maximum => 'Maksimum';
+
+  @override
+  String get action_card_minimum => 'Minimum';
+
+  @override
+  String get action_card_skip_count => 'Atlanacak sayı';
+
+  @override
+  String get action_edit_request => 'İsteği düzenle';
+
+  @override
+  String get action_error_jump => 'Eyleme Atla';
+
+  @override
+  String get action_error_skip => 'N eylemi atla';
+
+  @override
+  String get component_max_length => 'Maksimum Uzunluk';
+
+  @override
+  String get component_min_length => 'Minimum Uzunluk';
+
+  @override
+  String get http_request_header_name => 'Başlık adı';
+
+  @override
+  String get http_request_json_body => 'JSON Gövdesi';
+
+  @override
+  String get http_request_section_body => 'Gövde';
+
+  @override
+  String get http_request_section_headers => 'Başlıklar';
+
+  @override
+  String get http_request_section_request => 'İstek';
+
+  @override
+  String get http_request_text_body => 'Metin Gövdesi';
+
+  @override
+  String marketplace_summary_commands(int count) {
+    return '$count komut';
+  }
+
+  @override
+  String marketplace_summary_variables(int count, int required) {
+    return '$count değişken ($required gerekli)';
+  }
+
+  @override
+  String marketplace_summary_workflows(int count) {
+    return '$count iş akışı';
+  }
+
+  @override
+  String get modal_builder_configure_submit_actions =>
+      'Gönderme Eylemlerini Yapılandır';
+
+  @override
+  String get modal_builder_edit_submit_actions =>
+      'Gönderme Eylemlerini Düzenle';
+
+  @override
+  String get modal_builder_identity => 'Kimlik';
+
+  @override
+  String get modal_builder_submit_actions => 'Gönderme Eylemleri';
 }

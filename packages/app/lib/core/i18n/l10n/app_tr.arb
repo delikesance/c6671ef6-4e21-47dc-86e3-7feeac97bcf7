@@ -10146,5 +10146,119 @@
   "image_editor_hint_container_width": "hizalama için kapsayıcı genişliği",
   "@image_editor_hint_container_width": {
     "description": "container width for alignment"
+  },
+  "action_card_duration": "Süre",
+  "@action_card_duration": {
+    "description": "Duration"
+  },
+  "action_card_error_message": "Hata Mesajı",
+  "@action_card_error_message": {
+    "description": "Error Message"
+  },
+  "action_card_jump_to": "Şuraya atla",
+  "@action_card_jump_to": {
+    "description": "Jump to"
+  },
+  "action_card_maximum": "Maksimum",
+  "@action_card_maximum": {
+    "description": "Maximum"
+  },
+  "action_card_minimum": "Minimum",
+  "@action_card_minimum": {
+    "description": "Minimum"
+  },
+  "action_card_skip_count": "Atlanacak sayı",
+  "@action_card_skip_count": {
+    "description": "Skip count"
+  },
+  "action_edit_request": "İsteği düzenle",
+  "@action_edit_request": {
+    "description": "Edit Request"
+  },
+  "action_error_jump": "Eyleme Atla",
+  "@action_error_jump": {
+    "description": "Jump to action"
+  },
+  "action_error_skip": "N eylemi atla",
+  "@action_error_skip": {
+    "description": "Skip N actions"
+  },
+  "component_max_length": "Maksimum Uzunluk",
+  "@component_max_length": {
+    "description": "Max Length"
+  },
+  "component_min_length": "Minimum Uzunluk",
+  "@component_min_length": {
+    "description": "Min Length"
+  },
+  "http_request_header_name": "Başlık adı",
+  "@http_request_header_name": {
+    "description": "Header name"
+  },
+  "http_request_json_body": "JSON Gövdesi",
+  "@http_request_json_body": {
+    "description": "JSON Body"
+  },
+  "http_request_section_body": "Gövde",
+  "@http_request_section_body": {
+    "description": "Body"
+  },
+  "http_request_section_headers": "Başlıklar",
+  "@http_request_section_headers": {
+    "description": "Headers"
+  },
+  "http_request_section_request": "İstek",
+  "@http_request_section_request": {
+    "description": "Request"
+  },
+  "http_request_text_body": "Metin Gövdesi",
+  "@http_request_text_body": {
+    "description": "Text Body"
+  },
+  "marketplace_summary_commands": "{count} komut",
+  "@marketplace_summary_commands": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "{count} commands"
+  },
+  "marketplace_summary_variables": "{count} değişken ({required} gerekli)",
+  "@marketplace_summary_variables": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "required": {
+        "type": "int"
+      }
+    },
+    "description": "{count} variables ({required} required)"
+  },
+  "marketplace_summary_workflows": "{count} iş akışı",
+  "@marketplace_summary_workflows": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "{count} workflows"
+  },
+  "modal_builder_configure_submit_actions": "Gönderme Eylemlerini Yapılandır",
+  "@modal_builder_configure_submit_actions": {
+    "description": "Configure Submit Actions"
+  },
+  "modal_builder_edit_submit_actions": "Gönderme Eylemlerini Düzenle",
+  "@modal_builder_edit_submit_actions": {
+    "description": "Edit Submit Actions"
+  },
+  "modal_builder_identity": "Kimlik",
+  "@modal_builder_identity": {
+    "description": "Identity"
+  },
+  "modal_builder_submit_actions": "Gönderme Eylemleri",
+  "@modal_builder_submit_actions": {
+    "description": "Submit Actions"
   }
 }

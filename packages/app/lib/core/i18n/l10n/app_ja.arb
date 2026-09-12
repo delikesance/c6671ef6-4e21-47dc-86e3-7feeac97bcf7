@@ -10233,5 +10233,119 @@
   "image_editor_hint_container_width": "配置用のコンテナ幅",
   "@image_editor_hint_container_width": {
     "description": "container width for alignment"
+  },
+  "action_card_duration": "期間",
+  "@action_card_duration": {
+    "description": "Duration"
+  },
+  "action_card_error_message": "エラーメッセージ",
+  "@action_card_error_message": {
+    "description": "Error Message"
+  },
+  "action_card_jump_to": "ジャンプ先",
+  "@action_card_jump_to": {
+    "description": "Jump to"
+  },
+  "action_card_maximum": "最大値",
+  "@action_card_maximum": {
+    "description": "Maximum"
+  },
+  "action_card_minimum": "最小値",
+  "@action_card_minimum": {
+    "description": "Minimum"
+  },
+  "action_card_skip_count": "スキップ数",
+  "@action_card_skip_count": {
+    "description": "Skip count"
+  },
+  "action_edit_request": "リクエストを編集",
+  "@action_edit_request": {
+    "description": "Edit Request"
+  },
+  "action_error_jump": "アクションにジャンプ",
+  "@action_error_jump": {
+    "description": "Jump to action"
+  },
+  "action_error_skip": "N個のアクションをスキップ",
+  "@action_error_skip": {
+    "description": "Skip N actions"
+  },
+  "component_max_length": "最大文字数",
+  "@component_max_length": {
+    "description": "Max Length"
+  },
+  "component_min_length": "最小文字数",
+  "@component_min_length": {
+    "description": "Min Length"
+  },
+  "http_request_header_name": "ヘッダー名",
+  "@http_request_header_name": {
+    "description": "Header name"
+  },
+  "http_request_json_body": "JSONボディ",
+  "@http_request_json_body": {
+    "description": "JSON Body"
+  },
+  "http_request_section_body": "ボディ",
+  "@http_request_section_body": {
+    "description": "Body"
+  },
+  "http_request_section_headers": "ヘッダー",
+  "@http_request_section_headers": {
+    "description": "Headers"
+  },
+  "http_request_section_request": "リクエスト",
+  "@http_request_section_request": {
+    "description": "Request"
+  },
+  "http_request_text_body": "テキストボディ",
+  "@http_request_text_body": {
+    "description": "Text Body"
+  },
+  "marketplace_summary_commands": "{count} コマンド",
+  "@marketplace_summary_commands": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "{count} commands"
+  },
+  "marketplace_summary_variables": "{count} 変数（{required} 必須）",
+  "@marketplace_summary_variables": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "required": {
+        "type": "int"
+      }
+    },
+    "description": "{count} variables ({required} required)"
+  },
+  "marketplace_summary_workflows": "{count} ワークフロー",
+  "@marketplace_summary_workflows": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "{count} workflows"
+  },
+  "modal_builder_configure_submit_actions": "送信アクションを設定",
+  "@modal_builder_configure_submit_actions": {
+    "description": "Configure Submit Actions"
+  },
+  "modal_builder_edit_submit_actions": "送信アクションを編集",
+  "@modal_builder_edit_submit_actions": {
+    "description": "Edit Submit Actions"
+  },
+  "modal_builder_identity": "識別情報",
+  "@modal_builder_identity": {
+    "description": "Identity"
+  },
+  "modal_builder_submit_actions": "送信アクション",
+  "@modal_builder_submit_actions": {
+    "description": "Submit Actions"
   }
 }
