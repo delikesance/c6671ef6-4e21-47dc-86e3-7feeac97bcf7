@@ -33,6 +33,7 @@ import 'package:bot_creator/features/bot_management/presentation/create_page.dar
 import 'package:bot_creator/features/containers/presentation/container_list_page.dart';
 import 'package:bot_creator/features/discord_rpc/logic/discord_rpc_service.dart';
 import 'package:bot_creator/features/documentation/documentation_navigation.dart';
+import 'package:bot_creator/features/home/presentation/guild_avatar.dart';
 import 'package:bot_creator/features/home/presentation/home_ui.dart';
 import 'package:bot_creator/features/settings/presentation/settings_page.dart';
 import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
@@ -2560,7 +2561,7 @@ class _BotCardState extends State<_BotCard> {
         ),
         const SizedBox(height: 16),
         _ServerPresenceRow(
-          seed: widget.name,
+          botId: widget.id,
           guildCount: widget.guildCount,
           title: _serverCountLabel(context),
           statusLabel: statusLabel,
@@ -2934,25 +2935,19 @@ class _CreateBotCard extends StatelessWidget {
 
 class _ServerPresenceRow extends StatelessWidget {
   const _ServerPresenceRow({
-    required this.seed,
+    required this.botId,
     required this.guildCount,
     required this.title,
     required this.statusLabel,
     required this.isRunning,
   });
 
-  final String seed;
+  /// Id du bot : sert à résoudre les vrais serveurs (cache gateway puis REST).
+  final String botId;
   final int guildCount;
   final String title;
   final String? statusLabel;
   final bool isRunning;
-
-  String _glyph(int index) {
-    final units = seed.replaceAll(RegExp(r'[^A-Za-z0-9]'), '');
-    if (units.length > index) return units[index].toUpperCase();
-    const fallback = 'αβγδεζηθ';
-    return fallback[index % fallback.length];
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -2964,7 +2959,13 @@ class _ServerPresenceRow extends StatelessWidget {
     final clusterBorder = isDark
         ? AppTheme.homeClusterBorder
         : scheme.outlineVariant;
-    final shown = guildCount <= 0 ? 1 : (guildCount >= 2 ? 2 : 1);
+    // Serveurs réels du bot qui tourne dans ce processus (synchrone, gratuit).
+    // `null`/vide hors desktop ou bot à l'arrêt : `GuildAvatarStrip` bascule
+    // alors sur l'API REST, puis sur le repli neutre.
+    final localGuilds = guildAvatarsFromGateway(
+      desktopGatewayForBot(botId),
+      limit: kMaxVisibleGuildAvatars,
+    );
 
     return Container(
       width: double.infinity,
@@ -2976,39 +2977,11 @@ class _ServerPresenceRow extends StatelessWidget {
       ),
       child: Row(
         children: [
-          SizedBox(
-            width: shown == 2 ? 62 : 36,
-            height: 36,
-            child: Stack(
-              children: [
-                for (var i = 0; i < shown; i++)
-                  Positioned(
-                    left: i * 26.0,
-                    child: Container(
-                      width: 36,
-                      height: 36,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: i == 0
-                            ? (isDark
-                                  ? AppTheme.homeClusterBorder
-                                  : scheme.primary)
-                            : AppTheme.discord,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: clusterBg, width: 2),
-                      ),
-                      child: Text(
-                        _glyph(i),
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
+          GuildAvatarStrip(
+            botId: botId,
+            guildCount: guildCount,
+            guilds: localGuilds,
+            ringColor: clusterBg,
           ),
           const SizedBox(width: 12),
           Expanded(

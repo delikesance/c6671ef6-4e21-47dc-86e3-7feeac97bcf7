@@ -85,25 +85,61 @@ class HomeHeaderIconButton extends StatelessWidget {
 
 /// Circular Discord-style bot avatar from the Home bot cards.
 class HomeBotAvatar extends StatelessWidget {
-  const HomeBotAvatar({super.key, required this.imageUrl, this.size = 48});
+  const HomeBotAvatar({
+    super.key,
+    required this.imageUrl,
+    this.size = 48,
+    this.background,
+    this.ringColor,
+    this.ringWidth = 0,
+    this.fallbackIcon = Icons.smart_toy_rounded,
+    this.fallbackLabel,
+  });
 
   final String? imageUrl;
   final double size;
+
+  /// Fond du cercle, utilisé aussi pendant le chargement et sur erreur.
+  /// Par défaut le bleu Discord (comportement historique).
+  final Color? background;
+
+  /// Anneau peint *par-dessus* l'image, pour séparer deux avatars superposés.
+  final Color? ringColor;
+  final double ringWidth;
+
+  /// Icône de repli quand aucune image n'est disponible.
+  final IconData fallbackIcon;
+
+  /// Repli textuel (vraie initiale d'un serveur par exemple) : prioritaire sur
+  /// [fallbackIcon] quand il est non vide.
+  final String? fallbackLabel;
 
   @override
   Widget build(BuildContext context) {
     final hasImage = imageUrl?.isNotEmpty ?? false;
     final iconSize = size * (26 / 48);
+    final label = fallbackLabel?.trim() ?? '';
 
-    Widget fallback() =>
-        Icon(Icons.smart_toy_rounded, color: Colors.white, size: iconSize);
+    Widget fallback() {
+      if (label.isNotEmpty) {
+        return Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: size * (14 / 36),
+            fontWeight: FontWeight.w700,
+            color: Colors.white,
+          ),
+        );
+      }
+      return Icon(fallbackIcon, color: Colors.white, size: iconSize);
+    }
 
-    return Container(
+    final circle = Container(
       width: size,
       height: size,
       alignment: Alignment.center,
-      decoration: const BoxDecoration(
-        color: AppTheme.discord,
+      decoration: BoxDecoration(
+        color: background ?? AppTheme.discord,
         shape: BoxShape.circle,
       ),
       clipBehavior: Clip.antiAlias,
@@ -121,6 +157,31 @@ class HomeBotAvatar extends StatelessWidget {
               errorBuilder: (_, _, _) => fallback(),
             )
           : fallback(),
+    );
+
+    if (ringWidth <= 0 || ringColor == null) return circle;
+
+    // La décoration d'un `Container` est peinte *derrière* son enfant : une
+    // bordure y serait recouverte par l'image en `BoxFit.cover`. L'anneau est
+    // donc peint dans une couche au-dessus.
+    return SizedBox(
+      width: size,
+      height: size,
+      child: Stack(
+        children: <Widget>[
+          Positioned.fill(child: circle),
+          Positioned.fill(
+            child: IgnorePointer(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: ringColor!, width: ringWidth),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
