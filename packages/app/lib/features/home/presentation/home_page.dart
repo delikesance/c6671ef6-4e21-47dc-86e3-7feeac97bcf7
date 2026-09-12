@@ -1,49 +1,49 @@
 import 'dart:async';
+import 'dart:developer' as developer;
 import 'dart:io';
-import 'package:bot_creator/core/storage/database.dart';
+import 'package:bot_creator/core/analytics/analytics.dart';
+import 'package:bot_creator/core/i18n/i18n.dart';
+import 'package:bot_creator/core/network/gateway_bot_events.dart';
+import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_owner_sync.dart';
 import 'package:bot_creator/core/network/main_api_session_restore.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/network/remote_runtime.dart';
-import 'package:bot_creator/core/network/runner_settings.dart';
-import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
+import 'package:bot_creator/core/network/runner_settings.dart';
+import 'package:bot_creator/core/storage/database.dart';
+import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/core/utils/duration_formatter.dart';
+import 'package:bot_creator/core/utils/global.dart';
+import 'package:bot_creator/core/utils/string_sanitizer.dart';
+import 'package:bot_creator/features/ads/logic/ad_consent_service.dart';
+import 'package:bot_creator/features/ads/logic/ad_reward_service.dart';
+import 'package:bot_creator/features/ads/logic/ads_placement_policy.dart';
 import 'package:bot_creator/features/ads/presentation/native_ad_slot.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_config_import.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_config_merge.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
+import 'package:bot_creator/features/bot_editor/logic/js_bot_payload_builder.dart';
+import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/app_editor_page.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/bot_logs.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/bot_config_pull_dialog.dart';
+import 'package:bot_creator/features/bot_management/presentation/create_page.dart';
+import 'package:bot_creator/features/containers/presentation/container_list_page.dart';
+import 'package:bot_creator/features/discord_rpc/logic/discord_rpc_service.dart';
+import 'package:bot_creator/features/documentation/documentation_navigation.dart';
+import 'package:bot_creator/features/home/presentation/home_ui.dart';
+import 'package:bot_creator/features/settings/presentation/settings_page.dart';
+import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
+import 'package:bot_creator/main.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:nyxx/nyxx.dart' hide Locale, Logger;
-import 'dart:developer' as developer;
-import 'package:bot_creator/main.dart';
-import 'package:bot_creator/core/theme/app_theme.dart';
-import 'package:bot_creator/features/home/presentation/home_ui.dart';
-import 'package:bot_creator/core/i18n/i18n.dart';
-import 'package:bot_creator/core/analytics/analytics.dart';
-import 'package:bot_creator/features/bot_editor/logic/bot.dart';
-import 'package:bot_creator/features/bot_editor/logic/bot_config_import.dart';
-import 'package:bot_creator/features/bot_editor/logic/bot_config_merge.dart';
-import 'package:bot_creator/features/bot_editor/presentation/widgets/bot_config_pull_dialog.dart';
-import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
-import 'package:bot_creator/features/bot_editor/logic/js_bot_payload_builder.dart';
-import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
-import 'package:bot_creator/core/utils/global.dart';
-import 'package:bot_creator/core/utils/string_sanitizer.dart';
-import 'package:bot_creator/core/network/main_api_client.dart';
-import 'package:bot_creator/core/network/gateway_bot_events.dart';
-import 'package:bot_creator/features/discord_rpc/logic/discord_rpc_service.dart';
-import 'package:bot_creator/features/ads/logic/ad_reward_service.dart';
-import 'package:bot_creator/features/ads/logic/ad_consent_service.dart';
-import 'package:bot_creator/features/ads/logic/ads_placement_policy.dart';
-import 'package:bot_creator/features/bot_editor/presentation/screens/app_editor_page.dart';
-import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/bot_logs.dart';
-import 'package:bot_creator/core/utils/duration_formatter.dart';
-import 'package:bot_creator/features/containers/presentation/container_list_page.dart';
-import 'package:bot_creator/features/bot_management/presentation/create_page.dart';
-import 'package:bot_creator/features/settings/presentation/settings_page.dart';
-import 'package:bot_creator/features/documentation/documentation_navigation.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:nyxx/nyxx.dart' hide Locale, Logger;
+import 'package:url_launcher/url_launcher.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, this.onManageBot});
@@ -82,6 +82,14 @@ class HomePageState extends State<HomePage>
 
   /// Un AnimationController par carte (clé = bot id) pour l'effet pulse.
   final Map<String, AnimationController> _pulseControllers = {};
+
+  /// Contrôleur de secours si une carte est construite alors qu'aucun
+  /// contrôleur dédié n'existe encore (aucun crash, aucune mutation au build).
+  late final AnimationController _fallbackPulseController;
+
+  /// Ids du dernier snapshot reçu du stream d'apps.
+  Set<String> _knownAppIds = <String>{};
+  StreamSubscription<List<dynamic>>? _appsSub;
   Map<String, int> _freeMinutesByBotId = <String, int>{};
   final Map<String, DateTime> _sessionExpiresAtByBotId = <String, DateTime>{};
   final Map<String, int> _botNotFoundStreak = <String, int>{};
@@ -104,6 +112,12 @@ class HomePageState extends State<HomePage>
   void initState() {
     super.initState();
     current = this;
+    _fallbackPulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+    // Controllers are created from the app stream (never during build).
+    _appsSub = appManager.getAppStream().listen(_handleAppsSnapshot);
     appendBotDebugLog('>>>> [BOT_DEBUG] HomePage.initState ENTERED <<<<');
     WidgetsBinding.instance.addObserver(this);
     AppAnalytics.logScreenView(screenName: 'HomePage', screenClass: 'HomePage');
@@ -145,11 +159,13 @@ class HomePageState extends State<HomePage>
     if (current == this) current = null;
     WidgetsBinding.instance.removeObserver(this);
     _statusRefreshTimer?.cancel();
+    unawaited(_appsSub?.cancel());
     unawaited(_gatewayEventsSub?.cancel());
     unawaited(_gatewayConnectionSub?.cancel());
     for (final ctrl in _pulseControllers.values) {
       ctrl.dispose();
     }
+    _fallbackPulseController.dispose();
     super.dispose();
   }
 
@@ -989,7 +1005,6 @@ class HomePageState extends State<HomePage>
               botName: botName,
               token: token,
               config: config,
-              bot: bot,
               guildCount: fetchedApproxGuildCount,
               avatarHash: avatarHash,
               discriminator: discriminator,
@@ -1104,6 +1119,33 @@ class HomePageState extends State<HomePage>
         duration: const Duration(milliseconds: 900),
       ),
     );
+  }
+
+  /// Creates pulse controllers ahead of build (stream listener, not build) and
+  /// disposes the ones belonging to bots that no longer exist.
+  void _handleAppsSnapshot(List<dynamic> apps) {
+    final ids = <String>{
+      for (final app in apps)
+        if (app is Map && (app['id'] ?? '').toString().trim().isNotEmpty)
+          (app['id']).toString().trim(),
+    };
+    _knownAppIds = ids;
+    for (final id in ids) {
+      _getOrCreatePulseController(id);
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _disposeStalePulseControllers(_knownAppIds);
+    });
+  }
+
+  void _disposeStalePulseControllers(Set<String> liveBotIds) {
+    final stale = _pulseControllers.keys
+        .where((id) => !liveBotIds.contains(id))
+        .toList(growable: false);
+    for (final id in stale) {
+      _pulseControllers.remove(id)?.dispose();
+    }
   }
 
   void _syncPulse(Set<String> runningIds) {
@@ -1867,11 +1909,9 @@ class HomePageState extends State<HomePage>
               botId: current + 120,
             };
           });
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(context.tr.home_time_added),
-            ),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(context.tr.home_time_added)));
         }
         return;
       }
@@ -1887,6 +1927,12 @@ class HomePageState extends State<HomePage>
       );
       if (rewarded && mounted) {
         unawaited(_refreshBotRuntimeBalances(botIds: [botId]));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.tr.error_with_details(e.toString()))),
+        );
       }
     } finally {
       if (mounted) {
@@ -2098,6 +2144,18 @@ class HomePageState extends State<HomePage>
 
   // ── Build ──────────────────────────────────────────────────────────────────
 
+  Object? _lastReportedStreamError;
+
+  /// [StreamBuilder] errors only surface during build, so the log is deferred to
+  /// the end of the frame (and deduplicated) instead of spamming every rebuild.
+  void _reportStreamError(Object? error) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || identical(error, _lastReportedStreamError)) return;
+      _lastReportedStreamError = error;
+      developer.log('Error loading data: $error', name: 'HomePage');
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<dynamic>>(
@@ -2152,10 +2210,7 @@ class HomePageState extends State<HomePage>
             ];
 
             if (snapshot.hasError) {
-              developer.log(
-                'Error loading data: ${snapshot.error}',
-                name: 'HomePage',
-              );
+              _reportStreamError(snapshot.error);
               children.add(
                 _buildHomeInfoCard(
                   context,
@@ -2184,7 +2239,11 @@ class HomePageState extends State<HomePage>
                   _buildRedesignBotCard(
                     context,
                     app,
-                    initiallyExpanded: isWide,
+                    // The primary action of a running bot stays visible without
+                    // an extra tap on compact layouts.
+                    initiallyExpanded:
+                        isWide ||
+                        _runningBotIds.contains(app['id']?.toString() ?? ''),
                   ),
               ];
 
@@ -2251,9 +2310,9 @@ class HomePageState extends State<HomePage>
       _ => 0,
     };
     final isRunning = _runningBotIds.contains(id);
-    const runtimeToggleAllowed = true;
-    final canToggle = runtimeToggleAllowed && _botIdInAction == null;
-    final pulseCtrl = _getOrCreatePulseController(id);
+    final canToggle = _botIdInAction == null;
+    // Controllers are created by the app-stream listener, never during build.
+    final pulseCtrl = _pulseControllers[id] ?? _fallbackPulseController;
     final freeMinutes = _displayFreeMinutesForBot(id);
 
     return _BotCard(
@@ -2346,10 +2405,6 @@ class _HomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final muted = isDark
-        ? AppTheme.homeMuted
-        : Theme.of(context).colorScheme.onSurfaceVariant;
     return Row(
       children: [
         Expanded(
@@ -2358,13 +2413,7 @@ class _HomeHeader extends StatelessWidget {
             children: [
               Text(
                 context.tr.home_overline,
-                style: GoogleFonts.spaceGrotesk(
-                  color: muted,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.8,
-                  height: 1.27,
-                ),
+                style: homeSectionLabelStyle(context),
               ),
               const SizedBox(height: 2),
               FittedBox(
@@ -2442,20 +2491,20 @@ class _BotCard extends StatefulWidget {
     required this.onAddTime,
     required this.onLogs,
     required this.showPremiumLabels,
+    required this.freeMinutes,
     this.runtimeBadgeLabel,
-    this.freeMinutes,
   });
 
   final String name;
   final String id;
   final String? avatar;
-  final int? guildCount;
+  final int guildCount;
   final bool isRunning;
   final bool canToggle;
   final bool isTogglingThisBot;
   final bool initiallyExpanded;
   final String? runtimeBadgeLabel;
-  final int? freeMinutes;
+  final int freeMinutes;
   final AnimationController pulseController;
   final bool showPremiumLabels;
   final VoidCallback onManage;
@@ -2472,41 +2521,50 @@ class _BotCardState extends State<_BotCard> {
   late bool _expanded = widget.initiallyExpanded;
   bool get _supportsForegroundTask => Platform.isAndroid || Platform.isIOS;
 
+  @override
+  void didUpdateWidget(covariant _BotCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Realign on the layout-driven default when the window width changes
+    // (desktop resize / rotation).
+    if (oldWidget.initiallyExpanded != widget.initiallyExpanded) {
+      _expanded = widget.initiallyExpanded;
+    }
+  }
+
   void _toggleExpanded() => setState(() => _expanded = !_expanded);
 
   String _startLabel(BuildContext context) {
     if (widget.isRunning) return context.tr.home_stop;
     if (!widget.showPremiumLabels) return context.tr.bot_home_start;
     if (SubscriptionService.isSubscribed) return context.tr.home_start_premium;
-    if ((widget.freeMinutes ?? 0) > 0) return context.tr.bot_home_start;
+    if (widget.freeMinutes > 0) return context.tr.bot_home_start;
     return context.tr.home_start_ads;
   }
 
   String _serverCountLabel(BuildContext context) {
-    final count = widget.guildCount ?? 0;
+    final count = widget.guildCount;
     return count == 1
         ? context.tr.home_active_on_servers_one(count)
         : context.tr.home_active_on_servers_other(count);
   }
 
+  /// Adding time only makes sense for a bot that is actually running, and only
+  /// on platforms able to host the foreground task (desktop debug keeps the
+  /// free-count convenience shortcut).
   bool get _showAddHosting {
-    if (widget.onAddTime == null) return false;
-    if (kDebugMode && !_supportsForegroundTask) return true;
-    if (SubscriptionService.isSubscribed) return false;
-    return true;
+    if (!widget.isRunning) return false;
+    if (!_supportsForegroundTask) return kDebugMode;
+    return !SubscriptionService.isSubscribed;
   }
 
   Widget _buildExpandedContent(BuildContext context, ColorScheme scheme) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final formattedTime = widget.freeMinutes != null
-        ? formatHostingDuration(context, widget.freeMinutes!)
-        : null;
+    final formattedTime = formatHostingDuration(context, widget.freeMinutes);
     String? statusLabel;
     if (widget.isRunning) {
-      statusLabel = formattedTime != null
-          ? '${widget.runtimeBadgeLabel ?? context.tr.home_synced_active} • $formattedTime'
-          : (widget.runtimeBadgeLabel ?? context.tr.home_synced_active);
-    } else if (formattedTime != null) {
+      statusLabel =
+          '${widget.runtimeBadgeLabel ?? context.tr.home_synced_active} • $formattedTime';
+    } else {
       statusLabel = formattedTime;
     }
 
@@ -2522,7 +2580,7 @@ class _BotCardState extends State<_BotCard> {
         const SizedBox(height: 16),
         _ServerPresenceRow(
           seed: widget.name,
-          guildCount: widget.guildCount ?? 0,
+          guildCount: widget.guildCount,
           title: _serverCountLabel(context),
           statusLabel: statusLabel,
           isRunning: widget.isRunning,
@@ -2807,15 +2865,12 @@ class _CreateBotCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final scheme = Theme.of(context).colorScheme;
     final fill = isDark
         ? AppTheme.homeCreateFill
-        : Theme.of(context).colorScheme.surfaceContainerHighest;
-    final border = isDark
-        ? AppTheme.homeCreateBorder
-        : Theme.of(context).colorScheme.primary;
-    final avatarFill = isDark
-        ? AppTheme.homeCreateBorder
-        : Theme.of(context).colorScheme.primary;
+        : scheme.surfaceContainerHighest;
+    final border = isDark ? AppTheme.homeCreateBorder : scheme.primary;
+    final avatarFill = isDark ? AppTheme.homeCreateBorder : scheme.primary;
 
     return Stack(
       children: [
@@ -2840,7 +2895,9 @@ class _CreateBotCard extends StatelessWidget {
                     child: Icon(
                       Icons.add_rounded,
                       size: 26,
-                      color: isDark ? const Color(0xFF1A1228) : Colors.white,
+                      color: isDark
+                          ? AppTheme.homeCreateFill
+                          : scheme.onPrimary,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -2852,24 +2909,18 @@ class _CreateBotCard extends StatelessWidget {
                           context.tr.home_create_bot_title,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.inter(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
+                          style: homeDisplayStyle(16, color: scheme.onSurface),
                         ),
                         Text(
                           context.tr.home_create_bot_subtitle,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w400,
+                          style: homeDisplayStyle(
+                            12,
+                            weight: FontWeight.w400,
                             color: isDark
                                 ? Colors.white.withValues(alpha: 0.30)
-                                : Theme.of(
-                                    context,
-                                  ).colorScheme.onSurfaceVariant,
+                                : scheme.onSurfaceVariant,
                           ),
                         ),
                       ],
@@ -2927,12 +2978,13 @@ class _ServerPresenceRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final scheme = Theme.of(context).colorScheme;
     final clusterBg = isDark
         ? AppTheme.homeClusterBg
-        : Theme.of(context).colorScheme.surfaceContainerLow;
+        : scheme.surfaceContainerLow;
     final clusterBorder = isDark
         ? AppTheme.homeClusterBorder
-        : Theme.of(context).colorScheme.outlineVariant;
+        : scheme.outlineVariant;
     final shown = guildCount <= 0 ? 1 : (guildCount >= 2 ? 2 : 1);
 
     return Container(
@@ -2959,7 +3011,9 @@ class _ServerPresenceRow extends StatelessWidget {
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
                         color: i == 0
-                            ? const Color(0xFF2F3136)
+                            ? (isDark
+                                  ? AppTheme.homeClusterBorder
+                                  : scheme.primary)
                             : AppTheme.discord,
                         shape: BoxShape.circle,
                         border: Border.all(color: clusterBg, width: 2),
@@ -3017,7 +3071,9 @@ class _ServerPresenceRow extends StatelessWidget {
                           style: GoogleFonts.inter(
                             fontSize: 11,
                             fontWeight: FontWeight.w400,
-                            color: const Color(0xFF8A8D9F),
+                            color: isDark
+                                ? AppTheme.homeMuted
+                                : scheme.onSurfaceVariant,
                           ),
                         ),
                       ),
@@ -3108,17 +3164,15 @@ class _HostedAppsHomeCardState extends State<_HostedAppsHomeCard> {
                     children: [
                       Text(
                         context.tr.container_list_title,
-                        style: GoogleFonts.inter(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: homeDisplayStyle(16),
                       ),
                       Text(
                         context.tr.container_hosted_subtitle,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
+                        style: homeDisplayStyle(
+                          12,
+                          weight: FontWeight.w400,
                           color: isDark
                               ? Colors.white.withValues(alpha: 0.30)
                               : scheme.onSurfaceVariant,
@@ -3148,7 +3202,6 @@ class _BotSyncResult {
     required this.botName,
     required this.token,
     required this.config,
-    required this.bot,
     required this.guildCount,
     this.avatarHash,
     this.discriminator,
@@ -3158,7 +3211,6 @@ class _BotSyncResult {
   final String botName;
   final String token;
   final Map<String, dynamic> config;
-  final Map<String, dynamic> bot;
   final int? guildCount;
   final String? avatarHash;
   final String? discriminator;

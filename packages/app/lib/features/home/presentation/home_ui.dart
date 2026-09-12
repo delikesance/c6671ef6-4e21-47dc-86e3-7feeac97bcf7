@@ -92,14 +92,11 @@ class HomeBotAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasImage = imageUrl != null && imageUrl!.isNotEmpty;
+    final hasImage = imageUrl?.isNotEmpty ?? false;
     final iconSize = size * (26 / 48);
 
-    Widget fallback() => Icon(
-      Icons.smart_toy_rounded,
-      color: Colors.white,
-      size: iconSize,
-    );
+    Widget fallback() =>
+        Icon(Icons.smart_toy_rounded, color: Colors.white, size: iconSize);
 
     return Container(
       width: size,
@@ -241,7 +238,8 @@ class HomeCardActionButton extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: enabled ? onTap : null,
-          child: Container(
+          // Ink (not Container) so the splash paints above the background.
+          child: Ink(
             height: height,
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 14),
