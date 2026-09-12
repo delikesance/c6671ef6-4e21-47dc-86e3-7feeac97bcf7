@@ -7,6 +7,45 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:re_highlight/languages/javascript.dart';
+import 'package:re_highlight/re_highlight.dart';
+
+/// Moteur de colorisation JavaScript partagé avec les éditeurs réels
+/// (`JsSyntaxController`) : le même `re_highlight` et surtout la **même source
+/// de vérité pour les couleurs**, le `hljsTheme` de
+/// [CodeEditorThemeColors.hljsTheme].
+final _jsHighlight = Highlight()
+  ..registerLanguage('javascript', langJavascript);
+
+/// Rend [code] (une ligne de JavaScript) colorisé avec la palette [colors].
+///
+/// Mots-clés, chaînes, nombres, commentaires, fonctions et ponctuation
+/// reçoivent chacun la couleur que l'éditeur JS afficherait. L'aperçu montre
+/// donc le vrai rendu, pour le thème sélectionné.
+TextSpan buildJsHighlightedSpan(
+  String code, {
+  required CodeEditorSettings settings,
+  required CodeEditorThemeColors colors,
+}) {
+  final baseStyle = TextStyle(
+    fontFamily: settings.fontFamily.fontString,
+    fontSize: settings.fontSize,
+    height: settings.lineHeight,
+    color: colors.text,
+  );
+  if (code.isEmpty) {
+    return TextSpan(text: '', style: baseStyle);
+  }
+  try {
+    final result = _jsHighlight.highlight(code: code, language: 'javascript');
+    final renderer = TextSpanRenderer(baseStyle, colors.hljsTheme);
+    result.render(renderer);
+    return renderer.span ?? TextSpan(text: code, style: baseStyle);
+  } catch (_) {
+    // Jamais de preview cassée : repli sur le texte brut colorisé par le thème.
+    return TextSpan(text: code, style: baseStyle);
+  }
+}
 
 /// Full-screen settings page for the BDFD / JavaScript code editors.
 ///
@@ -64,6 +103,7 @@ client.on('interactionCreate', async (interaction) => {
 
   if (interaction.commandName === 'ping') {
     const latency = Date.now() - interaction.createdTimestamp;
+    const retries = 3; // tentatives restantes
     await interaction.reply({
       content: `Pong! Latence API: ${latency}ms 🏓`,
       ephemeral: true,
@@ -240,7 +280,7 @@ client.on('interactionCreate', async (interaction) => {
                           borderRadius: BorderRadius.circular(6),
                           border: Border.all(
                             color: isSelected
-                                ? AppTheme.brandPrimary
+                                ? Theme.of(context).colorScheme.primary
                                 : Colors.white24,
                             width: isSelected ? 2 : 1,
                           ),
@@ -476,9 +516,9 @@ client.on('interactionCreate', async (interaction) => {
         const SizedBox(width: AppTheme.spacingSm),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: AppTheme.brandPrimary,
+            color: Theme.of(context).colorScheme.primary,
           ),
         ),
       ],
@@ -495,7 +535,7 @@ client.on('interactionCreate', async (interaction) => {
       children: [
         Row(
           children: [
-            Icon(icon, size: 20, color: AppTheme.brandPrimary),
+            Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
             const SizedBox(width: AppTheme.spacingSm),
             Expanded(
               child: Text(
@@ -625,13 +665,7 @@ client.on('interactionCreate', async (interaction) => {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           for (var i = 0; i < jsLines.length; i++)
-            _buildJsLine(
-              jsLines[i],
-              settings,
-              colors,
-              i + 1,
-              isComment: jsLines[i].trimLeft().startsWith('//'),
-            ),
+            _buildJsLine(jsLines[i], settings, colors, i + 1),
         ],
       ),
     );
@@ -641,22 +675,21 @@ client.on('interactionCreate', async (interaction) => {
     String code,
     CodeEditorSettings settings,
     CodeEditorThemeColors colors,
-    int lineNum, {
-    bool isComment = false,
-  }) {
+    int lineNum,
+  ) {
     final gutter = _buildGutter(settings, colors, lineNum);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ?gutter,
         Expanded(
-          child: Text(
-            code,
-            style: TextStyle(
-              fontFamily: settings.fontFamily.fontString,
-              fontSize: settings.fontSize,
-              height: settings.lineHeight,
-              color: isComment ? colors.comment : colors.text,
+          // Colorisation par token (même moteur que l'éditeur JS réel) : la
+          // ligne n'est plus peinte d'une seule couleur.
+          child: RichText(
+            text: buildJsHighlightedSpan(
+              code,
+              settings: settings,
+              colors: colors,
             ),
           ),
         ),

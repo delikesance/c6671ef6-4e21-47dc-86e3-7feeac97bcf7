@@ -843,7 +843,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                               Icon(
                                 Icons.folder_outlined,
                                 size: 18,
-                                color: Theme.of(context).colorScheme.primary,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
                               ),
                               const SizedBox(width: 10),
                               Text(
@@ -2086,7 +2088,6 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         },
         child: Scaffold(
           appBar: AppBar(
-            backgroundColor: AppTheme.brandPrimary,
             title: Text(
               _commandName.trim().isNotEmpty
                   ? '/${_commandName.trim()}'
@@ -2213,7 +2214,8 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                   ),
                 )
               : null,
-          bottomNavigationBar: MediaQuery.of(context).viewInsets.bottom > 0 &&
+          bottomNavigationBar:
+              MediaQuery.of(context).viewInsets.bottom > 0 &&
                   (MediaQuery.of(context).size.width < 800 ||
                       defaultTargetPlatform == TargetPlatform.android ||
                       defaultTargetPlatform == TargetPlatform.iOS)
@@ -2490,12 +2492,14 @@ class _DeploymentProgressOverlayState
           ),
         );
       case SyncStepState.active:
-        return const SizedBox(
+        return SizedBox(
           width: 24,
           height: 24,
           child: CircularProgressIndicator(
             strokeWidth: 2.5,
-            valueColor: AlwaysStoppedAnimation<Color>(AppTheme.brandSecondary),
+            valueColor: AlwaysStoppedAnimation<Color>(
+              Theme.of(context).colorScheme.primary,
+            ),
           ),
         );
       case SyncStepState.success:
@@ -2657,13 +2661,13 @@ class _DeploymentProgressOverlayState
                           Stack(
                             alignment: Alignment.center,
                             children: [
-                              const SizedBox(
+                              SizedBox(
                                 width: 72,
                                 height: 72,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 3.5,
                                   valueColor: AlwaysStoppedAnimation<Color>(
-                                    AppTheme.brandSecondary,
+                                    Theme.of(context).colorScheme.primary,
                                   ),
                                 ),
                               ),
@@ -2676,10 +2680,10 @@ class _DeploymentProgressOverlayState
                                     child: child,
                                   );
                                 },
-                                child: const Icon(
+                                child: Icon(
                                   Icons.sync,
                                   size: 32,
-                                  color: AppTheme.brandSecondary,
+                                  color: Theme.of(context).colorScheme.primary,
                                 ),
                               ),
                             ],
@@ -2841,7 +2845,6 @@ class _DeploymentProgressOverlayState
                                     padding: const EdgeInsets.symmetric(
                                       vertical: 14,
                                     ),
-                                    backgroundColor: AppTheme.brandPrimary,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
                                     ),

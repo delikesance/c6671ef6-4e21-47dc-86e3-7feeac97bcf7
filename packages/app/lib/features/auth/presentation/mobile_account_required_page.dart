@@ -3,7 +3,7 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_auth_service.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
-import 'package:bot_creator/core/theme/app_theme.dart';
+
 import 'package:bot_creator/core/auth/mobile_account_session.dart';
 import 'package:bot_creator/features/auth/presentation/mobile_email_login_form.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +31,9 @@ class _MobileAccountRequiredPageState extends State<MobileAccountRequiredPage> {
     try {
       final config = await MainApiSettingsStore.loadConfig();
       final client = MainApiClient(baseUrl: config.baseUrl);
-      final session = await MainApiAuthService.connectWithDiscord(client: client);
+      final session = await MainApiAuthService.connectWithDiscord(
+        client: client,
+      );
       await MainApiSettingsStore.saveSession(
         session.copyWith(authMethod: MainApiAuthMethod.discordOauth),
       );
@@ -55,7 +57,9 @@ class _MobileAccountRequiredPageState extends State<MobileAccountRequiredPage> {
       }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(context.tr.mobile_account_required_failed(error.toString())),
+          content: Text(
+            context.tr.mobile_account_required_failed(error.toString()),
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -84,7 +88,9 @@ class _MobileAccountRequiredPageState extends State<MobileAccountRequiredPage> {
                   Icon(
                     Icons.account_circle_outlined,
                     size: 56,
-                    color: colorScheme.primary,
+                    // Icône décorative : neutre du thème. Le violet reste
+                    // réservé au bouton primaire ci-dessous.
+                    color: colorScheme.onSurfaceVariant,
                   ),
                   const SizedBox(height: 20),
                   Text(
@@ -117,7 +123,7 @@ class _MobileAccountRequiredPageState extends State<MobileAccountRequiredPage> {
                         : const Icon(Icons.login),
                     label: Text(tr.settings_account_connect_label),
                     style: FilledButton.styleFrom(
-                      backgroundColor: AppTheme.brandPrimary,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
@@ -127,8 +133,8 @@ class _MobileAccountRequiredPageState extends State<MobileAccountRequiredPage> {
                     onPressed: _connecting
                         ? null
                         : () => setState(
-                          () => _emailLoginExpanded = !_emailLoginExpanded,
-                        ),
+                            () => _emailLoginExpanded = !_emailLoginExpanded,
+                          ),
                     child: Text(
                       _emailLoginExpanded
                           ? tr.mobile_login_hide_email

@@ -32,7 +32,7 @@ class AdHistorySheet extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.history, color: AppTheme.brandPrimary),
+                  Icon(Icons.history, color: colorScheme.onSurfaceVariant),
                   const SizedBox(width: AppTheme.spacingSm),
                   Expanded(
                     child: Text(

@@ -5,7 +5,8 @@ import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator_shared/types/component.dart';
 import 'package:bot_creator_shared/types/variable_suggestion.dart' as shared;
 import 'package:bot_creator/core/models/types/variable_suggestion.dart';
-import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder.response.dart' show ActionsBuilderPage;
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder.response.dart'
+    show ActionsBuilderPage;
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/widgets/variable_text_field.dart';
 import 'package:bot_creator/features/components_v2/presentation/component_v2_builder/component_node_editor.dart';
@@ -66,7 +67,10 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
         final structureChanged = _inputs.length != newInputs.length;
         _inputs = List.from(newInputs);
         if (structureChanged) {
-          _inputKeys = List.generate(_inputs.length, (_) => UniqueKey().toString());
+          _inputKeys = List.generate(
+            _inputs.length,
+            (_) => UniqueKey().toString(),
+          );
         }
       }
       final newComponents = widget.modal.components;
@@ -80,7 +84,10 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
             .map((c) => ComponentNode.fromJson(c.toJson()))
             .toList();
         if (structureChanged) {
-          _componentKeys = List.generate(_components.length, (_) => UniqueKey().toString());
+          _componentKeys = List.generate(
+            _components.length,
+            (_) => UniqueKey().toString(),
+          );
         }
       }
       if (!_listEquals(_modalActions, widget.modal.actions)) {
@@ -105,7 +112,10 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
     _components = widget.modal.components
         .map((c) => ComponentNode.fromJson(c.toJson()))
         .toList();
-    _componentKeys = List.generate(_components.length, (_) => UniqueKey().toString());
+    _componentKeys = List.generate(
+      _components.length,
+      (_) => UniqueKey().toString(),
+    );
     _modalActions = List.from(widget.modal.actions);
   }
 
@@ -192,7 +202,10 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
             ),
           );
         }).toList();
-        _componentKeys = List.generate(_components.length, (_) => UniqueKey().toString());
+        _componentKeys = List.generate(
+          _components.length,
+          (_) => UniqueKey().toString(),
+        );
         _inputs.clear();
         _inputKeys.clear();
       }
@@ -313,18 +326,19 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final isV2 = _components.isNotEmpty;
     final count = isV2 ? _components.length : _inputs.length;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Header
+        // Header — surface neutre du thème (plus de dégradé violet décoratif).
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: const BoxDecoration(
-            gradient: AppTheme.brandGradient,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+          decoration: BoxDecoration(
+            color: scheme.surfaceContainerHighest,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
           ),
           child: LayoutBuilder(
             builder: (context, constraints) {
@@ -334,12 +348,19 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.dynamic_form, color: Colors.white, size: 18),
+                        Icon(
+                          Icons.dynamic_form,
+                          color: scheme.onSurface,
+                          size: 18,
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             context.tr.modal_builder_title,
-                            style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: scheme.onSurface,
+                            ),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -348,25 +369,34 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                     const SizedBox(height: 4),
                     Text(
                       context.tr.modal_inputs_count(count),
-                      style: const TextStyle(color: Colors.white70, fontSize: 12),
+                      style: TextStyle(
+                        color: scheme.onSurface.withValues(alpha: 0.8),
+                        fontSize: 12,
+                      ),
                     ),
                   ],
                 );
               }
               return Row(
                 children: [
-                  const Icon(Icons.dynamic_form, color: Colors.white, size: 18),
+                  Icon(Icons.dynamic_form, color: scheme.onSurface, size: 18),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       context.tr.modal_builder_title,
-                      style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: scheme.onSurface,
+                      ),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   Text(
                     context.tr.modal_inputs_count(count),
-                    style: const TextStyle(color: Colors.white70, fontSize: 12),
+                    style: TextStyle(
+                      color: scheme.onSurface.withValues(alpha: 0.8),
+                      fontSize: 12,
+                    ),
                   ),
                 ],
               );
@@ -376,8 +406,10 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            border: Border.all(color: AppTheme.brandPrimary.withValues(alpha: 0.3)),
-            borderRadius: const BorderRadius.vertical(bottom: Radius.circular(8)),
+            border: Border.all(color: scheme.outlineVariant),
+            borderRadius: const BorderRadius.vertical(
+              bottom: Radius.circular(8),
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -386,25 +418,27 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
               _buildMiniBlock(
                 icon: Icons.title,
                 label: 'Identity',
-                child: Column(children: [
-                  _buildField(
-                    label: 'Title',
-                    initialValue: _titleCtrl.text,
-                    onChanged: (v) {
-                      _titleCtrl.text = v;
-                      _emit();
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                  _buildField(
-                    label: context.tr.common_custom_id,
-                    initialValue: _customIdCtrl.text,
-                    onChanged: (v) {
-                      _customIdCtrl.text = v;
-                      _emit();
-                    },
-                  ),
-                ]),
+                child: Column(
+                  children: [
+                    _buildField(
+                      label: 'Title',
+                      initialValue: _titleCtrl.text,
+                      onChanged: (v) {
+                        _titleCtrl.text = v;
+                        _emit();
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                    _buildField(
+                      label: context.tr.common_custom_id,
+                      initialValue: _customIdCtrl.text,
+                      onChanged: (v) {
+                        _customIdCtrl.text = v;
+                        _emit();
+                      },
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 12),
 
@@ -467,7 +501,13 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                               value: t,
                               child: Row(
                                 children: [
-                                  Icon(_getIconForType(t), size: 16, color: Theme.of(context).colorScheme.primary),
+                                  Icon(
+                                    _getIconForType(t),
+                                    size: 16,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                  ),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
@@ -481,15 +521,28 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                           }).toList();
                         },
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
                           decoration: BoxDecoration(
-                            border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5)),
-                            borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                            border: Border.all(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.primary.withValues(alpha: 0.5),
+                            ),
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusSm,
+                            ),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.add_circle_outline, size: 18, color: Theme.of(context).colorScheme.primary),
+                              Icon(
+                                Icons.add_circle_outline,
+                                size: 18,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
                               const SizedBox(width: 8),
                               Text(
                                 'Add Field',
@@ -519,7 +572,10 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                     if (_modalActions.isNotEmpty) ...[
                       Text(
                         '${_modalActions.length} action(s) configured',
-                        style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.primary),
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                       ),
                       const SizedBox(height: 8),
                     ],
@@ -532,7 +588,11 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                             : 'Edit Submit Actions',
                       ),
                       style: FilledButton.styleFrom(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusSm)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            AppTheme.radiusSm,
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -562,12 +622,28 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
         children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-            child: Row(children: [
-              Icon(icon, size: 16, color: Theme.of(context).colorScheme.primary),
-              const SizedBox(width: 8),
-              Expanded(child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13))),
-            ]),
+            color: Theme.of(
+              context,
+            ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+            child: Row(
+              children: [
+                Icon(
+                  icon,
+                  size: 16,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
           Padding(
             padding: const EdgeInsets.all(AppTheme.spacingSm),
@@ -682,25 +758,39 @@ class _InputEditorState extends State<_InputEditor> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: AppTheme.brandPrimary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(AppTheme.radiusXs),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  // Pastille d'index : neutre du thème (l'ancien violet sur
+                  // violet ne donnait que ~1.6:1).
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(AppTheme.radiusXs),
+                ),
+                child: Text(
+                  '#${widget.index + 1}',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
               ),
-              child: Text('#${widget.index + 1}', style: TextStyle(fontSize: 11, color: AppTheme.brandPrimary)),
-            ),
-            const Spacer(),
-            InkWell(
-              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              onTap: widget.onRemove,
-              child: Padding(
-                padding: const EdgeInsets.all(4),
-                child: Icon(Icons.close, size: 16, color: Theme.of(context).colorScheme.error),
+              const Spacer(),
+              InkWell(
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                onTap: widget.onRemove,
+                child: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: Icon(
+                    Icons.close,
+                    size: 16,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                ),
               ),
-            ),
-          ]),
+            ],
+          ),
           const SizedBox(height: 8),
           VariableTextField(
             controller: _labelCtrl,
@@ -718,28 +808,42 @@ class _InputEditorState extends State<_InputEditor> {
             onChanged: (_) => widget.onChanged(_buildDefinition()),
           ),
           const SizedBox(height: 8),
-          Row(children: [
-            Expanded(
-              child: DropdownButtonFormField<BcTextInputStyle>(
-                initialValue: widget.input.style,
-                decoration: const InputDecoration(labelText: 'Style', border: OutlineInputBorder(), isDense: true),
-                items: BcTextInputStyle.values.map((s) => DropdownMenuItem(value: s, child: Text(s.name))).toList(),
-                onChanged: (v) {
-                  if (v != null) widget.onChanged(_buildDefinition(style: v));
-                },
+          Row(
+            children: [
+              Expanded(
+                child: DropdownButtonFormField<BcTextInputStyle>(
+                  initialValue: widget.input.style,
+                  decoration: const InputDecoration(
+                    labelText: 'Style',
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                  ),
+                  items: BcTextInputStyle.values
+                      .map(
+                        (s) => DropdownMenuItem(value: s, child: Text(s.name)),
+                      )
+                      .toList(),
+                  onChanged: (v) {
+                    if (v != null) widget.onChanged(_buildDefinition(style: v));
+                  },
+                ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                dense: true,
-                title: Text(context.tr.common_required, style: const TextStyle(fontSize: 13)),
-                value: widget.input.required,
-                onChanged: (v) => widget.onChanged(_buildDefinition(required: v)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                  title: Text(
+                    context.tr.common_required,
+                    style: const TextStyle(fontSize: 13),
+                  ),
+                  value: widget.input.required,
+                  onChanged: (v) =>
+                      widget.onChanged(_buildDefinition(required: v)),
+                ),
               ),
-            ),
-          ]),
+            ],
+          ),
         ],
       ),
     );

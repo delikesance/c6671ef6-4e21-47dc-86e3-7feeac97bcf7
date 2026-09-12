@@ -36,7 +36,8 @@ class HttpRequestEditorPage extends StatefulWidget {
     required String bodyMode,
     required String bodyText,
     required Map<String, dynamic> bodyJson,
-  }) onSaved;
+  })
+  onSaved;
   final List<VariableSuggestion> variableSuggestions;
 
   @override
@@ -53,7 +54,15 @@ class _HttpRequestEditorPageState extends State<HttpRequestEditorPage> {
   String? _jsonError;
   Timer? _jsonValidateTimer;
 
-  static const _httpMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'];
+  static const _httpMethods = [
+    'GET',
+    'POST',
+    'PUT',
+    'PATCH',
+    'DELETE',
+    'HEAD',
+    'OPTIONS',
+  ];
 
   static const _commonHeaders = [
     'Authorization',
@@ -140,7 +149,9 @@ class _HttpRequestEditorPageState extends State<HttpRequestEditorPage> {
       final decoded = jsonDecode(_bodyJsonController.text.trim());
       if (decoded is Map) {
         setState(() {
-          _bodyJsonController.text = const JsonEncoder.withIndent('  ').convert(decoded);
+          _bodyJsonController.text = const JsonEncoder.withIndent(
+            '  ',
+          ).convert(decoded);
           _jsonError = null;
         });
       }
@@ -161,7 +172,9 @@ class _HttpRequestEditorPageState extends State<HttpRequestEditorPage> {
     Map<String, dynamic> bodyJson;
     try {
       final text = _bodyJsonController.text.trim();
-      bodyJson = text.isEmpty ? <String, dynamic>{} : (jsonDecode(text) as Map<String, dynamic>).cast<String, dynamic>();
+      bodyJson = text.isEmpty
+          ? <String, dynamic>{}
+          : (jsonDecode(text) as Map<String, dynamic>).cast<String, dynamic>();
     } catch (_) {
       bodyJson = <String, dynamic>{};
     }
@@ -193,10 +206,6 @@ class _HttpRequestEditorPageState extends State<HttpRequestEditorPage> {
             onPressed: _save,
             icon: const Icon(Icons.check, size: 18),
             label: const Text('Save'),
-            style: FilledButton.styleFrom(
-              backgroundColor: AppTheme.brandPrimary,
-              foregroundColor: Colors.white,
-            ),
           ),
           const SizedBox(width: 8),
         ],
@@ -212,15 +221,33 @@ class _HttpRequestEditorPageState extends State<HttpRequestEditorPage> {
             Row(
               children: [
                 ConstrainedBox(
-                  constraints: const BoxConstraints(minWidth: 100, maxWidth: 150),
+                  constraints: const BoxConstraints(
+                    minWidth: 100,
+                    maxWidth: 150,
+                  ),
                   child: DropdownButtonFormField<String>(
                     initialValue: _method,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       isDense: true,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 12,
+                      ),
                     ),
-                    items: _httpMethods.map((m) => DropdownMenuItem(value: m, child: Text(m, style: const TextStyle(fontWeight: FontWeight.bold)))).toList(),
+                    items: _httpMethods
+                        .map(
+                          (m) => DropdownMenuItem(
+                            value: m,
+                            child: Text(
+                              m,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        )
+                        .toList(),
                     onChanged: (v) => setState(() => _method = v ?? 'GET'),
                   ),
                 ),
@@ -256,27 +283,40 @@ class _HttpRequestEditorPageState extends State<HttpRequestEditorPage> {
                       flex: 4,
                       child: Autocomplete<String>(
                         optionsBuilder: (textEditingValue) {
-                          if (textEditingValue.text.isEmpty) return _commonHeaders;
-                          return _commonHeaders.where((o) => o.toLowerCase().contains(textEditingValue.text.toLowerCase()));
-                        },
-                        onSelected: (s) => header.keyController.text = s,
-                        fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
-                          if (controller.text.isEmpty && header.keyController.text.isNotEmpty) {
-                            controller.text = header.keyController.text;
+                          if (textEditingValue.text.isEmpty) {
+                            return _commonHeaders;
                           }
-                          controller.addListener(() {
-                            header.keyController.text = controller.text;
-                          });
-                          return TextField(
-                            controller: controller,
-                            focusNode: focusNode,
-                            decoration: const InputDecoration(
-                              hintText: 'Header name',
-                              border: OutlineInputBorder(),
-                              isDense: true,
+                          return _commonHeaders.where(
+                            (o) => o.toLowerCase().contains(
+                              textEditingValue.text.toLowerCase(),
                             ),
                           );
                         },
+                        onSelected: (s) => header.keyController.text = s,
+                        fieldViewBuilder:
+                            (
+                              context,
+                              controller,
+                              focusNode,
+                              onEditingComplete,
+                            ) {
+                              if (controller.text.isEmpty &&
+                                  header.keyController.text.isNotEmpty) {
+                                controller.text = header.keyController.text;
+                              }
+                              controller.addListener(() {
+                                header.keyController.text = controller.text;
+                              });
+                              return TextField(
+                                controller: controller,
+                                focusNode: focusNode,
+                                decoration: const InputDecoration(
+                                  hintText: 'Header name',
+                                  border: OutlineInputBorder(),
+                                  isDense: true,
+                                ),
+                              );
+                            },
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -293,7 +333,11 @@ class _HttpRequestEditorPageState extends State<HttpRequestEditorPage> {
                     ),
                     const SizedBox(width: 4),
                     IconButton(
-                      icon: const Icon(Icons.remove_circle_outline, color: AppTheme.error, size: 20),
+                      icon: const Icon(
+                        Icons.remove_circle_outline,
+                        color: AppTheme.error,
+                        size: 20,
+                      ),
                       onPressed: () {
                         setState(() {
                           if (_headers.length > 1) {
@@ -311,7 +355,8 @@ class _HttpRequestEditorPageState extends State<HttpRequestEditorPage> {
             }),
             const SizedBox(height: 4),
             OutlinedButton.icon(
-              onPressed: () => setState(() => _headers.add(_HeaderEntry.empty())),
+              onPressed: () =>
+                  setState(() => _headers.add(_HeaderEntry.empty())),
               icon: const Icon(Icons.add, size: 18),
               label: const Text('Add header'),
             ),
@@ -354,7 +399,10 @@ class _HttpRequestEditorPageState extends State<HttpRequestEditorPage> {
                     padding: const EdgeInsets.only(top: 4),
                     child: Text(
                       _jsonError!,
-                      style: const TextStyle(color: AppTheme.error, fontSize: 12),
+                      style: const TextStyle(
+                        color: AppTheme.error,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
               ] else ...[
@@ -377,11 +425,13 @@ class _HttpRequestEditorPageState extends State<HttpRequestEditorPage> {
   Widget _sectionHeader(String title) {
     return Text(
       title,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 14,
         fontWeight: FontWeight.w700,
         letterSpacing: 0.5,
-        color: AppTheme.brandPrimary,
+        // Section labels are structural: neutral muted text, not a brand
+        // accent.
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
       ),
     );
   }
