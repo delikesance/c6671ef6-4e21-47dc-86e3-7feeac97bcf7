@@ -1,6 +1,9 @@
 import 'package:bot_creator/features/documentation/documentation_navigation.dart';
 import 'package:bot_creator/features/documentation/documentation_urls.dart';
 import 'package:bot_creator/core/models/types/app_emoji.dart';
+import 'package:bot_creator/core/code_editor/code_editor_settings.dart';
+import 'package:bot_creator/core/code_editor/code_editor_theme_data.dart';
+import 'package:bot_creator/core/js_editor/editor_theme_scope.dart';
 
 import 'package:bot_creator_shared/utils/bdfd_autocomplete.dart';
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
@@ -10,13 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
-
-class _BdfdSyntaxColors {
-  static const Color function = AppTheme.syntaxOrange;
-  static const Color bracket = AppTheme.syntaxCyan;
-  static const Color semicolon = AppTheme.errorLight;
-  static const Color text = AppTheme.syntaxGrey;
-}
 
 class _BdfdAutoIndentFormatter extends TextInputFormatter {
   const _BdfdAutoIndentFormatter();
@@ -51,8 +47,9 @@ class _BdfdAutoIndentFormatter extends TextInputFormatter {
       return newValue;
     }
 
-    final previousLineBreak =
-        caret > 1 ? newText.lastIndexOf('\n', caret - 2) : -1;
+    final previousLineBreak = caret > 1
+        ? newText.lastIndexOf('\n', caret - 2)
+        : -1;
     final previousLineStart = previousLineBreak < 0 ? 0 : previousLineBreak + 1;
     final previousLine = newText.substring(previousLineStart, caret - 1);
     final indentMatch = RegExp(r'^[ \t]+').firstMatch(previousLine);
@@ -93,24 +90,20 @@ class BdfdIndentGuidesPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final defaultPaint =
-        Paint()
-          ..color = const Color(0x33FFFFFF)
-          ..strokeWidth = 1;
-    final matchingPaint =
-        Paint()
-          ..color = const Color(0x66FFD54F)
-          ..strokeWidth = 1.2;
-    final activePaint =
-        Paint()
-          ..color = const Color(0xCCFFD54F)
-          ..strokeWidth = 1.8;
+    final defaultPaint = Paint()
+      ..color = const Color(0x33FFFFFF)
+      ..strokeWidth = 1;
+    final matchingPaint = Paint()
+      ..color = const Color(0x66FFD54F)
+      ..strokeWidth = 1.2;
+    final activePaint = Paint()
+      ..color = const Color(0xCCFFD54F)
+      ..strokeWidth = 1.8;
 
     final lines = source.split('\n');
-    final activeIndentColumns =
-        activeLine >= 0 && activeLine < lines.length
-            ? _countIndentColumns(lines[activeLine])
-            : 0;
+    final activeIndentColumns = activeLine >= 0 && activeLine < lines.length
+        ? _countIndentColumns(lines[activeLine])
+        : 0;
 
     for (var i = 0; i < lines.length; i++) {
       final line = lines[i];
@@ -173,7 +166,28 @@ class BdfdIndentGuidesPainter extends CustomPainter {
 }
 
 class BdfdSyntaxController extends TextEditingController {
-  BdfdSyntaxController({super.text});
+  BdfdSyntaxController({super.text, CodeEditorThemeColors? themeColors})
+    : _themeColors = themeColors ?? defaultCodeEditorThemeColors;
+
+  CodeEditorThemeColors _themeColors;
+
+  /// Palette currently colouring the script; Rosé Pine until the user settings
+  /// are resolved (see [CodeEditorThemeColors.forTheme]).
+  CodeEditorThemeColors get themeColors => _themeColors;
+
+  /// Swaps the palette and re-renders the highlighting.
+  ///
+  /// The controller is never recreated — notifying the listeners is enough — so
+  /// the selection, the scroll offset and the undo history survive a theme
+  /// change. (Recreating the controller from `build()` is what used to crash
+  /// with `LateInitializationError`.)
+  set themeColors(CodeEditorThemeColors value) {
+    if (identical(_themeColors, value)) {
+      return;
+    }
+    _themeColors = value;
+    notifyListeners();
+  }
 
   final BdfdLexer _lexer = BdfdLexer();
 
@@ -192,6 +206,11 @@ class BdfdSyntaxController extends TextEditingController {
     final children = <TextSpan>[];
     final covered = StringBuffer();
 
+    final functionColor = _themeColors.function;
+    final bracketColor = _themeColors.bracket;
+    final semicolonColor = _themeColors.semicolon;
+    final textColor = _themeColors.text;
+
     for (final token in result.tokens) {
       if (token.type == BdfdTokenType.eof) {
         continue;
@@ -200,19 +219,22 @@ class BdfdSyntaxController extends TextEditingController {
       final Color color;
       switch (token.type) {
         case BdfdTokenType.function:
-          color = _BdfdSyntaxColors.function;
+          color = functionColor;
         case BdfdTokenType.openBracket:
         case BdfdTokenType.closeBracket:
-          color = _BdfdSyntaxColors.bracket;
+          color = bracketColor;
         case BdfdTokenType.semicolon:
-          color = _BdfdSyntaxColors.semicolon;
+          color = semicolonColor;
         default:
-          color = _BdfdSyntaxColors.text;
+          color = textColor;
       }
 
       covered.write(token.lexeme);
       children.add(
-        TextSpan(text: token.lexeme, style: style?.copyWith(color: color)),
+        TextSpan(
+          text: token.lexeme,
+          style: style?.copyWith(color: color),
+        ),
       );
     }
 
@@ -252,38 +274,46 @@ class BdfdSyntaxController extends TextEditingController {
         result.add(child);
       } else if (offset >= composing.start && childEnd <= composing.end) {
         // Fully inside composing range — wrap with composing style.
-        result.add(TextSpan(
-          text: child.text,
-          style: child.style?.copyWith(
-            decoration: TextDecoration.underline,
+        result.add(
+          TextSpan(
+            text: child.text,
+            style: child.style?.copyWith(decoration: TextDecoration.underline),
           ),
-        ));
+        );
       } else {
         // Partially inside — split.
         final beforeLen = (composing.start - offset).clamp(0, len);
-        final insideLen =
-            (composing.end - (offset + beforeLen)).clamp(0, len - beforeLen);
+        final insideLen = (composing.end - (offset + beforeLen)).clamp(
+          0,
+          len - beforeLen,
+        );
         final afterLen = len - beforeLen - insideLen;
 
         if (beforeLen > 0) {
-          result.add(TextSpan(
-            text: child.text!.substring(0, beforeLen),
-            style: child.style,
-          ));
+          result.add(
+            TextSpan(
+              text: child.text!.substring(0, beforeLen),
+              style: child.style,
+            ),
+          );
         }
         if (insideLen > 0) {
-          result.add(TextSpan(
-            text: child.text!.substring(beforeLen, beforeLen + insideLen),
-            style: child.style?.copyWith(
-              decoration: TextDecoration.underline,
+          result.add(
+            TextSpan(
+              text: child.text!.substring(beforeLen, beforeLen + insideLen),
+              style: child.style?.copyWith(
+                decoration: TextDecoration.underline,
+              ),
             ),
-          ));
+          );
         }
         if (afterLen > 0) {
-          result.add(TextSpan(
-            text: child.text!.substring(beforeLen + insideLen),
-            style: child.style,
-          ));
+          result.add(
+            TextSpan(
+              text: child.text!.substring(beforeLen + insideLen),
+              style: child.style,
+            ),
+          );
         }
       }
 
@@ -335,6 +365,12 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
   _AutocompleteMode _autocompleteMode = _AutocompleteMode.none;
   BdfdSignatureContext? _signatureContext;
   final BdfdLexer _signatureLexer = BdfdLexer();
+
+  /// Editor palette and settings resolved from the shared user settings at the
+  /// top of [build]; every helper below reads them instead of the hard-coded
+  /// colours, so switching the theme restyles the whole editor.
+  CodeEditorThemeColors _colors = defaultCodeEditorThemeColors;
+  CodeEditorSettings _editorSettings = const CodeEditorSettings();
 
   bool get _isDesktopLike {
     final platform = Theme.of(context).platform;
@@ -442,7 +478,11 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
     var i = caretOffset - 1;
     while (i >= 0) {
       final c = text[i];
-      if (c == ':' && i >= 1 && text[i - 1] == 'a' && i >= 2 && text[i - 2] == '<') {
+      if (c == ':' &&
+          i >= 1 &&
+          text[i - 1] == 'a' &&
+          i >= 2 &&
+          text[i - 2] == '<') {
         return (start: i - 2, mode: _AutocompleteMode.emoji);
       }
       if (c == ':' && i >= 1 && text[i - 1] == '<') {
@@ -498,10 +538,11 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
       return const <MapEntry<String, String>>[];
     }
 
-    final matches = bdfdAutocompleteTemplates.entries
-        .where((entry) => entry.key.startsWith(prefix))
-        .toList(growable: false)
-      ..sort((a, b) => a.key.compareTo(b.key));
+    final matches =
+        bdfdAutocompleteTemplates.entries
+            .where((entry) => entry.key.startsWith(prefix))
+            .toList(growable: false)
+          ..sort((a, b) => a.key.compareTo(b.key));
 
     if (matches.length == 1 && matches.first.key == prefix) {
       return const <MapEntry<String, String>>[];
@@ -576,10 +617,10 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
         mode != _autocompleteMode) {
       final previousValue =
           (_autocompleteEntries.isNotEmpty &&
-                  _autocompleteSelectedIndex >= 0 &&
-                  _autocompleteSelectedIndex < _autocompleteEntries.length)
-              ? _autocompleteEntries[_autocompleteSelectedIndex].value
-              : null;
+              _autocompleteSelectedIndex >= 0 &&
+              _autocompleteSelectedIndex < _autocompleteEntries.length)
+          ? _autocompleteEntries[_autocompleteSelectedIndex].value
+          : null;
 
       setState(() {
         _autocompleteMode = mode;
@@ -755,10 +796,9 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
     final resolvedTemplate = _templateWithDefaultArguments(key, template);
     final replaced = text.replaceRange(start, caret, resolvedTemplate);
     final bracketIdx = resolvedTemplate.indexOf('[');
-    final nextOffset =
-        bracketIdx >= 0
-            ? start + bracketIdx + 1
-            : start + resolvedTemplate.length;
+    final nextOffset = bracketIdx >= 0
+        ? start + bracketIdx + 1
+        : start + resolvedTemplate.length;
 
     _controller.value = TextEditingValue(
       text: replaced,
@@ -794,6 +834,9 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
   int get _lineCount => '\n'.allMatches(_controller.text).length + 1;
 
   double get _lineNumberGutterWidth {
+    if (!_editorSettings.showLineNumbers) {
+      return 0;
+    }
     final count = _lineCount;
     return count > 999 ? 56.0 : (count > 99 ? 48.0 : 40.0);
   }
@@ -869,24 +912,31 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    // Palette and font are user settings (Rosé Pine by default). They are
+    // pushed into the existing controller: its setter notifies the listeners
+    // and re-renders the highlighting without recreating the controller, which
+    // used to crash with LateInitializationError and to wipe the selection and
+    // the undo history.
+    _editorSettings = codeEditorSettingsOf(context);
+    _colors = codeEditorColorsOf(context);
+    _controller.themeColors = _colors;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? AppTheme.codeSurface : AppTheme.codeSurfaceVariant,
+      backgroundColor: _colors.background,
       appBar: AppBar(
-        backgroundColor:
-            isDark ? const Color(0xFF252526) : const Color(0xFF37474F),
+        backgroundColor: _colors.surface,
         title: Text(
           widget.title ?? context.tr.bdfd_editor_title,
-          style: const TextStyle(color: Colors.white, fontSize: 16),
+          style: TextStyle(color: _colors.text, fontSize: 16),
         ),
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: _colors.text),
         actions: [
           IconButton(
             tooltip: context.tr.bdfd_editor_docs,
-            icon: const Icon(Icons.menu_book, color: Colors.white70),
+            icon: Icon(
+              Icons.menu_book,
+              color: _colors.text.withValues(alpha: 0.7),
+            ),
             onPressed: () {
               openDocumentationHub(
                 context,
@@ -898,15 +948,15 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
             tooltip: context.tr.bdfd_editor_wrap_toggle,
             icon: Icon(
               _wordWrap ? Icons.wrap_text : Icons.format_align_left,
-              color: Colors.white70,
+              color: _colors.text.withValues(alpha: 0.7),
             ),
             onPressed: () => setState(() => _wordWrap = !_wordWrap),
           ),
           IconButton(
             tooltip: context.tr.bdfd_editor_ux_title,
-            icon: const Icon(
+            icon: Icon(
               Icons.tips_and_updates_outlined,
-              color: Colors.white70,
+              color: _colors.text.withValues(alpha: 0.7),
             ),
             onPressed: _showEditorUxSheet,
           ),
@@ -914,15 +964,14 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
             tooltip: context.tr.bdfd_editor_diagnostics_toggle,
             icon: Icon(
               _showDiagnostics ? Icons.bug_report : Icons.bug_report_outlined,
-              color:
-                  _hasErrors
-                      ? AppTheme.error
-                      : (_diagnostics.isNotEmpty
-                          ? AppTheme.warning
-                          : AppTheme.success),
+              color: _hasErrors
+                  ? AppTheme.error
+                  : (_diagnostics.isNotEmpty
+                        ? AppTheme.warning
+                        : AppTheme.success),
             ),
-            onPressed:
-                () => setState(() => _showDiagnostics = !_showDiagnostics),
+            onPressed: () =>
+                setState(() => _showDiagnostics = !_showDiagnostics),
           ),
           IconButton(
             tooltip: context.tr.bdfd_editor_toggle_indent,
@@ -930,17 +979,17 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
               _showIndentGuides
                   ? Icons.format_indent_increase
                   : Icons.format_indent_decrease,
-              color: Colors.white70,
+              color: _colors.text.withValues(alpha: 0.7),
             ),
-            onPressed:
-                () => setState(() => _showIndentGuides = !_showIndentGuides),
+            onPressed: () =>
+                setState(() => _showIndentGuides = !_showIndentGuides),
           ),
           TextButton(
             onPressed: _done,
             child: Text(
               context.tr.done,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: _colors.text,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -952,7 +1001,8 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
         child: Column(
           children: [
             Expanded(child: _buildEditorBody()),
-            if (!_isDesktopLike) _buildMobileSpecialCharsBar(),
+            if (!_isDesktopLike && _editorSettings.showQuickCharsBar)
+              _buildMobileSpecialCharsBar(),
             if (_showDiagnostics) _buildDiagnosticsBar(),
           ],
         ),
@@ -962,16 +1012,20 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
 
   Widget _buildEditorBody() {
     final editorField = _buildTextField();
+    final wordWrap = _wordWrap || _editorSettings.wordWrap;
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        if (_wordWrap) {
+        if (wordWrap) {
           return Stack(
             children: [
               _buildIndentGuidesOverlay(),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [_buildLineNumbers(), Expanded(child: editorField)],
+                children: [
+                  if (_editorSettings.showLineNumbers) _buildLineNumbers(),
+                  Expanded(child: editorField),
+                ],
               ),
               _buildSignatureHintOverlay(constraints),
               _buildAutocompleteOverlay(constraints),
@@ -985,7 +1039,7 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildLineNumbers(),
+                if (_editorSettings.showLineNumbers) _buildLineNumbers(),
                 Expanded(
                   child: SingleChildScrollView(
                     controller: _editorHorizontalScrollController,
@@ -1004,18 +1058,16 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
   }
 
   Widget _buildIndentGuidesOverlay() {
-    if (!_showIndentGuides) {
+    if (!_showIndentGuides || !_editorSettings.showIndentGuides) {
       return const SizedBox.shrink();
     }
 
-    final scrollY =
-        _editorScrollController.hasClients
-            ? _editorScrollController.offset
-            : 0.0;
-    final scrollX =
-        (!_wordWrap && _editorHorizontalScrollController.hasClients)
-            ? _editorHorizontalScrollController.offset
-            : 0.0;
+    final scrollY = _editorScrollController.hasClients
+        ? _editorScrollController.offset
+        : 0.0;
+    final scrollX = (!_wordWrap && _editorHorizontalScrollController.hasClients)
+        ? _editorHorizontalScrollController.offset
+        : 0.0;
 
     return Positioned.fill(
       child: IgnorePointer(
@@ -1034,14 +1086,13 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
   }
 
   Widget _buildMobileSpecialCharsBar() {
-    final theme = Theme.of(context);
     final chars = <String>[r'$', '<:', ';', '[', ']'];
     return Container(
       padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
       decoration: BoxDecoration(
-        color: const Color(0xFF1A2328),
+        color: _colors.surface,
         border: Border(
-          top: BorderSide(color: theme.colorScheme.outlineVariant),
+          top: BorderSide(color: _colors.gutterText.withValues(alpha: 0.3)),
         ),
       ),
       child: SafeArea(
@@ -1089,10 +1140,11 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
                           onPressed: () => _insertAtCaret(char),
                           child: Text(
                             char,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontFamily: 'monospace',
                               fontWeight: FontWeight.w700,
                               fontSize: 16,
+                              color: _colors.text,
                             ),
                           ),
                         ),
@@ -1121,14 +1173,12 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
 
     final caret = _caretLineColumn();
 
-    final scrollY =
-        _editorScrollController.hasClients
-            ? _editorScrollController.offset
-            : 0.0;
-    final scrollX =
-        (!_wordWrap && _editorHorizontalScrollController.hasClients)
-            ? _editorHorizontalScrollController.offset
-            : 0.0;
+    final scrollY = _editorScrollController.hasClients
+        ? _editorScrollController.offset
+        : 0.0;
+    final scrollX = (!_wordWrap && _editorHorizontalScrollController.hasClients)
+        ? _editorHorizontalScrollController.offset
+        : 0.0;
 
     final desiredLeft =
         _lineNumberGutterWidth +
@@ -1140,15 +1190,13 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
         editorTopPadding + (caret.line * lineHeight) - scrollY - 32;
 
     final minLeft = _lineNumberGutterWidth + 4;
-    final maxLeft =
-        constraints.maxWidth <= minLeft
-            ? minLeft
-            : (constraints.maxWidth - 320).clamp(minLeft, constraints.maxWidth);
+    final maxLeft = constraints.maxWidth <= minLeft
+        ? minLeft
+        : (constraints.maxWidth - 320).clamp(minLeft, constraints.maxWidth);
     final left = desiredLeft.clamp(minLeft, maxLeft);
-    final maxTop =
-        constraints.maxHeight <= 0
-            ? 0.0
-            : (constraints.maxHeight - 40).clamp(0.0, constraints.maxHeight);
+    final maxTop = constraints.maxHeight <= 0
+        ? 0.0
+        : (constraints.maxHeight - 40).clamp(0.0, constraints.maxHeight);
     final top = desiredTop.clamp(0.0, maxTop);
 
     // Build the parameter spans with the active one highlighted.
@@ -1156,10 +1204,10 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
     spans.add(
       TextSpan(
         text: '${ctx.functionName}[ ',
-        style: const TextStyle(
+        style: TextStyle(
           fontFamily: 'monospace',
           fontSize: 12,
-          color: _BdfdSyntaxColors.function,
+          color: _colors.function,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -1168,12 +1216,12 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
     for (var i = 0; i < ctx.parameters.length; i++) {
       if (i > 0) {
         spans.add(
-          const TextSpan(
+          TextSpan(
             text: ' ; ',
             style: TextStyle(
               fontFamily: 'monospace',
               fontSize: 12,
-              color: _BdfdSyntaxColors.semicolon,
+              color: _colors.semicolon,
             ),
           ),
         );
@@ -1186,22 +1234,22 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
           style: TextStyle(
             fontFamily: 'monospace',
             fontSize: 12,
-            color: isActive ? Colors.white : AppTheme.grey,
+            color: isActive ? _colors.text : _colors.gutterText,
             fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
             decoration: isActive ? TextDecoration.underline : null,
-            decorationColor: isActive ? AppTheme.info : null,
+            decorationColor: isActive ? _colors.cursor : null,
           ),
         ),
       );
     }
 
     spans.add(
-      const TextSpan(
+      TextSpan(
         text: ' ]',
         style: TextStyle(
           fontFamily: 'monospace',
           fontSize: 12,
-          color: _BdfdSyntaxColors.bracket,
+          color: _colors.bracket,
         ),
       ),
     );
@@ -1212,7 +1260,7 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
       child: Material(
         elevation: 0,
         borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-        color: const Color(0xFF1E293B),
+        color: _colors.surface,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           child: RichText(text: TextSpan(children: spans)),
@@ -1235,18 +1283,18 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
     const panelMaxHeight = 168.0;
 
     final caret = _caretLineColumn();
-    final panelHeight = (_autocompleteEntries.length * itemHeight +
-            panelVerticalPadding)
-        .clamp(80.0, panelMaxHeight);
+    final panelHeight =
+        (_autocompleteEntries.length * itemHeight + panelVerticalPadding).clamp(
+          80.0,
+          panelMaxHeight,
+        );
 
-    final scrollY =
-        _editorScrollController.hasClients
-            ? _editorScrollController.offset
-            : 0.0;
-    final scrollX =
-        (!_wordWrap && _editorHorizontalScrollController.hasClients)
-            ? _editorHorizontalScrollController.offset
-            : 0.0;
+    final scrollY = _editorScrollController.hasClients
+        ? _editorScrollController.offset
+        : 0.0;
+    final scrollX = (!_wordWrap && _editorHorizontalScrollController.hasClients)
+        ? _editorHorizontalScrollController.offset
+        : 0.0;
 
     final desiredLeft =
         _lineNumberGutterWidth +
@@ -1276,7 +1324,7 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
       child: Material(
         elevation: 0,
         borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-        color: const Color(0xFF22313A),
+        color: _colors.surface,
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxHeight: panelMaxHeight),
           child: ListView.builder(
@@ -1298,16 +1346,13 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
                     _autocompleteSelectedIndex = index;
                   });
                 },
-                onTap:
-                    () => _insertAutocompleteTemplate(entry.key, entry.value),
+                onTap: () =>
+                    _insertAutocompleteTemplate(entry.key, entry.value),
                 child: Container(
                   height: itemHeight,
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   decoration: BoxDecoration(
-                    color:
-                        isSelected
-                            ? const Color(0xFF094771)
-                            : Colors.transparent,
+                    color: isSelected ? _colors.selection : Colors.transparent,
                     borderRadius: BorderRadius.circular(AppTheme.radiusXs),
                   ),
                   child: Row(
@@ -1316,10 +1361,10 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
                         isEmoji
                             ? Icons.emoji_emotions_outlined
                             : hasNewline
-                                ? Icons.segment
-                                : Icons.functions,
+                            ? Icons.segment
+                            : Icons.functions,
                         size: 14,
-                        color: isSelected ? Colors.white : AppTheme.info,
+                        color: isSelected ? _colors.text : _colors.bracket,
                       ),
                       const SizedBox(width: 8),
                       Expanded(
@@ -1329,7 +1374,9 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
                           style: TextStyle(
                             fontFamily: 'monospace',
                             fontSize: 12,
-                            color: isSelected ? Colors.white : AppTheme.grey,
+                            color: isSelected
+                                ? _colors.text
+                                : _colors.gutterText,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -1339,7 +1386,9 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
                         entry.key,
                         style: TextStyle(
                           fontSize: 10,
-                          color: isSelected ? Colors.white70 : AppTheme.grey,
+                          color: isSelected
+                              ? _colors.text.withValues(alpha: 0.7)
+                              : _colors.gutterText,
                         ),
                       ),
                     ],
@@ -1355,9 +1404,12 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
 
   Widget _buildLineNumbers() {
     final count = _lineCount;
+    final size = _editorSettings.fontSize;
+    final lineBox = size * _editorSettings.lineHeight;
 
-    return SizedBox(
+    return Container(
       width: _lineNumberGutterWidth,
+      color: _colors.gutterBackground,
       child: ScrollConfiguration(
         behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
         child: ListView.builder(
@@ -1367,7 +1419,7 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
           padding: const EdgeInsets.only(top: 12),
           itemBuilder: (_, index) {
             return SizedBox(
-              height: 20,
+              height: lineBox,
               child: Align(
                 alignment: Alignment.centerRight,
                 child: Padding(
@@ -1375,10 +1427,10 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
                   child: Text(
                     '${index + 1}',
                     style: TextStyle(
-                      fontFamily: 'monospace',
-                      fontSize: 13,
-                      height: 1.54,
-                      color: AppTheme.grey,
+                      fontFamily: _editorSettings.fontFamily.fontString,
+                      fontSize: size,
+                      height: _editorSettings.lineHeight,
+                      color: _colors.gutterText,
                     ),
                   ),
                 ),
@@ -1402,12 +1454,7 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
         expands: true,
         textAlignVertical: TextAlignVertical.top,
         keyboardType: TextInputType.multiline,
-        style: const TextStyle(
-          fontFamily: 'monospace',
-          fontSize: 13,
-          height: 1.54,
-          color: _BdfdSyntaxColors.text,
-        ),
+        style: codeEditorTextStyle(_editorSettings, _colors),
         decoration: InputDecoration(
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
@@ -1416,12 +1463,12 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
           ),
           hintText: context.tr.cmd_bdfd_script_hint,
           hintStyle: TextStyle(
-            fontFamily: 'monospace',
-            fontSize: 13,
-            color: AppTheme.grey,
+            fontFamily: _editorSettings.fontFamily.fontString,
+            fontSize: _editorSettings.fontSize,
+            color: _colors.gutterText,
           ),
         ),
-        cursorColor: Colors.white,
+        cursorColor: _colors.cursor,
         onChanged: (_) => setState(_recompile),
       ),
     );
@@ -1455,10 +1502,9 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
       );
     }
 
-    final bgColor =
-        _hasErrors
-            ? AppTheme.error.withValues(alpha: 0.5)
-            : AppTheme.warning.withValues(alpha: 0.5);
+    final bgColor = _hasErrors
+        ? AppTheme.error.withValues(alpha: 0.5)
+        : AppTheme.warning.withValues(alpha: 0.5);
     final borderColor = _hasErrors ? AppTheme.error : AppTheme.warning;
 
     return Container(
@@ -1470,33 +1516,32 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
       ),
       child: ListView(
         shrinkWrap: true,
-        children:
-            diagnostics.map((d) {
-              final isError = d.severity == BdfdCompileDiagnosticSeverity.error;
-              final icon =
-                  isError ? Icons.error_outline : Icons.warning_amber_rounded;
-              final color = isError ? AppTheme.error : AppTheme.warning;
-              final loc =
-                  (d.line != null && d.column != null)
-                      ? 'L${d.line}:C${d.column} '
-                      : '';
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(icon, size: 14, color: color),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        '$loc${d.message}',
-                        style: TextStyle(fontSize: 12, color: color),
-                      ),
-                    ),
-                  ],
+        children: diagnostics.map((d) {
+          final isError = d.severity == BdfdCompileDiagnosticSeverity.error;
+          final icon = isError
+              ? Icons.error_outline
+              : Icons.warning_amber_rounded;
+          final color = isError ? AppTheme.error : AppTheme.warning;
+          final loc = (d.line != null && d.column != null)
+              ? 'L${d.line}:C${d.column} '
+              : '';
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(icon, size: 14, color: color),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    '$loc${d.message}',
+                    style: TextStyle(fontSize: 12, color: color),
+                  ),
                 ),
-              );
-            }).toList(),
+              ],
+            ),
+          );
+        }).toList(),
       ),
     );
   }
