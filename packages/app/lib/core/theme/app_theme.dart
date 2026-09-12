@@ -26,22 +26,52 @@ abstract final class AppTheme {
   static const brandSecondary = Color(0xFF9B30FF);
 
   /// Violet clair lisible en texte/icône sur fond sombre (refonte home).
-  static const brandPurpleSoft = Color(0xFFA64DE0);
+  static const brandPurpleSoft = Color(0xFFB19DF7);
 
-  /// Fond scaffold sombre de la refonte.
-  static const scaffoldDark = Color(0xFF0D0E12);
+  /// Fond scaffold sombre de la refonte (Figma #111117).
+  static const scaffoldDark = Color(0xFF111117);
+
+  /// Surface des cartes home (Figma #1F1A2D).
+  static const homeCard = Color(0xFF1F1A2D);
+
+  /// Bordure des cartes home (Figma #2C2540).
+  static const homeCardBorder = Color(0xFF2C2540);
+
+  /// Fond de la barre d'onglets flottante (Figma #120F1C).
+  static const homeNavBar = Color(0xFF120F1C);
+
+  /// Fond de l'onglet sélectionné (Figma #2A2140).
+  static const homeNavSelected = Color(0xFF2A2140);
+
+  /// CTA « créer un bot » (fond + avatar).
+  static const homeCreateFill = Color(0xFF2A2140);
+
+  /// Bordure dashed du CTA créer.
+  static const homeCreateBorder = Color(0xFFB19DF7);
+
+  /// Fond du bloc serveurs dans une carte bot.
+  static const homeClusterBg = Color(0xFF151226);
+
+  /// Bordure du bloc serveurs.
+  static const homeClusterBorder = Color(0xFF2B264D);
+
+  /// Bordure des boutons ghost (Manage / Add time).
+  static const homeGhostBorder = Color(0xFF362F4C);
+
+  /// Texte secondaire home (Figma #8A84A3).
+  static const homeMuted = Color(0xFF8A84A3);
 
   /// Gris moyen pour métadonnées (WCAG-friendly sur fond sombre).
-  static const metaText = Color(0xFFA1A1AA);
+  static const metaText = Color(0xFF8A84A3);
 
   /// Accent pastel pour données dynamiques (compteurs, badges).
-  static const dataAccent = Color(0xFFC4B5FD);
+  static const dataAccent = Color(0xFFDCF0FF);
 
-  /// Vert « en ligne » de la refonte.
-  static const online = Color(0xFF3BD671);
+  /// Vert « en ligne » de la refonte (Figma #10B981).
+  static const online = Color(0xFF10B981);
 
-  /// Rouge danger / arrêt de la refonte.
-  static const danger = Color(0xFFE5484D);
+  /// Rouge danger / arrêt de la refonte (Figma #FF4D4D).
+  static const danger = Color(0xFFFF4D4D);
 
   /// Gradient standard de la marque (AppBar, FAB, éléments de marque).
   static const brandGradient = LinearGradient(
@@ -135,7 +165,7 @@ abstract final class AppTheme {
   static const radiusLg = 16.0;
 
   /// Cartes home refonte (collapsible bot cards, turnkey).
-  static const radiusCard = 22.0;
+  static const radiusCard = 24.0;
 
   /// Pills, badges de statut, capsules.
   static const radiusPill = 999.0;
@@ -321,16 +351,16 @@ abstract final class AppTheme {
     final colorScheme = baseScheme.copyWith(
       primary: brandPrimary,
       secondary: brandPurpleSoft,
-      surface: const Color(0xFF1A1B23),
-      surfaceContainerLowest: const Color(0xFF101118),
-      surfaceContainerLow: const Color(0xFF15161D),
-      surfaceContainer: const Color(0xFF1A1B23),
-      surfaceContainerHigh: const Color(0xFF22232D),
-      surfaceContainerHighest: const Color(0xFF2A2B36),
-      onSurface: const Color(0xFFF1F2F5),
-      onSurfaceVariant: const Color(0xFF9A9CA8),
-      outline: const Color(0x24FFFFFF),
-      outlineVariant: const Color(0x1AFFFFFF),
+      surface: homeCard,
+      surfaceContainerLowest: const Color(0xFF0C0B12),
+      surfaceContainerLow: const Color(0xFF151226),
+      surfaceContainer: homeCard,
+      surfaceContainerHigh: homeCard,
+      surfaceContainerHighest: homeNavSelected,
+      onSurface: const Color(0xFFFFFFFF),
+      onSurfaceVariant: homeMuted,
+      outline: homeGhostBorder,
+      outlineVariant: homeCardBorder,
       error: danger,
     );
 
@@ -457,77 +487,76 @@ abstract final class AppTheme {
     final accentColor = isDestructive ? scheme.error : brandPrimary;
     final result = await showDialog<bool>(
       context: context,
-      builder:
-          (dialogContext) => AlertDialog(
-            shape: dialogShape,
-            icon: Icon(
-              icon ??
-                  (isDestructive
-                      ? Icons.warning_amber_rounded
-                      : Icons.help_outline_rounded),
-              color: accentColor,
-              size: 32,
-            ),
-            title: Text(
-              title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-            ),
-            content: Text(
-              content,
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: scheme.onSurfaceVariant),
-            ),
-            actionsAlignment: MainAxisAlignment.center,
-            actionsPadding: const EdgeInsets.fromLTRB(
-              spacingLg,
-              0,
-              spacingLg,
-              spacingLg,
-            ),
-            actionsOverflowButtonSpacing: spacingSm,
-            actions: [
-              OutlinedButton(
-                onPressed: () => Navigator.pop(dialogContext, false),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: spacingLg,
-                    vertical: spacingMd,
-                  ),
-                  shape: buttonShape,
-                ),
-                child: Text(
-                  cancelLabel ??
-                      MaterialLocalizations.of(dialogContext).cancelButtonLabel,
-                ),
+      builder: (dialogContext) => AlertDialog(
+        shape: dialogShape,
+        icon: Icon(
+          icon ??
+              (isDestructive
+                  ? Icons.warning_amber_rounded
+                  : Icons.help_outline_rounded),
+          color: accentColor,
+          size: 32,
+        ),
+        title: Text(
+          title,
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+        ),
+        content: Text(
+          content,
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 14, color: scheme.onSurfaceVariant),
+        ),
+        actionsAlignment: MainAxisAlignment.center,
+        actionsPadding: const EdgeInsets.fromLTRB(
+          spacingLg,
+          0,
+          spacingLg,
+          spacingLg,
+        ),
+        actionsOverflowButtonSpacing: spacingSm,
+        actions: [
+          OutlinedButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(
+                horizontal: spacingLg,
+                vertical: spacingMd,
               ),
-              if (isDestructive)
-                FilledButton(
-                  onPressed: () => Navigator.pop(dialogContext, true),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: scheme.error,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: spacingLg,
-                      vertical: spacingMd,
-                    ),
-                    shape: buttonShape,
-                  ),
-                  child: Text(confirmLabel),
-                )
-              else
-                FilledButton(
-                  onPressed: () => Navigator.pop(dialogContext, true),
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: spacingLg,
-                      vertical: spacingMd,
-                    ),
-                    shape: buttonShape,
-                  ),
-                  child: Text(confirmLabel),
-                ),
-            ],
+              shape: buttonShape,
+            ),
+            child: Text(
+              cancelLabel ??
+                  MaterialLocalizations.of(dialogContext).cancelButtonLabel,
+            ),
           ),
+          if (isDestructive)
+            FilledButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              style: FilledButton.styleFrom(
+                backgroundColor: scheme.error,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: spacingLg,
+                  vertical: spacingMd,
+                ),
+                shape: buttonShape,
+              ),
+              child: Text(confirmLabel),
+            )
+          else
+            FilledButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: spacingLg,
+                  vertical: spacingMd,
+                ),
+                shape: buttonShape,
+              ),
+              child: Text(confirmLabel),
+            ),
+        ],
+      ),
     );
     return result ?? false;
   }
@@ -546,66 +575,58 @@ abstract final class AppTheme {
         context: context,
         isScrollControlled: true,
         useSafeArea: true,
-        builder:
-            (sheetContext) => Padding(
-              padding: const EdgeInsets.fromLTRB(
-                spacingLg,
-                0,
-                spacingLg,
-                spacingLg,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    title,
-                    style: Theme.of(sheetContext).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: spacingMd),
-                  Flexible(child: builder(sheetContext)),
-                ],
-              ),
-            ),
+        builder: (sheetContext) => Padding(
+          padding: const EdgeInsets.fromLTRB(
+            spacingLg,
+            0,
+            spacingLg,
+            spacingLg,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(title, style: Theme.of(sheetContext).textTheme.titleMedium),
+              const SizedBox(height: spacingMd),
+              Flexible(child: builder(sheetContext)),
+            ],
+          ),
+        ),
       );
     }
 
     return showDialog<T>(
       context: context,
-      builder:
-          (dialogContext) => AlertDialog(
-            shape: dialogShape,
-            title: Text(
-              title,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-            ),
-            content: SizedBox(
-              width: dialogWidth,
-              child: builder(dialogContext),
-            ),
-            actionsAlignment: MainAxisAlignment.end,
-            actionsPadding: const EdgeInsets.fromLTRB(
-              spacingLg,
-              0,
-              spacingLg,
-              spacingMd,
-            ),
-            actions: [
-              OutlinedButton(
-                onPressed: () => Navigator.pop(dialogContext),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: spacingXl,
-                    vertical: spacingMd,
-                  ),
-                  shape: buttonShape,
-                ),
-                child: Text(
-                  MaterialLocalizations.of(dialogContext).closeButtonTooltip,
-                ),
+      builder: (dialogContext) => AlertDialog(
+        shape: dialogShape,
+        title: Text(
+          title,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+        ),
+        content: SizedBox(width: dialogWidth, child: builder(dialogContext)),
+        actionsAlignment: MainAxisAlignment.end,
+        actionsPadding: const EdgeInsets.fromLTRB(
+          spacingLg,
+          0,
+          spacingLg,
+          spacingMd,
+        ),
+        actions: [
+          OutlinedButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(
+                horizontal: spacingXl,
+                vertical: spacingMd,
               ),
-            ],
+              shape: buttonShape,
+            ),
+            child: Text(
+              MaterialLocalizations.of(dialogContext).closeButtonTooltip,
+            ),
           ),
+        ],
+      ),
     );
   }
 

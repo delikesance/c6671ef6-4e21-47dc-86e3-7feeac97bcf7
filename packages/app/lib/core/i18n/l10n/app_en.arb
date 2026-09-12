@@ -1433,6 +1433,9 @@
   "@bot_home_section_getting_started": {
     "description": "GETTING STARTED"
   },
+  "@bot_home_section_modules": {
+    "description": "MODULES"
+  },
   "@bot_home_section_monitoring": {
     "description": "MONITORING"
   },
@@ -1464,6 +1467,9 @@
   },
   "@bot_home_sync_success": {
     "description": "App synced successfully"
+  },
+  "@bot_home_restart": {
+    "description": "Restart"
   },
   "@bot_home_pull": {
     "description": "Pull App"
@@ -3918,8 +3924,33 @@
   "@hint_use_variables": {
     "description": "Use variables/templates if needed"
   },
+  "@home_active_on_servers_one": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "Active on {count} server"
+  },
+  "@home_active_on_servers_other": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "Active on {count} servers"
+  },
   "@home_add_time": {
     "description": "Add Time"
+  },
+  "@home_create_bot_subtitle": {
+    "description": "Your Discord bot in two clicks"
+  },
+  "@home_create_bot_title": {
+    "description": "Create a bot"
+  },
+  "@home_synced_active": {
+    "description": "Synced & Active"
   },
   "@home_empty_support_btn": {
     "description": "Discord Support"
@@ -7936,12 +7967,14 @@
   "bot_home_notif_required": "Notification permission is required to start the bot service.",
   "bot_home_section_danger": "DANGER ZONE",
   "bot_home_section_getting_started": "GETTING STARTED",
+  "bot_home_section_modules": "MODULES",
   "bot_home_section_monitoring": "MONITORING",
   "bot_home_section_tools": "TOOLS",
   "bot_home_service_not_started": "Foreground service did not start.",
   "bot_home_start": "Start Bot",
   "bot_home_start_error": "Could not start: {error}",
   "bot_home_starting": "Starting…",
+  "bot_home_restart": "Restart",
   "bot_home_stop": "Stop Bot",
   "bot_home_sync": "Sync App",
   "bot_home_sync_success": "App synced successfully",
@@ -8720,6 +8753,11 @@
   "hint_use_variables": "Use variables/templates if needed",
   "home_add_time": "Add Time",
   "home_overline": "MY PROJECTS",
+  "home_create_bot_title": "Create a bot",
+  "home_create_bot_subtitle": "Your Discord bot in two clicks",
+  "home_active_on_servers_one": "Active on {count} server",
+  "home_active_on_servers_other": "Active on {count} servers",
+  "home_synced_active": "Synced & Active",
   "home_empty_support_btn": "Discord Support",
   "home_empty_support_hint": "Need help? Join our community!",
   "home_foreground_service_not_started": "The foreground service did not start.",

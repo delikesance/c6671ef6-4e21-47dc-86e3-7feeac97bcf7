@@ -13,6 +13,21 @@ extension _AppHomePageAds on _AppHomePageState {
     });
 
     try {
+      if (kDebugMode && !_supportsForegroundTask) {
+        await Future<void>.delayed(const Duration(milliseconds: 300));
+        if (mounted) {
+          _setState(() {
+            _freeMinutesBalance = _displayFreeMinutesBalance() + 120;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(context.tr.home_time_added),
+            ),
+          );
+        }
+        return;
+      }
+
       final app = await appManager.getApp(botId);
       final botToken = (app['token'] ?? '').toString().trim();
 

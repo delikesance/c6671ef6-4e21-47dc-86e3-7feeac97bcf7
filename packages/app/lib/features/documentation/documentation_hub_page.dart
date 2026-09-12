@@ -9,10 +9,14 @@ class DocumentationHubPage extends StatefulWidget {
     super.key,
     this.initialSection = DocumentationSection.guide,
     this.showDiscordJsTab = false,
+    this.embedded = false,
   });
 
   final DocumentationSection initialSection;
   final bool showDiscordJsTab;
+
+  /// When true, hide the back button (used inside the compact bottom-nav shell).
+  final bool embedded;
 
   @override
   State<DocumentationHubPage> createState() => _DocumentationHubPageState();
@@ -70,6 +74,7 @@ class _DocumentationHubPageState extends State<DocumentationHubPage>
     return Scaffold(
       appBar: AppBar(
         title: Text(context.tr.docs_hub_title),
+        automaticallyImplyLeading: !widget.embedded,
         bottom: TabBar(
           controller: _tabController,
           isScrollable: _sections.length > 2,

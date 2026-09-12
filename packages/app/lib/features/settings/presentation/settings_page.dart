@@ -42,7 +42,10 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SettingPage extends StatefulWidget {
-  const SettingPage({super.key});
+  const SettingPage({super.key, this.embedded = false});
+
+  /// When true, hide the back button (used inside the compact bottom-nav shell).
+  final bool embedded;
 
   @override
   State<SettingPage> createState() => _SettingPageState();
@@ -2140,6 +2143,7 @@ class _SettingPageState extends State<SettingPage> {
       appBar: AppBar(
         title: Text(context.tr.settings_tab),
         centerTitle: true,
+        automaticallyImplyLeading: !widget.embedded,
         actions: [
           IconButton(
             tooltip:

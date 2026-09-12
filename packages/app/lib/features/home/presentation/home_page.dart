@@ -18,6 +18,7 @@ import 'package:nyxx/nyxx.dart' hide Locale, Logger;
 import 'dart:developer' as developer;
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/features/home/presentation/home_ui.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
@@ -45,7 +46,10 @@ import 'package:bot_creator/features/documentation/documentation_navigation.dart
 import 'package:google_fonts/google_fonts.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({super.key, this.onManageBot});
+
+  /// When set, Manage opens inside the shell instead of pushing [AppEditPage].
+  final void Function(String id, String name)? onManageBot;
 
   @override
   State<HomePage> createState() => HomePageState();
@@ -470,7 +474,8 @@ class HomePageState extends State<HomePage>
     if (expires != null) {
       return _remainingMinutesUntil(expires);
     }
-    return _freeMinutesByBotId[botId] ?? 0;
+    return _freeMinutesByBotId[botId] ??
+        (kDebugMode && !_supportsForegroundTask ? 180 : 0);
   }
 
   void _noteBotNotFound(String botId) {
@@ -1852,6 +1857,25 @@ class HomePageState extends State<HomePage>
     setState(() => _botIdInAction = botId);
 
     try {
+      if (kDebugMode && !_supportsForegroundTask) {
+        await Future<void>.delayed(const Duration(milliseconds: 300));
+        if (mounted) {
+          final current = _displayFreeMinutesForBot(botId);
+          setState(() {
+            _freeMinutesByBotId = {
+              ..._freeMinutesByBotId,
+              botId: current + 120,
+            };
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(context.tr.home_time_added),
+            ),
+          );
+        }
+        return;
+      }
+
       final app = await appManager.getApp(botId);
       final botToken = (app['token'] ?? '').toString().trim();
 
@@ -2094,6 +2118,13 @@ class HomePageState extends State<HomePage>
                 : sidePad;
             final innerWidth = width - horizontal * 2;
 
+            void openCreate() {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AppCreatePage()),
+              );
+            }
+
             final children = <Widget>[
               _HomeHeader(
                 onRefresh: () {
@@ -2108,19 +2139,16 @@ class HomePageState extends State<HomePage>
                     MaterialPageRoute(builder: (_) => const SettingPage()),
                   );
                 },
+                // Compact: create lives in the dashed CTA. Wide keeps a
+                // header shortcut plus docs/settings (no bottom tabs).
                 showCreate: isWide,
-                onCreate: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const AppCreatePage()),
-                  );
-                },
+                showShellActions: isWide,
+                onCreate: openCreate,
               ),
-              const SizedBox(height: 22),
-              if (!_isDesktop) ...[
-                const _HostedAppsHomeCard(),
-                const SizedBox(height: 22),
-              ],
+              const SizedBox(height: 20),
+              _CreateBotCard(onTap: openCreate),
+              if (!_isDesktop) const _HostedAppsHomeCard(),
+              const SizedBox(height: 20),
             ];
 
             if (snapshot.hasError) {
@@ -2165,14 +2193,14 @@ class HomePageState extends State<HomePage>
                   children.add(
                     Padding(
                       padding: EdgeInsets.only(
-                        bottom: i == cards.length - 1 ? 0 : 14,
+                        bottom: i == cards.length - 1 ? 0 : 20,
                       ),
                       child: cards[i],
                     ),
                   );
                 }
               } else {
-                const gap = 16.0;
+                const gap = 20.0;
                 final cardWidth = (innerWidth - (columns - 1) * gap) / columns;
                 children.add(
                   Wrap(
@@ -2195,7 +2223,7 @@ class HomePageState extends State<HomePage>
                   horizontal,
                   24,
                   horizontal,
-                  isWide ? 40 : 120,
+                  isWide ? 40 : 90,
                 ),
                 physics: const AlwaysScrollableScrollPhysics(),
                 children: children,
@@ -2241,16 +2269,24 @@ class HomePageState extends State<HomePage>
       runtimeBadgeLabel: isRunning ? _runtimeBadgeLabel(id) : null,
       freeMinutes: freeMinutes,
       pulseController: pulseCtrl,
-      showPremiumLabels: _supportsForegroundTask,
-      onManage: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) =>
-              AppEditPage(appName: name, id: int.tryParse(id) ?? 0),
-        ),
-      ).then((_) => _initRunningState()),
+      showPremiumLabels:
+          _supportsForegroundTask || (kDebugMode && !_supportsForegroundTask),
+      onManage: () {
+        final parsedId = int.tryParse(id) ?? 0;
+        final manage = widget.onManageBot;
+        if (manage != null) {
+          manage(id, name);
+          return;
+        }
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => AppEditPage(appName: name, id: parsedId),
+          ),
+        ).then((_) => _initRunningState());
+      },
       onToggle: () => _toggleBot(botId: id, botName: name),
-      onAddTime: _supportsForegroundTask ? () => _addHostingTime(id) : null,
+      onAddTime: () => _addHostingTime(id),
       onLogs: isRunning
           ? () => Navigator.push(
               context,
@@ -2296,19 +2332,24 @@ class _HomeHeader extends StatelessWidget {
     required this.onRefresh,
     required this.onDocs,
     required this.onSettings,
-    this.onCreate,
-    this.showCreate = false,
+    required this.onCreate,
+    this.showCreate = true,
+    this.showShellActions = true,
   });
 
   final VoidCallback onRefresh;
   final VoidCallback onDocs;
   final VoidCallback onSettings;
-  final VoidCallback? onCreate;
+  final VoidCallback onCreate;
   final bool showCreate;
+  final bool showShellActions;
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final muted = isDark
+        ? AppTheme.homeMuted
+        : Theme.of(context).colorScheme.onSurfaceVariant;
     return Row(
       children: [
         Expanded(
@@ -2317,14 +2358,15 @@ class _HomeHeader extends StatelessWidget {
             children: [
               Text(
                 context.tr.home_overline,
-                style: TextStyle(
-                  color: scheme.onSurfaceVariant,
-                  fontSize: 12,
+                style: GoogleFonts.spaceGrotesk(
+                  color: muted,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  letterSpacing: 1.6,
+                  letterSpacing: 0.8,
+                  height: 1.27,
                 ),
               ),
-              const SizedBox(height: 3),
+              const SizedBox(height: 2),
               FittedBox(
                 fit: BoxFit.scaleDown,
                 alignment: Alignment.centerLeft,
@@ -2332,11 +2374,12 @@ class _HomeHeader extends StatelessWidget {
                   context.tr.app_title,
                   maxLines: 1,
                   softWrap: false,
-                  style: GoogleFonts.syne(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w800,
-                    height: 1.05,
-                    letterSpacing: -0.5,
+                  style: GoogleFonts.getFont(
+                    'Alexandria',
+                    fontSize: 32,
+                    fontWeight: FontWeight.w900,
+                    height: 1.22,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -2344,141 +2387,38 @@ class _HomeHeader extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
-        if (showCreate && onCreate != null) ...[
-          FilledButton.icon(
-            onPressed: onCreate,
-            icon: const Icon(Icons.add_rounded, size: 18),
-            label: Text(context.tr.app_create_button),
+        if (showCreate) ...[
+          HomeHeaderIconButton(
+            icon: Icons.add_rounded,
+            iconSize: 16,
+            tooltip: context.tr.app_create_button,
+            onTap: onCreate,
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 10),
         ],
-        _HeaderIconButton(
+        HomeHeaderIconButton(
           icon: Icons.sync_rounded,
+          iconSize: 13,
           tooltip: context.tr.common_refresh,
           onTap: onRefresh,
         ),
-        const SizedBox(width: 10),
-        _HeaderIconButton(
-          icon: Icons.menu_book_rounded,
-          tooltip: context.tr.docs_hub_title,
-          onTap: onDocs,
-        ),
-        const SizedBox(width: 10),
-        _HeaderIconButton(
-          icon: Icons.settings_rounded,
-          tooltip: context.tr.settings_tab,
-          onTap: onSettings,
-        ),
-      ],
-    );
-  }
-}
-
-class _HeaderIconButton extends StatelessWidget {
-  const _HeaderIconButton({
-    required this.icon,
-    required this.tooltip,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String tooltip;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Tooltip(
-      message: tooltip,
-      child: Material(
-        color: scheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(13),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          child: Container(
-            width: 44,
-            height: 44,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(13),
-              border: Border.all(color: scheme.outlineVariant),
-            ),
-            child: Icon(icon, size: 20, color: scheme.onSurfaceVariant),
+        if (showShellActions) ...[
+          const SizedBox(width: 10),
+          HomeHeaderIconButton(
+            icon: Icons.menu_book_outlined,
+            iconSize: 16,
+            tooltip: context.tr.docs_hub_title,
+            onTap: onDocs,
           ),
-        ),
-      ),
-    );
-  }
-}
-
-Color _botColor(String seed) {
-  var hash = 0;
-  for (final unit in seed.codeUnits) {
-    hash = (hash * 31 + unit) & 0x7fffffff;
-  }
-  final hue = (hash % 360).toDouble();
-  return HSLColor.fromAHSL(1, hue, 0.5, 0.66).toColor();
-}
-
-class _BrandIconSquare extends StatelessWidget {
-  const _BrandIconSquare({
-    required this.icon,
-    this.size = 48,
-    this.imageUrl,
-    this.tint,
-  });
-
-  final IconData icon;
-  final double size;
-  final String? imageUrl;
-  final Color? tint;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final hasImage = imageUrl != null && imageUrl!.isNotEmpty;
-    final tintColor = tint;
-
-    Widget fallbackIcon() => Icon(
-      icon,
-      color: tintColor ?? scheme.onSurfaceVariant,
-      size: size * 0.5,
-    );
-
-    return Container(
-      width: size,
-      height: size,
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: hasImage
-            ? scheme.surfaceContainerHigh
-            : (tintColor != null
-                  ? tintColor.withValues(alpha: 0.18)
-                  : scheme.surfaceContainerHigh),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: hasImage
-              ? scheme.outlineVariant
-              : (tintColor != null
-                    ? tintColor.withValues(alpha: 0.38)
-                    : scheme.outlineVariant),
-        ),
-      ),
-      child: hasImage
-          ? Image.network(
-              imageUrl!,
-              fit: BoxFit.cover,
-              width: size,
-              height: size,
-              gaplessPlayback: true,
-              loadingBuilder: (context, child, progress) {
-                if (progress == null) return child;
-                return Center(child: fallbackIcon());
-              },
-              errorBuilder: (_, _, _) => Center(child: fallbackIcon()),
-            )
-          : fallbackIcon(),
+          const SizedBox(width: 10),
+          HomeHeaderIconButton(
+            icon: Icons.settings_outlined,
+            iconSize: 16,
+            tooltip: context.tr.settings_tab,
+            onTap: onSettings,
+          ),
+        ],
+      ],
     );
   }
 }
@@ -2530,6 +2470,7 @@ class _BotCard extends StatefulWidget {
 class _BotCardState extends State<_BotCard> {
   bool _hovered = false;
   late bool _expanded = widget.initiallyExpanded;
+  bool get _supportsForegroundTask => Platform.isAndroid || Platform.isIOS;
 
   void _toggleExpanded() => setState(() => _expanded = !_expanded);
 
@@ -2543,64 +2484,64 @@ class _BotCardState extends State<_BotCard> {
 
   String _serverCountLabel(BuildContext context) {
     final count = widget.guildCount ?? 0;
-    return count > 1
-        ? context.tr.home_server_count_other(count)
-        : context.tr.home_server_count_one(count);
+    return count == 1
+        ? context.tr.home_active_on_servers_one(count)
+        : context.tr.home_active_on_servers_other(count);
   }
 
-  bool get _showAddHosting =>
-      widget.isRunning &&
-      !SubscriptionService.isSubscribed &&
-      widget.onAddTime != null;
+  bool get _showAddHosting {
+    if (widget.onAddTime == null) return false;
+    if (kDebugMode && !_supportsForegroundTask) return true;
+    if (SubscriptionService.isSubscribed) return false;
+    return true;
+  }
 
   Widget _buildExpandedContent(BuildContext context, ColorScheme scheme) {
-    final chips = <Widget>[
-      _InfoChip(
-        icon: Icons.dns_rounded,
-        value: _serverCountLabel(context),
-      ),
-    ];
-
-    if (widget.showPremiumLabels) {
-      if (SubscriptionService.isSubscribed) {
-        chips.add(
-          _InfoChip(
-            icon: Icons.all_inclusive_rounded,
-            value: context.tr.hosted_app_subscription_benefit_unlimited,
-            badge: true,
-          ),
-        );
-      } else if (widget.freeMinutes != null) {
-        chips.add(
-          _InfoChip(
-            icon: Icons.bolt_rounded,
-            value: formatHostingDuration(context, widget.freeMinutes!),
-          ),
-        );
-      }
-    }
-
-    if (widget.runtimeBadgeLabel != null) {
-      chips.add(
-        _InfoChip(
-          icon: Icons.dns_outlined,
-          value: widget.runtimeBadgeLabel!,
-        ),
-      );
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final formattedTime = widget.freeMinutes != null
+        ? formatHostingDuration(context, widget.freeMinutes!)
+        : null;
+    String? statusLabel;
+    if (widget.isRunning) {
+      statusLabel = formattedTime != null
+          ? '${widget.runtimeBadgeLabel ?? context.tr.home_synced_active} • $formattedTime'
+          : (widget.runtimeBadgeLabel ?? context.tr.home_synced_active);
+    } else if (formattedTime != null) {
+      statusLabel = formattedTime;
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 14),
-        Divider(height: 1, thickness: 1, color: scheme.outlineVariant),
-        const SizedBox(height: 14),
-        Wrap(spacing: 8, runSpacing: 8, children: chips),
-        const SizedBox(height: 14),
+        const SizedBox(height: 16),
+        Divider(
+          height: 1,
+          thickness: 1,
+          color: isDark ? AppTheme.homeCardBorder : scheme.outlineVariant,
+        ),
+        const SizedBox(height: 16),
+        _ServerPresenceRow(
+          seed: widget.name,
+          guildCount: widget.guildCount ?? 0,
+          title: _serverCountLabel(context),
+          statusLabel: statusLabel,
+          isRunning: widget.isRunning,
+        ),
+        if (widget.showPremiumLabels &&
+            SubscriptionService.isSubscribed &&
+            (!kDebugMode || _supportsForegroundTask)) ...[
+          const SizedBox(height: 10),
+          _InfoChip(
+            icon: Icons.all_inclusive_rounded,
+            value: context.tr.hosted_app_subscription_benefit_unlimited,
+            badge: true,
+          ),
+        ],
+        const SizedBox(height: 16),
         Row(
           children: [
             Expanded(
-              child: _CardActionButton(
+              child: HomeCardActionButton(
                 icon: widget.isRunning
                     ? Icons.stop_rounded
                     : Icons.play_arrow_rounded,
@@ -2608,12 +2549,14 @@ class _BotCardState extends State<_BotCard> {
                 onTap: widget.canToggle ? widget.onToggle : null,
                 loading: widget.isTogglingThisBot,
                 accent: widget.isRunning ? AppTheme.danger : null,
+                stopSquare: widget.isRunning,
               ),
             ),
             const SizedBox(width: 10),
             Expanded(
-              child: _CardActionButton(
+              child: HomeCardActionButton(
                 icon: Icons.tune_rounded,
+                iconSize: 14,
                 label: context.tr.home_manage,
                 onTap: widget.onManage,
               ),
@@ -2624,12 +2567,11 @@ class _BotCardState extends State<_BotCard> {
           const SizedBox(height: 10),
           SizedBox(
             width: double.infinity,
-            child: _CardActionButton(
+            child: HomeCardActionButton(
               icon: Icons.add_rounded,
+              iconSize: 14,
               label: context.tr.home_add_time,
               onTap: widget.canToggle ? widget.onAddTime : null,
-              accent: AppTheme.brandPrimary,
-              foreground: AppTheme.brandPurpleSoft,
             ),
           ),
         ],
@@ -2637,8 +2579,9 @@ class _BotCardState extends State<_BotCard> {
           const SizedBox(height: 10),
           SizedBox(
             width: double.infinity,
-            child: _CardActionButton(
+            child: HomeCardActionButton(
               icon: Icons.article_outlined,
+              iconSize: 14,
               label: context.tr.home_logs_tooltip,
               onTap: widget.onLogs,
             ),
@@ -2651,16 +2594,11 @@ class _BotCardState extends State<_BotCard> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-
-    final Color borderTop = (widget.isRunning
-            ? AppTheme.brandPurpleSoft
-            : Colors.white)
-        .withValues(
-          alpha: _hovered ? 0.50 : (widget.isRunning ? 0.30 : 0.14),
-        );
-    final Color borderBottom = Colors.white.withValues(
-      alpha: _hovered ? 0.16 : 0.04,
-    );
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = isDark ? AppTheme.homeCard : scheme.surfaceContainer;
+    final borderColor = isDark
+        ? AppTheme.homeCardBorder
+        : scheme.outlineVariant;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -2669,12 +2607,9 @@ class _BotCardState extends State<_BotCard> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 140),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [borderTop, borderBottom],
-          ),
+          color: cardColor,
           borderRadius: BorderRadius.circular(AppTheme.radiusCard),
+          border: Border.all(color: borderColor),
           boxShadow: _hovered
               ? [
                   BoxShadow(
@@ -2686,325 +2621,59 @@ class _BotCardState extends State<_BotCard> {
                 ]
               : null,
         ),
-        padding: const EdgeInsets.all(1),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: _cardGradient(scheme, widget.isRunning, _hovered),
-            borderRadius: BorderRadius.circular(AppTheme.radiusCard - 1),
-          ),
-          child: Material(
-            type: MaterialType.transparency,
-            child: InkWell(
-              onTap: _toggleExpanded,
-              borderRadius: BorderRadius.circular(AppTheme.radiusCard - 1),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        _AvatarSquare(
-                          seed: widget.name,
-                          imageUrl: widget.avatar,
-                          isRunning: widget.isRunning,
-                          pulseController: widget.pulseController,
-                          showBadge: false,
+        child: Material(
+          type: MaterialType.transparency,
+          child: InkWell(
+            onTap: _toggleExpanded,
+            borderRadius: BorderRadius.circular(AppTheme.radiusCard),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      HomeBotAvatar(imageUrl: widget.avatar),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          widget.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: homeDisplayStyle(16, color: scheme.onSurface),
                         ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Text(
-                            widget.name,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: _displayStyle(
-                              16.5,
-                              color: scheme.onSurface,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        _StatusPill(
-                          isRunning: widget.isRunning,
-                          pulseController: widget.pulseController,
-                        ),
-                        const SizedBox(width: 6),
-                        AnimatedRotation(
-                          turns: _expanded ? 0.5 : 0.0,
-                          duration: const Duration(milliseconds: 180),
-                          child: Icon(
-                            Icons.expand_more_rounded,
-                            color: scheme.onSurfaceVariant,
-                            size: 22,
-                          ),
-                        ),
-                      ],
-                    ),
-                    AnimatedCrossFade(
-                      firstChild: const SizedBox(width: double.infinity),
-                      secondChild: _buildExpandedContent(context, scheme),
-                      crossFadeState: _expanded
-                          ? CrossFadeState.showSecond
-                          : CrossFadeState.showFirst,
-                      duration: const Duration(milliseconds: 200),
-                      sizeCurve: Curves.easeInOut,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-TextStyle _displayStyle(
-  double size, {
-  Color? color,
-  FontWeight weight = FontWeight.w700,
-}) {
-  return GoogleFonts.syne(
-    fontSize: size,
-    fontWeight: weight,
-    color: color,
-    letterSpacing: -0.2,
-  );
-}
-
-Gradient _cardGradient(ColorScheme scheme, bool isRunning, bool hovered) {
-  final top = isRunning
-      ? Color.alphaBlend(
-          AppTheme.brandPrimary.withValues(alpha: 0.18),
-          scheme.surfaceContainerHigh,
-        )
-      : scheme.surfaceContainerHigh;
-  final bottom = scheme.surfaceContainer;
-  final lift = hovered ? 0.06 : 0.0;
-  Color raise(Color c) =>
-      Color.alphaBlend(Colors.white.withValues(alpha: lift), c);
-  return LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-    colors: [raise(top), raise(bottom)],
-  );
-}
-
-class _AvatarSquare extends StatelessWidget {
-  const _AvatarSquare({
-    required this.seed,
-    required this.imageUrl,
-    required this.isRunning,
-    required this.pulseController,
-    this.showBadge = true,
-  });
-
-  final String seed;
-  final String? imageUrl;
-  final bool isRunning;
-  final AnimationController pulseController;
-  final bool showBadge;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return SizedBox(
-      width: 52,
-      height: 52,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          _BrandIconSquare(
-            icon: Icons.smart_toy_rounded,
-            size: 50,
-            imageUrl: imageUrl,
-            tint: _botColor(seed),
-          ),
-          if (showBadge)
-            Positioned(
-              top: -4,
-              right: -4,
-              child: AnimatedBuilder(
-                animation: pulseController,
-                builder: (_, _) {
-                  final glow =
-                      isRunning ? 0.4 + 0.6 * pulseController.value : 1.0;
-                  final dotColor =
-                      isRunning ? AppTheme.online : scheme.onSurfaceVariant;
-                  return Container(
-                    padding: const EdgeInsets.all(3),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: scheme.surface,
-                    ),
-                    child: Container(
-                      width: 10,
-                      height: 10,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: dotColor,
-                        boxShadow: isRunning
-                            ? [
-                                BoxShadow(
-                                  color: AppTheme.online.withValues(
-                                    alpha: 0.8 * glow,
-                                  ),
-                                  blurRadius: 9,
-                                  spreadRadius: 1,
-                                ),
-                              ]
-                            : null,
                       ),
-                    ),
-                  );
-                },
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class _CardActionButton extends StatelessWidget {
-  const _CardActionButton({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-    this.accent,
-    this.foreground,
-    this.loading = false,
-  });
-
-  static const double _height = 40;
-
-  final IconData icon;
-  final String label;
-  final VoidCallback? onTap;
-  final Color? accent;
-  final Color? foreground;
-  final bool loading;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final Color fg = foreground ?? accent ?? scheme.onSurface;
-    final Color borderColor =
-        accent != null ? accent!.withValues(alpha: 0.45) : scheme.outline;
-    final Color? bg = accent?.withValues(alpha: 0.12);
-    final bool enabled = onTap != null && !loading;
-
-    return Opacity(
-      opacity: enabled ? 1 : 0.55,
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(12),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: enabled ? onTap : null,
-          child: Container(
-            height: _height,
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 14),
-            decoration: BoxDecoration(
-              color: bg,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: borderColor),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (loading)
-                  SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: fg,
-                    ),
-                  )
-                else
-                  Icon(icon, size: 16, color: fg),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Text(
-                    label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: fg,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                    ),
+                      const SizedBox(width: 10),
+                      HomeStatusPill(
+                        isRunning: widget.isRunning,
+                        pulseController: widget.pulseController,
+                      ),
+                      const SizedBox(width: 10),
+                      Icon(
+                        _expanded
+                            ? Icons.keyboard_arrow_up_rounded
+                            : Icons.keyboard_arrow_down_rounded,
+                        color: isDark
+                            ? AppTheme.homeMuted
+                            : scheme.onSurfaceVariant,
+                        size: 16,
+                      ),
+                    ],
                   ),
-                ),
-              ],
+                  AnimatedCrossFade(
+                    firstChild: const SizedBox(width: double.infinity),
+                    secondChild: _buildExpandedContent(context, scheme),
+                    crossFadeState: _expanded
+                        ? CrossFadeState.showSecond
+                        : CrossFadeState.showFirst,
+                    duration: const Duration(milliseconds: 200),
+                    sizeCurve: Curves.easeInOut,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _StatusPill extends StatelessWidget {
-  const _StatusPill({required this.isRunning, required this.pulseController});
-
-  final bool isRunning;
-  final AnimationController pulseController;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final Color color = isRunning ? AppTheme.online : scheme.onSurfaceVariant;
-    final label = isRunning
-        ? context.tr.home_status_online
-        : context.tr.home_status_offline;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(AppTheme.radiusPill),
-        border: Border.all(color: color.withValues(alpha: 0.35)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AnimatedBuilder(
-            animation: pulseController,
-            builder: (_, _) {
-              final glow = isRunning ? 0.4 + 0.6 * pulseController.value : 0.0;
-              return Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: color,
-                  boxShadow: isRunning
-                      ? [
-                          BoxShadow(
-                            color: AppTheme.online.withValues(alpha: 0.8 * glow),
-                            blurRadius: 7,
-                            spreadRadius: 1,
-                          ),
-                        ]
-                      : null,
-                ),
-              );
-            },
-          ),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: TextStyle(
-              color: color,
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -3014,13 +2683,11 @@ class _InfoChip extends StatelessWidget {
   const _InfoChip({
     required this.icon,
     required this.value,
-    this.label,
     this.badge = false,
   });
 
   final IconData icon;
   final String value;
-  final String? label;
   final bool badge;
 
   @override
@@ -3059,18 +2726,7 @@ class _InfoChip extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                   color: AppTheme.dataAccent,
                 ),
-                children: [
-                  TextSpan(text: value),
-                  if (label != null)
-                    TextSpan(
-                      text: ' $label',
-                      style: GoogleFonts.jetBrainsMono(
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w500,
-                        color: AppTheme.metaText,
-                      ),
-                    ),
-                ],
+                text: value,
               ),
             ),
           ),
@@ -3143,6 +2799,240 @@ class _EmptyStateWithSupport extends StatelessWidget {
   }
 }
 
+class _CreateBotCard extends StatelessWidget {
+  const _CreateBotCard({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final fill = isDark
+        ? AppTheme.homeCreateFill
+        : Theme.of(context).colorScheme.surfaceContainerHighest;
+    final border = isDark
+        ? AppTheme.homeCreateBorder
+        : Theme.of(context).colorScheme.primary;
+    final avatarFill = isDark
+        ? AppTheme.homeCreateBorder
+        : Theme.of(context).colorScheme.primary;
+
+    return Stack(
+      children: [
+        Material(
+          color: fill,
+          borderRadius: BorderRadius.circular(AppTheme.radiusCard),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: avatarFill,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.add_rounded,
+                      size: 26,
+                      color: isDark ? const Color(0xFF1A1228) : Colors.white,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.tr.home_create_bot_title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.inter(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                        Text(
+                          context.tr.home_create_bot_subtitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400,
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.30)
+                                : Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    size: 18,
+                    color: isDark
+                        ? AppTheme.homeMuted
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        Positioned.fill(
+          child: IgnorePointer(
+            child: CustomPaint(
+              painter: HomeDashedRoundedRectPainter(
+                color: border,
+                radius: AppTheme.radiusCard,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ServerPresenceRow extends StatelessWidget {
+  const _ServerPresenceRow({
+    required this.seed,
+    required this.guildCount,
+    required this.title,
+    required this.statusLabel,
+    required this.isRunning,
+  });
+
+  final String seed;
+  final int guildCount;
+  final String title;
+  final String? statusLabel;
+  final bool isRunning;
+
+  String _glyph(int index) {
+    final units = seed.replaceAll(RegExp(r'[^A-Za-z0-9]'), '');
+    if (units.length > index) return units[index].toUpperCase();
+    const fallback = 'αβγδεζηθ';
+    return fallback[index % fallback.length];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final clusterBg = isDark
+        ? AppTheme.homeClusterBg
+        : Theme.of(context).colorScheme.surfaceContainerLow;
+    final clusterBorder = isDark
+        ? AppTheme.homeClusterBorder
+        : Theme.of(context).colorScheme.outlineVariant;
+    final shown = guildCount <= 0 ? 1 : (guildCount >= 2 ? 2 : 1);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: clusterBg,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: clusterBorder),
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: shown == 2 ? 62 : 36,
+            height: 36,
+            child: Stack(
+              children: [
+                for (var i = 0; i < shown; i++)
+                  Positioned(
+                    left: i * 26.0,
+                    child: Container(
+                      width: 36,
+                      height: 36,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: i == 0
+                            ? const Color(0xFF2F3136)
+                            : AppTheme.discord,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: clusterBg, width: 2),
+                      ),
+                      child: Text(
+                        _glyph(i),
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: isDark
+                        ? AppTheme.dataAccent
+                        : Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+                if (statusLabel != null) ...[
+                  const SizedBox(height: 2),
+                  Row(
+                    children: [
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: isRunning
+                              ? AppTheme.online
+                              : AppTheme.homeMuted,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Flexible(
+                        child: Text(
+                          statusLabel!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.inter(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w400,
+                            color: const Color(0xFF8A8D9F),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _HostedAppsHomeCard extends StatefulWidget {
   const _HostedAppsHomeCard();
 
@@ -3171,59 +3061,86 @@ class _HostedAppsHomeCardState extends State<_HostedAppsHomeCard> {
     if (!_hasSession) return const SizedBox.shrink();
 
     final scheme = Theme.of(context).colorScheme;
-    return Material(
-      color: scheme.surfaceContainer,
-      borderRadius: BorderRadius.circular(AppTheme.radiusCard),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const ContainerListPage()),
-          );
-        },
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppTheme.radiusCard),
-            border: Border.all(color: scheme.outlineVariant),
-          ),
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              const _BrandIconSquare(icon: Icons.smart_toy_rounded, size: 48),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      context.tr.container_list_title,
-                      style: const TextStyle(
-                        fontSize: 15.5,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      context.tr.container_hosted_subtitle,
-                      style: TextStyle(
-                        fontSize: 12.5,
-                        color: scheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = isDark ? AppTheme.homeCard : scheme.surfaceContainer;
+    final borderColor = isDark
+        ? AppTheme.homeCardBorder
+        : scheme.outlineVariant;
+    return Padding(
+      padding: const EdgeInsets.only(top: 20),
+      child: Material(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(AppTheme.radiusCard),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ContainerListPage()),
+            );
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppTheme.radiusCard),
+              border: Border.all(color: borderColor),
+            ),
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  alignment: Alignment.center,
+                  decoration: const BoxDecoration(
+                    color: AppTheme.discord,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.smart_toy_rounded,
+                    color: Colors.white,
+                    size: 26,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              Icon(Icons.chevron_right_rounded, color: scheme.onSurfaceVariant),
-            ],
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        context.tr.container_list_title,
+                        style: GoogleFonts.inter(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        context.tr.container_hosted_subtitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.30)
+                              : scheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  size: 18,
+                  color: isDark ? AppTheme.homeMuted : scheme.onSurfaceVariant,
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 }
-
 
 class _BotSyncResult {
   const _BotSyncResult({

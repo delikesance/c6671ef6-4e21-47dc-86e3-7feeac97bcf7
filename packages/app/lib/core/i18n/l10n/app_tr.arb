@@ -1169,6 +1169,9 @@
   "@bot_home_section_getting_started": {
     "description": "GETTING STARTED"
   },
+  "@bot_home_section_modules": {
+    "description": "MODULES"
+  },
   "@bot_home_section_monitoring": {
     "description": "MONITORING"
   },
@@ -1177,6 +1180,9 @@
   },
   "@bot_home_service_not_started": {
     "description": "Foreground service did not start."
+  },
+  "@bot_home_restart": {
+    "description": "Restart"
   },
   "@bot_home_start": {
     "description": "Start Bot"
@@ -7192,12 +7198,14 @@
   "bot_home_notif_required": "Bot hizmetini başlatmak için bildirim izni gereklidir.",
   "bot_home_section_danger": "TEHLİKELİ BÖLGE",
   "bot_home_section_getting_started": "BAŞLARKEN",
+  "bot_home_section_modules": "MODÜLLER",
   "bot_home_section_monitoring": "İZLEME",
   "bot_home_section_tools": "ARAÇLAR",
   "bot_home_service_not_started": "Ön plan hizmeti başlamadı.",
   "bot_home_start": "Botu Başlat",
   "bot_home_start_error": "Başlatılamadı: {error}",
   "bot_home_starting": "Başlatılıyor…",
+  "bot_home_restart": "Yeniden Başlat",
   "bot_home_stop": "Botu Durdur",
   "bot_home_sync": "Uygulamayı Senkronize Et",
   "bot_home_sync_success": "Uygulama başarıyla senkronize edildi",
@@ -7929,6 +7937,11 @@
   "hint_use_variables": "Gerekiyorsa değişkenleri/şablonları kullanın",
   "home_add_time": "Zaman Ekle",
   "home_overline": "PROJELERİM",
+  "home_create_bot_title": "Bot oluştur",
+  "home_create_bot_subtitle": "Discord botun iki tıkta",
+  "home_active_on_servers_one": "{count} sunucuda aktif",
+  "home_active_on_servers_other": "{count} sunucuda aktif",
+  "home_synced_active": "Senkron ve aktif",
   "home_empty_support_btn": "Discord Desteği",
   "home_empty_support_hint": "Yardıma mı ihtiyacınız var? Topluluğumuza katılın!",
   "home_foreground_service_not_started": "Ön plan hizmeti başlamadı.",

@@ -1169,6 +1169,9 @@
   "@bot_home_section_getting_started": {
     "description": "GETTING STARTED"
   },
+  "@bot_home_section_modules": {
+    "description": "MODULES"
+  },
   "@bot_home_section_monitoring": {
     "description": "MONITORING"
   },
@@ -1177,6 +1180,9 @@
   },
   "@bot_home_service_not_started": {
     "description": "Foreground service did not start."
+  },
+  "@bot_home_restart": {
+    "description": "Restart"
   },
   "@bot_home_start": {
     "description": "Start Bot"
@@ -7297,12 +7303,14 @@
   "bot_home_notif_required": "La permission de notification est requise pour lancer le service du bot.",
   "bot_home_section_danger": "ZONE DE DANGER",
   "bot_home_section_getting_started": "PREMIERS PAS",
+  "bot_home_section_modules": "MODULES",
   "bot_home_section_monitoring": "SURVEILLANCE",
   "bot_home_section_tools": "OUTILS",
   "bot_home_service_not_started": "Le service foreground n'a pas démarré.",
   "bot_home_start": "Lancer le bot",
   "bot_home_start_error": "Impossible de démarrer : {error}",
   "bot_home_starting": "Démarrage...",
+  "bot_home_restart": "Redémarrer",
   "bot_home_stop": "Arrêter le bot",
   "bot_home_sync": "Synchroniser l'app",
   "bot_home_sync_success": "Application synchronisée avec succès",
@@ -8069,6 +8077,11 @@
   "hint_use_variables": "Utilisez des variables/templates si nécessaire",
   "home_add_time": "Ajouter du temps",
   "home_overline": "MES PROJETS",
+  "home_create_bot_title": "Créer un bot",
+  "home_create_bot_subtitle": "Votre bot Discord en deux clics",
+  "home_active_on_servers_one": "Actif sur {count} serveur",
+  "home_active_on_servers_other": "Actif sur {count} serveurs",
+  "home_synced_active": "Synchronisé et actif",
   "home_empty_support_btn": "Support Discord",
   "home_empty_support_hint": "Besoin d'aide ? Rejoignez notre communauté !",
   "home_foreground_service_not_started": "Le service foreground n'a pas démarré.",

@@ -37,6 +37,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter/services.dart';
+import 'package:bot_creator/features/home/presentation/home_ui.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:nyxx/nyxx.dart';
 import 'dart:developer' as developer;
 
@@ -60,11 +62,16 @@ class QuickAccessSection {
 
 class AppHomePage extends StatefulWidget {
   final NyxxRest client;
-  final ValueChanged<int>? onNavigateToSection;
+  final ValueChanged<String>? onNavigateToSection;
+  final bool embedded;
+  final VoidCallback? onExit;
+
   const AppHomePage({
     super.key,
     required this.client,
     this.onNavigateToSection,
+    this.embedded = false,
+    this.onExit,
   });
 
   @override
@@ -125,7 +132,8 @@ class _AppHomePageState extends State<AppHomePage>
     if (expires != null) {
       return _remainingMinutesUntil(expires);
     }
-    return _freeMinutesBalance ?? 0;
+    return _freeMinutesBalance ??
+        (kDebugMode && !_supportsForegroundTask ? 180 : 0);
   }
 
   Future<void> _ensureGatewayBotEvents() async {
@@ -223,10 +231,28 @@ class _AppHomePageState extends State<AppHomePage>
   }
 
   void Function(Object)? _taskDataCallback;
+  late final AnimationController _statusPulseController;
+
+  void _syncStatusPulse() {
+    final shouldPulse = _botLaunched && !_botStarting;
+    if (shouldPulse) {
+      if (!_statusPulseController.isAnimating) {
+        _statusPulseController.repeat(reverse: true);
+      }
+    } else {
+      _statusPulseController
+        ..stop()
+        ..value = 0;
+    }
+  }
 
   @override
   void initState() {
     super.initState();
+    _statusPulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
     WidgetsBinding.instance.addObserver(this);
     if (_supportsForegroundTask) {
       _taskDataCallback = (Object data) {
@@ -300,6 +326,7 @@ class _AppHomePageState extends State<AppHomePage>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _statusPulseController.dispose();
     _runtimeBalanceTimer?.cancel();
     unawaited(_gatewayEventsSub?.cancel());
     unawaited(_gatewayConnectionSub?.cancel());
@@ -502,535 +529,133 @@ class _AppHomePageState extends State<AppHomePage>
       },
     );
   }
+  bool get _shouldShowObservability =>
+      (ResponsiveHelper.isDesktopPlatform() &&
+          _runtimeCapabilities.supportsBotProcessStats) ||
+      (_runtimeCapabilities.supportsDebugReplay &&
+          PremiumCapabilities.isCapabilityRolledOut(
+            PremiumCapability.visualDebuggerReplay,
+          ));
+
+  Future<void> _openInviteLink(String botId) async {
+    final inviteUrl = Uri.parse(
+      'https://discord.com/api/oauth2/authorize?client_id=$botId&scope=bot&permissions=8',
+    );
+    if (await openExternalUrl(inviteUrl)) {
+      await AppAnalytics.logEvent(
+        name: 'invite_bot',
+        parameters: {'bot_id': botId},
+      );
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.tr.bot_home_invite_error),
+        ),
+      );
+    }
+  }
+
+  Future<void> _deleteBot(String botId) async {
+    final confirmed = await AppTheme.showConfirmDialog(
+      context,
+      title: context.tr.bot_home_delete,
+      content: context.tr.bot_home_delete_confirm,
+      confirmLabel: context.tr.common_delete,
+      icon: Icons.delete_forever,
+    );
+    if (!confirmed || !mounted) return;
+    await appManager.deleteBotCompletely(botId);
+    if (!mounted) return;
+    if (widget.onExit != null) {
+      widget.onExit!();
+    } else {
+      Navigator.of(context).maybePop();
+    }
+  }
+
+  Future<void> _openVersionHistory(String botId) async {
+    final app = await appManager.getApp(botId);
+    final token = (app['token'] ?? '').toString().trim();
+    if (token.isEmpty) return;
+    if (!mounted) return;
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => BotConfigVersionsPage(
+          botId: botId,
+          botToken: token,
+          resolveClient: (id, tok) => _resolveMainApiClientForBot(
+            botId: id,
+            botToken: tok,
+            attemptSessionRestore: true,
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _syncStatusPulse();
+    });
+
     final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final displayName = _appName.isNotEmpty
+        ? _appName
+        : widget.client.user.id.toString();
+    final botId = widget.client.user.id.toString();
+    final isWide =
+        MediaQuery.sizeOf(context).width >= AppTheme.desktopBreakpoint;
+
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        leading: !ResponsiveHelper.isDesktopPlatform()
-            ? IconButton(
-                icon: const Icon(Icons.menu),
-                onPressed: () => context.openParentDrawer(),
-              )
-            : null,
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(gradient: AppTheme.brandGradient),
-        ),
-        title: Text(
-          _appName,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final contentMaxWidth = constraints.maxWidth >= 900 ? 560.0 : 460.0;
-          return SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppTheme.spacingLg,
-                  vertical: AppTheme.spacingLg,
-                ),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: contentMaxWidth),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      const SizedBox(height: AppTheme.spacingLg),
-                      Align(
-                        alignment: Alignment.center,
-                        child: Container(
-                          padding: const EdgeInsets.all(3),
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: AppTheme.brandGradient,
-                          ),
-                          child: CircleAvatar(
-                            radius: 40,
-                            backgroundColor: colorScheme.surface,
-                            child: avatar.isNotEmpty
-                                ? ClipOval(
-                                    child: Image.network(
-                                      avatar,
-                                      width: 76,
-                                      height: 76,
-                                      fit: BoxFit.cover,
-                                      errorBuilder:
-                                          (context, error, stackTrace) =>
-                                              const Icon(
-                                                Icons.smart_toy,
-                                                size: 40,
-                                              ),
-                                    ),
-                                  )
-                                : const Icon(Icons.smart_toy, size: 40),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: AppTheme.spacingMd),
-                      Text(
-                        _appName,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: -0.3,
-                        ),
-                      ),
-                      const SizedBox(height: AppTheme.spacingXl),
-                      FilledButton(
-                        style: FilledButton.styleFrom(
-                          backgroundColor: _botLaunched
-                              ? AppTheme.error
-                              : _botStarting
-                              ? AppTheme.warning
-                              : AppTheme.success,
-                          minimumSize: const Size.fromHeight(48),
-                          shape: AppTheme.buttonShape,
-                        ),
-                        onPressed: _botStarting ? null : _toggleBotLaunchState,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            if (_botStarting)
-                              const SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            else
-                              Icon(
-                                _botLaunched ? Icons.stop : Icons.play_arrow,
-                                color: Colors.white,
-                              ),
-                            const SizedBox(width: AppTheme.spacingSm),
-                            Text(
-                              _botStarting
-                                  ? context.tr.bot_home_starting
-                                  : _botLaunched
-                                  ? context.tr.bot_home_stop
-                                  : context.tr.bot_home_start,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      if (_supportsForegroundTask &&
-                          !SubscriptionService.isSubscribed &&
-                          _fundingMode != 'premium') ...[
-                        const SizedBox(height: AppTheme.spacingMd),
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(AppTheme.spacingMd),
-                          decoration: BoxDecoration(
-                            color: colorScheme.surfaceContainerLow,
-                            borderRadius: BorderRadius.circular(
-                              AppTheme.radiusLg,
-                            ),
-                            border: Border.all(
-                              color:
-                                  (_displayFreeMinutesBalance() < 120 &&
-                                              _botLaunched
-                                          ? colorScheme.error
-                                          : colorScheme.outlineVariant)
-                                      .withValues(alpha: 0.4),
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    width: 8,
-                                    height: 8,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: _botLaunched
-                                          ? AppTheme.success
-                                          : AppTheme.warning,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    _botLaunched
-                                        ? context.tr.home_hosting_status_active
-                                        : context.tr.home_hosting_status_paused,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .labelMedium
-                                        ?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                          color: _botLaunched
-                                              ? AppTheme.success
-                                              : AppTheme.warning,
-                                        ),
-                                  ),
-                                  const Spacer(),
-                                  if (_ownerMetadata?.teamId.isNotEmpty ==
-                                      true) ...[
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 2,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: AppTheme.discord.withValues(
-                                          alpha: 0.15,
-                                        ),
-                                        borderRadius: BorderRadius.circular(
-                                          AppTheme.radiusSm,
-                                        ),
-                                        border: Border.all(
-                                          color: AppTheme.discord.withValues(
-                                            alpha: 0.3,
-                                          ),
-                                        ),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          const Icon(
-                                            Icons.groups,
-                                            size: 13,
-                                            color: AppTheme.discord,
-                                          ),
-                                          const SizedBox(width: 4),
-                                          Text(
-                                            _ownerMetadata!.teamName.isNotEmpty
-                                                ? _ownerMetadata!.teamName
-                                                : "Team",
-                                            style: const TextStyle(
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.bold,
-                                              color: AppTheme.discord,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(width: AppTheme.spacingXs),
-                                  ],
-                                  IconButton(
-                                    tooltip: context.tr.home_hosting_ad_history,
-                                    icon: const Icon(Icons.history, size: 20),
-                                    visualDensity: VisualDensity.compact,
-                                    onPressed: _showAdHistoryDialog,
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: AppTheme.spacingSm),
-                              Text(
-                                _botLaunched
-                                    ? context.tr.home_hosting_time_left(
-                                        formatDuration(
-                                          _displayFreeMinutesBalance(),
-                                        ),
-                                      )
-                                    : context.tr.home_hosting_banked(
-                                        formatDuration(
-                                          _displayFreeMinutesBalance(),
-                                        ),
-                                      ),
-                                style: Theme.of(context).textTheme.titleSmall
-                                    ?.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                      color: _hostingTimeColor(
-                                        _displayFreeMinutesBalance(),
-                                      ).withValues(alpha: 0.95),
-                                    ),
-                              ),
-                              if (!_botLaunched &&
-                                  _displayFreeMinutesBalance() > 0) ...[
-                                const SizedBox(height: 2),
-                                Text(
-                                  context.tr.home_hosting_time_preserved,
-                                  style: Theme.of(context).textTheme.bodySmall
-                                      ?.copyWith(
-                                        color: colorScheme.outline,
-                                        fontSize: 11,
-                                      ),
-                                ),
-                              ],
-                              if (_botLaunched &&
-                                  _sessionExpiresAt != null) ...[
-                                const SizedBox(height: 2),
-                                Text(
-                                  formatSessionExpiration(
-                                    context,
-                                    _sessionExpiresAt!,
-                                  ),
-                                  style: Theme.of(context).textTheme.bodySmall
-                                      ?.copyWith(
-                                        color: colorScheme.outline,
-                                        fontSize: 11,
-                                      ),
-                                ),
-                              ],
-                              const SizedBox(height: AppTheme.spacingMd),
-                              SizedBox(
-                                width: double.infinity,
-                                child: FilledButton.tonalIcon(
-                                  onPressed: _isAddingTime
-                                      ? null
-                                      : () => _addRuntimeTime(),
-                                  icon: _isAddingTime
-                                      ? const SizedBox(
-                                          width: 14,
-                                          height: 14,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                          ),
-                                        )
-                                      : const Icon(Icons.add_circle_outline),
-                                  label: Text(context.tr.home_add_time),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-
-                      const SizedBox(height: AppTheme.spacingXl),
-                      if (widget.onNavigateToSection != null)
-                        _buildSection(
-                          icon: Icons.rocket_launch_outlined,
-                          title: context.tr.bot_home_section_getting_started,
-                          children: [
-                            _buildActionTile(
-                              icon: Icons.tune,
-                              label: context.tr.bot_home_customize,
-                              onTap: () => widget.onNavigateToSection!(9),
-                              iconColor: AppTheme.brandPrimary,
-                            ),
-                            _buildActionTile(
-                              icon: Icons.add_circle_outline,
-                              label: context.tr.bot_home_create_command,
-                              onTap: () => widget.onNavigateToSection!(1),
-                              iconColor: AppTheme.success,
-                            ),
-                          ],
-                        ),
-                      const SizedBox(height: AppTheme.spacingMd),
-                      _buildSection(
-                        icon: Icons.monitor_heart_outlined,
-                        title: context.tr.bot_home_section_monitoring,
-                        children: [
-                          _buildActionTile(
-                            icon: Icons.receipt_long,
-                            label: context.tr.bot_home_view_logs,
-                            onTap: () {
-                              final botId = widget.client.user.id.toString();
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => BotLogsPage(botId: botId),
-                                ),
-                              );
-                            },
-                          ),
-                          if (ResponsiveHelper.isDesktopPlatform() &&
-                              _runtimeCapabilities.supportsBotProcessStats)
-                            _buildActionTile(
-                              icon: Icons.bar_chart,
-                              label: context.tr.bot_home_view_stats,
-                              onTap: () {
-                                final botId = widget.client.user.id.toString();
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => BotStatsPage(botId: botId),
-                                  ),
-                                );
-                              },
-                            ),
-                          if (_runtimeCapabilities.supportsDebugReplay &&
-                              PremiumCapabilities.isCapabilityRolledOut(
-                                PremiumCapability.visualDebuggerReplay,
-                              ))
-                            _buildActionTile(
-                              icon: Icons.play_circle_outline,
-                              label: context.tr.bot_home_view_replay,
-                              onTap: () {
-                                final botId = widget.client.user.id.toString();
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) =>
-                                        DebugReplayPage(botId: botId),
-                                  ),
-                                );
-                              },
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: AppTheme.spacingMd),
-                      _buildSection(
-                        icon: Icons.build_outlined,
-                        title: context.tr.bot_home_section_tools,
-                        children: [
-                          _buildActionTile(
-                            icon: Icons.cloud_download,
-                            label: context.tr.bot_home_pull,
-                            iconColor: AppTheme.info,
-                            onTap: _isPullingApp
-                                ? null
-                                : () async {
-                                    await _pullFromRemote(showSnack: true);
-                                    unawaited(
-                                      refreshBotRuntime(
-                                        widget.client.user.id.toString(),
-                                      ),
-                                    );
-                                  },
-                            trailing: _isPullingApp
-                                ? const SizedBox(
-                                    width: 18,
-                                    height: 18,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                : null,
-                          ),
-                          _buildActionTile(
-                            icon: Icons.cloud_upload,
-                            label: context.tr.bot_home_push,
-                            iconColor: AppTheme.success,
-                            onTap: _isPushingApp
-                                ? null
-                                : () async {
-                                    await _pushToRemote(showSnack: true);
-                                    unawaited(
-                                      refreshBotRuntime(
-                                        widget.client.user.id.toString(),
-                                      ),
-                                    );
-                                  },
-                            trailing: _isPushingApp
-                                ? const SizedBox(
-                                    width: 18,
-                                    height: 18,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                : null,
-                          ),
-                          _buildActionTile(
-                            icon: Icons.history,
-                            label: context.tr.bot_home_version_history,
-                            iconColor: AppTheme.grey,
-                            onTap: () async {
-                              final botId = widget.client.user.id.toString();
-                              final app = await appManager.getApp(botId);
-                              final token = (app['token'] ?? '')
-                                  .toString()
-                                  .trim();
-                              if (token.isEmpty) return;
-
-                              if (!mounted) return;
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => BotConfigVersionsPage(
-                                    botId: botId,
-                                    botToken: token,
-                                    resolveClient: (id, tok) =>
-                                        _resolveMainApiClientForBot(
-                                          botId: id,
-                                          botToken: tok,
-                                          attemptSessionRestore: true,
-                                        ),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                          _buildActionTile(
-                            icon: Icons.person_add,
-                            label: context.tr.bot_home_invite,
-                            iconColor: AppTheme.info,
-                            onTap: () async {
-                              final botId = widget.client.user.id.toString();
-                              final inviteUrl = Uri.parse(
-                                'https://discord.com/api/oauth2/authorize?client_id=$botId&scope=bot&permissions=8',
-                              );
-
-                              if (await openExternalUrl(inviteUrl)) {
-                                await AppAnalytics.logEvent(
-                                  name: "invite_bot",
-                                  parameters: {"bot_id": botId},
-                                );
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      context.tr.bot_home_invite_error,
-                                    ),
-                                  ),
-                                );
-                              }
-                            },
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: AppTheme.spacingMd),
-                      _buildSection(
-                        icon: Icons.warning_amber_rounded,
-                        title: context.tr.bot_home_section_danger,
-                        children: [
-                          _buildActionTile(
-                            icon: Icons.delete_outline,
-                            label: context.tr.bot_home_delete,
-                            iconColor: AppTheme.error,
-                            textColor: AppTheme.error,
-                            trailing: const Icon(
-                              Icons.chevron_right,
-                              size: 18,
-                              color: AppTheme.error,
-                            ),
-                            onTap: () async {
-                              final confirmed =
-                                  await AppTheme.showConfirmDialog(
-                                    context,
-                                    title: context.tr.bot_home_delete,
-                                    content: context.tr.bot_home_delete_confirm,
-                                    confirmLabel: context.tr.common_delete,
-                                    icon: Icons.delete_forever,
-                                  );
-                              if (!confirmed || !mounted) return;
-                              await appManager.deleteBotCompletely(
-                                widget.client.user.id.toString(),
-                              );
-                              if (mounted) Navigator.of(context).pop();
-                            },
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: AppTheme.spacingXxl),
-                    ],
+      backgroundColor: isDark ? AppTheme.scaffoldDark : colorScheme.surface,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  HomeHeaderIconButton(
+                    icon: Icons.arrow_back_rounded,
+                    iconSize: 16,
+                    tooltip: MaterialLocalizations.of(
+                      context,
+                    ).backButtonTooltip,
+                    onTap: () {
+                      if (widget.onExit != null) {
+                        widget.onExit!();
+                      } else {
+                        Navigator.of(context).maybePop();
+                      }
+                    },
                   ),
-                ),
+                  HomeHeaderIconButton(
+                    icon: Icons.sync_rounded,
+                    iconSize: 13,
+                    tooltip: context.tr.common_refresh,
+                    onTap: _isReconciling ? null : _refreshOverview,
+                  ),
+                ],
               ),
             ),
-          );
-        },
+            Expanded(
+              child: isWide
+                  ? _buildWideOverview(
+                      context,
+                      botId: botId,
+                      displayName: displayName,
+                    )
+                  : _buildNarrowOverview(
+                      context,
+                      botId: botId,
+                      displayName: displayName,
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }
