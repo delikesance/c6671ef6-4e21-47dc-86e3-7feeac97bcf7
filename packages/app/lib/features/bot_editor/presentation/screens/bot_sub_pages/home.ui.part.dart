@@ -22,10 +22,6 @@ extension _AppHomePageUI on _AppHomePageState {
     if (_fundingMode == 'premium') {
       return false;
     }
-    // In dev mode on desktop, always show time management UX
-    if (kDebugMode && !_supportsForegroundTask) {
-      return true;
-    }
     if (SubscriptionService.isSubscribed) {
       return false;
     }
@@ -165,6 +161,8 @@ extension _AppHomePageUI on _AppHomePageState {
                       children: [
                         Text(
                           'ID $botId',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.inter(
                             fontSize: 12,
                             fontWeight: FontWeight.w400,
@@ -201,16 +199,22 @@ extension _AppHomePageUI on _AppHomePageState {
                                       : scheme.primary,
                                 ),
                                 const SizedBox(width: 4),
-                                Text(
-                                  formatDuration(_displayFreeMinutesBalance()),
-                                  style: GoogleFonts.inter(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                    color:
-                                        _displayFreeMinutesBalance() < 120 &&
-                                            _botLaunched
-                                        ? scheme.error
-                                        : scheme.primary,
+                                Flexible(
+                                  child: Text(
+                                    formatDuration(
+                                      _displayFreeMinutesBalance(),
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: GoogleFonts.inter(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color:
+                                          _displayFreeMinutesBalance() < 120 &&
+                                              _botLaunched
+                                          ? scheme.error
+                                          : scheme.primary,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -398,11 +402,15 @@ extension _AppHomePageUI on _AppHomePageState {
                             color: Colors.white.withValues(alpha: 0.35),
                           ),
                           const SizedBox(width: 8),
-                          Text(
-                            context.tr.bot_logs_empty,
-                            style: GoogleFonts.firaCode(
-                              fontSize: 12,
-                              color: Colors.white.withValues(alpha: 0.45),
+                          Flexible(
+                            child: Text(
+                              context.tr.bot_logs_empty,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.firaCode(
+                                fontSize: 12,
+                                color: Colors.white.withValues(alpha: 0.45),
+                              ),
                             ),
                           ),
                         ],
@@ -785,12 +793,16 @@ class _DashedDeleteTile extends StatelessWidget {
                     size: 18,
                   ),
                   const SizedBox(width: 8),
-                  Text(
-                    label,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.danger,
+                  Flexible(
+                    child: Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.danger,
+                      ),
                     ),
                   ),
                 ],

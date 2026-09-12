@@ -114,8 +114,7 @@ class _AppHomePageState extends State<AppHomePage>
     if (expires != null) {
       return _remainingMinutesUntil(expires);
     }
-    return _freeMinutesBalance ??
-        (kDebugMode && !_supportsForegroundTask ? 180 : 0);
+    return _freeMinutesBalance ?? 0;
   }
 
   Future<void> _ensureGatewayBotEvents() async {

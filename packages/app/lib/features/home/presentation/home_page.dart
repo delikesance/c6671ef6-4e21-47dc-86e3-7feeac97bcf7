@@ -490,8 +490,7 @@ class HomePageState extends State<HomePage>
     if (expires != null) {
       return _remainingMinutesUntil(expires);
     }
-    return _freeMinutesByBotId[botId] ??
-        (kDebugMode && !_supportsForegroundTask ? 180 : 0);
+    return _freeMinutesByBotId[botId] ?? 0;
   }
 
   void _noteBotNotFound(String botId) {
@@ -1899,23 +1898,6 @@ class HomePageState extends State<HomePage>
     setState(() => _botIdInAction = botId);
 
     try {
-      if (kDebugMode && !_supportsForegroundTask) {
-        await Future<void>.delayed(const Duration(milliseconds: 300));
-        if (mounted) {
-          final current = _displayFreeMinutesForBot(botId);
-          setState(() {
-            _freeMinutesByBotId = {
-              ..._freeMinutesByBotId,
-              botId: current + 120,
-            };
-          });
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(context.tr.home_time_added)));
-        }
-        return;
-      }
-
       final app = await appManager.getApp(botId);
       final botToken = (app['token'] ?? '').toString().trim();
 
@@ -2328,8 +2310,7 @@ class HomePageState extends State<HomePage>
       runtimeBadgeLabel: isRunning ? _runtimeBadgeLabel(id) : null,
       freeMinutes: freeMinutes,
       pulseController: pulseCtrl,
-      showPremiumLabels:
-          _supportsForegroundTask || (kDebugMode && !_supportsForegroundTask),
+      showPremiumLabels: _supportsForegroundTask,
       onManage: () {
         final parsedId = int.tryParse(id) ?? 0;
         final manage = widget.onManageBot;
@@ -2549,11 +2530,11 @@ class _BotCardState extends State<_BotCard> {
   }
 
   /// Adding time only makes sense for a bot that is actually running, and only
-  /// on platforms able to host the foreground task (desktop debug keeps the
-  /// free-count convenience shortcut).
+  /// on platforms able to host the foreground task. Desktop has no hosting
+  /// concept at all, so the action is never offered there.
   bool get _showAddHosting {
     if (!widget.isRunning) return false;
-    if (!_supportsForegroundTask) return kDebugMode;
+    if (!_supportsForegroundTask) return false;
     return !SubscriptionService.isSubscribed;
   }
 
@@ -2585,9 +2566,7 @@ class _BotCardState extends State<_BotCard> {
           statusLabel: statusLabel,
           isRunning: widget.isRunning,
         ),
-        if (widget.showPremiumLabels &&
-            SubscriptionService.isSubscribed &&
-            (!kDebugMode || _supportsForegroundTask)) ...[
+        if (widget.showPremiumLabels && SubscriptionService.isSubscribed) ...[
           const SizedBox(height: 10),
           _InfoChip(
             icon: Icons.all_inclusive_rounded,
