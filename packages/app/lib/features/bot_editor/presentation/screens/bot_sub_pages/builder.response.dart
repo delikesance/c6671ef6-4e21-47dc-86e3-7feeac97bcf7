@@ -883,7 +883,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: _getCategoryColor(categoryName),
+              color: getCategoryColor(categoryName),
             ),
           ),
         ),
@@ -895,7 +895,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
               leading: Icon(
                 type.icon,
                 size: 20,
-                color: _getCategoryColor(categoryName),
+                color: getCategoryColor(categoryName),
               ),
               title: Text(
                 type.displayName(context),
@@ -917,38 +917,10 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
     );
   }
 
-  Color _getCategoryColor(String category) {
-    switch (category) {
-      case 'Messages':
-        return AppTheme.success;
-      case 'Reactions':
-        return AppTheme.warning;
-      case 'Channels':
-        return AppTheme.info;
-      case 'Moderation':
-        return AppTheme.error;
-      case 'Components':
-        return AppTheme.brandPrimary;
-      case 'Webhooks':
-        return Colors.teal;
-      case 'Guild & Members':
-        return Colors.indigo;
-      case 'Utilities':
-        return Colors.brown;
-      case 'HTTP & Variables':
-        return Colors.cyan;
-      case 'Workflows':
-        return AppTheme.brandPrimary;
-      case 'Logic & Flow':
-        return Colors.pink;
-      case 'Interactions':
-        return AppTheme.premiumGold;
-      case 'Music':
-        return Colors.deepPurpleAccent;
-      default:
-        return AppTheme.grey;
-    }
-  }
+  // La palette de catégories vit désormais dans UNE SEULE source
+  // (`getCategoryColor` de `scratch_block_palette.dart`) : cette copie locale
+  // avait divergé (elle ignorait Metadata/EntryPoint et rendait « Utilities »
+  // en marron alors que la palette partagée le laissait en gris).
 
   String _localizeCategory(String category) {
     switch (category) {
