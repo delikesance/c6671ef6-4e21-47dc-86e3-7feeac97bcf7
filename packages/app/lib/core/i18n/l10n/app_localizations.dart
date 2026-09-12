@@ -16161,6 +16161,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'container width for alignment'**
   String get image_editor_hint_container_width;
+
+  /// Duration
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get action_card_duration;
+
+  /// Error Message
+  ///
+  /// In en, this message translates to:
+  /// **'Error Message'**
+  String get action_card_error_message;
+
+  /// Jump to
+  ///
+  /// In en, this message translates to:
+  /// **'Jump to'**
+  String get action_card_jump_to;
+
+  /// Maximum
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum'**
+  String get action_card_maximum;
+
+  /// Minimum
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum'**
+  String get action_card_minimum;
+
+  /// Skip count
+  ///
+  /// In en, this message translates to:
+  /// **'Skip count'**
+  String get action_card_skip_count;
+
+  /// Edit Request
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Request'**
+  String get action_edit_request;
+
+  /// Jump to action
+  ///
+  /// In en, this message translates to:
+  /// **'Jump to action'**
+  String get action_error_jump;
+
+  /// Skip N actions
+  ///
+  /// In en, this message translates to:
+  /// **'Skip N actions'**
+  String get action_error_skip;
+
+  /// Max Length
+  ///
+  /// In en, this message translates to:
+  /// **'Max Length'**
+  String get component_max_length;
+
+  /// Min Length
+  ///
+  /// In en, this message translates to:
+  /// **'Min Length'**
+  String get component_min_length;
+
+  /// Header name
+  ///
+  /// In en, this message translates to:
+  /// **'Header name'**
+  String get http_request_header_name;
+
+  /// JSON Body
+  ///
+  /// In en, this message translates to:
+  /// **'JSON Body'**
+  String get http_request_json_body;
+
+  /// Body
+  ///
+  /// In en, this message translates to:
+  /// **'Body'**
+  String get http_request_section_body;
+
+  /// Headers
+  ///
+  /// In en, this message translates to:
+  /// **'Headers'**
+  String get http_request_section_headers;
+
+  /// Request
+  ///
+  /// In en, this message translates to:
+  /// **'Request'**
+  String get http_request_section_request;
+
+  /// Text Body
+  ///
+  /// In en, this message translates to:
+  /// **'Text Body'**
+  String get http_request_text_body;
+
+  /// {count} commands
+  ///
+  /// In en, this message translates to:
+  /// **'{count} commands'**
+  String marketplace_summary_commands(int count);
+
+  /// {count} variables ({required} required)
+  ///
+  /// In en, this message translates to:
+  /// **'{count} variables ({required} required)'**
+  String marketplace_summary_variables(int count, int required);
+
+  /// {count} workflows
+  ///
+  /// In en, this message translates to:
+  /// **'{count} workflows'**
+  String marketplace_summary_workflows(int count);
+
+  /// Configure Submit Actions
+  ///
+  /// In en, this message translates to:
+  /// **'Configure Submit Actions'**
+  String get modal_builder_configure_submit_actions;
+
+  /// Edit Submit Actions
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Submit Actions'**
+  String get modal_builder_edit_submit_actions;
+
+  /// Identity
+  ///
+  /// In en, this message translates to:
+  /// **'Identity'**
+  String get modal_builder_identity;
+
+  /// Submit Actions
+  ///
+  /// In en, this message translates to:
+  /// **'Submit Actions'**
+  String get modal_builder_submit_actions;
 }
 
 class _AppLocalizationsDelegate

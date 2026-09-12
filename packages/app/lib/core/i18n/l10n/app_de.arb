@@ -10146,5 +10146,119 @@
   "image_editor_hint_container_width": "Containerbreite für die Ausrichtung",
   "@image_editor_hint_container_width": {
     "description": "container width for alignment"
+  },
+  "action_card_duration": "Dauer",
+  "@action_card_duration": {
+    "description": "Duration"
+  },
+  "action_card_error_message": "Fehlermeldung",
+  "@action_card_error_message": {
+    "description": "Error Message"
+  },
+  "action_card_jump_to": "Springen zu",
+  "@action_card_jump_to": {
+    "description": "Jump to"
+  },
+  "action_card_maximum": "Maximum",
+  "@action_card_maximum": {
+    "description": "Maximum"
+  },
+  "action_card_minimum": "Minimum",
+  "@action_card_minimum": {
+    "description": "Minimum"
+  },
+  "action_card_skip_count": "Anzahl überspringen",
+  "@action_card_skip_count": {
+    "description": "Skip count"
+  },
+  "action_edit_request": "Anfrage bearbeiten",
+  "@action_edit_request": {
+    "description": "Edit Request"
+  },
+  "action_error_jump": "Zu Aktion springen",
+  "@action_error_jump": {
+    "description": "Jump to action"
+  },
+  "action_error_skip": "N Aktionen überspringen",
+  "@action_error_skip": {
+    "description": "Skip N actions"
+  },
+  "component_max_length": "Max. Länge",
+  "@component_max_length": {
+    "description": "Max Length"
+  },
+  "component_min_length": "Min. Länge",
+  "@component_min_length": {
+    "description": "Min Length"
+  },
+  "http_request_header_name": "Header-Name",
+  "@http_request_header_name": {
+    "description": "Header name"
+  },
+  "http_request_json_body": "JSON-Inhalt",
+  "@http_request_json_body": {
+    "description": "JSON Body"
+  },
+  "http_request_section_body": "Inhalt",
+  "@http_request_section_body": {
+    "description": "Body"
+  },
+  "http_request_section_headers": "Header",
+  "@http_request_section_headers": {
+    "description": "Headers"
+  },
+  "http_request_section_request": "Anfrage",
+  "@http_request_section_request": {
+    "description": "Request"
+  },
+  "http_request_text_body": "Text-Inhalt",
+  "@http_request_text_body": {
+    "description": "Text Body"
+  },
+  "marketplace_summary_commands": "{count} Befehle",
+  "@marketplace_summary_commands": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "{count} commands"
+  },
+  "marketplace_summary_variables": "{count} Variablen ({required} erforderlich)",
+  "@marketplace_summary_variables": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "required": {
+        "type": "int"
+      }
+    },
+    "description": "{count} variables ({required} required)"
+  },
+  "marketplace_summary_workflows": "{count} Workflows",
+  "@marketplace_summary_workflows": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "{count} workflows"
+  },
+  "modal_builder_configure_submit_actions": "Übermittlungsaktionen konfigurieren",
+  "@modal_builder_configure_submit_actions": {
+    "description": "Configure Submit Actions"
+  },
+  "modal_builder_edit_submit_actions": "Übermittlungsaktionen bearbeiten",
+  "@modal_builder_edit_submit_actions": {
+    "description": "Edit Submit Actions"
+  },
+  "modal_builder_identity": "Identität",
+  "@modal_builder_identity": {
+    "description": "Identity"
+  },
+  "modal_builder_submit_actions": "Übermittlungsaktionen",
+  "@modal_builder_submit_actions": {
+    "description": "Submit Actions"
   }
 }

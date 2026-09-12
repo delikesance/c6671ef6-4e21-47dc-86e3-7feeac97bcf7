@@ -9369,4 +9369,84 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get image_editor_hint_container_width =>
       'Containerbreite für die Ausrichtung';
+
+  @override
+  String get action_card_duration => 'Dauer';
+
+  @override
+  String get action_card_error_message => 'Fehlermeldung';
+
+  @override
+  String get action_card_jump_to => 'Springen zu';
+
+  @override
+  String get action_card_maximum => 'Maximum';
+
+  @override
+  String get action_card_minimum => 'Minimum';
+
+  @override
+  String get action_card_skip_count => 'Anzahl überspringen';
+
+  @override
+  String get action_edit_request => 'Anfrage bearbeiten';
+
+  @override
+  String get action_error_jump => 'Zu Aktion springen';
+
+  @override
+  String get action_error_skip => 'N Aktionen überspringen';
+
+  @override
+  String get component_max_length => 'Max. Länge';
+
+  @override
+  String get component_min_length => 'Min. Länge';
+
+  @override
+  String get http_request_header_name => 'Header-Name';
+
+  @override
+  String get http_request_json_body => 'JSON-Inhalt';
+
+  @override
+  String get http_request_section_body => 'Inhalt';
+
+  @override
+  String get http_request_section_headers => 'Header';
+
+  @override
+  String get http_request_section_request => 'Anfrage';
+
+  @override
+  String get http_request_text_body => 'Text-Inhalt';
+
+  @override
+  String marketplace_summary_commands(int count) {
+    return '$count Befehle';
+  }
+
+  @override
+  String marketplace_summary_variables(int count, int required) {
+    return '$count Variablen ($required erforderlich)';
+  }
+
+  @override
+  String marketplace_summary_workflows(int count) {
+    return '$count Workflows';
+  }
+
+  @override
+  String get modal_builder_configure_submit_actions =>
+      'Übermittlungsaktionen konfigurieren';
+
+  @override
+  String get modal_builder_edit_submit_actions =>
+      'Übermittlungsaktionen bearbeiten';
+
+  @override
+  String get modal_builder_identity => 'Identität';
+
+  @override
+  String get modal_builder_submit_actions => 'Übermittlungsaktionen';
 }

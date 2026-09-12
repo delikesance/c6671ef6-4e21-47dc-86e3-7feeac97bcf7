@@ -1568,9 +1568,9 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
           first: TextFormField(
             initialValue: node.minLength?.toString() ?? '',
             keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: 'Min Length',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: context.tr.component_min_length,
+              border: const OutlineInputBorder(),
               isDense: true,
             ),
             onChanged: (v) {
@@ -1581,9 +1581,9 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
           second: TextFormField(
             initialValue: node.maxLength?.toString() ?? '',
             keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: 'Max Length',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: context.tr.component_max_length,
+              border: const OutlineInputBorder(),
               isDense: true,
             ),
             onChanged: (v) {
