@@ -4,6 +4,7 @@ import 'package:bot_creator/main.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/diagnostics/diagnostics_logs_page.dart';
 import 'package:bot_creator/features/settings/presentation/code_editor_settings_page.dart';
+import 'package:bot_creator/features/settings/presentation/appearance_settings_section.dart';
 import 'package:bot_creator/features/onboarding/presentation/onboarding_page.dart';
 import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/features/ads/logic/ad_consent_service.dart';
@@ -2201,6 +2202,12 @@ class _SettingPageState extends State<SettingPage> {
                   const SizedBox(height: 16),
                   const SizedBox(height: 16),
 
+                  // ── Carte Apparence : mode, presets, couleurs perso ────────
+                  const AppearanceSettingsSection(),
+                  const SizedBox(height: 24),
+
+                  // ── Carte Langue : l'ancienne carte « Apparence et langue »
+                  //    ne porte plus que la langue (l'apparence a sa carte)
                   Card(
                     child: Padding(
                       padding: const EdgeInsets.all(16),
@@ -2208,7 +2215,7 @@ class _SettingPageState extends State<SettingPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            context.tr.settings_appearance_title,
+                            context.tr.settings_language_title,
                             style: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(fontWeight: FontWeight.bold),
                           ),

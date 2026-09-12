@@ -85,7 +85,7 @@ class FloatingGlassNavBar extends StatelessWidget {
   static const double defaultHeight = 64;
 
   /// Hauteur de référence du bandeau inline (plus court que la barre).
-  static const double inlineHeight = 56;
+  static const double inlineHeight = 58;
 
   /// Marge entre la barre flottante et les bords gauche/droit/bas de l'écran.
   static const double margin = 16;
@@ -106,7 +106,7 @@ class FloatingGlassNavBar extends StatelessWidget {
   static const double itemHeight = 48;
 
   /// Hauteur d'un item du bandeau inline.
-  static const double inlineItemHeight = 40;
+  static const double inlineItemHeight = 42;
 
   /// Marge horizontale recommandée autour d'un bandeau inline.
   static const double inlineHorizontalMargin = 12;
@@ -147,6 +147,11 @@ class FloatingGlassNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    // Thème porteur des jetons « home ». Un thème construit à la main sans
+    // extension `HomeTokens` (tests) retombe sur les constantes historiques
+    // plutôt que sur une dérivation de palette : sa signature visuelle exacte
+    // — le fond `AppTheme.homeNavBar` — reste verrouillée.
+    final tokens = Theme.of(context).extension<HomeTokens>();
     final radius = BorderRadius.circular(FloatingGlassNavBar.radius);
     final isInline = variant == FloatingGlassNavVariant.inline;
     final itemHeight = isInline
@@ -208,10 +213,12 @@ class FloatingGlassNavBar extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: radius,
               color: isDark
-                  ? AppTheme.homeNavBar
+                  ? (tokens?.navBar ?? AppTheme.homeNavBar)
                   : scheme.surface.withValues(alpha: 0.96),
               border: Border.all(
-                color: isDark ? AppTheme.homeCardBorder : scheme.outlineVariant,
+                color: isDark
+                    ? (tokens?.cardBorder ?? AppTheme.homeCardBorder)
+                    : scheme.outlineVariant,
               ),
             ),
             child: SizedBox(
@@ -240,13 +247,22 @@ class _FloatingGlassNavItemView extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     // Sélection NEUTRE dans les deux thèmes (rôle M3 `secondaryContainer`) :
     // l'item sélectionné se distingue par sa pastille teintée et son icône
-    // pleine, pas par du violet. `primary`/`brandPurpleSoft` restaient du
-    // violet décoratif dans la navigation, en clair comme en sombre.
+    // pleine, pas par un remplissage coloré.
     final selectedForeground = scheme.onSecondaryContainer;
     final selectedFill = scheme.secondaryContainer;
-    final idleColor = isDark ? AppTheme.homeMuted : scheme.onSurfaceVariant;
+    // Même repli que la barre : constantes historiques quand le thème ne
+    // porte pas les jetons (thème construit à la main dans les tests).
+    final tokens = Theme.of(context).extension<HomeTokens>();
+    final idleColor = isDark
+        ? (tokens?.muted ?? AppTheme.homeMuted)
+        : scheme.onSurfaceVariant;
     final color = item.selected ? selectedForeground : idleColor;
     final radius = BorderRadius.circular(FloatingGlassNavBar.itemRadius);
+    // Indicateur d'accent (décision produit : le violet est un accent
+    // d'action). `accentIndicator` est garanti ≥ 3:1 sur le fond réel de cet
+    // indicateur — la pastille de sélection `secondaryContainer`, dont la
+    // luminance peut s'écarter fortement des surfaces (preset `high_contrast`).
+    final accentIndicator = HomeTokens.of(context).accentIndicator;
 
     return Tooltip(
       message: item.label,
@@ -263,10 +279,21 @@ class _FloatingGlassNavItemView extends StatelessWidget {
             duration: AppTheme.animFast,
             curve: Curves.easeOutCubic,
             height: height,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
             decoration: BoxDecoration(
               borderRadius: radius,
               color: item.selected ? selectedFill : Colors.transparent,
             ),
+            // Indicateur d'accent de l'item sélectionné : la pastille de fond
+            // reste NEUTRE, seule la bordure porte la couleur d'accent. Peint en
+            // `foregroundDecoration` pour ne pas décaler (padding de bordure)
+            // l'icône et le libellé de l'item.
+            foregroundDecoration: item.selected
+                ? BoxDecoration(
+                    borderRadius: radius,
+                    border: Border.all(color: accentIndicator, width: 1.5),
+                  )
+                : null,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
