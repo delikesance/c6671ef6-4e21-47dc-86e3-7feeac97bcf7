@@ -1,4 +1,5 @@
 import 'package:bot_creator/core/i18n/i18n.dart';
+import 'package:bot_creator/core/network/image_disk_cache.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -15,8 +16,9 @@ TextStyle homeDisplayStyle(
 /// Overline / section label matching the Home header muted caption.
 TextStyle homeSectionLabelStyle(BuildContext context) {
   final isDark = Theme.of(context).brightness == Brightness.dark;
+  final tokens = HomeTokens.of(context);
   final muted = isDark
-      ? AppTheme.homeMuted
+      ? tokens.muted
       : Theme.of(context).colorScheme.onSurfaceVariant;
   return GoogleFonts.spaceGrotesk(
     color: muted,
@@ -45,11 +47,12 @@ class HomeHeaderIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final tokens = HomeTokens.of(context);
     final bg = isDark
-        ? AppTheme.homeCard
+        ? tokens.card
         : Theme.of(context).colorScheme.surfaceContainerHigh;
     final border = isDark
-        ? AppTheme.homeCardBorder
+        ? tokens.cardBorder
         : Theme.of(context).colorScheme.outlineVariant;
     final fg = isDark
         ? Colors.white
@@ -84,6 +87,12 @@ class HomeHeaderIconButton extends StatelessWidget {
 }
 
 /// Circular Discord-style bot avatar from the Home bot cards.
+///
+/// Les octets passent par [ImageDiskCache] (mémoire → disque → réseau) : une
+/// icône déjà vue n'est plus retéléchargée via HTTP au démarrage suivant.
+/// Le contrat d'affichage reste inchangé — repli pendant le chargement, repli
+/// sur erreur, `gaplessPlayback` contre le flash lors d'un changement d'URL.
+/// Si le cache disque est indisponible, on retombe sur `Image.network`.
 class HomeBotAvatar extends StatelessWidget {
   const HomeBotAvatar({
     super.key,
@@ -94,6 +103,7 @@ class HomeBotAvatar extends StatelessWidget {
     this.ringWidth = 0,
     this.fallbackIcon = Icons.smart_toy_rounded,
     this.fallbackLabel,
+    this.diskCache,
   });
 
   final String? imageUrl;
@@ -114,25 +124,17 @@ class HomeBotAvatar extends StatelessWidget {
   /// [fallbackIcon] quand il est non vide.
   final String? fallbackLabel;
 
+  /// Cache d'images injectable (tests) ; par défaut [ImageDiskCache.instance].
+  final ImageDiskCache? diskCache;
+
   @override
   Widget build(BuildContext context) {
     final hasImage = imageUrl?.isNotEmpty ?? false;
-    final iconSize = size * (26 / 48);
-    final label = fallbackLabel?.trim() ?? '';
-
-    Widget fallback() {
-      if (label.isNotEmpty) {
-        return Text(
-          label,
-          style: GoogleFonts.inter(
-            fontSize: size * (14 / 36),
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-          ),
-        );
-      }
-      return Icon(fallbackIcon, color: Colors.white, size: iconSize);
-    }
+    final fallback = _HomeAvatarFallback(
+      size: size,
+      label: fallbackLabel?.trim() ?? '',
+      icon: fallbackIcon,
+    );
 
     final circle = Container(
       width: size,
@@ -144,19 +146,13 @@ class HomeBotAvatar extends StatelessWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: hasImage
-          ? Image.network(
-              imageUrl!,
-              fit: BoxFit.cover,
-              width: size,
-              height: size,
-              gaplessPlayback: true,
-              loadingBuilder: (context, child, progress) {
-                if (progress == null) return child;
-                return fallback();
-              },
-              errorBuilder: (_, _, _) => fallback(),
+          ? _DiskCachedAvatarImage(
+              url: imageUrl!,
+              size: size,
+              fallback: fallback,
+              diskCache: diskCache ?? ImageDiskCache.instance,
             )
-          : fallback(),
+          : fallback,
     );
 
     if (ringWidth <= 0 || ringColor == null) return circle;
@@ -182,6 +178,111 @@ class HomeBotAvatar extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Repli neutre d'un avatar : initiale réelle si connue, sinon icône.
+class _HomeAvatarFallback extends StatelessWidget {
+  const _HomeAvatarFallback({
+    required this.size,
+    required this.label,
+    required this.icon,
+  });
+
+  final double size;
+
+  /// Initiale (déjà nettoyée) à afficher ; vide → [icon].
+  final String label;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    if (label.isNotEmpty) {
+      return Text(
+        label,
+        style: GoogleFonts.inter(
+          fontSize: size * (14 / 36),
+          fontWeight: FontWeight.w700,
+          color: Colors.white,
+        ),
+      );
+    }
+    return Icon(icon, color: Colors.white, size: size * (26 / 48));
+  }
+}
+
+/// Image d'avatar servie par [ImageDiskCache] (mémoire → disque → réseau).
+///
+/// Le repli est affiché tant que le provider n'est pas résolu, puis sur erreur
+/// de décodage. Sur le chemin réseau, le comportement historique est conservé
+/// à l'identique (`loadingBuilder` → repli, `errorBuilder` → repli).
+class _DiskCachedAvatarImage extends StatefulWidget {
+  const _DiskCachedAvatarImage({
+    required this.url,
+    required this.size,
+    required this.fallback,
+    required this.diskCache,
+  });
+
+  final String url;
+  final double size;
+  final Widget fallback;
+  final ImageDiskCache diskCache;
+
+  @override
+  State<_DiskCachedAvatarImage> createState() => _DiskCachedAvatarImageState();
+}
+
+class _DiskCachedAvatarImageState extends State<_DiskCachedAvatarImage> {
+  late Future<ImageProvider> _provider;
+
+  @override
+  void initState() {
+    super.initState();
+    _provider = widget.diskCache.providerFor(widget.url);
+  }
+
+  @override
+  void didUpdateWidget(_DiskCachedAvatarImage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.url != widget.url ||
+        oldWidget.diskCache != widget.diskCache) {
+      _provider = widget.diskCache.providerFor(widget.url);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<ImageProvider>(
+      future: _provider,
+      builder: (context, snapshot) {
+        final provider = snapshot.data;
+        // Résolution en cours (ou en échec : le cache ne lève jamais) → repli.
+        if (provider == null) return widget.fallback;
+
+        if (provider is NetworkImage) {
+          return Image.network(
+            provider.url,
+            fit: BoxFit.cover,
+            width: widget.size,
+            height: widget.size,
+            gaplessPlayback: true,
+            loadingBuilder: (context, child, progress) =>
+                progress == null ? child : widget.fallback,
+            errorBuilder: (_, _, _) => widget.fallback,
+          );
+        }
+
+        return Image(
+          image: provider,
+          fit: BoxFit.cover,
+          width: widget.size,
+          height: widget.size,
+          gaplessPlayback: true,
+          errorBuilder: (_, _, _) => widget.fallback,
+        );
+      },
     );
   }
 }
@@ -282,10 +383,11 @@ class HomeCardActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final tokens = HomeTokens.of(context);
     final Color fg = accent ?? scheme.onSurface;
     final Color borderColor = accent != null
         ? accent!.withValues(alpha: 0.20)
-        : (isDark ? AppTheme.homeGhostBorder : scheme.outline);
+        : (isDark ? tokens.ghostBorder : scheme.outline);
     final Color bg = accent != null
         ? accent!.withValues(alpha: 0.08)
         : Colors.white.withValues(alpha: isDark ? 0.02 : 0.40);

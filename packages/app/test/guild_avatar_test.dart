@@ -12,11 +12,18 @@
 //   * jamais de lettre tirée d'une *seed* : sans serveur connu on rend une
 //     icône neutre, avec un serveur connu on rend sa vraie initiale ;
 //   * la préférence pour le cache du gateway (aucun appel REST s'il est peuplé) ;
-//   * la sémantique du cache REST de `GuildDirectory` (une requête par bot et
-//     par TTL, requêtes en vol partagées, aucune entrée mise en cache sur un
-//     résultat vide, requêtes sérialisées).
+//   * la consommation de l'état *partagé de session* (`GuildDirectory.watch`) :
+//     si la session a déjà chargé les serveurs, la carte les peint sans aucune
+//     requête ; pendant le chargement elle rend son repli neutre (et jamais de
+//     lettre inventée).
+//
+// Les autres contrats sont verrouillés dans des fichiers dédiés :
+//   * `guilds_session_cache_test.dart` — cache de session de `GuildDirectory`
+//     (une requête HTTP par bot et par lancement, `refresh()`, erreurs non
+//     mises en cache, requêtes en vol partagées, sérialisation) ;
+//   * `image_disk_cache_test.dart` — cache disque des icônes (zéro GET au
+//     second appel, purge LRU, repli réseau).
 import 'dart:async';
-import 'dart:io';
 
 import 'package:bot_creator/features/home/presentation/guild_avatar.dart';
 import 'package:bot_creator/features/home/presentation/home_ui.dart';
@@ -24,15 +31,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// `HttpOverrides` neutres : rendent le vrai `HttpClient` alors que
-/// `TestWidgetsFlutterBinding` installe un client bouchonné (réponse 400) dont
-/// dépend le rendu des `Image.network` des tests de widgets.
-class _RealHttpOverrides extends HttpOverrides {}
-
 /// Snowflakes réalistes (19 chiffres) pour un tri déterministe.
 const String _guildA = '1000000000000000001';
 const String _guildB = '1000000000000000002';
 const String _guildC = '1000000000000000003';
+
+/// Endpoint factice : une requête réelle échouerait aussitôt (jamais appelé).
+const String _fakeEndpoint = 'https://example.invalid/users/@me/guilds';
 
 const GuildAvatarInfo _guildWithIcon = GuildAvatarInfo(
   id: _guildA,
@@ -48,6 +53,17 @@ const GuildAvatarInfo _guildWithoutIcon = GuildAvatarInfo(
 Widget _wrap(Widget child) => MaterialApp(
   home: Scaffold(body: Center(child: child)),
 );
+
+/// Répertoire factice : chaque GET compte et renvoie un seul serveur (Bravo).
+GuildDirectory _countingDirectory({required void Function() onFetch}) =>
+    GuildDirectory(
+      guildsEndpoint: _fakeEndpoint,
+      tokenResolver: (_) async => 'bot-token',
+      httpGet: (endpoint, token) async {
+        onFetch();
+        return '[{"id":"$_guildB","name":"Bravo","icon":null}]';
+      },
+    );
 
 void main() {
   setUpAll(() {
@@ -118,6 +134,19 @@ void main() {
       );
       expect(parseGuildsApiPayload('not json'), isEmpty);
       expect(parseGuildsApiPayload('{"id":"x"}'), isEmpty);
+    });
+
+    test('conserve owner et approximate_member_count quand ils existent', () {
+      final guilds = parseGuildsApiPayload(
+        '[{"id":"$_guildA","name":"Alpha","icon":null,"owner":true,'
+        '"approximate_member_count":1234},'
+        '{"id":"$_guildB","name":"Bravo","owner":false}]',
+      );
+
+      expect(guilds.first.isOwner, isTrue);
+      expect(guilds.first.memberCount, 1234);
+      expect(guilds.last.isOwner, isFalse);
+      expect(guilds.last.memberCount, isNull);
     });
   });
 
@@ -271,169 +300,66 @@ void main() {
       expect(find.text('S'), findsOneWidget);
       expect(find.text('B'), findsOneWidget);
     });
+
+    testWidgets(
+      'peint la liste de session déjà chargée sans nouvelle requête',
+      (tester) async {
+        var hits = 0;
+        final directory = _countingDirectory(onFetch: () => hits++);
+        // La page « Serveurs » (ou une autre carte) a déjà rempli la session.
+        await directory.load(_guildA);
+        expect(hits, 1);
+
+        await tester.pumpWidget(
+          _wrap(
+            GuildAvatarStrip(
+              botId: _guildA,
+              guildCount: 1,
+              directory: directory,
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(hits, 1, reason: 'une seule requête pour toute la session');
+        expect(find.byType(HomeBotAvatar), findsOneWidget);
+        expect(find.text('B'), findsOneWidget);
+      },
+    );
+
+    testWidgets('pendant le chargement : repli neutre, puis avatars, un GET', (
+      tester,
+    ) async {
+      var hits = 0;
+      final gate = Completer<void>();
+      final directory = GuildDirectory(
+        guildsEndpoint: _fakeEndpoint,
+        tokenResolver: (_) async => 'bot-token',
+        httpGet: (endpoint, token) async {
+          hits++;
+          await gate.future;
+          return '[{"id":"$_guildA","name":"Serveur Alpha","icon":null},'
+              '{"id":"$_guildB","name":"Bravo","icon":null}]';
+        },
+      );
+
+      await tester.pumpWidget(
+        _wrap(
+          GuildAvatarStrip(botId: _guildA, guildCount: 2, directory: directory),
+        ),
+      );
+      await tester.pump();
+
+      // État `loading` : deux cercles neutres, aucune lettre inventée.
+      expect(find.byIcon(Icons.dns_rounded), findsNWidgets(2));
+      expect(find.byType(Text), findsNothing);
+
+      gate.complete();
+      await tester.pumpAndSettle();
+
+      expect(hits, 1);
+      expect(find.text('S'), findsOneWidget);
+      expect(find.text('B'), findsOneWidget);
+    });
   });
-
-  // SKIP (2026-09-12) : ces 7 tests pendent 30 s chacun (timeout de package:test)
-  // malgre l'injection d'un faux `httpGet` et d'un faux `tokenResolver` : le
-  // harness async ne se resout jamais. 3 min 30 de suite pour rien -> groupes
-  // skippes, corps conserves. A reprendre avec un harnais dedie (fakeAsync ou
-  // faux client HTTP injecte au niveau de GuildDirectory).
-  group(
-    'GuildDirectory',
-    skip:
-        'Pend 30 s (timeout) malgre le faux HTTP injecte : harness async a '
-        'reprendre (fakeAsync / faux client). Corps conserve.',
-    () {
-      test('ne fait qu\'une requête REST par bot puis sert le cache', () async {
-        var hits = 0;
-        final directory = GuildDirectory(
-          tokenResolver: (_) async => 'bot-token',
-          httpGet: (endpoint, token) async {
-            hits++;
-            return '[{"id":"$_guildA","name":"Alpha","icon":"abc"}]';
-          },
-        );
-
-        final first = await directory.load('bot-1');
-        final second = await directory.load('bot-1');
-
-        expect(hits, 1);
-        expect(first.single.name, 'Alpha');
-        expect(second.single.id, _guildA);
-      });
-
-      test('partage une requête déjà en vol (pas de doublon)', () async {
-        var hits = 0;
-        final gate = Completer<void>();
-        final directory = GuildDirectory(
-          tokenResolver: (_) async => 'bot-token',
-          httpGet: (endpoint, token) async {
-            hits++;
-            await gate.future;
-            return '[{"id":"$_guildA","name":"Alpha"}]';
-          },
-        );
-
-        final both = Future.wait([
-          directory.load('bot-1'),
-          directory.load('bot-1'),
-        ]);
-        gate.complete();
-        final results = await both;
-
-        expect(hits, 1);
-        expect(results.first, hasLength(1));
-        expect(results.last, hasLength(1));
-      });
-
-      test('recharge après expiration du TTL', () async {
-        var hits = 0;
-        final directory = GuildDirectory(
-          cacheTtl: Duration.zero,
-          tokenResolver: (_) async => 'bot-token',
-          httpGet: (endpoint, token) async {
-            hits++;
-            return '[{"id":"$_guildA","name":"Alpha"}]';
-          },
-        );
-
-        await directory.load('bot-1');
-        await directory.load('bot-1');
-
-        expect(hits, 2);
-      });
-
-      test('ne met pas en cache un résultat vide', () async {
-        var hits = 0;
-        final directory = GuildDirectory(
-          tokenResolver: (_) async => 'bot-token',
-          httpGet: (endpoint, token) async {
-            hits++;
-            return '[]';
-          },
-        );
-
-        expect(await directory.load('bot-1'), isEmpty);
-        expect(await directory.load('bot-1'), isEmpty);
-
-        expect(hits, 2);
-      });
-
-      test('sans token ni réponse valide, reste vide sans erreur', () async {
-        var hits = 0;
-        final withoutToken = GuildDirectory(
-          tokenResolver: (_) async => null,
-          httpGet: (endpoint, token) async {
-            hits++;
-            return '[{"id":"$_guildA","name":"Alpha"}]';
-          },
-        );
-        expect(await withoutToken.load('bot-1'), isEmpty);
-        expect(hits, 0);
-
-        final failing = GuildDirectory(
-          tokenResolver: (_) async => 'bot-token',
-          httpGet: (endpoint, token) async => null,
-        );
-        expect(await failing.load('bot-2'), isEmpty);
-        expect(await failing.load('bot-2'), isEmpty);
-      });
-
-      test('sérialise les requêtes (jamais deux en vol)', () async {
-        var inFlight = 0;
-        var maxInFlight = 0;
-        final directory = GuildDirectory(
-          tokenResolver: (_) async => 'bot-token',
-          httpGet: (endpoint, token) async {
-            inFlight++;
-            if (inFlight > maxInFlight) maxInFlight = inFlight;
-            await Future<void>.delayed(const Duration(milliseconds: 20));
-            inFlight--;
-            return '[{"id":"$_guildA","name":"Alpha"}]';
-          },
-        );
-
-        await Future.wait([
-          directory.load('bot-1'),
-          directory.load('bot-2'),
-          directory.load('bot-3'),
-        ]);
-
-        expect(maxInFlight, 1);
-      });
-
-      test('transport HTTP réel : en-tête Bot envoyé, réponse parsée', () async {
-        final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
-        addTearDown(() => server.close(force: true));
-        String? authorization;
-        server.listen((request) async {
-          authorization = request.headers.value(
-            HttpHeaders.authorizationHeader,
-          );
-          request.response
-            ..statusCode = 200
-            ..write('[{"id":"$_guildB","name":"Bravo","icon":"deadbeef"}]');
-          await request.response.close();
-        });
-
-        final directory = GuildDirectory(
-          guildsEndpoint: 'http://127.0.0.1:${server.port}/users/@me/guilds',
-          tokenResolver: (_) async => 'secret-token',
-        );
-
-        // Client HTTP réel : `TestWidgetsFlutterBinding` bouchonne `HttpClient`.
-        final guilds = await HttpOverrides.runWithHttpOverrides(
-          () => directory.load('bot-1'),
-          _RealHttpOverrides(),
-        );
-
-        expect(authorization, 'Bot secret-token');
-        expect(guilds.single.id, _guildB);
-        expect(
-          guilds.single.iconUrl,
-          'https://cdn.discordapp.com/icons/$_guildB/deadbeef.png?size=128',
-        );
-      });
-    },
-  );
 }
