@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/workflow_block_editor.dart';
 import 'package:bot_creator/features/documentation/documentation_navigation.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/entry_point_block.dart';
@@ -1401,7 +1402,9 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
               onAction: _showCreateWorkflowMenu,
             )
           : ListView(
-              padding: const EdgeInsets.only(bottom: 80),
+              padding: EdgeInsets.only(
+                bottom: FloatingGlassNavBar.contentClearanceOf(context) + 24,
+              ),
               children: [
                 _buildFilters(),
                 if (visibleWorkflows.isEmpty)

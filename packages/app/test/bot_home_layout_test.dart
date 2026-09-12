@@ -344,6 +344,38 @@ void main() {
   );
 
   testWidgets(
+    'home desktop avec en-tête : l\'en-tête est rendu et la console s\'étire sans débordement',
+    (tester) async {
+      tester.view.physicalSize = const Size(1200, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+
+      const headerKey = Key('desktop-header');
+      const consoleKey = Key('logs-console');
+
+      await tester.pumpWidget(
+        _hostApp(
+          BotHomeDesktopOverview(
+            header: Container(key: headerKey, height: 40, color: Colors.blue),
+            leftBuilder: (context, fillViewport) => const [_Block(height: 200)],
+            rightBuilder: (context, fillViewport) => [
+              if (fillViewport)
+                Expanded(child: _consoleCard(key: consoleKey, fillHeight: true))
+              else
+                _consoleCard(key: consoleKey),
+            ],
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(find.byKey(headerKey), findsOneWidget);
+      expect(find.byKey(consoleKey), findsOneWidget);
+    },
+  );
+
+  testWidgets(
     'sensibilité du test : l\'ancien en-tête (non flexible) débordait à 320 dp',
     (tester) async {
       tester.view.physicalSize = const Size(320, 640);
@@ -363,6 +395,40 @@ void main() {
       // Preuve que ce test détecte bien le bug d'origine : la réplique de
       // l'en-tête non flexible lève une exception de débordement.
       expect(tester.takeException(), isNotNull);
+    },
+  );
+
+  testWidgets(
+    'ID du bot : ne déborde pas sur écran étroit (320 dp) avec un ID Discord long',
+    (tester) async {
+      tester.view.physicalSize = const Size(320, 640);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(
+        _hostApp(
+          const SizedBox(
+            width: 108,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Text(
+                    'ID 123456789012345678',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                SizedBox(width: 4),
+                Icon(Icons.copy_rounded, size: 11),
+              ],
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(tester.takeException(), isNull);
     },
   );
 }

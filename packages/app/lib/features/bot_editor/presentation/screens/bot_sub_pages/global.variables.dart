@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nyxx/nyxx.dart' hide Builder;
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/editor_sub_page_ui.dart';
 
 enum _VariableMode { global, scoped }
@@ -1255,6 +1256,9 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
     }
 
     return ListView.separated(
+      padding: EdgeInsets.only(
+        bottom: FloatingGlassNavBar.contentClearanceOf(context) + 24,
+      ),
       physics: const AlwaysScrollableScrollPhysics(),
       itemCount: entries.length,
       separatorBuilder: (_, _) => const Divider(height: 1),
@@ -1377,6 +1381,9 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
     }
 
     return ListView.builder(
+      padding: EdgeInsets.only(
+        bottom: FloatingGlassNavBar.contentClearanceOf(context) + 24,
+      ),
       physics: const AlwaysScrollableScrollPhysics(),
       itemCount: items.length,
       itemBuilder: (ctx, i) {

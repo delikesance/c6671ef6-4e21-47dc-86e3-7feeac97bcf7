@@ -168,6 +168,8 @@ flutter:
       fonts:
         - asset: assets/fonts/firacode/FiraCode-Regular.ttf
           weight: 400
+        - asset: assets/fonts/firacode/FiraCode-Medium.ttf
+          weight: 500
         - asset: assets/fonts/firacode/FiraCode-Bold.ttf
           weight: 700
     - family: Alexandria

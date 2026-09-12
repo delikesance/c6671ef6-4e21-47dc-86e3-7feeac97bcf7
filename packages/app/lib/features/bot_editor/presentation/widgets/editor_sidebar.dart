@@ -1,5 +1,6 @@
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/features/home/presentation/home_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -54,6 +55,7 @@ class EditorSidebar extends StatelessWidget {
     super.key,
     required this.appName,
     required this.botId,
+    this.avatarUrl,
     required this.sections,
     required this.activeItemId,
     required this.collapsed,
@@ -77,6 +79,11 @@ class EditorSidebar extends StatelessWidget {
 
   /// Identifiant Discord du bot (masqué en mode rail, exposé via tooltip).
   final String botId;
+
+  /// URL de l'icône (avatar Discord) du bot, affichée dans l'en-tête du rail
+  /// replié à la place de l'initiale. Vide ou absente → pastille-lettre
+  /// historique, strictement inchangée et sans requête réseau.
+  final String? avatarUrl;
 
   /// Sections et items à rendre, dans l'ordre d'affichage.
   final List<EditorSidebarSection> sections;
@@ -115,7 +122,8 @@ class EditorSidebar extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
-    final muted = isDark ? AppTheme.homeMuted : colorScheme.onSurfaceVariant;
+    final tokens = HomeTokens.of(context);
+    final muted = isDark ? tokens.muted : colorScheme.onSurfaceVariant;
 
     // Le tiroir compact ne se replie jamais : le rail est réservé au desktop,
     // comme le bouton de repli (absent du tiroir).
@@ -199,31 +207,15 @@ class EditorSidebar extends StatelessWidget {
     final tr = context.tr;
 
     if (isCollapsed) {
-      // En-tête compacté : identité du bot (initiale + tooltip), retour et
-      // bouton de dépli. Le nom complet reste accessible au survol.
+      // En-tête compacté : identité du bot (icône ou initiale + tooltip),
+      // retour et bouton de dépli. Le nom complet reste accessible au survol.
       return Padding(
         padding: const EdgeInsets.fromLTRB(10, 12, 10, 6),
         child: Column(
           children: [
             Tooltip(
               message: '$appName\nID $botId',
-              child: Container(
-                width: 36,
-                height: 36,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: colorScheme.primary.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                ),
-                child: Text(
-                  _appInitial,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: colorScheme.primary,
-                  ),
-                ),
-              ),
+              child: _buildBotBadge(colorScheme),
             ),
             IconButton(
               icon: const Icon(Icons.arrow_back),
@@ -411,6 +403,36 @@ class EditorSidebar extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// Pastille d'identité du rail : l'icône (avatar Discord) du bot quand son
+  /// URL est connue, sinon la pastille-lettre historique — strictement
+  /// inchangée (même carré, même lettre, même couleur) et sans le moindre
+  /// accès réseau, puisque `HomeBotAvatar` n'est alors pas construit.
+  Widget _buildBotBadge(ColorScheme colorScheme) {
+    final url = avatarUrl?.trim() ?? '';
+    if (url.isEmpty) {
+      return Container(
+        width: 36,
+        height: 36,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: colorScheme.primary.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+        ),
+        child: Text(
+          _appInitial,
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            color: colorScheme.primary,
+          ),
+        ),
+      );
+    }
+    // Réutilisation du composant d'avatar standard de l'app (`HomeBotAvatar`,
+    // cache disque et repli inclus) plutôt qu'un `Image` recopié ici.
+    return HomeBotAvatar(imageUrl: url, size: 36, fallbackLabel: _appInitial);
   }
 
   /// Première lettre du nom du bot, pour la pastille de l'en-tête compacté.

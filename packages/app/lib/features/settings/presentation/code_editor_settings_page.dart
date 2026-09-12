@@ -160,6 +160,7 @@ client.on('interactionCreate', async (interaction) => {
     final settings = provider.settings;
     final colors = provider.currentColors;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final tokens = HomeTokens.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -182,9 +183,7 @@ client.on('interactionCreate', async (interaction) => {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                 side: BorderSide(
-                  color: isDark
-                      ? AppTheme.homeGhostBorder
-                      : const Color(0xFFE2E8F0),
+                  color: isDark ? tokens.ghostBorder : const Color(0xFFE2E8F0),
                 ),
               ),
               child: Column(

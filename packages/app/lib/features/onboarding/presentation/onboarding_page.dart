@@ -221,7 +221,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
     if (!mounted) return;
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => AppEditPage(appName: botName, id: botId),
+        builder: (_) => AppEditPage(
+          appName: botName,
+          id: botId,
+          avatarUrl: latest['avatar']?.toString(),
+        ),
       ),
     );
     if (!mounted) return;

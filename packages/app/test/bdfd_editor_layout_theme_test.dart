@@ -2,6 +2,7 @@ import 'package:bot_creator/core/code_editor/code_editor_settings.dart';
 import 'package:bot_creator/core/code_editor/code_editor_settings_provider.dart';
 import 'package:bot_creator/core/code_editor/code_editor_theme_data.dart';
 import 'package:bot_creator/core/i18n/l10n/app_localizations.dart';
+import 'package:bot_creator/core/js_editor/editor_theme_scope.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bdfd_editor_page.dart';
 import 'package:flutter/material.dart';
@@ -110,16 +111,14 @@ void main() {
     // ignore: avoid_print
     print('DESKTOP  fenêtre=$body  zone de code=$field');
 
-    // Assertion SERRÉE : le premier jet tolérait `> 0.8 × largeur`, ce qui
-    // laissait passer une régression de 264 px (1280 px acceptés pour 1544
-    // réels). Ici on colle à la valeur attendue : largeur fenêtre − marges du
-    // panneau (2 × 8) − gouttière des numéros de ligne (40).
+    // Assertion SERRÉE : la zone de code est bord à bord (edge-to-edge) :
+    // largeur fenêtre − gouttière des numéros de ligne (40).
     expect(
       field.width,
-      closeTo(body.width - 56, 1.0),
+      closeTo(body.width - 40, 1.0),
       reason:
-          'la zone de code doit remplir la largeur (fenêtre − marges − '
-          'gouttière), pas 80 %',
+          'la zone de code doit remplir toute la largeur (fenêtre − gouttière), '
+          'sans marges superflues',
     );
     expect(
       field.height,
@@ -189,4 +188,39 @@ void main() {
     );
     expect(viewportWidth, lessThanOrEqualTo(360));
   });
+
+  test(
+    'resolveCodeEditorTheme mappe les thèmes sombres vers clair en mode clair',
+    () {
+      expect(
+        resolveCodeEditorTheme(CodeEditorTheme.rosePine, isLight: true),
+        CodeEditorTheme.rosePineDawn,
+      );
+      expect(
+        resolveCodeEditorTheme(CodeEditorTheme.githubDark, isLight: true),
+        CodeEditorTheme.githubLight,
+      );
+      expect(
+        resolveCodeEditorTheme(CodeEditorTheme.rosePineDawn, isLight: true),
+        CodeEditorTheme.rosePineDawn,
+      );
+      expect(
+        resolveCodeEditorTheme(CodeEditorTheme.rosePine, isLight: false),
+        CodeEditorTheme.rosePine,
+      );
+    },
+  );
+
+  testWidgets(
+    'barre de touches rapides mobile : boutons présents et pas de badge EDITOR UX',
+    (tester) async {
+      await pumpEditor(tester, size: const Size(360, 720));
+
+      expect(find.text('EDITOR UX'), findsNothing);
+      expect(find.byIcon(Icons.tune), findsOneWidget);
+      expect(find.text(r'$'), findsWidgets);
+      expect(find.text('['), findsWidgets);
+      expect(find.text(']'), findsWidgets);
+    },
+  );
 }

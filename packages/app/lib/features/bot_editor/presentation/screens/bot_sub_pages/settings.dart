@@ -6,6 +6,7 @@ import 'package:bot_creator/main.dart';
 import 'package:bot_creator/features/home/presentation/home_page.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/export_import.page.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command_dashboard.dart';
 import 'package:bot_creator/features/documentation/documentation_navigation.dart';
 import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
@@ -1002,10 +1003,19 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     });
   }
 
+  EdgeInsets _tabContentPadding(BuildContext context) {
+    return EdgeInsets.fromLTRB(
+      16,
+      16,
+      16,
+      FloatingGlassNavBar.contentClearanceOf(context) + 24,
+    );
+  }
+
   Widget _buildGeneralTab(double contentMaxWidth) {
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      padding: _tabContentPadding(context),
       child: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: contentMaxWidth),
@@ -1217,7 +1227,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   Widget _buildPresenceTab(double contentMaxWidth) {
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      padding: _tabContentPadding(context),
       child: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: contentMaxWidth),
@@ -1252,10 +1262,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               const SizedBox(height: 16),
 
               Card(
-                color: AppTheme.discordDarkerBg,
+                color: Theme.of(context).colorScheme.surfaceContainer,
                 shape: RoundedRectangleBorder(
                   side: BorderSide(
-                    color: AppTheme.discordBorder.withValues(alpha: 0.5),
+                    color: Theme.of(context).colorScheme.outlineVariant,
                   ),
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -1747,27 +1757,28 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     );
     final canPurchase = PremiumCapabilities.canShowPurchaseUI;
 
+    final scheme = Theme.of(context).colorScheme;
     final inputDecoration = InputDecoration(
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: AppTheme.discordBorder),
+        borderSide: BorderSide(color: scheme.outlineVariant),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: AppTheme.discordBorder),
+        borderSide: BorderSide(color: scheme.outlineVariant),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: AppTheme.discord, width: 2),
+        borderSide: BorderSide(color: scheme.primary, width: 2),
       ),
       filled: true,
-      fillColor: AppTheme.discordDarkBg,
+      fillColor: scheme.surfaceContainerHighest.withValues(alpha: 0.5),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     );
 
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      padding: _tabContentPadding(context),
       child: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: contentMaxWidth),
@@ -2089,27 +2100,28 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   }
 
   Widget _buildDatabaseTab(double contentMaxWidth) {
+    final scheme = Theme.of(context).colorScheme;
     final inputDecoration = InputDecoration(
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: AppTheme.discordBorder),
+        borderSide: BorderSide(color: scheme.outlineVariant),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: AppTheme.discordBorder),
+        borderSide: BorderSide(color: scheme.outlineVariant),
       ),
-      focusedBorder: const OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(8)),
-        borderSide: BorderSide(color: AppTheme.discord, width: 2),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: const BorderRadius.all(Radius.circular(8)),
+        borderSide: BorderSide(color: scheme.primary, width: 2),
       ),
       filled: true,
-      fillColor: AppTheme.discordDarkBg,
+      fillColor: scheme.surfaceContainerHighest.withValues(alpha: 0.5),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     );
 
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      padding: _tabContentPadding(context),
       child: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: contentMaxWidth),
@@ -2153,7 +2165,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       DropdownButtonFormField<String>(
                         initialValue: _databaseType,
                         decoration: inputDecoration,
-                        dropdownColor: AppTheme.discordDarkBg,
+                        dropdownColor: scheme.surfaceContainer,
                         items: [
                           DropdownMenuItem(
                             value: 'none',
@@ -2410,7 +2422,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   Widget _buildAdvancedTab(double contentMaxWidth) {
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      padding: _tabContentPadding(context),
       child: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: contentMaxWidth),
@@ -2647,6 +2659,22 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
           // Scaffold parent : null quand la sidebar est là, bouton tiroir en
           // layout compact, bouton retour pour une route poussée.
           leading: editorSubPageLeading(context),
+          actions: [
+            if (_capabilities.supportsCommandDashboard)
+              IconButton(
+                icon: const Icon(Icons.bar_chart_rounded),
+                tooltip: context.tr.dashboard_title,
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => CommandDashboardPage(
+                        botId: widget.client.user.id.toString(),
+                      ),
+                    ),
+                  );
+                },
+              ),
+          ],
           // Les onglets sont rendus par le composant de navigation partagé
           // (variante inline) au lieu d'un `TabBar` Material : même identité
           // visuelle que la nav de la Home et les pastilles de modules.
@@ -2746,21 +2774,14 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       activityTypeLabel = _statusTypeLabel(first.type).toUpperCase();
     }
 
+    final scheme = Theme.of(context).colorScheme;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       decoration: BoxDecoration(
-        color: AppTheme.discordDarkerBg,
+        color: scheme.surfaceContainer,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppTheme.discordBorder.withValues(alpha: 0.5),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: Border.all(color: scheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -2790,9 +2811,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                           height: 90,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: AppTheme.discordDarkerBg,
+                            color: scheme.surfaceContainer,
                             border: Border.all(
-                              color: AppTheme.discordDarkerBg,
+                              color: scheme.surfaceContainer,
                               width: 6,
                             ),
                           ),
@@ -2809,7 +2830,8 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                           user.avatar.url.toString(),
                                           fit: BoxFit.cover,
                                           errorBuilder: (_, _, _) => Container(
-                                            color: AppTheme.discordBorder,
+                                            color:
+                                                scheme.surfaceContainerHighest,
                                             child: const Icon(
                                               Icons.person,
                                               color: Colors.white,
@@ -2846,9 +2868,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                             height: 22,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: AppTheme.discordDarkerBg,
+                              color: scheme.surfaceContainer,
                               border: Border.all(
-                                color: AppTheme.discordDarkerBg,
+                                color: scheme.surfaceContainer,
                                 width: 3,
                               ),
                             ),
@@ -3022,21 +3044,14 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       prettyJson = meta.rawJson.toString();
     }
 
+    final scheme = Theme.of(context).colorScheme;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       decoration: BoxDecoration(
-        color: AppTheme.discordDarkerBg,
+        color: scheme.surfaceContainer,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppTheme.discordBorder.withValues(alpha: 0.5),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: Border.all(color: scheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -3044,9 +3059,11 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
           // Header
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: const BoxDecoration(
-              color: AppTheme.discordDarkBg,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
+            decoration: BoxDecoration(
+              color: scheme.surfaceContainerHighest.withValues(alpha: 0.5),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(15),
+              ),
             ),
             child: Row(
               children: [
@@ -3400,10 +3417,13 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: AppTheme.discordDarkBg,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surfaceContainerHighest
+                          .withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: AppTheme.discordBorder.withValues(alpha: 0.4),
+                        color: Theme.of(context).colorScheme.outlineVariant,
                       ),
                     ),
                     child: SelectableText(
