@@ -11,6 +11,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:nyxx/nyxx.dart' hide Locale, Builder;
 import 'package:bot_creator/features/home/presentation/home_page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/app_editor_page.dart';
@@ -103,6 +104,26 @@ Future<void> main() async {
   await runZonedGuarded(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
+
+      // ── Google Fonts: fully offline (no fonts.gstatic.com round-trip) ──
+      // The 5 families used by the app (Inter, SpaceGrotesk, JetBrainsMono,
+      // FiraCode, Alexandria) are bundled as local assets under
+      // assets/fonts/<family>/ (declared in pubspec.yaml), so google_fonts
+      // finds them in the AssetManifest and never needs the network.
+      //
+      // Left at its default `true`, google_fonts would issue a GET to
+      // fonts.gstatic.com on the first render of any family that is not
+      // bundled: a font flash (FOUT) on first paint, and — ugly on desktop,
+      // where the page is CSS-rendered — a silent loss of the whole
+      // typography when the device is offline or gstatic is blocked by a
+      // firewall/DNS. Setting this to false makes such a miss throw a clear
+      // "font was not found in the application assets" error instead of
+      // quietly degrading, which is exactly what we want: a loud failure at
+      // the source rather than a silent visual regression.
+      //
+      // Must run before the first GoogleFonts.* call, hence here in main()
+      // right after the binding is initialised and well before runApp().
+      GoogleFonts.config.allowRuntimeFetching = false;
 
       ensureDocumentationWebViewPlatform();
 
