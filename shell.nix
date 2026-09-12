@@ -15,10 +15,12 @@ let
     sysprof
     fontconfig
     freetype
+    sqlite
   ];
 in
 pkgs.mkShell {
   nativeBuildInputs = with pkgs; [
+    flutter
     pkg-config
     cmake
     ninja

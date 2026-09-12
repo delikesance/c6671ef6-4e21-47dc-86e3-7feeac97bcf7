@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/diagnostics/diagnostics_logs_page.dart';
+import 'package:bot_creator/features/settings/presentation/code_editor_settings_page.dart';
+import 'package:bot_creator/features/settings/presentation/appearance_settings_section.dart';
 import 'package:bot_creator/features/onboarding/presentation/onboarding_page.dart';
 import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/features/ads/logic/ad_consent_service.dart';
@@ -42,7 +44,10 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SettingPage extends StatefulWidget {
-  const SettingPage({super.key});
+  const SettingPage({super.key, this.embedded = false});
+
+  /// When true, hide the back button (used inside the compact bottom-nav shell).
+  final bool embedded;
 
   @override
   State<SettingPage> createState() => _SettingPageState();
@@ -88,7 +93,8 @@ class _SettingPageState extends State<SettingPage> {
   bool _mobileLocalHostingEnabled = false;
   bool _loadingMobileLocalHosting = true;
   bool _refreshingMainApiOnResume = false;
-  final TextEditingController _altLoginEmailController = TextEditingController();
+  final TextEditingController _altLoginEmailController =
+      TextEditingController();
   final TextEditingController _altLoginPasswordController =
       TextEditingController();
   final TextEditingController _altLoginConfirmController =
@@ -124,8 +130,7 @@ class _SettingPageState extends State<SettingPage> {
         defaultTargetPlatform == TargetPlatform.iOS;
   }
 
-  bool get _showsRemoteRunnerConfig =>
-      !_isDesktopPlatform || _useRemoteRunner;
+  bool get _showsRemoteRunnerConfig => !_isDesktopPlatform || _useRemoteRunner;
 
   Future<void> _runWithLoading(
     String message,
@@ -355,29 +360,30 @@ class _SettingPageState extends State<SettingPage> {
   String _embeddedRunnerExecutionModeHint() {
     final lang = Localizations.localeOf(context).languageCode.toLowerCase();
     if (lang.startsWith('fr')) {
-      return
-          'Les bots JavaScript utilisent toujours ce runner embarque. '
+      return 'Les bots JavaScript utilisent toujours ce runner embarque. '
           'Le mode d\'execution local desactive uniquement les runners distants '
           'optionnels et le mode Dart local.';
     }
-    return
-        'JavaScript bots always use this embedded runner. Local execution mode '
+    return 'JavaScript bots always use this embedded runner. Local execution mode '
         'only disables optional remote runners and Dart local mode.';
   }
 
   Future<void> _restartEmbeddedRunner() async {
-    await _runWithLoading(context.tr.settings_embedded_runner_restart, () async {
-      final config = await RunnerSettings.restartEmbeddedJsRunner();
-      await _refreshEmbeddedRunnerDiagnostics();
-      if (!mounted) {
-        return;
-      }
-      _showSnack(
-        config != null
-            ? context.tr.settings_embedded_runner_restart_success
-            : context.tr.settings_embedded_runner_restart_failed,
-      );
-    });
+    await _runWithLoading(
+      context.tr.settings_embedded_runner_restart,
+      () async {
+        final config = await RunnerSettings.restartEmbeddedJsRunner();
+        await _refreshEmbeddedRunnerDiagnostics();
+        if (!mounted) {
+          return;
+        }
+        _showSnack(
+          config != null
+              ? context.tr.settings_embedded_runner_restart_success
+              : context.tr.settings_embedded_runner_restart_failed,
+        );
+      },
+    );
   }
 
   Future<void> _redownloadEmbeddedRunner() async {
@@ -399,7 +405,8 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   Future<void> _openEmbeddedRunnerLog() async {
-    final logPath = _embeddedRunnerDiagnostics?.logPath ??
+    final logPath =
+        _embeddedRunnerDiagnostics?.logPath ??
         EmbeddedJsRunnerService.instance.logPath;
     if (logPath == null || logPath.isEmpty) {
       return;
@@ -439,8 +446,9 @@ class _SettingPageState extends State<SettingPage> {
     final error = service.lastStartupError;
     if (error != null && error.isNotEmpty) {
       final phase = service.lastStartupPhase;
-      final phaseSuffix =
-          phase == null || phase.isEmpty ? '' : ' (phase: $phase)';
+      final phaseSuffix = phase == null || phase.isEmpty
+          ? ''
+          : ' (phase: $phase)';
       return '${context.tr.settings_embedded_runner_status_failed}$phaseSuffix: $error';
     }
 
@@ -502,11 +510,7 @@ class _SettingPageState extends State<SettingPage> {
 
     final url = _runnerUrlController.text.trim();
     final apiToken = _runnerApiTokenController.text.trim();
-    await RunnerSettings.save(
-      url: url,
-      apiToken: apiToken,
-      kind: _runnerKind,
-    );
+    await RunnerSettings.save(url: url, apiToken: apiToken, kind: _runnerKind);
     if (!mounted) return;
     setState(() {
       _runnerStatusKey = null;
@@ -535,15 +539,16 @@ class _SettingPageState extends State<SettingPage> {
       _runnerStatusKey = null;
     });
     try {
-      final client = RunnerConnectionConfig(
-        id: '_check',
-        url: url,
-        apiToken: _runnerApiTokenController.text.trim(),
-        kind: _runnerKind,
-      ).createClient(
-        getTimeout: const Duration(seconds: 30),
-        postTimeout: const Duration(seconds: 90),
-      );
+      final client =
+          RunnerConnectionConfig(
+            id: '_check',
+            url: url,
+            apiToken: _runnerApiTokenController.text.trim(),
+            kind: _runnerKind,
+          ).createClient(
+            getTimeout: const Duration(seconds: 30),
+            postTimeout: const Duration(seconds: 90),
+          );
       final root = await client.fetchRootInfo();
       await client.getStatus();
       if (!mounted) return;
@@ -556,10 +561,9 @@ class _SettingPageState extends State<SettingPage> {
     } on RunnerClientException catch (error) {
       if (!mounted) return;
       setState(() {
-        _runnerStatusKey =
-            error.statusCode == 401 || error.statusCode == 403
-                ? 'settings_runner_auth_failed'
-                : 'settings_runner_unreachable';
+        _runnerStatusKey = error.statusCode == 401 || error.statusCode == 403
+            ? 'settings_runner_auth_failed'
+            : 'settings_runner_unreachable';
         _checkingRunner = false;
       });
     } catch (_) {
@@ -586,8 +590,9 @@ class _SettingPageState extends State<SettingPage> {
       return;
     }
 
-    final resolvedBaseUrl =
-        config.baseUrl.isEmpty ? defaultMainApiBaseUrl : config.baseUrl;
+    final resolvedBaseUrl = config.baseUrl.isEmpty
+        ? defaultMainApiBaseUrl
+        : config.baseUrl;
 
     _mainApiDebug(
       'Loaded baseUrl=$resolvedBaseUrl sessionPresent=${session != null} sessionExpired=${session?.isExpired ?? false}',
@@ -597,10 +602,9 @@ class _SettingPageState extends State<SettingPage> {
       _mainApiUrlController.text = resolvedBaseUrl;
       _mainApiSession = session;
       if (session != null) {
-        _mainApiStatusKey =
-            session.isExpired
-                ? 'settings_main_api_session_expired'
-                : 'settings_main_api_session_connected';
+        _mainApiStatusKey = session.isExpired
+            ? 'settings_main_api_session_expired'
+            : 'settings_main_api_session_connected';
       } else {
         _mainApiStatusKey = 'settings_main_api_connected';
       }
@@ -651,18 +655,18 @@ class _SettingPageState extends State<SettingPage> {
         }
 
         try {
-          final profile =
-              await publicClient
-                  .withAccessToken(activeSession.accessToken)
-                  .getCurrentUser();
-          
+          final profile = await publicClient
+              .withAccessToken(activeSession.accessToken)
+              .getCurrentUser();
+
           final refreshedFromStore = await MainApiSettingsStore.loadSession();
           if (refreshedFromStore != null) {
             activeSession = refreshedFromStore;
           }
 
-          final username =
-              (profile['username'] ?? profile['name'] ?? '').toString().trim();
+          final username = (profile['username'] ?? profile['name'] ?? '')
+              .toString()
+              .trim();
           final profileEmail = (profile['email'] ?? '').toString().trim();
           final hasPassword = profile['has_password'] == true;
           if (username.isNotEmpty && username != activeSession.username) {
@@ -940,10 +944,9 @@ class _SettingPageState extends State<SettingPage> {
     }
 
     if (showSnack) {
-      final suffix =
-          result.snapshot == null
-              ? ''
-              : ' (${result.snapshot!.snapshotId.substring(0, 19)})';
+      final suffix = result.snapshot == null
+          ? ''
+          : ' (${result.snapshot!.snapshotId.substring(0, 19)})';
       _showSnack('${result.message}$suffix');
     }
   }
@@ -1132,9 +1135,9 @@ class _SettingPageState extends State<SettingPage> {
       title: Text(_notificationTopicLabel(topic)),
       subtitle: Text(
         _notificationTopicDescription(topic),
-        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-          color: AppTheme.grey,
-        ),
+        style: Theme.of(
+          context,
+        ).textTheme.bodySmall?.copyWith(color: AppTheme.grey),
       ),
       value: enabled,
       onChanged: (value) {
@@ -1150,26 +1153,24 @@ class _SettingPageState extends State<SettingPage> {
     final session = _mainApiSession;
     final hasSession = session != null && !session.isExpired;
     final hasDiscordAccount = MobileAccountGate.isDiscordOAuthSession(session);
-    final accountConnected =
-        _isManagedMobilePlatform
-            ? MobileAccountGate.isManagedAccountSession(session)
-            : hasSession;
+    final accountConnected = _isManagedMobilePlatform
+        ? MobileAccountGate.isManagedAccountSession(session)
+        : hasSession;
     final sessionUser = (session?.username ?? '').trim();
     _mainApiUrlController.text.trim();
     final accountTitle = context.tr.settings_main_api_title;
     final accountDescription = context.tr.settings_main_api_desc;
-    final accountHint =
-        accountConnected
-            ? context.tr.settings_account_connected_hint
-            : context.tr.settings_account_disconnected_hint;
+    final accountHint = accountConnected
+        ? context.tr.settings_account_connected_hint
+        : context.tr.settings_account_disconnected_hint;
     final connectButtonLabel = context.tr.settings_account_connect_label;
     final disconnectButtonLabel = context.tr.settings_account_disconnect_label;
-    final mobileStatusText =
-        accountConnected
-            ? context.tr.settings_account_status_connected
-            : context.tr.settings_account_status_disconnected;
-    final mobileStatusColor =
-        accountConnected ? AppTheme.successLight : AppTheme.warning;
+    final mobileStatusText = accountConnected
+        ? context.tr.settings_account_status_connected
+        : context.tr.settings_account_status_disconnected;
+    final mobileStatusColor = accountConnected
+        ? AppTheme.successLight
+        : AppTheme.warning;
 
     final isBusy =
         _checkingMainApi ||
@@ -1195,20 +1196,18 @@ class _SettingPageState extends State<SettingPage> {
             context,
           ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
-        subtitle:
-            statusKey == null
-                ? null
-                : Text(
-                  _isManagedMobilePlatform
-                      ? mobileStatusText
-                      : _translateStatusKey(context, statusKey),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color:
-                        _isManagedMobilePlatform
-                            ? mobileStatusColor
-                            : statusColor,
-                  ),
+        subtitle: statusKey == null
+            ? null
+            : Text(
+                _isManagedMobilePlatform
+                    ? mobileStatusText
+                    : _translateStatusKey(context, statusKey),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: _isManagedMobilePlatform
+                      ? mobileStatusColor
+                      : statusColor,
                 ),
+              ),
         childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         children: [
           Align(
@@ -1223,16 +1222,14 @@ class _SettingPageState extends State<SettingPage> {
             width: double.infinity,
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color:
-                  accountConnected
-                      ? AppTheme.successLight.withValues(alpha: 0.12)
-                      : AppTheme.warning.withValues(alpha: 0.12),
+              color: accountConnected
+                  ? AppTheme.successLight.withValues(alpha: 0.12)
+                  : AppTheme.warning.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color:
-                    accountConnected
-                        ? AppTheme.successLight.withValues(alpha: 0.35)
-                        : AppTheme.warning.withValues(alpha: 0.35),
+                color: accountConnected
+                    ? AppTheme.successLight.withValues(alpha: 0.35)
+                    : AppTheme.warning.withValues(alpha: 0.35),
               ),
             ),
             child: Row(
@@ -1241,7 +1238,9 @@ class _SettingPageState extends State<SettingPage> {
                 Icon(
                   accountConnected ? Icons.verified_user : Icons.info_outline,
                   size: 18,
-                  color: accountConnected ? AppTheme.successLight : AppTheme.warning,
+                  color: accountConnected
+                      ? AppTheme.successLight
+                      : AppTheme.warning,
                 ),
                 const SizedBox(width: 8),
                 Expanded(
@@ -1264,8 +1263,8 @@ class _SettingPageState extends State<SettingPage> {
                     sessionUser.isEmpty
                         ? context.tr.settings_main_api_connected_discord
                         : context.tr.settings_main_api_connected_user(
-                          sessionUser,
-                        ),
+                            sessionUser,
+                          ),
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ),
@@ -1279,26 +1278,26 @@ class _SettingPageState extends State<SettingPage> {
             children: [
               ElevatedButton.icon(
                 onPressed: isBusy ? null : _connectMainApiDiscord,
-                icon:
-                    _connectingMainApi
-                        ? const SizedBox(
-                          width: 14,
-                          height: 14,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                        : const Icon(Icons.login, size: 18),
+                icon: _connectingMainApi
+                    ? const SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.login, size: 18),
                 label: Text(connectButtonLabel),
               ),
               OutlinedButton.icon(
-                onPressed: isBusy || !accountConnected ? null : _disconnectMainApi,
-                icon:
-                    _disconnectingMainApi
-                        ? const SizedBox(
-                          width: 14,
-                          height: 14,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                        : const Icon(Icons.logout, size: 18),
+                onPressed: isBusy || !accountConnected
+                    ? null
+                    : _disconnectMainApi,
+                icon: _disconnectingMainApi
+                    ? const SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.logout, size: 18),
                 label: Text(disconnectButtonLabel),
               ),
             ],
@@ -1322,15 +1321,12 @@ class _SettingPageState extends State<SettingPage> {
       },
       title: Text(
         tr.settings_alternative_login_title,
-        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-          fontWeight: FontWeight.w600,
-        ),
+        style: Theme.of(
+          context,
+        ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
       ),
       subtitle: _userHasPassword && (_userEmail?.isNotEmpty ?? false)
-          ? Text(
-              _userEmail!,
-              style: Theme.of(context).textTheme.bodySmall,
-            )
+          ? Text(_userEmail!, style: Theme.of(context).textTheme.bodySmall)
           : null,
       children: [
         TextField(
@@ -1371,7 +1367,9 @@ class _SettingPageState extends State<SettingPage> {
         ),
         const SizedBox(height: 12),
         FilledButton(
-          onPressed: _savingAlternativeLogin ? null : () => _saveAlternativeLogin(session),
+          onPressed: _savingAlternativeLogin
+              ? null
+              : () => _saveAlternativeLogin(session),
           child: _savingAlternativeLogin
               ? const SizedBox(
                   width: 18,
@@ -1448,16 +1446,14 @@ class _SettingPageState extends State<SettingPage> {
     final description = context.tr.settings_startup_mode_desc;
     final useBotCreatorServers = !_mobileLocalHostingEnabled;
     final switchTitle = context.tr.settings_startup_mode_use_cloud;
-    final switchSubtitle =
-        !supportsLocalHosting
-            ? context.tr.settings_startup_mode_ios_warning
-            : useBotCreatorServers
-            ? context.tr.settings_startup_mode_cloud_desc
-            : context.tr.settings_startup_mode_local_desc;
-    final warning =
-        !supportsLocalHosting
-            ? context.tr.settings_startup_mode_ios_unavailable
-            : context.tr.settings_startup_mode_local_warning;
+    final switchSubtitle = !supportsLocalHosting
+        ? context.tr.settings_startup_mode_ios_warning
+        : useBotCreatorServers
+        ? context.tr.settings_startup_mode_cloud_desc
+        : context.tr.settings_startup_mode_local_desc;
+    final warning = !supportsLocalHosting
+        ? context.tr.settings_startup_mode_ios_unavailable
+        : context.tr.settings_startup_mode_local_warning;
 
     return Card(
       child: Padding(
@@ -1469,10 +1465,12 @@ class _SettingPageState extends State<SettingPage> {
               children: [
                 const Icon(Icons.phone_android, size: 18),
                 const SizedBox(width: 8),
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Text(
+                    title,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -1485,10 +1483,9 @@ class _SettingPageState extends State<SettingPage> {
               title: Text(switchTitle),
               subtitle: Text(switchSubtitle),
               value: useBotCreatorServers,
-              onChanged:
-                  _loadingMobileLocalHosting || !supportsLocalHosting
-                      ? null
-                      : (value) => _setMobileLocalHostingEnabled(!value),
+              onChanged: _loadingMobileLocalHosting || !supportsLocalHosting
+                  ? null
+                  : (value) => _setMobileLocalHostingEnabled(!value),
             ),
             if (!useBotCreatorServers)
               Container(
@@ -1532,12 +1529,11 @@ class _SettingPageState extends State<SettingPage> {
     final useSelfHostedRunner = !_runnerTemporarilyDisabled;
     final hasStoredRunner = _runnerUrlController.text.trim().isNotEmpty;
     final switchTitle = context.tr.settings_execution_mode_use_runner;
-    final switchSubtitle =
-        useSelfHostedRunner
-            ? (hasStoredRunner
-                ? context.tr.settings_execution_mode_runner_priority
-                : context.tr.settings_execution_mode_no_runner)
-            : context.tr.settings_execution_mode_local_active;
+    final switchSubtitle = useSelfHostedRunner
+        ? (hasStoredRunner
+              ? context.tr.settings_execution_mode_runner_priority
+              : context.tr.settings_execution_mode_no_runner)
+        : context.tr.settings_execution_mode_local_active;
 
     return Card(
       child: Padding(
@@ -1549,10 +1545,12 @@ class _SettingPageState extends State<SettingPage> {
               children: [
                 const Icon(Icons.developer_mode, size: 18),
                 const SizedBox(width: 8),
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Text(
+                    title,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -1565,10 +1563,9 @@ class _SettingPageState extends State<SettingPage> {
               title: Text(switchTitle),
               subtitle: Text(switchSubtitle),
               value: useSelfHostedRunner,
-              onChanged:
-                  _isBusy
-                      ? null
-                      : (value) => _toggleRunnerTemporarilyDisabled(!value),
+              onChanged: _isBusy
+                  ? null
+                  : (value) => _toggleRunnerTemporarilyDisabled(!value),
             ),
           ],
         ),
@@ -1598,12 +1595,11 @@ class _SettingPageState extends State<SettingPage> {
                       : service.isRunning
                       ? Icons.check_circle_outline
                       : Icons.memory_outlined,
-                  color:
-                      service.isDownloading
-                          ? Theme.of(context).colorScheme.primary
-                          : service.isRunning
-                          ? AppTheme.successLight
-                          : Theme.of(context).colorScheme.onSurfaceVariant,
+                  color: service.isDownloading
+                      ? Theme.of(context).colorScheme.primary
+                      : service.isRunning
+                      ? AppTheme.successLight
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 const SizedBox(width: 8),
                 Expanded(
@@ -1619,9 +1615,9 @@ class _SettingPageState extends State<SettingPage> {
             const SizedBox(height: 8),
             Text(
               _embeddedRunnerPrimaryStatusText(),
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
             if (download != null) ...[
               const SizedBox(height: 10),
@@ -1664,9 +1660,9 @@ class _SettingPageState extends State<SettingPage> {
               const SizedBox(height: 8),
               Text(
                 diagnostics.lastError!,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppTheme.errorLight,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: AppTheme.errorLight),
               ),
             ],
             if (_runnerTemporarilyDisabled && service.isRunning) ...[
@@ -1766,16 +1762,15 @@ class _SettingPageState extends State<SettingPage> {
 
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(
-        builder:
-            (routeContext) => OnboardingPage(
-              onComplete: () {
-                if (routeContext.mounted) {
-                  Navigator.of(
-                    routeContext,
-                  ).pushNamedAndRemoveUntil('/home', (route) => false);
-                }
-              },
-            ),
+        builder: (routeContext) => OnboardingPage(
+          onComplete: () {
+            if (routeContext.mounted) {
+              Navigator.of(
+                routeContext,
+              ).pushNamedAndRemoveUntil('/home', (route) => false);
+            }
+          },
+        ),
       ),
       (route) => false,
     );
@@ -2140,12 +2135,12 @@ class _SettingPageState extends State<SettingPage> {
       appBar: AppBar(
         title: Text(context.tr.settings_tab),
         centerTitle: true,
+        automaticallyImplyLeading: !widget.embedded,
         actions: [
           IconButton(
-            tooltip:
-                isDark
-                    ? context.tr.settings_theme_switch_light
-                    : context.tr.settings_theme_switch_dark,
+            tooltip: isDark
+                ? context.tr.settings_theme_switch_light
+                : context.tr.settings_theme_switch_dark,
             icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
             onPressed: () => themeProvider.toggleTheme(),
           ),
@@ -2166,7 +2161,10 @@ class _SettingPageState extends State<SettingPage> {
                   Icon(
                     Icons.settings,
                     size: iconSize,
-                    color: Theme.of(context).colorScheme.primary,
+                    // Icône décorative : neutre du thème (le violet n'est
+                    // réservé qu'aux états sélectionnés et aux actions
+                    // principales).
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                   const SizedBox(height: 24),
                   Text(
@@ -2197,16 +2195,19 @@ class _SettingPageState extends State<SettingPage> {
                   _PrivacyPolicyCard(
                     checkingAdPrivacy: _checkingAdPrivacy,
                     adPrivacyRequired: _adPrivacyRequired,
-                    onOpenAdPrivacy:
-                        _checkingAdPrivacy
-                            ? null
-                            : (_adPrivacyRequired
-                                ? _openAdPrivacyOptions
-                                : null),
+                    onOpenAdPrivacy: _checkingAdPrivacy
+                        ? null
+                        : (_adPrivacyRequired ? _openAdPrivacyOptions : null),
                   ),
                   const SizedBox(height: 16),
                   const SizedBox(height: 16),
 
+                  // ── Carte Apparence : mode, presets, couleurs perso ────────
+                  const AppearanceSettingsSection(),
+                  const SizedBox(height: 24),
+
+                  // ── Carte Langue : l'ancienne carte « Apparence et langue »
+                  //    ne porte plus que la langue (l'apparence a sa carte)
                   Card(
                     child: Padding(
                       padding: const EdgeInsets.all(16),
@@ -2214,7 +2215,7 @@ class _SettingPageState extends State<SettingPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            context.tr.settings_appearance_title,
+                            context.tr.settings_language_title,
                             style: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(fontWeight: FontWeight.bold),
                           ),
@@ -2249,21 +2250,20 @@ class _SettingPageState extends State<SettingPage> {
                                 ),
                               ),
                             ],
-                            selectedItemBuilder:
-                                (context) =>
-                                    AppLocalePreference.values
-                                        .map(
-                                          (preference) => Align(
-                                            alignment: Alignment.centerLeft,
-                                            child: _dropdownLabel(
-                                              _languagePreferenceLabel(
-                                                preference,
-                                                detectedLocale,
-                                              ),
-                                            ),
+                            selectedItemBuilder: (context) =>
+                                AppLocalePreference.values
+                                    .map(
+                                      (preference) => Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: _dropdownLabel(
+                                          _languagePreferenceLabel(
+                                            preference,
+                                            detectedLocale,
                                           ),
-                                        )
-                                        .toList(),
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
                             onChanged: (value) async {
                               if (value == null) {
                                 return;
@@ -2277,6 +2277,24 @@ class _SettingPageState extends State<SettingPage> {
                             },
                           ),
                         ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  // ── Code editor customization card ──────────────────
+                  Card(
+                    child: ListTile(
+                      leading: Icon(
+                        Icons.code_outlined,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                      title: Text(context.tr.code_editor_settings_title),
+                      subtitle: Text(context.tr.code_editor_settings_subtitle),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const CodeEditorSettingsPage(),
+                        ),
                       ),
                     ),
                   ),
@@ -2296,11 +2314,8 @@ class _SettingPageState extends State<SettingPage> {
                           const SizedBox(height: 4),
                           Text(
                             context.tr.settings_notifications_desc,
-                            style: Theme.of(
-                              context,
-                            ).textTheme.bodySmall?.copyWith(
-                              color: AppTheme.grey,
-                            ),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: AppTheme.grey),
                           ),
                           const SizedBox(height: 8),
                           ...NotificationTopic.values.map(
@@ -2337,10 +2352,9 @@ class _SettingPageState extends State<SettingPage> {
                             SizedBox(
                               width: double.infinity,
                               child: OutlinedButton.icon(
-                                onPressed:
-                                    _isBusy
-                                        ? null
-                                        : () => _resetLocalPreferences(),
+                                onPressed: _isBusy
+                                    ? null
+                                    : () => _resetLocalPreferences(),
                                 icon: const Icon(Icons.restart_alt),
                                 label: Text(
                                   context.tr.settings_reset_preferences,
@@ -2356,8 +2370,9 @@ class _SettingPageState extends State<SettingPage> {
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton.icon(
-                                onPressed:
-                                    _isBusy ? null : () => _replayOnboarding(),
+                                onPressed: _isBusy
+                                    ? null
+                                    : () => _replayOnboarding(),
                                 icon: const Icon(Icons.rocket_launch_outlined),
                                 label: Text(
                                   context.tr.settings_replay_onboarding,
@@ -2476,45 +2491,48 @@ class _SettingPageState extends State<SettingPage> {
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
-                              onPressed:
-                                  _isBusy
-                                      ? null
-                                      : () async {
-                                        await _runWithLoading(
-                                          context
-                                              .tr
-                                              .settings_drive_connect_loading,
-                                          () async {
-                                            try {
-                                              await _ensureDriveApiConnected();
-                                              await _refreshSnapshots();
-                                              await _runAutoBackupCheck(
-                                                force: false,
-                                                showSnack: false,
-                                              );
-                                              _showSnack(
-                                                context
-                                                    .tr
-                                                    .settings_drive_connected,
-                                              );
-                                            } catch (e, st) {
-                                              debugPrint(
-                                                'Connect to Google Drive failed: $e',
-                                              );
-                                              debugPrintStack(stackTrace: st);
-                                              _showSnack(
-                                                _formatErrorMessage(e),
-                                              );
-                                            }
-                                          },
-                                        );
-                                      },
+                              onPressed: _isBusy
+                                  ? null
+                                  : () async {
+                                      await _runWithLoading(
+                                        context
+                                            .tr
+                                            .settings_drive_connect_loading,
+                                        () async {
+                                          try {
+                                            await _ensureDriveApiConnected();
+                                            await _refreshSnapshots();
+                                            await _runAutoBackupCheck(
+                                              force: false,
+                                              showSnack: false,
+                                            );
+                                            _showSnack(
+                                              context
+                                                  .tr
+                                                  .settings_drive_connected,
+                                            );
+                                          } catch (e, st) {
+                                            debugPrint(
+                                              'Connect to Google Drive failed: $e',
+                                            );
+                                            debugPrintStack(stackTrace: st);
+                                            _showSnack(_formatErrorMessage(e));
+                                          }
+                                        },
+                                      );
+                                    },
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   const Icon(Icons.g_mobiledata),
                                   const SizedBox(width: 8),
-                                  Text(context.tr.settings_drive_connect),
+                                  Flexible(
+                                    child: Text(
+                                      context.tr.settings_drive_connect,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -2528,10 +2546,14 @@ class _SettingPageState extends State<SettingPage> {
                                 size: 20,
                               ),
                               const SizedBox(width: 8),
-                              Text(
-                                context.tr.settings_drive_status_connected,
-                                style: Theme.of(context).textTheme.bodySmall
-                                    ?.copyWith(color: AppTheme.successLight),
+                              Flexible(
+                                child: Text(
+                                  context.tr.settings_drive_status_connected,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(color: AppTheme.successLight),
+                                ),
                               ),
                             ],
                           ),
@@ -2539,31 +2561,30 @@ class _SettingPageState extends State<SettingPage> {
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
-                              onPressed:
-                                  _isBusy
-                                      ? null
-                                      : () async {
-                                        await _runWithLoading(
-                                          context
-                                              .tr
-                                              .settings_drive_disconnect_loading,
-                                          () async {
-                                            await disconnectDriveAccount();
-                                            if (!mounted) {
-                                              return;
-                                            }
-                                            setState(() {
-                                              driveApi = null;
-                                            });
-                                            await _loadCachedSnapshotsFromCache();
-                                            _showSnack(
-                                              context
-                                                  .tr
-                                                  .settings_drive_disconnected,
-                                            );
-                                          },
-                                        );
-                                      },
+                              onPressed: _isBusy
+                                  ? null
+                                  : () async {
+                                      await _runWithLoading(
+                                        context
+                                            .tr
+                                            .settings_drive_disconnect_loading,
+                                        () async {
+                                          await disconnectDriveAccount();
+                                          if (!mounted) {
+                                            return;
+                                          }
+                                          setState(() {
+                                            driveApi = null;
+                                          });
+                                          await _loadCachedSnapshotsFromCache();
+                                          _showSnack(
+                                            context
+                                                .tr
+                                                .settings_drive_disconnected,
+                                          );
+                                        },
+                                      );
+                                    },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppTheme.error,
                               ),
@@ -2572,7 +2593,13 @@ class _SettingPageState extends State<SettingPage> {
                                 children: [
                                   const Icon(Icons.logout),
                                   const SizedBox(width: 8),
-                                  Text(context.tr.settings_drive_disconnect),
+                                  Flexible(
+                                    child: Text(
+                                      context.tr.settings_drive_disconnect,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -2581,7 +2608,8 @@ class _SettingPageState extends State<SettingPage> {
                       ],
                     ),
                   ),
-                  if (true) ...[  // Show Main API card on all platforms (desktop included)
+                  if (true) ...[
+                    // Show Main API card on all platforms (desktop included)
                     const SizedBox(height: 24),
                     _buildMainApiCard(),
                     const SizedBox(height: 16),
@@ -2613,32 +2641,25 @@ class _SettingPageState extends State<SettingPage> {
                           style: Theme.of(context).textTheme.titleMedium
                               ?.copyWith(fontWeight: FontWeight.bold),
                         ),
-                        subtitle:
-                            _runnerTemporarilyDisabled
-                                ? Text(
-                                  context
-                                      .tr
-                                      .settings_runner_temporarily_disabled,
-                                  style: Theme.of(context).textTheme.bodySmall
-                                      ?.copyWith(color: AppTheme.warning),
-                                )
-                                : _runnerStatusKey == null
-                                ? null
-                                : Text(
-                                  _translateStatusKey(
-                                    context,
-                                    _runnerStatusKey!,
-                                  ),
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.bodySmall?.copyWith(
-                                    color:
-                                        _runnerStatusKey ==
-                                                'settings_runner_connected'
-                                            ? AppTheme.successLight
-                                            : AppTheme.errorLight,
-                                  ),
-                                ),
+                        subtitle: _runnerTemporarilyDisabled
+                            ? Text(
+                                context.tr.settings_runner_temporarily_disabled,
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(color: AppTheme.warning),
+                              )
+                            : _runnerStatusKey == null
+                            ? null
+                            : Text(
+                                _translateStatusKey(context, _runnerStatusKey!),
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(
+                                      color:
+                                          _runnerStatusKey ==
+                                              'settings_runner_connected'
+                                          ? AppTheme.successLight
+                                          : AppTheme.errorLight,
+                                    ),
+                              ),
                         childrenPadding: const EdgeInsets.fromLTRB(
                           16,
                           0,
@@ -2657,15 +2678,16 @@ class _SettingPageState extends State<SettingPage> {
                           if (_isDesktopPlatform) ...[
                             SwitchListTile.adaptive(
                               contentPadding: EdgeInsets.zero,
-                              title: Text(context.tr.settings_runner_use_remote),
+                              title: Text(
+                                context.tr.settings_runner_use_remote,
+                              ),
                               subtitle: Text(
                                 context.tr.settings_runner_use_remote_desc,
                               ),
                               value: _useRemoteRunner,
-                              onChanged:
-                                  _runnerTemporarilyDisabled || _isBusy
-                                      ? null
-                                      : _toggleUseRemoteRunner,
+                              onChanged: _runnerTemporarilyDisabled || _isBusy
+                                  ? null
+                                  : _toggleUseRemoteRunner,
                             ),
                             const SizedBox(height: 8),
                           ],
@@ -2694,14 +2716,13 @@ class _SettingPageState extends State<SettingPage> {
                                 ),
                               ],
                               selected: {_runnerKind},
-                              onSelectionChanged:
-                                  _runnerTemporarilyDisabled
-                                      ? null
-                                      : (selection) {
-                                        setState(() {
-                                          _runnerKind = selection.first;
-                                        });
-                                      },
+                              onSelectionChanged: _runnerTemporarilyDisabled
+                                  ? null
+                                  : (selection) {
+                                      setState(() {
+                                        _runnerKind = selection.first;
+                                      });
+                                    },
                             ),
                             if (_runnerEngineLabel != null &&
                                 _runnerEngineLabel!.isNotEmpty) ...[
@@ -2722,10 +2743,9 @@ class _SettingPageState extends State<SettingPage> {
                                 context.tr.settings_runner_disable_temp_desc,
                               ),
                               value: _runnerTemporarilyDisabled,
-                              onChanged:
-                                  _isBusy
-                                      ? null
-                                      : _toggleRunnerTemporarilyDisabled,
+                              onChanged: _isBusy
+                                  ? null
+                                  : _toggleRunnerTemporarilyDisabled,
                             ),
                             const SizedBox(height: 12),
                             TextField(
@@ -2736,29 +2756,29 @@ class _SettingPageState extends State<SettingPage> {
                                 border: const OutlineInputBorder(),
                                 suffixIcon:
                                     (_runnerTemporarilyDisabled ||
-                                            _checkingRunner)
-                                        ? const Padding(
-                                          padding: EdgeInsets.all(10),
-                                          child: SizedBox(
-                                            width: 16,
-                                            height: 16,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                            ),
+                                        _checkingRunner)
+                                    ? const Padding(
+                                        padding: EdgeInsets.all(10),
+                                        child: SizedBox(
+                                          width: 16,
+                                          height: 16,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
                                           ),
-                                        )
-                                        : (_runnerStatusKey == null
-                                            ? null
-                                            : Icon(
+                                        ),
+                                      )
+                                    : (_runnerStatusKey == null
+                                          ? null
+                                          : Icon(
                                               _runnerStatusKey ==
                                                       'settings_runner_connected'
                                                   ? Icons.check_circle
                                                   : Icons.error_outline,
                                               color:
                                                   _runnerStatusKey ==
-                                                          'settings_runner_connected'
-                                                      ? AppTheme.successLight
-                                                      : AppTheme.errorLight,
+                                                      'settings_runner_connected'
+                                                  ? AppTheme.successLight
+                                                  : AppTheme.errorLight,
                                               size: 18,
                                             )),
                               ),
@@ -2799,10 +2819,10 @@ class _SettingPageState extends State<SettingPage> {
                                 child: ElevatedButton.icon(
                                   onPressed:
                                       _isBusy ||
-                                              _checkingRunner ||
-                                              _runnerTemporarilyDisabled
-                                          ? null
-                                          : _saveRunnerSettings,
+                                          _checkingRunner ||
+                                          _runnerTemporarilyDisabled
+                                      ? null
+                                      : _saveRunnerSettings,
                                   icon: const Icon(
                                     Icons.save_outlined,
                                     size: 18,
@@ -2816,28 +2836,23 @@ class _SettingPageState extends State<SettingPage> {
                                 child: ElevatedButton.icon(
                                   onPressed:
                                       _checkingRunner ||
-                                              _runnerTemporarilyDisabled
-                                          ? null
-                                          : _checkRunnerConnection,
-                                  icon:
-                                      _checkingRunner
-                                          ? const SizedBox(
-                                            width: 14,
-                                            height: 14,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                            ),
-                                          )
-                                          : const Icon(
-                                            Icons.wifi_find,
-                                            size: 18,
+                                          _runnerTemporarilyDisabled
+                                      ? null
+                                      : _checkRunnerConnection,
+                                  icon: _checkingRunner
+                                      ? const SizedBox(
+                                          width: 14,
+                                          height: 14,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
                                           ),
+                                        )
+                                      : const Icon(Icons.wifi_find, size: 18),
                                   label: Text(context.tr.settings_runner_check),
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        Theme.of(
-                                          context,
-                                        ).colorScheme.secondaryContainer,
+                                    backgroundColor: Theme.of(
+                                      context,
+                                    ).colorScheme.secondaryContainer,
                                   ),
                                 ),
                               ),
@@ -2845,14 +2860,13 @@ class _SettingPageState extends State<SettingPage> {
                               SizedBox(
                                 width: double.infinity,
                                 child: OutlinedButton.icon(
-                                  onPressed:
-                                      _isBusy
-                                          ? null
-                                          : () {
-                                            _runnerUrlController.clear();
-                                            _runnerApiTokenController.clear();
-                                            _saveRunnerSettings();
-                                          },
+                                  onPressed: _isBusy
+                                      ? null
+                                      : () {
+                                          _runnerUrlController.clear();
+                                          _runnerApiTokenController.clear();
+                                          _saveRunnerSettings();
+                                        },
                                   icon: const Icon(Icons.clear, size: 18),
                                   label: Text(context.tr.settings_runner_clear),
                                 ),
@@ -2864,10 +2878,10 @@ class _SettingPageState extends State<SettingPage> {
                                     child: ElevatedButton.icon(
                                       onPressed:
                                           _isBusy ||
-                                                  _checkingRunner ||
-                                                  _runnerTemporarilyDisabled
-                                              ? null
-                                              : _saveRunnerSettings,
+                                              _checkingRunner ||
+                                              _runnerTemporarilyDisabled
+                                          ? null
+                                          : _saveRunnerSettings,
                                       icon: const Icon(
                                         Icons.save_outlined,
                                         size: 18,
@@ -2881,42 +2895,36 @@ class _SettingPageState extends State<SettingPage> {
                                   ElevatedButton.icon(
                                     onPressed:
                                         _checkingRunner ||
-                                                _runnerTemporarilyDisabled
-                                            ? null
-                                            : _checkRunnerConnection,
-                                    icon:
-                                        _checkingRunner
-                                            ? const SizedBox(
-                                              width: 14,
-                                              height: 14,
-                                              child: CircularProgressIndicator(
-                                                strokeWidth: 2,
-                                              ),
-                                            )
-                                            : const Icon(
-                                              Icons.wifi_find,
-                                              size: 18,
+                                            _runnerTemporarilyDisabled
+                                        ? null
+                                        : _checkRunnerConnection,
+                                    icon: _checkingRunner
+                                        ? const SizedBox(
+                                            width: 14,
+                                            height: 14,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
                                             ),
+                                          )
+                                        : const Icon(Icons.wifi_find, size: 18),
                                     label: Text(
                                       context.tr.settings_runner_check,
                                     ),
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          Theme.of(
-                                            context,
-                                          ).colorScheme.secondaryContainer,
+                                      backgroundColor: Theme.of(
+                                        context,
+                                      ).colorScheme.secondaryContainer,
                                     ),
                                   ),
                                   const SizedBox(width: 8),
                                   IconButton(
-                                    onPressed:
-                                        _isBusy
-                                            ? null
-                                            : () {
-                                              _runnerUrlController.clear();
-                                              _runnerApiTokenController.clear();
-                                              _saveRunnerSettings();
-                                            },
+                                    onPressed: _isBusy
+                                        ? null
+                                        : () {
+                                            _runnerUrlController.clear();
+                                            _runnerApiTokenController.clear();
+                                            _saveRunnerSettings();
+                                          },
                                     icon: const Icon(Icons.clear, size: 18),
                                     tooltip: context.tr.settings_runner_clear,
                                   ),
@@ -2945,38 +2953,35 @@ class _SettingPageState extends State<SettingPage> {
                             context,
                             icon: Icons.upload_file,
                             label: context.tr.settings_export,
-                            onPressed:
-                                _isBusy
-                                    ? null
-                                    : () async {
-                                      await _runWithLoading(
-                                        context.tr.settings_export_loading,
-                                        () async {
-                                          try {
-                                            await _ensureDriveApiConnected();
-                                            if (!mounted) return;
-                                            final message = await uploadAppData(
-                                              context,
-                                              driveApi!,
-                                              appManager,
-                                            );
-                                            await _refreshSnapshots();
-                                            if (!mounted) return;
-                                            _showSnack(message);
-                                          } catch (e, st) {
-                                            debugPrint(
-                                              'Export App Data failed: $e',
-                                            );
-                                            debugPrintStack(stackTrace: st);
-                                            if (mounted) {
-                                              _showSnack(
-                                                _formatErrorMessage(e),
-                                              );
-                                            }
+                            onPressed: _isBusy
+                                ? null
+                                : () async {
+                                    await _runWithLoading(
+                                      context.tr.settings_export_loading,
+                                      () async {
+                                        try {
+                                          await _ensureDriveApiConnected();
+                                          if (!mounted) return;
+                                          final message = await uploadAppData(
+                                            context,
+                                            driveApi!,
+                                            appManager,
+                                          );
+                                          await _refreshSnapshots();
+                                          if (!mounted) return;
+                                          _showSnack(message);
+                                        } catch (e, st) {
+                                          debugPrint(
+                                            'Export App Data failed: $e',
+                                          );
+                                          debugPrintStack(stackTrace: st);
+                                          if (mounted) {
+                                            _showSnack(_formatErrorMessage(e));
                                           }
-                                        },
-                                      );
-                                    },
+                                        }
+                                      },
+                                    );
+                                  },
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -2985,85 +2990,9 @@ class _SettingPageState extends State<SettingPage> {
                             context,
                             icon: Icons.file_download_outlined,
                             label: context.tr.settings_import,
-                            onPressed:
-                                _isBusy
-                                    ? null
-                                    : () async {
-                                      await _runWithLoading(
-                                        context.tr.settings_import_loading,
-                                        () async {
-                                          try {
-                                            await _ensureDriveApiConnected();
-                                            final message =
-                                                await downloadAppData(
-                                                  context,
-                                                  driveApi!,
-                                                  appManager,
-                                                );
-                                            await appManager.refreshApps();
-                                            await _refreshSnapshots();
-                                            _showSnack(message);
-                                          } catch (e, st) {
-                                            debugPrint(
-                                              'Import App Data failed: $e',
-                                            );
-                                            debugPrintStack(stackTrace: st);
-                                            if (mounted) {
-                                              _showSnack(
-                                                _formatErrorMessage(e),
-                                              );
-                                            }
-                                          }
-                                        },
-                                      );
-                                    },
-                          ),
-                        ),
-                      ],
-                    )
-                  else
-                    Column(
-                      children: [
-                        _buildDataButton(
-                          context,
-                          icon: Icons.upload_file,
-                          label: context.tr.settings_export_app_data,
-                          onPressed:
-                              _isBusy
-                                  ? null
-                                  : () async {
-                                    await _runWithLoading(
-                                      context.tr.settings_export_loading,
-                                      () async {
-                                        try {
-                                          await _ensureDriveApiConnected();
-                                          final message = await uploadAppData(
-                                            context,
-                                            driveApi!,
-                                            appManager,
-                                          );
-                                          await _refreshSnapshots();
-                                          _showSnack(message);
-                                        } catch (e, st) {
-                                          debugPrint(
-                                            'Export App Data failed: $e',
-                                          );
-                                          debugPrintStack(stackTrace: st);
-                                          _showSnack(_formatErrorMessage(e));
-                                        }
-                                      },
-                                    );
-                                  },
-                        ),
-                        const SizedBox(height: 12),
-                        _buildDataButton(
-                          context,
-                          icon: Icons.file_download_outlined,
-                          label: context.tr.settings_import_app_data,
-                          onPressed:
-                              _isBusy
-                                  ? null
-                                  : () async {
+                            onPressed: _isBusy
+                                ? null
+                                : () async {
                                     await _runWithLoading(
                                       context.tr.settings_import_loading,
                                       () async {
@@ -3082,11 +3011,81 @@ class _SettingPageState extends State<SettingPage> {
                                             'Import App Data failed: $e',
                                           );
                                           debugPrintStack(stackTrace: st);
-                                          _showSnack(_formatErrorMessage(e));
+                                          if (mounted) {
+                                            _showSnack(_formatErrorMessage(e));
+                                          }
                                         }
                                       },
                                     );
                                   },
+                          ),
+                        ),
+                      ],
+                    )
+                  else
+                    Column(
+                      children: [
+                        _buildDataButton(
+                          context,
+                          icon: Icons.upload_file,
+                          label: context.tr.settings_export_app_data,
+                          onPressed: _isBusy
+                              ? null
+                              : () async {
+                                  await _runWithLoading(
+                                    context.tr.settings_export_loading,
+                                    () async {
+                                      try {
+                                        await _ensureDriveApiConnected();
+                                        final message = await uploadAppData(
+                                          context,
+                                          driveApi!,
+                                          appManager,
+                                        );
+                                        await _refreshSnapshots();
+                                        _showSnack(message);
+                                      } catch (e, st) {
+                                        debugPrint(
+                                          'Export App Data failed: $e',
+                                        );
+                                        debugPrintStack(stackTrace: st);
+                                        _showSnack(_formatErrorMessage(e));
+                                      }
+                                    },
+                                  );
+                                },
+                        ),
+                        const SizedBox(height: 12),
+                        _buildDataButton(
+                          context,
+                          icon: Icons.file_download_outlined,
+                          label: context.tr.settings_import_app_data,
+                          onPressed: _isBusy
+                              ? null
+                              : () async {
+                                  await _runWithLoading(
+                                    context.tr.settings_import_loading,
+                                    () async {
+                                      try {
+                                        await _ensureDriveApiConnected();
+                                        final message = await downloadAppData(
+                                          context,
+                                          driveApi!,
+                                          appManager,
+                                        );
+                                        await appManager.refreshApps();
+                                        await _refreshSnapshots();
+                                        _showSnack(message);
+                                      } catch (e, st) {
+                                        debugPrint(
+                                          'Import App Data failed: $e',
+                                        );
+                                        debugPrintStack(stackTrace: st);
+                                        _showSnack(_formatErrorMessage(e));
+                                      }
+                                    },
+                                  );
+                                },
                         ),
                       ],
                     ),
@@ -3113,15 +3112,14 @@ class _SettingPageState extends State<SettingPage> {
                             value:
                                 !_loadingRecoverySettings &&
                                 _recoverySettings.autoBackupEnabled,
-                            onChanged:
-                                _loadingRecoverySettings
-                                    ? null
-                                    : (enabled) async {
-                                      final next = _recoverySettings.copyWith(
-                                        autoBackupEnabled: enabled,
-                                      );
-                                      await _saveRecoverySettings(next);
-                                    },
+                            onChanged: _loadingRecoverySettings
+                                ? null
+                                : (enabled) async {
+                                    final next = _recoverySettings.copyWith(
+                                      autoBackupEnabled: enabled,
+                                    );
+                                    await _saveRecoverySettings(next);
+                                  },
                           ),
                           const SizedBox(height: 8),
                           DropdownButtonFormField<int>(
@@ -3157,17 +3155,17 @@ class _SettingPageState extends State<SettingPage> {
                             ],
                             onChanged:
                                 (!_recoverySettings.autoBackupEnabled ||
-                                        _loadingRecoverySettings)
-                                    ? null
-                                    : (value) async {
-                                      if (value == null) {
-                                        return;
-                                      }
-                                      final next = _recoverySettings.copyWith(
-                                        autoBackupIntervalHours: value,
-                                      );
-                                      await _saveRecoverySettings(next);
-                                    },
+                                    _loadingRecoverySettings)
+                                ? null
+                                : (value) async {
+                                    if (value == null) {
+                                      return;
+                                    }
+                                    final next = _recoverySettings.copyWith(
+                                      autoBackupIntervalHours: value,
+                                    );
+                                    await _saveRecoverySettings(next);
+                                  },
                           ),
                           const SizedBox(height: 8),
                           Text(
@@ -3180,73 +3178,71 @@ class _SettingPageState extends State<SettingPage> {
                             runSpacing: 8,
                             children: [
                               ElevatedButton.icon(
-                                onPressed:
-                                    _isBusy
-                                        ? null
-                                        : () async {
-                                          await _runWithLoading(
-                                            context
-                                                .tr
-                                                .settings_snapshot_create_loading,
-                                            () async {
-                                              try {
-                                                await _ensureDriveApiConnected();
-                                                final snapshot =
-                                                    await createBackupSnapshot(
-                                                      driveApi!,
-                                                      appManager,
-                                                      label:
-                                                          context
-                                                              .tr
-                                                              .settings_manual_snapshot_label,
-                                                    );
-                                                await _refreshSnapshots();
-                                                if (!mounted) {
-                                                  return;
-                                                }
-                                                _showSnack(
-                                                  context.tr
-                                                      .settings_snapshot_created_message(
-                                                        snapshot.snapshotId,
-                                                      ),
-                                                );
-                                              } catch (e, st) {
-                                                debugPrint(
-                                                  'Manual snapshot failed: $e',
-                                                );
-                                                debugPrintStack(stackTrace: st);
-                                                if (!mounted) {
-                                                  return;
-                                                }
-                                                _showSnack(
-                                                  _formatErrorMessage(e),
-                                                );
+                                onPressed: _isBusy
+                                    ? null
+                                    : () async {
+                                        await _runWithLoading(
+                                          context
+                                              .tr
+                                              .settings_snapshot_create_loading,
+                                          () async {
+                                            try {
+                                              await _ensureDriveApiConnected();
+                                              final snapshot =
+                                                  await createBackupSnapshot(
+                                                    driveApi!,
+                                                    appManager,
+                                                    label: context
+                                                        .tr
+                                                        .settings_manual_snapshot_label,
+                                                  );
+                                              await _refreshSnapshots();
+                                              if (!mounted) {
+                                                return;
                                               }
-                                            },
-                                          );
-                                        },
+                                              _showSnack(
+                                                context.tr
+                                                    .settings_snapshot_created_message(
+                                                      snapshot.snapshotId,
+                                                    ),
+                                              );
+                                            } catch (e, st) {
+                                              debugPrint(
+                                                'Manual snapshot failed: $e',
+                                              );
+                                              debugPrintStack(stackTrace: st);
+                                              if (!mounted) {
+                                                return;
+                                              }
+                                              _showSnack(
+                                                _formatErrorMessage(e),
+                                              );
+                                            }
+                                          },
+                                        );
+                                      },
                                 icon: const Icon(Icons.backup),
                                 label: Text(context.tr.settings_backup_now),
                               ),
                               OutlinedButton.icon(
                                 onPressed:
                                     _isBusy ||
-                                            !_recoverySettings.autoBackupEnabled
-                                        ? null
-                                        : () async {
-                                          await _runWithLoading(
-                                            context
-                                                .tr
-                                                .settings_auto_backup_check_loading,
-                                            () async {
-                                              await _ensureDriveApiConnected();
-                                              await _runAutoBackupCheck(
-                                                force: true,
-                                                showSnack: true,
-                                              );
-                                            },
-                                          );
-                                        },
+                                        !_recoverySettings.autoBackupEnabled
+                                    ? null
+                                    : () async {
+                                        await _runWithLoading(
+                                          context
+                                              .tr
+                                              .settings_auto_backup_check_loading,
+                                          () async {
+                                            await _ensureDriveApiConnected();
+                                            await _runAutoBackupCheck(
+                                              force: true,
+                                              showSnack: true,
+                                            );
+                                          },
+                                        );
+                                      },
                                 icon: const Icon(Icons.schedule_send),
                                 label: Text(
                                   context.tr.settings_run_auto_backup_now,
@@ -3277,16 +3273,15 @@ class _SettingPageState extends State<SettingPage> {
                                 ),
                               ),
                               IconButton(
-                                tooltip:
-                                    context
-                                        .tr
-                                        .settings_snapshots_delete_select_tooltip,
+                                tooltip: context
+                                    .tr
+                                    .settings_snapshots_delete_select_tooltip,
                                 onPressed:
                                     _isBusy ||
-                                            _loadingSnapshots ||
-                                            _snapshots.isEmpty
-                                        ? null
-                                        : _showSnapshotQuickDeletePicker,
+                                        _loadingSnapshots ||
+                                        _snapshots.isEmpty
+                                    ? null
+                                    : _showSnapshotQuickDeletePicker,
                                 icon: const Icon(Icons.remove_circle_outline),
                               ),
                               IconButton(
@@ -3294,28 +3289,27 @@ class _SettingPageState extends State<SettingPage> {
                                     context.tr.settings_snapshots_delete_all,
                                 onPressed:
                                     _isBusy ||
-                                            _loadingSnapshots ||
-                                            _snapshots.isEmpty
-                                        ? null
-                                        : _deleteAllSnapshots,
+                                        _loadingSnapshots ||
+                                        _snapshots.isEmpty
+                                    ? null
+                                    : _deleteAllSnapshots,
                                 icon: const Icon(Icons.delete_sweep_outlined),
                               ),
                               IconButton(
                                 tooltip: context.tr.settings_snapshots_refresh,
-                                onPressed:
-                                    _isBusy || _loadingSnapshots
-                                        ? null
-                                        : () async {
-                                          await _runWithLoading(
-                                            context
-                                                .tr
-                                                .settings_snapshots_refresh_loading,
-                                            () async {
-                                              await _ensureDriveApiConnected();
-                                              await _refreshSnapshots();
-                                            },
-                                          );
-                                        },
+                                onPressed: _isBusy || _loadingSnapshots
+                                    ? null
+                                    : () async {
+                                        await _runWithLoading(
+                                          context
+                                              .tr
+                                              .settings_snapshots_refresh_loading,
+                                          () async {
+                                            await _ensureDriveApiConnected();
+                                            await _refreshSnapshots();
+                                          },
+                                        );
+                                      },
                                 icon: const Icon(Icons.refresh),
                               ),
                             ],
@@ -3365,18 +3359,16 @@ class _SettingPageState extends State<SettingPage> {
                             context,
                             icon: Icons.bug_report_outlined,
                             label: context.tr.settings_view_startup_logs,
-                            onPressed:
-                                _isBusy
-                                    ? null
-                                    : () async {
-                                      await Navigator.of(context).push(
-                                        MaterialPageRoute<void>(
-                                          builder:
-                                              (_) =>
-                                                  const DiagnosticsLogsPage(),
-                                        ),
-                                      );
-                                    },
+                            onPressed: _isBusy
+                                ? null
+                                : () async {
+                                    await Navigator.of(context).push(
+                                      MaterialPageRoute<void>(
+                                        builder: (_) =>
+                                            const DiagnosticsLogsPage(),
+                                      ),
+                                    );
+                                  },
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -3385,18 +3377,17 @@ class _SettingPageState extends State<SettingPage> {
                             context,
                             icon: Icons.delete_outline,
                             label: context.tr.settings_clear_logs,
-                            onPressed:
-                                _isBusy
-                                    ? null
-                                    : () async {
-                                      await AppDiagnostics.clearLog();
-                                      if (!mounted) {
-                                        return;
-                                      }
-                                      _showSnack(
-                                        context.tr.settings_logs_cleared,
-                                      );
-                                    },
+                            onPressed: _isBusy
+                                ? null
+                                : () async {
+                                    await AppDiagnostics.clearLog();
+                                    if (!mounted) {
+                                      return;
+                                    }
+                                    _showSnack(
+                                      context.tr.settings_logs_cleared,
+                                    );
+                                  },
                           ),
                         ),
                       ],
@@ -3408,35 +3399,31 @@ class _SettingPageState extends State<SettingPage> {
                           context,
                           icon: Icons.bug_report_outlined,
                           label: context.tr.settings_view_startup_logs,
-                          onPressed:
-                              _isBusy
-                                  ? null
-                                  : () async {
-                                    await Navigator.of(context).push(
-                                      MaterialPageRoute<void>(
-                                        builder:
-                                            (_) => const DiagnosticsLogsPage(),
-                                      ),
-                                    );
-                                  },
+                          onPressed: _isBusy
+                              ? null
+                              : () async {
+                                  await Navigator.of(context).push(
+                                    MaterialPageRoute<void>(
+                                      builder: (_) =>
+                                          const DiagnosticsLogsPage(),
+                                    ),
+                                  );
+                                },
                         ),
                         const SizedBox(height: 12),
                         _buildDataButton(
                           context,
                           icon: Icons.delete_outline,
                           label: context.tr.settings_clear_logs,
-                          onPressed:
-                              _isBusy
-                                  ? null
-                                  : () async {
-                                    await AppDiagnostics.clearLog();
-                                    if (!mounted) {
-                                      return;
-                                    }
-                                    _showSnack(
-                                      context.tr.settings_logs_cleared,
-                                    );
-                                  },
+                          onPressed: _isBusy
+                              ? null
+                              : () async {
+                                  await AppDiagnostics.clearLog();
+                                  if (!mounted) {
+                                    return;
+                                  }
+                                  _showSnack(context.tr.settings_logs_cleared);
+                                },
                         ),
                       ],
                     ),
@@ -3545,20 +3532,19 @@ class _PrivacyPolicyCard extends StatelessWidget {
               width: double.infinity,
               child: OutlinedButton.icon(
                 onPressed: onOpenAdPrivacy,
-                icon:
-                    checkingAdPrivacy
-                        ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                        : const Icon(Icons.shield_outlined),
+                icon: checkingAdPrivacy
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.shield_outlined),
                 label: Text(
                   checkingAdPrivacy
                       ? context.tr.settings_ads_privacy_loading
                       : (adPrivacyRequired
-                          ? context.tr.settings_ads_privacy_manage
-                          : context.tr.settings_ads_privacy_not_required),
+                            ? context.tr.settings_ads_privacy_manage
+                            : context.tr.settings_ads_privacy_not_required),
                 ),
               ),
             ),
@@ -3578,7 +3564,7 @@ class _PrivacyPolicyCard extends StatelessWidget {
                         child: Icon(
                           Icons.smart_toy_outlined,
                           size: 48,
-                          color: Theme.of(context).colorScheme.primary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                     );
@@ -3606,7 +3592,7 @@ class _DocumentationCard extends StatelessWidget {
       child: ListTile(
         leading: Icon(
           Icons.menu_book_outlined,
-          color: Theme.of(context).colorScheme.primary,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
         ),
         title: Text(context.tr.docs_hub_title),
         subtitle: Text(context.tr.bot_settings_workflow_docs_desc),
@@ -3668,12 +3654,16 @@ class _SupportDiscordCard extends StatelessWidget {
                       color: Colors.white,
                     ),
                     const SizedBox(width: 5),
-                    Text(
-                      context.tr.support_discord_badge,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
+                    Flexible(
+                      child: Text(
+                        context.tr.support_discord_badge,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ],
@@ -3688,12 +3678,16 @@ class _SupportDiscordCard extends StatelessWidget {
                     size: 22,
                   ),
                   const SizedBox(width: 10),
-                  Text(
-                    context.tr.support_card_title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
+                  Expanded(
+                    child: Text(
+                      context.tr.support_card_title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ],
@@ -3739,7 +3733,8 @@ class _SubscriptionsSettingsCard extends StatefulWidget {
       _SubscriptionsSettingsCardState();
 }
 
-class _SubscriptionsSettingsCardState extends State<_SubscriptionsSettingsCard> {
+class _SubscriptionsSettingsCardState
+    extends State<_SubscriptionsSettingsCard> {
   @override
   void initState() {
     super.initState();

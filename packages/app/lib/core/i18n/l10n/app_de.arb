@@ -1169,6 +1169,9 @@
   "@bot_home_section_getting_started": {
     "description": "GETTING STARTED"
   },
+  "@bot_home_section_modules": {
+    "description": "MODULES"
+  },
   "@bot_home_section_monitoring": {
     "description": "MONITORING"
   },
@@ -1177,6 +1180,9 @@
   },
   "@bot_home_service_not_started": {
     "description": "Foreground service did not start."
+  },
+  "@bot_home_restart": {
+    "description": "Restart"
   },
   "@bot_home_start": {
     "description": "Start Bot"
@@ -2944,6 +2950,12 @@
   },
   "@edit_shell_untitled_command": {
     "description": "Untitled command"
+  },
+  "@editor_sidebar_collapse": {
+    "description": "Collapse the editor sidebar into an icon rail"
+  },
+  "@editor_sidebar_expand": {
+    "description": "Expand the collapsed editor sidebar"
   },
   "@embed_add_field": {
     "description": "Add Field"
@@ -7152,6 +7164,22 @@
   "app_token_section_desc": "Sobald das Token kopiert wurde, fügen Sie es unten ein, um Ihren Bot zur App hinzuzufügen.",
   "app_token_section_title": "Bot-Token einfügen",
   "app_token_security_hint": "Halten Sie dieses Token privat. Jeder, der es hat, kann Ihren Bot steuern.",
+  "appearance_preset_graphite": "Graphit",
+  "appearance_preset_graphite_desc": "Neutrale graue Flächen – das ursprüngliche Standard-Design.",
+  "appearance_preset_violet_bc": "Violett Bot Creator",
+  "appearance_preset_violet_bc_desc": "Die Bot-Creator-Markensignatur, inklusive getönter Flächen.",
+  "appearance_preset_discord": "Discord",
+  "appearance_preset_discord_desc": "Discords Blurple für ein vertrautes Gefühl.",
+  "appearance_preset_ocean": "Ozean",
+  "appearance_preset_ocean_desc": "Cyan-Töne wie tiefes Wasser.",
+  "appearance_preset_forest": "Wald",
+  "appearance_preset_forest_desc": "Tiefes Grün – ruhig und natürlich.",
+  "appearance_preset_amber": "Bernstein",
+  "appearance_preset_amber_desc": "Warmes Orange für einen lebendigen Look.",
+  "appearance_preset_rose": "Rosé",
+  "appearance_preset_rose_desc": "Magenta-Rosa – kräftig und modern.",
+  "appearance_preset_high_contrast": "Hoher Kontrast",
+  "appearance_preset_high_contrast_desc": "Maximale Lesbarkeit der Oberfläche.",
   "autocomplete_dynamic": "Dynamische Autovervollständigung",
   "autocomplete_dynamic_desc": "Auswahlmöglichkeiten aus einem Workflow statt aus statischen Werten auflösen.",
   "autocomplete_filter_hint": "Vorschläge werden nach der Eingabe des Benutzers gefiltert.",
@@ -7192,12 +7220,14 @@
   "bot_home_notif_required": "Benachrichtigungsberechtigung ist erforderlich, um den Bot-Dienst zu starten.",
   "bot_home_section_danger": "GEFAHRENZONE",
   "bot_home_section_getting_started": "ERSTE SCHRITTE",
+  "bot_home_section_modules": "MODULE",
   "bot_home_section_monitoring": "ÜBERWACHUNG",
   "bot_home_section_tools": "WERKZEUGE",
   "bot_home_service_not_started": "Vordergrunddienst wurde nicht gestartet.",
   "bot_home_start": "Bot starten",
   "bot_home_start_error": "Konnte nicht gestartet werden: {error}",
   "bot_home_starting": "Startet…",
+  "bot_home_restart": "Neustart",
   "bot_home_stop": "Bot stoppen",
   "bot_home_sync": "App synchronisieren",
   "bot_home_sync_success": "App erfolgreich synchronisiert",
@@ -7527,6 +7557,49 @@
   "cmd_simple_response_visibility_public": "Öffentlich",
   "cmd_simple_send_message_required": "Bitte füllen Sie die Aktionsnachricht aus, bevor Sie speichern.",
   "cmd_variables_title": "Befehlsvariablen",
+  "code_editor_settings_title": "Code-Editor",
+  "code_editor_settings_subtitle": "Design, Schriftart und Bearbeitungsverhalten der BDFD- und JavaScript-Editoren",
+  "code_editor_settings_reset_tooltip": "Auf Standard zurücksetzen",
+  "code_editor_settings_reset_title": "Konfiguration zurücksetzen",
+  "code_editor_settings_reset_confirm": "Alle Editor-Einstellungen auf die Standardwerte zurücksetzen?",
+  "code_editor_settings_reset_action": "Zurücksetzen",
+  "code_editor_settings_reset_done": "Editor-Einstellungen auf Standard zurückgesetzt",
+  "code_editor_settings_preview_title": "Live-Vorschau",
+  "code_editor_settings_section_theme_title": "Syntaxhervorhebungs-Design",
+  "code_editor_settings_section_theme_subtitle": "Wählen Sie den visuellen Stil für BDFD und JavaScript",
+  "code_editor_settings_theme_mode_dark": "Dunkelmodus",
+  "code_editor_settings_theme_mode_light": "Hellmodus",
+  "code_editor_settings_section_font_title": "Schriftart & Typografie",
+  "code_editor_settings_section_font_subtitle": "Passen Sie Schriftfamilie und Textgröße an",
+  "code_editor_settings_font_family": "Schriftfamilie",
+  "code_editor_settings_font_system": "System-Monospace",
+  "code_editor_settings_font_jetbrains_mono": "JetBrains Mono",
+  "code_editor_settings_font_fira_code": "Fira Code",
+  "code_editor_settings_font_consolas": "Consolas",
+  "code_editor_settings_font_size": "Schriftgröße",
+  "code_editor_settings_line_height": "Zeilenhöhe (Zeilenabstand)",
+  "code_editor_settings_section_display_title": "Anzeige & visuelle Hilfen",
+  "code_editor_settings_section_display_subtitle": "Zeilennummern, Einzugslinien und Zeilenumbruch",
+  "code_editor_settings_line_numbers": "Zeilennummern",
+  "code_editor_settings_line_numbers_desc": "Nummerierung im linken Rand anzeigen",
+  "code_editor_settings_indent_guides": "Einzugslinien",
+  "code_editor_settings_indent_guides_desc": "Vertikale Linien zur Visualisierung von Codeblöcken",
+  "code_editor_settings_word_wrap": "Automatischer Zeilenumbruch",
+  "code_editor_settings_word_wrap_desc": "Lange Zeilen umbrechen statt horizontal zu scrollen",
+  "code_editor_settings_quick_chars": "Leiste für Schnellzeichen (Mobil)",
+  "code_editor_settings_quick_chars_desc": "Schnellschaltflächen zum Einfügen von BDFD-Präfix, Argumenten, Trennzeichen und Klammern über der Tastatur",
+  "code_editor_settings_section_editing_title": "Bearbeitungsverhalten",
+  "code_editor_settings_section_editing_subtitle": "Automatisches Schließen und Abstände",
+  "code_editor_settings_auto_close": "Automatisches Schließen von Symbolen",
+  "code_editor_settings_auto_close_desc": "Schließt Klammern, geschweifte Klammern, runde Klammern und Anführungszeichen automatisch",
+  "code_editor_settings_tab_size": "Tab-Größe (Leerzeichen)",
+  "code_editor_settings_tab_size_desc": "Anzahl der beim Einrücken eingefügten Leerzeichen",
+  "command_alias_label": "Alias",
+  "command_alias_hint": "!p",
+  "command_alias_help": "Der Befehl reagiert auch auf diese Auslösewörter.",
+  "command_alias_duplicate": "Dieser Alias wird bereits verwendet.",
+  "command_alias_limit": "Höchstens {max} Aliase.",
+  "command_alias_collision": "Wird bereits vom Befehl {command} verwendet.",
   "command_awaited_error": "Fehler",
   "command_awaited_filter_hint": "Beispiel: <numeric> oder <ja/nein/abbrechen>",
   "command_awaited_filter_label": "Filter (optional)",
@@ -7637,6 +7710,7 @@
   "common_delete": "Löschen",
   "common_description": "Beschreibung",
   "common_disabled": "Deaktiviert",
+  "common_discard": "Verwerfen",
   "common_edit": "Bearbeiten",
   "common_enabled": "Aktiviert",
   "common_import": "Importieren",
@@ -7809,6 +7883,8 @@
   "edit_shell_type_user": "Benutzerbefehl",
   "edit_shell_unsaved": "Ungespeicherte Änderungen",
   "edit_shell_untitled_command": "Unbenannter Befehl",
+  "editor_sidebar_collapse": "Seitenleiste einklappen",
+  "editor_sidebar_expand": "Seitenleiste ausklappen",
   "embed_add_field": "Feld hinzufügen",
   "embed_add_section": "Abschnitt hinzufügen",
   "embed_add_tooltip": "Embed hinzufügen",
@@ -7927,6 +8003,12 @@
   "guilds_tab_short": "Server",
   "hint_use_variables": "Verwenden Sie bei Bedarf Variablen/Vorlagen",
   "home_add_time": "Zeit hinzufügen",
+  "home_overline": "MEINE PROJEKTE",
+  "home_create_bot_title": "Bot erstellen",
+  "home_create_bot_subtitle": "Dein Discord-Bot in zwei Klicks",
+  "home_active_on_servers_one": "Aktiv auf {count} Server",
+  "home_active_on_servers_other": "Aktiv auf {count} Servern",
+  "home_synced_active": "Synchronisiert & aktiv",
   "home_empty_support_btn": "Discord-Support",
   "home_empty_support_hint": "Brauchen Sie Hilfe? Treten Sie unserer Community bei!",
   "home_foreground_service_not_started": "Der Vordergrunddienst wurde nicht gestartet.",
@@ -8402,7 +8484,20 @@
   "settings_ads_privacy_open_error": "Werbedatenschutzoptionen konnten nicht geöffnet werden",
   "settings_ads_privacy_opened": "Werbedatenschutzoptionen geöffnet",
   "settings_app_version": "App",
-  "settings_appearance_title": "Erscheinungsbild & Sprache",
+  "settings_appearance_accent_label": "Akzent",
+  "settings_appearance_contrast_ratio": "Kontrast Akzent/Fläche: {ratio}",
+  "settings_appearance_contrast_warning": "Geringer Kontrast ({ratio}): Der Akzent hebt sich kaum vom Hintergrund ab. Die App passt ihn bei Bedarf an – ein hellerer oder dunklerer Akzent verbessert die Lesbarkeit.",
+  "settings_appearance_custom_badge": "Angepasst",
+  "settings_appearance_custom_title": "Eigene Farben",
+  "settings_appearance_mode_dark": "Dunkel",
+  "settings_appearance_mode_light": "Hell",
+  "settings_appearance_mode_system": "System",
+  "settings_appearance_mode_title": "Modus",
+  "settings_appearance_presets_title": "Vordefinierte Themes",
+  "settings_appearance_reset": "Zurücksetzen",
+  "settings_appearance_seed_label": "Hauptfarbe",
+  "settings_appearance_subtitle": "Wähle einen Modus, ein vordefiniertes Theme oder eigene Farben.",
+  "settings_appearance_title": "Erscheinungsbild",
   "settings_auto_backup_check_loading": "Auto-Backup-Prüfung…",
   "settings_auto_backup_every_12h": "Alle 12 Std.",
   "settings_auto_backup_every_24h": "Alle 24 Std.",
@@ -8610,6 +8705,8 @@
   "settings_runner_connected": "Runner erreichbar ✓",
   "settings_runner_connecting": "Verbindung wird geprüft…",
   "settings_runner_desc": "Verbinden Sie die App mit einem Bot Creator Runner. Remote-Runner sollten in vertrauenswürdigen Netzwerken bleiben und ein Bearer-Token verwenden.",
+  "settings_runner_use_remote": "Remote-Runner verwenden",
+  "settings_runner_use_remote_desc": "Mit einem entfernten Bot Creator Runner verbinden. Deaktiviert lassen, um Bots lokal auf diesem Gerät auszuführen.",
   "settings_runner_disable_temp": "Runner vorübergehend deaktivieren",
   "settings_runner_disable_temp_desc": "Runner-Einstellungen beibehalten, aber lokalen Modus erzwingen, bis er wieder aktiviert wird.",
   "settings_runner_disconnected": "Runner getrennt",
@@ -9150,7 +9247,7 @@
   "command_created_sample_success": "/ping-Befehl erstellt! Er antwortet \"Pong!\"",
   "onboarding_create_now": "Bot jetzt erstellen",
   "onboarding_command_now": "Erstelle deinen ersten Befehl",
-  "container_list_title": "Gehostete Anwendungen",
+  "container_list_title": "Turnkey-Bots",
   "@container_list_title": {
     "description": "Title of the container list page"
   },
@@ -9162,7 +9259,7 @@
   "@container_list_session_hint": {
     "description": "Hint below the session error"
   },
-  "container_list_error": "Fehler beim Laden der Container",
+  "container_list_error": "Fehler beim Laden der Bots",
   "@container_list_error": {
     "description": "Error message when container list fails to load"
   },
@@ -9170,17 +9267,21 @@
   "@container_list_retry": {
     "description": "Retry button label"
   },
-  "container_list_empty": "Keine gehosteten Anwendungen",
+  "container_list_empty": "Keine Turnkey-Bots",
   "@container_list_empty": {
     "description": "Empty state title"
   },
-  "container_list_empty_hint": "Stellen Sie Ihre erste Anwendung bereit, um loszulegen.",
+  "container_list_empty_hint": "Stellen Sie Ihren ersten einsatzbereiten Bot mit 1 Klick bereit.",
   "@container_list_empty_hint": {
     "description": "Empty state description"
   },
-  "container_list_deploy_btn": "Anwendung bereitstellen",
+  "container_list_deploy_btn": "Turnkey-Bot bereitstellen",
   "@container_list_deploy_btn": {
     "description": "Button to deploy a new container"
+  },
+  "container_list_unsupported_badge": "Nicht unterstützt",
+  "@container_list_unsupported_badge": {
+    "description": "Badge shown on legacy custom containers"
   },
   "container_list_expired": "Abgelaufen",
   "@container_list_expired": {
@@ -9219,9 +9320,33 @@
       }
     }
   },
-  "container_deploy_title": "Anwendung bereitstellen",
+  "container_deploy_title": "Turnkey-Bot bereitstellen",
   "@container_deploy_title": {
     "description": "Title of the deploy container page"
+  },
+  "container_deploy_template_section": "Einsatzbereite Vorlage",
+  "@container_deploy_template_section": {
+    "description": "Section header for turnkey bot templates"
+  },
+  "container_deploy_managed_hosting": "24/7 Verwaltetes Hosting",
+  "@container_deploy_managed_hosting": {
+    "description": "Subtitle tag on turnkey bot card"
+  },
+  "container_deploy_bot_config_section": "Discord-Bot-Konfiguration",
+  "@container_deploy_bot_config_section": {
+    "description": "Section header for bot token config"
+  },
+  "container_deploy_paste_token_hint": "Discord-Bot-Token hier einfügen",
+  "@container_deploy_paste_token_hint": {
+    "description": "Hint text for Discord bot token field"
+  },
+  "container_deploy_discord_prereqs": "Discord-Voraussetzungen",
+  "@container_deploy_discord_prereqs": {
+    "description": "Header for Discord prerequisites advice box"
+  },
+  "container_deploy_launch_btn": "Turnkey-Bot starten",
+  "@container_deploy_launch_btn": {
+    "description": "Button to launch the turnkey bot"
   },
   "container_deploy_image_label": "Image",
   "@container_deploy_image_label": {
@@ -9496,7 +9621,7 @@
   "@container_health_starting": {
     "description": "Explains a starting/provisioning health status"
   },
-  "container_hosted_subtitle": "Docker-Container bereitstellen und verwalten",
+  "container_hosted_subtitle": "Einsatzbereite Bots (Musik usw.) mit 1 Klick bereitstellen",
   "@container_hosted_subtitle": {
     "description": "Subtitle for the hosted apps card on the home page"
   },
@@ -9504,7 +9629,7 @@
   "@container_premium_badge": {
     "description": "Badge text for premium-gated container feature"
   },
-  "container_detail_title": "Container {id}",
+  "container_detail_title": "Bot {id}",
   "@container_detail_title": {
     "description": "Title of the container detail page, {id} is the short container ID",
     "placeholders": {
@@ -9515,19 +9640,19 @@
   },
   "container_list_premium_host_anytime_tooltip": "Premium — jederzeit hosten",
   "container_list_premium_host_anytime_fab": "Jederzeit hosten",
-  "container_list_free_limit_reached": "Kostenloses Limit erreicht (1 Container). Abonnieren Sie, um mehr zu hosten.",
+  "container_list_free_limit_reached": "Kostenloses Limit erreicht (1 Bot). Abonnieren Sie, um mehr zu hosten.",
   "container_hosted_premium_host_anytime": "Jederzeit hosten",
   "container_hosted_premium_host_anytime_compact": "Abonnieren — jederzeit hosten",
-  "container_hosted_premium_desc": "Abonnieren Sie, um Docker-Container ohne Limit zu hosten — ohne Werbung.",
+  "container_hosted_premium_desc": "Abonnieren Sie, um Turnkey-Bots 24/7 zu hosten — ohne Werbung.",
   "container_hosted_premium_view_btn": "Angebote ansehen",
-  "hosted_app_subscription_title": "Gehostete Anwendungen",
-  "hosted_app_subscription_subtitle": "Docker-Container in der Cloud betreiben — ohne Werbung.",
+  "hosted_app_subscription_title": "Turnkey-Bots",
+  "hosted_app_subscription_subtitle": "Hosten Sie einsatzbereite Bots in der Cloud 24/7 ohne Unterbrechung.",
   "hosted_app_subscription_benefit_unlimited": "Unbegrenzte Hosting-Zeit",
   "hosted_app_subscription_benefit_no_ads": "Keine belohnten Werbungen nötig",
-  "hosted_app_subscription_one_app_title": "1 Container",
-  "hosted_app_subscription_one_app_desc": "Einen Docker-Container jederzeit hosten",
-  "hosted_app_subscription_two_app_title": "2 Container",
-  "hosted_app_subscription_two_app_desc": "Bis zu zwei Docker-Container hosten",
+  "hosted_app_subscription_one_app_title": "1 gehosteter Bot",
+  "hosted_app_subscription_one_app_desc": "Einen Turnkey-Bot jederzeit hosten",
+  "hosted_app_subscription_two_app_title": "2 gehostete Bots",
+  "hosted_app_subscription_two_app_desc": "Bis zu zwei Turnkey-Bots hosten",
   "hosted_app_subscription_recommended": "Bestes Angebot",
   "container_hosted_free_title": "Kostenloses Hosting (max. 1 Container)",
   "container_hosted_expires_at": "Läuft ab am {dateTime}",
@@ -9751,5 +9876,389 @@
   "docs_reload": "Neu laden",
   "@docs_reload": {
     "description": "docs reload"
+  },
+  "common_duplicate": "Duplizieren",
+  "@common_duplicate": {
+    "description": "Duplicate"
+  },
+  "commands_batch_select": "Mehrfachauswahl",
+  "@commands_batch_select": {
+    "description": "Batch select"
+  },
+  "commands_selected_count": "{count} ausgewählt",
+  "@commands_selected_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "{count} selected"
+  },
+  "image_editor_title": "Bild-Editor",
+  "@image_editor_title": {
+    "description": "Image Editor"
+  },
+  "image_editor_add_operation": "Operation hinzufügen",
+  "@image_editor_add_operation": {
+    "description": "Add operation"
+  },
+  "image_editor_add_layer": "Ebene hinzufügen",
+  "@image_editor_add_layer": {
+    "description": "Add Layer"
+  },
+  "image_editor_operations": "Operationen",
+  "@image_editor_operations": {
+    "description": "Operations"
+  },
+  "image_editor_op_container": "Container / Rahmen",
+  "@image_editor_op_container": {
+    "description": "Container / Frame"
+  },
+  "image_editor_op_progress_bar": "Fortschrittsbalken",
+  "@image_editor_op_progress_bar": {
+    "description": "Progress Bar"
+  },
+  "image_editor_op_composite_image": "Bild zusammensetzen",
+  "@image_editor_op_composite_image": {
+    "description": "Composite Image"
+  },
+  "image_editor_op_set_pixel": "Pixel setzen",
+  "@image_editor_op_set_pixel": {
+    "description": "Set Pixel"
+  },
+  "image_editor_op_invert": "Farben invertieren",
+  "@image_editor_op_invert": {
+    "description": "Invert Colors"
+  },
+  "image_editor_op_grayscale": "In Graustufen umwandeln",
+  "@image_editor_op_grayscale": {
+    "description": "Convert to Grayscale"
+  },
+  "image_editor_op_rotate": "Leinwand drehen",
+  "@image_editor_op_rotate": {
+    "description": "Rotate Canvas"
+  },
+  "image_editor_zoom_in": "Vergrößern",
+  "@image_editor_zoom_in": {
+    "description": "Zoom in"
+  },
+  "image_editor_zoom_out": "Verkleinern",
+  "@image_editor_zoom_out": {
+    "description": "Zoom out"
+  },
+  "image_editor_zoom_fit": "An Bildschirm anpassen",
+  "@image_editor_zoom_fit": {
+    "description": "Fit to screen"
+  },
+  "image_editor_undo": "Rückgängig",
+  "@image_editor_undo": {
+    "description": "Undo"
+  },
+  "image_editor_redo": "Wiederholen",
+  "@image_editor_redo": {
+    "description": "Redo"
+  },
+  "image_editor_canvas": "Leinwand",
+  "@image_editor_canvas": {
+    "description": "Canvas"
+  },
+  "image_editor_width": "Breite",
+  "@image_editor_width": {
+    "description": "Width"
+  },
+  "image_editor_height": "Höhe",
+  "@image_editor_height": {
+    "description": "Height"
+  },
+  "image_editor_properties": "Eigenschaften",
+  "@image_editor_properties": {
+    "description": "Properties"
+  },
+  "image_editor_visible": "Sichtbar",
+  "@image_editor_visible": {
+    "description": "Visible"
+  },
+  "image_editor_opacity": "Deckkraft",
+  "@image_editor_opacity": {
+    "description": "Opacity"
+  },
+  "image_editor_ops_summary": "{count} Operationen, {hidden} ausgeblendet",
+  "@image_editor_ops_summary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "hidden": {
+        "type": "int"
+      }
+    },
+    "description": "{count} operations, {hidden} hidden"
+  },
+  "image_editor_empty_hint": "Fügen Sie eine Operation „{op}“ hinzu, um zu starten",
+  "@image_editor_empty_hint": {
+    "placeholders": {
+      "op": {
+        "type": "String"
+      }
+    },
+    "description": "Add a \"{op}\" operation to start"
+  },
+  "image_editor_tap_to_edit": "Zum Bearbeiten tippen",
+  "@image_editor_tap_to_edit": {
+    "description": "Tap to edit"
+  },
+  "image_editor_no_operations": "Noch keine Operationen",
+  "@image_editor_no_operations": {
+    "description": "No operations yet"
+  },
+  "image_editor_select_operation": "Wählen Sie eine Operation aus, um ihre Eigenschaften zu bearbeiten",
+  "@image_editor_select_operation": {
+    "description": "Select an operation to edit its properties"
+  },
+  "image_editor_insert_variable": "Variable einfügen",
+  "@image_editor_insert_variable": {
+    "description": "Insert Variable"
+  },
+  "image_editor_variable_label": "Variable",
+  "@image_editor_variable_label": {
+    "description": "Variable"
+  },
+  "image_editor_variable_hint": "Tippen zum Filtern oder unten einen Vorschlag auswählen",
+  "@image_editor_variable_hint": {
+    "description": "Type to filter, or tap a suggestion below"
+  },
+  "image_editor_insert": "Einfügen",
+  "@image_editor_insert": {
+    "description": "Insert"
+  },
+  "image_editor_pick_image": "Bilddatei auswählen",
+  "@image_editor_pick_image": {
+    "description": "Pick image file"
+  },
+  "image_editor_color_picker": "Farbwähler",
+  "@image_editor_color_picker": {
+    "description": "Color Picker"
+  },
+  "image_editor_hue": "Farbton",
+  "@image_editor_hue": {
+    "description": "Hue"
+  },
+  "image_editor_saturation": "Sättigung",
+  "@image_editor_saturation": {
+    "description": "Saturation"
+  },
+  "image_editor_no_url": "keine URL",
+  "@image_editor_no_url": {
+    "description": "no URL"
+  },
+  "image_editor_unknown": "Unbekannt",
+  "@image_editor_unknown": {
+    "description": "Unknown"
+  },
+  "image_editor_field_text": "Text",
+  "@image_editor_field_text": {
+    "description": "Text"
+  },
+  "image_editor_field_font_size": "Schriftgröße",
+  "@image_editor_field_font_size": {
+    "description": "Font Size"
+  },
+  "image_editor_field_max_width": "Max. Breite",
+  "@image_editor_field_max_width": {
+    "description": "Max Width"
+  },
+  "image_editor_field_text_align": "Textausrichtung",
+  "@image_editor_field_text_align": {
+    "description": "Text Align"
+  },
+  "image_editor_field_blend": "Überblenden",
+  "@image_editor_field_blend": {
+    "description": "Blend"
+  },
+  "image_editor_field_fill": "Füllen",
+  "@image_editor_field_fill": {
+    "description": "Fill"
+  },
+  "image_editor_field_radius": "Radius",
+  "@image_editor_field_radius": {
+    "description": "Radius"
+  },
+  "image_editor_field_thickness": "Dicke",
+  "@image_editor_field_thickness": {
+    "description": "Thickness"
+  },
+  "image_editor_field_shape": "Form",
+  "@image_editor_field_shape": {
+    "description": "Shape"
+  },
+  "image_editor_field_percentage": "Prozentsatz",
+  "@image_editor_field_percentage": {
+    "description": "Percentage"
+  },
+  "image_editor_field_bar_color": "Balkenfarbe",
+  "@image_editor_field_bar_color": {
+    "description": "Bar Color"
+  },
+  "image_editor_field_track_color": "Spurfarbe",
+  "@image_editor_field_track_color": {
+    "description": "Track Color"
+  },
+  "image_editor_field_text_color": "Textfarbe",
+  "@image_editor_field_text_color": {
+    "description": "Text Color"
+  },
+  "image_editor_field_border_width": "Rahmenbreite",
+  "@image_editor_field_border_width": {
+    "description": "Border Width"
+  },
+  "image_editor_field_border_radius": "Rahmenradius",
+  "@image_editor_field_border_radius": {
+    "description": "Border Radius"
+  },
+  "image_editor_field_orientation": "Ausrichtung",
+  "@image_editor_field_orientation": {
+    "description": "Orientation"
+  },
+  "image_editor_field_angle": "Winkel (Grad)",
+  "@image_editor_field_angle": {
+    "description": "Angle (Degrees)"
+  },
+  "image_editor_field_container": "Container",
+  "@image_editor_field_container": {
+    "description": "Container"
+  },
+  "image_editor_field_background_color": "Hintergrundfarbe",
+  "@image_editor_field_background_color": {
+    "description": "Background Color"
+  },
+  "image_editor_hint_auto_size": "auto (Originalgröße)",
+  "@image_editor_hint_auto_size": {
+    "description": "auto (native size)"
+  },
+  "image_editor_hint_optional_background": "optionaler Hintergrund",
+  "@image_editor_hint_optional_background": {
+    "description": "optional background"
+  },
+  "image_editor_hint_parent_container": "Name des übergeordneten Containers",
+  "@image_editor_hint_parent_container": {
+    "description": "parent container name"
+  },
+  "image_editor_hint_container_width": "Containerbreite für die Ausrichtung",
+  "@image_editor_hint_container_width": {
+    "description": "container width for alignment"
+  },
+  "action_card_duration": "Dauer",
+  "@action_card_duration": {
+    "description": "Duration"
+  },
+  "action_card_error_message": "Fehlermeldung",
+  "@action_card_error_message": {
+    "description": "Error Message"
+  },
+  "action_card_jump_to": "Springen zu",
+  "@action_card_jump_to": {
+    "description": "Jump to"
+  },
+  "action_card_maximum": "Maximum",
+  "@action_card_maximum": {
+    "description": "Maximum"
+  },
+  "action_card_minimum": "Minimum",
+  "@action_card_minimum": {
+    "description": "Minimum"
+  },
+  "action_card_skip_count": "Anzahl überspringen",
+  "@action_card_skip_count": {
+    "description": "Skip count"
+  },
+  "action_edit_request": "Anfrage bearbeiten",
+  "@action_edit_request": {
+    "description": "Edit Request"
+  },
+  "action_error_jump": "Zu Aktion springen",
+  "@action_error_jump": {
+    "description": "Jump to action"
+  },
+  "action_error_skip": "N Aktionen überspringen",
+  "@action_error_skip": {
+    "description": "Skip N actions"
+  },
+  "component_max_length": "Max. Länge",
+  "@component_max_length": {
+    "description": "Max Length"
+  },
+  "component_min_length": "Min. Länge",
+  "@component_min_length": {
+    "description": "Min Length"
+  },
+  "http_request_header_name": "Header-Name",
+  "@http_request_header_name": {
+    "description": "Header name"
+  },
+  "http_request_json_body": "JSON-Inhalt",
+  "@http_request_json_body": {
+    "description": "JSON Body"
+  },
+  "http_request_section_body": "Inhalt",
+  "@http_request_section_body": {
+    "description": "Body"
+  },
+  "http_request_section_headers": "Header",
+  "@http_request_section_headers": {
+    "description": "Headers"
+  },
+  "http_request_section_request": "Anfrage",
+  "@http_request_section_request": {
+    "description": "Request"
+  },
+  "http_request_text_body": "Text-Inhalt",
+  "@http_request_text_body": {
+    "description": "Text Body"
+  },
+  "marketplace_summary_commands": "{count} Befehle",
+  "@marketplace_summary_commands": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "{count} commands"
+  },
+  "marketplace_summary_variables": "{count} Variablen ({required} erforderlich)",
+  "@marketplace_summary_variables": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "required": {
+        "type": "int"
+      }
+    },
+    "description": "{count} variables ({required} required)"
+  },
+  "marketplace_summary_workflows": "{count} Workflows",
+  "@marketplace_summary_workflows": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "{count} workflows"
+  },
+  "modal_builder_configure_submit_actions": "Übermittlungsaktionen konfigurieren",
+  "@modal_builder_configure_submit_actions": {
+    "description": "Configure Submit Actions"
+  },
+  "modal_builder_edit_submit_actions": "Übermittlungsaktionen bearbeiten",
+  "@modal_builder_edit_submit_actions": {
+    "description": "Edit Submit Actions"
+  },
+  "modal_builder_identity": "Identität",
+  "@modal_builder_identity": {
+    "description": "Identity"
+  },
+  "modal_builder_submit_actions": "Übermittlungsaktionen",
+  "@modal_builder_submit_actions": {
+    "description": "Submit Actions"
   }
 }

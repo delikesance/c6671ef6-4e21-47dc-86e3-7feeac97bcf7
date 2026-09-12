@@ -27,14 +27,12 @@ class _OnboardingScrollableSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final availableWidth =
-            constraints.maxWidth.isFinite
-                ? constraints.maxWidth
-                : _onboardingContentMaxWidth;
-        final contentWidth =
-            availableWidth > _onboardingContentMaxWidth
-                ? _onboardingContentMaxWidth
-                : availableWidth;
+        final availableWidth = constraints.maxWidth.isFinite
+            ? constraints.maxWidth
+            : _onboardingContentMaxWidth;
+        final contentWidth = availableWidth > _onboardingContentMaxWidth
+            ? _onboardingContentMaxWidth
+            : availableWidth;
 
         return Center(
           child: SingleChildScrollView(
@@ -80,21 +78,25 @@ class _OnboardingBottomAction extends StatelessWidget {
 class _StepProgressIndicator extends StatelessWidget {
   final int currentStep;
 
-  const _StepProgressIndicator({
-    required this.currentStep,
-  });
+  const _StepProgressIndicator({required this.currentStep});
 
   @override
   Widget build(BuildContext context) {
     const totalSteps = 5;
+    // L'étape courante est un état sélectionné. Elle suivait `brandPrimary` en
+    // clair et `brandPurpleSoft` en sombre : c'était l'accent violet historique,
+    // désormais retiré de l'interface (voir `AppTheme.darkTheme`). L'indicateur
+    // suit donc l'accent M3 neutre du thème, dont la paire `on*` est correcte
+    // par construction.
+    final activeColor = Theme.of(context).colorScheme.primary;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           context.tr.onboarding_step_indicator(currentStep, totalSteps),
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: AppTheme.grey,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: AppTheme.grey),
         ),
         SizedBox(height: AppTheme.spacingSm),
         Row(
@@ -110,10 +112,9 @@ class _StepProgressIndicator extends StatelessWidget {
                 width: isActive ? 24 : 8,
                 height: 4,
                 decoration: BoxDecoration(
-                  color:
-                      isActive
-                          ? AppTheme.brandPrimary
-                          : AppTheme.grey.withValues(alpha: 0.3),
+                  color: isActive
+                      ? activeColor
+                      : AppTheme.grey.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(AppTheme.radiusPill),
                 ),
               ),
@@ -189,9 +190,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
   Future<void> _createBotNow() async {
     _botCountBefore = (await appManager.getAllApps()).length;
     if (!mounted) return;
-    await Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const AppCreatePage()),
-    );
+    await Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const AppCreatePage()));
     if (!mounted) return;
     final botCountAfter = (await appManager.getAllApps()).length;
     if (botCountAfter > _botCountBefore) {
@@ -220,7 +221,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
     if (!mounted) return;
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => AppEditPage(appName: botName, id: botId),
+        builder: (_) => AppEditPage(
+          appName: botName,
+          id: botId,
+          avatarUrl: latest['avatar']?.toString(),
+        ),
       ),
     );
     if (!mounted) return;
@@ -317,6 +322,7 @@ class _WelcomeStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       body: SafeArea(
         child: _OnboardingScrollableSection(
@@ -328,13 +334,16 @@ class _WelcomeStep extends StatelessWidget {
                 width: 120,
                 height: 120,
                 decoration: BoxDecoration(
-                  color: AppTheme.brandPrimary.withValues(alpha: 0.1),
+                  // Tuile décorative : neutre du thème (le violet n'est plus
+                  // qu'un accent, réservé au CTA ci-dessous et à la pastille
+                  // d'étape courante).
+                  color: scheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.smart_toy_rounded,
                   size: 60,
-                  color: AppTheme.brandPrimary,
+                  color: scheme.onSurfaceVariant,
                 ),
               ),
               const SizedBox(height: 32),
@@ -358,7 +367,7 @@ class _WelcomeStep extends StatelessWidget {
                   onPressed: onNext,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: AppTheme.brandPrimary,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                   ),
                   child: Text(
                     context.tr.onboarding_welcome_start,
@@ -429,9 +438,7 @@ class _CreateBotStep extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _StepProgressIndicator(
-                currentStep: currentStep,
-              ),
+              _StepProgressIndicator(currentStep: currentStep),
               SizedBox(height: AppTheme.spacingXxl),
               Container(
                 width: 100,
@@ -530,7 +537,7 @@ class _CreateBotStep extends StatelessWidget {
           onPressed: onNext,
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 16),
-            backgroundColor: AppTheme.brandPrimary,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
           child: Text(
             context.tr.onboarding_create_button,
@@ -585,9 +592,7 @@ class _AddCommandStep extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _StepProgressIndicator(
-                currentStep: currentStep,
-              ),
+              _StepProgressIndicator(currentStep: currentStep),
               SizedBox(height: AppTheme.spacingXxl),
               Container(
                 width: 100,
@@ -666,7 +671,7 @@ class _AddCommandStep extends StatelessWidget {
           onPressed: onNext,
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 16),
-            backgroundColor: AppTheme.brandPrimary,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
           child: Text(
             context.tr.onboarding_command_button,
@@ -719,9 +724,7 @@ class _StartBotStep extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _StepProgressIndicator(
-                currentStep: currentStep,
-              ),
+              _StepProgressIndicator(currentStep: currentStep),
               SizedBox(height: AppTheme.spacingXxl),
               Container(
                 width: 100,
@@ -769,10 +772,7 @@ class _StartBotStep extends StatelessWidget {
                     const SizedBox(height: AppTheme.spacingSm),
                     Text(
                       context.tr.onboarding_start_hint,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: AppTheme.grey,
-                      ),
+                      style: TextStyle(fontSize: 13, color: AppTheme.grey),
                     ),
                   ],
                 ),
@@ -786,7 +786,7 @@ class _StartBotStep extends StatelessWidget {
           onPressed: onNext,
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 16),
-            backgroundColor: AppTheme.brandPrimary,
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
           child: Text(
             context.tr.onboarding_start_button,
@@ -806,10 +806,7 @@ class _SuccessStep extends StatelessWidget {
   final VoidCallback onDone;
   final int currentStep;
 
-  const _SuccessStep({
-    required this.onDone,
-    this.currentStep = 5,
-  });
+  const _SuccessStep({required this.onDone, this.currentStep = 5});
 
   @override
   Widget build(BuildContext context) {
@@ -820,9 +817,7 @@ class _SuccessStep extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _StepProgressIndicator(
-                currentStep: currentStep,
-              ),
+              _StepProgressIndicator(currentStep: currentStep),
               SizedBox(height: AppTheme.spacingXxl),
               Container(
                 width: 120,
@@ -883,7 +878,7 @@ class _SuccessStep extends StatelessWidget {
                   onPressed: onDone,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: AppTheme.brandPrimary,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                   ),
                   child: Text(
                     context.tr.onboarding_success_button,
@@ -916,7 +911,11 @@ class _TipRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         children: [
-          Icon(icon, color: AppTheme.brandPrimary, size: 24),
+          Icon(
+            icon,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            size: 24,
+          ),
           const SizedBox(width: 16),
           Expanded(child: Text(title)),
         ],

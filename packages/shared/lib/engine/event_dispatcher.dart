@@ -3,6 +3,7 @@ import 'package:nyxx/nyxx.dart';
 import 'package:bot_creator_shared/bot/bot_data_store.dart';
 import 'package:bot_creator_shared/types/action.dart';
 import 'package:bot_creator_shared/utils/global.dart' as shared_global;
+import 'package:bot_creator_shared/utils/legacy_command_triggers.dart';
 import 'package:bot_creator_shared/utils/runtime_variables.dart';
 import 'package:bot_creator_shared/engine/bot_engine_callbacks.dart';
 import 'package:bot_creator_shared/engine/command_executor.dart';
@@ -649,21 +650,20 @@ class EventDispatcher {
       botId: botId,
     );
 
+    // Legacy commands match on their effective name (data.legacyPrefixOverride
+    // when non-empty, otherwise the root name) or on any of their aliases.
+    // On collision between two commands, the first one in store order wins
+    // (firstWhere semantics).
     final command = allCommands.firstWhere(
       (c) {
-        final rawName = (c['name'] ?? '').toString();
-        final cleanName = cleanCommandTriggerName(rawName);
         final type = (c['type'] ?? '').toString().toLowerCase();
-        final data = c['data'] as Map?;
-        final legacyMode = data?['legacyModeEnabled'] == true;
+        final triggers = legacyCommandTriggerNames(c);
         callbacks.onDebugLog?.call(
-          'Checking command: name="$rawName", clean="$cleanName", type="$type", legacyMode=$legacyMode',
+          'Checking command: name="${c['name']}", triggers=$triggers, type="$type"',
           botId: botId,
         );
-        return (cleanName == commandName ||
-                rawName.toLowerCase() == commandName) &&
-            (type == 'chatinput' || type.isEmpty) &&
-            legacyMode;
+        return (type == 'chatinput' || type.isEmpty) &&
+            legacyCommandMatchesTrigger(command: c, typedName: commandName);
       },
       orElse: () {
         callbacks.onDebugLog?.call(
@@ -695,8 +695,10 @@ class EventDispatcher {
           final query = parts.length > 1 ? parts[1].toLowerCase().trim() : '';
 
           if (query.isNotEmpty) {
+            // The query may target any trigger word of the command (name or
+            // alias) so `help p` works when `p` is an alias.
             final target = legacyCommands.firstWhere(
-              (c) => (c['name'] ?? '').toString().toLowerCase() == query,
+              (c) => legacyCommandTriggerNames(c).contains(query),
               orElse: () => <String, dynamic>{},
             );
             if (target.isNotEmpty) {
@@ -712,6 +714,16 @@ class EventDispatcher {
 
               final buffer = StringBuffer();
               buffer.writeln('**Command:** `$prefix$name`');
+              // Trigger names are ordered: effective name first, aliases next.
+              final aliasTriggers = legacyCommandTriggerNames(
+                target,
+              ).skip(1).toList(growable: false);
+              if (aliasTriggers.isNotEmpty) {
+                final renderedAliases = aliasTriggers
+                    .map((alias) => '$prefix$alias')
+                    .join(', ');
+                buffer.writeln('**Aliases:** `$renderedAliases`');
+              }
               buffer.writeln('**Description:** $desc');
 
               final options =
@@ -812,8 +824,10 @@ class EventDispatcher {
     );
     unawaited(store.recordCommandExecution(botId, commandName));
 
-    final triggerRawName = (command['name'] ?? '').toString();
-    final timedTriggerDelay = extractTimedTriggerDelay(triggerRawName);
+    final timedTriggerDelay = legacyCommandTimedTriggerDelay(
+      command: command,
+      typedName: commandName,
+    );
     if (timedTriggerDelay != null) {
       if (timedTriggerDelay == Duration.zero) {
         unawaited(() async {
@@ -1237,42 +1251,23 @@ class EventDispatcher {
     return '❌ ${text.substring(0, maxContent)}$suffix';
   }
 
+  /// Removes `{$t}` / `{$t:5s}` modifiers from a trigger name, then trims and
+  /// lowercases it.
+  ///
+  /// Kept as a static entry point (public API used by tests): the actual
+  /// implementation is shared with alias handling in
+  /// `utils/legacy_command_triggers.dart`.
   static String cleanCommandTriggerName(String rawName) {
-    return rawName
-        .replaceAll(RegExp(r'\{\$t(?::[^}]+)?\}', caseSensitive: false), '')
-        .trim()
-        .toLowerCase();
+    return cleanLegacyCommandTriggerName(rawName);
   }
 
+  /// Extracts the delay encoded in the `{$t}` / `{$t:5s}` modifier of a
+  /// trigger name, or `null` when it carries no modifier.
+  ///
+  /// Kept as a static entry point (public API used by tests): the actual
+  /// implementation is shared with alias handling in
+  /// `utils/legacy_command_triggers.dart`.
   static Duration? extractTimedTriggerDelay(String rawName) {
-    final match = RegExp(
-      r'\{\$t(?::([^}]+))?\}',
-      caseSensitive: false,
-    ).firstMatch(rawName);
-    if (match == null) return null;
-    final delayStr = match.group(1)?.trim();
-    if (delayStr == null || delayStr.isEmpty) {
-      return Duration.zero;
-    }
-    final numMatch = RegExp(
-      r'^(\d+(?:\.\d+)?)\s*(ms|s|m|h)?$',
-      caseSensitive: false,
-    ).firstMatch(delayStr);
-    if (numMatch != null) {
-      final value = double.tryParse(numMatch.group(1)!) ?? 0;
-      final unit = numMatch.group(2)?.toLowerCase() ?? 's';
-      switch (unit) {
-        case 'ms':
-          return Duration(milliseconds: value.round());
-        case 'm':
-          return Duration(milliseconds: (value * 60000).round());
-        case 'h':
-          return Duration(milliseconds: (value * 3600000).round());
-        case 's':
-        default:
-          return Duration(milliseconds: (value * 1000).round());
-      }
-    }
-    return Duration.zero;
+    return extractLegacyCommandTimedTriggerDelay(rawName);
   }
 }

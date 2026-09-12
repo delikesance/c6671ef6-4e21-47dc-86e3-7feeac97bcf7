@@ -1357,6 +1357,59 @@ class AppLocalizationsTr extends AppLocalizations {
       'Bu jetonu gizli tutun. Ona sahip olan herkes botunuzu kontrol edebilir.';
 
   @override
+  String get appearance_preset_graphite => 'Grafit';
+
+  @override
+  String get appearance_preset_graphite_desc =>
+      'Nötr gri yüzeyler — özgün varsayılan görünüm.';
+
+  @override
+  String get appearance_preset_violet_bc => 'Mor Bot Creator';
+
+  @override
+  String get appearance_preset_violet_bc_desc =>
+      'Bot Creator marka imzası; renkli yüzeyler dahil.';
+
+  @override
+  String get appearance_preset_discord => 'Discord';
+
+  @override
+  String get appearance_preset_discord_desc =>
+      'Alışıldık bir görünüm için Discord blurple rengi.';
+
+  @override
+  String get appearance_preset_ocean => 'Okyanus';
+
+  @override
+  String get appearance_preset_ocean_desc => 'Derin su gibi camgöbeği tonları.';
+
+  @override
+  String get appearance_preset_forest => 'Orman';
+
+  @override
+  String get appearance_preset_forest_desc => 'Sakin ve doğal koyu yeşil.';
+
+  @override
+  String get appearance_preset_amber => 'Amber';
+
+  @override
+  String get appearance_preset_amber_desc =>
+      'Canlı bir görünüm için sıcak turuncu.';
+
+  @override
+  String get appearance_preset_rose => 'Gül';
+
+  @override
+  String get appearance_preset_rose_desc => 'Cesur ve modern magenta pembe.';
+
+  @override
+  String get appearance_preset_high_contrast => 'Yüksek kontrast';
+
+  @override
+  String get appearance_preset_high_contrast_desc =>
+      'Arayüz için maksimum okunabilirlik.';
+
+  @override
   String get autocomplete_dynamic => 'Dinamik Otomatik Tamamlama';
 
   @override
@@ -1492,6 +1545,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get bot_home_section_getting_started => 'BAŞLARKEN';
 
   @override
+  String get bot_home_section_modules => 'MODÜLLER';
+
+  @override
   String get bot_home_section_monitoring => 'İZLEME';
 
   @override
@@ -1510,6 +1566,9 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get bot_home_starting => 'Başlatılıyor…';
+
+  @override
+  String get bot_home_restart => 'Yeniden Başlat';
 
   @override
   String get bot_home_stop => 'Botu Durdur';
@@ -2708,6 +2767,160 @@ class AppLocalizationsTr extends AppLocalizations {
   String get cmd_variables_title => 'Komut Değişkenleri';
 
   @override
+  String get code_editor_settings_title => 'Kod düzenleyici';
+
+  @override
+  String get code_editor_settings_subtitle =>
+      'BDFD ve JavaScript düzenleyicileri için tema, yazı tipi ve düzenleme davranışı';
+
+  @override
+  String get code_editor_settings_reset_tooltip => 'Varsayılanlara sıfırla';
+
+  @override
+  String get code_editor_settings_reset_title => 'Yapılandırmayı sıfırla';
+
+  @override
+  String get code_editor_settings_reset_confirm =>
+      'Tüm düzenleyici ayarları varsayılan değerlerine sıfırlansın mı?';
+
+  @override
+  String get code_editor_settings_reset_action => 'Sıfırla';
+
+  @override
+  String get code_editor_settings_reset_done =>
+      'Düzenleyici ayarları varsayılana sıfırlandı';
+
+  @override
+  String get code_editor_settings_preview_title => 'Canlı önizleme';
+
+  @override
+  String get code_editor_settings_section_theme_title =>
+      'Sözdizimi renklendirme teması';
+
+  @override
+  String get code_editor_settings_section_theme_subtitle =>
+      'BDFD ve JavaScript için uygulanan görsel stili seçin';
+
+  @override
+  String get code_editor_settings_theme_mode_dark => 'Koyu mod';
+
+  @override
+  String get code_editor_settings_theme_mode_light => 'Açık mod';
+
+  @override
+  String get code_editor_settings_section_font_title =>
+      'Yazı tipi ve tipografi';
+
+  @override
+  String get code_editor_settings_section_font_subtitle =>
+      'Yazı tipi ailesini ve metin boyutunu ayarlayın';
+
+  @override
+  String get code_editor_settings_font_family => 'Yazı tipi ailesi';
+
+  @override
+  String get code_editor_settings_font_system => 'Sistem tek aralıklı';
+
+  @override
+  String get code_editor_settings_font_jetbrains_mono => 'JetBrains Mono';
+
+  @override
+  String get code_editor_settings_font_fira_code => 'Fira Code';
+
+  @override
+  String get code_editor_settings_font_consolas => 'Consolas';
+
+  @override
+  String get code_editor_settings_font_size => 'Yazı tipi boyutu';
+
+  @override
+  String get code_editor_settings_line_height =>
+      'Satır yüksekliği (satır aralığı)';
+
+  @override
+  String get code_editor_settings_section_display_title =>
+      'Görünüm ve görsel kılavuzlar';
+
+  @override
+  String get code_editor_settings_section_display_subtitle =>
+      'Satır numaraları, girinti kılavuzları ve satır kaydırma';
+
+  @override
+  String get code_editor_settings_line_numbers => 'Satır numaraları';
+
+  @override
+  String get code_editor_settings_line_numbers_desc =>
+      'Numaralandırmayı sol kenar boşluğunda gösterir';
+
+  @override
+  String get code_editor_settings_indent_guides => 'Girinti kılavuzları';
+
+  @override
+  String get code_editor_settings_indent_guides_desc =>
+      'Kod bloklarını görmek için dikey çizgiler';
+
+  @override
+  String get code_editor_settings_word_wrap => 'Otomatik satır kaydırma';
+
+  @override
+  String get code_editor_settings_word_wrap_desc =>
+      'Uzun satırları yatay kaydırmak yerine kaydırır';
+
+  @override
+  String get code_editor_settings_quick_chars =>
+      'Hızlı karakter çubuğu (mobil)';
+
+  @override
+  String get code_editor_settings_quick_chars_desc =>
+      'Klavyenin üzerinde BDFD ön eki, bağımsız değişkenler, ayırıcılar ve parantezler eklemek için hızlı düğmeler';
+
+  @override
+  String get code_editor_settings_section_editing_title =>
+      'Düzenleme davranışı';
+
+  @override
+  String get code_editor_settings_section_editing_subtitle =>
+      'Otomatik kapatma ve boşluklar';
+
+  @override
+  String get code_editor_settings_auto_close =>
+      'Sembollerin otomatik kapanması';
+
+  @override
+  String get code_editor_settings_auto_close_desc =>
+      'Köşeli parantezleri, küme parantezlerini, normal parantezleri ve tırnak işaretlerini otomatik kapatır';
+
+  @override
+  String get code_editor_settings_tab_size => 'Sekme boyutu (boşluk)';
+
+  @override
+  String get code_editor_settings_tab_size_desc =>
+      'Girintilerken eklenen boşluk sayısı';
+
+  @override
+  String get command_alias_label => 'Takma ad';
+
+  @override
+  String get command_alias_hint => '!p';
+
+  @override
+  String get command_alias_help =>
+      'Komut bu tetikleyici sözcüklere de yanıt verir.';
+
+  @override
+  String get command_alias_duplicate => 'Bu takma ad zaten kullanılıyor.';
+
+  @override
+  String command_alias_limit(int max) {
+    return 'En fazla $max takma ad.';
+  }
+
+  @override
+  String command_alias_collision(String command) {
+    return '$command komutu tarafından zaten kullanılıyor.';
+  }
+
+  @override
   String get command_awaited_error => 'Hata';
 
   @override
@@ -3101,6 +3314,9 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get common_disabled => 'Devre Dışı';
+
+  @override
+  String get common_discard => 'Vazgeç';
 
   @override
   String get common_edit => 'Düzenle';
@@ -3653,6 +3869,12 @@ class AppLocalizationsTr extends AppLocalizations {
   String get edit_shell_untitled_command => 'Adsız komut';
 
   @override
+  String get editor_sidebar_collapse => 'Kenar çubuğunu daralt';
+
+  @override
+  String get editor_sidebar_expand => 'Kenar çubuğunu genişlet';
+
+  @override
   String get embed_add_field => 'Alan Ekle';
 
   @override
@@ -4058,6 +4280,28 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get home_add_time => 'Zaman Ekle';
+
+  @override
+  String get home_overline => 'PROJELERİM';
+
+  @override
+  String get home_create_bot_title => 'Bot oluştur';
+
+  @override
+  String get home_create_bot_subtitle => 'Discord botun iki tıkta';
+
+  @override
+  String home_active_on_servers_one(int count) {
+    return '$count sunucuda aktif';
+  }
+
+  @override
+  String home_active_on_servers_other(int count) {
+    return '$count sunucuda aktif';
+  }
+
+  @override
+  String get home_synced_active => 'Senkron ve aktif';
 
   @override
   String get home_empty_support_btn => 'Discord Desteği';
@@ -5851,7 +6095,51 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settings_app_version => 'Uygulama';
 
   @override
-  String get settings_appearance_title => 'Görünüm ve dil';
+  String get settings_appearance_accent_label => 'Vurgu';
+
+  @override
+  String settings_appearance_contrast_ratio(String ratio) {
+    return 'Vurgu/yüzey kontrastı: $ratio';
+  }
+
+  @override
+  String settings_appearance_contrast_warning(String ratio) {
+    return 'Düşük kontrast ($ratio): Vurgu arka plandan zor ayrılıyor. Uygulama gerektiğinde bunu uyarlar; daha açık veya koyu bir vurgu okunabilirliği artırır.';
+  }
+
+  @override
+  String get settings_appearance_custom_badge => 'Özel';
+
+  @override
+  String get settings_appearance_custom_title => 'Özel renkler';
+
+  @override
+  String get settings_appearance_mode_dark => 'Koyu';
+
+  @override
+  String get settings_appearance_mode_light => 'Açık';
+
+  @override
+  String get settings_appearance_mode_system => 'Sistem';
+
+  @override
+  String get settings_appearance_mode_title => 'Mod';
+
+  @override
+  String get settings_appearance_presets_title => 'Hazır temalar';
+
+  @override
+  String get settings_appearance_reset => 'Sıfırla';
+
+  @override
+  String get settings_appearance_seed_label => 'Ana renk';
+
+  @override
+  String get settings_appearance_subtitle =>
+      'Bir mod, hazır bir tema veya kendi renklerini seç.';
+
+  @override
+  String get settings_appearance_title => 'Görünüm';
 
   @override
   String get settings_auto_backup_check_loading =>
@@ -6590,11 +6878,11 @@ class AppLocalizationsTr extends AppLocalizations {
       'Uygulamayı bir Bot Creator Runner\'a bağlayın. Uzak çalıştırıcılar güvenilir ağlarda kalmalı ve bir taşıyıcı jeton (bearer token) kullanmalıdır.';
 
   @override
-  String get settings_runner_use_remote => 'Use remote runner';
+  String get settings_runner_use_remote => 'Uzak çalıştırıcı kullan';
 
   @override
   String get settings_runner_use_remote_desc =>
-      'Connect to a remote Bot Creator Runner. Leave off to run bots locally on this device.';
+      'Uzak bir Bot Creator Runner\'a bağlanın. Kapalı bırakırsanız botlar bu cihazda yerel olarak çalışır.';
 
   @override
   String get settings_runner_disable_temp =>
@@ -8211,50 +8499,73 @@ class AppLocalizationsTr extends AppLocalizations {
   String get onboarding_command_now => 'İlk komutunu oluştur';
 
   @override
-  String get container_list_title => 'Barindirilan Uygulamalar';
+  String get container_list_title => 'Hazır Botlar';
 
   @override
-  String get container_list_session_missing => 'Oturum kullanilamiyor';
+  String get container_list_session_missing => 'Oturum kullanılamıyor';
 
   @override
-  String get container_list_session_hint => 'Lütfen önce hesabiniza baglanin.';
+  String get container_list_session_hint => 'Lütfen önce hesabınıza bağlanın.';
 
   @override
-  String get container_list_error => 'Kapsayicilar yüklenirken basarisiz oldu';
+  String get container_list_error => 'Botlar yüklenirken başarısız oldu';
 
   @override
   String get container_list_retry => 'Tekrar Dene';
 
   @override
-  String get container_list_empty => 'Barindirilan uygulama yok';
+  String get container_list_empty => 'Hazır bot yok';
 
   @override
   String get container_list_empty_hint =>
-      'Baslamak için ilk uygulamanizi dagitin.';
+      '1 tıkla ilk kullanıma hazır botunuzu dağıtın.';
 
   @override
-  String get container_list_deploy_btn => 'Uygulama Dagit';
+  String get container_list_deploy_btn => 'Hazır Bot Dağıt';
+
+  @override
+  String get container_list_unsupported_badge => 'Desteklenmiyor';
 
   @override
   String get container_list_expired => 'Süresi doldu';
 
   @override
   String container_list_expiry_minutes(int minutes) {
-    return '$minutes dakika kaldi';
+    return '$minutes dakika kaldı';
   }
 
   @override
   String container_list_expiry_hours(int hours, int minutes) {
-    return '$hours saat $minutes dakika kaldi';
+    return '$hours saat $minutes dakika kaldı';
   }
 
   @override
   String container_list_expiry_days(int days, int hours) {
-    return '$days gün $hours saat kaldi';
+    return '$days gün $hours saat kaldı';
   }
 
   @override
-  String get container_deploy_title => 'Uygulama Dagit';
+  String get container_deploy_title => 'Hazır Bot Dağıt';
+
+  @override
+  String get container_deploy_template_section => 'Kullanıma Hazır Şablon';
+
+  @override
+  String get container_deploy_managed_hosting => '7/24 Yönetilen Barındırma';
+
+  @override
+  String get container_deploy_bot_config_section =>
+      'Discord Bot Yapılandırması';
+
+  @override
+  String get container_deploy_paste_token_hint =>
+      'Discord bot belirtecini (token) buraya yapıştırın';
+
+  @override
+  String get container_deploy_discord_prereqs => 'Discord Ön Koşulları';
+
+  @override
+  String get container_deploy_launch_btn => 'Hazır Botu Başlat';
 
   @override
   String get container_deploy_image_label => 'Görüntü';
@@ -8491,70 +8802,70 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get container_hosted_subtitle =>
-      'Docker kapsayicilarini dagitin ve yönetin';
+      'Kullanıma hazır botları (müzik vb.) 1 tıkla dağıtın';
 
   @override
   String get container_premium_badge => 'Premium';
 
   @override
   String container_detail_title(String id) {
-    return 'Kapsayici $id';
+    return 'Bot $id';
   }
 
   @override
   String get container_list_premium_host_anytime_tooltip =>
-      'Premium — istediginiz zaman barindirin';
+      'Premium — istediğiniz zaman barındırın';
 
   @override
   String get container_list_premium_host_anytime_fab =>
-      'Istediginiz zaman barindirin';
+      'İstediğiniz zaman barındırın';
 
   @override
   String get container_list_free_limit_reached =>
-      'Ucretsiz limit doldu (1 konteyner). Daha fazlasi icin abone olun.';
+      'Ücretsiz limit doldu (1 bot). Daha fazlası için abone olun.';
 
   @override
   String get container_hosted_premium_host_anytime =>
-      'Istediginiz zaman barindirin';
+      'İstediğiniz zaman barındırın';
 
   @override
   String get container_hosted_premium_host_anytime_compact =>
-      'Abone ol — istediginiz zaman barindirin';
+      'Abone ol — istediğiniz zaman barındırın';
 
   @override
   String get container_hosted_premium_desc =>
-      'Docker konteynerlerini sinirsiz barindirin — reklam yok. Abonelik gerekir.';
+      'Hazır botları 7/24 sınırsız barındırın — reklam yok. Abonelik gerekir.';
 
   @override
-  String get container_hosted_premium_view_btn => 'Planlari gor';
+  String get container_hosted_premium_view_btn => 'Planları gör';
 
   @override
-  String get hosted_app_subscription_title => 'Barindirilan uygulamalar';
+  String get hosted_app_subscription_title => 'Hazır Botlar';
 
   @override
   String get hosted_app_subscription_subtitle =>
-      'Reklam izlemeden Docker konteynerlerini bulutta calistirin.';
+      'Kullanıma hazır botları bulutta kesintisiz 7/24 barındırın.';
 
   @override
   String get hosted_app_subscription_benefit_unlimited =>
-      'Sinirsiz barindirma suresi';
+      'Sınırsız barındırma süresi';
 
   @override
-  String get hosted_app_subscription_benefit_no_ads => 'Odullu reklam gerekmez';
+  String get hosted_app_subscription_benefit_no_ads => 'Ödüllü reklam gerekmez';
 
   @override
-  String get hosted_app_subscription_one_app_title => '1 konteyner';
+  String get hosted_app_subscription_one_app_title => '1 barındırılan bot';
 
   @override
   String get hosted_app_subscription_one_app_desc =>
-      'Bir Docker konteynerini istediginiz zaman barindirin';
+      'İstediğiniz zaman 1 hazır bot barındırın';
 
   @override
-  String get hosted_app_subscription_two_app_title => '2 konteyner';
+  String get hosted_app_subscription_two_app_title => '2 barındırılan bot';
 
   @override
   String get hosted_app_subscription_two_app_desc =>
-      'En fazla iki Docker konteyneri barindirin';
+      'En fazla iki hazır bot barındırın';
 
   @override
   String get hosted_app_subscription_recommended => 'En iyi deger';
@@ -8791,4 +9102,282 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get docs_reload => 'Yeniden yukle';
+
+  @override
+  String get common_duplicate => 'Çoğalt';
+
+  @override
+  String get commands_batch_select => 'Toplu seçim';
+
+  @override
+  String commands_selected_count(int count) {
+    return '$count seçili';
+  }
+
+  @override
+  String get image_editor_title => 'Görüntü Düzenleyici';
+
+  @override
+  String get image_editor_add_operation => 'İşlem ekle';
+
+  @override
+  String get image_editor_add_layer => 'Katman ekle';
+
+  @override
+  String get image_editor_operations => 'İşlemler';
+
+  @override
+  String get image_editor_op_container => 'Kapsayıcı / Çerçeve';
+
+  @override
+  String get image_editor_op_progress_bar => 'İlerleme çubuğu';
+
+  @override
+  String get image_editor_op_composite_image => 'Görüntüyü birleştir';
+
+  @override
+  String get image_editor_op_set_pixel => 'Piksel ayarla';
+
+  @override
+  String get image_editor_op_invert => 'Renkleri ters çevir';
+
+  @override
+  String get image_editor_op_grayscale => 'Gri tonlamaya dönüştür';
+
+  @override
+  String get image_editor_op_rotate => 'Tuvali döndür';
+
+  @override
+  String get image_editor_zoom_in => 'Yakınlaştır';
+
+  @override
+  String get image_editor_zoom_out => 'Uzaklaştır';
+
+  @override
+  String get image_editor_zoom_fit => 'Ekrana sığdır';
+
+  @override
+  String get image_editor_undo => 'Geri al';
+
+  @override
+  String get image_editor_redo => 'Yinele';
+
+  @override
+  String get image_editor_canvas => 'Tuval';
+
+  @override
+  String get image_editor_width => 'Genişlik';
+
+  @override
+  String get image_editor_height => 'Yükseklik';
+
+  @override
+  String get image_editor_properties => 'Özellikler';
+
+  @override
+  String get image_editor_visible => 'Görünür';
+
+  @override
+  String get image_editor_opacity => 'Opaklık';
+
+  @override
+  String image_editor_ops_summary(int count, int hidden) {
+    return '$count işlem, $hidden gizli';
+  }
+
+  @override
+  String image_editor_empty_hint(String op) {
+    return 'Başlamak için bir \"$op\" işlemi ekleyin';
+  }
+
+  @override
+  String get image_editor_tap_to_edit => 'Düzenlemek için dokunun';
+
+  @override
+  String get image_editor_no_operations => 'Henüz işlem yok';
+
+  @override
+  String get image_editor_select_operation =>
+      'Özelliklerini düzenlemek için bir işlem seçin';
+
+  @override
+  String get image_editor_insert_variable => 'Değişken ekle';
+
+  @override
+  String get image_editor_variable_label => 'Değişken';
+
+  @override
+  String get image_editor_variable_hint =>
+      'Filtrelemek için yazın veya aşağıdaki öneriye dokunun';
+
+  @override
+  String get image_editor_insert => 'Ekle';
+
+  @override
+  String get image_editor_pick_image => 'Resim dosyası seç';
+
+  @override
+  String get image_editor_color_picker => 'Renk seçici';
+
+  @override
+  String get image_editor_hue => 'Ton';
+
+  @override
+  String get image_editor_saturation => 'Doygunluk';
+
+  @override
+  String get image_editor_no_url => 'URL yok';
+
+  @override
+  String get image_editor_unknown => 'Bilinmiyor';
+
+  @override
+  String get image_editor_field_text => 'Metin';
+
+  @override
+  String get image_editor_field_font_size => 'Yazı boyutu';
+
+  @override
+  String get image_editor_field_max_width => 'Maks. genişlik';
+
+  @override
+  String get image_editor_field_text_align => 'Metin hizası';
+
+  @override
+  String get image_editor_field_blend => 'Karışım';
+
+  @override
+  String get image_editor_field_fill => 'Doldur';
+
+  @override
+  String get image_editor_field_radius => 'Yarıçap';
+
+  @override
+  String get image_editor_field_thickness => 'Kalınlık';
+
+  @override
+  String get image_editor_field_shape => 'Şekil';
+
+  @override
+  String get image_editor_field_percentage => 'Yüzde';
+
+  @override
+  String get image_editor_field_bar_color => 'Çubuk rengi';
+
+  @override
+  String get image_editor_field_track_color => 'Hat rengi';
+
+  @override
+  String get image_editor_field_text_color => 'Metin rengi';
+
+  @override
+  String get image_editor_field_border_width => 'Kenarlık genişliği';
+
+  @override
+  String get image_editor_field_border_radius => 'Kenarlık yarıçapı';
+
+  @override
+  String get image_editor_field_orientation => 'Yön';
+
+  @override
+  String get image_editor_field_angle => 'Açı (derece)';
+
+  @override
+  String get image_editor_field_container => 'Kapsayıcı';
+
+  @override
+  String get image_editor_field_background_color => 'Arka plan rengi';
+
+  @override
+  String get image_editor_hint_auto_size => 'otomatik (özgün boyut)';
+
+  @override
+  String get image_editor_hint_optional_background => 'isteğe bağlı arka plan';
+
+  @override
+  String get image_editor_hint_parent_container => 'üst kapsayıcı adı';
+
+  @override
+  String get image_editor_hint_container_width =>
+      'hizalama için kapsayıcı genişliği';
+
+  @override
+  String get action_card_duration => 'Süre';
+
+  @override
+  String get action_card_error_message => 'Hata Mesajı';
+
+  @override
+  String get action_card_jump_to => 'Şuraya atla';
+
+  @override
+  String get action_card_maximum => 'Maksimum';
+
+  @override
+  String get action_card_minimum => 'Minimum';
+
+  @override
+  String get action_card_skip_count => 'Atlanacak sayı';
+
+  @override
+  String get action_edit_request => 'İsteği düzenle';
+
+  @override
+  String get action_error_jump => 'Eyleme Atla';
+
+  @override
+  String get action_error_skip => 'N eylemi atla';
+
+  @override
+  String get component_max_length => 'Maksimum Uzunluk';
+
+  @override
+  String get component_min_length => 'Minimum Uzunluk';
+
+  @override
+  String get http_request_header_name => 'Başlık adı';
+
+  @override
+  String get http_request_json_body => 'JSON Gövdesi';
+
+  @override
+  String get http_request_section_body => 'Gövde';
+
+  @override
+  String get http_request_section_headers => 'Başlıklar';
+
+  @override
+  String get http_request_section_request => 'İstek';
+
+  @override
+  String get http_request_text_body => 'Metin Gövdesi';
+
+  @override
+  String marketplace_summary_commands(int count) {
+    return '$count komut';
+  }
+
+  @override
+  String marketplace_summary_variables(int count, int required) {
+    return '$count değişken ($required gerekli)';
+  }
+
+  @override
+  String marketplace_summary_workflows(int count) {
+    return '$count iş akışı';
+  }
+
+  @override
+  String get modal_builder_configure_submit_actions =>
+      'Gönderme Eylemlerini Yapılandır';
+
+  @override
+  String get modal_builder_edit_submit_actions =>
+      'Gönderme Eylemlerini Düzenle';
+
+  @override
+  String get modal_builder_identity => 'Kimlik';
+
+  @override
+  String get modal_builder_submit_actions => 'Gönderme Eylemleri';
 }

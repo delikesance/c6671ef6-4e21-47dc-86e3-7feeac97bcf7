@@ -1,4 +1,31 @@
-Bot Creator v1.9.22
+Bot Creator v2.1.11
+
+New Features:
+- Customize the app's appearance with new theme presets, per-mode accent colors, and a dedicated Settings card
+- A single, unified navigation bar across the app and the bot editor, with a retractable sidebar on desktop
+- Text Commands now support trigger aliases, so a single command can respond to several phrases
+- Your bot cards now show the real icons of your Discord servers
+- Hosted Apps are now "Ready-Made Bots": a redesigned, easier way to launch a bot in one click
+- The code editor is back with full customization and a Rose Pine theme by default — code now highlights using your selected theme
+
+Improvements:
+- Faster home screen: servers are cached per session and images are cached on disk
+- Smoother mobile and desktop layouts, with fixes for log overflow and wasted space on large screens
+- Bundled all 5 Google Fonts, so text renders correctly and never downloads at runtime
+- The embedded console now shows the same output as the logs page
+- Better command editor blocks, blueprint layout, and clearer subscription savings
+- In-app purchases now send your account ID for more reliable billing
+- Google Drive reconnects silently in the background
+- Full translations for Ready-Made Bots and the builder across all languages (German, Japanese, Portuguese, Turkish and more)
+
+Bug Fixes:
+- Fixed sync so your local bots and commands are preserved when pulling from the cloud
+- Fixed duplicate "unknown" command names that could break bot sync
+- Fixed $reaction, removeReaction, and role/permission functions in the transpiler, and improved signature hints
+- Fixed hardcoded strings that were not translated, including in the image editor
+- Improved accessibility: categories and palette colors are now readable in both light and dark themes
+
+v1.9.22
 
 New Features:
 - Lavalink controls are now fully translated in French, German, Portuguese, Japanese, and Turkish

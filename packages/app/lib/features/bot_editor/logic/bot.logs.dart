@@ -45,8 +45,9 @@ class BotRuntimeMetrics {
 
 String _buildBotBucketKey(RemoteRuntimeSource source, String? botId) {
   final normalizedBotId = botId?.trim() ?? '';
-  final bucketBotId =
-      normalizedBotId.isEmpty ? _globalBotBucketKey : normalizedBotId;
+  final bucketBotId = normalizedBotId.isEmpty
+      ? _globalBotBucketKey
+      : normalizedBotId;
   return '${source.name}::$bucketBotId';
 }
 
@@ -75,7 +76,6 @@ String _resolveBotBucketKey(
 
 _CpuSample? _lastCpuSample;
 bool _remoteMetricsBaselineInitialized = false;
-
 
 int? _readCurrentProcessRssBytes() {
   try {
@@ -240,14 +240,15 @@ void _updateBotMetrics({
   final key = _resolveBotBucketKey(botId, source: source);
   final previous = _botMetricsByBot[key] ?? const BotRuntimeMetrics();
 
-  final nextRss =
-      overwriteNulls || rssBytes != null ? rssBytes : previous.rssBytes;
-  final nextCpu =
-      overwriteNulls || cpuPercent != null ? cpuPercent : previous.cpuPercent;
-  final nextStorage =
-      overwriteNulls || storageBytes != null
-          ? storageBytes
-          : previous.storageBytes;
+  final nextRss = overwriteNulls || rssBytes != null
+      ? rssBytes
+      : previous.rssBytes;
+  final nextCpu = overwriteNulls || cpuPercent != null
+      ? cpuPercent
+      : previous.cpuPercent;
+  final nextStorage = overwriteNulls || storageBytes != null
+      ? storageBytes
+      : previous.storageBytes;
 
   int? nextEstimated;
   if (estimatedRssBytes != null) {
@@ -396,8 +397,6 @@ Stream<int?> getBotProcessStorageStream() =>
 
 int? getBotProcessStorageBytes() => _botProcessStorageBytes;
 
-
-
 void _publishBotLogs() {
   final selectedKey = _resolveBotBucketKey(
     _activeBotLogBotId,
@@ -412,7 +411,9 @@ void _publishBotLogs() {
     _botLogsController.add(List<String>.unmodifiable(_botLogs));
   }
   if (!_botLogsByBotController.isClosed) {
-    _botLogsByBotController.add(Map<String, List<String>>.unmodifiable(_botLogsByBot));
+    _botLogsByBotController.add(
+      Map<String, List<String>>.unmodifiable(_botLogsByBot),
+    );
   }
 }
 
@@ -420,10 +421,74 @@ Stream<List<String>> getBotLogsStream() => _botLogsController.stream;
 
 List<String> getBotLogsSnapshot() => List<String>.unmodifiable(_botLogs);
 
+/// Source de runtime qui produit actuellement les logs de chaque bot.
+///
+/// Un bot n'a qu'une seule source « vivante » à la fois (local, runner ou
+/// manager) : le panneau console intégré doit donc lire le même bucket que
+/// [BotLogsPage] au lieu de supposer que tout arrive en local (bug « panneau
+/// vide alors que la page affiche les logs »).
+final Map<String, RemoteRuntimeSource> _botLogSourceByBot =
+    <String, RemoteRuntimeSource>{};
+
+void _rememberBotLogSource(String botId, RemoteRuntimeSource source) {
+  final trimmed = botId.trim();
+  if (trimmed.isEmpty) {
+    return;
+  }
+  _botLogSourceByBot[trimmed] = source;
+}
+
+/// Mémorise (et publie) la source de logs réellement utilisée pour [botId].
+///
+/// Appelée par `BotLogsPage` après résolution du runtime, pour que tout autre
+/// lecteur (panneau console de la home) affiche les mêmes lignes.
+void setBotLogsSourceForBot(String? botId, RemoteRuntimeSource source) {
+  final trimmed = botId?.trim() ?? '';
+  if (trimmed.isEmpty) {
+    return;
+  }
+  _rememberBotLogSource(trimmed, source);
+  if (!_botLogsByBotController.isClosed) {
+    _botLogsByBotController.add(
+      Map<String, List<String>>.unmodifiable(_botLogsByBot),
+    );
+  }
+}
+
+/// Source de logs à utiliser pour [botId] quand l'appelant n'en fournit pas.
+///
+/// Ordre de résolution : source mémorisée (session de logs en cours ou
+/// dernière ligne reçue), puis source de la session active si c'est ce bot,
+/// puis local.
+RemoteRuntimeSource resolveBotLogsSourceForBot(String? botId) {
+  final trimmed = botId?.trim() ?? '';
+  if (trimmed.isEmpty) {
+    return _activeBotLogSource;
+  }
+  final remembered = _botLogSourceByBot[trimmed];
+  if (remembered != null) {
+    return remembered;
+  }
+  if (_activeBotLogBotId?.trim() == trimmed) {
+    return _activeBotLogSource;
+  }
+  return RemoteRuntimeSource.local;
+}
+
+/// Bucket exact que `BotLogsPage` affiche pour [botId] : celui de la source de
+/// runtime résolue pour ce bot. Aucune heuristique ici, le panneau intégré et
+/// la page doivent lire le même bucket.
+List<String> _visibleBotLogsForBot(String botId) {
+  final key = _buildBotBucketKey(resolveBotLogsSourceForBot(botId), botId);
+  return _botLogsByBot[key] ?? const <String>[];
+}
+
 Stream<List<String>> getBotLogsStreamForBot(String? botId) {
-  return getBotLogsStreamForBotFromSource(
-    botId,
-    source: RemoteRuntimeSource.local,
+  // Le flux ré-évalue le snapshot à chaque publication : si la source de logs
+  // du bot change (démarrage sur un runner, sync manager…), le panneau suit
+  // sans reconstruire le widget.
+  return _botLogsByBotController.stream.map(
+    (_) => getBotLogsSnapshotForBot(botId),
   );
 }
 
@@ -438,11 +503,17 @@ Stream<List<String>> getBotLogsStreamForBotFromSource(
   );
 }
 
+/// Snapshot des logs visibles pour [botId], en tenant compte de la source de
+/// runtime qui alimente réellement ce bot (voir [_visibleBotLogsForBot]).
 List<String> getBotLogsSnapshotForBot(String? botId) {
-  return getBotLogsSnapshotForBotFromSource(
-    botId,
-    source: RemoteRuntimeSource.local,
-  );
+  final trimmed = botId?.trim() ?? '';
+  if (trimmed.isEmpty) {
+    return getBotLogsSnapshotForBotFromSource(
+      botId,
+      source: resolveBotLogsSourceForBot(botId),
+    );
+  }
+  return List<String>.unmodifiable(_visibleBotLogsForBot(trimmed));
 }
 
 List<String> getBotLogsSnapshotForBotFromSource(
@@ -505,6 +576,7 @@ void startBotLogSession({
 }) {
   _activeBotLogBotId = botId;
   _activeBotLogSource = source;
+  _rememberBotLogSource(botId, source);
   final key = _buildBotBucketKey(source, botId);
   _botLogsByBot[key] = <String>[];
   _remoteMetricsBaselineInitialized = false;
@@ -599,9 +671,11 @@ void appendBotLog(
   RemoteRuntimeSource source = RemoteRuntimeSource.local,
 }) {
   final key = _resolveBotBucketKey(botId, source: source);
+  _rememberBotLogSource(botId ?? '', source);
   final logs = _botLogsByBot.putIfAbsent(key, () => <String>[]);
-  final line =
-      _startsWithTimestamp(message) ? message : '[${_timestampNow()}] $message';
+  final line = _startsWithTimestamp(message)
+      ? message
+      : '[${_timestampNow()}] $message';
   logs.add(line);
   if (kDebugMode && source != RemoteRuntimeSource.local) {
     developer.log('New remote log appended: $line', name: 'BotLogs');
@@ -762,8 +836,6 @@ String _formatNyxxLogRecord(LogRecord record) {
   return buffer.toString();
 }
 
-
-
 void consumeForegroundTaskDataForBotLogs(Object data) {
   if (data is! Map) {
     return;
@@ -796,19 +868,18 @@ void consumeForegroundTaskDataForBotLogs(Object data) {
   if (map['type'] == 'bot_metrics') {
     final botId = map['botId']?.toString();
     final rssBytes = map['rssBytes'];
-    final rssAsInt =
-        (rssBytes is int)
-            ? rssBytes
-            : int.tryParse((rssBytes ?? '').toString());
+    final rssAsInt = (rssBytes is int)
+        ? rssBytes
+        : int.tryParse((rssBytes ?? '').toString());
     final cpuRaw = map['cpuPercent'];
-    final cpuAsDouble =
-        (cpuRaw is num) ? cpuRaw.toDouble() : double.tryParse('$cpuRaw');
+    final cpuAsDouble = (cpuRaw is num)
+        ? cpuRaw.toDouble()
+        : double.tryParse('$cpuRaw');
     final storageRaw = map['storageBytes'];
-    final storageAsInt =
-        (storageRaw is int)
-            ? storageRaw
-            : int.tryParse((storageRaw ?? '').toString());
-    
+    final storageAsInt = (storageRaw is int)
+        ? storageRaw
+        : int.tryParse((storageRaw ?? '').toString());
+
     final guildCountRaw = map['guildCount'];
     if (guildCountRaw != null && botId != null && botId.isNotEmpty) {
       final guildCountAsInt = (guildCountRaw is int)
@@ -846,9 +917,3 @@ void consumeForegroundTaskDataForBotLogs(Object data) {
   }
   appendBotLog(message, botId: botId);
 }
-
-
-
-
-
-

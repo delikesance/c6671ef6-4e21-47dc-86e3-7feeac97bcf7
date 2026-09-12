@@ -5,11 +5,9 @@ import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/core/utils/external_link.dart';
 
 import 'package:archive/archive_io.dart';
-import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:googleapis/drive/v3.dart';
-import 'package:googleapis_auth/googleapis_auth.dart' as auth show AuthClient;
 import 'dart:io' as manager;
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
@@ -17,6 +15,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:crypto/crypto.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -76,6 +75,26 @@ DriveApi? _mobileDriveApiCache;
 /// In-flight mobile Drive API initialization to coalesce concurrent requests.
 Future<DriveApi>? _mobileDriveApiInFlight;
 
+const String _prefsGoogleDriveEnabledKey = 'google_drive_enabled';
+
+/// Returns true if the user previously connected their Google Drive account.
+Future<bool> isGoogleDriveEnabled() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_prefsGoogleDriveEnabledKey) ?? false;
+  } catch (_) {
+    return false;
+  }
+}
+
+/// Persists whether Google Drive sync is active.
+Future<void> setGoogleDriveEnabled(bool enabled) async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_prefsGoogleDriveEnabledKey, enabled);
+  } catch (_) {}
+}
+
 // ---------------------------------------------------------------------------
 // Platform helpers
 // ---------------------------------------------------------------------------
@@ -119,8 +138,9 @@ Future<GoogleSignIn> _getInitializedGoogleSignIn() async {
 
     // Android Credential Manager requires serverClientId = Web client ID.
     // On iOS it is optional but harmless.
-    final String? serverClientId =
-        isAndroid ? _androidServerClientIdFallback : null;
+    final String? serverClientId = isAndroid
+        ? _androidServerClientIdFallback
+        : null;
 
     if (isAndroid && serverClientId == null) {
       throw Exception(
@@ -195,6 +215,11 @@ Future<DriveApi> _getMobileDriveApi({bool interactive = true}) async {
     final authz =
         existingAuth ??
         await (() async {
+          if (!interactive) {
+            throw Exception(
+              'Drive scopes not authorized and interactive prompt is disabled.',
+            );
+          }
           try {
             return await account.authorizationClient.authorizeScopes(
               _mobileDriveScopes,
@@ -206,8 +231,9 @@ Future<DriveApi> _getMobileDriveApi({bool interactive = true}) async {
             rethrow;
           }
         })();
-    final auth.AuthClient client = authz.authClient(scopes: _mobileDriveScopes);
+    final client = _MobileDriveAuthClient(account, authz.accessToken);
     _mobileDriveApiCache = DriveApi(client);
+    await setGoogleDriveEnabled(true);
     return _mobileDriveApiCache!;
   }();
 
@@ -225,7 +251,7 @@ Future<DriveApi> _getMobileDriveApi({bool interactive = true}) async {
 // Desktop: browser OAuth
 // ---------------------------------------------------------------------------
 
-Future<void> _authenticateDesktopIfNeeded() async {
+Future<void> _authenticateDesktopIfNeeded({bool interactive = true}) async {
   _desktopTokens ??= await _loadDesktopTokens();
   final current = _desktopTokens;
   final now = DateTime.now();
@@ -268,6 +294,10 @@ Future<void> _authenticateDesktopIfNeeded() async {
     }
   }
 
+  if (!interactive) {
+    throw Exception('No valid desktop OAuth session without interaction.');
+  }
+
   _desktopTokens = await _runBrowserOAuthFlow(clientId: _desktopClientId);
   await _saveDesktopTokens(_desktopTokens!);
 }
@@ -296,6 +326,7 @@ Future<void> disconnectDriveAccount() async {
   _mobileDriveApiInFlight = null;
   _desktopTokens = null;
   await _clearDesktopTokens();
+  await setGoogleDriveEnabled(false);
 
   if (_isMobilePlatform) {
     final signIn = await _getInitializedGoogleSignIn();
@@ -373,13 +404,16 @@ Future<void> _clearDesktopTokens() async {
 Future<DriveApi> getDriveApi({bool interactive = true}) async {
   // Desktop (Windows / Linux / macOS)
   if (_isDesktopPlatform) {
-    await _authenticateDesktopIfNeeded();
+    await _authenticateDesktopIfNeeded(interactive: interactive);
+    await setGoogleDriveEnabled(true);
     return DriveApi(_AccessTokenClient(_desktopTokens!.accessToken));
   }
 
   // Mobile (Android + iOS) — native GoogleSignIn
   if (_isMobilePlatform) {
-    return _getMobileDriveApi(interactive: interactive);
+    final api = await _getMobileDriveApi(interactive: interactive);
+    await setGoogleDriveEnabled(true);
+    return api;
   }
 
   throw Exception('Google Drive sync is not supported on this platform.');
@@ -564,11 +598,10 @@ Future<File> createFolder(
   String parentId = '',
 }) {
   final parents = parentId.isEmpty ? ['appDataFolder'] : [parentId];
-  final meta =
-      File()
-        ..name = name
-        ..mimeType = 'application/vnd.google-apps.folder'
-        ..parents = parents;
+  final meta = File()
+    ..name = name
+    ..mimeType = 'application/vnd.google-apps.folder'
+    ..parents = parents;
   return drive.files.create(meta);
 }
 
@@ -584,11 +617,10 @@ Future<File> uploadFile(
   final bytes = await local.readAsBytes();
   final size = bytes.length;
   final parents = parentId.isEmpty ? ['appDataFolder'] : [parentId];
-  final meta =
-      File()
-        ..name = fileName
-        ..mimeType = mimeType
-        ..parents = parents;
+  final meta = File()
+    ..name = fileName
+    ..mimeType = mimeType
+    ..parents = parents;
   return drive.files.create(
     meta,
     uploadMedia: Media(Stream<List<int>>.value(bytes), size),
@@ -969,8 +1001,9 @@ Future<String> restoreBackupSnapshot(
         continue;
       }
 
-      final nextRel =
-          relPath.isEmpty ? childName : path.join(relPath, childName);
+      final nextRel = relPath.isEmpty
+          ? childName
+          : path.join(relPath, childName);
       if (child.mimeType == 'application/vnd.google-apps.folder') {
         await restoreFolder(childId, nextRel);
         continue;
@@ -1061,10 +1094,9 @@ Future<String> _downloadLegacyFlatBackup(
     }
     final parent = file.parents?.isNotEmpty == true ? file.parents!.first : '';
     final folderName = folders[parent];
-    final targetPath =
-        folderName == null
-            ? path.join(localAppsDir.path, file.name!)
-            : path.join(localAppsDir.path, folderName, file.name!);
+    final targetPath = folderName == null
+        ? path.join(localAppsDir.path, file.name!)
+        : path.join(localAppsDir.path, folderName, file.name!);
     await downloadFile(drive, fileId: file.id!, filePath: targetPath);
   }
 
@@ -1111,12 +1143,12 @@ Future<File?> _findNamedChild(
   bool folderOnly = false,
 }) async {
   final escapedName = name.replaceAll("'", r"\'");
-  final parentClause =
-      parentId.isEmpty
-          ? "'appDataFolder' in parents"
-          : "'$parentId' in parents";
-  final mimeClause =
-      folderOnly ? " and mimeType='application/vnd.google-apps.folder'" : '';
+  final parentClause = parentId.isEmpty
+      ? "'appDataFolder' in parents"
+      : "'$parentId' in parents";
+  final mimeClause = folderOnly
+      ? " and mimeType='application/vnd.google-apps.folder'"
+      : '';
   final query =
       "trashed=false and $parentClause and name='$escapedName'$mimeClause";
   final result = await drive.files.list(
@@ -1359,6 +1391,59 @@ class _AccessTokenClient extends http.BaseClient {
   Future<http.StreamedResponse> send(http.BaseRequest request) {
     request.headers['authorization'] = 'Bearer $_accessToken';
     return _inner.send(request);
+  }
+
+  @override
+  void close() {
+    _inner.close();
+    super.close();
+  }
+}
+
+/// An authenticated HTTP client for mobile that automatically checks and refreshes
+/// OAuth tokens via [GoogleSignInAccount.authorizationClient] before expiration or on 401.
+class _MobileDriveAuthClient extends http.BaseClient {
+  _MobileDriveAuthClient(this._account, this._accessToken);
+
+  final GoogleSignInAccount _account;
+  String _accessToken;
+  final http.Client _inner = http.Client();
+
+  Future<String> _getValidAccessToken() async {
+    try {
+      final auth = await _account.authorizationClient.authorizationForScopes(
+        _mobileDriveScopes,
+      );
+      if (auth != null && auth.accessToken.isNotEmpty) {
+        _accessToken = auth.accessToken;
+      }
+    } catch (e) {
+      debugPrint('[Drive] Token refresh check: $e');
+    }
+    return _accessToken;
+  }
+
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    final token = await _getValidAccessToken();
+    request.headers['authorization'] = 'Bearer $token';
+    request.headers['X-Goog-AuthUser'] = '0';
+    var response = await _inner.send(request);
+
+    if (response.statusCode == 401) {
+      // Invalidate cache on 401 so next attempt forces fresh auth state
+      _mobileDriveApiCache = null;
+      try {
+        final auth = await _account.authorizationClient.authorizationForScopes(
+          _mobileDriveScopes,
+        );
+        if (auth != null && auth.accessToken.isNotEmpty) {
+          _accessToken = auth.accessToken;
+        }
+      } catch (_) {}
+    }
+
+    return response;
   }
 
   @override

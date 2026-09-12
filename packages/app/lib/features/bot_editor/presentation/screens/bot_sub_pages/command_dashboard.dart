@@ -13,6 +13,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/editor_sub_page_ui.dart';
 import 'package:bot_creator/core/utils/responsive.dart';
 
 enum _DashboardStatsSource { local, manager, runner }
@@ -76,7 +77,8 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
   }
 
   String _managerUnavailableMessage() {
-    return _managerUnavailableReason ?? context.tr.runner_source_manager_unavailable;
+    return _managerUnavailableReason ??
+        context.tr.runner_source_manager_unavailable;
   }
 
   Future<void> _refreshSources({
@@ -96,29 +98,26 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
     if (!mounted) return;
 
     final hasManagerSource = runtime.source == RemoteRuntimeSource.manager;
-    var nextSource =
-        preserveSelection
-            ? _source
-            : switch (runtime.source) {
-              RemoteRuntimeSource.manager => _DashboardStatsSource.manager,
-              RemoteRuntimeSource.runner => _DashboardStatsSource.runner,
-              RemoteRuntimeSource.local => _DashboardStatsSource.local,
-            };
+    var nextSource = preserveSelection
+        ? _source
+        : switch (runtime.source) {
+            RemoteRuntimeSource.manager => _DashboardStatsSource.manager,
+            RemoteRuntimeSource.runner => _DashboardStatsSource.runner,
+            RemoteRuntimeSource.local => _DashboardStatsSource.local,
+          };
     var nextActiveRunnerId = preserveSelection ? _activeRunnerId : config?.id;
 
     if (nextSource == _DashboardStatsSource.manager && !hasManagerSource) {
-      nextSource =
-          config == null
-              ? _DashboardStatsSource.local
-              : _DashboardStatsSource.runner;
+      nextSource = config == null
+          ? _DashboardStatsSource.local
+          : _DashboardStatsSource.runner;
       nextActiveRunnerId = config?.id;
     }
 
     if (nextSource == _DashboardStatsSource.runner) {
-      final selectedRunner =
-          runners
-              .where((runner) => runner.id == nextActiveRunnerId)
-              .firstOrNull;
+      final selectedRunner = runners
+          .where((runner) => runner.id == nextActiveRunnerId)
+          .firstOrNull;
       if (selectedRunner == null) {
         if (config != null && runners.any((runner) => runner.id == config.id)) {
           nextActiveRunnerId = config.id;
@@ -138,10 +137,9 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
         nextClient = null;
         break;
       case _DashboardStatsSource.manager:
-        nextClient =
-            runtime.source == RemoteRuntimeSource.manager
-                ? runtime.client
-                : null;
+        nextClient = runtime.source == RemoteRuntimeSource.manager
+            ? runtime.client
+            : null;
         break;
       case _DashboardStatsSource.runner:
         final runner =
@@ -153,15 +151,13 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
                 ? config
                 : null);
         if (runner == null) {
-          nextSource =
-              hasManagerSource
-                  ? _DashboardStatsSource.manager
-                  : _DashboardStatsSource.local;
+          nextSource = hasManagerSource
+              ? _DashboardStatsSource.manager
+              : _DashboardStatsSource.local;
           nextActiveRunnerId = null;
-          nextClient =
-              nextSource == _DashboardStatsSource.manager
-                  ? runtime.client
-                  : null;
+          nextClient = nextSource == _DashboardStatsSource.manager
+              ? runtime.client
+              : null;
         } else {
           nextActiveRunnerId = runner.id;
           nextClient = runner.createClient();
@@ -174,8 +170,9 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
       _activeRunnerId = nextActiveRunnerId;
       _source = nextSource;
       _hasManagerSource = hasManagerSource;
-      _managerUnavailableReason =
-          hasManagerSource ? runtime.unavailableReason : null;
+      _managerUnavailableReason = hasManagerSource
+          ? runtime.unavailableReason
+          : null;
       _refreshingSources = false;
     });
     _client = nextClient;
@@ -219,7 +216,6 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
     _client = runner.createClient();
     await _refreshSources();
   }
-
 
   Future<void> _fetchStats() async {
     setState(() {
@@ -333,25 +329,75 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
     String format(DateTime date) {
       final months = switch (locale) {
         'fr' => const [
-            'janv.', 'févr.', 'mars', 'avril', 'mai', 'juin',
-            'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'
-          ],
+          'janv.',
+          'févr.',
+          'mars',
+          'avril',
+          'mai',
+          'juin',
+          'juil.',
+          'août',
+          'sept.',
+          'oct.',
+          'nov.',
+          'déc.',
+        ],
         'de' => const [
-            'Jan.', 'Feb.', 'März', 'Apr.', 'Mai', 'Juni',
-            'Juli', 'Aug.', 'Sept.', 'Okt.', 'Nov.', 'Dez.'
-          ],
+          'Jan.',
+          'Feb.',
+          'März',
+          'Apr.',
+          'Mai',
+          'Juni',
+          'Juli',
+          'Aug.',
+          'Sept.',
+          'Okt.',
+          'Nov.',
+          'Dez.',
+        ],
         'pt' => const [
-            'jan.', 'fev.', 'mar.', 'abr.', 'mai.', 'jun.',
-            'jul.', 'ago.', 'set.', 'out.', 'nov.', 'dez.'
-          ],
+          'jan.',
+          'fev.',
+          'mar.',
+          'abr.',
+          'mai.',
+          'jun.',
+          'jul.',
+          'ago.',
+          'set.',
+          'out.',
+          'nov.',
+          'dez.',
+        ],
         'tr' => const [
-            'Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz',
-            'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'
-          ],
+          'Oca',
+          'Şub',
+          'Mar',
+          'Nis',
+          'May',
+          'Haz',
+          'Tem',
+          'Ağu',
+          'Eyl',
+          'Eki',
+          'Kas',
+          'Ara',
+        ],
         _ => const [
-            'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-            'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-          ],
+          'Jan',
+          'Feb',
+          'Mar',
+          'Apr',
+          'May',
+          'Jun',
+          'Jul',
+          'Aug',
+          'Sep',
+          'Oct',
+          'Nov',
+          'Dec',
+        ],
       };
 
       if (locale == 'fr') {
@@ -366,6 +412,7 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
         return '${months[date.month - 1]} ${date.day}, ${date.year}';
       }
     }
+
     return '${format(_startDate)} - ${format(_endDate)}';
   }
 
@@ -378,10 +425,10 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
       locale: Localizations.localeOf(context),
       builder: (context, child) {
         return Theme(
+          // The picker inherits the ambient scheme (single accent) instead of
+          // re-injecting the brand purple locally.
           data: Theme.of(context).copyWith(
             colorScheme: Theme.of(context).colorScheme.copyWith(
-              primary: AppTheme.brandPrimary,
-              onPrimary: Colors.white,
               surface: Theme.of(context).colorScheme.surface,
             ),
           ),
@@ -392,7 +439,14 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
     if (picked != null) {
       setState(() {
         _startDate = picked.start;
-        _endDate = DateTime(picked.end.year, picked.end.month, picked.end.day, 23, 59, 59);
+        _endDate = DateTime(
+          picked.end.year,
+          picked.end.month,
+          picked.end.day,
+          23,
+          59,
+          59,
+        );
         _loading = true;
       });
       await _fetchStats();
@@ -443,12 +497,17 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
                   onTap: _selectDateRange,
                   borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.surfaceContainerLow,
                       borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                       border: Border.all(
-                        color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.outlineVariant.withValues(alpha: 0.3),
                         width: 1.0,
                       ),
                     ),
@@ -457,7 +516,7 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
                         Icon(
                           Icons.calendar_today_outlined,
                           size: 18,
-                          color: Theme.of(context).colorScheme.primary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -466,18 +525,24 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
                             children: [
                               Text(
                                 context.tr.dashboard_analysis_period,
-                                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                  color: Theme.of(context).colorScheme.outline,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: Theme.of(context).textTheme.labelSmall
+                                    ?.copyWith(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.outline,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                               ),
                               const SizedBox(height: 2),
                               Text(
                                 _formatDateRangeLabel(),
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurface,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                               ),
                             ],
                           ),
@@ -485,7 +550,7 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
                         Icon(
                           Icons.edit_calendar_outlined,
                           size: 18,
-                          color: Theme.of(context).colorScheme.primary,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ],
                     ),
@@ -499,16 +564,18 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
                 icon: Icons.functions,
                 label: context.tr.dashboard_total,
                 value: _totalAllTime.toString(),
-                subtitle: context.tr.dashboard_selected_period_total(periodTotal),
+                subtitle: context.tr.dashboard_selected_period_total(
+                  periodTotal,
+                ),
                 colorScheme: colorScheme,
               ),
               const SizedBox(height: 16),
               if (hasExpandedAnalytics) ...[
                 Text(
                   context.tr.dashboard_execution_health_title,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Wrap(
@@ -542,9 +609,8 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
                       children: [
                         Text(
                           context.tr.dashboard_premium_analytics_title,
-                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
+                          style: Theme.of(context).textTheme.titleSmall
+                              ?.copyWith(fontWeight: FontWeight.w700),
                         ),
                         const SizedBox(height: 6),
                         Text(context.tr.dashboard_premium_analytics_desc),
@@ -568,9 +634,9 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
                 const SizedBox(height: 16),
                 Text(
                   context.tr.dashboard_top_locales,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Wrap(
@@ -579,8 +645,9 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
                   children: _locales
                       .take(8)
                       .map(
-                        (entry) =>
-                            Chip(label: Text('${entry.locale} (${entry.count})')),
+                        (entry) => Chip(
+                          label: Text('${entry.locale} (${entry.count})'),
+                        ),
                       )
                       .toList(growable: false),
                 ),
@@ -645,7 +712,9 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
                     color: Theme.of(context).colorScheme.surfaceContainerLow,
                     borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                     border: Border.all(
-                      color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.2),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.outlineVariant.withValues(alpha: 0.2),
                     ),
                   ),
                   child: _InteractiveTimelineChart(
@@ -664,10 +733,11 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
       return Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          leading: IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () => context.openParentDrawer(),
-          ),
+          // Width-driven leading (partage avec les autres sous-pages) : null
+          // quand la sidebar du shell est permanente, bouton tiroir en layout
+          // compact, bouton retour sur une route poussée. L'ancien garde
+          // `isDesktopPlatform()` laissait un burger mort en desktop large.
+          leading: editorSubPageLeading(context),
           title: Text(context.tr.dashboard_title),
           centerTitle: true,
         ),
@@ -696,11 +766,10 @@ class _TimelineEntry {
     if (bucket == null) {
       return hour;
     }
-    final date =
-        DateTime.fromMillisecondsSinceEpoch(
-          bucket * 3600000,
-          isUtc: true,
-        ).toLocal();
+    final date = DateTime.fromMillisecondsSinceEpoch(
+      bucket * 3600000,
+      isUtc: true,
+    ).toLocal();
     String two(int value) => value.toString().padLeft(2, '0');
     return '${two(date.day)}/${two(date.month)} ${two(date.hour)}:00';
   }
@@ -796,7 +865,7 @@ class _StatCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(icon, color: colorScheme.primary),
+          Icon(icon, color: colorScheme.onSurfaceVariant),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -894,6 +963,7 @@ class _InteractiveTimelineChart extends StatefulWidget {
 
   final List<_TimelineEntry> entries;
   final Color color;
+
   /// Localised formatter: called like `executionsLabel(count)` → "3 executions"
   final String Function(int) executionsLabel;
 
@@ -926,7 +996,10 @@ class _InteractiveTimelineChartState extends State<_InteractiveTimelineChart>
     final entries = widget.entries;
     if (entries.isEmpty) return;
     final pct = (pos.dx / width).clamp(0.0, 1.0);
-    final idx = (pct * (entries.length - 1)).round().clamp(0, entries.length - 1);
+    final idx = (pct * (entries.length - 1)).round().clamp(
+      0,
+      entries.length - 1,
+    );
     setState(() => _selectedIndex = idx);
   }
 
@@ -948,8 +1021,10 @@ class _InteractiveTimelineChartState extends State<_InteractiveTimelineChart>
     return LayoutBuilder(
       builder: (context, constraints) {
         return GestureDetector(
-          onHorizontalDragStart: (d) => _updateTouch(d.localPosition, constraints.maxWidth),
-          onHorizontalDragUpdate: (d) => _updateTouch(d.localPosition, constraints.maxWidth),
+          onHorizontalDragStart: (d) =>
+              _updateTouch(d.localPosition, constraints.maxWidth),
+          onHorizontalDragUpdate: (d) =>
+              _updateTouch(d.localPosition, constraints.maxWidth),
           onHorizontalDragEnd: (_) => _clearTouch(),
           onTapDown: (d) => _updateTouch(d.localPosition, constraints.maxWidth),
           onTapUp: (_) => _clearTouch(),
@@ -1012,7 +1087,14 @@ class _TimelineChartPainter extends CustomPainter {
       ..strokeWidth = 1.0;
     for (int i = 1; i <= 3; i++) {
       final y = gridPadding + graphHeight * (i / 4.0);
-      _drawDashedLine(canvas, Offset(0, y), Offset(size.width, y), gridPaint, 4.0, 4.0);
+      _drawDashedLine(
+        canvas,
+        Offset(0, y),
+        Offset(size.width, y),
+        gridPaint,
+        4.0,
+        4.0,
+      );
     }
 
     // Compute pixel positions
@@ -1020,7 +1102,9 @@ class _TimelineChartPainter extends CustomPainter {
       for (int i = 0; i < values.length; i++)
         Offset(
           (i / (values.length - 1)) * size.width,
-          size.height - gridPadding - ((values[i] - minV) / range) * graphHeight,
+          size.height -
+              gridPadding -
+              ((values[i] - minV) / range) * graphHeight,
         ),
     ];
 
@@ -1036,11 +1120,10 @@ class _TimelineChartPainter extends CustomPainter {
     canvas.drawPath(
       fillPath,
       Paint()
-        ..shader = ui.Gradient.linear(
-          Offset.zero,
-          Offset(0, size.height),
-          [color.withValues(alpha: 0.22), color.withValues(alpha: 0.0)],
-        )
+        ..shader = ui.Gradient.linear(Offset.zero, Offset(0, size.height), [
+          color.withValues(alpha: 0.22),
+          color.withValues(alpha: 0.0),
+        ])
         ..style = PaintingStyle.fill,
     );
 
@@ -1052,11 +1135,10 @@ class _TimelineChartPainter extends CustomPainter {
     canvas.drawPath(
       strokePath,
       Paint()
-        ..shader = ui.Gradient.linear(
-          Offset.zero,
-          Offset(size.width, 0),
-          [color, color.withValues(alpha: 0.7)],
-        )
+        ..shader = ui.Gradient.linear(Offset.zero, Offset(size.width, 0), [
+          color,
+          color.withValues(alpha: 0.7),
+        ])
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2.5
         ..strokeCap = StrokeCap.round
@@ -1080,10 +1162,15 @@ class _TimelineChartPainter extends CustomPainter {
       );
 
       // Halo + dot
-      canvas.drawCircle(pt, 8.0, Paint()..color = color.withValues(alpha: 0.25));
+      canvas.drawCircle(
+        pt,
+        8.0,
+        Paint()..color = color.withValues(alpha: 0.25),
+      );
       canvas.drawCircle(pt, 4.0, Paint()..color = color);
       canvas.drawCircle(
-        pt, 4.0,
+        pt,
+        4.0,
         Paint()
           ..color = Colors.white
           ..style = PaintingStyle.stroke
@@ -1139,7 +1226,8 @@ class _TimelineChartPainter extends CustomPainter {
       );
       canvas.drawCircle(last, 3.5, Paint()..color = color);
       canvas.drawCircle(
-        last, 3.5,
+        last,
+        3.5,
         Paint()
           ..color = Colors.white
           ..style = PaintingStyle.stroke
@@ -1199,15 +1287,13 @@ class _StatsSourceBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final activeRunner =
-        runners.where((r) => r.id == activeRunnerId).firstOrNull;
+    final activeRunner = runners
+        .where((r) => r.id == activeRunnerId)
+        .firstOrNull;
     final localLabel = context.tr.runner_source_local;
-    final activeRunnerLabel =
-        activeRunner == null
-            ? '?'
-            : context.tr.runner_source_label(
-              activeRunner.name ?? activeRunner.url,
-            );
+    final activeRunnerLabel = activeRunner == null
+        ? '?'
+        : context.tr.runner_source_label(activeRunner.name ?? activeRunner.url);
     final selectedValue = switch (source) {
       _DashboardStatsSource.local => 'local',
       _DashboardStatsSource.manager => 'manager',
@@ -1224,71 +1310,75 @@ class _StatsSourceBanner extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: colorScheme.primaryContainer.withValues(alpha: 0.4),
+        // Neutral bar: the active source is already named by the dropdown
+        // label — no brand-tinted container is needed.
+        color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(AppTheme.radiusSm),
       ),
       child: Row(
         children: [
-          Icon(Icons.dns_outlined, size: 18, color: colorScheme.primary),
+          Icon(
+            Icons.dns_outlined,
+            size: 18,
+            color: colorScheme.onSurfaceVariant,
+          ),
           const SizedBox(width: 8),
           Expanded(
-            child:
-                hasMultipleChoices
-                    ? DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        value: selectedValue,
-                        isDense: true,
-                        isExpanded: true,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: colorScheme.onPrimaryContainer,
+            child: hasMultipleChoices
+                ? DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: selectedValue,
+                      isDense: true,
+                      isExpanded: true,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: colorScheme.onSurface,
+                      ),
+                      items: [
+                        DropdownMenuItem(
+                          value: 'local',
+                          child: Text(
+                            localLabel,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                        items: [
+                        if (hasManagerSource)
                           DropdownMenuItem(
-                            value: 'local',
+                            value: 'manager',
                             child: Text(
-                              localLabel,
+                              managerLabel,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          if (hasManagerSource)
-                            DropdownMenuItem(
-                              value: 'manager',
-                              child: Text(
-                                managerLabel,
-                                overflow: TextOverflow.ellipsis,
-                              ),
+                        for (final r in runners)
+                          DropdownMenuItem(
+                            value: r.id,
+                            child: Text(
+                              context.tr.runner_source_label(r.name ?? r.url),
+                              overflow: TextOverflow.ellipsis,
                             ),
-                          for (final r in runners)
-                            DropdownMenuItem(
-                              value: r.id,
-                              child: Text(
-                                context.tr.runner_source_label(r.name ?? r.url),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                        ],
-                        onChanged: (v) {
-                          if (v != null) onSourceChanged(v);
-                        },
-                      ),
-                    )
-                    : Text(
-                      sourceLabel,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: colorScheme.onPrimaryContainer,
-                      ),
+                          ),
+                      ],
+                      onChanged: (v) {
+                        if (v != null) onSourceChanged(v);
+                      },
                     ),
+                  )
+                : Text(
+                    sourceLabel,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: colorScheme.onSurface,
+                    ),
+                  ),
           ),
           IconButton(
             tooltip: context.tr.dashboard_refresh_sources_tooltip,
-            onPressed:
-                onRefreshSources == null
-                    ? null
-                    : () {
-                      unawaited(onRefreshSources!());
-                    },
+            onPressed: onRefreshSources == null
+                ? null
+                : () {
+                    unawaited(onRefreshSources!());
+                  },
             icon: const Icon(Icons.refresh, size: 18),
           ),
         ],

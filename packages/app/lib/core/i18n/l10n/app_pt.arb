@@ -1169,6 +1169,9 @@
   "@bot_home_section_getting_started": {
     "description": "GETTING STARTED"
   },
+  "@bot_home_section_modules": {
+    "description": "MODULES"
+  },
   "@bot_home_section_monitoring": {
     "description": "MONITORING"
   },
@@ -1177,6 +1180,9 @@
   },
   "@bot_home_service_not_started": {
     "description": "Foreground service did not start."
+  },
+  "@bot_home_restart": {
+    "description": "Restart"
   },
   "@bot_home_start": {
     "description": "Start Bot"
@@ -2944,6 +2950,12 @@
   },
   "@edit_shell_untitled_command": {
     "description": "Untitled command"
+  },
+  "@editor_sidebar_collapse": {
+    "description": "Collapse the editor sidebar into an icon rail"
+  },
+  "@editor_sidebar_expand": {
+    "description": "Expand the collapsed editor sidebar"
   },
   "@embed_add_field": {
     "description": "Add Field"
@@ -7185,6 +7197,22 @@
   "app_token_section_desc": "Assim que o token for copiado, cole-o abaixo para adicionar o seu bot à app.",
   "app_token_section_title": "Cole o token do seu bot",
   "app_token_security_hint": "Mantenha este token privado. Qualquer pessoa com ele pode controlar o seu bot.",
+  "appearance_preset_graphite": "Grafite",
+  "appearance_preset_graphite_desc": "Superfícies cinzentas neutras — o visual padrão original.",
+  "appearance_preset_violet_bc": "Violeta Bot Creator",
+  "appearance_preset_violet_bc_desc": "A assinatura Bot Creator, com superfícies tingidas.",
+  "appearance_preset_discord": "Discord",
+  "appearance_preset_discord_desc": "O blurple do Discord, para um visual familiar.",
+  "appearance_preset_ocean": "Oceano",
+  "appearance_preset_ocean_desc": "Tons ciano, como águas profundas.",
+  "appearance_preset_forest": "Floresta",
+  "appearance_preset_forest_desc": "Verde profundo, calmo e natural.",
+  "appearance_preset_amber": "Âmbar",
+  "appearance_preset_amber_desc": "Laranja quente, para um visual vivo.",
+  "appearance_preset_rose": "Rosa",
+  "appearance_preset_rose_desc": "Rosa magenta, ousado e moderno.",
+  "appearance_preset_high_contrast": "Contraste elevado",
+  "appearance_preset_high_contrast_desc": "Legibilidade máxima da interface.",
   "autocomplete_dynamic": "Autocompletar Dinâmico",
   "autocomplete_dynamic_desc": "Resolva as escolhas de um fluxo em vez de valores estáticos.",
   "autocomplete_filter_hint": "As sugestões são filtradas pelo que o usuário digita.",
@@ -7225,12 +7253,14 @@
   "bot_home_notif_required": "A permissão de notificação é necessária para iniciar o serviço do bot.",
   "bot_home_section_danger": "ZONA DE PERIGO",
   "bot_home_section_getting_started": "INTRODUÇÃO",
+  "bot_home_section_modules": "MÓDULOS",
   "bot_home_section_monitoring": "MONITORIZAÇÃO",
   "bot_home_section_tools": "FERRAMENTAS",
   "bot_home_service_not_started": "O serviço de primeiro plano não iniciou.",
   "bot_home_start": "Iniciar Bot",
   "bot_home_start_error": "Não foi possível iniciar: {error}",
   "bot_home_starting": "A iniciar…",
+  "bot_home_restart": "Reiniciar",
   "bot_home_stop": "Parar Bot",
   "bot_home_sync": "Sincronizar App",
   "bot_home_sync_success": "App sincronizada com sucesso",
@@ -7560,6 +7590,49 @@
   "cmd_simple_response_visibility_public": "Público",
   "cmd_simple_send_message_required": "Por favor, preencha a mensagem da ação antes de guardar.",
   "cmd_variables_title": "Variáveis de Comando",
+  "code_editor_settings_title": "Editor de código",
+  "code_editor_settings_subtitle": "Tema, fonte e comportamento de edição dos editores BDFD e JavaScript",
+  "code_editor_settings_reset_tooltip": "Restaurar padrões",
+  "code_editor_settings_reset_title": "Redefinir configuração",
+  "code_editor_settings_reset_confirm": "Restaurar todas as configurações do editor para os valores padrão?",
+  "code_editor_settings_reset_action": "Redefinir",
+  "code_editor_settings_reset_done": "Configurações do editor restauradas para o padrão",
+  "code_editor_settings_preview_title": "Pré-visualização ao vivo",
+  "code_editor_settings_section_theme_title": "Tema de realce de sintaxe",
+  "code_editor_settings_section_theme_subtitle": "Escolha o estilo visual aplicado ao BDFD e ao JavaScript",
+  "code_editor_settings_theme_mode_dark": "Modo escuro",
+  "code_editor_settings_theme_mode_light": "Modo claro",
+  "code_editor_settings_section_font_title": "Fonte e tipografia",
+  "code_editor_settings_section_font_subtitle": "Ajuste a família da fonte e o tamanho do texto",
+  "code_editor_settings_font_family": "Família da fonte",
+  "code_editor_settings_font_system": "Monoespaçada do sistema",
+  "code_editor_settings_font_jetbrains_mono": "JetBrains Mono",
+  "code_editor_settings_font_fira_code": "Fira Code",
+  "code_editor_settings_font_consolas": "Consolas",
+  "code_editor_settings_font_size": "Tamanho da fonte",
+  "code_editor_settings_line_height": "Altura da linha (entrelinha)",
+  "code_editor_settings_section_display_title": "Exibição e guias visuais",
+  "code_editor_settings_section_display_subtitle": "Números de linha, guias de indentação e quebra de linha",
+  "code_editor_settings_line_numbers": "Números de linha",
+  "code_editor_settings_line_numbers_desc": "Mostra a numeração na margem esquerda",
+  "code_editor_settings_indent_guides": "Guias de indentação",
+  "code_editor_settings_indent_guides_desc": "Linhas verticais para visualizar blocos de código",
+  "code_editor_settings_word_wrap": "Quebra automática de linha",
+  "code_editor_settings_word_wrap_desc": "Quebra linhas longas em vez de rolar horizontalmente",
+  "code_editor_settings_quick_chars": "Barra de caracteres rápidos (celular)",
+  "code_editor_settings_quick_chars_desc": "Botões rápidos para inserir o prefixo BDFD, argumentos, separadores e colchetes acima do teclado",
+  "code_editor_settings_section_editing_title": "Comportamento de edição",
+  "code_editor_settings_section_editing_subtitle": "Fechamento automático e espaçamento",
+  "code_editor_settings_auto_close": "Fechamento automático de símbolos",
+  "code_editor_settings_auto_close_desc": "Fecha automaticamente colchetes, chaves, parênteses e aspas",
+  "code_editor_settings_tab_size": "Tamanho da tabulação (espaços)",
+  "code_editor_settings_tab_size_desc": "Número de espaços inseridos ao indentar",
+  "command_alias_label": "Alias",
+  "command_alias_hint": "!p",
+  "command_alias_help": "O comando também responde a estas palavras de ativação.",
+  "command_alias_duplicate": "Este alias já está a ser utilizado.",
+  "command_alias_limit": "Máximo de {max} aliases.",
+  "command_alias_collision": "Já utilizado pelo comando {command}.",
   "command_awaited_error": "Erro",
   "command_awaited_filter_hint": "Exemplo: <numeric> ou <yes/no/cancel>",
   "command_awaited_filter_label": "Filtro (opcional)",
@@ -7671,6 +7744,7 @@
   "common_delete": "Excluir",
   "common_description": "Descrição",
   "common_disabled": "Desativado",
+  "common_discard": "Descartar",
   "common_edit": "Editar",
   "common_enabled": "Ativado",
   "common_import": "Importar",
@@ -7843,6 +7917,8 @@
   "edit_shell_type_user": "Comando de usuário",
   "edit_shell_unsaved": "Alterações não salvas",
   "edit_shell_untitled_command": "Comando sem título",
+  "editor_sidebar_collapse": "Recolher barra lateral",
+  "editor_sidebar_expand": "Expandir barra lateral",
   "embed_add_field": "Adicionar Campo",
   "embed_add_section": "Adicionar Seção",
   "embed_add_tooltip": "Adicionar embed",
@@ -7961,6 +8037,12 @@
   "guilds_tab_short": "Servidores",
   "hint_use_variables": "Use variáveis/modelos se necessário",
   "home_add_time": "Adicionar Tempo",
+  "home_overline": "MEUS PROJETOS",
+  "home_create_bot_title": "Criar um bot",
+  "home_create_bot_subtitle": "O teu bot Discord em dois cliques",
+  "home_active_on_servers_one": "Ativo em {count} servidor",
+  "home_active_on_servers_other": "Ativo em {count} servidores",
+  "home_synced_active": "Sincronizado e ativo",
   "home_empty_support_btn": "Junte-se ao nosso Discord",
   "home_empty_support_hint": "Precisa de ajuda para começar?",
   "home_foreground_service_not_started": "O serviço de primeiro plano não iniciou.",
@@ -8436,7 +8518,20 @@
   "settings_ads_privacy_open_error": "Não foi possível abrir as opções de privacidade de anúncios",
   "settings_ads_privacy_opened": "Opções de privacidade de anúncios abertas",
   "settings_app_version": "App",
-  "settings_appearance_title": "Aspeto e idioma",
+  "settings_appearance_accent_label": "Destaque",
+  "settings_appearance_contrast_ratio": "Contraste destaque/superfície: {ratio}",
+  "settings_appearance_contrast_warning": "Contraste baixo ({ratio}): o destaque quase não se distingue do fundo. A app adapta-o quando necessário, mas um destaque mais claro ou mais escuro melhora a legibilidade.",
+  "settings_appearance_custom_badge": "Personalizado",
+  "settings_appearance_custom_title": "Cores personalizadas",
+  "settings_appearance_mode_dark": "Escuro",
+  "settings_appearance_mode_light": "Claro",
+  "settings_appearance_mode_system": "Sistema",
+  "settings_appearance_mode_title": "Modo",
+  "settings_appearance_presets_title": "Temas predefinidos",
+  "settings_appearance_reset": "Repor",
+  "settings_appearance_seed_label": "Cor principal",
+  "settings_appearance_subtitle": "Escolha um modo, um tema predefinido ou as suas próprias cores.",
+  "settings_appearance_title": "Aspeto",
   "settings_auto_backup_check_loading": "A verificar cópia automática…",
   "settings_auto_backup_every_12h": "A cada 12h",
   "settings_auto_backup_every_24h": "A cada 24h",
@@ -8644,6 +8739,8 @@
   "settings_runner_connected": "Runner acessível ✓",
   "settings_runner_connecting": "A verificar ligação…",
   "settings_runner_desc": "Ligue a app a um Bot Creator Runner. Runners remotos devem permanecer em redes fidedignas e usar um token bearer.",
+  "settings_runner_use_remote": "Usar Runner remoto",
+  "settings_runner_use_remote_desc": "Ligar a um Bot Creator Runner remoto. Deixe desativado para executar os bots localmente neste dispositivo.",
   "settings_runner_disable_temp": "Desativar Runner temporariamente",
   "settings_runner_disable_temp_desc": "Manter definições do Runner mas forçar modo local até ser reativado.",
   "settings_runner_disconnected": "Runner desconectado",
@@ -9184,7 +9281,7 @@
   "command_created_sample_success": "Comando /ping criado! Ele responde \"Pong!\"",
   "onboarding_create_now": "Criar meu bot agora",
   "onboarding_command_now": "Crie seu primeiro comando",
-  "container_list_title": "Aplicações Hospedadas",
+  "container_list_title": "Bots Prontos para Uso",
   "@container_list_title": {
     "description": "Title of the container list page"
   },
@@ -9196,7 +9293,7 @@
   "@container_list_session_hint": {
     "description": "Hint below the session error"
   },
-  "container_list_error": "Falha ao carregar contêineres",
+  "container_list_error": "Falha ao carregar bots",
   "@container_list_error": {
     "description": "Error message when container list fails to load"
   },
@@ -9204,17 +9301,21 @@
   "@container_list_retry": {
     "description": "Retry button label"
   },
-  "container_list_empty": "Nenhuma aplicação hospedada",
+  "container_list_empty": "Nenhum bot pronto para uso",
   "@container_list_empty": {
     "description": "Empty state title"
   },
-  "container_list_empty_hint": "Implante sua primeira aplicação para começar.",
+  "container_list_empty_hint": "Implante seu primeiro bot pronto para uso em 1 clique.",
   "@container_list_empty_hint": {
     "description": "Empty state description"
   },
-  "container_list_deploy_btn": "Implantar Aplicação",
+  "container_list_deploy_btn": "Implantar Bot Pronto para Uso",
   "@container_list_deploy_btn": {
     "description": "Button to deploy a new container"
+  },
+  "container_list_unsupported_badge": "Não suportado",
+  "@container_list_unsupported_badge": {
+    "description": "Badge shown on legacy custom containers"
   },
   "container_list_expired": "Expirado",
   "@container_list_expired": {
@@ -9253,9 +9354,33 @@
       }
     }
   },
-  "container_deploy_title": "Implantar Aplicação",
+  "container_deploy_title": "Implantar Bot Pronto para Uso",
   "@container_deploy_title": {
     "description": "Title of the deploy container page"
+  },
+  "container_deploy_template_section": "Modelo Pronto para Uso",
+  "@container_deploy_template_section": {
+    "description": "Section header for turnkey bot templates"
+  },
+  "container_deploy_managed_hosting": "Hospedagem Gerenciada 24/7",
+  "@container_deploy_managed_hosting": {
+    "description": "Subtitle tag on turnkey bot card"
+  },
+  "container_deploy_bot_config_section": "Configuração do Bot do Discord",
+  "@container_deploy_bot_config_section": {
+    "description": "Section header for bot token config"
+  },
+  "container_deploy_paste_token_hint": "Cole o token do bot do Discord aqui",
+  "@container_deploy_paste_token_hint": {
+    "description": "Hint text for Discord bot token field"
+  },
+  "container_deploy_discord_prereqs": "Pré-requisitos do Discord",
+  "@container_deploy_discord_prereqs": {
+    "description": "Header for Discord prerequisites advice box"
+  },
+  "container_deploy_launch_btn": "Iniciar Bot Pronto para Uso",
+  "@container_deploy_launch_btn": {
+    "description": "Button to launch the turnkey bot"
   },
   "container_deploy_image_label": "Imagem",
   "@container_deploy_image_label": {
@@ -9530,7 +9655,7 @@
   "@container_health_starting": {
     "description": "Explains a starting/provisioning health status"
   },
-  "container_hosted_subtitle": "Implante e gerencie contêineres Docker",
+  "container_hosted_subtitle": "Implante bots prontos para uso (música, etc.) em 1 clique",
   "@container_hosted_subtitle": {
     "description": "Subtitle for the hosted apps card on the home page"
   },
@@ -9538,7 +9663,7 @@
   "@container_premium_badge": {
     "description": "Badge text for premium-gated container feature"
   },
-  "container_detail_title": "Contêiner {id}",
+  "container_detail_title": "Bot {id}",
   "@container_detail_title": {
     "description": "Title of the container detail page, {id} is the short container ID",
     "placeholders": {
@@ -9549,19 +9674,19 @@
   },
   "container_list_premium_host_anytime_tooltip": "Premium — hospede a qualquer momento",
   "container_list_premium_host_anytime_fab": "Hospedar a qualquer momento",
-  "container_list_free_limit_reached": "Limite gratuito atingido (1 contêiner). Assine para hospedar mais.",
+  "container_list_free_limit_reached": "Limite gratuito atingido (1 bot). Assine para hospedar mais.",
   "container_hosted_premium_host_anytime": "Hospede a qualquer momento",
   "container_hosted_premium_host_anytime_compact": "Assinar — hospede a qualquer momento",
-  "container_hosted_premium_desc": "Assine para hospedar contêineres Docker sem limite — sem anúncios.",
+  "container_hosted_premium_desc": "Assine para hospedar bots prontos para uso 24/7 — sem anúncios.",
   "container_hosted_premium_view_btn": "Ver planos",
-  "hosted_app_subscription_title": "Aplicações hospedadas",
-  "hosted_app_subscription_subtitle": "Execute contêineres Docker na nuvem sem ver anúncios.",
+  "hosted_app_subscription_title": "Bots Prontos para Uso",
+  "hosted_app_subscription_subtitle": "Hospede bots prontos para uso na nuvem 24/7 sem interrupções.",
   "hosted_app_subscription_benefit_unlimited": "Tempo de hospedagem ilimitado",
   "hosted_app_subscription_benefit_no_ads": "Sem anúncios recompensados",
-  "hosted_app_subscription_one_app_title": "1 contêiner",
-  "hosted_app_subscription_one_app_desc": "Hospede um contêiner Docker a qualquer momento",
-  "hosted_app_subscription_two_app_title": "2 contêineres",
-  "hosted_app_subscription_two_app_desc": "Hospede até dois contêineres Docker",
+  "hosted_app_subscription_one_app_title": "1 bot hospedado",
+  "hosted_app_subscription_one_app_desc": "Hospede um bot pronto para uso a qualquer momento",
+  "hosted_app_subscription_two_app_title": "2 bots hospedados",
+  "hosted_app_subscription_two_app_desc": "Hospede até dois bots prontos para uso",
   "hosted_app_subscription_recommended": "Melhor valor",
   "container_hosted_free_title": "Hospedagem gratuita (máx. 1 contêiner)",
   "container_hosted_expires_at": "Expira em {dateTime}",
@@ -9784,5 +9909,389 @@
   "docs_reload": "Recarregar",
   "@docs_reload": {
     "description": "docs reload"
+  },
+  "common_duplicate": "Duplicar",
+  "@common_duplicate": {
+    "description": "Duplicate"
+  },
+  "commands_batch_select": "Seleção em lote",
+  "@commands_batch_select": {
+    "description": "Batch select"
+  },
+  "commands_selected_count": "{count} selecionado(s)",
+  "@commands_selected_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "{count} selected"
+  },
+  "image_editor_title": "Editor de Imagem",
+  "@image_editor_title": {
+    "description": "Image Editor"
+  },
+  "image_editor_add_operation": "Adicionar operação",
+  "@image_editor_add_operation": {
+    "description": "Add operation"
+  },
+  "image_editor_add_layer": "Adicionar camada",
+  "@image_editor_add_layer": {
+    "description": "Add Layer"
+  },
+  "image_editor_operations": "Operações",
+  "@image_editor_operations": {
+    "description": "Operations"
+  },
+  "image_editor_op_container": "Contêiner / Moldura",
+  "@image_editor_op_container": {
+    "description": "Container / Frame"
+  },
+  "image_editor_op_progress_bar": "Barra de progresso",
+  "@image_editor_op_progress_bar": {
+    "description": "Progress Bar"
+  },
+  "image_editor_op_composite_image": "Imagem composta",
+  "@image_editor_op_composite_image": {
+    "description": "Composite Image"
+  },
+  "image_editor_op_set_pixel": "Definir pixel",
+  "@image_editor_op_set_pixel": {
+    "description": "Set Pixel"
+  },
+  "image_editor_op_invert": "Inverter cores",
+  "@image_editor_op_invert": {
+    "description": "Invert Colors"
+  },
+  "image_editor_op_grayscale": "Converter para escala de cinza",
+  "@image_editor_op_grayscale": {
+    "description": "Convert to Grayscale"
+  },
+  "image_editor_op_rotate": "Girar tela",
+  "@image_editor_op_rotate": {
+    "description": "Rotate Canvas"
+  },
+  "image_editor_zoom_in": "Ampliar zoom",
+  "@image_editor_zoom_in": {
+    "description": "Zoom in"
+  },
+  "image_editor_zoom_out": "Reduzir zoom",
+  "@image_editor_zoom_out": {
+    "description": "Zoom out"
+  },
+  "image_editor_zoom_fit": "Ajustar à tela",
+  "@image_editor_zoom_fit": {
+    "description": "Fit to screen"
+  },
+  "image_editor_undo": "Desfazer",
+  "@image_editor_undo": {
+    "description": "Undo"
+  },
+  "image_editor_redo": "Refazer",
+  "@image_editor_redo": {
+    "description": "Redo"
+  },
+  "image_editor_canvas": "Tela",
+  "@image_editor_canvas": {
+    "description": "Canvas"
+  },
+  "image_editor_width": "Largura",
+  "@image_editor_width": {
+    "description": "Width"
+  },
+  "image_editor_height": "Altura",
+  "@image_editor_height": {
+    "description": "Height"
+  },
+  "image_editor_properties": "Propriedades",
+  "@image_editor_properties": {
+    "description": "Properties"
+  },
+  "image_editor_visible": "Visível",
+  "@image_editor_visible": {
+    "description": "Visible"
+  },
+  "image_editor_opacity": "Opacidade",
+  "@image_editor_opacity": {
+    "description": "Opacity"
+  },
+  "image_editor_ops_summary": "{count} operações, {hidden} oculta(s)",
+  "@image_editor_ops_summary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "hidden": {
+        "type": "int"
+      }
+    },
+    "description": "{count} operations, {hidden} hidden"
+  },
+  "image_editor_empty_hint": "Adicione uma operação \"{op}\" para começar",
+  "@image_editor_empty_hint": {
+    "placeholders": {
+      "op": {
+        "type": "String"
+      }
+    },
+    "description": "Add a \"{op}\" operation to start"
+  },
+  "image_editor_tap_to_edit": "Toque para editar",
+  "@image_editor_tap_to_edit": {
+    "description": "Tap to edit"
+  },
+  "image_editor_no_operations": "Nenhuma operação ainda",
+  "@image_editor_no_operations": {
+    "description": "No operations yet"
+  },
+  "image_editor_select_operation": "Selecione uma operação para editar suas propriedades",
+  "@image_editor_select_operation": {
+    "description": "Select an operation to edit its properties"
+  },
+  "image_editor_insert_variable": "Inserir variável",
+  "@image_editor_insert_variable": {
+    "description": "Insert Variable"
+  },
+  "image_editor_variable_label": "Variável",
+  "@image_editor_variable_label": {
+    "description": "Variable"
+  },
+  "image_editor_variable_hint": "Digite para filtrar ou toque numa sugestão abaixo",
+  "@image_editor_variable_hint": {
+    "description": "Type to filter, or tap a suggestion below"
+  },
+  "image_editor_insert": "Inserir",
+  "@image_editor_insert": {
+    "description": "Insert"
+  },
+  "image_editor_pick_image": "Escolher ficheiro de imagem",
+  "@image_editor_pick_image": {
+    "description": "Pick image file"
+  },
+  "image_editor_color_picker": "Seletor de cores",
+  "@image_editor_color_picker": {
+    "description": "Color Picker"
+  },
+  "image_editor_hue": "Matiz",
+  "@image_editor_hue": {
+    "description": "Hue"
+  },
+  "image_editor_saturation": "Saturação",
+  "@image_editor_saturation": {
+    "description": "Saturation"
+  },
+  "image_editor_no_url": "sem URL",
+  "@image_editor_no_url": {
+    "description": "no URL"
+  },
+  "image_editor_unknown": "Desconhecido",
+  "@image_editor_unknown": {
+    "description": "Unknown"
+  },
+  "image_editor_field_text": "Texto",
+  "@image_editor_field_text": {
+    "description": "Text"
+  },
+  "image_editor_field_font_size": "Tamanho da fonte",
+  "@image_editor_field_font_size": {
+    "description": "Font Size"
+  },
+  "image_editor_field_max_width": "Largura máxima",
+  "@image_editor_field_max_width": {
+    "description": "Max Width"
+  },
+  "image_editor_field_text_align": "Alinhamento do texto",
+  "@image_editor_field_text_align": {
+    "description": "Text Align"
+  },
+  "image_editor_field_blend": "Mesclagem",
+  "@image_editor_field_blend": {
+    "description": "Blend"
+  },
+  "image_editor_field_fill": "Preencher",
+  "@image_editor_field_fill": {
+    "description": "Fill"
+  },
+  "image_editor_field_radius": "Raio",
+  "@image_editor_field_radius": {
+    "description": "Radius"
+  },
+  "image_editor_field_thickness": "Espessura",
+  "@image_editor_field_thickness": {
+    "description": "Thickness"
+  },
+  "image_editor_field_shape": "Forma",
+  "@image_editor_field_shape": {
+    "description": "Shape"
+  },
+  "image_editor_field_percentage": "Percentagem",
+  "@image_editor_field_percentage": {
+    "description": "Percentage"
+  },
+  "image_editor_field_bar_color": "Cor da barra",
+  "@image_editor_field_bar_color": {
+    "description": "Bar Color"
+  },
+  "image_editor_field_track_color": "Cor da faixa",
+  "@image_editor_field_track_color": {
+    "description": "Track Color"
+  },
+  "image_editor_field_text_color": "Cor do texto",
+  "@image_editor_field_text_color": {
+    "description": "Text Color"
+  },
+  "image_editor_field_border_width": "Largura da borda",
+  "@image_editor_field_border_width": {
+    "description": "Border Width"
+  },
+  "image_editor_field_border_radius": "Raio da borda",
+  "@image_editor_field_border_radius": {
+    "description": "Border Radius"
+  },
+  "image_editor_field_orientation": "Orientação",
+  "@image_editor_field_orientation": {
+    "description": "Orientation"
+  },
+  "image_editor_field_angle": "Ângulo (graus)",
+  "@image_editor_field_angle": {
+    "description": "Angle (Degrees)"
+  },
+  "image_editor_field_container": "Contêiner",
+  "@image_editor_field_container": {
+    "description": "Container"
+  },
+  "image_editor_field_background_color": "Cor de fundo",
+  "@image_editor_field_background_color": {
+    "description": "Background Color"
+  },
+  "image_editor_hint_auto_size": "auto (tamanho original)",
+  "@image_editor_hint_auto_size": {
+    "description": "auto (native size)"
+  },
+  "image_editor_hint_optional_background": "fundo opcional",
+  "@image_editor_hint_optional_background": {
+    "description": "optional background"
+  },
+  "image_editor_hint_parent_container": "nome do contêiner pai",
+  "@image_editor_hint_parent_container": {
+    "description": "parent container name"
+  },
+  "image_editor_hint_container_width": "largura do contêiner para alinhamento",
+  "@image_editor_hint_container_width": {
+    "description": "container width for alignment"
+  },
+  "action_card_duration": "Duração",
+  "@action_card_duration": {
+    "description": "Duration"
+  },
+  "action_card_error_message": "Mensagem de erro",
+  "@action_card_error_message": {
+    "description": "Error Message"
+  },
+  "action_card_jump_to": "Ir para",
+  "@action_card_jump_to": {
+    "description": "Jump to"
+  },
+  "action_card_maximum": "Máximo",
+  "@action_card_maximum": {
+    "description": "Maximum"
+  },
+  "action_card_minimum": "Mínimo",
+  "@action_card_minimum": {
+    "description": "Minimum"
+  },
+  "action_card_skip_count": "Quantidade a pular",
+  "@action_card_skip_count": {
+    "description": "Skip count"
+  },
+  "action_edit_request": "Editar requisição",
+  "@action_edit_request": {
+    "description": "Edit Request"
+  },
+  "action_error_jump": "Saltar para ação",
+  "@action_error_jump": {
+    "description": "Jump to action"
+  },
+  "action_error_skip": "Pular N ações",
+  "@action_error_skip": {
+    "description": "Skip N actions"
+  },
+  "component_max_length": "Comprimento máximo",
+  "@component_max_length": {
+    "description": "Max Length"
+  },
+  "component_min_length": "Comprimento mínimo",
+  "@component_min_length": {
+    "description": "Min Length"
+  },
+  "http_request_header_name": "Nome do cabeçalho",
+  "@http_request_header_name": {
+    "description": "Header name"
+  },
+  "http_request_json_body": "Corpo JSON",
+  "@http_request_json_body": {
+    "description": "JSON Body"
+  },
+  "http_request_section_body": "Corpo",
+  "@http_request_section_body": {
+    "description": "Body"
+  },
+  "http_request_section_headers": "Cabeçalhos",
+  "@http_request_section_headers": {
+    "description": "Headers"
+  },
+  "http_request_section_request": "Requisição",
+  "@http_request_section_request": {
+    "description": "Request"
+  },
+  "http_request_text_body": "Corpo de texto",
+  "@http_request_text_body": {
+    "description": "Text Body"
+  },
+  "marketplace_summary_commands": "{count} comandos",
+  "@marketplace_summary_commands": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "{count} commands"
+  },
+  "marketplace_summary_variables": "{count} variáveis ({required} obrigatórias)",
+  "@marketplace_summary_variables": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "required": {
+        "type": "int"
+      }
+    },
+    "description": "{count} variables ({required} required)"
+  },
+  "marketplace_summary_workflows": "{count} workflows",
+  "@marketplace_summary_workflows": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "{count} workflows"
+  },
+  "modal_builder_configure_submit_actions": "Configurar Ações de Envio",
+  "@modal_builder_configure_submit_actions": {
+    "description": "Configure Submit Actions"
+  },
+  "modal_builder_edit_submit_actions": "Editar Ações de Envio",
+  "@modal_builder_edit_submit_actions": {
+    "description": "Edit Submit Actions"
+  },
+  "modal_builder_identity": "Identidade",
+  "@modal_builder_identity": {
+    "description": "Identity"
+  },
+  "modal_builder_submit_actions": "Ações de Envio",
+  "@modal_builder_submit_actions": {
+    "description": "Submit Actions"
   }
 }

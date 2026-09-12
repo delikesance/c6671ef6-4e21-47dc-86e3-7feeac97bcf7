@@ -1376,6 +1376,61 @@ class AppLocalizationsPt extends AppLocalizations {
       'Mantenha este token privado. Qualquer pessoa com ele pode controlar o seu bot.';
 
   @override
+  String get appearance_preset_graphite => 'Grafite';
+
+  @override
+  String get appearance_preset_graphite_desc =>
+      'Superfícies cinzentas neutras — o visual padrão original.';
+
+  @override
+  String get appearance_preset_violet_bc => 'Violeta Bot Creator';
+
+  @override
+  String get appearance_preset_violet_bc_desc =>
+      'A assinatura Bot Creator, com superfícies tingidas.';
+
+  @override
+  String get appearance_preset_discord => 'Discord';
+
+  @override
+  String get appearance_preset_discord_desc =>
+      'O blurple do Discord, para um visual familiar.';
+
+  @override
+  String get appearance_preset_ocean => 'Oceano';
+
+  @override
+  String get appearance_preset_ocean_desc =>
+      'Tons ciano, como águas profundas.';
+
+  @override
+  String get appearance_preset_forest => 'Floresta';
+
+  @override
+  String get appearance_preset_forest_desc =>
+      'Verde profundo, calmo e natural.';
+
+  @override
+  String get appearance_preset_amber => 'Âmbar';
+
+  @override
+  String get appearance_preset_amber_desc =>
+      'Laranja quente, para um visual vivo.';
+
+  @override
+  String get appearance_preset_rose => 'Rosa';
+
+  @override
+  String get appearance_preset_rose_desc => 'Rosa magenta, ousado e moderno.';
+
+  @override
+  String get appearance_preset_high_contrast => 'Contraste elevado';
+
+  @override
+  String get appearance_preset_high_contrast_desc =>
+      'Legibilidade máxima da interface.';
+
+  @override
   String get autocomplete_dynamic => 'Autocompletar Dinâmico';
 
   @override
@@ -1516,6 +1571,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get bot_home_section_getting_started => 'INTRODUÇÃO';
 
   @override
+  String get bot_home_section_modules => 'MÓDULOS';
+
+  @override
   String get bot_home_section_monitoring => 'MONITORIZAÇÃO';
 
   @override
@@ -1535,6 +1593,9 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get bot_home_starting => 'A iniciar…';
+
+  @override
+  String get bot_home_restart => 'Reiniciar';
 
   @override
   String get bot_home_stop => 'Parar Bot';
@@ -2742,6 +2803,158 @@ class AppLocalizationsPt extends AppLocalizations {
   String get cmd_variables_title => 'Variáveis de Comando';
 
   @override
+  String get code_editor_settings_title => 'Editor de código';
+
+  @override
+  String get code_editor_settings_subtitle =>
+      'Tema, fonte e comportamento de edição dos editores BDFD e JavaScript';
+
+  @override
+  String get code_editor_settings_reset_tooltip => 'Restaurar padrões';
+
+  @override
+  String get code_editor_settings_reset_title => 'Redefinir configuração';
+
+  @override
+  String get code_editor_settings_reset_confirm =>
+      'Restaurar todas as configurações do editor para os valores padrão?';
+
+  @override
+  String get code_editor_settings_reset_action => 'Redefinir';
+
+  @override
+  String get code_editor_settings_reset_done =>
+      'Configurações do editor restauradas para o padrão';
+
+  @override
+  String get code_editor_settings_preview_title => 'Pré-visualização ao vivo';
+
+  @override
+  String get code_editor_settings_section_theme_title =>
+      'Tema de realce de sintaxe';
+
+  @override
+  String get code_editor_settings_section_theme_subtitle =>
+      'Escolha o estilo visual aplicado ao BDFD e ao JavaScript';
+
+  @override
+  String get code_editor_settings_theme_mode_dark => 'Modo escuro';
+
+  @override
+  String get code_editor_settings_theme_mode_light => 'Modo claro';
+
+  @override
+  String get code_editor_settings_section_font_title => 'Fonte e tipografia';
+
+  @override
+  String get code_editor_settings_section_font_subtitle =>
+      'Ajuste a família da fonte e o tamanho do texto';
+
+  @override
+  String get code_editor_settings_font_family => 'Família da fonte';
+
+  @override
+  String get code_editor_settings_font_system => 'Monoespaçada do sistema';
+
+  @override
+  String get code_editor_settings_font_jetbrains_mono => 'JetBrains Mono';
+
+  @override
+  String get code_editor_settings_font_fira_code => 'Fira Code';
+
+  @override
+  String get code_editor_settings_font_consolas => 'Consolas';
+
+  @override
+  String get code_editor_settings_font_size => 'Tamanho da fonte';
+
+  @override
+  String get code_editor_settings_line_height => 'Altura da linha (entrelinha)';
+
+  @override
+  String get code_editor_settings_section_display_title =>
+      'Exibição e guias visuais';
+
+  @override
+  String get code_editor_settings_section_display_subtitle =>
+      'Números de linha, guias de indentação e quebra de linha';
+
+  @override
+  String get code_editor_settings_line_numbers => 'Números de linha';
+
+  @override
+  String get code_editor_settings_line_numbers_desc =>
+      'Mostra a numeração na margem esquerda';
+
+  @override
+  String get code_editor_settings_indent_guides => 'Guias de indentação';
+
+  @override
+  String get code_editor_settings_indent_guides_desc =>
+      'Linhas verticais para visualizar blocos de código';
+
+  @override
+  String get code_editor_settings_word_wrap => 'Quebra automática de linha';
+
+  @override
+  String get code_editor_settings_word_wrap_desc =>
+      'Quebra linhas longas em vez de rolar horizontalmente';
+
+  @override
+  String get code_editor_settings_quick_chars =>
+      'Barra de caracteres rápidos (celular)';
+
+  @override
+  String get code_editor_settings_quick_chars_desc =>
+      'Botões rápidos para inserir o prefixo BDFD, argumentos, separadores e colchetes acima do teclado';
+
+  @override
+  String get code_editor_settings_section_editing_title =>
+      'Comportamento de edição';
+
+  @override
+  String get code_editor_settings_section_editing_subtitle =>
+      'Fechamento automático e espaçamento';
+
+  @override
+  String get code_editor_settings_auto_close =>
+      'Fechamento automático de símbolos';
+
+  @override
+  String get code_editor_settings_auto_close_desc =>
+      'Fecha automaticamente colchetes, chaves, parênteses e aspas';
+
+  @override
+  String get code_editor_settings_tab_size => 'Tamanho da tabulação (espaços)';
+
+  @override
+  String get code_editor_settings_tab_size_desc =>
+      'Número de espaços inseridos ao indentar';
+
+  @override
+  String get command_alias_label => 'Alias';
+
+  @override
+  String get command_alias_hint => '!p';
+
+  @override
+  String get command_alias_help =>
+      'O comando também responde a estas palavras de ativação.';
+
+  @override
+  String get command_alias_duplicate => 'Este alias já está a ser utilizado.';
+
+  @override
+  String command_alias_limit(int max) {
+    return 'Máximo de $max aliases.';
+  }
+
+  @override
+  String command_alias_collision(String command) {
+    return 'Já utilizado pelo comando $command.';
+  }
+
+  @override
   String get command_awaited_error => 'Erro';
 
   @override
@@ -3137,6 +3350,9 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get common_disabled => 'Desativado';
+
+  @override
+  String get common_discard => 'Descartar';
 
   @override
   String get common_edit => 'Editar';
@@ -3691,6 +3907,12 @@ class AppLocalizationsPt extends AppLocalizations {
   String get edit_shell_untitled_command => 'Comando sem título';
 
   @override
+  String get editor_sidebar_collapse => 'Recolher barra lateral';
+
+  @override
+  String get editor_sidebar_expand => 'Expandir barra lateral';
+
+  @override
   String get embed_add_field => 'Adicionar Campo';
 
   @override
@@ -4094,6 +4316,28 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get home_add_time => 'Adicionar Tempo';
+
+  @override
+  String get home_overline => 'MEUS PROJETOS';
+
+  @override
+  String get home_create_bot_title => 'Criar um bot';
+
+  @override
+  String get home_create_bot_subtitle => 'O teu bot Discord em dois cliques';
+
+  @override
+  String home_active_on_servers_one(int count) {
+    return 'Ativo em $count servidor';
+  }
+
+  @override
+  String home_active_on_servers_other(int count) {
+    return 'Ativo em $count servidores';
+  }
+
+  @override
+  String get home_synced_active => 'Sincronizado e ativo';
 
   @override
   String get home_empty_support_btn => 'Junte-se ao nosso Discord';
@@ -5898,7 +6142,51 @@ class AppLocalizationsPt extends AppLocalizations {
   String get settings_app_version => 'App';
 
   @override
-  String get settings_appearance_title => 'Aspeto e idioma';
+  String get settings_appearance_accent_label => 'Destaque';
+
+  @override
+  String settings_appearance_contrast_ratio(String ratio) {
+    return 'Contraste destaque/superfície: $ratio';
+  }
+
+  @override
+  String settings_appearance_contrast_warning(String ratio) {
+    return 'Contraste baixo ($ratio): o destaque quase não se distingue do fundo. A app adapta-o quando necessário, mas um destaque mais claro ou mais escuro melhora a legibilidade.';
+  }
+
+  @override
+  String get settings_appearance_custom_badge => 'Personalizado';
+
+  @override
+  String get settings_appearance_custom_title => 'Cores personalizadas';
+
+  @override
+  String get settings_appearance_mode_dark => 'Escuro';
+
+  @override
+  String get settings_appearance_mode_light => 'Claro';
+
+  @override
+  String get settings_appearance_mode_system => 'Sistema';
+
+  @override
+  String get settings_appearance_mode_title => 'Modo';
+
+  @override
+  String get settings_appearance_presets_title => 'Temas predefinidos';
+
+  @override
+  String get settings_appearance_reset => 'Repor';
+
+  @override
+  String get settings_appearance_seed_label => 'Cor principal';
+
+  @override
+  String get settings_appearance_subtitle =>
+      'Escolha um modo, um tema predefinido ou as suas próprias cores.';
+
+  @override
+  String get settings_appearance_title => 'Aspeto';
 
   @override
   String get settings_auto_backup_check_loading =>
@@ -6633,11 +6921,11 @@ class AppLocalizationsPt extends AppLocalizations {
       'Ligue a app a um Bot Creator Runner. Runners remotos devem permanecer em redes fidedignas e usar um token bearer.';
 
   @override
-  String get settings_runner_use_remote => 'Use remote runner';
+  String get settings_runner_use_remote => 'Usar Runner remoto';
 
   @override
   String get settings_runner_use_remote_desc =>
-      'Connect to a remote Bot Creator Runner. Leave off to run bots locally on this device.';
+      'Ligar a um Bot Creator Runner remoto. Deixe desativado para executar os bots localmente neste dispositivo.';
 
   @override
   String get settings_runner_disable_temp => 'Desativar Runner temporariamente';
@@ -8260,7 +8548,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get onboarding_command_now => 'Crie seu primeiro comando';
 
   @override
-  String get container_list_title => 'Aplicações Hospedadas';
+  String get container_list_title => 'Bots Prontos para Uso';
 
   @override
   String get container_list_session_missing => 'Sessão indisponível';
@@ -8270,20 +8558,23 @@ class AppLocalizationsPt extends AppLocalizations {
       'Por favor, conecte-se à sua conta primeiro.';
 
   @override
-  String get container_list_error => 'Falha ao carregar contêineres';
+  String get container_list_error => 'Falha ao carregar bots';
 
   @override
   String get container_list_retry => 'Tentar novamente';
 
   @override
-  String get container_list_empty => 'Nenhuma aplicação hospedada';
+  String get container_list_empty => 'Nenhum bot pronto para uso';
 
   @override
   String get container_list_empty_hint =>
-      'Implante sua primeira aplicação para começar.';
+      'Implante seu primeiro bot pronto para uso em 1 clique.';
 
   @override
-  String get container_list_deploy_btn => 'Implantar Aplicação';
+  String get container_list_deploy_btn => 'Implantar Bot Pronto para Uso';
+
+  @override
+  String get container_list_unsupported_badge => 'Não suportado';
 
   @override
   String get container_list_expired => 'Expirado';
@@ -8304,7 +8595,27 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String get container_deploy_title => 'Implantar Aplicação';
+  String get container_deploy_title => 'Implantar Bot Pronto para Uso';
+
+  @override
+  String get container_deploy_template_section => 'Modelo Pronto para Uso';
+
+  @override
+  String get container_deploy_managed_hosting => 'Hospedagem Gerenciada 24/7';
+
+  @override
+  String get container_deploy_bot_config_section =>
+      'Configuração do Bot do Discord';
+
+  @override
+  String get container_deploy_paste_token_hint =>
+      'Cole o token do bot do Discord aqui';
+
+  @override
+  String get container_deploy_discord_prereqs => 'Pré-requisitos do Discord';
+
+  @override
+  String get container_deploy_launch_btn => 'Iniciar Bot Pronto para Uso';
 
   @override
   String get container_deploy_image_label => 'Imagem';
@@ -8541,14 +8852,14 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get container_hosted_subtitle =>
-      'Implante e gerencie contêineres Docker';
+      'Implante bots prontos para uso (música, etc.) em 1 clique';
 
   @override
   String get container_premium_badge => 'Premium';
 
   @override
   String container_detail_title(String id) {
-    return 'Contêiner $id';
+    return 'Bot $id';
   }
 
   @override
@@ -8561,7 +8872,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get container_list_free_limit_reached =>
-      'Limite gratuito atingido (1 contêiner). Assine para hospedar mais.';
+      'Limite gratuito atingido (1 bot). Assine para hospedar mais.';
 
   @override
   String get container_hosted_premium_host_anytime =>
@@ -8573,17 +8884,17 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get container_hosted_premium_desc =>
-      'Assine para hospedar contêineres Docker sem limite — sem anúncios.';
+      'Assine para hospedar bots prontos para uso 24/7 — sem anúncios.';
 
   @override
   String get container_hosted_premium_view_btn => 'Ver planos';
 
   @override
-  String get hosted_app_subscription_title => 'Aplicações hospedadas';
+  String get hosted_app_subscription_title => 'Bots Prontos para Uso';
 
   @override
   String get hosted_app_subscription_subtitle =>
-      'Execute contêineres Docker na nuvem sem ver anúncios.';
+      'Hospede bots prontos para uso na nuvem 24/7 sem interrupções.';
 
   @override
   String get hosted_app_subscription_benefit_unlimited =>
@@ -8594,18 +8905,18 @@ class AppLocalizationsPt extends AppLocalizations {
       'Sem anúncios recompensados';
 
   @override
-  String get hosted_app_subscription_one_app_title => '1 contêiner';
+  String get hosted_app_subscription_one_app_title => '1 bot hospedado';
 
   @override
   String get hosted_app_subscription_one_app_desc =>
-      'Hospede um contêiner Docker a qualquer momento';
+      'Hospede um bot pronto para uso a qualquer momento';
 
   @override
-  String get hosted_app_subscription_two_app_title => '2 contêineres';
+  String get hosted_app_subscription_two_app_title => '2 bots hospedados';
 
   @override
   String get hosted_app_subscription_two_app_desc =>
-      'Hospede até dois contêineres Docker';
+      'Hospede até dois bots prontos para uso';
 
   @override
   String get hosted_app_subscription_recommended => 'Melhor valor';
@@ -8839,4 +9150,281 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get docs_reload => 'Recarregar';
+
+  @override
+  String get common_duplicate => 'Duplicar';
+
+  @override
+  String get commands_batch_select => 'Seleção em lote';
+
+  @override
+  String commands_selected_count(int count) {
+    return '$count selecionado(s)';
+  }
+
+  @override
+  String get image_editor_title => 'Editor de Imagem';
+
+  @override
+  String get image_editor_add_operation => 'Adicionar operação';
+
+  @override
+  String get image_editor_add_layer => 'Adicionar camada';
+
+  @override
+  String get image_editor_operations => 'Operações';
+
+  @override
+  String get image_editor_op_container => 'Contêiner / Moldura';
+
+  @override
+  String get image_editor_op_progress_bar => 'Barra de progresso';
+
+  @override
+  String get image_editor_op_composite_image => 'Imagem composta';
+
+  @override
+  String get image_editor_op_set_pixel => 'Definir pixel';
+
+  @override
+  String get image_editor_op_invert => 'Inverter cores';
+
+  @override
+  String get image_editor_op_grayscale => 'Converter para escala de cinza';
+
+  @override
+  String get image_editor_op_rotate => 'Girar tela';
+
+  @override
+  String get image_editor_zoom_in => 'Ampliar zoom';
+
+  @override
+  String get image_editor_zoom_out => 'Reduzir zoom';
+
+  @override
+  String get image_editor_zoom_fit => 'Ajustar à tela';
+
+  @override
+  String get image_editor_undo => 'Desfazer';
+
+  @override
+  String get image_editor_redo => 'Refazer';
+
+  @override
+  String get image_editor_canvas => 'Tela';
+
+  @override
+  String get image_editor_width => 'Largura';
+
+  @override
+  String get image_editor_height => 'Altura';
+
+  @override
+  String get image_editor_properties => 'Propriedades';
+
+  @override
+  String get image_editor_visible => 'Visível';
+
+  @override
+  String get image_editor_opacity => 'Opacidade';
+
+  @override
+  String image_editor_ops_summary(int count, int hidden) {
+    return '$count operações, $hidden oculta(s)';
+  }
+
+  @override
+  String image_editor_empty_hint(String op) {
+    return 'Adicione uma operação \"$op\" para começar';
+  }
+
+  @override
+  String get image_editor_tap_to_edit => 'Toque para editar';
+
+  @override
+  String get image_editor_no_operations => 'Nenhuma operação ainda';
+
+  @override
+  String get image_editor_select_operation =>
+      'Selecione uma operação para editar suas propriedades';
+
+  @override
+  String get image_editor_insert_variable => 'Inserir variável';
+
+  @override
+  String get image_editor_variable_label => 'Variável';
+
+  @override
+  String get image_editor_variable_hint =>
+      'Digite para filtrar ou toque numa sugestão abaixo';
+
+  @override
+  String get image_editor_insert => 'Inserir';
+
+  @override
+  String get image_editor_pick_image => 'Escolher ficheiro de imagem';
+
+  @override
+  String get image_editor_color_picker => 'Seletor de cores';
+
+  @override
+  String get image_editor_hue => 'Matiz';
+
+  @override
+  String get image_editor_saturation => 'Saturação';
+
+  @override
+  String get image_editor_no_url => 'sem URL';
+
+  @override
+  String get image_editor_unknown => 'Desconhecido';
+
+  @override
+  String get image_editor_field_text => 'Texto';
+
+  @override
+  String get image_editor_field_font_size => 'Tamanho da fonte';
+
+  @override
+  String get image_editor_field_max_width => 'Largura máxima';
+
+  @override
+  String get image_editor_field_text_align => 'Alinhamento do texto';
+
+  @override
+  String get image_editor_field_blend => 'Mesclagem';
+
+  @override
+  String get image_editor_field_fill => 'Preencher';
+
+  @override
+  String get image_editor_field_radius => 'Raio';
+
+  @override
+  String get image_editor_field_thickness => 'Espessura';
+
+  @override
+  String get image_editor_field_shape => 'Forma';
+
+  @override
+  String get image_editor_field_percentage => 'Percentagem';
+
+  @override
+  String get image_editor_field_bar_color => 'Cor da barra';
+
+  @override
+  String get image_editor_field_track_color => 'Cor da faixa';
+
+  @override
+  String get image_editor_field_text_color => 'Cor do texto';
+
+  @override
+  String get image_editor_field_border_width => 'Largura da borda';
+
+  @override
+  String get image_editor_field_border_radius => 'Raio da borda';
+
+  @override
+  String get image_editor_field_orientation => 'Orientação';
+
+  @override
+  String get image_editor_field_angle => 'Ângulo (graus)';
+
+  @override
+  String get image_editor_field_container => 'Contêiner';
+
+  @override
+  String get image_editor_field_background_color => 'Cor de fundo';
+
+  @override
+  String get image_editor_hint_auto_size => 'auto (tamanho original)';
+
+  @override
+  String get image_editor_hint_optional_background => 'fundo opcional';
+
+  @override
+  String get image_editor_hint_parent_container => 'nome do contêiner pai';
+
+  @override
+  String get image_editor_hint_container_width =>
+      'largura do contêiner para alinhamento';
+
+  @override
+  String get action_card_duration => 'Duração';
+
+  @override
+  String get action_card_error_message => 'Mensagem de erro';
+
+  @override
+  String get action_card_jump_to => 'Ir para';
+
+  @override
+  String get action_card_maximum => 'Máximo';
+
+  @override
+  String get action_card_minimum => 'Mínimo';
+
+  @override
+  String get action_card_skip_count => 'Quantidade a pular';
+
+  @override
+  String get action_edit_request => 'Editar requisição';
+
+  @override
+  String get action_error_jump => 'Saltar para ação';
+
+  @override
+  String get action_error_skip => 'Pular N ações';
+
+  @override
+  String get component_max_length => 'Comprimento máximo';
+
+  @override
+  String get component_min_length => 'Comprimento mínimo';
+
+  @override
+  String get http_request_header_name => 'Nome do cabeçalho';
+
+  @override
+  String get http_request_json_body => 'Corpo JSON';
+
+  @override
+  String get http_request_section_body => 'Corpo';
+
+  @override
+  String get http_request_section_headers => 'Cabeçalhos';
+
+  @override
+  String get http_request_section_request => 'Requisição';
+
+  @override
+  String get http_request_text_body => 'Corpo de texto';
+
+  @override
+  String marketplace_summary_commands(int count) {
+    return '$count comandos';
+  }
+
+  @override
+  String marketplace_summary_variables(int count, int required) {
+    return '$count variáveis ($required obrigatórias)';
+  }
+
+  @override
+  String marketplace_summary_workflows(int count) {
+    return '$count workflows';
+  }
+
+  @override
+  String get modal_builder_configure_submit_actions =>
+      'Configurar Ações de Envio';
+
+  @override
+  String get modal_builder_edit_submit_actions => 'Editar Ações de Envio';
+
+  @override
+  String get modal_builder_identity => 'Identidade';
+
+  @override
+  String get modal_builder_submit_actions => 'Ações de Envio';
 }

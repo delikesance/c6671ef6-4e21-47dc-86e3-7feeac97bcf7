@@ -50,10 +50,9 @@ class _ComponentV2EditorWidgetState extends State<ComponentV2EditorWidget> {
 
   void _initFromWidget() {
     // Deep copy components via json serialization round-trip
-    _components =
-        widget.definition.components
-            .map((c) => ComponentNode.fromJson(c.toJson()))
-            .toList();
+    _components = widget.definition.components
+        .map((c) => ComponentNode.fromJson(c.toJson()))
+        .toList();
     _ephemeral = widget.definition.ephemeral;
   }
 
@@ -66,8 +65,9 @@ class _ComponentV2EditorWidgetState extends State<ComponentV2EditorWidget> {
     widget.onChanged(
       ComponentV2Definition(
         content: '',
-        components:
-            _components.map((c) => ComponentNode.fromJson(c.toJson())).toList(),
+        components: _components
+            .map((c) => ComponentNode.fromJson(c.toJson()))
+            .toList(),
         ephemeral: _ephemeral,
       ),
     );
@@ -95,22 +95,24 @@ class _ComponentV2EditorWidgetState extends State<ComponentV2EditorWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Header bar
+        // Header bar — surface neutre du thème : le violet n'est plus utilisé
+        // comme remplissage décoratif.
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: const BoxDecoration(
-            gradient: AppTheme.brandGradient,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+          decoration: BoxDecoration(
+            color: scheme.surfaceContainerHighest,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
           ),
           child: Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.dashboard_customize,
                 size: 18,
-                color: Colors.white,
+                color: scheme.onSurface,
               ),
               const SizedBox(width: 8),
               Flexible(
@@ -120,17 +122,17 @@ class _ComponentV2EditorWidgetState extends State<ComponentV2EditorWidget> {
                     Text(
                       context.tr.reply_mode_layout,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: scheme.onSurface,
                       ),
                     ),
                     Text(
                       context.tr.reply_mode_layout_desc,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
-                        color: Colors.white70,
+                        color: scheme.onSurface.withValues(alpha: 0.8),
                       ),
                     ),
                   ],
@@ -140,13 +142,13 @@ class _ComponentV2EditorWidgetState extends State<ComponentV2EditorWidget> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: scheme.onSurface.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(AppTheme.radiusPill),
                 ),
                 child: Text(
                   '${_components.length}',
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: scheme.onSurface,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
@@ -158,9 +160,7 @@ class _ComponentV2EditorWidgetState extends State<ComponentV2EditorWidget> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            border: Border.all(
-              color: AppTheme.brandPrimary.withValues(alpha: 0.3),
-            ),
+            border: Border.all(color: scheme.outlineVariant),
             borderRadius: const BorderRadius.vertical(
               bottom: Radius.circular(8),
             ),
@@ -194,11 +194,13 @@ class _ComponentV2EditorWidgetState extends State<ComponentV2EditorWidget> {
                 } else if (node is ModalTextInputNode) {
                   nodeKey = node.customId;
                 } else if (node is ActionRowNode) {
-                  nodeKey = node.components.map((c) {
-                    if (c is ButtonNode) return c.customId;
-                    if (c is SelectMenuNode) return c.customId;
-                    return '';
-                  }).join('-');
+                  nodeKey = node.components
+                      .map((c) {
+                        if (c is ButtonNode) return c.customId;
+                        if (c is SelectMenuNode) return c.customId;
+                        return '';
+                      })
+                      .join('-');
                 }
                 return ComponentNodeEditor(
                   key: nodeKey != null && nodeKey.isNotEmpty
