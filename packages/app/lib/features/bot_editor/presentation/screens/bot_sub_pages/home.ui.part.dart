@@ -11,7 +11,7 @@ extension _AppHomePageUI on _AppHomePageState {
 
     if (minutes < minutesPerDay) return AppTheme.error;
     if (minutes < minutesThreeDays) return AppTheme.warning;
-    return AppTheme.successAccent;
+    return AppTheme.online;
   }
 
   String formatDuration(int i) {
@@ -34,12 +34,82 @@ extension _AppHomePageUI on _AppHomePageState {
     required String displayName,
   }) {
     return BotHomeDesktopOverview(
+      header: _buildWideHeader(context),
       leftBuilder: (context, fillViewport) =>
           _buildWideLeftColumn(context, botId: botId, displayName: displayName),
       rightBuilder: (context, fillViewport) => _buildWideRightColumn(
         context,
         botId: botId,
         fillViewport: fillViewport,
+      ),
+    );
+  }
+
+  Widget _buildWideHeader(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final tokens = HomeTokens.of(context);
+    final muted = isDark ? tokens.muted : scheme.onSurfaceVariant;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  color: scheme.primary.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: scheme.primary.withValues(alpha: 0.20),
+                  ),
+                ),
+                child: Icon(
+                  Icons.dashboard_rounded,
+                  size: 18,
+                  color: scheme.primary,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    context.tr.home_tab,
+                    style: GoogleFonts.inter(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: scheme.onSurface,
+                      letterSpacing: -0.2,
+                    ),
+                  ),
+                  Text(
+                    _botLaunched
+                        ? context.tr.home_hosting_status_active
+                        : context.tr.home_status_offline,
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: _botLaunched ? AppTheme.online : muted,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          HomeHeaderIconButton(
+            icon: Icons.sync_rounded,
+            iconSize: 14,
+            tooltip: context.tr.common_refresh,
+            onTap: _isReconciling ? null : _refreshOverview,
+          ),
+        ],
       ),
     );
   }
@@ -57,6 +127,12 @@ extension _AppHomePageUI on _AppHomePageState {
       ],
       const SizedBox(height: 16),
       _buildCloudSyncCard(context, botId: botId),
+      if (_shouldShowObservability) ...[
+        const SizedBox(height: 16),
+        _buildQuickObservabilityCard(context, botId: botId),
+      ],
+      const SizedBox(height: 20),
+      _buildDangerZoneCard(context, botId: botId),
     ];
   }
 
@@ -74,12 +150,6 @@ extension _AppHomePageUI on _AppHomePageState {
         )
       else
         _buildLiveConsoleCard(context, botId: botId),
-      if (_shouldShowObservability) ...[
-        const SizedBox(height: 16),
-        _buildQuickObservabilityCard(context, botId: botId),
-      ],
-      const SizedBox(height: 20),
-      _buildDangerZoneCard(context, botId: botId),
     ];
   }
 
@@ -89,7 +159,12 @@ extension _AppHomePageUI on _AppHomePageState {
     required String displayName,
   }) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        12,
+        16,
+        FloatingGlassNavBar.contentClearanceOf(context) + 16,
+      ),
       children: [
         _buildHeroControlCard(context, botId: botId, displayName: displayName),
         if (_shouldShowHostingCard) ...[
@@ -117,11 +192,12 @@ extension _AppHomePageUI on _AppHomePageState {
   }) {
     final scheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = isDark ? AppTheme.homeCard : scheme.surfaceContainer;
+    final tokens = HomeTokens.of(context);
+    final cardColor = isDark ? tokens.card : scheme.surfaceContainer;
     final borderColor = isDark
-        ? AppTheme.homeCardBorder
+        ? AppTheme.brandPrimary.withValues(alpha: 0.22)
         : scheme.outlineVariant;
-    final muted = isDark ? AppTheme.homeMuted : scheme.onSurfaceVariant;
+    final muted = isDark ? tokens.muted : scheme.onSurfaceVariant;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -135,7 +211,11 @@ extension _AppHomePageUI on _AppHomePageState {
         children: [
           Row(
             children: [
-              HomeBotAvatar(imageUrl: avatar.isEmpty ? null : avatar),
+              HomeBotAvatar(
+                imageUrl: avatar.isEmpty ? null : avatar,
+                ringColor: AppTheme.brandPrimary.withValues(alpha: 0.4),
+                ringWidth: 1.5,
+              ),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
@@ -157,67 +237,63 @@ extension _AppHomePageUI on _AppHomePageState {
                       spacing: 8,
                       runSpacing: 4,
                       children: [
-                        Text(
-                          'ID $botId',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w400,
-                            color: muted,
-                          ),
-                        ),
-                        if (_shouldShowHostingCard)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 7,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color:
-                                  (_displayFreeMinutesBalance() < 120 &&
-                                              _botLaunched
-                                          ? scheme.error
-                                          : scheme.primary)
-                                      .withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(
-                                AppTheme.radiusSm,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.timer_outlined,
-                                  size: 11,
-                                  color:
-                                      _displayFreeMinutesBalance() < 120 &&
-                                          _botLaunched
-                                      ? scheme.error
-                                      : scheme.primary,
+                        Tooltip(
+                          message:
+                              Localizations.localeOf(context).languageCode ==
+                                  'fr'
+                              ? 'Copier l\'ID'
+                              : 'Copy ID',
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(4),
+                            onTap: () {
+                              Clipboard.setData(ClipboardData(text: botId));
+                              HapticFeedback.selectionClick();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    Localizations.localeOf(
+                                              context,
+                                            ).languageCode ==
+                                            'fr'
+                                        ? 'ID $botId copié dans le presse-papiers'
+                                        : 'ID $botId copied to clipboard',
+                                  ),
+                                  duration: const Duration(seconds: 2),
+                                  behavior: SnackBarBehavior.floating,
                                 ),
-                                const SizedBox(width: 4),
-                                Flexible(
-                                  child: Text(
-                                    formatDuration(
-                                      _displayFreeMinutesBalance(),
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: GoogleFonts.inter(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                      color:
-                                          _displayFreeMinutesBalance() < 120 &&
-                                              _botLaunched
-                                          ? scheme.error
-                                          : scheme.primary,
+                              );
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 4,
+                                vertical: 2,
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      'ID $botId',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: GoogleFonts.inter(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w400,
+                                        color: muted,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(width: 4),
+                                  Icon(
+                                    Icons.copy_rounded,
+                                    size: 11,
+                                    color: muted.withValues(alpha: 0.7),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
+                        ),
                       ],
                     ),
                   ],
@@ -245,7 +321,7 @@ extension _AppHomePageUI on _AppHomePageState {
                             : context.tr.home_start),
                   onTap: _botStarting ? null : _toggleBotLaunchState,
                   loading: _botStarting,
-                  accent: _botLaunched ? AppTheme.danger : null,
+                  accent: _botLaunched ? AppTheme.danger : AppTheme.online,
                   stopSquare: _botLaunched,
                 ),
               ),
@@ -299,8 +375,9 @@ extension _AppHomePageUI on _AppHomePageState {
   }
 
   Widget _buildCloudSyncCard(BuildContext context, {required String botId}) {
+    final tokens = HomeTokens.of(context);
     final muted = Theme.of(context).brightness == Brightness.dark
-        ? AppTheme.homeMuted
+        ? tokens.muted
         : Theme.of(context).colorScheme.onSurfaceVariant;
 
     return _WireframeSection(
@@ -402,13 +479,12 @@ extension _AppHomePageUI on _AppHomePageState {
   Widget _buildHostingCard(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = isDark ? AppTheme.homeCard : colorScheme.surfaceContainer;
+    final tokens = HomeTokens.of(context);
+    final cardColor = isDark ? tokens.card : colorScheme.surfaceContainer;
     final borderColor =
         (_displayFreeMinutesBalance() < 120 && _botLaunched
                 ? colorScheme.error
-                : (isDark
-                      ? AppTheme.homeCardBorder
-                      : colorScheme.outlineVariant))
+                : (isDark ? tokens.cardBorder : colorScheme.outlineVariant))
             .withValues(alpha: 0.9);
 
     return Container(
@@ -487,28 +563,43 @@ extension _AppHomePageUI on _AppHomePageState {
           const SizedBox(height: 10),
           Text(
             _botLaunched
-                ? context.tr.home_hosting_time_left(
-                    formatDuration(_displayFreeMinutesBalance()),
-                  )
+                ? (_sessionExpiresAt != null
+                      ? formatSessionExpiration(context, _sessionExpiresAt!)
+                      : formatSessionExpiration(
+                          context,
+                          DateTime.now().add(
+                            Duration(minutes: _displayFreeMinutesBalance()),
+                          ),
+                        ))
                 : context.tr.home_hosting_banked(
                     formatDuration(_displayFreeMinutesBalance()),
                   ),
             style: homeDisplayStyle(
-              16,
+              15,
               color: _hostingTimeColor(_displayFreeMinutesBalance()),
               weight: FontWeight.w700,
             ),
           ),
-          if (!_botLaunched) ...[
+          if (_botLaunched) ...[
+            const SizedBox(height: 4),
+            Text(
+              context.tr.home_hosting_time_left(
+                formatDuration(_displayFreeMinutesBalance()),
+              ),
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+                color: isDark ? tokens.muted : colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ] else ...[
             const SizedBox(height: 4),
             Text(
               context.tr.home_hosting_time_preserved,
               style: GoogleFonts.inter(
                 fontSize: 12,
                 fontWeight: FontWeight.w400,
-                color: isDark
-                    ? AppTheme.homeMuted
-                    : colorScheme.onSurfaceVariant,
+                color: isDark ? tokens.muted : colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -536,10 +627,9 @@ class _WireframeSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = isDark ? AppTheme.homeCard : scheme.surfaceContainer;
-    final borderColor = isDark
-        ? AppTheme.homeCardBorder
-        : scheme.outlineVariant;
+    final tokens = HomeTokens.of(context);
+    final cardColor = isDark ? tokens.card : scheme.surfaceContainer;
+    final borderColor = isDark ? tokens.cardBorder : scheme.outlineVariant;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -584,7 +674,8 @@ class _WireframeTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final muted = isDark ? AppTheme.homeMuted : scheme.onSurfaceVariant;
+    final tokens = HomeTokens.of(context);
+    final muted = isDark ? tokens.muted : scheme.onSurfaceVariant;
 
     return Material(
       type: MaterialType.transparency,
@@ -700,11 +791,13 @@ const double kBotHomeLogsHeaderCompactWidth = 400;
 class BotHomeDesktopOverview extends StatelessWidget {
   const BotHomeDesktopOverview({
     super.key,
+    this.header,
     required this.leftBuilder,
     required this.rightBuilder,
     this.maxContentWidth = 1200,
   });
 
+  final Widget? header;
   final List<Widget> Function(BuildContext context, bool fillViewport)
   leftBuilder;
   final List<Widget> Function(BuildContext context, bool fillViewport)
@@ -735,12 +828,19 @@ class BotHomeDesktopOverview extends StatelessWidget {
             child: Center(
               child: ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: maxContentWidth),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Expanded(flex: 5, child: left),
-                    const SizedBox(width: 20),
-                    Expanded(flex: 6, child: right),
+                    ?header,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(flex: 5, child: left),
+                        const SizedBox(width: 24),
+                        Expanded(flex: 6, child: right),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -748,24 +848,34 @@ class BotHomeDesktopOverview extends StatelessWidget {
           );
         }
 
+        final contentRow = Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // La colonne de gauche défile seule si son contenu dépasse
+            // la hauteur de la fenêtre (aucun débordement possible).
+            Expanded(
+              flex: 5,
+              child: SingleChildScrollView(primary: false, child: left),
+            ),
+            const SizedBox(width: 24),
+            Expanded(flex: 6, child: right),
+          ],
+        );
+
         return Padding(
           padding: _padding,
           child: Center(
             child: ConstrainedBox(
               constraints: BoxConstraints(maxWidth: maxContentWidth),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // La colonne de gauche défile seule si son contenu dépasse
-                  // la hauteur de la fenêtre (aucun débordement possible).
-                  Expanded(
-                    flex: 5,
-                    child: SingleChildScrollView(primary: false, child: left),
-                  ),
-                  const SizedBox(width: 20),
-                  Expanded(flex: 6, child: right),
-                ],
-              ),
+              child: header != null
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        header!,
+                        Expanded(child: contentRow),
+                      ],
+                    )
+                  : contentRow,
             ),
           ),
         );
@@ -803,10 +913,9 @@ class BotHomeLiveConsoleCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = isDark ? AppTheme.homeCard : scheme.surfaceContainer;
-    final borderColor = isDark
-        ? AppTheme.homeCardBorder
-        : scheme.outlineVariant;
+    final tokens = HomeTokens.of(context);
+    final cardColor = isDark ? tokens.card : scheme.surfaceContainer;
+    final borderColor = isDark ? tokens.cardBorder : scheme.outlineVariant;
 
     final console = Container(
       color: isDark ? const Color(0xFF0B0D13) : const Color(0xFF1B1D28),
@@ -820,6 +929,61 @@ class BotHomeLiveConsoleCard extends StatelessWidget {
         builder: (context, snapshot) {
           final logs = snapshot.data ?? const <String>[];
           if (logs.isEmpty) {
+            if (fillHeight) {
+              final isFr = Localizations.localeOf(context).languageCode == 'fr';
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withValues(alpha: 0.04),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.08),
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.terminal_rounded,
+                          size: 22,
+                          color: Colors.white.withValues(alpha: 0.45),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        context.tr.bot_logs_empty,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.firaCode(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.white.withValues(alpha: 0.65),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        isLive
+                            ? (isFr
+                                  ? 'En attente d\'événements en direct...'
+                                  : 'Waiting for live events...')
+                            : (isFr
+                                  ? 'Démarrez le bot pour afficher les logs en direct'
+                                  : 'Start the bot to view live logs'),
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          color: Colors.white.withValues(alpha: 0.35),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
             return Center(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,

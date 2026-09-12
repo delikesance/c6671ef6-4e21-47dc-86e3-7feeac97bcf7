@@ -51,6 +51,12 @@ String _sentenceCased(String localizedLabel) {
 class AppEditPage extends StatefulWidget {
   final String appName;
   final int id;
+
+  /// Icône (avatar Discord) du bot, relayée à la sidebar pour l'en-tête du
+  /// rail replié. `null` → l'éditeur retombe sur l'avatar de l'enregistrement
+  /// local du bot (lecture déjà faite à l'initialisation, aucun réseau).
+  final String? avatarUrl;
+
   final bool embedded;
   final VoidCallback? onExit;
 
@@ -58,6 +64,7 @@ class AppEditPage extends StatefulWidget {
     super.key,
     required this.appName,
     required this.id,
+    this.avatarUrl,
     this.embedded = false,
     this.onExit,
   });
@@ -81,6 +88,15 @@ class _AppEditPageState extends State<AppEditPage>
   bool _sidebarCollapsed = false;
   bool _sidebarCollapsedLoaded = false;
   String _runtimeEngine = runtimeEngineDart;
+
+  /// Icône du bot pour l'en-tête du rail : URL fournie par l'appelant, sinon
+  /// celle de l'enregistrement local ; `null` → pastille-lettre historique.
+  String? _avatarUrl;
+
+  /// Identifiants des pages déjà montées. Permet à [IndexedStack] de charger
+  /// les pages paresseusement (lazy) au premier affichage, puis de conserver
+  /// leur état pour des transitions d'onglets instantanées (0 ms).
+  final Set<String> _loadedPageIds = <String>{};
 
   @override
   void initState() {
@@ -114,6 +130,7 @@ class _AppEditPageState extends State<AppEditPage>
         _isLoading = true;
         client = null;
         _degradedReason = null;
+        _loadedPageIds.clear();
       });
     }
     if (previousClient != null) {
@@ -137,6 +154,14 @@ class _AppEditPageState extends State<AppEditPage>
     await _loadSidebarCollapsed();
     try {
       final app = await appManager.getApp(widget.id.toString());
+      // En-tête du rail : l'URL de l'appelant prime, sinon celle de
+      // l'enregistrement local — même lecture qu'au-dessus, donc aucune
+      // requête supplémentaire (couvre l'ouverture sans avatar, ex. shell
+      // desktop qui ne transmet que l'id et le nom).
+      final providedAvatar = widget.avatarUrl?.trim() ?? '';
+      _avatarUrl = providedAvatar.isNotEmpty
+          ? providedAvatar
+          : (app['avatar'] ?? '').toString().trim();
       final runtimeEngine = await getBotRuntimeEngine(widget.id.toString());
       final token = (app["token"] ?? '').toString().replaceAll(
         RegExp(r'[\s\u200B-\u200D\uFEFF]'),
@@ -304,6 +329,7 @@ class _AppEditPageState extends State<AppEditPage>
     setState(() {
       _runtimeEngine = engine;
       _activeSectionId = client == null ? 'offline_token' : 'home';
+      _loadedPageIds.clear();
     });
   }
 
@@ -524,6 +550,7 @@ class _AppEditPageState extends State<AppEditPage>
     return EditorSidebar(
       appName: widget.appName,
       botId: _botId,
+      avatarUrl: _avatarUrl,
       sections: _buildSidebarSections(context, entries),
       activeItemId: activeId,
       collapsed: !isDrawer && _sidebarCollapsed,
@@ -573,6 +600,12 @@ class _AppEditPageState extends State<AppEditPage>
       (e) => e.id == _activeModuleId,
       orElse: () => moduleEntries.first,
     );
+    _loadedPageIds.add(activeModuleEntry.id);
+
+    final activeIndex = moduleEntries.indexWhere(
+      (e) => e.id == activeModuleEntry.id,
+    );
+    final validIndex = activeIndex >= 0 ? activeIndex : 0;
 
     return Column(
       children: [
@@ -586,6 +619,7 @@ class _AppEditPageState extends State<AppEditPage>
             setState(() {
               _activeModuleId = entry.id;
               _activeSectionId = entry.id;
+              _loadedPageIds.add(entry.id);
             });
           },
         ),
@@ -594,28 +628,23 @@ class _AppEditPageState extends State<AppEditPage>
           thickness: 1,
           color: colorScheme.outlineVariant.withValues(alpha: 0.5),
         ),
-        Expanded(child: activeModuleEntry.page),
+        Expanded(
+          child: MediaQuery.removePadding(
+            context: context,
+            removeTop: true,
+            child: IndexedStack(
+              index: validIndex,
+              children: [
+                for (var i = 0; i < moduleEntries.length; i++)
+                  _loadedPageIds.contains(moduleEntries[i].id)
+                      ? moduleEntries[i].page
+                      : const SizedBox.shrink(),
+              ],
+            ),
+          ),
+        ),
       ],
     );
-  }
-
-  Widget _buildSettingsView(
-    ColorScheme colorScheme,
-    List<_AppPageEntry> systemEntries,
-  ) {
-    final activeSystemEntry = systemEntries.firstWhere(
-      (e) => e.id == _activeSettingsSubTab,
-      orElse: () => systemEntries.first,
-    );
-
-    // Plus de bandeau « Tableau de bord | Paramètres » ajouté par le shell sur
-    // mobile : la page de réglages fournit DÉJÀ sa propre barre d'application
-    // ET son bandeau d'onglets, et le bottom menu porte déjà le pilier
-    // « Paramètres ». Trois barres empilées pour une seule navigation, ça
-    // réservait ~68 px de haut d'écran au-dessus du contenu pour rien.
-    // Le pilier « Paramètres » du bottom menu (et la sidebar sur desktop)
-    // gardent l'accès aux deux entrées système.
-    return activeSystemEntry.page;
   }
 
   /// Bandeau de sous-navigation de l'éditeur (pastilles modules/système) rendu
@@ -632,23 +661,28 @@ class _AppEditPageState extends State<AppEditPage>
     required bool scrollable,
     required void Function(_AppPageEntry entry) onSelect,
   }) {
-    return Container(
+    return Material(
       color: colorScheme.surface,
-      padding: const EdgeInsets.symmetric(
-        horizontal: FloatingGlassNavBar.inlineHorizontalMargin,
-        vertical: FloatingGlassNavBar.inlineVerticalMargin,
-      ),
-      child: FloatingGlassNavBar.inline(
-        scrollable: scrollable,
-        items: [
-          for (final entry in entries)
-            FloatingGlassNavItem(
-              icon: entry.icon,
-              label: entry.compactLabel,
-              selected: entry.id == activeId,
-              onTap: () => onSelect(entry),
-            ),
-        ],
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: FloatingGlassNavBar.inlineHorizontalMargin,
+            vertical: FloatingGlassNavBar.inlineVerticalMargin,
+          ),
+          child: FloatingGlassNavBar.inline(
+            scrollable: scrollable,
+            items: [
+              for (final entry in entries)
+                FloatingGlassNavItem(
+                  icon: entry.icon,
+                  label: entry.compactLabel,
+                  selected: entry.id == activeId,
+                  onTap: () => onSelect(entry),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -696,9 +730,9 @@ class _AppEditPageState extends State<AppEditPage>
             ),
         ];
 
-    int activePillarIndex = 0;
+    String activePillarId = isOffline ? 'offline_token' : 'home';
     if (activeSectionId == 'commands') {
-      activePillarIndex = 1;
+      activePillarId = 'commands';
     } else if ([
       'workflows',
       'globals',
@@ -707,11 +741,9 @@ class _AppEditPageState extends State<AppEditPage>
       'emojis',
       'guilds',
     ].contains(activeSectionId)) {
-      activePillarIndex = (!_beginnerMode || isOffline) ? 2 : 0;
+      activePillarId = 'modules';
     } else if (['settings', 'dashboard'].contains(activeSectionId)) {
-      activePillarIndex = (!_beginnerMode || isOffline) ? 3 : 2;
-    } else {
-      activePillarIndex = 0;
+      activePillarId = 'settings';
     }
 
     return [
@@ -720,7 +752,7 @@ class _AppEditPageState extends State<AppEditPage>
           icon: pillars[i].icon,
           selectedIcon: pillars[i].selectedIcon,
           label: pillars[i].label,
-          selected: activePillarIndex == i,
+          selected: pillars[i].id == activePillarId,
           onTap: () => _onPillarTap(pillars[i].id),
         ),
     ];
@@ -765,16 +797,25 @@ class _AppEditPageState extends State<AppEditPage>
         : entries.first.id;
 
     if (isWide) {
-      final activeEntry = entries.firstWhere(
-        (e) => e.id == activeId,
-        orElse: () => entries.first,
-      );
+      final activeIndex = entries.indexWhere((e) => e.id == activeId);
+      final validIndex = activeIndex >= 0 ? activeIndex : 0;
+      _loadedPageIds.add(entries[validIndex].id);
 
       return Scaffold(
         body: Row(
           children: [
             _buildSidebar(context, entries, activeId, isDrawer: false),
-            Expanded(child: activeEntry.page),
+            Expanded(
+              child: IndexedStack(
+                index: validIndex,
+                children: [
+                  for (var i = 0; i < entries.length; i++)
+                    _loadedPageIds.contains(entries[i].id)
+                        ? entries[i].page
+                        : const SizedBox.shrink(),
+                ],
+              ),
+            ),
           ],
         ),
       );
@@ -785,22 +826,48 @@ class _AppEditPageState extends State<AppEditPage>
         .toList();
     final systemEntries = entries.where((e) => e.category == 'system').toList();
 
-    Widget activeMobileBody;
-    if (activeId == 'home' || activeId == 'offline_token') {
-      activeMobileBody = entries
-          .firstWhere((e) => e.id == activeId, orElse: () => entries.first)
-          .page;
-    } else if (activeId == 'commands') {
-      activeMobileBody = entries
-          .firstWhere((e) => e.id == 'commands', orElse: () => entries.first)
-          .page;
+    final homeEntry = entries.firstWhere(
+      (e) => e.id == (client == null ? 'offline_token' : 'home'),
+      orElse: () => entries.first,
+    );
+    final commandsEntry = entries.firstWhere(
+      (e) => e.id == 'commands',
+      orElse: () => entries.first,
+    );
+    final settingsEntry = entries.firstWhere(
+      (e) => e.id == 'settings',
+      orElse: () => entries.first,
+    );
+
+    int activePillarIndex = 0;
+    if (activeId == 'commands') {
+      activePillarIndex = 1;
     } else if (moduleEntries.any((e) => e.id == activeId)) {
-      activeMobileBody = _buildModulesView(colorScheme, moduleEntries);
+      activePillarIndex = 2;
     } else if (systemEntries.any((e) => e.id == activeId)) {
-      activeMobileBody = _buildSettingsView(colorScheme, systemEntries);
+      activePillarIndex = 3;
     } else {
-      activeMobileBody = entries.first.page;
+      activePillarIndex = 0;
     }
+
+    _loadedPageIds.add(homeEntry.id);
+    if (activePillarIndex == 1) _loadedPageIds.add(commandsEntry.id);
+    if (activePillarIndex == 2) _loadedPageIds.add(_activeModuleId);
+    if (activePillarIndex == 3) _loadedPageIds.add(settingsEntry.id);
+
+    final activeMobileBody = IndexedStack(
+      index: activePillarIndex,
+      children: [
+        homeEntry.page,
+        _loadedPageIds.contains(commandsEntry.id)
+            ? commandsEntry.page
+            : const SizedBox.shrink(),
+        _buildModulesView(colorScheme, moduleEntries),
+        _loadedPageIds.contains(settingsEntry.id)
+            ? settingsEntry.page
+            : const SizedBox.shrink(),
+      ],
+    );
 
     return PopScope(
       canPop: false,
@@ -809,24 +876,11 @@ class _AppEditPageState extends State<AppEditPage>
         _exitEditor();
       },
       child: Scaffold(
-        // `extendBody` + barre positionnée : le bottom menu du bot est
-        // désormais la même barre flottante « verre dépoli » que la Home.
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         extendBody: true,
-        drawer: Drawer(
-          backgroundColor: colorScheme.surface,
-          child: _buildSidebar(context, entries, activeId, isDrawer: true),
-        ),
         body: Stack(
           children: [
-            // La barre flotte au-dessus du contenu : on réserve sa hauteur,
-            // comme le fait `HomePage`, pour que le bas des pages reste
-            // accessible.
-            Padding(
-              padding: EdgeInsets.only(
-                bottom: FloatingGlassNavBar.contentClearanceOf(context),
-              ),
-              child: activeMobileBody,
-            ),
+            Positioned.fill(child: activeMobileBody),
             Positioned(
               left: FloatingGlassNavBar.margin,
               right: FloatingGlassNavBar.margin,

@@ -4,6 +4,7 @@ import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.da
 import 'package:bot_creator/features/subscriptions/presentation/subscription_page.dart';
 import 'package:flutter/material.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/editor_sub_page_ui.dart';
 import 'package:bot_creator/features/bot_editor/logic/workflow_call.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
@@ -373,6 +374,13 @@ class _SchedulerPageState extends State<SchedulerPage> {
                                 : null,
                           )
                         : ListView.separated(
+                            padding: EdgeInsets.only(
+                              bottom:
+                                  FloatingGlassNavBar.contentClearanceOf(
+                                    context,
+                                  ) +
+                                  24,
+                            ),
                             itemCount: _triggers.length,
                             separatorBuilder: (_, _) =>
                                 const Divider(height: 1),

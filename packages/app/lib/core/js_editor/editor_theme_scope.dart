@@ -1,7 +1,7 @@
 import 'package:bot_creator/core/code_editor/code_editor_settings.dart';
 import 'package:bot_creator/core/code_editor/code_editor_settings_provider.dart';
 import 'package:bot_creator/core/code_editor/code_editor_theme_data.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 /// Bridge between the persistent code editor settings (owned by
@@ -29,13 +29,31 @@ CodeEditorSettings codeEditorSettingsOf(BuildContext context) =>
     context.watch<CodeEditorSettingsProvider?>()?.settings ??
     const CodeEditorSettings();
 
+/// Resolves the effective [CodeEditorTheme] given the surrounding brightness.
+CodeEditorTheme resolveCodeEditorTheme(
+  CodeEditorTheme theme, {
+  required bool isLight,
+}) {
+  if (isLight) {
+    if (theme == CodeEditorTheme.rosePine) return CodeEditorTheme.rosePineDawn;
+    if (theme == CodeEditorTheme.githubDark) return CodeEditorTheme.githubLight;
+  }
+  return theme;
+}
+
 /// Palette matching the user-selected [CodeEditorTheme], Rosé Pine by default.
 ///
+/// Automatically adapts between light and dark default variants according to
+/// the surrounding [Brightness].
 /// Subscribes to the provider, so the calling widget rebuilds when the user
 /// picks another theme.
-CodeEditorThemeColors codeEditorColorsOf(BuildContext context) =>
-    context.watch<CodeEditorSettingsProvider?>()?.currentColors ??
-    defaultCodeEditorThemeColors;
+CodeEditorThemeColors codeEditorColorsOf(BuildContext context) {
+  final provider = context.watch<CodeEditorSettingsProvider?>();
+  final isLight = Theme.of(context).brightness == Brightness.light;
+  final theme = provider?.settings.theme ?? CodeEditorTheme.rosePine;
+  final effectiveTheme = resolveCodeEditorTheme(theme, isLight: isLight);
+  return CodeEditorThemeColors.forTheme(effectiveTheme);
+}
 
 /// Text style shared by every code editor: the user's monospace font, size and
 /// line height, coloured with [colors] so the text always stays legible on the

@@ -34,6 +34,7 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bot_config_
 import 'package:bot_creator/features/home/presentation/home_ui.dart';
 import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
 import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
+import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 import 'package:bot_creator/main.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -428,8 +429,6 @@ class _AppHomePageState extends State<AppHomePage>
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final displayName = _appName.isNotEmpty
         ? _appName
         : widget.client.user.id.toString();
@@ -438,53 +437,54 @@ class _AppHomePageState extends State<AppHomePage>
         MediaQuery.sizeOf(context).width >= AppTheme.desktopBreakpoint;
 
     return Scaffold(
-      backgroundColor: isDark ? AppTheme.scaffoldDark : colorScheme.surface,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        bottom: false,
+        child: isWide
+            ? _buildWideOverview(
+                context,
+                botId: botId,
+                displayName: displayName,
+              )
+            : Column(
                 children: [
-                  HomeHeaderIconButton(
-                    icon: Icons.arrow_back_rounded,
-                    iconSize: 16,
-                    tooltip: MaterialLocalizations.of(
-                      context,
-                    ).backButtonTooltip,
-                    onTap: () {
-                      if (widget.onExit != null) {
-                        widget.onExit!();
-                      } else {
-                        Navigator.of(context).maybePop();
-                      }
-                    },
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        HomeHeaderIconButton(
+                          icon: Icons.arrow_back_rounded,
+                          iconSize: 16,
+                          tooltip: MaterialLocalizations.of(
+                            context,
+                          ).backButtonTooltip,
+                          onTap: () {
+                            if (widget.onExit != null) {
+                              widget.onExit!();
+                            } else {
+                              Navigator.of(context).maybePop();
+                            }
+                          },
+                        ),
+                        HomeHeaderIconButton(
+                          icon: Icons.sync_rounded,
+                          iconSize: 13,
+                          tooltip: context.tr.common_refresh,
+                          onTap: _isReconciling ? null : _refreshOverview,
+                        ),
+                      ],
+                    ),
                   ),
-                  HomeHeaderIconButton(
-                    icon: Icons.sync_rounded,
-                    iconSize: 13,
-                    tooltip: context.tr.common_refresh,
-                    onTap: _isReconciling ? null : _refreshOverview,
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: isWide
-                  ? _buildWideOverview(
-                      context,
-                      botId: botId,
-                      displayName: displayName,
-                    )
-                  : _buildNarrowOverview(
+                  Expanded(
+                    child: _buildNarrowOverview(
                       context,
                       botId: botId,
                       displayName: displayName,
                     ),
-            ),
-          ],
-        ),
+                  ),
+                ],
+              ),
       ),
     );
   }

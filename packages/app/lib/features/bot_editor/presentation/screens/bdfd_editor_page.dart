@@ -4,6 +4,7 @@ import 'package:bot_creator/core/models/types/app_emoji.dart';
 import 'package:bot_creator/core/code_editor/code_editor_settings.dart';
 import 'package:bot_creator/core/code_editor/code_editor_theme_data.dart';
 import 'package:bot_creator/core/js_editor/editor_theme_scope.dart';
+import 'package:bot_creator/features/settings/presentation/code_editor_settings_page.dart';
 
 import 'package:bot_creator_shared/utils/bdfd_autocomplete.dart';
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
@@ -899,6 +900,19 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
               Text(context.tr.bdfd_editor_indent_guides),
               Text(context.tr.bdfd_editor_quick_keys),
               const SizedBox(height: 8),
+              OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.of(sheetContext).pop();
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const CodeEditorSettingsPage(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.palette_outlined, size: 18),
+                label: Text(context.tr.code_editor_settings_title),
+              ),
+              const SizedBox(height: 8),
               TextButton(
                 onPressed: () => Navigator.of(sheetContext).pop(),
                 child: Text(context.tr.close),
@@ -911,15 +925,17 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    // Palette and font are user settings (Rosé Pine by default). They are
-    // pushed into the existing controller: its setter notifies the listeners
-    // and re-renders the highlighting without recreating the controller, which
-    // used to crash with LateInitializationError and to wipe the selection and
-    // the undo history.
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     _editorSettings = codeEditorSettingsOf(context);
     _colors = codeEditorColorsOf(context);
     _controller.themeColors = _colors;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    _editorSettings = codeEditorSettingsOf(context);
+    _colors = codeEditorColorsOf(context);
 
     // Au-delà de ce seuil les 5 réglages de l'éditeur s'affichent en icônes ;
     // en dessous, ils sont regroupés dans un menu « ⋮ » : la barre débordait de
@@ -933,6 +949,8 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
         title: Text(
           widget.title ?? context.tr.bdfd_editor_title,
           style: TextStyle(color: _colors.text, fontSize: 16),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
         ),
         iconTheme: IconThemeData(color: _colors.text),
         actions: [
@@ -957,17 +975,8 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
         child: Column(
           children: [
             Expanded(
-              child: Container(
-                // La zone de code est un PANNEAU : elle prend la surface de la
-                // palette choisie (et non le fond de la page, comme dans un
-                // vrai éditeur). Un panneau sombre sur une page claire — ou
-                // l'inverse — devient donc impossible.
-                margin: const EdgeInsets.all(AppTheme.spacingSm),
-                decoration: BoxDecoration(
-                  color: _colors.surface,
-                  borderRadius: BorderRadius.circular(AppTheme.radiusCard),
-                ),
-                clipBehavior: Clip.antiAlias,
+              child: ColoredBox(
+                color: _colors.background,
                 child: _buildEditorBody(),
               ),
             ),
@@ -983,6 +992,20 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
   /// Les réglages de l'éditeur affichés en icônes dans la barre d'outils.
   List<Widget> _buildToolbarToggles() {
     return [
+      IconButton(
+        tooltip: context.tr.code_editor_settings_title,
+        icon: Icon(
+          Icons.palette_outlined,
+          color: _colors.text.withValues(alpha: 0.7),
+        ),
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (_) => const CodeEditorSettingsPage(),
+            ),
+          );
+        },
+      ),
       IconButton(
         tooltip: context.tr.bdfd_editor_docs,
         icon: Icon(Icons.menu_book, color: _colors.text.withValues(alpha: 0.7)),
@@ -1058,6 +1081,16 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
         PopupMenuItem<VoidCallback>(
           value: () => _showEditorUxSheet(),
           child: Text(context.tr.bdfd_editor_ux_title),
+        ),
+        PopupMenuItem<VoidCallback>(
+          value: () {
+            Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => const CodeEditorSettingsPage(),
+              ),
+            );
+          },
+          child: Text(context.tr.code_editor_settings_title),
         ),
         PopupMenuItem<VoidCallback>(
           value: () {
@@ -1162,71 +1195,82 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
   }
 
   Widget _buildMobileSpecialCharsBar() {
-    final chars = <String>[r'$', '<:', ';', '[', ']'];
+    final chars = <String>[
+      r'$',
+      '[',
+      ']',
+      ';',
+      '{',
+      '}',
+      '(',
+      ')',
+      '"',
+      '=',
+      '<:',
+      '>',
+      '/',
+    ];
     return Container(
-      padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
       decoration: BoxDecoration(
         color: _colors.surface,
         border: Border(
-          top: BorderSide(color: _colors.gutterText.withValues(alpha: 0.3)),
+          top: BorderSide(color: _colors.gutterText.withValues(alpha: 0.2)),
         ),
       ),
       child: SafeArea(
         top: false,
         child: Row(
           children: [
-            Container(
-              margin: const EdgeInsets.only(right: 8),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: AppTheme.premiumGold.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(AppTheme.radiusPill),
-                border: Border.all(
-                  color: AppTheme.premiumGold.withValues(alpha: 0.5),
-                ),
+            IconButton(
+              tooltip: context.tr.code_editor_settings_title,
+              icon: Icon(
+                Icons.tune,
+                size: 20,
+                color: _colors.text.withValues(alpha: 0.8),
               ),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(AppTheme.radiusPill),
-                onTap: _showEditorUxSheet,
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 2),
-                  child: Text(
-                    'EDITOR UX',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: AppTheme.premiumGold,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ),
+              onPressed: _showEditorUxSheet,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
             ),
+            const SizedBox(width: 4),
             Expanded(
-              // Défilable horizontalement : 5 boutons de 48 px + la pastille
-              // ne tiennent pas dans 360 dp (débordement de 17 px mesuré en
-              // test), et un écran plus étroit doit garder tous les caractères
-              // accessibles plutôt que de les rogner.
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: chars
                       .map(
                         (char) => Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 3),
-                          child: OutlinedButton(
-                            style: OutlinedButton.styleFrom(
-                              visualDensity: VisualDensity.compact,
-                              minimumSize: const Size(48, 38),
-                              padding: EdgeInsets.zero,
-                            ),
-                            onPressed: () => _insertAtCaret(char),
-                            child: Text(
-                              char,
-                              style: TextStyle(
-                                fontFamily: 'monospace',
-                                fontWeight: FontWeight.w700,
-                                fontSize: 16,
-                                color: _colors.text,
+                          padding: const EdgeInsets.symmetric(horizontal: 2.5),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(6),
+                            onTap: () => _insertAtCaret(char),
+                            child: Container(
+                              alignment: Alignment.center,
+                              constraints: const BoxConstraints(
+                                minWidth: 36,
+                                minHeight: 36,
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: _colors.background,
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(
+                                  color: _colors.gutterText.withValues(
+                                    alpha: 0.25,
+                                  ),
+                                ),
+                              ),
+                              child: Text(
+                                char,
+                                style: TextStyle(
+                                  fontFamily: 'monospace',
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 15,
+                                  color: _colors.text,
+                                ),
                               ),
                             ),
                           ),
@@ -1539,7 +1583,14 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
         keyboardType: TextInputType.multiline,
         style: codeEditorTextStyle(_editorSettings, _colors),
         decoration: InputDecoration(
+          isDense: true,
+          filled: false,
+          fillColor: Colors.transparent,
           border: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
+          errorBorder: InputBorder.none,
+          disabledBorder: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 8,
             vertical: 12,

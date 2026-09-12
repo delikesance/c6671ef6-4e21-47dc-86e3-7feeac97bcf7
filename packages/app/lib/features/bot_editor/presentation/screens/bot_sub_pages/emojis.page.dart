@@ -10,6 +10,7 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pag
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 
 class EmojisPage extends StatefulWidget {
   final String botId;
@@ -314,11 +315,11 @@ class _EmojisPageState extends State<EmojisPage> {
       builder: (context, constraints) {
         final crossAxisCount = (constraints.maxWidth / 160).floor().clamp(2, 6);
         return GridView.builder(
-          padding: const EdgeInsets.fromLTRB(
+          padding: EdgeInsets.fromLTRB(
             AppTheme.spacingMd,
             AppTheme.spacingMd,
             AppTheme.spacingMd,
-            80,
+            FloatingGlassNavBar.contentClearanceOf(context) + 24,
           ),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,

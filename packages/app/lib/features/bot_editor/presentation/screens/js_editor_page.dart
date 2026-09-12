@@ -9,6 +9,7 @@ import 'package:bot_creator/core/js_editor/js_editor_snippets.dart';
 import 'package:bot_creator/core/js_editor/js_syntax_controller.dart';
 import 'package:bot_creator/features/documentation/documentation_navigation.dart';
 import 'package:bot_creator/features/documentation/documentation_urls.dart';
+import 'package:bot_creator/features/settings/presentation/code_editor_settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -272,17 +273,19 @@ class _JsEditorPageState extends State<JsEditorPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    // The palette and the font are user settings (Rosé Pine by default). They
-    // are pushed into the existing controller: the setter notifies the
-    // listeners so the highlighting re-renders, without ever recreating the
-    // controller in build() (that crashed with LateInitializationError and
-    // dropped the selection and the undo history).
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     final settings = codeEditorSettingsOf(context);
     final colors = codeEditorColorsOf(context);
     _controller
       ..themeColors = colors
       ..baseStyle = codeEditorTextStyle(settings, colors);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final settings = codeEditorSettingsOf(context);
+    final colors = codeEditorColorsOf(context);
 
     return Scaffold(
       backgroundColor: colors.background,
@@ -294,6 +297,20 @@ class _JsEditorPageState extends State<JsEditorPage> {
         ),
         iconTheme: IconThemeData(color: colors.text),
         actions: [
+          IconButton(
+            tooltip: context.tr.code_editor_settings_title,
+            icon: Icon(
+              Icons.palette_outlined,
+              color: colors.text.withValues(alpha: 0.7),
+            ),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const CodeEditorSettingsPage(),
+                ),
+              );
+            },
+          ),
           IconButton(
             tooltip: context.tr.bdfd_editor_docs,
             icon: Icon(
@@ -348,7 +365,14 @@ class _JsEditorPageState extends State<JsEditorPage> {
                           keyboardType: TextInputType.multiline,
                           style: codeEditorTextStyle(settings, colors),
                           decoration: InputDecoration(
+                            isDense: true,
+                            filled: false,
+                            fillColor: Colors.transparent,
                             border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            errorBorder: InputBorder.none,
+                            disabledBorder: InputBorder.none,
                             contentPadding: const EdgeInsets.symmetric(
                               horizontal: 12,
                               vertical: 12,

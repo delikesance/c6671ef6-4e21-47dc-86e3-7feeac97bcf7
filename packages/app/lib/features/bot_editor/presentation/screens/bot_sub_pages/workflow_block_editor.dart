@@ -504,9 +504,10 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
         top: false,
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final isDesktop =
-                MediaQuery.of(context).size.width >= 800 &&
-                !Platform.environment.containsKey('FLUTTER_TEST');
+            final isTest = Platform.environment.containsKey('FLUTTER_TEST');
+            final isDesktop = isTest
+                ? MediaQuery.of(context).size.width >= 1000
+                : MediaQuery.of(context).size.width >= 800;
             final maxWidth = constraints.maxWidth >= 1200
                 ? 980.0
                 : (isDesktop ? 860.0 : 680.0);
@@ -514,17 +515,14 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
             final canvasWidget = Center(
               child: ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: maxWidth),
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
+                child: ScratchBlockCanvas(
                   padding: const EdgeInsets.all(AppTheme.spacingLg),
-                  child: ScratchBlockCanvas(
-                    skipConnectorAfterIndices: _buildFinalBlockIndices(
-                      showHeaderBlocks: !isDesktop,
-                    ),
-                    children: _buildBlocks(
-                      showAddButton: true,
-                      showHeaderBlocks: !isDesktop,
-                    ),
+                  skipConnectorAfterIndices: _buildFinalBlockIndices(
+                    headerBlocks: 1,
+                  ),
+                  children: _buildBlocks(
+                    showAddButton: true,
+                    showMetadataBlock: false,
                   ),
                 ),
               ),
@@ -649,20 +647,24 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                                           size: 18,
                                         ),
                                         const SizedBox(width: 8),
-                                        Text(
-                                          context.tr.scratch_trigger_tab,
-                                          style: TextStyle(
-                                            fontWeight: _sidebarTab == 0
-                                                ? FontWeight.bold
-                                                : FontWeight.normal,
-                                            color: _sidebarTab == 0
-                                                ? Theme.of(
-                                                    context,
-                                                  ).colorScheme.primary
-                                                : Theme.of(context)
-                                                      .colorScheme
-                                                      .onSurfaceVariant,
-                                            fontSize: 13.5,
+                                        Flexible(
+                                          child: Text(
+                                            context.tr.scratch_trigger_tab,
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                            style: TextStyle(
+                                              fontWeight: _sidebarTab == 0
+                                                  ? FontWeight.bold
+                                                  : FontWeight.normal,
+                                              color: _sidebarTab == 0
+                                                  ? Theme.of(
+                                                      context,
+                                                    ).colorScheme.primary
+                                                  : Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurfaceVariant,
+                                              fontSize: 13.5,
+                                            ),
                                           ),
                                         ),
                                       ],
@@ -705,20 +707,24 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                                           size: 18,
                                         ),
                                         const SizedBox(width: 8),
-                                        Text(
-                                          context.tr.scratch_blocks_tab,
-                                          style: TextStyle(
-                                            fontWeight: _sidebarTab == 1
-                                                ? FontWeight.bold
-                                                : FontWeight.normal,
-                                            color: _sidebarTab == 1
-                                                ? Theme.of(
-                                                    context,
-                                                  ).colorScheme.primary
-                                                : Theme.of(context)
-                                                      .colorScheme
-                                                      .onSurfaceVariant,
-                                            fontSize: 13.5,
+                                        Flexible(
+                                          child: Text(
+                                            context.tr.scratch_blocks_tab,
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                            style: TextStyle(
+                                              fontWeight: _sidebarTab == 1
+                                                  ? FontWeight.bold
+                                                  : FontWeight.normal,
+                                              color: _sidebarTab == 1
+                                                  ? Theme.of(
+                                                      context,
+                                                    ).colorScheme.primary
+                                                  : Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurfaceVariant,
+                                              fontSize: 13.5,
+                                            ),
                                           ),
                                         ),
                                       ],
@@ -805,7 +811,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
 
   List<Widget> _buildBlocks({
     bool showAddButton = true,
-    bool showHeaderBlocks = true,
+    bool showMetadataBlock = false,
   }) {
     if (_isJavascriptEventScriptUi) {
       return [_buildEventJavascriptPanel()];
@@ -813,10 +819,10 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
 
     return [
       // ── Metadata block ──
-      if (showHeaderBlocks) _buildMetadataBlock(),
+      if (showMetadataBlock) _buildMetadataBlock(),
 
       // ── Entry Point block ──
-      if (showHeaderBlocks) _buildEntryPointBlock(),
+      _buildEntryPointBlock(),
 
       if (_isJavascriptMode && _showJavascriptExecutionMode) ...[
         _buildJavascriptEditorTile(),
@@ -830,8 +836,8 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
     ];
   }
 
-  Set<int> _buildFinalBlockIndices({bool showHeaderBlocks = true}) {
-    final offset = showHeaderBlocks ? 2 : 0;
+  Set<int> _buildFinalBlockIndices({int headerBlocks = 0}) {
+    final offset = headerBlocks;
     final indices = <int>{};
     for (var i = 0; i < _actions.length; i++) {
       final type = BotCreatorActionType.values.firstWhere(
@@ -2055,16 +2061,20 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                           size: 18,
                         ),
                         const SizedBox(width: 8),
-                        Text(
-                          context.tr.scratch_trigger_tab,
-                          style: TextStyle(
-                            fontWeight: _mobileTab == 0
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                            color: _mobileTab == 0
-                                ? Theme.of(context).colorScheme.primary
-                                : theme.colorScheme.onSurfaceVariant,
-                            fontSize: 13.5,
+                        Flexible(
+                          child: Text(
+                            context.tr.scratch_trigger_tab,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: TextStyle(
+                              fontWeight: _mobileTab == 0
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                              color: _mobileTab == 0
+                                  ? Theme.of(context).colorScheme.primary
+                                  : theme.colorScheme.onSurfaceVariant,
+                              fontSize: 13.5,
+                            ),
                           ),
                         ),
                       ],
@@ -2098,18 +2108,22 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                           size: 18,
                         ),
                         const SizedBox(width: 8),
-                        Text(
-                          scriptUi
-                              ? context.tr.cmd_execution_mode_javascript
-                              : context.tr.actions_title,
-                          style: TextStyle(
-                            fontWeight: _mobileTab == 1
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                            color: _mobileTab == 1
-                                ? Theme.of(context).colorScheme.primary
-                                : theme.colorScheme.onSurfaceVariant,
-                            fontSize: 13.5,
+                        Flexible(
+                          child: Text(
+                            scriptUi
+                                ? context.tr.cmd_execution_mode_javascript
+                                : context.tr.actions_title,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: TextStyle(
+                              fontWeight: _mobileTab == 1
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                              color: _mobileTab == 1
+                                  ? Theme.of(context).colorScheme.primary
+                                  : theme.colorScheme.onSurfaceVariant,
+                              fontSize: 13.5,
+                            ),
                           ),
                         ),
                       ],
@@ -2563,9 +2577,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
 
   Widget _buildStep3Actions() {
     return ScratchBlockCanvas(
-      skipConnectorAfterIndices: _buildFinalBlockIndices(
-        showHeaderBlocks: false,
-      ),
+      skipConnectorAfterIndices: _buildFinalBlockIndices(headerBlocks: 0),
       children: [
         if (_actions.isEmpty)
           Padding(
