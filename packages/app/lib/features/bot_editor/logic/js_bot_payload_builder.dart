@@ -5,6 +5,7 @@ import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/features/bot_editor/logic/normalize_command_data.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/features/bot_editor/logic/workflow_call.dart';
+import 'package:flutter/foundation.dart';
 
 Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
   final appData = await AppManager().getApp(botId);
@@ -29,6 +30,7 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
 
   final commandsRaw = await AppManager().listAppCommands(botId);
   final commands = <Map<String, dynamic>>[];
+  final usedNames = <String>{};
 
   for (final command in commandsRaw) {
     final normalized = normalizeCommandData(Map<String, dynamic>.from(command));
@@ -48,20 +50,24 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
             ) ??
             '';
       }
-      if (script.trim().isEmpty) {
-        continue;
-      }
+      if (script.trim().isEmpty) continue;
     } else if (script.trim().isEmpty) {
       continue;
     }
 
     final discordType = _resolveDiscordCommandType(data['commandType']);
+    final commandId = (normalized['id'] ?? '').toString();
+    final rawName = (normalized['name'] ?? '').toString().trim();
+    if (rawName.isEmpty) {
+      debugPrint('[buildJsBotPayload] Skipping "$commandId": empty name.');
+      continue;
+    }
+    final uniqueName = _deduplicateCommandName(rawName, usedNames);
     commands.add({
-      'id': (normalized['id'] ?? '').toString(),
+      'id': commandId,
       'type': 'command',
-      'name': (normalized['name'] ?? '').toString(),
-      'description': (data['description'] ?? normalized['name'] ?? '')
-          .toString(),
+      'name': uniqueName,
+      'description': (data['description'] ?? uniqueName).toString(),
       'discordType': discordType,
       'options': data['options'] ?? const [],
       'enabled': normalized['enabled'] != false,
@@ -159,10 +165,9 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
   }
 
   final prefixRaw = (appData['prefix'] ?? '').toString().trim();
-  final hasPrefixCommands = commands.any((command) {
-    final name = (command['name'] ?? '').toString().trim();
-    return name.isNotEmpty;
-  });
+  final hasPrefixCommands = commands.any(
+    (command) => (command['name'] ?? '').toString().trim().isNotEmpty,
+  );
   final includePrefix = prefixRaw.isNotEmpty && hasPrefixCommands;
 
   final presenceStatusRaw = (appData['presenceStatus'] ?? 'online')
@@ -190,11 +195,7 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
     }
     final typeRaw = (map['type'] ?? 'playing').toString().trim().toLowerCase();
     const allowedTypes = {
-      'playing',
-      'streaming',
-      'listening',
-      'watching',
-      'competing',
+      'playing', 'streaming', 'listening', 'watching', 'competing', //
     };
     final type = allowedTypes.contains(typeRaw) ? typeRaw : 'playing';
     final url = (map['url'] ?? '').toString().trim();
@@ -270,6 +271,20 @@ String? _synthesizeJsFromWorkflowActions(
     return 'await interaction.reply(${jsonEncode(content)});';
   }
   return null;
+}
+
+/// Appends a numeric suffix (`name`, `name_2`, ...) on collision so the payload
+/// never contains two identical names (runner-js rejects that with a 400).
+String _deduplicateCommandName(String name, Set<String> usedNames) {
+  if (usedNames.add(name)) return name;
+  var suffix = 2;
+  var candidate = '${name}_$suffix';
+  while (!usedNames.add(candidate)) {
+    suffix += 1;
+    candidate = '${name}_$suffix';
+  }
+  debugPrint('[buildJsBotPayload] Duplicate "$name" -> "$candidate".');
+  return candidate;
 }
 
 String _resolveDiscordCommandType(Object? rawCommandType) {

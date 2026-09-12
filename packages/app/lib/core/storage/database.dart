@@ -2480,7 +2480,10 @@ class AppManager implements BotDataStore {
         final fallbackId = fileName.substring(0, fileName.length - 5);
 
         normalized['id'] = (normalized['id'] ?? fallbackId).toString();
-        normalized['name'] = (normalized['name'] ?? 'unknown').toString();
+        final rawName = (normalized['name'] ?? '').toString().trim();
+        normalized['name'] = rawName.isEmpty
+            ? _fallbackCommandName(fallbackId)
+            : rawName;
         normalized['description'] = (normalized['description'] ?? '')
             .toString();
         commands.add(normalized);
@@ -2571,4 +2574,15 @@ class AppManager implements BotDataStore {
       await deleteApp(app['id']);
     }
   }
+}
+
+/// Deterministic, non-colliding fallback command name derived from the command
+/// file name, so several nameless commands no longer share one name.
+String _fallbackCommandName(String fallbackId) {
+  final slug = fallbackId
+      .toLowerCase()
+      .replaceAll(RegExp(r'[^a-z0-9]+'), '_')
+      .replaceAll(RegExp(r'^_+|_+$'), '');
+  final safe = slug.isEmpty ? 'unnamed' : slug;
+  return 'cmd_${safe.length > 32 ? safe.substring(0, 32) : safe}';
 }

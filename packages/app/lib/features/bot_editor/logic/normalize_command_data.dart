@@ -4,12 +4,17 @@ import 'package:bot_creator/features/bot_editor/logic/embed_normalization.dart';
 import 'package:bot_creator_shared/utils/command_migration.dart' as migration;
 import 'package:bot_creator_shared/utils/legacy_command_triggers.dart';
 
+/// Root-level keys kept when the auto-heal branch nests the legacy payload
+/// under 'data'; clearing used to drop them, yielding duplicate names later.
+const List<String> _rootMetadataKeys = [
+  'id', 'name', 'description', 'type', 'updatedAt', 'createdAt', 'folder', //
+];
+
 Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {
   var normalized = Map<String, dynamic>.from(command);
 
-  // Auto-heal: If the file was corrupted by a buggy migration (missing the root 'data' sub-map
-  // but containing actions or response blocks), we nest the root keys under 'data' and
-  // attempt to recover the name and other metadata fields.
+  // Auto-heal a file corrupted by a buggy migration: no root 'data' sub-map but
+  // legacy root keys present. Nest them under 'data' while keeping metadata.
   if (normalized['data'] == null &&
       (normalized['actions'] != null ||
           normalized['response'] != null ||
@@ -18,15 +23,19 @@ Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {
           normalized['script'] != null ||
           normalized['type']?.toString() == 'command')) {
     final healedData = Map<String, dynamic>.from(normalized);
+    // Keep root-level identity metadata (name/id/type/...) across the clear.
+    final rootMetadata = <String, dynamic>{
+      for (final key in _rootMetadataKeys)
+        if (normalized.containsKey(key)) key: normalized[key],
+    };
     normalized.clear();
     normalized['data'] = healedData;
+    normalized.addAll(rootMetadata);
 
     final prefixOverride = (healedData['legacyPrefixOverride'] ?? '')
         .toString()
         .trim();
-    if (prefixOverride.isNotEmpty) {
-      normalized['name'] = prefixOverride;
-    }
+    if (prefixOverride.isNotEmpty) normalized['name'] = prefixOverride;
   }
 
   final rawData = Map<String, dynamic>.from(
