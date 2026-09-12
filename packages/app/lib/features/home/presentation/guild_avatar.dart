@@ -11,19 +11,27 @@
 //     (`desktopGatewayForBot(botId).guilds.cache` → objets `Guild` complets,
 //     avec `name` et `iconHash`) : synchrone, gratuit, prioritaire ;
 //   * à défaut, l'API REST `GET /users/@me/guilds` avec le token du bot
-//     (même endpoint que `core/utils/global.dart#getDiscordBotGuildCount` et
-//     `bot_sub_pages/guilds.page.dart`), résultat mis en cache mémoire.
+//     (même endpoint que `core/utils/global.dart#getDiscordBotGuildCount`),
+//     résultat mis en cache pour toute la session.
 //
 // Aucune donnée inventée : si aucune des deux sources ne fournit de serveur on
 // affiche un repli neutre (icône serveur), jamais une lettre issue d'une seed.
 // Si le nom du serveur est connu mais pas son icône, on affiche sa vraie
 // initiale.
 //
-// Cache : Flutter met déjà en cache les octets des `Image.network` via
-// `PaintingBinding.instance.imageCache` (configuré dans `main.dart`), et les
-// icônes sont demandées en `size=128` (adapté à un cercle de 36 px en 3x).
-// Voir `GuildDirectory` pour le cache de la *liste* de serveurs (une requête
-// REST par bot et par session, jamais une par rebuild).
+// Cache (demande produit : « actualisation des serveurs au chargement puis
+// caching jusqu'au redémarrage de l'app ») :
+//
+//   * `GuildDirectory` est la *source unique de vérité* de la session : une
+//     entrée chargée reste valide jusqu'au redémarrage (plus de TTL), la carte
+//     bot de la Home et la page « Serveurs » lisent le même état observable
+//     (`ValueListenable<GuildsLoadState>`) et ne déclenchent donc qu'une seule
+//     requête HTTP par bot et par session ;
+//   * seul `GuildDirectory.refresh` force une nouvelle requête (bouton
+//     « Actualiser », tirer-pour-rafraîchir, après « quitter le serveur ») ;
+//   * les octets des icônes sont, eux, conservés *sur disque* entre deux
+//     lancements par `core/network/image_disk_cache.dart` (les avatars ne
+//     repassent plus par le CDN à chaque démarrage).
 
 import 'dart:async';
 import 'dart:convert';
@@ -33,6 +41,7 @@ import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/utils/global.dart' show discordUrl;
 import 'package:bot_creator/features/home/presentation/home_ui.dart';
+import 'package:flutter/foundation.dart' show ValueListenable, listEquals;
 import 'package:flutter/material.dart';
 import 'package:nyxx/nyxx.dart';
 
@@ -45,10 +54,17 @@ const String discordCdnBaseUrl = 'https://cdn.discordapp.com';
 /// Taille d'image demandée au CDN pour un cercle de 36 px (marge 2x/3x).
 const int kGuildIconRequestSize = 128;
 
-/// Un serveur Discord, réduit à ce dont la carte bot a besoin.
+/// Un serveur Discord, réduit à ce dont la carte bot et la page « Serveurs »
+/// ont besoin.
 @immutable
 class GuildAvatarInfo {
-  const GuildAvatarInfo({required this.id, this.name, this.iconHash});
+  const GuildAvatarInfo({
+    required this.id,
+    this.name,
+    this.iconHash,
+    this.isOwner = false,
+    this.memberCount,
+  });
 
   /// Identifiant (snowflake) du serveur.
   final String id;
@@ -59,6 +75,13 @@ class GuildAvatarInfo {
   /// Hash de l'icône du serveur, `null` si le serveur n'a pas d'icône.
   final String? iconHash;
 
+  /// Vrai quand le bot est propriétaire du serveur (`owner` de l'API REST).
+  final bool isOwner;
+
+  /// Nombre approximatif de membres, quand l'API le fournit
+  /// (`with_counts=true`) — `null` sinon.
+  final int? memberCount;
+
   /// URL CDN résolue, ou `null` quand aucune icône n'est connue.
   String? get iconUrl => discordGuildIconUrl(id, iconHash);
 
@@ -67,10 +90,12 @@ class GuildAvatarInfo {
       other is GuildAvatarInfo &&
       other.id == id &&
       other.name == name &&
-      other.iconHash == iconHash;
+      other.iconHash == iconHash &&
+      other.isOwner == isOwner &&
+      other.memberCount == memberCount;
 
   @override
-  int get hashCode => Object.hash(id, name, iconHash);
+  int get hashCode => Object.hash(id, name, iconHash, isOwner, memberCount);
 }
 
 /// URL CDN de l'icône d'un serveur, ou `null` si elle est indéterminable.
@@ -167,6 +192,8 @@ List<GuildAvatarInfo> guildAvatarsFromGateway(
 ///
 /// Tolérant par construction : une entrée sans `id` est ignorée, et une charge
 /// utile illisible renvoie une liste vide (→ repli neutre, jamais d'exception).
+/// `owner` et `approximate_member_count` (endpoint appelé en `with_counts`)
+/// sont conservés quand ils sont présents — la page « Serveurs » les affiche.
 List<GuildAvatarInfo> parseGuildsApiPayload(String body) {
   try {
     final decoded = jsonDecode(body);
@@ -178,11 +205,14 @@ List<GuildAvatarInfo> parseGuildsApiPayload(String body) {
       if (id.isEmpty) continue;
       final name = (entry['name'] ?? '').toString();
       final icon = entry['icon']?.toString();
+      final members = entry['approximate_member_count'];
       guilds.add(
         GuildAvatarInfo(
           id: id,
           name: name.isEmpty ? null : name,
           iconHash: (icon == null || icon.isEmpty) ? null : icon,
+          isOwner: entry['owner'] == true,
+          memberCount: members is int ? members : null,
         ),
       );
     }
@@ -192,12 +222,87 @@ List<GuildAvatarInfo> parseGuildsApiPayload(String body) {
   }
 }
 
+/// Statut de chargement des serveurs d'un bot pour la session en cours.
+enum GuildsLoadStatus {
+  /// Aucune requête demandée dans cette session.
+  idle,
+
+  /// Une requête est en vol.
+  loading,
+
+  /// Liste disponible ([GuildsLoadState.guilds] peut être vide si le bot
+  /// n'a réellement aucun serveur).
+  loaded,
+
+  /// Dernière tentative en échec ; aucune entrée de session n'a été posée,
+  /// donc un prochain chargement retentera.
+  error,
+}
+
+/// État observable des serveurs d'un bot (une entrée par bot et par session).
+///
+/// C'est l'objet partagé entre la carte bot de la Home et la page
+/// « Serveurs » : les deux s'abonnent au même [ValueListenable] et n'affichent
+/// jamais deux vérités différentes.
+@immutable
+class GuildsLoadState {
+  const GuildsLoadState({
+    required this.status,
+    this.guilds = const <GuildAvatarInfo>[],
+    this.errorMessage,
+  });
+
+  /// État initial : rien de chargé, aucune requête en cours.
+  static const GuildsLoadState idle = GuildsLoadState(
+    status: GuildsLoadStatus.idle,
+  );
+
+  final GuildsLoadStatus status;
+
+  /// Serveurs connus ; vide tant qu'aucun chargement n'a abouti.
+  final List<GuildAvatarInfo> guilds;
+
+  /// Détail *technique* du dernier échec (jamais un libellé d'interface :
+  /// les écrans l'affichent via une clé i18n générique).
+  final String? errorMessage;
+
+  /// Vrai pendant qu'une requête est en vol.
+  bool get isLoading => status == GuildsLoadStatus.loading;
+
+  /// Vrai quand la liste a été chargée avec succès pour cette session.
+  bool get isLoaded => status == GuildsLoadStatus.loaded;
+
+  @override
+  bool operator ==(Object other) =>
+      other is GuildsLoadState &&
+      other.status == status &&
+      other.errorMessage == errorMessage &&
+      listEquals(other.guilds, guilds);
+
+  @override
+  int get hashCode => Object.hash(status, errorMessage, Object.hashAll(guilds));
+
+  @override
+  String toString() =>
+      'GuildsLoadState(${status.name}, ${guilds.length} serveur(s))';
+}
+
 /// Charge et met en cache les serveurs d'un bot via l'API REST Discord.
 ///
 /// Le token n'est pas disponible dans la liste d'apps streamée par la Home
 /// (`getAllApps()` n'expose que `id`/`name`/`avatar`/`guild_count`) : il est
 /// relu depuis `AppManager.getApp()`, qui va le chercher dans le stockage
-/// sécurisé (même chemin que `bot_sub_pages/guilds.page.dart`).
+/// sécurisé (même chemin que l'ancienne page « Serveurs »).
+///
+/// Sémantique de session (« jusqu'au redémarrage de l'app ») :
+///
+///   * [load] sert l'entrée de session si elle existe, sinon lance *une*
+///     requête — jamais une par rebuild, par carte ou par montage d'écran ;
+///   * [refresh] force une requête (l'entrée de session est remplacée au
+///     succès) ;
+///   * un échec n'est pas mis en cache : le chargement suivant retente ;
+///   * rien n'est écrit sur disque (la liste reste en mémoire, ce que
+///     « jusqu'au redémarrage » demande exactement).
 ///
 /// Toutes les dépendances (résolution du token, transport HTTP, endpoint)
 /// sont injectables : la sémantique du cache est ainsi testable sans réseau.
@@ -206,29 +311,41 @@ class GuildDirectory {
     Future<String?> Function(String botId)? tokenResolver,
     Future<String?> Function(String endpoint, String token)? httpGet,
     String? guildsEndpoint,
-    this.cacheTtl = defaultCacheTtl,
   }) : _customTokenResolver = tokenResolver,
        _httpGet = httpGet ?? _httpGetFromDiscord,
-       _guildsEndpoint = guildsEndpoint ?? '$discordUrl/users/@me/guilds';
+       _guildsEndpoint = guildsEndpoint ?? _defaultGuildsEndpoint;
 
-  /// Instance partagée par la Home : une requête par bot et par session.
+  /// Instance partagée par la Home et la page « Serveurs ».
   static final GuildDirectory instance = GuildDirectory();
 
-  /// Durée de vie du cache mémoire (les icônes de serveurs bougent rarement).
-  static const Duration defaultCacheTtl = Duration(minutes: 30);
+  /// Endpoint REST des serveurs du bot. `with_counts=true` fournit
+  /// `approximate_member_count` (et `owner` est renvoyé dans tous les cas) :
+  /// la page « Serveurs » garde ainsi ses compteurs sans seconde requête.
+  static const String _defaultGuildsEndpoint =
+      '$discordUrl/users/@me/guilds?with_counts=true';
 
   static const Duration _requestTimeout = Duration(seconds: 8);
-
-  final Duration cacheTtl;
 
   /// Résolveur de token injecté (tests) ; sinon stockage sécurisé de l'app.
   final Future<String?> Function(String botId)? _customTokenResolver;
   final Future<String?> Function(String endpoint, String token) _httpGet;
   final String _guildsEndpoint;
 
-  final Map<String, _GuildCacheEntry> _cache = <String, _GuildCacheEntry>{};
+  /// Entrées de session : une liste chargée reste valide jusqu'au
+  /// redémarrage de l'app (aucune expiration, aucun TTL).
+  final Map<String, List<GuildAvatarInfo>> _cache =
+      <String, List<GuildAvatarInfo>>{};
+
   final Map<String, Future<List<GuildAvatarInfo>>> _inFlight =
       <String, Future<List<GuildAvatarInfo>>>{};
+
+  /// États observables, un par bot, partagés par tous les écrans.
+  final Map<String, ValueNotifier<GuildsLoadState>> _states =
+      <String, ValueNotifier<GuildsLoadState>>{};
+
+  /// État renvoyé pour un identifiant de bot vide (jamais alimenté).
+  static final ValueNotifier<GuildsLoadState> _idleState =
+      ValueNotifier<GuildsLoadState>(GuildsLoadState.idle);
 
   /// File séquentielle : évite de lancer un GET par carte bot en même temps
   /// au premier rendu de la Home (N bots × 1 requête).
@@ -237,48 +354,129 @@ class GuildDirectory {
   /// Instance unique de [AppManager] (lecture du token en stockage sécurisé).
   AppManager? _appManager;
 
-  /// Serveurs de [botId], au plus une requête REST par [cacheTtl].
+  /// État observable des serveurs de [botId] : les widgets s'y abonnent
+  /// (`ValueListenableBuilder`) pour ne jamais afficher une donnée périmée.
+  ValueListenable<GuildsLoadState> watch(String botId) {
+    final id = botId.trim();
+    if (id.isEmpty) return _idleState;
+    return _stateFor(id);
+  }
+
+  /// Serveurs de [botId] : entrée de session si elle existe, sinon une seule
+  /// requête REST pour toute la session.
   Future<List<GuildAvatarInfo>> load(String botId) {
     final id = botId.trim();
     if (id.isEmpty) return Future<List<GuildAvatarInfo>>.value(const []);
     final cached = _cache[id];
-    if (cached != null &&
-        DateTime.now().difference(cached.fetchedAt) < cacheTtl) {
-      return Future<List<GuildAvatarInfo>>.value(cached.guilds);
-    }
-    // Un chargement déjà en vol est partagé : deux cartes du même bot (ou un
-    // rebuild pendant la requête) ne déclenchent pas un second GET.
-    final running = _inFlight[id];
-    if (running != null) return running;
-
-    final future = _queue
-        .then((_) => _fetch(id))
-        .whenComplete(() => _inFlight.remove(id));
-    // La file ne doit jamais se rompre sur une erreur réseau.
-    _queue = future.then((_) {}, onError: (_) {});
-    _inFlight[id] = future;
-    return future;
+    if (cached != null) return Future<List<GuildAvatarInfo>>.value(cached);
+    return _startFetch(id);
   }
 
-  /// Vide le cache mémoire.
+  /// Force une nouvelle requête REST pour [botId] (bouton « Actualiser »,
+  /// tirer-pour-rafraîchir, après avoir quitté un serveur) et remplace
+  /// l'entrée de session au succès.
+  Future<List<GuildAvatarInfo>> refresh(String botId) {
+    final id = botId.trim();
+    if (id.isEmpty) return Future<List<GuildAvatarInfo>>.value(const []);
+    return _startFetch(id);
+  }
+
+  /// Vide le cache de session (redémarrage applicatif, tests).
   void clearCache() {
     _cache.clear();
     _inFlight.clear();
     _queue = Future<void>.value();
+    // Les états restent en place (des widgets peuvent les écouter) mais
+    // repartent de l'état initial : le prochain `load` refera une requête.
+    for (final state in _states.values) {
+      state.value = GuildsLoadState.idle;
+    }
+  }
+
+  Future<List<GuildAvatarInfo>> _startFetch(String botId) {
+    // Requête déjà en vol (autre carte, page « Serveurs », refresh en double) :
+    // on partage la même future — jamais deux GET simultanés pour un bot.
+    final running = _inFlight[botId];
+    if (running != null) return running;
+
+    _setState(
+      botId,
+      GuildsLoadState(
+        status: GuildsLoadStatus.loading,
+        // On conserve la liste déjà affichée pendant un rafraîchissement.
+        guilds: _cache[botId] ?? const <GuildAvatarInfo>[],
+      ),
+    );
+
+    final future = _queue.then((_) => _fetch(botId)).whenComplete(() {
+      // Corps de bloc obligatoire : `whenComplete` attend la future
+      // éventuellement retournée par son callback. Retourner ici
+      // `_inFlight.remove(botId)` (la future en vol elle-même) créerait une
+      // attente circulaire et `load()` ne se résoudrait jamais.
+      _inFlight.remove(botId);
+    });
+    // La file ne doit jamais se rompre sur une erreur réseau.
+    _queue = future.then((_) {}, onError: (_) {});
+    _inFlight[botId] = future;
+    return future;
   }
 
   Future<List<GuildAvatarInfo>> _fetch(String botId) async {
-    final token = await _resolveToken(botId);
-    if (token == null || token.isEmpty) return const <GuildAvatarInfo>[];
-    final body = await _httpGet(_guildsEndpoint, token);
-    if (body == null) return const <GuildAvatarInfo>[];
-    final guilds = parseGuildsApiPayload(body);
-    // Un résultat vide (bot sans serveur, erreur transitoire) n'est pas mis en
-    // cache : un prochain affichage pourra retenter.
-    if (guilds.isNotEmpty) {
-      _cache[botId] = _GuildCacheEntry(guilds, DateTime.now());
+    try {
+      final token = await _resolveToken(botId);
+      if (token == null || token.isEmpty) {
+        _fail(botId, 'missing bot token');
+        return const <GuildAvatarInfo>[];
+      }
+
+      final body = await _httpGet(_guildsEndpoint, token);
+      if (body == null) {
+        _fail(botId, 'GET $_guildsEndpoint failed');
+        return const <GuildAvatarInfo>[];
+      }
+
+      final guilds = parseGuildsApiPayload(body);
+      if (guilds.isEmpty) {
+        // Bot réellement sans serveur (ou charge utile illisible) : l'état est
+        // publié pour que les écrans affichent leur état vide, mais rien n'est
+        // mis en cache — un prochain affichage pourra retenter.
+        _setState(
+          botId,
+          const GuildsLoadState(status: GuildsLoadStatus.loaded),
+        );
+        return const <GuildAvatarInfo>[];
+      }
+
+      // Entrée de session : plus aucune requête pour ce bot avant le
+      // redémarrage de l'app (sauf `refresh` explicite).
+      _cache[botId] = guilds;
+      _setState(
+        botId,
+        GuildsLoadState(status: GuildsLoadStatus.loaded, guilds: guilds),
+      );
+      return guilds;
+    } catch (error) {
+      // Aucune exception ne doit sortir d'ici : les appelants (widgets)
+      // n'ont jamais à gérer un échec réseau.
+      _fail(botId, error.toString());
+      return const <GuildAvatarInfo>[];
     }
-    return guilds;
+  }
+
+  void _fail(String botId, String message) {
+    _setState(
+      botId,
+      GuildsLoadState(status: GuildsLoadStatus.error, errorMessage: message),
+    );
+  }
+
+  ValueNotifier<GuildsLoadState> _stateFor(String botId) => _states.putIfAbsent(
+    botId,
+    () => ValueNotifier<GuildsLoadState>(GuildsLoadState.idle),
+  );
+
+  void _setState(String botId, GuildsLoadState state) {
+    _stateFor(botId).value = state;
   }
 
   Future<String?> _resolveToken(String botId) =>
@@ -316,19 +514,19 @@ class GuildDirectory {
   }
 }
 
-class _GuildCacheEntry {
-  const _GuildCacheEntry(this.guilds, this.fetchedAt);
-
-  final List<GuildAvatarInfo> guilds;
-  final DateTime fetchedAt;
-}
-
 /// Cluster d'avatars de serveurs de la ligne « Actif sur N serveurs ».
 ///
 /// Reprend exactement la mise en page historique (cercles de 36 px superposés
 /// de 26 px, anneau de séparation) mais remplace les glyphes par les vraies
 /// icônes, avec le même contrat de chargement que [HomeBotAvatar] : image
 /// `gaplessPlayback`, repli pendant le chargement, repli sur erreur.
+///
+/// Source 1 : [guilds] (cache du gateway, synchrone — aucun réseau).
+/// Source 2 : l'état de session partagé de [directory] (voir [GuildDirectory]),
+/// auquel le widget s'abonne — un chargement lancé par la page « Serveurs »
+/// fait donc apparaître les avatars ici sans nouvelle requête. Pendant le
+/// chargement, le repli neutre habituel est affiché (jamais de données
+/// inventées).
 class GuildAvatarStrip extends StatefulWidget {
   const GuildAvatarStrip({
     super.key,
@@ -338,6 +536,7 @@ class GuildAvatarStrip extends StatefulWidget {
     this.ringColor,
     this.size = 36,
     this.overlap = 26,
+    this.directory,
     this.remoteLoader,
   });
 
@@ -359,7 +558,13 @@ class GuildAvatarStrip extends StatefulWidget {
   /// Décalage horizontal entre deux avatars superposés.
   final double overlap;
 
-  /// Chargeur REST injectable (par défaut [GuildDirectory.load]).
+  /// Répertoire partagé injectable (tests) ; par défaut l'instance unique
+  /// [GuildDirectory.instance], partagée avec la page « Serveurs ».
+  final GuildDirectory? directory;
+
+  /// Chargeur REST injectable, conservé pour compatibilité ascendante : quand
+  /// il est fourni, le widget affiche son résultat et n'utilise *pas* l'état
+  /// de session partagé (réservé aux tests qui ne veulent pas de cache).
   final Future<List<GuildAvatarInfo>> Function(String botId)? remoteLoader;
 
   @override
@@ -367,40 +572,52 @@ class GuildAvatarStrip extends StatefulWidget {
 }
 
 class _GuildAvatarStripState extends State<GuildAvatarStrip> {
-  List<GuildAvatarInfo> _fetched = const <GuildAvatarInfo>[];
-  bool _requested = false;
+  /// Résultat du chargeur injecté ([GuildAvatarStrip.remoteLoader]).
+  List<GuildAvatarInfo> _injected = const <GuildAvatarInfo>[];
+
+  GuildDirectory get _directory => widget.directory ?? GuildDirectory.instance;
 
   @override
   void initState() {
     super.initState();
-    _requestRemoteIfNeeded();
+    _ensureLoadStarted();
   }
 
   @override
   void didUpdateWidget(GuildAvatarStrip oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.botId != widget.botId) {
-      _fetched = const <GuildAvatarInfo>[];
-      _requested = false;
-      _requestRemoteIfNeeded();
+    if (oldWidget.botId != widget.botId ||
+        oldWidget.directory != widget.directory) {
+      _injected = const <GuildAvatarInfo>[];
+      _ensureLoadStarted();
     }
   }
 
-  void _requestRemoteIfNeeded() {
-    if (_requested) return;
-    if (widget.botId.trim().isEmpty) return;
-    // Le cache du gateway suffit : rien à demander au réseau.
+  /// Démarre un chargement *seulement* si le cache du gateway ne fournit
+  /// encore aucun serveur : ce cache est synchrone et gratuit, il ne doit
+  /// jamais provoquer d'appel distant — ni le chargeur injecté, ni l'état de
+  /// session partagé.
+  ///
+  /// Idempotent : `GuildDirectory.load` sert l'entrée de session ou partage la
+  /// requête déjà en vol — ce n'est jamais une requête par rebuild.
+  void _ensureLoadStarted() {
     if (widget.guilds.isNotEmpty) return;
-    _requested = true;
-    unawaited(_loadRemote());
+    if (widget.remoteLoader != null) {
+      unawaited(_loadInjected());
+      return;
+    }
+    if (widget.botId.trim().isEmpty) return;
+    unawaited(_directory.load(widget.botId));
   }
 
-  Future<void> _loadRemote() async {
-    final loader = widget.remoteLoader ?? GuildDirectory.instance.load;
+  /// Chemin de compatibilité : chargeur injecté, aucun état partagé.
+  Future<void> _loadInjected() async {
+    final loader = widget.remoteLoader;
+    if (loader == null) return;
     try {
       final guilds = await loader(widget.botId);
       if (!mounted || guilds.isEmpty) return;
-      setState(() => _fetched = guilds);
+      setState(() => _injected = guilds);
     } catch (_) {
       // Repli silencieux : une carte ne doit jamais casser pour une icône.
     }
@@ -408,12 +625,35 @@ class _GuildAvatarStripState extends State<GuildAvatarStrip> {
 
   @override
   Widget build(BuildContext context) {
+    final id = widget.botId.trim();
+    if (id.isEmpty) return _buildStrip(context, widget.guilds);
+
+    // Chemin de compatibilité (chargeur injecté) : aucun abonnement partagé.
+    if (widget.remoteLoader != null) {
+      return _buildStrip(
+        context,
+        widget.guilds.isNotEmpty ? widget.guilds : _injected,
+      );
+    }
+
+    // Abonnement systématique : un rafraîchissement lancé ailleurs (page
+    // « Serveurs ») met la ligne à jour sans requête supplémentaire.
+    return ValueListenableBuilder<GuildsLoadState>(
+      valueListenable: _directory.watch(id),
+      builder: (context, state, _) => _buildStrip(
+        context,
+        widget.guilds.isNotEmpty ? widget.guilds : state.guilds,
+      ),
+    );
+  }
+
+  Widget _buildStrip(BuildContext context, List<GuildAvatarInfo> known) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final scheme = Theme.of(context).colorScheme;
-    final known = widget.guilds.isNotEmpty ? widget.guilds : _fetched;
+    final tokens = HomeTokens.of(context);
     final ringColor =
         widget.ringColor ??
-        (isDark ? AppTheme.homeClusterBg : scheme.surfaceContainerLow);
+        (isDark ? tokens.clusterBg : scheme.surfaceContainerLow);
     final slots = guildPresenceSlotCount(
       guildCount: widget.guildCount,
       knownGuilds: known.length,
@@ -447,8 +687,9 @@ class _GuildAvatarStripState extends State<GuildAvatarStrip> {
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final scheme = Theme.of(context).colorScheme;
+    final tokens = HomeTokens.of(context);
     final background = index == 0
-        ? (isDark ? AppTheme.homeClusterBorder : scheme.primary)
+        ? (isDark ? tokens.clusterBorder : scheme.primary)
         : AppTheme.discord;
 
     return HomeBotAvatar(

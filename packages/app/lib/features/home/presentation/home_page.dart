@@ -16,6 +16,7 @@ import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/utils/duration_formatter.dart';
 import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/utils/string_sanitizer.dart';
+import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 import 'package:bot_creator/features/ads/logic/ad_consent_service.dart';
 import 'package:bot_creator/features/ads/logic/ad_reward_service.dart';
 import 'package:bot_creator/features/ads/logic/ads_placement_policy.dart';
@@ -1031,7 +1032,17 @@ class HomePageState extends State<HomePage>
             );
 
             // Rehydrate commands and workflows from remote config
-            final remoteConfig = result.config;
+            var remoteConfig = result.config;
+            if (remoteConfig['commands'] == null) {
+              try {
+                final fullRemote = await remoteClient.getBotConfig(
+                  result.botId,
+                );
+                if (fullRemote.isNotEmpty) {
+                  remoteConfig = fullRemote;
+                }
+              } catch (_) {}
+            }
             final remoteCommands = extractCommandListFromConfig(
               remoteConfig['commands'],
             );
@@ -2143,7 +2154,7 @@ class HomePageState extends State<HomePage>
   Widget build(BuildContext context) {
     return StreamBuilder<List<dynamic>>(
       stream: appManager.getAppStream(),
-      initialData: const <dynamic>[],
+      initialData: appManager.isInitialized ? appManager.currentApps : null,
       builder: (context, snapshot) {
         final apps = snapshot.data;
 
@@ -2201,7 +2212,14 @@ class HomePageState extends State<HomePage>
                   context.tr.app_loading_error,
                 ),
               );
-            } else if (apps == null || apps.isEmpty) {
+            } else if (apps == null) {
+              children.add(
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 48),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+              );
+            } else if (apps.isEmpty) {
               children.add(const _EmptyStateWithSupport());
             } else {
               if (AdsPlacementPolicy.isPlacementEnabled(
@@ -2265,7 +2283,9 @@ class HomePageState extends State<HomePage>
                   horizontal,
                   24,
                   horizontal,
-                  isWide ? 40 : 90,
+                  isWide
+                      ? 40
+                      : FloatingGlassNavBar.contentClearanceOf(context) + 24,
                 ),
                 physics: const AlwaysScrollableScrollPhysics(),
                 children: children,
@@ -2322,7 +2342,8 @@ class HomePageState extends State<HomePage>
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => AppEditPage(appName: name, id: parsedId),
+            builder: (_) =>
+                AppEditPage(appName: name, id: parsedId, avatarUrl: avatar),
           ),
         ).then((_) => _initRunningState());
       },
@@ -2541,13 +2562,22 @@ class _BotCardState extends State<_BotCard> {
 
   Widget _buildExpandedContent(BuildContext context, ColorScheme scheme) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final formattedTime = formatHostingDuration(context, widget.freeMinutes);
+    final tokens = HomeTokens.of(context);
+    final String expirationLabel;
+    if (widget.freeMinutes <= 0) {
+      expirationLabel = context.tr.home_hosting_status_paused;
+    } else {
+      final expiresAt = DateTime.now().add(
+        Duration(minutes: widget.freeMinutes),
+      );
+      expirationLabel = formatSessionExpiration(context, expiresAt);
+    }
     String? statusLabel;
     if (widget.isRunning) {
       statusLabel =
-          '${widget.runtimeBadgeLabel ?? context.tr.home_synced_active} • $formattedTime';
+          '${widget.runtimeBadgeLabel ?? context.tr.home_synced_active} • $expirationLabel';
     } else {
-      statusLabel = formattedTime;
+      statusLabel = expirationLabel;
     }
 
     return Column(
@@ -2557,7 +2587,7 @@ class _BotCardState extends State<_BotCard> {
         Divider(
           height: 1,
           thickness: 1,
-          color: isDark ? AppTheme.homeCardBorder : scheme.outlineVariant,
+          color: isDark ? tokens.cardBorder : scheme.outlineVariant,
         ),
         const SizedBox(height: 16),
         _ServerPresenceRow(
@@ -2633,10 +2663,9 @@ class _BotCardState extends State<_BotCard> {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = isDark ? AppTheme.homeCard : scheme.surfaceContainer;
-    final borderColor = isDark
-        ? AppTheme.homeCardBorder
-        : scheme.outlineVariant;
+    final tokens = HomeTokens.of(context);
+    final cardColor = isDark ? tokens.card : scheme.surfaceContainer;
+    final borderColor = isDark ? tokens.cardBorder : scheme.outlineVariant;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -2691,9 +2720,7 @@ class _BotCardState extends State<_BotCard> {
                         _expanded
                             ? Icons.keyboard_arrow_up_rounded
                             : Icons.keyboard_arrow_down_rounded,
-                        color: isDark
-                            ? AppTheme.homeMuted
-                            : scheme.onSurfaceVariant,
+                        color: isDark ? tokens.muted : scheme.onSurfaceVariant,
                         size: 16,
                       ),
                     ],
@@ -2731,27 +2758,24 @@ class _InfoChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final tokens = HomeTokens.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
         color: badge
-            ? AppTheme.dataAccent.withValues(alpha: 0.12)
+            ? tokens.dataAccent.withValues(alpha: 0.12)
             : scheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(AppTheme.radiusPill),
         border: Border.all(
           color: badge
-              ? AppTheme.dataAccent.withValues(alpha: 0.35)
+              ? tokens.dataAccent.withValues(alpha: 0.35)
               : scheme.outlineVariant,
         ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            size: 13,
-            color: badge ? AppTheme.dataAccent : AppTheme.metaText,
-          ),
+          Icon(icon, size: 13, color: badge ? tokens.dataAccent : tokens.muted),
           const SizedBox(width: 5),
           Flexible(
             child: RichText(
@@ -2762,7 +2786,7 @@ class _InfoChip extends StatelessWidget {
                 style: GoogleFonts.jetBrainsMono(
                   fontSize: 11.5,
                   fontWeight: FontWeight.w600,
-                  color: AppTheme.dataAccent,
+                  color: tokens.dataAccent,
                 ),
                 text: value,
               ),
@@ -2846,11 +2870,10 @@ class _CreateBotCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final scheme = Theme.of(context).colorScheme;
-    final fill = isDark
-        ? AppTheme.homeCreateFill
-        : scheme.surfaceContainerHighest;
-    final border = isDark ? AppTheme.homeCreateBorder : scheme.primary;
-    final avatarFill = isDark ? AppTheme.homeCreateBorder : scheme.primary;
+    final tokens = HomeTokens.of(context);
+    final fill = isDark ? tokens.createFill : scheme.surfaceContainerHighest;
+    final border = isDark ? tokens.createBorder : scheme.primary;
+    final avatarFill = isDark ? tokens.createBorder : scheme.primary;
 
     return Stack(
       children: [
@@ -2875,9 +2898,7 @@ class _CreateBotCard extends StatelessWidget {
                     child: Icon(
                       Icons.add_rounded,
                       size: 26,
-                      color: isDark
-                          ? AppTheme.homeCreateFill
-                          : scheme.onPrimary,
+                      color: isDark ? tokens.createFill : scheme.onPrimary,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -2910,7 +2931,7 @@ class _CreateBotCard extends StatelessWidget {
                     Icons.chevron_right_rounded,
                     size: 18,
                     color: isDark
-                        ? AppTheme.homeMuted
+                        ? tokens.muted
                         : Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ],
@@ -2953,15 +2974,15 @@ class _ServerPresenceRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final scheme = Theme.of(context).colorScheme;
-    final clusterBg = isDark
-        ? AppTheme.homeClusterBg
-        : scheme.surfaceContainerLow;
-    final clusterBorder = isDark
-        ? AppTheme.homeClusterBorder
-        : scheme.outlineVariant;
+    final tokens = HomeTokens.of(context);
+    final clusterBg = isDark ? tokens.clusterBg : scheme.surfaceContainerLow;
+    final clusterBorder = isDark ? tokens.clusterBorder : scheme.outlineVariant;
     // Serveurs réels du bot qui tourne dans ce processus (synchrone, gratuit).
     // `null`/vide hors desktop ou bot à l'arrêt : `GuildAvatarStrip` bascule
-    // alors sur l'API REST, puis sur le repli neutre.
+    // alors sur la *source partagée de session* (`GuildDirectory`, la même que
+    // la page « Serveurs ») puis sur le repli neutre. Une seule requête HTTP
+    // par bot et par lancement de l'app ; l'état `loading` affiche le repli
+    // discret, et les avatars apparaissent ensuite sans re-fetch.
     final localGuilds = guildAvatarsFromGateway(
       desktopGatewayForBot(botId),
       limit: kMaxVisibleGuildAvatars,
@@ -2982,6 +3003,10 @@ class _ServerPresenceRow extends StatelessWidget {
             guildCount: guildCount,
             guilds: localGuilds,
             ringColor: clusterBg,
+            // Source unique de vérité de la session : la page « Serveurs »
+            // écrit dans ce même répertoire, la carte ne refait donc jamais
+            // de requête pour afficher ses avatars.
+            directory: GuildDirectory.instance,
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -2996,7 +3021,7 @@ class _ServerPresenceRow extends StatelessWidget {
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: isDark
-                        ? AppTheme.dataAccent
+                        ? tokens.dataAccent
                         : Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
@@ -3009,9 +3034,7 @@ class _ServerPresenceRow extends StatelessWidget {
                         height: 6,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: isRunning
-                              ? AppTheme.online
-                              : AppTheme.homeMuted,
+                          color: isRunning ? AppTheme.online : tokens.muted,
                         ),
                       ),
                       const SizedBox(width: 6),
@@ -3024,7 +3047,7 @@ class _ServerPresenceRow extends StatelessWidget {
                             fontSize: 11,
                             fontWeight: FontWeight.w400,
                             color: isDark
-                                ? AppTheme.homeMuted
+                                ? tokens.muted
                                 : scheme.onSurfaceVariant,
                           ),
                         ),
@@ -3070,10 +3093,9 @@ class _HostedAppsHomeCardState extends State<_HostedAppsHomeCard> {
 
     final scheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardColor = isDark ? AppTheme.homeCard : scheme.surfaceContainer;
-    final borderColor = isDark
-        ? AppTheme.homeCardBorder
-        : scheme.outlineVariant;
+    final tokens = HomeTokens.of(context);
+    final cardColor = isDark ? tokens.card : scheme.surfaceContainer;
+    final borderColor = isDark ? tokens.cardBorder : scheme.outlineVariant;
     return Padding(
       padding: const EdgeInsets.only(top: 20),
       child: Material(
@@ -3137,7 +3159,7 @@ class _HostedAppsHomeCardState extends State<_HostedAppsHomeCard> {
                 Icon(
                   Icons.chevron_right_rounded,
                   size: 18,
-                  color: isDark ? AppTheme.homeMuted : scheme.onSurfaceVariant,
+                  color: isDark ? tokens.muted : scheme.onSurfaceVariant,
                 ),
               ],
             ),
