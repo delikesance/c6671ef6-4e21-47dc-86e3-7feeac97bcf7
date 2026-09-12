@@ -40,6 +40,7 @@ import 'package:bot_creator/features/subscriptions/logic/subscription_service.da
 import 'package:bot_creator/features/onboarding/logic/onboarding_manager.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/utils/global.dart';
+import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 import 'package:bot_creator/features/auth/presentation/mobile_account_gate_shell.dart';
 import 'package:bot_creator/features/documentation/documentation_hub_page.dart';
 import 'package:bot_creator/features/documentation/webview_platform_bootstrap.dart';
@@ -609,11 +610,6 @@ class _MyMainPageState extends State<MyMainPage> {
   int? _managingBotId;
   String? _managingBotName;
 
-  static const _floatingNavHeight = 64.0;
-  static const _floatingNavMargin = 16.0;
-  static const _floatingNavRadius = AppTheme.radiusCard; // 24
-  static const _floatingNavInset = 8.0;
-
   void _openManageBot(String id, String name) {
     setState(() {
       _managingBotId = int.tryParse(id) ?? 0;
@@ -655,8 +651,6 @@ class _MyMainPageState extends State<MyMainPage> {
       return Scaffold(body: SafeArea(bottom: false, child: _homeOrManage()));
     }
 
-    final bottomInset = MediaQuery.paddingOf(context).bottom;
-
     return Scaffold(
       extendBody: true,
       body: Stack(
@@ -667,212 +661,70 @@ class _MyMainPageState extends State<MyMainPage> {
               index: _compactTabIndex,
               children: [
                 _homeOrManage(),
-                const DocumentationHubPage(
-                  showDiscordJsTab: true,
-                  embedded: true,
+                _aboveFloatingNav(
+                  const DocumentationHubPage(
+                    showDiscordJsTab: true,
+                    embedded: true,
+                  ),
                 ),
-                const SettingPage(embedded: true),
+                _aboveFloatingNav(const SettingPage(embedded: true)),
               ],
             ),
           ),
           if (_managingBotId == null)
             Positioned(
-              left: _floatingNavMargin,
-              right: _floatingNavMargin,
-              bottom: _floatingNavMargin + bottomInset,
-              child: _FloatingGlassNavBar(
-                height: _floatingNavHeight,
-                outerRadius: _floatingNavRadius,
-                inset: _floatingNavInset,
-                selectedIndex: _compactTabIndex,
-                onDestinationSelected: (index) {
-                  setState(() => _compactTabIndex = index);
-                },
-                homeLabel: context.tr.home_tab,
-                docsLabel: context.tr.docs_hub_title,
-                settingsLabel: context.tr.settings_tab,
-              ),
+              left: FloatingGlassNavBar.margin,
+              right: FloatingGlassNavBar.margin,
+              bottom: FloatingGlassNavBar.bottomOffsetOf(context),
+              child: FloatingGlassNavBar(items: _shellNavItems(context)),
             ),
         ],
       ),
     );
   }
-}
 
-class _FloatingGlassNavBar extends StatelessWidget {
-  const _FloatingGlassNavBar({
-    required this.height,
-    required this.outerRadius,
-    required this.inset,
-    required this.selectedIndex,
-    required this.onDestinationSelected,
-    required this.homeLabel,
-    required this.docsLabel,
-    required this.settingsLabel,
-  });
-
-  final double height;
-  final double outerRadius;
-  final double inset;
-  final int selectedIndex;
-  final ValueChanged<int> onDestinationSelected;
-  final String homeLabel;
-  final String docsLabel;
-  final String settingsLabel;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final radius = BorderRadius.circular(outerRadius);
-
-    final destinations =
-        <({IconData icon, IconData selectedIcon, String label})>[
-          (
-            icon: Icons.home_outlined,
-            selectedIcon: Icons.home_rounded,
-            label: homeLabel,
-          ),
-          (
-            icon: Icons.menu_book_outlined,
-            selectedIcon: Icons.menu_book_rounded,
-            label: docsLabel,
-          ),
-          (
-            icon: Icons.settings_outlined,
-            selectedIcon: Icons.settings_rounded,
-            label: settingsLabel,
-          ),
-        ];
-
-    return Material(
-      type: MaterialType.transparency,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          borderRadius: radius,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.85 : 0.16),
-              blurRadius: isDark ? 48 : 24,
-              spreadRadius: isDark ? 4 : 0,
-              offset: Offset(0, isDark ? 8 : 10),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: radius,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              borderRadius: radius,
-              color: isDark
-                  ? AppTheme.homeNavBar
-                  : scheme.surface.withValues(alpha: 0.96),
-              border: Border.all(
-                color: isDark ? AppTheme.homeCardBorder : scheme.outlineVariant,
-              ),
-            ),
-            child: SizedBox(
-              height: height,
-              child: Padding(
-                padding: EdgeInsets.all(inset),
-                child: Row(
-                  children: [
-                    for (var i = 0; i < destinations.length; i++) ...[
-                      if (i > 0) const SizedBox(width: 6),
-                      Expanded(
-                        child: _FloatingGlassNavItem(
-                          icon: destinations[i].icon,
-                          selectedIcon: destinations[i].selectedIcon,
-                          label: destinations[i].label,
-                          selected: selectedIndex == i,
-                          innerRadius: 16,
-                          onTap: () => onDestinationSelected(i),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
+  /// Réserve la hauteur de la barre flottante sous [child] : sans cela, le bas
+  /// des pages du shell (`DocumentationHubPage`, `SettingPage`) est masqué,
+  /// puisque `extendBody: true` fait passer le contenu sous la barre.
+  ///
+  /// `HomePage` est volontairement exclue : elle réserve déjà l'espace
+  /// nécessaire dans son propre `ListView` (padding bas codé en dur), et
+  /// cumuler les deux ajouterait un vide en fin de liste.
+  Widget _aboveFloatingNav(Widget child) {
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: FloatingGlassNavBar.contentClearanceOf(context),
       ),
+      child: child,
     );
   }
-}
 
-class _FloatingGlassNavItem extends StatelessWidget {
-  const _FloatingGlassNavItem({
-    required this.icon,
-    required this.selectedIcon,
-    required this.label,
-    required this.selected,
-    required this.innerRadius,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final IconData selectedIcon;
-  final String label;
-  final bool selected;
-  final double innerRadius;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final selectedColor = isDark
-        ? AppTheme.brandPurpleSoft
-        : AppTheme.brandPrimary;
-    final idleColor = isDark
-        ? AppTheme.homeMuted
-        : Theme.of(context).colorScheme.onSurfaceVariant;
-    final color = selected ? selectedColor : idleColor;
-
-    return Tooltip(
-      message: label,
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(innerRadius),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(innerRadius),
-          splashColor: selectedColor.withValues(alpha: 0.12),
-          highlightColor: selectedColor.withValues(alpha: 0.06),
-          child: AnimatedContainer(
-            duration: AppTheme.animFast,
-            curve: Curves.easeOutCubic,
-            height: 48,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(innerRadius),
-              color: selected
-                  ? (isDark
-                        ? AppTheme.homeNavSelected
-                        : AppTheme.brandPrimary.withValues(alpha: 0.12))
-                  : Colors.transparent,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(selected ? selectedIcon : icon, size: 18, color: color),
-                const SizedBox(height: 2),
-                Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-                    color: color,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+  /// Les 3 destinations du shell : Accueil / Documentation / Réglages.
+  List<FloatingGlassNavItem> _shellNavItems(BuildContext context) {
+    final tr = context.tr;
+    return [
+      FloatingGlassNavItem(
+        icon: Icons.home_outlined,
+        selectedIcon: Icons.home_rounded,
+        label: tr.home_tab,
+        selected: _compactTabIndex == 0,
+        onTap: () => setState(() => _compactTabIndex = 0),
       ),
-    );
+      FloatingGlassNavItem(
+        icon: Icons.menu_book_outlined,
+        selectedIcon: Icons.menu_book_rounded,
+        label: tr.docs_hub_title,
+        selected: _compactTabIndex == 1,
+        onTap: () => setState(() => _compactTabIndex = 1),
+      ),
+      FloatingGlassNavItem(
+        icon: Icons.settings_outlined,
+        selectedIcon: Icons.settings_rounded,
+        label: tr.settings_tab,
+        selected: _compactTabIndex == 2,
+        onTap: () => setState(() => _compactTabIndex = 2),
+      ),
+    ];
   }
 }
 

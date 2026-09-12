@@ -10,6 +10,7 @@ import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/utils/responsive.dart';
+import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 import 'package:bot_creator/features/bot_editor/logic/js_runner_capabilities.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command_dashboard.dart';
@@ -714,38 +715,45 @@ class _AppEditPageState extends State<AppEditPage>
     );
   }
 
-  Widget _buildMobileBottomBar(
+  /// Items du bottom menu mobile : les mêmes piliers qu'avant (selon le mode
+  /// débutant et l'état hors-ligne), mais rendus par le composant partagé
+  /// [FloatingGlassNavBar] pour avoir le même design que la Home.
+  List<FloatingGlassNavItem> _buildMobileNavItems(
     BuildContext context,
-    ColorScheme colorScheme,
     String activeSectionId,
   ) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isOffline = client == null;
+    final tr = context.tr;
 
-    final pillars = <({String id, IconData icon, String label})>[
-      (
-        id: isOffline ? 'offline_token' : 'home',
-        icon: isOffline ? Icons.vpn_key_outlined : Icons.dashboard_rounded,
-        label: isOffline ? context.tr.settings_tab : context.tr.home_tab,
-      ),
-      (
-        id: 'commands',
-        icon: Icons.terminal_rounded,
-        label: context.tr.commands_tab_short,
-      ),
-      if (!_beginnerMode || isOffline)
-        (
-          id: 'modules',
-          icon: Icons.widgets_rounded,
-          label: context.tr.bot_home_section_modules,
-        ),
-      if (!isOffline)
-        (
-          id: 'settings',
-          icon: Icons.settings_outlined,
-          label: context.tr.settings_tab,
-        ),
-    ];
+    final pillars =
+        <({String id, IconData icon, IconData? selectedIcon, String label})>[
+          (
+            id: isOffline ? 'offline_token' : 'home',
+            icon: isOffline ? Icons.vpn_key_outlined : Icons.dashboard_outlined,
+            selectedIcon: isOffline ? null : Icons.dashboard_rounded,
+            label: isOffline ? tr.settings_tab : tr.home_tab,
+          ),
+          (
+            id: 'commands',
+            icon: Icons.terminal_rounded,
+            selectedIcon: null,
+            label: tr.commands_tab_short,
+          ),
+          if (!_beginnerMode || isOffline)
+            (
+              id: 'modules',
+              icon: Icons.widgets_outlined,
+              selectedIcon: Icons.widgets_rounded,
+              label: tr.bot_home_section_modules,
+            ),
+          if (!isOffline)
+            (
+              id: 'settings',
+              icon: Icons.settings_outlined,
+              selectedIcon: Icons.settings_rounded,
+              label: tr.settings_tab,
+            ),
+        ];
 
     int activePillarIndex = 0;
     if (activeSectionId == 'commands') {
@@ -765,58 +773,31 @@ class _AppEditPageState extends State<AppEditPage>
       activePillarIndex = 0;
     }
 
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark ? AppTheme.homeNavBar : colorScheme.surface,
-        border: Border(
-          top: BorderSide(
-            color: isDark
-                ? AppTheme.homeCardBorder
-                : colorScheme.outlineVariant,
-          ),
+    return [
+      for (var i = 0; i < pillars.length; i++)
+        FloatingGlassNavItem(
+          icon: pillars[i].icon,
+          selectedIcon: pillars[i].selectedIcon,
+          label: pillars[i].label,
+          selected: activePillarIndex == i,
+          onTap: () => _onPillarTap(pillars[i].id),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.06),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        top: false,
-        child: SizedBox(
-          height: 56,
-          child: Row(
-            children: [
-              for (var i = 0; i < pillars.length; i++)
-                Expanded(
-                  child: _BottomNavItem(
-                    icon: pillars[i].icon,
-                    label: pillars[i].label,
-                    selected: activePillarIndex == i,
-                    onTap: () {
-                      HapticFeedback.selectionClick();
-                      final pillarId = pillars[i].id;
-                      setState(() {
-                        if (pillarId == 'home' || pillarId == 'offline_token') {
-                          _activeSectionId = pillarId;
-                        } else if (pillarId == 'commands') {
-                          _activeSectionId = 'commands';
-                        } else if (pillarId == 'modules') {
-                          _activeSectionId = _activeModuleId;
-                        } else if (pillarId == 'settings') {
-                          _activeSectionId = _activeSettingsSubTab;
-                        }
-                      });
-                    },
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
+    ];
+  }
+
+  void _onPillarTap(String pillarId) {
+    HapticFeedback.selectionClick();
+    setState(() {
+      if (pillarId == 'home' || pillarId == 'offline_token') {
+        _activeSectionId = pillarId;
+      } else if (pillarId == 'commands') {
+        _activeSectionId = 'commands';
+      } else if (pillarId == 'modules') {
+        _activeSectionId = _activeModuleId;
+      } else if (pillarId == 'settings') {
+        _activeSectionId = _activeSettingsSubTab;
+      }
+    });
   }
 
   @override
@@ -887,6 +868,9 @@ class _AppEditPageState extends State<AppEditPage>
         _exitEditor();
       },
       child: Scaffold(
+        // `extendBody` + barre positionnée : le bottom menu du bot est
+        // désormais la même barre flottante « verre dépoli » que la Home.
+        extendBody: true,
         drawer: Drawer(
           backgroundColor: colorScheme.surface,
           child: _buildSidebarContent(
@@ -897,11 +881,26 @@ class _AppEditPageState extends State<AppEditPage>
             isDrawer: true,
           ),
         ),
-        body: activeMobileBody,
-        bottomNavigationBar: _buildMobileBottomBar(
-          context,
-          colorScheme,
-          activeId,
+        body: Stack(
+          children: [
+            // La barre flotte au-dessus du contenu : on réserve sa hauteur,
+            // comme le fait `HomePage`, pour que le bas des pages reste
+            // accessible.
+            Padding(
+              padding: EdgeInsets.only(
+                bottom: FloatingGlassNavBar.contentClearanceOf(context),
+              ),
+              child: activeMobileBody,
+            ),
+            Positioned(
+              left: FloatingGlassNavBar.margin,
+              right: FloatingGlassNavBar.margin,
+              bottom: FloatingGlassNavBar.bottomOffsetOf(context),
+              child: FloatingGlassNavBar(
+                items: _buildMobileNavItems(context, activeId),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -961,64 +960,6 @@ class _SidebarItemTile extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _BottomNavItem extends StatelessWidget {
-  const _BottomNavItem({
-    required this.icon,
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final selectedColor = isDark
-        ? AppTheme.brandPurpleSoft
-        : colorScheme.primary;
-    final idleColor = isDark
-        ? AppTheme.homeMuted
-        : colorScheme.onSurfaceVariant;
-    final color = selected ? selectedColor : idleColor;
-
-    return InkWell(
-      onTap: onTap,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 3),
-            decoration: BoxDecoration(
-              color: selected
-                  ? colorScheme.primary.withValues(alpha: isDark ? 0.2 : 0.1)
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-            ),
-            child: Icon(icon, size: 20, color: color),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-              color: color,
-            ),
-          ),
-        ],
       ),
     );
   }
