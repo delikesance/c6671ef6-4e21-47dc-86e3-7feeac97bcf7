@@ -219,6 +219,7 @@ class BotReconciliationService {
       botId: botId,
       remoteConfig: remoteConfig,
       saveAppMetadata: true,
+      deleteMissingLocalCommands: true,
     );
 
     // Ensure all_apps.json index and token are up to date
