@@ -18,6 +18,7 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/features/ads/presentation/native_ad_slot.dart';
 import 'package:bot_creator/core/widgets/notion_filter_bar.dart';
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
+import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator_shared/utils/legacy_command_triggers.dart';
 import 'package:flutter/material.dart';
 import 'package:nyxx/nyxx.dart';
@@ -1498,9 +1499,10 @@ class _AppCommandsPageState extends State<AppCommandsPage>
       ),
       body: SafeArea(
         top: false,
+        // Contraintes ignorées : la largeur maximale et les marges viennent
+        // désormais de `PageContent` (`AppPageLayout`).
         child: LayoutBuilder(
-          builder: (context, constraints) {
-            final contentMaxWidth = constraints.maxWidth >= 900 ? 760.0 : 640.0;
+          builder: (context, _) {
             final visibleCommands = _visibleCommands();
             if (_loading) {
               return const Center(
@@ -1633,23 +1635,22 @@ class _AppCommandsPageState extends State<AppCommandsPage>
             }
 
             return Center(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: contentMaxWidth),
+              child: PageContent(
                 child: _isReorderMode
                     ? ListView(
                         padding: EdgeInsets.fromLTRB(
-                          12,
+                          0,
                           16,
-                          12,
+                          0,
                           FloatingGlassNavBar.contentClearanceOf(context) + 16,
                         ),
                         children: _buildReorderList(),
                       )
                     : ListView(
                         padding: EdgeInsets.fromLTRB(
-                          12,
+                          0,
                           8,
-                          12,
+                          0,
                           FloatingGlassNavBar.contentClearanceOf(context) + 16,
                         ),
                         children: [

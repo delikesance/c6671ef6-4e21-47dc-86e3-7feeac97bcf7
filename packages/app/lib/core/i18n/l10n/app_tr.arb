@@ -3539,8 +3539,54 @@
     },
     "description": "{count} workflow(s) skipped"
   },
+  "@js_diag_unclosed_opening": {
+    "placeholders": {
+      "opening": {
+        "type": "String"
+      },
+      "line": {
+        "type": "String"
+      }
+    },
+    "description": "Diagnostic: opening delimiter ({opening}) left unclosed (line {line})"
+  },
+  "@js_diag_unexpected_closing": {
+    "placeholders": {
+      "closing": {
+        "type": "String"
+      }
+    },
+    "description": "Diagnostic: unexpected closing delimiter ({closing})"
+  },
+  "@js_diag_unterminated_comment": {
+    "description": "Diagnostic: unterminated block comment"
+  },
+  "@js_diag_unterminated_string": {
+    "description": "Diagnostic: unterminated string literal"
+  },
+  "@js_diag_unterminated_template": {
+    "description": "Diagnostic: unterminated template literal"
+  },
+  "@js_editor_auto_indent": {
+    "description": "Feature bullet in the JavaScript editor UX sheet"
+  },
   "@js_editor_hint": {
     "description": "Hint text in the JavaScript editor field"
+  },
+  "@js_editor_diagnostics_clean": {
+    "description": "Message shown in the diagnostics bar when no syntax problem is found"
+  },
+  "@js_editor_empty": {
+    "description": "Message shown when the JavaScript editor is empty"
+  },
+  "@js_editor_includes": {
+    "description": "Heading above the feature list in the JavaScript editor UX sheet"
+  },
+  "@js_editor_indent_guides": {
+    "description": "Feature bullet in the JavaScript editor UX sheet"
+  },
+  "@js_editor_quick_keys": {
+    "description": "Feature bullet in the JavaScript editor UX sheet"
   },
   "@js_editor_segmented_label": {
     "description": "Short label for JavaScript execution mode SegmentedButton"
@@ -3550,6 +3596,9 @@
   },
   "@js_editor_title": {
     "description": "Card title in the JavaScript editor shell"
+  },
+  "@js_editor_ux_title": {
+    "description": "Title of the JavaScript editor UX sheet"
   },
   "@legacy_bdfd_run_failed": {
     "placeholders": {
@@ -5709,12 +5758,6 @@
       }
     },
     "description": "Number of team members"
-  },
-  "@settings_theme_switch_dark": {
-    "description": "Switch to dark mode"
-  },
-  "@settings_theme_switch_light": {
-    "description": "Switch to light mode"
   },
   "@settings_version_title": {
     "description": "Version"
@@ -8069,10 +8112,22 @@
   "import_summary_variables_imported": "değişkenler içe aktarıldı",
   "import_summary_workflows_imported": "{count} iş akışı içe aktarıldı",
   "import_summary_workflows_skipped": "{count} iş akışı atlandı",
+  "js_diag_unclosed_opening": "Kapatılmamış “{opening}”, {line}. satırda açıldı.",
+  "js_diag_unexpected_closing": "Beklenmeyen kapanış “{closing}”.",
+  "js_diag_unterminated_comment": "Kapatılmamış blok yorumu.",
+  "js_diag_unterminated_string": "Kapatılmamış dize sabiti.",
+  "js_diag_unterminated_template": "Kapatılmamış şablon sabiti.",
+  "js_editor_auto_indent": "• Enter ile akıllı otomatik girinti",
   "js_editor_hint": "// JavaScript bot komutunuzu buraya yazın...",
+  "js_editor_diagnostics_clean": "Sözdizimi sorunu bulunamadı.",
+  "js_editor_empty": "Boş betik — tanıları görmek için yazmaya başlayın.",
+  "js_editor_includes": "İçerir:",
+  "js_editor_indent_guides": "• Canlı girinti kılavuzları",
+  "js_editor_quick_keys": "• JavaScript sembolleri için mobil hızlı tuşlar",
   "js_editor_segmented_label": "JS",
   "js_editor_subtitle": "Bu komut için özel JavaScript yazın",
   "js_editor_title": "JavaScript Düzenleyici",
+  "js_editor_ux_title": "Düzenleyici UX",
   "legacy_bdfd_run_failed": "\"{command}\" komutu için BDFD betiği çalıştırılamadı: {error}",
   "legacy_prefix_mode_desc": "messageCreate'den gelen komutları <on_ek><komut> kullanarak işler.",
   "legacy_prefix_mode_subtitle": "Konumsal seçenekleri kullanır (örnek: !config #kanal).",
@@ -8793,8 +8848,6 @@
   "settings_team_owner_label": "Ekip Lideri",
   "settings_team_ownership": "Ekip Sahipliği",
   "settings_team_pill": "EKİP",
-  "settings_theme_switch_dark": "Karanlık moda geç",
-  "settings_theme_switch_light": "Açık moda geç",
   "settings_version_title": "Sürüm",
   "settings_view_startup_logs": "Başlangıç günlüklerini görüntüle",
   "startup_copy_diagnostics": "Tanılamaları kopyala",
