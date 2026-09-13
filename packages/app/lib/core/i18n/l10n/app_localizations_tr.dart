@@ -4517,7 +4517,46 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String js_diag_unclosed_opening(String opening, String line) {
+    return 'Kapatılmamış “$opening”, $line. satırda açıldı.';
+  }
+
+  @override
+  String js_diag_unexpected_closing(String closing) {
+    return 'Beklenmeyen kapanış “$closing”.';
+  }
+
+  @override
+  String get js_diag_unterminated_comment => 'Kapatılmamış blok yorumu.';
+
+  @override
+  String get js_diag_unterminated_string => 'Kapatılmamış dize sabiti.';
+
+  @override
+  String get js_diag_unterminated_template => 'Kapatılmamış şablon sabiti.';
+
+  @override
+  String get js_editor_auto_indent => '• Enter ile akıllı otomatik girinti';
+
+  @override
   String get js_editor_hint => '// JavaScript bot komutunuzu buraya yazın...';
+
+  @override
+  String get js_editor_diagnostics_clean => 'Sözdizimi sorunu bulunamadı.';
+
+  @override
+  String get js_editor_empty =>
+      'Boş betik — tanıları görmek için yazmaya başlayın.';
+
+  @override
+  String get js_editor_includes => 'İçerir:';
+
+  @override
+  String get js_editor_indent_guides => '• Canlı girinti kılavuzları';
+
+  @override
+  String get js_editor_quick_keys =>
+      '• JavaScript sembolleri için mobil hızlı tuşlar';
 
   @override
   String get js_editor_segmented_label => 'JS';
@@ -4527,6 +4566,9 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get js_editor_title => 'JavaScript Düzenleyici';
+
+  @override
+  String get js_editor_ux_title => 'Düzenleyici UX';
 
   @override
   String legacy_bdfd_run_failed(String command, String error) {

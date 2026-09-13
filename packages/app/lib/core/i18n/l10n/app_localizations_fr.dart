@@ -4572,7 +4572,48 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String js_diag_unclosed_opening(String opening, String line) {
+    return '« $opening » non fermé, ouvert à la ligne $line.';
+  }
+
+  @override
+  String js_diag_unexpected_closing(String closing) {
+    return 'Fermeture inattendue « $closing ».';
+  }
+
+  @override
+  String get js_diag_unterminated_comment => 'Commentaire de bloc non fermé.';
+
+  @override
+  String get js_diag_unterminated_string => 'Chaîne de caractères non fermée.';
+
+  @override
+  String get js_diag_unterminated_template => 'Template literal non fermé.';
+
+  @override
+  String get js_editor_auto_indent =>
+      '• Indentation automatique intelligente sur Entrée';
+
+  @override
   String get js_editor_hint => '// Écrivez votre commande JavaScript ici...';
+
+  @override
+  String get js_editor_diagnostics_clean =>
+      'Aucun problème de syntaxe détecté.';
+
+  @override
+  String get js_editor_empty =>
+      'Script vide — commencez à écrire pour voir les diagnostics.';
+
+  @override
+  String get js_editor_includes => 'Inclut :';
+
+  @override
+  String get js_editor_indent_guides => '• Guides d\'indentation en temps réel';
+
+  @override
+  String get js_editor_quick_keys =>
+      '• Touches rapides mobiles pour les symboles JavaScript';
 
   @override
   String get js_editor_segmented_label => 'JS';
@@ -4583,6 +4624,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get js_editor_title => 'Éditeur JavaScript';
+
+  @override
+  String get js_editor_ux_title => 'UX de l\'éditeur';
 
   @override
   String legacy_bdfd_run_failed(String command, String error) {

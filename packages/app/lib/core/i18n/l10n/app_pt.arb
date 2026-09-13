@@ -3539,8 +3539,54 @@
     },
     "description": "{count} workflow(s) skipped"
   },
+  "@js_diag_unclosed_opening": {
+    "placeholders": {
+      "opening": {
+        "type": "String"
+      },
+      "line": {
+        "type": "String"
+      }
+    },
+    "description": "Diagnostic: opening delimiter ({opening}) left unclosed (line {line})"
+  },
+  "@js_diag_unexpected_closing": {
+    "placeholders": {
+      "closing": {
+        "type": "String"
+      }
+    },
+    "description": "Diagnostic: unexpected closing delimiter ({closing})"
+  },
+  "@js_diag_unterminated_comment": {
+    "description": "Diagnostic: unterminated block comment"
+  },
+  "@js_diag_unterminated_string": {
+    "description": "Diagnostic: unterminated string literal"
+  },
+  "@js_diag_unterminated_template": {
+    "description": "Diagnostic: unterminated template literal"
+  },
+  "@js_editor_auto_indent": {
+    "description": "Feature bullet in the JavaScript editor UX sheet"
+  },
   "@js_editor_hint": {
     "description": "Hint text in the JavaScript editor field"
+  },
+  "@js_editor_diagnostics_clean": {
+    "description": "Message shown in the diagnostics bar when no syntax problem is found"
+  },
+  "@js_editor_empty": {
+    "description": "Message shown when the JavaScript editor is empty"
+  },
+  "@js_editor_includes": {
+    "description": "Heading above the feature list in the JavaScript editor UX sheet"
+  },
+  "@js_editor_indent_guides": {
+    "description": "Feature bullet in the JavaScript editor UX sheet"
+  },
+  "@js_editor_quick_keys": {
+    "description": "Feature bullet in the JavaScript editor UX sheet"
   },
   "@js_editor_segmented_label": {
     "description": "Short label for JavaScript execution mode SegmentedButton"
@@ -3550,6 +3596,9 @@
   },
   "@js_editor_title": {
     "description": "Card title in the JavaScript editor shell"
+  },
+  "@js_editor_ux_title": {
+    "description": "Title of the JavaScript editor UX sheet"
   },
   "@legacy_bdfd_run_failed": {
     "placeholders": {
@@ -8102,10 +8151,22 @@
   "import_summary_variables_imported": "variáveis importadas",
   "import_summary_workflows_imported": "{count} workflow(s) importado(s)",
   "import_summary_workflows_skipped": "{count} workflow(s) ignorado(s)",
+  "js_diag_unclosed_opening": "“{opening}” não fechado, aberto na linha {line}.",
+  "js_diag_unexpected_closing": "Fechamento inesperado “{closing}”.",
+  "js_diag_unterminated_comment": "Comentário de bloco não finalizado.",
+  "js_diag_unterminated_string": "Literal de string não finalizado.",
+  "js_diag_unterminated_template": "Template literal não finalizado.",
+  "js_editor_auto_indent": "• Indentação automática inteligente ao pressionar Enter",
   "js_editor_hint": "// Escreva seu comando JavaScript aqui...",
+  "js_editor_diagnostics_clean": "Nenhum problema de sintaxe detectado.",
+  "js_editor_empty": "Script vazio — comece a digitar para ver os diagnósticos.",
+  "js_editor_includes": "Inclui:",
+  "js_editor_indent_guides": "• Guias de indentação em tempo real",
+  "js_editor_quick_keys": "• Teclas rápidas móveis para símbolos JavaScript",
   "js_editor_segmented_label": "JS",
   "js_editor_subtitle": "Escreva JavaScript personalizado para este comando",
   "js_editor_title": "Editor JavaScript",
+  "js_editor_ux_title": "UX do editor",
   "legacy_bdfd_run_failed": "Falha ao executar o script BDFD para o comando \"{command}\": {error}",
   "legacy_prefix_mode_desc": "Lida com comandos de messageCreate usando <prefixo><comando>.",
   "legacy_prefix_mode_subtitle": "Usa opções posicionais (exemplo: !config #canal).",
