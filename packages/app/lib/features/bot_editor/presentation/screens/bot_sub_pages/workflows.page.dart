@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
+import 'package:bot_creator/core/widgets/page_layout.dart';
+import 'package:bot_creator/features/home/presentation/home_ui.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/workflow_block_editor.dart';
 import 'package:bot_creator/features/documentation/documentation_navigation.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/entry_point_block.dart';
@@ -1368,6 +1370,13 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
         ),
         actions: [
           IconButton(
+            tooltip: widget.eventsOnly
+                ? context.tr.workflows_create_event
+                : context.tr.workflows_create,
+            onPressed: _showCreateWorkflowMenu,
+            icon: const Icon(Icons.add_rounded),
+          ),
+          IconButton(
             tooltip: context.tr.workflows_import_tooltip,
             onPressed: _importWorkflows,
             icon: const Icon(Icons.content_paste_go_outlined),
@@ -1386,36 +1395,41 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showCreateWorkflowMenu,
-        child: const Icon(Icons.add),
-      ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _workflows.isEmpty
-          ? EditorEmptyState(
-              icon: widget.eventsOnly
-                  ? Icons.notifications_active_outlined
-                  : Icons.account_tree_outlined,
-              title: context.tr.workflows_empty,
-              actionLabel: context.tr.workflows_create,
-              onAction: _showCreateWorkflowMenu,
-            )
-          : ListView(
-              padding: EdgeInsets.only(
-                bottom: FloatingGlassNavBar.contentClearanceOf(context) + 24,
+      // Largeur et marges communes à toutes les pages (contrat AppPageLayout) :
+      // la liste n'est plus en plein-cadre.
+      body: PageContent(
+        child: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : _workflows.isEmpty
+            ? EditorEmptyState(
+                icon: widget.eventsOnly
+                    ? Icons.notifications_active_outlined
+                    : Icons.account_tree_outlined,
+                title: context.tr.workflows_empty,
+                actionLabel: widget.eventsOnly
+                    ? context.tr.workflows_create_event
+                    : context.tr.workflows_create,
+                onAction: _showCreateWorkflowMenu,
+              )
+            : ListView(
+                // Réserve de bas de liste conservée telle quelle.
+                padding: EdgeInsets.only(
+                  bottom: FloatingGlassNavBar.contentClearanceOf(context) + 24,
+                ),
+                children: [
+                  _buildFilters(),
+                  if (visibleWorkflows.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 48),
+                      child: Center(
+                        child: Text(context.tr.workflows_no_matches),
+                      ),
+                    )
+                  else
+                    ...workflowChildren,
+                ],
               ),
-              children: [
-                _buildFilters(),
-                if (visibleWorkflows.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 48),
-                    child: Center(child: Text(context.tr.workflows_no_matches)),
-                  )
-                else
-                  ...workflowChildren,
-              ],
-            ),
+      ),
     );
   }
 
@@ -1707,6 +1721,115 @@ class _WorkflowFolderHeader extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+@visibleForTesting
+class CreateWorkflowCard extends StatelessWidget {
+  const CreateWorkflowCard({
+    super.key,
+    required this.eventsOnly,
+    required this.onTap,
+  });
+
+  final bool eventsOnly;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final scheme = Theme.of(context).colorScheme;
+    final tokens = HomeTokens.of(context);
+    final fill = isDark
+        ? tokens.accent.withValues(alpha: 0.30)
+        : scheme.surfaceContainerHighest;
+    final border = isDark ? tokens.accent : scheme.primary;
+    final avatarFill = tokens.accent;
+    final avatarIconColor = isDark ? Colors.white : tokens.onAccent;
+
+    final title = eventsOnly
+        ? context.tr.workflows_create_event
+        : context.tr.workflows_create;
+    final subtitle = eventsOnly
+        ? context.tr.workflows_create_event_subtitle
+        : context.tr.workflows_create_subtitle;
+
+    return Stack(
+      children: [
+        Material(
+          color: fill,
+          borderRadius: BorderRadius.circular(AppTheme.radiusCard),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: avatarFill,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.add_rounded,
+                      size: 26,
+                      color: avatarIconColor,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: homeDisplayStyle(16, color: scheme.onSurface),
+                        ),
+                        Text(
+                          subtitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: homeDisplayStyle(
+                            12,
+                            weight: FontWeight.w400,
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.30)
+                                : scheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    size: 18,
+                    color: isDark
+                        ? tokens.muted
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        Positioned.fill(
+          child: IgnorePointer(
+            child: CustomPaint(
+              painter: HomeDashedRoundedRectPainter(
+                color: border,
+                radius: AppTheme.radiusCard,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

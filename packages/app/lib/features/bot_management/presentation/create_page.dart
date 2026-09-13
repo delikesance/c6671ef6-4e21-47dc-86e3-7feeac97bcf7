@@ -5,6 +5,7 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 
 import 'package:bot_creator/core/auth/mobile_account_gate.dart';
 import 'package:bot_creator/core/utils/responsive.dart';
+import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/features/documentation/documentation_navigation.dart';
 import 'package:bot_creator/features/documentation/documentation_urls.dart';
 import 'package:flutter/material.dart';
@@ -433,8 +434,6 @@ class _AppCreatePageState extends State<AppCreatePage> {
   Widget _buildDiscordBotView(
     BuildContext context,
     bool isMobile,
-    double maxWidth,
-    double horizontalPadding,
     ColorScheme colorScheme,
     double sectionSpacing,
     EdgeInsets cardPadding,
@@ -644,10 +643,6 @@ class _AppCreatePageState extends State<AppCreatePage> {
   @override
   Widget build(BuildContext context) {
     final isMobile = ResponsiveHelper.isMobile(context);
-    final maxWidth = ResponsiveHelper.getContentMaxWidth(context);
-    final horizontalPadding = ResponsiveHelper.getHorizontalPaddingValue(
-      context,
-    );
     final colorScheme = Theme.of(context).colorScheme;
     final sectionSpacing = ResponsiveHelper.getSpacing(context, factor: 1.5);
     final cardPadding = EdgeInsets.all(isMobile ? 16 : 20);
@@ -681,28 +676,22 @@ class _AppCreatePageState extends State<AppCreatePage> {
           ),
         ),
         body: SafeArea(
-          child: SingleChildScrollView(
-            child: Center(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: maxWidth),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: horizontalPadding,
-                    vertical: 16,
-                  ),
-                  child: showSelection
-                      ? _buildTypeSelectionView(context, isMobile, colorScheme)
-                      : _buildDiscordBotView(
-                          context,
-                          isMobile,
-                          maxWidth,
-                          horizontalPadding,
-                          colorScheme,
-                          sectionSpacing,
-                          cardPadding,
-                        ),
-                ),
-              ),
+          // Largeur et marges communes à toutes les pages de l'app (contrat
+          // AppPageLayout) : la page n'impose plus ses propres bornes (800 px).
+          child: PageContent(
+            child: SingleChildScrollView(
+              // Marge verticale propre à la page : l'horizontale est fournie
+              // par PageContent.
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: showSelection
+                  ? _buildTypeSelectionView(context, isMobile, colorScheme)
+                  : _buildDiscordBotView(
+                      context,
+                      isMobile,
+                      colorScheme,
+                      sectionSpacing,
+                      cardPadding,
+                    ),
             ),
           ),
         ),

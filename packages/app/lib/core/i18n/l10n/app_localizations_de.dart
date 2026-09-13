@@ -3341,6 +3341,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get common_close => 'Schließen';
 
   @override
+  String get common_minimize => 'Minimieren';
+
+  @override
+  String get common_maximize => 'Maximieren';
+
+  @override
+  String get common_restore => 'Wiederherstellen';
+
+  @override
   String get common_custom_id => 'Benutzerdefinierte ID';
 
   @override
@@ -4388,6 +4397,26 @@ class AppLocalizationsDe extends AppLocalizations {
       'Die Zeit bleibt erhalten, solange der Bot gestoppt ist.';
 
   @override
+  String get home_hosting_time_preserved_overline => 'Zeit erhalten';
+
+  @override
+  String get home_hosting_expiration_expected => 'Voraussichtlicher Ablauf';
+
+  @override
+  String home_hosting_expires_at(String date, String time) {
+    return '$date um $time';
+  }
+
+  @override
+  String get home_hosting_status_active_short => 'Aktive Sitzung';
+
+  @override
+  String get home_hosting_status_paused_short => 'Gespeicherte Zeit';
+
+  @override
+  String get home_hosting_total => 'Gesamtzeit';
+
+  @override
   String get home_hosting_status_active => 'Aktive Sitzung (online)';
 
   @override
@@ -4544,8 +4573,50 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String js_diag_unclosed_opening(String opening, String line) {
+    return 'Nicht geschlossenes „$opening“, geöffnet in Zeile $line.';
+  }
+
+  @override
+  String js_diag_unexpected_closing(String closing) {
+    return 'Unerwartetes schließendes „$closing“.';
+  }
+
+  @override
+  String get js_diag_unterminated_comment => 'Nicht beendeter Blockkommentar.';
+
+  @override
+  String get js_diag_unterminated_string =>
+      'Nicht beendetes Zeichenkettenliteral.';
+
+  @override
+  String get js_diag_unterminated_template =>
+      'Nicht beendetes Template-Literal.';
+
+  @override
+  String get js_editor_auto_indent =>
+      '• Intelligente Auto-Einrückung bei Enter';
+
+  @override
   String get js_editor_hint =>
       '// Schreiben Sie Ihren JavaScript-Bot-Befehl hier...';
+
+  @override
+  String get js_editor_diagnostics_clean => 'Kein Syntaxproblem erkannt.';
+
+  @override
+  String get js_editor_empty =>
+      'Leeres Skript — tippen Sie, um Diagnosen zu sehen.';
+
+  @override
+  String get js_editor_includes => 'Enthält:';
+
+  @override
+  String get js_editor_indent_guides => '• Live-Einrückungslinien';
+
+  @override
+  String get js_editor_quick_keys =>
+      '• Mobile Schnelltasten für JavaScript-Symbole';
 
   @override
   String get js_editor_segmented_label => 'JS';
@@ -4556,6 +4627,9 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get js_editor_title => 'JavaScript-Editor';
+
+  @override
+  String get js_editor_ux_title => 'Editor-UX';
 
   @override
   String legacy_bdfd_run_failed(String command, String error) {
@@ -7235,12 +7309,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settings_team_pill => 'TEAM';
 
   @override
-  String get settings_theme_switch_dark => 'Zum dunklen Modus wechseln';
-
-  @override
-  String get settings_theme_switch_light => 'Zum hellen Modus wechseln';
-
-  @override
   String get settings_version_title => 'Version';
 
   @override
@@ -7648,6 +7716,18 @@ class AppLocalizationsDe extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get unit_short_month => 'Monate';
+
+  @override
+  String get unit_short_day => 'Tage';
+
+  @override
+  String get unit_short_hour => 'Stunden';
+
+  @override
+  String get unit_short_minute => 'Min';
 
   @override
   String get validation_awaited_callback_format =>
@@ -8162,6 +8242,17 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get workflows_create => 'Workflow erstellen';
+
+  @override
+  String get workflows_create_subtitle =>
+      'Automatisiere Bot-Aktionen und Events mit wenigen Klicks';
+
+  @override
+  String get workflows_create_event => 'Ereignis erstellen';
+
+  @override
+  String get workflows_create_event_subtitle =>
+      'Reagiere auf Discord-Nachrichten, Beitritte und Events';
 
   @override
   String workflows_delete_confirm(String name) {

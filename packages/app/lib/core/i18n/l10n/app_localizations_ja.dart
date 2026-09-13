@@ -3114,6 +3114,15 @@ class AppLocalizationsJa extends AppLocalizations {
   String get common_close => '閉じる';
 
   @override
+  String get common_minimize => '最小化';
+
+  @override
+  String get common_maximize => '最大化';
+
+  @override
+  String get common_restore => '元に戻す';
+
+  @override
   String get common_custom_id => 'カスタムID';
 
   @override
@@ -4134,6 +4143,26 @@ class AppLocalizationsJa extends AppLocalizations {
   String get home_hosting_time_preserved => 'ボットが停止している間、時間は保持されます。';
 
   @override
+  String get home_hosting_time_preserved_overline => '保持される時間';
+
+  @override
+  String get home_hosting_expiration_expected => '有効期限';
+
+  @override
+  String home_hosting_expires_at(String date, String time) {
+    return '$date $time';
+  }
+
+  @override
+  String get home_hosting_status_active_short => 'アクティブなセッション';
+
+  @override
+  String get home_hosting_status_paused_short => '保存された時間';
+
+  @override
+  String get home_hosting_total => '合計時間';
+
+  @override
   String get home_hosting_status_active => 'アクティブなセッション（オンライン）';
 
   @override
@@ -4287,7 +4316,44 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String js_diag_unclosed_opening(String opening, String line) {
+    return '閉じられていない “$opening”（$line 行目で開かれています）。';
+  }
+
+  @override
+  String js_diag_unexpected_closing(String closing) {
+    return '予期しない閉じ “$closing”。';
+  }
+
+  @override
+  String get js_diag_unterminated_comment => 'ブロックコメントが閉じられていません。';
+
+  @override
+  String get js_diag_unterminated_string => '文字列リテラルが閉じられていません。';
+
+  @override
+  String get js_diag_unterminated_template => 'テンプレートリテラルが閉じられていません。';
+
+  @override
+  String get js_editor_auto_indent => '• Enter でのスマート自動インデント';
+
+  @override
   String get js_editor_hint => '// JavaScriptボットコマンドをここに記述...';
+
+  @override
+  String get js_editor_diagnostics_clean => '構文の問題は検出されませんでした。';
+
+  @override
+  String get js_editor_empty => '空のスクリプト — 入力すると診断が表示されます。';
+
+  @override
+  String get js_editor_includes => '含まれる機能：';
+
+  @override
+  String get js_editor_indent_guides => '• リアルタイムのインデントガイド';
+
+  @override
+  String get js_editor_quick_keys => '• JavaScript 記号用のモバイルクイックキー';
 
   @override
   String get js_editor_segmented_label => 'JS';
@@ -4297,6 +4363,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get js_editor_title => 'JavaScriptエディター';
+
+  @override
+  String get js_editor_ux_title => 'エディターUX';
 
   @override
   String legacy_bdfd_run_failed(String command, String error) {
@@ -6850,12 +6919,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settings_team_pill => 'チーム';
 
   @override
-  String get settings_theme_switch_dark => 'ダークモードに切り替え';
-
-  @override
-  String get settings_theme_switch_light => 'ライトモードに切り替え';
-
-  @override
   String get settings_version_title => 'バージョン';
 
   @override
@@ -7234,6 +7297,18 @@ class AppLocalizationsJa extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get unit_short_month => 'ヶ月';
+
+  @override
+  String get unit_short_day => '日';
+
+  @override
+  String get unit_short_hour => '時間';
+
+  @override
+  String get unit_short_minute => '分';
 
   @override
   String get validation_awaited_callback_format =>
@@ -7727,6 +7802,16 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get workflows_create => 'ワークフローを作成';
+
+  @override
+  String get workflows_create_subtitle => '数クリックでボットのアクションとイベントを自動化';
+
+  @override
+  String get workflows_create_event => 'イベントを作成';
+
+  @override
+  String get workflows_create_event_subtitle =>
+      'Discordのメッセージやメンバー参加などのイベントに対応';
 
   @override
   String workflows_delete_confirm(String name) {

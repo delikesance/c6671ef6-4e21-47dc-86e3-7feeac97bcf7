@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/core/diagnostics/diagnostics_logs_page.dart';
 import 'package:bot_creator/features/settings/presentation/code_editor_settings_page.dart';
 import 'package:bot_creator/features/settings/presentation/appearance_settings_section.dart';
@@ -2120,94 +2121,202 @@ class _SettingPageState extends State<SettingPage> {
   Widget build(BuildContext context) {
     final isWideScreen = MediaQuery.of(context).size.width > 800;
     final isMobile = MediaQuery.of(context).size.width < 600;
-    final horizontalPadding = isMobile ? 16.0 : 24.0;
-    final iconSize = isMobile ? 60.0 : 80.0;
     final titleSize = isMobile ? 24.0 : 28.0;
 
-    final themeProvider = context.watch<ThemeProvider>();
     final localeProvider = context.watch<LocaleProvider>();
     final detectedLocale = detectSystemLocale(
       Localizations.maybeLocaleOf(context),
     );
-    final isDark = themeProvider.themeMode == ThemeMode.dark;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(context.tr.settings_tab),
         centerTitle: true,
-        automaticallyImplyLeading: !widget.embedded,
-        actions: [
-          IconButton(
-            tooltip: isDark
-                ? context.tr.settings_theme_switch_light
-                : context.tr.settings_theme_switch_dark,
-            icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
-            onPressed: () => themeProvider.toggleTheme(),
-          ),
-        ],
+        // Sur desktop, la barre de titre du shell (DesktopTitleBar) affiche déjà
+        // sa propre flèche de retour juste au-dessus de la page : en rendre une
+        // seconde ici empile deux flèches. Embarquée dans le shell compact, la
+        // page n'est pas une route poussée : pas de flèche non plus.
+        automaticallyImplyLeading:
+            !widget.embedded && !windowChromeOwnsBackButton(),
       ),
+      // Embarquée dans le shell compact, la page vit SOUS la réserve de la
+      // barre flottante (`FloatingGlassNavBar.contentClearanceOf`, inset système
+      // compris) : réserver l'inset bas une seconde fois laissait un vide de
+      // [24 + inset] px entre la dernière carte et la barre. Autonome (route
+      // poussée depuis la Home), elle doit au contraire l'éviter.
       body: SafeArea(
-        child: Center(
+        bottom: !widget.embedded,
+        // Largeur et marges communes à toutes les pages de l'app : la page
+        // n'impose plus ses propres bornes (600 px, padding 16/24).
+        child: PageContent(
           child: SingleChildScrollView(
-            padding: EdgeInsets.symmetric(
-              horizontal: horizontalPadding,
-              vertical: 24,
-            ),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 600),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Icon(
-                    Icons.settings,
-                    size: iconSize,
-                    // Icône décorative : neutre du thème (le violet n'est
-                    // réservé qu'aux états sélectionnés et aux actions
-                    // principales).
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+            // Marge verticale propre à la page : l'horizontale est fournie par
+            // PageContent.
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text(
+                  context.tr.settings_backup_restore_title,
+                  style: TextStyle(
+                    fontSize: titleSize,
+                    fontWeight: FontWeight.bold,
                   ),
-                  const SizedBox(height: 24),
-                  Text(
-                    context.tr.settings_backup_restore_title,
-                    style: TextStyle(
-                      fontSize: titleSize,
-                      fontWeight: FontWeight.bold,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  context.tr.settings_backup_restore_desc,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: AppTheme.grey),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 32),
+
+                const _DocumentationCard(),
+                const SizedBox(height: 16),
+
+                // ── Support Discord card ────────────────────────────────────
+                _SupportDiscordCard(),
+                const SizedBox(height: 16),
+                _SubscriptionsSettingsCard(),
+                const SizedBox(height: 16),
+                _PrivacyPolicyCard(
+                  checkingAdPrivacy: _checkingAdPrivacy,
+                  adPrivacyRequired: _adPrivacyRequired,
+                  onOpenAdPrivacy: _checkingAdPrivacy
+                      ? null
+                      : (_adPrivacyRequired ? _openAdPrivacyOptions : null),
+                ),
+                const SizedBox(height: 16),
+                const SizedBox(height: 16),
+
+                // ── Carte Apparence : mode, presets, couleurs perso ────────
+                const AppearanceSettingsSection(),
+                const SizedBox(height: 24),
+
+                // ── Carte Langue : l'ancienne carte « Apparence et langue »
+                //    ne porte plus que la langue (l'apparence a sa carte)
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.tr.settings_language_title,
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          context.tr.settings_language_desc,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        const SizedBox(height: 12),
+                        DropdownButtonFormField<AppLocalePreference>(
+                          initialValue: localeProvider.preference,
+                          isExpanded: true,
+                          decoration: InputDecoration(
+                            labelText: context.tr.settings_language_title,
+                            border: const OutlineInputBorder(),
+                            isDense: true,
+                          ),
+                          items: [
+                            DropdownMenuItem(
+                              value: AppLocalePreference.system,
+                              child: _dropdownLabel(
+                                _languagePreferenceLabel(
+                                  AppLocalePreference.system,
+                                  detectedLocale,
+                                ),
+                              ),
+                            ),
+                            ...AppLocale.values.map(
+                              (locale) => DropdownMenuItem(
+                                value: _localeToPreference(locale),
+                                child: _dropdownLabel(locale.label),
+                              ),
+                            ),
+                          ],
+                          selectedItemBuilder: (context) => AppLocalePreference
+                              .values
+                              .map(
+                                (preference) => Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: _dropdownLabel(
+                                    _languagePreferenceLabel(
+                                      preference,
+                                      detectedLocale,
+                                    ),
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (value) async {
+                            if (value == null) {
+                              return;
+                            }
+
+                            await localeProvider.setPreference(value);
+                            if (!mounted) {
+                              return;
+                            }
+                            _showSnack(context.tr.settings_language_updated);
+                          },
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    context.tr.settings_backup_restore_desc,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyMedium?.copyWith(color: AppTheme.grey),
-                    textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                // ── Code editor customization card ──────────────────
+                Card(
+                  child: ListTile(
+                    leading: Icon(
+                      Icons.code_outlined,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    title: Text(context.tr.code_editor_settings_title),
+                    subtitle: Text(context.tr.code_editor_settings_subtitle),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const CodeEditorSettingsPage(),
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 32),
-
-                  const _DocumentationCard(),
-                  const SizedBox(height: 16),
-
-                  // ── Support Discord card ────────────────────────────────────
-                  _SupportDiscordCard(),
-                  const SizedBox(height: 16),
-                  _SubscriptionsSettingsCard(),
-                  const SizedBox(height: 16),
-                  _PrivacyPolicyCard(
-                    checkingAdPrivacy: _checkingAdPrivacy,
-                    adPrivacyRequired: _adPrivacyRequired,
-                    onOpenAdPrivacy: _checkingAdPrivacy
-                        ? null
-                        : (_adPrivacyRequired ? _openAdPrivacyOptions : null),
+                ),
+                const SizedBox(height: 24),
+                // ── Notifications card ──────────────────────────────
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.tr.settings_notifications_title,
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          context.tr.settings_notifications_desc,
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodySmall?.copyWith(color: AppTheme.grey),
+                        ),
+                        const SizedBox(height: 8),
+                        ...NotificationTopic.values.map(
+                          (topic) => _buildNotificationTopicTile(topic),
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 16),
-                  const SizedBox(height: 16),
-
-                  // ── Carte Apparence : mode, presets, couleurs perso ────────
-                  const AppearanceSettingsSection(),
-                  const SizedBox(height: 24),
-
-                  // ── Carte Langue : l'ancienne carte « Apparence et langue »
-                  //    ne porte plus que la langue (l'apparence a sa carte)
+                ),
+                const SizedBox(height: 24),
+                if (kDebugMode) ...[
                   Card(
                     child: Padding(
                       padding: const EdgeInsets.all(16),
@@ -2215,91 +2324,75 @@ class _SettingPageState extends State<SettingPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            context.tr.settings_language_title,
+                            context.tr.settings_debug_title,
                             style: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(fontWeight: FontWeight.bold),
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 8),
                           Text(
-                            context.tr.settings_language_desc,
+                            context.tr.settings_debug_desc,
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
-                          const SizedBox(height: 12),
-                          DropdownButtonFormField<AppLocalePreference>(
-                            initialValue: localeProvider.preference,
-                            isExpanded: true,
-                            decoration: InputDecoration(
-                              labelText: context.tr.settings_language_title,
-                              border: const OutlineInputBorder(),
-                              isDense: true,
+                          const SizedBox(height: 16),
+                          Text(
+                            context.tr.settings_reset_preferences_desc,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          const SizedBox(height: 8),
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              onPressed: _isBusy
+                                  ? null
+                                  : () => _resetLocalPreferences(),
+                              icon: const Icon(Icons.restart_alt),
+                              label: Text(
+                                context.tr.settings_reset_preferences,
+                              ),
                             ),
-                            items: [
-                              DropdownMenuItem(
-                                value: AppLocalePreference.system,
-                                child: _dropdownLabel(
-                                  _languagePreferenceLabel(
-                                    AppLocalePreference.system,
-                                    detectedLocale,
-                                  ),
-                                ),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            context.tr.settings_replay_onboarding_desc,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          const SizedBox(height: 8),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed: _isBusy
+                                  ? null
+                                  : () => _replayOnboarding(),
+                              icon: const Icon(Icons.rocket_launch_outlined),
+                              label: Text(
+                                context.tr.settings_replay_onboarding,
                               ),
-                              ...AppLocale.values.map(
-                                (locale) => DropdownMenuItem(
-                                  value: _localeToPreference(locale),
-                                  child: _dropdownLabel(locale.label),
-                                ),
-                              ),
-                            ],
-                            selectedItemBuilder: (context) =>
-                                AppLocalePreference.values
-                                    .map(
-                                      (preference) => Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: _dropdownLabel(
-                                          _languagePreferenceLabel(
-                                            preference,
-                                            detectedLocale,
-                                          ),
-                                        ),
-                                      ),
-                                    )
-                                    .toList(),
-                            onChanged: (value) async {
-                              if (value == null) {
-                                return;
-                              }
-
-                              await localeProvider.setPreference(value);
-                              if (!mounted) {
-                                return;
-                              }
-                              _showSnack(context.tr.settings_language_updated);
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          SwitchListTile(
+                            contentPadding: EdgeInsets.zero,
+                            secondary: const Icon(
+                              Icons.workspace_premium_rounded,
+                            ),
+                            title: Text(
+                              context.tr.settings_debug_premium_bypass,
+                            ),
+                            subtitle: Text(
+                              context.tr.settings_debug_premium_bypass_desc,
+                            ),
+                            value: PremiumCapabilities.debugPremiumBypass,
+                            onChanged: (value) {
+                              setState(() {
+                                PremiumCapabilities.debugPremiumBypass = value;
+                              });
                             },
                           ),
                         ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  // ── Code editor customization card ──────────────────
-                  Card(
-                    child: ListTile(
-                      leading: Icon(
-                        Icons.code_outlined,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                      title: Text(context.tr.code_editor_settings_title),
-                      subtitle: Text(context.tr.code_editor_settings_subtitle),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => const CodeEditorSettingsPage(),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  // ── Notifications card ──────────────────────────────
+                  const SizedBox(height: 16),
                   Card(
                     child: Padding(
                       padding: const EdgeInsets.all(16),
@@ -2307,46 +2400,435 @@ class _SettingPageState extends State<SettingPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            context.tr.settings_notifications_title,
+                            'Ads Mediation Debug',
                             style: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(fontWeight: FontWeight.bold),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 8),
                           Text(
-                            context.tr.settings_notifications_desc,
+                            'Open Ad Inspector and log adapter status (Unity/Google) to validate mediation.',
                             style: Theme.of(context).textTheme.bodySmall
                                 ?.copyWith(color: AppTheme.grey),
                           ),
-                          const SizedBox(height: 8),
-                          ...NotificationTopic.values.map(
-                            (topic) => _buildNotificationTopicTile(topic),
+                          const SizedBox(height: 12),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              FilledButton.tonalIcon(
+                                onPressed: _runMediationDiagnostics,
+                                icon: const Icon(Icons.analytics_outlined),
+                                label: Text(
+                                  context.tr.settings_run_diagnostics,
+                                ),
+                              ),
+                              FilledButton.tonalIcon(
+                                onPressed: _openAdInspector,
+                                icon: const Icon(Icons.bug_report_outlined),
+                                label: Text(
+                                  context.tr.settings_open_ad_inspector,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
                     ),
                   ),
                   const SizedBox(height: 24),
-                  if (kDebugMode) ...[
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              context.tr.settings_debug_title,
-                              style: Theme.of(context).textTheme.titleMedium
-                                  ?.copyWith(fontWeight: FontWeight.bold),
+                ],
+                if (_isBusy)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 24),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2.5),
+                        ),
+                        const SizedBox(width: 12),
+                        Flexible(child: Text(_busyMessage)),
+                      ],
+                    ),
+                  ),
+                // Connection Section
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        context.tr.settings_drive_title,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 12),
+                      if (driveApi == null) ...[
+                        Text(
+                          context.tr.settings_drive_desc,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: _isBusy
+                                ? null
+                                : () async {
+                                    await _runWithLoading(
+                                      context.tr.settings_drive_connect_loading,
+                                      () async {
+                                        try {
+                                          await _ensureDriveApiConnected();
+                                          await _refreshSnapshots();
+                                          await _runAutoBackupCheck(
+                                            force: false,
+                                            showSnack: false,
+                                          );
+                                          _showSnack(
+                                            context.tr.settings_drive_connected,
+                                          );
+                                        } catch (e, st) {
+                                          debugPrint(
+                                            'Connect to Google Drive failed: $e',
+                                          );
+                                          debugPrintStack(stackTrace: st);
+                                          _showSnack(_formatErrorMessage(e));
+                                        }
+                                      },
+                                    );
+                                  },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.g_mobiledata),
+                                const SizedBox(width: 8),
+                                Flexible(
+                                  child: Text(
+                                    context.tr.settings_drive_connect,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
                             ),
+                          ),
+                        ),
+                      ] else ...[
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.check_circle,
+                              color: AppTheme.successLight,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: Text(
+                                context.tr.settings_drive_status_connected,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(color: AppTheme.successLight),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: _isBusy
+                                ? null
+                                : () async {
+                                    await _runWithLoading(
+                                      context
+                                          .tr
+                                          .settings_drive_disconnect_loading,
+                                      () async {
+                                        await disconnectDriveAccount();
+                                        if (!mounted) {
+                                          return;
+                                        }
+                                        setState(() {
+                                          driveApi = null;
+                                        });
+                                        await _loadCachedSnapshotsFromCache();
+                                        _showSnack(
+                                          context
+                                              .tr
+                                              .settings_drive_disconnected,
+                                        );
+                                      },
+                                    );
+                                  },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppTheme.error,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.logout),
+                                const SizedBox(width: 8),
+                                Flexible(
+                                  child: Text(
+                                    context.tr.settings_drive_disconnect,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                if (true) ...[
+                  // Show Main API card on all platforms (desktop included)
+                  const SizedBox(height: 24),
+                  _buildMainApiCard(),
+                  const SizedBox(height: 16),
+                ],
+                if (_isManagedMobilePlatform) ...[
+                  _buildMobileLocalHostingCard(),
+                  const SizedBox(height: 16),
+                ],
+                if (!_isManagedMobilePlatform) ...[
+                  _buildDesktopRuntimeCard(),
+                  const SizedBox(height: 16),
+                  if (_isDesktopPlatform) ...[
+                    _buildEmbeddedRunnerCard(),
+                    const SizedBox(height: 16),
+                  ],
+                ],
+                if (!_isManagedMobilePlatform && !_runnerTemporarilyDisabled)
+                  Card(
+                    child: ExpansionTile(
+                      initiallyExpanded: _developerSectionExpanded,
+                      onExpansionChanged: (expanded) {
+                        setState(() {
+                          _developerSectionExpanded = expanded;
+                        });
+                      },
+                      leading: const Icon(Icons.developer_mode, size: 18),
+                      title: Text(
+                        context.tr.settings_runner_title,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: _runnerTemporarilyDisabled
+                          ? Text(
+                              context.tr.settings_runner_temporarily_disabled,
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: AppTheme.warning),
+                            )
+                          : _runnerStatusKey == null
+                          ? null
+                          : Text(
+                              _translateStatusKey(context, _runnerStatusKey!),
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(
+                                    color:
+                                        _runnerStatusKey ==
+                                            'settings_runner_connected'
+                                        ? AppTheme.successLight
+                                        : AppTheme.errorLight,
+                                  ),
+                            ),
+                      childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            context.tr.settings_runner_desc,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        if (_isDesktopPlatform) ...[
+                          SwitchListTile.adaptive(
+                            contentPadding: EdgeInsets.zero,
+                            title: Text(context.tr.settings_runner_use_remote),
+                            subtitle: Text(
+                              context.tr.settings_runner_use_remote_desc,
+                            ),
+                            value: _useRemoteRunner,
+                            onChanged: _runnerTemporarilyDisabled || _isBusy
+                                ? null
+                                : _toggleUseRemoteRunner,
+                          ),
+                          const SizedBox(height: 8),
+                        ],
+                        if (_showsRemoteRunnerConfig) ...[
+                          Text(
+                            'Runner type',
+                            style: Theme.of(context).textTheme.labelLarge,
+                          ),
+                          const SizedBox(height: 8),
+                          SegmentedButton<RunnerKind>(
+                            segments: const [
+                              ButtonSegment(
+                                value: RunnerKind.dart,
+                                label: Text('Dart'),
+                                icon: Icon(Icons.memory),
+                              ),
+                              ButtonSegment(
+                                value: RunnerKind.javascript,
+                                label: Text('JS'),
+                                icon: Icon(Icons.code),
+                              ),
+                              ButtonSegment(
+                                value: RunnerKind.auto,
+                                label: Text('Auto'),
+                                icon: Icon(Icons.auto_awesome),
+                              ),
+                            ],
+                            selected: {_runnerKind},
+                            onSelectionChanged: _runnerTemporarilyDisabled
+                                ? null
+                                : (selection) {
+                                    setState(() {
+                                      _runnerKind = selection.first;
+                                    });
+                                  },
+                          ),
+                          if (_runnerEngineLabel != null &&
+                              _runnerEngineLabel!.isNotEmpty) ...[
                             const SizedBox(height: 8),
                             Text(
-                              context.tr.settings_debug_desc,
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              context.tr.settings_reset_preferences_desc,
+                              'Detected engine: $_runnerEngineLabel'
+                              '${_runnerVersionLabel != null && _runnerVersionLabel!.isNotEmpty ? ' · v$_runnerVersionLabel' : ''}',
                               style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
+                          const SizedBox(height: 8),
+                          SwitchListTile.adaptive(
+                            contentPadding: EdgeInsets.zero,
+                            title: Text(
+                              context.tr.settings_runner_disable_temp,
+                            ),
+                            subtitle: Text(
+                              context.tr.settings_runner_disable_temp_desc,
+                            ),
+                            value: _runnerTemporarilyDisabled,
+                            onChanged: _isBusy
+                                ? null
+                                : _toggleRunnerTemporarilyDisabled,
+                          ),
+                          const SizedBox(height: 12),
+                          TextField(
+                            controller: _runnerUrlController,
+                            decoration: InputDecoration(
+                              hintText: context.tr.settings_runner_url_hint,
+                              isDense: true,
+                              border: const OutlineInputBorder(),
+                              suffixIcon:
+                                  (_runnerTemporarilyDisabled ||
+                                      _checkingRunner)
+                                  ? const Padding(
+                                      padding: EdgeInsets.all(10),
+                                      child: SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      ),
+                                    )
+                                  : (_runnerStatusKey == null
+                                        ? null
+                                        : Icon(
+                                            _runnerStatusKey ==
+                                                    'settings_runner_connected'
+                                                ? Icons.check_circle
+                                                : Icons.error_outline,
+                                            color:
+                                                _runnerStatusKey ==
+                                                    'settings_runner_connected'
+                                                ? AppTheme.successLight
+                                                : AppTheme.errorLight,
+                                            size: 18,
+                                          )),
+                            ),
+                            keyboardType: TextInputType.url,
+                            autocorrect: false,
+                          ),
+                          const SizedBox(height: 12),
+                          TextField(
+                            controller: _runnerApiTokenController,
+                            decoration: InputDecoration(
+                              labelText: context.tr.settings_runner_token_label,
+                              hintText: context.tr.settings_runner_token_hint,
+                              isDense: true,
+                              border: const OutlineInputBorder(),
+                              suffixIcon: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _runnerTokenObscured =
+                                        !_runnerTokenObscured;
+                                  });
+                                },
+                                icon: Icon(
+                                  _runnerTokenObscured
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                  size: 18,
+                                ),
+                              ),
+                            ),
+                            autocorrect: false,
+                            obscureText: _runnerTokenObscured,
+                          ),
+                          const SizedBox(height: 12),
+                          if (isMobile) ...[
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                onPressed:
+                                    _isBusy ||
+                                        _checkingRunner ||
+                                        _runnerTemporarilyDisabled
+                                    ? null
+                                    : _saveRunnerSettings,
+                                icon: const Icon(Icons.save_outlined, size: 18),
+                                label: Text(context.tr.settings_runner_save),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                onPressed:
+                                    _checkingRunner ||
+                                        _runnerTemporarilyDisabled
+                                    ? null
+                                    : _checkRunnerConnection,
+                                icon: _checkingRunner
+                                    ? const SizedBox(
+                                        width: 14,
+                                        height: 14,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : const Icon(Icons.wifi_find, size: 18),
+                                label: Text(context.tr.settings_runner_check),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Theme.of(
+                                    context,
+                                  ).colorScheme.secondaryContainer,
+                                ),
+                              ),
                             ),
                             const SizedBox(height: 8),
                             SizedBox(
@@ -2354,486 +2836,37 @@ class _SettingPageState extends State<SettingPage> {
                               child: OutlinedButton.icon(
                                 onPressed: _isBusy
                                     ? null
-                                    : () => _resetLocalPreferences(),
-                                icon: const Icon(Icons.restart_alt),
-                                label: Text(
-                                  context.tr.settings_reset_preferences,
-                                ),
+                                    : () {
+                                        _runnerUrlController.clear();
+                                        _runnerApiTokenController.clear();
+                                        _saveRunnerSettings();
+                                      },
+                                icon: const Icon(Icons.clear, size: 18),
+                                label: Text(context.tr.settings_runner_clear),
                               ),
                             ),
-                            const SizedBox(height: 16),
-                            Text(
-                              context.tr.settings_replay_onboarding_desc,
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                            const SizedBox(height: 8),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton.icon(
-                                onPressed: _isBusy
-                                    ? null
-                                    : () => _replayOnboarding(),
-                                icon: const Icon(Icons.rocket_launch_outlined),
-                                label: Text(
-                                  context.tr.settings_replay_onboarding,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            SwitchListTile(
-                              contentPadding: EdgeInsets.zero,
-                              secondary: const Icon(
-                                Icons.workspace_premium_rounded,
-                              ),
-                              title: Text(
-                                context.tr.settings_debug_premium_bypass,
-                              ),
-                              subtitle: Text(
-                                context.tr.settings_debug_premium_bypass_desc,
-                              ),
-                              value: PremiumCapabilities.debugPremiumBypass,
-                              onChanged: (value) {
-                                setState(() {
-                                  PremiumCapabilities.debugPremiumBypass =
-                                      value;
-                                });
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Ads Mediation Debug',
-                              style: Theme.of(context).textTheme.titleMedium
-                                  ?.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Open Ad Inspector and log adapter status (Unity/Google) to validate mediation.',
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(color: AppTheme.grey),
-                            ),
-                            const SizedBox(height: 12),
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
+                          ] else ...[
+                            Row(
                               children: [
-                                FilledButton.tonalIcon(
-                                  onPressed: _runMediationDiagnostics,
-                                  icon: const Icon(Icons.analytics_outlined),
-                                  label: Text(
-                                    context.tr.settings_run_diagnostics,
-                                  ),
-                                ),
-                                FilledButton.tonalIcon(
-                                  onPressed: _openAdInspector,
-                                  icon: const Icon(Icons.bug_report_outlined),
-                                  label: Text(
-                                    context.tr.settings_open_ad_inspector,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                  ],
-                  if (_isBusy)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 24),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2.5),
-                          ),
-                          const SizedBox(width: 12),
-                          Flexible(child: Text(_busyMessage)),
-                        ],
-                      ),
-                    ),
-                  // Connection Section
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.outline,
-                      ),
-                      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          context.tr.settings_drive_title,
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 12),
-                        if (driveApi == null) ...[
-                          Text(
-                            context.tr.settings_drive_desc,
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                          const SizedBox(height: 12),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: _isBusy
-                                  ? null
-                                  : () async {
-                                      await _runWithLoading(
-                                        context
-                                            .tr
-                                            .settings_drive_connect_loading,
-                                        () async {
-                                          try {
-                                            await _ensureDriveApiConnected();
-                                            await _refreshSnapshots();
-                                            await _runAutoBackupCheck(
-                                              force: false,
-                                              showSnack: false,
-                                            );
-                                            _showSnack(
-                                              context
-                                                  .tr
-                                                  .settings_drive_connected,
-                                            );
-                                          } catch (e, st) {
-                                            debugPrint(
-                                              'Connect to Google Drive failed: $e',
-                                            );
-                                            debugPrintStack(stackTrace: st);
-                                            _showSnack(_formatErrorMessage(e));
-                                          }
-                                        },
-                                      );
-                                    },
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(Icons.g_mobiledata),
-                                  const SizedBox(width: 8),
-                                  Flexible(
-                                    child: Text(
-                                      context.tr.settings_drive_connect,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
+                                Expanded(
+                                  child: ElevatedButton.icon(
+                                    onPressed:
+                                        _isBusy ||
+                                            _checkingRunner ||
+                                            _runnerTemporarilyDisabled
+                                        ? null
+                                        : _saveRunnerSettings,
+                                    icon: const Icon(
+                                      Icons.save_outlined,
+                                      size: 18,
+                                    ),
+                                    label: Text(
+                                      context.tr.settings_runner_save,
                                     ),
                                   ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ] else ...[
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.check_circle,
-                                color: AppTheme.successLight,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 8),
-                              Flexible(
-                                child: Text(
-                                  context.tr.settings_drive_status_connected,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: Theme.of(context).textTheme.bodySmall
-                                      ?.copyWith(color: AppTheme.successLight),
                                 ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: _isBusy
-                                  ? null
-                                  : () async {
-                                      await _runWithLoading(
-                                        context
-                                            .tr
-                                            .settings_drive_disconnect_loading,
-                                        () async {
-                                          await disconnectDriveAccount();
-                                          if (!mounted) {
-                                            return;
-                                          }
-                                          setState(() {
-                                            driveApi = null;
-                                          });
-                                          await _loadCachedSnapshotsFromCache();
-                                          _showSnack(
-                                            context
-                                                .tr
-                                                .settings_drive_disconnected,
-                                          );
-                                        },
-                                      );
-                                    },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppTheme.error,
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(Icons.logout),
-                                  const SizedBox(width: 8),
-                                  Flexible(
-                                    child: Text(
-                                      context.tr.settings_drive_disconnect,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                  if (true) ...[
-                    // Show Main API card on all platforms (desktop included)
-                    const SizedBox(height: 24),
-                    _buildMainApiCard(),
-                    const SizedBox(height: 16),
-                  ],
-                  if (_isManagedMobilePlatform) ...[
-                    _buildMobileLocalHostingCard(),
-                    const SizedBox(height: 16),
-                  ],
-                  if (!_isManagedMobilePlatform) ...[
-                    _buildDesktopRuntimeCard(),
-                    const SizedBox(height: 16),
-                    if (_isDesktopPlatform) ...[
-                      _buildEmbeddedRunnerCard(),
-                      const SizedBox(height: 16),
-                    ],
-                  ],
-                  if (!_isManagedMobilePlatform && !_runnerTemporarilyDisabled)
-                    Card(
-                      child: ExpansionTile(
-                        initiallyExpanded: _developerSectionExpanded,
-                        onExpansionChanged: (expanded) {
-                          setState(() {
-                            _developerSectionExpanded = expanded;
-                          });
-                        },
-                        leading: const Icon(Icons.developer_mode, size: 18),
-                        title: Text(
-                          context.tr.settings_runner_title,
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: _runnerTemporarilyDisabled
-                            ? Text(
-                                context.tr.settings_runner_temporarily_disabled,
-                                style: Theme.of(context).textTheme.bodySmall
-                                    ?.copyWith(color: AppTheme.warning),
-                              )
-                            : _runnerStatusKey == null
-                            ? null
-                            : Text(
-                                _translateStatusKey(context, _runnerStatusKey!),
-                                style: Theme.of(context).textTheme.bodySmall
-                                    ?.copyWith(
-                                      color:
-                                          _runnerStatusKey ==
-                                              'settings_runner_connected'
-                                          ? AppTheme.successLight
-                                          : AppTheme.errorLight,
-                                    ),
-                              ),
-                        childrenPadding: const EdgeInsets.fromLTRB(
-                          16,
-                          0,
-                          16,
-                          16,
-                        ),
-                        children: [
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              context.tr.settings_runner_desc,
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          if (_isDesktopPlatform) ...[
-                            SwitchListTile.adaptive(
-                              contentPadding: EdgeInsets.zero,
-                              title: Text(
-                                context.tr.settings_runner_use_remote,
-                              ),
-                              subtitle: Text(
-                                context.tr.settings_runner_use_remote_desc,
-                              ),
-                              value: _useRemoteRunner,
-                              onChanged: _runnerTemporarilyDisabled || _isBusy
-                                  ? null
-                                  : _toggleUseRemoteRunner,
-                            ),
-                            const SizedBox(height: 8),
-                          ],
-                          if (_showsRemoteRunnerConfig) ...[
-                            Text(
-                              'Runner type',
-                              style: Theme.of(context).textTheme.labelLarge,
-                            ),
-                            const SizedBox(height: 8),
-                            SegmentedButton<RunnerKind>(
-                              segments: const [
-                                ButtonSegment(
-                                  value: RunnerKind.dart,
-                                  label: Text('Dart'),
-                                  icon: Icon(Icons.memory),
-                                ),
-                                ButtonSegment(
-                                  value: RunnerKind.javascript,
-                                  label: Text('JS'),
-                                  icon: Icon(Icons.code),
-                                ),
-                                ButtonSegment(
-                                  value: RunnerKind.auto,
-                                  label: Text('Auto'),
-                                  icon: Icon(Icons.auto_awesome),
-                                ),
-                              ],
-                              selected: {_runnerKind},
-                              onSelectionChanged: _runnerTemporarilyDisabled
-                                  ? null
-                                  : (selection) {
-                                      setState(() {
-                                        _runnerKind = selection.first;
-                                      });
-                                    },
-                            ),
-                            if (_runnerEngineLabel != null &&
-                                _runnerEngineLabel!.isNotEmpty) ...[
-                              const SizedBox(height: 8),
-                              Text(
-                                'Detected engine: $_runnerEngineLabel'
-                                '${_runnerVersionLabel != null && _runnerVersionLabel!.isNotEmpty ? ' · v$_runnerVersionLabel' : ''}',
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                            ],
-                            const SizedBox(height: 8),
-                            SwitchListTile.adaptive(
-                              contentPadding: EdgeInsets.zero,
-                              title: Text(
-                                context.tr.settings_runner_disable_temp,
-                              ),
-                              subtitle: Text(
-                                context.tr.settings_runner_disable_temp_desc,
-                              ),
-                              value: _runnerTemporarilyDisabled,
-                              onChanged: _isBusy
-                                  ? null
-                                  : _toggleRunnerTemporarilyDisabled,
-                            ),
-                            const SizedBox(height: 12),
-                            TextField(
-                              controller: _runnerUrlController,
-                              decoration: InputDecoration(
-                                hintText: context.tr.settings_runner_url_hint,
-                                isDense: true,
-                                border: const OutlineInputBorder(),
-                                suffixIcon:
-                                    (_runnerTemporarilyDisabled ||
-                                        _checkingRunner)
-                                    ? const Padding(
-                                        padding: EdgeInsets.all(10),
-                                        child: SizedBox(
-                                          width: 16,
-                                          height: 16,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                          ),
-                                        ),
-                                      )
-                                    : (_runnerStatusKey == null
-                                          ? null
-                                          : Icon(
-                                              _runnerStatusKey ==
-                                                      'settings_runner_connected'
-                                                  ? Icons.check_circle
-                                                  : Icons.error_outline,
-                                              color:
-                                                  _runnerStatusKey ==
-                                                      'settings_runner_connected'
-                                                  ? AppTheme.successLight
-                                                  : AppTheme.errorLight,
-                                              size: 18,
-                                            )),
-                              ),
-                              keyboardType: TextInputType.url,
-                              autocorrect: false,
-                            ),
-                            const SizedBox(height: 12),
-                            TextField(
-                              controller: _runnerApiTokenController,
-                              decoration: InputDecoration(
-                                labelText:
-                                    context.tr.settings_runner_token_label,
-                                hintText: context.tr.settings_runner_token_hint,
-                                isDense: true,
-                                border: const OutlineInputBorder(),
-                                suffixIcon: IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      _runnerTokenObscured =
-                                          !_runnerTokenObscured;
-                                    });
-                                  },
-                                  icon: Icon(
-                                    _runnerTokenObscured
-                                        ? Icons.visibility_off
-                                        : Icons.visibility,
-                                    size: 18,
-                                  ),
-                                ),
-                              ),
-                              autocorrect: false,
-                              obscureText: _runnerTokenObscured,
-                            ),
-                            const SizedBox(height: 12),
-                            if (isMobile) ...[
-                              SizedBox(
-                                width: double.infinity,
-                                child: ElevatedButton.icon(
-                                  onPressed:
-                                      _isBusy ||
-                                          _checkingRunner ||
-                                          _runnerTemporarilyDisabled
-                                      ? null
-                                      : _saveRunnerSettings,
-                                  icon: const Icon(
-                                    Icons.save_outlined,
-                                    size: 18,
-                                  ),
-                                  label: Text(context.tr.settings_runner_save),
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              SizedBox(
-                                width: double.infinity,
-                                child: ElevatedButton.icon(
+                                const SizedBox(width: 8),
+                                ElevatedButton.icon(
                                   onPressed:
                                       _checkingRunner ||
                                           _runnerTemporarilyDisabled
@@ -2855,11 +2888,8 @@ class _SettingPageState extends State<SettingPage> {
                                     ).colorScheme.secondaryContainer,
                                   ),
                                 ),
-                              ),
-                              const SizedBox(height: 8),
-                              SizedBox(
-                                width: double.infinity,
-                                child: OutlinedButton.icon(
+                                const SizedBox(width: 8),
+                                IconButton(
                                   onPressed: _isBusy
                                       ? null
                                       : () {
@@ -2868,167 +2898,33 @@ class _SettingPageState extends State<SettingPage> {
                                           _saveRunnerSettings();
                                         },
                                   icon: const Icon(Icons.clear, size: 18),
-                                  label: Text(context.tr.settings_runner_clear),
+                                  tooltip: context.tr.settings_runner_clear,
                                 ),
-                              ),
-                            ] else ...[
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: ElevatedButton.icon(
-                                      onPressed:
-                                          _isBusy ||
-                                              _checkingRunner ||
-                                              _runnerTemporarilyDisabled
-                                          ? null
-                                          : _saveRunnerSettings,
-                                      icon: const Icon(
-                                        Icons.save_outlined,
-                                        size: 18,
-                                      ),
-                                      label: Text(
-                                        context.tr.settings_runner_save,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  ElevatedButton.icon(
-                                    onPressed:
-                                        _checkingRunner ||
-                                            _runnerTemporarilyDisabled
-                                        ? null
-                                        : _checkRunnerConnection,
-                                    icon: _checkingRunner
-                                        ? const SizedBox(
-                                            width: 14,
-                                            height: 14,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                            ),
-                                          )
-                                        : const Icon(Icons.wifi_find, size: 18),
-                                    label: Text(
-                                      context.tr.settings_runner_check,
-                                    ),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Theme.of(
-                                        context,
-                                      ).colorScheme.secondaryContainer,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  IconButton(
-                                    onPressed: _isBusy
-                                        ? null
-                                        : () {
-                                            _runnerUrlController.clear();
-                                            _runnerApiTokenController.clear();
-                                            _saveRunnerSettings();
-                                          },
-                                    icon: const Icon(Icons.clear, size: 18),
-                                    tooltip: context.tr.settings_runner_clear,
-                                  ),
-                                ],
-                              ),
-                            ],
+                              ],
+                            ),
                           ],
                         ],
-                      ),
-                    ),
-                  if (!_isManagedMobilePlatform && !_runnerTemporarilyDisabled)
-                    const SizedBox(height: 16),
-                  // Data Operations Section
-                  Text(
-                    context.tr.settings_data_operations_title,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+                      ],
                     ),
                   ),
+                if (!_isManagedMobilePlatform && !_runnerTemporarilyDisabled)
                   const SizedBox(height: 16),
-                  if (isWideScreen)
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildDataButton(
-                            context,
-                            icon: Icons.upload_file,
-                            label: context.tr.settings_export,
-                            onPressed: _isBusy
-                                ? null
-                                : () async {
-                                    await _runWithLoading(
-                                      context.tr.settings_export_loading,
-                                      () async {
-                                        try {
-                                          await _ensureDriveApiConnected();
-                                          if (!mounted) return;
-                                          final message = await uploadAppData(
-                                            context,
-                                            driveApi!,
-                                            appManager,
-                                          );
-                                          await _refreshSnapshots();
-                                          if (!mounted) return;
-                                          _showSnack(message);
-                                        } catch (e, st) {
-                                          debugPrint(
-                                            'Export App Data failed: $e',
-                                          );
-                                          debugPrintStack(stackTrace: st);
-                                          if (mounted) {
-                                            _showSnack(_formatErrorMessage(e));
-                                          }
-                                        }
-                                      },
-                                    );
-                                  },
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _buildDataButton(
-                            context,
-                            icon: Icons.file_download_outlined,
-                            label: context.tr.settings_import,
-                            onPressed: _isBusy
-                                ? null
-                                : () async {
-                                    await _runWithLoading(
-                                      context.tr.settings_import_loading,
-                                      () async {
-                                        try {
-                                          await _ensureDriveApiConnected();
-                                          final message = await downloadAppData(
-                                            context,
-                                            driveApi!,
-                                            appManager,
-                                          );
-                                          await appManager.refreshApps();
-                                          await _refreshSnapshots();
-                                          _showSnack(message);
-                                        } catch (e, st) {
-                                          debugPrint(
-                                            'Import App Data failed: $e',
-                                          );
-                                          debugPrintStack(stackTrace: st);
-                                          if (mounted) {
-                                            _showSnack(_formatErrorMessage(e));
-                                          }
-                                        }
-                                      },
-                                    );
-                                  },
-                          ),
-                        ),
-                      ],
-                    )
-                  else
-                    Column(
-                      children: [
-                        _buildDataButton(
+                // Data Operations Section
+                Text(
+                  context.tr.settings_data_operations_title,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                if (isWideScreen)
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildDataButton(
                           context,
                           icon: Icons.upload_file,
-                          label: context.tr.settings_export_app_data,
+                          label: context.tr.settings_export,
                           onPressed: _isBusy
                               ? null
                               : () async {
@@ -3037,29 +2933,35 @@ class _SettingPageState extends State<SettingPage> {
                                     () async {
                                       try {
                                         await _ensureDriveApiConnected();
+                                        if (!mounted) return;
                                         final message = await uploadAppData(
                                           context,
                                           driveApi!,
                                           appManager,
                                         );
                                         await _refreshSnapshots();
+                                        if (!mounted) return;
                                         _showSnack(message);
                                       } catch (e, st) {
                                         debugPrint(
                                           'Export App Data failed: $e',
                                         );
                                         debugPrintStack(stackTrace: st);
-                                        _showSnack(_formatErrorMessage(e));
+                                        if (mounted) {
+                                          _showSnack(_formatErrorMessage(e));
+                                        }
                                       }
                                     },
                                   );
                                 },
                         ),
-                        const SizedBox(height: 12),
-                        _buildDataButton(
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildDataButton(
                           context,
                           icon: Icons.file_download_outlined,
-                          label: context.tr.settings_import_app_data,
+                          label: context.tr.settings_import,
                           onPressed: _isBusy
                               ? null
                               : () async {
@@ -3081,321 +2983,341 @@ class _SettingPageState extends State<SettingPage> {
                                           'Import App Data failed: $e',
                                         );
                                         debugPrintStack(stackTrace: st);
-                                        _showSnack(_formatErrorMessage(e));
+                                        if (mounted) {
+                                          _showSnack(_formatErrorMessage(e));
+                                        }
                                       }
                                     },
                                   );
                                 },
                         ),
-                      ],
-                    ),
-                  const SizedBox(height: 32),
-                  Text(
-                    context.tr.settings_recovery_title,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          SwitchListTile(
-                            contentPadding: EdgeInsets.zero,
-                            title: Text(context.tr.settings_enable_auto_backup),
-                            subtitle: Text(
-                              context.tr.settings_enable_auto_backup_desc,
-                            ),
-                            value:
-                                !_loadingRecoverySettings &&
-                                _recoverySettings.autoBackupEnabled,
-                            onChanged: _loadingRecoverySettings
-                                ? null
-                                : (enabled) async {
-                                    final next = _recoverySettings.copyWith(
-                                      autoBackupEnabled: enabled,
-                                    );
-                                    await _saveRecoverySettings(next);
-                                  },
-                          ),
-                          const SizedBox(height: 8),
-                          DropdownButtonFormField<int>(
-                            key: ValueKey(
-                              'auto_backup_interval_${_recoverySettings.autoBackupIntervalHours}',
-                            ),
-                            initialValue:
-                                _recoverySettings.autoBackupIntervalHours,
-                            isExpanded: true,
-                            decoration: InputDecoration(
-                              labelText:
-                                  context.tr.settings_auto_backup_interval,
-                              border: OutlineInputBorder(),
-                              isDense: true,
-                            ),
-                            items: [
-                              DropdownMenuItem(
-                                value: 6,
-                                child: Text(_autoBackupIntervalLabel(6)),
-                              ),
-                              DropdownMenuItem(
-                                value: 12,
-                                child: Text(_autoBackupIntervalLabel(12)),
-                              ),
-                              DropdownMenuItem(
-                                value: 24,
-                                child: Text(_autoBackupIntervalLabel(24)),
-                              ),
-                              DropdownMenuItem(
-                                value: 72,
-                                child: Text(_autoBackupIntervalLabel(72)),
-                              ),
-                            ],
-                            onChanged:
-                                (!_recoverySettings.autoBackupEnabled ||
-                                    _loadingRecoverySettings)
-                                ? null
-                                : (value) async {
-                                    if (value == null) {
-                                      return;
-                                    }
-                                    final next = _recoverySettings.copyWith(
-                                      autoBackupIntervalHours: value,
-                                    );
-                                    await _saveRecoverySettings(next);
-                                  },
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            _lastAutoBackupLabel(),
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                          const SizedBox(height: 12),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: [
-                              ElevatedButton.icon(
-                                onPressed: _isBusy
-                                    ? null
-                                    : () async {
-                                        await _runWithLoading(
-                                          context
-                                              .tr
-                                              .settings_snapshot_create_loading,
-                                          () async {
-                                            try {
-                                              await _ensureDriveApiConnected();
-                                              final snapshot =
-                                                  await createBackupSnapshot(
-                                                    driveApi!,
-                                                    appManager,
-                                                    label: context
-                                                        .tr
-                                                        .settings_manual_snapshot_label,
-                                                  );
-                                              await _refreshSnapshots();
-                                              if (!mounted) {
-                                                return;
-                                              }
-                                              _showSnack(
-                                                context.tr
-                                                    .settings_snapshot_created_message(
-                                                      snapshot.snapshotId,
-                                                    ),
-                                              );
-                                            } catch (e, st) {
-                                              debugPrint(
-                                                'Manual snapshot failed: $e',
-                                              );
-                                              debugPrintStack(stackTrace: st);
-                                              if (!mounted) {
-                                                return;
-                                              }
-                                              _showSnack(
-                                                _formatErrorMessage(e),
-                                              );
-                                            }
-                                          },
-                                        );
-                                      },
-                                icon: const Icon(Icons.backup),
-                                label: Text(context.tr.settings_backup_now),
-                              ),
-                              OutlinedButton.icon(
-                                onPressed:
-                                    _isBusy ||
-                                        !_recoverySettings.autoBackupEnabled
-                                    ? null
-                                    : () async {
-                                        await _runWithLoading(
-                                          context
-                                              .tr
-                                              .settings_auto_backup_check_loading,
-                                          () async {
-                                            await _ensureDriveApiConnected();
-                                            await _runAutoBackupCheck(
-                                              force: true,
-                                              showSnack: true,
-                                            );
-                                          },
-                                        );
-                                      },
-                                icon: const Icon(Icons.schedule_send),
-                                label: Text(
-                                  context.tr.settings_run_auto_backup_now,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
                       ),
-                    ),
+                    ],
+                  )
+                else
+                  Column(
+                    children: [
+                      _buildDataButton(
+                        context,
+                        icon: Icons.upload_file,
+                        label: context.tr.settings_export_app_data,
+                        onPressed: _isBusy
+                            ? null
+                            : () async {
+                                await _runWithLoading(
+                                  context.tr.settings_export_loading,
+                                  () async {
+                                    try {
+                                      await _ensureDriveApiConnected();
+                                      final message = await uploadAppData(
+                                        context,
+                                        driveApi!,
+                                        appManager,
+                                      );
+                                      await _refreshSnapshots();
+                                      _showSnack(message);
+                                    } catch (e, st) {
+                                      debugPrint('Export App Data failed: $e');
+                                      debugPrintStack(stackTrace: st);
+                                      _showSnack(_formatErrorMessage(e));
+                                    }
+                                  },
+                                );
+                              },
+                      ),
+                      const SizedBox(height: 12),
+                      _buildDataButton(
+                        context,
+                        icon: Icons.file_download_outlined,
+                        label: context.tr.settings_import_app_data,
+                        onPressed: _isBusy
+                            ? null
+                            : () async {
+                                await _runWithLoading(
+                                  context.tr.settings_import_loading,
+                                  () async {
+                                    try {
+                                      await _ensureDriveApiConnected();
+                                      final message = await downloadAppData(
+                                        context,
+                                        driveApi!,
+                                        appManager,
+                                      );
+                                      await appManager.refreshApps();
+                                      await _refreshSnapshots();
+                                      _showSnack(message);
+                                    } catch (e, st) {
+                                      debugPrint('Import App Data failed: $e');
+                                      debugPrintStack(stackTrace: st);
+                                      _showSnack(_formatErrorMessage(e));
+                                    }
+                                  },
+                                );
+                              },
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  context.tr.settings_snapshots_title,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ),
-                              IconButton(
-                                tooltip: context
-                                    .tr
-                                    .settings_snapshots_delete_select_tooltip,
-                                onPressed:
-                                    _isBusy ||
-                                        _loadingSnapshots ||
-                                        _snapshots.isEmpty
-                                    ? null
-                                    : _showSnapshotQuickDeletePicker,
-                                icon: const Icon(Icons.remove_circle_outline),
-                              ),
-                              IconButton(
-                                tooltip:
-                                    context.tr.settings_snapshots_delete_all,
-                                onPressed:
-                                    _isBusy ||
-                                        _loadingSnapshots ||
-                                        _snapshots.isEmpty
-                                    ? null
-                                    : _deleteAllSnapshots,
-                                icon: const Icon(Icons.delete_sweep_outlined),
-                              ),
-                              IconButton(
-                                tooltip: context.tr.settings_snapshots_refresh,
-                                onPressed: _isBusy || _loadingSnapshots
-                                    ? null
-                                    : () async {
-                                        await _runWithLoading(
-                                          context
-                                              .tr
-                                              .settings_snapshots_refresh_loading,
-                                          () async {
+                const SizedBox(height: 32),
+                Text(
+                  context.tr.settings_recovery_title,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(context.tr.settings_enable_auto_backup),
+                          subtitle: Text(
+                            context.tr.settings_enable_auto_backup_desc,
+                          ),
+                          value:
+                              !_loadingRecoverySettings &&
+                              _recoverySettings.autoBackupEnabled,
+                          onChanged: _loadingRecoverySettings
+                              ? null
+                              : (enabled) async {
+                                  final next = _recoverySettings.copyWith(
+                                    autoBackupEnabled: enabled,
+                                  );
+                                  await _saveRecoverySettings(next);
+                                },
+                        ),
+                        const SizedBox(height: 8),
+                        DropdownButtonFormField<int>(
+                          key: ValueKey(
+                            'auto_backup_interval_${_recoverySettings.autoBackupIntervalHours}',
+                          ),
+                          initialValue:
+                              _recoverySettings.autoBackupIntervalHours,
+                          isExpanded: true,
+                          decoration: InputDecoration(
+                            labelText: context.tr.settings_auto_backup_interval,
+                            border: OutlineInputBorder(),
+                            isDense: true,
+                          ),
+                          items: [
+                            DropdownMenuItem(
+                              value: 6,
+                              child: Text(_autoBackupIntervalLabel(6)),
+                            ),
+                            DropdownMenuItem(
+                              value: 12,
+                              child: Text(_autoBackupIntervalLabel(12)),
+                            ),
+                            DropdownMenuItem(
+                              value: 24,
+                              child: Text(_autoBackupIntervalLabel(24)),
+                            ),
+                            DropdownMenuItem(
+                              value: 72,
+                              child: Text(_autoBackupIntervalLabel(72)),
+                            ),
+                          ],
+                          onChanged:
+                              (!_recoverySettings.autoBackupEnabled ||
+                                  _loadingRecoverySettings)
+                              ? null
+                              : (value) async {
+                                  if (value == null) {
+                                    return;
+                                  }
+                                  final next = _recoverySettings.copyWith(
+                                    autoBackupIntervalHours: value,
+                                  );
+                                  await _saveRecoverySettings(next);
+                                },
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          _lastAutoBackupLabel(),
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            ElevatedButton.icon(
+                              onPressed: _isBusy
+                                  ? null
+                                  : () async {
+                                      await _runWithLoading(
+                                        context
+                                            .tr
+                                            .settings_snapshot_create_loading,
+                                        () async {
+                                          try {
                                             await _ensureDriveApiConnected();
+                                            final snapshot =
+                                                await createBackupSnapshot(
+                                                  driveApi!,
+                                                  appManager,
+                                                  label: context
+                                                      .tr
+                                                      .settings_manual_snapshot_label,
+                                                );
                                             await _refreshSnapshots();
-                                          },
-                                        );
-                                      },
-                                icon: const Icon(Icons.refresh),
+                                            if (!mounted) {
+                                              return;
+                                            }
+                                            _showSnack(
+                                              context.tr
+                                                  .settings_snapshot_created_message(
+                                                    snapshot.snapshotId,
+                                                  ),
+                                            );
+                                          } catch (e, st) {
+                                            debugPrint(
+                                              'Manual snapshot failed: $e',
+                                            );
+                                            debugPrintStack(stackTrace: st);
+                                            if (!mounted) {
+                                              return;
+                                            }
+                                            _showSnack(_formatErrorMessage(e));
+                                          }
+                                        },
+                                      );
+                                    },
+                              icon: const Icon(Icons.backup),
+                              label: Text(context.tr.settings_backup_now),
+                            ),
+                            OutlinedButton.icon(
+                              onPressed:
+                                  _isBusy ||
+                                      !_recoverySettings.autoBackupEnabled
+                                  ? null
+                                  : () async {
+                                      await _runWithLoading(
+                                        context
+                                            .tr
+                                            .settings_auto_backup_check_loading,
+                                        () async {
+                                          await _ensureDriveApiConnected();
+                                          await _runAutoBackupCheck(
+                                            force: true,
+                                            showSnack: true,
+                                          );
+                                        },
+                                      );
+                                    },
+                              icon: const Icon(Icons.schedule_send),
+                              label: Text(
+                                context.tr.settings_run_auto_backup_now,
                               ),
-                            ],
-                          ),
-                          if (_loadingSnapshots)
-                            const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 12),
-                              child: Center(child: CircularProgressIndicator()),
-                            )
-                          else if (_snapshots.isEmpty)
-                            Padding(
-                              padding: EdgeInsets.symmetric(vertical: 8),
-                              child: Text(
-                                context.tr.settings_snapshots_empty,
-                                style: const TextStyle(color: AppTheme.grey),
-                              ),
-                            )
-                          else
-                            ..._snapshots.take(8).map((snapshot) {
-                              return ListTile(
-                                contentPadding: EdgeInsets.zero,
-                                title: Text(snapshot.label),
-                                subtitle: Text(
-                                  _snapshotListEntryLabel(snapshot),
-                                ),
-                                trailing: const Icon(Icons.chevron_right),
-                                onTap: () => _showSnapshotPreview(snapshot),
-                              );
-                            }),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  Text(
-                    context.tr.settings_diagnostics_section_title,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  if (isWideScreen)
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildDataButton(
-                            context,
-                            icon: Icons.bug_report_outlined,
-                            label: context.tr.settings_view_startup_logs,
-                            onPressed: _isBusy
-                                ? null
-                                : () async {
-                                    await Navigator.of(context).push(
-                                      MaterialPageRoute<void>(
-                                        builder: (_) =>
-                                            const DiagnosticsLogsPage(),
-                                      ),
-                                    );
-                                  },
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _buildDataButton(
-                            context,
-                            icon: Icons.delete_outline,
-                            label: context.tr.settings_clear_logs,
-                            onPressed: _isBusy
-                                ? null
-                                : () async {
-                                    await AppDiagnostics.clearLog();
-                                    if (!mounted) {
-                                      return;
-                                    }
-                                    _showSnack(
-                                      context.tr.settings_logs_cleared,
-                                    );
-                                  },
-                          ),
+                            ),
+                          ],
                         ),
                       ],
-                    )
-                  else
-                    Column(
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        _buildDataButton(
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                context.tr.settings_snapshots_title,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              tooltip: context
+                                  .tr
+                                  .settings_snapshots_delete_select_tooltip,
+                              onPressed:
+                                  _isBusy ||
+                                      _loadingSnapshots ||
+                                      _snapshots.isEmpty
+                                  ? null
+                                  : _showSnapshotQuickDeletePicker,
+                              icon: const Icon(Icons.remove_circle_outline),
+                            ),
+                            IconButton(
+                              tooltip: context.tr.settings_snapshots_delete_all,
+                              onPressed:
+                                  _isBusy ||
+                                      _loadingSnapshots ||
+                                      _snapshots.isEmpty
+                                  ? null
+                                  : _deleteAllSnapshots,
+                              icon: const Icon(Icons.delete_sweep_outlined),
+                            ),
+                            IconButton(
+                              tooltip: context.tr.settings_snapshots_refresh,
+                              onPressed: _isBusy || _loadingSnapshots
+                                  ? null
+                                  : () async {
+                                      await _runWithLoading(
+                                        context
+                                            .tr
+                                            .settings_snapshots_refresh_loading,
+                                        () async {
+                                          await _ensureDriveApiConnected();
+                                          await _refreshSnapshots();
+                                        },
+                                      );
+                                    },
+                              icon: const Icon(Icons.refresh),
+                            ),
+                          ],
+                        ),
+                        if (_loadingSnapshots)
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 12),
+                            child: Center(child: CircularProgressIndicator()),
+                          )
+                        else if (_snapshots.isEmpty)
+                          Padding(
+                            padding: EdgeInsets.symmetric(vertical: 8),
+                            child: Text(
+                              context.tr.settings_snapshots_empty,
+                              style: const TextStyle(color: AppTheme.grey),
+                            ),
+                          )
+                        else
+                          ..._snapshots.take(8).map((snapshot) {
+                            return ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              title: Text(snapshot.label),
+                              subtitle: Text(_snapshotListEntryLabel(snapshot)),
+                              trailing: const Icon(Icons.chevron_right),
+                              onTap: () => _showSnapshotPreview(snapshot),
+                            );
+                          }),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 32),
+                Text(
+                  context.tr.settings_diagnostics_section_title,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                if (isWideScreen)
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildDataButton(
                           context,
                           icon: Icons.bug_report_outlined,
                           label: context.tr.settings_view_startup_logs,
@@ -3410,8 +3332,10 @@ class _SettingPageState extends State<SettingPage> {
                                   );
                                 },
                         ),
-                        const SizedBox(height: 12),
-                        _buildDataButton(
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildDataButton(
                           context,
                           icon: Icons.delete_outline,
                           label: context.tr.settings_clear_logs,
@@ -3425,10 +3349,44 @@ class _SettingPageState extends State<SettingPage> {
                                   _showSnack(context.tr.settings_logs_cleared);
                                 },
                         ),
-                      ],
-                    ),
-                ],
-              ),
+                      ),
+                    ],
+                  )
+                else
+                  Column(
+                    children: [
+                      _buildDataButton(
+                        context,
+                        icon: Icons.bug_report_outlined,
+                        label: context.tr.settings_view_startup_logs,
+                        onPressed: _isBusy
+                            ? null
+                            : () async {
+                                await Navigator.of(context).push(
+                                  MaterialPageRoute<void>(
+                                    builder: (_) => const DiagnosticsLogsPage(),
+                                  ),
+                                );
+                              },
+                      ),
+                      const SizedBox(height: 12),
+                      _buildDataButton(
+                        context,
+                        icon: Icons.delete_outline,
+                        label: context.tr.settings_clear_logs,
+                        onPressed: _isBusy
+                            ? null
+                            : () async {
+                                await AppDiagnostics.clearLog();
+                                if (!mounted) {
+                                  return;
+                                }
+                                _showSnack(context.tr.settings_logs_cleared);
+                              },
+                      ),
+                    ],
+                  ),
+              ],
             ),
           ),
         ),

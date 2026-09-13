@@ -6,6 +6,7 @@ import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 
 import 'package:bot_creator/core/network/remote_runtime.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
+import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
@@ -320,12 +321,13 @@ class _BotStatsPageState extends State<BotStatsPage> {
       ),
       body: SafeArea(
         child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1200),
+          // `PageContent` porte la largeur maximale et les marges communes
+          // (`AppPageLayout`) : la page ne code plus ses propres bornes.
+          child: PageContent(
             child: LayoutBuilder(
               builder: (context, constraints) {
                 return ListView(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                   children: [
                     if (canSelectBot)
                       Padding(

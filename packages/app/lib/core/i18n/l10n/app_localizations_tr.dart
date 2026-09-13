@@ -3298,6 +3298,15 @@ class AppLocalizationsTr extends AppLocalizations {
   String get common_close => 'Kapat';
 
   @override
+  String get common_minimize => 'Küçült';
+
+  @override
+  String get common_maximize => 'Büyüt';
+
+  @override
+  String get common_restore => 'Geri yükle';
+
+  @override
   String get common_custom_id => 'Özel ID';
 
   @override
@@ -4342,6 +4351,26 @@ class AppLocalizationsTr extends AppLocalizations {
       'Bot durdurulduğu sürece süre korunur.';
 
   @override
+  String get home_hosting_time_preserved_overline => 'Süre korunuyor';
+
+  @override
+  String get home_hosting_expiration_expected => 'Beklenen bitiş';
+
+  @override
+  String home_hosting_expires_at(String date, String time) {
+    return '$date saat $time';
+  }
+
+  @override
+  String get home_hosting_status_active_short => 'Aktif oturum';
+
+  @override
+  String get home_hosting_status_paused_short => 'Yedek süre';
+
+  @override
+  String get home_hosting_total => 'Toplam süre';
+
+  @override
   String get home_hosting_status_active => 'Aktif oturum (çevrimiçi)';
 
   @override
@@ -4497,7 +4526,46 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String js_diag_unclosed_opening(String opening, String line) {
+    return 'Kapatılmamış “$opening”, $line. satırda açıldı.';
+  }
+
+  @override
+  String js_diag_unexpected_closing(String closing) {
+    return 'Beklenmeyen kapanış “$closing”.';
+  }
+
+  @override
+  String get js_diag_unterminated_comment => 'Kapatılmamış blok yorumu.';
+
+  @override
+  String get js_diag_unterminated_string => 'Kapatılmamış dize sabiti.';
+
+  @override
+  String get js_diag_unterminated_template => 'Kapatılmamış şablon sabiti.';
+
+  @override
+  String get js_editor_auto_indent => '• Enter ile akıllı otomatik girinti';
+
+  @override
   String get js_editor_hint => '// JavaScript bot komutunuzu buraya yazın...';
+
+  @override
+  String get js_editor_diagnostics_clean => 'Sözdizimi sorunu bulunamadı.';
+
+  @override
+  String get js_editor_empty =>
+      'Boş betik — tanıları görmek için yazmaya başlayın.';
+
+  @override
+  String get js_editor_includes => 'İçerir:';
+
+  @override
+  String get js_editor_indent_guides => '• Canlı girinti kılavuzları';
+
+  @override
+  String get js_editor_quick_keys =>
+      '• JavaScript sembolleri için mobil hızlı tuşlar';
 
   @override
   String get js_editor_segmented_label => 'JS';
@@ -4507,6 +4575,9 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get js_editor_title => 'JavaScript Düzenleyici';
+
+  @override
+  String get js_editor_ux_title => 'Düzenleyici UX';
 
   @override
   String legacy_bdfd_run_failed(String command, String error) {
@@ -7178,12 +7249,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settings_team_pill => 'EKİP';
 
   @override
-  String get settings_theme_switch_dark => 'Karanlık moda geç';
-
-  @override
-  String get settings_theme_switch_light => 'Açık moda geç';
-
-  @override
   String get settings_version_title => 'Sürüm';
 
   @override
@@ -7586,6 +7651,18 @@ class AppLocalizationsTr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get unit_short_month => 'Ay';
+
+  @override
+  String get unit_short_day => 'Gün';
+
+  @override
+  String get unit_short_hour => 'Saat';
+
+  @override
+  String get unit_short_minute => 'Dak';
 
   @override
   String get validation_awaited_callback_format =>
@@ -8097,6 +8174,17 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get workflows_create => 'İş Akışı Oluştur';
+
+  @override
+  String get workflows_create_subtitle =>
+      'Birkaç tıkta bot eylemlerini ve etkinliklerini otomatikleştirin';
+
+  @override
+  String get workflows_create_event => 'Etkinlik Oluştur';
+
+  @override
+  String get workflows_create_event_subtitle =>
+      'Discord mesajlarına, üye katılımlarına ve etkinliklere yanıt verin';
 
   @override
   String workflows_delete_confirm(String name) {

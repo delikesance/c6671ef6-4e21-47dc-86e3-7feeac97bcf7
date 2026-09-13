@@ -156,7 +156,12 @@ void main() {
     // `secondaryContainer`) et non plus par la constante violette
     // `homeNavSelected` — la sélection doit rester neutre dans tous les thèmes.
     final navContext = tester.element(find.byType(FloatingGlassNavBar).first);
-    final expectedFill = Theme.of(navContext).colorScheme.secondaryContainer;
+    final theme = Theme.of(navContext);
+    final accent =
+        theme.extension<HomeTokens>()?.accent ?? theme.colorScheme.primary;
+    final expectedFill = theme.brightness == Brightness.dark
+        ? accent.withValues(alpha: 0.30)
+        : theme.colorScheme.secondaryContainer;
     expect((selectedContainer.decoration as BoxDecoration).color, expectedFill);
     // Item inactif : pas de fond.
     final idleContainer = tester.widget<AnimatedContainer>(

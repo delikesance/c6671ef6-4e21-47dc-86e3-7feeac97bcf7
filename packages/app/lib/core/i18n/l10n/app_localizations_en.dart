@@ -3277,6 +3277,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get common_close => 'Close';
 
   @override
+  String get common_minimize => 'Minimize';
+
+  @override
+  String get common_maximize => 'Maximize';
+
+  @override
+  String get common_restore => 'Restore';
+
+  @override
   String get common_custom_id => 'Custom ID';
 
   @override
@@ -4315,6 +4324,26 @@ class AppLocalizationsEn extends AppLocalizations {
       'Time is preserved while the bot is stopped.';
 
   @override
+  String get home_hosting_time_preserved_overline => 'Time preserved';
+
+  @override
+  String get home_hosting_expiration_expected => 'Expected expiration';
+
+  @override
+  String home_hosting_expires_at(String date, String time) {
+    return '$date at $time';
+  }
+
+  @override
+  String get home_hosting_status_active_short => 'Active session';
+
+  @override
+  String get home_hosting_status_paused_short => 'Banked time';
+
+  @override
+  String get home_hosting_total => 'Total time';
+
+  @override
   String get home_hosting_status_active => 'Active session (online)';
 
   @override
@@ -4470,7 +4499,46 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String js_diag_unclosed_opening(String opening, String line) {
+    return 'Unclosed “$opening” opened on line $line.';
+  }
+
+  @override
+  String js_diag_unexpected_closing(String closing) {
+    return 'Unexpected closing “$closing”.';
+  }
+
+  @override
+  String get js_diag_unterminated_comment => 'Unterminated block comment.';
+
+  @override
+  String get js_diag_unterminated_string => 'Unterminated string literal.';
+
+  @override
+  String get js_diag_unterminated_template => 'Unterminated template literal.';
+
+  @override
+  String get js_editor_auto_indent => '• Smart auto indentation on Enter';
+
+  @override
   String get js_editor_hint => '// Write your JavaScript bot command here...';
+
+  @override
+  String get js_editor_diagnostics_clean => 'No syntax problem detected.';
+
+  @override
+  String get js_editor_empty =>
+      'Empty script — start typing to see diagnostics.';
+
+  @override
+  String get js_editor_includes => 'Includes:';
+
+  @override
+  String get js_editor_indent_guides => '• Live indentation guides';
+
+  @override
+  String get js_editor_quick_keys =>
+      '• Mobile quick-keys for JavaScript symbols';
 
   @override
   String get js_editor_segmented_label => 'JS';
@@ -4480,6 +4548,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get js_editor_title => 'JavaScript Editor';
+
+  @override
+  String get js_editor_ux_title => 'Editor UX';
 
   @override
   String legacy_bdfd_run_failed(String command, String error) {
@@ -7120,12 +7191,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings_team_pill => 'TEAM';
 
   @override
-  String get settings_theme_switch_dark => 'Switch to dark mode';
-
-  @override
-  String get settings_theme_switch_light => 'Switch to light mode';
-
-  @override
   String get settings_version_title => 'Version';
 
   @override
@@ -7523,6 +7588,18 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get unit_short_month => 'Months';
+
+  @override
+  String get unit_short_day => 'Days';
+
+  @override
+  String get unit_short_hour => 'Hours';
+
+  @override
+  String get unit_short_minute => 'Min';
 
   @override
   String get validation_awaited_callback_format =>
@@ -8035,6 +8112,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get workflows_create => 'Create Workflow';
+
+  @override
+  String get workflows_create_subtitle =>
+      'Automate bot actions and events in a few clicks';
+
+  @override
+  String get workflows_create_event => 'Create Event';
+
+  @override
+  String get workflows_create_event_subtitle =>
+      'React to Discord messages, member joins, and events';
 
   @override
   String workflows_delete_confirm(String name) {
