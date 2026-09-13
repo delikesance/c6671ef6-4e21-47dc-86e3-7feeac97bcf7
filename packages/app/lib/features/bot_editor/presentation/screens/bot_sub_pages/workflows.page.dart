@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
+import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/workflow_block_editor.dart';
 import 'package:bot_creator/features/documentation/documentation_navigation.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/entry_point_block.dart';
@@ -1390,32 +1391,38 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
         onPressed: _showCreateWorkflowMenu,
         child: const Icon(Icons.add),
       ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _workflows.isEmpty
-          ? EditorEmptyState(
-              icon: widget.eventsOnly
-                  ? Icons.notifications_active_outlined
-                  : Icons.account_tree_outlined,
-              title: context.tr.workflows_empty,
-              actionLabel: context.tr.workflows_create,
-              onAction: _showCreateWorkflowMenu,
-            )
-          : ListView(
-              padding: EdgeInsets.only(
-                bottom: FloatingGlassNavBar.contentClearanceOf(context) + 24,
+      // Largeur et marges communes à toutes les pages (contrat
+      // AppPageLayout) : la liste n'est plus en plein-cadre.
+      body: PageContent(
+        child: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : _workflows.isEmpty
+            ? EditorEmptyState(
+                icon: widget.eventsOnly
+                    ? Icons.notifications_active_outlined
+                    : Icons.account_tree_outlined,
+                title: context.tr.workflows_empty,
+                actionLabel: context.tr.workflows_create,
+                onAction: _showCreateWorkflowMenu,
+              )
+            : ListView(
+                padding: EdgeInsets.only(
+                  bottom: FloatingGlassNavBar.contentClearanceOf(context) + 24,
+                ),
+                children: [
+                  _buildFilters(),
+                  if (visibleWorkflows.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 48),
+                      child: Center(
+                        child: Text(context.tr.workflows_no_matches),
+                      ),
+                    )
+                  else
+                    ...workflowChildren,
+                ],
               ),
-              children: [
-                _buildFilters(),
-                if (visibleWorkflows.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 48),
-                    child: Center(child: Text(context.tr.workflows_no_matches)),
-                  )
-                else
-                  ...workflowChildren,
-              ],
-            ),
+      ),
     );
   }
 

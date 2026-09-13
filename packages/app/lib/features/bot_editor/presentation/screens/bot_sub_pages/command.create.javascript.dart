@@ -85,6 +85,7 @@ extension _CommandCreateJavascript on _CommandCreatePageState {
             (_) => JsEditorPage(
               initialCode: _jsScriptController.text,
               title: context.tr.js_editor_title,
+              appEmojis: _appEmojis,
             ),
       ),
     );

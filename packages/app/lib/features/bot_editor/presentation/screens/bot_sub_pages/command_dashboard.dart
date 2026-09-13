@@ -8,6 +8,7 @@ import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.da
 import 'package:bot_creator/core/network/remote_runtime.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
+import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/features/subscriptions/presentation/subscription_page.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -475,10 +476,11 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
       );
 
       body = Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1000),
+        // `PageContent` porte la largeur maximale et les marges communes
+        // (`AppPageLayout`) : la page ne code plus ses propres bornes.
+        child: PageContent(
           child: ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(vertical: 16),
             children: [
               // ── Runner source ──
               _StatsSourceBanner(

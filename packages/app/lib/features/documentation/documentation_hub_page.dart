@@ -1,4 +1,5 @@
 import 'package:bot_creator/core/i18n/i18n.dart';
+import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/features/documentation/documentation_urls.dart';
 import 'package:bot_creator/features/documentation/web_documentation_view.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +52,9 @@ class _DocumentationHubPageState extends State<DocumentationHubPage>
   }
 
   List<DocumentationSection> _buildSections() {
-    return visibleDocumentationSections(showDiscordJsTab: widget.showDiscordJsTab);
+    return visibleDocumentationSections(
+      showDiscordJsTab: widget.showDiscordJsTab,
+    );
   }
 
   String _tabLabel(BuildContext context, DocumentationSection section) {
@@ -74,7 +77,10 @@ class _DocumentationHubPageState extends State<DocumentationHubPage>
     return Scaffold(
       appBar: AppBar(
         title: Text(context.tr.docs_hub_title),
-        automaticallyImplyLeading: !widget.embedded,
+        // Règle de retour unique : sur desktop la barre de titre du shell porte
+        // déjà la flèche de retour, la page n'en rend aucune.
+        automaticallyImplyLeading:
+            !widget.embedded && !windowChromeOwnsBackButton(),
         bottom: TabBar(
           controller: _tabController,
           isScrollable: _sections.length > 2,
@@ -84,14 +90,18 @@ class _DocumentationHubPageState extends State<DocumentationHubPage>
           ],
         ),
       ),
-      body: IndexedStack(
-        index: _tabController.index,
-        children: [
-          for (final section in _sections)
-            WebDocumentationView(
-              initialUrl: urlForDocumentationSection(section),
-            ),
-        ],
+      // Largeur et marges communes à toutes les pages de l'app (contrat
+      // AppPageLayout) : le hub n'est plus en plein-cadre.
+      body: PageContent(
+        child: IndexedStack(
+          index: _tabController.index,
+          children: [
+            for (final section in _sections)
+              WebDocumentationView(
+                initialUrl: urlForDocumentationSection(section),
+              ),
+          ],
+        ),
       ),
     );
   }

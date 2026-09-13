@@ -8045,11 +8045,77 @@ abstract class AppLocalizations {
   /// **'{count} workflow(s) skipped'**
   String import_summary_workflows_skipped(int count);
 
+  /// Diagnostic: opening delimiter ({opening}) left unclosed (line {line})
+  ///
+  /// In en, this message translates to:
+  /// **'Unclosed “{opening}” opened on line {line}.'**
+  String js_diag_unclosed_opening(String opening, String line);
+
+  /// Diagnostic: unexpected closing delimiter ({closing})
+  ///
+  /// In en, this message translates to:
+  /// **'Unexpected closing “{closing}”.'**
+  String js_diag_unexpected_closing(String closing);
+
+  /// Diagnostic: unterminated block comment
+  ///
+  /// In en, this message translates to:
+  /// **'Unterminated block comment.'**
+  String get js_diag_unterminated_comment;
+
+  /// Diagnostic: unterminated string literal
+  ///
+  /// In en, this message translates to:
+  /// **'Unterminated string literal.'**
+  String get js_diag_unterminated_string;
+
+  /// Diagnostic: unterminated template literal
+  ///
+  /// In en, this message translates to:
+  /// **'Unterminated template literal.'**
+  String get js_diag_unterminated_template;
+
+  /// Feature bullet in the JavaScript editor UX sheet
+  ///
+  /// In en, this message translates to:
+  /// **'• Smart auto indentation on Enter'**
+  String get js_editor_auto_indent;
+
   /// Hint text in the JavaScript editor field
   ///
   /// In en, this message translates to:
   /// **'// Write your JavaScript bot command here...'**
   String get js_editor_hint;
+
+  /// Message shown in the diagnostics bar when no syntax problem is found
+  ///
+  /// In en, this message translates to:
+  /// **'No syntax problem detected.'**
+  String get js_editor_diagnostics_clean;
+
+  /// Message shown when the JavaScript editor is empty
+  ///
+  /// In en, this message translates to:
+  /// **'Empty script — start typing to see diagnostics.'**
+  String get js_editor_empty;
+
+  /// Heading above the feature list in the JavaScript editor UX sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Includes:'**
+  String get js_editor_includes;
+
+  /// Feature bullet in the JavaScript editor UX sheet
+  ///
+  /// In en, this message translates to:
+  /// **'• Live indentation guides'**
+  String get js_editor_indent_guides;
+
+  /// Feature bullet in the JavaScript editor UX sheet
+  ///
+  /// In en, this message translates to:
+  /// **'• Mobile quick-keys for JavaScript symbols'**
+  String get js_editor_quick_keys;
 
   /// Short label for JavaScript execution mode SegmentedButton
   ///
@@ -8068,6 +8134,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'JavaScript Editor'**
   String get js_editor_title;
+
+  /// Title of the JavaScript editor UX sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Editor UX'**
+  String get js_editor_ux_title;
 
   /// Failed to run BDFD script for command "{command}": {error}
   ///
@@ -12603,18 +12675,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'TEAM'**
   String get settings_team_pill;
-
-  /// Switch to dark mode
-  ///
-  /// In en, this message translates to:
-  /// **'Switch to dark mode'**
-  String get settings_theme_switch_dark;
-
-  /// Switch to light mode
-  ///
-  /// In en, this message translates to:
-  /// **'Switch to light mode'**
-  String get settings_theme_switch_light;
 
   /// Version
   ///
