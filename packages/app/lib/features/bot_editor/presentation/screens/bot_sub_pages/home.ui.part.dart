@@ -476,19 +476,11 @@ extension _AppHomePageUI on _AppHomePageState {
     );
   }
 
-  /// Carte « temps total » de l'hébergement.
-  ///
-  /// Même grammaire visuelle que la page « Emojis applicatifs » : un en-tête
-  /// (libellé de section + refresh) puis une carte à visuel où s'affiche le
-  /// temps restant total en « mois, jours, heures, minutes ».
+  /// Carte « temps total » de l'hébergement : en-tête (libellé de section +
+  /// historique des pubs + refresh) puis la carte qui détaille la réserve.
   Widget _buildHostingCard(BuildContext context) {
     final balance = _displayFreeMinutesBalance();
-    final detailLabel = _botLaunched
-        ? formatSessionExpiration(
-            context,
-            _sessionExpiresAt ?? DateTime.now().add(Duration(minutes: balance)),
-          )
-        : context.tr.home_hosting_time_preserved;
+    final parts = splitHostingDuration(balance);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -501,34 +493,13 @@ extension _AppHomePageUI on _AppHomePageState {
                 style: homeSectionLabelStyle(context),
               ),
             ),
-            if (_ownerMetadata?.teamId.isNotEmpty == true) ...[
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: AppTheme.discord.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                  border: Border.all(
-                    color: AppTheme.discord.withValues(alpha: 0.3),
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.groups, size: 12, color: AppTheme.discord),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Team',
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.discord,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-            ],
+            HomeHeaderIconButton(
+              icon: Icons.history_rounded,
+              iconSize: 14,
+              tooltip: context.tr.home_hosting_ad_history,
+              onTap: _showAdHistoryDialog,
+            ),
+            const SizedBox(width: 8),
             HomeHeaderIconButton(
               icon: Icons.refresh_rounded,
               iconSize: 14,
@@ -538,40 +509,46 @@ extension _AppHomePageUI on _AppHomePageState {
           ],
         ),
         const SizedBox(height: 10),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            const maxCardWidth = 176.0;
-            final cardWidth = constraints.maxWidth < maxCardWidth
-                ? constraints.maxWidth
-                : maxCardWidth;
-
-            return Wrap(
-              spacing: AppTheme.spacingMd,
-              runSpacing: AppTheme.spacingMd,
-              children: [
-                HomeHostingTimeCard(
-                  width: cardWidth,
-                  totalLabel: formatDuration(balance),
-                  statusLabel: _botLaunched
-                      ? context.tr.home_hosting_status_active
-                      : context.tr.home_hosting_status_paused,
-                  detailLabel: detailLabel,
-                  timeColor: _hostingTimeColor(balance),
-                  borderColor: (balance < 120 && _botLaunched)
-                      ? AppTheme.error.withValues(alpha: 0.9)
-                      : null,
-                  isRunning: _botLaunched,
-                  isAddingTime: _isAddingTime,
-                  onAddTime: _isAddingTime ? null : _addRuntimeTime,
-                  onHistory: _showAdHistoryDialog,
-                ),
-              ],
-            );
-          },
+        HomeHostingTimeCard(
+          statusLabel: _botLaunched
+              ? context.tr.home_hosting_status_active_short
+              : context.tr.home_hosting_status_paused_short,
+          // Quand le bot tourne, la pastille porte la santé de la réserve
+          // (vert / orange / rouge) ; arrêté, la réserve est simplement en
+          // attente.
+          statusColor: _botLaunched
+              ? _hostingTimeColor(balance)
+              : AppTheme.warning,
+          overline: _botLaunched
+              ? context.tr.home_hosting_expiration_expected
+              : context.tr.home_hosting_time_preserved_overline,
+          headline: _botLaunched
+              ? formatHostingExpiration(
+                  context,
+                  _sessionExpiresAt ??
+                      DateTime.now().add(Duration(minutes: balance)),
+                )
+              : formatDuration(balance),
+          segments: [
+            (value: _twoDigits(parts.months), label: context.tr.unit_short_month),
+            (value: _twoDigits(parts.days), label: context.tr.unit_short_day),
+            (value: _twoDigits(parts.hours), label: context.tr.unit_short_hour),
+            (
+              value: _twoDigits(parts.minutes),
+              label: context.tr.unit_short_minute,
+            ),
+          ],
+          showTeamBadge: _ownerMetadata?.teamId.isNotEmpty == true,
+          emphasizeBorder: balance < 120 && _botLaunched,
+          isAddingTime: _isAddingTime,
+          onAddTime: _isAddingTime ? null : _addRuntimeTime,
         ),
       ],
     );
   }
+
+  /// Complète une valeur sur deux chiffres (« 07 », « 05 », « 53 »).
+  String _twoDigits(int value) => value.toString().padLeft(2, '0');
 }
 
 class _WireframeSection extends StatelessWidget {

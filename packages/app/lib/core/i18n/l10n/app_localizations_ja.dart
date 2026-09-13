@@ -4134,6 +4134,23 @@ class AppLocalizationsJa extends AppLocalizations {
   String get home_hosting_time_preserved => 'ボットが停止している間、時間は保持されます。';
 
   @override
+  String get home_hosting_time_preserved_overline => '保持される時間';
+
+  @override
+  String get home_hosting_expiration_expected => '有効期限';
+
+  @override
+  String home_hosting_expires_at(String date, String time) {
+    return '$date $time';
+  }
+
+  @override
+  String get home_hosting_status_active_short => 'アクティブなセッション';
+
+  @override
+  String get home_hosting_status_paused_short => '保存された時間';
+
+  @override
   String get home_hosting_total => '合計時間';
 
   @override
@@ -7237,6 +7254,18 @@ class AppLocalizationsJa extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get unit_short_month => 'ヶ月';
+
+  @override
+  String get unit_short_day => '日';
+
+  @override
+  String get unit_short_hour => '時間';
+
+  @override
+  String get unit_short_minute => '分';
 
   @override
   String get validation_awaited_callback_format =>

@@ -4377,6 +4377,23 @@ class AppLocalizationsPt extends AppLocalizations {
       'O tempo é preservado enquanto o bot estiver parado.';
 
   @override
+  String get home_hosting_time_preserved_overline => 'Tempo preservado';
+
+  @override
+  String get home_hosting_expiration_expected => 'Expiração prevista';
+
+  @override
+  String home_hosting_expires_at(String date, String time) {
+    return '$date às $time';
+  }
+
+  @override
+  String get home_hosting_status_active_short => 'Sessão ativa';
+
+  @override
+  String get home_hosting_status_paused_short => 'Tempo reservado';
+
+  @override
   String get home_hosting_total => 'Tempo total';
 
   @override
@@ -7632,6 +7649,18 @@ class AppLocalizationsPt extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get unit_short_month => 'Meses';
+
+  @override
+  String get unit_short_day => 'Dias';
+
+  @override
+  String get unit_short_hour => 'Horas';
+
+  @override
+  String get unit_short_minute => 'Min';
 
   @override
   String get validation_awaited_callback_format =>

@@ -4164,6 +4164,29 @@
   "@home_hosting_time_preserved": {
     "description": "Time is preserved while the bot is stopped."
   },
+  "@home_hosting_time_preserved_overline": {
+    "description": "Overline shown instead of the expiration when the bot is stopped"
+  },
+  "@home_hosting_expiration_expected": {
+    "description": "Overline of the hosting expiration block"
+  },
+  "@home_hosting_expires_at": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    },
+    "description": "Absolute expiration, e.g. '21 Nov 2037 at 17:55'"
+  },
+  "@home_hosting_status_active_short": {
+    "description": "Status pill label when the bot is running"
+  },
+  "@home_hosting_status_paused_short": {
+    "description": "Status pill label when the bot is stopped"
+  },
   "@home_hosting_total": {
     "description": "Title of the hosting total time card on the bot home page"
   },
@@ -7006,6 +7029,18 @@
     },
     "description": "{count, plural, =0{0 months} =1{1 month} other{{count} months}}"
   },
+  "@unit_short_month": {
+    "description": "Segment label: months (uppercased by the UI)"
+  },
+  "@unit_short_day": {
+    "description": "Segment label: days (uppercased by the UI)"
+  },
+  "@unit_short_hour": {
+    "description": "Segment label: hours (uppercased by the UI)"
+  },
+  "@unit_short_minute": {
+    "description": "Segment label: minutes (uppercased by the UI)"
+  },
   "@validation_awaited_callback_format": {
     "description": "Awaited callback must use $awaitedCommand[name;filter] or $awaitedCommandError[name]."
   },
@@ -9062,6 +9097,11 @@
   "home_hosting_expires_today": "Expires today at {time}",
   "home_hosting_expires_tomorrow": "Expires tomorrow at {time}",
   "home_hosting_time_preserved": "Time is preserved while the bot is stopped.",
+  "home_hosting_time_preserved_overline": "Time preserved",
+  "home_hosting_expiration_expected": "Expected expiration",
+  "home_hosting_expires_at": "{date} at {time}",
+  "home_hosting_status_active_short": "Active session",
+  "home_hosting_status_paused_short": "Banked time",
   "home_hosting_total": "Total time",
   "home_hosting_status_active": "Active session (online)",
   "home_hosting_status_paused": "Banked time (paused)",
@@ -10032,6 +10072,10 @@
   "unit_hour": "{count, plural, =0{0 hours} =1{1 hour} other{{count} hours}}",
   "unit_minute": "{count, plural, =0{0 minutes} =1{1 minute} other{{count} minutes}}",
   "unit_month": "{count, plural, =0{0 months} =1{1 month} other{{count} months}}",
+  "unit_short_month": "Months",
+  "unit_short_day": "Days",
+  "unit_short_hour": "Hours",
+  "unit_short_minute": "Min",
   "validation_awaited_callback_format": "Awaited callback must use $awaitedCommand[name;filter] or $awaitedCommandError[name].",
   "validation_awaited_callback_length": "Awaited callback trigger must be at most {max} characters long",
   "validation_awaited_callback_local_only": "Awaited callbacks require a local-only Prefix Command.",
