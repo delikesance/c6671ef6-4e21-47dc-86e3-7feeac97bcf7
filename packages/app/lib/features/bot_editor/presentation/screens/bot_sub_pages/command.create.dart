@@ -27,6 +27,7 @@ import 'package:bot_creator/features/bot_editor/logic/discord_application_comman
 import 'package:bot_creator/features/bot_editor/logic/discord_command_validation_messages.dart';
 import 'package:bot_creator/features/bot_editor/logic/command_variable_catalog.dart';
 import 'package:bot_creator/core/utils/global.dart';
+import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
 import 'package:bot_creator/core/network/main_api_client.dart';
@@ -966,8 +967,10 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   }
 
   Widget _buildIncompleteDataView(_EditorBodySnapshot snap, double maxWidth) {
+    // Marge horizontale portée par `PageContent` (contrat commun) ; la borne
+    // ci-dessous réutilise la même largeur de contenu.
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(vertical: 16),
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxWidth),
         child: Column(
@@ -2250,13 +2253,17 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
               : null,
           body: SafeArea(
             top: false,
+            // Largeur et marges communes à toutes les pages (contrat
+            // `AppPageLayout`) : la page ne code plus ses propres bornes.
             child: LayoutBuilder(
               builder: (context, constraints) {
-                final contentMaxWidth = constraints.maxWidth >= 1200
-                    ? 980.0
-                    : (constraints.maxWidth >= 900 ? 860.0 : 680.0);
+                final contentMaxWidth = AppPageLayout.contentMaxWidthFor(
+                  constraints.maxWidth,
+                );
 
-                return _buildEditorBody(contentMaxWidth: contentMaxWidth);
+                return PageContent(
+                  child: _buildEditorBody(contentMaxWidth: contentMaxWidth),
+                );
               },
             ),
           ),
