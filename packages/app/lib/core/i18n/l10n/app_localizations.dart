@@ -5861,6 +5861,24 @@ abstract class AppLocalizations {
   /// **'Close'**
   String get common_close;
 
+  /// Window control: minimize (desktop title bar)
+  ///
+  /// In en, this message translates to:
+  /// **'Minimize'**
+  String get common_minimize;
+
+  /// Window control: maximize (desktop title bar)
+  ///
+  /// In en, this message translates to:
+  /// **'Maximize'**
+  String get common_maximize;
+
+  /// Window control: restore a maximized window (desktop title bar)
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get common_restore;
+
   /// Custom ID
   ///
   /// In en, this message translates to:
@@ -14199,6 +14217,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Create Workflow'**
   String get workflows_create;
+
+  /// Subtitle for the create workflow CTA card
+  ///
+  /// In en, this message translates to:
+  /// **'Automate bot actions and events in a few clicks'**
+  String get workflows_create_subtitle;
+
+  /// Create Event
+  ///
+  /// In en, this message translates to:
+  /// **'Create Event'**
+  String get workflows_create_event;
+
+  /// Subtitle for the create event CTA card
+  ///
+  /// In en, this message translates to:
+  /// **'React to Discord messages, member joins, and events'**
+  String get workflows_create_event_subtitle;
 
   /// Are you sure you want to delete "{name}"? This action cannot be undone.
   ///

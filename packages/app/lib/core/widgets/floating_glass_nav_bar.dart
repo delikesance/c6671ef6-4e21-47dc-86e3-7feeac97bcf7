@@ -245,24 +245,21 @@ class _FloatingGlassNavItemView extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final scheme = Theme.of(context).colorScheme;
-    // Sélection NEUTRE dans les deux thèmes (rôle M3 `secondaryContainer`) :
-    // l'item sélectionné se distingue par sa pastille teintée et son icône
-    // pleine, pas par un remplissage coloré.
-    final selectedForeground = scheme.onSecondaryContainer;
-    final selectedFill = scheme.secondaryContainer;
-    // Même repli que la barre : constantes historiques quand le thème ne
-    // porte pas les jetons (thème construit à la main dans les tests).
     final tokens = Theme.of(context).extension<HomeTokens>();
+    final accent = tokens?.accent ?? scheme.primary;
+    final accentIndicator = HomeTokens.of(context).accentIndicator;
+    final selectedForeground = isDark
+        ? Colors.white
+        : scheme.onSecondaryContainer;
+    final selectedFill = isDark
+        ? accent.withValues(alpha: 0.30)
+        : scheme.secondaryContainer;
     final idleColor = isDark
         ? (tokens?.muted ?? AppTheme.homeMuted)
         : scheme.onSurfaceVariant;
     final color = item.selected ? selectedForeground : idleColor;
     final radius = BorderRadius.circular(FloatingGlassNavBar.itemRadius);
-    // Indicateur d'accent (décision produit : le violet est un accent
-    // d'action). `accentIndicator` est garanti ≥ 3:1 sur le fond réel de cet
-    // indicateur — la pastille de sélection `secondaryContainer`, dont la
-    // luminance peut s'écarter fortement des surfaces (preset `high_contrast`).
-    final accentIndicator = HomeTokens.of(context).accentIndicator;
+    final borderStroke = accentIndicator;
 
     return Tooltip(
       message: item.label,
@@ -291,7 +288,7 @@ class _FloatingGlassNavItemView extends StatelessWidget {
             foregroundDecoration: item.selected
                 ? BoxDecoration(
                     borderRadius: radius,
-                    border: Border.all(color: accentIndicator, width: 1.5),
+                    border: Border.all(color: borderStroke, width: 1.5),
                   )
                 : null,
             child: Column(

@@ -1636,6 +1636,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
       ),
       floatingActionButton: _actions.isNotEmpty
           ? FloatingActionButton.extended(
+              heroTag: null,
               onPressed: _saveActions,
               icon: Icon(widget.editPath.isNotEmpty ? Icons.check : Icons.save),
               label: Text(

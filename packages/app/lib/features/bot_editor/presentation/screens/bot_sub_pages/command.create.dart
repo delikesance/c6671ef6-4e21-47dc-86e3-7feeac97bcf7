@@ -27,6 +27,7 @@ import 'package:bot_creator/features/bot_editor/logic/discord_application_comman
 import 'package:bot_creator/features/bot_editor/logic/discord_command_validation_messages.dart';
 import 'package:bot_creator/features/bot_editor/logic/command_variable_catalog.dart';
 import 'package:bot_creator/core/utils/global.dart';
+import 'package:bot_creator/core/utils/responsive.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
@@ -2116,6 +2117,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         },
         child: Scaffold(
           appBar: AppBar(
+            automaticallyImplyLeading: !ResponsiveHelper.isDesktopPlatform(),
             title: Text(
               _commandName.trim().isNotEmpty
                   ? '/${_commandName.trim()}'
@@ -2214,6 +2216,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           ),
           floatingActionButton: showStickyEditSave
               ? FloatingActionButton(
+                  heroTag: null,
                   onPressed: _isEditingExistingCommand
                       ? (_isDirty ? _saveExistingCommand : null)
                       : () async {

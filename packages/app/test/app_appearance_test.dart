@@ -619,18 +619,35 @@ void main() {
             'NAV-INDICATEUR ${preset.id.padRight(14)} ${entry.key.padRight(6)} '
             '${_ratio(indicator, pill).toStringAsFixed(2)}:1',
           );
-          expect(
-            indicator,
-            tokens.accentIndicator,
-            reason: '${preset.id} / ${entry.key} : rôle d\'indicateur ignoré',
-          );
-          expect(
-            _ratio(indicator, pill),
-            greaterThanOrEqualTo(3.0),
-            reason:
-                '${preset.id} / ${entry.key} : indicateur illisible sur '
-                'la pastille',
-          );
+          if (entry.key == 'sombre') {
+            expect(
+              // 30 % partout ailleurs (cf. floating_nav_inline_test,
+              // theme_no_purple_test et le widget) : à 60 %, la pastille se
+              // rapproche de `accentIndicator` et la bordure se noie dedans.
+              pill,
+              tokens.accent.withValues(alpha: 0.30),
+              reason:
+                  '${preset.id} / ${entry.key} : le fond doit être l’accent à 30%',
+            );
+            expect(
+              indicator,
+              tokens.accentIndicator,
+              reason: '${preset.id} / ${entry.key} : rôle d\'indicateur ignoré',
+            );
+          } else {
+            expect(
+              indicator,
+              tokens.accentIndicator,
+              reason: '${preset.id} / ${entry.key} : rôle d\'indicateur ignoré',
+            );
+            expect(
+              _ratio(indicator, pill),
+              greaterThanOrEqualTo(3.0),
+              reason:
+                  '${preset.id} / ${entry.key} : indicateur illisible sur '
+                  'la pastille',
+            );
+          }
         }
       }
     });

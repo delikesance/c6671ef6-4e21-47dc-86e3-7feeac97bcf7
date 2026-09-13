@@ -385,6 +385,7 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
       ),
       floatingActionButton: _hasCapability
           ? FloatingActionButton.extended(
+              heroTag: null,
               onPressed: () => _showEditor(),
               icon: const Icon(Icons.add),
               label: Text(context.tr.webhooks_add_action),

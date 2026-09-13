@@ -3334,6 +3334,15 @@ class AppLocalizationsPt extends AppLocalizations {
   String get common_close => 'Fechar';
 
   @override
+  String get common_minimize => 'Minimizar';
+
+  @override
+  String get common_maximize => 'Maximizar';
+
+  @override
+  String get common_restore => 'Restaurar';
+
+  @override
   String get common_custom_id => 'ID Personalizado';
 
   @override
@@ -8214,6 +8223,17 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get workflows_create => 'Criar Workflow';
+
+  @override
+  String get workflows_create_subtitle =>
+      'Automatize ações e eventos do bot em poucos cliques';
+
+  @override
+  String get workflows_create_event => 'Criar Evento';
+
+  @override
+  String get workflows_create_event_subtitle =>
+      'Reaja a mensagens, entradas de membros e eventos do Discord';
 
   @override
   String workflows_delete_confirm(String name) {

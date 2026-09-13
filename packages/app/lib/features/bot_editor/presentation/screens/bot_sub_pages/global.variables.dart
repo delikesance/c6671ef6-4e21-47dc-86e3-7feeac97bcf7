@@ -1699,6 +1699,12 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
           onSelected: (id) => unawaited(_switchSource(id)),
         ),
       IconButton(
+        tooltip: context.tr.globals_add,
+        onPressed: () =>
+            _isScopedMode ? _editScopedDefinition() : _editGlobalVariable(),
+        icon: const Icon(Icons.add_rounded),
+      ),
+      IconButton(
         tooltip: context.tr.globals_refresh,
         onPressed: _load,
         icon: const Icon(Icons.refresh),

@@ -323,6 +323,7 @@ class _SchedulerPageState extends State<SchedulerPage> {
       ),
       floatingActionButton: _hasSchedulerCapability
           ? FloatingActionButton.extended(
+              heroTag: null,
               onPressed: () => _showEditor(),
               icon: const Icon(Icons.add),
               label: Text(context.tr.scheduler_add_trigger),

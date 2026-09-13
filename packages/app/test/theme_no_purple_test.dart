@@ -295,15 +295,22 @@ void main() {
           '(${contrast(indicator, fill).toStringAsFixed(2)}:1)',
         );
 
-        // La pastille de fond reste NEUTRE : la sélection ne redevient jamais
-        // un aplat de couleur de marque.
-        expect(purples.contains(fill), isFalse);
-        expect(chromaOf(fill), lessThan(0.06));
+        if (entry.key == 'sombre') {
+          // En mode sombre, le fond sélectionné porte la couleur d'accent à 30%
+          // d'opacité avec une bordure d'accent à 100%.
+          expect(fill, tokens.accent.withValues(alpha: 0.30));
+          expect(indicator, tokens.accentIndicator);
+        } else {
+          // En mode clair, la pastille de fond reste NEUTRE : la sélection ne redevient jamais
+          // un aplat de couleur de marque.
+          expect(purples.contains(fill), isFalse);
+          expect(chromaOf(fill), lessThan(0.06));
 
-        // L'indicateur, lui, porte l'accent, et reste visible sur la pastille.
-        expect(indicator, tokens.accentRing);
-        expect(chromaOf(indicator), greaterThan(0.06));
-        expect(contrast(indicator, fill), greaterThanOrEqualTo(3.0));
+          // L'indicateur, lui, porte l'accent, et reste visible sur la pastille.
+          expect(indicator, tokens.accentRing);
+          expect(chromaOf(indicator), greaterThan(0.06));
+          expect(contrast(indicator, fill), greaterThanOrEqualTo(3.0));
+        }
       });
     }
 

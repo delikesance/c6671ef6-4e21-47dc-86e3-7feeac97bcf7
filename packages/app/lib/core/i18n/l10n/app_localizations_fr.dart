@@ -3343,6 +3343,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get common_close => 'Fermer';
 
   @override
+  String get common_minimize => 'Réduire';
+
+  @override
+  String get common_maximize => 'Agrandir';
+
+  @override
+  String get common_restore => 'Restaurer';
+
+  @override
   String get common_custom_id => 'ID personnalisé';
 
   @override
@@ -8243,6 +8252,17 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get workflows_create => 'Créer un workflow';
+
+  @override
+  String get workflows_create_subtitle =>
+      'Automatisez vos actions et événements en quelques clics';
+
+  @override
+  String get workflows_create_event => 'Créer un événement';
+
+  @override
+  String get workflows_create_event_subtitle =>
+      'Réagissez aux messages, arrivées et événements Discord';
 
   @override
   String workflows_delete_confirm(String name) {

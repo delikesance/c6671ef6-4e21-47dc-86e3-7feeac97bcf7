@@ -878,6 +878,7 @@ class _BotLogsPageState extends State<BotLogsPage> {
         ),
       ),
       floatingActionButton: FloatingActionButton.small(
+        heroTag: null,
         tooltip: _showNewestFirst
             ? context.tr.bot_logs_go_to_latest
             : context.tr.bot_logs_go_to_bottom,
