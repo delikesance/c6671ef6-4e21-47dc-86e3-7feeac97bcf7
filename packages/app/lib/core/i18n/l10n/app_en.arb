@@ -6762,12 +6762,6 @@
   "@settings_team_pill": {
     "description": "TEAM"
   },
-  "@settings_theme_switch_dark": {
-    "description": "Switch to dark mode"
-  },
-  "@settings_theme_switch_light": {
-    "description": "Switch to light mode"
-  },
   "@settings_version_title": {
     "description": "Version"
   },
@@ -10002,8 +9996,6 @@
   "settings_team_owner_label": "Team Leader",
   "settings_team_ownership": "Team Ownership",
   "settings_team_pill": "TEAM",
-  "settings_theme_switch_dark": "Switch to dark mode",
-  "settings_theme_switch_light": "Switch to light mode",
   "settings_version_title": "Version",
   "settings_view_startup_logs": "View startup logs",
   "startup_copy_diagnostics": "Copy diagnostics",

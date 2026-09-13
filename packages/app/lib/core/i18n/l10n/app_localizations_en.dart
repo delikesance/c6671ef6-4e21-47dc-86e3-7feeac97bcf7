@@ -7182,12 +7182,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings_team_pill => 'TEAM';
 
   @override
-  String get settings_theme_switch_dark => 'Switch to dark mode';
-
-  @override
-  String get settings_theme_switch_light => 'Switch to light mode';
-
-  @override
   String get settings_version_title => 'Version';
 
   @override

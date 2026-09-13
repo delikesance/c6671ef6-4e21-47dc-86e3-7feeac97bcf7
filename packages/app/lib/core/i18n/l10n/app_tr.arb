@@ -5759,12 +5759,6 @@
     },
     "description": "Number of team members"
   },
-  "@settings_theme_switch_dark": {
-    "description": "Switch to dark mode"
-  },
-  "@settings_theme_switch_light": {
-    "description": "Switch to light mode"
-  },
   "@settings_version_title": {
     "description": "Version"
   },
@@ -8854,8 +8848,6 @@
   "settings_team_owner_label": "Ekip Lideri",
   "settings_team_ownership": "Ekip Sahipliği",
   "settings_team_pill": "EKİP",
-  "settings_theme_switch_dark": "Karanlık moda geç",
-  "settings_theme_switch_light": "Açık moda geç",
   "settings_version_title": "Sürüm",
   "settings_view_startup_logs": "Başlangıç günlüklerini görüntüle",
   "startup_copy_diagnostics": "Tanılamaları kopyala",

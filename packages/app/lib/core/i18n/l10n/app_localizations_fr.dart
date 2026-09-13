@@ -7311,12 +7311,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settings_team_pill => 'ÉQUIPE';
 
   @override
-  String get settings_theme_switch_dark => 'Passer en mode sombre';
-
-  @override
-  String get settings_theme_switch_light => 'Passer en mode clair';
-
-  @override
   String get settings_version_title => 'Version';
 
   @override

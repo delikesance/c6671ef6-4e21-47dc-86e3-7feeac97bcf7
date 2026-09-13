@@ -7240,12 +7240,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settings_team_pill => 'EKİP';
 
   @override
-  String get settings_theme_switch_dark => 'Karanlık moda geç';
-
-  @override
-  String get settings_theme_switch_light => 'Açık moda geç';
-
-  @override
   String get settings_version_title => 'Sürüm';
 
   @override

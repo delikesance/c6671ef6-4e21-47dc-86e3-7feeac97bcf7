@@ -7300,12 +7300,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settings_team_pill => 'TEAM';
 
   @override
-  String get settings_theme_switch_dark => 'Zum dunklen Modus wechseln';
-
-  @override
-  String get settings_theme_switch_light => 'Zum hellen Modus wechseln';
-
-  @override
   String get settings_version_title => 'Version';
 
   @override
