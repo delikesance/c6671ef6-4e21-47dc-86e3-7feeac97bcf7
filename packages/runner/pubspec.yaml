@@ -1,5 +1,5 @@
 name: bot_creator_runner
-version: 2.1.14
+version: 2.1.15
 description: CLI runner for bot_creator — loads a ZIP export and starts the bot.
 publish_to: none
 resolution: workspace
