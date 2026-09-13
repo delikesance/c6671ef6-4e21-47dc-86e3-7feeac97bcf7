@@ -8159,6 +8159,7 @@
   "home_hosting_expires_today": "Expire aujourd'hui à {time}",
   "home_hosting_expires_tomorrow": "Expire demain à {time}",
   "home_hosting_time_preserved": "Le temps est préservé tant que le bot est arrêté.",
+  "home_hosting_total": "Temps total",
   "home_hosting_status_active": "Session active (en ligne)",
   "home_hosting_status_paused": "Réserve disponible (en pause)",
   "home_hosting_ad_history": "Historique des pubs",

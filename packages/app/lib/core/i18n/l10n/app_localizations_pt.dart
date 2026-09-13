@@ -4377,6 +4377,9 @@ class AppLocalizationsPt extends AppLocalizations {
       'O tempo é preservado enquanto o bot estiver parado.';
 
   @override
+  String get home_hosting_total => 'Tempo total';
+
+  @override
   String get home_hosting_status_active => 'Sessão ativa (online)';
 
   @override

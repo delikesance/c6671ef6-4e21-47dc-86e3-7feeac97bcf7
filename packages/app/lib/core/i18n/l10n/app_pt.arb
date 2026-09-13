@@ -8052,6 +8052,7 @@
   "home_hosting_expires_today": "Expira hoje às {time}",
   "home_hosting_expires_tomorrow": "Expira amanhã às {time}",
   "home_hosting_time_preserved": "O tempo é preservado enquanto o bot estiver parado.",
+  "home_hosting_total": "Tempo total",
   "home_hosting_status_active": "Sessão ativa (online)",
   "home_hosting_status_paused": "Tempo reservado (em pausa)",
   "home_hosting_ad_history": "Histórico de anúncios",

@@ -4388,6 +4388,9 @@ class AppLocalizationsDe extends AppLocalizations {
       'Die Zeit bleibt erhalten, solange der Bot gestoppt ist.';
 
   @override
+  String get home_hosting_total => 'Gesamtzeit';
+
+  @override
   String get home_hosting_status_active => 'Aktive Sitzung (online)';
 
   @override

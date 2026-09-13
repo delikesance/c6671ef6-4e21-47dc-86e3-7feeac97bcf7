@@ -4134,6 +4134,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get home_hosting_time_preserved => 'ボットが停止している間、時間は保持されます。';
 
   @override
+  String get home_hosting_total => '合計時間';
+
+  @override
   String get home_hosting_status_active => 'アクティブなセッション（オンライン）';
 
   @override

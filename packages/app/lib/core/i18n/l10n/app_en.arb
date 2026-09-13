@@ -4164,6 +4164,9 @@
   "@home_hosting_time_preserved": {
     "description": "Time is preserved while the bot is stopped."
   },
+  "@home_hosting_total": {
+    "description": "Title of the hosting total time card on the bot home page"
+  },
   "@home_hosting_status_active": {
     "description": "Active session (online)"
   },
@@ -9059,6 +9062,7 @@
   "home_hosting_expires_today": "Expires today at {time}",
   "home_hosting_expires_tomorrow": "Expires tomorrow at {time}",
   "home_hosting_time_preserved": "Time is preserved while the bot is stopped.",
+  "home_hosting_total": "Total time",
   "home_hosting_status_active": "Active session (online)",
   "home_hosting_status_paused": "Banked time (paused)",
   "home_hosting_ad_history": "Ad History",

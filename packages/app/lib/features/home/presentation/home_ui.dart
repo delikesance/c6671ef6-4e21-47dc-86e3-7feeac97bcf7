@@ -454,6 +454,184 @@ class HomeCardActionButton extends StatelessWidget {
   }
 }
 
+/// Carte « temps total » d'hébergement de la home d'un bot.
+///
+/// Reprend la grammaire visuelle des cartes de la page « Emojis applicatifs »
+/// (visuel centré, libellé, deux actions en icônes) pour afficher le temps
+/// restant total en « mois, jours, heures, minutes ».
+class HomeHostingTimeCard extends StatelessWidget {
+  const HomeHostingTimeCard({
+    super.key,
+    required this.width,
+    required this.totalLabel,
+    required this.statusLabel,
+    required this.isRunning,
+    required this.onAddTime,
+    required this.onHistory,
+    this.detailLabel,
+    this.timeColor,
+    this.borderColor,
+    this.isAddingTime = false,
+  });
+
+  /// Largeur de la carte. La hauteur suit le contenu — pas de ratio figé,
+  /// pour qu'un libellé long (« 2 mois, 3 jours, 15 heures, 40 minutes ») ne
+  /// déborde jamais.
+  final double width;
+
+  /// Temps restant total, déjà formaté (ex. « 2 mois, 3 jours, 15 minutes »).
+  final String totalLabel;
+
+  /// « Session active (en ligne) » / « Réserve disponible (en pause) ».
+  final String statusLabel;
+
+  /// Ligne secondaire : expiration de la session, ou rappel que le temps est
+  /// préservé tant que le bot est arrêté.
+  final String? detailLabel;
+
+  /// Vrai quand le bot tourne : teinte le visuel et le statut.
+  final bool isRunning;
+
+  /// Couleur de la valeur (santé de la réserve) ; par défaut la couleur d'état.
+  final Color? timeColor;
+
+  /// Bordure d'alerte (réserve critique) ; par défaut la bordure de carte.
+  final Color? borderColor;
+
+  final bool isAddingTime;
+  final VoidCallback? onAddTime;
+  final VoidCallback onHistory;
+
+  static const double _visualSize = 76;
+  static const double _actionSize = 36;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final tokens = HomeTokens.of(context);
+    final muted = isDark ? tokens.muted : scheme.onSurfaceVariant;
+    final stateColor = isRunning ? AppTheme.online : AppTheme.warning;
+    final accent = timeColor ?? stateColor;
+
+    return SizedBox(
+      width: width,
+      child: Container(
+        decoration: BoxDecoration(
+          color: isDark ? tokens.card : scheme.surfaceContainer,
+          borderRadius: BorderRadius.circular(AppTheme.radiusCard),
+          border: Border.all(
+            color:
+                borderColor ??
+                (isDark ? tokens.cardBorder : scheme.outlineVariant),
+          ),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              height: _visualSize,
+              child: Center(
+                child: Container(
+                  width: _visualSize - 8,
+                  height: _visualSize - 8,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: accent.withValues(alpha: 0.12),
+                    border: Border.all(color: accent.withValues(alpha: 0.30)),
+                  ),
+                  child: Icon(Icons.schedule_rounded, size: 30, color: accent),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppTheme.spacingSm,
+              ),
+              child: Text(
+                totalLabel,
+                textAlign: TextAlign.center,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.inter(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w700,
+                  height: 1.25,
+                  color: accent,
+                ),
+              ),
+            ),
+            const SizedBox(height: AppTheme.spacingXs),
+            Text(
+              statusLabel,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.inter(
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                color: stateColor,
+              ),
+            ),
+            if (detailLabel != null) ...[
+              const SizedBox(height: 2),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppTheme.spacingSm,
+                ),
+                child: Text(
+                  detailLabel!,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.inter(fontSize: 10, color: muted),
+                ),
+              ),
+            ],
+            const SizedBox(height: AppTheme.spacingXs),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  icon: isAddingTime
+                      ? SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: accent,
+                          ),
+                        )
+                      : const Icon(Icons.add_rounded, size: 18),
+                  tooltip: context.tr.home_add_time,
+                  onPressed: isAddingTime ? null : onAddTime,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(
+                    minWidth: _actionSize,
+                    minHeight: _actionSize,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.history_rounded, size: 18),
+                  tooltip: context.tr.home_hosting_ad_history,
+                  onPressed: onHistory,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(
+                    minWidth: _actionSize,
+                    minHeight: _actionSize,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppTheme.spacingXs),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /// Anti-aliased dashed rounded rect (Home “Create a bot” / destructive rows).
 class HomeDashedRoundedRectPainter extends CustomPainter {
   const HomeDashedRoundedRectPainter({

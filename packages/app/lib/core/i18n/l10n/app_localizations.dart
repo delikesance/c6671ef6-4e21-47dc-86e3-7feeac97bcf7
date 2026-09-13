@@ -7745,6 +7745,12 @@ abstract class AppLocalizations {
   /// **'Time is preserved while the bot is stopped.'**
   String get home_hosting_time_preserved;
 
+  /// Title of the hosting total time card on the bot home page
+  ///
+  /// In en, this message translates to:
+  /// **'Total time'**
+  String get home_hosting_total;
+
   /// Active session (online)
   ///
   /// In en, this message translates to:

@@ -4342,6 +4342,9 @@ class AppLocalizationsTr extends AppLocalizations {
       'Bot durdurulduğu sürece süre korunur.';
 
   @override
+  String get home_hosting_total => 'Toplam süre';
+
+  @override
   String get home_hosting_status_active => 'Aktif oturum (çevrimiçi)';
 
   @override
