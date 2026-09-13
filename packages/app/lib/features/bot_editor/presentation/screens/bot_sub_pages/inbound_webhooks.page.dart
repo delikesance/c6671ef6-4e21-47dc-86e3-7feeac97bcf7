@@ -472,7 +472,8 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                                             Text(context.tr.webhooks_copy_url),
                                           ],
                                         ),
-                                        onTap: () => _copyFullWebhookUrl(webhook),
+                                        onTap: () =>
+                                            _copyFullWebhookUrl(webhook),
                                       ),
                                       PopupMenuItem<String>(
                                         value: 'copy_path',
@@ -515,7 +516,9 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                                               size: 18,
                                             ),
                                             const SizedBox(width: 12),
-                                            Text(context.tr.webhooks_copy_secret),
+                                            Text(
+                                              context.tr.webhooks_copy_secret,
+                                            ),
                                           ],
                                         ),
                                         onTap: () async {
@@ -530,7 +533,9 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                                           ).showSnackBar(
                                             SnackBar(
                                               content: Text(
-                                                context.tr.webhooks_secret_copied,
+                                                context
+                                                    .tr
+                                                    .webhooks_secret_copied,
                                               ),
                                             ),
                                           );

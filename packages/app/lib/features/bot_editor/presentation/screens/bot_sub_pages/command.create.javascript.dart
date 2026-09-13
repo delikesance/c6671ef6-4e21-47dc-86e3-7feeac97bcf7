@@ -8,12 +8,11 @@ extension _CommandCreateJavascript on _CommandCreatePageState {
   Widget _buildJavascriptEditorPreview() {
     final code = _jsScriptController.text;
     final isEmpty = code.trim().isEmpty;
-    final preview =
-        isEmpty
-            ? context.tr.js_editor_hint
-            : code.length > 300
-            ? '${code.substring(0, 300)}…'
-            : code;
+    final preview = isEmpty
+        ? context.tr.js_editor_hint
+        : code.length > 300
+        ? '${code.substring(0, 300)}…'
+        : code;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -81,12 +80,11 @@ extension _CommandCreateJavascript on _CommandCreatePageState {
     final result = await Navigator.push<String>(
       context,
       MaterialPageRoute<String>(
-        builder:
-            (_) => JsEditorPage(
-              initialCode: _jsScriptController.text,
-              title: context.tr.js_editor_title,
-              appEmojis: _appEmojis,
-            ),
+        builder: (_) => JsEditorPage(
+          initialCode: _jsScriptController.text,
+          title: context.tr.js_editor_title,
+          appEmojis: _appEmojis,
+        ),
       ),
     );
 
