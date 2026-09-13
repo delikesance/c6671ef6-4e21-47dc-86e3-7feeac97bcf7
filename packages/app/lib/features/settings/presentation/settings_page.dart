@@ -2146,7 +2146,13 @@ class _SettingPageState extends State<SettingPage> {
           ),
         ],
       ),
+      // Embarquée dans le shell compact, la page vit SOUS la réserve de la
+      // barre flottante (`FloatingGlassNavBar.contentClearanceOf`, inset système
+      // compris) : réserver l'inset bas une seconde fois laissait un vide de
+      // [24 + inset] px entre la dernière carte et la barre. Autonome (route
+      // poussée depuis la Home), elle doit au contraire l'éviter.
       body: SafeArea(
+        bottom: !widget.embedded,
         child: Center(
           child: SingleChildScrollView(
             padding: EdgeInsets.symmetric(
