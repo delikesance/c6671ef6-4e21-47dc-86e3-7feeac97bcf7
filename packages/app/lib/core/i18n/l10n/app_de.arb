@@ -8018,6 +8018,7 @@
   "home_hosting_expires_today": "Läuft heute um {time} ab",
   "home_hosting_expires_tomorrow": "Läuft morgen um {time} ab",
   "home_hosting_time_preserved": "Die Zeit bleibt erhalten, solange der Bot gestoppt ist.",
+  "home_hosting_total": "Gesamtzeit",
   "home_hosting_status_active": "Aktive Sitzung (online)",
   "home_hosting_status_paused": "Gespeicherte Zeit (pausiert)",
   "home_hosting_ad_history": "Werbungsverlauf",

@@ -8019,6 +8019,7 @@
   "home_hosting_expires_today": "Bugün saat {time} sona eriyor",
   "home_hosting_expires_tomorrow": "Yarın saat {time} sona eriyor",
   "home_hosting_time_preserved": "Bot durdurulduğu sürece süre korunur.",
+  "home_hosting_total": "Toplam süre",
   "home_hosting_status_active": "Aktif oturum (çevrimiçi)",
   "home_hosting_status_paused": "Yedek süre (duraklatıldı)",
   "home_hosting_ad_history": "Reklam Geçmişi",

@@ -476,143 +476,100 @@ extension _AppHomePageUI on _AppHomePageState {
     );
   }
 
+  /// Carte « temps total » de l'hébergement.
+  ///
+  /// Même grammaire visuelle que la page « Emojis applicatifs » : un en-tête
+  /// (libellé de section + refresh) puis une carte à visuel où s'affiche le
+  /// temps restant total en « mois, jours, heures, minutes ».
   Widget _buildHostingCard(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final tokens = HomeTokens.of(context);
-    final cardColor = isDark ? tokens.card : colorScheme.surfaceContainer;
-    final borderColor =
-        (_displayFreeMinutesBalance() < 120 && _botLaunched
-                ? colorScheme.error
-                : (isDark ? tokens.cardBorder : colorScheme.outlineVariant))
-            .withValues(alpha: 0.9);
+    final balance = _displayFreeMinutesBalance();
+    final detailLabel = _botLaunched
+        ? formatSessionExpiration(
+            context,
+            _sessionExpiresAt ?? DateTime.now().add(Duration(minutes: balance)),
+          )
+        : context.tr.home_hosting_time_preserved;
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(AppTheme.radiusCard),
-        border: Border.all(color: borderColor),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                context.tr.home_hosting_total,
+                style: homeSectionLabelStyle(context),
+              ),
+            ),
+            if (_ownerMetadata?.teamId.isNotEmpty == true) ...[
               Container(
-                width: 8,
-                height: 8,
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: _botLaunched ? AppTheme.online : AppTheme.warning,
+                  color: AppTheme.discord.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                  border: Border.all(
+                    color: AppTheme.discord.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.groups, size: 12, color: AppTheme.discord),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Team',
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.discord,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  _botLaunched
-                      ? context.tr.home_hosting_status_active
-                      : context.tr.home_hosting_status_paused,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: _botLaunched ? AppTheme.online : AppTheme.warning,
-                  ),
-                ),
-              ),
-              if (_ownerMetadata?.teamId.isNotEmpty == true) ...[
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.discord.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                    border: Border.all(
-                      color: AppTheme.discord.withValues(alpha: 0.3),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.groups, size: 12, color: AppTheme.discord),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Team',
-                        style: GoogleFonts.inter(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.discord,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-              ],
-              HomeHeaderIconButton(
-                icon: Icons.history_rounded,
-                iconSize: 14,
-                tooltip: context.tr.home_hosting_ad_history,
-                onTap: _showAdHistoryDialog,
-              ),
             ],
-          ),
-          const SizedBox(height: 10),
-          Text(
-            _botLaunched
-                ? (_sessionExpiresAt != null
-                      ? formatSessionExpiration(context, _sessionExpiresAt!)
-                      : formatSessionExpiration(
-                          context,
-                          DateTime.now().add(
-                            Duration(minutes: _displayFreeMinutesBalance()),
-                          ),
-                        ))
-                : context.tr.home_hosting_banked(
-                    formatDuration(_displayFreeMinutesBalance()),
-                  ),
-            style: homeDisplayStyle(
-              15,
-              color: _hostingTimeColor(_displayFreeMinutesBalance()),
-              weight: FontWeight.w700,
-            ),
-          ),
-          if (_botLaunched) ...[
-            const SizedBox(height: 4),
-            Text(
-              context.tr.home_hosting_time_left(
-                formatDuration(_displayFreeMinutesBalance()),
-              ),
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w400,
-                color: isDark ? tokens.muted : colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ] else ...[
-            const SizedBox(height: 4),
-            Text(
-              context.tr.home_hosting_time_preserved,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w400,
-                color: isDark ? tokens.muted : colorScheme.onSurfaceVariant,
-              ),
+            HomeHeaderIconButton(
+              icon: Icons.refresh_rounded,
+              iconSize: 14,
+              tooltip: context.tr.common_refresh,
+              onTap: _isReconciling ? null : _refreshOverview,
             ),
           ],
-          const SizedBox(height: 12),
-          HomeCardActionButton(
-            icon: Icons.add_rounded,
-            iconSize: 14,
-            label: context.tr.home_add_time,
-            onTap: _isAddingTime ? null : _addRuntimeTime,
-            loading: _isAddingTime,
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 10),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            const maxCardWidth = 176.0;
+            final cardWidth = constraints.maxWidth < maxCardWidth
+                ? constraints.maxWidth
+                : maxCardWidth;
+
+            return Wrap(
+              spacing: AppTheme.spacingMd,
+              runSpacing: AppTheme.spacingMd,
+              children: [
+                HomeHostingTimeCard(
+                  width: cardWidth,
+                  totalLabel: formatDuration(balance),
+                  statusLabel: _botLaunched
+                      ? context.tr.home_hosting_status_active
+                      : context.tr.home_hosting_status_paused,
+                  detailLabel: detailLabel,
+                  timeColor: _hostingTimeColor(balance),
+                  borderColor: (balance < 120 && _botLaunched)
+                      ? AppTheme.error.withValues(alpha: 0.9)
+                      : null,
+                  isRunning: _botLaunched,
+                  isAddingTime: _isAddingTime,
+                  onAddTime: _isAddingTime ? null : _addRuntimeTime,
+                  onHistory: _showAdHistoryDialog,
+                ),
+              ],
+            );
+          },
+        ),
+      ],
     );
   }
 }
