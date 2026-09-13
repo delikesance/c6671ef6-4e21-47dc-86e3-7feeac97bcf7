@@ -3,11 +3,21 @@ import 'package:intl/intl.dart';
 
 import 'package:bot_creator/core/i18n/extensions.dart';
 
-/// Formats a duration in minutes into a human-readable localized string
-/// (e.g. "2 jours, 3 heures, 15 minutes" or "45 minutes").
-String formatHostingDuration(BuildContext context, int totalMinutes) {
+/// Décomposition d'une durée d'hébergement en unités brutes.
+typedef HostingDurationParts = ({
+  int months,
+  int days,
+  int hours,
+  int minutes,
+});
+
+/// Décompose [totalMinutes] en mois (30 jours), jours, heures et minutes.
+///
+/// Sert aux affichages segmentés (une colonne par unité) qui ne passent pas par
+/// une chaîne déjà formatée. Les valeurs négatives sont ramenées à zéro.
+HostingDurationParts splitHostingDuration(int totalMinutes) {
   if (totalMinutes <= 0) {
-    return context.tr.unit_minute(0);
+    return (months: 0, days: 0, hours: 0, minutes: 0);
   }
 
   const minutesPerHour = 60;
@@ -20,24 +30,55 @@ String formatHostingDuration(BuildContext context, int totalMinutes) {
   final days = remaining ~/ minutesPerDay;
   remaining %= minutesPerDay;
   final hours = remaining ~/ minutesPerHour;
-  remaining %= minutesPerHour;
-  final minutes = remaining;
 
-  final parts = <String>[];
-  if (months > 0) {
-    parts.add(context.tr.unit_month(months));
-  }
-  if (days > 0) {
-    parts.add(context.tr.unit_day(days));
-  }
-  if (hours > 0) {
-    parts.add(context.tr.unit_hour(hours));
-  }
-  if (minutes > 0 || parts.isEmpty) {
-    parts.add(context.tr.unit_minute(minutes));
+  return (
+    months: months,
+    days: days,
+    hours: hours,
+    minutes: remaining % minutesPerHour,
+  );
+}
+
+/// Formats a duration in minutes into a human-readable localized string
+/// (e.g. "2 jours, 3 heures, 15 minutes" or "45 minutes").
+String formatHostingDuration(BuildContext context, int totalMinutes) {
+  if (totalMinutes <= 0) {
+    return context.tr.unit_minute(0);
   }
 
-  return parts.join(', ');
+  final parts = splitHostingDuration(totalMinutes);
+  final units = <String>[];
+
+  if (parts.months > 0) {
+    units.add(context.tr.unit_month(parts.months));
+  }
+  if (parts.days > 0) {
+    units.add(context.tr.unit_day(parts.days));
+  }
+  if (parts.hours > 0) {
+    units.add(context.tr.unit_hour(parts.hours));
+  }
+  if (parts.minutes > 0 || units.isEmpty) {
+    units.add(context.tr.unit_minute(parts.minutes));
+  }
+
+  return units.join(', ');
+}
+
+/// Formate une expiration d'hébergement en date + heure absolues, sans verbe
+/// (le surtitre porte le sens) : « 21 nov. 2037 à 17:55 ».
+///
+/// Contrairement à [formatSessionExpiration] — plus bavard et utilisé par les
+/// cartes de bots — cet affichage alimente le bloc « Expiration prévue » de la
+/// carte « temps total ».
+String formatHostingExpiration(BuildContext context, DateTime expiresAt) {
+  final local = expiresAt.toLocal();
+  final locale = Localizations.localeOf(context).toString();
+
+  return context.tr.home_hosting_expires_at(
+    DateFormat.yMMMd(locale).format(local),
+    DateFormat.jm(locale).format(local),
+  );
 }
 
 /// Formats a session expiration DateTime into a user-friendly localized string

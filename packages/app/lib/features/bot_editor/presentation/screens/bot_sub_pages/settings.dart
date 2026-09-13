@@ -17,6 +17,7 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 
 import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
+import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:file_picker/file_picker.dart';
@@ -1004,21 +1005,21 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   }
 
   EdgeInsets _tabContentPadding(BuildContext context) {
-    return EdgeInsets.fromLTRB(
-      16,
-      16,
-      16,
-      FloatingGlassNavBar.contentClearanceOf(context) + 24,
+    // Marges horizontales : elles viennent de `PageContent`
+    // (`AppPageLayout`), qui porte aussi la largeur maximale commune. Seule la
+    // réserve basse de la barre de navigation flottante reste locale.
+    return EdgeInsets.only(
+      top: 16,
+      bottom: FloatingGlassNavBar.contentClearanceOf(context) + 24,
     );
   }
 
-  Widget _buildGeneralTab(double contentMaxWidth) {
+  Widget _buildGeneralTab() {
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: _tabContentPadding(context),
       child: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: contentMaxWidth),
+        child: PageContent(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -1224,13 +1225,12 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     );
   }
 
-  Widget _buildPresenceTab(double contentMaxWidth) {
+  Widget _buildPresenceTab() {
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: _tabContentPadding(context),
       child: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: contentMaxWidth),
+        child: PageContent(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -1751,7 +1751,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     );
   }
 
-  Widget _buildLavalinkTab(double contentMaxWidth) {
+  Widget _buildLavalinkTab() {
     final isPremium = PremiumCapabilities.hasCapability(
       PremiumCapability.lavalinkAudio,
     );
@@ -1780,8 +1780,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       physics: const AlwaysScrollableScrollPhysics(),
       padding: _tabContentPadding(context),
       child: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: contentMaxWidth),
+        child: PageContent(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -2099,7 +2098,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     );
   }
 
-  Widget _buildDatabaseTab(double contentMaxWidth) {
+  Widget _buildDatabaseTab() {
     final scheme = Theme.of(context).colorScheme;
     final inputDecoration = InputDecoration(
       border: OutlineInputBorder(
@@ -2123,8 +2122,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       physics: const AlwaysScrollableScrollPhysics(),
       padding: _tabContentPadding(context),
       child: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: contentMaxWidth),
+        child: PageContent(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -2419,13 +2417,12 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     );
   }
 
-  Widget _buildAdvancedTab(double contentMaxWidth) {
+  Widget _buildAdvancedTab() {
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: _tabContentPadding(context),
       child: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: contentMaxWidth),
+        child: PageContent(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -2712,21 +2709,14 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
         ),
         body: SafeArea(
           top: false,
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final contentMaxWidth = constraints.maxWidth >= 900
-                  ? 760.0
-                  : 640.0;
-              return TabBarView(
-                children: [
-                  _buildGeneralTab(contentMaxWidth),
-                  _buildPresenceTab(contentMaxWidth),
-                  if (showLavalink) _buildLavalinkTab(contentMaxWidth),
-                  if (showDatabase) _buildDatabaseTab(contentMaxWidth),
-                  _buildAdvancedTab(contentMaxWidth),
-                ],
-              );
-            },
+          child: TabBarView(
+            children: [
+              _buildGeneralTab(),
+              _buildPresenceTab(),
+              if (showLavalink) _buildLavalinkTab(),
+              if (showDatabase) _buildDatabaseTab(),
+              _buildAdvancedTab(),
+            ],
           ),
         ),
       ),

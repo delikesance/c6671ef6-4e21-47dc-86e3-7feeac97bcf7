@@ -6,6 +6,7 @@ import 'package:bot_creator/features/bot_editor/logic/bot_export_import.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
 class BotExportImportPage extends StatefulWidget {
@@ -155,10 +156,9 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
         _workflowResolutions.clear();
 
         // Pre-detect conflicts
-        final localCommandNames =
-            _localCommands
-                .map((c) => (c['name'] ?? '').toString().toLowerCase())
-                .toSet();
+        final localCommandNames = _localCommands
+            .map((c) => (c['name'] ?? '').toString().toLowerCase())
+            .toSet();
         for (final cmd in preview.commands) {
           final name = (cmd['name'] ?? '').toString().toLowerCase();
           if (localCommandNames.contains(name)) {
@@ -166,8 +166,9 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
           }
         }
 
-        final localWorkflowNames =
-            _localWorkflows.map((w) => (w['name'] ?? '').toString()).toSet();
+        final localWorkflowNames = _localWorkflows
+            .map((w) => (w['name'] ?? '').toString())
+            .toSet();
         for (final wf in preview.workflows) {
           final name = (wf['name'] ?? '').toString();
           if (localWorkflowNames.contains(name)) {
@@ -254,30 +255,23 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(context.tr.export_import_title)),
+      // Largeur et marges communes à toutes les pages (contrat AppPageLayout).
       body: SafeArea(
         top: false,
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final maxWidth = constraints.maxWidth >= 900 ? 760.0 : 640.0;
-            return Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: maxWidth),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _buildExportSection(),
-                      const SizedBox(height: 24),
-                      const Divider(),
-                      const SizedBox(height: 24),
-                      _buildImportSection(),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
+        child: PageContent(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildExportSection(),
+                const SizedBox(height: 24),
+                const Divider(),
+                const SizedBox(height: 24),
+                _buildImportSection(),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -313,18 +307,16 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
         ),
         const SizedBox(height: 12),
         FilledButton.icon(
-          onPressed:
-              _isExporting || _selectedExportSections.isEmpty
-                  ? null
-                  : _performExport,
-          icon:
-              _isExporting
-                  ? const SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                  : const Icon(Icons.upload_file),
+          onPressed: _isExporting || _selectedExportSections.isEmpty
+              ? null
+              : _performExport,
+          icon: _isExporting
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.upload_file),
           label: Text(context.tr.export_button),
         ),
       ],
@@ -332,11 +324,10 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
   }
 
   Widget _buildExportCommandsSection() {
-    final allIds =
-        _localCommands
-            .map((c) => (c['id'] ?? '').toString())
-            .where((id) => id.isNotEmpty)
-            .toList();
+    final allIds = _localCommands
+        .map((c) => (c['id'] ?? '').toString())
+        .where((id) => id.isNotEmpty)
+        .toList();
     final allSelected =
         _exportCommands &&
         allIds.every((id) => _selectedCommandIds.contains(id));
@@ -399,11 +390,10 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
   }
 
   Widget _buildExportWorkflowsSection() {
-    final allNames =
-        _localWorkflows
-            .map((w) => (w['name'] ?? '').toString())
-            .where((n) => n.isNotEmpty)
-            .toList();
+    final allNames = _localWorkflows
+        .map((w) => (w['name'] ?? '').toString())
+        .where((n) => n.isNotEmpty)
+        .toList();
     final allSelected =
         _exportWorkflows &&
         allNames.every((n) => _selectedWorkflowNames.contains(n));
@@ -499,14 +489,13 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
               Expanded(
                 child: FilledButton.icon(
                   onPressed: _isImporting ? null : _performImport,
-                  icon:
-                      _isImporting
-                          ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                          : const Icon(Icons.download),
+                  icon: _isImporting
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.download),
                   label: Text(context.tr.import_button),
                 ),
               ),
@@ -554,8 +543,8 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
         if (preview.hasGlobalVariables)
           CheckboxListTile(
             value: _importGlobalVariables,
-            onChanged:
-                (v) => setState(() => _importGlobalVariables = v ?? false),
+            onChanged: (v) =>
+                setState(() => _importGlobalVariables = v ?? false),
             title: Text(context.tr.export_global_variables),
             dense: true,
           ),

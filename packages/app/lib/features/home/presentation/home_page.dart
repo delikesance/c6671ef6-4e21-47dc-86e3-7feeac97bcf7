@@ -17,6 +17,7 @@ import 'package:bot_creator/core/utils/duration_formatter.dart';
 import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/utils/string_sanitizer.dart';
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
+import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/features/ads/logic/ad_consent_service.dart';
 import 'package:bot_creator/features/ads/logic/ad_reward_service.dart';
 import 'package:bot_creator/features/ads/logic/ads_placement_policy.dart';
@@ -2163,12 +2164,13 @@ class HomePageState extends State<HomePage>
             final width = constraints.maxWidth;
             final isWide = width >= AppTheme.desktopBreakpoint;
             final columns = isWide ? 2 : 1;
-            final contentMaxWidth = isWide ? 1000.0 : 640.0;
-            final sidePad = isWide ? 28.0 : 16.0;
-            final horizontal = width > contentMaxWidth
-                ? (width - contentMaxWidth) / 2 + sidePad
-                : sidePad;
-            final innerWidth = width - horizontal * 2;
+            // Largeur réellement rendue par [PageContent] : bornée par la
+            // largeur commune puis réduite des marges de la zone disponible.
+            final contentWidth = width > AppPageLayout.maxContentWidth
+                ? AppPageLayout.maxContentWidth
+                : width;
+            final innerWidth =
+                contentWidth - 2 * AppPageLayout.horizontalPaddingFor(width);
 
             void openCreate() {
               Navigator.push(
@@ -2278,17 +2280,21 @@ class HomePageState extends State<HomePage>
             return RefreshIndicator(
               key: _refreshIndicatorKey,
               onRefresh: () => syncAllBotsFromManager(silent: false),
-              child: ListView(
-                padding: EdgeInsets.fromLTRB(
-                  horizontal,
-                  24,
-                  horizontal,
-                  isWide
-                      ? 40
-                      : FloatingGlassNavBar.contentClearanceOf(context) + 24,
+              // Largeur et marges communes à toutes les pages de l'app : la
+              // liste n'impose plus ses propres bornes (1000/640, sidePad 28).
+              child: PageContent(
+                child: ListView(
+                  padding: EdgeInsets.fromLTRB(
+                    0,
+                    24,
+                    0,
+                    isWide
+                        ? 40
+                        : FloatingGlassNavBar.contentClearanceOf(context) + 24,
+                  ),
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: children,
                 ),
-                physics: const AlwaysScrollableScrollPhysics(),
-                children: children,
               ),
             );
           },
@@ -2861,8 +2867,9 @@ class _EmptyStateWithSupport extends StatelessWidget {
   }
 }
 
-class _CreateBotCard extends StatelessWidget {
-  const _CreateBotCard({required this.onTap});
+@visibleForTesting
+class CreateBotCard extends StatelessWidget {
+  const CreateBotCard({super.key, required this.onTap});
 
   final VoidCallback onTap;
 
@@ -2871,9 +2878,12 @@ class _CreateBotCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final scheme = Theme.of(context).colorScheme;
     final tokens = HomeTokens.of(context);
-    final fill = isDark ? tokens.createFill : scheme.surfaceContainerHighest;
-    final border = isDark ? tokens.createBorder : scheme.primary;
-    final avatarFill = isDark ? tokens.createBorder : scheme.primary;
+    final fill = isDark
+        ? tokens.accent.withValues(alpha: 0.30)
+        : scheme.surfaceContainerHighest;
+    final border = isDark ? tokens.accent : scheme.primary;
+    final avatarFill = tokens.accent;
+    final avatarIconColor = isDark ? Colors.white : tokens.onAccent;
 
     return Stack(
       children: [
@@ -2898,7 +2908,7 @@ class _CreateBotCard extends StatelessWidget {
                     child: Icon(
                       Icons.add_rounded,
                       size: 26,
-                      color: isDark ? tokens.createFill : scheme.onPrimary,
+                      color: avatarIconColor,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -2953,6 +2963,8 @@ class _CreateBotCard extends StatelessWidget {
     );
   }
 }
+
+typedef _CreateBotCard = CreateBotCard;
 
 class _ServerPresenceRow extends StatelessWidget {
   const _ServerPresenceRow({

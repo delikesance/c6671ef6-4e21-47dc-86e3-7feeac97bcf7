@@ -3059,6 +3059,15 @@
   "@common_close": {
     "description": "Close"
   },
+  "@common_minimize": {
+    "description": "Window control: minimize (desktop title bar)"
+  },
+  "@common_maximize": {
+    "description": "Window control: maximize (desktop title bar)"
+  },
+  "@common_restore": {
+    "description": "Window control: restore a maximized window (desktop title bar)"
+  },
   "@common_custom_id": {
     "description": "Custom ID"
   },
@@ -4164,6 +4173,32 @@
   "@home_hosting_time_preserved": {
     "description": "Time is preserved while the bot is stopped."
   },
+  "@home_hosting_time_preserved_overline": {
+    "description": "Overline shown instead of the expiration when the bot is stopped"
+  },
+  "@home_hosting_expiration_expected": {
+    "description": "Overline of the hosting expiration block"
+  },
+  "@home_hosting_expires_at": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    },
+    "description": "Absolute expiration, e.g. '21 Nov 2037 at 17:55'"
+  },
+  "@home_hosting_status_active_short": {
+    "description": "Status pill label when the bot is running"
+  },
+  "@home_hosting_status_paused_short": {
+    "description": "Status pill label when the bot is stopped"
+  },
+  "@home_hosting_total": {
+    "description": "Title of the hosting total time card on the bot home page"
+  },
   "@home_hosting_status_active": {
     "description": "Active session (online)"
   },
@@ -4346,8 +4381,54 @@
     },
     "description": "{count} workflow(s) skipped"
   },
+  "@js_diag_unclosed_opening": {
+    "placeholders": {
+      "opening": {
+        "type": "String"
+      },
+      "line": {
+        "type": "String"
+      }
+    },
+    "description": "Diagnostic: opening delimiter ({opening}) left unclosed (line {line})"
+  },
+  "@js_diag_unexpected_closing": {
+    "placeholders": {
+      "closing": {
+        "type": "String"
+      }
+    },
+    "description": "Diagnostic: unexpected closing delimiter ({closing})"
+  },
+  "@js_diag_unterminated_comment": {
+    "description": "Diagnostic: unterminated block comment"
+  },
+  "@js_diag_unterminated_string": {
+    "description": "Diagnostic: unterminated string literal"
+  },
+  "@js_diag_unterminated_template": {
+    "description": "Diagnostic: unterminated template literal"
+  },
+  "@js_editor_auto_indent": {
+    "description": "Feature bullet in the JavaScript editor UX sheet"
+  },
   "@js_editor_hint": {
     "description": "Hint text in the JavaScript editor field"
+  },
+  "@js_editor_diagnostics_clean": {
+    "description": "Message shown in the diagnostics bar when no syntax problem is found"
+  },
+  "@js_editor_empty": {
+    "description": "Message shown when the JavaScript editor is empty"
+  },
+  "@js_editor_includes": {
+    "description": "Heading above the feature list in the JavaScript editor UX sheet"
+  },
+  "@js_editor_indent_guides": {
+    "description": "Feature bullet in the JavaScript editor UX sheet"
+  },
+  "@js_editor_quick_keys": {
+    "description": "Feature bullet in the JavaScript editor UX sheet"
   },
   "@js_editor_segmented_label": {
     "description": "Short label for JavaScript execution mode SegmentedButton"
@@ -4357,6 +4438,9 @@
   },
   "@js_editor_title": {
     "description": "Card title in the JavaScript editor shell"
+  },
+  "@js_editor_ux_title": {
+    "description": "Title of the JavaScript editor UX sheet"
   },
   "@legacy_bdfd_run_failed": {
     "placeholders": {
@@ -6687,12 +6771,6 @@
   "@settings_team_pill": {
     "description": "TEAM"
   },
-  "@settings_theme_switch_dark": {
-    "description": "Switch to dark mode"
-  },
-  "@settings_theme_switch_light": {
-    "description": "Switch to light mode"
-  },
   "@settings_version_title": {
     "description": "Version"
   },
@@ -7002,6 +7080,18 @@
       }
     },
     "description": "{count, plural, =0{0 months} =1{1 month} other{{count} months}}"
+  },
+  "@unit_short_month": {
+    "description": "Segment label: months (uppercased by the UI)"
+  },
+  "@unit_short_day": {
+    "description": "Segment label: days (uppercased by the UI)"
+  },
+  "@unit_short_hour": {
+    "description": "Segment label: hours (uppercased by the UI)"
+  },
+  "@unit_short_minute": {
+    "description": "Segment label: minutes (uppercased by the UI)"
   },
   "@validation_awaited_callback_format": {
     "description": "Awaited callback must use $awaitedCommand[name;filter] or $awaitedCommandError[name]."
@@ -7495,6 +7585,15 @@
   },
   "@workflows_create": {
     "description": "Create Workflow"
+  },
+  "@workflows_create_subtitle": {
+    "description": "Subtitle for the create workflow CTA card"
+  },
+  "@workflows_create_event": {
+    "description": "Create Event"
+  },
+  "@workflows_create_event_subtitle": {
+    "description": "Subtitle for the create event CTA card"
   },
   "@workflows_delete_confirm": {
     "placeholders": {
@@ -8745,6 +8844,9 @@
   "common_cancel": "Cancel",
   "common_clear": "Clear",
   "common_close": "Close",
+  "common_minimize": "Minimize",
+  "common_maximize": "Maximize",
+  "common_restore": "Restore",
   "common_custom_id": "Custom ID",
   "common_custom_id_required": "Custom ID *",
   "common_default": "Default",
@@ -9059,6 +9161,12 @@
   "home_hosting_expires_today": "Expires today at {time}",
   "home_hosting_expires_tomorrow": "Expires tomorrow at {time}",
   "home_hosting_time_preserved": "Time is preserved while the bot is stopped.",
+  "home_hosting_time_preserved_overline": "Time preserved",
+  "home_hosting_expiration_expected": "Expected expiration",
+  "home_hosting_expires_at": "{date} at {time}",
+  "home_hosting_status_active_short": "Active session",
+  "home_hosting_status_paused_short": "Banked time",
+  "home_hosting_total": "Total time",
   "home_hosting_status_active": "Active session (online)",
   "home_hosting_status_paused": "Banked time (paused)",
   "home_hosting_ad_history": "Ad History",
@@ -9103,10 +9211,22 @@
   "import_summary_variables_imported": "variables imported",
   "import_summary_workflows_imported": "{count} workflow(s) imported",
   "import_summary_workflows_skipped": "{count} workflow(s) skipped",
+  "js_diag_unclosed_opening": "Unclosed “{opening}” opened on line {line}.",
+  "js_diag_unexpected_closing": "Unexpected closing “{closing}”.",
+  "js_diag_unterminated_comment": "Unterminated block comment.",
+  "js_diag_unterminated_string": "Unterminated string literal.",
+  "js_diag_unterminated_template": "Unterminated template literal.",
+  "js_editor_auto_indent": "• Smart auto indentation on Enter",
   "js_editor_hint": "// Write your JavaScript bot command here...",
+  "js_editor_diagnostics_clean": "No syntax problem detected.",
+  "js_editor_empty": "Empty script — start typing to see diagnostics.",
+  "js_editor_includes": "Includes:",
+  "js_editor_indent_guides": "• Live indentation guides",
+  "js_editor_quick_keys": "• Mobile quick-keys for JavaScript symbols",
   "js_editor_segmented_label": "JS",
   "js_editor_subtitle": "Write custom JavaScript for this command",
   "js_editor_title": "JavaScript Editor",
+  "js_editor_ux_title": "Editor UX",
   "legacy_bdfd_run_failed": "Failed to run BDFD script for command \"{command}\": {error}",
   "legacy_prefix_mode_desc": "Handle commands from messageCreate using <prefix><command>.",
   "legacy_prefix_mode_subtitle": "Uses positional options (example: !config #channel).",
@@ -9897,8 +10017,6 @@
   "settings_team_owner_label": "Team Leader",
   "settings_team_ownership": "Team Ownership",
   "settings_team_pill": "TEAM",
-  "settings_theme_switch_dark": "Switch to dark mode",
-  "settings_theme_switch_light": "Switch to light mode",
   "settings_version_title": "Version",
   "settings_view_startup_logs": "View startup logs",
   "startup_copy_diagnostics": "Copy diagnostics",
@@ -10028,6 +10146,10 @@
   "unit_hour": "{count, plural, =0{0 hours} =1{1 hour} other{{count} hours}}",
   "unit_minute": "{count, plural, =0{0 minutes} =1{1 minute} other{{count} minutes}}",
   "unit_month": "{count, plural, =0{0 months} =1{1 month} other{{count} months}}",
+  "unit_short_month": "Months",
+  "unit_short_day": "Days",
+  "unit_short_hour": "Hours",
+  "unit_short_minute": "Min",
   "validation_awaited_callback_format": "Awaited callback must use $awaitedCommand[name;filter] or $awaitedCommandError[name].",
   "validation_awaited_callback_length": "Awaited callback trigger must be at most {max} characters long",
   "validation_awaited_callback_local_only": "Awaited callbacks require a local-only Prefix Command.",
@@ -10194,6 +10316,9 @@
   "workflows_copy_done_json": "Workflows copied as JSON.",
   "workflows_copy_none": "No workflows to copy.",
   "workflows_create": "Create Workflow",
+  "workflows_create_subtitle": "Automate bot actions and events in a few clicks",
+  "workflows_create_event": "Create Event",
+  "workflows_create_event_subtitle": "React to Discord messages, member joins, and events",
   "workflows_delete_confirm": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
   "workflows_delete_title": "Delete workflow",
   "workflows_docs_tooltip": "Open documentation center",

@@ -3343,6 +3343,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get common_close => 'Fermer';
 
   @override
+  String get common_minimize => 'Réduire';
+
+  @override
+  String get common_maximize => 'Agrandir';
+
+  @override
+  String get common_restore => 'Restaurer';
+
+  @override
   String get common_custom_id => 'ID personnalisé';
 
   @override
@@ -4395,6 +4404,26 @@ class AppLocalizationsFr extends AppLocalizations {
       'Le temps est préservé tant que le bot est arrêté.';
 
   @override
+  String get home_hosting_time_preserved_overline => 'Temps préservé';
+
+  @override
+  String get home_hosting_expiration_expected => 'Expiration prévue';
+
+  @override
+  String home_hosting_expires_at(String date, String time) {
+    return '$date à $time';
+  }
+
+  @override
+  String get home_hosting_status_active_short => 'Session active';
+
+  @override
+  String get home_hosting_status_paused_short => 'Réserve disponible';
+
+  @override
+  String get home_hosting_total => 'Temps total';
+
+  @override
   String get home_hosting_status_active => 'Session active (en ligne)';
 
   @override
@@ -4552,7 +4581,48 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String js_diag_unclosed_opening(String opening, String line) {
+    return '« $opening » non fermé, ouvert à la ligne $line.';
+  }
+
+  @override
+  String js_diag_unexpected_closing(String closing) {
+    return 'Fermeture inattendue « $closing ».';
+  }
+
+  @override
+  String get js_diag_unterminated_comment => 'Commentaire de bloc non fermé.';
+
+  @override
+  String get js_diag_unterminated_string => 'Chaîne de caractères non fermée.';
+
+  @override
+  String get js_diag_unterminated_template => 'Template literal non fermé.';
+
+  @override
+  String get js_editor_auto_indent =>
+      '• Indentation automatique intelligente sur Entrée';
+
+  @override
   String get js_editor_hint => '// Écrivez votre commande JavaScript ici...';
+
+  @override
+  String get js_editor_diagnostics_clean =>
+      'Aucun problème de syntaxe détecté.';
+
+  @override
+  String get js_editor_empty =>
+      'Script vide — commencez à écrire pour voir les diagnostics.';
+
+  @override
+  String get js_editor_includes => 'Inclut :';
+
+  @override
+  String get js_editor_indent_guides => '• Guides d\'indentation en temps réel';
+
+  @override
+  String get js_editor_quick_keys =>
+      '• Touches rapides mobiles pour les symboles JavaScript';
 
   @override
   String get js_editor_segmented_label => 'JS';
@@ -4563,6 +4633,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get js_editor_title => 'Éditeur JavaScript';
+
+  @override
+  String get js_editor_ux_title => 'UX de l\'éditeur';
 
   @override
   String legacy_bdfd_run_failed(String command, String error) {
@@ -7247,12 +7320,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settings_team_pill => 'ÉQUIPE';
 
   @override
-  String get settings_theme_switch_dark => 'Passer en mode sombre';
-
-  @override
-  String get settings_theme_switch_light => 'Passer en mode clair';
-
-  @override
   String get settings_version_title => 'Version';
 
   @override
@@ -7656,6 +7723,18 @@ class AppLocalizationsFr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get unit_short_month => 'Mois';
+
+  @override
+  String get unit_short_day => 'Jours';
+
+  @override
+  String get unit_short_hour => 'Heures';
+
+  @override
+  String get unit_short_minute => 'Min';
 
   @override
   String get validation_awaited_callback_format =>
@@ -8173,6 +8252,17 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get workflows_create => 'Créer un workflow';
+
+  @override
+  String get workflows_create_subtitle =>
+      'Automatisez vos actions et événements en quelques clics';
+
+  @override
+  String get workflows_create_event => 'Créer un événement';
+
+  @override
+  String get workflows_create_event_subtitle =>
+      'Réagissez aux messages, arrivées et événements Discord';
 
   @override
   String workflows_delete_confirm(String name) {

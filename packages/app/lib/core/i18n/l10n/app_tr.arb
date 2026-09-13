@@ -3539,8 +3539,54 @@
     },
     "description": "{count} workflow(s) skipped"
   },
+  "@js_diag_unclosed_opening": {
+    "placeholders": {
+      "opening": {
+        "type": "String"
+      },
+      "line": {
+        "type": "String"
+      }
+    },
+    "description": "Diagnostic: opening delimiter ({opening}) left unclosed (line {line})"
+  },
+  "@js_diag_unexpected_closing": {
+    "placeholders": {
+      "closing": {
+        "type": "String"
+      }
+    },
+    "description": "Diagnostic: unexpected closing delimiter ({closing})"
+  },
+  "@js_diag_unterminated_comment": {
+    "description": "Diagnostic: unterminated block comment"
+  },
+  "@js_diag_unterminated_string": {
+    "description": "Diagnostic: unterminated string literal"
+  },
+  "@js_diag_unterminated_template": {
+    "description": "Diagnostic: unterminated template literal"
+  },
+  "@js_editor_auto_indent": {
+    "description": "Feature bullet in the JavaScript editor UX sheet"
+  },
   "@js_editor_hint": {
     "description": "Hint text in the JavaScript editor field"
+  },
+  "@js_editor_diagnostics_clean": {
+    "description": "Message shown in the diagnostics bar when no syntax problem is found"
+  },
+  "@js_editor_empty": {
+    "description": "Message shown when the JavaScript editor is empty"
+  },
+  "@js_editor_includes": {
+    "description": "Heading above the feature list in the JavaScript editor UX sheet"
+  },
+  "@js_editor_indent_guides": {
+    "description": "Feature bullet in the JavaScript editor UX sheet"
+  },
+  "@js_editor_quick_keys": {
+    "description": "Feature bullet in the JavaScript editor UX sheet"
   },
   "@js_editor_segmented_label": {
     "description": "Short label for JavaScript execution mode SegmentedButton"
@@ -3550,6 +3596,9 @@
   },
   "@js_editor_title": {
     "description": "Card title in the JavaScript editor shell"
+  },
+  "@js_editor_ux_title": {
+    "description": "Title of the JavaScript editor UX sheet"
   },
   "@legacy_bdfd_run_failed": {
     "placeholders": {
@@ -5710,12 +5759,6 @@
     },
     "description": "Number of team members"
   },
-  "@settings_theme_switch_dark": {
-    "description": "Switch to dark mode"
-  },
-  "@settings_theme_switch_light": {
-    "description": "Switch to light mode"
-  },
   "@settings_version_title": {
     "description": "Version"
   },
@@ -7705,6 +7748,9 @@
   "common_cancel": "İptal",
   "common_clear": "Temizle",
   "common_close": "Kapat",
+  "common_minimize": "Küçült",
+  "common_maximize": "Büyüt",
+  "common_restore": "Geri yükle",
   "common_custom_id": "Özel ID",
   "common_custom_id_required": "Özel ID *",
   "common_default": "Varsayılan",
@@ -8019,6 +8065,12 @@
   "home_hosting_expires_today": "Bugün saat {time} sona eriyor",
   "home_hosting_expires_tomorrow": "Yarın saat {time} sona eriyor",
   "home_hosting_time_preserved": "Bot durdurulduğu sürece süre korunur.",
+  "home_hosting_time_preserved_overline": "Süre korunuyor",
+  "home_hosting_expiration_expected": "Beklenen bitiş",
+  "home_hosting_expires_at": "{date} saat {time}",
+  "home_hosting_status_active_short": "Aktif oturum",
+  "home_hosting_status_paused_short": "Yedek süre",
+  "home_hosting_total": "Toplam süre",
   "home_hosting_status_active": "Aktif oturum (çevrimiçi)",
   "home_hosting_status_paused": "Yedek süre (duraklatıldı)",
   "home_hosting_ad_history": "Reklam Geçmişi",
@@ -8063,10 +8115,22 @@
   "import_summary_variables_imported": "değişkenler içe aktarıldı",
   "import_summary_workflows_imported": "{count} iş akışı içe aktarıldı",
   "import_summary_workflows_skipped": "{count} iş akışı atlandı",
+  "js_diag_unclosed_opening": "Kapatılmamış “{opening}”, {line}. satırda açıldı.",
+  "js_diag_unexpected_closing": "Beklenmeyen kapanış “{closing}”.",
+  "js_diag_unterminated_comment": "Kapatılmamış blok yorumu.",
+  "js_diag_unterminated_string": "Kapatılmamış dize sabiti.",
+  "js_diag_unterminated_template": "Kapatılmamış şablon sabiti.",
+  "js_editor_auto_indent": "• Enter ile akıllı otomatik girinti",
   "js_editor_hint": "// JavaScript bot komutunuzu buraya yazın...",
+  "js_editor_diagnostics_clean": "Sözdizimi sorunu bulunamadı.",
+  "js_editor_empty": "Boş betik — tanıları görmek için yazmaya başlayın.",
+  "js_editor_includes": "İçerir:",
+  "js_editor_indent_guides": "• Canlı girinti kılavuzları",
+  "js_editor_quick_keys": "• JavaScript sembolleri için mobil hızlı tuşlar",
   "js_editor_segmented_label": "JS",
   "js_editor_subtitle": "Bu komut için özel JavaScript yazın",
   "js_editor_title": "JavaScript Düzenleyici",
+  "js_editor_ux_title": "Düzenleyici UX",
   "legacy_bdfd_run_failed": "\"{command}\" komutu için BDFD betiği çalıştırılamadı: {error}",
   "legacy_prefix_mode_desc": "messageCreate'den gelen komutları <on_ek><komut> kullanarak işler.",
   "legacy_prefix_mode_subtitle": "Konumsal seçenekleri kullanır (örnek: !config #kanal).",
@@ -8787,8 +8851,6 @@
   "settings_team_owner_label": "Ekip Lideri",
   "settings_team_ownership": "Ekip Sahipliği",
   "settings_team_pill": "EKİP",
-  "settings_theme_switch_dark": "Karanlık moda geç",
-  "settings_theme_switch_light": "Açık moda geç",
   "settings_version_title": "Sürüm",
   "settings_view_startup_logs": "Başlangıç günlüklerini görüntüle",
   "startup_copy_diagnostics": "Tanılamaları kopyala",
@@ -8873,6 +8935,10 @@
   "unit_hour": "{count, plural, =0{0 saat} =1{1 saat} other{{count} saat}}",
   "unit_minute": "{count, plural, =0{0 dakika} =1{1 dakika} other{{count} dakika}}",
   "unit_month": "{count, plural, =0{0 ay} =1{1 ay} other{{count} ay}}",
+  "unit_short_month": "Ay",
+  "unit_short_day": "Gün",
+  "unit_short_hour": "Saat",
+  "unit_short_minute": "Dak",
   "validation_awaited_callback_format": "Beklenen geri arama $awaitedCommand[ad;filtre] veya $awaitedCommandError[ad] kullanmalıdır.",
   "validation_awaited_callback_length": "Beklenen geri arama tetikleyicisi en fazla {max} karakter uzunluğunda olmalıdır",
   "validation_awaited_callback_local_only": "Beklenen geri aramalar yalnızca yerel bir Ön Ek Komutu gerektirir.",
@@ -9019,6 +9085,9 @@
   "workflows_copy_done_json": "İş akışları JSON olarak kopyalandı.",
   "workflows_copy_none": "Kopyalanacak iş akışı yok.",
   "workflows_create": "İş Akışı Oluştur",
+  "workflows_create_subtitle": "Birkaç tıkta bot eylemlerini ve etkinliklerini otomatikleştirin",
+  "workflows_create_event": "Etkinlik Oluştur",
+  "workflows_create_event_subtitle": "Discord mesajlarına, üye katılımlarına ve etkinliklere yanıt verin",
   "workflows_delete_confirm": "\"{name}\" silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
   "workflows_delete_title": "İş akışını sil",
   "workflows_docs_tooltip": "Belgelendirme merkezini aç",

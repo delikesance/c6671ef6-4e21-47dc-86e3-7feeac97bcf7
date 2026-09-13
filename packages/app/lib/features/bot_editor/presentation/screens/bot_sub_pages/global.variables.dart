@@ -15,6 +15,7 @@ import 'package:flutter/services.dart';
 import 'package:nyxx/nyxx.dart' hide Builder;
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
+import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/editor_sub_page_ui.dart';
 
 enum _VariableMode { global, scoped }
@@ -1698,6 +1699,12 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
           onSelected: (id) => unawaited(_switchSource(id)),
         ),
       IconButton(
+        tooltip: context.tr.globals_add,
+        onPressed: () =>
+            _isScopedMode ? _editScopedDefinition() : _editGlobalVariable(),
+        icon: const Icon(Icons.add_rounded),
+      ),
+      IconButton(
         tooltip: context.tr.globals_refresh,
         onPressed: _load,
         icon: const Icon(Icons.refresh),
@@ -1723,27 +1730,19 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
         ),
         actions: sourceActions,
       ),
-      floatingActionButton: LayoutBuilder(
-        builder: (ctx, constraints) {
-          final isWide = MediaQuery.of(context).size.width >= _wideBreakpoint;
-          if (isWide) return const SizedBox.shrink();
-          return FloatingActionButton(
-            onPressed: () =>
-                _isScopedMode ? _editScopedDefinition() : _editGlobalVariable(),
-            child: const Icon(Icons.add),
-          );
-        },
-      ),
       body: SafeArea(
         top: false,
-        child: _loading
-            ? const Center(child: CircularProgressIndicator())
-            : LayoutBuilder(
-                builder: (ctx, constraints) {
-                  final isWide = constraints.maxWidth >= _wideBreakpoint;
-                  return _buildVariablesContent(isWide: isWide);
-                },
-              ),
+        // Largeur et marges communes à toutes les pages (contrat AppPageLayout).
+        child: PageContent(
+          child: _loading
+              ? const Center(child: CircularProgressIndicator())
+              : LayoutBuilder(
+                  builder: (ctx, constraints) {
+                    final isWide = constraints.maxWidth >= _wideBreakpoint;
+                    return _buildVariablesContent(isWide: isWide);
+                  },
+                ),
+        ),
       ),
     );
   }

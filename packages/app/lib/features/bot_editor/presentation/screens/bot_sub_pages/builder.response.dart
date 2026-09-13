@@ -11,6 +11,7 @@ import 'builder/action_type_extension.dart';
 import 'builder/action_summary.dart';
 
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/core/models/types/variable_suggestion.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
@@ -1345,8 +1346,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
   }
 
   Widget _buildActionSequence({
-    required EdgeInsetsGeometry padding,
-    required double maxContentWidth,
+    required EdgeInsets padding,
     bool showAddButton = true,
   }) {
     if (_actions.isEmpty) {
@@ -1438,14 +1438,11 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
       if (showAddButton) _buildAddBlockButton(),
     ];
 
-    return Center(
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: maxContentWidth),
-        child: ScratchBlockCanvas(
-          padding: padding as EdgeInsets,
-          skipConnectorAfterIndices: skipConnectorAfterIndices,
-          children: children,
-        ),
+    return PageContent(
+      child: ScratchBlockCanvas(
+        padding: padding,
+        skipConnectorAfterIndices: skipConnectorAfterIndices,
+        children: children,
       ),
     );
   }
@@ -1639,6 +1636,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
       ),
       floatingActionButton: _actions.isNotEmpty
           ? FloatingActionButton.extended(
+              heroTag: null,
               onPressed: _saveActions,
               icon: Icon(widget.editPath.isNotEmpty ? Icons.check : Icons.save),
               label: Text(
@@ -1666,8 +1664,9 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
                       !Platform.environment.containsKey('FLUTTER_TEST');
 
                   final canvasWidget = _buildActionSequence(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 88),
-                    maxContentWidth: 980,
+                    // Marges horizontales communes ([PageContent]) ; la
+                    // réserve basse du canvas reste locale.
+                    padding: const EdgeInsets.only(top: 8, bottom: 88),
                     showAddButton: !isDesktop,
                   );
 

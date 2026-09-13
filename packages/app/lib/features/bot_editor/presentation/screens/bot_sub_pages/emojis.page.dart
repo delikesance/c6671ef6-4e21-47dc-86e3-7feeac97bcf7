@@ -11,6 +11,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
+import 'package:bot_creator/core/widgets/page_layout.dart';
 
 class EmojisPage extends StatefulWidget {
   final String botId;
@@ -264,18 +265,19 @@ class _EmojisPageState extends State<EmojisPage> {
         title: Text(context.tr.emojis_title),
         actions: [
           IconButton(
+            icon: const Icon(Icons.add_rounded),
+            tooltip: context.tr.emojis_upload,
+            onPressed: _showUploadDialog,
+          ),
+          IconButton(
             icon: const Icon(Icons.refresh),
             tooltip: context.tr.common_refresh,
             onPressed: _loadEmojis,
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _showUploadDialog,
-        icon: const Icon(Icons.add_rounded),
-        label: Text(context.tr.emojis_upload),
-      ),
-      body: SafeArea(top: false, child: _buildBody()),
+      // Largeur et marges communes à toutes les pages (contrat AppPageLayout).
+      body: SafeArea(top: false, child: PageContent(child: _buildBody())),
     );
   }
 

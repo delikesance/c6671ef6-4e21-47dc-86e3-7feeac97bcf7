@@ -3539,8 +3539,54 @@
     },
     "description": "{count} workflow(s) skipped"
   },
+  "@js_diag_unclosed_opening": {
+    "placeholders": {
+      "opening": {
+        "type": "String"
+      },
+      "line": {
+        "type": "String"
+      }
+    },
+    "description": "Diagnostic: opening delimiter ({opening}) left unclosed (line {line})"
+  },
+  "@js_diag_unexpected_closing": {
+    "placeholders": {
+      "closing": {
+        "type": "String"
+      }
+    },
+    "description": "Diagnostic: unexpected closing delimiter ({closing})"
+  },
+  "@js_diag_unterminated_comment": {
+    "description": "Diagnostic: unterminated block comment"
+  },
+  "@js_diag_unterminated_string": {
+    "description": "Diagnostic: unterminated string literal"
+  },
+  "@js_diag_unterminated_template": {
+    "description": "Diagnostic: unterminated template literal"
+  },
+  "@js_editor_auto_indent": {
+    "description": "Feature bullet in the JavaScript editor UX sheet"
+  },
   "@js_editor_hint": {
     "description": "Hint text in the JavaScript editor field"
+  },
+  "@js_editor_diagnostics_clean": {
+    "description": "Message shown in the diagnostics bar when no syntax problem is found"
+  },
+  "@js_editor_empty": {
+    "description": "Message shown when the JavaScript editor is empty"
+  },
+  "@js_editor_includes": {
+    "description": "Heading above the feature list in the JavaScript editor UX sheet"
+  },
+  "@js_editor_indent_guides": {
+    "description": "Feature bullet in the JavaScript editor UX sheet"
+  },
+  "@js_editor_quick_keys": {
+    "description": "Feature bullet in the JavaScript editor UX sheet"
   },
   "@js_editor_segmented_label": {
     "description": "Short label for JavaScript execution mode SegmentedButton"
@@ -3550,6 +3596,9 @@
   },
   "@js_editor_title": {
     "description": "Card title in the JavaScript editor shell"
+  },
+  "@js_editor_ux_title": {
+    "description": "Title of the JavaScript editor UX sheet"
   },
   "@legacy_bdfd_run_failed": {
     "placeholders": {
@@ -5743,12 +5792,6 @@
     },
     "description": "Number of team members"
   },
-  "@settings_theme_switch_dark": {
-    "description": "Switch to dark mode"
-  },
-  "@settings_theme_switch_light": {
-    "description": "Switch to light mode"
-  },
   "@settings_version_title": {
     "description": "Version"
   },
@@ -7738,6 +7781,9 @@
   "common_cancel": "Cancelar",
   "common_clear": "Limpar",
   "common_close": "Fechar",
+  "common_minimize": "Minimizar",
+  "common_maximize": "Maximizar",
+  "common_restore": "Restaurar",
   "common_custom_id": "ID Personalizado",
   "common_custom_id_required": "ID Personalizado *",
   "common_default": "Padrão",
@@ -8052,6 +8098,12 @@
   "home_hosting_expires_today": "Expira hoje às {time}",
   "home_hosting_expires_tomorrow": "Expira amanhã às {time}",
   "home_hosting_time_preserved": "O tempo é preservado enquanto o bot estiver parado.",
+  "home_hosting_time_preserved_overline": "Tempo preservado",
+  "home_hosting_expiration_expected": "Expiração prevista",
+  "home_hosting_expires_at": "{date} às {time}",
+  "home_hosting_status_active_short": "Sessão ativa",
+  "home_hosting_status_paused_short": "Tempo reservado",
+  "home_hosting_total": "Tempo total",
   "home_hosting_status_active": "Sessão ativa (online)",
   "home_hosting_status_paused": "Tempo reservado (em pausa)",
   "home_hosting_ad_history": "Histórico de anúncios",
@@ -8096,10 +8148,22 @@
   "import_summary_variables_imported": "variáveis importadas",
   "import_summary_workflows_imported": "{count} workflow(s) importado(s)",
   "import_summary_workflows_skipped": "{count} workflow(s) ignorado(s)",
+  "js_diag_unclosed_opening": "“{opening}” não fechado, aberto na linha {line}.",
+  "js_diag_unexpected_closing": "Fechamento inesperado “{closing}”.",
+  "js_diag_unterminated_comment": "Comentário de bloco não finalizado.",
+  "js_diag_unterminated_string": "Literal de string não finalizado.",
+  "js_diag_unterminated_template": "Template literal não finalizado.",
+  "js_editor_auto_indent": "• Indentação automática inteligente ao pressionar Enter",
   "js_editor_hint": "// Escreva seu comando JavaScript aqui...",
+  "js_editor_diagnostics_clean": "Nenhum problema de sintaxe detectado.",
+  "js_editor_empty": "Script vazio — comece a digitar para ver os diagnósticos.",
+  "js_editor_includes": "Inclui:",
+  "js_editor_indent_guides": "• Guias de indentação em tempo real",
+  "js_editor_quick_keys": "• Teclas rápidas móveis para símbolos JavaScript",
   "js_editor_segmented_label": "JS",
   "js_editor_subtitle": "Escreva JavaScript personalizado para este comando",
   "js_editor_title": "Editor JavaScript",
+  "js_editor_ux_title": "UX do editor",
   "legacy_bdfd_run_failed": "Falha ao executar o script BDFD para o comando \"{command}\": {error}",
   "legacy_prefix_mode_desc": "Lida com comandos de messageCreate usando <prefixo><comando>.",
   "legacy_prefix_mode_subtitle": "Usa opções posicionais (exemplo: !config #canal).",
@@ -8820,8 +8884,6 @@
   "settings_team_owner_label": "Líder da Equipe",
   "settings_team_ownership": "Propriedade da Equipe",
   "settings_team_pill": "EQUIPE",
-  "settings_theme_switch_dark": "Mudar para modo escuro",
-  "settings_theme_switch_light": "Mudar para modo claro",
   "settings_version_title": "Versão",
   "settings_view_startup_logs": "Ver registos de arranque",
   "startup_copy_diagnostics": "Copiar diagnósticos",
@@ -8906,6 +8968,10 @@
   "unit_hour": "{count, plural, =0{0 horas} =1{1 hora} other{{count} horas}}",
   "unit_minute": "{count, plural, =0{0 minutos} =1{1 minuto} other{{count} minutos}}",
   "unit_month": "{count, plural, =0{0 meses} =1{1 mês} other{{count} meses}}",
+  "unit_short_month": "Meses",
+  "unit_short_day": "Dias",
+  "unit_short_hour": "Horas",
+  "unit_short_minute": "Min",
   "validation_awaited_callback_format": "O retorno de chamada aguardado deve usar $awaitedCommand[nome;filtro] ou $awaitedCommandError[nome].",
   "validation_awaited_callback_length": "O gatilho de retorno de chamada aguardado deve ter no máximo {max} caracteres",
   "validation_awaited_callback_local_only": "Retornos de chamada aguardados requerem um Comando com Prefixo apenas local.",
@@ -9052,6 +9118,9 @@
   "workflows_copy_done_json": "Workflows copiados como JSON.",
   "workflows_copy_none": "Nenhum workflow para copiar.",
   "workflows_create": "Criar Workflow",
+  "workflows_create_subtitle": "Automatize ações e eventos do bot em poucos cliques",
+  "workflows_create_event": "Criar Evento",
+  "workflows_create_event_subtitle": "Reaja a mensagens, entradas de membros e eventos do Discord",
   "workflows_delete_confirm": "Tem a certeza que deseja apagar \"{name}\"? Esta ação não pode ser desfeita.",
   "workflows_delete_title": "Apagar workflow",
   "workflows_docs_tooltip": "Abrir centro de documentação",

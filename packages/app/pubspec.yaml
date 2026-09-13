@@ -88,6 +88,7 @@ dependencies:
   web_socket_channel: ^3.0.1
   re_highlight: ^0.0.3
   google_fonts: ^6.2.1
+  window_manager: ^0.5.2
 
 
 dependency_overrides:

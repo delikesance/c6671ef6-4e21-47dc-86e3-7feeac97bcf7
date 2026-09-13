@@ -5,6 +5,7 @@ import 'package:bot_creator/features/subscriptions/presentation/subscription_pag
 import 'package:flutter/material.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
+import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/editor_sub_page_ui.dart';
 import 'package:bot_creator/features/bot_editor/logic/workflow_call.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
@@ -322,6 +323,7 @@ class _SchedulerPageState extends State<SchedulerPage> {
       ),
       floatingActionButton: _hasSchedulerCapability
           ? FloatingActionButton.extended(
+              heroTag: null,
               onPressed: () => _showEditor(),
               icon: const Icon(Icons.add),
               label: Text(context.tr.scheduler_add_trigger),
@@ -329,116 +331,119 @@ class _SchedulerPageState extends State<SchedulerPage> {
           : null,
       body: SafeArea(
         top: false,
-        child: _loading
-            ? const Center(child: CircularProgressIndicator())
-            : Column(
-                children: [
-                  if (!_hasSchedulerCapability) _buildUpsellCard(),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppTheme.spacingLg,
-                      AppTheme.spacingMd,
-                      AppTheme.spacingLg,
-                      AppTheme.spacingSm,
-                    ),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        context.tr.scheduler_triggers_count(
-                          _triggers.length,
-                          limit > 0 ? ' / $limit' : '',
+        child: PageContent(
+          child: _loading
+              ? const Center(child: CircularProgressIndicator())
+              : Column(
+                  children: [
+                    if (!_hasSchedulerCapability) _buildUpsellCard(),
+                    Padding(
+                      // Marges horizontales portées par PageContent.
+                      padding: const EdgeInsets.only(
+                        top: AppTheme.spacingMd,
+                        bottom: AppTheme.spacingSm,
+                      ),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          context.tr.scheduler_triggers_count(
+                            _triggers.length,
+                            limit > 0 ? ' / $limit' : '',
+                          ),
+                          style: Theme.of(context).textTheme.labelMedium
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                                fontWeight: AppTheme.fontWeightSemiBold,
+                              ),
                         ),
-                        style: Theme.of(context).textTheme.labelMedium
-                            ?.copyWith(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurfaceVariant,
-                              fontWeight: AppTheme.fontWeightSemiBold,
-                            ),
                       ),
                     ),
-                  ),
-                  Expanded(
-                    child: _triggers.isEmpty
-                        ? EditorEmptyState(
-                            icon: Icons.schedule_rounded,
-                            title: context.tr.scheduler_empty,
-                            description: _workflowNames.isEmpty
-                                ? context.tr.scheduler_no_workflows
-                                : null,
-                            actionLabel: _hasSchedulerCapability
-                                ? context.tr.scheduler_add_trigger
-                                : null,
-                            onAction: _hasSchedulerCapability
-                                ? _showEditor
-                                : null,
-                          )
-                        : ListView.separated(
-                            padding: EdgeInsets.only(
-                              bottom:
-                                  FloatingGlassNavBar.contentClearanceOf(
-                                    context,
-                                  ) +
-                                  24,
-                            ),
-                            itemCount: _triggers.length,
-                            separatorBuilder: (_, _) =>
-                                const Divider(height: 1),
-                            itemBuilder: (context, index) {
-                              final trigger = _triggers[index];
-                              final label =
-                                  (trigger['label'] ??
-                                          trigger['workflowName'] ??
-                                          '')
-                                      .toString();
-                              final workflowName =
-                                  (trigger['workflowName'] ?? '').toString();
-                              final everyMinutes =
-                                  int.tryParse(
-                                    (trigger['everyMinutes'] ?? '').toString(),
-                                  ) ??
-                                  60;
-                              final enabled = trigger['enabled'] != false;
-                              return ListTile(
-                                title: Text(label),
-                                subtitle: Text(
-                                  context.tr.scheduler_subtitle(
-                                    workflowName,
-                                    everyMinutes,
+                    Expanded(
+                      child: _triggers.isEmpty
+                          ? EditorEmptyState(
+                              icon: Icons.schedule_rounded,
+                              title: context.tr.scheduler_empty,
+                              description: _workflowNames.isEmpty
+                                  ? context.tr.scheduler_no_workflows
+                                  : null,
+                              actionLabel: _hasSchedulerCapability
+                                  ? context.tr.scheduler_add_trigger
+                                  : null,
+                              onAction: _hasSchedulerCapability
+                                  ? _showEditor
+                                  : null,
+                            )
+                          : ListView.separated(
+                              padding: EdgeInsets.only(
+                                bottom:
+                                    FloatingGlassNavBar.contentClearanceOf(
+                                      context,
+                                    ) +
+                                    24,
+                              ),
+                              itemCount: _triggers.length,
+                              separatorBuilder: (_, _) =>
+                                  const Divider(height: 1),
+                              itemBuilder: (context, index) {
+                                final trigger = _triggers[index];
+                                final label =
+                                    (trigger['label'] ??
+                                            trigger['workflowName'] ??
+                                            '')
+                                        .toString();
+                                final workflowName =
+                                    (trigger['workflowName'] ?? '').toString();
+                                final everyMinutes =
+                                    int.tryParse(
+                                      (trigger['everyMinutes'] ?? '')
+                                          .toString(),
+                                    ) ??
+                                    60;
+                                final enabled = trigger['enabled'] != false;
+                                return ListTile(
+                                  title: Text(label),
+                                  subtitle: Text(
+                                    context.tr.scheduler_subtitle(
+                                      workflowName,
+                                      everyMinutes,
+                                    ),
                                   ),
-                                ),
-                                leading: Switch.adaptive(
-                                  value: enabled,
-                                  onChanged: _hasSchedulerCapability
-                                      ? (value) =>
-                                            _toggleTrigger(trigger, value)
-                                      : null,
-                                ),
-                                trailing: Wrap(
-                                  spacing: 4,
-                                  children: [
-                                    IconButton(
-                                      tooltip: context.tr.common_edit,
-                                      onPressed: _hasSchedulerCapability
-                                          ? () => _showEditor(initial: trigger)
-                                          : null,
-                                      icon: const Icon(Icons.edit_outlined),
-                                    ),
-                                    IconButton(
-                                      tooltip: context.tr.delete,
-                                      onPressed: _hasSchedulerCapability
-                                          ? () => _deleteTrigger(trigger)
-                                          : null,
-                                      icon: const Icon(Icons.delete_outline),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                  ),
-                ],
-              ),
+                                  leading: Switch.adaptive(
+                                    value: enabled,
+                                    onChanged: _hasSchedulerCapability
+                                        ? (value) =>
+                                              _toggleTrigger(trigger, value)
+                                        : null,
+                                  ),
+                                  trailing: Wrap(
+                                    spacing: 4,
+                                    children: [
+                                      IconButton(
+                                        tooltip: context.tr.common_edit,
+                                        onPressed: _hasSchedulerCapability
+                                            ? () =>
+                                                  _showEditor(initial: trigger)
+                                            : null,
+                                        icon: const Icon(Icons.edit_outlined),
+                                      ),
+                                      IconButton(
+                                        tooltip: context.tr.delete,
+                                        onPressed: _hasSchedulerCapability
+                                            ? () => _deleteTrigger(trigger)
+                                            : null,
+                                        icon: const Icon(Icons.delete_outline),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                    ),
+                  ],
+                ),
+        ),
       ),
     );
   }

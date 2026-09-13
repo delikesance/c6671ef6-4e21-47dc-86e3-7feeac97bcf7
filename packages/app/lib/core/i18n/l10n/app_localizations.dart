@@ -5861,6 +5861,24 @@ abstract class AppLocalizations {
   /// **'Close'**
   String get common_close;
 
+  /// Window control: minimize (desktop title bar)
+  ///
+  /// In en, this message translates to:
+  /// **'Minimize'**
+  String get common_minimize;
+
+  /// Window control: maximize (desktop title bar)
+  ///
+  /// In en, this message translates to:
+  /// **'Maximize'**
+  String get common_maximize;
+
+  /// Window control: restore a maximized window (desktop title bar)
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get common_restore;
+
   /// Custom ID
   ///
   /// In en, this message translates to:
@@ -7745,6 +7763,42 @@ abstract class AppLocalizations {
   /// **'Time is preserved while the bot is stopped.'**
   String get home_hosting_time_preserved;
 
+  /// Overline shown instead of the expiration when the bot is stopped
+  ///
+  /// In en, this message translates to:
+  /// **'Time preserved'**
+  String get home_hosting_time_preserved_overline;
+
+  /// Overline of the hosting expiration block
+  ///
+  /// In en, this message translates to:
+  /// **'Expected expiration'**
+  String get home_hosting_expiration_expected;
+
+  /// Absolute expiration, e.g. '21 Nov 2037 at 17:55'
+  ///
+  /// In en, this message translates to:
+  /// **'{date} at {time}'**
+  String home_hosting_expires_at(String date, String time);
+
+  /// Status pill label when the bot is running
+  ///
+  /// In en, this message translates to:
+  /// **'Active session'**
+  String get home_hosting_status_active_short;
+
+  /// Status pill label when the bot is stopped
+  ///
+  /// In en, this message translates to:
+  /// **'Banked time'**
+  String get home_hosting_status_paused_short;
+
+  /// Title of the hosting total time card on the bot home page
+  ///
+  /// In en, this message translates to:
+  /// **'Total time'**
+  String get home_hosting_total;
+
   /// Active session (online)
   ///
   /// In en, this message translates to:
@@ -8009,11 +8063,77 @@ abstract class AppLocalizations {
   /// **'{count} workflow(s) skipped'**
   String import_summary_workflows_skipped(int count);
 
+  /// Diagnostic: opening delimiter ({opening}) left unclosed (line {line})
+  ///
+  /// In en, this message translates to:
+  /// **'Unclosed “{opening}” opened on line {line}.'**
+  String js_diag_unclosed_opening(String opening, String line);
+
+  /// Diagnostic: unexpected closing delimiter ({closing})
+  ///
+  /// In en, this message translates to:
+  /// **'Unexpected closing “{closing}”.'**
+  String js_diag_unexpected_closing(String closing);
+
+  /// Diagnostic: unterminated block comment
+  ///
+  /// In en, this message translates to:
+  /// **'Unterminated block comment.'**
+  String get js_diag_unterminated_comment;
+
+  /// Diagnostic: unterminated string literal
+  ///
+  /// In en, this message translates to:
+  /// **'Unterminated string literal.'**
+  String get js_diag_unterminated_string;
+
+  /// Diagnostic: unterminated template literal
+  ///
+  /// In en, this message translates to:
+  /// **'Unterminated template literal.'**
+  String get js_diag_unterminated_template;
+
+  /// Feature bullet in the JavaScript editor UX sheet
+  ///
+  /// In en, this message translates to:
+  /// **'• Smart auto indentation on Enter'**
+  String get js_editor_auto_indent;
+
   /// Hint text in the JavaScript editor field
   ///
   /// In en, this message translates to:
   /// **'// Write your JavaScript bot command here...'**
   String get js_editor_hint;
+
+  /// Message shown in the diagnostics bar when no syntax problem is found
+  ///
+  /// In en, this message translates to:
+  /// **'No syntax problem detected.'**
+  String get js_editor_diagnostics_clean;
+
+  /// Message shown when the JavaScript editor is empty
+  ///
+  /// In en, this message translates to:
+  /// **'Empty script — start typing to see diagnostics.'**
+  String get js_editor_empty;
+
+  /// Heading above the feature list in the JavaScript editor UX sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Includes:'**
+  String get js_editor_includes;
+
+  /// Feature bullet in the JavaScript editor UX sheet
+  ///
+  /// In en, this message translates to:
+  /// **'• Live indentation guides'**
+  String get js_editor_indent_guides;
+
+  /// Feature bullet in the JavaScript editor UX sheet
+  ///
+  /// In en, this message translates to:
+  /// **'• Mobile quick-keys for JavaScript symbols'**
+  String get js_editor_quick_keys;
 
   /// Short label for JavaScript execution mode SegmentedButton
   ///
@@ -8032,6 +8152,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'JavaScript Editor'**
   String get js_editor_title;
+
+  /// Title of the JavaScript editor UX sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Editor UX'**
+  String get js_editor_ux_title;
 
   /// Failed to run BDFD script for command "{command}": {error}
   ///
@@ -12568,18 +12694,6 @@ abstract class AppLocalizations {
   /// **'TEAM'**
   String get settings_team_pill;
 
-  /// Switch to dark mode
-  ///
-  /// In en, this message translates to:
-  /// **'Switch to dark mode'**
-  String get settings_theme_switch_dark;
-
-  /// Switch to light mode
-  ///
-  /// In en, this message translates to:
-  /// **'Switch to light mode'**
-  String get settings_theme_switch_light;
-
   /// Version
   ///
   /// In en, this message translates to:
@@ -13203,6 +13317,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =0{0 months} =1{1 month} other{{count} months}}'**
   String unit_month(int count);
+
+  /// Segment label: months (uppercased by the UI)
+  ///
+  /// In en, this message translates to:
+  /// **'Months'**
+  String get unit_short_month;
+
+  /// Segment label: days (uppercased by the UI)
+  ///
+  /// In en, this message translates to:
+  /// **'Days'**
+  String get unit_short_day;
+
+  /// Segment label: hours (uppercased by the UI)
+  ///
+  /// In en, this message translates to:
+  /// **'Hours'**
+  String get unit_short_hour;
+
+  /// Segment label: minutes (uppercased by the UI)
+  ///
+  /// In en, this message translates to:
+  /// **'Min'**
+  String get unit_short_minute;
 
   /// Awaited callback must use $awaitedCommand[name;filter] or $awaitedCommandError[name].
   ///
@@ -14079,6 +14217,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Create Workflow'**
   String get workflows_create;
+
+  /// Subtitle for the create workflow CTA card
+  ///
+  /// In en, this message translates to:
+  /// **'Automate bot actions and events in a few clicks'**
+  String get workflows_create_subtitle;
+
+  /// Create Event
+  ///
+  /// In en, this message translates to:
+  /// **'Create Event'**
+  String get workflows_create_event;
+
+  /// Subtitle for the create event CTA card
+  ///
+  /// In en, this message translates to:
+  /// **'React to Discord messages, member joins, and events'**
+  String get workflows_create_event_subtitle;
 
   /// Are you sure you want to delete "{name}"? This action cannot be undone.
   ///

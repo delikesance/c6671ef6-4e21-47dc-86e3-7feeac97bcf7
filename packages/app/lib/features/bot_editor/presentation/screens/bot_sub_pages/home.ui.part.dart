@@ -476,145 +476,82 @@ extension _AppHomePageUI on _AppHomePageState {
     );
   }
 
+  /// Carte « temps total » de l'hébergement : en-tête (libellé de section +
+  /// historique des pubs + refresh) puis la carte qui détaille la réserve.
   Widget _buildHostingCard(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final tokens = HomeTokens.of(context);
-    final cardColor = isDark ? tokens.card : colorScheme.surfaceContainer;
-    final borderColor =
-        (_displayFreeMinutesBalance() < 120 && _botLaunched
-                ? colorScheme.error
-                : (isDark ? tokens.cardBorder : colorScheme.outlineVariant))
-            .withValues(alpha: 0.9);
+    final balance = _displayFreeMinutesBalance();
+    final parts = splitHostingDuration(balance);
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(AppTheme.radiusCard),
-        border: Border.all(color: borderColor),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: _botLaunched ? AppTheme.online : AppTheme.warning,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  _botLaunched
-                      ? context.tr.home_hosting_status_active
-                      : context.tr.home_hosting_status_paused,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: _botLaunched ? AppTheme.online : AppTheme.warning,
-                  ),
-                ),
-              ),
-              if (_ownerMetadata?.teamId.isNotEmpty == true) ...[
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.discord.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                    border: Border.all(
-                      color: AppTheme.discord.withValues(alpha: 0.3),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.groups, size: 12, color: AppTheme.discord),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Team',
-                        style: GoogleFonts.inter(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.discord,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-              ],
-              HomeHeaderIconButton(
-                icon: Icons.history_rounded,
-                iconSize: 14,
-                tooltip: context.tr.home_hosting_ad_history,
-                onTap: _showAdHistoryDialog,
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Text(
-            _botLaunched
-                ? (_sessionExpiresAt != null
-                      ? formatSessionExpiration(context, _sessionExpiresAt!)
-                      : formatSessionExpiration(
-                          context,
-                          DateTime.now().add(
-                            Duration(minutes: _displayFreeMinutesBalance()),
-                          ),
-                        ))
-                : context.tr.home_hosting_banked(
-                    formatDuration(_displayFreeMinutesBalance()),
-                  ),
-            style: homeDisplayStyle(
-              15,
-              color: _hostingTimeColor(_displayFreeMinutesBalance()),
-              weight: FontWeight.w700,
-            ),
-          ),
-          if (_botLaunched) ...[
-            const SizedBox(height: 4),
-            Text(
-              context.tr.home_hosting_time_left(
-                formatDuration(_displayFreeMinutesBalance()),
-              ),
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w400,
-                color: isDark ? tokens.muted : colorScheme.onSurfaceVariant,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                context.tr.home_hosting_total,
+                style: homeSectionLabelStyle(context),
               ),
             ),
-          ] else ...[
-            const SizedBox(height: 4),
-            Text(
-              context.tr.home_hosting_time_preserved,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w400,
-                color: isDark ? tokens.muted : colorScheme.onSurfaceVariant,
-              ),
+            HomeHeaderIconButton(
+              icon: Icons.history_rounded,
+              iconSize: 14,
+              tooltip: context.tr.home_hosting_ad_history,
+              onTap: _showAdHistoryDialog,
+            ),
+            const SizedBox(width: 8),
+            HomeHeaderIconButton(
+              icon: Icons.refresh_rounded,
+              iconSize: 14,
+              tooltip: context.tr.common_refresh,
+              onTap: _isReconciling ? null : _refreshOverview,
             ),
           ],
-          const SizedBox(height: 12),
-          HomeCardActionButton(
-            icon: Icons.add_rounded,
-            iconSize: 14,
-            label: context.tr.home_add_time,
-            onTap: _isAddingTime ? null : _addRuntimeTime,
-            loading: _isAddingTime,
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 10),
+        HomeHostingTimeCard(
+          statusLabel: _botLaunched
+              ? context.tr.home_hosting_status_active_short
+              : context.tr.home_hosting_status_paused_short,
+          // Quand le bot tourne, la pastille porte la santé de la réserve
+          // (vert / orange / rouge) ; arrêté, la réserve est simplement en
+          // attente.
+          statusColor: _botLaunched
+              ? _hostingTimeColor(balance)
+              : AppTheme.warning,
+          overline: _botLaunched
+              ? context.tr.home_hosting_expiration_expected
+              : context.tr.home_hosting_time_preserved_overline,
+          headline: _botLaunched
+              ? formatHostingExpiration(
+                  context,
+                  _sessionExpiresAt ??
+                      DateTime.now().add(Duration(minutes: balance)),
+                )
+              : formatDuration(balance),
+          segments: [
+            (
+              value: _twoDigits(parts.months),
+              label: context.tr.unit_short_month,
+            ),
+            (value: _twoDigits(parts.days), label: context.tr.unit_short_day),
+            (value: _twoDigits(parts.hours), label: context.tr.unit_short_hour),
+            (
+              value: _twoDigits(parts.minutes),
+              label: context.tr.unit_short_minute,
+            ),
+          ],
+          showTeamBadge: _ownerMetadata?.teamId.isNotEmpty == true,
+          emphasizeBorder: balance < 120 && _botLaunched,
+          isAddingTime: _isAddingTime,
+          onAddTime: _isAddingTime ? null : _addRuntimeTime,
+        ),
+      ],
     );
   }
+
+  /// Complète une valeur sur deux chiffres (« 07 », « 05 », « 53 »).
+  String _twoDigits(int value) => value.toString().padLeft(2, '0');
 }
 
 class _WireframeSection extends StatelessWidget {
@@ -788,13 +725,15 @@ const double kBotHomeLogsHeaderCompactWidth = 400;
 ///   l'appelant à placer un `Expanded` (ex. la console de logs) dans la
 ///   colonne de droite.
 /// - `false` : fenêtre courte, mise en page scrollable historique inchangée.
+///
+/// La largeur et les marges horizontales viennent du contrat commun
+/// ([PageContent]) : la page ne code plus ses propres bornes.
 class BotHomeDesktopOverview extends StatelessWidget {
   const BotHomeDesktopOverview({
     super.key,
     this.header,
     required this.leftBuilder,
     required this.rightBuilder,
-    this.maxContentWidth = 1200,
   });
 
   final Widget? header;
@@ -802,9 +741,14 @@ class BotHomeDesktopOverview extends StatelessWidget {
   leftBuilder;
   final List<Widget> Function(BuildContext context, bool fillViewport)
   rightBuilder;
-  final double maxContentWidth;
 
-  static const EdgeInsets _padding = EdgeInsets.fromLTRB(24, 16, 24, 32);
+  /// Respiration verticale propre à la home (16 px en haut, 32 px en bas) :
+  /// le contrat commun ne fournit que les marges horizontales, et la mise en
+  /// page pleine hauteur s'appuie sur ce bas de page.
+  static const EdgeInsets _verticalPadding = EdgeInsets.only(
+    top: 16,
+    bottom: 32,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -823,26 +767,23 @@ class BotHomeDesktopOverview extends StatelessWidget {
         );
 
         if (!fillViewport) {
-          return SingleChildScrollView(
-            padding: _padding,
-            child: Center(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: maxContentWidth),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ?header,
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(flex: 5, child: left),
-                        const SizedBox(width: 24),
-                        Expanded(flex: 6, child: right),
-                      ],
-                    ),
-                  ],
-                ),
+          return PageContent(
+            child: SingleChildScrollView(
+              padding: _verticalPadding,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ?header,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(flex: 5, child: left),
+                      const SizedBox(width: 24),
+                      Expanded(flex: 6, child: right),
+                    ],
+                  ),
+                ],
               ),
             ),
           );
@@ -862,21 +803,18 @@ class BotHomeDesktopOverview extends StatelessWidget {
           ],
         );
 
-        return Padding(
-          padding: _padding,
-          child: Center(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: maxContentWidth),
-              child: header != null
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        header!,
-                        Expanded(child: contentRow),
-                      ],
-                    )
-                  : contentRow,
-            ),
+        return PageContent(
+          child: Padding(
+            padding: _verticalPadding,
+            child: header != null
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      header!,
+                      Expanded(child: contentRow),
+                    ],
+                  )
+                : contentRow,
           ),
         );
       },

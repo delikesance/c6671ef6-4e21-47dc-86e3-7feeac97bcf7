@@ -22,6 +22,7 @@ import 'dart:io';
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 import 'package:bot_creator/features/documentation/documentation_hub_page.dart';
 import 'package:bot_creator/features/home/presentation/home_page.dart';
 import 'package:bot_creator/features/onboarding/logic/onboarding_manager.dart';
@@ -78,10 +79,12 @@ void main() {
   /// Signature visuelle unique de la nav flottante du shell.
   final floatingNavFinder = find.byWidgetPredicate(
     (widget) =>
-        widget is DecoratedBox &&
-        widget.decoration is BoxDecoration &&
-        (widget.decoration as BoxDecoration).color == AppTheme.homeNavBar,
-    description: 'barre de navigation flottante (fond AppTheme.homeNavBar)',
+        widget is FloatingGlassNavBar ||
+        (widget is DecoratedBox &&
+            widget.decoration is BoxDecoration &&
+            (widget.decoration as BoxDecoration).color == AppTheme.homeNavBar &&
+            (widget.decoration as BoxDecoration).borderRadius != null),
+    description: 'barre de navigation flottante (FloatingGlassNavBar)',
   );
 
   /// L'`IndexedStack` du shell est celui qui vit le plus haut dans l'arbre
