@@ -530,7 +530,10 @@ extension _AppHomePageUI on _AppHomePageState {
                 )
               : formatDuration(balance),
           segments: [
-            (value: _twoDigits(parts.months), label: context.tr.unit_short_month),
+            (
+              value: _twoDigits(parts.months),
+              label: context.tr.unit_short_month,
+            ),
             (value: _twoDigits(parts.days), label: context.tr.unit_short_day),
             (value: _twoDigits(parts.hours), label: context.tr.unit_short_hour),
             (
