@@ -1,5 +1,6 @@
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/utils/responsive.dart';
+import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:flutter/material.dart';
 
 /// Navigation placement of a bot editor sub-page, relative to the editor shell.
@@ -42,7 +43,9 @@ EditorNavPlacement editorNavPlacementOf(BuildContext context) {
 ///
 /// - permanent sidebar: `null`, the section list is already visible;
 /// - drawer layout: a drawer button (the compact equivalent of the sidebar);
-/// - standalone route: a back button so the pushed page stays escapable.
+/// - standalone route: a back button so the pushed page stays escapable —
+///   sauf sur desktop, où la barre de titre du shell la fournit déjà
+///   (`windowChromeOwnsBackButton`).
 Widget? editorSubPageLeading(BuildContext context) {
   switch (editorNavPlacementOf(context)) {
     case EditorNavPlacement.drawer:
@@ -50,6 +53,9 @@ Widget? editorSubPageLeading(BuildContext context) {
     case EditorNavPlacement.sidebar:
       return null;
     case EditorNavPlacement.standalone:
+      // Sur desktop, la barre de titre du shell porte déjà la flèche de
+      // retour : en rendre une ici empile deux flèches.
+      if (windowChromeOwnsBackButton()) return null;
       return Navigator.of(context).canPop() ? const BackButton() : null;
   }
 }

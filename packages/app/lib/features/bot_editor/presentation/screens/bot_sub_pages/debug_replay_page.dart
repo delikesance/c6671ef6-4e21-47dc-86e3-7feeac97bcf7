@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
 import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
@@ -136,10 +137,9 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
         actions: [
           if (hasCapability) ...[
             IconButton(
-              tooltip:
-                  _capturing
-                      ? context.tr.debug_replay_stop_capture
-                      : context.tr.debug_replay_start_capture,
+              tooltip: _capturing
+                  ? context.tr.debug_replay_stop_capture
+                  : context.tr.debug_replay_start_capture,
               icon: Icon(
                 _capturing
                     ? Icons.fiber_manual_record
@@ -182,10 +182,14 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
           ],
         ],
       ),
+      // Largeur et marges communes à toutes les pages (contrat AppPageLayout).
       body: SafeArea(
         top: false,
-        child:
-            hasCapability ? _buildBody(context) : _buildSoftLockedBody(context),
+        child: PageContent(
+          child: hasCapability
+              ? _buildBody(context)
+              : _buildSoftLockedBody(context),
+        ),
       ),
     );
   }
@@ -307,16 +311,15 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
         final replay = _replays[index];
         return _ReplayListTile(
           replay: replay,
-          onTap:
-              allowOpenDetail
-                  ? () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => DebugReplayDetailPage(replay: replay),
-                      ),
-                    );
-                  }
-                  : null,
+          onTap: allowOpenDetail
+              ? () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => DebugReplayDetailPage(replay: replay),
+                    ),
+                  );
+                }
+              : null,
         );
       },
     );
@@ -379,8 +382,9 @@ class _ReplayListTile extends StatelessWidget {
         '${replay.actionCount} action(s) • ${replay.totalMs} ms • $timeAgo',
         style: Theme.of(context).textTheme.bodySmall,
       ),
-      trailing:
-          onTap != null ? const Icon(Icons.chevron_right, size: 18) : null,
+      trailing: onTap != null
+          ? const Icon(Icons.chevron_right, size: 18)
+          : null,
     );
   }
 
@@ -487,32 +491,35 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
           ),
         ],
       ),
+      // Largeur et marges communes à toutes les pages (contrat AppPageLayout).
       body: SafeArea(
         top: false,
-        child: Column(
-          children: [
-            // ── Header summary ──
-            _buildHeader(context, replay, colorScheme),
-            const Divider(height: 1),
-            // ── Timeline bar ──
-            if (frames.isNotEmpty) _buildTimeline(context, frames, colorScheme),
-            const Divider(height: 1),
-            // ── Playback controls ──
-            _buildPlaybackControls(context, frames),
-            const Divider(height: 1),
-            // ── Detail pane ──
-            Expanded(
-              child:
-                  _activeStep < 0
-                      ? _buildOverview(context, replay, colorScheme)
-                      : _buildFrameDetail(
+        child: PageContent(
+          child: Column(
+            children: [
+              // ── Header summary ──
+              _buildHeader(context, replay, colorScheme),
+              const Divider(height: 1),
+              // ── Timeline bar ──
+              if (frames.isNotEmpty)
+                _buildTimeline(context, frames, colorScheme),
+              const Divider(height: 1),
+              // ── Playback controls ──
+              _buildPlaybackControls(context, frames),
+              const Divider(height: 1),
+              // ── Detail pane ──
+              Expanded(
+                child: _activeStep < 0
+                    ? _buildOverview(context, replay, colorScheme)
+                    : _buildFrameDetail(
                         context,
                         frames[_activeStep],
                         _activeStep,
                         colorScheme,
                       ),
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -525,7 +532,8 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
   ) {
     final statusColor = replay.hasError ? colorScheme.error : AppTheme.success;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      // La marge horizontale vient de `PageContent` (contrat AppPageLayout).
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         children: [
           Icon(
@@ -606,33 +614,30 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
           IconButton(
             tooltip: context.tr.debug_replay_step_first,
             icon: const Icon(Icons.skip_previous),
-            onPressed:
-                frames.isEmpty
-                    ? null
-                    : () {
-                      _stopPlayback();
-                      _goToStep(0);
-                    },
+            onPressed: frames.isEmpty
+                ? null
+                : () {
+                    _stopPlayback();
+                    _goToStep(0);
+                  },
           ),
           IconButton(
             tooltip: context.tr.debug_replay_step_back,
             icon: const Icon(Icons.chevron_left),
-            onPressed:
-                canBack
-                    ? () {
-                      _stopPlayback();
-                      _goToStep(_activeStep - 1);
-                    }
-                    : null,
+            onPressed: canBack
+                ? () {
+                    _stopPlayback();
+                    _goToStep(_activeStep - 1);
+                  }
+                : null,
           ),
           const SizedBox(width: 4),
           FilledButton.icon(
-            onPressed:
-                frames.isEmpty
-                    ? null
-                    : _isPlaying
-                    ? _stopPlayback
-                    : _startPlayback,
+            onPressed: frames.isEmpty
+                ? null
+                : _isPlaying
+                ? _stopPlayback
+                : _startPlayback,
             icon: Icon(_isPlaying ? Icons.pause : Icons.play_arrow),
             label: Text(
               _isPlaying
@@ -644,24 +649,22 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
           IconButton(
             tooltip: context.tr.debug_replay_step_forward,
             icon: const Icon(Icons.chevron_right),
-            onPressed:
-                canForward
-                    ? () {
-                      _stopPlayback();
-                      _goToStep(_activeStep + 1);
-                    }
-                    : null,
+            onPressed: canForward
+                ? () {
+                    _stopPlayback();
+                    _goToStep(_activeStep + 1);
+                  }
+                : null,
           ),
           IconButton(
             tooltip: context.tr.debug_replay_step_last,
             icon: const Icon(Icons.skip_next),
-            onPressed:
-                frames.isEmpty
-                    ? null
-                    : () {
-                      _stopPlayback();
-                      _goToStep(frames.length - 1);
-                    },
+            onPressed: frames.isEmpty
+                ? null
+                : () {
+                    _stopPlayback();
+                    _goToStep(frames.length - 1);
+                  },
           ),
         ],
       ),
@@ -680,10 +683,9 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
         itemCount: replay.frames.length,
         itemBuilder: (context, i) {
           final frame = replay.frames[i];
-          final barWidth =
-              _totalMs > 0
-                  ? (frame.durationMs / _totalMs).clamp(0.0, 1.0)
-                  : 0.0;
+          final barWidth = _totalMs > 0
+              ? (frame.durationMs / _totalMs).clamp(0.0, 1.0)
+              : 0.0;
           final color = frame.isError ? cs.error : AppTheme.success;
           return InkWell(
             onTap: () => _goToStep(i),
@@ -758,8 +760,9 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
     ColorScheme cs,
   ) {
     final statusColor = frame.isError ? cs.error : AppTheme.success;
-    final barWidth =
-        _totalMs > 0 ? (frame.durationMs / _totalMs).clamp(0.0, 1.0) : 0.0;
+    final barWidth = _totalMs > 0
+        ? (frame.durationMs / _totalMs).clamp(0.0, 1.0)
+        : 0.0;
 
     return FadeTransition(
       opacity: _stepAnim,
@@ -870,10 +873,9 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
               style: TextStyle(
                 fontFamily: 'monospace',
                 fontSize: 13,
-                color:
-                    frame.isError
-                        ? cs.error
-                        : cs.onSurface.withValues(alpha: 0.85),
+                color: frame.isError
+                    ? cs.error
+                    : cs.onSurface.withValues(alpha: 0.85),
               ),
             ),
           ),
@@ -948,8 +950,10 @@ class _VariablesDiffSectionState extends State<_VariablesDiffSection> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final allKeys =
-        <String>{...widget.before.keys, ...widget.after.keys}.toList()..sort();
+    final allKeys = <String>{
+      ...widget.before.keys,
+      ...widget.after.keys,
+    }.toList()..sort();
 
     final added = <String>[];
     final modified = <String>[];
@@ -1187,12 +1191,11 @@ class _TimelinePainter extends CustomPainter {
       final frac = frame.durationMs / totalMs;
       final barW = (frac * availableWidth).clamp(4.0, availableWidth);
       final isActive = i == activeIndex;
-      final color =
-          isActive
-              ? activeColor
-              : frame.isError
-              ? errorColor
-              : successColor;
+      final color = isActive
+          ? activeColor
+          : frame.isError
+          ? errorColor
+          : successColor;
 
       final paint = Paint()..color = color;
       final rect = Rect.fromLTWH(x, size.height * 0.2, barW, size.height * 0.6);

@@ -722,13 +722,15 @@ const double kBotHomeLogsHeaderCompactWidth = 400;
 ///   l'appelant à placer un `Expanded` (ex. la console de logs) dans la
 ///   colonne de droite.
 /// - `false` : fenêtre courte, mise en page scrollable historique inchangée.
+///
+/// La largeur et les marges horizontales viennent du contrat commun
+/// ([PageContent]) : la page ne code plus ses propres bornes.
 class BotHomeDesktopOverview extends StatelessWidget {
   const BotHomeDesktopOverview({
     super.key,
     this.header,
     required this.leftBuilder,
     required this.rightBuilder,
-    this.maxContentWidth = 1200,
   });
 
   final Widget? header;
@@ -736,9 +738,14 @@ class BotHomeDesktopOverview extends StatelessWidget {
   leftBuilder;
   final List<Widget> Function(BuildContext context, bool fillViewport)
   rightBuilder;
-  final double maxContentWidth;
 
-  static const EdgeInsets _padding = EdgeInsets.fromLTRB(24, 16, 24, 32);
+  /// Respiration verticale propre à la home (16 px en haut, 32 px en bas) :
+  /// le contrat commun ne fournit que les marges horizontales, et la mise en
+  /// page pleine hauteur s'appuie sur ce bas de page.
+  static const EdgeInsets _verticalPadding = EdgeInsets.only(
+    top: 16,
+    bottom: 32,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -757,26 +764,23 @@ class BotHomeDesktopOverview extends StatelessWidget {
         );
 
         if (!fillViewport) {
-          return SingleChildScrollView(
-            padding: _padding,
-            child: Center(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: maxContentWidth),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ?header,
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(flex: 5, child: left),
-                        const SizedBox(width: 24),
-                        Expanded(flex: 6, child: right),
-                      ],
-                    ),
-                  ],
-                ),
+          return PageContent(
+            child: SingleChildScrollView(
+              padding: _verticalPadding,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ?header,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(flex: 5, child: left),
+                      const SizedBox(width: 24),
+                      Expanded(flex: 6, child: right),
+                    ],
+                  ),
+                ],
               ),
             ),
           );
@@ -796,21 +800,18 @@ class BotHomeDesktopOverview extends StatelessWidget {
           ],
         );
 
-        return Padding(
-          padding: _padding,
-          child: Center(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: maxContentWidth),
-              child: header != null
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        header!,
-                        Expanded(child: contentRow),
-                      ],
-                    )
-                  : contentRow,
-            ),
+        return PageContent(
+          child: Padding(
+            padding: _verticalPadding,
+            child: header != null
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      header!,
+                      Expanded(child: contentRow),
+                    ],
+                  )
+                : contentRow,
           ),
         );
       },

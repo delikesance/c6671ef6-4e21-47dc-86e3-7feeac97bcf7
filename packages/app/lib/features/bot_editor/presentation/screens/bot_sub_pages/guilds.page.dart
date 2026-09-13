@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
+import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/features/home/presentation/guild_avatar.dart';
 import 'package:bot_creator/features/home/presentation/home_ui.dart';
 import 'package:flutter/material.dart';
@@ -139,7 +140,9 @@ class _GuildsPageState extends State<GuildsPage> {
               ),
             ],
           ),
-          body: _buildBody(context, state),
+          // Largeur et marges communes à toutes les pages (contrat AppPageLayout) ;
+          // `_buildBody` conserve sa réserve basse (barre de navigation flottante).
+          body: PageContent(child: _buildBody(context, state)),
         );
       },
     );
