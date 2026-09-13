@@ -62,6 +62,7 @@ class EditorSidebar extends StatelessWidget {
     required this.onToggleCollapsed,
     required this.onSelectItem,
     required this.onBack,
+    this.showBackButton = true,
     this.isDrawer = false,
     this.showBeginnerMode = false,
     this.beginnerMode = false,
@@ -104,6 +105,12 @@ class EditorSidebar extends StatelessWidget {
 
   /// Retour vers la liste des bots (le parent décide de fermer le tiroir).
   final VoidCallback onBack;
+
+  /// Indique s'il faut afficher le bouton retour dans la sidebar.
+  /// Sur desktop, quand une barre de titre personnalisée supérieure contient déjà
+  /// le bouton retour universel, ce paramètre peut être passé à `false` pour
+  /// éviter la duplication visuelle.
+  final bool showBackButton;
 
   /// `true` quand la sidebar est rendue dans le `Drawer` compact.
   final bool isDrawer;
@@ -217,11 +224,12 @@ class EditorSidebar extends StatelessWidget {
               message: '$appName\nID $botId',
               child: _buildBotBadge(colorScheme),
             ),
-            IconButton(
-              icon: const Icon(Icons.arrow_back),
-              tooltip: tr.common_back,
-              onPressed: onBack,
-            ),
+            if (showBackButton)
+              IconButton(
+                icon: const Icon(Icons.arrow_back),
+                tooltip: tr.common_back,
+                onPressed: onBack,
+              ),
             IconButton(
               icon: const Icon(Icons.menu_rounded),
               tooltip: tr.editor_sidebar_expand,
@@ -236,12 +244,14 @@ class EditorSidebar extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 8),
       child: Row(
         children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back),
-            tooltip: tr.common_back,
-            onPressed: onBack,
-          ),
-          const SizedBox(width: 4),
+          if (showBackButton) ...[
+            IconButton(
+              icon: const Icon(Icons.arrow_back),
+              tooltip: tr.common_back,
+              onPressed: onBack,
+            ),
+            const SizedBox(width: 4),
+          ],
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

@@ -3114,6 +3114,15 @@ class AppLocalizationsJa extends AppLocalizations {
   String get common_close => '閉じる';
 
   @override
+  String get common_minimize => '最小化';
+
+  @override
+  String get common_maximize => '最大化';
+
+  @override
+  String get common_restore => '元に戻す';
+
+  @override
   String get common_custom_id => 'カスタムID';
 
   @override
@@ -7793,6 +7802,16 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get workflows_create => 'ワークフローを作成';
+
+  @override
+  String get workflows_create_subtitle => '数クリックでボットのアクションとイベントを自動化';
+
+  @override
+  String get workflows_create_event => 'イベントを作成';
+
+  @override
+  String get workflows_create_event_subtitle =>
+      'Discordのメッセージやメンバー参加などのイベントに対応';
 
   @override
   String workflows_delete_confirm(String name) {

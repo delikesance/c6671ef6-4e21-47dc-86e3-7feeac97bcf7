@@ -2867,8 +2867,9 @@ class _EmptyStateWithSupport extends StatelessWidget {
   }
 }
 
-class _CreateBotCard extends StatelessWidget {
-  const _CreateBotCard({required this.onTap});
+@visibleForTesting
+class CreateBotCard extends StatelessWidget {
+  const CreateBotCard({super.key, required this.onTap});
 
   final VoidCallback onTap;
 
@@ -2877,9 +2878,12 @@ class _CreateBotCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final scheme = Theme.of(context).colorScheme;
     final tokens = HomeTokens.of(context);
-    final fill = isDark ? tokens.createFill : scheme.surfaceContainerHighest;
-    final border = isDark ? tokens.createBorder : scheme.primary;
-    final avatarFill = isDark ? tokens.createBorder : scheme.primary;
+    final fill = isDark
+        ? tokens.accent.withValues(alpha: 0.30)
+        : scheme.surfaceContainerHighest;
+    final border = isDark ? tokens.accent : scheme.primary;
+    final avatarFill = tokens.accent;
+    final avatarIconColor = isDark ? Colors.white : tokens.onAccent;
 
     return Stack(
       children: [
@@ -2904,7 +2908,7 @@ class _CreateBotCard extends StatelessWidget {
                     child: Icon(
                       Icons.add_rounded,
                       size: 26,
-                      color: isDark ? tokens.createFill : scheme.onPrimary,
+                      color: avatarIconColor,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -2959,6 +2963,8 @@ class _CreateBotCard extends StatelessWidget {
     );
   }
 }
+
+typedef _CreateBotCard = CreateBotCard;
 
 class _ServerPresenceRow extends StatelessWidget {
   const _ServerPresenceRow({

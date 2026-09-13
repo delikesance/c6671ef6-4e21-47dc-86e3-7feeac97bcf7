@@ -42,8 +42,11 @@ import 'package:bot_creator/core/code_editor/code_editor_settings_provider.dart'
 import 'package:bot_creator/core/theme/app_appearance.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/utils/global.dart';
+import 'package:bot_creator/core/utils/responsive.dart';
+import 'package:bot_creator/core/widgets/desktop_title_bar.dart';
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 import 'package:bot_creator/features/auth/presentation/mobile_account_gate_shell.dart';
+import 'package:window_manager/window_manager.dart';
 import 'package:bot_creator/features/documentation/documentation_hub_page.dart';
 import 'package:bot_creator/features/documentation/webview_platform_bootstrap.dart';
 import 'package:bot_creator/features/settings/presentation/settings_page.dart';
@@ -190,6 +193,31 @@ Future<void> _bootstrapAndRunApp() async {
 
     if (MobileAccountGate.isRequired) {
       await restoreMainApiSessionIfNeeded();
+    }
+
+    if (ResponsiveHelper.isDesktopPlatform()) {
+      try {
+        await windowManager.ensureInitialized();
+        const windowOptions = WindowOptions(
+          size: Size(1280, 720),
+          minimumSize: Size(800, 600),
+          center: true,
+          backgroundColor: Colors.transparent,
+          skipTaskbar: false,
+          titleBarStyle: TitleBarStyle.hidden,
+        );
+        await windowManager.waitUntilReadyToShow(windowOptions, () async {
+          await windowManager.show();
+          await windowManager.focus();
+        });
+      } catch (e, stack) {
+        await AppDiagnostics.logError(
+          'Failed to initialize windowManager',
+          e,
+          stack,
+          fatal: false,
+        );
+      }
     }
 
     runApp(
@@ -524,6 +552,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    DesktopTitleBarNotifier.instance.navigatorKey = MyApp.navigatorKey;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       unawaited(_requestTrackingAndEnableAnalytics());
     });
@@ -555,7 +584,14 @@ class _MyAppState extends State<MyApp> {
 
     return MaterialApp(
       navigatorKey: MyApp.navigatorKey,
-      navigatorObservers: [PosthogObserver()],
+      navigatorObservers: [PosthogObserver(), DesktopTitleBarNotifier.instance],
+      builder: (context, child) {
+        final content = child ?? const SizedBox.shrink();
+        if (!ResponsiveHelper.isDesktopPlatform()) {
+          return content;
+        }
+        return DesktopAppShell(child: content);
+      },
       onGenerateTitle: (context) => context.tr.app_title,
       onGenerateRoute: (settings) {
         final name = settings.name;
@@ -625,6 +661,11 @@ class _MyMainPageState extends State<MyMainPage> {
       _managingBotName = name;
       _compactTabIndex = 0;
     });
+    DesktopTitleBarNotifier.instance.updateManagingBot(
+      name: name,
+      id: _managingBotId,
+      onExit: _closeManageBot,
+    );
   }
 
   void _closeManageBot() {
@@ -632,8 +673,23 @@ class _MyMainPageState extends State<MyMainPage> {
       _managingBotId = null;
       _managingBotName = null;
     });
+    DesktopTitleBarNotifier.instance.updateManagingBot(
+      name: null,
+      id: null,
+      onExit: null,
+    );
     // Refresh home running state after leaving the editor.
     unawaited(HomePageState.current?.triggerRefresh());
+  }
+
+  @override
+  void dispose() {
+    DesktopTitleBarNotifier.instance.updateManagingBot(
+      name: null,
+      id: null,
+      onExit: null,
+    );
+    super.dispose();
   }
 
   Widget _homeOrManage() {
@@ -657,7 +713,13 @@ class _MyMainPageState extends State<MyMainPage> {
         MediaQuery.sizeOf(context).width >= AppTheme.desktopBreakpoint;
 
     if (isWide) {
-      return Scaffold(body: SafeArea(bottom: false, child: _homeOrManage()));
+      return Scaffold(
+        body: SafeArea(
+          bottom: false,
+          top: !ResponsiveHelper.isDesktopPlatform(),
+          child: _homeOrManage(),
+        ),
+      );
     }
 
     return Scaffold(
@@ -666,6 +728,7 @@ class _MyMainPageState extends State<MyMainPage> {
         children: [
           SafeArea(
             bottom: false,
+            top: !ResponsiveHelper.isDesktopPlatform(),
             child: IndexedStack(
               index: _compactTabIndex,
               children: [

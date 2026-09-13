@@ -3059,6 +3059,15 @@
   "@common_close": {
     "description": "Close"
   },
+  "@common_minimize": {
+    "description": "Window control: minimize (desktop title bar)"
+  },
+  "@common_maximize": {
+    "description": "Window control: maximize (desktop title bar)"
+  },
+  "@common_restore": {
+    "description": "Window control: restore a maximized window (desktop title bar)"
+  },
   "@common_custom_id": {
     "description": "Custom ID"
   },
@@ -7577,6 +7586,15 @@
   "@workflows_create": {
     "description": "Create Workflow"
   },
+  "@workflows_create_subtitle": {
+    "description": "Subtitle for the create workflow CTA card"
+  },
+  "@workflows_create_event": {
+    "description": "Create Event"
+  },
+  "@workflows_create_event_subtitle": {
+    "description": "Subtitle for the create event CTA card"
+  },
   "@workflows_delete_confirm": {
     "placeholders": {
       "name": {
@@ -8826,6 +8844,9 @@
   "common_cancel": "Cancel",
   "common_clear": "Clear",
   "common_close": "Close",
+  "common_minimize": "Minimize",
+  "common_maximize": "Maximize",
+  "common_restore": "Restore",
   "common_custom_id": "Custom ID",
   "common_custom_id_required": "Custom ID *",
   "common_default": "Default",
@@ -10295,6 +10316,9 @@
   "workflows_copy_done_json": "Workflows copied as JSON.",
   "workflows_copy_none": "No workflows to copy.",
   "workflows_create": "Create Workflow",
+  "workflows_create_subtitle": "Automate bot actions and events in a few clicks",
+  "workflows_create_event": "Create Event",
+  "workflows_create_event_subtitle": "React to Discord messages, member joins, and events",
   "workflows_delete_confirm": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
   "workflows_delete_title": "Delete workflow",
   "workflows_docs_tooltip": "Open documentation center",

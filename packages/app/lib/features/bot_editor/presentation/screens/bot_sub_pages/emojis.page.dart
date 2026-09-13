@@ -265,6 +265,11 @@ class _EmojisPageState extends State<EmojisPage> {
         title: Text(context.tr.emojis_title),
         actions: [
           IconButton(
+            icon: const Icon(Icons.add_rounded),
+            tooltip: context.tr.emojis_upload,
+            onPressed: _showUploadDialog,
+          ),
+          IconButton(
             icon: const Icon(Icons.refresh),
             tooltip: context.tr.common_refresh,
             onPressed: _loadEmojis,

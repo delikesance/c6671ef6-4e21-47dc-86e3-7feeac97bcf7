@@ -3298,6 +3298,15 @@ class AppLocalizationsTr extends AppLocalizations {
   String get common_close => 'Kapat';
 
   @override
+  String get common_minimize => 'Küçült';
+
+  @override
+  String get common_maximize => 'Büyüt';
+
+  @override
+  String get common_restore => 'Geri yükle';
+
+  @override
   String get common_custom_id => 'Özel ID';
 
   @override
@@ -8165,6 +8174,17 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get workflows_create => 'İş Akışı Oluştur';
+
+  @override
+  String get workflows_create_subtitle =>
+      'Birkaç tıkta bot eylemlerini ve etkinliklerini otomatikleştirin';
+
+  @override
+  String get workflows_create_event => 'Etkinlik Oluştur';
+
+  @override
+  String get workflows_create_event_subtitle =>
+      'Discord mesajlarına, üye katılımlarına ve etkinliklere yanıt verin';
 
   @override
   String workflows_delete_confirm(String name) {

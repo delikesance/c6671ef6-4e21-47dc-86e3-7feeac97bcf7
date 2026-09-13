@@ -9,6 +9,7 @@ import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/utils/global.dart';
+import 'package:bot_creator/core/utils/responsive.dart';
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/features/bot_editor/logic/js_runner_capabilities.dart';
@@ -559,6 +560,7 @@ class _AppEditPageState extends State<AppEditPage>
       onSelectItem: (itemId) =>
           _onSidebarItemSelected(entries, itemId, isDrawer: isDrawer),
       onBack: () => _exitEditor(closeDrawerFirst: isDrawer),
+      showBackButton: isDrawer || !ResponsiveHelper.isDesktopPlatform(),
       isDrawer: isDrawer,
       showBeginnerMode: _beginnerModeLoaded && client != null,
       beginnerMode: _beginnerMode,
@@ -1061,12 +1063,11 @@ class _OfflineTokenPageState extends State<_OfflineTokenPage> {
         // est permanente, il ne servait à rien.
         leading: editorSubPageLeading(context),
       ),
-      // Formulaire court (jeton du bot) : sa largeur reste volontairement
-      // étroite (la largeur commune l'étirerait sur toute la fenêtre),
-      // seules les marges suivent le contrat commun.
+      // Formulaire court (jeton du bot) : contenu volontairement
+      // étroit, la largeur commune étirerait le champ sur toute la
+      // fenêtre. Seules les marges suivent le contrat commun.
       body: PageContent(
         maxWidth: 560,
-        padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.center,
