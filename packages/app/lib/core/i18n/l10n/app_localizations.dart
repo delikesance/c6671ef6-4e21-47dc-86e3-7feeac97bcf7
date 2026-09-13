@@ -12676,18 +12676,6 @@ abstract class AppLocalizations {
   /// **'TEAM'**
   String get settings_team_pill;
 
-  /// Switch to dark mode
-  ///
-  /// In en, this message translates to:
-  /// **'Switch to dark mode'**
-  String get settings_theme_switch_dark;
-
-  /// Switch to light mode
-  ///
-  /// In en, this message translates to:
-  /// **'Switch to light mode'**
-  String get settings_theme_switch_light;
-
   /// Version
   ///
   /// In en, this message translates to:

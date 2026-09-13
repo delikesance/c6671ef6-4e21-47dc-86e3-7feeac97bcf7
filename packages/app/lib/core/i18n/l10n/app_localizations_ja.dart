@@ -6910,12 +6910,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settings_team_pill => 'チーム';
 
   @override
-  String get settings_theme_switch_dark => 'ダークモードに切り替え';
-
-  @override
-  String get settings_theme_switch_light => 'ライトモードに切り替え';
-
-  @override
   String get settings_version_title => 'バージョン';
 
   @override

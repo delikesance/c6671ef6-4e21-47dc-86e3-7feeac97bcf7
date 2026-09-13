@@ -5864,12 +5864,6 @@
     },
     "description": "Number of team members"
   },
-  "@settings_theme_switch_dark": {
-    "description": "Switch to dark mode"
-  },
-  "@settings_theme_switch_light": {
-    "description": "Switch to light mode"
-  },
   "@settings_version_title": {
     "description": "Version"
   },
@@ -8994,8 +8988,6 @@
   "settings_team_owner_label": "Chef d'équipe",
   "settings_team_ownership": "Propriété de l'équipe",
   "settings_team_pill": "ÉQUIPE",
-  "settings_theme_switch_dark": "Passer en mode sombre",
-  "settings_theme_switch_light": "Passer en mode clair",
   "settings_version_title": "Version",
   "settings_view_startup_logs": "Voir les logs de démarrage",
   "startup_copy_diagnostics": "Copier les diagnostics",

@@ -10,6 +10,7 @@ import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
+import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/features/bot_editor/logic/js_runner_capabilities.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command_dashboard.dart';
@@ -1060,69 +1061,68 @@ class _OfflineTokenPageState extends State<_OfflineTokenPage> {
         // est permanente, il ne servait à rien.
         leading: editorSubPageLeading(context),
       ),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 560),
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.vpn_key_outlined,
-                  size: 48,
-                  color: AppTheme.warning,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  context.tr.bot_offline_token_desc,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppTheme.grey),
-                ),
-                const SizedBox(height: 24),
-                TextField(
-                  controller: _tokenController,
-                  obscureText: _obscure,
-                  decoration: InputDecoration(
-                    labelText: context.tr.bot_settings_update_token,
-                    hintText: context.tr.bot_settings_token_hint,
-                    border: const OutlineInputBorder(),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscure ? Icons.visibility : Icons.visibility_off,
-                      ),
-                      onPressed: () => setState(() => _obscure = !_obscure),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton.icon(
-                  onPressed: _saving ? null : _save,
-                  icon: _saving
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.save_outlined),
-                  label: Text(context.tr.bot_settings_save_token_only_btn),
-                ),
-                const SizedBox(height: 24),
-                OutlinedButton.icon(
-                  onPressed: _saving ? null : _deleteBot,
-                  icon: const Icon(Icons.delete_outline, color: AppTheme.error),
-                  label: Text(
-                    context.tr.bot_home_delete,
-                    style: const TextStyle(color: AppTheme.error),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: AppTheme.error),
-                  ),
-                ),
-              ],
+      // Formulaire court (jeton du bot) : sa largeur reste volontairement
+      // étroite (la largeur commune l'étirerait sur toute la fenêtre),
+      // seules les marges suivent le contrat commun.
+      body: PageContent(
+        maxWidth: 560,
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.vpn_key_outlined,
+              size: 48,
+              color: AppTheme.warning,
             ),
-          ),
+            const SizedBox(height: 16),
+            Text(
+              context.tr.bot_offline_token_desc,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: AppTheme.grey),
+            ),
+            const SizedBox(height: 24),
+            TextField(
+              controller: _tokenController,
+              obscureText: _obscure,
+              decoration: InputDecoration(
+                labelText: context.tr.bot_settings_update_token,
+                hintText: context.tr.bot_settings_token_hint,
+                border: const OutlineInputBorder(),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscure ? Icons.visibility : Icons.visibility_off,
+                  ),
+                  onPressed: () => setState(() => _obscure = !_obscure),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: _saving ? null : _save,
+              icon: _saving
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.save_outlined),
+              label: Text(context.tr.bot_settings_save_token_only_btn),
+            ),
+            const SizedBox(height: 24),
+            OutlinedButton.icon(
+              onPressed: _saving ? null : _deleteBot,
+              icon: const Icon(Icons.delete_outline, color: AppTheme.error),
+              label: Text(
+                context.tr.bot_home_delete,
+                style: const TextStyle(color: AppTheme.error),
+              ),
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: AppTheme.error),
+              ),
+            ),
+          ],
         ),
       ),
     );
