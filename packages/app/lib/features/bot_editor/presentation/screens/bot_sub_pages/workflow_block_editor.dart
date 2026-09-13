@@ -1801,6 +1801,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
         builder: (_) => JsEditorPage(
           initialCode: _jsScriptController.text,
           title: context.tr.js_editor_title,
+          appEmojis: widget.appEmojis,
         ),
       ),
     );
