@@ -7745,6 +7745,36 @@ abstract class AppLocalizations {
   /// **'Time is preserved while the bot is stopped.'**
   String get home_hosting_time_preserved;
 
+  /// Overline shown instead of the expiration when the bot is stopped
+  ///
+  /// In en, this message translates to:
+  /// **'Time preserved'**
+  String get home_hosting_time_preserved_overline;
+
+  /// Overline of the hosting expiration block
+  ///
+  /// In en, this message translates to:
+  /// **'Expected expiration'**
+  String get home_hosting_expiration_expected;
+
+  /// Absolute expiration, e.g. '21 Nov 2037 at 17:55'
+  ///
+  /// In en, this message translates to:
+  /// **'{date} at {time}'**
+  String home_hosting_expires_at(String date, String time);
+
+  /// Status pill label when the bot is running
+  ///
+  /// In en, this message translates to:
+  /// **'Active session'**
+  String get home_hosting_status_active_short;
+
+  /// Status pill label when the bot is stopped
+  ///
+  /// In en, this message translates to:
+  /// **'Banked time'**
+  String get home_hosting_status_paused_short;
+
   /// Title of the hosting total time card on the bot home page
   ///
   /// In en, this message translates to:
@@ -13209,6 +13239,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =0{0 months} =1{1 month} other{{count} months}}'**
   String unit_month(int count);
+
+  /// Segment label: months (uppercased by the UI)
+  ///
+  /// In en, this message translates to:
+  /// **'Months'**
+  String get unit_short_month;
+
+  /// Segment label: days (uppercased by the UI)
+  ///
+  /// In en, this message translates to:
+  /// **'Days'**
+  String get unit_short_day;
+
+  /// Segment label: hours (uppercased by the UI)
+  ///
+  /// In en, this message translates to:
+  /// **'Hours'**
+  String get unit_short_hour;
+
+  /// Segment label: minutes (uppercased by the UI)
+  ///
+  /// In en, this message translates to:
+  /// **'Min'**
+  String get unit_short_minute;
 
   /// Awaited callback must use $awaitedCommand[name;filter] or $awaitedCommandError[name].
   ///

@@ -4342,6 +4342,23 @@ class AppLocalizationsTr extends AppLocalizations {
       'Bot durdurulduğu sürece süre korunur.';
 
   @override
+  String get home_hosting_time_preserved_overline => 'Süre korunuyor';
+
+  @override
+  String get home_hosting_expiration_expected => 'Beklenen bitiş';
+
+  @override
+  String home_hosting_expires_at(String date, String time) {
+    return '$date saat $time';
+  }
+
+  @override
+  String get home_hosting_status_active_short => 'Aktif oturum';
+
+  @override
+  String get home_hosting_status_paused_short => 'Yedek süre';
+
+  @override
   String get home_hosting_total => 'Toplam süre';
 
   @override
@@ -7589,6 +7606,18 @@ class AppLocalizationsTr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get unit_short_month => 'Ay';
+
+  @override
+  String get unit_short_day => 'Gün';
+
+  @override
+  String get unit_short_hour => 'Saat';
+
+  @override
+  String get unit_short_minute => 'Dak';
 
   @override
   String get validation_awaited_callback_format =>
