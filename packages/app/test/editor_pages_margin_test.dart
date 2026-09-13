@@ -43,7 +43,9 @@ void main() {
   late Directory documentsDir;
 
   setUpAll(() async {
-    documentsDir = await Directory.systemTemp.createTemp('editor_pages_margin_');
+    documentsDir = await Directory.systemTemp.createTemp(
+      'editor_pages_margin_',
+    );
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(_pathProviderChannel, (call) async {
           return documentsDir.path;
@@ -184,7 +186,10 @@ void main() {
           )
           .first,
     );
-    expect(contentBox.constraints.maxWidth, AppPageLayout.compactMaxContentWidth);
+    expect(
+      contentBox.constraints.maxWidth,
+      AppPageLayout.compactMaxContentWidth,
+    );
     expect(
       tester
           .widget<Padding>(

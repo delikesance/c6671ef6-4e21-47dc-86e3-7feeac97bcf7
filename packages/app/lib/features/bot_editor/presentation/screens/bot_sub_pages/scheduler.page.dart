@@ -396,7 +396,8 @@ class _SchedulerPageState extends State<SchedulerPage> {
                                     (trigger['workflowName'] ?? '').toString();
                                 final everyMinutes =
                                     int.tryParse(
-                                      (trigger['everyMinutes'] ?? '').toString(),
+                                      (trigger['everyMinutes'] ?? '')
+                                          .toString(),
                                     ) ??
                                     60;
                                 final enabled = trigger['enabled'] != false;
@@ -421,7 +422,8 @@ class _SchedulerPageState extends State<SchedulerPage> {
                                       IconButton(
                                         tooltip: context.tr.common_edit,
                                         onPressed: _hasSchedulerCapability
-                                            ? () => _showEditor(initial: trigger)
+                                            ? () =>
+                                                  _showEditor(initial: trigger)
                                             : null,
                                         icon: const Icon(Icons.edit_outlined),
                                       ),

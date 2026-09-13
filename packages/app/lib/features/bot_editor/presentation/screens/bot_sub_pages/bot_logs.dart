@@ -493,7 +493,9 @@ class _BotLogsPageState extends State<BotLogsPage> {
                             color: _usingRemoteSource
                                 ? Theme.of(context).colorScheme.primaryContainer
                                       .withValues(alpha: 0.4)
-                                : Theme.of(context).colorScheme.surfaceContainer,
+                                : Theme.of(
+                                    context,
+                                  ).colorScheme.surfaceContainer,
                             borderRadius: BorderRadius.circular(
                               AppTheme.radiusMd,
                             ),
@@ -553,7 +555,9 @@ class _BotLogsPageState extends State<BotLogsPage> {
                                 Expanded(
                                   child: Text(
                                     _runtimeUnavailableReason!,
-                                    style: Theme.of(context).textTheme.bodySmall,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall,
                                   ),
                                 ),
                               ],
@@ -577,29 +581,32 @@ class _BotLogsPageState extends State<BotLogsPage> {
                                 child: Text(context.tr.bot_logs_empty),
                               );
                             }
-  
+
                             final sourceLogs =
                                 (_visibleLimit > 0 &&
                                     allLogs.length > _visibleLimit)
-                                ? allLogs.sublist(allLogs.length - _visibleLimit)
+                                ? allLogs.sublist(
+                                    allLogs.length - _visibleLimit,
+                                  )
                                 : allLogs;
-  
+
                             final logs = _showNewestFirst
                                 ? sourceLogs.reversed.toList(growable: false)
                                 : sourceLogs;
-  
+
                             final textTheme = Theme.of(context).textTheme;
                             final bottomInset = MediaQuery.of(
                               context,
                             ).padding.bottom;
-  
+
                             if (_rawMode) {
                               final isCompactScreen =
                                   MediaQuery.of(context).size.width < 420;
                               final compactRawFontSize = _rawFontSize < 10
                                   ? 10.0
                                   : _rawFontSize;
-                              final itemH = (_rawFontSize * 1.6).roundToDouble();
+                              final itemH = (_rawFontSize * 1.6)
+                                  .roundToDouble();
                               return GestureDetector(
                                 onScaleStart: (_) {
                                   _rawFontSizeAtScaleStart = _rawFontSize;
@@ -607,7 +614,8 @@ class _BotLogsPageState extends State<BotLogsPage> {
                                 onScaleUpdate: (details) {
                                   setState(() {
                                     _rawFontSize =
-                                        (_rawFontSizeAtScaleStart * details.scale)
+                                        (_rawFontSizeAtScaleStart *
+                                                details.scale)
                                             .clamp(
                                               _rawFontSizeMin,
                                               _rawFontSizeMax,
@@ -640,9 +648,10 @@ class _BotLogsPageState extends State<BotLogsPage> {
                                               color: Theme.of(context)
                                                   .colorScheme
                                                   .surfaceContainerHighest,
-                                              borderRadius: BorderRadius.circular(
-                                                AppTheme.radiusMd,
-                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(
+                                                    AppTheme.radiusMd,
+                                                  ),
                                             ),
                                             child: Column(
                                               crossAxisAlignment:
@@ -691,9 +700,8 @@ class _BotLogsPageState extends State<BotLogsPage> {
                                                     child: TextButton(
                                                       onPressed: () {
                                                         setState(() {
-                                                          _expandedRawLogs.remove(
-                                                            raw,
-                                                          );
+                                                          _expandedRawLogs
+                                                              .remove(raw);
                                                         });
                                                       },
                                                       child: Text(
@@ -723,22 +731,23 @@ class _BotLogsPageState extends State<BotLogsPage> {
                                             '${parsed.time} [${parsed.level}] ${parsed.message}',
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
-                                            style: textTheme.bodySmall?.copyWith(
-                                              fontFamily: 'monospace',
-                                              fontSize: _rawFontSize,
-                                              height: 1.3,
-                                              color: _rawLevelColor(
-                                                context,
-                                                parsed.level,
-                                                parsed.isDebug,
-                                              ),
-                                            ),
+                                            style: textTheme.bodySmall
+                                                ?.copyWith(
+                                                  fontFamily: 'monospace',
+                                                  fontSize: _rawFontSize,
+                                                  height: 1.3,
+                                                  color: _rawLevelColor(
+                                                    context,
+                                                    parsed.level,
+                                                    parsed.isDebug,
+                                                  ),
+                                                ),
                                           );
                                         },
                                       ),
                               );
                             }
-  
+
                             return ListView.separated(
                               controller: _scrollController,
                               padding: EdgeInsets.only(
@@ -762,7 +771,7 @@ class _BotLogsPageState extends State<BotLogsPage> {
                                     shouldCollapse && !isExpanded
                                     ? '${displayMessage.substring(0, _collapseThreshold)}…'
                                     : displayMessage;
-  
+
                                 return Container(
                                   padding: const EdgeInsets.all(10),
                                   decoration: BoxDecoration(
@@ -774,7 +783,8 @@ class _BotLogsPageState extends State<BotLogsPage> {
                                     ),
                                   ),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Row(
                                         children: [
@@ -842,8 +852,12 @@ class _BotLogsPageState extends State<BotLogsPage> {
                                             ),
                                             label: Text(
                                               isExpanded
-                                                  ? context.tr.bot_logs_show_less
-                                                  : context.tr.bot_logs_show_more,
+                                                  ? context
+                                                        .tr
+                                                        .bot_logs_show_less
+                                                  : context
+                                                        .tr
+                                                        .bot_logs_show_more,
                                             ),
                                           ),
                                         ),
