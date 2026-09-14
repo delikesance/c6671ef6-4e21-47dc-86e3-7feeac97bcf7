@@ -228,6 +228,10 @@ class AppDiagnostics {
     'WebSocketChannelException',
   ];
 
+  /// Matches our own API's 5xx responses. `MainApiClientException.toString()`
+  /// renders as `"[statusCode] message"`, e.g. `[504] Gateway Timeout`.
+  static final RegExp _httpServerErrorPattern = RegExp(r'\[5\d{2}\]');
+
   /// Returns `true` for transient network/TLS failures that should not be
   /// reported to Crashlytics (DNS failures, no connectivity, circuit breaker).
   static bool isTransientNetworkError(Object error) {
@@ -241,7 +245,11 @@ class AppDiagnostics {
     // The UMP (ad consent) SDK reports a network failure as "Error making
     // request." with error code 2, through the same channel as a real
     // misconfiguration, so match its signature explicitly.
-    return message.contains('error making request') ||
+    // A 5xx from our own API (issues a7c0c5e8, e65c3fc0) is a server-side
+    // failure too: the client surfaces it and retries, so it is not an app bug.
+    return _httpServerErrorPattern.hasMatch(message) ||
+        message.contains('gateway timeout') ||
+        message.contains('error making request') ||
         message.contains('requestconsentinfoupdate failed') ||
         message.contains('connection timed out') ||
         message.contains('connection refused') ||
