@@ -19,6 +19,7 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pag
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder.response.dart'
     show ActionsBuilderPage;
 import 'package:bot_creator/core/analytics/analytics.dart';
+import 'package:bot_creator/core/diagnostics/ui_stall_bindings.dart';
 import 'package:bot_creator/features/bot_editor/logic/app_emoji_api.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
@@ -1380,215 +1381,94 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   }
 
   Future<void> _init() async {
-    await _loadRuntimeContext();
-    await AppAnalytics.logScreenView(
-      screenName: "CommandCreatePage",
-      screenClass: "CommandCreatePage",
-      parameters: {
-        "command_id": _existingCommandStorageId ?? 'new',
-        "command_name": _isEditingExistingCommand
-            ? _commandName
-            : "New Command",
-        "is_new_command": _isEditingExistingCommand ? "false" : "true",
-        "client_id": widget.client?.user.id.toString() ?? "unknown",
-      },
-    );
-
-    await _refreshPersistedVariableNames();
-
-    final botId = _botIdForConfig;
-    if (botId != null) {
-      try {
-        final commands = await appManager.listAppCommands(botId);
-        final folders =
-            commands
-                .map((c) => (c['folder'] ?? '').toString().trim())
-                .where((f) => f.isNotEmpty)
-                .toSet()
-                .toList()
-              ..sort();
-        // Mots déclencheurs déjà pris par les autres commandes Message Texte :
-        // l'éditeur d'alias s'en sert pour son avertissement de collision
-        // (jamais bloquant). La commande éditée est exclue de la carte.
-        final aliasOwners = legacyTriggerOwners(
-          commands,
-          excludeId: _existingCommandStorageId,
-        );
-        _applyStateUpdate(() {
-          _existingFolders = folders;
-          _legacyAliasOwners = aliasOwners;
-        });
-      } catch (_) {}
-    }
-
-    // Load application emojis silently for autocomplete
+    activeUiStallMonitor?.markStart('editor_open');
     try {
-      final bid = _botIdForConfig;
-      if (bid != null) {
-        final token = (await appManager.getApp(bid))['token'] as String?;
-        if (token != null && token.isNotEmpty) {
-          final emojis = await AppEmojiApi.listEmojis(token, bid);
-          _applyStateUpdate(() => _appEmojis = emojis);
-        }
-      }
-    } catch (_) {}
+      await _loadRuntimeContext();
+      await AppAnalytics.logScreenView(
+        screenName: "CommandCreatePage",
+        screenClass: "CommandCreatePage",
+        parameters: {
+          "command_id": _existingCommandStorageId ?? 'new',
+          "command_name": _isEditingExistingCommand
+              ? _commandName
+              : "New Command",
+          "is_new_command": _isEditingExistingCommand ? "false" : "true",
+          "client_id": widget.client?.user.id.toString() ?? "unknown",
+        },
+      );
 
-    final explicitLocalId = _explicitLocalCommandId;
-    if (explicitLocalId != null) {
+      await _refreshPersistedVariableNames();
+
       final botId = _botIdForConfig;
-      if (botId == null) {
-        if (!mounted) {
-          return;
-        }
-        _applyStateUpdate(() {
-          _isLoading = false;
-        });
-        return;
+      if (botId != null) {
+        try {
+          final commands = await appManager.listAppCommands(botId);
+          final folders =
+              commands
+                  .map((c) => (c['folder'] ?? '').toString().trim())
+                  .where((f) => f.isNotEmpty)
+                  .toSet()
+                  .toList()
+                ..sort();
+          // Mots déclencheurs déjà pris par les autres commandes Message Texte :
+          // l'éditeur d'alias s'en sert pour son avertissement de collision
+          // (jamais bloquant). La commande éditée est exclue de la carte.
+          final aliasOwners = legacyTriggerOwners(
+            commands,
+            excludeId: _existingCommandStorageId,
+          );
+          _applyStateUpdate(() {
+            _existingFolders = folders;
+            _legacyAliasOwners = aliasOwners;
+          });
+        } catch (_) {}
       }
 
-      final commandData = await appManager.getAppCommand(
-        botId,
-        explicitLocalId,
-      );
-      if (!mounted) {
-        return;
-      }
-      if (commandData.isEmpty) {
-        _applyStateUpdate(() {
-          _isLoading = false;
-          _isDataIncomplete = true;
-        });
-        return;
-      }
-
-      final normalized = appManager.normalizeCommandData(
-        Map<String, dynamic>.from(commandData),
-      );
-      final normalizedData = Map<String, dynamic>.from(
-        normalized['data'] ?? const {},
-      );
-      final executionMode = _normalizeExecutionMode(
-        normalizedData['executionMode'],
-      );
-      final persistedEditorMode =
-          (normalizedData['editorMode'] ?? _editorModeAdvanced)
-              .toString()
-              .toLowerCase();
-      final editorMode = persistedEditorMode == _editorModeSimple
-          ? _editorModeSimple
-          : _editorModeAdvanced;
-
-      _applyStateUpdate(() {
-        _isLocalOnlyCommand = true;
-        _commandName = (normalized['name'] ?? '').toString();
-        _commandDescription = (normalized['description'] ?? '').toString();
-        _folder = (normalized['folder'] ?? '').toString().trim();
-        _folderController.text = _folder;
-        final savedType = _commandTypeFromText(
-          (normalizedData['commandType'] ?? normalized['type'] ?? '')
-              .toString(),
-        );
-        _commandType = savedType ?? _commandType;
-        _editorMode = editorMode;
-        _executionMode = executionMode;
-        _bdfdScriptContent = (normalizedData['bdfdScriptContent'] ?? '')
-            .toString();
-        _bdfdScriptController.text = _bdfdScriptContent;
-        _jsScriptContent = (normalizedData['jsScriptContent'] ?? '').toString();
-        _jsScriptController.text = _jsScriptContent;
-        _bdfdCompileResult = _bdfdCompiler.compile(_bdfdScriptContent);
-        _legacyModeEnabled = normalizedData['legacyModeEnabled'] == true;
-        _localOnlyCommand =
-            normalizedData['legacyLocalOnly'] == true ||
-            normalizedData['localOnly'] == true ||
-            _legacyModeEnabled;
-        _legacyPrefixOverride = (normalizedData['legacyPrefixOverride'] ?? '')
-            .toString();
-        _legacyAliases = List<String>.from(
-          (normalizedData['legacyAliases'] as List?)?.whereType<String>() ??
-              const <String>[],
-        );
-        final loadedLegacyResponseTarget =
-            (normalizedData['legacyResponseTarget'] ?? 'reply').toString();
-        _legacyResponseTarget = loadedLegacyResponseTarget == 'channelSend'
-            ? 'channelSend'
-            : 'reply';
-        if (!_supportsSimpleMode) {
-          _editorMode = _editorModeAdvanced;
-        }
-        _actions = List<Map<String, dynamic>>.from(
-          (normalizedData['actions'] as List?)?.whereType<Map>().map(
-                (e) => Map<String, dynamic>.from(e),
-              ) ??
-              const [],
-        );
-        _subcommandWorkflows = _normalizeStoredSubcommandWorkflows(
-          normalizedData['subcommandWorkflows'],
-        );
-        _activeSubcommandRoute =
-            (normalizedData['activeSubcommandRoute'] ?? _rootWorkflowRoute)
-                .toString();
-        final storedOptions = normalizedData['options'];
-        if (storedOptions is List) {
-          _options = deserializeCommandOptions(storedOptions);
-        }
-        _promoteSimpleModeDraftIfNeeded(editorMode);
-        if (_subcommandWorkflows.containsKey(_activeSubcommandRoute)) {
-          final activePayload = _subcommandWorkflows[_activeSubcommandRoute];
-          if (activePayload != null) {
-            _applyWorkflowPayloadToEditor(activePayload);
+      // Load application emojis silently for autocomplete
+      try {
+        final bid = _botIdForConfig;
+        if (bid != null) {
+          final token = (await appManager.getApp(bid))['token'] as String?;
+          if (token != null && token.isNotEmpty) {
+            final emojis = await AppEmojiApi.listEmojis(token, bid);
+            _applyStateUpdate(() => _appEmojis = emojis);
           }
         }
-        _defaultMemberPermissions =
-            (normalizedData['defaultMemberPermissions'] ?? '')
-                .toString()
-                .trim();
-        _resetDirtyState();
-        _isLoading = false;
-      });
-      return;
-    }
-
-    // first let's check if the command is already created or not
-    if (!widget.id.isZero) {
-      ApplicationCommand? command;
-      try {
-        final commandsList = await widget.client?.commands.list(
-          withLocalizations: true,
-        );
-        command = commandsList?.cast<ApplicationCommand?>().firstWhere(
-          (c) => c?.id == widget.id,
-          orElse: () => null,
-        );
       } catch (_) {}
 
-      try {
-        command ??= await widget.client?.commands.fetch(widget.id);
-      } catch (_) {}
+      final explicitLocalId = _explicitLocalCommandId;
+      if (explicitLocalId != null) {
+        final botId = _botIdForConfig;
+        if (botId == null) {
+          if (!mounted) {
+            return;
+          }
+          _applyStateUpdate(() {
+            _isLoading = false;
+          });
+          return;
+        }
 
-      // check if we also have the command in the database
-      final botId = _botIdForConfig;
-      if (botId == null) {
+        final commandData = await appManager.getAppCommand(
+          botId,
+          explicitLocalId,
+        );
         if (!mounted) {
           return;
         }
-        setState(() {
-          _isLoading = false;
-        });
-        return;
-      }
-      final commandData = await appManager.getAppCommand(
-        botId,
-        widget.id.toString(),
-      );
-      // let's set the command data to the fields
-      final data = commandData["data"];
-      if (data != null) {
+        if (commandData.isEmpty) {
+          _applyStateUpdate(() {
+            _isLoading = false;
+            _isDataIncomplete = true;
+          });
+          return;
+        }
+
         final normalized = appManager.normalizeCommandData(
           Map<String, dynamic>.from(commandData),
         );
         final normalizedData = Map<String, dynamic>.from(
-          normalized["data"] ?? const {},
+          normalized['data'] ?? const {},
         );
         final executionMode = _normalizeExecutionMode(
           normalizedData['executionMode'],
@@ -1601,12 +1481,19 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
             ? _editorModeSimple
             : _editorModeAdvanced;
 
-        if (!mounted) return;
-        setState(() {
-          _editorMode = editorMode;
-          _executionMode = executionMode;
+        _applyStateUpdate(() {
+          _isLocalOnlyCommand = true;
+          _commandName = (normalized['name'] ?? '').toString();
+          _commandDescription = (normalized['description'] ?? '').toString();
           _folder = (normalized['folder'] ?? '').toString().trim();
           _folderController.text = _folder;
+          final savedType = _commandTypeFromText(
+            (normalizedData['commandType'] ?? normalized['type'] ?? '')
+                .toString(),
+          );
+          _commandType = savedType ?? _commandType;
+          _editorMode = editorMode;
+          _executionMode = executionMode;
           _bdfdScriptContent = (normalizedData['bdfdScriptContent'] ?? '')
               .toString();
           _bdfdScriptController.text = _bdfdScriptContent;
@@ -1630,16 +1517,11 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           _legacyResponseTarget = loadedLegacyResponseTarget == 'channelSend'
               ? 'channelSend'
               : 'reply';
-          final savedType = _commandTypeFromText(
-            (normalizedData['commandType'] ?? commandData['type'] ?? '')
-                .toString(),
-          );
-          _commandType = savedType ?? _commandType;
           if (!_supportsSimpleMode) {
             _editorMode = _editorModeAdvanced;
           }
           _actions = List<Map<String, dynamic>>.from(
-            (normalizedData["actions"] as List?)?.whereType<Map>().map(
+            (normalizedData['actions'] as List?)?.whereType<Map>().map(
                   (e) => Map<String, dynamic>.from(e),
                 ) ??
                 const [],
@@ -1665,102 +1547,230 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
               (normalizedData['defaultMemberPermissions'] ?? '')
                   .toString()
                   .trim();
-        });
-      } else {
-        // No local data found for this existing command — default to advanced
-        if (!mounted) return;
-        setState(() {
-          _editorMode = _editorModeAdvanced;
-        });
-      }
-      // ── Safety net: always terminate loading even if Discord is offline ──
-      if (command == null) {
-        // Load minimal fields from local storage so the read-only banner can
-        // display the command name/description even without a Discord connection.
-        final localName = commandData['name']?.toString() ?? '';
-        final localDescription = commandData['description']?.toString() ?? '';
-        // The command is incomplete only when the full `data` block is absent.
-        // If the data block exists, the command can be edited locally offline.
-        final hasFullLocalData = data != null;
-        if (!mounted) return;
-        _applyStateUpdate(() {
-          _isLocalOnlyCommand = true;
-          if (localName.isNotEmpty) {
-            _commandName = localName;
-          }
-          if (localDescription.isNotEmpty) {
-            _commandDescription = localDescription;
-          }
-          final localType = _commandTypeFromText(
-            (commandData['type'] ?? '').toString(),
-          );
-          if (localType != null) {
-            _commandType = localType;
-          }
+          _resetDirtyState();
           _isLoading = false;
-          _isDataIncomplete = !hasFullLocalData;
-          if (hasFullLocalData) {
-            _resetDirtyState();
-          }
         });
         return;
       }
 
-      final currentCommand = command;
-      if (!mounted) return;
-      _applyStateUpdate(() {
-        _commandName = currentCommand.name;
-        _commandDescription = currentCommand.description;
-        _commandType = currentCommand.type;
-        final storedOptions = data is Map
-            ? Map<String, dynamic>.from(data.cast<String, dynamic>())['options']
-            : null;
-        if (storedOptions is List) {
-          _options = deserializeCommandOptions(storedOptions);
-        } else if (currentCommand.options != null) {
-          _options = currentCommand.options!
-              .map(_buildOptionFromApplicationOption)
-              .toList();
-        } else {
-          _options = [];
-        }
-        _integrationTypes = currentCommand.integrationTypes.map((e) {
-          if (e == ApplicationIntegrationType.guildInstall) {
-            return ApplicationIntegrationType.guildInstall;
-          } else if (e == ApplicationIntegrationType.userInstall) {
-            return ApplicationIntegrationType.userInstall;
-          } else {
-            return ApplicationIntegrationType.guildInstall;
+      // first let's check if the command is already created or not
+      if (!widget.id.isZero) {
+        ApplicationCommand? command;
+        try {
+          final commandsList = await widget.client?.commands.list(
+            withLocalizations: true,
+          );
+          command = commandsList?.cast<ApplicationCommand?>().firstWhere(
+            (c) => c?.id == widget.id,
+            orElse: () => null,
+          );
+        } catch (_) {}
+
+        try {
+          command ??= await widget.client?.commands.fetch(widget.id);
+        } catch (_) {}
+
+        // check if we also have the command in the database
+        final botId = _botIdForConfig;
+        if (botId == null) {
+          if (!mounted) {
+            return;
           }
-        }).toList();
-        _contexts = [];
-        if (currentCommand.contexts != null) {
-          _contexts = currentCommand.contexts!.toList();
+          setState(() {
+            _isLoading = false;
+          });
+          return;
+        }
+        final commandData = await appManager.getAppCommand(
+          botId,
+          widget.id.toString(),
+        );
+        // let's set the command data to the fields
+        final data = commandData["data"];
+        if (data != null) {
+          final normalized = appManager.normalizeCommandData(
+            Map<String, dynamic>.from(commandData),
+          );
+          final normalizedData = Map<String, dynamic>.from(
+            normalized["data"] ?? const {},
+          );
+          final executionMode = _normalizeExecutionMode(
+            normalizedData['executionMode'],
+          );
+          final persistedEditorMode =
+              (normalizedData['editorMode'] ?? _editorModeAdvanced)
+                  .toString()
+                  .toLowerCase();
+          final editorMode = persistedEditorMode == _editorModeSimple
+              ? _editorModeSimple
+              : _editorModeAdvanced;
+
+          if (!mounted) return;
+          setState(() {
+            _editorMode = editorMode;
+            _executionMode = executionMode;
+            _folder = (normalized['folder'] ?? '').toString().trim();
+            _folderController.text = _folder;
+            _bdfdScriptContent = (normalizedData['bdfdScriptContent'] ?? '')
+                .toString();
+            _bdfdScriptController.text = _bdfdScriptContent;
+            _jsScriptContent = (normalizedData['jsScriptContent'] ?? '')
+                .toString();
+            _jsScriptController.text = _jsScriptContent;
+            _bdfdCompileResult = _bdfdCompiler.compile(_bdfdScriptContent);
+            _legacyModeEnabled = normalizedData['legacyModeEnabled'] == true;
+            _localOnlyCommand =
+                normalizedData['legacyLocalOnly'] == true ||
+                normalizedData['localOnly'] == true ||
+                _legacyModeEnabled;
+            _legacyPrefixOverride =
+                (normalizedData['legacyPrefixOverride'] ?? '').toString();
+            _legacyAliases = List<String>.from(
+              (normalizedData['legacyAliases'] as List?)?.whereType<String>() ??
+                  const <String>[],
+            );
+            final loadedLegacyResponseTarget =
+                (normalizedData['legacyResponseTarget'] ?? 'reply').toString();
+            _legacyResponseTarget = loadedLegacyResponseTarget == 'channelSend'
+                ? 'channelSend'
+                : 'reply';
+            final savedType = _commandTypeFromText(
+              (normalizedData['commandType'] ?? commandData['type'] ?? '')
+                  .toString(),
+            );
+            _commandType = savedType ?? _commandType;
+            if (!_supportsSimpleMode) {
+              _editorMode = _editorModeAdvanced;
+            }
+            _actions = List<Map<String, dynamic>>.from(
+              (normalizedData["actions"] as List?)?.whereType<Map>().map(
+                    (e) => Map<String, dynamic>.from(e),
+                  ) ??
+                  const [],
+            );
+            _subcommandWorkflows = _normalizeStoredSubcommandWorkflows(
+              normalizedData['subcommandWorkflows'],
+            );
+            _activeSubcommandRoute =
+                (normalizedData['activeSubcommandRoute'] ?? _rootWorkflowRoute)
+                    .toString();
+            final storedOptions = normalizedData['options'];
+            if (storedOptions is List) {
+              _options = deserializeCommandOptions(storedOptions);
+            }
+            _promoteSimpleModeDraftIfNeeded(editorMode);
+            if (_subcommandWorkflows.containsKey(_activeSubcommandRoute)) {
+              final activePayload =
+                  _subcommandWorkflows[_activeSubcommandRoute];
+              if (activePayload != null) {
+                _applyWorkflowPayloadToEditor(activePayload);
+              }
+            }
+            _defaultMemberPermissions =
+                (normalizedData['defaultMemberPermissions'] ?? '')
+                    .toString()
+                    .trim();
+          });
         } else {
-          // legacy defaults to guild
-          _contexts = [InteractionContextType.guild];
+          // No local data found for this existing command — default to advanced
+          if (!mounted) return;
+          setState(() {
+            _editorMode = _editorModeAdvanced;
+          });
         }
-        if (_defaultMemberPermissions.isEmpty &&
-            currentCommand.defaultMemberPermissions != null) {
-          _defaultMemberPermissions = currentCommand
-              .defaultMemberPermissions!
-              .value
-              .toString();
+        // ── Safety net: always terminate loading even if Discord is offline ──
+        if (command == null) {
+          // Load minimal fields from local storage so the read-only banner can
+          // display the command name/description even without a Discord connection.
+          final localName = commandData['name']?.toString() ?? '';
+          final localDescription = commandData['description']?.toString() ?? '';
+          // The command is incomplete only when the full `data` block is absent.
+          // If the data block exists, the command can be edited locally offline.
+          final hasFullLocalData = data != null;
+          if (!mounted) return;
+          _applyStateUpdate(() {
+            _isLocalOnlyCommand = true;
+            if (localName.isNotEmpty) {
+              _commandName = localName;
+            }
+            if (localDescription.isNotEmpty) {
+              _commandDescription = localDescription;
+            }
+            final localType = _commandTypeFromText(
+              (commandData['type'] ?? '').toString(),
+            );
+            if (localType != null) {
+              _commandType = localType;
+            }
+            _isLoading = false;
+            _isDataIncomplete = !hasFullLocalData;
+            if (hasFullLocalData) {
+              _resetDirtyState();
+            }
+          });
+          return;
         }
-        if (!_supportsSimpleMode) {
-          _editorMode = _editorModeAdvanced;
-        }
-        if (_containsHierarchyOption(_options)) {
-          _editorMode = _editorModeAdvanced;
-        }
-        _syncSubcommandWorkflowRoutes();
-        _resetDirtyState();
-        _isLoading = false;
-      });
-    } else {
-      _applyStateUpdate(() {
-        _isLoading = false;
-      });
+
+        final currentCommand = command;
+        if (!mounted) return;
+        _applyStateUpdate(() {
+          _commandName = currentCommand.name;
+          _commandDescription = currentCommand.description;
+          _commandType = currentCommand.type;
+          final storedOptions = data is Map
+              ? Map<String, dynamic>.from(
+                  data.cast<String, dynamic>(),
+                )['options']
+              : null;
+          if (storedOptions is List) {
+            _options = deserializeCommandOptions(storedOptions);
+          } else if (currentCommand.options != null) {
+            _options = currentCommand.options!
+                .map(_buildOptionFromApplicationOption)
+                .toList();
+          } else {
+            _options = [];
+          }
+          _integrationTypes = currentCommand.integrationTypes.map((e) {
+            if (e == ApplicationIntegrationType.guildInstall) {
+              return ApplicationIntegrationType.guildInstall;
+            } else if (e == ApplicationIntegrationType.userInstall) {
+              return ApplicationIntegrationType.userInstall;
+            } else {
+              return ApplicationIntegrationType.guildInstall;
+            }
+          }).toList();
+          _contexts = [];
+          if (currentCommand.contexts != null) {
+            _contexts = currentCommand.contexts!.toList();
+          } else {
+            // legacy defaults to guild
+            _contexts = [InteractionContextType.guild];
+          }
+          if (_defaultMemberPermissions.isEmpty &&
+              currentCommand.defaultMemberPermissions != null) {
+            _defaultMemberPermissions = currentCommand
+                .defaultMemberPermissions!
+                .value
+                .toString();
+          }
+          if (!_supportsSimpleMode) {
+            _editorMode = _editorModeAdvanced;
+          }
+          if (_containsHierarchyOption(_options)) {
+            _editorMode = _editorModeAdvanced;
+          }
+          _syncSubcommandWorkflowRoutes();
+          _resetDirtyState();
+          _isLoading = false;
+        });
+      } else {
+        _applyStateUpdate(() {
+          _isLoading = false;
+        });
+      }
+    } finally {
+      activeUiStallMonitor?.markEnd('editor_open');
     }
   }
 
