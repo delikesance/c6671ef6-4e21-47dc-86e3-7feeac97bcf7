@@ -1,5 +1,6 @@
 import 'dart:ui' as ui;
 
+import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/core/code_editor/code_editor_settings.dart';
 import 'package:bot_creator/core/code_editor/code_editor_settings_provider.dart';
 import 'package:bot_creator/core/code_editor/code_editor_theme_data.dart';
@@ -143,6 +144,49 @@ class _IndentedLanguage extends _FakeLanguage {
   String indentUnit() => '    ';
 }
 
+/// Faux langage instrumenté : il compte ses appels et marque chaque diagnostic
+/// avec le texte EXACT qu'il a analysé. Le test peut donc affirmer à la fois
+/// combien de fois l'analyse lourde a tourné et quel document a produit les
+/// diagnostics affichés (aucun résultat périmé appliqué).
+class _CountingLanguage implements ScriptEditorLanguage {
+  final List<String> analysedTexts = <String>[];
+  int completionCalls = 0;
+  int signatureCalls = 0;
+
+  @override
+  List<String> get quickChars => const <String>[];
+
+  @override
+  int indentIncreaseFor(String previousLine) => 0;
+
+  @override
+  String indentUnit() => '  ';
+
+  @override
+  ScriptCompletionResult? completionAt(String text, int caretOffset) {
+    completionCalls += 1;
+    return null;
+  }
+
+  @override
+  ScriptSignatureHint? signatureAt(String text, int caretOffset) {
+    signatureCalls += 1;
+    return null;
+  }
+
+  @override
+  List<ScriptDiagnostic> diagnosticsFor(String text) {
+    analysedTexts.add(text);
+    return <ScriptDiagnostic>[
+      ScriptDiagnostic(
+        code: ScriptDiagnosticCode.unclosedOpening,
+        severity: ScriptDiagnosticSeverity.warning,
+        message: 'ANALYSED[$text]',
+      ),
+    ];
+  }
+}
+
 /// Traduction de test : elle doit être appelée pour chaque diagnostic sans
 /// `message`, et ignorée dès qu'un `message` est fourni.
 String _testMessage(ScriptDiagnostic diagnostic) =>
@@ -216,6 +260,9 @@ Future<CodeEditorThemeColors> pumpChrome(
   // Le curseur clignote : jamais de `pumpAndSettle`, des durées explicites.
   await tester.pump(const Duration(milliseconds: 50));
   await tester.pump(const Duration(milliseconds: 50));
+  // L'analyse des diagnostics est débouncée (250 ms) : on laisse passer la
+  // pause d'inactivité pour que la barre du bas reflète le document initial.
+  await tester.pump(const Duration(milliseconds: 300));
   return _colorsOf(theme, baseTheme);
 }
 
@@ -464,6 +511,122 @@ void main() {
 
     expect(find.textContaining('message brut du compilateur'), findsOneWidget);
     expect(find.textContaining('DIAG:'), findsNothing);
+  });
+
+  group('analyse des diagnostics débouncée', () {
+    final field = find.byType(TextField);
+
+    testWidgets('la frappe est analysée APRÈS la pause, jamais pendant, et le '
+        'caret/la signature restent synchrones', (tester) async {
+      final language = _CountingLanguage();
+      final controller = TextEditingController();
+      addTearDown(controller.dispose);
+      await pumpChrome(tester, controller: controller, language: language);
+
+      expect(language.analysedTexts, isEmpty);
+
+      await tester.enterText(field, 'BOOM');
+      await tester.pump(const Duration(milliseconds: 50));
+
+      // La frappe est immédiatement servie : complétion et signature sont
+      // calculées sur l'isolate UI, sans attendre le débounce.
+      expect(
+        language.completionCalls,
+        greaterThan(0),
+        reason: "l'autocomplete doit rester synchrone",
+      );
+      expect(
+        language.signatureCalls,
+        greaterThan(0),
+        reason: 'la signature doit rester synchrone',
+      );
+      // L'analyse lourde, elle, n'a pas encore tourné.
+      expect(
+        language.analysedTexts,
+        isEmpty,
+        reason: "l'analyse lourde ne doit pas bloquer la frappe",
+      );
+      expect(find.textContaining('ANALYSED['), findsNothing);
+
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(language.analysedTexts, <String>['BOOM']);
+      expect(find.textContaining('ANALYSED[BOOM]'), findsOneWidget);
+    });
+
+    testWidgets('plusieurs frappes rapprochées : une seule analyse finale', (
+      tester,
+    ) async {
+      final language = _CountingLanguage();
+      final controller = TextEditingController();
+      addTearDown(controller.dispose);
+      await pumpChrome(tester, controller: controller, language: language);
+
+      for (final text in <String>['A', 'AB', 'ABC']) {
+        await tester.enterText(field, text);
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+
+      expect(
+        language.analysedTexts,
+        isEmpty,
+        reason: 'le délai de 250 ms n’a jamais été laissé s’écouler',
+      );
+
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(
+        language.analysedTexts,
+        <String>['ABC'],
+        reason: 'seul le dernier document doit être analysé',
+      );
+      expect(find.textContaining('ANALYSED[ABC]'), findsOneWidget);
+    });
+
+    testWidgets('un résultat périmé n’est jamais appliqué', (tester) async {
+      final language = _CountingLanguage();
+      final controller = TextEditingController();
+      addTearDown(controller.dispose);
+      await pumpChrome(tester, controller: controller, language: language);
+
+      // « BOOM » programme une analyse, « HMM » la remplace avant l'échéance :
+      // la barre ne doit jamais montrer le document abandonné.
+      controller.text = 'BOOM';
+      await tester.pump(const Duration(milliseconds: 100));
+      controller.text = 'HMM';
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(language.analysedTexts, <String>['HMM']);
+      expect(find.textContaining('ANALYSED[BOOM]'), findsNothing);
+      expect(find.textContaining('ANALYSED[HMM]'), findsOneWidget);
+    });
+
+    testWidgets(
+      'dispose pendant le délai : le timer est annulé, aucun setState '
+      'après dispose',
+      (tester) async {
+        final language = _CountingLanguage();
+        final controller = TextEditingController();
+        addTearDown(controller.dispose);
+        await pumpChrome(tester, controller: controller, language: language);
+
+        await tester.enterText(field, 'BOOM');
+        await tester.pump(const Duration(milliseconds: 50));
+        expect(language.analysedTexts, isEmpty);
+
+        // L'écran quitte la pile alors que le délai court encore.
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.pump(const Duration(milliseconds: 400));
+
+        expect(tester.takeException(), isNull);
+        expect(
+          language.analysedTexts,
+          isEmpty,
+          reason: 'le timer annulé ne doit pas analyser après dispose',
+        );
+      },
+    );
   });
 
   for (final platform in <TargetPlatform>[
@@ -1039,6 +1202,69 @@ void main() {
         ),
       ),
       isFalse,
+    );
+  });
+
+  group('signal de décrochage editor_session_end', () {
+    testWidgets('terminer dispatche editor_session_end avec saved: true', (
+      tester,
+    ) async {
+      final events = <(String, Map<String, Object>?)>[];
+      AppAnalytics.debugSetEventObserver(
+        (name, params) => events.add((name, params)),
+      );
+      addTearDown(AppAnalytics.debugResetObservers);
+
+      await pumpChrome(
+        tester,
+        initialCode: 'start',
+        language: const _FakeLanguage(),
+      );
+
+      await tester.enterText(find.byType(TextField), 'start typing');
+      await tester.pump();
+
+      await tester.tap(find.text('Terminé'));
+      await tester.pump();
+
+      final sessionEvents = events
+          .where((e) => e.$1 == 'editor_session_end')
+          .toList();
+      expect(sessionEvents, hasLength(1));
+      final params = sessionEvents.single.$2!;
+      expect(params['saved'], 'true');
+      expect(params['keystroke_bucket'], isNotNull);
+      expect(params['duration_bucket'], isNotNull);
+    });
+
+    testWidgets(
+      'quitter sans sauver dispatche editor_session_end avec saved: false',
+      (tester) async {
+        final events = <(String, Map<String, Object>?)>[];
+        AppAnalytics.debugSetEventObserver(
+          (name, params) => events.add((name, params)),
+        );
+        addTearDown(AppAnalytics.debugResetObservers);
+
+        await pumpChrome(
+          tester,
+          initialCode: 'start',
+          language: const _FakeLanguage(),
+        );
+
+        await tester.enterText(find.byType(TextField), 'start typing');
+        await tester.pump();
+
+        // Remplacer le widget (démonte le scaffold)
+        await tester.pumpWidget(const SizedBox.shrink());
+
+        final sessionEvents = events
+            .where((e) => e.$1 == 'editor_session_end')
+            .toList();
+        expect(sessionEvents, hasLength(1));
+        final params = sessionEvents.single.$2!;
+        expect(params['saved'], 'false');
+      },
     );
   });
 }

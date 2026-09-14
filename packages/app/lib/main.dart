@@ -18,12 +18,15 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/app_editor_
 import 'package:provider/provider.dart';
 import 'package:bot_creator/features/onboarding/presentation/onboarding_page.dart';
 import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
+import 'package:bot_creator/core/diagnostics/ui_stall_bindings.dart';
+import 'package:bot_creator/core/diagnostics/ui_stall_monitor.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator/features/notifications/logic/notification_service.dart';
 import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/features/discord_rpc/logic/discord_rpc_service.dart';
 import 'package:bot_creator/core/analytics/analytics.dart';
+import 'package:bot_creator/core/analytics/user_properties.dart';
 import 'package:bot_creator/features/ads/logic/ad_consent_service.dart';
 import 'package:bot_creator/features/ads/logic/ad_native_service.dart';
 import 'package:bot_creator/features/ads/logic/ad_reward_service.dart';
@@ -70,6 +73,14 @@ final Map<String, NyxxGateway> gateways = <String, NyxxGateway>{};
 FirebaseApp? firebaseApp;
 Future<void>? warmUpFuture;
 
+/// UI-thread stall instrumentation, installed once in `main()`.
+///
+/// The monitor is reachable from hot paths through `activeUiStallMonitor`
+/// (declared in ui_stall_bindings.dart); these bindings own the ticker, the
+/// frame timings callback and the lifecycle observer, so `stop()` releases
+/// them instead of leaving the isolate with an orphan timer or observer.
+UiStallBindings? uiStallBindings;
+
 bool get _isFirebaseSupported {
   if (kIsWeb) {
     return true;
@@ -110,6 +121,28 @@ Future<void> main() async {
   await runZonedGuarded(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
+
+      // ── UI-thread stall instrumentation ──────────────────────────────
+      // Crashlytics' ANR reports carry no Dart frame at all, so the
+      // UI-thread operation that froze the app has to be named on the
+      // device. The monitor is pure Dart; UiStallBindings feeds it from the
+      // Flutter side (ticker, frame timings, lifecycle) and every event
+      // lands in the Crashlytics breadcrumb trail through
+      // AppDiagnostics.logInfo. Installed as soon as the binding exists, so
+      // the bootstrap work that runs before runApp() — PostHog,
+      // SharedPreferences, windowManager — is measured too.
+      final stallMonitor = UiStallMonitor(
+        currentScreen: () => AppDiagnostics.currentScreen,
+        onStall: (message, data) =>
+            unawaited(AppDiagnostics.logInfo(message, data: data)),
+        // The same marks that name a frozen UI-thread operation in the
+        // breadcrumb trail also measure it in Firebase Performance. Only the
+        // whitelisted operations are traced; `editor_keystroke_analysis` is
+        // excluded on purpose (see ui_stall_bindings.dart).
+        onOperationMark: stallOperationTraces.onOperationMark,
+      );
+      activeUiStallMonitor = stallMonitor;
+      uiStallBindings = UiStallBindings(monitor: stallMonitor)..start();
 
       // ── Google Fonts: fully offline (no fonts.gstatic.com round-trip) ──
       // The 5 families used by the app (Inter, SpaceGrotesk, JetBrainsMono,
@@ -258,6 +291,7 @@ Future<void> _warmUpServicesAfterLaunch() async {
 
   await _runStartupTask(
     label: 'Main API session restore',
+    operation: 'startup_main_api_session_restore',
     timeout: const Duration(seconds: 8),
     action: _restorePersistedMainApiSession,
   );
@@ -266,6 +300,7 @@ Future<void> _warmUpServicesAfterLaunch() async {
   if (_isFirebaseSupported) {
     firebaseReady = await _runStartupTask(
       label: 'Firebase initialization',
+      operation: 'startup_firebase_init',
       timeout: const Duration(seconds: 10),
       action: () async {
         await AppDiagnostics.logInfo(
@@ -285,6 +320,7 @@ Future<void> _warmUpServicesAfterLaunch() async {
 
   await _runStartupTask(
     label: 'PostHog initialization',
+    operation: 'startup_posthog_init',
     timeout: const Duration(seconds: 10),
     action: () async {
       await AppDiagnostics.logInfo('Initializing PostHog');
@@ -295,6 +331,7 @@ Future<void> _warmUpServicesAfterLaunch() async {
 
   await _runStartupTask(
     label: 'Crashlytics configuration',
+    operation: 'startup_crashlytics_config',
     timeout: const Duration(seconds: 5),
     action: () async {
       await AppDiagnostics.configureCrashlytics(
@@ -306,6 +343,7 @@ Future<void> _warmUpServicesAfterLaunch() async {
 
   await _runStartupTask(
     label: 'Ad consent flow',
+    operation: 'startup_ad_consent',
     timeout: const Duration(seconds: 15),
     action: () async {
       await AdConsentService.ensureCanRequestAds(
@@ -316,6 +354,7 @@ Future<void> _warmUpServicesAfterLaunch() async {
 
   await _runStartupTask(
     label: 'Rewarded ads initialization',
+    operation: 'startup_ad_reward_init',
     timeout: const Duration(seconds: 15),
     action: () async {
       await AdRewardService.initialize();
@@ -324,6 +363,7 @@ Future<void> _warmUpServicesAfterLaunch() async {
 
   await _runStartupTask(
     label: 'Native ads initialization',
+    operation: 'startup_ad_native_init',
     timeout: const Duration(seconds: 15),
     action: () async {
       await AdNativeService.initialize();
@@ -332,14 +372,26 @@ Future<void> _warmUpServicesAfterLaunch() async {
 
   await _runStartupTask(
     label: 'Subscription service initialization',
+    operation: 'startup_subscription_init',
     timeout: const Duration(seconds: 15),
     action: () async {
       await SubscriptionService.initialize();
     },
   );
 
+  // Runs once, after the stores and the subscription state are readable and
+  // after Firebase is initialised, so the four user properties that segment
+  // every funnel event are published before the user can act on anything.
+  await _runStartupTask(
+    label: 'Analytics user properties',
+    operation: 'startup_analytics_user_properties',
+    timeout: const Duration(seconds: 5),
+    action: AppUserProperties.refresh,
+  );
+
   await _runStartupTask(
     label: 'Hosted app subscription service initialization',
+    operation: 'startup_hosted_subscription_init',
     timeout: const Duration(seconds: 10),
     action: () async {
       await HostedAppSubscriptionService.initialize();
@@ -348,6 +400,7 @@ Future<void> _warmUpServicesAfterLaunch() async {
 
   await _runStartupTask(
     label: 'Hosted app subscription server refresh',
+    operation: 'startup_hosted_subscription_refresh',
     timeout: const Duration(seconds: 8),
     action: () async {
       await HostedAppSubscriptionService.refreshFromServer(forceRefresh: true);
@@ -356,6 +409,7 @@ Future<void> _warmUpServicesAfterLaunch() async {
 
   await _runStartupTask(
     label: 'Main API client hashes load',
+    operation: 'startup_main_api_hashes',
     timeout: const Duration(seconds: 5),
     action: () async {
       await MainApiClient.initialize();
@@ -364,6 +418,7 @@ Future<void> _warmUpServicesAfterLaunch() async {
 
   await _runStartupTask(
     label: 'Debug replay state load',
+    operation: 'startup_debug_replay_state',
     timeout: const Duration(seconds: 5),
     action: () async {
       await loadDebugReplayCapturingState();
@@ -372,6 +427,7 @@ Future<void> _warmUpServicesAfterLaunch() async {
 
   await _runStartupTask(
     label: 'Discord RPC initialization',
+    operation: 'startup_discord_rpc_init',
     timeout: const Duration(seconds: 5),
     action: () async {
       await DiscordRpcService.instance.initialize();
@@ -380,6 +436,7 @@ Future<void> _warmUpServicesAfterLaunch() async {
 
   await _runStartupTask(
     label: 'Notification service initialization',
+    operation: 'startup_notification_init',
     timeout: const Duration(seconds: 10),
     action: () async {
       // Detect environment from the connected Manager URL
@@ -400,6 +457,7 @@ Future<void> _warmUpServicesAfterLaunch() async {
 
   await _runStartupTask(
     label: 'Runner associations load',
+    operation: 'startup_runner_associations',
     timeout: const Duration(seconds: 5),
     action: () async {
       await RunnerSettings.loadAssociations();
@@ -408,6 +466,7 @@ Future<void> _warmUpServicesAfterLaunch() async {
 
   await _runStartupTask(
     label: 'Embedded JS runner startup',
+    operation: 'startup_embedded_js_runner',
     timeout: const Duration(minutes: 6),
     action: () async {
       if (!kIsWeb &&
@@ -471,9 +530,14 @@ Future<void> _restorePersistedMainApiSession() async {
 
 Future<bool> _runStartupTask({
   required String label,
+  required String operation,
   required Duration timeout,
   required Future<void> Function() action,
 }) async {
+  // Every startup step is marked: when the warm-up freezes the UI isolate,
+  // the breadcrumb names the step (`startup_*`) and how long it took,
+  // instead of leaving an ANR report with no Dart frame to explain it.
+  activeUiStallMonitor?.markStart(operation);
   try {
     await action().timeout(
       timeout,
@@ -500,6 +564,10 @@ Future<bool> _runStartupTask({
       fatal: false,
     );
     return false;
+  } finally {
+    // Always closed, including on a timeout or a thrown error, so a slow
+    // step is reported exactly once with its real duration.
+    activeUiStallMonitor?.markEnd(operation);
   }
 }
 

@@ -32,7 +32,12 @@ class LocaleProvider extends ChangeNotifier {
     await _applyPreference(savedPreference, persist: false, notify: true);
   }
 
-  AppLocale _resolveLocale(AppLocalePreference preference) {
+  /// The locale a [preference] resolves to.
+  ///
+  /// Static because the analytics `locale` user property is published outside
+  /// the widget tree, where no provider instance exists — and the system
+  /// fallback must be resolved exactly once, here.
+  static AppLocale resolveLocale(AppLocalePreference preference) {
     switch (preference) {
       case AppLocalePreference.fr:
         return AppLocale.fr;
@@ -51,13 +56,28 @@ class LocaleProvider extends ChangeNotifier {
     }
   }
 
+  /// The language code the app is currently running in (`en`, `fr`, …).
+  ///
+  /// Reads the persisted preference and applies the same resolution the
+  /// provider constructor does, so a caller outside the widget tree gets the
+  /// language the UI is actually in, not the system one.
+  static Future<String> currentLanguageCode() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getString(_key);
+    final preference = AppLocalePreference.values.firstWhere(
+      (value) => value.code == saved,
+      orElse: () => AppLocalePreference.system,
+    );
+    return resolveLocale(preference).code;
+  }
+
   Future<void> _applyPreference(
     AppLocalePreference preference, {
     required bool persist,
     required bool notify,
   }) async {
     _preference = preference;
-    _locale = _resolveLocale(preference);
+    _locale = resolveLocale(preference);
 
     if (persist) {
       final prefs = await SharedPreferences.getInstance();

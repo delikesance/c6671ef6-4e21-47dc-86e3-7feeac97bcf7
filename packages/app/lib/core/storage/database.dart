@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:bot_creator/core/diagnostics/ui_stall_bindings.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/secure/secure_storage_service.dart';
@@ -2059,18 +2060,28 @@ class AppManager implements BotDataStore {
 
   Future<List<Map<String, dynamic>>> getInboundWebhooks(String id) async {
     final app = await getApp(id);
-    return ((app['inboundWebhooks'] as List?)
-            ?.whereType<Map>()
-            .map(
-              (entry) =>
-                  _normalizeInboundWebhook(Map<String, dynamic>.from(entry)),
-            )
-            .where((entry) {
-              return (entry['path'] ?? '').toString().trim().isNotEmpty &&
-                  (entry['workflowName'] ?? '').toString().trim().isNotEmpty;
-            })
-            .toList(growable: false)) ??
-        const <Map<String, dynamic>>[];
+    return _decodeInboundWebhooks(app['inboundWebhooks'])
+        .map((entry) => _normalizeInboundWebhook(entry))
+        .where((entry) {
+          return (entry['path'] ?? '').toString().trim().isNotEmpty &&
+              (entry['workflowName'] ?? '').toString().trim().isNotEmpty;
+        })
+        .toList(growable: false);
+  }
+
+  /// Decodes the stored inbound-webhook list.
+  ///
+  /// The column is free-form JSON, so a legacy row (or a hand-edited config)
+  /// can hold any type here: a bare `as List?` cast threw
+  /// "bool is not a subtype of List?" and crashed the app on a FATAL path.
+  static List<Map<String, dynamic>> _decodeInboundWebhooks(Object? raw) {
+    if (raw is! List) {
+      return <Map<String, dynamic>>[];
+    }
+    return raw
+        .whereType<Map>()
+        .map((entry) => Map<String, dynamic>.from(entry))
+        .toList();
   }
 
   Future<void> saveInboundWebhook(
@@ -2082,15 +2093,9 @@ class AppManager implements BotDataStore {
     String? webhookId,
   }) async {
     final app = Map<String, dynamic>.from(await getApp(id));
-    final webhooks =
-        ((app['inboundWebhooks'] as List?)
-            ?.whereType<Map>()
-            .map(
-              (entry) =>
-                  _normalizeInboundWebhook(Map<String, dynamic>.from(entry)),
-            )
-            .toList(growable: true)) ??
-        <Map<String, dynamic>>[];
+    final webhooks = _decodeInboundWebhooks(
+      app['inboundWebhooks'],
+    ).map((entry) => _normalizeInboundWebhook(entry)).toList();
 
     final normalizedPath = _normalizeInboundWebhookPath(path);
     final normalizedWorkflow = workflowName.trim();
@@ -2158,12 +2163,7 @@ class AppManager implements BotDataStore {
 
   Future<void> deleteInboundWebhook(String id, String webhookId) async {
     final app = Map<String, dynamic>.from(await getApp(id));
-    final webhooks =
-        ((app['inboundWebhooks'] as List?)
-            ?.whereType<Map>()
-            .map((entry) => Map<String, dynamic>.from(entry))
-            .toList(growable: true)) ??
-        <Map<String, dynamic>>[];
+    final webhooks = _decodeInboundWebhooks(app['inboundWebhooks']);
     webhooks.removeWhere(
       (entry) => (entry['id'] ?? '').toString().trim() == webhookId.trim(),
     );
@@ -2415,20 +2415,25 @@ class AppManager implements BotDataStore {
     String id,
     String commandId,
   ) async {
-    final path = await _path();
-    final file = File("$path/apps/$id/$commandId.json");
-    if (!await file.exists()) return {};
+    activeUiStallMonitor?.markStart('load_command');
+    try {
+      final path = await _path();
+      final file = File("$path/apps/$id/$commandId.json");
+      if (!await file.exists()) return {};
 
-    final data = await file.readAsString();
-    if (data.isEmpty) return {};
+      final data = await file.readAsString();
+      if (data.isEmpty) return {};
 
-    final decoded = Map<String, dynamic>.from(jsonDecode(data));
-    final normalized = normalizeCommandData(decoded);
-    if (!_deepEquals(decoded, normalized)) {
-      await file.writeAsString(jsonEncode(normalized));
+      final decoded = Map<String, dynamic>.from(jsonDecode(data));
+      final normalized = normalizeCommandData(decoded);
+      if (!_deepEquals(decoded, normalized)) {
+        await file.writeAsString(jsonEncode(normalized));
+      }
+
+      return normalized;
+    } finally {
+      activeUiStallMonitor?.markEnd('load_command');
     }
-
-    return normalized;
   }
 
   @override
@@ -2436,69 +2441,74 @@ class AppManager implements BotDataStore {
     String id, {
     bool forceRefresh = false,
   }) async {
-    if (!forceRefresh) {
-      final cachedMemory = _commandListCache[id];
-      if (cachedMemory != null) return cachedMemory;
+    activeUiStallMonitor?.markStart('list_commands');
+    try {
+      if (!forceRefresh) {
+        final cachedMemory = _commandListCache[id];
+        if (cachedMemory != null) return cachedMemory;
 
-      final cachedPayload = await getCachedPayload(id);
-      if (cachedPayload != null) {
-        final commands = cachedPayload['commands'];
-        if (commands is List) {
-          final list = commands
-              .whereType<Map>()
-              .map((c) => Map<String, dynamic>.from(c))
-              .toList(growable: false);
-          _commandListCache[id] = list;
-          return list;
+        final cachedPayload = await getCachedPayload(id);
+        if (cachedPayload != null) {
+          final commands = cachedPayload['commands'];
+          if (commands is List) {
+            final list = commands
+                .whereType<Map>()
+                .map((c) => Map<String, dynamic>.from(c))
+                .toList(growable: false);
+            _commandListCache[id] = list;
+            return list;
+          }
         }
       }
-    }
 
-    final path = await _path();
-    final dir = Directory("$path/apps/$id");
-    if (!await dir.exists()) {
-      return const <Map<String, dynamic>>[];
-    }
-
-    final entities = await dir.list().toList();
-    final commands = <Map<String, dynamic>>[];
-
-    for (final entity in entities) {
-      if (entity is! File || !entity.path.endsWith('.json')) {
-        continue;
+      final path = await _path();
+      final dir = Directory("$path/apps/$id");
+      if (!await dir.exists()) {
+        return const <Map<String, dynamic>>[];
       }
 
-      try {
-        final content = await entity.readAsString();
-        if (content.trim().isEmpty) {
+      final entities = await dir.list().toList();
+      final commands = <Map<String, dynamic>>[];
+
+      for (final entity in entities) {
+        if (entity is! File || !entity.path.endsWith('.json')) {
           continue;
         }
 
-        final decoded = Map<String, dynamic>.from(jsonDecode(content));
-        final normalized = normalizeCommandData(decoded);
-        final fileName = entity.uri.pathSegments.last;
-        final fallbackId = fileName.substring(0, fileName.length - 5);
+        try {
+          final content = await entity.readAsString();
+          if (content.trim().isEmpty) {
+            continue;
+          }
 
-        normalized['id'] = (normalized['id'] ?? fallbackId).toString();
-        final rawName = (normalized['name'] ?? '').toString().trim();
-        normalized['name'] = rawName.isEmpty
-            ? _fallbackCommandName(fallbackId)
-            : rawName;
-        normalized['description'] = (normalized['description'] ?? '')
-            .toString();
-        commands.add(normalized);
-      } catch (_) {
-        // Ignore malformed command files to keep list rendering resilient.
+          final decoded = Map<String, dynamic>.from(jsonDecode(content));
+          final normalized = normalizeCommandData(decoded);
+          final fileName = entity.uri.pathSegments.last;
+          final fallbackId = fileName.substring(0, fileName.length - 5);
+
+          normalized['id'] = (normalized['id'] ?? fallbackId).toString();
+          final rawName = (normalized['name'] ?? '').toString().trim();
+          normalized['name'] = rawName.isEmpty
+              ? _fallbackCommandName(fallbackId)
+              : rawName;
+          normalized['description'] = (normalized['description'] ?? '')
+              .toString();
+          commands.add(normalized);
+        } catch (_) {
+          // Ignore malformed command files to keep list rendering resilient.
+        }
       }
-    }
 
-    commands.sort((a, b) {
-      final aName = (a['name'] ?? '').toString().toLowerCase();
-      final bName = (b['name'] ?? '').toString().toLowerCase();
-      return aName.compareTo(bName);
-    });
-    _commandListCache[id] = commands;
-    return commands;
+      commands.sort((a, b) {
+        final aName = (a['name'] ?? '').toString().toLowerCase();
+        final bName = (b['name'] ?? '').toString().toLowerCase();
+        return aName.compareTo(bName);
+      });
+      _commandListCache[id] = commands;
+      return commands;
+    } finally {
+      activeUiStallMonitor?.markEnd('list_commands');
+    }
   }
 
   @override
@@ -2507,21 +2517,26 @@ class AppManager implements BotDataStore {
     String commandId,
     Map<String, dynamic> data,
   ) async {
-    _commandListCache.remove(id);
+    activeUiStallMonitor?.markStart('save_command');
+    try {
+      _commandListCache.remove(id);
 
-    final path = await _path();
-    final file = File("$path/apps/$id/$commandId.json");
+      final path = await _path();
+      final file = File("$path/apps/$id/$commandId.json");
 
-    if (!await file.exists()) await file.create(recursive: true);
-    await file.writeAsString(jsonEncode(normalizeCommandData(data)));
-    await invalidatePayloadCache(id);
-    unawaited(
-      (onAfterCommandSave ?? (_, _, _) async {}).call(
-        id,
-        commandId,
-        Map<String, dynamic>.from(data),
-      ),
-    );
+      if (!await file.exists()) await file.create(recursive: true);
+      await file.writeAsString(jsonEncode(normalizeCommandData(data)));
+      await invalidatePayloadCache(id);
+      unawaited(
+        (onAfterCommandSave ?? (_, _, _) async {}).call(
+          id,
+          commandId,
+          Map<String, dynamic>.from(data),
+        ),
+      );
+    } finally {
+      activeUiStallMonitor?.markEnd('save_command');
+    }
   }
 
   @override
