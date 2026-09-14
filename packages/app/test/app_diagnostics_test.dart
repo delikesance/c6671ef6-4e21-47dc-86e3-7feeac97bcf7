@@ -61,6 +61,28 @@ void main() {
       expect(AppDiagnostics.isTransientNetworkError(error), isTrue);
     });
 
+    test('our own API returning 5xx is transient, not an app bug', () {
+      // Issue a7c0c5e8: MainApiClientException renders as "[504] Gateway
+      // Timeout". A server-side failure is not a crash in the client.
+      expect(
+        AppDiagnostics.isTransientNetworkError(
+          Exception('[504] Gateway Timeout'),
+        ),
+        isTrue,
+      );
+      expect(
+        AppDiagnostics.isTransientNetworkError(
+          Exception('[500] Internal Server Error'),
+        ),
+        isTrue,
+      );
+      // A 4xx stays a client-side signal and must still be reported.
+      expect(
+        AppDiagnostics.isTransientNetworkError(Exception('[404] Not Found')),
+        isFalse,
+      );
+    });
+
     test('a genuine application error is not transient', () {
       expect(
         AppDiagnostics.isTransientNetworkError(StateError('Unexpected null')),
