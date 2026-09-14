@@ -1,3 +1,4 @@
+import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 
@@ -49,6 +50,9 @@ class AppAnalytics {
     String? screenClass,
     Map<String, Object>? parameters,
   }) async {
+    // Published before anything is sent: the screen name must already be
+    // current when an event fired in the same frame reads it back.
+    AppDiagnostics.currentScreen = screenName;
     if (_isSupported) {
       try {
         await FirebaseAnalytics.instance.logScreenView(
@@ -79,10 +83,7 @@ class AppAnalytics {
       } catch (_) {}
     }
     if (_isDesktop) {
-      await PosthogService.capture(
-        eventName: name,
-        properties: parameters,
-      );
+      await PosthogService.capture(eventName: name, properties: parameters);
     }
   }
 

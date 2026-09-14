@@ -12,6 +12,16 @@ class AppDiagnostics {
   static bool _firebaseReady = false;
   static File? _logFile;
 
+  /// Name of the screen the user is currently on, as reported by the last
+  /// screen-view log. `AppAnalytics.logScreenView` is the single funnel every
+  /// screen view in the app goes through, and it is the only writer of this
+  /// field: the naming logic stays where it already lives.
+  ///
+  /// `UiStallMonitor` reads it for every event it emits, so an ANR breadcrumb
+  /// names the screen the app froze on instead of staying anonymous. Stays
+  /// `unknown` until the first screen view is logged.
+  static String currentScreen = 'unknown';
+
   static Future<void> initialize() async {
     if (_initialized) {
       return;
