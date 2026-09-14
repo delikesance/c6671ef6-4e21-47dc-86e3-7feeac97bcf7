@@ -307,7 +307,7 @@ client.on('interactionCreate', async (interaction) => {
                         themeModeLabel,
                         style: TextStyle(
                           fontSize: 12,
-                          color: theme.isDark ? Colors.white60 : Colors.black54,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                     );
