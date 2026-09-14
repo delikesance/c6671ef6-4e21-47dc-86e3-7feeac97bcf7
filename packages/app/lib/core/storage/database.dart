@@ -2059,18 +2059,28 @@ class AppManager implements BotDataStore {
 
   Future<List<Map<String, dynamic>>> getInboundWebhooks(String id) async {
     final app = await getApp(id);
-    return ((app['inboundWebhooks'] as List?)
-            ?.whereType<Map>()
-            .map(
-              (entry) =>
-                  _normalizeInboundWebhook(Map<String, dynamic>.from(entry)),
-            )
-            .where((entry) {
-              return (entry['path'] ?? '').toString().trim().isNotEmpty &&
-                  (entry['workflowName'] ?? '').toString().trim().isNotEmpty;
-            })
-            .toList(growable: false)) ??
-        const <Map<String, dynamic>>[];
+    return _decodeInboundWebhooks(app['inboundWebhooks'])
+        .map((entry) => _normalizeInboundWebhook(entry))
+        .where((entry) {
+          return (entry['path'] ?? '').toString().trim().isNotEmpty &&
+              (entry['workflowName'] ?? '').toString().trim().isNotEmpty;
+        })
+        .toList(growable: false);
+  }
+
+  /// Decodes the stored inbound-webhook list.
+  ///
+  /// The column is free-form JSON, so a legacy row (or a hand-edited config)
+  /// can hold any type here: a bare `as List?` cast threw
+  /// "bool is not a subtype of List?" and crashed the app on a FATAL path.
+  static List<Map<String, dynamic>> _decodeInboundWebhooks(Object? raw) {
+    if (raw is! List) {
+      return <Map<String, dynamic>>[];
+    }
+    return raw
+        .whereType<Map>()
+        .map((entry) => Map<String, dynamic>.from(entry))
+        .toList();
   }
 
   Future<void> saveInboundWebhook(
@@ -2082,15 +2092,9 @@ class AppManager implements BotDataStore {
     String? webhookId,
   }) async {
     final app = Map<String, dynamic>.from(await getApp(id));
-    final webhooks =
-        ((app['inboundWebhooks'] as List?)
-            ?.whereType<Map>()
-            .map(
-              (entry) =>
-                  _normalizeInboundWebhook(Map<String, dynamic>.from(entry)),
-            )
-            .toList(growable: true)) ??
-        <Map<String, dynamic>>[];
+    final webhooks = _decodeInboundWebhooks(
+      app['inboundWebhooks'],
+    ).map((entry) => _normalizeInboundWebhook(entry)).toList();
 
     final normalizedPath = _normalizeInboundWebhookPath(path);
     final normalizedWorkflow = workflowName.trim();
@@ -2158,12 +2162,7 @@ class AppManager implements BotDataStore {
 
   Future<void> deleteInboundWebhook(String id, String webhookId) async {
     final app = Map<String, dynamic>.from(await getApp(id));
-    final webhooks =
-        ((app['inboundWebhooks'] as List?)
-            ?.whereType<Map>()
-            .map((entry) => Map<String, dynamic>.from(entry))
-            .toList(growable: true)) ??
-        <Map<String, dynamic>>[];
+    final webhooks = _decodeInboundWebhooks(app['inboundWebhooks']);
     webhooks.removeWhere(
       (entry) => (entry['id'] ?? '').toString().trim() == webhookId.trim(),
     );
