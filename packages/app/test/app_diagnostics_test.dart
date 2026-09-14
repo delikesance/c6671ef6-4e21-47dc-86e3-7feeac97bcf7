@@ -50,6 +50,17 @@ void main() {
       },
     );
 
+    test('the UMP consent SDK network failure is transient', () {
+      // Shape reported by the released app on issue e15de5a5 (2358 events):
+      // the UMP SDK fails with error code 2 ("Error making request.") on a
+      // flaky network, which is not an application bug.
+      final error = StateError(
+        'requestConsentInfoUpdate failed (2): Error making request.',
+      );
+
+      expect(AppDiagnostics.isTransientNetworkError(error), isTrue);
+    });
+
     test('a genuine application error is not transient', () {
       expect(
         AppDiagnostics.isTransientNetworkError(StateError('Unexpected null')),

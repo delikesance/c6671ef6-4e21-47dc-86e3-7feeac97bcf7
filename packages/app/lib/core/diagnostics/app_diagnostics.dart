@@ -227,7 +227,12 @@ class AppDiagnostics {
         return true;
       }
     }
-    return message.contains('connection timed out') ||
+    // The UMP (ad consent) SDK reports a network failure as "Error making
+    // request." with error code 2, through the same channel as a real
+    // misconfiguration, so match its signature explicitly.
+    return message.contains('error making request') ||
+        message.contains('requestconsentinfoupdate failed') ||
+        message.contains('connection timed out') ||
         message.contains('connection refused') ||
         message.contains('network is unreachable') ||
         message.contains('failed host lookup') ||
@@ -300,6 +305,16 @@ class AppDiagnostics {
     );
 
     if (!_crashlyticsEnabled || !_firebaseReady) {
+      return;
+    }
+
+    // Transient network/TLS failures and benign framework noise are not app
+    // bugs. Recording them creates one event per failure — DNS lookups and
+    // websocket handshakes alone accounted for thousands of events (2358 over
+    // 97 users on a single issue) and buried the real crashes — so they stay in
+    // the local diagnostics log and the breadcrumb trail only.
+    if (isTransientNetworkError(error) ||
+        isBenignFlutterFrameworkError(error, context: combined)) {
       return;
     }
 
