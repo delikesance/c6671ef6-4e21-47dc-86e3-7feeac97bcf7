@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer' as developer;
 import 'dart:io';
+import 'package:bot_creator/core/analytics/activation_funnel.dart';
 import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/gateway_bot_events.dart';
@@ -1354,9 +1355,11 @@ class HomePageState extends State<HomePage>
     if (_botIdInAction != null) return;
     setState(() => _botIdInAction = botId);
 
-    try {
-      final isRunning = _runningBotIds.contains(botId);
+    // Read before the try: the same method also stops a running bot, and the
+    // catch has to know whether this attempt was a start to report an outcome.
+    final isRunning = _runningBotIds.contains(botId);
 
+    try {
       var runtime = await _resolveRemoteRuntime(
         botId: botId,
         getTimeout: const Duration(seconds: 30),
@@ -1597,6 +1600,8 @@ class HomePageState extends State<HomePage>
               }
             }
             setBotRuntimeActive(true);
+            // The runtime confirmed the start: the funnel's success point.
+            unawaited(ActivationFunnel.botStart());
             if (mounted) {
               setState(() {
                 _runningBotIds = <String>{..._runningBotIds, botId};
@@ -1683,6 +1688,9 @@ class HomePageState extends State<HomePage>
               _runningBotIds = <String>{..._runningBotIds, botId};
             });
           }
+          // The foreground service reported itself running: the mobile start
+          // succeeded, even though the bot is not "launched" locally yet.
+          unawaited(ActivationFunnel.botStart());
         }
       } else {
         // ── Desktop (Linux / Windows / macOS) ─────────────────────────────
@@ -1740,6 +1748,8 @@ class HomePageState extends State<HomePage>
             await client.startBot(botId, botName: botName);
             RunnerSettings.associateBotWithRunner(botId, runnerConfig.id);
             setBotRuntimeActive(true);
+            // The runner accepted the start: the funnel's success point.
+            unawaited(ActivationFunnel.botStart());
             if (mounted) {
               setState(() {
                 _runningBotIds = <String>{..._runningBotIds, botId};
@@ -1761,6 +1771,8 @@ class HomePageState extends State<HomePage>
               _runningBotIds = <String>{..._runningBotIds, botId};
             });
           }
+          // The local engine is running the bot: the funnel's success point.
+          unawaited(ActivationFunnel.botStart());
         }
       }
 
@@ -1771,6 +1783,10 @@ class HomePageState extends State<HomePage>
         preferredBotName: _runningBotIds.contains(botId) ? botName : null,
       );
     } catch (e) {
+      // Only a start attempt is reported here: this method stops bots too.
+      if (!isRunning) {
+        unawaited(ActivationFunnel.botStartFailed(e));
+      }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(context.tr.error_with_details(e.toString()))),

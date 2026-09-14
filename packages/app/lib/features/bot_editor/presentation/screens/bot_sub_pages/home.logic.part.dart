@@ -263,6 +263,9 @@ extension _AppHomePageLogic on _AppHomePageState {
 
   Future<void> _toggleBotLaunchState() async {
     if (_botStarting) return;
+    // The same entry point stops a running bot: the catch has to know whether
+    // this attempt was a start to report an outcome.
+    final wasStarting = !_botLaunched;
     _setState(() {
       _botStarting = true;
     });
@@ -391,6 +394,8 @@ extension _AppHomePageLogic on _AppHomePageState {
             }
             setBotRuntimeActive(true);
             _setState(() => _botLaunched = true);
+            // The runtime confirmed the start: the funnel's success point.
+            unawaited(ActivationFunnel.botStart());
           }
         } catch (error) {
           if (remoteClient is MainApiClient) {
@@ -451,6 +456,9 @@ extension _AppHomePageLogic on _AppHomePageState {
           _botStarting = true;
         });
         keepsStartingStateActive = true;
+        // The foreground service reported itself running: the mobile start
+        // succeeded, even though the bot is not "launched" locally yet.
+        unawaited(ActivationFunnel.botStart());
       } else {
         if (_botLaunched) {
           appendBotLog(context.tr.bot_home_log_desktop_stop, botId: botId);
@@ -498,10 +506,14 @@ extension _AppHomePageLogic on _AppHomePageState {
           RunnerSettings.associateBotWithRunner(botId, runnerConfig.id);
           setBotRuntimeActive(true);
           _setState(() => _botLaunched = true);
+          // The runner accepted the start: the funnel's success point.
+          unawaited(ActivationFunnel.botStart());
           return;
         }
 
         await startDesktopBot(token);
+        // The local engine is running the bot: the funnel's success point.
+        unawaited(ActivationFunnel.botStart());
       }
 
       _setState(() {
@@ -509,6 +521,9 @@ extension _AppHomePageLogic on _AppHomePageState {
         _botStarting = false;
       });
     } on PlatformException catch (error) {
+      if (wasStarting) {
+        unawaited(ActivationFunnel.botStartFailed(error));
+      }
       _setState(() {
         _botStarting = false;
       });
@@ -522,6 +537,9 @@ extension _AppHomePageLogic on _AppHomePageState {
         );
       }
     } catch (e) {
+      if (wasStarting) {
+        unawaited(ActivationFunnel.botStartFailed(e));
+      }
       _setState(() {
         _botStarting = false;
       });
