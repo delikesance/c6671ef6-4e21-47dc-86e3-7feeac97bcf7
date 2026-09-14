@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bot_creator/core/code_editor/script_editor_chrome.dart';
 import 'package:bot_creator/core/code_editor/script_editor_editor_pane.dart';
 import 'package:bot_creator/core/code_editor/script_editor_language.dart';
@@ -83,6 +85,18 @@ class _ScriptEditorScaffoldState extends State<ScriptEditorScaffold> {
   final FocusNode _focusNode = FocusNode();
 
   List<ScriptDiagnostic> _diagnostics = const <ScriptDiagnostic>[];
+
+  /// Analyse lourde (« diagnosticsFor » : compilation BDFD complète, analyse
+  /// JavaScript complète) retirée du chemin de la frappe : elle est reprogrammée
+  /// après une courte pause d'inactivité, alors que le caret, l'autocomplete et
+  /// la signature restent synchrones dans [_refresh].
+  Timer? _diagnosticsDebounce;
+
+  /// Délai d'inactivité avant de relancer l'analyse lourde.
+  static const Duration _diagnosticsDebounceDuration = Duration(
+    milliseconds: 250,
+  );
+
   ScriptCompletionResult? _completion;
   int _completionSelectedIndex = 0;
   ScriptSignatureHint? _signatureHint;
@@ -106,6 +120,7 @@ class _ScriptEditorScaffoldState extends State<ScriptEditorScaffold> {
 
   @override
   void dispose() {
+    _diagnosticsDebounce?.cancel();
     _controller.removeListener(_onEditorChanged);
     _focusNode.removeListener(_onEditorChanged);
     _focusNode.dispose();
@@ -123,7 +138,7 @@ class _ScriptEditorScaffoldState extends State<ScriptEditorScaffold> {
   }
 
   /// Recalcule l'état dépendant du texte et du caret (complétions, signature,
-  /// diagnostics, ligne active des guides).
+  /// ligne active des guides) et reprogramme l'analyse lourde.
   void _refresh() {
     activeUiStallMonitor?.markStart('editor_keystroke_analysis');
     try {
@@ -143,12 +158,39 @@ class _ScriptEditorScaffoldState extends State<ScriptEditorScaffold> {
       _signatureHint = text.isEmpty
           ? null
           : widget.language.signatureAt(text, caret);
-      _diagnostics = text.trim().isEmpty
-          ? const <ScriptDiagnostic>[]
-          : widget.language.diagnosticsFor(text);
+      _scheduleDiagnostics(text);
     } finally {
       activeUiStallMonitor?.markEnd('editor_keystroke_analysis');
     }
+  }
+
+  /// Reprogramme l'analyse des diagnostics, seule opération chère de la frappe
+  /// (compilation BDFD complète, analyse JavaScript complète) : elle attend une
+  /// pause d'inactivité au lieu de bloquer l'isolate UI à chaque caractère.
+  ///
+  /// Le caret, l'autocomplete et la signature restent synchrones, donc
+  /// l'éditeur réagit toujours à l'instant même.
+  void _scheduleDiagnostics(String text) {
+    _diagnosticsDebounce?.cancel();
+    if (text.trim().isEmpty) {
+      _diagnostics = const <ScriptDiagnostic>[];
+      return;
+    }
+    _diagnosticsDebounce = Timer(_diagnosticsDebounceDuration, () {
+      if (!mounted) {
+        return;
+      }
+      // Garde anti-résultat-périmé : une frappe plus récente a déjà reprogrammé
+      // l'analyse, le texte capturé n'est plus celui du document.
+      if (_controller.text != text) {
+        return;
+      }
+      final diagnostics = widget.language.diagnosticsFor(text);
+      if (!mounted) {
+        return;
+      }
+      setState(() => _diagnostics = diagnostics);
+    });
   }
 
   static const Set<TargetPlatform> _desktopPlatforms = {

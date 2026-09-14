@@ -45,6 +45,9 @@ void main() {
     // la main.
     await tester.pump(const Duration(milliseconds: 50));
     await tester.pump(const Duration(milliseconds: 50));
+    // L'analyse des diagnostics est débouncée (250 ms) : on laisse passer la
+    // pause d'inactivité pour que la barre du bas reflète le document initial.
+    await tester.pump(const Duration(milliseconds: 300));
   }
 
   TextEditingController editorController(WidgetTester tester) =>
