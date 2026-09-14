@@ -108,6 +108,17 @@ class AppDiagnostics {
         context: details.context?.toDescription(),
         library: details.library,
       );
+
+      // Framework validation warnings — layout overflow, debug assertions,
+      // ListTile/ColoredBox conflicts — are only reachable in debug builds,
+      // where they are already visible on screen and in the console. Sending
+      // them to Crashlytics produced issues attributed to a developer's own
+      // device: every event behind issues e85b4cc9 and 98eaa305 carried
+      // app_mode=debug. Release builds still report real layout overflows.
+      if (kDebugMode && (isLayoutError || isDebugAssertion || isBenign)) {
+        return;
+      }
+
       unawaited(
         recordFlutterError(
           details,
