@@ -4,6 +4,9 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:app_links/app_links.dart';
+import 'package:bot_creator/core/analytics/activation_funnel.dart';
+import 'package:bot_creator/core/analytics/user_identity.dart';
+import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
 import 'package:bot_creator/core/utils/external_link.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
@@ -33,12 +36,30 @@ class MainApiAuthService {
     Duration timeout = const Duration(minutes: 5),
   }) async {
     _oauthDebug('connectWithDiscord timeout=${timeout.inSeconds}s');
-    if (_supportsLoopbackCallback) {
-      _oauthDebug('Using desktop loopback callback flow');
-      return _connectDesktop(client: client, timeout: timeout);
+    // The flow starts here: a browser is about to open on Discord.
+    unawaited(ActivationFunnel.discordLoginStart());
+    final MainApiSession session;
+    try {
+      if (_supportsLoopbackCallback) {
+        _oauthDebug('Using desktop loopback callback flow');
+        session = await _connectDesktop(client: client, timeout: timeout);
+      } else {
+        _oauthDebug('Using mobile app-links callback flow');
+        session = await _connectMobile(client: client, timeout: timeout);
+      }
+    } catch (error) {
+      // Classified, never the raw message: a Discord error code or an HTTP
+      // body would each become its own parameter value in the console.
+      unawaited(ActivationFunnel.discordLoginFailed(error));
+      rethrow;
     }
-    _oauthDebug('Using mobile app-links callback flow');
-    return _connectMobile(client: client, timeout: timeout);
+
+    // Login is where the Discord account becomes known: publish it to the
+    // diagnostics and analytics SDKs before anything else can report. Not
+    // awaited — the identity fan-out must not delay the login completing.
+    unawaited(UserIdentity.apply(session.userId));
+    unawaited(ActivationFunnel.discordLoginSuccess());
+    return session;
   }
 
   /// Completes a pending mobile OAuth callback after a cold start or app relaunch.
@@ -50,6 +71,9 @@ class MainApiAuthService {
     final pending = await _loadPendingMobileOAuth();
     if (pending == null) {
       _oauthDebug('No pending mobile OAuth context found');
+      unawaited(
+        ActivationFunnel.discordLoginFailed('no pending mobile oauth context'),
+      );
       return false;
     }
 
@@ -57,6 +81,7 @@ class MainApiAuthService {
     if (error.isNotEmpty) {
       await _clearPendingMobileOAuth();
       _oauthDebug('Pending OAuth callback returned error=$error');
+      unawaited(ActivationFunnel.discordLoginFailed('Discord login: $error'));
       return false;
     }
 
@@ -64,10 +89,12 @@ class MainApiAuthService {
     final returnedState = (callbackUri.queryParameters['state'] ?? '').trim();
     if (code.isEmpty) {
       _oauthDebug('Pending OAuth callback missing code');
+      unawaited(ActivationFunnel.discordLoginFailed('missing code'));
       return false;
     }
     if (returnedState.isNotEmpty && returnedState != pending.expectedState) {
       _oauthDebug('Pending OAuth callback state mismatch');
+      unawaited(ActivationFunnel.discordLoginFailed('state mismatch'));
       return false;
     }
 
@@ -82,10 +109,16 @@ class MainApiAuthService {
         session.copyWith(authMethod: MainApiAuthMethod.discordOauth),
       );
       await _clearPendingMobileOAuth();
+      // This path completes a login without going through connectWithDiscord
+      // (cold start on a callback deep link): the identity has to be published
+      // here too, or the user's first session after a relaunch is anonymous.
+      unawaited(UserIdentity.apply(session.userId));
+      unawaited(ActivationFunnel.discordLoginSuccess());
       _oauthDebug('Pending mobile OAuth callback completed successfully');
       return true;
     } catch (error) {
       _oauthDebug('Pending mobile OAuth completion failed: $error');
+      unawaited(ActivationFunnel.discordLoginFailed(error));
       return false;
     }
   }
@@ -109,8 +142,9 @@ class MainApiAuthService {
         state: localState,
       );
 
-      final expectedState =
-          start.state.trim().isEmpty ? localState : start.state;
+      final expectedState = start.state.trim().isEmpty
+          ? localState
+          : start.state;
       final launchUri = Uri.tryParse(start.authorizeUrl);
       if (launchUri == null) {
         throw const MainApiClientException(
@@ -212,14 +246,14 @@ class MainApiAuthService {
         }
         final returnedState = (uri.queryParameters['state'] ?? '').trim();
         if (returnedState.isNotEmpty && returnedState != expectedState) {
-          _oauthDebug('Rejected callback due to invalid state');
-          if (!callbackCompleter.isCompleted) {
-            callbackCompleter.completeError(
-              const MainApiClientException(
-                'Invalid OAuth callback state received from Discord login.',
-              ),
-            );
-          }
+          // A mismatched state means this callback belongs to another attempt —
+          // a stale deep link, or a second login started in parallel. It must
+          // not abort the login in flight: the matching callback is still on
+          // its way, so ignore this one and let the timeout own the failure.
+          _oauthDebug('Ignored callback with mismatched state (stale/foreign)');
+          AppDiagnostics.logBreadcrumb(
+            'OAuth callback ignored: state mismatch (stale or foreign callback)',
+          );
           return;
         }
         if (!callbackCompleter.isCompleted) {
@@ -255,11 +289,10 @@ class MainApiAuthService {
       // Some launch modes deliver the callback as an initial link instead of stream event.
       final initialLinkAfterLaunch = await appLinks.getInitialLink();
       _oauthDebug('Initial link after launch: $initialLinkAfterLaunch');
-      final isFreshInitialLink =
-          !_isSameOAuthCallback(
-            initialLinkBeforeLaunch,
-            initialLinkAfterLaunch,
-          );
+      final isFreshInitialLink = !_isSameOAuthCallback(
+        initialLinkBeforeLaunch,
+        initialLinkAfterLaunch,
+      );
       if (initialLinkAfterLaunch != null &&
           _isExpectedMobileOAuthCallback(initialLinkAfterLaunch) &&
           isFreshInitialLink &&
@@ -362,7 +395,9 @@ class MainApiAuthService {
     ).join();
   }
 
-  static Future<void> _savePendingMobileOAuth(PendingMobileOAuth pending) async {
+  static Future<void> _savePendingMobileOAuth(
+    PendingMobileOAuth pending,
+  ) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_pendingOAuthKey, jsonEncode(pending.toJson()));
   }

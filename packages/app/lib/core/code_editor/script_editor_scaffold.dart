@@ -1,8 +1,12 @@
+import 'dart:async';
+
+import 'package:bot_creator/core/analytics/editor_analytics.dart';
 import 'package:bot_creator/core/code_editor/script_editor_chrome.dart';
 import 'package:bot_creator/core/code_editor/script_editor_editor_pane.dart';
 import 'package:bot_creator/core/code_editor/script_editor_language.dart';
 import 'package:bot_creator/core/code_editor/script_editor_snippet.dart';
 import 'package:bot_creator/core/code_editor/script_editor_ux_sheet.dart';
+import 'package:bot_creator/core/diagnostics/ui_stall_bindings.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/js_editor/editor_theme_scope.dart';
 import 'package:flutter/material.dart';
@@ -82,6 +86,18 @@ class _ScriptEditorScaffoldState extends State<ScriptEditorScaffold> {
   final FocusNode _focusNode = FocusNode();
 
   List<ScriptDiagnostic> _diagnostics = const <ScriptDiagnostic>[];
+
+  /// Analyse lourde (« diagnosticsFor » : compilation BDFD complète, analyse
+  /// JavaScript complète) retirée du chemin de la frappe : elle est reprogrammée
+  /// après une courte pause d'inactivité, alors que le caret, l'autocomplete et
+  /// la signature restent synchrones dans [_refresh].
+  Timer? _diagnosticsDebounce;
+
+  /// Délai d'inactivité avant de relancer l'analyse lourde.
+  static const Duration _diagnosticsDebounceDuration = Duration(
+    milliseconds: 250,
+  );
+
   ScriptCompletionResult? _completion;
   int _completionSelectedIndex = 0;
   ScriptSignatureHint? _signatureHint;
@@ -91,12 +107,32 @@ class _ScriptEditorScaffoldState extends State<ScriptEditorScaffold> {
   bool _showIndentGuides = true;
   bool _showDiagnostics = true;
 
+  late final DateTime _sessionStart;
+  int _keystrokes = 0;
+  String _lastTrackedText = '';
+  bool _sessionReported = false;
+
+  void _reportSessionEnd({required bool saved}) {
+    if (_sessionReported) return;
+    _sessionReported = true;
+    final duration = DateTime.now().difference(_sessionStart);
+    unawaited(
+      EditorAnalytics.editorSessionEnd(
+        saved: saved,
+        duration: duration,
+        keystrokes: _keystrokes,
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
     _ownsController = widget.controller == null;
     _controller =
         widget.controller ?? TextEditingController(text: widget.initialCode);
+    _sessionStart = DateTime.now();
+    _lastTrackedText = _controller.text;
     _wordWrap = widget.prefersWordWrap;
     _controller.addListener(_onEditorChanged);
     _focusNode.addListener(_onEditorChanged);
@@ -105,6 +141,8 @@ class _ScriptEditorScaffoldState extends State<ScriptEditorScaffold> {
 
   @override
   void dispose() {
+    _reportSessionEnd(saved: false);
+    _diagnosticsDebounce?.cancel();
     _controller.removeListener(_onEditorChanged);
     _focusNode.removeListener(_onEditorChanged);
     _focusNode.dispose();
@@ -118,31 +156,68 @@ class _ScriptEditorScaffoldState extends State<ScriptEditorScaffold> {
     if (!mounted) {
       return;
     }
+    final currentText = _controller.text;
+    if (currentText != _lastTrackedText) {
+      _keystrokes++;
+      _lastTrackedText = currentText;
+    }
     setState(_refresh);
   }
 
   /// Recalcule l'état dépendant du texte et du caret (complétions, signature,
-  /// diagnostics, ligne active des guides).
+  /// ligne active des guides) et reprogramme l'analyse lourde.
   void _refresh() {
-    final text = _controller.text;
-    final caret = scriptClampedCaret(text, _controller.selection);
-    final position = scriptLineColumnAt(text, caret);
-    _caretLine = position.line - 1;
-    _caretColumn = position.column - 1;
+    activeUiStallMonitor?.markStart('editor_keystroke_analysis');
+    try {
+      final text = _controller.text;
+      final caret = scriptClampedCaret(text, _controller.selection);
+      final position = scriptLineColumnAt(text, caret);
+      _caretLine = position.line - 1;
+      _caretColumn = position.column - 1;
 
-    final completion = widget.enableAutocomplete
-        ? widget.language.completionAt(text, caret)
-        : null;
-    _completion = completion;
-    _completionSelectedIndex = completion == null || completion.isEmpty
-        ? 0
-        : _completionSelectedIndex.clamp(0, completion.entries.length - 1);
-    _signatureHint = text.isEmpty
-        ? null
-        : widget.language.signatureAt(text, caret);
-    _diagnostics = text.trim().isEmpty
-        ? const <ScriptDiagnostic>[]
-        : widget.language.diagnosticsFor(text);
+      final completion = widget.enableAutocomplete
+          ? widget.language.completionAt(text, caret)
+          : null;
+      _completion = completion;
+      _completionSelectedIndex = completion == null || completion.isEmpty
+          ? 0
+          : _completionSelectedIndex.clamp(0, completion.entries.length - 1);
+      _signatureHint = text.isEmpty
+          ? null
+          : widget.language.signatureAt(text, caret);
+      _scheduleDiagnostics(text);
+    } finally {
+      activeUiStallMonitor?.markEnd('editor_keystroke_analysis');
+    }
+  }
+
+  /// Reprogramme l'analyse des diagnostics, seule opération chère de la frappe
+  /// (compilation BDFD complète, analyse JavaScript complète) : elle attend une
+  /// pause d'inactivité au lieu de bloquer l'isolate UI à chaque caractère.
+  ///
+  /// Le caret, l'autocomplete et la signature restent synchrones, donc
+  /// l'éditeur réagit toujours à l'instant même.
+  void _scheduleDiagnostics(String text) {
+    _diagnosticsDebounce?.cancel();
+    if (text.trim().isEmpty) {
+      _diagnostics = const <ScriptDiagnostic>[];
+      return;
+    }
+    _diagnosticsDebounce = Timer(_diagnosticsDebounceDuration, () {
+      if (!mounted) {
+        return;
+      }
+      // Garde anti-résultat-périmé : une frappe plus récente a déjà reprogrammé
+      // l'analyse, le texte capturé n'est plus celui du document.
+      if (_controller.text != text) {
+        return;
+      }
+      final diagnostics = widget.language.diagnosticsFor(text);
+      if (!mounted) {
+        return;
+      }
+      setState(() => _diagnostics = diagnostics);
+    });
   }
 
   static const Set<TargetPlatform> _desktopPlatforms = {
@@ -236,53 +311,64 @@ class _ScriptEditorScaffoldState extends State<ScriptEditorScaffold> {
     final colors = codeEditorColorsOf(context);
     final isEmptyDocument = _controller.text.trim().isEmpty;
 
-    return Scaffold(
-      backgroundColor: colors.background,
-      appBar: ScriptEditorAppBar(
-        title: widget.title,
-        colors: colors,
-        wordWrap: _wordWrap,
-        showIndentGuides: _showIndentGuides,
-        showDiagnostics: _showDiagnostics,
-        diagnostics: _diagnostics,
-        onDone: () => Navigator.of(context).pop(_controller.text),
-        onOpenDocs: widget.onOpenDocs,
-        onOpenSettings: () => openCodeEditorSettings(context),
-        onToggleWordWrap: () => setState(() => _wordWrap = !_wordWrap),
-        onToggleIndentGuides: () =>
-            setState(() => _showIndentGuides = !_showIndentGuides),
-        onToggleDiagnostics: () =>
-            setState(() => _showDiagnostics = !_showDiagnostics),
-        onShowUxSheet: _showUxSheet,
-      ),
-      body: ScriptEditorEditorPane(
-        colors: colors,
-        settings: settings,
-        controller: _controller,
-        focusNode: _focusNode,
-        language: widget.language,
-        hintText: widget.hintText,
-        wordWrap: _wordWrap || settings.wordWrap,
-        showIndentGuides: _showIndentGuides,
-        caretLine: _caretLine,
-        caretColumn: _caretColumn,
-        completion: _isCompletionVisible ? _completion : null,
-        completionSelectedIndex: _completionSelectedIndex,
-        signatureHint: _isSignatureVisible ? _signatureHint : null,
-        onKeyEvent: _handleEditorKey,
-        onCompletionSelected: _completeWith,
-        onCompletionHover: (index) {
-          setState(() => _completionSelectedIndex = index);
-        },
-        snippets: widget.snippets,
-        showQuickCharsBar: !_isDesktopLike && settings.showQuickCharsBar,
-        onShowUxSheet: _showUxSheet,
-        showDiagnostics: _showDiagnostics,
-        diagnostics: _diagnostics,
-        isEmptyDocument: isEmptyDocument,
-        emptyLabel: widget.emptyLabel ?? context.tr.bdfd_editor_empty,
-        cleanLabel: widget.cleanLabel ?? context.tr.cmd_bdfd_diagnostics_clean,
-        messageBuilder: widget.messageBuilder,
+    return PopScope(
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          _reportSessionEnd(saved: false);
+        }
+      },
+      child: Scaffold(
+        backgroundColor: colors.background,
+        appBar: ScriptEditorAppBar(
+          title: widget.title,
+          colors: colors,
+          wordWrap: _wordWrap,
+          showIndentGuides: _showIndentGuides,
+          showDiagnostics: _showDiagnostics,
+          diagnostics: _diagnostics,
+          onDone: () {
+            _reportSessionEnd(saved: true);
+            Navigator.of(context).pop(_controller.text);
+          },
+          onOpenDocs: widget.onOpenDocs,
+          onOpenSettings: () => openCodeEditorSettings(context),
+          onToggleWordWrap: () => setState(() => _wordWrap = !_wordWrap),
+          onToggleIndentGuides: () =>
+              setState(() => _showIndentGuides = !_showIndentGuides),
+          onToggleDiagnostics: () =>
+              setState(() => _showDiagnostics = !_showDiagnostics),
+          onShowUxSheet: _showUxSheet,
+        ),
+        body: ScriptEditorEditorPane(
+          colors: colors,
+          settings: settings,
+          controller: _controller,
+          focusNode: _focusNode,
+          language: widget.language,
+          hintText: widget.hintText,
+          wordWrap: _wordWrap || settings.wordWrap,
+          showIndentGuides: _showIndentGuides,
+          caretLine: _caretLine,
+          caretColumn: _caretColumn,
+          completion: _isCompletionVisible ? _completion : null,
+          completionSelectedIndex: _completionSelectedIndex,
+          signatureHint: _isSignatureVisible ? _signatureHint : null,
+          onKeyEvent: _handleEditorKey,
+          onCompletionSelected: _completeWith,
+          onCompletionHover: (index) {
+            setState(() => _completionSelectedIndex = index);
+          },
+          snippets: widget.snippets,
+          showQuickCharsBar: !_isDesktopLike && settings.showQuickCharsBar,
+          onShowUxSheet: _showUxSheet,
+          showDiagnostics: _showDiagnostics,
+          diagnostics: _diagnostics,
+          isEmptyDocument: isEmptyDocument,
+          emptyLabel: widget.emptyLabel ?? context.tr.bdfd_editor_empty,
+          cleanLabel:
+              widget.cleanLabel ?? context.tr.cmd_bdfd_diagnostics_clean,
+          messageBuilder: widget.messageBuilder,
+        ),
       ),
     );
   }

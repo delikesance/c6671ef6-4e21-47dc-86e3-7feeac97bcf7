@@ -7,6 +7,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:in_app_purchase_android/billing_client_wrappers.dart';
+import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -112,40 +115,37 @@ void main() {
     },
   );
 
-  test(
-    'mobile clears local premium when manager runtime says free',
-    () async {
-      seedLocalPremiumCache();
-      await MainApiSettingsStore.saveConfig(
-        const MainApiConfig(baseUrl: 'https://api.example.com'),
-      );
-      await MainApiSettingsStore.saveSession(
-        MainApiSession(
-          accessToken: 'token',
-          expiresAt: DateTime.now().toUtc().add(const Duration(hours: 1)),
-        ),
-      );
-
-      final client = MainApiClient(
-        baseUrl: 'https://api.example.com',
+  test('mobile clears local premium when manager runtime says free', () async {
+    seedLocalPremiumCache();
+    await MainApiSettingsStore.saveConfig(
+      const MainApiConfig(baseUrl: 'https://api.example.com'),
+    );
+    await MainApiSettingsStore.saveSession(
+      MainApiSession(
         accessToken: 'token',
-        httpClient: MockClient((request) async {
-          if (request.url.path.endsWith('/gateway/runtime')) {
-            return http.Response('{"plan":"FREE"}', 200);
-          }
-          return http.Response('not found', 404);
-        }),
-      );
+        expiresAt: DateTime.now().toUtc().add(const Duration(hours: 1)),
+      ),
+    );
 
-      final isPremium = await SubscriptionService.refreshPremiumFromServer(
-        client: client,
-        forceRefresh: true,
-      );
+    final client = MainApiClient(
+      baseUrl: 'https://api.example.com',
+      accessToken: 'token',
+      httpClient: MockClient((request) async {
+        if (request.url.path.endsWith('/gateway/runtime')) {
+          return http.Response('{"plan":"FREE"}', 200);
+        }
+        return http.Response('not found', 404);
+      }),
+    );
 
-      expect(isPremium, isFalse);
-      expect(SubscriptionService.isSubscribed, isFalse);
-    },
-  );
+    final isPremium = await SubscriptionService.refreshPremiumFromServer(
+      client: client,
+      forceRefresh: true,
+    );
+
+    expect(isPremium, isFalse);
+    expect(SubscriptionService.isSubscribed, isFalse);
+  });
 
   test(
     'mobile keeps local premium when manager session is unavailable',
@@ -248,5 +248,117 @@ void main() {
         );
 
     expect(expiresAt, DateTime.utc(2025, 2, 28, 8, 30));
+  });
+
+  // Issue e65c3fc0: the annual subscription failed to launch on Play with
+  // "INVALID_OFFER_TOKEN: Offer token null for product bot_creator_premium_annual
+  // is not valid".
+  group('Play purchase candidate selection', () {
+    GooglePlayProductDetails inAppEntry(String id) {
+      return GooglePlayProductDetails.fromProductDetails(
+        ProductDetailsWrapper(
+          description: id,
+          name: id,
+          productId: id,
+          productType: ProductType.inapp,
+          title: id,
+          oneTimePurchaseOfferDetails: const OneTimePurchaseOfferDetailsWrapper(
+            formattedPrice: '€59,99',
+            priceAmountMicros: 59990000,
+            priceCurrencyCode: 'EUR',
+          ),
+        ),
+      ).single;
+    }
+
+    GooglePlayProductDetails subscriptionEntry(String id, String offerToken) {
+      return GooglePlayProductDetails.fromProductDetails(
+        ProductDetailsWrapper(
+          description: id,
+          name: id,
+          productId: id,
+          productType: ProductType.subs,
+          title: id,
+          subscriptionOfferDetails: <SubscriptionOfferDetailsWrapper>[
+            SubscriptionOfferDetailsWrapper(
+              basePlanId: 'annual',
+              offerIdToken: offerToken,
+              offerTags: const <String>[],
+              pricingPhases: const <PricingPhaseWrapper>[
+                PricingPhaseWrapper(
+                  billingCycleCount: 0,
+                  billingPeriod: 'P1Y',
+                  formattedPrice: '€59,99',
+                  priceAmountMicros: 59990000,
+                  priceCurrencyCode: 'EUR',
+                  recurrenceMode: RecurrenceMode.infiniteRecurring,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ).single;
+    }
+
+    test('an entry built from the in-app query carries no offer token', () {
+      expect(
+        SubscriptionService.subscriptionOfferToken(
+          inAppEntry(kAnnualSubscriptionId),
+        ),
+        isNull,
+      );
+      expect(
+        SubscriptionService.subscriptionOfferToken(
+          subscriptionEntry(kAnnualSubscriptionId, 'offer-annual'),
+        ),
+        'offer-annual',
+      );
+    });
+
+    test('the purchasable entry wins over an earlier unusable one', () {
+      // in_app_purchase_android asks Play for each id twice — once as an in-app
+      // product, once as a subscription — and concatenates both answers, so the
+      // first match for a subscription id can carry no offer token at all.
+      final catalog = <ProductDetails>[
+        inAppEntry(kAnnualSubscriptionId),
+        subscriptionEntry(kAnnualSubscriptionId, 'offer-annual'),
+      ];
+
+      final selected = SubscriptionService.selectPurchaseCandidate(
+        catalog,
+        kAnnualSubscriptionId,
+      );
+
+      expect(selected, isNotNull);
+      expect(selected!.id, kAnnualSubscriptionId);
+      expect(
+        SubscriptionService.subscriptionOfferToken(selected),
+        'offer-annual',
+      );
+    });
+
+    test('the first match is kept when nothing is purchasable', () {
+      final catalog = <ProductDetails>[inAppEntry(kAnnualSubscriptionId)];
+
+      expect(
+        SubscriptionService.selectPurchaseCandidate(
+          catalog,
+          kAnnualSubscriptionId,
+        ),
+        same(catalog.single),
+      );
+    });
+
+    test('an unknown product selects nothing', () {
+      final catalog = <ProductDetails>[inAppEntry(kMonthlySubscriptionId)];
+
+      expect(
+        SubscriptionService.selectPurchaseCandidate(
+          catalog,
+          kAnnualSubscriptionId,
+        ),
+        isNull,
+      );
+    });
   });
 }

@@ -8,6 +8,8 @@ import 'package:bot_creator/features/settings/presentation/code_editor_settings_
 import 'package:bot_creator/features/settings/presentation/appearance_settings_section.dart';
 import 'package:bot_creator/features/onboarding/presentation/onboarding_page.dart';
 import 'package:bot_creator/core/analytics/analytics.dart';
+import 'package:bot_creator/core/analytics/user_properties.dart';
+import 'package:bot_creator/features/documentation/documentation_urls.dart';
 import 'package:bot_creator/features/ads/logic/ad_consent_service.dart';
 import 'package:bot_creator/features/ads/logic/ad_mediation_debug.dart';
 import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
@@ -1746,6 +1748,8 @@ class _SettingPageState extends State<SettingPage> {
       await onboardingManager.reset();
       await themeProvider.resetToDefault();
       await localeProvider.resetToSystem();
+      // The `locale` user property follows the language the app is now in.
+      unawaited(AppUserProperties.refresh());
     });
 
     if (!mounted || !showSnack) {
@@ -2259,6 +2263,9 @@ class _SettingPageState extends State<SettingPage> {
                             }
 
                             await localeProvider.setPreference(value);
+                            // The `locale` user property follows the language
+                            // the app is now in.
+                            unawaited(AppUserProperties.refresh());
                             if (!mounted) {
                               return;
                             }
@@ -3439,7 +3446,7 @@ class _PrivacyPolicyCard extends StatelessWidget {
   final bool adPrivacyRequired;
   final VoidCallback? onOpenAdPrivacy;
 
-  static const _privacyPolicyUrl = 'https://bot-creator.fr/privacy-policy.html';
+  static const _privacyPolicyUrl = privacyPolicyUrl;
 
   Future<void> _open(BuildContext context) async {
     final uri = Uri.parse(_privacyPolicyUrl);

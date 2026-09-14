@@ -244,6 +244,16 @@ void main() {
           find.byType(RadioGroup<CodeEditorTheme>),
         );
         expect(group.groupValue, CodeEditorTheme.rosePine);
+
+        // Light themes (like Rosé Pine Dawn) must have readable subtitles,
+        // using onSurfaceVariant instead of hardcoded black.
+        await tester.ensureVisible(find.text('Light mode').first);
+        await tester.pumpAndSettle();
+        final dawnSubtitle = tester.widget<Text>(find.text('Light mode').first);
+        final expectedColor = Theme.of(
+          tester.element(find.byType(CodeEditorSettingsPage)),
+        ).colorScheme.onSurfaceVariant;
+        expect(dawnSubtitle.style?.color, expectedColor);
       },
     );
 

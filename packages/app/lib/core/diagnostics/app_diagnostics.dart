@@ -12,6 +12,16 @@ class AppDiagnostics {
   static bool _firebaseReady = false;
   static File? _logFile;
 
+  /// Name of the screen the user is currently on, as reported by the last
+  /// screen-view log. `AppAnalytics.logScreenView` is the single funnel every
+  /// screen view in the app goes through, and it is the only writer of this
+  /// field: the naming logic stays where it already lives.
+  ///
+  /// `UiStallMonitor` reads it for every event it emits, so an ANR breadcrumb
+  /// names the screen the app froze on instead of staying anonymous. Stays
+  /// `unknown` until the first screen view is logged.
+  static String currentScreen = 'unknown';
+
   static Future<void> initialize() async {
     if (_initialized) {
       return;
@@ -32,12 +42,11 @@ class AppDiagnostics {
         'Diagnostics initialized',
         data: {
           'platform': defaultTargetPlatform.name,
-          'mode':
-              kReleaseMode
-                  ? 'release'
-                  : kProfileMode
-                  ? 'profile'
-                  : 'debug',
+          'mode': kReleaseMode
+              ? 'release'
+              : kProfileMode
+              ? 'profile'
+              : 'debug',
         },
       );
     } catch (error, stack) {
@@ -109,6 +118,17 @@ class AppDiagnostics {
         context: details.context?.toDescription(),
         library: details.library,
       );
+
+      // Framework validation warnings — layout overflow, debug assertions,
+      // ListTile/ColoredBox conflicts — are only reachable in debug builds,
+      // where they are already visible on screen and in the console. Sending
+      // them to Crashlytics produced issues attributed to a developer's own
+      // device: every event behind issues e85b4cc9 and 98eaa305 carried
+      // app_mode=debug. Release builds still report real layout overflows.
+      if (kDebugMode && (isLayoutError || isDebugAssertion || isBenign)) {
+        return;
+      }
+
       unawaited(
         recordFlutterError(
           details,
@@ -118,9 +138,12 @@ class AppDiagnostics {
     };
 
     PlatformDispatcher.instance.onError = (error, stack) {
-      final fatal = !isBenignFlutterFrameworkError(error) &&
+      final fatal =
+          !isBenignFlutterFrameworkError(error) &&
           !isTransientNetworkError(error);
-      unawaited(logError('Uncaught platform error', error, stack, fatal: fatal));
+      unawaited(
+        logError('Uncaught platform error', error, stack, fatal: fatal),
+      );
       return true;
     };
   }
@@ -142,34 +165,103 @@ class AppDiagnostics {
     );
   }
 
+  /// Mirrors a diagnostics line into the Crashlytics breadcrumb buffer so the
+  /// Firebase console replays the sequence of events leading up to a crash.
+  /// Crashlytics keeps the last 64 kB and evicts the oldest entries itself.
+  static void logBreadcrumb(String message) {
+    if (!_crashlyticsEnabled || !_firebaseReady) {
+      return;
+    }
+    try {
+      unawaited(FirebaseCrashlytics.instance.log(message));
+    } catch (error) {
+      debugPrint('Failed to record Crashlytics breadcrumb: $error');
+    }
+  }
+
+  /// Attributes subsequent reports to one user, so a crash can be tied to an
+  /// account instead of an anonymous installation. Pass an empty string to
+  /// clear it (sign-out).
+  static Future<void> setUserIdentifier(String identifier) async {
+    if (!_crashlyticsEnabled || !_firebaseReady) {
+      return;
+    }
+    try {
+      await FirebaseCrashlytics.instance.setUserIdentifier(identifier);
+    } catch (error) {
+      debugPrint('Failed to set Crashlytics user identifier: $error');
+    }
+  }
+
+  /// Attaches one state key to subsequent reports. Crashlytics allows 64 keys
+  /// of 1 kB each, so callers must use a bounded set of names.
+  static Future<void> setCustomKey(String key, Object value) async {
+    if (!_crashlyticsEnabled || !_firebaseReady) {
+      return;
+    }
+    try {
+      await FirebaseCrashlytics.instance.setCustomKey(key, value);
+    } catch (error) {
+      debugPrint('Failed to set Crashlytics custom key "$key": $error');
+    }
+  }
+
   static Future<void> logInfo(
     String message, {
     Map<String, Object?>? data,
   }) async {
-    final payload =
-        StringBuffer()
-          ..write('[${DateTime.now().toIso8601String()}] INFO: $message');
-    if (data != null && data.isNotEmpty) {
-      payload.write(' | ${_toInlineData(data)}');
-    }
-    await _appendLine(payload.toString());
+    final suffix = data == null || data.isEmpty
+        ? ''
+        : ' | ${_toInlineData(data)}';
+    logBreadcrumb('INFO: $message$suffix');
+    await _appendLine(
+      '[${DateTime.now().toIso8601String()}] INFO: $message$suffix',
+    );
   }
+
+  /// Transient network/TLS exception type names.
+  ///
+  /// Matched against BOTH the runtime type and the stringified error, because
+  /// wrapper exceptions hide the leaf type: `web_socket_channel`'s
+  /// `WebSocketChannelException` wraps a `WebSocketException` and matches
+  /// neither name on its own (the runtime type is `WebSocketChannelException`,
+  /// not `WebSocketException`), so a gateway handshake failure used to be
+  /// reported to Crashlytics as a FATAL app error.
+  static const List<String> _transientNetworkTypes = <String>[
+    'SocketException',
+    'HandshakeException',
+    'TlsException',
+    'ClientException',
+    'TimeoutException',
+    'HttpException',
+    'WebSocketException',
+    'WebSocketChannelException',
+  ];
+
+  /// Matches our own API's 5xx responses. `MainApiClientException.toString()`
+  /// renders as `"[statusCode] message"`, e.g. `[504] Gateway Timeout`.
+  static final RegExp _httpServerErrorPattern = RegExp(r'\[5\d{2}\]');
 
   /// Returns `true` for transient network/TLS failures that should not be
   /// reported to Crashlytics (DNS failures, no connectivity, circuit breaker).
   static bool isTransientNetworkError(Object error) {
     final name = error.runtimeType.toString();
-    if (name.contains('SocketException') ||
-        name.contains('HandshakeException') ||
-        name.contains('TlsException') ||
-        name.contains('ClientException') ||
-        name.contains('TimeoutException') ||
-        name.contains('HttpException') ||
-        name.contains('WebSocketException')) {
-      return true;
-    }
     final message = error.toString().toLowerCase();
-    return message.contains('connection timed out') ||
+    for (final type in _transientNetworkTypes) {
+      if (name.contains(type) || message.contains(type.toLowerCase())) {
+        return true;
+      }
+    }
+    // The UMP (ad consent) SDK reports a network failure as "Error making
+    // request." with error code 2, through the same channel as a real
+    // misconfiguration, so match its signature explicitly.
+    // A 5xx from our own API (issues a7c0c5e8, e65c3fc0) is a server-side
+    // failure too: the client surfaces it and retries, so it is not an app bug.
+    return _httpServerErrorPattern.hasMatch(message) ||
+        message.contains('gateway timeout') ||
+        message.contains('error making request') ||
+        message.contains('requestconsentinfoupdate failed') ||
+        message.contains('connection timed out') ||
         message.contains('connection refused') ||
         message.contains('network is unreachable') ||
         message.contains('failed host lookup') ||
@@ -191,8 +283,8 @@ class AppDiagnostics {
     if (isTransientNetworkError(error)) {
       return true;
     }
-    final text =
-        '${error.toString()} ${context ?? ''} ${library ?? ''}'.toLowerCase();
+    final text = '${error.toString()} ${context ?? ''} ${library ?? ''}'
+        .toLowerCase();
     return text.contains('invalid selection start') ||
         text.contains('invalid selection end') ||
         text.contains('setting text input editing state') ||
@@ -220,12 +312,11 @@ class AppDiagnostics {
             isBenignFlutterFrameworkError(error, context: combined))) {
       reportFatal = false;
     }
-    final payload =
-        StringBuffer()
-          ..write('[${DateTime.now().toIso8601String()}] ')
-          ..write(reportFatal ? 'FATAL' : 'ERROR')
-          ..write(': $message')
-          ..write(' | error=$error');
+    final payload = StringBuffer()
+      ..write('[${DateTime.now().toIso8601String()}] ')
+      ..write(reportFatal ? 'FATAL' : 'ERROR')
+      ..write(': $message')
+      ..write(' | error=$error');
     if (reason != null && reason.isNotEmpty) {
       payload.write(' | reason=$reason');
     }
@@ -235,15 +326,31 @@ class AppDiagnostics {
     payload.write(' | stack=$stack');
     await _appendLine(payload.toString());
 
+    // The breadcrumb buffer is capped at 64 kB, so mirror a compact line and
+    // never the stack trace (which already ships with the report itself).
+    logBreadcrumb(
+      '${reportFatal ? 'FATAL' : 'ERROR'}: $message | error=$error'
+      '${reason == null || reason.isEmpty ? '' : ' | reason=$reason'}',
+    );
+
     if (!_crashlyticsEnabled || !_firebaseReady) {
       return;
     }
 
+    // Transient network/TLS failures and benign framework noise are not app
+    // bugs. Recording them creates one event per failure — DNS lookups and
+    // websocket handshakes alone accounted for thousands of events (2358 over
+    // 97 users on a single issue) and buried the real crashes — so they stay in
+    // the local diagnostics log and the breadcrumb trail only.
+    if (isTransientNetworkError(error) ||
+        isBenignFlutterFrameworkError(error, context: combined)) {
+      return;
+    }
+
     try {
-      final crashInformation =
-          information == null
-              ? const <Object>[]
-              : <Object>[DiagnosticsNode.message(information)];
+      final crashInformation = information == null
+          ? const <Object>[]
+          : <Object>[DiagnosticsNode.message(information)];
       await FirebaseCrashlytics.instance.recordError(
         error,
         stack,

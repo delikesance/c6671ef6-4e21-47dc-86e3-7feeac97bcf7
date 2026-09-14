@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:bot_creator/core/analytics/monetization_funnel.dart';
 import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
@@ -23,6 +24,7 @@ const Set<String> _kSubscriptionIds = {
 enum SubscriptionPurchaseFailureReason {
   storeUnavailable,
   productUnavailable,
+  offerTokenMissing,
   purchaseStartFailed,
 }
 
@@ -30,6 +32,7 @@ String subscriptionPurchaseErrorKey(SubscriptionPurchaseFailureReason? reason) {
   switch (reason) {
     case SubscriptionPurchaseFailureReason.storeUnavailable:
       return 'subscription_error_store_unavailable';
+    case SubscriptionPurchaseFailureReason.offerTokenMissing:
     case SubscriptionPurchaseFailureReason.productUnavailable:
       return 'subscription_error_product_unavailable';
     case SubscriptionPurchaseFailureReason.purchaseStartFailed:
@@ -365,10 +368,7 @@ class SubscriptionService {
         ),
       );
 
-      ProductDetails? product = products.cast<ProductDetails?>().firstWhere(
-        (p) => p?.id == productId,
-        orElse: () => null,
-      );
+      ProductDetails? product = selectPurchaseCandidate(products, productId);
 
       if (product == null) {
         final response = await iap.queryProductDetails(_kSubscriptionIds);
@@ -405,10 +405,7 @@ class SubscriptionService {
           ),
         );
         products = response.productDetails;
-        product = products.cast<ProductDetails?>().firstWhere(
-          (p) => p?.id == productId,
-          orElse: () => null,
-        );
+        product = selectPurchaseCandidate(products, productId);
       }
 
       if (product == null) {
@@ -416,6 +413,12 @@ class SubscriptionService {
           AppDiagnostics.logInfo(
             'Purchase blocked: product unavailable',
             data: {'product': productId},
+          ),
+        );
+        unawaited(
+          MonetizationFunnel.purchaseFailed(
+            reason: PurchaseFailureReason.productUnavailable,
+            product: productId,
           ),
         );
         return const SubscriptionPurchaseResult.failed(
@@ -443,6 +446,12 @@ class SubscriptionService {
                 data: {'product': productId},
               ),
             );
+            unawaited(
+              MonetizationFunnel.purchaseFailed(
+                reason: PurchaseFailureReason.storeUnavailable,
+                product: productId,
+              ),
+            );
             return const SubscriptionPurchaseResult.failed(
               SubscriptionPurchaseFailureReason.storeUnavailable,
             );
@@ -468,21 +477,59 @@ class SubscriptionService {
           ? session.userId?.trim()
           : null;
 
-      final PurchaseParam purchaseParam = Platform.isAndroid
-          ? GooglePlayPurchaseParam(
-              productDetails: product,
-              applicationUserName: currentOwnerId,
-            )
-          : PurchaseParam(
-              productDetails: product,
-              applicationUserName: currentOwnerId,
-            );
+      final PurchaseParam purchaseParam;
+      if (Platform.isAndroid) {
+        // Play Billing 5+ requires the offer token of the selected base plan
+        // for a subscription. Building a GooglePlayPurchaseParam without one
+        // makes the plugin throw
+        // PlatformException(INVALID_OFFER_TOKEN, "Offer token null for product
+        // <id> is not valid") and the purchase sheet never opens
+        // (issue e65c3fc0).
+        final offerToken = subscriptionOfferToken(product);
+        if (offerToken == null) {
+          unawaited(
+            AppDiagnostics.logError(
+              'Subscription carries no Play offer token; purchase not started',
+              StateError('No subscriptionOfferDetails for $productId'),
+              StackTrace.current,
+              fatal: false,
+              reason: 'product=$productId',
+            ),
+          );
+          unawaited(
+            MonetizationFunnel.purchaseFailed(
+              reason: PurchaseFailureReason.offerTokenMissing,
+              product: productId,
+            ),
+          );
+          return const SubscriptionPurchaseResult.failed(
+            SubscriptionPurchaseFailureReason.offerTokenMissing,
+          );
+        }
+        purchaseParam = GooglePlayPurchaseParam(
+          productDetails: product,
+          applicationUserName: currentOwnerId,
+          offerToken: offerToken,
+        );
+      } else {
+        purchaseParam = PurchaseParam(
+          productDetails: product,
+          applicationUserName: currentOwnerId,
+        );
+      }
+      unawaited(MonetizationFunnel.purchaseStart(product: productId));
       final started = await iap.buyNonConsumable(purchaseParam: purchaseParam);
       if (!started) {
         unawaited(
           AppDiagnostics.logInfo(
             'Purchase could not be started',
             data: {'product': productId},
+          ),
+        );
+        unawaited(
+          MonetizationFunnel.purchaseFailed(
+            reason: PurchaseFailureReason.purchaseStartFailed,
+            product: productId,
           ),
         );
         return const SubscriptionPurchaseResult.failed(
@@ -501,10 +548,60 @@ class SubscriptionService {
           reason: 'product=$productId',
         ),
       );
+      unawaited(
+        MonetizationFunnel.purchaseFailed(
+          reason: PurchaseFailureReason.purchaseStartFailed,
+          product: productId,
+        ),
+      );
       return const SubscriptionPurchaseResult.failed(
         SubscriptionPurchaseFailureReason.purchaseStartFailed,
       );
     }
+  }
+
+  /// Play Billing 5+ wants the base-plan offer token when buying a
+  /// subscription. `null` means the entry cannot be purchased as a subscription
+  /// — Play has no offer to launch.
+  @visibleForTesting
+  static String? subscriptionOfferToken(ProductDetails details) {
+    if (details is! GooglePlayProductDetails) {
+      return null;
+    }
+    final token = details.offerToken;
+    if (token == null || token.isEmpty) {
+      return null;
+    }
+    return token;
+  }
+
+  /// Picks the store entry to purchase for [productId].
+  ///
+  /// `in_app_purchase_android` queries every identifier twice — once as an
+  /// in-app product and once as a subscription — and concatenates both
+  /// responses, so one id can appear several times. The first match is not
+  /// necessarily purchasable: an entry built from the in-app response carries a
+  /// null `offerToken`, and handing that to Play fails the launch with
+  /// `INVALID_OFFER_TOKEN` ("Offer token null for product ... is not valid",
+  /// issue e65c3fc0). Prefer the entry that can actually be bought, i.e. the
+  /// first one carrying an offer token, and fall back to the first match so
+  /// non-Google stores keep their previous behaviour.
+  @visibleForTesting
+  static ProductDetails? selectPurchaseCandidate(
+    List<ProductDetails> catalog,
+    String productId,
+  ) {
+    ProductDetails? fallback;
+    for (final ProductDetails details in catalog) {
+      if (details.id != productId) {
+        continue;
+      }
+      fallback ??= details;
+      if (subscriptionOfferToken(details) != null) {
+        return details;
+      }
+    }
+    return fallback;
   }
 
   /// Restore purchases — surfaces the store-native restore dialog on iOS.
@@ -534,8 +631,20 @@ class SubscriptionService {
               },
             ),
           );
+          unawaited(
+            MonetizationFunnel.purchaseFailed(
+              reason: MonetizationFunnel.classifyError(purchase.error?.message),
+              product: purchase.productID,
+            ),
+          );
           break;
         case PurchaseStatus.canceled:
+          unawaited(
+            MonetizationFunnel.purchaseFailed(
+              reason: PurchaseFailureReason.cancelled,
+              product: purchase.productID,
+            ),
+          );
           break;
         case PurchaseStatus.pending:
           break;
@@ -561,6 +670,12 @@ class SubscriptionService {
             'product': purchase.productID,
             'reason': verification.reason ?? 'inactive',
           },
+        ),
+      );
+      unawaited(
+        MonetizationFunnel.purchaseFailed(
+          reason: PurchaseFailureReason.verificationFailed,
+          product: purchase.productID,
         ),
       );
       return;
@@ -595,6 +710,7 @@ class SubscriptionService {
         data: {'product': purchase.productID},
       ),
     );
+    unawaited(MonetizationFunnel.purchaseSuccess(product: purchase.productID));
   }
 
   static Future<({bool active, DateTime? expiresAt, String? reason})>

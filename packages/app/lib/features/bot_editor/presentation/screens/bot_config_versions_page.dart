@@ -9,7 +9,8 @@ import 'package:bot_creator/main.dart' show appManager;
 class BotConfigVersionsPage extends StatefulWidget {
   final String botId;
   final String botToken;
-  final Future<MainApiClient?> Function(String botId, String token) resolveClient;
+  final Future<MainApiClient?> Function(String botId, String token)
+  resolveClient;
 
   const BotConfigVersionsPage({
     super.key,
@@ -97,9 +98,11 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
       // If we can't fetch the version content, still allow restore
     }
 
-    setState(() => _isLoadingDiff = false);
-
+    // The version fetch above is awaited, so this State may already be
+    // unmounted. Calling setState on a disposed State throws
+    // "Null check operator used on a null value" (issue efce54f8).
     if (!mounted) return;
+    setState(() => _isLoadingDiff = false);
 
     // Get current local command count
     int currentCommandCount = 0;
@@ -154,7 +157,11 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          const Icon(Icons.swap_horiz, size: 14, color: AppTheme.warning),
+                          const Icon(
+                            Icons.swap_horiz,
+                            size: 14,
+                            color: AppTheme.warning,
+                          ),
                           const SizedBox(width: 6),
                           Text(
                             'Will replace $currentCommandCount current commands',
@@ -182,7 +189,9 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
                   ),
                 ),
                 const SizedBox(height: 4),
-                ...versionCommandNames.take(8).map(
+                ...versionCommandNames
+                    .take(8)
+                    .map(
                       (name) => Padding(
                         padding: const EdgeInsets.only(left: 8, top: 2),
                         child: Text(
@@ -334,10 +343,7 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
                     ),
                   ),
                   const SizedBox(height: AppTheme.spacingMd),
-                  OutlinedButton(
-                    onPressed: _retry,
-                    child: const Text('Retry'),
-                  ),
+                  OutlinedButton(onPressed: _retry, child: const Text('Retry')),
                 ],
               ),
             );
@@ -350,11 +356,7 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
-                    Icons.history,
-                    size: 48,
-                    color: AppTheme.grey,
-                  ),
+                  const Icon(Icons.history, size: 48, color: AppTheme.grey),
                   const SizedBox(height: AppTheme.spacingMd),
                   Text(
                     context.tr.bot_config_versions_empty,
@@ -389,10 +391,7 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
                 decoration: BoxDecoration(
                   color: AppTheme.discordDarkerBg,
                   borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                  border: Border.all(
-                    color: AppTheme.discordBorder,
-                    width: 1,
-                  ),
+                  border: Border.all(color: AppTheme.discordBorder, width: 1),
                 ),
                 child: Row(
                   children: [
