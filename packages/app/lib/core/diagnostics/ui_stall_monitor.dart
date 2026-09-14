@@ -19,6 +19,7 @@ class UiStallMonitor {
     this.frameThreshold = const Duration(milliseconds: 700),
     required this.currentScreen,
     required this.onStall,
+    this.onOperationMark,
   });
 
   /// Shortest lateness between two consecutive ticks that counts as a stall.
@@ -36,6 +37,20 @@ class UiStallMonitor {
 
   /// Sink for emitted events, typically a Crashlytics breadcrumb.
   final void Function(String message, Map<String, Object?> data) onStall;
+
+  /// Optional observer of the operation marks: called with `started: true`
+  /// from [markStart] and `started: false` from [markEnd], for every mark and
+  /// whatever the operation takes.
+  ///
+  /// It exists so a caller can measure the same operations — Firebase
+  /// Performance traces — without the monitor having to know about it, and
+  /// without the hot paths carrying a second call. A monitor built without it
+  /// behaves exactly as before: the hook is a plain function type, so this
+  /// class still depends on nothing but the Dart core library.
+  ///
+  /// Marks are delivered synchronously: the observer must not block, and it is
+  /// its own responsibility to defer or drop work.
+  final void Function(String operation, bool started)? onOperationMark;
 
   /// Instant of the last tick, or null before the first one. The first tick
   /// only arms the monitor: it has no earlier instant to measure from.
@@ -84,6 +99,7 @@ class UiStallMonitor {
   /// measurement wrong. This method never throws.
   void markStart(String operation, [Map<String, Object?>? data]) {
     _openOperations[operation] = _OpenOperation(DateTime.now(), data);
+    onOperationMark?.call(operation, true);
   }
 
   /// Marks the end of that operation. Emits only when it exceeded
@@ -93,6 +109,9 @@ class UiStallMonitor {
   /// is a caller bug, not a UI stall, and the monitor runs on the thread it is
   /// supposed to protect. This method never throws.
   void markEnd(String operation) {
+    // Every mark reaches the observer, including this one when the operation
+    // was never opened: the hook keeps its own bookkeeping and decides.
+    onOperationMark?.call(operation, false);
     final open = _openOperations.remove(operation);
     if (open == null) {
       return;

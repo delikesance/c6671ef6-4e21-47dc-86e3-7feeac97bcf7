@@ -134,6 +134,11 @@ Future<void> main() async {
         currentScreen: () => AppDiagnostics.currentScreen,
         onStall: (message, data) =>
             unawaited(AppDiagnostics.logInfo(message, data: data)),
+        // The same marks that name a frozen UI-thread operation in the
+        // breadcrumb trail also measure it in Firebase Performance. Only the
+        // whitelisted operations are traced; `editor_keystroke_analysis` is
+        // excluded on purpose (see ui_stall_bindings.dart).
+        onOperationMark: stallOperationTraces.onOperationMark,
       );
       activeUiStallMonitor = stallMonitor;
       uiStallBindings = UiStallBindings(monitor: stallMonitor)..start();

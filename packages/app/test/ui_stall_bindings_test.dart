@@ -46,6 +46,50 @@ FrameTiming _frame({int buildMicros = 10000, int rasterMicros = 14000}) {
   );
 }
 
+/// One call a trace received.
+class _TraceCall {
+  _TraceCall(this.operation, this.call);
+
+  final String operation;
+
+  /// 'start' or 'stop'.
+  final String call;
+}
+
+/// A trace that records what it was asked to do.
+class _FakeTrace implements StallTrace {
+  _FakeTrace(this.operation, this.calls, {this.failOnStart = false});
+
+  final String operation;
+  final List<_TraceCall> calls;
+  final bool failOnStart;
+
+  @override
+  Future<void> start() async {
+    calls.add(_TraceCall(operation, 'start'));
+    if (failOnStart) {
+      throw StateError('cannot start the trace for $operation');
+    }
+  }
+
+  @override
+  Future<void> stop() async {
+    calls.add(_TraceCall(operation, 'stop'));
+  }
+}
+
+/// A bridge that opens [_FakeTrace]s instead of Firebase traces.
+({UiStallOperationTraces traces, List<_TraceCall> calls}) _fakeTraces({
+  bool failOnStart = false,
+}) {
+  final calls = <_TraceCall>[];
+  final traces = UiStallOperationTraces(
+    openTrace: (operation) =>
+        _FakeTrace(operation, calls, failOnStart: failOnStart),
+  );
+  return (traces: traces, calls: calls);
+}
+
 void main() {
   // The bindings register a timings callback and a lifecycle observer, both of
   // which need a real binding instance.
@@ -145,5 +189,130 @@ void main() {
     bindings.onFrameTimings(<FrameTiming>[_frame()]);
 
     expect(events, isEmpty);
+  });
+
+  group('operation traces', () {
+    test('the whitelist traces the marked hot paths and the warm-up', () {
+      expect(isTracedOperation('load_command'), isTrue);
+      expect(isTracedOperation('save_command'), isTrue);
+      expect(isTracedOperation('list_commands'), isTrue);
+      expect(isTracedOperation('editor_open'), isTrue);
+      expect(isTracedOperation('startup_firebase_init'), isTrue);
+      expect(isTracedOperation('startup_main_api_session_restore'), isTrue);
+    });
+
+    test('editor_keystroke_analysis is never traced', () {
+      // One keystroke runs this mark. A custom trace per keystroke would
+      // exhaust the trace quota and flood the console with noise: the
+      // exclusion is by omission from the whitelist, and it is load-bearing.
+      expect(isTracedOperation('editor_keystroke_analysis'), isFalse);
+      expect(
+        tracedStallOperations,
+        isNot(contains('editor_keystroke_analysis')),
+      );
+    });
+
+    test('an operation outside the whitelist is ignored', () {
+      final (traces: traces, calls: calls) = _fakeTraces();
+
+      traces.onOperationMark('some_other_operation', true);
+      traces.onOperationMark('some_other_operation', false);
+
+      expect(calls, isEmpty);
+    });
+
+    test('a traced mark opens one trace and closes it', () {
+      final (traces: traces, calls: calls) = _fakeTraces();
+
+      traces.onOperationMark('load_command', true);
+      traces.onOperationMark('load_command', false);
+
+      expect(calls.map((call) => call.call), <String>['start', 'stop']);
+      expect(calls.map((call) => call.operation), <String>[
+        'load_command',
+        'load_command',
+      ]);
+    });
+
+    test('a second start on an open operation is ignored', () {
+      // markStart restarts the monitor's own measurement, but a second trace
+      // with the same name would be data corruption and a leak.
+      final (traces: traces, calls: calls) = _fakeTraces();
+
+      traces.onOperationMark('save_command', true);
+      traces.onOperationMark('save_command', true);
+      traces.onOperationMark('save_command', false);
+      // The first trace was the one closed: a late stop finds nothing open.
+      traces.onOperationMark('save_command', false);
+
+      expect(calls.map((call) => call.call), <String>['start', 'stop']);
+    });
+
+    test('a stop without an open trace does nothing', () {
+      final (traces: traces, calls: calls) = _fakeTraces();
+
+      traces.onOperationMark('list_commands', false);
+
+      expect(calls, isEmpty);
+    });
+
+    test('two operations can be traced at the same time', () {
+      final (traces: traces, calls: calls) = _fakeTraces();
+
+      traces.onOperationMark('load_command', true);
+      traces.onOperationMark('editor_open', true);
+      traces.onOperationMark('editor_open', false);
+      traces.onOperationMark('load_command', false);
+
+      expect(calls.map((call) => '${call.operation}:${call.call}'), <String>[
+        'load_command:start',
+        'editor_open:start',
+        'editor_open:stop',
+        'load_command:stop',
+      ]);
+    });
+
+    test('a rejected trace future is dropped, not reported', () async {
+      final (traces: traces, calls: calls) = _fakeTraces(failOnStart: true);
+      // This is the wiring main() installs: the hook is the bridge's own
+      // method, called from inside the operation being measured.
+      final observed = UiStallMonitor(
+        currentScreen: () => 'editor',
+        onStall: (message, data) {},
+        onOperationMark: traces.onOperationMark,
+      );
+
+      observed.markStart('load_command');
+      observed.markEnd('load_command');
+
+      // An unhandled async error would fail this test: the trace's start()
+      // rejected, and nothing else is allowed to notice.
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+
+      expect(calls.map((call) => call.call), <String>['start', 'stop']);
+    });
+
+    test('tracing is inert when Firebase Performance is unavailable', () async {
+      // The real factory, no injected seam: no Firebase app exists in a unit
+      // test, which is also the state of desktop, web and any run before
+      // `startup_firebase_init`. The marks must be dropped silently — no
+      // exception, and nothing logged on every mark.
+      final traces = UiStallOperationTraces();
+      final observed = UiStallMonitor(
+        currentScreen: () => 'editor',
+        onStall: (message, data) {},
+        onOperationMark: traces.onOperationMark,
+      );
+
+      expect(() => observed.markStart('save_command'), returnsNormally);
+      expect(() => observed.markEnd('save_command'), returnsNormally);
+      expect(
+        () => observed.markStart('startup_firebase_init'),
+        returnsNormally,
+      );
+      expect(() => observed.markEnd('startup_firebase_init'), returnsNormally);
+
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+    });
   });
 }

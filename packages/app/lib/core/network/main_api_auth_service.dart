@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:app_links/app_links.dart';
+import 'package:bot_creator/core/analytics/user_identity.dart';
 import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
 import 'package:bot_creator/core/utils/external_link.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
@@ -34,12 +35,20 @@ class MainApiAuthService {
     Duration timeout = const Duration(minutes: 5),
   }) async {
     _oauthDebug('connectWithDiscord timeout=${timeout.inSeconds}s');
+    final MainApiSession session;
     if (_supportsLoopbackCallback) {
       _oauthDebug('Using desktop loopback callback flow');
-      return _connectDesktop(client: client, timeout: timeout);
+      session = await _connectDesktop(client: client, timeout: timeout);
+    } else {
+      _oauthDebug('Using mobile app-links callback flow');
+      session = await _connectMobile(client: client, timeout: timeout);
     }
-    _oauthDebug('Using mobile app-links callback flow');
-    return _connectMobile(client: client, timeout: timeout);
+
+    // Login is where the Discord account becomes known: publish it to the
+    // diagnostics and analytics SDKs before anything else can report. Not
+    // awaited — the identity fan-out must not delay the login completing.
+    unawaited(UserIdentity.apply(session.userId));
+    return session;
   }
 
   /// Completes a pending mobile OAuth callback after a cold start or app relaunch.
@@ -83,6 +92,10 @@ class MainApiAuthService {
         session.copyWith(authMethod: MainApiAuthMethod.discordOauth),
       );
       await _clearPendingMobileOAuth();
+      // This path completes a login without going through connectWithDiscord
+      // (cold start on a callback deep link): the identity has to be published
+      // here too, or the user's first session after a relaunch is anonymous.
+      unawaited(UserIdentity.apply(session.userId));
       _oauthDebug('Pending mobile OAuth callback completed successfully');
       return true;
     } catch (error) {
