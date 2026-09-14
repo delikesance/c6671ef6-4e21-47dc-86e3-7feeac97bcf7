@@ -3,6 +3,7 @@ import 'package:bot_creator/core/code_editor/script_editor_editor_pane.dart';
 import 'package:bot_creator/core/code_editor/script_editor_language.dart';
 import 'package:bot_creator/core/code_editor/script_editor_snippet.dart';
 import 'package:bot_creator/core/code_editor/script_editor_ux_sheet.dart';
+import 'package:bot_creator/core/diagnostics/ui_stall_bindings.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/js_editor/editor_theme_scope.dart';
 import 'package:flutter/material.dart';
@@ -124,25 +125,30 @@ class _ScriptEditorScaffoldState extends State<ScriptEditorScaffold> {
   /// Recalcule l'état dépendant du texte et du caret (complétions, signature,
   /// diagnostics, ligne active des guides).
   void _refresh() {
-    final text = _controller.text;
-    final caret = scriptClampedCaret(text, _controller.selection);
-    final position = scriptLineColumnAt(text, caret);
-    _caretLine = position.line - 1;
-    _caretColumn = position.column - 1;
+    activeUiStallMonitor?.markStart('editor_keystroke_analysis');
+    try {
+      final text = _controller.text;
+      final caret = scriptClampedCaret(text, _controller.selection);
+      final position = scriptLineColumnAt(text, caret);
+      _caretLine = position.line - 1;
+      _caretColumn = position.column - 1;
 
-    final completion = widget.enableAutocomplete
-        ? widget.language.completionAt(text, caret)
-        : null;
-    _completion = completion;
-    _completionSelectedIndex = completion == null || completion.isEmpty
-        ? 0
-        : _completionSelectedIndex.clamp(0, completion.entries.length - 1);
-    _signatureHint = text.isEmpty
-        ? null
-        : widget.language.signatureAt(text, caret);
-    _diagnostics = text.trim().isEmpty
-        ? const <ScriptDiagnostic>[]
-        : widget.language.diagnosticsFor(text);
+      final completion = widget.enableAutocomplete
+          ? widget.language.completionAt(text, caret)
+          : null;
+      _completion = completion;
+      _completionSelectedIndex = completion == null || completion.isEmpty
+          ? 0
+          : _completionSelectedIndex.clamp(0, completion.entries.length - 1);
+      _signatureHint = text.isEmpty
+          ? null
+          : widget.language.signatureAt(text, caret);
+      _diagnostics = text.trim().isEmpty
+          ? const <ScriptDiagnostic>[]
+          : widget.language.diagnosticsFor(text);
+    } finally {
+      activeUiStallMonitor?.markEnd('editor_keystroke_analysis');
+    }
   }
 
   static const Set<TargetPlatform> _desktopPlatforms = {
