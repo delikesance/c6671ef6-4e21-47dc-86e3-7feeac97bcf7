@@ -1,5 +1,7 @@
 import 'package:bot_creator/main.dart';
+import 'package:bot_creator/core/analytics/activation_funnel.dart';
 import 'package:bot_creator/core/analytics/analytics.dart';
+import 'package:bot_creator/core/analytics/user_properties.dart';
 import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
@@ -10,6 +12,7 @@ import 'package:bot_creator/features/documentation/documentation_navigation.dart
 import 'package:bot_creator/features/documentation/documentation_urls.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:async';
 import 'dart:developer' as developer;
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
@@ -106,6 +109,10 @@ class _AppCreatePageState extends State<AppCreatePage> {
     FocusScope.of(context).unfocus();
     setState(() => _isSaving = true);
 
+    // The token passed the guards and the flow starts here: the exchange, the
+    // Discord identity fetch and the local write all follow.
+    unawaited(ActivationFunnel.botCreateStart(source: BotCreateSource.scratch));
+
     try {
       final discordUser = await getDiscordUser(token);
 
@@ -179,6 +186,13 @@ class _AppCreatePageState extends State<AppCreatePage> {
           "app_id": discordUser.id.toString() as Object,
         },
       );
+      // The bot exists locally now (createOrUpdateApp returned): this is the
+      // funnel's bot_create_success point, and the bot count bucket the user
+      // properties carry has just changed.
+      unawaited(
+        ActivationFunnel.botCreateSuccess(source: BotCreateSource.scratch),
+      );
+      unawaited(AppUserProperties.refresh());
 
       if (mounted) {
         await _offerSampleCommand(

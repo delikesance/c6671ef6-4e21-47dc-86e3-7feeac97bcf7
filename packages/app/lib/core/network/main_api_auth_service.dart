@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:app_links/app_links.dart';
+import 'package:bot_creator/core/analytics/activation_funnel.dart';
 import 'package:bot_creator/core/analytics/user_identity.dart';
 import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
 import 'package:bot_creator/core/utils/external_link.dart';
@@ -35,19 +36,29 @@ class MainApiAuthService {
     Duration timeout = const Duration(minutes: 5),
   }) async {
     _oauthDebug('connectWithDiscord timeout=${timeout.inSeconds}s');
+    // The flow starts here: a browser is about to open on Discord.
+    unawaited(ActivationFunnel.discordLoginStart());
     final MainApiSession session;
-    if (_supportsLoopbackCallback) {
-      _oauthDebug('Using desktop loopback callback flow');
-      session = await _connectDesktop(client: client, timeout: timeout);
-    } else {
-      _oauthDebug('Using mobile app-links callback flow');
-      session = await _connectMobile(client: client, timeout: timeout);
+    try {
+      if (_supportsLoopbackCallback) {
+        _oauthDebug('Using desktop loopback callback flow');
+        session = await _connectDesktop(client: client, timeout: timeout);
+      } else {
+        _oauthDebug('Using mobile app-links callback flow');
+        session = await _connectMobile(client: client, timeout: timeout);
+      }
+    } catch (error) {
+      // Classified, never the raw message: a Discord error code or an HTTP
+      // body would each become its own parameter value in the console.
+      unawaited(ActivationFunnel.discordLoginFailed(error));
+      rethrow;
     }
 
     // Login is where the Discord account becomes known: publish it to the
     // diagnostics and analytics SDKs before anything else can report. Not
     // awaited — the identity fan-out must not delay the login completing.
     unawaited(UserIdentity.apply(session.userId));
+    unawaited(ActivationFunnel.discordLoginSuccess());
     return session;
   }
 
@@ -60,6 +71,9 @@ class MainApiAuthService {
     final pending = await _loadPendingMobileOAuth();
     if (pending == null) {
       _oauthDebug('No pending mobile OAuth context found');
+      unawaited(
+        ActivationFunnel.discordLoginFailed('no pending mobile oauth context'),
+      );
       return false;
     }
 
@@ -67,6 +81,7 @@ class MainApiAuthService {
     if (error.isNotEmpty) {
       await _clearPendingMobileOAuth();
       _oauthDebug('Pending OAuth callback returned error=$error');
+      unawaited(ActivationFunnel.discordLoginFailed('Discord login: $error'));
       return false;
     }
 
@@ -74,10 +89,12 @@ class MainApiAuthService {
     final returnedState = (callbackUri.queryParameters['state'] ?? '').trim();
     if (code.isEmpty) {
       _oauthDebug('Pending OAuth callback missing code');
+      unawaited(ActivationFunnel.discordLoginFailed('missing code'));
       return false;
     }
     if (returnedState.isNotEmpty && returnedState != pending.expectedState) {
       _oauthDebug('Pending OAuth callback state mismatch');
+      unawaited(ActivationFunnel.discordLoginFailed('state mismatch'));
       return false;
     }
 
@@ -96,10 +113,12 @@ class MainApiAuthService {
       // (cold start on a callback deep link): the identity has to be published
       // here too, or the user's first session after a relaunch is anonymous.
       unawaited(UserIdentity.apply(session.userId));
+      unawaited(ActivationFunnel.discordLoginSuccess());
       _oauthDebug('Pending mobile OAuth callback completed successfully');
       return true;
     } catch (error) {
       _oauthDebug('Pending mobile OAuth completion failed: $error');
+      unawaited(ActivationFunnel.discordLoginFailed(error));
       return false;
     }
   }

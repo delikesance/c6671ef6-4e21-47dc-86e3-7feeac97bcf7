@@ -18,6 +18,7 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pag
     show ActionItem;
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder.response.dart'
     show ActionsBuilderPage;
+import 'package:bot_creator/core/analytics/activation_funnel.dart';
 import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/core/diagnostics/ui_stall_bindings.dart';
 import 'package:bot_creator/features/bot_editor/logic/app_emoji_api.dart';
@@ -2098,6 +2099,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           commandName: _commandName,
           isEditing: _isEditingExistingCommand,
           isLocalOnly: _localOnlyCommand || _legacyModeEnabled,
+          actionCount: effectiveActions.length,
           client: client,
           onSave: performSave,
         );
@@ -2311,6 +2313,10 @@ class _DeploymentProgressOverlay extends StatefulWidget {
   final String commandName;
   final bool isEditing;
   final bool isLocalOnly;
+
+  /// Number of actions in the command being saved, for the bounded
+  /// `action_count_bucket` of `command_create_success`.
+  final int actionCount;
   final NyxxRest? client;
   final Future<void> Function(
     void Function(String status) updateStatus,
@@ -2323,6 +2329,7 @@ class _DeploymentProgressOverlay extends StatefulWidget {
     required this.commandName,
     required this.isEditing,
     required this.isLocalOnly,
+    required this.actionCount,
     required this.client,
     required this.onSave,
   });
@@ -2472,6 +2479,15 @@ class _DeploymentProgressOverlayState
           _isSuccess = true;
         });
       }
+
+      // The save returned and the runtime reloaded: this is the confirmed
+      // success of the funnel's command step, not the tap on Save.
+      unawaited(
+        ActivationFunnel.commandCreateSuccess(
+          isNew: !widget.isEditing,
+          actionCount: widget.actionCount,
+        ),
+      );
 
       // Show beautiful checkmark and auto-pop after a brief delay
       await Future.delayed(const Duration(milliseconds: 1500));

@@ -26,6 +26,7 @@ import 'package:bot_creator/features/notifications/logic/notification_service.da
 import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/features/discord_rpc/logic/discord_rpc_service.dart';
 import 'package:bot_creator/core/analytics/analytics.dart';
+import 'package:bot_creator/core/analytics/user_properties.dart';
 import 'package:bot_creator/features/ads/logic/ad_consent_service.dart';
 import 'package:bot_creator/features/ads/logic/ad_native_service.dart';
 import 'package:bot_creator/features/ads/logic/ad_reward_service.dart';
@@ -376,6 +377,16 @@ Future<void> _warmUpServicesAfterLaunch() async {
     action: () async {
       await SubscriptionService.initialize();
     },
+  );
+
+  // Runs once, after the stores and the subscription state are readable and
+  // after Firebase is initialised, so the four user properties that segment
+  // every funnel event are published before the user can act on anything.
+  await _runStartupTask(
+    label: 'Analytics user properties',
+    operation: 'startup_analytics_user_properties',
+    timeout: const Duration(seconds: 5),
+    action: AppUserProperties.refresh,
   );
 
   await _runStartupTask(
