@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:app_links/app_links.dart';
+import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
 import 'package:bot_creator/core/utils/external_link.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
@@ -109,8 +110,9 @@ class MainApiAuthService {
         state: localState,
       );
 
-      final expectedState =
-          start.state.trim().isEmpty ? localState : start.state;
+      final expectedState = start.state.trim().isEmpty
+          ? localState
+          : start.state;
       final launchUri = Uri.tryParse(start.authorizeUrl);
       if (launchUri == null) {
         throw const MainApiClientException(
@@ -212,14 +214,14 @@ class MainApiAuthService {
         }
         final returnedState = (uri.queryParameters['state'] ?? '').trim();
         if (returnedState.isNotEmpty && returnedState != expectedState) {
-          _oauthDebug('Rejected callback due to invalid state');
-          if (!callbackCompleter.isCompleted) {
-            callbackCompleter.completeError(
-              const MainApiClientException(
-                'Invalid OAuth callback state received from Discord login.',
-              ),
-            );
-          }
+          // A mismatched state means this callback belongs to another attempt —
+          // a stale deep link, or a second login started in parallel. It must
+          // not abort the login in flight: the matching callback is still on
+          // its way, so ignore this one and let the timeout own the failure.
+          _oauthDebug('Ignored callback with mismatched state (stale/foreign)');
+          AppDiagnostics.logBreadcrumb(
+            'OAuth callback ignored: state mismatch (stale or foreign callback)',
+          );
           return;
         }
         if (!callbackCompleter.isCompleted) {
@@ -255,11 +257,10 @@ class MainApiAuthService {
       // Some launch modes deliver the callback as an initial link instead of stream event.
       final initialLinkAfterLaunch = await appLinks.getInitialLink();
       _oauthDebug('Initial link after launch: $initialLinkAfterLaunch');
-      final isFreshInitialLink =
-          !_isSameOAuthCallback(
-            initialLinkBeforeLaunch,
-            initialLinkAfterLaunch,
-          );
+      final isFreshInitialLink = !_isSameOAuthCallback(
+        initialLinkBeforeLaunch,
+        initialLinkAfterLaunch,
+      );
       if (initialLinkAfterLaunch != null &&
           _isExpectedMobileOAuthCallback(initialLinkAfterLaunch) &&
           isFreshInitialLink &&
@@ -362,7 +363,9 @@ class MainApiAuthService {
     ).join();
   }
 
-  static Future<void> _savePendingMobileOAuth(PendingMobileOAuth pending) async {
+  static Future<void> _savePendingMobileOAuth(
+    PendingMobileOAuth pending,
+  ) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_pendingOAuthKey, jsonEncode(pending.toJson()));
   }
