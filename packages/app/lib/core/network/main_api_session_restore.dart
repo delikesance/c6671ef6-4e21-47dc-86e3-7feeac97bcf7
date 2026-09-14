@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:bot_creator/core/analytics/user_identity.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 
@@ -36,6 +37,7 @@ Future<MainApiSession?> restoreMainApiSessionIfNeeded({
       timeout: timeout,
       force: force,
     );
+    _publishRestoredIdentity(result);
     completer.complete(result);
     return result;
   } catch (error, stack) {
@@ -44,6 +46,25 @@ Future<MainApiSession?> restoreMainApiSessionIfNeeded({
   } finally {
     _activeRestoreFuture = null;
   }
+}
+
+/// Publishes the identity of a restored session.
+///
+/// Restoring is the only moment a user who is already signed in can be named:
+/// without this, their reports stay anonymous until their next login, which for
+/// a persisted session may never come. Hooked here rather than at one bootstrap
+/// call site because every restore path goes through this function — the app
+/// bootstrap, the mobile account gate, and the restore that runs before an
+/// authenticated request.
+///
+/// A session without a user id does NOT clear the identity: a refresh response
+/// can come back without a user payload, and that is not a sign-out.
+void _publishRestoredIdentity(MainApiSession? session) {
+  final userId = session?.userId?.trim() ?? '';
+  if (userId.isEmpty) {
+    return;
+  }
+  unawaited(UserIdentity.apply(userId));
 }
 
 Future<MainApiSession?> _restoreMainApiSessionIfNeededInternal({

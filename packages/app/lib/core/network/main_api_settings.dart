@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:bot_creator/core/analytics/user_identity.dart';
 import 'package:bot_creator/core/secure/secure_storage_service.dart';
 
 const String _defaultMainApiBaseUrlRaw = kDebugMode
@@ -246,6 +248,10 @@ class MainApiSettingsStore {
     await prefs.remove(_sessionKey);
     _memorySession = null;
     _memorySessionLoaded = true;
+    // Sign-out, whether the user asked for it or the session expired: reports
+    // must stop being attributed to an account that is no longer signed in.
+    // Not awaited — clearing a session must not wait on a diagnostics SDK.
+    unawaited(_clearUserIdentity());
   }
 
   static Future<void> clearAll() async {
@@ -259,8 +265,13 @@ class MainApiSettingsStore {
     await prefs.remove(_sessionKey);
     _memorySession = null;
     _memorySessionLoaded = true;
+    unawaited(_clearUserIdentity());
   }
 }
+
+/// Clears the published identity, swallowing nothing: [UserIdentity.apply]
+/// already reports its own failures and never throws.
+Future<void> _clearUserIdentity() => UserIdentity.apply(null);
 
 MainApiSession? _sessionFromStoredJson(String raw) {
   final json = _decodeJsonMap(raw);

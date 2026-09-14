@@ -216,4 +216,36 @@ class PosthogService {
       );
     } catch (_) {}
   }
+
+  /// Whether [init] has completed, i.e. whether this service can receive
+  /// events on this platform.
+  ///
+  /// Callers that push identity during a lifecycle transition read this instead
+  /// of calling [init] themselves: initialising PostHog from a diagnostics path
+  /// would wake the HTTP transport as a side effect of a login, and every unit
+  /// test would then issue a real capture request.
+  static bool get isInitialized => _initialized;
+
+  /// Sign-out: forgets the identified user.
+  ///
+  /// The native SDK drops the stored person and rotates its anonymous id; the
+  /// HTTP fallback unsets the `userId` person property, so later events are not
+  /// attributed to the account that just left.
+  static Future<void> clearIdentity() async {
+    if (!_initialized) return;
+
+    if (_useHttpFallback) {
+      await _sendHttpEvent(
+        event: '\$identify',
+        properties: <String, Object>{
+          '\$unset': <String>['userId'],
+        },
+      );
+      return;
+    }
+
+    try {
+      await ph.Posthog().reset();
+    } catch (_) {}
+  }
 }

@@ -45,6 +45,20 @@ class AppAnalytics {
     }
   }
 
+  /// Attributes subsequent Analytics events to one user. A null [userId]
+  /// removes it (sign-out).
+  ///
+  /// The value is the Discord account id, passed through untouched: support
+  /// has to be able to find the person from the console, which a hash or a
+  /// truncation would prevent.
+  static Future<void> setUserId(String? userId) async {
+    if (_isSupported) {
+      try {
+        await FirebaseAnalytics.instance.setUserId(id: userId);
+      } catch (_) {}
+    }
+  }
+
   static Future<void> logScreenView({
     required String screenName,
     String? screenClass,

@@ -20,6 +20,14 @@ class _Stall {
   final Map<String, Object?> data;
 }
 
+/// One operation mark delivered to the monitor's hook.
+class _Mark {
+  _Mark(this.operation, this.started);
+
+  final String operation;
+  final bool started;
+}
+
 /// Builds a monitor whose events land in a fresh list, plus that list.
 ({UiStallMonitor monitor, List<_Stall> stalls}) _buildMonitor({
   Duration stallThreshold = const Duration(milliseconds: 1000),
@@ -34,6 +42,21 @@ class _Stall {
     onStall: (message, data) => stalls.add(_Stall(message, data)),
   );
   return (monitor: monitor, stalls: stalls);
+}
+
+/// Builds a monitor that also records the operation marks it observes.
+({UiStallMonitor monitor, List<_Mark> marks}) _buildObservedMonitor({
+  Duration frameThreshold = const Duration(milliseconds: 700),
+}) {
+  final marks = <_Mark>[];
+  final monitor = UiStallMonitor(
+    frameThreshold: frameThreshold,
+    currentScreen: () => 'home',
+    onStall: (message, data) {},
+    onOperationMark: (operation, started) =>
+        marks.add(_Mark(operation, started)),
+  );
+  return (monitor: monitor, marks: marks);
 }
 
 void main() {
@@ -232,6 +255,77 @@ void main() {
       expect(stalls, hasLength(1));
       expect(stalls.single.message, 'op_slow');
       expect(stalls.single.data['operation'], 'load_bots');
+    });
+  });
+
+  group('UiStallMonitor operation marks', () {
+    test(
+      'markStart and markEnd notify the observer with the operation name',
+      () {
+        final (monitor: monitor, marks: marks) = _buildObservedMonitor();
+
+        monitor.markStart('load_command');
+        monitor.markEnd('load_command');
+
+        expect(marks, hasLength(2));
+        expect(marks[0].operation, 'load_command');
+        expect(marks[0].started, isTrue);
+        expect(marks[1].operation, 'load_command');
+        expect(marks[1].started, isFalse);
+      },
+    );
+
+    test('a fast operation still notifies the observer', () {
+      // The hook is not the stall report: an observer that measures durations
+      // needs the fast runs too, or it only ever sees the pathological ones.
+      final (monitor: monitor, marks: marks) = _buildObservedMonitor(
+        frameThreshold: const Duration(seconds: 30),
+      );
+
+      monitor.markStart('save_command');
+      monitor.markEnd('save_command');
+
+      expect(marks.map((mark) => mark.started), <bool>[true, false]);
+    });
+
+    test('an observer is notified even when nothing is reported as slow', () {
+      final (monitor: monitor, marks: marks) = _buildObservedMonitor();
+
+      monitor.markStart('editor_keystroke_analysis');
+      monitor.markEnd('editor_keystroke_analysis');
+
+      // Nothing for the observer to filter here: the whitelist that keeps a
+      // per-keystroke trace out lives in the observer, not in the monitor.
+      expect(marks, hasLength(2));
+      expect(marks.first.operation, 'editor_keystroke_analysis');
+    });
+
+    test('a stray markEnd notifies the observer without throwing', () {
+      final (monitor: monitor, marks: marks) = _buildObservedMonitor();
+
+      expect(() => monitor.markEnd('never_started'), returnsNormally);
+
+      // The observer sees every mark and decides: the monitor does not hide a
+      // mark from it just because the monitor has no measurement to close.
+      expect(marks, hasLength(1));
+      expect(marks.single.started, isFalse);
+    });
+
+    test('a monitor without the hook reports the same events', () async {
+      // The hook is optional: a monitor built without it keeps emitting its
+      // `op_slow` report, unchanged (this is the build main() used before the
+      // performance traces were wired in).
+      final (monitor: monitor, stalls: stalls) = _buildMonitor(
+        frameThreshold: const Duration(milliseconds: 50),
+      );
+
+      monitor.markStart('load_command', <String, Object?>{'count': 7});
+      await Future<void>.delayed(const Duration(milliseconds: 150));
+      monitor.markEnd('load_command');
+
+      expect(stalls, hasLength(1));
+      expect(stalls.single.message, 'op_slow');
+      expect(stalls.single.data['count'], 7);
     });
   });
 
