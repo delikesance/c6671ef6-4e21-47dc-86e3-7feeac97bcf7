@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:bot_creator/core/analytics/monetization_funnel.dart';
 import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
@@ -23,6 +24,7 @@ const Set<String> _kSubscriptionIds = {
 enum SubscriptionPurchaseFailureReason {
   storeUnavailable,
   productUnavailable,
+  offerTokenMissing,
   purchaseStartFailed,
 }
 
@@ -30,6 +32,7 @@ String subscriptionPurchaseErrorKey(SubscriptionPurchaseFailureReason? reason) {
   switch (reason) {
     case SubscriptionPurchaseFailureReason.storeUnavailable:
       return 'subscription_error_store_unavailable';
+    case SubscriptionPurchaseFailureReason.offerTokenMissing:
     case SubscriptionPurchaseFailureReason.productUnavailable:
       return 'subscription_error_product_unavailable';
     case SubscriptionPurchaseFailureReason.purchaseStartFailed:
@@ -412,6 +415,12 @@ class SubscriptionService {
             data: {'product': productId},
           ),
         );
+        unawaited(
+          MonetizationFunnel.purchaseFailed(
+            reason: PurchaseFailureReason.productUnavailable,
+            product: productId,
+          ),
+        );
         return const SubscriptionPurchaseResult.failed(
           SubscriptionPurchaseFailureReason.productUnavailable,
         );
@@ -435,6 +444,12 @@ class SubscriptionService {
               AppDiagnostics.logInfo(
                 'Purchase blocked: Play Billing subscriptions not supported',
                 data: {'product': productId},
+              ),
+            );
+            unawaited(
+              MonetizationFunnel.purchaseFailed(
+                reason: PurchaseFailureReason.storeUnavailable,
+                product: productId,
               ),
             );
             return const SubscriptionPurchaseResult.failed(
@@ -481,8 +496,14 @@ class SubscriptionService {
               reason: 'product=$productId',
             ),
           );
+          unawaited(
+            MonetizationFunnel.purchaseFailed(
+              reason: PurchaseFailureReason.offerTokenMissing,
+              product: productId,
+            ),
+          );
           return const SubscriptionPurchaseResult.failed(
-            SubscriptionPurchaseFailureReason.productUnavailable,
+            SubscriptionPurchaseFailureReason.offerTokenMissing,
           );
         }
         purchaseParam = GooglePlayPurchaseParam(
@@ -496,12 +517,19 @@ class SubscriptionService {
           applicationUserName: currentOwnerId,
         );
       }
+      unawaited(MonetizationFunnel.purchaseStart(product: productId));
       final started = await iap.buyNonConsumable(purchaseParam: purchaseParam);
       if (!started) {
         unawaited(
           AppDiagnostics.logInfo(
             'Purchase could not be started',
             data: {'product': productId},
+          ),
+        );
+        unawaited(
+          MonetizationFunnel.purchaseFailed(
+            reason: PurchaseFailureReason.purchaseStartFailed,
+            product: productId,
           ),
         );
         return const SubscriptionPurchaseResult.failed(
@@ -518,6 +546,12 @@ class SubscriptionService {
           stack,
           fatal: false,
           reason: 'product=$productId',
+        ),
+      );
+      unawaited(
+        MonetizationFunnel.purchaseFailed(
+          reason: PurchaseFailureReason.purchaseStartFailed,
+          product: productId,
         ),
       );
       return const SubscriptionPurchaseResult.failed(
@@ -597,8 +631,20 @@ class SubscriptionService {
               },
             ),
           );
+          unawaited(
+            MonetizationFunnel.purchaseFailed(
+              reason: MonetizationFunnel.classifyError(purchase.error?.message),
+              product: purchase.productID,
+            ),
+          );
           break;
         case PurchaseStatus.canceled:
+          unawaited(
+            MonetizationFunnel.purchaseFailed(
+              reason: PurchaseFailureReason.cancelled,
+              product: purchase.productID,
+            ),
+          );
           break;
         case PurchaseStatus.pending:
           break;
@@ -624,6 +670,12 @@ class SubscriptionService {
             'product': purchase.productID,
             'reason': verification.reason ?? 'inactive',
           },
+        ),
+      );
+      unawaited(
+        MonetizationFunnel.purchaseFailed(
+          reason: PurchaseFailureReason.verificationFailed,
+          product: purchase.productID,
         ),
       );
       return;
@@ -658,6 +710,7 @@ class SubscriptionService {
         data: {'product': purchase.productID},
       ),
     );
+    unawaited(MonetizationFunnel.purchaseSuccess(product: purchase.productID));
   }
 
   static Future<({bool active, DateTime? expiresAt, String? reason})>

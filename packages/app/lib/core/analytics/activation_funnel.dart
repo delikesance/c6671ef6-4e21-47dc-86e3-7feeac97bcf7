@@ -109,6 +109,20 @@ class ActivationFunnel {
     '21+',
   ];
 
+  /// A specific step of the onboarding flow was presented to the user.
+  static Future<void> onboardingStepView({required int step}) =>
+      AppAnalytics.logEvent(
+        name: 'onboarding_step_view',
+        parameters: <String, Object>{'step': step.toString()},
+      );
+
+  /// The user completed the full onboarding flow.
+  static Future<void> onboardingCompleted({required int finalStep}) =>
+      AppAnalytics.logEvent(
+        name: 'onboarding_completed',
+        parameters: <String, Object>{'final_step': finalStep.toString()},
+      );
+
   /// The OAuth flow started: a browser is about to open on Discord.
   static Future<void> discordLoginStart() =>
       AppAnalytics.logEvent(name: 'discord_login_start');

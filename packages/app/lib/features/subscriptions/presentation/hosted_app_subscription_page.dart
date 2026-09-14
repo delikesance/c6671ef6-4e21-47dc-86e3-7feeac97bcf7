@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:bot_creator/core/analytics/monetization_funnel.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/subscriptions/logic/hosted_app_billing_catalog.dart';
@@ -21,6 +22,7 @@ class HostedAppSubscriptionPage extends StatefulWidget {
       return Future<void>.value();
     }
 
+    unawaited(MonetizationFunnel.subscriptionPageView());
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -48,10 +50,9 @@ class _HostedAppSubscriptionPageState extends State<HostedAppSubscriptionPage> {
     });
 
     try {
-      final result =
-          productId == kHostTwoAppSubscriptionId
-              ? await HostedAppSubscriptionService.purchaseTwoApps()
-              : await HostedAppSubscriptionService.purchaseOneApp();
+      final result = productId == kHostTwoAppSubscriptionId
+          ? await HostedAppSubscriptionService.purchaseTwoApps()
+          : await HostedAppSubscriptionService.purchaseOneApp();
 
       if (!result.started && mounted) {
         setState(
@@ -177,10 +178,9 @@ class _HostedAppSubscriptionPageState extends State<HostedAppSubscriptionPage> {
                 price: _priceForTier(HostedAppTier.twoApps, '—'),
                 badge: tr.hosted_app_subscription_recommended,
                 isPrimary: true,
-                onTap:
-                    _purchasing
-                        ? null
-                        : () => _buy(kHostTwoAppSubscriptionId),
+                onTap: _purchasing
+                    ? null
+                    : () => _buy(kHostTwoAppSubscriptionId),
               ),
               const SizedBox(height: 12),
               _PlanCard(
@@ -188,10 +188,9 @@ class _HostedAppSubscriptionPageState extends State<HostedAppSubscriptionPage> {
                 subtitle: tr.hosted_app_subscription_one_app_desc,
                 price: _priceForTier(HostedAppTier.oneApp, '—'),
                 isPrimary: false,
-                onTap:
-                    _purchasing
-                        ? null
-                        : () => _buy(kHostOneAppSubscriptionId),
+                onTap: _purchasing
+                    ? null
+                    : () => _buy(kHostOneAppSubscriptionId),
               ),
               const SizedBox(height: 16),
               if (_purchasing)
@@ -270,10 +269,9 @@ class _PlanCard extends StatelessWidget {
       elevation: isPrimary ? 4 : 1,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-        side:
-            isPrimary
-                ? const BorderSide(color: Colors.teal, width: 2)
-                : BorderSide.none,
+        side: isPrimary
+            ? const BorderSide(color: Colors.teal, width: 2)
+            : BorderSide.none,
       ),
       child: InkWell(
         onTap: onTap,

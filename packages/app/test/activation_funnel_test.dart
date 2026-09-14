@@ -87,6 +87,8 @@ const Map<String, List<String>> _closedValues = <String, List<String>>{
 
 /// The event names of this slice, in funnel order.
 const List<String> _funnelEvents = <String>[
+  'onboarding_step_view',
+  'onboarding_completed',
   'discord_login_start',
   'discord_login_success',
   'discord_login_failed',
@@ -116,6 +118,8 @@ void main() {
   });
 
   test('every funnel event leaves through AppAnalytics', () async {
+    await ActivationFunnel.onboardingStepView(step: 1);
+    await ActivationFunnel.onboardingCompleted(finalStep: 5);
     await ActivationFunnel.discordLoginStart();
     await ActivationFunnel.discordLoginSuccess();
     await ActivationFunnel.discordLoginFailed('something went wrong');
