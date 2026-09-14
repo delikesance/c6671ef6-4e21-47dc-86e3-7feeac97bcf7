@@ -232,7 +232,10 @@ extension _AppHomePageLogic on _AppHomePageState {
       _setState(() {
         _botLaunched = isRunning;
         _botStarting = false;
-        _appName = app["name"];
+        // `app["name"]` is dynamic and a legacy/hand-edited entry can be null;
+        // `_appName` is a non-nullable String, so a bare assignment threw
+        // "type 'Null' is not a subtype of type 'String'" (issue 51fdaaea).
+        _appName = (app["name"] ?? '').toString();
         avatar = app["avatar"] ?? "";
         _runtimeCapabilities = capabilities;
       });

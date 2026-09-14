@@ -9,6 +9,7 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/editor_sub_page_ui.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
@@ -96,22 +97,35 @@ class _EmojisPageState extends State<EmojisPage> {
                       pickedFileName ?? context.tr.emojis_upload_pick_image,
                     ),
                     onPressed: () async {
-                      final result = await FilePicker.pickFiles(
-                        type: FileType.image,
-                      );
-                      if (result != null && result.files.isNotEmpty) {
-                        setDialogState(() {
-                          pickedFilePath = result.files.first.path;
-                          pickedFileName = result.files.first.name;
-                          // Pre-fill name if empty
-                          if (nameController.text.isEmpty) {
-                            final baseName = result.files.first.name
-                                .replaceAll(RegExp(r'\.[^.]+$'), '')
-                                .replaceAll(RegExp(r'[^a-zA-Z0-9_]'), '_');
-                            nameController.text = baseName;
-                          }
-                        });
+                      // Tapping upload twice opens the native picker twice, and
+                      // the platform refuses the second one with a
+                      // PlatformException(already_active) that used to escape
+                      // as an uncaught FATAL error (issue a6c29f9e).
+                      final List<PlatformFile> pickedFiles;
+                      try {
+                        final result = await FilePicker.pickFiles(
+                          type: FileType.image,
+                        );
+                        pickedFiles = result?.files ?? const <PlatformFile>[];
+                      } on PlatformException catch (error) {
+                        if (error.code != 'already_active') {
+                          rethrow;
+                        }
+                        return;
                       }
+                      if (pickedFiles.isEmpty) return;
+                      final picked = pickedFiles.first;
+                      setDialogState(() {
+                        pickedFilePath = picked.path;
+                        pickedFileName = picked.name;
+                        // Pre-fill name if empty
+                        if (nameController.text.isEmpty) {
+                          final baseName = picked.name
+                              .replaceAll(RegExp(r'\.[^.]+$'), '')
+                              .replaceAll(RegExp(r'[^a-zA-Z0-9_]'), '_');
+                          nameController.text = baseName;
+                        }
+                      });
                     },
                   ),
                 ],
