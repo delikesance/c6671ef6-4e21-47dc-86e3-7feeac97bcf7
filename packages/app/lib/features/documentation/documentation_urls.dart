@@ -1,9 +1,5 @@
 /// Which documentation tab to show in the hub.
-enum DocumentationSection {
-  guide,
-  botCreatorDocs,
-  discordJs,
-}
+enum DocumentationSection { guide, botCreatorDocs, discordJs }
 
 const guideBaseUrl = 'https://bot-creator.fr/blog';
 const botCreatorDocsBaseUrl = 'https://bot-creator.fr/docs';
@@ -12,6 +8,9 @@ const discordJsBaseUrl = 'https://discord.js.org';
 /// Step-by-step guide for creating a Discord bot token.
 const botTokenTutorialUrl =
     'https://bot-creator.fr/getting%20started/2025/05/18/how-to-create-a-bot-token-bot-creator';
+
+/// Public privacy policy URL on bot-creator.fr.
+const privacyPolicyUrl = 'https://bot-creator.fr/privacy-policy.html';
 
 /// Host suffixes allowed for in-app WebView navigation.
 const documentationAllowedHostSuffixes = <String>[
@@ -59,7 +58,9 @@ int documentationSectionTabIndex(
   DocumentationSection section, {
   required bool showDiscordJsTab,
 }) {
-  final sections = visibleDocumentationSections(showDiscordJsTab: showDiscordJsTab);
+  final sections = visibleDocumentationSections(
+    showDiscordJsTab: showDiscordJsTab,
+  );
   final index = sections.indexOf(section);
   return index >= 0 ? index : 0;
 }

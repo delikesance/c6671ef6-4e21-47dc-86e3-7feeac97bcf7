@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:bot_creator/core/analytics/editor_analytics.dart';
 import 'package:bot_creator/core/code_editor/script_editor_chrome.dart';
 import 'package:bot_creator/core/code_editor/script_editor_editor_pane.dart';
 import 'package:bot_creator/core/code_editor/script_editor_language.dart';
@@ -106,12 +107,32 @@ class _ScriptEditorScaffoldState extends State<ScriptEditorScaffold> {
   bool _showIndentGuides = true;
   bool _showDiagnostics = true;
 
+  late final DateTime _sessionStart;
+  int _keystrokes = 0;
+  String _lastTrackedText = '';
+  bool _sessionReported = false;
+
+  void _reportSessionEnd({required bool saved}) {
+    if (_sessionReported) return;
+    _sessionReported = true;
+    final duration = DateTime.now().difference(_sessionStart);
+    unawaited(
+      EditorAnalytics.editorSessionEnd(
+        saved: saved,
+        duration: duration,
+        keystrokes: _keystrokes,
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
     _ownsController = widget.controller == null;
     _controller =
         widget.controller ?? TextEditingController(text: widget.initialCode);
+    _sessionStart = DateTime.now();
+    _lastTrackedText = _controller.text;
     _wordWrap = widget.prefersWordWrap;
     _controller.addListener(_onEditorChanged);
     _focusNode.addListener(_onEditorChanged);
@@ -120,6 +141,7 @@ class _ScriptEditorScaffoldState extends State<ScriptEditorScaffold> {
 
   @override
   void dispose() {
+    _reportSessionEnd(saved: false);
     _diagnosticsDebounce?.cancel();
     _controller.removeListener(_onEditorChanged);
     _focusNode.removeListener(_onEditorChanged);
@@ -133,6 +155,11 @@ class _ScriptEditorScaffoldState extends State<ScriptEditorScaffold> {
   void _onEditorChanged() {
     if (!mounted) {
       return;
+    }
+    final currentText = _controller.text;
+    if (currentText != _lastTrackedText) {
+      _keystrokes++;
+      _lastTrackedText = currentText;
     }
     setState(_refresh);
   }
@@ -284,53 +311,64 @@ class _ScriptEditorScaffoldState extends State<ScriptEditorScaffold> {
     final colors = codeEditorColorsOf(context);
     final isEmptyDocument = _controller.text.trim().isEmpty;
 
-    return Scaffold(
-      backgroundColor: colors.background,
-      appBar: ScriptEditorAppBar(
-        title: widget.title,
-        colors: colors,
-        wordWrap: _wordWrap,
-        showIndentGuides: _showIndentGuides,
-        showDiagnostics: _showDiagnostics,
-        diagnostics: _diagnostics,
-        onDone: () => Navigator.of(context).pop(_controller.text),
-        onOpenDocs: widget.onOpenDocs,
-        onOpenSettings: () => openCodeEditorSettings(context),
-        onToggleWordWrap: () => setState(() => _wordWrap = !_wordWrap),
-        onToggleIndentGuides: () =>
-            setState(() => _showIndentGuides = !_showIndentGuides),
-        onToggleDiagnostics: () =>
-            setState(() => _showDiagnostics = !_showDiagnostics),
-        onShowUxSheet: _showUxSheet,
-      ),
-      body: ScriptEditorEditorPane(
-        colors: colors,
-        settings: settings,
-        controller: _controller,
-        focusNode: _focusNode,
-        language: widget.language,
-        hintText: widget.hintText,
-        wordWrap: _wordWrap || settings.wordWrap,
-        showIndentGuides: _showIndentGuides,
-        caretLine: _caretLine,
-        caretColumn: _caretColumn,
-        completion: _isCompletionVisible ? _completion : null,
-        completionSelectedIndex: _completionSelectedIndex,
-        signatureHint: _isSignatureVisible ? _signatureHint : null,
-        onKeyEvent: _handleEditorKey,
-        onCompletionSelected: _completeWith,
-        onCompletionHover: (index) {
-          setState(() => _completionSelectedIndex = index);
-        },
-        snippets: widget.snippets,
-        showQuickCharsBar: !_isDesktopLike && settings.showQuickCharsBar,
-        onShowUxSheet: _showUxSheet,
-        showDiagnostics: _showDiagnostics,
-        diagnostics: _diagnostics,
-        isEmptyDocument: isEmptyDocument,
-        emptyLabel: widget.emptyLabel ?? context.tr.bdfd_editor_empty,
-        cleanLabel: widget.cleanLabel ?? context.tr.cmd_bdfd_diagnostics_clean,
-        messageBuilder: widget.messageBuilder,
+    return PopScope(
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          _reportSessionEnd(saved: false);
+        }
+      },
+      child: Scaffold(
+        backgroundColor: colors.background,
+        appBar: ScriptEditorAppBar(
+          title: widget.title,
+          colors: colors,
+          wordWrap: _wordWrap,
+          showIndentGuides: _showIndentGuides,
+          showDiagnostics: _showDiagnostics,
+          diagnostics: _diagnostics,
+          onDone: () {
+            _reportSessionEnd(saved: true);
+            Navigator.of(context).pop(_controller.text);
+          },
+          onOpenDocs: widget.onOpenDocs,
+          onOpenSettings: () => openCodeEditorSettings(context),
+          onToggleWordWrap: () => setState(() => _wordWrap = !_wordWrap),
+          onToggleIndentGuides: () =>
+              setState(() => _showIndentGuides = !_showIndentGuides),
+          onToggleDiagnostics: () =>
+              setState(() => _showDiagnostics = !_showDiagnostics),
+          onShowUxSheet: _showUxSheet,
+        ),
+        body: ScriptEditorEditorPane(
+          colors: colors,
+          settings: settings,
+          controller: _controller,
+          focusNode: _focusNode,
+          language: widget.language,
+          hintText: widget.hintText,
+          wordWrap: _wordWrap || settings.wordWrap,
+          showIndentGuides: _showIndentGuides,
+          caretLine: _caretLine,
+          caretColumn: _caretColumn,
+          completion: _isCompletionVisible ? _completion : null,
+          completionSelectedIndex: _completionSelectedIndex,
+          signatureHint: _isSignatureVisible ? _signatureHint : null,
+          onKeyEvent: _handleEditorKey,
+          onCompletionSelected: _completeWith,
+          onCompletionHover: (index) {
+            setState(() => _completionSelectedIndex = index);
+          },
+          snippets: widget.snippets,
+          showQuickCharsBar: !_isDesktopLike && settings.showQuickCharsBar,
+          onShowUxSheet: _showUxSheet,
+          showDiagnostics: _showDiagnostics,
+          diagnostics: _diagnostics,
+          isEmptyDocument: isEmptyDocument,
+          emptyLabel: widget.emptyLabel ?? context.tr.bdfd_editor_empty,
+          cleanLabel:
+              widget.cleanLabel ?? context.tr.cmd_bdfd_diagnostics_clean,
+          messageBuilder: widget.messageBuilder,
+        ),
       ),
     );
   }

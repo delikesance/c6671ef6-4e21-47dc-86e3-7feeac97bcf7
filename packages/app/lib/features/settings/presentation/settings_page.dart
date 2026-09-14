@@ -9,6 +9,7 @@ import 'package:bot_creator/features/settings/presentation/appearance_settings_s
 import 'package:bot_creator/features/onboarding/presentation/onboarding_page.dart';
 import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/core/analytics/user_properties.dart';
+import 'package:bot_creator/features/documentation/documentation_urls.dart';
 import 'package:bot_creator/features/ads/logic/ad_consent_service.dart';
 import 'package:bot_creator/features/ads/logic/ad_mediation_debug.dart';
 import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
@@ -3445,7 +3446,7 @@ class _PrivacyPolicyCard extends StatelessWidget {
   final bool adPrivacyRequired;
   final VoidCallback? onOpenAdPrivacy;
 
-  static const _privacyPolicyUrl = 'https://bot-creator.fr/privacy-policy.html';
+  static const _privacyPolicyUrl = privacyPolicyUrl;
 
   Future<void> _open(BuildContext context) async {
     final uri = Uri.parse(_privacyPolicyUrl);

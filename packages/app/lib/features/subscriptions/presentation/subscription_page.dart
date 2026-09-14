@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:bot_creator/core/analytics/analytics.dart';
+import 'package:bot_creator/core/analytics/monetization_funnel.dart';
 
 import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
 import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
+import 'package:bot_creator/features/documentation/documentation_urls.dart';
 
 /// Full-screen page (or bottom-sheet) for purchasing a premium subscription.
 class SubscriptionPage extends StatefulWidget {
@@ -26,7 +27,7 @@ class SubscriptionPage extends StatefulWidget {
       return Future<void>.value();
     }
 
-    AppAnalytics.logEvent(name: 'subscription_page_opened');
+    unawaited(MonetizationFunnel.subscriptionPageView());
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -318,7 +319,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
     return 'https://play.google.com/intl/en_us/about/play-terms/';
   }
 
-  static const String _privacyUrl = 'https://bot-creator-f884b.web.app/privacy';
+  static const String _privacyUrl = privacyPolicyUrl;
 }
 
 // ── Sub-widgets ──────────────────────────────────────────────────────────────

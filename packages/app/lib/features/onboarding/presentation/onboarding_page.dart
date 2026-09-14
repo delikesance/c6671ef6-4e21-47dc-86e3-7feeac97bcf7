@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:bot_creator/features/documentation/documentation_navigation.dart';
 import 'package:bot_creator/features/documentation/documentation_urls.dart';
 import 'package:flutter/material.dart';
 import 'package:bot_creator/features/onboarding/logic/onboarding_manager.dart';
+import 'package:bot_creator/core/analytics/activation_funnel.dart';
 import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/features/bot_management/presentation/create_page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/app_editor_page.dart';
@@ -156,6 +159,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
     setState(() {
       _currentStep = _manager.currentStep;
     });
+    unawaited(ActivationFunnel.onboardingStepView(step: _currentStep));
   }
 
   @override
@@ -172,6 +176,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
     );
     _manager.setCurrentStep(step);
     setState(() => _currentStep = step);
+    unawaited(ActivationFunnel.onboardingStepView(step: step));
   }
 
   void _nextStep() {
@@ -264,10 +269,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   void _completeOnboarding() async {
     await _manager.completeOnboarding();
-    AppAnalytics.logEvent(
-      name: 'onboarding_completed',
-      parameters: {'final_step': _currentStep.toString()},
-    );
+    unawaited(ActivationFunnel.onboardingCompleted(finalStep: _currentStep));
     if (mounted) {
       widget.onComplete();
     }

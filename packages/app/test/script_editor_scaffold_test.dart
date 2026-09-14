@@ -1,5 +1,6 @@
 import 'dart:ui' as ui;
 
+import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/core/code_editor/code_editor_settings.dart';
 import 'package:bot_creator/core/code_editor/code_editor_settings_provider.dart';
 import 'package:bot_creator/core/code_editor/code_editor_theme_data.dart';
@@ -1201,6 +1202,69 @@ void main() {
         ),
       ),
       isFalse,
+    );
+  });
+
+  group('signal de décrochage editor_session_end', () {
+    testWidgets('terminer dispatche editor_session_end avec saved: true', (
+      tester,
+    ) async {
+      final events = <(String, Map<String, Object>?)>[];
+      AppAnalytics.debugSetEventObserver(
+        (name, params) => events.add((name, params)),
+      );
+      addTearDown(AppAnalytics.debugResetObservers);
+
+      await pumpChrome(
+        tester,
+        initialCode: 'start',
+        language: const _FakeLanguage(),
+      );
+
+      await tester.enterText(find.byType(TextField), 'start typing');
+      await tester.pump();
+
+      await tester.tap(find.text('Terminé'));
+      await tester.pump();
+
+      final sessionEvents = events
+          .where((e) => e.$1 == 'editor_session_end')
+          .toList();
+      expect(sessionEvents, hasLength(1));
+      final params = sessionEvents.single.$2!;
+      expect(params['saved'], 'true');
+      expect(params['keystroke_bucket'], isNotNull);
+      expect(params['duration_bucket'], isNotNull);
+    });
+
+    testWidgets(
+      'quitter sans sauver dispatche editor_session_end avec saved: false',
+      (tester) async {
+        final events = <(String, Map<String, Object>?)>[];
+        AppAnalytics.debugSetEventObserver(
+          (name, params) => events.add((name, params)),
+        );
+        addTearDown(AppAnalytics.debugResetObservers);
+
+        await pumpChrome(
+          tester,
+          initialCode: 'start',
+          language: const _FakeLanguage(),
+        );
+
+        await tester.enterText(find.byType(TextField), 'start typing');
+        await tester.pump();
+
+        // Remplacer le widget (démonte le scaffold)
+        await tester.pumpWidget(const SizedBox.shrink());
+
+        final sessionEvents = events
+            .where((e) => e.$1 == 'editor_session_end')
+            .toList();
+        expect(sessionEvents, hasLength(1));
+        final params = sessionEvents.single.$2!;
+        expect(params['saved'], 'false');
+      },
     );
   });
 }
