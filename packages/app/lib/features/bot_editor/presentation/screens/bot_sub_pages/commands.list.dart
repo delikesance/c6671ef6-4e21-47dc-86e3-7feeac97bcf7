@@ -19,7 +19,10 @@ import 'package:bot_creator/features/ads/presentation/native_ad_slot.dart';
 import 'package:bot_creator/core/widgets/notion_filter_bar.dart';
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
+import 'package:bot_creator/features/bot_editor/logic/command_folder_tree.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/folder_picker_dialog.dart';
 import 'package:bot_creator_shared/utils/legacy_command_triggers.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
@@ -138,7 +141,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
     final templateId = (templateOrigin?['templateId'] ?? '').toString();
     final name = (command['name'] ?? 'unknown').toString();
 
-    return Card(
+    final cardWidget = Card(
       child: ListTile(
         leading: _isSelectMode
             ? Checkbox(
@@ -157,7 +160,12 @@ class _AppCommandsPageState extends State<AppCommandsPage>
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (!_isSelectMode)
+            if (!_isSelectMode) ...[
+              IconButton(
+                icon: const Icon(Icons.drive_file_move_outlined, size: 20),
+                tooltip: context.tr.commands_move_to_folder,
+                onPressed: () => _showMoveCommandDialog(command),
+              ),
               IconButton(
                 icon: Icon(
                   Icons.delete_outline,
@@ -167,6 +175,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                 tooltip: context.tr.delete,
                 onPressed: () => _deleteCommand(commandId, name),
               ),
+            ],
             const Icon(Icons.arrow_forward_ios_outlined),
           ],
         ),
@@ -239,6 +248,65 @@ class _AppCommandsPageState extends State<AppCommandsPage>
         },
       ),
     );
+
+    if (_isSelectMode || _isReorderMode) {
+      return cardWidget;
+    }
+
+    final isDesktop =
+        defaultTargetPlatform == TargetPlatform.windows ||
+        defaultTargetPlatform == TargetPlatform.linux ||
+        defaultTargetPlatform == TargetPlatform.macOS;
+
+    final feedbackWidget = Material(
+      elevation: 6,
+      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.6),
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.terminal_rounded,
+              size: 18,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              name,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (isDesktop) {
+      return Draggable<Map<String, dynamic>>(
+        data: command,
+        dragAnchorStrategy: pointerDragAnchorStrategy,
+        feedback: feedbackWidget,
+        childWhenDragging: Opacity(opacity: 0.35, child: cardWidget),
+        child: cardWidget,
+      );
+    }
+
+    return LongPressDraggable<Map<String, dynamic>>(
+      data: command,
+      hapticFeedbackOnStart: true,
+      dragAnchorStrategy: pointerDragAnchorStrategy,
+      feedback: feedbackWidget,
+      childWhenDragging: Opacity(opacity: 0.35, child: cardWidget),
+      child: cardWidget,
+    );
   }
 
   List<Widget> _buildCommandMetaChips(Map<String, dynamic> command) {
@@ -281,8 +349,40 @@ class _AppCommandsPageState extends State<AppCommandsPage>
   /// badges est identique à avant.
   Widget _buildCommandSubtitle(Map<String, dynamic> command) {
     final aliasChips = _buildCommandAliasChips(command);
+    final folder = normalizeFolderPath((command['folder'] ?? '').toString());
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Row(
       children: [
+        if (folder.isNotEmpty) ...[
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.folder_outlined,
+                  size: 11,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 3),
+                Text(
+                  folder,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 6),
+        ],
         ..._buildCommandMetaChips(command),
         if (aliasChips.isNotEmpty)
           Flexible(
@@ -408,7 +508,9 @@ class _AppCommandsPageState extends State<AppCommandsPage>
           } else if (_typeFilter != 'all' && type != _typeFilter) {
             return false;
           }
-          if (_folderFilter.isNotEmpty && folder != _folderFilter) {
+          if (_folderFilter.isNotEmpty &&
+              folder != _folderFilter &&
+              !folder.startsWith('$_folderFilter/')) {
             return false;
           }
           if (_showTemplateOnly && templateId.isEmpty) {
@@ -432,39 +534,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
         .toList(growable: false);
   }
 
-  Future<void> _showCreateMenu() async {
-    final selection = await showModalBottomSheet<String>(
-      context: context,
-      builder: (context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.add_circle_outline),
-                title: Text(context.tr.commands_create_button),
-                onTap: () => Navigator.pop(context, 'command'),
-              ),
-              ListTile(
-                leading: const Icon(Icons.auto_awesome),
-                title: Text(context.tr.marketplace_title),
-                onTap: () => Navigator.pop(context, 'template'),
-              ),
-              ListTile(
-                leading: const Icon(Icons.create_new_folder_outlined),
-                title: Text(context.tr.commands_create_folder),
-                onTap: () => Navigator.pop(context, 'folder'),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-
-    if (!mounted || selection == null) {
-      return;
-    }
-
+  Future<void> _handleCreateMenuSelection(String selection) async {
     if (selection == 'command') {
       await _navigateToCreateCommand();
       return;
@@ -498,7 +568,6 @@ class _AppCommandsPageState extends State<AppCommandsPage>
   }
 
   Widget _buildFiltersBar() {
-    final folders = _existingFolders.toList()..sort();
     final query = _searchQuery.trim();
     return NotionFilterBar(
       searchQuery: _searchQuery,
@@ -519,14 +588,18 @@ class _AppCommandsPageState extends State<AppCommandsPage>
           },
           selectedValue: _typeFilter == 'all' ? '' : _typeFilter,
         ),
-        if (folders.isNotEmpty)
+        if (_existingFolders.isNotEmpty)
           NotionFilter(
             id: 'folder',
             label: context.tr.commands_folder_label,
             icon: Icons.folder_outlined,
             options: {
               '': context.tr.commands_all_folders,
-              for (final f in folders) f: f,
+              for (final item in buildCommandFolderTree(
+                commands: _commands,
+                emptyFolders: _emptyFolders,
+              ).flatten())
+                item.fullPath: item.indentedLabel,
             },
             selectedValue: _folderFilter,
           ),
@@ -581,46 +654,77 @@ class _AppCommandsPageState extends State<AppCommandsPage>
       },
       trailingAction: _isReorderMode
           ? null
-          : Container(
-              height: 40,
-              decoration: BoxDecoration(
-                gradient: AppTheme.brandGradient,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppTheme.brandPrimary.withValues(alpha: 0.35),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+          : PopupMenuButton<String>(
+              tooltip: context.tr.commands_create_button,
+              offset: const Offset(0, 46),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
               ),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(10),
-                  onTap: _showCreateMenu,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.add_rounded,
-                          color: Colors.white,
-                          size: 18,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          context.tr.create,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                    ),
+              onSelected: _handleCreateMenuSelection,
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: 'command',
+                  child: Row(
+                    children: [
+                      const Icon(Icons.add_circle_outline, size: 20),
+                      const SizedBox(width: 12),
+                      Text(context.tr.commands_create_button),
+                    ],
                   ),
+                ),
+                PopupMenuItem(
+                  value: 'template',
+                  child: Row(
+                    children: [
+                      const Icon(Icons.auto_awesome, size: 20),
+                      const SizedBox(width: 12),
+                      Text(context.tr.marketplace_title),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'folder',
+                  child: Row(
+                    children: [
+                      const Icon(Icons.create_new_folder_outlined, size: 20),
+                      const SizedBox(width: 12),
+                      Text(context.tr.commands_create_folder),
+                    ],
+                  ),
+                ),
+              ],
+              child: Container(
+                height: 40,
+                decoration: BoxDecoration(
+                  gradient: AppTheme.brandGradient,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.brandPrimary.withValues(alpha: 0.35),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.add_rounded,
+                      color: Colors.white,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      context.tr.create,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -628,19 +732,40 @@ class _AppCommandsPageState extends State<AppCommandsPage>
   }
 
   Set<String> get _existingFolders {
-    return _commands
-        .map((c) => (c['folder'] ?? '').toString().trim())
-        .where((f) => f.isNotEmpty)
-        .toSet();
+    final folders = <String>{};
+    for (final c in _commands) {
+      final f = normalizeFolderPath((c['folder'] ?? '').toString());
+      if (f.isNotEmpty) {
+        var cur = f;
+        while (cur.isNotEmpty) {
+          folders.add(cur);
+          cur = folderParentPath(cur);
+        }
+      }
+    }
+    for (final e in _emptyFolders) {
+      final f = normalizeFolderPath(e);
+      if (f.isNotEmpty) {
+        var cur = f;
+        while (cur.isNotEmpty) {
+          folders.add(cur);
+          cur = folderParentPath(cur);
+        }
+      }
+    }
+    return folders;
   }
 
-  Future<void> _navigateToCreateCommand() async {
+  Future<void> _navigateToCreateCommand({String? prefillFolder}) async {
     final countBefore = _commands.length;
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            CommandCreatePage(client: widget.client, botId: widget.botId),
+        builder: (context) => CommandCreatePage(
+          client: widget.client,
+          botId: widget.botId,
+          prefillFolder: prefillFolder,
+        ),
       ),
     );
     if (!mounted) return;
@@ -918,13 +1043,66 @@ class _AppCommandsPageState extends State<AppCommandsPage>
     );
   }
 
-  Future<void> _showCreateFolderDialog() async {
+  Future<void> _moveCommandToFolder(
+    String commandId,
+    String targetFolder,
+  ) async {
+    final cleanFolder = normalizeFolderPath(targetFolder);
+    final full = await appManager.getAppCommand(widget.botId, commandId);
+    if (full.isEmpty || !mounted) return;
+    final updated = Map<String, dynamic>.from(full);
+    if (cleanFolder.isEmpty) {
+      updated.remove('folder');
+    } else {
+      updated['folder'] = cleanFolder;
+      // Auto-expand folder so moved command is immediately visible
+      var cur = cleanFolder;
+      while (cur.isNotEmpty) {
+        _expandedFolders.add(cur);
+        cur = folderParentPath(cur);
+      }
+    }
+    await appManager.saveAppCommand(widget.botId, commandId, updated);
+    unawaited(refreshBotRuntime(widget.botId));
+    await _load();
+  }
+
+  Future<void> _showMoveCommandDialog(Map<String, dynamic> command) async {
+    final commandId = (command['id'] ?? '').toString();
+    final name = (command['name'] ?? 'unknown').toString();
+    final currentFolder = normalizeFolderPath(
+      (command['folder'] ?? '').toString(),
+    );
+
+    final tree = buildCommandFolderTree(
+      commands: _commands,
+      emptyFolders: _emptyFolders,
+    );
+    final selected = await FolderPickerDialog.show(
+      context: context,
+      title: '${context.tr.commands_move_to_folder}: $name',
+      currentFolder: currentFolder,
+      tree: tree,
+    );
+
+    if (selected == null || !mounted) return;
+    if (selected != currentFolder) {
+      await _moveCommandToFolder(commandId, selected);
+    }
+  }
+
+  Future<void> _showCreateFolderDialog({String? parentPath}) async {
     final controller = TextEditingController();
+    final cleanParent = normalizeFolderPath(parentPath);
+    final title = cleanParent.isEmpty
+        ? context.tr.commands_create_folder
+        : '${context.tr.commands_create_folder} ($cleanParent)';
+
     final folderName = await showDialog<String>(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(context.tr.commands_create_folder),
+          title: Text(title),
           content: TextField(
             controller: controller,
             autofocus: true,
@@ -954,18 +1132,30 @@ class _AppCommandsPageState extends State<AppCommandsPage>
       },
     );
     if (folderName == null || folderName.isEmpty || !mounted) return;
-    // Nothing to do beyond recording the name — the folder appears once a
-    // command is moved into it. But we can store an empty folder list so the
-    // header appears immediately.
+    final fullPath = cleanParent.isEmpty
+        ? normalizeFolderPath(folderName)
+        : normalizeFolderPath('$cleanParent/$folderName');
+    if (fullPath.isEmpty) return;
+
     setState(() {
-      _emptyFolders.add(folderName);
+      _emptyFolders.add(fullPath);
+      // Auto-expand parent path and the new folder so it's clearly visible
+      var cur = fullPath;
+      while (cur.isNotEmpty) {
+        _expandedFolders.add(cur);
+        cur = folderParentPath(cur);
+      }
     });
     await _saveEmptyFolders();
   }
 
-  Future<void> _renameFolderDialog(String oldName) async {
-    final controller = TextEditingController(text: oldName);
-    final newName = await showDialog<String>(
+  Future<void> _renameFolderDialog(String oldPath) async {
+    final cleanOld = normalizeFolderPath(oldPath);
+    final displayName = folderDisplayName(cleanOld);
+    final parent = folderParentPath(cleanOld);
+    final controller = TextEditingController(text: displayName);
+
+    final newDisplayName = await showDialog<String>(
       context: context,
       builder: (context) {
         return AlertDialog(
@@ -998,27 +1188,59 @@ class _AppCommandsPageState extends State<AppCommandsPage>
         );
       },
     );
-    if (newName == null || newName.isEmpty || newName == oldName || !mounted) {
+    if (newDisplayName == null ||
+        newDisplayName.isEmpty ||
+        newDisplayName == displayName ||
+        !mounted) {
       return;
     }
-    // Rename folder on all commands that belong to it
-    for (final cmd in _commands) {
-      final f = (cmd['folder'] ?? '').toString().trim();
-      if (f != oldName) continue;
+
+    final newPath = parent.isEmpty
+        ? normalizeFolderPath(newDisplayName)
+        : normalizeFolderPath('$parent/$newDisplayName');
+    if (newPath.isEmpty || newPath == cleanOld) return;
+
+    final updatedCommands = <Map<String, dynamic>>[];
+    cascadeRenameFolder(
+      oldPath: cleanOld,
+      newPath: newPath,
+      commands: _commands,
+      emptyFolders: _emptyFolders,
+      onUpdateCommand: (cmd) => updatedCommands.add(cmd),
+    );
+
+    for (final cmd in updatedCommands) {
       final id = (cmd['id'] ?? '').toString();
       final full = await appManager.getAppCommand(widget.botId, id);
       if (full.isEmpty) continue;
       final updated = Map<String, dynamic>.from(full);
-      updated['folder'] = newName;
+      updated['folder'] = cmd['folder'];
       await appManager.saveAppCommand(widget.botId, id, updated);
     }
+
     unawaited(refreshBotRuntime(widget.botId));
-    _emptyFolders.remove(oldName);
+    // Update expanded folders set
+    final oldPrefix = '$cleanOld/';
+    final toRemove = <String>[];
+    final toAdd = <String>[];
+    for (final exp in _expandedFolders) {
+      if (exp == cleanOld) {
+        toRemove.add(exp);
+        toAdd.add(newPath);
+      } else if (exp.startsWith(oldPrefix)) {
+        toRemove.add(exp);
+        toAdd.add('$newPath/${exp.substring(oldPrefix.length)}');
+      }
+    }
+    _expandedFolders.removeAll(toRemove);
+    _expandedFolders.addAll(toAdd);
+
     await _saveEmptyFolders();
     await _load();
   }
 
-  Future<void> _deleteFolderDialog(String folderName) async {
+  Future<void> _deleteFolderDialog(String targetPath) async {
+    final cleanTarget = normalizeFolderPath(targetPath);
     final confirmed = await AppTheme.showConfirmDialog(
       context,
       title: context.tr.commands_delete_folder,
@@ -1027,18 +1249,30 @@ class _AppCommandsPageState extends State<AppCommandsPage>
       isDestructive: true,
     );
     if (!confirmed || !mounted) return;
-    // Remove folder from all commands (commands stay, just become un-foldered)
-    for (final cmd in _commands) {
-      final f = (cmd['folder'] ?? '').toString().trim();
-      if (f != folderName) continue;
+
+    final updatedCommands = <Map<String, dynamic>>[];
+    cascadeDeleteFolder(
+      targetPath: cleanTarget,
+      commands: _commands,
+      emptyFolders: _emptyFolders,
+      onUpdateCommand: (cmd) => updatedCommands.add(cmd),
+    );
+
+    for (final cmd in updatedCommands) {
       final id = (cmd['id'] ?? '').toString();
       final full = await appManager.getAppCommand(widget.botId, id);
       if (full.isEmpty) continue;
       final updated = Map<String, dynamic>.from(full)..remove('folder');
       await appManager.saveAppCommand(widget.botId, id, updated);
     }
+
     unawaited(refreshBotRuntime(widget.botId));
-    _emptyFolders.remove(folderName);
+    // Clean up expanded folders
+    final targetPrefix = '$cleanTarget/';
+    _expandedFolders.removeWhere(
+      (f) => f == cleanTarget || f.startsWith(targetPrefix),
+    );
+
     await _saveEmptyFolders();
     await _load();
   }
@@ -1146,7 +1380,11 @@ class _AppCommandsPageState extends State<AppCommandsPage>
     final commandId = (command['id'] ?? '').toString();
     final name = (command['name'] ?? 'unknown').toString();
     final currentFolder = _reorderFolderMap[commandId] ?? '';
-    final folders = _reorderAvailableFolders.toList()..sort();
+    final tree = buildCommandFolderTree(
+      commands: _commands,
+      emptyFolders: _reorderAvailableFolders,
+    );
+    final flattened = tree.flatten();
 
     return Card(
       child: ListTile(
@@ -1172,10 +1410,13 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                 ),
               ),
             ),
-            for (final folder in folders)
+            for (final item in flattened)
               DropdownMenuItem<String>(
-                value: folder,
-                child: Text(folder, style: const TextStyle(fontSize: 13)),
+                value: item.fullPath,
+                child: Text(
+                  item.indentedLabel,
+                  style: const TextStyle(fontSize: 13),
+                ),
               ),
           ],
           onChanged: (value) {
@@ -1205,53 +1446,113 @@ class _AppCommandsPageState extends State<AppCommandsPage>
       if (f.isNotEmpty) grouped.putIfAbsent(f, () => []);
     }
 
-    final sortedFolders = grouped.keys.toList()
-      ..sort((a, b) {
-        if (a.isEmpty) return -1;
-        if (b.isEmpty) return 1;
-        return a.compareTo(b);
-      });
+    final tree = buildCommandFolderTree(
+      commands: _commands.map((cmd) {
+        final id = (cmd['id'] ?? '').toString();
+        final c = Map<String, dynamic>.from(cmd);
+        c['folder'] = _reorderFolderMap[id] ?? '';
+        return c;
+      }).toList(),
+      emptyFolders: _reorderAvailableFolders,
+    );
+    final flattened = tree.flatten();
 
     final children = <Widget>[];
-    for (final folder in sortedFolders) {
-      final commands = grouped[folder]!;
-      if (folder.isNotEmpty) {
-        children.add(
-          Padding(
-            padding: const EdgeInsets.fromLTRB(4, 16, 4, 6),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.folder,
-                  size: 18,
+
+    // Un-foldered commands first
+    final rootCmds = grouped[''] ?? [];
+    if (rootCmds.isNotEmpty) {
+      children.add(
+        Padding(
+          padding: const EdgeInsets.fromLTRB(4, 16, 4, 6),
+          child: Row(
+            children: [
+              Icon(
+                Icons.folder_outlined,
+                size: 18,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                context.tr.commands_no_folder,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
-                const SizedBox(width: 8),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                '(${rootCmds.length})',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+      for (final command in rootCmds) {
+        children.add(
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: _buildReorderCommandTile(command),
+          ),
+        );
+      }
+    }
+
+    // Folders in hierarchical order
+    for (final item in flattened) {
+      final folderCommands = grouped[item.fullPath] ?? [];
+      final indentPadding = (item.depth * 16.0);
+      children.add(
+        Padding(
+          padding: EdgeInsets.fromLTRB(4 + indentPadding, 16, 4, 6),
+          child: Row(
+            children: [
+              if (item.depth > 0) ...[
                 Text(
-                  folder,
+                  '↳ ',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+              Icon(
+                Icons.folder,
+                size: 18,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  item.displayName,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
-                const SizedBox(width: 6),
-                Text(
-                  '(${commands.length})',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                '(${folderCommands.length})',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        );
-      }
-      for (final command in commands) {
+        ),
+      );
+      for (final command in folderCommands) {
         children.add(
           Padding(
-            padding: const EdgeInsets.only(bottom: 6),
+            padding: EdgeInsets.only(left: indentPadding, bottom: 6),
             child: _buildReorderCommandTile(command),
           ),
         );
@@ -1261,22 +1562,11 @@ class _AppCommandsPageState extends State<AppCommandsPage>
   }
 
   List<Widget> _buildGroupedCommandList() {
-    final Map<String, List<Map<String, dynamic>>> grouped = {};
-    for (final command in _visibleCommands()) {
-      final folder = (command['folder'] ?? '').toString().trim();
-      grouped.putIfAbsent(folder, () => []).add(command);
-    }
-    // Include empty folders that the user created but hasn't moved commands into yet
-    for (final folder in _emptyFolders) {
-      grouped.putIfAbsent(folder, () => []);
-    }
-
-    final sortedFolders = grouped.keys.toList()
-      ..sort((a, b) {
-        if (a.isEmpty) return -1;
-        if (b.isEmpty) return 1;
-        return a.compareTo(b);
-      });
+    final visible = _visibleCommands();
+    final tree = buildCommandFolderTree(
+      commands: visible,
+      emptyFolders: _emptyFolders,
+    );
 
     final children = <Widget>[];
     final adsEnabled = AdsPlacementPolicy.isPlacementEnabled(
@@ -1284,82 +1574,142 @@ class _AppCommandsPageState extends State<AppCommandsPage>
     );
     var displayedCount = 0;
 
-    for (final folder in sortedFolders) {
-      final commands = grouped[folder]!;
-      if (folder.isNotEmpty) {
-        final isExpanded = _expandedFolders.contains(folder);
+    void addCommandCard(Map<String, dynamic> command, {double indent = 0}) {
+      children.add(
+        Padding(
+          padding: EdgeInsets.only(left: indent, bottom: 6),
+          child: _buildCommandCard(command),
+        ),
+      );
+      displayedCount += 1;
+      if (adsEnabled &&
+          AdsPlacementPolicy.shouldInsertAfterContentCount(displayedCount)) {
         children.add(
-          _CommandFolderHeader(
-            title: folder,
-            count: commands.length,
-            isExpanded: isExpanded,
-            onToggle: () {
-              setState(() {
-                if (isExpanded) {
-                  _expandedFolders.remove(folder);
-                } else {
-                  _expandedFolders.add(folder);
-                }
-              });
-            },
-            onRename: () => _renameFolderDialog(folder),
-            onDelete: () => _deleteFolderDialog(folder),
+          const NativeAdSlot(
+            placement: NativeAdPlacement.commandsList,
+            height: 110,
           ),
         );
-        if (!isExpanded) continue;
-      } else if (commands.isNotEmpty) {
-        // "No folder" header for uncategorized commands
-        children.add(
-          Padding(
-            padding: const EdgeInsets.fromLTRB(4, 16, 4, 6),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.folder_outlined,
-                  size: 18,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  context.tr.commands_no_folder,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  '(${commands.length})',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      }
-      for (final command in commands) {
-        children.add(
-          Padding(
-            padding: const EdgeInsets.only(bottom: 6),
-            child: _buildCommandCard(command),
-          ),
-        );
-        displayedCount += 1;
-        if (adsEnabled &&
-            AdsPlacementPolicy.shouldInsertAfterContentCount(displayedCount)) {
-          children.add(
-            const NativeAdSlot(
-              placement: NativeAdPlacement.commandsList,
-              height: 110,
-            ),
-          );
-        }
       }
     }
+
+    // 1. Root un-foldered commands (if any)
+    if (tree.rootCommands.isNotEmpty || tree.rootFolders.isNotEmpty) {
+      if (tree.rootFolders.isNotEmpty) {
+        children.add(
+          DragTarget<Map<String, dynamic>>(
+            onWillAcceptWithDetails: (_) => true,
+            onAcceptWithDetails: (details) {
+              final cmdId = (details.data['id'] ?? '').toString();
+              if (cmdId.isNotEmpty) {
+                _moveCommandToFolder(cmdId, '');
+              }
+            },
+            builder: (context, candidateData, _) {
+              final isHovered = candidateData.isNotEmpty;
+              return Container(
+                decoration: isHovered
+                    ? BoxDecoration(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primaryContainer.withValues(alpha: 0.35),
+                        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.primary,
+                          width: 1.5,
+                        ),
+                      )
+                    : null,
+                padding: const EdgeInsets.fromLTRB(4, 16, 4, 6),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.folder_off_outlined,
+                      size: 18,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      context.tr.commands_no_folder,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      '(${tree.rootCommands.length})',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      }
+      for (final command in tree.rootCommands) {
+        addCommandCard(command);
+      }
+    }
+
+    // 2. Recursive folder node rendering
+    void renderNode(CommandFolderNode node) {
+      final isExpanded = _expandedFolders.contains(node.fullPath);
+      final indent = node.depth * 16.0;
+
+      children.add(
+        CommandFolderHeader(
+          title: node.name,
+          count: node.totalCommandCount,
+          directCount: node.commands.length,
+          depth: node.depth,
+          isExpanded: isExpanded,
+          onToggle: () {
+            setState(() {
+              if (isExpanded) {
+                _expandedFolders.remove(node.fullPath);
+              } else {
+                _expandedFolders.add(node.fullPath);
+              }
+            });
+          },
+          onRename: () => _renameFolderDialog(node.fullPath),
+          onDelete: () => _deleteFolderDialog(node.fullPath),
+          onAddSubfolder: () =>
+              _showCreateFolderDialog(parentPath: node.fullPath),
+          onNewCommand: () =>
+              _navigateToCreateCommand(prefillFolder: node.fullPath),
+          onAcceptDrop: (cmd) {
+            final cmdId = (cmd['id'] ?? '').toString();
+            if (cmdId.isNotEmpty) {
+              _moveCommandToFolder(cmdId, node.fullPath);
+            }
+          },
+        ),
+      );
+
+      if (!isExpanded) return;
+
+      // Render direct commands in this folder
+      for (final cmd in node.commands) {
+        addCommandCard(cmd, indent: indent);
+      }
+
+      // Render subfolders recursively
+      for (final subfolder in node.subfolders) {
+        renderNode(subfolder);
+      }
+    }
+
+    for (final rootFolder in tree.rootFolders) {
+      renderNode(rootFolder);
+    }
+
     return children;
   }
 
@@ -1677,29 +2027,42 @@ class _AppCommandsPageState extends State<AppCommandsPage>
   }
 }
 
-class _CommandFolderHeader extends StatelessWidget {
+class CommandFolderHeader extends StatelessWidget {
   final String title;
   final int count;
+  final int directCount;
+  final int depth;
   final bool isExpanded;
   final VoidCallback onToggle;
   final VoidCallback onRename;
   final VoidCallback onDelete;
-  const _CommandFolderHeader({
+  final VoidCallback? onAddSubfolder;
+  final VoidCallback? onNewCommand;
+  final ValueChanged<Map<String, dynamic>>? onAcceptDrop;
+
+  const CommandFolderHeader({
+    super.key,
     required this.title,
     required this.count,
+    this.directCount = 0,
+    this.depth = 0,
     required this.isExpanded,
     required this.onToggle,
     required this.onRename,
     required this.onDelete,
+    this.onAddSubfolder,
+    this.onNewCommand,
+    this.onAcceptDrop,
   });
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    final indentPadding = depth * 16.0;
+    final headerChild = InkWell(
       onTap: onToggle,
       borderRadius: BorderRadius.circular(AppTheme.radiusSm),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(4, 16, 4, 6),
+        padding: EdgeInsets.fromLTRB(4 + indentPadding, 12, 4, 6),
         child: Row(
           children: [
             AnimatedRotation(
@@ -1712,10 +2075,20 @@ class _CommandFolderHeader extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 4),
+            if (depth > 0) ...[
+              Text(
+                '↳ ',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
             Icon(
               isExpanded ? Icons.folder_open : Icons.folder,
               size: 18,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              color: Theme.of(context).colorScheme.primary,
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -1729,11 +2102,19 @@ class _CommandFolderHeader extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 6),
-            Text(
-              '($count)',
-              style: TextStyle(
-                fontSize: 12,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+              ),
+              child: Text(
+                '$count',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
             ),
             PopupMenuButton<String>(
@@ -1744,6 +2125,28 @@ class _CommandFolderHeader extends StatelessWidget {
               ),
               padding: EdgeInsets.zero,
               itemBuilder: (context) => [
+                if (onNewCommand != null)
+                  PopupMenuItem(
+                    value: 'add_command',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.add_circle_outline, size: 18),
+                        const SizedBox(width: 8),
+                        Text(context.tr.commands_create_button),
+                      ],
+                    ),
+                  ),
+                if (onAddSubfolder != null)
+                  PopupMenuItem(
+                    value: 'add_subfolder',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.create_new_folder_outlined, size: 18),
+                        const SizedBox(width: 8),
+                        Text(context.tr.commands_create_folder),
+                      ],
+                    ),
+                  ),
                 PopupMenuItem(
                   value: 'rename',
                   child: Row(
@@ -1766,7 +2169,11 @@ class _CommandFolderHeader extends StatelessWidget {
                 ),
               ],
               onSelected: (value) {
-                if (value == 'rename') {
+                if (value == 'add_command') {
+                  onNewCommand?.call();
+                } else if (value == 'add_subfolder') {
+                  onAddSubfolder?.call();
+                } else if (value == 'rename') {
                   onRename();
                 } else if (value == 'delete') {
                   onDelete();
@@ -1776,6 +2183,30 @@ class _CommandFolderHeader extends StatelessWidget {
           ],
         ),
       ),
+    );
+
+    if (onAcceptDrop == null) return headerChild;
+
+    return DragTarget<Map<String, dynamic>>(
+      onWillAcceptWithDetails: (_) => true,
+      onAcceptWithDetails: (details) => onAcceptDrop!(details.data),
+      builder: (context, candidateData, _) {
+        final isHovered = candidateData.isNotEmpty;
+        if (!isHovered) return headerChild;
+        return Container(
+          decoration: BoxDecoration(
+            color: Theme.of(
+              context,
+            ).colorScheme.primaryContainer.withValues(alpha: 0.35),
+            borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.primary,
+              width: 1.5,
+            ),
+          ),
+          child: headerChild,
+        );
+      },
     );
   }
 }

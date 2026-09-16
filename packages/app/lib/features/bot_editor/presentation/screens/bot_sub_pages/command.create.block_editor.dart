@@ -7,8 +7,11 @@ part of 'command.create.dart';
 extension _CommandBlockEditor on _CommandCreatePageState {
   Widget _buildBlockEditor({required double contentMaxWidth}) {
     final isDesktop =
-        MediaQuery.of(context).size.width >= 800 &&
-        !Platform.environment.containsKey('FLUTTER_TEST');
+        CommandCreatePage.debugDesktopLayoutOverride ??
+        ((ResponsiveHelper.isDesktopPlatform() ||
+                MediaQuery.of(context).size.width >= 800) &&
+            MediaQuery.of(context).size.width >= 720 &&
+            !Platform.environment.containsKey('FLUTTER_TEST'));
 
     final entryPointType = _legacyModeEnabled
         ? CommandEntryPointType.message
@@ -38,6 +41,13 @@ extension _CommandBlockEditor on _CommandCreatePageState {
           commandDescription: _commandDescription,
           commandType: _commandType,
           isLegacyCommand: _legacyModeEnabled,
+          legacyAliases: _legacyAliases,
+          onLegacyAliasesChanged: (aliases) => _applyStateUpdate(() {
+            _legacyAliases = normalizeLegacyCommandAliases(
+              aliases,
+              maxAliases: 2,
+            );
+          }),
           localOnlyCommand: _localOnlyCommand,
           canEditCommandType: !_isEditingExistingCommand || _isLocalOnlyCommand,
           showDescriptionField: _supportsCommandDescription,
@@ -745,6 +755,7 @@ extension _CommandBlockEditor on _CommandCreatePageState {
 
                       // Segmented Button / Toggle
                       SegmentedButton<String>(
+                        showSelectedIcon: false,
                         segments: const [
                           ButtonSegment<String>(
                             value: 'linear',
@@ -1206,6 +1217,15 @@ extension _CommandBlockEditor on _CommandCreatePageState {
                       isLegacyCommand:
                           _legacyModeEnabled &&
                           _commandType == ApplicationCommandType.chatInput,
+                      legacyAliases: _legacyAliases,
+                      onLegacyAliasesChanged: (aliases) {
+                        _applyStateUpdate(() {
+                          _legacyAliases = normalizeLegacyCommandAliases(
+                            aliases,
+                            maxAliases: 2,
+                          );
+                        });
+                      },
                       canEditCommandType:
                           !_isEditingExistingCommand || _isLocalOnlyCommand,
                       localOnlyCommand: _localOnlyCommand,
@@ -1304,256 +1324,24 @@ extension _CommandBlockEditor on _CommandCreatePageState {
     String toNodeId,
     String toPinId,
   ) {
-    // Un-sever any previously severed connections between these nodes
-    _blueprintSeveredConnections.removeWhere(
-      (id) =>
-          (id.contains(fromNodeId) && id.contains(toNodeId)) ||
-          (id.contains(toNodeId) && id.contains(fromNodeId)),
+    connectWorkflowPins(
+      actions: _actions,
+      severedConnectionIds: _blueprintSeveredConnections,
+      fromNodeId: fromNodeId,
+      fromPinId: fromPinId,
+      toNodeId: toNodeId,
+      toPinId: toPinId,
+      onPersist: _persistActiveSubcommandWorkflow,
     );
-
-    // 0. Handle connecting from Entry Point (__entry_point__)
-    if (fromNodeId == '__entry_point__') {
-      var toIndex = _actions.indexWhere((a) => a['id'] == toNodeId);
-      if (toIndex == -1) {
-        final extracted = _removeActionFromTree(_actions, toNodeId);
-        if (extracted != null) {
-          _actions.insert(0, extracted);
-          _persistActiveSubcommandWorkflow();
-          return;
-        }
-      } else {
-        final item = _actions.removeAt(toIndex);
-        _actions.insert(0, item);
-        _persistActiveSubcommandWorkflow();
-        return;
-      }
-    }
-
-    // 1. Check if connecting from then_out, else_out, or elseif_out_k of an IF block
-    if (fromPinId == 'then_out' ||
-        fromPinId == 'else_out' ||
-        fromPinId.startsWith('elseif_out_')) {
-      Map<String, dynamic>? fromAction;
-      final rootFromIdx = _actions.indexWhere((a) => a['id'] == fromNodeId);
-      if (rootFromIdx != -1) {
-        fromAction = _actions[rootFromIdx];
-      } else {
-        final nestedLoc = _findActionInBranchTrees(_actions, fromNodeId);
-        if (nestedLoc != null) {
-          fromAction = nestedLoc.targetAction;
-        }
-      }
-
-      if (fromAction != null &&
-          fromAction['type'] == BotCreatorActionType.ifBlock.name) {
-        final toAction = _removeActionFromTree(_actions, toNodeId);
-        if (toAction != null) {
-          final payload = Map<String, dynamic>.from(
-            (fromAction['payload'] as Map?)?.cast<String, dynamic>() ??
-                const {},
-          );
-
-          if (fromPinId.startsWith('elseif_out_')) {
-            final k =
-                int.tryParse(fromPinId.replaceFirst('elseif_out_', '')) ?? 0;
-            final elseIfList = List<Map<String, dynamic>>.from(
-              (payload['elseIfConditions'] as List?)?.map(
-                    (e) => Map<String, dynamic>.from(e as Map),
-                  ) ??
-                  const [],
-            );
-            if (k < elseIfList.length) {
-              final branchActions = List<Map<String, dynamic>>.from(
-                (elseIfList[k]['actions'] as List?)?.map(
-                      (e) => Map<String, dynamic>.from(e as Map),
-                    ) ??
-                    const [],
-              );
-              branchActions.add(toAction);
-              elseIfList[k]['actions'] = branchActions;
-              payload['elseIfConditions'] = elseIfList;
-              fromAction['payload'] = payload;
-              _persistActiveSubcommandWorkflow();
-              return;
-            }
-          } else {
-            final branchKey = fromPinId == 'then_out'
-                ? 'thenActions'
-                : 'elseActions';
-            final branchList = List<Map<String, dynamic>>.from(
-              (payload[branchKey] as List?)?.map(
-                    (e) => Map<String, dynamic>.from(e as Map),
-                  ) ??
-                  const [],
-            );
-            branchList.add(toAction);
-            payload[branchKey] = branchList;
-            fromAction['payload'] = payload;
-            _persistActiveSubcommandWorkflow();
-            return;
-          }
-        }
-      }
-    }
-
-    // 2. Check if connecting from a node that is inside an IF branch
-    final fromBranchLoc = _findActionInBranchTrees(_actions, fromNodeId);
-    if (fromBranchLoc != null && fromPinId == 'exec_out') {
-      final toAction = _removeActionFromTree(_actions, toNodeId);
-      if (toAction != null) {
-        final list = fromBranchLoc.branchList;
-        list.insert(fromBranchLoc.indexInBranch + 1, toAction);
-        fromBranchLoc.updateParentBranch(list);
-        _persistActiveSubcommandWorkflow();
-        return;
-      }
-    }
-
-    // 3. Connect between root actions (standard sequential flow)
-    final fromIndex = _actions.indexWhere((a) => a['id'] == fromNodeId);
-    var toIndex = _actions.indexWhere((a) => a['id'] == toNodeId);
-    if (toIndex == -1) {
-      final extracted = _removeActionFromTree(_actions, toNodeId);
-      if (extracted != null) {
-        toIndex = _actions.length;
-        _actions.add(extracted);
-      }
-    }
-
-    if (fromIndex != -1 && toIndex != -1) {
-      final item = _actions.removeAt(toIndex);
-      final insertIndex = toIndex < fromIndex ? fromIndex : fromIndex + 1;
-      _actions.insert(insertIndex.clamp(0, _actions.length), item);
-      _persistActiveSubcommandWorkflow();
-    }
   }
 }
 
-class _BlueprintBranchLocation {
-  final Map<String, dynamic> parentAction;
-  final String branchKey; // 'thenActions', 'elseActions', or 'elseIfConditions'
-  final int? elseIfIndex;
-  final List<Map<String, dynamic>> branchList;
-  final int indexInBranch;
-  final Map<String, dynamic> targetAction;
-
-  _BlueprintBranchLocation({
-    required this.parentAction,
-    required this.branchKey,
-    this.elseIfIndex,
-    required this.branchList,
-    required this.indexInBranch,
-    required this.targetAction,
-  });
-
-  void updateParentBranch(List<Map<String, dynamic>> updatedList) {
-    final payload = Map<String, dynamic>.from(
-      (parentAction['payload'] as Map?)?.cast<String, dynamic>() ?? const {},
-    );
-    if (branchKey == 'elseIfConditions' && elseIfIndex != null) {
-      final elseIfList = (payload['elseIfConditions'] as List? ?? [])
-          .whereType<Map>()
-          .map((e) => Map<String, dynamic>.from(e))
-          .toList();
-      if (elseIfIndex! >= 0 && elseIfIndex! < elseIfList.length) {
-        final condition = Map<String, dynamic>.from(elseIfList[elseIfIndex!]);
-        condition['actions'] = updatedList;
-        elseIfList[elseIfIndex!] = condition;
-        payload['elseIfConditions'] = elseIfList;
-      }
-    } else {
-      payload[branchKey] = updatedList;
-    }
-    parentAction['payload'] = payload;
-  }
-}
-
-_BlueprintBranchLocation? _findActionInBranchTrees(
+BlueprintBranchLocation? _findActionInBranchTrees(
   List<Map<String, dynamic>> actions,
   String targetId,
-) {
-  for (final action in actions) {
-    final payload = (action['payload'] as Map?)?.cast<String, dynamic>();
-    if (payload != null) {
-      for (final branchKey in const ['thenActions', 'elseActions']) {
-        final listRaw = payload[branchKey];
-        if (listRaw is List) {
-          final branchList = listRaw
-              .whereType<Map>()
-              .map((e) => Map<String, dynamic>.from(e))
-              .toList();
-          for (int i = 0; i < branchList.length; i++) {
-            final item = branchList[i];
-            if (item['id'] == targetId || item['key'] == targetId) {
-              return _BlueprintBranchLocation(
-                parentAction: action,
-                branchKey: branchKey,
-                branchList: branchList,
-                indexInBranch: i,
-                targetAction: item,
-              );
-            }
-          }
-          final nested = _findActionInBranchTrees(branchList, targetId);
-          if (nested != null) return nested;
-        }
-      }
-
-      final elseIfRaw = payload['elseIfConditions'];
-      if (elseIfRaw is List) {
-        final elseIfList = elseIfRaw
-            .whereType<Map>()
-            .map((e) => Map<String, dynamic>.from(e))
-            .toList();
-        for (int k = 0; k < elseIfList.length; k++) {
-          final cond = elseIfList[k];
-          final condActionsRaw = cond['actions'];
-          if (condActionsRaw is List) {
-            final branchList = condActionsRaw
-                .whereType<Map>()
-                .map((e) => Map<String, dynamic>.from(e))
-                .toList();
-            for (int i = 0; i < branchList.length; i++) {
-              final item = branchList[i];
-              if (item['id'] == targetId || item['key'] == targetId) {
-                return _BlueprintBranchLocation(
-                  parentAction: action,
-                  branchKey: 'elseIfConditions',
-                  elseIfIndex: k,
-                  branchList: branchList,
-                  indexInBranch: i,
-                  targetAction: item,
-                );
-              }
-            }
-            final nested = _findActionInBranchTrees(branchList, targetId);
-            if (nested != null) return nested;
-          }
-        }
-      }
-    }
-  }
-  return null;
-}
+) => findActionInBranchTrees(actions, targetId);
 
 Map<String, dynamic>? _removeActionFromTree(
   List<Map<String, dynamic>> rootActions,
   String actionId,
-) {
-  final rootIdx = rootActions.indexWhere(
-    (a) => a['id'] == actionId || a['key'] == actionId,
-  );
-  if (rootIdx != -1) {
-    return rootActions.removeAt(rootIdx);
-  }
-
-  final loc = _findActionInBranchTrees(rootActions, actionId);
-  if (loc != null) {
-    final list = loc.branchList;
-    final removed = list.removeAt(loc.indexInBranch);
-    loc.updateParentBranch(list);
-    return removed;
-  }
-
-  return null;
-}
+) => removeActionFromTree(rootActions, actionId);

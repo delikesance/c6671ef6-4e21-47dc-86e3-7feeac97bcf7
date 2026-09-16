@@ -27,8 +27,6 @@ extension _CommandCreateWizard on _CommandCreatePageState {
     }
   }
 
-
-
   String _actionsSummaryLine() {
     if (_isBdfdScriptMode) {
       final lines = _bdfdScriptController.text.trim().split('\n');
@@ -77,10 +75,9 @@ extension _CommandCreateWizard on _CommandCreatePageState {
           avatar: Icon(
             _stepIconFor(index),
             size: 16,
-            color:
-                selected
-                    ? Theme.of(context).colorScheme.primary
-                    : AppTheme.grey,
+            color: selected
+                ? Theme.of(context).colorScheme.primary
+                : AppTheme.grey,
           ),
           label: Text(_commandCreateStepTitles[index]),
           onSelected: (_) {
@@ -111,30 +108,29 @@ extension _CommandCreateWizard on _CommandCreatePageState {
           ),
         if (_currentEditorStep > 0) const SizedBox(width: 12),
         Expanded(
-          child:
-              isReview
-                  ? FilledButton.icon(
-                    onPressed: () async {
-                      if (await _validateCommandInputs()) {
-                        _updateOrCreate();
-                      }
-                    },
-                    icon: const Icon(Icons.save),
-                    label: Text(
-                      _isEditingExistingCommand
-                          ? context.tr.wizard_save_command
-                          : context.tr.wizard_create_command,
-                    ),
-                  )
-                  : FilledButton.icon(
-                    onPressed: () {
-                      _applyStateUpdate(() {
-                        _currentEditorStep += 1;
-                      });
-                    },
-                    icon: const Icon(Icons.arrow_forward),
-                    label: Text(context.tr.common_next),
+          child: isReview
+              ? FilledButton.icon(
+                  onPressed: () async {
+                    if (await _validateCommandInputs()) {
+                      _updateOrCreate();
+                    }
+                  },
+                  icon: const Icon(Icons.save),
+                  label: Text(
+                    _isEditingExistingCommand
+                        ? context.tr.wizard_save_command
+                        : context.tr.wizard_create_command,
                   ),
+                )
+              : FilledButton.icon(
+                  onPressed: () {
+                    _applyStateUpdate(() {
+                      _currentEditorStep += 1;
+                    });
+                  },
+                  icon: const Icon(Icons.arrow_forward),
+                  label: Text(context.tr.common_next),
+                ),
         ),
       ],
     );
@@ -166,6 +162,15 @@ extension _CommandCreateWizard on _CommandCreatePageState {
           isLegacyCommand:
               _legacyModeEnabled &&
               _commandType == ApplicationCommandType.chatInput,
+          legacyAliases: _legacyAliases,
+          onLegacyAliasesChanged: (aliases) {
+            _applyStateUpdate(() {
+              _legacyAliases = normalizeLegacyCommandAliases(
+                aliases,
+                maxAliases: 2,
+              );
+            });
+          },
           canEditCommandType: !_isEditingExistingCommand,
           localOnlyCommand: _localOnlyCommand,
           showDescriptionField: _supportsCommandDescription,
@@ -278,14 +283,11 @@ extension _CommandCreateWizard on _CommandCreatePageState {
     );
   }
 
-
-
   Widget _buildActionsStep(double contentMaxWidth) {
     return Column(
       key: const ValueKey('step-actions'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-
         ExpansionTile(
           title: Text(context.tr.wizard_code_advanced),
           subtitle: Text(
@@ -345,10 +347,9 @@ extension _CommandCreateWizard on _CommandCreatePageState {
             actionVariableSuggestions: _actionVariableSuggestions,
             emojiSuggestions: _appEmojis,
             botIdForConfig: _botIdForConfig,
-            activeRouteLabel:
-                _subcommandWorkflows.isNotEmpty
-                    ? _workflowRouteLabel(_activeSubcommandRoute)
-                    : null,
+            activeRouteLabel: _subcommandWorkflows.isNotEmpty
+                ? _workflowRouteLabel(_activeSubcommandRoute)
+                : null,
             activeRouteIsGrouped:
                 _subcommandWorkflows.isNotEmpty &&
                 _activeSubcommandRoute.contains('/'),
