@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
@@ -26,6 +28,8 @@ class BasicInfoCard extends StatefulWidget {
   final ValueChanged<String> onDefaultMemberPermissionsChanged;
   final String? Function(String?) nameValidator;
   final int nameMaxLength;
+  final List<String> legacyAliases;
+  final ValueChanged<List<String>>? onLegacyAliasesChanged;
 
   const BasicInfoCard({
     super.key,
@@ -49,10 +53,32 @@ class BasicInfoCard extends StatefulWidget {
     required this.onDefaultMemberPermissionsChanged,
     required this.nameValidator,
     this.nameMaxLength = 32,
+    this.legacyAliases = const <String>[],
+    this.onLegacyAliasesChanged,
   });
 
   @override
   State<BasicInfoCard> createState() => _BasicInfoCardState();
+}
+
+class _MaxTwoCommaSeparatedFormatter extends TextInputFormatter {
+  const _MaxTwoCommaSeparatedFormatter();
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final parts = newValue.text.split(',');
+    if (parts.length > 2) {
+      final truncated = '${parts[0]},${parts[1]}';
+      return TextEditingValue(
+        text: truncated,
+        selection: TextSelection.collapsed(offset: truncated.length),
+      );
+    }
+    return newValue;
+  }
 }
 
 class _BasicInfoCardState extends State<BasicInfoCard> {
@@ -119,10 +145,28 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
   late Set<int> _selectedPermissionOffsets;
   late BigInt _unknownBits;
   late final TextEditingController _nameController;
+  late final TextEditingController _aliasesController;
   bool _awaitedPresetEnabled = false;
   bool _awaitedIsErrorTrigger = false;
   String _awaitedCallbackName = '';
   String _awaitedCallbackFilter = '';
+
+  static List<String> _parseAliases(String raw) {
+    final parts = raw.split(',');
+    final result = <String>[];
+    for (final part in parts) {
+      var cleaned = part.trim();
+      if (cleaned.startsWith('!')) {
+        cleaned = cleaned.substring(1).trim();
+      }
+      cleaned = cleaned.toLowerCase();
+      if (cleaned.isNotEmpty && !result.contains(cleaned)) {
+        result.add(cleaned);
+        if (result.length >= 2) break;
+      }
+    }
+    return result;
+  }
 
   @override
   void initState() {
@@ -130,6 +174,9 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
     _selectedPermissionOffsets = <int>{};
     _unknownBits = BigInt.zero;
     _nameController = TextEditingController(text: widget.commandName);
+    _aliasesController = TextEditingController(
+      text: widget.legacyAliases.take(2).join(', '),
+    );
     _applyBitfield(widget.defaultMemberPermissions);
     _syncAwaitedPresetFromCommandName(widget.commandName);
   }
@@ -144,6 +191,15 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
         _nameController.text != widget.commandName) {
       _nameController.text = widget.commandName;
     }
+    if (!listEquals(oldWidget.legacyAliases, widget.legacyAliases)) {
+      final currentParsed = _parseAliases(_aliasesController.text);
+      if (!listEquals(currentParsed, widget.legacyAliases)) {
+        final nextText = widget.legacyAliases.take(2).join(', ');
+        if (_aliasesController.text != nextText) {
+          _aliasesController.text = nextText;
+        }
+      }
+    }
     if (oldWidget.commandName != widget.commandName ||
         oldWidget.isLegacyCommand != widget.isLegacyCommand ||
         oldWidget.localOnlyCommand != widget.localOnlyCommand) {
@@ -154,6 +210,7 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
   @override
   void dispose() {
     _nameController.dispose();
+    _aliasesController.dispose();
     super.dispose();
   }
 
@@ -343,8 +400,9 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
     setState(() {
       _awaitedPresetEnabled = true;
       _awaitedCallbackName = _fallbackAwaitedName();
-      _awaitedCallbackFilter =
-          _awaitedIsErrorTrigger ? '' : _awaitedCallbackFilter;
+      _awaitedCallbackFilter = _awaitedIsErrorTrigger
+          ? ''
+          : _awaitedCallbackFilter;
       if (_awaitedCallbackName.isEmpty) {
         _awaitedCallbackName = 'callback';
       }
@@ -534,12 +592,13 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                   validator: widget.nameValidator,
                   maxLength: widget.nameMaxLength,
                   decoration: InputDecoration(
-                    labelText: requiredFieldLabel(context.tr.command_name_label),
+                    labelText: requiredFieldLabel(
+                      context.tr.command_name_label,
+                    ),
                     border: const OutlineInputBorder(),
-                    helperText:
-                        _awaitedPresetEnabled
-                            ? context.tr.command_name_generated
-                            : null,
+                    helperText: _awaitedPresetEnabled
+                        ? context.tr.command_name_generated
+                        : null,
                   ),
                   onChanged: widget.onNameChanged,
                 );
@@ -568,28 +627,27 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                       child: Text(context.tr.command_type_message),
                     ),
                   ],
-                  onChanged:
-                      widget.canEditCommandType && !_awaitedPresetEnabled
-                          ? (value) {
-                            if (value != null) {
-                              if (value == 'legacy') {
-                                widget.onLegacyCommandChanged(true);
-                                widget.onCommandTypeChanged(
-                                  ApplicationCommandType.chatInput,
-                                );
-                              } else {
-                                widget.onLegacyCommandChanged(false);
-                                widget.onCommandTypeChanged(
-                                  value == 'user'
-                                      ? ApplicationCommandType.user
-                                      : value == 'message'
-                                      ? ApplicationCommandType.message
-                                      : ApplicationCommandType.chatInput,
-                                );
-                              }
+                  onChanged: widget.canEditCommandType && !_awaitedPresetEnabled
+                      ? (value) {
+                          if (value != null) {
+                            if (value == 'legacy') {
+                              widget.onLegacyCommandChanged(true);
+                              widget.onCommandTypeChanged(
+                                ApplicationCommandType.chatInput,
+                              );
+                            } else {
+                              widget.onLegacyCommandChanged(false);
+                              widget.onCommandTypeChanged(
+                                value == 'user'
+                                    ? ApplicationCommandType.user
+                                    : value == 'message'
+                                    ? ApplicationCommandType.message
+                                    : ApplicationCommandType.chatInput,
+                              );
                             }
                           }
-                          : null,
+                        }
+                      : null,
                 );
 
                 final descriptionField = TextFormField(
@@ -600,8 +658,7 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                   keyboardType: TextInputType.multiline,
                   validator: (value) {
                     if (!_descriptionRequired) {
-                      if (value != null &&
-                          value.length > 100) {
+                      if (value != null && value.length > 100) {
                         return context.tr.command_description_length;
                       }
                       return null;
@@ -624,10 +681,51 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                   onChanged: widget.onDescriptionChanged,
                 );
 
+                final aliasesField = TextFormField(
+                  controller: _aliasesController,
+                  autocorrect: false,
+                  inputFormatters: const [_MaxTwoCommaSeparatedFormatter()],
+                  decoration: InputDecoration(
+                    labelText: context.tr.command_alias_label,
+                    hintText: 'p, ping',
+                    helperText: context.tr.command_alias_limit(2),
+                    prefixIcon: const Icon(Icons.alternate_email, size: 20),
+                    border: const OutlineInputBorder(),
+                  ),
+                  validator: (val) {
+                    if (val == null || val.trim().isEmpty) return null;
+                    final parts = val.split(',');
+                    if (parts.length > 2) {
+                      return context.tr.command_alias_limit(2);
+                    }
+                    for (final p in parts) {
+                      final t = p.trim();
+                      if (t.isNotEmpty && RegExp(r'\s').hasMatch(t)) {
+                        return 'Alias cannot contain spaces';
+                      }
+                      if (t.length > 32) {
+                        return 'Alias maximum length is 32 characters';
+                      }
+                    }
+                    return null;
+                  },
+                  onChanged: (text) {
+                    widget.onLegacyAliasesChanged?.call(_parseAliases(text));
+                  },
+                );
+
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    if (isWide && widget.showDescriptionField)
+                    if (widget.isLegacyCommand) ...[
+                      nameField,
+                      const SizedBox(height: 12),
+                      aliasesField,
+                      if (widget.showDescriptionField) ...[
+                        const SizedBox(height: 12),
+                        descriptionField,
+                      ],
+                    ] else if (isWide && widget.showDescriptionField)
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -666,10 +764,9 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                             : context.tr.local_command_desc,
                       ),
                       value: widget.localOnlyCommand,
-                      onChanged:
-                          _awaitedPresetEnabled || widget.isLegacyCommand
-                              ? null
-                              : widget.onLocalOnlyCommandChanged,
+                      onChanged: _awaitedPresetEnabled || widget.isLegacyCommand
+                          ? null
+                          : widget.onLocalOnlyCommandChanged,
                     ),
                     if (!widget.isLegacyCommand) ...[
                       const SizedBox(height: 8),
@@ -847,8 +944,8 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                           _selectedPermissionOffsets.isEmpty
                               ? context.tr.command_permissions_none
                               : context.tr.command_permissions_count(
-                                _selectedPermissionOffsets.length,
-                              ),
+                                  _selectedPermissionOffsets.length,
+                                ),
                           style: const TextStyle(fontSize: 12),
                         ),
                         children: [
@@ -857,10 +954,9 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                             child: Wrap(
                               spacing: 8,
                               runSpacing: 8,
-                              children:
-                                  selectedNames
-                                      .map((name) => Chip(label: Text(name)))
-                                      .toList(),
+                              children: selectedNames
+                                  .map((name) => Chip(label: Text(name)))
+                                  .toList(),
                             ),
                           ),
                           if (selectedNames.isNotEmpty)
@@ -898,8 +994,9 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                       const SizedBox(height: 8),
                       TextFormField(
                         key: ValueKey('permissions_bitfield_$computedBitfield'),
-                        initialValue:
-                            computedBitfield.isEmpty ? '0' : computedBitfield,
+                        initialValue: computedBitfield.isEmpty
+                            ? '0'
+                            : computedBitfield,
                         readOnly: true,
                         decoration: InputDecoration(
                           labelText: context.tr.command_permissions_bitfield,

@@ -98,30 +98,27 @@ class DesktopAppShell extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: Theme.of(context).scaffoldBackgroundColor,
-      child: Column(
-        children: [
-          SizedBox(
-            height: kDesktopTitleBarHeight,
-            child: Overlay(
-              initialEntries: [
-                OverlayEntry(
-                  builder: (context) => ListenableBuilder(
-                    listenable: DesktopTitleBarNotifier.instance,
-                    builder: (context, _) {
-                      final notifier = DesktopTitleBarNotifier.instance;
-                      return DesktopTitleBar(
-                        title: notifier.title,
-                        subtitle: notifier.subtitle,
-                        canGoBack: notifier.canGoBack,
-                        onBack: notifier.handleBack,
-                      );
-                    },
-                  ),
+      child: Overlay(
+        initialEntries: [
+          OverlayEntry(
+            builder: (context) => Column(
+              children: [
+                ListenableBuilder(
+                  listenable: DesktopTitleBarNotifier.instance,
+                  builder: (context, _) {
+                    final notifier = DesktopTitleBarNotifier.instance;
+                    return DesktopTitleBar(
+                      title: notifier.title,
+                      subtitle: notifier.subtitle,
+                      canGoBack: notifier.canGoBack,
+                      onBack: notifier.handleBack,
+                    );
+                  },
                 ),
+                Expanded(child: child),
               ],
             ),
           ),
-          Expanded(child: child),
         ],
       ),
     );
@@ -377,9 +374,11 @@ class _DesktopTitleBarButton extends StatelessWidget {
     final fg = Theme.of(context).colorScheme.onSurface;
     return Tooltip(
       message: tooltip,
+      waitDuration: const Duration(milliseconds: 600),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
+          canRequestFocus: false,
           onTap: onTap,
           borderRadius: BorderRadius.circular(6),
           child: Container(

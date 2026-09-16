@@ -202,6 +202,9 @@ class BlueprintInfiniteGridPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (size.width <= 0 || size.height <= 0) return;
 
+    canvas.save();
+    canvas.clipRect(Rect.fromLTWH(0, 0, size.width, size.height));
+
     // 1. Fill visible viewport with Unreal Engine dark slate color
     final bgPaint = Paint()..color = const Color(0xFF14161A);
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), bgPaint);
@@ -320,6 +323,7 @@ class BlueprintInfiniteGridPainter extends CustomPainter {
         ..strokeWidth = 2.0;
       canvas.drawCircle(originScreenPos, 4.5, originCenterPaint);
     }
+    canvas.restore();
   }
 
   @override

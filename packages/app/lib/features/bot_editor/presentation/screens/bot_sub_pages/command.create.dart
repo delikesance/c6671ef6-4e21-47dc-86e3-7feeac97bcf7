@@ -51,6 +51,7 @@ import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blo
 import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/action_block.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/blueprint/blueprint_graph_canvas.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/blueprint/blueprint_models.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/blueprint/blueprint_tree_ops.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/mobile_keyboard_accessory_bar.dart';
 import 'package:bot_creator/core/models/types/variable_suggestion.dart';
 import 'package:bot_creator_shared/utils/variable_catalog.dart'
@@ -91,11 +92,16 @@ class _EditorBodySnapshot {
 }
 
 class CommandCreatePage extends StatefulWidget {
+  /// Test hook to simulate desktop full-width layout in widget tests.
+  @visibleForTesting
+  static bool? debugDesktopLayoutOverride;
+
   final NyxxRest? client;
   final String? botId;
   final Snowflake id;
   final String? localCommandId;
   final String? prefillName;
+  final String? prefillFolder;
   const CommandCreatePage({
     super.key,
     this.client,
@@ -103,6 +109,7 @@ class CommandCreatePage extends StatefulWidget {
     this.id = Snowflake.zero,
     this.localCommandId,
     this.prefillName,
+    this.prefillFolder,
   });
 
   @override
@@ -786,6 +793,10 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     if (widget.prefillName != null && widget.prefillName!.isNotEmpty) {
       _applyPrefillName(widget.prefillName!);
     }
+    if (widget.prefillFolder != null && widget.prefillFolder!.isNotEmpty) {
+      _folder = widget.prefillFolder!.trim();
+      _folderController.text = _folder;
+    }
     _bdfdScriptController.text = _bdfdScriptContent;
     _jsScriptController.text = _jsScriptContent;
     _refreshBdfdCompileResult(notify: false);
@@ -970,63 +981,63 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   }
 
   Widget _buildIncompleteDataView(_EditorBodySnapshot snap, double maxWidth) {
-    // Marge horizontale portée par `PageContent` (contrat commun) ; la borne
-    // ci-dessous réutilise la même largeur de contenu.
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: maxWidth),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: AppTheme.warning,
-                border: Border.all(color: AppTheme.warning),
-                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-              ),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.warning_amber_rounded,
-                    color: AppTheme.warning,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      context.tr.cmd_offline_incomplete_warning,
-                      style: const TextStyle(
-                        color: AppTheme.warning,
-                        fontSize: 13,
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: maxWidth.clamp(320.0, 720.0)),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: AppTheme.warning,
+                  border: Border.all(color: AppTheme.warning),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.warning_amber_rounded,
+                      color: AppTheme.warning,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        context.tr.cmd_offline_incomplete_warning,
+                        style: const TextStyle(
+                          color: AppTheme.warning,
+                          fontSize: 13,
+                        ),
                       ),
                     ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.terminal),
+                  title: Text(
+                    snap.commandName.isNotEmpty
+                        ? snap.commandName
+                        : (snap.storageId ?? ''),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            Card(
-              child: ListTile(
-                leading: const Icon(Icons.terminal),
-                title: Text(
-                  snap.commandName.isNotEmpty
-                      ? snap.commandName
-                      : (snap.storageId ?? ''),
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                subtitle: snap.commandDescription.isNotEmpty
-                    ? Text(snap.commandDescription)
-                    : null,
-                trailing: IconButton(
-                  icon: const Icon(Icons.menu_book_outlined),
-                  tooltip: context.tr.cmd_show_variables,
-                  onPressed: _openDocumentationCenter,
+                  subtitle: snap.commandDescription.isNotEmpty
+                      ? Text(snap.commandDescription)
+                      : null,
+                  trailing: IconButton(
+                    icon: const Icon(Icons.menu_book_outlined),
+                    tooltip: context.tr.cmd_show_variables,
+                    onPressed: _openDocumentationCenter,
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -2268,13 +2279,27 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
               : null,
           body: SafeArea(
             top: false,
-            // Largeur et marges communes à toutes les pages (contrat
-            // `AppPageLayout`) : la page ne code plus ses propres bornes.
+            // Sur desktop, l'éditeur de commande (palette Scratch + canvas
+            // 2D Blueprint) occupe tout l'espace disponible (plein-cadre sans marges).
+            // Sur mobile / layout compact, le contenu reste enveloppé dans PageContent.
             child: LayoutBuilder(
               builder: (context, constraints) {
+                final isDesktop =
+                    CommandCreatePage.debugDesktopLayoutOverride ??
+                    ((ResponsiveHelper.isDesktopPlatform() ||
+                            constraints.maxWidth >= 800) &&
+                        constraints.maxWidth >= 720 &&
+                        !Platform.environment.containsKey('FLUTTER_TEST'));
+
                 final contentMaxWidth = AppPageLayout.contentMaxWidthFor(
                   constraints.maxWidth,
                 );
+
+                if (isDesktop) {
+                  return _buildEditorBody(
+                    contentMaxWidth: constraints.maxWidth,
+                  );
+                }
 
                 return PageContent(
                   child: _buildEditorBody(contentMaxWidth: contentMaxWidth),

@@ -389,55 +389,96 @@ class _BlueprintGraphCanvasState extends State<BlueprintGraphCanvas> {
       }
     }
 
-    return Focus(
-      focusNode: _keyboardFocusNode,
-      autofocus: true,
-      onKeyEvent: (node, event) {
-        if (event is KeyDownEvent) {
-          if (event.logicalKey == LogicalKeyboardKey.delete ||
-              event.logicalKey == LogicalKeyboardKey.backspace) {
-            if (_selectedConnectionId != null) {
-              _deleteSelectedConnection();
-              return KeyEventResult.handled;
-            }
-            if (_selectedNodeId != null &&
-                _selectedNodeId != '__entry_point__') {
-              _deleteSelectedNode();
-              return KeyEventResult.handled;
+    return ClipRect(
+      child: Focus(
+        focusNode: _keyboardFocusNode,
+        autofocus: true,
+        onKeyEvent: (node, event) {
+          if (event is KeyDownEvent) {
+            if (event.logicalKey == LogicalKeyboardKey.delete ||
+                event.logicalKey == LogicalKeyboardKey.backspace) {
+              if (_selectedConnectionId != null) {
+                _deleteSelectedConnection();
+                return KeyEventResult.handled;
+              }
+              if (_selectedNodeId != null &&
+                  _selectedNodeId != '__entry_point__') {
+                _deleteSelectedNode();
+                return KeyEventResult.handled;
+              }
             }
           }
-        }
-        return KeyEventResult.ignored;
-      },
-      child: DragTarget<BotCreatorActionType>(
-        onWillAcceptWithDetails: (details) => true,
-        onAcceptWithDetails: (details) {
-          final renderBox = context.findRenderObject() as RenderBox?;
-          if (renderBox != null) {
-            final localPos = renderBox.globalToLocal(details.offset);
-            final canvasPos = _screenToCanvas(localPos);
-            widget.onAddActionAt(details.data, canvasPos);
-          }
+          return KeyEventResult.ignored;
         },
-        builder: (context, candidateData, rejectedData) {
-          return Stack(
-            children: [
-              // ── Infinite 2D Zoomable & Pannable Canvas View ──
-              Positioned.fill(
-                child: GestureDetector(
-                  onTapDown: (details) {
-                    _keyboardFocusNode.requestFocus();
-                    setState(() {
-                      _contextMenuScreenPos = null;
-                      _contextMenuCanvasPos = null;
-                      _pendingConnectNodeId = null;
-                      _pendingConnectPin = null;
-                      _selectedNodeId = null;
+        child: DragTarget<BotCreatorActionType>(
+          onWillAcceptWithDetails: (details) => true,
+          onAcceptWithDetails: (details) {
+            final renderBox = context.findRenderObject() as RenderBox?;
+            if (renderBox != null) {
+              final localPos = renderBox.globalToLocal(details.offset);
+              final canvasPos = _screenToCanvas(localPos);
+              widget.onAddActionAt(details.data, canvasPos);
+            }
+          },
+          builder: (context, candidateData, rejectedData) {
+            return Stack(
+              clipBehavior: Clip.hardEdge,
+              children: [
+                // ── Infinite 2D Zoomable & Pannable Canvas View ──
+                Positioned.fill(
+                  child: GestureDetector(
+                    onTapDown: (details) {
+                      _keyboardFocusNode.requestFocus();
+                      setState(() {
+                        _contextMenuScreenPos = null;
+                        _contextMenuCanvasPos = null;
+                        _pendingConnectNodeId = null;
+                        _pendingConnectPin = null;
+                        _selectedNodeId = null;
 
-                      // Check if a connection cable was tapped
-                      final localCanvasPos =
-                          _screenToCanvas(details.localPosition) +
-                          _canvasOrigin;
+                        // Check if a connection cable was tapped
+                        final localCanvasPos =
+                            _screenToCanvas(details.localPosition) +
+                            _canvasOrigin;
+                        final hitConn = allConnections
+                            .cast<BlueprintConnection?>()
+                            .firstWhere((c) {
+                              if (c == null) return false;
+                              final fromN = baseGraph.nodes
+                                  .cast<BlueprintNodeData?>()
+                                  .firstWhere(
+                                    (n) => n?.id == c.fromNodeId,
+                                    orElse: () => null,
+                                  );
+                              final toN = baseGraph.nodes
+                                  .cast<BlueprintNodeData?>()
+                                  .firstWhere(
+                                    (n) => n?.id == c.toNodeId,
+                                    orElse: () => null,
+                                  );
+                              if (fromN == null || toN == null) return false;
+                              final start =
+                                  fromN.getPinCanvasPosition(c.fromPinId) +
+                                  _canvasOrigin;
+                              final end =
+                                  toN.getPinCanvasPosition(c.toPinId) +
+                                  _canvasOrigin;
+                              return BlueprintGraphPainter.isPointNearCurve(
+                                point: localCanvasPos,
+                                start: start,
+                                end: end,
+                                hitDistance: 20.0,
+                              );
+                            }, orElse: () => null);
+
+                        _selectedConnectionId = hitConn?.id;
+                      });
+                    },
+                    onSecondaryTapDown: (details) {
+                      final canvasPos = _screenToCanvas(details.localPosition);
+                      final localCanvasPos = canvasPos + _canvasOrigin;
+
+                      // If right-clicked on a connection cable, cut it immediately
                       final hitConn = allConnections
                           .cast<BlueprintConnection?>()
                           .firstWhere((c) {
@@ -469,331 +510,274 @@ class _BlueprintGraphCanvasState extends State<BlueprintGraphCanvas> {
                             );
                           }, orElse: () => null);
 
-                      _selectedConnectionId = hitConn?.id;
-                    });
-                  },
-                  onSecondaryTapDown: (details) {
-                    final canvasPos = _screenToCanvas(details.localPosition);
-                    final localCanvasPos = canvasPos + _canvasOrigin;
+                      if (hitConn != null) {
+                        setState(() {
+                          _selectedConnectionId = hitConn.id;
+                        });
+                        _deleteSelectedConnection();
+                        return;
+                      }
 
-                    // If right-clicked on a connection cable, cut it immediately
-                    final hitConn = allConnections
-                        .cast<BlueprintConnection?>()
-                        .firstWhere((c) {
-                          if (c == null) return false;
-                          final fromN = baseGraph.nodes
-                              .cast<BlueprintNodeData?>()
-                              .firstWhere(
-                                (n) => n?.id == c.fromNodeId,
-                                orElse: () => null,
-                              );
-                          final toN = baseGraph.nodes
-                              .cast<BlueprintNodeData?>()
-                              .firstWhere(
-                                (n) => n?.id == c.toNodeId,
-                                orElse: () => null,
-                              );
-                          if (fromN == null || toN == null) return false;
-                          final start =
-                              fromN.getPinCanvasPosition(c.fromPinId) +
-                              _canvasOrigin;
-                          final end =
-                              toN.getPinCanvasPosition(c.toPinId) +
-                              _canvasOrigin;
-                          return BlueprintGraphPainter.isPointNearCurve(
-                            point: localCanvasPos,
-                            start: start,
-                            end: end,
-                            hitDistance: 20.0,
-                          );
-                        }, orElse: () => null);
-
-                    if (hitConn != null) {
                       setState(() {
-                        _selectedConnectionId = hitConn.id;
+                        _contextMenuScreenPos = details.localPosition;
+                        _contextMenuCanvasPos = canvasPos;
+                        _pendingConnectNodeId = null;
+                        _pendingConnectPin = null;
                       });
-                      _deleteSelectedConnection();
-                      return;
-                    }
-
-                    setState(() {
-                      _contextMenuScreenPos = details.localPosition;
-                      _contextMenuCanvasPos = canvasPos;
-                      _pendingConnectNodeId = null;
-                      _pendingConnectPin = null;
-                    });
-                  },
-                  child: Stack(
-                    children: [
-                      // 0. Dynamic Infinite Grid Painter (renders on full viewport, culls offscreen lines)
-                      Positioned.fill(
-                        child: ValueListenableBuilder<Matrix4>(
-                          valueListenable: _transformController,
-                          builder: (context, matrix, _) {
-                            return CustomPaint(
-                              painter: BlueprintInfiniteGridPainter(
-                                transform: matrix,
-                                canvasOrigin: _canvasOrigin,
-                              ),
-                            );
-                          },
+                    },
+                    child: Stack(
+                      clipBehavior: Clip.hardEdge,
+                      children: [
+                        // 0. Dynamic Infinite Grid Painter (renders on full viewport, culls offscreen lines)
+                        Positioned.fill(
+                          child: ValueListenableBuilder<Matrix4>(
+                            valueListenable: _transformController,
+                            builder: (context, matrix, _) {
+                              return CustomPaint(
+                                painter: BlueprintInfiniteGridPainter(
+                                  transform: matrix,
+                                  canvasOrigin: _canvasOrigin,
+                                ),
+                              );
+                            },
+                          ),
                         ),
-                      ),
-                      // 1. Interactive Canvas Workspace
-                      InteractiveViewer(
-                        transformationController: _transformController,
-                        constrained: false,
-                        boundaryMargin: const EdgeInsets.all(double.infinity),
-                        minScale: 0.15,
-                        maxScale: 3.0,
-                        child: SizedBox(
-                          width: _canvasSize,
-                          height: _canvasSize,
-                          child: Stack(
-                            children: [
-                              // 1. Cables Painter (transparent background, only Béziers)
-                              Positioned.fill(
-                                child: CustomPaint(
-                                  painter: BlueprintGraphPainter(
-                                    nodes: baseGraph.nodes,
-                                    connections: allConnections,
-                                    selectedNodeId: _selectedNodeId,
-                                    selectedConnectionId: _selectedConnectionId,
-                                    canvasOrigin: _canvasOrigin,
-                                    activeDraftConnection:
-                                        _draggingPin != null &&
-                                            _draggingFromNodeId != null
-                                        ? BlueprintConnection(
-                                            id: 'draft_conn',
-                                            fromNodeId: _draggingFromNodeId!,
-                                            fromPinId: _draggingPin!.id,
-                                            toNodeId: '',
-                                            toPinId: '',
-                                          )
-                                        : null,
-                                    activeDraftTarget:
-                                        _draggingWireTarget != null
-                                        ? _draggingWireTarget! + _canvasOrigin
-                                        : null,
+                        // 1. Interactive Canvas Workspace
+                        InteractiveViewer(
+                          transformationController: _transformController,
+                          constrained: false,
+                          boundaryMargin: const EdgeInsets.all(double.infinity),
+                          minScale: 0.15,
+                          maxScale: 3.0,
+                          child: SizedBox(
+                            width: _canvasSize,
+                            height: _canvasSize,
+                            child: Stack(
+                              children: [
+                                // 1. Cables Painter (transparent background, only Béziers)
+                                Positioned.fill(
+                                  child: CustomPaint(
+                                    painter: BlueprintGraphPainter(
+                                      nodes: baseGraph.nodes,
+                                      connections: allConnections,
+                                      selectedNodeId: _selectedNodeId,
+                                      selectedConnectionId:
+                                          _selectedConnectionId,
+                                      canvasOrigin: _canvasOrigin,
+                                      activeDraftConnection:
+                                          _draggingPin != null &&
+                                              _draggingFromNodeId != null
+                                          ? BlueprintConnection(
+                                              id: 'draft_conn',
+                                              fromNodeId: _draggingFromNodeId!,
+                                              fromPinId: _draggingPin!.id,
+                                              toNodeId: '',
+                                              toPinId: '',
+                                            )
+                                          : null,
+                                      activeDraftTarget:
+                                          _draggingWireTarget != null
+                                          ? _draggingWireTarget! + _canvasOrigin
+                                          : null,
+                                    ),
                                   ),
                                 ),
-                              ),
 
-                              // 2. Interactive Blueprint Nodes
-                              for (final node in baseGraph.nodes)
-                                Positioned(
-                                  left: _canvasOrigin.dx + node.position.dx,
-                                  top: _canvasOrigin.dy + node.position.dy,
-                                  child: BlueprintNodeWidget(
-                                    data: node,
-                                    isSelected: node.id == _selectedNodeId,
-                                    onSelect: () {
-                                      setState(() {
-                                        _selectedNodeId = node.id;
-                                        _selectedConnectionId = null;
-                                      });
-                                    },
-                                    onDragDelta: (delta) {
-                                      setState(() {
-                                        final current = node.position;
-                                        final next = current + delta;
-                                        _customNodePositions[node.id] = next;
-                                        node.position = next;
-                                      });
-                                      if (widget.onNodeMoved != null) {
-                                        widget.onNodeMoved!(
-                                          node.id,
-                                          node.position,
+                                // 2. Interactive Blueprint Nodes
+                                for (final node in baseGraph.nodes)
+                                  Positioned(
+                                    left: _canvasOrigin.dx + node.position.dx,
+                                    top: _canvasOrigin.dy + node.position.dy,
+                                    child: BlueprintNodeWidget(
+                                      data: node,
+                                      isSelected: node.id == _selectedNodeId,
+                                      onSelect: () {
+                                        setState(() {
+                                          _selectedNodeId = node.id;
+                                          _selectedConnectionId = null;
+                                        });
+                                      },
+                                      onDragDelta: (delta) {
+                                        setState(() {
+                                          final current = node.position;
+                                          final next = current + delta;
+                                          _customNodePositions[node.id] = next;
+                                          node.position = next;
+                                        });
+                                        if (widget.onNodeMoved != null) {
+                                          widget.onNodeMoved!(
+                                            node.id,
+                                            node.position,
+                                          );
+                                        }
+                                      },
+                                      onPinStartDrag: (pin, pinCanvasPos) {
+                                        setState(() {
+                                          _draggingPin = pin;
+                                          _draggingFromNodeId = node.id;
+                                          _draggingWireTarget = pinCanvasPos;
+                                        });
+                                      },
+                                      onPinDragUpdate: (globalPosition) {
+                                        final canvasPos = _globalToCanvas(
+                                          globalPosition,
                                         );
-                                      }
-                                    },
-                                    onPinStartDrag: (pin, pinCanvasPos) {
-                                      setState(() {
-                                        _draggingPin = pin;
-                                        _draggingFromNodeId = node.id;
-                                        _draggingWireTarget = pinCanvasPos;
-                                      });
-                                    },
-                                    onPinDragUpdate: (globalPosition) {
-                                      final canvasPos = _globalToCanvas(
-                                        globalPosition,
-                                      );
-                                      setState(() {
-                                        _draggingWireTarget = canvasPos;
-                                      });
-                                    },
-                                    onPinDragEnd: () {
-                                      _handlePinDragRelease();
-                                    },
-                                    onPinDragCancel: () {
-                                      setState(() {
-                                        _draggingPin = null;
-                                        _draggingFromNodeId = null;
-                                        _draggingWireTarget = null;
-                                      });
-                                    },
-                                    onBreakPinLinks: (pin) {
-                                      final matchingConns = allConnections
-                                          .where(
+                                        setState(() {
+                                          _draggingWireTarget = canvasPos;
+                                        });
+                                      },
+                                      onPinDragEnd: () {
+                                        _handlePinDragRelease();
+                                      },
+                                      onPinDragCancel: () {
+                                        setState(() {
+                                          _draggingPin = null;
+                                          _draggingFromNodeId = null;
+                                          _draggingWireTarget = null;
+                                        });
+                                      },
+                                      onBreakPinLinks: (pin) {
+                                        final matchingConns = allConnections
+                                            .where(
+                                              (c) =>
+                                                  (c.fromNodeId == node.id &&
+                                                      c.fromPinId == pin.id) ||
+                                                  (c.toNodeId == node.id &&
+                                                      c.toPinId == pin.id),
+                                            )
+                                            .toList();
+                                        final allPositions = {
+                                          for (final n in baseGraph.nodes)
+                                            n.id: n.position,
+                                        };
+                                        for (final c in matchingConns) {
+                                          _severedConnectionIds.add(c.id);
+                                          final toNode = baseGraph.nodes
+                                              .cast<BlueprintNodeData?>()
+                                              .firstWhere(
+                                                (n) => n?.id == c.toNodeId,
+                                                orElse: () => null,
+                                              );
+                                          if (widget.onDisconnectConnection !=
+                                              null) {
+                                            widget.onDisconnectConnection!(
+                                              c.id,
+                                              fromNodeId: c.fromNodeId,
+                                              fromPinId: c.fromPinId,
+                                              toNodeId: c.toNodeId,
+                                              toPinId: c.toPinId,
+                                              toNodePosition: toNode?.position,
+                                              allNodePositions: allPositions,
+                                            );
+                                          }
+                                        }
+                                        setState(() {
+                                          _customConnections.removeWhere(
                                             (c) =>
                                                 (c.fromNodeId == node.id &&
                                                     c.fromPinId == pin.id) ||
                                                 (c.toNodeId == node.id &&
                                                     c.toPinId == pin.id),
-                                          )
-                                          .toList();
-                                      final allPositions = {
-                                        for (final n in baseGraph.nodes)
-                                          n.id: n.position,
-                                      };
-                                      for (final c in matchingConns) {
-                                        _severedConnectionIds.add(c.id);
-                                        final toNode = baseGraph.nodes
-                                            .cast<BlueprintNodeData?>()
-                                            .firstWhere(
-                                              (n) => n?.id == c.toNodeId,
-                                              orElse: () => null,
-                                            );
-                                        if (widget.onDisconnectConnection !=
-                                            null) {
-                                          widget.onDisconnectConnection!(
-                                            c.id,
-                                            fromNodeId: c.fromNodeId,
-                                            fromPinId: c.fromPinId,
-                                            toNodeId: c.toNodeId,
-                                            toPinId: c.toPinId,
-                                            toNodePosition: toNode?.position,
-                                            allNodePositions: allPositions,
                                           );
-                                        }
-                                      }
-                                      setState(() {
-                                        _customConnections.removeWhere(
-                                          (c) =>
-                                              (c.fromNodeId == node.id &&
-                                                  c.fromPinId == pin.id) ||
-                                              (c.toNodeId == node.id &&
-                                                  c.toPinId == pin.id),
-                                        );
-                                        if (matchingConns.any(
-                                          (c) => c.id == _selectedConnectionId,
-                                        )) {
-                                          _selectedConnectionId = null;
-                                        }
-                                      });
-                                    },
-                                    onDelete: !node.isEntryPoint
-                                        ? () {
-                                            widget.onRemoveAction(
-                                              node.id,
-                                              node.actionIndex,
-                                            );
-                                            if (_selectedNodeId == node.id) {
-                                              setState(() {
-                                                _selectedNodeId = null;
-                                              });
-                                            }
+                                          if (matchingConns.any(
+                                            (c) =>
+                                                c.id == _selectedConnectionId,
+                                          )) {
+                                            _selectedConnectionId = null;
                                           }
-                                        : null,
+                                        });
+                                      },
+                                      onDelete: !node.isEntryPoint
+                                          ? () {
+                                              widget.onRemoveAction(
+                                                node.id,
+                                                node.actionIndex,
+                                              );
+                                              if (_selectedNodeId == node.id) {
+                                                setState(() {
+                                                  _selectedNodeId = null;
+                                                });
+                                              }
+                                            }
+                                          : null,
+                                    ),
                                   ),
-                                ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              // ── Wire Dragging Global Listener Overlay (fallback capture) ──
-              if (_draggingPin != null)
-                Positioned.fill(
-                  child: Listener(
-                    behavior: HitTestBehavior.translucent,
-                    onPointerMove: (event) {
-                      final canvasPos = _screenToCanvas(event.localPosition);
-                      setState(() {
-                        _draggingWireTarget = canvasPos;
-                      });
-                    },
-                    onPointerUp: (event) {
-                      final canvasPos = _screenToCanvas(event.localPosition);
-                      _handlePinDragRelease(canvasPos);
-                    },
+                      ],
+                    ),
                   ),
                 ),
 
-              // ── Floating Zoom Controls & Coordinates HUD ──
-              Positioned(
-                left: 20,
-                bottom: 20,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 4,
-                    vertical: 2,
+                // ── Wire Dragging Global Listener Overlay (fallback capture) ──
+                if (_draggingPin != null)
+                  Positioned.fill(
+                    child: Listener(
+                      behavior: HitTestBehavior.translucent,
+                      onPointerMove: (event) {
+                        final canvasPos = _screenToCanvas(event.localPosition);
+                        setState(() {
+                          _draggingWireTarget = canvasPos;
+                        });
+                      },
+                      onPointerUp: (event) {
+                        final canvasPos = _screenToCanvas(event.localPosition);
+                        _handlePinDragRelease(canvasPos);
+                      },
+                    ),
                   ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E2128),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.white12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.4),
-                        blurRadius: 8,
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(
-                          Icons.zoom_in,
-                          color: Colors.white70,
-                          size: 20,
+
+                // ── Floating Zoom Controls & Coordinates HUD ──
+                Positioned(
+                  left: 20,
+                  bottom: 20,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1E2128),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.white12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.4),
+                          blurRadius: 8,
                         ),
-                        tooltip: 'Zoom in',
-                        onPressed: () {
-                          final matrix = _transformController.value.clone()
-                            ..scaleByDouble(1.2, 1.2, 1.0, 1.0);
-                          _transformController.value = matrix;
-                        },
-                      ),
-                      IconButton(
-                        icon: const Icon(
-                          Icons.zoom_out,
-                          color: Colors.white70,
-                          size: 20,
-                        ),
-                        tooltip: 'Zoom out',
-                        onPressed: () {
-                          final matrix = _transformController.value.clone()
-                            ..scaleByDouble(0.8, 0.8, 1.0, 1.0);
-                          _transformController.value = matrix;
-                        },
-                      ),
-                      const SizedBox(
-                        height: 20,
-                        child: VerticalDivider(color: Colors.white24, width: 8),
-                      ),
-                      TextButton.icon(
-                        onPressed: _centerCanvas,
-                        icon: const Icon(
-                          Icons.my_location,
-                          color: Colors.cyanAccent,
-                          size: 16,
-                        ),
-                        label: const Text(
-                          'Origine (0, 0)',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.cyanAccent,
-                            fontWeight: FontWeight.w600,
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(
+                            Icons.zoom_in,
+                            color: Colors.white70,
+                            size: 20,
                           ),
+                          tooltip: 'Zoom in',
+                          onPressed: () {
+                            final matrix = _transformController.value.clone()
+                              ..scaleByDouble(1.2, 1.2, 1.0, 1.0);
+                            _transformController.value = matrix;
+                          },
                         ),
-                      ),
-                      if (_selectedConnectionId != null) ...[
+                        IconButton(
+                          icon: const Icon(
+                            Icons.zoom_out,
+                            color: Colors.white70,
+                            size: 20,
+                          ),
+                          tooltip: 'Zoom out',
+                          onPressed: () {
+                            final matrix = _transformController.value.clone()
+                              ..scaleByDouble(0.8, 0.8, 1.0, 1.0);
+                            _transformController.value = matrix;
+                          },
+                        ),
                         const SizedBox(
                           height: 20,
                           child: VerticalDivider(
@@ -802,159 +786,188 @@ class _BlueprintGraphCanvasState extends State<BlueprintGraphCanvas> {
                           ),
                         ),
                         TextButton.icon(
-                          onPressed: _deleteSelectedConnection,
+                          onPressed: _centerCanvas,
                           icon: const Icon(
-                            Icons.link_off,
-                            color: Colors.redAccent,
+                            Icons.my_location,
+                            color: Colors.cyanAccent,
                             size: 16,
                           ),
                           label: const Text(
-                            'Couper le lien',
+                            'Origine (0, 0)',
                             style: TextStyle(
                               fontSize: 11,
-                              color: Colors.redAccent,
+                              color: Colors.cyanAccent,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
-
-              // ── Floating Action: Cut Selected Wire at Midpoint ──
-              if (selectedConn != null && selectedConnMidScreen != null)
-                Positioned(
-                  left: selectedConnMidScreen.dx - 45,
-                  top: selectedConnMidScreen.dy - 16,
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: _deleteSelectedConnection,
-                      borderRadius: BorderRadius.circular(20),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 5,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFE53935),
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.6),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
+                        if (_selectedConnectionId != null) ...[
+                          const SizedBox(
+                            height: 20,
+                            child: VerticalDivider(
+                              color: Colors.white24,
+                              width: 8,
                             ),
-                          ],
-                        ),
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.link_off, size: 14, color: Colors.white),
-                            SizedBox(width: 4),
-                            Text(
-                              'Couper',
+                          ),
+                          TextButton.icon(
+                            onPressed: _deleteSelectedConnection,
+                            icon: const Icon(
+                              Icons.link_off,
+                              color: Colors.redAccent,
+                              size: 16,
+                            ),
+                            label: const Text(
+                              'Couper le lien',
                               style: TextStyle(
-                                color: Colors.white,
                                 fontSize: 11,
-                                fontWeight: FontWeight.bold,
+                                color: Colors.redAccent,
                               ),
                             ),
-                          ],
-                        ),
-                      ),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
                 ),
 
-              // ── Right-hand Inspector Panel ──
-              if (selectedNode != null)
-                Positioned(
-                  top: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: BlueprintInspectorPanel(
-                    node: selectedNode,
-                    onClose: () {
+                // ── Floating Action: Cut Selected Wire at Midpoint ──
+                if (selectedConn != null && selectedConnMidScreen != null)
+                  Positioned(
+                    left: selectedConnMidScreen.dx - 45,
+                    top: selectedConnMidScreen.dy - 16,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: _deleteSelectedConnection,
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE53935),
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.6),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.link_off,
+                                size: 14,
+                                color: Colors.white,
+                              ),
+                              SizedBox(width: 4),
+                              Text(
+                                'Couper',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                // ── Right-hand Inspector Panel ──
+                if (selectedNode != null)
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: BlueprintInspectorPanel(
+                      node: selectedNode,
+                      onClose: () {
+                        setState(() {
+                          _selectedNodeId = null;
+                        });
+                      },
+                      onParameterChanged: (key, value) {
+                        if (selectedNode.actionIndex != null) {
+                          widget.onParameterChanged(
+                            selectedNode.actionIndex!,
+                            key,
+                            value,
+                          );
+                        }
+                      },
+                      onSuggestionSelected: (key, value) {
+                        if (selectedNode.actionIndex != null) {
+                          widget.onSuggestionSelected(
+                            selectedNode.actionIndex!,
+                            key,
+                            value,
+                          );
+                        }
+                      },
+                      fieldRefreshVersionOf: widget.fieldRefreshVersionOf,
+                      variableSuggestions: widget.variableSuggestions,
+                      emojiSuggestions: widget.emojiSuggestions,
+                      botIdForConfig: widget.botIdForConfig,
+                      onEditNestedActions: widget.onEditNestedActions,
+                      allActions: widget.actions,
+                      onDelete: !selectedNode.isEntryPoint
+                          ? () {
+                              widget.onRemoveAction(
+                                selectedNode.id,
+                                selectedNode.actionIndex,
+                              );
+                              setState(() {
+                                _selectedNodeId = null;
+                              });
+                            }
+                          : null,
+                    ),
+                  ),
+
+                // ── Unreal Context Menu (Right Click / Cable Drop) ──
+                if (_contextMenuScreenPos != null &&
+                    _contextMenuCanvasPos != null)
+                  BlueprintContextMenu(
+                    position: _contextMenuScreenPos!,
+                    isInteraction: widget.isInteraction,
+                    onActionSelected: (type) {
+                      final targetPos = _contextMenuCanvasPos!;
+                      final fromNodeId = _pendingConnectNodeId;
+                      final fromPin = _pendingConnectPin;
                       setState(() {
-                        _selectedNodeId = null;
+                        _contextMenuScreenPos = null;
+                        _contextMenuCanvasPos = null;
+                        _pendingConnectNodeId = null;
+                        _pendingConnectPin = null;
+                      });
+                      widget.onAddActionAt(
+                        type,
+                        targetPos,
+                        connectFromNodeId: fromNodeId,
+                        connectFromPinId: fromPin?.id,
+                        connectFromPinDirection: fromPin?.direction,
+                      );
+                    },
+                    onDismiss: () {
+                      setState(() {
+                        _contextMenuScreenPos = null;
+                        _contextMenuCanvasPos = null;
+                        _pendingConnectNodeId = null;
+                        _pendingConnectPin = null;
                       });
                     },
-                    onParameterChanged: (key, value) {
-                      if (selectedNode.actionIndex != null) {
-                        widget.onParameterChanged(
-                          selectedNode.actionIndex!,
-                          key,
-                          value,
-                        );
-                      }
-                    },
-                    onSuggestionSelected: (key, value) {
-                      if (selectedNode.actionIndex != null) {
-                        widget.onSuggestionSelected(
-                          selectedNode.actionIndex!,
-                          key,
-                          value,
-                        );
-                      }
-                    },
-                    fieldRefreshVersionOf: widget.fieldRefreshVersionOf,
-                    variableSuggestions: widget.variableSuggestions,
-                    emojiSuggestions: widget.emojiSuggestions,
-                    botIdForConfig: widget.botIdForConfig,
-                    onEditNestedActions: widget.onEditNestedActions,
-                    allActions: widget.actions,
-                    onDelete: !selectedNode.isEntryPoint
-                        ? () {
-                            widget.onRemoveAction(
-                              selectedNode.id,
-                              selectedNode.actionIndex,
-                            );
-                            setState(() {
-                              _selectedNodeId = null;
-                            });
-                          }
-                        : null,
                   ),
-                ),
-
-              // ── Unreal Context Menu (Right Click / Cable Drop) ──
-              if (_contextMenuScreenPos != null &&
-                  _contextMenuCanvasPos != null)
-                BlueprintContextMenu(
-                  position: _contextMenuScreenPos!,
-                  isInteraction: widget.isInteraction,
-                  onActionSelected: (type) {
-                    final targetPos = _contextMenuCanvasPos!;
-                    final fromNodeId = _pendingConnectNodeId;
-                    final fromPin = _pendingConnectPin;
-                    setState(() {
-                      _contextMenuScreenPos = null;
-                      _contextMenuCanvasPos = null;
-                      _pendingConnectNodeId = null;
-                      _pendingConnectPin = null;
-                    });
-                    widget.onAddActionAt(
-                      type,
-                      targetPos,
-                      connectFromNodeId: fromNodeId,
-                      connectFromPinId: fromPin?.id,
-                      connectFromPinDirection: fromPin?.direction,
-                    );
-                  },
-                  onDismiss: () {
-                    setState(() {
-                      _contextMenuScreenPos = null;
-                      _contextMenuCanvasPos = null;
-                      _pendingConnectNodeId = null;
-                      _pendingConnectPin = null;
-                    });
-                  },
-                ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }
