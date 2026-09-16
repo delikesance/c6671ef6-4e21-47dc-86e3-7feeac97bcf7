@@ -2211,7 +2211,6 @@ class _WorkflowFolderHeader extends StatelessWidget {
   final ValueChanged<Map<String, dynamic>>? onAcceptDrop;
 
   const _WorkflowFolderHeader({
-    super.key,
     required this.title,
     required this.count,
     this.directCount = 0,
