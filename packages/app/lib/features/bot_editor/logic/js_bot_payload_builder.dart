@@ -5,6 +5,7 @@ import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/features/bot_editor/logic/normalize_command_data.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/features/bot_editor/logic/workflow_call.dart';
+import 'package:bot_creator_shared/utils/legacy_command_triggers.dart';
 import 'package:flutter/foundation.dart';
 
 Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
@@ -63,12 +64,18 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
       continue;
     }
     final uniqueName = _deduplicateCommandName(rawName, usedNames);
+    final aliases = normalizeLegacyCommandAliases(data['legacyAliases'])
+        .map(cleanLegacyCommandTriggerName)
+        .where((a) => a.isNotEmpty)
+        .toSet()
+        .toList();
     commands.add({
       'id': commandId,
       'type': 'command',
       'name': uniqueName,
       'description': (data['description'] ?? uniqueName).toString(),
       'discordType': discordType,
+      'aliases': aliases,
       'options': data['options'] ?? const [],
       'enabled': normalized['enabled'] != false,
       'script': script,

@@ -27,8 +27,8 @@ void main() {
     documentsDir = await Directory.systemTemp.createTemp('js_payload_test');
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(_pathProviderChannel, (call) async {
-      return documentsDir.path;
-    });
+          return documentsDir.path;
+        });
     appManager = AppManager();
   });
 
@@ -88,20 +88,23 @@ void main() {
     expect(payload.containsKey('prefix'), isFalse);
   });
 
-  test('includes prefix when slash commands exist and prefix is configured', () async {
-    await appManager.saveAppCommand(botId, 'ping', <String, dynamic>{
-      'id': 'ping',
-      'name': 'ping',
-      'enabled': true,
-      'data': <String, dynamic>{
-        'executionMode': 'javascript',
-        'jsScriptContent': 'await interaction.reply("pong");',
-      },
-    });
+  test(
+    'includes prefix when slash commands exist and prefix is configured',
+    () async {
+      await appManager.saveAppCommand(botId, 'ping', <String, dynamic>{
+        'id': 'ping',
+        'name': 'ping',
+        'enabled': true,
+        'data': <String, dynamic>{
+          'executionMode': 'javascript',
+          'jsScriptContent': 'await interaction.reply("pong");',
+        },
+      });
 
-    final payload = await buildJsBotPayload(botId);
-    expect(payload['prefix'], '!');
-  });
+      final payload = await buildJsBotPayload(botId);
+      expect(payload['prefix'], '!');
+    },
+  );
 
   test('includes presence status and activities from bot settings', () async {
     await appManager.saveApp(botId, <String, dynamic>{
@@ -111,10 +114,7 @@ void main() {
       'runtimeEngine': runtimeEngineJavascript,
       'presenceStatus': 'idle',
       'activities': <Map<String, dynamic>>[
-        <String, dynamic>{
-          'type': 'watching',
-          'name': 'the logs',
-        },
+        <String, dynamic>{'type': 'watching', 'name': 'the logs'},
       ],
       'workflows': <Map<String, dynamic>>[],
     });
@@ -125,10 +125,25 @@ void main() {
     expect(presence['activities'], hasLength(1));
     expect(
       (presence['activities'] as List).first as Map,
-      equals(<String, dynamic>{
-        'type': 'watching',
-        'name': 'the logs',
-      }),
+      equals(<String, dynamic>{'type': 'watching', 'name': 'the logs'}),
     );
+  });
+
+  test('includes command aliases in payload commands', () async {
+    await appManager.saveAppCommand(botId, 'help', <String, dynamic>{
+      'id': 'help',
+      'name': 'help',
+      'enabled': true,
+      'data': <String, dynamic>{
+        'executionMode': 'javascript',
+        'jsScriptContent': 'await message.reply("help content");',
+        'legacyAliases': ['h', '!aide', r'info{$t:5s}'],
+      },
+    });
+
+    final payload = await buildJsBotPayload(botId);
+    final commands = payload['commands'] as List;
+    final helpCmd = commands.firstWhere((c) => c['name'] == 'help') as Map;
+    expect(helpCmd['aliases'], containsAll(['h', 'aide', 'info']));
   });
 }

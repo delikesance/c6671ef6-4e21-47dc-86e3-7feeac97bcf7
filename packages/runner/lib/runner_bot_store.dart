@@ -70,6 +70,21 @@ class RunnerBotStore {
               : '/bots');
 
   final String _dataDir;
+  final Map<String, BotConfig> _memoryConfigs = <String, BotConfig>{};
+
+  static BotConfig sanitizeForStorage(BotConfig config) {
+    return config.copyWith(
+      token: '',
+      lavalinkConfig: config.lavalinkConfig != null
+          ? LavalinkConfig(
+              host: config.lavalinkConfig!.host,
+              port: config.lavalinkConfig!.port,
+              password: '',
+              useSsl: config.lavalinkConfig!.useSsl,
+            )
+          : null,
+    );
+  }
 
   File _fileForBot(String botId) {
     final safe = botId.replaceAll(RegExp(r'[^\w\-]'), '_');
@@ -82,12 +97,16 @@ class RunnerBotStore {
     BotConfig config, {
     bool? running,
   }) async {
+    // Retain full secret-bearing config in volatile RAM only
+    _memoryConfigs[botId] = config;
+
     final existing = await loadEntry(botId);
+    final sanitizedConfig = sanitizeForStorage(config);
     final entry = RunnerBotEntry(
       id: botId,
       name: botName,
       syncedAt: DateTime.now().toUtc(),
-      config: config,
+      config: sanitizedConfig,
       running: running ?? existing?.running ?? false,
     );
     final file = _fileForBot(botId);
@@ -124,7 +143,7 @@ class RunnerBotStore {
         // Migrate to new layout
         await save(botId, entry.name, entry.config, running: entry.running);
         await oldFile.delete();
-        return entry;
+        return _hydrateEntryWithMemory(botId, entry);
       } catch (_) {
         return null;
       }
@@ -133,10 +152,29 @@ class RunnerBotStore {
     try {
       final raw = await file.readAsString();
       final json = jsonDecode(raw);
-      return RunnerBotEntry.fromJson(Map<String, dynamic>.from(json as Map));
+      final entry = RunnerBotEntry.fromJson(
+        Map<String, dynamic>.from(json as Map),
+      );
+      return _hydrateEntryWithMemory(botId, entry);
     } catch (_) {
       return null;
     }
+  }
+
+  RunnerBotEntry _hydrateEntryWithMemory(String botId, RunnerBotEntry entry) {
+    final mem = _memoryConfigs[botId];
+    if (mem == null) return entry;
+
+    return entry.copyWith(
+      config: entry.config.copyWith(
+        token: mem.token.isNotEmpty ? mem.token : entry.config.token,
+        lavalinkConfig:
+            (mem.lavalinkConfig != null &&
+                mem.lavalinkConfig!.password.isNotEmpty)
+            ? mem.lavalinkConfig
+            : entry.config.lavalinkConfig,
+      ),
+    );
   }
 
   Future<List<RunnerBotEntry>> listAll() async {
@@ -149,9 +187,10 @@ class RunnerBotStore {
         try {
           final raw = await entity.readAsString();
           final json = jsonDecode(raw);
-          entries.add(
-            RunnerBotEntry.fromJson(Map<String, dynamic>.from(json as Map)),
+          final entry = RunnerBotEntry.fromJson(
+            Map<String, dynamic>.from(json as Map),
           );
+          entries.add(_hydrateEntryWithMemory(entry.id, entry));
         } catch (_) {}
       }
     }
@@ -159,6 +198,7 @@ class RunnerBotStore {
   }
 
   Future<void> delete(String botId) async {
+    _memoryConfigs.remove(botId);
     final file = _fileForBot(botId);
     if (await file.exists()) {
       await file.delete();

@@ -126,9 +126,7 @@ class LavalinkConfig {
       throw ArgumentError('LavalinkConfig: password cannot be empty');
     }
     if (port <= 0 || port >= 65536) {
-      throw ArgumentError(
-        'LavalinkConfig: port must be between 1 and 65535',
-      );
+      throw ArgumentError('LavalinkConfig: port must be between 1 and 65535');
     }
   }
 }
@@ -239,10 +237,9 @@ class BotConfig {
   factory BotConfig.fromJson(Map<String, dynamic> json) {
     return BotConfig(
       token: (json['token'] ?? '').toString(),
-      prefix:
-          (json['prefix'] ?? '!').toString().trim().isEmpty
-              ? '!'
-              : (json['prefix'] ?? '!').toString(),
+      prefix: (json['prefix'] ?? '!').toString().trim().isEmpty
+          ? '!'
+          : (json['prefix'] ?? '!').toString(),
       builtInLegacyHelpEnabled: json['builtInLegacyHelpEnabled'] != false,
       inboundWebhooks: json['inboundWebhooks'] == true,
       autoSharding: json['autoSharding'] == true,
@@ -328,8 +325,8 @@ class BotConfig {
   };
 
   /// Validates the minimal required fields.
-  void validate() {
-    if (token.trim().isEmpty) {
+  void validate({bool allowEmptyToken = false}) {
+    if (!allowEmptyToken && token.trim().isEmpty) {
       throw ArgumentError('BotConfig: token cannot be empty');
     }
 
@@ -357,8 +354,9 @@ Map<String, dynamic> _normalizeScheduledTrigger(Map<String, dynamic> raw) {
   final workflowName = (raw['workflowName'] ?? '').toString().trim();
   final label = (raw['label'] ?? workflowName).toString().trim();
   final minutesRaw = int.tryParse((raw['everyMinutes'] ?? '').toString());
-  final everyMinutes =
-      (minutesRaw != null && minutesRaw > 0) ? minutesRaw.clamp(1, 10080) : 60;
+  final everyMinutes = (minutesRaw != null && minutesRaw > 0)
+      ? minutesRaw.clamp(1, 10080)
+      : 60;
   final enabled = raw['enabled'] != false;
 
   return <String, dynamic>{
@@ -407,10 +405,9 @@ String? _optionalString(dynamic value) {
 }
 
 Map<String, dynamic> _normalizeVariableMap(dynamic raw) {
-  final source =
-      (raw is Map)
-          ? Map<String, dynamic>.from(raw.cast<String, dynamic>())
-          : const <String, dynamic>{};
+  final source = (raw is Map)
+      ? Map<String, dynamic>.from(raw.cast<String, dynamic>())
+      : const <String, dynamic>{};
 
   final normalized = <String, dynamic>{};
   for (final entry in source.entries) {
@@ -422,19 +419,17 @@ Map<String, dynamic> _normalizeVariableMap(dynamic raw) {
 Map<String, Map<String, Map<String, dynamic>>> _normalizeScopedVariables(
   dynamic raw,
 ) {
-  final scopes =
-      (raw is Map)
-          ? Map<String, dynamic>.from(raw.cast<String, dynamic>())
-          : const <String, dynamic>{};
+  final scopes = (raw is Map)
+      ? Map<String, dynamic>.from(raw.cast<String, dynamic>())
+      : const <String, dynamic>{};
 
   final normalized = <String, Map<String, Map<String, dynamic>>>{};
   for (final scopeEntry in scopes.entries) {
-    final ids =
-        (scopeEntry.value is Map)
-            ? Map<String, dynamic>.from(
-              (scopeEntry.value as Map).cast<String, dynamic>(),
-            )
-            : const <String, dynamic>{};
+    final ids = (scopeEntry.value is Map)
+        ? Map<String, dynamic>.from(
+            (scopeEntry.value as Map).cast<String, dynamic>(),
+          )
+        : const <String, dynamic>{};
 
     final scopeValues = <String, Map<String, dynamic>>{};
     for (final idEntry in ids.entries) {
@@ -457,7 +452,9 @@ List<Map<String, dynamic>> _normalizeScopedVariableDefinitions(dynamic raw) {
         return <String, dynamic>{
           'key': (map['key'] ?? '').toString(),
           'scope': (map['scope'] ?? '').toString(),
-          'defaultValue': _normalizeVariableValue(map['defaultValue'] ?? map['default_value']),
+          'defaultValue': _normalizeVariableValue(
+            map['defaultValue'] ?? map['default_value'],
+          ),
           'valueType': (map['valueType'] ?? 'string').toString(),
         };
       })

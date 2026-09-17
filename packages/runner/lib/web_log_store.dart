@@ -4,10 +4,9 @@ import 'package:logging/logging.dart';
 
 class RunnerLogStore {
   RunnerLogStore({this.maxEntries = 500, String? dataDir})
-      : _dataDir = (dataDir ??
-                Platform.environment['BOT_CREATOR_DATA_DIR'] ??
-                './data')
-            .trim() {
+    : _dataDir =
+          (dataDir ?? Platform.environment['BOT_CREATOR_DATA_DIR'] ?? './data')
+              .trim() {
     _initializeFiles();
   }
 
@@ -18,18 +17,41 @@ class RunnerLogStore {
   final Map<String, File> _files = {};
   File? _systemFile;
 
+  static const int maxLogAgeMs = 7 * 24 * 60 * 60 * 1000;
+
+  static bool _isLogExpired(String line, [DateTime? now]) {
+    final current = now ?? DateTime.now().toUtc();
+    final match = RegExp(r'^\[([^\]]+)\]').firstMatch(line);
+    if (match != null) {
+      final tsStr = match.group(1);
+      if (tsStr != null) {
+        try {
+          final ts = DateTime.parse(tsStr).toUtc();
+          if (current.difference(ts).inMilliseconds > maxLogAgeMs) {
+            return true;
+          }
+        } catch (_) {}
+      }
+    }
+    return false;
+  }
+
   List<String> tail({String? botId, int limit = 200}) {
     final safeLimit = limit <= 0 ? 1 : limit;
     final entries = botId == null ? _systemEntries : (_buckets[botId] ?? []);
+    final now = DateTime.now().toUtc();
+    final nonExpired = entries
+        .where((line) => !_isLogExpired(line, now))
+        .toList();
 
-    if (entries.length <= safeLimit) {
-      return List<String>.from(entries);
+    if (nonExpired.length <= safeLimit) {
+      return List<String>.from(nonExpired);
     }
-    return List<String>.from(entries.sublist(entries.length - safeLimit));
+    return List<String>.from(nonExpired.sublist(nonExpired.length - safeLimit));
   }
 
-  void add(LogRecord record, {String? botId}) {
-    final timestamp = record.time.toUtc().toIso8601String();
+  void add(LogRecord record, {String? botId, DateTime? timeOverride}) {
+    final timestamp = (timeOverride ?? record.time).toUtc().toIso8601String();
     final errorPart = record.error == null ? '' : ' | ${record.error}';
     final line =
         '[$timestamp] [${record.level.name}] ${record.loggerName}: ${record.message}$errorPart';
@@ -63,8 +85,13 @@ class RunnerLogStore {
 
   void _writeToSystemFile(String line) {
     try {
-      _systemFile ??= File('$_dataDir/logs/runner.log')..parent.createSync(recursive: true);
-      _systemFile?.writeAsStringSync('$line\n', mode: FileMode.append, flush: false);
+      _systemFile ??= File('$_dataDir/logs/runner.log')
+        ..parent.createSync(recursive: true);
+      _systemFile?.writeAsStringSync(
+        '$line\n',
+        mode: FileMode.append,
+        flush: false,
+      );
     } catch (_) {}
   }
 

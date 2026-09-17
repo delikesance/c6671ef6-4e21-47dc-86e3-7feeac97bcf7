@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
+import 'package:bot_creator/features/subscriptions/logic/app_account_token.dart';
 import 'package:bot_creator/features/subscriptions/logic/hosted_app_billing_catalog.dart';
 import 'package:bot_creator/features/subscriptions/logic/shared_purchase_stream.dart';
 import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
@@ -166,7 +167,10 @@ class HostedAppSubscriptionService {
 
     _pendingTier = tier;
     final started = await InAppPurchase.instance.buyNonConsumable(
-      purchaseParam: hostedAppPurchaseParam(listing, accountUsername: ownerId),
+      purchaseParam: hostedAppPurchaseParam(
+        listing,
+        storeAccountToken: appAccountTokenForOwner(ownerId),
+      ),
     );
     if (!started) {
       _pendingTier = null;
@@ -393,6 +397,7 @@ class HostedAppSubscriptionService {
         serverVerificationData: serverVerificationData,
         productId: verifyProductId,
         localTransactionId: purchase.purchaseID,
+        appAccountToken: appAccountTokenForOwner(session.userId),
       );
 
       final activeRaw = response['active'];

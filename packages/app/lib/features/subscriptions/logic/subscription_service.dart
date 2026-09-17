@@ -5,6 +5,7 @@ import 'package:bot_creator/core/analytics/monetization_funnel.dart';
 import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
+import 'package:bot_creator/features/subscriptions/logic/app_account_token.dart';
 import 'package:bot_creator/features/subscriptions/logic/shared_purchase_stream.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
@@ -476,6 +477,10 @@ class SubscriptionService {
       final currentOwnerId = (session != null && !session.isExpired)
           ? session.userId?.trim()
           : null;
+      // StoreKit2 only forwards this as `appAccountToken` when it parses as a
+      // UUID (which is what the backend resolves the store notification with);
+      // Play receives it as the obfuscated account id.
+      final storeAccountToken = appAccountTokenForOwner(currentOwnerId);
 
       final PurchaseParam purchaseParam;
       if (Platform.isAndroid) {
@@ -508,13 +513,13 @@ class SubscriptionService {
         }
         purchaseParam = GooglePlayPurchaseParam(
           productDetails: product,
-          applicationUserName: currentOwnerId,
+          applicationUserName: storeAccountToken,
           offerToken: offerToken,
         );
       } else {
         purchaseParam = PurchaseParam(
           productDetails: product,
-          applicationUserName: currentOwnerId,
+          applicationUserName: storeAccountToken,
         );
       }
       unawaited(MonetizationFunnel.purchaseStart(product: productId));
@@ -744,6 +749,7 @@ class SubscriptionService {
         serverVerificationData: serverVerificationData,
         productId: purchase.productID,
         localTransactionId: purchase.purchaseID,
+        appAccountToken: appAccountTokenForOwner(session.userId),
       );
 
       final activeRaw = response['active'];

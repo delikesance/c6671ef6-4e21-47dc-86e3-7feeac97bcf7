@@ -35,19 +35,17 @@ extension _CommandCreateEditShell on _CommandCreatePageState {
 
   // ignore: unused_element
   Widget _buildEditShell() {
-    final activeRouteLabel =
-        _subcommandWorkflows.isNotEmpty
-            ? _workflowRouteLabel(_activeSubcommandRoute)
-            : null;
+    final activeRouteLabel = _subcommandWorkflows.isNotEmpty
+        ? _workflowRouteLabel(_activeSubcommandRoute)
+        : null;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _EditSummaryCard(
-          title:
-              _commandName.trim().isEmpty
-                  ? context.tr.edit_shell_untitled_command
-                  : _commandName,
+          title: _commandName.trim().isEmpty
+              ? context.tr.edit_shell_untitled_command
+              : _commandName,
           subtitle: context.tr.edit_shell_subtitle,
           saveLabel: context.tr.edit_shell_save_changes,
           onSave: () {
@@ -100,6 +98,15 @@ extension _CommandCreateEditShell on _CommandCreatePageState {
                 isLegacyCommand:
                     _legacyModeEnabled &&
                     _commandType == ApplicationCommandType.chatInput,
+                legacyAliases: _legacyAliases,
+                onLegacyAliasesChanged: (aliases) {
+                  _applyStateUpdate(() {
+                    _legacyAliases = normalizeLegacyCommandAliases(
+                      aliases,
+                      maxAliases: 2,
+                    );
+                  });
+                },
                 canEditCommandType: !_isEditingExistingCommand,
                 localOnlyCommand: _localOnlyCommand,
                 showDescriptionField: _supportsCommandDescription,

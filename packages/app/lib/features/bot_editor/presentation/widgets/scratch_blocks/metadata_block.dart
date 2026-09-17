@@ -1,6 +1,8 @@
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:nyxx/nyxx.dart';
 
 import 'package:bot_creator/core/models/types/variable_suggestion.dart';
@@ -10,6 +12,26 @@ import 'package:bot_creator/features/bot_editor/presentation/widgets/command_cre
 import 'package:bot_creator/features/bot_editor/presentation/widgets/option_widget.dart';
 import 'scratch_block.dart';
 import 'scratch_block_palette.dart';
+
+class _MaxTwoCommaSeparatedFormatter extends TextInputFormatter {
+  const _MaxTwoCommaSeparatedFormatter();
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final parts = newValue.text.split(',');
+    if (parts.length > 2) {
+      final truncated = '${parts[0]},${parts[1]}';
+      return TextEditingValue(
+        text: truncated,
+        selection: TextSelection.collapsed(offset: truncated.length),
+      );
+    }
+    return newValue;
+  }
+}
 
 /// A fixed (non-deletable) block that displays command metadata.
 ///
@@ -38,6 +60,8 @@ class MetadataBlock extends StatefulWidget {
     required this.onDefaultMemberPermissionsChanged,
     required this.nameValidator,
     this.nameMaxLength = 32,
+    this.legacyAliases = const <String>[],
+    this.onLegacyAliasesChanged,
     // Options
     this.showOptions = true,
     this.options,
@@ -73,6 +97,8 @@ class MetadataBlock extends StatefulWidget {
   final ValueChanged<String> onDefaultMemberPermissionsChanged;
   final String? Function(String?) nameValidator;
   final int nameMaxLength;
+  final List<String> legacyAliases;
+  final ValueChanged<List<String>>? onLegacyAliasesChanged;
 
   // Options
   final bool showOptions;
@@ -95,12 +121,33 @@ class _MetadataBlockState extends State<MetadataBlock> {
   bool _optionsExpanded = false;
 
   late final TextEditingController _nameController;
+  late final TextEditingController _aliasesController;
   List<String> _existingFolders = const <String>[];
+
+  static List<String> _parseAliases(String raw) {
+    final parts = raw.split(',');
+    final result = <String>[];
+    for (final part in parts) {
+      var cleaned = part.trim();
+      if (cleaned.startsWith('!')) {
+        cleaned = cleaned.substring(1).trim();
+      }
+      cleaned = cleaned.toLowerCase();
+      if (cleaned.isNotEmpty && !result.contains(cleaned)) {
+        result.add(cleaned);
+        if (result.length >= 2) break;
+      }
+    }
+    return result;
+  }
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.commandName);
+    _aliasesController = TextEditingController(
+      text: widget.legacyAliases.take(2).join(', '),
+    );
     _loadExistingFolders();
   }
 
@@ -132,11 +179,21 @@ class _MetadataBlockState extends State<MetadataBlock> {
         _nameController.text != widget.commandName) {
       _nameController.text = widget.commandName;
     }
+    if (!listEquals(oldWidget.legacyAliases, widget.legacyAliases)) {
+      final currentParsed = _parseAliases(_aliasesController.text);
+      if (!listEquals(currentParsed, widget.legacyAliases)) {
+        final nextText = widget.legacyAliases.take(2).join(', ');
+        if (_aliasesController.text != nextText) {
+          _aliasesController.text = nextText;
+        }
+      }
+    }
   }
 
   @override
   void dispose() {
     _nameController.dispose();
+    _aliasesController.dispose();
     super.dispose();
   }
 
@@ -199,6 +256,43 @@ class _MetadataBlockState extends State<MetadataBlock> {
             ),
             onChanged: widget.onNameChanged,
           ),
+
+          // ── Aliases (Prefix Commands only) ──
+          if (widget.isLegacyCommand) ...[
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _aliasesController,
+              autocorrect: false,
+              inputFormatters: const [_MaxTwoCommaSeparatedFormatter()],
+              decoration: InputDecoration(
+                labelText: context.tr.command_alias_label,
+                hintText: 'p, ping',
+                helperText: context.tr.command_alias_limit(2),
+                prefixIcon: const Icon(Icons.alternate_email, size: 20),
+                border: const OutlineInputBorder(),
+              ),
+              validator: (val) {
+                if (val == null || val.trim().isEmpty) return null;
+                final parts = val.split(',');
+                if (parts.length > 2) {
+                  return context.tr.command_alias_limit(2);
+                }
+                for (final p in parts) {
+                  final t = p.trim();
+                  if (t.isNotEmpty && RegExp(r'\s').hasMatch(t)) {
+                    return 'Alias cannot contain spaces';
+                  }
+                  if (t.length > 32) {
+                    return 'Alias maximum length is 32 characters';
+                  }
+                }
+                return null;
+              },
+              onChanged: (text) {
+                widget.onLegacyAliasesChanged?.call(_parseAliases(text));
+              },
+            ),
+          ],
 
           // ── Description ──
           if (widget.showDescriptionField) ...[
@@ -549,6 +643,8 @@ class _MetadataBlockState extends State<MetadataBlock> {
                 widget.onDefaultMemberPermissionsChanged,
             nameValidator: widget.nameValidator,
             nameMaxLength: widget.nameMaxLength,
+            legacyAliases: widget.legacyAliases,
+            onLegacyAliasesChanged: widget.onLegacyAliasesChanged,
           ),
         ],
       ],

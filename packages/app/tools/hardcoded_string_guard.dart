@@ -248,6 +248,15 @@ const List<AllowListEntry> allowListedPatterns = <AllowListEntry>[
   ),
   AllowListEntry(
     pathFragment:
+        'lib/features/bot_editor/presentation/widgets/command_create_cards/'
+        'basic_info_card.dart',
+    snippetPattern: r"hintText: 'p, ping'",
+    reason:
+        'Exemple de format pour les alias de commande (syntaxe technique : '
+        'deux alias séparés par une virgule), pas un libellé d\'UI.',
+  ),
+  AllowListEntry(
+    pathFragment:
         'lib/features/components_v2/presentation/component_v2_builder/'
         'component_node_editor.dart',
     snippetPattern: r"labelText: 'SKU ID'",

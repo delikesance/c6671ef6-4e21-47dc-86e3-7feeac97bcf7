@@ -873,6 +873,26 @@ class MainApiClient implements RemoteRuntimeClient {
     return RunnerMetrics.fromJson(json);
   }
 
+  Map<String, dynamic> _sanitizeConfigForUpload(Map<String, dynamic> source) {
+    final sanitized = Map<String, dynamic>.from(source);
+    sanitized.remove('token');
+    sanitized.remove('botToken');
+    sanitized.remove('bot_token');
+
+    final db = sanitized['databaseConfig'];
+    if (db is Map) {
+      final cleanDb = Map<String, dynamic>.from(db);
+      cleanDb.remove('password');
+      final uri = cleanDb['uri']?.toString() ?? '';
+      if (uri.contains('@')) {
+        cleanDb.remove('uri');
+      }
+      cleanDb['encrypted'] = true;
+      sanitized['databaseConfig'] = cleanDb;
+    }
+    return sanitized;
+  }
+
   @override
   Future<void> syncBot(
     String botId,
@@ -888,12 +908,14 @@ class MainApiClient implements RemoteRuntimeClient {
       return;
     }
 
+    final safeConfig = _sanitizeConfigForUpload(config);
+
     try {
       // 1. Get presigned ticket
       final ticket = await presignBotConfig(botId: botId);
 
-      // 2. Upload config JSON to the presigned uploadUrl
-      final configJsonBytes = utf8.encode(jsonEncode(config));
+      // 2. Upload config JSON to the presigned uploadUrl (zero plaintext secrets)
+      final configJsonBytes = utf8.encode(jsonEncode(safeConfig));
       await uploadFileToPresignedUrl(
         uploadUrl: ticket.uploadUrl,
         fileBytes: configJsonBytes,
@@ -914,10 +936,14 @@ class MainApiClient implements RemoteRuntimeClient {
         '[MainApiClient] Presigned config upload failed: $error. Falling back to legacy direct sync.',
       );
 
-      // Fallback: legacy direct POST sync
+      // Fallback: legacy direct POST sync with sanitized config
       await _postFirstAvailable(
         const <String>['/gateway/bots/sync', '/bots/sync'],
-        <String, dynamic>{'botId': botId, 'botName': botName, 'config': config},
+        <String, dynamic>{
+          'botId': botId,
+          'botName': botName,
+          'config': safeConfig,
+        },
       );
     }
 
@@ -1034,12 +1060,14 @@ class MainApiClient implements RemoteRuntimeClient {
     required String serverVerificationData,
     required String productId,
     String? localTransactionId,
+    String? appAccountToken,
   }) async {
     return _post('/billing/verify', <String, dynamic>{
       'platform': platform,
       'serverVerificationData': serverVerificationData,
       'productId': productId,
       'localTransactionId': ?_normalize(localTransactionId),
+      'appAccountToken': ?_normalize(appAccountToken),
     });
   }
 
