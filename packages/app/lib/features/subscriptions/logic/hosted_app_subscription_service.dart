@@ -238,6 +238,15 @@ class HostedAppSubscriptionService {
       _lastServerSyncAt = DateTime.now().toUtc();
 
       if (!eligibility.premium) {
+        // The manager does not know this purchase yet: the store notification was
+        // not attributed, or /billing/verify never ran for this account. Erasing the
+        // local state here is what left paying customers stuck on "Not subscribed"
+        // while their store subscription was live, so replay the receipt first.
+        // Only the manager can grant (it verifies the receipt server-side), this
+        // just asks it again with fresh store data.
+        if (_isSubscribed && await _reverifyFromStore()) {
+          return true;
+        }
         if (_isSubscribed) {
           await _markExpired();
         }
@@ -424,6 +433,50 @@ class HostedAppSubscriptionService {
       return (active: false, expiresAt: null, canonicalProductId: null);
     }
   }
+
+  /// Asks the store to replay its purchases and waits for the shared purchase
+  /// stream to verify them with the manager.
+  ///
+  /// Returns true as soon as the local state becomes active again. Bounded and rate
+  /// limited on purpose: a genuinely expired subscription must not turn every
+  /// refresh into a store round trip.
+  static Future<bool> _reverifyFromStore() async {
+    final lastAttempt = _lastStoreReverifyAt;
+    if (!_storeAvailable ||
+        (lastAttempt != null &&
+            DateTime.now().toUtc().difference(lastAttempt) <
+                _storeReverifyCooldown)) {
+      return false;
+    }
+    _lastStoreReverifyAt = DateTime.now().toUtc();
+
+    try {
+      await InAppPurchase.instance.restorePurchases();
+    } catch (error, stack) {
+      unawaited(
+        AppDiagnostics.logError(
+          'Hosted app store restore failed',
+          error,
+          stack,
+          fatal: false,
+        ),
+      );
+      return false;
+    }
+
+    final deadline = DateTime.now().toUtc().add(_storeReverifyTimeout);
+    while (DateTime.now().toUtc().isBefore(deadline)) {
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+      if (_isLocalSubscriptionActive()) {
+        return true;
+      }
+    }
+    return _isLocalSubscriptionActive();
+  }
+
+  static const Duration _storeReverifyTimeout = Duration(seconds: 8);
+  static const Duration _storeReverifyCooldown = Duration(minutes: 10);
+  static DateTime? _lastStoreReverifyAt;
 
   static Future<void> _markExpired() async {
     _expiryTimer?.cancel();
