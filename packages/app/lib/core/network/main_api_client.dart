@@ -1060,12 +1060,14 @@ class MainApiClient implements RemoteRuntimeClient {
     required String serverVerificationData,
     required String productId,
     String? localTransactionId,
+    String? appAccountToken,
   }) async {
     return _post('/billing/verify', <String, dynamic>{
       'platform': platform,
       'serverVerificationData': serverVerificationData,
       'productId': productId,
       'localTransactionId': ?_normalize(localTransactionId),
+      'appAccountToken': ?_normalize(appAccountToken),
     });
   }
 

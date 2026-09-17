@@ -113,20 +113,26 @@ HostedAppStoreListing? findHostedAppListing(
   return null;
 }
 
+/// Builds the purchase request for [listing].
+///
+/// [storeAccountToken] must come from `appAccountTokenForOwner`. On iOS StoreKit2
+/// only forwards it as `appAccountToken` when it parses as a UUID, and that token
+/// is what the backend resolves a store notification with — passing the raw
+/// account id here silently loses the association (the plugin drops it).
 PurchaseParam hostedAppPurchaseParam(
   HostedAppStoreListing listing, {
-  String? accountUsername,
+  String? storeAccountToken,
 }) {
   if (Platform.isAndroid && listing.offerToken != null) {
     return GooglePlayPurchaseParam(
       productDetails: listing.productDetails,
       offerToken: listing.offerToken,
-      applicationUserName: accountUsername,
+      applicationUserName: storeAccountToken,
     );
   }
   return PurchaseParam(
     productDetails: listing.productDetails,
-    applicationUserName: accountUsername,
+    applicationUserName: storeAccountToken,
   );
 }
 
