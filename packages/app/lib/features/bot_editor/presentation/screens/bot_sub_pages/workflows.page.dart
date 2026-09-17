@@ -1,5 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:bot_creator/core/storage/app_storage_directory.dart';
+import 'package:bot_creator/features/bot_editor/logic/command_folder_tree.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/folder_picker_dialog.dart';
+import 'package:flutter/foundation.dart';
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
@@ -47,6 +52,43 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
   List<AppEmoji> _appEmojis = [];
   String _searchQuery = '';
   late String _workflowFilter;
+  String _folderFilter = '';
+  final Set<String> _expandedWorkflowFolders = <String>{};
+  final Set<String> _emptyWorkflowFolders = <String>{};
+
+  Future<String> _getEmptyWorkflowFoldersFilePath() async {
+    final storagePath = await getAppStoragePath();
+    return '$storagePath/apps/${widget.botId}/_empty_workflow_folders.json';
+  }
+
+  Future<void> _loadEmptyWorkflowFolders() async {
+    try {
+      final path = await _getEmptyWorkflowFoldersFilePath();
+      final file = File(path);
+      if (await file.exists()) {
+        final content = await file.readAsString();
+        final list = jsonDecode(content) as List?;
+        if (list != null) {
+          _emptyWorkflowFolders.clear();
+          for (final item in list) {
+            final normalized = normalizeFolderPath(item.toString());
+            if (normalized.isNotEmpty) _emptyWorkflowFolders.add(normalized);
+          }
+        }
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _saveEmptyWorkflowFolders() async {
+    try {
+      final path = await _getEmptyWorkflowFoldersFilePath();
+      final file = File(path);
+      await file.parent.create(recursive: true);
+      await file.writeAsString(
+        jsonEncode(_emptyWorkflowFolders.toList()..sort()),
+      );
+    } catch (_) {}
+  }
 
   @override
   void initState() {
@@ -67,9 +109,18 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
   }
 
   Future<void> _load() async {
+    await _loadEmptyWorkflowFolders();
     final workflows = await appManager.getWorkflows(widget.botId);
     if (!mounted) {
       return;
+    }
+
+    final tree = buildCommandFolderTree(
+      commands: workflows,
+      emptyFolders: _emptyWorkflowFolders,
+    );
+    for (final p in tree.allFolderPaths) {
+      _expandedWorkflowFolders.add(p);
     }
 
     // Load application emojis silently for autocomplete
@@ -248,13 +299,19 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
   Future<void> _createOrEditWorkflow({
     Map<String, dynamic>? initial,
     String? initialWorkflowType,
+    String? prefillFolder,
   }) async {
+    final effectiveInitial =
+        initial ??
+        (prefillFolder != null && prefillFolder.isNotEmpty
+            ? <String, dynamic>{'folder': prefillFolder}
+            : null);
     final saved = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
         builder: (_) => WorkflowBlockEditor(
           botId: widget.botId,
-          initial: initial,
+          initial: effectiveInitial,
           initialWorkflowType: initialWorkflowType,
           eventsOnly: widget.eventsOnly,
           appEmojis: _appEmojis,
@@ -1009,92 +1066,45 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
   }
 
   Set<String> get _existingWorkflowFolders {
-    return _workflows
-        .map((w) => (w['folder'] ?? '').toString().trim())
-        .where((f) => f.isNotEmpty)
-        .toSet();
+    final folders = <String>{};
+    for (final w in _workflows) {
+      final f = normalizeFolderPath((w['folder'] ?? '').toString());
+      if (f.isNotEmpty) {
+        var cur = f;
+        while (cur.isNotEmpty) {
+          folders.add(cur);
+          cur = folderParentPath(cur);
+        }
+      }
+    }
+    for (final empty in _emptyWorkflowFolders) {
+      final f = normalizeFolderPath(empty);
+      if (f.isNotEmpty) {
+        var cur = f;
+        while (cur.isNotEmpty) {
+          folders.add(cur);
+          cur = folderParentPath(cur);
+        }
+      }
+    }
+    return folders;
   }
 
-  Future<void> _showWorkflowMoveToFolderDialog(
+  Future<void> _moveWorkflowToFolder(
     Map<String, dynamic> workflow,
+    String targetFolder,
   ) async {
+    final cleanFolder = normalizeFolderPath(targetFolder);
     final name = (workflow['name'] ?? '').toString();
-    final currentFolder = (workflow['folder'] ?? '').toString().trim();
-    final folders = _existingWorkflowFolders.toList()..sort();
-    final controller = TextEditingController();
+    if (name.isEmpty) return;
 
-    final chosen = await showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      builder: (context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: Text(
-                  context.tr.workflows_move_to_folder,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
-              if (currentFolder.isNotEmpty)
-                ListTile(
-                  leading: const Icon(Icons.clear),
-                  title: Text(context.tr.workflows_remove_from_folder),
-                  onTap: () => Navigator.pop(context, ''),
-                ),
-              for (final folder in folders)
-                ListTile(
-                  leading: Icon(
-                    Icons.folder,
-                    color: folder == currentFolder
-                        ? Theme.of(context).colorScheme.primary
-                        : null,
-                  ),
-                  title: Text(folder),
-                  selected: folder == currentFolder,
-                  onTap: () => Navigator.pop(context, folder),
-                ),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: controller,
-                        decoration: InputDecoration(
-                          hintText: context.tr.workflows_new_folder_hint,
-                          border: const OutlineInputBorder(),
-                          isDense: true,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    IconButton(
-                      icon: const Icon(Icons.check),
-                      onPressed: () {
-                        final newFolder = controller.text.trim();
-                        if (newFolder.isNotEmpty) {
-                          Navigator.pop(context, newFolder);
-                        }
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 8),
-            ],
-          ),
-        );
-      },
-    );
-
-    if (chosen == null || !mounted) return;
+    if (cleanFolder.isNotEmpty) {
+      var cur = cleanFolder;
+      while (cur.isNotEmpty) {
+        _expandedWorkflowFolders.add(cur);
+        cur = folderParentPath(cur);
+      }
+    }
 
     await appManager.saveWorkflow(
       widget.botId,
@@ -1114,8 +1124,220 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
           normalizeWorkflowType(workflow['workflowType']) == workflowTypeEvent
           ? normalizeWorkflowEventTrigger(workflow['eventTrigger'])
           : null,
-      folder: chosen,
+      folder: cleanFolder,
     );
+    await _load();
+  }
+
+  Future<void> _showWorkflowMoveToFolderDialog(
+    Map<String, dynamic> workflow,
+  ) async {
+    final name = (workflow['name'] ?? '').toString();
+    final currentFolder = normalizeFolderPath(
+      (workflow['folder'] ?? '').toString(),
+    );
+
+    final tree = buildCommandFolderTree(
+      commands: _workflows,
+      emptyFolders: _emptyWorkflowFolders,
+    );
+
+    final chosen = await FolderPickerDialog.show(
+      context: context,
+      title: '${context.tr.workflows_move_to_folder}: $name',
+      currentFolder: currentFolder,
+      tree: tree,
+    );
+
+    if (chosen == null || !mounted || chosen == currentFolder) return;
+    await _moveWorkflowToFolder(workflow, chosen);
+  }
+
+  Future<void> _showCreateFolderDialog({String? parentPath}) async {
+    final controller = TextEditingController();
+    final cleanParent = normalizeFolderPath(parentPath);
+    final title = cleanParent.isEmpty
+        ? context.tr.commands_create_folder
+        : '${context.tr.commands_create_folder} ($cleanParent)';
+
+    final folderName = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(title),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            decoration: InputDecoration(
+              hintText: context.tr.commands_new_folder_hint,
+              border: const OutlineInputBorder(),
+            ),
+            onSubmitted: (v) {
+              final t = v.trim();
+              if (t.isNotEmpty) Navigator.pop(context, t);
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(context.tr.cancel),
+            ),
+            FilledButton(
+              onPressed: () {
+                final t = controller.text.trim();
+                if (t.isNotEmpty) Navigator.pop(context, t);
+              },
+              child: Text(context.tr.save),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (folderName == null || folderName.isEmpty || !mounted) return;
+    final finalPath = cleanParent.isEmpty
+        ? normalizeFolderPath(folderName)
+        : normalizeFolderPath('$cleanParent/$folderName');
+    if (finalPath.isEmpty) return;
+
+    setState(() {
+      _emptyWorkflowFolders.add(finalPath);
+      var cur = finalPath;
+      while (cur.isNotEmpty) {
+        _expandedWorkflowFolders.add(cur);
+        cur = folderParentPath(cur);
+      }
+    });
+    await _saveEmptyWorkflowFolders();
+  }
+
+  Future<void> _renameFolderDialog(String oldPath) async {
+    final cleanOld = normalizeFolderPath(oldPath);
+    if (cleanOld.isEmpty) return;
+    final controller = TextEditingController(text: folderDisplayName(cleanOld));
+
+    final newName = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(context.tr.commands_rename_folder),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            decoration: InputDecoration(
+              hintText: context.tr.commands_new_folder_hint,
+              border: const OutlineInputBorder(),
+            ),
+            onSubmitted: (v) {
+              final t = v.trim();
+              if (t.isNotEmpty) Navigator.pop(context, t);
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(context.tr.cancel),
+            ),
+            FilledButton(
+              onPressed: () {
+                final t = controller.text.trim();
+                if (t.isNotEmpty) Navigator.pop(context, t);
+              },
+              child: Text(context.tr.save),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (newName == null || newName.isEmpty || !mounted) return;
+    final parent = folderParentPath(cleanOld);
+    final newPath = parent.isEmpty
+        ? normalizeFolderPath(newName)
+        : normalizeFolderPath('$parent/$newName');
+    if (newPath == cleanOld) return;
+
+    cascadeRenameFolder(
+      oldPath: cleanOld,
+      newPath: newPath,
+      commands: _workflows,
+      emptyFolders: _emptyWorkflowFolders,
+      onUpdateCommand: (updated) async {
+        await appManager.saveWorkflow(
+          widget.botId,
+          name: (updated['name'] ?? '').toString(),
+          actions: List<Map<String, dynamic>>.from(
+            (updated['actions'] as List?)?.whereType<Map>().map(
+                  (e) => Map<String, dynamic>.from(e),
+                ) ??
+                const <Map<String, dynamic>>[],
+          ),
+          entryPoint: normalizeWorkflowEntryPoint(updated['entryPoint']),
+          arguments: serializeWorkflowArgumentDefinitions(
+            parseWorkflowArgumentDefinitions(updated['arguments']),
+          ),
+          workflowType: normalizeWorkflowType(updated['workflowType']),
+          eventTrigger:
+              normalizeWorkflowType(updated['workflowType']) ==
+                  workflowTypeEvent
+              ? normalizeWorkflowEventTrigger(updated['eventTrigger'])
+              : null,
+          folder: (updated['folder'] ?? '').toString(),
+        );
+      },
+    );
+
+    if (_expandedWorkflowFolders.remove(cleanOld)) {
+      _expandedWorkflowFolders.add(newPath);
+    }
+    await _saveEmptyWorkflowFolders();
+    await _load();
+  }
+
+  Future<void> _deleteFolderDialog(String folderPath) async {
+    final cleanPath = normalizeFolderPath(folderPath);
+    if (cleanPath.isEmpty) return;
+
+    final confirmed = await AppTheme.showConfirmDialog(
+      context,
+      title: context.tr.commands_delete_folder,
+      content: context.tr.commands_delete_folder_desc,
+      confirmLabel: context.tr.confirm,
+      isDestructive: true,
+    );
+    if (!confirmed || !mounted) return;
+
+    cascadeDeleteFolder(
+      targetPath: cleanPath,
+      commands: _workflows,
+      emptyFolders: _emptyWorkflowFolders,
+      onUpdateCommand: (updated) async {
+        await appManager.saveWorkflow(
+          widget.botId,
+          name: (updated['name'] ?? '').toString(),
+          actions: List<Map<String, dynamic>>.from(
+            (updated['actions'] as List?)?.whereType<Map>().map(
+                  (e) => Map<String, dynamic>.from(e),
+                ) ??
+                const <Map<String, dynamic>>[],
+          ),
+          entryPoint: normalizeWorkflowEntryPoint(updated['entryPoint']),
+          arguments: serializeWorkflowArgumentDefinitions(
+            parseWorkflowArgumentDefinitions(updated['arguments']),
+          ),
+          workflowType: normalizeWorkflowType(updated['workflowType']),
+          eventTrigger:
+              normalizeWorkflowType(updated['workflowType']) ==
+                  workflowTypeEvent
+              ? normalizeWorkflowEventTrigger(updated['eventTrigger'])
+              : null,
+          folder: (updated['folder'] ?? '').toString(),
+        );
+      },
+    );
+
+    _expandedWorkflowFolders.remove(cleanPath);
+    await _saveEmptyWorkflowFolders();
     await _load();
   }
 
@@ -1131,12 +1353,20 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
             return false;
           }
 
+          final folder = normalizeFolderPath(
+            (workflow['folder'] ?? '').toString(),
+          );
+          if (_folderFilter.isNotEmpty &&
+              folder != _folderFilter &&
+              !folder.startsWith('$_folderFilter/')) {
+            return false;
+          }
+
           if (query.isEmpty) {
             return true;
           }
 
           final name = (workflow['name'] ?? '').toString().toLowerCase();
-          final folder = (workflow['folder'] ?? '').toString().toLowerCase();
           final entryPoint = normalizeWorkflowEntryPoint(
             workflow['entryPoint'],
           ).toLowerCase();
@@ -1147,51 +1377,84 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
             (eventTrigger['event'] ?? '').toString(),
           ).toLowerCase();
           return name.contains(query) ||
-              folder.contains(query) ||
+              folder.toLowerCase().contains(query) ||
               entryPoint.contains(query) ||
               eventName.contains(query);
         })
         .toList(growable: false);
   }
 
-  Future<void> _showCreateWorkflowMenu() async {
+  Future<void> _showCreateWorkflowMenu({String? prefillFolder}) async {
     if (widget.eventsOnly) {
-      await _createOrEditWorkflow(initialWorkflowType: workflowTypeEvent);
+      await _createOrEditWorkflow(
+        initialWorkflowType: workflowTypeEvent,
+        prefillFolder: prefillFolder,
+      );
       return;
     }
 
-    final selection = await showModalBottomSheet<String>(
+    final selection = await showDialog<String>(
       context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
       builder: (context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.account_tree_outlined),
-                title: Text(context.tr.workflows_type_general),
-                subtitle: Text(context.tr.workflows_type_general_desc),
-                onTap: () => Navigator.pop(context, workflowTypeGeneral),
-              ),
-              ListTile(
-                leading: const Icon(Icons.notifications_active_outlined),
-                title: Text(context.tr.workflows_type_event),
-                subtitle: Text(context.tr.workflows_type_event_desc),
-                onTap: () => Navigator.pop(context, workflowTypeEvent),
-              ),
-            ],
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 420),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 18, 12, 12),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          context.tr.workflows_create,
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, size: 20),
+                        tooltip: context.tr.cancel,
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.account_tree_outlined),
+                  title: Text(context.tr.workflows_type_general),
+                  subtitle: Text(context.tr.workflows_type_general_desc),
+                  onTap: () => Navigator.pop(context, workflowTypeGeneral),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.notifications_active_outlined),
+                  title: Text(context.tr.workflows_type_event),
+                  subtitle: Text(context.tr.workflows_type_event_desc),
+                  onTap: () => Navigator.pop(context, workflowTypeEvent),
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
           ),
         );
       },
     );
 
-    if (selection == null) {
+    if (selection == null || !mounted) {
       return;
     }
 
-    await _createOrEditWorkflow(initialWorkflowType: selection);
+    await _createOrEditWorkflow(
+      initialWorkflowType: selection,
+      prefillFolder: prefillFolder,
+    );
   }
 
   Widget _buildFilters() {
@@ -1217,11 +1480,24 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
             },
             selectedValue: _workflowFilter == 'all' ? '' : _workflowFilter,
           ),
+        if (_existingWorkflowFolders.isNotEmpty)
+          NotionFilter(
+            id: 'folder',
+            label: context.tr.commands_folder_label,
+            icon: Icons.folder_outlined,
+            options: {
+              '': context.tr.commands_all_folders,
+              for (final folder in _existingWorkflowFolders) folder: folder,
+            },
+            selectedValue: _folderFilter,
+          ),
       ],
       onFilterChanged: (filterId, value) {
         setState(() {
           if (filterId == 'type') {
             _workflowFilter = value.isEmpty ? 'all' : value;
+          } else if (filterId == 'folder') {
+            _folderFilter = value;
           }
         });
       },
@@ -1260,13 +1536,50 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
     final workflowChildren = <Widget>[];
     var displayedWorkflowsCount = 0;
 
+    final showSectionHeaders =
+        !widget.eventsOnly &&
+        generalWorkflows.isNotEmpty &&
+        eventWorkflows.isNotEmpty;
+
     void appendSection(String title, List<Map<String, dynamic>> workflows) {
       if (workflows.isEmpty) {
         return;
       }
 
-      workflowChildren.add(_WorkflowSectionHeader(title: title));
-      if (title == context.tr.workflows_event_section) {
+      if (showSectionHeaders) {
+        workflowChildren.add(_WorkflowSectionHeader(title: title));
+      }
+
+      void addWorkflowCard(
+        Map<String, dynamic> workflow, {
+        double indent = 0.0,
+      }) {
+        workflowChildren.add(
+          Padding(
+            padding: EdgeInsets.only(left: indent, bottom: 6),
+            child: _buildWorkflowTile(workflow),
+          ),
+        );
+        displayedWorkflowsCount += 1;
+        if (adsEnabled &&
+            AdsPlacementPolicy.shouldInsertAfterContentCount(
+              displayedWorkflowsCount,
+            )) {
+          workflowChildren.add(
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              child: NativeAdSlot(
+                placement: NativeAdPlacement.workflowsList,
+                height: 110,
+                margin: EdgeInsets.zero,
+              ),
+            ),
+          );
+        }
+      }
+
+      if (title == context.tr.workflows_event_section ||
+          (widget.eventsOnly && title == context.tr.workflows_type_event)) {
         final Map<String, List<Map<String, dynamic>>> byEvent = {};
         for (final workflow in workflows) {
           final trigger = normalizeWorkflowEventTrigger(
@@ -1276,77 +1589,163 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
           byEvent.putIfAbsent(eventKey, () => []).add(workflow);
         }
         final sortedEvents = byEvent.keys.toList(growable: false)..sort();
+        final showEventHeader =
+            sortedEvents.length > 1 ||
+            (sortedEvents.isNotEmpty && sortedEvents.first.isNotEmpty);
+
         for (final event in sortedEvents) {
-          workflowChildren.add(
-            _WorkflowFolderHeader(
-              title: _eventLabel(event),
-              count: byEvent[event]!.length,
-              icon: Icons.notifications_active_outlined,
-            ),
-          );
+          if (showEventHeader) {
+            workflowChildren.add(
+              _WorkflowFolderHeader(
+                title: _eventLabel(event),
+                count: byEvent[event]!.length,
+                icon: Icons.notifications_active_outlined,
+              ),
+            );
+          }
           for (final workflow in byEvent[event]!) {
-            workflowChildren.add(_buildWorkflowTile(workflow));
-            displayedWorkflowsCount += 1;
-            if (adsEnabled &&
-                AdsPlacementPolicy.shouldInsertAfterContentCount(
-                  displayedWorkflowsCount,
-                )) {
-              workflowChildren.add(
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  child: NativeAdSlot(
-                    placement: NativeAdPlacement.workflowsList,
-                    height: 110,
-                    margin: EdgeInsets.zero,
-                  ),
-                ),
-              );
-            }
+            addWorkflowCard(workflow);
           }
         }
         return;
       }
 
-      final Map<String, List<Map<String, dynamic>>> byFolder = {};
-      for (final workflow in workflows) {
-        final folder = (workflow['folder'] ?? '').toString().trim();
-        byFolder.putIfAbsent(folder, () => []).add(workflow);
-      }
-      final sortedFolders = byFolder.keys.toList()
-        ..sort((a, b) {
-          if (a.isEmpty) return -1;
-          if (b.isEmpty) return 1;
-          return a.compareTo(b);
-        });
+      final tree = buildCommandFolderTree(
+        commands: workflows,
+        emptyFolders: _emptyWorkflowFolders,
+      );
 
-      for (final folder in sortedFolders) {
-        if (folder.isNotEmpty) {
+      // 1. Root workflows (no folder)
+      if (tree.rootCommands.isNotEmpty) {
+        if (tree.rootFolders.isNotEmpty) {
           workflowChildren.add(
-            _WorkflowFolderHeader(
-              title: folder,
-              count: byFolder[folder]!.length,
+            DragTarget<Map<String, dynamic>>(
+              onWillAcceptWithDetails: (_) => true,
+              onAcceptWithDetails: (details) {
+                _moveWorkflowToFolder(details.data, '');
+              },
+              builder: (context, candidateData, _) {
+                final isHovered = candidateData.isNotEmpty;
+                return Container(
+                  decoration: isHovered
+                      ? BoxDecoration(
+                          color: Theme.of(context).colorScheme.primaryContainer
+                              .withValues(alpha: 0.35),
+                          borderRadius: BorderRadius.circular(
+                            AppTheme.radiusSm,
+                          ),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.primary,
+                            width: 1.5,
+                          ),
+                        )
+                      : null,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(4, 12, 4, 6),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.folder_outlined,
+                          size: 18,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          context.tr.commands_no_folder,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 1,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainerHighest,
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusPill,
+                            ),
+                          ),
+                          child: Text(
+                            '${tree.rootCommands.length}',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
           );
         }
-        for (final workflow in byFolder[folder]!) {
-          workflowChildren.add(_buildWorkflowTile(workflow));
-          displayedWorkflowsCount += 1;
-          if (adsEnabled &&
-              AdsPlacementPolicy.shouldInsertAfterContentCount(
-                displayedWorkflowsCount,
-              )) {
-            workflowChildren.add(
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                child: NativeAdSlot(
-                  placement: NativeAdPlacement.workflowsList,
-                  height: 110,
-                  margin: EdgeInsets.zero,
-                ),
-              ),
-            );
-          }
+        for (final workflow in tree.rootCommands) {
+          addWorkflowCard(workflow);
         }
+      }
+
+      // 2. Recursive folder node rendering
+      void renderNode(CommandFolderNode node) {
+        final isExpanded = _expandedWorkflowFolders.contains(node.fullPath);
+        final indent = node.depth * 16.0;
+
+        workflowChildren.add(
+          _WorkflowFolderHeader(
+            title: node.name,
+            count: node.totalCommandCount,
+            directCount: node.commands.length,
+            depth: node.depth,
+            isExpanded: isExpanded,
+            onToggle: () {
+              setState(() {
+                if (isExpanded) {
+                  _expandedWorkflowFolders.remove(node.fullPath);
+                } else {
+                  _expandedWorkflowFolders.add(node.fullPath);
+                }
+              });
+            },
+            onRename: () => _renameFolderDialog(node.fullPath),
+            onDelete: () => _deleteFolderDialog(node.fullPath),
+            onAddSubfolder: () =>
+                _showCreateFolderDialog(parentPath: node.fullPath),
+            onNewWorkflow: () =>
+                _showCreateWorkflowMenu(prefillFolder: node.fullPath),
+            onAcceptDrop: (wf) {
+              _moveWorkflowToFolder(wf, node.fullPath);
+            },
+          ),
+        );
+
+        if (!isExpanded) return;
+
+        // Render direct workflows in this folder
+        for (final wf in node.commands) {
+          addWorkflowCard(wf, indent: indent);
+        }
+
+        // Render subfolders recursively
+        for (final subfolder in node.subfolders) {
+          renderNode(subfolder);
+        }
+      }
+
+      for (final rootFolder in tree.rootFolders) {
+        renderNode(rootFolder);
       }
     }
 
@@ -1369,13 +1768,42 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
               : context.tr.workflows_title,
         ),
         actions: [
-          IconButton(
-            tooltip: widget.eventsOnly
-                ? context.tr.workflows_create_event
-                : context.tr.workflows_create,
-            onPressed: _showCreateWorkflowMenu,
-            icon: const Icon(Icons.add_rounded),
-          ),
+          if (widget.eventsOnly)
+            IconButton(
+              tooltip: context.tr.workflows_create_event,
+              onPressed: () =>
+                  _createOrEditWorkflow(initialWorkflowType: workflowTypeEvent),
+              icon: const Icon(Icons.add_rounded),
+            )
+          else
+            PopupMenuButton<String>(
+              tooltip: context.tr.workflows_create,
+              icon: const Icon(Icons.add_rounded),
+              onSelected: (type) =>
+                  _createOrEditWorkflow(initialWorkflowType: type),
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: workflowTypeGeneral,
+                  child: Row(
+                    children: [
+                      const Icon(Icons.account_tree_outlined, size: 20),
+                      const SizedBox(width: 10),
+                      Text(context.tr.workflows_type_general),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: workflowTypeEvent,
+                  child: Row(
+                    children: [
+                      const Icon(Icons.notifications_active_outlined, size: 20),
+                      const SizedBox(width: 10),
+                      Text(context.tr.workflows_type_event),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           IconButton(
             tooltip: context.tr.workflows_import_tooltip,
             onPressed: _importWorkflows,
@@ -1418,6 +1846,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                 ),
                 children: [
                   _buildFilters(),
+                  const SizedBox(height: 8),
                   if (visibleWorkflows.isEmpty)
                     Padding(
                       padding: const EdgeInsets.only(top: 48),
@@ -1467,200 +1896,283 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
             entryPoint,
             argsCount.toString(),
           );
-
+    final templateOrigin = workflow['templateOrigin'] as Map<String, dynamic>?;
+    final templateId = (templateOrigin?['templateId'] ?? '').toString();
+    final isEvent = workflowType == workflowTypeEvent;
     final compactTile = MediaQuery.of(context).size.width < 420;
 
-    return Column(
-      children: [
-        ListTile(
-          onLongPress: () => _showWorkflowMoveToFolderDialog(workflow),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 10,
+    final cardWidget = Card(
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        leading: Container(
+          width: 40,
+          height: 40,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color:
+                (isEvent
+                        ? Theme.of(context).colorScheme.primaryContainer
+                        : Theme.of(context).colorScheme.secondaryContainer)
+                    .withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
           ),
-          leading: Icon(
-            workflowType == workflowTypeEvent
+          child: Icon(
+            isEvent
                 ? Icons.notifications_active_outlined
                 : Icons.account_tree_outlined,
+            color: isEvent
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.secondary,
+            size: 22,
           ),
-          title: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 2),
-              Wrap(
-                spacing: 6,
-                runSpacing: 4,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(AppTheme.radiusPill),
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.surfaceContainerHighest,
-                    ),
-                    child: Text(
-                      _workflowTypeBadgeLabel(workflowType),
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
+        ),
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(
+                name,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            Container(
+              margin: const EdgeInsets.only(left: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              ),
+              child: Text(
+                _workflowTypeBadgeLabel(workflowType),
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+            if (folder.isNotEmpty)
+              Container(
+                margin: const EdgeInsets.only(left: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                ),
+                child: Text(
+                  folder,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
-                  if (folder.isNotEmpty)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(
-                          AppTheme.radiusPill,
-                        ),
+                ),
+              ),
+            if (templateId.isNotEmpty)
+              Container(
+                margin: const EdgeInsets.only(left: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+                  color: Theme.of(context).colorScheme.tertiaryContainer,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.auto_awesome,
+                      size: 12,
+                      color: Theme.of(context).colorScheme.onTertiaryContainer,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      templateId,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
                         color: Theme.of(
                           context,
-                        ).colorScheme.surfaceContainerHighest,
-                      ),
-                      child: Text(
-                        folder,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  if (((workflow['templateOrigin']
-                              as Map<String, dynamic>?)?['templateId'] ??
-                          '')
-                      .toString()
-                      .isNotEmpty)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(
-                          AppTheme.radiusPill,
-                        ),
-                        color: Theme.of(context).colorScheme.tertiaryContainer,
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.auto_awesome,
-                            size: 12,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onTertiaryContainer,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            (workflow['templateOrigin']
-                                    as Map<String, dynamic>)['templateId']
-                                .toString(),
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onTertiaryContainer,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Text(subtitle, maxLines: 2, overflow: TextOverflow.ellipsis),
-            ],
-          ),
-          trailing: compactTile
-              ? PopupMenuButton<String>(
-                  onSelected: (value) {
-                    if (value == 'edit') {
-                      _createOrEditWorkflow(initial: workflow);
-                    } else if (value == 'delete') {
-                      _deleteWorkflow(name);
-                    } else if (value == 'export') {
-                      _exportSingleWorkflow(workflow);
-                    }
-                  },
-                  itemBuilder: (context) => [
-                    PopupMenuItem<String>(
-                      value: 'edit',
-                      height: 48,
-                      child: Row(
-                        children: [
-                          Icon(Icons.edit_outlined),
-                          SizedBox(width: 8),
-                          Text(context.tr.common_edit),
-                        ],
-                      ),
-                    ),
-                    PopupMenuItem<String>(
-                      value: 'export',
-                      height: 48,
-                      child: Row(
-                        children: [
-                          Icon(Icons.ios_share_outlined),
-                          SizedBox(width: 8),
-                          Text('Export'),
-                        ],
-                      ),
-                    ),
-                    PopupMenuItem<String>(
-                      value: 'delete',
-                      height: 48,
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.delete_outline,
-                            color: Theme.of(context).colorScheme.error,
-                          ),
-                          SizedBox(width: 8),
-                          Text(
-                            'Delete',
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.error,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                )
-              : Wrap(
-                  spacing: 8,
-                  children: [
-                    IconButton(
-                      onPressed: () => _exportSingleWorkflow(workflow),
-                      tooltip: 'Export',
-                      icon: const Icon(Icons.ios_share_outlined),
-                    ),
-                    IconButton(
-                      onPressed: () => _createOrEditWorkflow(initial: workflow),
-                      icon: const Icon(Icons.edit_outlined),
-                    ),
-                    IconButton(
-                      onPressed: () => _deleteWorkflow(name),
-                      tooltip: context.tr.delete,
-                      icon: Icon(
-                        Icons.delete_outline,
-                        color: Theme.of(context).colorScheme.error,
+                        ).colorScheme.onTertiaryContainer,
                       ),
                     ),
                   ],
                 ),
+              ),
+          ],
         ),
-        const Divider(height: 1),
-      ],
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Text(
+            subtitle,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 12,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+        trailing: compactTile
+            ? PopupMenuButton<String>(
+                onSelected: (value) {
+                  if (value == 'edit') {
+                    _createOrEditWorkflow(initial: workflow);
+                  } else if (value == 'move') {
+                    _showWorkflowMoveToFolderDialog(workflow);
+                  } else if (value == 'delete') {
+                    _deleteWorkflow(name);
+                  } else if (value == 'export') {
+                    _exportSingleWorkflow(workflow);
+                  }
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem<String>(
+                    value: 'edit',
+                    height: 48,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.edit_outlined),
+                        const SizedBox(width: 8),
+                        Text(context.tr.common_edit),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem<String>(
+                    value: 'move',
+                    height: 48,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.drive_file_move_outlined),
+                        const SizedBox(width: 8),
+                        Text(context.tr.commands_move_to_folder),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem<String>(
+                    value: 'export',
+                    height: 48,
+                    child: const Row(
+                      children: [
+                        Icon(Icons.ios_share_outlined),
+                        SizedBox(width: 8),
+                        Text('Export'),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem<String>(
+                    value: 'delete',
+                    height: 48,
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.delete_outline,
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Delete',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              )
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: () => _showWorkflowMoveToFolderDialog(workflow),
+                    tooltip: context.tr.commands_move_to_folder,
+                    icon: const Icon(Icons.drive_file_move_outlined, size: 20),
+                  ),
+                  IconButton(
+                    onPressed: () => _exportSingleWorkflow(workflow),
+                    tooltip: 'Export',
+                    icon: const Icon(Icons.ios_share_outlined, size: 20),
+                  ),
+                  IconButton(
+                    onPressed: () => _deleteWorkflow(name),
+                    tooltip: context.tr.delete,
+                    icon: Icon(
+                      Icons.delete_outline,
+                      size: 20,
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                  const Icon(Icons.arrow_forward_ios_outlined, size: 16),
+                ],
+              ),
+        onTap: () => _createOrEditWorkflow(initial: workflow),
+        onLongPress: () => _showWorkflowMoveToFolderDialog(workflow),
+      ),
+    );
+
+    final isDesktop =
+        !kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS);
+
+    final feedbackWidget = Material(
+      color: Colors.transparent,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primaryContainer,
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.2),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isEvent
+                  ? Icons.notifications_active_outlined
+                  : Icons.account_tree_outlined,
+              size: 16,
+              color: Theme.of(context).colorScheme.onPrimaryContainer,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              name,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (isDesktop) {
+      return Draggable<Map<String, dynamic>>(
+        data: workflow,
+        dragAnchorStrategy: pointerDragAnchorStrategy,
+        feedback: feedbackWidget,
+        childWhenDragging: Opacity(opacity: 0.35, child: cardWidget),
+        child: cardWidget,
+      );
+    }
+
+    return LongPressDraggable<Map<String, dynamic>>(
+      data: workflow,
+      hapticFeedbackOnStart: true,
+      dragAnchorStrategy: pointerDragAnchorStrategy,
+      feedback: feedbackWidget,
+      childWhenDragging: Opacity(opacity: 0.35, child: cardWidget),
+      child: cardWidget,
     );
   }
 }
@@ -1673,7 +2185,7 @@ class _WorkflowSectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
       child: Text(
         title,
         style: Theme.of(
@@ -1685,42 +2197,220 @@ class _WorkflowSectionHeader extends StatelessWidget {
 }
 
 class _WorkflowFolderHeader extends StatelessWidget {
+  final String title;
+  final int count;
+  final int directCount;
+  final int depth;
+  final bool isExpanded;
+  final IconData? icon;
+  final VoidCallback? onToggle;
+  final VoidCallback? onRename;
+  final VoidCallback? onDelete;
+  final VoidCallback? onAddSubfolder;
+  final VoidCallback? onNewWorkflow;
+  final ValueChanged<Map<String, dynamic>>? onAcceptDrop;
+
   const _WorkflowFolderHeader({
     required this.title,
     required this.count,
-    this.icon = Icons.folder,
+    this.directCount = 0,
+    this.depth = 0,
+    this.isExpanded = true,
+    this.icon,
+    this.onToggle,
+    this.onRename,
+    this.onDelete,
+    this.onAddSubfolder,
+    this.onNewWorkflow,
+    this.onAcceptDrop,
   });
-
-  final String title;
-  final int count;
-  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 10, 16, 4),
-      child: Row(
-        children: [
-          Icon(icon, size: 16, color: Theme.of(context).colorScheme.primary),
-          const SizedBox(width: 6),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-          ),
-          const SizedBox(width: 4),
-          Text(
-            '($count)',
-            style: TextStyle(
-              fontSize: 11,
+    if (onToggle == null) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(4, 12, 4, 6),
+        child: Row(
+          children: [
+            Icon(
+              icon ?? Icons.folder_outlined,
+              size: 18,
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
-          ),
-        ],
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              '($count)',
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final indentPadding = depth * 16.0;
+    final headerChild = InkWell(
+      onTap: onToggle,
+      borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(4 + indentPadding, 12, 4, 6),
+        child: Row(
+          children: [
+            AnimatedRotation(
+              turns: isExpanded ? 0.25 : 0,
+              duration: const Duration(milliseconds: 200),
+              child: Icon(
+                Icons.chevron_right,
+                size: 20,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(width: 4),
+            if (depth > 0) ...[
+              Text(
+                '↳ ',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+            Icon(
+              isExpanded ? Icons.folder_open : Icons.folder,
+              size: 18,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+            ),
+            const SizedBox(width: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+              ),
+              child: Text(
+                '$count',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+            PopupMenuButton<String>(
+              icon: Icon(
+                Icons.more_vert,
+                size: 18,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              padding: EdgeInsets.zero,
+              itemBuilder: (context) => [
+                if (onNewWorkflow != null)
+                  PopupMenuItem(
+                    value: 'add_workflow',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.add_circle_outline, size: 18),
+                        const SizedBox(width: 8),
+                        Text(context.tr.workflows_create),
+                      ],
+                    ),
+                  ),
+                if (onAddSubfolder != null)
+                  PopupMenuItem(
+                    value: 'add_subfolder',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.create_new_folder_outlined, size: 18),
+                        const SizedBox(width: 8),
+                        Text(context.tr.commands_create_folder),
+                      ],
+                    ),
+                  ),
+                if (onRename != null)
+                  PopupMenuItem(
+                    value: 'rename',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.edit, size: 18),
+                        const SizedBox(width: 8),
+                        Text(context.tr.commands_rename_folder),
+                      ],
+                    ),
+                  ),
+                if (onDelete != null)
+                  PopupMenuItem(
+                    value: 'delete',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.delete_outline, size: 18),
+                        const SizedBox(width: 8),
+                        Text(context.tr.commands_delete_folder),
+                      ],
+                    ),
+                  ),
+              ],
+              onSelected: (value) {
+                if (value == 'add_workflow') {
+                  onNewWorkflow?.call();
+                } else if (value == 'add_subfolder') {
+                  onAddSubfolder?.call();
+                } else if (value == 'rename') {
+                  onRename?.call();
+                } else if (value == 'delete') {
+                  onDelete?.call();
+                }
+              },
+            ),
+          ],
+        ),
       ),
+    );
+
+    if (onAcceptDrop == null) return headerChild;
+
+    return DragTarget<Map<String, dynamic>>(
+      onWillAcceptWithDetails: (_) => true,
+      onAcceptWithDetails: (details) => onAcceptDrop!(details.data),
+      builder: (context, candidateData, _) {
+        final isHovered = candidateData.isNotEmpty;
+        if (!isHovered) return headerChild;
+        return Container(
+          decoration: BoxDecoration(
+            color: Theme.of(
+              context,
+            ).colorScheme.primaryContainer.withValues(alpha: 0.35),
+            borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.primary,
+              width: 1.5,
+            ),
+          ),
+          child: headerChild,
+        );
+      },
     );
   }
 }

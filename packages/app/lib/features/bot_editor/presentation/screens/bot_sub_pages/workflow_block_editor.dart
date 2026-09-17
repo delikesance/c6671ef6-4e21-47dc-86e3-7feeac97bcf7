@@ -24,6 +24,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/blueprint/blueprint_graph_canvas.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/blueprint/blueprint_models.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/blueprint/blueprint_tree_ops.dart';
 
 /// Full-screen Scratch-like block editor for creating or editing a workflow.
 ///
@@ -94,6 +97,15 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
 
   /// 0 for Config (Metadata/Trigger), 1 for Action blocks palette.
   int _sidebarTab = 0;
+
+  /// View layout mode on Desktop: 'linear' (Scratch blocks) or 'blueprint' (Unreal node graph).
+  String _desktopViewMode = 'linear';
+
+  /// Persisted node coordinates on the 2D Blueprint canvas
+  final Map<String, Offset> _blueprintNodePositions = <String, Offset>{};
+
+  /// Set of connection IDs severed by the user in Blueprint mode
+  final Set<String> _blueprintSeveredConnections = <String>{};
 
   /// Wizard step for mobile editor (0 to 3)
   int _wizardStep = 0;
@@ -581,6 +593,253 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                 );
               }
 
+              final isBlueprint = _desktopViewMode == 'blueprint';
+
+              final allActionItems = List<ActionItem>.generate(
+                _actions.length,
+                (i) =>
+                    ActionItem.fromJson(_actions[i], fallbackId: 'action_$i'),
+              );
+
+              final centerCanvas = isBlueprint
+                  ? BlueprintGraphCanvas(
+                      commandName: _nameController.text.isNotEmpty
+                          ? _nameController.text
+                          : (_workflowType == workflowTypeEvent
+                                ? (_selectedEvent.isNotEmpty
+                                      ? _selectedEvent
+                                      : 'event')
+                                : 'workflow'),
+                      isInteraction: false,
+                      actions: allActionItems,
+                      customNodePositions: _blueprintNodePositions,
+                      severedConnectionIds: _blueprintSeveredConnections,
+                      onNodeMoved: (nodeId, position) {
+                        _blueprintNodePositions[nodeId] = position;
+                      },
+                      onDisconnectConnection:
+                          (
+                            connectionId, {
+                            fromNodeId,
+                            fromPinId,
+                            toNodeId,
+                            toPinId,
+                            toNodePosition,
+                            allNodePositions,
+                          }) {
+                            setState(() {
+                              _blueprintSeveredConnections.add(connectionId);
+                              if (allNodePositions != null) {
+                                _blueprintNodePositions.addAll(
+                                  allNodePositions,
+                                );
+                              } else if (toNodeId != null &&
+                                  toNodePosition != null) {
+                                _blueprintNodePositions.putIfAbsent(
+                                  toNodeId,
+                                  () => toNodePosition,
+                                );
+                              }
+
+                              if (toNodeId != null) {
+                                final loc = findActionInBranchTrees(
+                                  _actions,
+                                  toNodeId,
+                                );
+                                if (loc != null) {
+                                  final branchList = loc.branchList;
+                                  final index = loc.indexInBranch;
+                                  final extracted = branchList.sublist(index);
+                                  branchList.removeRange(
+                                    index,
+                                    branchList.length,
+                                  );
+
+                                  loc.updateParentBranch(branchList);
+
+                                  final lastActionBefore = _actions.isNotEmpty
+                                      ? _actions.last
+                                      : null;
+                                  _actions.addAll(extracted);
+
+                                  if (lastActionBefore != null &&
+                                      extracted.isNotEmpty) {
+                                    _blueprintSeveredConnections.add(
+                                      'conn_${lastActionBefore['id']}_to_${extracted.first['id']}',
+                                    );
+                                  }
+                                  if (loc.parentAction['id'] != null &&
+                                      extracted.isNotEmpty) {
+                                    _blueprintSeveredConnections.add(
+                                      'conn_${loc.parentAction['id']}_to_${extracted.first['id']}',
+                                    );
+                                  }
+                                }
+                              }
+                            });
+                          },
+                      fieldRefreshVersionOf: (_) => 0,
+                      variableSuggestions: _variableSuggestions,
+                      emojiSuggestions: widget.appEmojis,
+                      botIdForConfig: widget.botId,
+                      onEditNestedActions:
+                          (current, suggestions, blockName, {onChanged}) async {
+                            final result =
+                                await Navigator.push<
+                                  List<Map<String, dynamic>>
+                                >(
+                                  context,
+                                  MaterialPageRoute<List<Map<String, dynamic>>>(
+                                    builder: (_) => ActionsBuilderPage(
+                                      initialActions: current,
+                                      variableSuggestions: suggestions,
+                                      emojiSuggestions: widget.appEmojis,
+                                      botIdForConfig: widget.botId,
+                                      editPath: ['Racine', blockName],
+                                      onChanged: onChanged,
+                                      isInteraction: false,
+                                    ),
+                                  ),
+                                );
+                            return result;
+                          },
+                      onParameterChanged: (index, key, value) {
+                        if (key == '__enabled__') {
+                          setState(() {
+                            _actions[index]['enabled'] = value == true;
+                          });
+                          return;
+                        }
+                        if (key == '__onErrorMode__') {
+                          setState(() {
+                            final error = Map<String, dynamic>.from(
+                              (_actions[index]['error'] as Map?)
+                                      ?.cast<String, dynamic>() ??
+                                  const {},
+                            );
+                            error['mode'] = value == 'continue'
+                                ? 'continue'
+                                : (value == 'jump'
+                                      ? 'jump'
+                                      : (value == 'skip' ? 'skip' : 'stop'));
+                            _actions[index]['error'] = error;
+                          });
+                          return;
+                        }
+                        if (key == '__actionKey__') {
+                          setState(() {
+                            _actions[index]['key'] = value.toString();
+                          });
+                          return;
+                        }
+                        setState(() {
+                          final payload = Map<String, dynamic>.from(
+                            (_actions[index]['payload'] as Map?)
+                                    ?.cast<String, dynamic>() ??
+                                const {},
+                          );
+                          payload[key] = value;
+                          _actions[index]['payload'] = payload;
+                        });
+                      },
+                      onSuggestionSelected: (index, key, value) {
+                        setState(() {
+                          final payload = Map<String, dynamic>.from(
+                            (_actions[index]['payload'] as Map?)
+                                    ?.cast<String, dynamic>() ??
+                                const {},
+                          );
+                          payload[key] = value;
+                          _actions[index]['payload'] = payload;
+                        });
+                      },
+                      onRemoveAction: (nodeId, index) {
+                        setState(() {
+                          removeActionFromTree(_actions, nodeId);
+                        });
+                        _refreshVariableSuggestions();
+                      },
+                      onAddActionAt:
+                          (
+                            type,
+                            canvasPosition, {
+                            connectFromNodeId,
+                            connectFromPinId,
+                            connectFromPinDirection,
+                          }) {
+                            setState(() {
+                              final uniqueId =
+                                  'action_${DateTime.now().microsecondsSinceEpoch}';
+                              _blueprintNodePositions[uniqueId] =
+                                  canvasPosition;
+                              _actions.add(<String, dynamic>{
+                                'id': uniqueId,
+                                'type': type.name,
+                                'enabled': true,
+                                'key': uniqueId,
+                                'depend_on': <String>[],
+                                'error': {'mode': 'stop'},
+                                'payload': Map<String, dynamic>.from(
+                                  type.defaultParameters,
+                                ),
+                              });
+
+                              if (connectFromNodeId != null &&
+                                  connectFromPinId != null) {
+                                if (connectFromPinDirection ==
+                                    BlueprintPinDirection.input) {
+                                  connectWorkflowPins(
+                                    actions: _actions,
+                                    severedConnectionIds:
+                                        _blueprintSeveredConnections,
+                                    fromNodeId: uniqueId,
+                                    fromPinId: 'exec_out',
+                                    toNodeId: connectFromNodeId,
+                                    toPinId: connectFromPinId,
+                                  );
+                                } else {
+                                  connectWorkflowPins(
+                                    actions: _actions,
+                                    severedConnectionIds:
+                                        _blueprintSeveredConnections,
+                                    fromNodeId: connectFromNodeId,
+                                    fromPinId: connectFromPinId,
+                                    toNodeId: uniqueId,
+                                    toPinId: 'exec_in',
+                                  );
+                                }
+                              }
+                            });
+                            _refreshVariableSuggestions();
+                          },
+                      onConnectPins:
+                          (fromNodeId, fromPinId, toNodeId, toPinId) {
+                            setState(() {
+                              connectWorkflowPins(
+                                actions: _actions,
+                                severedConnectionIds:
+                                    _blueprintSeveredConnections,
+                                fromNodeId: fromNodeId,
+                                fromPinId: fromPinId,
+                                toNodeId: toNodeId,
+                                toPinId: toPinId,
+                              );
+                            });
+                          },
+                      onDuplicateAction: (index) {
+                        setState(() {
+                          final copy = Map<String, dynamic>.from(
+                            jsonDecode(jsonEncode(_actions[index])),
+                          );
+                          copy['id'] =
+                              'action_${DateTime.now().microsecondsSinceEpoch}';
+                          _actions.insert(index + 1, copy);
+                        });
+                        _refreshVariableSuggestions();
+                      },
+                    )
+                  : null;
+
               return Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -767,7 +1026,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                                 isInteraction: false,
                                 isWorkflow: true,
                                 popOnSelect: false,
-                                enableDrag: false,
+                                enableDrag: isBlueprint,
                               ),
                             ],
                           ),
@@ -777,21 +1036,107 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                   ),
                   Expanded(
                     child: Container(
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).scaffoldBackgroundColor,
-                        gradient: RadialGradient(
-                          colors: [
-                            Theme.of(context)
-                                .colorScheme
-                                .surfaceContainerHighest
-                                .withValues(alpha: 0.2),
-                            Theme.of(context).scaffoldBackgroundColor,
-                          ],
-                          center: Alignment.center,
-                          radius: 1.3,
-                        ),
+                      color: Theme.of(context).scaffoldBackgroundColor,
+                      child: Column(
+                        children: [
+                          Container(
+                            height: 48,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.surface,
+                              border: Border(
+                                bottom: BorderSide(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .outlineVariant
+                                      .withValues(alpha: 0.5),
+                                  width: 1,
+                                ),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    isBlueprint
+                                        ? 'Graphe Blueprint 2D (Unreal Engine)'
+                                        : 'Vue Blocs Linéaires (Scratch)',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 13,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ),
+                                SegmentedButton<String>(
+                                  showSelectedIcon: false,
+                                  segments: const [
+                                    ButtonSegment<String>(
+                                      value: 'linear',
+                                      icon: Icon(
+                                        Icons.view_agenda_outlined,
+                                        size: 16,
+                                      ),
+                                      label: Text(
+                                        'Blocs',
+                                        style: TextStyle(fontSize: 12),
+                                      ),
+                                    ),
+                                    ButtonSegment<String>(
+                                      value: 'blueprint',
+                                      icon: Icon(Icons.hub_outlined, size: 16),
+                                      label: Text(
+                                        'Blueprint',
+                                        style: TextStyle(fontSize: 12),
+                                      ),
+                                    ),
+                                  ],
+                                  selected: {_desktopViewMode},
+                                  onSelectionChanged: (val) {
+                                    if (val.isNotEmpty) {
+                                      setState(() {
+                                        _desktopViewMode = val.first;
+                                      });
+                                    }
+                                  },
+                                  style: const ButtonStyle(
+                                    visualDensity: VisualDensity.compact,
+                                    tapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            child: isBlueprint
+                                ? centerCanvas!
+                                : Container(
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(
+                                        context,
+                                      ).scaffoldBackgroundColor,
+                                      gradient: RadialGradient(
+                                        colors: [
+                                          Theme.of(context)
+                                              .colorScheme
+                                              .surfaceContainerHighest
+                                              .withValues(alpha: 0.2),
+                                          Theme.of(
+                                            context,
+                                          ).scaffoldBackgroundColor,
+                                        ],
+                                        center: Alignment.center,
+                                        radius: 1.3,
+                                      ),
+                                    ),
+                                    child: canvasWidget,
+                                  ),
+                          ),
+                        ],
                       ),
-                      child: canvasWidget,
                     ),
                   ),
                 ],

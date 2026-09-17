@@ -1732,17 +1732,18 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
       ),
       body: SafeArea(
         top: false,
-        // Largeur et marges communes à toutes les pages (contrat AppPageLayout).
-        child: PageContent(
-          child: _loading
-              ? const Center(child: CircularProgressIndicator())
-              : LayoutBuilder(
-                  builder: (ctx, constraints) {
-                    final isWide = constraints.maxWidth >= _wideBreakpoint;
-                    return _buildVariablesContent(isWide: isWide);
-                  },
-                ),
-        ),
+        child: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : LayoutBuilder(
+                builder: (ctx, constraints) {
+                  final isWide = constraints.maxWidth >= _wideBreakpoint;
+                  final content = _buildVariablesContent(isWide: isWide);
+                  if (isWide) {
+                    return content;
+                  }
+                  return PageContent(child: content);
+                },
+              ),
       ),
     );
   }
