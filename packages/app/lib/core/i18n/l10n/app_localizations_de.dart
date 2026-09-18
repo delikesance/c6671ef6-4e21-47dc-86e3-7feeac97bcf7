@@ -8570,11 +8570,11 @@ class AppLocalizationsDe extends AppLocalizations {
       'Erstellen und konfigurieren Sie einen anpassbaren Discord-Bot mit Aktionen, Ereignissen und Canvas-Ebenen.';
 
   @override
-  String get app_create_type_hosted => 'Gehostete Anwendung (Docker)';
+  String get app_create_type_hosted => 'Schlüsselfertiger Bot';
 
   @override
   String get app_create_type_hosted_desc =>
-      'Führen Sie eine Backend-App, einen Server oder ein Skript in Ihrer bevorzugten Sprache (NodeJS, Python, Java...) aus. Laden Sie Dateien hoch und installieren Sie Pakete in einer sicheren Sandbox.';
+      'Starten Sie in Sekundenschnelle einen einsatzbereiten Bot (Musik, Moderation, Utility...), der 24/7 gehostet wird.';
 
   @override
   String get app_create_coming_soon => 'Demnächst verfügbar';
@@ -8819,6 +8819,11 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String container_deploy_failed(String error) {
     return 'Bereitstellung fehlgeschlagen: $error';
+  }
+
+  @override
+  String container_deploy_token_invalid(String error) {
+    return 'Ungültiges Discord-Bot-Token: $error';
   }
 
   @override

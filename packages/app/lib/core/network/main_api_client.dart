@@ -1880,6 +1880,33 @@ class MainApiClient implements RemoteRuntimeClient {
     );
   }
 
+  /// Fetch Turnkey bot templates for the specified locale.
+  Future<List<Map<String, dynamic>>> getTurnkeyTemplates({
+    String locale = 'fr',
+  }) async {
+    final json = await _get(
+      '/gateway/turnkey/templates?locale=$locale',
+      includeAuth: false,
+    );
+    final templates = json['templates'];
+    if (templates is List) {
+      return templates
+          .whereType<Map>()
+          .map((m) => Map<String, dynamic>.from(m))
+          .toList();
+    }
+    return <Map<String, dynamic>>[];
+  }
+
+  /// Technically validates a Discord bot token (/users/@me) without requiring Discord App ownership.
+  Future<Map<String, dynamic>> validateTurnkeyDiscordToken(
+    String botToken,
+  ) async {
+    return await _post('/gateway/turnkey/validate-token', <String, dynamic>{
+      'bot_token': botToken.trim(),
+    }, includeAuth: false);
+  }
+
   /// Returns a shared reconnecting session for owner bot status/runtime events.
   GatewayBotEventsSession connectGatewayBotEvents() {
     return GatewayBotEventsManager.obtain(

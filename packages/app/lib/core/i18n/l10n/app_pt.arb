@@ -9299,8 +9299,8 @@
   "app_create_select_type_desc": "Escolha o tipo de aplicação que deseja criar para começar.",
   "app_create_type_discord": "Bot do Discord",
   "app_create_type_discord_desc": "Crie e configure um bot do Discord personalizável com ações, eventos e camadas de canvas.",
-  "app_create_type_hosted": "Aplicação Hospedada (Docker)",
-  "app_create_type_hosted_desc": "Execute uma aplicação backend, servidor ou script na sua linguagem favorita (NodeJS, Python, Java...). Envie arquivos e instale pacotes em um contêiner seguro.",
+  "app_create_type_hosted": "Bot Pronto para Uso",
+  "app_create_type_hosted_desc": "Implante em segundos um bot pronto para uso (música, moderação, utilitários...) hospedado 24/7.",
   "app_create_coming_soon": "Em breve",
   "app_create_sample_title": "Criar comando de exemplo",
   "@app_create_sample_title": {
@@ -9567,6 +9567,15 @@
   "container_deploy_failed": "Falha na implantação: {error}",
   "@container_deploy_failed": {
     "description": "Snackbar when deploy fails",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "container_deploy_token_invalid": "Token do bot do Discord inválido: {error}",
+  "@container_deploy_token_invalid": {
+    "description": "Snackbar shown when turnkey Discord bot token validation fails",
     "placeholders": {
       "error": {
         "type": "String"

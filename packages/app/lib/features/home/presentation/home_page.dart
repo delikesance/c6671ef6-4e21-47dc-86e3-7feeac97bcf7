@@ -33,7 +33,7 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/app_editor_
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/bot_logs.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/bot_config_pull_dialog.dart';
 import 'package:bot_creator/features/bot_management/presentation/create_page.dart';
-import 'package:bot_creator/features/containers/presentation/container_list_page.dart';
+import 'package:bot_creator/features/containers/presentation/container_detail_page.dart';
 import 'package:bot_creator/features/discord_rpc/logic/discord_rpc_service.dart';
 import 'package:bot_creator/features/documentation/documentation_navigation.dart';
 import 'package:bot_creator/features/home/presentation/guild_avatar.dart';
@@ -48,6 +48,14 @@ import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nyxx/nyxx.dart' hide Locale, Logger;
 import 'package:url_launcher/url_launcher.dart';
+
+String homeUiCopy(
+  BuildContext context, {
+  required String fr,
+  required String en,
+}) {
+  return Localizations.localeOf(context).languageCode == 'fr' ? fr : en;
+}
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, this.onManageBot});
@@ -1175,9 +1183,8 @@ class HomePageState extends State<HomePage>
     }
   }
 
-  String _uiCopy({required String fr, required String en}) {
-    return Localizations.localeOf(context).languageCode == 'fr' ? fr : en;
-  }
+  String _uiCopy({required String fr, required String en}) =>
+      homeUiCopy(context, fr: fr, en: en);
 
   String? _runtimeBadgeLabel(String botId) {
     final source = _runtimeSourceByBotId[botId] ?? _runtimeSource;
@@ -2217,7 +2224,6 @@ class HomePageState extends State<HomePage>
               ),
               const SizedBox(height: 20),
               _CreateBotCard(onTap: openCreate),
-              if (!_isDesktop) const _HostedAppsHomeCard(),
               const SizedBox(height: 20),
             ];
 
@@ -2340,6 +2346,12 @@ class HomePageState extends State<HomePage>
     final pulseCtrl = _pulseControllers[id] ?? _fallbackPulseController;
     final freeMinutes = _displayFreeMinutesForBot(id);
 
+    final isTurnkey =
+        app['is_turnkey'] == true ||
+        app['type'] == 'turnkey' ||
+        (app['container_id']?.toString().isNotEmpty ?? false);
+    final containerId = app['container_id']?.toString();
+
     return _BotCard(
       key: ValueKey<String>(id),
       name: name,
@@ -2354,7 +2366,17 @@ class HomePageState extends State<HomePage>
       freeMinutes: freeMinutes,
       pulseController: pulseCtrl,
       showPremiumLabels: _supportsForegroundTask,
+      isTurnkey: isTurnkey,
       onManage: () {
+        if (isTurnkey && containerId != null && containerId.isNotEmpty) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ContainerDetailPage(containerId: containerId),
+            ),
+          ).then((_) => _initRunningState());
+          return;
+        }
         final parsedId = int.tryParse(id) ?? 0;
         final manage = widget.onManageBot;
         if (manage != null) {
@@ -2518,6 +2540,7 @@ class _BotCard extends StatefulWidget {
     required this.showPremiumLabels,
     required this.freeMinutes,
     this.runtimeBadgeLabel,
+    this.isTurnkey = false,
   });
 
   final String name;
@@ -2532,6 +2555,7 @@ class _BotCard extends StatefulWidget {
   final int freeMinutes;
   final AnimationController pulseController;
   final bool showPremiumLabels;
+  final bool isTurnkey;
   final VoidCallback onManage;
   final VoidCallback onToggle;
   final VoidCallback? onAddTime;
@@ -2725,11 +2749,50 @@ class _BotCardState extends State<_BotCard> {
                       HomeBotAvatar(imageUrl: widget.avatar),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: Text(
-                          widget.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: homeDisplayStyle(16, color: scheme.onSurface),
+                        child: Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                widget.name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: homeDisplayStyle(
+                                  16,
+                                  color: scheme.onSurface,
+                                ),
+                              ),
+                            ),
+                            if (widget.isTurnkey) ...[
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: scheme.primary.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(
+                                    color: scheme.primary.withValues(
+                                      alpha: 0.3,
+                                    ),
+                                  ),
+                                ),
+                                child: Text(
+                                  homeUiCopy(
+                                    context,
+                                    fr: 'Clé en main',
+                                    en: 'Turnkey',
+                                  ),
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                    color: scheme.primary,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -3087,112 +3150,6 @@ class _ServerPresenceRow extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _HostedAppsHomeCard extends StatefulWidget {
-  const _HostedAppsHomeCard();
-
-  @override
-  State<_HostedAppsHomeCard> createState() => _HostedAppsHomeCardState();
-}
-
-class _HostedAppsHomeCardState extends State<_HostedAppsHomeCard> {
-  bool _hasSession = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkSession();
-  }
-
-  Future<void> _checkSession() async {
-    final session = await MainApiSettingsStore.loadSession();
-    if (mounted) {
-      setState(() => _hasSession = session != null && !session.isExpired);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (!_hasSession) return const SizedBox.shrink();
-
-    final scheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final tokens = HomeTokens.of(context);
-    final cardColor = isDark ? tokens.card : scheme.surfaceContainer;
-    final borderColor = isDark ? tokens.cardBorder : scheme.outlineVariant;
-    return Padding(
-      padding: const EdgeInsets.only(top: 20),
-      child: Material(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(AppTheme.radiusCard),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const ContainerListPage()),
-            );
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppTheme.radiusCard),
-              border: Border.all(color: borderColor),
-            ),
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  alignment: Alignment.center,
-                  decoration: const BoxDecoration(
-                    color: AppTheme.discord,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.smart_toy_rounded,
-                    color: Colors.white,
-                    size: 26,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        context.tr.container_list_title,
-                        style: homeDisplayStyle(16),
-                      ),
-                      Text(
-                        context.tr.container_hosted_subtitle,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: homeDisplayStyle(
-                          12,
-                          weight: FontWeight.w400,
-                          color: isDark
-                              ? Colors.white.withValues(alpha: 0.30)
-                              : scheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Icon(
-                  Icons.chevron_right_rounded,
-                  size: 18,
-                  color: isDark ? tokens.muted : scheme.onSurfaceVariant,
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }

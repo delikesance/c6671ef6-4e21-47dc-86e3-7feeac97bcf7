@@ -14779,13 +14779,13 @@ abstract class AppLocalizations {
   /// Hosted Application (Docker) option label
   ///
   /// In en, this message translates to:
-  /// **'Hosted Application (Docker)'**
+  /// **'Turnkey Bot'**
   String get app_create_type_hosted;
 
   /// Hosted Application (Docker) option description
   ///
   /// In en, this message translates to:
-  /// **'Run a backend app, server, or script in your favorite language (NodeJS, Python, Java...). Upload files and install packages in a secure sandbox.'**
+  /// **'Deploy ready-to-use bots (music, moderation, utility...) hosted 24/7 in seconds.'**
   String get app_create_type_hosted_desc;
 
   /// Coming soon label
@@ -15225,6 +15225,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Deployment failed: {error}'**
   String container_deploy_failed(String error);
+
+  /// Snackbar shown when turnkey Discord bot token validation fails
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid Discord bot token: {error}'**
+  String container_deploy_token_invalid(String error);
 
   /// Deploy eligibility banner reason when the container limit is reached
   ///

@@ -8499,11 +8499,11 @@ class AppLocalizationsTr extends AppLocalizations {
       'Eylemler, olaylar ve dinamik tuval panelleri ile özelleştirilebilir bir Discord botu oluşturun ve çalıştırın.';
 
   @override
-  String get app_create_type_hosted => 'Barındırılan Uygulama (Docker)';
+  String get app_create_type_hosted => 'Hazır Bot';
 
   @override
   String get app_create_type_hosted_desc =>
-      'Tercih ettiğiniz dilde (NodeJS, Python, Java...) bir arka uç uygulaması, sunucu veya komut dosyası çalıştırın. Dosyaları yükleyin ve güvenli bir korumalı alanda paketleri yükleyin.';
+      '7/24 barındırılan kullanıma hazır bir botu (müzik, moderasyon, araçlar...) saniyeler içinde dağıtın.';
 
   @override
   String get app_create_coming_soon => 'Çok yakında';
@@ -8746,6 +8746,11 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String container_deploy_failed(String error) {
     return 'Dagitim basarisiz: $error';
+  }
+
+  @override
+  String container_deploy_token_invalid(String error) {
+    return 'Geçersiz Discord bot belirteci: $error';
   }
 
   @override

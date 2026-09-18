@@ -8437,11 +8437,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Build and run a customizable Discord bot with logic, triggers, and dynamic canvas panels.';
 
   @override
-  String get app_create_type_hosted => 'Hosted Application (Docker)';
+  String get app_create_type_hosted => 'Turnkey Bot';
 
   @override
   String get app_create_type_hosted_desc =>
-      'Run a backend app, server, or script in your favorite language (NodeJS, Python, Java...). Upload files and install packages in a secure sandbox.';
+      'Deploy ready-to-use bots (music, moderation, utility...) hosted 24/7 in seconds.';
 
   @override
   String get app_create_coming_soon => 'Coming Soon';
@@ -8685,6 +8685,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String container_deploy_failed(String error) {
     return 'Deployment failed: $error';
+  }
+
+  @override
+  String container_deploy_token_invalid(String error) {
+    return 'Invalid Discord bot token: $error';
   }
 
   @override
