@@ -38,9 +38,6 @@ class _SubscriptionsHubPageState extends State<SubscriptionsHubPage> {
   bool _loading = true;
   bool _busy = false;
 
-  /// Catalogue des formules servi par le serveur (null = indisponible).
-  PlanCatalogInfo? _catalog;
-
   @override
   void initState() {
     super.initState();
@@ -55,21 +52,28 @@ class _SubscriptionsHubPageState extends State<SubscriptionsHubPage> {
       HostedAppSubscriptionService.resolveEffectiveHostedAppStatus(
         forceRefresh: true,
       ),
-      _loadCatalog(),
+      _registerPurchasableProducts(),
     ]);
     if (mounted) {
       setState(() => _loading = false);
     }
   }
 
-  /// Charge le catalogue serveur : c'est lui qui dit quelles formules existent,
-  /// ce qu'elles permettent, et à quels SKUs elles correspondent.
-  Future<void> _loadCatalog() async {
+  /// Récupère les SKUs que le serveur rattache aux formules, pour que le store les
+  /// reconnaisse lors de l'achat et de la validation des reçus.
+  ///
+  /// C'est le SEUL usage du catalogue côté application : le mapping serveur décrit des
+  /// capacités (à quelle formule correspond quel achat, quels droits en découlent), jamais
+  /// une liste d'offres à afficher. Les offres montrées à l'utilisateur sont une
+  /// fonctionnalité de l'application (voir les deux cartes de cet écran et
+  /// `SubscriptionPage`), pas un rendu de la configuration serveur : sinon renommer une
+  /// formule en base changerait l'interface, et une formule sans SKU mappé produirait un
+  /// bouton d'achat qui échoue.
+  Future<void> _registerPurchasableProducts() async {
     try {
       final config = await MainApiSettingsStore.loadConfig();
       final session = await MainApiSettingsStore.loadSession();
       if (!config.isConfigured || session == null || session.isExpired) {
-        if (mounted) setState(() => _catalog = null);
         return;
       }
       final client = MainApiClient(
@@ -77,54 +81,13 @@ class _SubscriptionsHubPageState extends State<SubscriptionsHubPage> {
         accessToken: session.accessToken,
       );
       final catalog = await client.getGatewayPlans();
-      // Les SKUs annoncés par le serveur doivent être reconnus par le store :
-      // le flux d'achat et la validation des reçus s'appuient dessus.
       SubscriptionService.registerPurchasableProductIds(
         catalog.plans.expand((plan) => plan.productIds),
       );
-      if (mounted) setState(() => _catalog = catalog);
     } catch (_) {
-      if (mounted) setState(() => _catalog = null);
+      // Catalogue indisponible : l'application garde ses propres identifiants de produits
+      // (constantes de `SubscriptionProductKind`), donc l'achat reste possible.
     }
-  }
-
-  /// Achète la formule choisie. Le changement de formule est géré par le store
-  /// (même groupe d'abonnement) : on achète simplement le SKU de la cible.
-  Future<void> _choosePlan(PurchasablePlanInfo plan) async {
-    final productId = plan.productIds.first;
-    await _runBusy(() async {
-      final result = await SubscriptionService.purchaseProduct(productId);
-      if (!result.started && mounted) {
-        _showError(subscriptionPurchaseErrorKey(result.failureReason));
-      }
-    });
-  }
-
-  /// Résumé des droits d'une formule, dans les mêmes termes que le serveur :
-  /// 0 = illimité, « non inclus » = la formule ne l'autorise pas du tout.
-  /// Chaque droit est chiffré, sinon « Bots illimités » chez l'offre gratuite
-  /// ferait passer une offre payante pour moins généreuse.
-  String _planQuotaSummary(AppLocalizations tr, PurchasablePlanInfo plan) {
-    final parts = <String>[];
-    if (!plan.allowOwnBots) {
-      parts.add(tr.plans_catalog_own_bots_excluded);
-    } else {
-      parts.add(
-        plan.maxBots == 0
-            ? tr.subscriptions_hub_unlimited_bots
-            : tr.plans_catalog_bots_max(plan.maxBots),
-      );
-    }
-    if (!plan.allowTurnkey) {
-      parts.add(tr.plans_catalog_turnkey_excluded);
-    } else {
-      parts.add(
-        plan.maxTurnkeyBots == 0
-            ? tr.plans_catalog_turnkey_unlimited
-            : tr.plans_catalog_turnkey_max(plan.maxTurnkeyBots),
-      );
-    }
-    return parts.join(' · ');
   }
 
   Future<void> _runBusy(Future<void> Function() action) async {
@@ -232,8 +195,6 @@ class _SubscriptionsHubPageState extends State<SubscriptionsHubPage> {
     final tr = context.tr;
     final botActive = SubscriptionService.isSubscribed;
     final hostedActive = HostedAppSubscriptionService.isSubscribed;
-    final catalogPlans = _catalog?.plans ?? const <PurchasablePlanInfo>[];
-    final currentTierCode = _catalog?.currentTierCode;
 
     return Scaffold(
       appBar: AppBar(
@@ -337,34 +298,6 @@ class _SubscriptionsHubPageState extends State<SubscriptionsHubPage> {
                         : null,
                     busy: _busy,
                   ),
-                  if (catalogPlans.isNotEmpty) ...[
-                    const SizedBox(height: 24),
-                    Text(
-                      tr.plans_catalog_title,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    for (final plan in catalogPlans)
-                      _PlanCatalogTile(
-                        plan: plan,
-                        quotaSummary: _planQuotaSummary(tr, plan),
-                        isCurrent:
-                            currentTierCode != null &&
-                            currentTierCode.toUpperCase() ==
-                                plan.code.toUpperCase(),
-                        currentLabel: tr.plans_catalog_current,
-                        chooseLabel: tr.plans_catalog_choose,
-                        unavailableLabel: tr.plans_catalog_unavailable,
-                        defaultLabel: tr.plans_catalog_default_badge,
-                        defaultHint: tr.plans_catalog_default_hint,
-                        busy: _busy,
-                        onChoose: plan.isPurchasable
-                            ? () => _choosePlan(plan)
-                            : null,
-                      ),
-                  ],
                   const SizedBox(height: 24),
                   Text(
                     tr.subscription_manage_cancel_hint,
@@ -392,115 +325,6 @@ class _SubscriptionsHubPageState extends State<SubscriptionsHubPage> {
 ///
 /// C'est le serveur qui décide de la liste : une formule sans SKU (accordée à la
 /// main par un administrateur) apparaît ici sans bouton d'achat.
-class _PlanCatalogTile extends StatelessWidget {
-  const _PlanCatalogTile({
-    required this.plan,
-    required this.quotaSummary,
-    required this.isCurrent,
-    required this.currentLabel,
-    required this.chooseLabel,
-    required this.unavailableLabel,
-    required this.defaultLabel,
-    required this.defaultHint,
-    required this.busy,
-    this.onChoose,
-  });
-
-  final PurchasablePlanInfo plan;
-  final String quotaSummary;
-  final bool isCurrent;
-  final String currentLabel;
-  final String chooseLabel;
-  final String unavailableLabel;
-  final String defaultLabel;
-  final String defaultHint;
-  final bool busy;
-  final VoidCallback? onChoose;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    // L'offre par défaut est le socle : elle porte son propre badge et jamais de
-    // bouton d'achat. Une formule déjà souscrite ne se rachète pas non plus.
-    final badge = plan.isDefault
-        ? defaultLabel
-        : (isCurrent ? currentLabel : null);
-    final canBuy = !plan.isDefault && plan.isPurchasable && !isCurrent;
-
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    plan.displayName.isEmpty ? plan.code : plan.displayName,
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                if (badge != null)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.secondaryContainer,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      badge,
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: theme.colorScheme.onSecondaryContainer,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            Text(
-              quotaSummary,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 12),
-            if (plan.isDefault)
-              Text(
-                defaultHint,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              )
-            else
-              SizedBox(
-                width: double.infinity,
-                child: canBuy
-                    ? FilledButton.tonal(
-                        onPressed: busy ? null : onChoose,
-                        child: Text(chooseLabel),
-                      )
-                    : OutlinedButton(
-                        onPressed: null,
-                        child: Text(
-                          isCurrent ? currentLabel : unavailableLabel,
-                        ),
-                      ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _SubscriptionSectionCard extends StatelessWidget {
   const _SubscriptionSectionCard({
     required this.icon,
