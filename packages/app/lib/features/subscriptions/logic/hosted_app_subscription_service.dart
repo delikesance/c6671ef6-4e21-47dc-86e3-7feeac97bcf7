@@ -41,6 +41,13 @@ class HostedAppSubscriptionService {
   static int? _serverMaxContainers;
   static String? _serverPlanTierCode;
 
+  /// Durée réelle de la couverture, telle que le SERVEUR la connaît : échéance datée,
+  /// ou `_serverHostingPermanent` quand il n'y en a pas. Les deux restent « inconnus »
+  /// par défaut, ce qui interdit d'afficher « Permanent (no expiration) » sur une
+  /// couverture qui expire — c'est exactement ce que montraient les cartes.
+  static DateTime? _serverHostingExpiresAt;
+  static bool _serverHostingPermanent = false;
+
   static Timer? _expiryTimer;
   static bool _purchaseHandlerRegistered = false;
   static SharedPreferences? _prefs;
@@ -68,14 +75,25 @@ class HostedAppSubscriptionService {
     required bool granted,
     int? maxContainers,
     String? planTierCode,
+    DateTime? hostingExpiresAt,
+    bool hostingPermanent = false,
   }) {
     _serverGrantsHostedApps = granted;
     _serverMaxContainers = maxContainers;
     _serverPlanTierCode = planTierCode;
+    _serverHostingExpiresAt = hostingExpiresAt;
+    _serverHostingPermanent = hostingPermanent;
   }
 
   /// Plafond d'apps hébergées fixé par la formule du compte (null = non renseigné).
   static int? get serverMaxContainers => _serverMaxContainers;
+
+  /// Fin de la couverture hébergement côté serveur (null = sans échéance connue).
+  static DateTime? get hostingCoverageExpiresAt => _serverHostingExpiresAt;
+
+  /// Le serveur déclare-t-il la couverture sans échéance ? Faux par défaut : sans
+  /// information, on n'affirme rien sur la durée plutôt que d'inventer « permanent ».
+  static bool get hostingCoveragePermanent => _serverHostingPermanent;
 
   /// Code de la formule servie par le serveur (ex. `FREE`, `PRO`, `HOST_ONE_APP`).
   static String? get serverPlanTierCode => _serverPlanTierCode;
@@ -293,6 +311,10 @@ class HostedAppSubscriptionService {
           eligibility.premium &&
           eligibility.allowTurnkey &&
           eligibility.maxContainers > 0;
+      // La durée vient du serveur : une échéance datée, ou « permanent » quand un
+      // octroi n'a pas d'échéance. Jamais déduite localement.
+      _serverHostingExpiresAt = eligibility.hostingExpiresAt;
+      _serverHostingPermanent = eligibility.hostingPermanent;
 
       if (!eligibility.premium) {
         // The manager does not know this purchase yet: the store notification was

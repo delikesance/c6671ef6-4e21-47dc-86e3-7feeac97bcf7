@@ -158,6 +158,26 @@ class _SubscriptionsHubPageState extends State<SubscriptionsHubPage> {
     return context.tr.subscriptions_hub_expires_at(date, time);
   }
 
+  /// Durée de la couverture hébergement. Un reçu du store porte sa propre échéance ;
+  /// quand c'est une FORMULE serveur qui couvre, c'est le serveur qui sait — et s'il
+  /// ne dit rien, on n'affiche RIEN. La carte annonçait « Permanent (no expiration) »
+  /// dès que l'échéance était inconnue, y compris sur un octroi qui expirait : une
+  /// affirmation fausse à l'écran.
+  String? _hostingExpiryText(BuildContext context) {
+    if (HostedAppSubscriptionService.hasServerGrantedHostedApps) {
+      final serverExpiry =
+          HostedAppSubscriptionService.hostingCoverageExpiresAt;
+      if (serverExpiry != null) return _formatExpiry(context, serverExpiry);
+      return HostedAppSubscriptionService.hostingCoveragePermanent
+          ? context.tr.subscriptions_hub_permanent
+          : null;
+    }
+    return _formatExpiry(
+      context,
+      HostedAppSubscriptionService.subscriptionExpiresAt,
+    );
+  }
+
   String _botPlanLabel(AppLocalizations tr) {
     final maxBots = SubscriptionService.activePlanMaxBots;
     final botsLimit = maxBots == null
@@ -304,10 +324,7 @@ class _SubscriptionsHubPageState extends State<SubscriptionsHubPage> {
                     isActive: hostedActive,
                     activeLabel: hostedActive ? _hostedPlanLabel(tr) : null,
                     expiryText: hostedActive
-                        ? _formatExpiry(
-                            context,
-                            HostedAppSubscriptionService.subscriptionExpiresAt,
-                          )
+                        ? _hostingExpiryText(context)
                         : null,
                     statusActiveLabel: tr.subscriptions_hub_status_active,
                     statusInactiveLabel: tr.subscriptions_hub_status_inactive,
