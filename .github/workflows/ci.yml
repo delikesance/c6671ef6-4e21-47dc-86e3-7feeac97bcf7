@@ -1,3 +1,8 @@
+# Décision : le gate local `make check` (-> scripts/pre-push.sh) exécute l'analyse et les tests
+# du monorepo complet (runner, shared, app mobile). Les jobs de test/analyse/scan source distants
+# sont donc retirés au profit de ce gate local, bien plus rapide à itérer.
+# La CI distante ne garde que ce qui ne peut pas tourner en local : release SemVer + tag,
+# build/scan de l'image Docker et publication sur les registres.
 name: CI
 
 on:
@@ -5,8 +10,6 @@ on:
     branches: [main, master]
     tags:
       - "v*"
-  pull_request:
-    branches: [main, master, dev]
   workflow_dispatch:
 
 permissions:
@@ -22,135 +25,6 @@ env:
   DOCKERHUB_IMAGE_NAME: garder500/bot-creator-runner
 
 jobs:
-  quality:
-    name: Quality
-    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master') || (github.event_name == 'push' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master' && !startsWith(github.ref, 'refs/tags/v'))
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: "3.44.1"
-          channel: "stable"
-          cache: false
-
-      - name: Resolve workspace dependencies
-        run: flutter pub get
-
-      - name: Analyze packages
-        run: |
-          dart analyze packages/runner packages/shared
-          flutter analyze packages/app
-
-  unit-tests:
-    name: Unit tests
-    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master') || (github.event_name == 'push' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master' && !startsWith(github.ref, 'refs/tags/v'))
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: "3.44.1"
-          channel: "stable"
-          cache: false
-
-      - name: Resolve workspace dependencies
-        run: flutter pub get
-
-      - name: Run unit tests
-        run: |
-          cd packages/runner && dart test
-          cd ../shared && dart test
-          cd ../app && flutter test
-
-  api-integration-tests:
-    name: API integration tests
-    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master') || (github.event_name == 'push' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master' && !startsWith(github.ref, 'refs/tags/v'))
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: "3.44.1"
-          channel: "stable"
-          cache: false
-
-      - name: Resolve workspace dependencies
-        run: flutter pub get
-
-      - name: Run runner integration tests
-        run: cd packages/runner && dart test test/discord_runner_reload_mode_test.dart test/runner_runtime_controller_metrics_test.dart
-
-  swagger-drift:
-    name: Swagger drift
-    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master') || (github.event_name == 'push' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master' && !startsWith(github.ref, 'refs/tags/v'))
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: "3.44.1"
-          channel: "stable"
-          cache: false
-
-      - name: Check ARB translations and localization sync
-        run: |
-          if [ -d "packages/app" ]; then
-            cd packages/app && flutter pub get
-            dart run tools/check_hardcoded_strings.dart || true
-          fi
-
-  source-security:
-    name: Source security
-    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master') || (github.event_name == 'push' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master' && !startsWith(github.ref, 'refs/tags/v'))
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Run Trivy filesystem vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          format: 'table'
-          exit-code: '0'
-          severity: 'CRITICAL,HIGH'
-
-  container-build-scan:
-    name: Container build and scan
-    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master') || (github.event_name == 'push' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master' && !startsWith(github.ref, 'refs/tags/v'))
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build local container image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./Dockerfile
-          push: false
-          load: true
-          tags: local/runner:${{ github.sha }}
-          build-args: |
-            CACHEBUST=${{ github.run_id }}-${{ github.run_attempt }}
-
-      - name: Run Trivy container vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: local/runner:${{ github.sha }}
-          format: 'table'
-          exit-code: '0'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
-
   auto-release:
     name: Auto Release & SemVer Tag
     if: (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v'))) || (github.event_name == 'workflow_dispatch' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'))
@@ -255,6 +129,30 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
             type=sha,prefix=sha-
 
+      - name: Build image locally for scanning
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64
+          push: false
+          load: true
+          tags: local/runner:scan-${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            CACHEBUST=${{ github.run_id }}-${{ github.run_attempt }}
+
+      - name: Scan image before push (Trivy)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: local/runner:scan-${{ github.sha }}
+          format: 'table'
+          exit-code: '0'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
       - name: Build and push multi-arch image
         uses: docker/build-push-action@v6
         with:
@@ -268,33 +166,3 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: |
             CACHEBUST=${{ github.run_id }}-${{ github.run_attempt }}
-
-  ci-success:
-    name: ci-success
-    needs:
-      - quality
-      - unit-tests
-      - api-integration-tests
-      - swagger-drift
-      - source-security
-      - container-build-scan
-      - auto-release
-      - publish-image
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check pipeline results
-        run: |
-          if [[ "${{ github.event_name }}" == "pull_request" || ("${{ github.event_name }}" == "workflow_dispatch" && "${{ github.ref }}" != "refs/heads/main" && "${{ github.ref }}" != "refs/heads/master") ]]; then
-            if [[ "${{ needs.quality.result }}" != "success" ]]; then exit 1; fi
-            if [[ "${{ needs.unit-tests.result }}" != "success" ]]; then exit 1; fi
-            if [[ "${{ needs.api-integration-tests.result }}" != "success" ]]; then exit 1; fi
-            if [[ "${{ needs.swagger-drift.result }}" != "success" ]]; then exit 1; fi
-            if [[ "${{ needs.source-security.result }}" != "success" ]]; then exit 1; fi
-            if [[ "${{ needs.container-build-scan.result }}" != "success" ]]; then exit 1; fi
-          fi
-          if [[ ("${{ github.event_name }}" == "push" || "${{ github.event_name }}" == "workflow_dispatch") && ("${{ github.ref }}" == "refs/heads/main" || "${{ github.ref }}" == "refs/heads/master") ]]; then
-            if [[ "${{ needs.auto-release.result }}" != "success" ]]; then exit 1; fi
-            if [[ "${{ needs.publish-image.result }}" != "success" ]]; then exit 1; fi
-          fi
-          echo "All required CI checks passed successfully."
