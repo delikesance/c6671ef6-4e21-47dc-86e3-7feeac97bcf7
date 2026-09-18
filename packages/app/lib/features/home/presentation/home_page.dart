@@ -210,8 +210,21 @@ class HomePageState extends State<HomePage>
   String? _snapshotEtag;
 
   /// Empêche deux replis de se superposer : le tick est de 15 s alors que le délai
-  /// HTTP peut monter à 30 s.
+  /// HTTP peut monter à 30 s. Le garde couvre TOUS les déclencheurs — le tick de 60 s,
+  /// la reprise d'application et la perte de connexion WebSocket — puisque tous passent
+  /// par [_refreshFromSnapshot].
   bool _isRefreshingFromSnapshot = false;
+
+  /// Collaborateurs du repli, remplaçables en test uniquement.
+  ///
+  /// Le repli réel résout son client HTTP depuis la session enregistrée, ce qui n'est
+  /// pas interceptable dans un test ; or c'est précisément le NOMBRE de requêtes
+  /// (1 snapshot contre N requêtes par bot) que les tests doivent verrouiller.
+  @visibleForTesting
+  static GatewaySnapshotFetcher? debugSnapshotFetcherOverride;
+
+  @visibleForTesting
+  static Future<void> Function()? debugPerBotRefreshOverride;
 
   bool get _supportsForegroundTask => Platform.isAndroid || Platform.isIOS;
   bool get _isDesktop =>
@@ -290,7 +303,9 @@ class HomePageState extends State<HomePage>
       // then do the full sync in background.
       unawaited(_ensureGatewayBotEvents());
       if (!_gatewayEventsConnected) {
-        _initRunningState();
+        // WebSocket coupée : repli par le snapshot agrégé, lancé TOUT DE SUITE — attendre
+        // le tick de 60 s afficherait un état périmé au retour sur l'application.
+        unawaited(_refreshFromSnapshot());
       }
       syncAllBotsFromManager(silent: true);
     } else if (state == AppLifecycleState.paused ||
@@ -309,21 +324,35 @@ class HomePageState extends State<HomePage>
   /// `_initRunningState()` (une requête par bot) sur ce chemin. La rétro-compatibilité
   /// est assurée par [refreshHomeFromGatewaySnapshot] : si le manager ne connaît pas
   /// `/gateway/snapshot` (404), c'est `_initRunningState()` qui reprend la main.
+  ///
+  /// Point d'entrée unique des trois déclencheurs (tick de 60 s, reprise d'application,
+  /// perte de connexion WebSocket) : le garde de réentrance et la bascule vers le repli
+  /// historique sont donc partagés, et aucun déclencheur ne peut court-circuiter l'autre.
   Future<void> _refreshFromSnapshot() async {
     if (_isRefreshingFromSnapshot) return;
     _isRefreshingFromSnapshot = true;
     try {
-      final remoteClient = await _resolveGlobalMainApiClient();
-      if (remoteClient == null) {
-        // Sans client manager, seul le repli local sait calculer l'état des bots.
-        await _initRunningState();
-        return;
+      // Repli historique, exécuté si le snapshot est indisponible : en test il est
+      // remplaçable pour être COMPTÉ (c'est lui qui faisait N requêtes par bot).
+      final perBotFallback = debugPerBotRefreshOverride ?? _initRunningState;
+      GatewaySnapshotFetcher fetchSnapshot;
+      final fetcherOverride = debugSnapshotFetcherOverride;
+      if (fetcherOverride != null) {
+        fetchSnapshot = fetcherOverride;
+      } else {
+        final remoteClient = await _resolveGlobalMainApiClient();
+        if (remoteClient == null) {
+          // Sans client manager, seul le repli local sait calculer l'état des bots.
+          await perBotFallback();
+          return;
+        }
+        fetchSnapshot = remoteClient.getGatewaySnapshotWithEtag;
       }
       final outcome = await refreshHomeFromGatewaySnapshot(
-        fetchSnapshot: remoteClient.getGatewaySnapshotWithEtag,
+        fetchSnapshot: fetchSnapshot,
         etag: _snapshotEtag,
         applySnapshot: _applySnapshot,
-        fallbackToPerBotRefresh: _initRunningState,
+        fallbackToPerBotRefresh: perBotFallback,
       );
       appendBotDebugLog(
         '[home] Repli snapshot: ${outcome.name} '
@@ -683,17 +712,29 @@ class HomePageState extends State<HomePage>
     await _gatewayEventsSub?.cancel();
     await _gatewayConnectionSub?.cancel();
     _gatewayEventsSub = session.events.listen(_onGatewayBotEvent);
-    _gatewayConnectionSub = session.connectionChanges.listen((connected) {
-      if (!mounted) return;
-      setState(() => _gatewayEventsConnected = connected);
-      if (connected) {
-        _httpFallbackTick = 0;
-      } else {
-        unawaited(_initRunningState());
-      }
-    });
+    _gatewayConnectionSub = session.connectionChanges.listen(
+      handleGatewayConnectionChange,
+    );
     if (session.isConnected && mounted) {
       setState(() => _gatewayEventsConnected = true);
+    }
+  }
+
+  /// Changement d'état du canal temps réel (WebSocket).
+  ///
+  /// Extrait du listener pour être appelable en test : c'est le déclencheur « perte de
+  /// connexion » du repli, l'autre étant la reprise d'application.
+  @visibleForTesting
+  void handleGatewayConnectionChange(bool connected) {
+    if (!mounted) return;
+    setState(() => _gatewayEventsConnected = connected);
+    if (connected) {
+      _httpFallbackTick = 0;
+    } else {
+      // Connexion perdue : repli immédiat par le snapshot agrégé (une requête au lieu
+      // d'une par bot). Attendre le tick de 60 s laisserait l'accueil figé sur l'état
+      // d'avant la coupure.
+      unawaited(_refreshFromSnapshot());
     }
   }
 
