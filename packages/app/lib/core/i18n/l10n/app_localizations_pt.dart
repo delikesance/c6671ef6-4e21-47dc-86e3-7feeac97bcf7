@@ -7548,6 +7548,27 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
+  String get plans_catalog_default_badge => 'Plano padrão';
+
+  @override
+  String get plans_catalog_default_hint =>
+      'Incluído em todas as contas — sem compra necessária.';
+
+  @override
+  String plans_catalog_turnkey_max(int count) {
+    return 'Até $count bots prontos';
+  }
+
+  @override
+  String get plans_catalog_turnkey_unlimited => 'Bots prontos ilimitados';
+
+  @override
+  String get plans_catalog_own_bots_excluded => 'Bots próprios não incluídos';
+
+  @override
+  String get plans_catalog_turnkey_excluded => 'Bots prontos não incluídos';
+
+  @override
   String get subscription_upgrade_annual => 'Atualizar para anual';
 
   @override

@@ -13126,6 +13126,42 @@ abstract class AppLocalizations {
   /// **'Up to {count} bots running'**
   String plans_catalog_bots_max(int count);
 
+  /// No description provided for @plans_catalog_default_badge.
+  ///
+  /// In en, this message translates to:
+  /// **'Default plan'**
+  String get plans_catalog_default_badge;
+
+  /// No description provided for @plans_catalog_default_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Included with every account — nothing to buy.'**
+  String get plans_catalog_default_hint;
+
+  /// No description provided for @plans_catalog_turnkey_max.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to {count} turnkey apps'**
+  String plans_catalog_turnkey_max(int count);
+
+  /// No description provided for @plans_catalog_turnkey_unlimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited turnkey apps'**
+  String get plans_catalog_turnkey_unlimited;
+
+  /// No description provided for @plans_catalog_own_bots_excluded.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal bots not included'**
+  String get plans_catalog_own_bots_excluded;
+
+  /// No description provided for @plans_catalog_turnkey_excluded.
+  ///
+  /// In en, this message translates to:
+  /// **'Turnkey apps not included'**
+  String get plans_catalog_turnkey_excluded;
+
   /// No description provided for @subscription_upgrade_annual.
   ///
   /// In en, this message translates to:

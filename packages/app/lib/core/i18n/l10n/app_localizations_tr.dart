@@ -7502,6 +7502,27 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String get plans_catalog_default_badge => 'Varsayılan plan';
+
+  @override
+  String get plans_catalog_default_hint =>
+      'Tüm hesaplara dahil — satın alma gerekmez.';
+
+  @override
+  String plans_catalog_turnkey_max(int count) {
+    return 'Aynı anda $count hazır bota kadar';
+  }
+
+  @override
+  String get plans_catalog_turnkey_unlimited => 'Sınırsız hazır bot';
+
+  @override
+  String get plans_catalog_own_bots_excluded => 'Kendi botları dahil değil';
+
+  @override
+  String get plans_catalog_turnkey_excluded => 'Hazır botlar dahil değil';
+
+  @override
   String get subscription_upgrade_annual => 'Yıllık plana yükselt';
 
   @override

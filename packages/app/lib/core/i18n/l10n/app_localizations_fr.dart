@@ -7573,6 +7573,27 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get plans_catalog_default_badge => 'Offre par défaut';
+
+  @override
+  String get plans_catalog_default_hint =>
+      'Incluse pour tous les comptes — aucun achat nécessaire.';
+
+  @override
+  String plans_catalog_turnkey_max(int count) {
+    return 'Jusqu\'à $count clé en main';
+  }
+
+  @override
+  String get plans_catalog_turnkey_unlimited => 'Clé en main illimité';
+
+  @override
+  String get plans_catalog_own_bots_excluded => 'Bots perso non inclus';
+
+  @override
+  String get plans_catalog_turnkey_excluded => 'Clé en main non inclus';
+
+  @override
   String get subscription_upgrade_annual => 'Passer à l\'abonnement annuel';
 
   @override

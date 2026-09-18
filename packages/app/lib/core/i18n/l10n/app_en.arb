@@ -10120,6 +10120,19 @@
   "plans_catalog_choose": "Choose this plan",
   "plans_catalog_unavailable": "Not purchasable yet",
   "plans_catalog_bots_max": "Up to {count} bots running",
+  "plans_catalog_default_badge": "Default plan",
+  "plans_catalog_default_hint": "Included with every account — nothing to buy.",
+  "plans_catalog_turnkey_max": "Up to {count} turnkey apps",
+  "plans_catalog_turnkey_unlimited": "Unlimited turnkey apps",
+  "plans_catalog_own_bots_excluded": "Personal bots not included",
+  "plans_catalog_turnkey_excluded": "Turnkey apps not included",
+  "@plans_catalog_turnkey_max": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "@plans_catalog_bots_max": {
     "placeholders": {
       "count": {
