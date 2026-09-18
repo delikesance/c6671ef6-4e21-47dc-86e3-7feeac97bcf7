@@ -49,9 +49,12 @@ class PlanLimitDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tr = context.tr;
-    // Au-delà du quota de la formule, le démarrage n'est pas refusé : le bot tourne
-    // financé par pub. On prévient et on laisse continuer, au lieu de bloquer.
-    final adFunded = block == PlanLimitBlock.planBotQuotaReached;
+    // Un compte premium ne regarde JAMAIS de publicité : au-delà de son quota, le
+    // démarrage est refusé et la seule sortie est de changer de formule. Un compte
+    // ad-financé, lui, peut dépasser son quota en gagnant du temps par une pub.
+    final adFunded =
+        block == PlanLimitBlock.planBotQuotaReached &&
+        !SubscriptionService.isSubscribed;
     final (String title, String description) = switch (block) {
       PlanLimitBlock.planExcludesOwnBots => (
         tr.plan_limit_own_bots_title,
@@ -59,9 +62,11 @@ class PlanLimitDialog extends StatelessWidget {
       ),
       PlanLimitBlock.planBotQuotaReached => (
         tr.plan_limit_bot_quota_title,
-        tr.plan_limit_bot_quota_ad_funded_desc(
-          SubscriptionService.activePlanMaxBots ?? 0,
-        ),
+        adFunded
+            ? tr.plan_limit_bot_quota_ad_funded_desc(
+                SubscriptionService.activePlanMaxBots ?? 0,
+              )
+            : tr.plan_limit_bot_quota_desc,
       ),
       PlanLimitBlock.planExcludesTurnkey => (
         tr.plan_limit_turnkey_title,
