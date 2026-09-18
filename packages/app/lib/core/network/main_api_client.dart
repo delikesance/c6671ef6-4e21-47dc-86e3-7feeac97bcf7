@@ -1804,11 +1804,13 @@ class MainApiClient implements RemoteRuntimeClient {
     return HostedAppEligibility.fromJson(json);
   }
 
-  /// Catalogue des formules réellement achetables, servi par le serveur.
+  /// Mapping des formules servi par le serveur : quelles formules existent, quels droits
+  /// elles portent, et à quels identifiants de produits elles correspondent.
   ///
-  /// Les identifiants de produits ne sont plus figés dans l'application : c'est
-  /// le serveur qui décide quelles formules existent et à quels SKUs elles
-  /// correspondent.
+  /// Usage : les CAPACITÉS, jamais l'affichage. L'application s'en sert pour reconnaître
+  /// les SKUs rattachés aux formules (achat et validation des reçus) — les offres montrées
+  /// à l'utilisateur restent une fonctionnalité de l'application, avec ses propres textes
+  /// et sa propre mise en page.
   Future<PlanCatalogInfo> getGatewayPlans() async {
     final json = await _get('/gateway/plans');
     return PlanCatalogInfo.fromJson(json);
