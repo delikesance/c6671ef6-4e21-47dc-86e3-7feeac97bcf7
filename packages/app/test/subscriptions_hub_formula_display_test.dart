@@ -149,4 +149,69 @@ void main() {
     // Et la carte d'hébergement propose d'ailleurs de s'abonner.
     expect(find.textContaining('S\'abonner'), findsWidgets);
   });
+
+  testWidgets('une couverture serveur datée affiche son échéance, pas « permanent »', (
+    tester,
+  ) async {
+    // La carte du haut porte un reçu DATÉ : la seule mention « permanent » qui
+    // pourrait encore apparaître serait celle de l'hébergement — c'est ce qu'on teste.
+    SubscriptionService.debugSetLocalSubscriptionForTests(
+      active: true,
+      productId: 'bot_creator_premium_monthly',
+      expiresAt: DateTime.utc(2026, 10, 1),
+    );
+    SubscriptionService.debugSetPlanIdentityForTests(displayName: 'Host One App');
+    SubscriptionService.debugSetPlanQuotasForTests(maxBots: 0);
+    // Octroi administrateur qui EXPIRE (le cas réel : échéance 2026-12-20).
+    HostedAppSubscriptionService.debugSetServerGrantForTests(
+      granted: true,
+      maxContainers: 1,
+      planTierCode: 'HOST_ONE_APP',
+      hostingExpiresAt: DateTime.utc(2026, 12, 20),
+    );
+
+    await pumpHub(tester);
+
+    expect(
+      find.text('Permanent (sans expiration)'),
+      findsNothing,
+      reason: 'la couverture expire : annoncer « permanent » était le mensonge à corriger',
+    );
+    expect(
+      find.textContaining("Renouvelé jusqu'au"),
+      findsNWidgets(2),
+      reason: 'une échéance sur chaque carte, celle de l\'hébergement venant du serveur',
+    );
+  });
+
+  testWidgets('sans durée connue, la carte d\'hébergement n\'affirme rien', (
+    tester,
+  ) async {
+    SubscriptionService.debugSetLocalSubscriptionForTests(
+      active: true,
+      expiresAt: DateTime.utc(2026, 10, 1),
+    );
+    SubscriptionService.debugSetPlanIdentityForTests(displayName: 'Host One App');
+    SubscriptionService.debugSetPlanQuotasForTests(maxBots: 0);
+    // Couverture accordée, mais le serveur ne dit rien de sa durée (ancien serveur).
+    HostedAppSubscriptionService.debugSetServerGrantForTests(
+      granted: true,
+      maxContainers: 1,
+      planTierCode: 'HOST_ONE_APP',
+    );
+
+    await pumpHub(tester);
+
+    expect(
+      find.text('Permanent (sans expiration)'),
+      findsNothing,
+      reason:
+          'durée inconnue : le client ne doit ni inventer « permanent » ni afficher une date',
+    );
+    expect(
+      find.textContaining("Renouvelé jusqu'au"),
+      findsOneWidget,
+      reason: 'seule la carte du haut connaît son échéance',
+    );
+  });
 }

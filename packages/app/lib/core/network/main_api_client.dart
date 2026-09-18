@@ -2327,6 +2327,8 @@ class HostedAppEligibility {
     this.deployBlockedReason,
     this.allowTurnkey = true,
     this.planTierCode,
+    this.hostingExpiresAt,
+    this.hostingPermanent = false,
   });
 
   final bool premium;
@@ -2345,6 +2347,15 @@ class HostedAppEligibility {
 
   /// Code de la formule servie par le serveur (ex. `FREE`, `STARTER`, `PRO`).
   final String? planTierCode;
+
+  /// Fin de la couverture hébergement, quand le serveur la connaît (échéance d'un
+  /// abonnement ou du dernier octroi qui couvre).
+  final DateTime? hostingExpiresAt;
+
+  /// Vrai seulement quand le serveur dit que la couverture n'a PAS d'échéance
+  /// (un octroi permanent). Les deux champs sont nuls/faux quand l'information
+  /// manque : le client ne doit alors rien affirmer sur la durée.
+  final bool hostingPermanent;
 
   /// `container_limit` | `no_minutes` | `plan_not_included` | null when
   /// [canDeploy] is true.
@@ -2371,6 +2382,10 @@ class HostedAppEligibility {
       ),
       allowTurnkey: json['allow_turnkey'] != false,
       planTierCode: _normalize(json['plan_tier_code']?.toString()),
+      hostingExpiresAt: DateTime.tryParse(
+        json['hosting_expires_at']?.toString() ?? '',
+      )?.toUtc(),
+      hostingPermanent: json['hosting_permanent'] == true,
     );
   }
 }
