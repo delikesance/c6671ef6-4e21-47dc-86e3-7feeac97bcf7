@@ -59,6 +59,96 @@ String homeUiCopy(
   return Localizations.localeOf(context).languageCode == 'fr' ? fr : en;
 }
 
+/// Issue d'une tentative de rafraîchissement de l'accueil par le snapshot agrégé.
+enum HomeSnapshotOutcome {
+  /// 200 : le snapshot (compte + bots) a été appliqué.
+  applied,
+
+  /// 304 : rien n'a changé depuis l'ETag mémorisé, donc rien à réappliquer.
+  notModified,
+
+  /// Le manager ne connaît pas `/gateway/snapshot` (404) ou est injoignable : on est
+  /// retombé sur le repli historique, une requête par bot.
+  fellBack,
+}
+
+/// Signature de l'appel réseau utilisé par le repli : une fonction plutôt qu'une
+/// interface, pour que la décision soit vérifiable avec un client factice qui compte
+/// les appels — `MainApiClient` expose exactement cette signature.
+typedef GatewaySnapshotFetcher =
+    Future<GatewaySnapshotResponse?> Function({String? etag});
+
+/// Charge utile du snapshot agrégé décomposée en objets du canal temps réel : la source
+/// interrogée (HTTP) et la source poussée (WebSocket) traversent ainsi le même code.
+class HomeSnapshotData {
+  const HomeSnapshotData({required this.bots, this.account, this.etag});
+
+  final List<GatewayBotEventPayload> bots;
+  final GatewayAccountEventPayload? account;
+  final String? etag;
+}
+
+/// Analyse la charge utile de `GET /gateway/snapshot` (`{account, bots[], containers[]}`).
+///
+/// Les clés sont celles déjà comprises par `GatewayBotEventPayload.fromJson` et
+/// `GatewayAccountEventPayload.fromJson` : même contrat que le canal temps réel, donc
+/// aucune divergence possible entre l'état poussé et l'état interrogé.
+HomeSnapshotData parseGatewaySnapshotPayload(
+  Map<String, dynamic> payload, {
+  String? etag,
+}) {
+  final bots = <GatewayBotEventPayload>[];
+  final rawBots = payload['bots'];
+  if (rawBots is List) {
+    for (final raw in rawBots) {
+      if (raw is Map) {
+        bots.add(
+          GatewayBotEventPayload.fromJson(Map<String, dynamic>.from(raw)),
+        );
+      }
+    }
+  }
+  GatewayAccountEventPayload? account;
+  final rawAccount = payload['account'];
+  if (rawAccount is Map) {
+    account = GatewayAccountEventPayload.fromJson(
+      Map<String, dynamic>.from(rawAccount),
+    );
+  }
+  return HomeSnapshotData(bots: bots, account: account, etag: etag);
+}
+
+/// Repli HTTP de l'accueil quand la WebSocket est coupée : UNE requête pour tout l'état
+/// (compte + bots) au lieu d'une par bot.
+///
+/// - `applySnapshot` est appelé sur un 200 seulement ;
+/// - un 304 (`fetchSnapshot` rend `null`) ne réapplique rien : c'est le but de l'ETag ;
+/// - toute erreur — dont le 404 d'un manager plus ancien — retombe sur le repli
+///   historique, car cesser de rafraîchir l'accueil serait une régression.
+Future<HomeSnapshotOutcome> refreshHomeFromGatewaySnapshot({
+  required GatewaySnapshotFetcher fetchSnapshot,
+  required String? etag,
+  required Future<void> Function(HomeSnapshotData snapshot) applySnapshot,
+  required Future<void> Function() fallbackToPerBotRefresh,
+}) async {
+  GatewaySnapshotResponse? response;
+  try {
+    response = await fetchSnapshot(etag: etag);
+  } catch (_) {
+    // Manager plus ancien (404) ou API injoignable : la rétro-compatibilité est une
+    // exigence, pas une option.
+    await fallbackToPerBotRefresh();
+    return HomeSnapshotOutcome.fellBack;
+  }
+  if (response == null) {
+    return HomeSnapshotOutcome.notModified;
+  }
+  await applySnapshot(
+    parseGatewaySnapshotPayload(response.payload, etag: response.etag),
+  );
+  return HomeSnapshotOutcome.applied;
+}
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key, this.onManageBot});
 
@@ -115,6 +205,14 @@ class HomePageState extends State<HomePage>
   bool _gatewayEventsConnected = false;
   int _httpFallbackTick = 0;
 
+  /// Dernier ETag du snapshot agrégé : c'est lui qui transforme le repli suivant en
+  /// `304` (rien à retélécharger, rien à réappliquer) tant que l'état n'a pas bougé.
+  String? _snapshotEtag;
+
+  /// Empêche deux replis de se superposer : le tick est de 15 s alors que le délai
+  /// HTTP peut monter à 30 s.
+  bool _isRefreshingFromSnapshot = false;
+
   bool get _supportsForegroundTask => Platform.isAndroid || Platform.isIOS;
   bool get _isDesktop =>
       Platform.isWindows || Platform.isLinux || Platform.isMacOS;
@@ -155,12 +253,13 @@ class HomePageState extends State<HomePage>
       if (_sessionExpiresAtByBotId.isNotEmpty) {
         setState(() {});
       }
-      // HTTP fallback only while WebSocket is down (every ~60s).
+      // Repli HTTP uniquement WebSocket coupée (toutes les ~60 s : seuil produit,
+      // conservé tel quel). Le coût du repli, lui, passe de N requêtes à une seule.
       if (!_gatewayEventsConnected) {
         _httpFallbackTick++;
         if (_httpFallbackTick >= 4) {
           _httpFallbackTick = 0;
-          unawaited(_initRunningState());
+          unawaited(_refreshFromSnapshot());
         }
       } else {
         _httpFallbackTick = 0;
@@ -200,6 +299,55 @@ class HomePageState extends State<HomePage>
         state == AppLifecycleState.hidden) {
       unawaited(appManager.flushPendingWrites());
     }
+  }
+
+  // ── Repli HTTP : snapshot agrégé ───────────────────────────────────────────
+
+  /// Repli de l'accueil quand la WebSocket est coupée.
+  ///
+  /// Une requête unique ramène le compte et tous les bots ; c'est le remplacement de
+  /// `_initRunningState()` (une requête par bot) sur ce chemin. La rétro-compatibilité
+  /// est assurée par [refreshHomeFromGatewaySnapshot] : si le manager ne connaît pas
+  /// `/gateway/snapshot` (404), c'est `_initRunningState()` qui reprend la main.
+  Future<void> _refreshFromSnapshot() async {
+    if (_isRefreshingFromSnapshot) return;
+    _isRefreshingFromSnapshot = true;
+    try {
+      final remoteClient = await _resolveGlobalMainApiClient();
+      if (remoteClient == null) {
+        // Sans client manager, seul le repli local sait calculer l'état des bots.
+        await _initRunningState();
+        return;
+      }
+      final outcome = await refreshHomeFromGatewaySnapshot(
+        fetchSnapshot: remoteClient.getGatewaySnapshotWithEtag,
+        etag: _snapshotEtag,
+        applySnapshot: _applySnapshot,
+        fallbackToPerBotRefresh: _initRunningState,
+      );
+      appendBotDebugLog(
+        '[home] Repli snapshot: ${outcome.name} '
+        '(etag=${_snapshotEtag ?? 'none'}).',
+      );
+    } finally {
+      _isRefreshingFromSnapshot = false;
+    }
+  }
+
+  /// Applique le snapshot agrégé avec exactement les mêmes fonctions que le canal temps
+  /// réel — `_applyPushedAccount` pour le compte, `_applyGatewayBotSnapshot` pour les
+  /// bots — pour que l'état interrogé et l'état poussé ne puissent pas diverger.
+  Future<void> _applySnapshot(HomeSnapshotData snapshot) async {
+    _snapshotEtag = snapshot.etag ?? _snapshotEtag;
+    final account = snapshot.account;
+    if (account != null) {
+      await _applyPushedAccount(account);
+    }
+    _applyGatewayBotSnapshot(snapshot.bots);
+    // `_applyGatewayBotSnapshot` marque la connexion comme active (c'est exact pour le
+    // canal temps réel). Ici on vient justement du repli : la WebSocket est toujours
+    // coupée, et si ce drapeau restait à vrai, le repli ne se relancerait jamais.
+    _gatewayEventsConnected = false;
   }
 
   // ── Initialisation de l'état running ───────────────────────────────────────
