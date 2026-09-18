@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 
+import 'package:bot_creator/core/network/poll_cadence.dart';
 import 'package:bot_creator/core/network/remote_runtime.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
@@ -21,7 +22,8 @@ class BotStatsPage extends StatefulWidget {
   State<BotStatsPage> createState() => _BotStatsPageState();
 }
 
-class _BotStatsPageState extends State<BotStatsPage> {
+class _BotStatsPageState extends State<BotStatsPage>
+    with WidgetsBindingObserver {
   static const int _maxPoints = 40;
   String? _selectedBotId;
   Map<String, String> _botNamesById = const <String, String>{};
@@ -36,6 +38,19 @@ class _BotStatsPageState extends State<BotStatsPage> {
   StreamSubscription<double?>? _cpuSub;
   StreamSubscription<int?>? _storageSub;
   Timer? _statsPollTimer;
+
+  /// Cadence du sondage des métriques : un écran laissé ouvert sur un bot calme ne
+  /// doit pas générer 20 requêtes par minute, dont la plupart ne montrent rien de neuf.
+  final PollCadence _statsCadence = PollCadence(
+    nominal: const Duration(seconds: 3),
+  );
+
+  /// Dernières valeurs affichées, comparées en mémoire (aucune requête supplémentaire)
+  /// pour savoir si le tick courant apporte du neuf.
+  _StatsSnapshot? _lastMetricsSnapshot;
+
+  /// Un mébioctet : la précision à laquelle on compare les mesures de taille.
+  static const int _bytesPerMebibyte = 1024 * 1024;
 
   RemoteRuntimeClient? _runtimeClient;
   RemoteRuntimeSource _runtimeSource = RemoteRuntimeSource.local;
@@ -80,6 +95,9 @@ class _BotStatsPageState extends State<BotStatsPage> {
   @override
   void initState() {
     super.initState();
+    // L'écran suspend son sondage quand l'application passe en arrière-plan : il faut
+    // observer le cycle de vie pour savoir quand le reprendre.
+    WidgetsBinding.instance.addObserver(this);
     _selectedBotId = widget.botId;
     unawaited(_loadBotNamesById());
     captureBotBaselineRss(force: false);
@@ -155,10 +173,17 @@ class _BotStatsPageState extends State<BotStatsPage> {
     });
     _subscribeMetricStreams();
 
-    await _syncMetricsTick();
-    _statsPollTimer = Timer.periodic(const Duration(seconds: 3), (_) {
-      unawaited(_syncMetricsTick());
-    });
+    final outcome = await _syncMetricsTick();
+    _statsCadence.consume(outcome);
+    // Le tick ci-dessus est asynchrone : si la page a été démontée entre-temps, ne pas
+    // armer la minuterie (sinon « A Timer is still pending even after the widget tree
+    // was disposed »).
+    if (!mounted) {
+      return;
+    }
+    // Plus de `Timer.periodic` fixe : le tick initial vient d'être fait, on n'arme que
+    // le suivant, à la cadence courante (adaptative).
+    _rescheduleStatsPoll();
   }
 
   bool get _isCurrentBotRunning {
@@ -171,9 +196,11 @@ class _BotStatsPageState extends State<BotStatsPage> {
         (_usingRemoteMetrics && _rssBytes != null && _rssBytes! > 0);
   }
 
-  Future<void> _syncMetricsTick() async {
+  Future<TickOutcome> _syncMetricsTick() async {
     if (_syncInFlight) {
-      return;
+      // Un tick est déjà en vol : il n'y a rien de neuf à comparer, et ce tick sauté ne
+      // coûte aucune requête.
+      return TickOutcome.unchanged;
     }
     if (mounted) {
       setState(() {
@@ -194,6 +221,19 @@ class _BotStatsPageState extends State<BotStatsPage> {
               : metrics.bots.any(
                   (bot) => bot.botId == runtimeBotId && bot.isRunning,
                 );
+          // On compare ce que l'écran affiche réellement, à la précision de
+          // l'affichage : un CPU flottant ou un RSS à l'octet près changeraient à chaque
+          // mesure, ce qui remettrait la cadence au nominal à chaque tick et annulerait
+          // tout l'espacement recherché.
+          final snapshot = (
+            running: isRunningForSelectedBot,
+            rssMb: _mebibytes(metrics.rssBytes),
+            estimatedRssMb: _mebibytes(metrics.botEstimatedRssBytes),
+            cpuBucket: _cpuBucket(metrics.cpuPercent),
+            storageMb: _mebibytes(metrics.storageBytes),
+          );
+          final changed = snapshot != _lastMetricsSnapshot;
+          _lastMetricsSnapshot = snapshot;
           updateBotRuntimeMetricsFromRemote(
             running: isRunningForSelectedBot,
             botId: runtimeBotId,
@@ -203,17 +243,24 @@ class _BotStatsPageState extends State<BotStatsPage> {
             cpuPercent: metrics.cpuPercent,
             storageBytes: metrics.storageBytes,
           );
-          return;
+          return changed ? TickOutcome.changed : TickOutcome.unchanged;
         } catch (_) {
-          return;
+          // Un endpoint en échec ne doit pas être martelé : le compter comme inchangé
+          // espace le sondage (repli progressif jusqu'au plafond) au lieu de réessayer
+          // en boucle.
+          return TickOutcome.unchanged;
         }
       }
 
       if (_runtimeSource == RemoteRuntimeSource.manager) {
-        return;
+        // Aucun client : ce tick ne fait aucune requête, il n'y a donc rien à espacer.
+        return TickOutcome.unchanged;
       }
 
+      // Source locale : les mesures arrivent par les flux, sans requête réseau. On garde
+      // donc le rythme nominal pour ne rien changer à la réactivité perçue.
       await refreshBotStatsNow(botId: _selectedBotId, source: _runtimeSource);
+      return TickOutcome.changed;
     } finally {
       if (mounted) {
         setState(() {
@@ -225,8 +272,63 @@ class _BotStatsPageState extends State<BotStatsPage> {
     }
   }
 
+  /// Exécute un tick puis réarme le suivant : c'est ce réarmement, et non un
+  /// `Timer.periodic`, qui permet d'espacer les requêtes quand rien ne change.
+  Future<void> _runStatsTick() async {
+    final outcome = await _syncMetricsTick();
+    _statsCadence.consume(outcome);
+    // Réarmer une minuterie alors que la page est démontée laisse « A Timer is still
+    // pending even after the widget tree was disposed ».
+    if (!mounted) {
+      return;
+    }
+    _rescheduleStatsPoll();
+  }
+
+  void _rescheduleStatsPoll() {
+    _statsPollTimer?.cancel();
+    _statsPollTimer = Timer(_statsCadence.current, () {
+      if (!mounted) {
+        return;
+      }
+      unawaited(_runStatsTick());
+    });
+  }
+
+  /// Action explicite de l'utilisateur (changement de bot, bouton « rafraîchir ») : on
+  /// repart au rythme nominal, la donnée vient probablement de changer.
+  void _refreshNow() {
+    _statsCadence.reset();
+    unawaited(_runStatsTick());
+  }
+
+  /// Pause en arrière-plan : personne ne regarde l'écran, donc les requêtes ne servent à
+  /// rien. Le retour au premier plan sonde immédiatement, sans laisser de minuterie
+  /// orpheline de l'autre côté (la branche `else` annule et n'arme rien).
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _statsCadence.reset();
+      unawaited(_runStatsTick());
+      return;
+    }
+    _statsPollTimer?.cancel();
+    _statsPollTimer = null;
+  }
+
+  /// Les tailles sont comparées au mébioctet : c'est la précision de l'affichage, et une
+  /// variation plus fine n'apprend rien à l'utilisateur.
+  static int? _mebibytes(int? bytes) =>
+      bytes == null ? null : bytes ~/ _bytesPerMebibyte;
+
+  /// Le CPU est comparé par paliers de 5 points : un pourcentage décimal bouge à chaque
+  /// mesure, un écart de cet ordre reste franc à l'écran.
+  static int? _cpuBucket(double? cpuPercent) =>
+      cpuPercent == null ? null : (cpuPercent / 5).floor();
+
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _statsPollTimer?.cancel();
     _rssSub?.cancel();
     _rssEstimatedSub?.cancel();
@@ -422,7 +524,7 @@ class _BotStatsPageState extends State<BotStatsPage> {
                               );
                             });
                             _subscribeMetricStreams();
-                            unawaited(_syncMetricsTick());
+                            _refreshNow();
                           },
                         ),
                       ),
@@ -649,9 +751,7 @@ class _BotStatsPageState extends State<BotStatsPage> {
             // Tonal button: the icon takes the container's on-colour from the
             // theme instead of forcing the brand accent.
             icon: const Icon(Icons.refresh),
-            onPressed: _syncInFlight
-                ? null
-                : () => unawaited(_syncMetricsTick()),
+            onPressed: _syncInFlight ? null : _refreshNow,
             tooltip: _uiCopy(fr: 'Rafraîchir maintenant', en: 'Refresh now'),
           ),
         ],
@@ -770,6 +870,17 @@ class _BotStatsPageState extends State<BotStatsPage> {
     return 'Baseline: ${_formatBytes(baseline)}$time';
   }
 }
+
+/// Métriques mémorisées d'un tick à l'autre, réduites à la précision affichée :
+/// l'égalité structurelle des « records » suffit à détecter un changement, sans requête
+/// supplémentaire ni comparaison champ par champ.
+typedef _StatsSnapshot = ({
+  bool running,
+  int? rssMb,
+  int? estimatedRssMb,
+  int? cpuBucket,
+  int? storageMb,
+});
 
 class _MetricCard extends StatelessWidget {
   const _MetricCard({
