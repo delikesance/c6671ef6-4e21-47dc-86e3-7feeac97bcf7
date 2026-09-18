@@ -7496,6 +7496,58 @@ class AppLocalizationsPt extends AppLocalizations {
   String get subscriptions_hub_managed_by_server => 'Gerenciado pelo servidor';
 
   @override
+  String get plan_limit_own_bots_title =>
+      'Bots próprios não incluídos no seu plano';
+
+  @override
+  String get plan_limit_own_bots_desc =>
+      'O seu plano só dá acesso a bots prontos (turnkey). Mude para um plano que inclua bots próprios para iniciar este.';
+
+  @override
+  String get plan_limit_bot_quota_title =>
+      'Limite de bots em execução atingido';
+
+  @override
+  String get plan_limit_bot_quota_desc =>
+      'O seu plano limita quantos bots podem estar em execução ao mesmo tempo. Pare um bot ou mude para um plano superior.';
+
+  @override
+  String get plan_limit_turnkey_title =>
+      'Bots prontos não incluídos no seu plano';
+
+  @override
+  String get plan_limit_turnkey_desc =>
+      'O seu plano não inclui bots prontos nem aplicações hospedadas. Escolha um plano que os inclua.';
+
+  @override
+  String get plan_limit_turnkey_quota_title =>
+      'Limite de bots prontos atingido';
+
+  @override
+  String get plan_limit_turnkey_quota_desc =>
+      'O seu plano limita quantos bots prontos podem estar em execução ao mesmo tempo. Pare um ou mude para um plano superior.';
+
+  @override
+  String get plan_limit_view_offers => 'Ver planos';
+
+  @override
+  String get plans_catalog_title => 'Planos disponíveis';
+
+  @override
+  String get plans_catalog_current => 'Plano atual';
+
+  @override
+  String get plans_catalog_choose => 'Escolher este plano';
+
+  @override
+  String get plans_catalog_unavailable => 'Ainda não disponível para compra';
+
+  @override
+  String plans_catalog_bots_max(int count) {
+    return 'Até $count bots em execução';
+  }
+
+  @override
   String get subscription_upgrade_annual => 'Atualizar para anual';
 
   @override

@@ -7452,6 +7452,56 @@ class AppLocalizationsTr extends AppLocalizations {
       'Sunucu tarafından yönetiliyor';
 
   @override
+  String get plan_limit_own_bots_title =>
+      'Kendi botlarınız planınıza dahil değil';
+
+  @override
+  String get plan_limit_own_bots_desc =>
+      'Planınız yalnızca hazır (turnkey) botlara erişim sağlar. Bu botu başlatmak için kendi botlarınızı içeren bir plana geçin.';
+
+  @override
+  String get plan_limit_bot_quota_title =>
+      'Aynı anda çalışan bot sınırına ulaşıldı';
+
+  @override
+  String get plan_limit_bot_quota_desc =>
+      'Planınız aynı anda çalışabilecek bot sayısını sınırlar. Bir botu durdurun veya üst bir plana geçin.';
+
+  @override
+  String get plan_limit_turnkey_title => 'Hazır botlar planınıza dahil değil';
+
+  @override
+  String get plan_limit_turnkey_desc =>
+      'Planınız hazır botları ve barındırılan uygulamaları içermiyor. Bunları içeren bir plan seçin.';
+
+  @override
+  String get plan_limit_turnkey_quota_title => 'Hazır bot sınırına ulaşıldı';
+
+  @override
+  String get plan_limit_turnkey_quota_desc =>
+      'Planınız aynı anda çalışabilecek hazır bot sayısını sınırlar. Birini durdurun veya üst bir plana geçin.';
+
+  @override
+  String get plan_limit_view_offers => 'Planları gör';
+
+  @override
+  String get plans_catalog_title => 'Kullanılabilir planlar';
+
+  @override
+  String get plans_catalog_current => 'Mevcut plan';
+
+  @override
+  String get plans_catalog_choose => 'Bu planı seç';
+
+  @override
+  String get plans_catalog_unavailable => 'Henüz satın alınamaz';
+
+  @override
+  String plans_catalog_bots_max(int count) {
+    return 'Aynı anda $count bota kadar';
+  }
+
+  @override
   String get subscription_upgrade_annual => 'Yıllık plana yükselt';
 
   @override

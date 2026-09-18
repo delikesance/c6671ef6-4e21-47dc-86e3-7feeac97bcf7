@@ -40,6 +40,8 @@ import 'package:bot_creator/features/home/presentation/guild_avatar.dart';
 import 'package:bot_creator/features/home/presentation/home_ui.dart';
 import 'package:bot_creator/features/settings/presentation/settings_page.dart';
 import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
+import 'package:bot_creator/features/subscriptions/presentation/plan_limit_dialog.dart';
+import 'package:bot_creator/features/subscriptions/presentation/subscriptions_hub_page.dart';
 import 'package:bot_creator/main.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -1366,6 +1368,21 @@ class HomePageState extends State<HomePage>
     // catch has to know whether this attempt was a start to report an outcome.
     final isRunning = _runningBotIds.contains(botId);
 
+    // Les quotas de la formule sont des quotas de DÉMARRAGE : on bloque ici, avec
+    // l'explication et les offres, au lieu de laisser le serveur refuser (403)
+    // après coup. On compte les bots en marche — un bot arrêté ne consomme rien.
+    if (!isRunning) {
+      final block = SubscriptionService.ownBotStartBlock(
+        runningBots: _runningBotIds.length,
+      );
+      if (block != null) {
+        if (!mounted) return;
+        setState(() => _botIdInAction = null);
+        await _showPlanLimit(block);
+        return;
+      }
+    }
+
     try {
       var runtime = await _resolveRemoteRuntime(
         botId: botId,
@@ -1794,13 +1811,34 @@ class HomePageState extends State<HomePage>
       if (!isRunning) {
         unawaited(ActivationFunnel.botStartFailed(e));
       }
-      if (mounted) {
+      // Le serveur reste seul juge : un refus lié à la formule arrive ici quand
+      // la formule a changé depuis le dernier rafraîchissement local. On affiche
+      // la même explication et la même issue qu'un blocage anticipé.
+      final block = isRunning ? null : _planLimitBlockFromError(e);
+      if (mounted && block != null) {
+        await _showPlanLimit(block);
+      } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(context.tr.error_with_details(e.toString()))),
         );
       }
     } finally {
       if (mounted) setState(() => _botIdInAction = null);
+    }
+  }
+
+  /// Traduit un refus serveur (403 de formule) en blocage affichable.
+  PlanLimitBlock? _planLimitBlockFromError(Object error) {
+    final refusal = planLimitRefusalFromError(error);
+    return refusal == null ? null : PlanLimitDialog.blockFromRefusal(refusal);
+  }
+
+  /// Un démarrage refusé par la formule n'est pas une panne : on explique, et on
+  /// propose les offres.
+  Future<void> _showPlanLimit(PlanLimitBlock block) async {
+    final openOffers = await showPlanLimitDialog(context, block);
+    if (openOffers == true && mounted) {
+      await SubscriptionsHubPage.open(context);
     }
   }
 

@@ -1727,6 +1727,16 @@ class MainApiClient implements RemoteRuntimeClient {
     return HostedAppEligibility.fromJson(json);
   }
 
+  /// Catalogue des formules réellement achetables, servi par le serveur.
+  ///
+  /// Les identifiants de produits ne sont plus figés dans l'application : c'est
+  /// le serveur qui décide quelles formules existent et à quels SKUs elles
+  /// correspondent.
+  Future<PlanCatalogInfo> getGatewayPlans() async {
+    final json = await _get('/gateway/plans');
+    return PlanCatalogInfo.fromJson(json);
+  }
+
   /// Claim a rewarded-ad deploy slot for a free hosted container.
   Future<HostedAppClaimAdResult> claimHostedAppAd({
     required String placement,
@@ -2145,6 +2155,82 @@ class ContainerInfo {
   }
 }
 
+/// Une formule du catalogue serveur : ce qu'elle permet, et les SKUs qui la
+/// vendent (liste vide = formule non achetable, par exemple accordée à la main
+/// par un administrateur).
+class PurchasablePlanInfo {
+  const PurchasablePlanInfo({
+    required this.code,
+    required this.displayName,
+    required this.maxBots,
+    required this.maxTurnkeyBots,
+    required this.allowTurnkey,
+    required this.allowOwnBots,
+    required this.productIds,
+  });
+
+  final String code;
+  final String displayName;
+
+  /// 0 = illimité (règle de tout le produit).
+  final int maxBots;
+  final int maxTurnkeyBots;
+
+  final bool allowTurnkey;
+  final bool allowOwnBots;
+  final List<String> productIds;
+
+  bool get isPurchasable => productIds.isNotEmpty;
+
+  factory PurchasablePlanInfo.fromJson(Map<String, dynamic> json) {
+    final rawIds = json['product_ids'];
+    return PurchasablePlanInfo(
+      code: json['code']?.toString() ?? '',
+      displayName: json['display_name']?.toString() ?? '',
+      maxBots: ContainerInfo.parseInt(json['max_bots'], 0),
+      maxTurnkeyBots: ContainerInfo.parseInt(json['max_turnkey_bots'], 0),
+      allowTurnkey: json['allow_turnkey'] != false,
+      allowOwnBots: json['allow_own_bots'] != false,
+      productIds: rawIds is List
+          ? rawIds
+                .map((entry) => entry.toString())
+                .where((entry) => entry.isNotEmpty)
+                .toList()
+          : const <String>[],
+    );
+  }
+}
+
+/// Catalogue des formules achetables + état réel du compte (`/gateway/plans`).
+class PlanCatalogInfo {
+  const PlanCatalogInfo({required this.plans, this.currentTierCode});
+
+  final List<PurchasablePlanInfo> plans;
+
+  /// Formule réellement appliquée au compte, telle que le serveur la résout.
+  final String? currentTierCode;
+
+  factory PlanCatalogInfo.fromJson(Map<String, dynamic> json) {
+    final rawPlans = json['plans'];
+    final current = json['current'];
+    return PlanCatalogInfo(
+      plans: rawPlans is List
+          ? rawPlans
+                .whereType<Map>()
+                .map(
+                  (entry) => PurchasablePlanInfo.fromJson(
+                    Map<String, dynamic>.from(entry),
+                  ),
+                )
+                .toList()
+          : const <PurchasablePlanInfo>[],
+      currentTierCode: current is Map
+          ? _normalize(current['tier_code']?.toString())
+          : null,
+    );
+  }
+}
+
 class HostedAppEligibility {
   const HostedAppEligibility({
     required this.premium,
@@ -2154,21 +2240,35 @@ class HostedAppEligibility {
     required this.maxContainers,
     required this.adRewardMinutes,
     this.deployBlockedReason,
+    this.allowTurnkey = true,
+    this.planTierCode,
   });
 
   final bool premium;
   final int hostingMinutesBalance;
   final int activeContainers;
   final bool canDeploy;
+
+  /// Plafond de conteneurs, fixé par la formule du compte côté serveur (elle
+  /// prime sur l'abonnement store) : c'est exactement le chiffre appliqué au
+  /// démarrage, donc celui que l'écran doit montrer.
   final int maxContainers;
   final int adRewardMinutes;
 
-  /// `container_limit` | `no_minutes` | null when [canDeploy] is true.
+  /// La formule inclut-elle le clé en main / les applications hébergées ?
+  final bool allowTurnkey;
+
+  /// Code de la formule servie par le serveur (ex. `FREE`, `STARTER`, `PRO`).
+  final String? planTierCode;
+
+  /// `container_limit` | `no_minutes` | `plan_not_included` | null when
+  /// [canDeploy] is true.
   final String? deployBlockedReason;
 
   bool get isBlockedByContainerLimit =>
       deployBlockedReason == 'container_limit';
   bool get isBlockedByNoMinutes => deployBlockedReason == 'no_minutes';
+  bool get isBlockedByPlan => deployBlockedReason == 'plan_not_included';
 
   factory HostedAppEligibility.fromJson(Map<String, dynamic> json) {
     return HostedAppEligibility(
@@ -2184,6 +2284,8 @@ class HostedAppEligibility {
       deployBlockedReason: _normalize(
         json['deploy_blocked_reason']?.toString(),
       ),
+      allowTurnkey: json['allow_turnkey'] != false,
+      planTierCode: _normalize(json['plan_tier_code']?.toString()),
     );
   }
 }
