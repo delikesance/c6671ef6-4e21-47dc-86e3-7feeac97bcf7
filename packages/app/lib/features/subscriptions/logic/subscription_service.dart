@@ -1286,78 +1286,11 @@ class SubscriptionService {
         return localPremium;
       }
 
-      _managerPremiumOverride = plan;
-      _managerPremiumOverrideUpdatedAt = DateTime.now().toUtc();
-      if (plan) {
-        _isSubscribed = true;
-        _serverValidated = true;
-        _serverPlanDisplayName = runtime['display_name'] as String?;
-        _serverPlanTierCode = runtime['tier_code'] as String?;
-        _serverPlanProvider = runtime['provider'] as String?;
-        // Les quotas de la formule sont lus pour toutes les formules : ce sont
-        // eux qui décident de ce qui peut démarrer (miroir du refus serveur).
-        await _applyPlanQuotas(runtime);
-        if (runtime['expires_at'] != null) {
-          _subscriptionExpiresAt = DateTime.tryParse(
-            runtime['expires_at'].toString(),
-          )?.toUtc();
-        } else {
-          _subscriptionExpiresAt = null;
-        }
-
-        await _prefs?.setBool(_activeKey, true);
-        await _prefs?.setBool(_serverValidatedKey, true);
-        if (_serverPlanDisplayName != null) {
-          await _prefs?.setString(_planDisplayNameKey, _serverPlanDisplayName!);
-        } else {
-          await _prefs?.remove(_planDisplayNameKey);
-        }
-        if (_serverPlanTierCode != null) {
-          await _prefs?.setString(_planTierCodeKey, _serverPlanTierCode!);
-        } else {
-          await _prefs?.remove(_planTierCodeKey);
-        }
-        if (_serverPlanProvider != null) {
-          await _prefs?.setString(_planProviderKey, _serverPlanProvider!);
-        } else {
-          await _prefs?.remove(_planProviderKey);
-        }
-        if (_subscriptionExpiresAt != null) {
-          await _prefs?.setString(
-            _expiresAtKey,
-            _subscriptionExpiresAt!.toIso8601String(),
-          );
-          _scheduleExpirationTimer();
-        } else {
-          await _prefs?.remove(_expiresAtKey);
-          _expiryTimer?.cancel();
-          _expiryTimer = null;
-        }
-
-        if (!localPremium &&
-            (_serverPlanProvider == 'google_play' ||
-                _serverPlanProvider == 'apple_in_app' ||
-                _serverPlanProvider == null)) {
-          unawaited(_reverifyFromStore());
-        }
-        return true;
-      } else {
-        if (localPremium) {
-          if (await _reverifyFromStore()) {
-            _managerPremiumOverride = true;
-            _managerPremiumOverrideUpdatedAt = DateTime.now().toUtc();
-            return true;
-          }
-          await _markExpired();
-        } else {
-          await _markExpired();
-        }
-        // Un compte non premium suit la formule FREE : ses quotas s'appliquent
-        // aussi, et ils sont réappliqués ici même si _markExpired vient de les
-        // remettre à zéro.
-        await _applyPlanQuotas(runtime);
-        return false;
-      }
+      return _applyServerPlanState(
+        runtime,
+        localPremium: localPremium,
+        allowStoreReverify: true,
+      );
     } catch (error, stack) {
       if (AppDiagnostics.isTransientNetworkError(error)) {
         _logTransientPremiumRefreshDeferred();
@@ -1373,6 +1306,110 @@ class SubscriptionService {
       }
       return localPremium;
     }
+  }
+
+  /// Applique un état de compte poussé par le canal temps réel (`account.updated`).
+  ///
+  /// Le serveur est l'autorité et vient de dire l'état exact : aucune requête HTTP
+  /// n'est faite — ni `/gateway/runtime`, ni re-vérification du store. Le repli HTTP
+  /// reste en place pour les serveurs plus anciens et si la WebSocket tombe.
+  static Future<void> applyPushedAccountState(Map<String, dynamic> runtime) async {
+    if (runtime.isEmpty) return;
+    final plan =
+        _isPremiumPlan(runtime['plan']) ??
+        _isPremiumPlan(runtime['account_plan']) ??
+        _isPremiumPlan(runtime['subscription_plan']);
+    if (plan == null) return;
+    await _applyServerPlanState(
+      runtime,
+      localPremium: _isSubscribed,
+      allowStoreReverify: false,
+    );
+  }
+
+  /// Source unique d'application d'un état de compte, qu'il vienne d'une réponse HTTP
+  /// ou d'un événement poussé : les deux chemins ne peuvent plus diverger.
+  static Future<bool> _applyServerPlanState(
+    Map<String, dynamic> runtime, {
+    required bool localPremium,
+    required bool allowStoreReverify,
+  }) async {
+    final plan =
+        _isPremiumPlan(runtime['plan']) ??
+        _isPremiumPlan(runtime['account_plan']) ??
+        _isPremiumPlan(runtime['subscription_plan']);
+    if (plan == null) return localPremium;
+
+    _managerPremiumOverride = plan;
+    _managerPremiumOverrideUpdatedAt = DateTime.now().toUtc();
+    if (plan) {
+      _isSubscribed = true;
+      _serverValidated = true;
+      _serverPlanDisplayName = runtime['display_name'] as String?;
+      _serverPlanTierCode = runtime['tier_code'] as String?;
+      _serverPlanProvider = runtime['provider'] as String?;
+      // Les quotas de la formule sont lus pour toutes les formules : ce sont
+      // eux qui décident de ce qui peut démarrer (miroir du refus serveur).
+      await _applyPlanQuotas(runtime);
+      if (runtime['expires_at'] != null) {
+        _subscriptionExpiresAt = DateTime.tryParse(
+          runtime['expires_at'].toString(),
+        )?.toUtc();
+      } else {
+        _subscriptionExpiresAt = null;
+      }
+
+      await _prefs?.setBool(_activeKey, true);
+      await _prefs?.setBool(_serverValidatedKey, true);
+      if (_serverPlanDisplayName != null) {
+        await _prefs?.setString(_planDisplayNameKey, _serverPlanDisplayName!);
+      } else {
+        await _prefs?.remove(_planDisplayNameKey);
+      }
+      if (_serverPlanTierCode != null) {
+        await _prefs?.setString(_planTierCodeKey, _serverPlanTierCode!);
+      } else {
+        await _prefs?.remove(_planTierCodeKey);
+      }
+      if (_serverPlanProvider != null) {
+        await _prefs?.setString(_planProviderKey, _serverPlanProvider!);
+      } else {
+        await _prefs?.remove(_planProviderKey);
+      }
+      if (_subscriptionExpiresAt != null) {
+        await _prefs?.setString(
+          _expiresAtKey,
+          _subscriptionExpiresAt!.toIso8601String(),
+        );
+        _scheduleExpirationTimer();
+      } else {
+        await _prefs?.remove(_expiresAtKey);
+        _expiryTimer?.cancel();
+        _expiryTimer = null;
+      }
+
+      if (allowStoreReverify &&
+          !localPremium &&
+          (_serverPlanProvider == 'google_play' ||
+              _serverPlanProvider == 'apple_in_app' ||
+              _serverPlanProvider == null)) {
+        unawaited(_reverifyFromStore());
+      }
+      return true;
+    }
+
+    if (allowStoreReverify && localPremium) {
+      if (await _reverifyFromStore()) {
+        _managerPremiumOverride = true;
+        _managerPremiumOverrideUpdatedAt = DateTime.now().toUtc();
+        return true;
+      }
+    }
+    await _markExpired();
+    // Un compte non premium suit la formule FREE : ses quotas s'appliquent aussi, et
+    // ils sont réappliqués ici même si _markExpired vient de les remettre à zéro.
+    await _applyPlanQuotas(runtime);
+    return false;
   }
 
   /// Returns the effective premium state used by the app.

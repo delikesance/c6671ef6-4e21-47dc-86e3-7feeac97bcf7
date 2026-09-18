@@ -553,6 +553,12 @@ class HomePageState extends State<HomePage>
     if (!mounted) return;
     switch (event.type) {
       case GatewayBotEventType.snapshot:
+        // L'instantané porte aussi l'état du compte : plus besoin d'appeler
+        // `/gateway/runtime` à l'ouverture.
+        final snapshotAccount = event.account;
+        if (snapshotAccount != null) {
+          unawaited(_applyPushedAccount(snapshotAccount));
+        }
         _applyGatewayBotSnapshot(event.bots);
         break;
       case GatewayBotEventType.botUpdated:
@@ -567,10 +573,26 @@ class HomePageState extends State<HomePage>
           _applyGatewayBotDeleted(botId);
         }
         break;
+      case GatewayBotEventType.accountUpdated:
+        final account = event.account;
+        if (account != null) {
+          unawaited(_applyPushedAccount(account));
+        }
+        break;
+      case GatewayBotEventType.containerUpdated:
       case GatewayBotEventType.ping:
       case GatewayBotEventType.unknown:
         break;
     }
+  }
+
+  /// Applique la formule poussée par le canal temps réel : le serveur est l'autorité
+  /// et vient de donner l'état exact, donc aucune requête HTTP n'est nécessaire
+  /// (miroir de ce que faisait le rafraîchissement périodique de `/gateway/runtime`).
+  Future<void> _applyPushedAccount(GatewayAccountEventPayload account) async {
+    await SubscriptionService.applyPushedAccountState(account.toRuntimeMap());
+    if (!mounted) return;
+    setState(() {});
   }
 
   void _applyGatewayBotSnapshot(List<GatewayBotEventPayload> bots) {

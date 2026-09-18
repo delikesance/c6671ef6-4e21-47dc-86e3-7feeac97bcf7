@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:bot_creator/core/network/gateway_bot_events.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
@@ -30,6 +31,7 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
   HostedAppEligibility? _eligibility;
   Timer? _pollTimer;
   Timer? _metricsTimer;
+  StreamSubscription<GatewayBotEvent>? _eventsSub;
 
   @override
   void initState() {
@@ -41,7 +43,44 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
   void dispose() {
     _pollTimer?.cancel();
     _metricsTimer?.cancel();
+    unawaited(_eventsSub?.cancel());
     super.dispose();
+  }
+
+  /// Le statut du conteneur arrive par le canal temps réel : les minuteries ne sont
+  /// plus qu'un filet de sécurité (serveur plus ancien, WebSocket coupée).
+  Future<void> _ensureGatewayEvents() async {
+    final client = _client;
+    if (client == null) return;
+    try {
+      final session = client.connectGatewayBotEvents();
+      await _eventsSub?.cancel();
+      _eventsSub = session.events.listen(_onGatewayEvent);
+    } catch (_) {}
+  }
+
+  void _onGatewayEvent(GatewayBotEvent event) {
+    if (!mounted) return;
+    final container = event.container;
+    if (container == null || container.containerId != widget.containerId) return;
+    final current = _status;
+    if (current == null) {
+      unawaited(_loadStatus());
+      return;
+    }
+    setState(() {
+      _status = <String, dynamic>{
+        ...current,
+        'state': container.state,
+        if (container.healthStatus.isNotEmpty)
+          'health_status': container.healthStatus,
+        'expires_at': container.expiresAt?.toIso8601String(),
+      };
+      _syncStatusTimers(
+        container.state,
+        healthStatus: container.healthStatus,
+      );
+    });
   }
 
   Future<void> _init() async {
@@ -60,6 +99,7 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
       _loadStatus(showFullScreenLoader: true),
       _refreshEligibility(),
     ]);
+    unawaited(_ensureGatewayEvents());
   }
 
   Future<void> _refreshEligibility() async {
@@ -92,13 +132,20 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
     if (state == 'PENDING' || state == 'PROVISIONING' || health == 'starting') {
       _metricsTimer?.cancel();
       _metricsTimer = null;
-      _pollTimer ??= Timer.periodic(const Duration(seconds: 10), (_) => _loadStatus());
+      // Filet de sécurité seulement : les transitions arrivent par le canal temps réel.
+      _pollTimer ??= Timer.periodic(
+        const Duration(seconds: 30),
+        (_) => _loadStatus(),
+      );
       return;
     }
     _pollTimer?.cancel();
     _pollTimer = null;
     if (state == 'RUNNING') {
-      _metricsTimer ??= Timer.periodic(const Duration(seconds: 10), (_) => _loadStatus());
+      _metricsTimer ??= Timer.periodic(
+        const Duration(seconds: 30),
+        (_) => _loadStatus(),
+      );
     } else {
       _metricsTimer?.cancel();
       _metricsTimer = null;
