@@ -7429,44 +7429,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get plan_limit_view_offers => 'View plans';
 
   @override
-  String get plans_catalog_title => 'Available plans';
-
-  @override
-  String get plans_catalog_current => 'Current plan';
-
-  @override
-  String get plans_catalog_choose => 'Choose this plan';
-
-  @override
-  String get plans_catalog_unavailable => 'Not purchasable yet';
-
-  @override
-  String plans_catalog_bots_max(int count) {
-    return 'Up to $count bots running';
-  }
-
-  @override
-  String get plans_catalog_default_badge => 'Default plan';
-
-  @override
-  String get plans_catalog_default_hint =>
-      'Included with every account — nothing to buy.';
-
-  @override
-  String plans_catalog_turnkey_max(int count) {
-    return 'Up to $count turnkey apps';
-  }
-
-  @override
-  String get plans_catalog_turnkey_unlimited => 'Unlimited turnkey apps';
-
-  @override
-  String get plans_catalog_own_bots_excluded => 'Personal bots not included';
-
-  @override
-  String get plans_catalog_turnkey_excluded => 'Turnkey apps not included';
-
-  @override
   String get subscription_upgrade_annual => 'Upgrade to annual';
 
   @override

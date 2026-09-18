@@ -7493,44 +7493,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get plan_limit_view_offers => 'Planları gör';
 
   @override
-  String get plans_catalog_title => 'Kullanılabilir planlar';
-
-  @override
-  String get plans_catalog_current => 'Mevcut plan';
-
-  @override
-  String get plans_catalog_choose => 'Bu planı seç';
-
-  @override
-  String get plans_catalog_unavailable => 'Henüz satın alınamaz';
-
-  @override
-  String plans_catalog_bots_max(int count) {
-    return 'Aynı anda $count bota kadar';
-  }
-
-  @override
-  String get plans_catalog_default_badge => 'Varsayılan plan';
-
-  @override
-  String get plans_catalog_default_hint =>
-      'Tüm hesaplara dahil — satın alma gerekmez.';
-
-  @override
-  String plans_catalog_turnkey_max(int count) {
-    return 'Aynı anda $count hazır bota kadar';
-  }
-
-  @override
-  String get plans_catalog_turnkey_unlimited => 'Sınırsız hazır bot';
-
-  @override
-  String get plans_catalog_own_bots_excluded => 'Kendi botları dahil değil';
-
-  @override
-  String get plans_catalog_turnkey_excluded => 'Hazır botlar dahil değil';
-
-  @override
   String get subscription_upgrade_annual => 'Yıllık plana yükselt';
 
   @override

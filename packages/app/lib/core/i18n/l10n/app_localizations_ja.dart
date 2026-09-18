@@ -7146,43 +7146,6 @@ class AppLocalizationsJa extends AppLocalizations {
   String get plan_limit_view_offers => 'プランを見る';
 
   @override
-  String get plans_catalog_title => '利用可能なプラン';
-
-  @override
-  String get plans_catalog_current => '現在のプラン';
-
-  @override
-  String get plans_catalog_choose => 'このプランを選択';
-
-  @override
-  String get plans_catalog_unavailable => '現在購入できません';
-
-  @override
-  String plans_catalog_bots_max(int count) {
-    return '最大$count個のボットを同時起動';
-  }
-
-  @override
-  String get plans_catalog_default_badge => '既定のプラン';
-
-  @override
-  String get plans_catalog_default_hint => 'すべてのアカウントに含まれます — 購入は不要です。';
-
-  @override
-  String plans_catalog_turnkey_max(int count) {
-    return '最大$count個のターンキーボット';
-  }
-
-  @override
-  String get plans_catalog_turnkey_unlimited => 'ターンキーボット無制限';
-
-  @override
-  String get plans_catalog_own_bots_excluded => '自分のボットは含まれません';
-
-  @override
-  String get plans_catalog_turnkey_excluded => 'ターンキーボットは含まれません';
-
-  @override
   String get subscription_upgrade_annual => '年間プランにアップグレード';
 
   @override
