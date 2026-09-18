@@ -10097,6 +10097,18 @@
       }
     }
   },
+  "subscriptions_hub_permanent": "Permanent (no expiration)",
+  "@subscriptions_hub_permanent": {
+    "description": "Label indicating a subscription has no expiration date"
+  },
+  "subscriptions_hub_unlimited_bots": "Unlimited bots",
+  "@subscriptions_hub_unlimited_bots": {
+    "description": "Badge indicating unlimited bots quota"
+  },
+  "subscriptions_hub_managed_by_server": "Managed by server",
+  "@subscriptions_hub_managed_by_server": {
+    "description": "Label indicating a subscription was granted or managed via server"
+  },
   "subscription_upgrade_annual": "Upgrade to annual",
   "subscription_upgrade_two_apps": "Upgrade to 2 containers",
   "subscription_manage_cancel_hint": "To cancel or change billing, use Manage subscription — this opens the App Store or Google Play.",

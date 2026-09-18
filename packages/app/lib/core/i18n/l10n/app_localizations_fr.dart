@@ -7513,6 +7513,15 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get subscriptions_hub_permanent => 'Permanent (sans expiration)';
+
+  @override
+  String get subscriptions_hub_unlimited_bots => 'Bots illimités';
+
+  @override
+  String get subscriptions_hub_managed_by_server => 'Géré par le serveur';
+
+  @override
   String get subscription_upgrade_annual => 'Passer à l\'abonnement annuel';
 
   @override

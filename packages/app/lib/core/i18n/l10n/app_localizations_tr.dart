@@ -7442,6 +7442,16 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String get subscriptions_hub_permanent => 'Kalıcı (son kullanma tarihi yok)';
+
+  @override
+  String get subscriptions_hub_unlimited_bots => 'Sınırsız bot';
+
+  @override
+  String get subscriptions_hub_managed_by_server =>
+      'Sunucu tarafından yönetiliyor';
+
+  @override
   String get subscription_upgrade_annual => 'Yıllık plana yükselt';
 
   @override

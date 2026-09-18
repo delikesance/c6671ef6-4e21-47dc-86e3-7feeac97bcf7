@@ -17,7 +17,9 @@ class SubscriptionsHubPage extends StatefulWidget {
   static Future<void> open(BuildContext context) {
     if (!SubscriptionService.supportsNativeBilling) {
       ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-        SnackBar(content: Text(context.tr.subscription_not_available_on_platform)),
+        SnackBar(
+          content: Text(context.tr.subscription_not_available_on_platform),
+        ),
       );
       return Future<void>.value();
     }
@@ -99,26 +101,41 @@ class _SubscriptionsHubPageState extends State<SubscriptionsHubPage> {
   void _showError(String messageKey) {
     final tr = context.tr;
     final text = switch (messageKey) {
-      'subscription_error_store_unavailable' => tr.subscription_error_store_unavailable,
-      'subscription_error_product_unavailable' => tr.subscription_error_product_unavailable,
-      'subscription_error_purchase_start_failed' => tr.subscription_error_purchase_start_failed,
+      'subscription_error_store_unavailable' =>
+        tr.subscription_error_store_unavailable,
+      'subscription_error_product_unavailable' =>
+        tr.subscription_error_product_unavailable,
+      'subscription_error_purchase_start_failed' =>
+        tr.subscription_error_purchase_start_failed,
       _ => tr.subscription_error,
     };
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(text), backgroundColor: Colors.red),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(text), backgroundColor: Colors.red));
   }
 
   String _formatExpiry(BuildContext context, DateTime? expiresAt) {
-    if (expiresAt == null) return '';
+    if (expiresAt == null) return context.tr.subscriptions_hub_permanent;
     final localized = expiresAt.toLocal();
     final date = MaterialLocalizations.of(context).formatMediumDate(localized);
-    final time = MaterialLocalizations.of(context)
-        .formatTimeOfDay(TimeOfDay.fromDateTime(localized));
+    final time = MaterialLocalizations.of(
+      context,
+    ).formatTimeOfDay(TimeOfDay.fromDateTime(localized));
     return context.tr.subscriptions_hub_expires_at(date, time);
   }
 
   String _botPlanLabel(AppLocalizations tr) {
+    final customDisplayName = SubscriptionService.activePlanDisplayName;
+    if (customDisplayName != null && customDisplayName.trim().isNotEmpty) {
+      final maxBots = SubscriptionService.activePlanMaxBots;
+      if (maxBots != null) {
+        final botsLimit = maxBots == 0
+            ? tr.subscriptions_hub_unlimited_bots
+            : '$maxBots bots max';
+        return '$customDisplayName ($botsLimit)';
+      }
+      return customDisplayName;
+    }
     final productId = SubscriptionService.activeProductId;
     if (productId == kAnnualSubscriptionId) {
       return tr.subscription_active_annual;
@@ -185,13 +202,23 @@ class _SubscriptionsHubPageState extends State<SubscriptionsHubPage> {
                         : null,
                     statusActiveLabel: tr.subscriptions_hub_status_active,
                     statusInactiveLabel: tr.subscriptions_hub_status_inactive,
-                    primaryActionLabel:
-                        botActive ? tr.subscription_manage : tr.subscriptions_hub_subscribe,
+                    managedByServerNote:
+                        botActive && SubscriptionService.isServerGranted
+                        ? tr.subscriptions_hub_managed_by_server
+                        : null,
+                    primaryActionLabel: botActive
+                        ? (SubscriptionService.hasNativeStoreSubscription
+                              ? tr.subscription_manage
+                              : null)
+                        : tr.subscriptions_hub_subscribe,
                     onPrimaryAction: botActive
-                        ? () => openSubscriptionManagement(
-                              kind: SubscriptionProductKind.botPremium,
-                              storeProductId: SubscriptionService.activeProductId,
-                            )
+                        ? (SubscriptionService.hasNativeStoreSubscription
+                              ? () => openSubscriptionManagement(
+                                  kind: SubscriptionProductKind.botPremium,
+                                  storeProductId:
+                                      SubscriptionService.activeProductId,
+                                )
+                              : null)
                         : () => SubscriptionPage.show(context),
                     secondaryActionLabel: SubscriptionService.canUpgradeToAnnual
                         ? tr.subscription_upgrade_annual
@@ -222,19 +249,19 @@ class _SubscriptionsHubPageState extends State<SubscriptionsHubPage> {
                         : tr.subscriptions_hub_subscribe,
                     onPrimaryAction: hostedActive
                         ? () => openSubscriptionManagement(
-                              kind: SubscriptionProductKind.hostedApp,
-                              storeProductId:
-                                  HostedAppSubscriptionService.activeProductId,
-                            )
+                            kind: SubscriptionProductKind.hostedApp,
+                            storeProductId:
+                                HostedAppSubscriptionService.activeProductId,
+                          )
                         : () => HostedAppSubscriptionPage.show(context),
                     secondaryActionLabel:
                         HostedAppSubscriptionService.canUpgradeToTwoApps
-                            ? tr.subscription_upgrade_two_apps
-                            : null,
+                        ? tr.subscription_upgrade_two_apps
+                        : null,
                     onSecondaryAction:
                         HostedAppSubscriptionService.canUpgradeToTwoApps
-                            ? _upgradeHostedToTwoApps
-                            : null,
+                        ? _upgradeHostedToTwoApps
+                        : null,
                     busy: _busy,
                   ),
                   const SizedBox(height: 24),
@@ -269,10 +296,11 @@ class _SubscriptionSectionCard extends StatelessWidget {
     required this.isActive,
     required this.statusActiveLabel,
     required this.statusInactiveLabel,
-    required this.primaryActionLabel,
-    required this.onPrimaryAction,
+    this.primaryActionLabel,
+    this.onPrimaryAction,
     this.activeLabel,
     this.expiryText,
+    this.managedByServerNote,
     this.secondaryActionLabel,
     this.onSecondaryAction,
     this.busy = false,
@@ -285,10 +313,11 @@ class _SubscriptionSectionCard extends StatelessWidget {
   final bool isActive;
   final String? activeLabel;
   final String? expiryText;
+  final String? managedByServerNote;
   final String statusActiveLabel;
   final String statusInactiveLabel;
-  final String primaryActionLabel;
-  final VoidCallback onPrimaryAction;
+  final String? primaryActionLabel;
+  final VoidCallback? onPrimaryAction;
   final String? secondaryActionLabel;
   final VoidCallback? onSecondaryAction;
   final bool busy;
@@ -314,9 +343,8 @@ class _SubscriptionSectionCard extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -329,7 +357,10 @@ class _SubscriptionSectionCard extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: (isActive ? Colors.green : colorScheme.outline)
                         .withValues(alpha: 0.12),
@@ -340,7 +371,9 @@ class _SubscriptionSectionCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
-                      color: isActive ? Colors.green.shade700 : colorScheme.onSurfaceVariant,
+                      color: isActive
+                          ? Colors.green.shade700
+                          : colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ),
@@ -357,9 +390,9 @@ class _SubscriptionSectionCard extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 activeLabel!,
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
               ),
               if (expiryText != null && expiryText!.isNotEmpty) ...[
                 const SizedBox(height: 4),
@@ -370,23 +403,48 @@ class _SubscriptionSectionCard extends StatelessWidget {
                   ),
                 ),
               ],
-            ],
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                FilledButton(
-                  onPressed: busy ? null : onPrimaryAction,
-                  child: Text(primaryActionLabel),
-                ),
-                if (secondaryActionLabel != null && onSecondaryAction != null)
-                  OutlinedButton(
-                    onPressed: busy ? null : onSecondaryAction,
-                    child: Text(secondaryActionLabel!),
+              if (managedByServerNote != null) ...[
+                const SizedBox(height: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
                   ),
+                  decoration: BoxDecoration(
+                    color: colorScheme.primaryContainer.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    managedByServerNote!,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
               ],
-            ),
+            ],
+            if ((primaryActionLabel != null && onPrimaryAction != null) ||
+                (secondaryActionLabel != null &&
+                    onSecondaryAction != null)) ...[
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  if (primaryActionLabel != null && onPrimaryAction != null)
+                    FilledButton(
+                      onPressed: busy ? null : onPrimaryAction,
+                      child: Text(primaryActionLabel!),
+                    ),
+                  if (secondaryActionLabel != null && onSecondaryAction != null)
+                    OutlinedButton(
+                      onPressed: busy ? null : onSecondaryAction,
+                      child: Text(secondaryActionLabel!),
+                    ),
+                ],
+              ),
+            ],
           ],
         ),
       ),

@@ -7487,6 +7487,15 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
+  String get subscriptions_hub_permanent => 'Permanente (sem expiração)';
+
+  @override
+  String get subscriptions_hub_unlimited_bots => 'Bots ilimitados';
+
+  @override
+  String get subscriptions_hub_managed_by_server => 'Gerenciado pelo servidor';
+
+  @override
   String get subscription_upgrade_annual => 'Atualizar para anual';
 
   @override

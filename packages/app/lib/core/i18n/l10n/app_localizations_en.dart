@@ -7379,6 +7379,15 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get subscriptions_hub_permanent => 'Permanent (no expiration)';
+
+  @override
+  String get subscriptions_hub_unlimited_bots => 'Unlimited bots';
+
+  @override
+  String get subscriptions_hub_managed_by_server => 'Managed by server';
+
+  @override
   String get subscription_upgrade_annual => 'Upgrade to annual';
 
   @override

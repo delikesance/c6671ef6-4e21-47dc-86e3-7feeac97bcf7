@@ -9842,6 +9842,9 @@
       }
     }
   },
+  "subscriptions_hub_permanent": "Kalıcı (son kullanma tarihi yok)",
+  "subscriptions_hub_unlimited_bots": "Sınırsız bot",
+  "subscriptions_hub_managed_by_server": "Sunucu tarafından yönetiliyor",
   "subscription_upgrade_annual": "Yıllık plana yükselt",
   "subscription_upgrade_two_apps": "2 konteynere yükselt",
   "subscription_manage_cancel_hint": "İptal etmek veya faturalandırmayı değiştirmek için Aboneliği yönet'i kullanın — App Store veya Google Play açılır.",
