@@ -60,6 +60,16 @@ class SubscriptionPurchaseResult {
   final SubscriptionPurchaseFailureReason? failureReason;
 }
 
+/// Raison pour laquelle la formule du compte empêche un démarrage — exactement
+/// celle que le serveur applique (403 au démarrage). Sert à griser l'écran et à
+/// proposer l'offre, plutôt que de laisser l'utilisateur buter sur un refus.
+enum PlanLimitBlock {
+  planExcludesOwnBots,
+  planBotQuotaReached,
+  planExcludesTurnkey,
+  planTurnkeyQuotaReached,
+}
+
 class SubscriptionService {
   SubscriptionService._();
 
@@ -72,9 +82,20 @@ class SubscriptionService {
   static const String _planTierCodeKey = 'subscription_plan_tier_code';
   static const String _planProviderKey = 'subscription_plan_provider';
   static const String _planMaxBotsKey = 'subscription_plan_max_bots';
+  static const String _planMaxTurnkeyBotsKey =
+      'subscription_plan_max_turnkey_bots';
+  static const String _planAllowOwnBotsKey = 'subscription_plan_allow_own_bots';
+  static const String _planAllowTurnkeyKey = 'subscription_plan_allow_turnkey';
+  static const String _planQuotasFromServerKey =
+      'subscription_plan_quotas_from_server';
 
   // ── State ──────────────────────────────────────────────────────────────────
   static bool _initialized = false;
+
+  /// SKUs réellement reconnus : les deux historiques, plus ceux annoncés par le
+  /// serveur (`/gateway/plans`). C'est le serveur qui décide des formules, donc
+  /// de la liste des produits à écouter et à valider.
+  static final Set<String> _knownProductIds = <String>{..._kSubscriptionIds};
   static bool _isSubscribed = false;
   static bool _serverValidated = false;
   static String? _activeProductId;
@@ -83,6 +104,14 @@ class SubscriptionService {
   static String? _serverPlanTierCode;
   static String? _serverPlanProvider;
   static int? _serverMaxBots;
+  static int? _serverMaxTurnkeyBots;
+  static bool _serverAllowOwnBots = true;
+  static bool _serverAllowTurnkey = true;
+
+  /// Vrai quand les quotas ci-dessus viennent réellement du serveur. Tant qu'ils
+  /// sont inconnus, l'écran ne bloque rien en local : le serveur reste le seul
+  /// juge, et un refus à tort serait bien pire qu'un 403 au démarrage.
+  static bool _planQuotasFromServer = false;
   static DateTime? _lastSyncAt;
 
   static bool? _managerPremiumOverride;
@@ -236,6 +265,39 @@ class SubscriptionService {
   /// Maximum bots allowed by the active plan (0 = Unlimited).
   static int? get activePlanMaxBots => _serverMaxBots;
 
+  /// Quota de clé en main / apps hébergées de la formule servie par le serveur.
+  static int? get activePlanMaxTurnkeyBots => _serverMaxTurnkeyBots;
+
+  /// La formule inclut-elle les bots perso / le clé en main ?
+  static bool get activePlanAllowOwnBots => _serverAllowOwnBots;
+  static bool get activePlanAllowTurnkey => _serverAllowTurnkey;
+
+  /// Pourquoi un bot perso ne peut pas démarrer, selon la formule du serveur.
+  ///
+  /// Miroir exact du refus serveur (403 `own_bots_not_allowed` /
+  /// `bot_quota_reached`) : l'écran doit griser le démarrage au lieu de laisser
+  /// l'utilisateur buter sur le refus. Les quotas sont des quotas de démarrage :
+  /// on compte les bots **en marche**, et 0 = illimité.
+  static PlanLimitBlock? ownBotStartBlock({required int runningBots}) {
+    if (!_planQuotasFromServer) return null;
+    if (!_serverAllowOwnBots) return PlanLimitBlock.planExcludesOwnBots;
+    final maxBots = _serverMaxBots;
+    if (maxBots == null || maxBots <= 0) return null;
+    if (runningBots >= maxBots) return PlanLimitBlock.planBotQuotaReached;
+    return null;
+  }
+
+  /// Même contrôle pour un clé en main / une app hébergée (403
+  /// `turnkey_not_allowed` / `turnkey_quota_reached`).
+  static PlanLimitBlock? turnkeyStartBlock({required int activeApps}) {
+    if (!_planQuotasFromServer) return null;
+    if (!_serverAllowTurnkey) return PlanLimitBlock.planExcludesTurnkey;
+    final maxTurnkey = _serverMaxTurnkeyBots;
+    if (maxTurnkey == null || maxTurnkey <= 0) return null;
+    if (activeApps >= maxTurnkey) return PlanLimitBlock.planTurnkeyQuotaReached;
+    return null;
+  }
+
   /// Whether the active subscription comes from a native mobile store purchase.
   static bool get hasNativeStoreSubscription =>
       _activeProductId != null &&
@@ -278,6 +340,14 @@ class SubscriptionService {
       _serverPlanTierCode = _prefs?.getString(_planTierCodeKey);
       _serverPlanProvider = _prefs?.getString(_planProviderKey);
       _serverMaxBots = _prefs?.getInt(_planMaxBotsKey);
+      _serverMaxTurnkeyBots = _prefs?.getInt(_planMaxTurnkeyBotsKey);
+      _serverAllowOwnBots = _prefs?.getBool(_planAllowOwnBotsKey) ?? true;
+      _serverAllowTurnkey = _prefs?.getBool(_planAllowTurnkeyKey) ?? true;
+      // Les quotas survivent à la perte du statut premium : un compte Free est
+      // lui aussi régi par une formule (FREE), et c'est elle qui décide de ce
+      // qui peut démarrer. Le prochain refresh les réécrit de toute façon.
+      _planQuotasFromServer =
+          _prefs?.getBool(_planQuotasFromServerKey) ?? false;
       _lastSyncAt = null;
 
       if (!_isSubscribed) {
@@ -382,6 +452,46 @@ class SubscriptionService {
   static Future<SubscriptionPurchaseResult> purchaseAnnual() =>
       _purchase(kAnnualSubscriptionId);
 
+  /// Démarre l'achat d'une formule du catalogue serveur.
+  ///
+  /// Le changement de formule (upgrade/downgrade) est géré par le store dès lors
+  /// que le SKU appartient au même groupe d'abonnement : l'application n'a qu'à
+  /// acheter le produit cible.
+  static Future<SubscriptionPurchaseResult> purchaseProduct(String productId) {
+    final trimmed = productId.trim();
+    if (trimmed.isEmpty) {
+      return Future.value(
+        const SubscriptionPurchaseResult.failed(
+          SubscriptionPurchaseFailureReason.productUnavailable,
+        ),
+      );
+    }
+    return _purchase(trimmed);
+  }
+
+  /// Déclare les SKUs annoncés par le serveur (`/gateway/plans`).
+  ///
+  /// Les identifiants de produits ne sont plus figés : la formule dit à quels
+  /// SKUs elle correspond. On les ajoute à l'ensemble connu pour que le flux
+  /// d'achat et le flux de validation des reçus les reconnaissent.
+  static void registerPurchasableProductIds(Iterable<String> productIds) {
+    var added = false;
+    for (final id in productIds) {
+      final trimmed = id.trim();
+      if (trimmed.isEmpty || _knownProductIds.contains(trimmed)) continue;
+      _knownProductIds.add(trimmed);
+      added = true;
+    }
+    if (added) {
+      unawaited(
+        AppDiagnostics.logInfo(
+          'Registered server plan product ids',
+          data: {'count': _knownProductIds.length},
+        ),
+      );
+    }
+  }
+
   static Future<SubscriptionPurchaseResult> _purchase(String productId) async {
     try {
       final iap = InAppPurchase.instance;
@@ -414,7 +524,7 @@ class SubscriptionService {
       ProductDetails? product = selectPurchaseCandidate(products, productId);
 
       if (product == null) {
-        final response = await iap.queryProductDetails(_kSubscriptionIds);
+        final response = await iap.queryProductDetails(_knownProductIds);
         if (response.error != null) {
           unawaited(
             AppDiagnostics.logInfo(
@@ -704,7 +814,7 @@ class SubscriptionService {
   }
 
   static Future<void> _verifyAndDeliver(PurchaseDetails purchase) async {
-    if (!_kSubscriptionIds.contains(purchase.productID)) {
+    if (!_knownProductIds.contains(purchase.productID)) {
       return;
     }
 
@@ -902,6 +1012,50 @@ class SubscriptionService {
     await _prefs?.remove(_planTierCodeKey);
     await _prefs?.remove(_planProviderKey);
     await _prefs?.remove(_planMaxBotsKey);
+    // Formule inconnue : on n'interdit rien (le serveur reste seul juge), et le
+    // prochain rafraîchissement réapplique les quotas réels — dont ceux de FREE.
+    _serverMaxTurnkeyBots = null;
+    _serverAllowOwnBots = true;
+    _serverAllowTurnkey = true;
+    _planQuotasFromServer = false;
+    await _prefs?.remove(_planMaxTurnkeyBotsKey);
+    await _prefs?.remove(_planAllowOwnBotsKey);
+    await _prefs?.remove(_planAllowTurnkeyKey);
+    await _prefs?.remove(_planQuotasFromServerKey);
+  }
+
+  /// Applique les quotas de la formule servie par le serveur.
+  ///
+  /// Le serveur est la seule autorité : ces valeurs décident de ce qui peut
+  /// démarrer (bots perso, clé en main / apps hébergées), donc elles sont lues
+  /// pour TOUTES les formules — y compris FREE, puisque tout le monde est Free
+  /// par défaut. Une valeur absente n'interdit rien : le serveur tranche.
+  static Future<void> _applyPlanQuotas(Map<String, dynamic> runtime) async {
+    final maxBots = runtime['max_bots'];
+    _serverMaxBots = maxBots is num ? maxBots.toInt() : null;
+
+    final maxTurnkeyBots = runtime['max_turnkey_bots'];
+    _serverMaxTurnkeyBots = maxTurnkeyBots is num
+        ? maxTurnkeyBots.toInt()
+        : null;
+
+    _serverAllowOwnBots = runtime['allow_own_bots'] != false;
+    _serverAllowTurnkey = runtime['allow_turnkey'] != false;
+    _planQuotasFromServer = true;
+
+    if (_serverMaxBots != null) {
+      await _prefs?.setInt(_planMaxBotsKey, _serverMaxBots!);
+    } else {
+      await _prefs?.remove(_planMaxBotsKey);
+    }
+    if (_serverMaxTurnkeyBots != null) {
+      await _prefs?.setInt(_planMaxTurnkeyBotsKey, _serverMaxTurnkeyBots!);
+    } else {
+      await _prefs?.remove(_planMaxTurnkeyBotsKey);
+    }
+    await _prefs?.setBool(_planAllowOwnBotsKey, _serverAllowOwnBots);
+    await _prefs?.setBool(_planAllowTurnkeyKey, _serverAllowTurnkey);
+    await _prefs?.setBool(_planQuotasFromServerKey, true);
   }
 
   static DateTime? _parseStoredDateTime(String? raw) {
@@ -1140,11 +1294,9 @@ class SubscriptionService {
         _serverPlanDisplayName = runtime['display_name'] as String?;
         _serverPlanTierCode = runtime['tier_code'] as String?;
         _serverPlanProvider = runtime['provider'] as String?;
-        if (runtime['max_bots'] != null) {
-          _serverMaxBots = (runtime['max_bots'] as num).toInt();
-        } else {
-          _serverMaxBots = null;
-        }
+        // Les quotas de la formule sont lus pour toutes les formules : ce sont
+        // eux qui décident de ce qui peut démarrer (miroir du refus serveur).
+        await _applyPlanQuotas(runtime);
         if (runtime['expires_at'] != null) {
           _subscriptionExpiresAt = DateTime.tryParse(
             runtime['expires_at'].toString(),
@@ -1169,11 +1321,6 @@ class SubscriptionService {
           await _prefs?.setString(_planProviderKey, _serverPlanProvider!);
         } else {
           await _prefs?.remove(_planProviderKey);
-        }
-        if (_serverMaxBots != null) {
-          await _prefs?.setInt(_planMaxBotsKey, _serverMaxBots!);
-        } else {
-          await _prefs?.remove(_planMaxBotsKey);
         }
         if (_subscriptionExpiresAt != null) {
           await _prefs?.setString(
@@ -1205,6 +1352,10 @@ class SubscriptionService {
         } else {
           await _markExpired();
         }
+        // Un compte non premium suit la formule FREE : ses quotas s'appliquent
+        // aussi, et ils sont réappliqués ici même si _markExpired vient de les
+        // remettre à zéro.
+        await _applyPlanQuotas(runtime);
         return false;
       }
     } catch (error, stack) {
@@ -1410,6 +1561,10 @@ class SubscriptionService {
     _serverPlanTierCode = null;
     _serverPlanProvider = null;
     _serverMaxBots = null;
+    _serverMaxTurnkeyBots = null;
+    _serverAllowOwnBots = true;
+    _serverAllowTurnkey = true;
+    _planQuotasFromServer = false;
     _managerPremiumOverride = null;
     _managerPremiumOverrideUpdatedAt = null;
     _lastLocalValidationAt = null;
@@ -1421,6 +1576,22 @@ class SubscriptionService {
     _prefs = null;
     products = <ProductDetails>[];
     _storeAvailable = false;
+  }
+
+  /// Injecte les quotas d'une formule comme si le serveur venait de les servir.
+  @visibleForTesting
+  static void debugSetPlanQuotasForTests({
+    bool fromServer = true,
+    int? maxBots,
+    int? maxTurnkeyBots,
+    bool allowOwnBots = true,
+    bool allowTurnkey = true,
+  }) {
+    _planQuotasFromServer = fromServer;
+    _serverMaxBots = maxBots;
+    _serverMaxTurnkeyBots = maxTurnkeyBots;
+    _serverAllowOwnBots = allowOwnBots;
+    _serverAllowTurnkey = allowTurnkey;
   }
 
   @visibleForTesting

@@ -13042,6 +13042,90 @@ abstract class AppLocalizations {
   /// **'Managed by server'**
   String get subscriptions_hub_managed_by_server;
 
+  /// No description provided for @plan_limit_own_bots_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal bots not included in your plan'**
+  String get plan_limit_own_bots_title;
+
+  /// No description provided for @plan_limit_own_bots_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan only gives access to turnkey bots. Upgrade to a plan that includes personal bots to start this one.'**
+  String get plan_limit_own_bots_desc;
+
+  /// No description provided for @plan_limit_bot_quota_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Running bot limit reached'**
+  String get plan_limit_bot_quota_title;
+
+  /// No description provided for @plan_limit_bot_quota_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan limits how many bots can run at the same time. Stop a bot, or upgrade your plan.'**
+  String get plan_limit_bot_quota_desc;
+
+  /// No description provided for @plan_limit_turnkey_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Turnkey bots not included in your plan'**
+  String get plan_limit_turnkey_title;
+
+  /// No description provided for @plan_limit_turnkey_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan does not include turnkey bots or hosted applications. Choose a plan that includes them.'**
+  String get plan_limit_turnkey_desc;
+
+  /// No description provided for @plan_limit_turnkey_quota_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Turnkey bot limit reached'**
+  String get plan_limit_turnkey_quota_title;
+
+  /// No description provided for @plan_limit_turnkey_quota_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan limits how many turnkey bots can run at the same time. Stop one, or upgrade your plan.'**
+  String get plan_limit_turnkey_quota_desc;
+
+  /// No description provided for @plan_limit_view_offers.
+  ///
+  /// In en, this message translates to:
+  /// **'View plans'**
+  String get plan_limit_view_offers;
+
+  /// No description provided for @plans_catalog_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Available plans'**
+  String get plans_catalog_title;
+
+  /// No description provided for @plans_catalog_current.
+  ///
+  /// In en, this message translates to:
+  /// **'Current plan'**
+  String get plans_catalog_current;
+
+  /// No description provided for @plans_catalog_choose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose this plan'**
+  String get plans_catalog_choose;
+
+  /// No description provided for @plans_catalog_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Not purchasable yet'**
+  String get plans_catalog_unavailable;
+
+  /// No description provided for @plans_catalog_bots_max.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to {count} bots running'**
+  String plans_catalog_bots_max(int count);
+
   /// No description provided for @subscription_upgrade_annual.
   ///
   /// In en, this message translates to:

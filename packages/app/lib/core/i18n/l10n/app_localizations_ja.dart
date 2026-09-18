@@ -7107,6 +7107,54 @@ class AppLocalizationsJa extends AppLocalizations {
   String get subscriptions_hub_managed_by_server => 'サーバーにより管理';
 
   @override
+  String get plan_limit_own_bots_title => 'このプランには自分のボットが含まれていません';
+
+  @override
+  String get plan_limit_own_bots_desc =>
+      'このプランではターンキーボットのみ利用できます。このボットを起動するには、自分のボットを含むプランに変更してください。';
+
+  @override
+  String get plan_limit_bot_quota_title => '同時起動できるボットの上限に達しました';
+
+  @override
+  String get plan_limit_bot_quota_desc =>
+      'このプランでは同時に起動できるボット数が制限されています。ボットを停止するか、上位のプランに変更してください。';
+
+  @override
+  String get plan_limit_turnkey_title => 'このプランにはターンキーボットが含まれていません';
+
+  @override
+  String get plan_limit_turnkey_desc =>
+      'このプランではターンキーボットとホスト型アプリを利用できません。含まれているプランを選択してください。';
+
+  @override
+  String get plan_limit_turnkey_quota_title => 'ターンキーボットの上限に達しました';
+
+  @override
+  String get plan_limit_turnkey_quota_desc =>
+      'このプランでは同時に起動できるターンキーボット数が制限されています。1つ停止するか、上位のプランに変更してください。';
+
+  @override
+  String get plan_limit_view_offers => 'プランを見る';
+
+  @override
+  String get plans_catalog_title => '利用可能なプラン';
+
+  @override
+  String get plans_catalog_current => '現在のプラン';
+
+  @override
+  String get plans_catalog_choose => 'このプランを選択';
+
+  @override
+  String get plans_catalog_unavailable => '現在購入できません';
+
+  @override
+  String plans_catalog_bots_max(int count) {
+    return '最大$count個のボットを同時起動';
+  }
+
+  @override
   String get subscription_upgrade_annual => '年間プランにアップグレード';
 
   @override

@@ -8,6 +8,7 @@ import 'package:bot_creator/features/containers/logic/hosted_app_hosting_actions
 import 'package:bot_creator/features/containers/logic/hosted_app_templates.dart';
 import 'package:bot_creator/features/containers/presentation/container_detail_page.dart';
 import 'package:bot_creator/features/containers/presentation/hosted_app_upsell_widgets.dart';
+import 'package:bot_creator/features/subscriptions/presentation/subscriptions_hub_page.dart';
 import 'package:flutter/material.dart';
 
 /// Reason the Deploy button is currently disabled, derived from the latest
@@ -24,6 +25,9 @@ enum _DeployBlockReason {
 
   /// The free/premium container limit has been reached.
   containerLimit,
+
+  /// The account formula does not include turnkey apps at all.
+  planLimit,
 
   /// No hosting minutes remain (free tier only).
   noMinutes,
@@ -195,6 +199,10 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
     if (_loadingEligibility) return _DeployBlockReason.loading;
     final elig = _eligibility;
     if (elig == null) return _DeployBlockReason.eligibilityError;
+    // La formule du compte est servie par le serveur (elle prime sur
+    // l'abonnement store) : si elle n'inclut pas le clé en main, inutile
+    // d'aller plus loin, le déploiement sera refusé.
+    if (!elig.allowTurnkey) return _DeployBlockReason.planLimit;
     if (!elig.premium && elig.activeContainers >= elig.maxContainers) {
       return _DeployBlockReason.containerLimit;
     }
@@ -230,6 +238,17 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
             SnackBar(
               content: Text(tr.container_deploy_blocked_container_limit),
               backgroundColor: Colors.orange,
+            ),
+          );
+        case _DeployBlockReason.planLimit:
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(tr.plan_limit_turnkey_desc),
+              backgroundColor: Colors.orange,
+              action: SnackBarAction(
+                label: tr.plan_limit_view_offers,
+                onPressed: () => SubscriptionsHubPage.open(context),
+              ),
             ),
           );
         case _DeployBlockReason.noMinutes:
@@ -395,6 +414,14 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
           message: tr.container_deploy_blocked_container_limit,
           actionLabel: tr.container_list_title,
           onAction: () => Navigator.pop(context, false),
+        );
+      case _DeployBlockReason.planLimit:
+        return _DeployNoticeCard(
+          icon: Icons.lock_outline,
+          color: Colors.orange,
+          message: tr.plan_limit_turnkey_desc,
+          actionLabel: tr.plan_limit_view_offers,
+          onAction: () => SubscriptionsHubPage.open(context),
         );
       case _DeployBlockReason.noMinutes:
         final reward = _eligibility?.adRewardMinutes ?? 0;

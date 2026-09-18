@@ -7522,6 +7522,57 @@ class AppLocalizationsFr extends AppLocalizations {
   String get subscriptions_hub_managed_by_server => 'Géré par le serveur';
 
   @override
+  String get plan_limit_own_bots_title =>
+      'Bots perso non inclus dans votre formule';
+
+  @override
+  String get plan_limit_own_bots_desc =>
+      'Votre formule donne accès aux bots clé en main uniquement. Passez à une formule qui inclut les bots perso pour démarrer celui-ci.';
+
+  @override
+  String get plan_limit_bot_quota_title => 'Limite de bots en marche atteinte';
+
+  @override
+  String get plan_limit_bot_quota_desc =>
+      'Votre formule limite le nombre de bots en marche en même temps. Arrêtez un bot, ou passez à une formule supérieure.';
+
+  @override
+  String get plan_limit_turnkey_title =>
+      'Bots clé en main non inclus dans votre formule';
+
+  @override
+  String get plan_limit_turnkey_desc =>
+      'Votre formule ne donne pas accès aux bots clé en main ni aux applications hébergées. Choisissez une formule qui les inclut.';
+
+  @override
+  String get plan_limit_turnkey_quota_title =>
+      'Limite de bots clé en main atteinte';
+
+  @override
+  String get plan_limit_turnkey_quota_desc =>
+      'Votre formule limite le nombre de bots clé en main en marche en même temps. Arrêtez-en un, ou passez à une formule supérieure.';
+
+  @override
+  String get plan_limit_view_offers => 'Voir les offres';
+
+  @override
+  String get plans_catalog_title => 'Formules disponibles';
+
+  @override
+  String get plans_catalog_current => 'Formule actuelle';
+
+  @override
+  String get plans_catalog_choose => 'Choisir cette formule';
+
+  @override
+  String get plans_catalog_unavailable => 'Non achetable pour le moment';
+
+  @override
+  String plans_catalog_bots_max(int count) {
+    return 'Jusqu\'à $count bots en marche';
+  }
+
+  @override
   String get subscription_upgrade_annual => 'Passer à l\'abonnement annuel';
 
   @override

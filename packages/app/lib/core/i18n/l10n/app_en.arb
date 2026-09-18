@@ -10106,6 +10106,27 @@
     "description": "Badge indicating unlimited bots quota"
   },
   "subscriptions_hub_managed_by_server": "Managed by server",
+  "plan_limit_own_bots_title": "Personal bots not included in your plan",
+  "plan_limit_own_bots_desc": "Your plan only gives access to turnkey bots. Upgrade to a plan that includes personal bots to start this one.",
+  "plan_limit_bot_quota_title": "Running bot limit reached",
+  "plan_limit_bot_quota_desc": "Your plan limits how many bots can run at the same time. Stop a bot, or upgrade your plan.",
+  "plan_limit_turnkey_title": "Turnkey bots not included in your plan",
+  "plan_limit_turnkey_desc": "Your plan does not include turnkey bots or hosted applications. Choose a plan that includes them.",
+  "plan_limit_turnkey_quota_title": "Turnkey bot limit reached",
+  "plan_limit_turnkey_quota_desc": "Your plan limits how many turnkey bots can run at the same time. Stop one, or upgrade your plan.",
+  "plan_limit_view_offers": "View plans",
+  "plans_catalog_title": "Available plans",
+  "plans_catalog_current": "Current plan",
+  "plans_catalog_choose": "Choose this plan",
+  "plans_catalog_unavailable": "Not purchasable yet",
+  "plans_catalog_bots_max": "Up to {count} bots running",
+  "@plans_catalog_bots_max": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "@subscriptions_hub_managed_by_server": {
     "description": "Label indicating a subscription was granted or managed via server"
   },

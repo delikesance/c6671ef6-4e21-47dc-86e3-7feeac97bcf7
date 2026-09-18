@@ -7388,6 +7388,56 @@ class AppLocalizationsEn extends AppLocalizations {
   String get subscriptions_hub_managed_by_server => 'Managed by server';
 
   @override
+  String get plan_limit_own_bots_title =>
+      'Personal bots not included in your plan';
+
+  @override
+  String get plan_limit_own_bots_desc =>
+      'Your plan only gives access to turnkey bots. Upgrade to a plan that includes personal bots to start this one.';
+
+  @override
+  String get plan_limit_bot_quota_title => 'Running bot limit reached';
+
+  @override
+  String get plan_limit_bot_quota_desc =>
+      'Your plan limits how many bots can run at the same time. Stop a bot, or upgrade your plan.';
+
+  @override
+  String get plan_limit_turnkey_title =>
+      'Turnkey bots not included in your plan';
+
+  @override
+  String get plan_limit_turnkey_desc =>
+      'Your plan does not include turnkey bots or hosted applications. Choose a plan that includes them.';
+
+  @override
+  String get plan_limit_turnkey_quota_title => 'Turnkey bot limit reached';
+
+  @override
+  String get plan_limit_turnkey_quota_desc =>
+      'Your plan limits how many turnkey bots can run at the same time. Stop one, or upgrade your plan.';
+
+  @override
+  String get plan_limit_view_offers => 'View plans';
+
+  @override
+  String get plans_catalog_title => 'Available plans';
+
+  @override
+  String get plans_catalog_current => 'Current plan';
+
+  @override
+  String get plans_catalog_choose => 'Choose this plan';
+
+  @override
+  String get plans_catalog_unavailable => 'Not purchasable yet';
+
+  @override
+  String plans_catalog_bots_max(int count) {
+    return 'Up to $count bots running';
+  }
+
+  @override
   String get subscription_upgrade_annual => 'Upgrade to annual';
 
   @override
