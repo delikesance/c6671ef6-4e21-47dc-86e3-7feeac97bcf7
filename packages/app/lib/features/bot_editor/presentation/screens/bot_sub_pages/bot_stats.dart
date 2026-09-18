@@ -18,6 +18,15 @@ class BotStatsPage extends StatefulWidget {
 
   final String? botId;
 
+  /// Compteur d'observation des ticks de sondage, remis à zéro par les tests.
+  ///
+  /// La pause en arrière-plan et le réveil à la reprise ne sont visibles que par leurs
+  /// ticks : l'état (`_BotStatsPageState`) est privé et la page n'a aucun client
+  /// injectable, donc un test widget ne peut observer le sondage que par ce compteur.
+  /// Il ne conditionne rien : c'est une observation pure, sans effet sur le comportement.
+  @visibleForTesting
+  static int debugStatsTicks = 0;
+
   @override
   State<BotStatsPage> createState() => _BotStatsPageState();
 }
@@ -275,6 +284,9 @@ class _BotStatsPageState extends State<BotStatsPage>
   /// Exécute un tick puis réarme le suivant : c'est ce réarmement, et non un
   /// `Timer.periodic`, qui permet d'espacer les requêtes quand rien ne change.
   Future<void> _runStatsTick() async {
+    // Observation pure (aucun effet sur le sondage) : c'est par ce compteur que le test
+    // widget vérifie que la pause en arrière-plan arrête bien les ticks.
+    BotStatsPage.debugStatsTicks++;
     final outcome = await _syncMetricsTick();
     _statsCadence.consume(outcome);
     // Réarmer une minuterie alors que la page est démontée laisse « A Timer is still
