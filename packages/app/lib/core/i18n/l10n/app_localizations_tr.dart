@@ -7468,6 +7468,14 @@ class AppLocalizationsTr extends AppLocalizations {
       'Planınız aynı anda çalışabilecek bot sayısını sınırlar. Bir botu durdurun veya üst bir plana geçin.';
 
   @override
+  String plan_limit_bot_quota_ad_funded_desc(int count) {
+    return 'Planınız aynı anda $count bot çalıştırır. Bu bot bunlara ek: reklam izleyerek kazanılan barındırma süresiyle çalışır ve süre bitince durur.';
+  }
+
+  @override
+  String get plan_limit_quota_continue_ad => 'Reklamla finanse edilerek başlat';
+
+  @override
   String get plan_limit_turnkey_title => 'Hazır botlar planınıza dahil değil';
 
   @override

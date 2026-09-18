@@ -7512,6 +7512,14 @@ class AppLocalizationsPt extends AppLocalizations {
       'O seu plano limita quantos bots podem estar em execução ao mesmo tempo. Pare um bot ou mude para um plano superior.';
 
   @override
+  String plan_limit_bot_quota_ad_funded_desc(int count) {
+    return 'O seu plano executa $count bots em simultâneo. Este é extra: vai funcionar com tempo de hospedagem ganho ao ver anúncios, e para quando esse tempo acabar.';
+  }
+
+  @override
+  String get plan_limit_quota_continue_ad => 'Iniciar financiado por anúncios';
+
+  @override
   String get plan_limit_turnkey_title =>
       'Bots prontos não incluídos no seu plano';
 

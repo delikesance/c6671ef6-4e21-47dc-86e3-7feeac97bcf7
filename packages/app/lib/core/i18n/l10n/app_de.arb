@@ -9849,6 +9849,8 @@
   "plan_limit_own_bots_desc": "Dein Tarif bietet nur Zugriff auf fertige (Turnkey-)Bots. Wechsle zu einem Tarif mit eigenen Bots, um diesen zu starten.",
   "plan_limit_bot_quota_title": "Limit laufender Bots erreicht",
   "plan_limit_bot_quota_desc": "Dein Tarif begrenzt, wie viele Bots gleichzeitig laufen dürfen. Stoppe einen Bot oder wechsle zu einem höheren Tarif.",
+  "plan_limit_bot_quota_ad_funded_desc": "Dein Tarif lässt {count} Bots gleichzeitig laufen. Dieser ist zusätzlich: er läuft mit Hosting-Zeit, die du durch Werbung verdienst, und stoppt, wenn sie aufgebraucht ist.",
+  "plan_limit_quota_continue_ad": "Werbe-finanziert starten",
   "plan_limit_turnkey_title": "Turnkey-Bots sind in deinem Tarif nicht enthalten",
   "plan_limit_turnkey_desc": "Dein Tarif enthält keine Turnkey-Bots und keine gehosteten Anwendungen. Wähle einen Tarif, der sie enthält.",
   "plan_limit_turnkey_quota_title": "Limit für Turnkey-Bots erreicht",
