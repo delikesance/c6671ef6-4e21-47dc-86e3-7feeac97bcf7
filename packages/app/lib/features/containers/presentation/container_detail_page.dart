@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:bot_creator/core/network/gateway_bot_events.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
+import 'package:bot_creator/core/network/poll_cadence.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/features/containers/logic/hosted_app_hosting_actions.dart';
 import 'package:bot_creator/features/containers/logic/hosted_app_status.dart';
@@ -611,30 +612,64 @@ class _ContainerLogsViewerState extends State<ContainerLogsViewer> {
   String? _error;
   Timer? _pollTimer;
 
+  /// Cadence du sondage des logs d'app hébergée : un panneau laissé ouvert sur une app
+  /// calme ne doit pas générer 12 requêtes par minute. Le plafond est plus haut que le
+  /// défaut (15 s) : c'est un encart de consultation, pas l'écran principal.
+  final PollCadence _logsCadence = PollCadence(
+    nominal: const Duration(seconds: 5),
+    ceiling: const Duration(seconds: 15),
+  );
+
   @override
   void initState() {
     super.initState();
-    _loadLogs();
-    _pollTimer = Timer.periodic(const Duration(seconds: 5), (_) => _loadLogs(silent: true));
+    // Premier chargement immédiat, puis sondage réarmé selon la cadence adaptative
+    // (voir `_refreshLogs`) : plus de `Timer.periodic` fixe de 5 s.
+    unawaited(_refreshLogs());
   }
 
-  Future<void> _loadLogs({bool silent = false}) async {
+  /// Un tick : charge les logs, enregistre le résultat dans la cadence et réarme le
+  /// prochain tick. C'est ce réarmement, et non un `Timer.periodic`, qui espace les
+  /// requêtes tant que le contenu ne change pas.
+  Future<void> _refreshLogs({bool silent = false}) async {
+    final outcome = await _loadLogs(silent: silent);
+    _logsCadence.consume(outcome);
+    // Réarmer une minuterie alors que le widget est démonté laisse « A Timer is still
+    // pending even after the widget tree was disposed ».
+    if (!mounted) {
+      return;
+    }
+    _pollTimer?.cancel();
+    _pollTimer = Timer(
+      _logsCadence.current,
+      () => unawaited(_refreshLogs(silent: true)),
+    );
+  }
+
+  Future<TickOutcome> _loadLogs({bool silent = false}) async {
     if (!silent && mounted) setState(() => _loading = true);
     try {
       final logs = await widget.client.getContainerLogs(widget.containerId);
-      if (!mounted) return;
+      if (!mounted) return TickOutcome.unchanged;
+      // Comparaison faite sur la chaîne déjà en mémoire (le contrat de l'endpoint est un
+      // tampon texte) : le changement se détecte sans requête supplémentaire.
+      final changed = logs != _logs;
       setState(() {
         _logs = logs;
         _loading = false;
         _error = null;
       });
       _scrollToBottom();
+      return changed ? TickOutcome.changed : TickOutcome.unchanged;
     } catch (e) {
-      if (!mounted) return;
+      if (!mounted) return TickOutcome.unchanged;
       setState(() {
         _loading = false;
         _error = e.toString();
       });
+      // Un endpoint en échec ne doit pas être martelé : le compter comme inchangé espace
+      // le sondage, ce qui sert de repli progressif jusqu'au rétablissement.
+      return TickOutcome.unchanged;
     }
   }
 
