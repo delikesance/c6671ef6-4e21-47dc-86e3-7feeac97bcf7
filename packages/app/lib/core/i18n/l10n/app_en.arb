@@ -10110,6 +10110,15 @@
   "plan_limit_own_bots_desc": "Your plan only gives access to turnkey bots. Upgrade to a plan that includes personal bots to start this one.",
   "plan_limit_bot_quota_title": "Running bot limit reached",
   "plan_limit_bot_quota_desc": "Your plan limits how many bots can run at the same time. Stop a bot, or upgrade your plan.",
+  "plan_limit_bot_quota_ad_funded_desc": "Your plan runs {count} bots at the same time. This one is extra: it will run on hosting time earned by watching ads, and stop when that time runs out.",
+  "plan_limit_quota_continue_ad": "Start ad-funded",
+  "@plan_limit_bot_quota_ad_funded_desc": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "plan_limit_turnkey_title": "Turnkey bots not included in your plan",
   "plan_limit_turnkey_desc": "Your plan does not include turnkey bots or hosted applications. Choose a plan that includes them.",
   "plan_limit_turnkey_quota_title": "Turnkey bot limit reached",

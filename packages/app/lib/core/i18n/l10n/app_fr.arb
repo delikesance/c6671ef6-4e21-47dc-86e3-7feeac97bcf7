@@ -9907,6 +9907,8 @@
   "plan_limit_own_bots_desc": "Votre formule donne accès aux bots clé en main uniquement. Passez à une formule qui inclut les bots perso pour démarrer celui-ci.",
   "plan_limit_bot_quota_title": "Limite de bots en marche atteinte",
   "plan_limit_bot_quota_desc": "Votre formule limite le nombre de bots en marche en même temps. Arrêtez un bot, ou passez à une formule supérieure.",
+  "plan_limit_bot_quota_ad_funded_desc": "Votre formule fait tourner {count} bots en même temps. Celui-ci est en plus : il tournera avec du temps d'hébergement gagné en regardant des pubs, et s'arrêtera quand ce temps sera épuisé.",
+  "plan_limit_quota_continue_ad": "Démarrer financé par pub",
   "plan_limit_turnkey_title": "Bots clé en main non inclus dans votre formule",
   "plan_limit_turnkey_desc": "Votre formule ne donne pas accès aux bots clé en main ni aux applications hébergées. Choisissez une formule qui les inclut.",
   "plan_limit_turnkey_quota_title": "Limite de bots clé en main atteinte",

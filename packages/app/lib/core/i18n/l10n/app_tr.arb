@@ -9849,6 +9849,8 @@
   "plan_limit_own_bots_desc": "Planınız yalnızca hazır (turnkey) botlara erişim sağlar. Bu botu başlatmak için kendi botlarınızı içeren bir plana geçin.",
   "plan_limit_bot_quota_title": "Aynı anda çalışan bot sınırına ulaşıldı",
   "plan_limit_bot_quota_desc": "Planınız aynı anda çalışabilecek bot sayısını sınırlar. Bir botu durdurun veya üst bir plana geçin.",
+  "plan_limit_bot_quota_ad_funded_desc": "Planınız aynı anda {count} bot çalıştırır. Bu bot bunlara ek: reklam izleyerek kazanılan barındırma süresiyle çalışır ve süre bitince durur.",
+  "plan_limit_quota_continue_ad": "Reklamla finanse edilerek başlat",
   "plan_limit_turnkey_title": "Hazır botlar planınıza dahil değil",
   "plan_limit_turnkey_desc": "Planınız hazır botları ve barındırılan uygulamaları içermiyor. Bunları içeren bir plan seçin.",
   "plan_limit_turnkey_quota_title": "Hazır bot sınırına ulaşıldı",

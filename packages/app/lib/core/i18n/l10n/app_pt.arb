@@ -9882,6 +9882,8 @@
   "plan_limit_own_bots_desc": "O seu plano só dá acesso a bots prontos (turnkey). Mude para um plano que inclua bots próprios para iniciar este.",
   "plan_limit_bot_quota_title": "Limite de bots em execução atingido",
   "plan_limit_bot_quota_desc": "O seu plano limita quantos bots podem estar em execução ao mesmo tempo. Pare um bot ou mude para um plano superior.",
+  "plan_limit_bot_quota_ad_funded_desc": "O seu plano executa {count} bots em simultâneo. Este é extra: vai funcionar com tempo de hospedagem ganho ao ver anúncios, e para quando esse tempo acabar.",
+  "plan_limit_quota_continue_ad": "Iniciar financiado por anúncios",
   "plan_limit_turnkey_title": "Bots prontos não incluídos no seu plano",
   "plan_limit_turnkey_desc": "O seu plano não inclui bots prontos nem aplicações hospedadas. Escolha um plano que os inclua.",
   "plan_limit_turnkey_quota_title": "Limite de bots prontos atingido",

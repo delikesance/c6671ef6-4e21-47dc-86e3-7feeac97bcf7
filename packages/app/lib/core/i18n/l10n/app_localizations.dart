@@ -13066,6 +13066,18 @@ abstract class AppLocalizations {
   /// **'Your plan limits how many bots can run at the same time. Stop a bot, or upgrade your plan.'**
   String get plan_limit_bot_quota_desc;
 
+  /// No description provided for @plan_limit_bot_quota_ad_funded_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan runs {count} bots at the same time. This one is extra: it will run on hosting time earned by watching ads, and stop when that time runs out.'**
+  String plan_limit_bot_quota_ad_funded_desc(int count);
+
+  /// No description provided for @plan_limit_quota_continue_ad.
+  ///
+  /// In en, this message translates to:
+  /// **'Start ad-funded'**
+  String get plan_limit_quota_continue_ad;
+
   /// No description provided for @plan_limit_turnkey_title.
   ///
   /// In en, this message translates to:

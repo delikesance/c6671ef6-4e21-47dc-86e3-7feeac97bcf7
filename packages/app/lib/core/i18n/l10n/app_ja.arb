@@ -9936,6 +9936,8 @@
   "plan_limit_own_bots_desc": "このプランではターンキーボットのみ利用できます。このボットを起動するには、自分のボットを含むプランに変更してください。",
   "plan_limit_bot_quota_title": "同時起動できるボットの上限に達しました",
   "plan_limit_bot_quota_desc": "このプランでは同時に起動できるボット数が制限されています。ボットを停止するか、上位のプランに変更してください。",
+  "plan_limit_bot_quota_ad_funded_desc": "このプランでは同時に{count}個のボットが稼働できます。これは追加分です：広告を見て獲得した稼働時間で動作し、時間がなくなると停止します。",
+  "plan_limit_quota_continue_ad": "広告視聴で起動",
   "plan_limit_turnkey_title": "このプランにはターンキーボットが含まれていません",
   "plan_limit_turnkey_desc": "このプランではターンキーボットとホスト型アプリを利用できません。含まれているプランを選択してください。",
   "plan_limit_turnkey_quota_title": "ターンキーボットの上限に達しました",

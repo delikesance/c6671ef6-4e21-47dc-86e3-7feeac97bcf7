@@ -7121,6 +7121,14 @@ class AppLocalizationsJa extends AppLocalizations {
       'このプランでは同時に起動できるボット数が制限されています。ボットを停止するか、上位のプランに変更してください。';
 
   @override
+  String plan_limit_bot_quota_ad_funded_desc(int count) {
+    return 'このプランでは同時に$count個のボットが稼働できます。これは追加分です：広告を見て獲得した稼働時間で動作し、時間がなくなると停止します。';
+  }
+
+  @override
+  String get plan_limit_quota_continue_ad => '広告視聴で起動';
+
+  @override
   String get plan_limit_turnkey_title => 'このプランにはターンキーボットが含まれていません';
 
   @override

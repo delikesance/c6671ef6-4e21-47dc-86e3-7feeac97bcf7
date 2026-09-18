@@ -7403,6 +7403,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your plan limits how many bots can run at the same time. Stop a bot, or upgrade your plan.';
 
   @override
+  String plan_limit_bot_quota_ad_funded_desc(int count) {
+    return 'Your plan runs $count bots at the same time. This one is extra: it will run on hosting time earned by watching ads, and stop when that time runs out.';
+  }
+
+  @override
+  String get plan_limit_quota_continue_ad => 'Start ad-funded';
+
+  @override
   String get plan_limit_turnkey_title =>
       'Turnkey bots not included in your plan';
 

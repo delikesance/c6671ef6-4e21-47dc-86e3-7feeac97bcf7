@@ -1368,9 +1368,10 @@ class HomePageState extends State<HomePage>
     // catch has to know whether this attempt was a start to report an outcome.
     final isRunning = _runningBotIds.contains(botId);
 
-    // Les quotas de la formule sont des quotas de DÉMARRAGE : on bloque ici, avec
-    // l'explication et les offres, au lieu de laisser le serveur refuser (403)
-    // après coup. On compte les bots en marche — un bot arrêté ne consomme rien.
+    // Les quotas de la formule sont des quotas de DÉMARRAGE. Un bot « en plus »
+    // n'est pas refusé : il tourne financé par pub — à condition de le dire AVANT
+    // de lancer, pour que l'utilisateur sache qu'il regardera des pubs pour ce bot.
+    var adFundedByPlan = false;
     if (!isRunning) {
       final block = SubscriptionService.ownBotStartBlock(
         runningBots: _runningBotIds.length,
@@ -1378,8 +1379,9 @@ class HomePageState extends State<HomePage>
       if (block != null) {
         if (!mounted) return;
         setState(() => _botIdInAction = null);
-        await _showPlanLimit(block);
-        return;
+        final action = await _showPlanLimit(block);
+        if (action != PlanLimitAction.continueAdFunded) return;
+        adFundedByPlan = true;
       }
     }
 
@@ -1546,6 +1548,7 @@ class HomePageState extends State<HomePage>
         final adUnlocked = await _maybeOfferRewardedAd(
           botId: botId,
           botToken: token,
+          adFundedByPlan: adFundedByPlan,
           successMessage: context.tr.rewarded_start_thanks,
         );
         if (!adUnlocked) {
@@ -1834,12 +1837,13 @@ class HomePageState extends State<HomePage>
   }
 
   /// Un démarrage refusé par la formule n'est pas une panne : on explique, et on
-  /// propose les offres.
-  Future<void> _showPlanLimit(PlanLimitBlock block) async {
-    final openOffers = await showPlanLimitDialog(context, block);
-    if (openOffers == true && mounted) {
+  /// propose les offres. Un bot au-delà du quota, lui, peut démarrer financé par pub.
+  Future<PlanLimitAction> _showPlanLimit(PlanLimitBlock block) async {
+    final action = await showPlanLimitDialog(context, block);
+    if (action == PlanLimitAction.viewOffers && mounted) {
       await SubscriptionsHubPage.open(context);
     }
+    return action;
   }
 
   Future<int?> _fetchMainApiRuntimeBalance(String botId) async {
@@ -2022,13 +2026,17 @@ class HomePageState extends State<HomePage>
     required String botId,
     String? botToken,
     bool force = false,
+    bool adFundedByPlan = false,
     String? successMessage,
   }) async {
     if (!_supportsForegroundTask || !mounted) {
       return true;
     }
 
-    if (await _isMainApiPremiumUser(botId: botId, botToken: botToken)) {
+    // Un bot au-delà du quota tourne financé par pub, même sur un compte premium :
+    // on ne saute donc pas l'étape pub pour lui (c'est sa source de temps).
+    if (!adFundedByPlan &&
+        await _isMainApiPremiumUser(botId: botId, botToken: botToken)) {
       return true;
     }
 

@@ -7528,6 +7528,14 @@ class AppLocalizationsDe extends AppLocalizations {
       'Dein Tarif begrenzt, wie viele Bots gleichzeitig laufen dürfen. Stoppe einen Bot oder wechsle zu einem höheren Tarif.';
 
   @override
+  String plan_limit_bot_quota_ad_funded_desc(int count) {
+    return 'Dein Tarif lässt $count Bots gleichzeitig laufen. Dieser ist zusätzlich: er läuft mit Hosting-Zeit, die du durch Werbung verdienst, und stoppt, wenn sie aufgebraucht ist.';
+  }
+
+  @override
+  String get plan_limit_quota_continue_ad => 'Werbe-finanziert starten';
+
+  @override
   String get plan_limit_turnkey_title =>
       'Turnkey-Bots sind in deinem Tarif nicht enthalten';
 

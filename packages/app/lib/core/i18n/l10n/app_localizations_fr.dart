@@ -7537,6 +7537,14 @@ class AppLocalizationsFr extends AppLocalizations {
       'Votre formule limite le nombre de bots en marche en même temps. Arrêtez un bot, ou passez à une formule supérieure.';
 
   @override
+  String plan_limit_bot_quota_ad_funded_desc(int count) {
+    return 'Votre formule fait tourner $count bots en même temps. Celui-ci est en plus : il tournera avec du temps d\'hébergement gagné en regardant des pubs, et s\'arrêtera quand ce temps sera épuisé.';
+  }
+
+  @override
+  String get plan_limit_quota_continue_ad => 'Démarrer financé par pub';
+
+  @override
   String get plan_limit_turnkey_title =>
       'Bots clé en main non inclus dans votre formule';
 
