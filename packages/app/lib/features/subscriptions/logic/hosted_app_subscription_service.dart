@@ -29,6 +29,18 @@ class HostedAppSubscriptionService {
   static String? _activeProductId;
   static DateTime? _subscriptionExpiresAt;
   static DateTime? _lastServerSyncAt;
+
+  /// Ce que la FORMULE du compte accorde côté serveur, relevé au dernier rafraîchissement.
+  ///
+  /// Le mapping serveur décrit des capacités ; l'application ne décide rien. Ces valeurs
+  /// servent à reconnaître un droit accordé par la formule (grant administrateur, formule
+  /// du catalogue) alors qu'aucun reçu du store n'existe sur l'appareil : sans elles, la
+  /// carte « Applications hébergées » restait « Non abonné » pour un compte que le serveur
+  /// autorise pourtant à héberger.
+  static bool _serverGrantsHostedApps = false;
+  static int? _serverMaxContainers;
+  static String? _serverPlanTierCode;
+
   static Timer? _expiryTimer;
   static bool _purchaseHandlerRegistered = false;
   static SharedPreferences? _prefs;
@@ -37,7 +49,36 @@ class HostedAppSubscriptionService {
   static bool _storeAvailable = false;
   static HostedAppTier? _pendingTier;
 
-  static bool get isSubscribed => _isLocalSubscriptionActive();
+  /// L'offre apps hébergées est-elle active ? Deux sources, dans cet ordre : la formule du
+  /// compte côté serveur (l'autorité quand l'utilisateur est connecté, même règle que pour
+  /// Bot Premium), puis le reçu du store.
+  ///
+  /// Les deux sont évaluées séparément à dessein : l'échéance locale mémorisée appartient au
+  /// reçu store, elle ne doit donc pas pouvoir annuler un droit accordé par le serveur.
+  static bool get isSubscribed =>
+      _isLocalSubscriptionActive() || _serverGrantsHostedApps;
+
+  /// La formule du compte accorde-t-elle l'hébergement (et non un reçu du store) ?
+  static bool get hasServerGrantedHostedApps => _serverGrantsHostedApps;
+
+  /// Injecte ce qu'une formule serveur accorde, comme si `getHostedAppEligibility` venait
+  /// de répondre — utilisé par les tests d'affichage du hub.
+  @visibleForTesting
+  static void debugSetServerGrantForTests({
+    required bool granted,
+    int? maxContainers,
+    String? planTierCode,
+  }) {
+    _serverGrantsHostedApps = granted;
+    _serverMaxContainers = maxContainers;
+    _serverPlanTierCode = planTierCode;
+  }
+
+  /// Plafond d'apps hébergées fixé par la formule du compte (null = non renseigné).
+  static int? get serverMaxContainers => _serverMaxContainers;
+
+  /// Code de la formule servie par le serveur (ex. `FREE`, `PRO`, `HOST_ONE_APP`).
+  static String? get serverPlanTierCode => _serverPlanTierCode;
 
   static String? get activeProductId => _activeProductId;
 
@@ -236,6 +277,22 @@ class HostedAppSubscriptionService {
           );
       final eligibility = await apiClient.getHostedAppEligibility();
       _lastServerSyncAt = DateTime.now().toUtc();
+
+      // La formule décide, et on la relève AVANT les sorties anticipées : même quand le
+      // service refuse l'abonnement store local, ce que le serveur accorde doit rester
+      // connu de l'affichage.
+      //
+      // `allowTurnkey` dit si la formule inclut le clé en main / les hébergements et
+      // `maxContainers` en fixe le plafond — mais le serveur renvoie 1/true par défaut
+      // quand aucune formule n'est connue (« ne rien bloquer »). Ces deux champs seuls
+      // allumeraient donc la carte pour tout le monde : `premium` est ce qui distingue une
+      // formule payante du socle gratuit.
+      _serverMaxContainers = eligibility.maxContainers;
+      _serverPlanTierCode = eligibility.planTierCode;
+      _serverGrantsHostedApps =
+          eligibility.premium &&
+          eligibility.allowTurnkey &&
+          eligibility.maxContainers > 0;
 
       if (!eligibility.premium) {
         // The manager does not know this purchase yet: the store notification was
@@ -484,6 +541,9 @@ class HostedAppSubscriptionService {
     _isSubscribed = false;
     _serverValidated = false;
     _activeProductId = null;
+    // Le droit accordé par la formule retombe avec le reste : c'est le serveur qui l'a
+    // annoncé, et c'est ici qu'un compte qui n'y a plus droit est nettoyé.
+    _serverGrantsHostedApps = false;
     await _setSubscriptionExpiry(null);
     await _prefs?.setBool(_activeKey, false);
     await _prefs?.setBool(_serverValidatedKey, false);

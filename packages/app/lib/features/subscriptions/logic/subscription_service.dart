@@ -1631,6 +1631,19 @@ class SubscriptionService {
     _serverAllowTurnkey = allowTurnkey;
   }
 
+  /// Injecte l'identité de la formule (nom affiché, code) comme si le serveur venait de la
+  /// servir — utilisé par les tests d'affichage du hub.
+  @visibleForTesting
+  static void debugSetPlanIdentityForTests({
+    String? displayName,
+    String? tierCode,
+    String? provider,
+  }) {
+    _serverPlanDisplayName = displayName;
+    _serverPlanTierCode = tierCode;
+    _serverPlanProvider = provider;
+  }
+
   @visibleForTesting
   static void debugSetLocalSubscriptionForTests({
     required bool active,

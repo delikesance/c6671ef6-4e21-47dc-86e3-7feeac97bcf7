@@ -159,16 +159,31 @@ class _SubscriptionsHubPageState extends State<SubscriptionsHubPage> {
   }
 
   String _botPlanLabel(AppLocalizations tr) {
+    final maxBots = SubscriptionService.activePlanMaxBots;
+    final botsLimit = maxBots == null
+        ? null
+        : (maxBots == 0
+              ? tr.subscriptions_hub_unlimited_bots
+              : '$maxBots bots max');
     final customDisplayName = SubscriptionService.activePlanDisplayName;
-    if (customDisplayName != null && customDisplayName.trim().isNotEmpty) {
-      final maxBots = SubscriptionService.activePlanMaxBots;
-      if (maxBots != null) {
-        final botsLimit = maxBots == 0
-            ? tr.subscriptions_hub_unlimited_bots
-            : '$maxBots bots max';
-        return '$customDisplayName ($botsLimit)';
-      }
-      return customDisplayName;
+
+    // Le nom de la formule s'affiche sur la carte dont elle porte l'offre. Une formule qui
+    // inclut les applications hébergées (type « Host One App ») est une offre d'hébergement :
+    // son nom va sur la carte du bas. Sans cette règle, l'écran présentait une formule
+    // d'applications hébergées comme l'abonnement Bot Premium — ici on n'annonce plus que la
+    // capacité bot, qui elle est bien accordée.
+    final nameBelongsToHostedCard =
+        HostedAppSubscriptionService.hasServerGrantedHostedApps;
+
+    if (customDisplayName != null &&
+        customDisplayName.trim().isNotEmpty &&
+        !nameBelongsToHostedCard) {
+      return botsLimit == null
+          ? customDisplayName
+          : '$customDisplayName ($botsLimit)';
+    }
+    if (botsLimit != null) {
+      return botsLimit;
     }
     final productId = SubscriptionService.activeProductId;
     if (productId == kAnnualSubscriptionId) {
@@ -181,6 +196,24 @@ class _SubscriptionsHubPageState extends State<SubscriptionsHubPage> {
   }
 
   String _hostedPlanLabel(AppLocalizations tr) {
+    // Droit accordé par la formule du compte : c'est son nom qui décrit ce que l'utilisateur
+    // a, avec le plafond qu'elle fixe (le serveur applique exactement ce chiffre au
+    // démarrage).
+    if (HostedAppSubscriptionService.hasServerGrantedHostedApps) {
+      final formulaName = SubscriptionService.activePlanDisplayName?.trim();
+      final maxContainers = HostedAppSubscriptionService.serverMaxContainers;
+      final capability = switch (maxContainers) {
+        null => null,
+        1 => tr.hosted_app_subscription_one_app_title,
+        _ => tr.hosted_app_subscription_two_app_title,
+      };
+      if (formulaName != null && formulaName.isNotEmpty) {
+        return capability == null ? formulaName : '$formulaName · $capability';
+      }
+      if (capability != null) {
+        return capability;
+      }
+    }
     return switch (hostedAppTierFromCanonicalProductId(
       HostedAppSubscriptionService.activeProductId,
     )) {
@@ -278,6 +311,13 @@ class _SubscriptionsHubPageState extends State<SubscriptionsHubPage> {
                         : null,
                     statusActiveLabel: tr.subscriptions_hub_status_active,
                     statusInactiveLabel: tr.subscriptions_hub_status_inactive,
+                    // Même information que sur la carte du haut : quand c'est une formule
+                    // serveur qui ouvre le droit, l'utilisateur doit savoir qu'il n'a rien
+                    // à gérer dans le store (et que « Gérer » ne le concernera pas).
+                    managedByServerNote:
+                        HostedAppSubscriptionService.hasServerGrantedHostedApps
+                        ? tr.subscriptions_hub_managed_by_server
+                        : null,
                     primaryActionLabel: hostedActive
                         ? tr.subscription_manage
                         : tr.subscriptions_hub_subscribe,
