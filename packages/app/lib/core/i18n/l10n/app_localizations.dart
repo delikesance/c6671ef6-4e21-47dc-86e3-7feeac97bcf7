@@ -13024,6 +13024,24 @@ abstract class AppLocalizations {
   /// **'Renews until {date} at {time}'**
   String subscriptions_hub_expires_at(String date, String time);
 
+  /// Label indicating a subscription has no expiration date
+  ///
+  /// In en, this message translates to:
+  /// **'Permanent (no expiration)'**
+  String get subscriptions_hub_permanent;
+
+  /// Badge indicating unlimited bots quota
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited bots'**
+  String get subscriptions_hub_unlimited_bots;
+
+  /// Label indicating a subscription was granted or managed via server
+  ///
+  /// In en, this message translates to:
+  /// **'Managed by server'**
+  String get subscriptions_hub_managed_by_server;
+
   /// No description provided for @subscription_upgrade_annual.
   ///
   /// In en, this message translates to:

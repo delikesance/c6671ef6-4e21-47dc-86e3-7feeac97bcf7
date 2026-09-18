@@ -9875,6 +9875,9 @@
       }
     }
   },
+  "subscriptions_hub_permanent": "Permanente (sem expiração)",
+  "subscriptions_hub_unlimited_bots": "Bots ilimitados",
+  "subscriptions_hub_managed_by_server": "Gerenciado pelo servidor",
   "subscription_upgrade_annual": "Atualizar para anual",
   "subscription_upgrade_two_apps": "Atualizar para 2 contêineres",
   "subscription_manage_cancel_hint": "Para cancelar ou alterar a cobrança, use Gerenciar assinatura — isso abre a App Store ou Google Play.",

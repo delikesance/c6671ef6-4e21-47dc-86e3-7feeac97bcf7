@@ -7098,6 +7098,15 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get subscriptions_hub_permanent => '無期限（有効期限なし）';
+
+  @override
+  String get subscriptions_hub_unlimited_bots => 'ボット無制限';
+
+  @override
+  String get subscriptions_hub_managed_by_server => 'サーバーにより管理';
+
+  @override
   String get subscription_upgrade_annual => '年間プランにアップグレード';
 
   @override

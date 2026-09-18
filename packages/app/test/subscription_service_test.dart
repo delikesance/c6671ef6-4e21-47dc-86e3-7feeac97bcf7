@@ -493,4 +493,91 @@ void main() {
       );
     });
   });
+
+  group('Server authority and remote subscriptions', () {
+    test(
+      'server-granted remote plan enables premium without local store purchase',
+      () async {
+        await MainApiSettingsStore.saveConfig(
+          const MainApiConfig(baseUrl: 'https://api.example.com'),
+        );
+        await MainApiSettingsStore.saveSession(
+          MainApiSession(
+            accessToken: 'token',
+            expiresAt: DateTime.now().toUtc().add(const Duration(hours: 1)),
+          ),
+        );
+
+        final client = MainApiClient(
+          baseUrl: 'https://api.example.com',
+          accessToken: 'token',
+          httpClient: MockClient((request) async {
+            if (request.url.path.endsWith('/gateway/runtime')) {
+              return http.Response(
+                '{"plan":"PREMIUM","tier_code":"PRO","display_name":"Pro","provider":"admin_remote","max_bots":0,"allow_turnkey":true}',
+                200,
+              );
+            }
+            return http.Response('not found', 404);
+          }),
+        );
+
+        final isPremium = await SubscriptionService.refreshPremiumFromServer(
+          client: client,
+          forceRefresh: true,
+        );
+
+        expect(isPremium, isTrue);
+        expect(SubscriptionService.isSubscribed, isTrue);
+        expect(SubscriptionService.activePlanDisplayName, 'Pro');
+        expect(SubscriptionService.activePlanTierCode, 'PRO');
+        expect(SubscriptionService.activePlanProvider, 'admin_remote');
+        expect(SubscriptionService.activePlanMaxBots, 0);
+        expect(SubscriptionService.isServerGranted, isTrue);
+        expect(SubscriptionService.hasNativeStoreSubscription, isFalse);
+        expect(SubscriptionService.subscriptionExpiresAt, isNull);
+      },
+    );
+
+    test(
+      'server-granted remote plan with expiry sets subscriptionExpiresAt',
+      () async {
+        await MainApiSettingsStore.saveConfig(
+          const MainApiConfig(baseUrl: 'https://api.example.com'),
+        );
+        await MainApiSettingsStore.saveSession(
+          MainApiSession(
+            accessToken: 'token',
+            expiresAt: DateTime.now().toUtc().add(const Duration(hours: 1)),
+          ),
+        );
+
+        final futureDate = DateTime.utc(2027, 5, 1, 12, 0, 0);
+        final client = MainApiClient(
+          baseUrl: 'https://api.example.com',
+          accessToken: 'token',
+          httpClient: MockClient((request) async {
+            if (request.url.path.endsWith('/gateway/runtime')) {
+              return http.Response(
+                '{"plan":"PREMIUM","tier_code":"STARTER","display_name":"Starter","provider":"admin_remote","max_bots":5,"expires_at":"2027-05-01T12:00:00Z"}',
+                200,
+              );
+            }
+            return http.Response('not found', 404);
+          }),
+        );
+
+        final isPremium = await SubscriptionService.refreshPremiumFromServer(
+          client: client,
+          forceRefresh: true,
+        );
+
+        expect(isPremium, isTrue);
+        expect(SubscriptionService.isSubscribed, isTrue);
+        expect(SubscriptionService.activePlanDisplayName, 'Starter');
+        expect(SubscriptionService.activePlanMaxBots, 5);
+        expect(SubscriptionService.subscriptionExpiresAt, futureDate);
+      },
+    );
+  });
 }

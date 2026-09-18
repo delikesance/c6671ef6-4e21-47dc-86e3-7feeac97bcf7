@@ -7504,6 +7504,15 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get subscriptions_hub_permanent => 'Dauerhaft (kein Ablauf)';
+
+  @override
+  String get subscriptions_hub_unlimited_bots => 'Unbegrenzte Bots';
+
+  @override
+  String get subscriptions_hub_managed_by_server => 'Vom Server verwaltet';
+
+  @override
   String get subscription_upgrade_annual => 'Auf Jahresabo upgraden';
 
   @override

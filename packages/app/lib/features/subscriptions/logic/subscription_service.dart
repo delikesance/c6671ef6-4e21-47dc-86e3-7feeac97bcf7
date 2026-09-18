@@ -68,6 +68,10 @@ class SubscriptionService {
   static const String _serverValidatedKey = 'subscription_server_validated';
   static const String _productIdKey = 'subscription_product_id';
   static const String _expiresAtKey = 'subscription_expires_at';
+  static const String _planDisplayNameKey = 'subscription_plan_display_name';
+  static const String _planTierCodeKey = 'subscription_plan_tier_code';
+  static const String _planProviderKey = 'subscription_plan_provider';
+  static const String _planMaxBotsKey = 'subscription_plan_max_bots';
 
   // ── State ──────────────────────────────────────────────────────────────────
   static bool _initialized = false;
@@ -75,6 +79,10 @@ class SubscriptionService {
   static bool _serverValidated = false;
   static String? _activeProductId;
   static DateTime? _subscriptionExpiresAt;
+  static String? _serverPlanDisplayName;
+  static String? _serverPlanTierCode;
+  static String? _serverPlanProvider;
+  static int? _serverMaxBots;
   static DateTime? _lastSyncAt;
 
   static bool? _managerPremiumOverride;
@@ -204,9 +212,6 @@ class SubscriptionService {
   static bool get isSubscribed {
     // Desktop platforms are premium by default.
     if (_isDesktop) return true;
-    if (_usesNativeBillingSourceOfTruth) {
-      return _isLocalSubscriptionActive();
-    }
     if (_hasFreshManagerOverride()) {
       return _managerPremiumOverride!;
     }
@@ -218,6 +223,29 @@ class SubscriptionService {
 
   /// The active product ID (if subscribed).
   static String? get activeProductId => _activeProductId;
+
+  /// The custom display name of the plan (e.g. 'Pro', 'Starter') if provided by manager.
+  static String? get activePlanDisplayName => _serverPlanDisplayName;
+
+  /// The tier code of the plan (e.g. 'TIER_1', 'PRO', 'FREE') if provided by manager.
+  static String? get activePlanTierCode => _serverPlanTierCode;
+
+  /// The provider of the subscription (e.g. 'admin_remote', 'google_play', 'stripe').
+  static String? get activePlanProvider => _serverPlanProvider;
+
+  /// Maximum bots allowed by the active plan (0 = Unlimited).
+  static int? get activePlanMaxBots => _serverMaxBots;
+
+  /// Whether the active subscription comes from a native mobile store purchase.
+  static bool get hasNativeStoreSubscription =>
+      _activeProductId != null &&
+      _activeProductId!.isNotEmpty &&
+      _serverPlanProvider != 'admin_remote';
+
+  /// Whether the active subscription was assigned remotely by an admin or external system.
+  static bool get isServerGranted =>
+      _serverPlanProvider == 'admin_remote' ||
+      (isSubscribed && !hasNativeStoreSubscription);
 
   static bool get canUpgradeToAnnual =>
       isSubscribed && activeProductId == kMonthlySubscriptionId;
@@ -246,10 +274,18 @@ class SubscriptionService {
       _subscriptionExpiresAt = _parseStoredDateTime(
         _prefs?.getString(_expiresAtKey),
       );
+      _serverPlanDisplayName = _prefs?.getString(_planDisplayNameKey);
+      _serverPlanTierCode = _prefs?.getString(_planTierCodeKey);
+      _serverPlanProvider = _prefs?.getString(_planProviderKey);
+      _serverMaxBots = _prefs?.getInt(_planMaxBotsKey);
       _lastSyncAt = null;
 
       if (!_isSubscribed) {
         _subscriptionExpiresAt = null;
+        _serverPlanDisplayName = null;
+        _serverPlanTierCode = null;
+        _serverPlanProvider = null;
+        _serverMaxBots = null;
       }
 
       if (_isSubscribed) {
@@ -853,11 +889,19 @@ class SubscriptionService {
     _isSubscribed = false;
     _serverValidated = false;
     _activeProductId = null;
+    _serverPlanDisplayName = null;
+    _serverPlanTierCode = null;
+    _serverPlanProvider = null;
+    _serverMaxBots = null;
     await _setSubscriptionExpiry(null);
     _lastLocalValidationAt = DateTime.now().toUtc();
     await _prefs?.setBool(_activeKey, false);
     await _prefs?.setBool(_serverValidatedKey, false);
     await _prefs?.remove(_productIdKey);
+    await _prefs?.remove(_planDisplayNameKey);
+    await _prefs?.remove(_planTierCodeKey);
+    await _prefs?.remove(_planProviderKey);
+    await _prefs?.remove(_planMaxBotsKey);
   }
 
   static DateTime? _parseStoredDateTime(String? raw) {
@@ -1090,26 +1134,79 @@ class SubscriptionService {
 
       _managerPremiumOverride = plan;
       _managerPremiumOverrideUpdatedAt = DateTime.now().toUtc();
-      if (!plan && localPremium) {
-        // The device believes it is subscribed while the manager says otherwise:
-        // usually the purchase was never verified for this account. Replay the store
-        // receipt before erasing what we know, otherwise a paying customer lands on
-        // "Not subscribed" until they restore by hand. The manager stays the only
-        // grantor — it verifies the receipt it receives.
-        if (await _reverifyFromStore()) {
-          return true;
+      if (plan) {
+        _isSubscribed = true;
+        _serverValidated = true;
+        _serverPlanDisplayName = runtime['display_name'] as String?;
+        _serverPlanTierCode = runtime['tier_code'] as String?;
+        _serverPlanProvider = runtime['provider'] as String?;
+        if (runtime['max_bots'] != null) {
+          _serverMaxBots = (runtime['max_bots'] as num).toInt();
+        } else {
+          _serverMaxBots = null;
         }
-        await _markExpired();
-      } else if (plan && !localPremium && _usesNativeBillingSourceOfTruth) {
-        // The manager grants premium but this device holds no local proof: its
-        // cache was cleared (an older build wiped it on a stale "free" answer, or
-        // the entitlement was repaired server-side). Replay the store receipt so
-        // the app heals itself instead of asking a paying customer to restore by
-        // hand. Fire and forget: the purchase stream verifies it and repopulates
-        // the local state the mobile gate requires.
-        unawaited(_reverifyFromStore());
+        if (runtime['expires_at'] != null) {
+          _subscriptionExpiresAt = DateTime.tryParse(
+            runtime['expires_at'].toString(),
+          )?.toUtc();
+        } else {
+          _subscriptionExpiresAt = null;
+        }
+
+        await _prefs?.setBool(_activeKey, true);
+        await _prefs?.setBool(_serverValidatedKey, true);
+        if (_serverPlanDisplayName != null) {
+          await _prefs?.setString(_planDisplayNameKey, _serverPlanDisplayName!);
+        } else {
+          await _prefs?.remove(_planDisplayNameKey);
+        }
+        if (_serverPlanTierCode != null) {
+          await _prefs?.setString(_planTierCodeKey, _serverPlanTierCode!);
+        } else {
+          await _prefs?.remove(_planTierCodeKey);
+        }
+        if (_serverPlanProvider != null) {
+          await _prefs?.setString(_planProviderKey, _serverPlanProvider!);
+        } else {
+          await _prefs?.remove(_planProviderKey);
+        }
+        if (_serverMaxBots != null) {
+          await _prefs?.setInt(_planMaxBotsKey, _serverMaxBots!);
+        } else {
+          await _prefs?.remove(_planMaxBotsKey);
+        }
+        if (_subscriptionExpiresAt != null) {
+          await _prefs?.setString(
+            _expiresAtKey,
+            _subscriptionExpiresAt!.toIso8601String(),
+          );
+          _scheduleExpirationTimer();
+        } else {
+          await _prefs?.remove(_expiresAtKey);
+          _expiryTimer?.cancel();
+          _expiryTimer = null;
+        }
+
+        if (!localPremium &&
+            (_serverPlanProvider == 'google_play' ||
+                _serverPlanProvider == 'apple_in_app' ||
+                _serverPlanProvider == null)) {
+          unawaited(_reverifyFromStore());
+        }
+        return true;
+      } else {
+        if (localPremium) {
+          if (await _reverifyFromStore()) {
+            _managerPremiumOverride = true;
+            _managerPremiumOverrideUpdatedAt = DateTime.now().toUtc();
+            return true;
+          }
+          await _markExpired();
+        } else {
+          await _markExpired();
+        }
+        return false;
       }
-      return plan;
     } catch (error, stack) {
       if (AppDiagnostics.isTransientNetworkError(error)) {
         _logTransientPremiumRefreshDeferred();
@@ -1129,15 +1226,37 @@ class SubscriptionService {
 
   /// Returns the effective premium state used by the app.
   ///
-  /// When a valid manager session exists, the manager becomes the
-  /// source of truth and local caches are refreshed against it before
-  /// granting premium-only behavior such as ad-free starts.
+  /// When a valid manager session exists, the manager is authoritative.
   static Future<bool> resolveEffectivePremiumStatus({
     MainApiClient? client,
     bool forceRefresh = false,
   }) async {
     if (_isDesktop) return true;
-    if (_usesNativeBillingSourceOfTruth) {
+    final config = await MainApiSettingsStore.loadConfig();
+    final session = await MainApiSettingsStore.loadSession();
+    if (config.isConfigured && session != null && !session.isExpired) {
+      return refreshPremiumFromServer(
+        client: client,
+        forceRefresh: forceRefresh,
+      );
+    }
+    if (!_hasFreshLocalValidation(forceRefresh: forceRefresh)) {
+      await refreshStatus();
+    }
+    return _isLocalSubscriptionActive();
+  }
+
+  /// Returns whether rewarded ads can be skipped for bot starts.
+  ///
+  /// A valid manager session is authoritative. Otherwise, native store billing
+  /// must be verifiable on-device.
+  static Future<bool> canSkipRewardedAds({
+    MainApiClient? client,
+    bool forceRefresh = false,
+    bool allowStoredManagerSession = true,
+  }) async {
+    if (_isDesktop) return true;
+    if (allowStoredManagerSession) {
       final config = await MainApiSettingsStore.loadConfig();
       final session = await MainApiSettingsStore.loadSession();
       if (config.isConfigured && session != null && !session.isExpired) {
@@ -1146,87 +1265,8 @@ class SubscriptionService {
           forceRefresh: forceRefresh,
         );
       }
-      if (!_hasFreshLocalValidation(forceRefresh: forceRefresh)) {
-        await refreshStatus();
-      }
-      return _isLocalSubscriptionActive();
-    }
-    final config = await MainApiSettingsStore.loadConfig();
-    if (!config.isConfigured) {
-      _managerPremiumOverride = null;
-      _managerPremiumOverrideUpdatedAt = null;
-      return isSubscribed;
     }
 
-    final session = await MainApiSettingsStore.loadSession();
-    if (session == null || session.isExpired) {
-      _managerPremiumOverride = null;
-      _managerPremiumOverrideUpdatedAt = null;
-      return isSubscribed;
-    }
-
-    return refreshManagerPremiumStatus(
-      client: client,
-      forceRefresh: forceRefresh,
-      preferLocalOnFailure: false,
-    );
-  }
-
-  /// Returns whether rewarded ads can be skipped for bot starts.
-  ///
-  /// This path is intentionally stricter than the generic premium UI:
-  /// a valid manager session is authoritative, otherwise native billing
-  /// must be verifiable on-device before ad-free access is granted.
-  static Future<bool> canSkipRewardedAds({
-    MainApiClient? client,
-    bool forceRefresh = false,
-    bool allowStoredManagerSession = true,
-  }) async {
-    if (_isDesktop) return true;
-    if (_usesNativeBillingSourceOfTruth) {
-      if (!_initialized) {
-        await initialize();
-      }
-      if (allowStoredManagerSession) {
-        final config = await MainApiSettingsStore.loadConfig();
-        final session = await MainApiSettingsStore.loadSession();
-        if (config.isConfigured && session != null && !session.isExpired) {
-          return refreshPremiumFromServer(
-            client: client,
-            forceRefresh: forceRefresh,
-          );
-        }
-      }
-      if (!_storeAvailable) {
-        return false;
-      }
-      if (!_hasFreshLocalValidation(forceRefresh: forceRefresh)) {
-        await refreshStatus();
-        _lastLocalValidationAt = DateTime.now().toUtc();
-      }
-      return _isLocalSubscriptionActive();
-    }
-
-    final config = allowStoredManagerSession
-        ? await MainApiSettingsStore.loadConfig()
-        : null;
-    final session = allowStoredManagerSession
-        ? await MainApiSettingsStore.loadSession()
-        : null;
-    if (client != null ||
-        (config?.isConfigured == true &&
-            session != null &&
-            !session.isExpired)) {
-      return refreshManagerPremiumStatus(
-        client: client,
-        forceRefresh: forceRefresh,
-        preferLocalOnFailure: false,
-      );
-    }
-
-    if (!_isSupportedPlatform) {
-      return false;
-    }
     if (!_initialized) {
       await initialize();
     }
@@ -1366,6 +1406,10 @@ class SubscriptionService {
     _serverValidated = false;
     _activeProductId = null;
     _subscriptionExpiresAt = null;
+    _serverPlanDisplayName = null;
+    _serverPlanTierCode = null;
+    _serverPlanProvider = null;
+    _serverMaxBots = null;
     _managerPremiumOverride = null;
     _managerPremiumOverrideUpdatedAt = null;
     _lastLocalValidationAt = null;

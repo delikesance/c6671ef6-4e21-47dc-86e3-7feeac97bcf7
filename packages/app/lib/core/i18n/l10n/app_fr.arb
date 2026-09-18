@@ -9900,6 +9900,9 @@
       }
     }
   },
+  "subscriptions_hub_permanent": "Permanent (sans expiration)",
+  "subscriptions_hub_unlimited_bots": "Bots illimités",
+  "subscriptions_hub_managed_by_server": "Géré par le serveur",
   "subscription_upgrade_annual": "Passer à l'abonnement annuel",
   "subscription_upgrade_two_apps": "Passer à 2 conteneurs",
   "subscription_manage_cancel_hint": "Pour annuler ou modifier la facturation, utilisez Gérer l'abonnement — cela ouvre l'App Store ou Google Play.",
