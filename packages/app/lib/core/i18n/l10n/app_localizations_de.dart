@@ -7555,44 +7555,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get plan_limit_view_offers => 'Angebote ansehen';
 
   @override
-  String get plans_catalog_title => 'Verfügbare Tarife';
-
-  @override
-  String get plans_catalog_current => 'Aktueller Tarif';
-
-  @override
-  String get plans_catalog_choose => 'Diesen Tarif wählen';
-
-  @override
-  String get plans_catalog_unavailable => 'Derzeit nicht käuflich';
-
-  @override
-  String plans_catalog_bots_max(int count) {
-    return 'Bis zu $count laufende Bots';
-  }
-
-  @override
-  String get plans_catalog_default_badge => 'Standardtarif';
-
-  @override
-  String get plans_catalog_default_hint =>
-      'Für jedes Konto inklusive — kein Kauf nötig.';
-
-  @override
-  String plans_catalog_turnkey_max(int count) {
-    return 'Bis zu $count Turnkey-Bots';
-  }
-
-  @override
-  String get plans_catalog_turnkey_unlimited => 'Unbegrenzte Turnkey-Bots';
-
-  @override
-  String get plans_catalog_own_bots_excluded => 'Eigene Bots nicht enthalten';
-
-  @override
-  String get plans_catalog_turnkey_excluded => 'Turnkey-Bots nicht enthalten';
-
-  @override
   String get subscription_upgrade_annual => 'Auf Jahresabo upgraden';
 
   @override

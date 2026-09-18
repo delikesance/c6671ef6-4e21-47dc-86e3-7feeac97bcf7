@@ -7539,44 +7539,6 @@ class AppLocalizationsPt extends AppLocalizations {
   String get plan_limit_view_offers => 'Ver planos';
 
   @override
-  String get plans_catalog_title => 'Planos disponíveis';
-
-  @override
-  String get plans_catalog_current => 'Plano atual';
-
-  @override
-  String get plans_catalog_choose => 'Escolher este plano';
-
-  @override
-  String get plans_catalog_unavailable => 'Ainda não disponível para compra';
-
-  @override
-  String plans_catalog_bots_max(int count) {
-    return 'Até $count bots em execução';
-  }
-
-  @override
-  String get plans_catalog_default_badge => 'Plano padrão';
-
-  @override
-  String get plans_catalog_default_hint =>
-      'Incluído em todas as contas — sem compra necessária.';
-
-  @override
-  String plans_catalog_turnkey_max(int count) {
-    return 'Até $count bots prontos';
-  }
-
-  @override
-  String get plans_catalog_turnkey_unlimited => 'Bots prontos ilimitados';
-
-  @override
-  String get plans_catalog_own_bots_excluded => 'Bots próprios não incluídos';
-
-  @override
-  String get plans_catalog_turnkey_excluded => 'Bots prontos não incluídos';
-
-  @override
   String get subscription_upgrade_annual => 'Atualizar para anual';
 
   @override
