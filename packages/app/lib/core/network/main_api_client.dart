@@ -31,6 +31,16 @@ class MainApiClientException implements Exception {
   }
 }
 
+/// Réponse de `GET /gateway/snapshot` : la charge utile ET la version (`ETag`) qui
+/// l'accompagne. Les deux voyagent ensemble parce que c'est l'ETag, mémorisé par
+/// l'appelant, qui transforme le prochain appel en `304` (aucun retraitement).
+class GatewaySnapshotResponse {
+  const GatewaySnapshotResponse({required this.payload, this.etag});
+
+  final Map<String, dynamic> payload;
+  final String? etag;
+}
+
 class MainApiAuthorizationStart {
   const MainApiAuthorizationStart({
     required this.authorizeUrl,
@@ -1092,6 +1102,73 @@ class MainApiClient implements RemoteRuntimeClient {
   @override
   Future<Map<String, dynamic>> getGatewayRuntime() async {
     return _get('/gateway/runtime');
+  }
+
+  /// Comme `_get`, mais rend la réponse HTTP brute : indispensable pour lire l'ETag et
+  /// distinguer un 304 (rien n'a changé) d'un 200. On réutilise `_http`, `_headers` et
+  /// `_timeout` du client (même circuit breaker, mêmes entêtes d'auth).
+  Future<http.Response> _getRaw(
+    String path, {
+    Map<String, String>? headers,
+  }) async {
+    final uri = _uri(path);
+    final merged = <String, String>{..._headers(includeAuth: true), ...?headers};
+    final response = await _http.get(uri, headers: merged).timeout(_timeout);
+    _recordCircuitSuccess(_baseUrl);
+    appendBotDebugLog(
+      '[MainApiClient] GET $uri responded with ${response.statusCode}',
+    );
+    return response;
+  }
+
+  /// État complet (compte, bots, apps hébergées) en une seule requête.
+  ///
+  /// - 200 → la charge utile analysée ;
+  /// - 304 → `null` : rien n'a changé depuis `etag`, ne rien réappliquer ;
+  /// - 404 → lève une `MainApiClientException` : le manager est plus ancien, l'appelant
+  ///   doit retomber sur son repli « une requête par bot ».
+  Future<Map<String, dynamic>?> getGatewaySnapshot({String? etag}) async {
+    return (await getGatewaySnapshotWithEtag(etag: etag))?.payload;
+  }
+
+  /// Variante de [getGatewaySnapshot] qui rend AUSSI l'ETag de la réponse : c'est lui
+  /// qu'il faut renvoyer au prochain appel (`If-None-Match`) pour obtenir un `304` et
+  /// éviter de retélécharger l'état complet à chaque repli.
+  Future<GatewaySnapshotResponse?> getGatewaySnapshotWithEtag({
+    String? etag,
+  }) async {
+    final response = await _getRaw(
+      '/gateway/snapshot',
+      // `?etag` : l'entête est omise quand il n'y a pas encore de version mémorisée.
+      headers: {'If-None-Match': ?etag},
+    );
+    if (response.statusCode == 304) return null;
+    if (response.statusCode != 200) {
+      throw MainApiClientException(
+        'GET /gateway/snapshot failed with ${response.statusCode}',
+        statusCode: response.statusCode,
+      );
+    }
+    final decoded = jsonDecode(response.body);
+    if (decoded is! Map) {
+      throw const MainApiClientException(
+        'GET /gateway/snapshot returned a non-object body',
+      );
+    }
+    return GatewaySnapshotResponse(
+      payload: Map<String, dynamic>.from(decoded.cast<dynamic, dynamic>()),
+      etag: _headerIgnoreCase(response, 'etag'),
+    );
+  }
+
+  /// Lecture d'un entête HTTP indépendante de la casse : un `ETag` renvoyé en
+  /// majuscules par Go et un `etag` côté Dart doivent produire le même 304.
+  static String? _headerIgnoreCase(http.Response response, String name) {
+    final wanted = name.toLowerCase();
+    for (final entry in response.headers.entries) {
+      if (entry.key.toLowerCase() == wanted) return entry.value;
+    }
+    return null;
   }
 
   @override
