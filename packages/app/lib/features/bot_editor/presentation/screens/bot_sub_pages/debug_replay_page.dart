@@ -6,6 +6,7 @@ import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
 import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
+import 'package:bot_creator/core/network/poll_cadence.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:bot_creator/features/subscriptions/presentation/subscription_page.dart';
@@ -27,6 +28,16 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
   Timer? _runnerPollTimer;
   RunnerClient? _runnerClient;
   bool _usingRemoteData = false;
+
+  /// Cadence du sondage des replays : un écran laissé ouvert sur un bot calme ne doit
+  /// pas générer 24 requêtes par minute.
+  final PollCadence _replaysCadence = PollCadence(
+    nominal: const Duration(milliseconds: 2500),
+  );
+
+  /// Dernières entrées affichées, comparées en mémoire (aucune requête supplémentaire)
+  /// pour savoir si le tick courant apporte du neuf.
+  _ReplaysSnapshot? _lastReplaysSnapshot;
 
   List<DebugReplayRecord> _replays = const [];
   bool _capturing = false;
@@ -62,26 +73,46 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
     _runnerClient = client;
 
     try {
-      await _pollRunnerReplays(rethrowErrors: true);
+      final outcome = await _pollRunnerReplays(rethrowErrors: true);
       if (!mounted) return;
       setState(() => _usingRemoteData = true);
-      _runnerPollTimer = Timer.periodic(const Duration(milliseconds: 2500), (
-        _,
-      ) {
-        if (mounted) {
-          unawaited(_pollRunnerReplays());
-        }
-      });
+      // Le premier tick vient d'être fait : plus de `Timer.periodic` fixe, on n'arme que
+      // le suivant, à la cadence courante (adaptative).
+      _replaysCadence.consume(outcome);
+      _reschedulePolling();
     } catch (_) {
       _runnerClient = null;
     }
   }
 
-  Future<void> _pollRunnerReplays({bool rethrowErrors = false}) async {
+  /// Exécute un tick puis réarme le suivant : c'est ce réarmement, et non un
+  /// `Timer.periodic`, qui permet d'espacer les requêtes quand rien ne change.
+  Future<void> _pollAndReschedule() async {
+    final outcome = await _pollRunnerReplays();
+    _replaysCadence.consume(outcome);
+    // Réarmer une minuterie alors que la page est démontée laisse « A Timer is still
+    // pending even after the widget tree was disposed ».
+    if (!mounted) {
+      return;
+    }
+    _reschedulePolling();
+  }
+
+  void _reschedulePolling() {
+    _runnerPollTimer?.cancel();
+    _runnerPollTimer = Timer(_replaysCadence.current, () {
+      if (!mounted) {
+        return;
+      }
+      unawaited(_pollAndReschedule());
+    });
+  }
+
+  Future<TickOutcome> _pollRunnerReplays({bool rethrowErrors = false}) async {
     final client = _runnerClient;
     final botId = widget.botId?.trim() ?? '';
     if (client == null || botId.isEmpty) {
-      return;
+      return TickOutcome.unchanged;
     }
 
     RunnerDebugReplaySnapshot snapshot;
@@ -91,25 +122,42 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
       if (rethrowErrors) {
         rethrow;
       }
-      return;
+      // Un endpoint en échec ne doit pas être martelé : le compter comme inchangé espace
+      // le sondage, ce qui sert de repli progressif jusqu'au rétablissement.
+      return TickOutcome.unchanged;
     } catch (_) {
       if (rethrowErrors) {
         rethrow;
       }
-      return;
+      return TickOutcome.unchanged;
     }
 
     if (!mounted) {
-      return;
+      return TickOutcome.unchanged;
     }
 
     final remoteReplays = snapshot.replays
         .map(DebugReplayRecord.fromJson)
         .toList(growable: false);
+    final replays = _filtered(remoteReplays);
+    // Comparaison faite sur la charge utile déjà en mémoire : l'état de capture, le
+    // nombre d'entrées et la plus récente suffisent à détecter du neuf, sans requête
+    // supplémentaire ni comparaison de tout le contenu des frames.
+    final latest = replays.isEmpty ? null : replays.first;
+    final signature = (
+      capturing: snapshot.capturing,
+      count: replays.length,
+      last: latest == null
+          ? ''
+          : '${latest.triggeredAt.toIso8601String()}|${latest.commandLabel}|${latest.totalMs}',
+    );
+    final changed = signature != _lastReplaysSnapshot;
+    _lastReplaysSnapshot = signature;
     setState(() {
       _capturing = snapshot.capturing;
-      _replays = _filtered(remoteReplays);
+      _replays = replays;
     });
+    return changed ? TickOutcome.changed : TickOutcome.unchanged;
   }
 
   List<DebugReplayRecord> _filtered(List<DebugReplayRecord> all) {
@@ -348,6 +396,15 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
     setDebugReplayCapturing(enabled);
   }
 }
+
+/// Signature de ce que l'écran affiche, réduite à ce qui change visiblement (état de
+/// capture, nombre d'entrées, entrée la plus récente) : l'égalité structurelle du
+/// « record » suffit à détecter un changement sans requête supplémentaire.
+typedef _ReplaysSnapshot = ({
+  bool capturing,
+  int count,
+  String last,
+});
 
 class _ReplayListTile extends StatelessWidget {
   const _ReplayListTile({required this.replay, required this.onTap});
