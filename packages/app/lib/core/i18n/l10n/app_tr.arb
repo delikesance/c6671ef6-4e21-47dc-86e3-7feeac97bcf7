@@ -9266,8 +9266,8 @@
   "app_create_select_type_desc": "Başlamak için oluşturmak istediğiniz uygulama türünü seçin.",
   "app_create_type_discord": "Discord Botu",
   "app_create_type_discord_desc": "Eylemler, olaylar ve dinamik tuval panelleri ile özelleştirilebilir bir Discord botu oluşturun ve çalıştırın.",
-  "app_create_type_hosted": "Barındırılan Uygulama (Docker)",
-  "app_create_type_hosted_desc": "Tercih ettiğiniz dilde (NodeJS, Python, Java...) bir arka uç uygulaması, sunucu veya komut dosyası çalıştırın. Dosyaları yükleyin ve güvenli bir korumalı alanda paketleri yükleyin.",
+  "app_create_type_hosted": "Hazır Bot",
+  "app_create_type_hosted_desc": "7/24 barındırılan kullanıma hazır bir botu (müzik, moderasyon, araçlar...) saniyeler içinde dağıtın.",
   "app_create_coming_soon": "Çok yakında",
   "app_create_sample_title": "Örnek komut oluştur",
   "@app_create_sample_title": {
@@ -9534,6 +9534,15 @@
   "container_deploy_failed": "Dagitim basarisiz: {error}",
   "@container_deploy_failed": {
     "description": "Snackbar when deploy fails",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "container_deploy_token_invalid": "Geçersiz Discord bot belirteci: {error}",
+  "@container_deploy_token_invalid": {
+    "description": "Snackbar shown when turnkey Discord bot token validation fails",
     "placeholders": {
       "error": {
         "type": "String"

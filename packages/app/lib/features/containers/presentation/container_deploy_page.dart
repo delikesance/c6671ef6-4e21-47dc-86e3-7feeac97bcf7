@@ -179,7 +179,9 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(context.tr.container_deploy_ad_unlock_failed(e.toString())),
+            content: Text(
+              context.tr.container_deploy_ad_unlock_failed(e.toString()),
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -253,6 +255,24 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
 
     setState(() => _deploying = true);
     try {
+      // Technical Discord bot token validation
+      Map<String, dynamic>? botUser;
+      try {
+        botUser = await _client!.validateTurnkeyDiscordToken(token);
+      } catch (tokenErr) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                context.tr.container_deploy_token_invalid(tokenErr.toString()),
+              ),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return;
+      }
+
       final result = await _client!.deployContainer(
         image: _selectedTemplate.image,
         cpuMillis: _selectedTemplate.cpuMillis,
@@ -261,8 +281,25 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
         env: {'TOKEN': token},
       );
 
+      final containerId = result['container_id']?.toString() ?? '';
+      final botId = botUser['id']?.toString() ?? containerId;
+      final botName =
+          botUser['username']?.toString() ?? _selectedTemplate.title;
+
+      // Save turnkey bot in local AppManager so it appears in unified HomePage
+      try {
+        await AppManager().saveApp(botId, {
+          'id': botId,
+          'name': botName,
+          'token': token,
+          'is_turnkey': true,
+          'type': 'turnkey',
+          'container_id': containerId,
+          'template_slug': _selectedTemplate.slug ?? 'beatdock',
+        });
+      } catch (_) {}
+
       if (mounted) {
-        final containerId = result['container_id']?.toString() ?? '';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(context.tr.container_deploy_submitted_starting),
@@ -377,9 +414,7 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(context.tr.container_deploy_title),
-      ),
+      appBar: AppBar(title: Text(context.tr.container_deploy_title)),
       body: SafeArea(
         child: Form(
           key: _formKey,
@@ -427,7 +462,9 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
                               Container(
                                 padding: const EdgeInsets.all(10),
                                 decoration: BoxDecoration(
-                                  color: colorScheme.primary.withValues(alpha: 0.12),
+                                  color: colorScheme.primary.withValues(
+                                    alpha: 0.12,
+                                  ),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Icon(
@@ -442,16 +479,22 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      template.id == HostedAppTemplateId.easyMusic
-                                          ? context.tr.container_deploy_template_easy_music
+                                      template.id ==
+                                              HostedAppTemplateId.easyMusic
+                                          ? context
+                                                .tr
+                                                .container_deploy_template_easy_music
                                           : template.title,
-                                      style: theme.textTheme.titleSmall?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                      style: theme.textTheme.titleSmall
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
-                                      context.tr.container_deploy_managed_hosting,
+                                      context
+                                          .tr
+                                          .container_deploy_managed_hosting,
                                       style: TextStyle(
                                         color: colorScheme.onSurfaceVariant,
                                         fontSize: 12,
@@ -533,9 +576,8 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
                           ? Icons.visibility
                           : Icons.visibility_off,
                     ),
-                    onPressed: () => setState(
-                      () => _obscureBotToken = !_obscureBotToken,
-                    ),
+                    onPressed: () =>
+                        setState(() => _obscureBotToken = !_obscureBotToken),
                   ),
                 ),
                 validator: (val) {
@@ -550,7 +592,9 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
 
               // Guide / Prérequis Discord
               Card(
-                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
+                color: colorScheme.surfaceContainerHighest.withValues(
+                  alpha: 0.35,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                   side: BorderSide(

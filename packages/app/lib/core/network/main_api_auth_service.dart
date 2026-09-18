@@ -8,6 +8,7 @@ import 'package:bot_creator/core/analytics/activation_funnel.dart';
 import 'package:bot_creator/core/analytics/user_identity.dart';
 import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
 import 'package:bot_creator/core/utils/external_link.dart';
+import 'package:bot_creator/features/auth/presentation/desktop_oauth_webview.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:flutter/foundation.dart';
@@ -152,17 +153,25 @@ class MainApiAuthService {
         );
       }
 
-      final launched = await openExternalUrl(launchUri);
-      if (!launched) {
-        throw const MainApiClientException(
-          'Unable to open the system browser for Discord login.',
-        );
+      final webview = await DesktopOAuthWebView.open(
+        authorizeUri: launchUri,
+        redirectUri: redirectUri,
+      );
+
+      if (webview == null) {
+        final launched = await openExternalUrl(launchUri);
+        if (!launched) {
+          throw const MainApiClientException(
+            'Unable to open browser or in-app window for Discord login.',
+          );
+        }
       }
 
       HttpRequest callback;
       try {
         callback = await callbackServer.first.timeout(timeout);
       } on TimeoutException {
+        webview?.close();
         throw const MainApiClientException(
           'Discord login timed out before the callback was received.',
         );
@@ -197,6 +206,7 @@ class MainApiAuthService {
         '<html><body>Discord connected successfully. You can close this tab.</body></html>',
       );
       await callback.response.close();
+      webview?.close();
 
       return await client.completeDiscordAuthorization(
         code: code,

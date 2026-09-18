@@ -368,14 +368,13 @@ class _AppCreatePageState extends State<AppCreatePage> {
           });
         },
       ),
-      if (PremiumCapabilities.hostedAppsRolloutEnabled &&
-          !ResponsiveHelper.isDesktopPlatform())
+      if (PremiumCapabilities.hostedAppsRolloutEnabled)
         _TypeSelectionCard(
           title: context.tr.app_create_type_hosted,
           description: context.tr.app_create_type_hosted_desc,
-          icon: Icons.storage_rounded,
-          iconColor: Colors.teal,
-          iconBackgroundColor: Colors.teal.withValues(alpha: 0.12),
+          icon: Icons.smart_toy_rounded,
+          iconColor: const Color(0xFF5865F2),
+          iconBackgroundColor: const Color(0xFF5865F2).withValues(alpha: 0.12),
           onTap: () async {
             AppAnalytics.logEvent(
               name: "select_app_type",

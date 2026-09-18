@@ -9353,8 +9353,8 @@
   "app_create_select_type_desc": "開始するには、作成するアプリケーションの種類を選択してください。",
   "app_create_type_discord": "Discordボット",
   "app_create_type_discord_desc": "アクション、イベント、キャンバスレイヤーなどを使用して、カスタマイズ可能なDiscordボットを構築して実行します。",
-  "app_create_type_hosted": "ホスト型アプリケーション (Docker)",
-  "app_create_type_hosted_desc": "お好みの言語（NodeJS、Python、Javaなど）でバックエンドアプリ、サーバー、またはスクリプトを実行します。ファイルをアップロードし、安全なサンドボックスにパッケージをインストールします。",
+  "app_create_type_hosted": "既成ボット（ターンキー）",
+  "app_create_type_hosted_desc": "24時間365日常時稼働する既成ボット（音楽、モデレーション、ユーティリティなど）を数秒でデプロイします。",
   "app_create_coming_soon": "近日公開",
   "app_create_sample_title": "サンプルコマンドを作成",
   "@app_create_sample_title": {
@@ -9621,6 +9621,15 @@
   "container_deploy_failed": "デプロイに失敗しました: {error}",
   "@container_deploy_failed": {
     "description": "Snackbar when deploy fails",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "container_deploy_token_invalid": "無効なDiscordボットトークンです: {error}",
+  "@container_deploy_token_invalid": {
+    "description": "Snackbar shown when turnkey Discord bot token validation fails",
     "placeholders": {
       "error": {
         "type": "String"

@@ -89,6 +89,7 @@ dependencies:
   re_highlight: ^0.0.3
   google_fonts: ^6.2.1
   window_manager: ^0.5.2
+  desktop_webview_window: ^0.3.0
 
 
 dependency_overrides:

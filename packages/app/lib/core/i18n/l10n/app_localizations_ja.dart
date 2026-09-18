@@ -8115,11 +8115,11 @@ class AppLocalizationsJa extends AppLocalizations {
       'アクション、イベント、キャンバスレイヤーなどを使用して、カスタマイズ可能なDiscordボットを構築して実行します。';
 
   @override
-  String get app_create_type_hosted => 'ホスト型アプリケーション (Docker)';
+  String get app_create_type_hosted => '既成ボット（ターンキー）';
 
   @override
   String get app_create_type_hosted_desc =>
-      'お好みの言語（NodeJS、Python、Javaなど）でバックエンドアプリ、サーバー、またはスクリプトを実行します。ファイルをアップロードし、安全なサンドボックスにパッケージをインストールします。';
+      '24時間365日常時稼働する既成ボット（音楽、モデレーション、ユーティリティなど）を数秒でデプロイします。';
 
   @override
   String get app_create_coming_soon => '近日公開';
@@ -8357,6 +8357,11 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String container_deploy_failed(String error) {
     return 'デプロイに失敗しました: $error';
+  }
+
+  @override
+  String container_deploy_token_invalid(String error) {
+    return '無効なDiscordボットトークンです: $error';
   }
 
   @override
