@@ -186,6 +186,7 @@ void main() {
             'max_turnkey_bots': 1,
             'allow_turnkey': true,
             'allow_own_bots': false,
+            'is_default': true,
             'product_ids': <dynamic>[],
           },
         ],
@@ -195,10 +196,13 @@ void main() {
       expect(catalog.currentTierCode, 'FREE');
       expect(catalog.plans, hasLength(2));
       expect(catalog.plans.first.isPurchasable, isTrue);
+      expect(catalog.plans.first.isDefault, isFalse);
       expect(catalog.plans.first.maxBots, 5);
 
-      // Formule sans SKU : visible, mais non achetable (accordée à la main).
+      // Offre par défaut : visible (c'est le socle dont tout le monde dispose),
+      // jamais vendable — l'écran l'affiche sans bouton d'achat.
       final turnkeyOnly = catalog.plans.last;
+      expect(turnkeyOnly.isDefault, isTrue);
       expect(turnkeyOnly.allowOwnBots, isFalse);
       expect(turnkeyOnly.maxBots, 0);
       expect(turnkeyOnly.isPurchasable, isFalse);

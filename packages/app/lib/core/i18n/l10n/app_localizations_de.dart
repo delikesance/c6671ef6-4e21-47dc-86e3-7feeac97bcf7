@@ -7564,6 +7564,27 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get plans_catalog_default_badge => 'Standardtarif';
+
+  @override
+  String get plans_catalog_default_hint =>
+      'Für jedes Konto inklusive — kein Kauf nötig.';
+
+  @override
+  String plans_catalog_turnkey_max(int count) {
+    return 'Bis zu $count Turnkey-Bots';
+  }
+
+  @override
+  String get plans_catalog_turnkey_unlimited => 'Unbegrenzte Turnkey-Bots';
+
+  @override
+  String get plans_catalog_own_bots_excluded => 'Eigene Bots nicht enthalten';
+
+  @override
+  String get plans_catalog_turnkey_excluded => 'Turnkey-Bots nicht enthalten';
+
+  @override
   String get subscription_upgrade_annual => 'Auf Jahresabo upgraden';
 
   @override

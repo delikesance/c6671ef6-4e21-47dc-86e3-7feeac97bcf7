@@ -7155,6 +7155,26 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get plans_catalog_default_badge => '既定のプラン';
+
+  @override
+  String get plans_catalog_default_hint => 'すべてのアカウントに含まれます — 購入は不要です。';
+
+  @override
+  String plans_catalog_turnkey_max(int count) {
+    return '最大$count個のターンキーボット';
+  }
+
+  @override
+  String get plans_catalog_turnkey_unlimited => 'ターンキーボット無制限';
+
+  @override
+  String get plans_catalog_own_bots_excluded => '自分のボットは含まれません';
+
+  @override
+  String get plans_catalog_turnkey_excluded => 'ターンキーボットは含まれません';
+
+  @override
   String get subscription_upgrade_annual => '年間プランにアップグレード';
 
   @override

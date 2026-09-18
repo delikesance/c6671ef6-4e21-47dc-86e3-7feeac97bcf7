@@ -2167,6 +2167,7 @@ class PurchasablePlanInfo {
     required this.allowTurnkey,
     required this.allowOwnBots,
     required this.productIds,
+    this.isDefault = false,
   });
 
   final String code;
@@ -2180,6 +2181,10 @@ class PurchasablePlanInfo {
   final bool allowOwnBots;
   final List<String> productIds;
 
+  /// Formule attribuée d'office à tout compte sans abonnement (FREE) : elle
+  /// n'est jamais achetée, donc elle s'affiche comme un socle, sans bouton.
+  final bool isDefault;
+
   bool get isPurchasable => productIds.isNotEmpty;
 
   factory PurchasablePlanInfo.fromJson(Map<String, dynamic> json) {
@@ -2191,6 +2196,7 @@ class PurchasablePlanInfo {
       maxTurnkeyBots: ContainerInfo.parseInt(json['max_turnkey_bots'], 0),
       allowTurnkey: json['allow_turnkey'] != false,
       allowOwnBots: json['allow_own_bots'] != false,
+      isDefault: json['is_default'] == true,
       productIds: rawIds is List
           ? rawIds
                 .map((entry) => entry.toString())

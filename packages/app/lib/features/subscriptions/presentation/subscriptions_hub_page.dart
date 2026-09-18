@@ -102,22 +102,28 @@ class _SubscriptionsHubPageState extends State<SubscriptionsHubPage> {
 
   /// Résumé des droits d'une formule, dans les mêmes termes que le serveur :
   /// 0 = illimité, « non inclus » = la formule ne l'autorise pas du tout.
+  /// Chaque droit est chiffré, sinon « Bots illimités » chez l'offre gratuite
+  /// ferait passer une offre payante pour moins généreuse.
   String _planQuotaSummary(AppLocalizations tr, PurchasablePlanInfo plan) {
     final parts = <String>[];
-    if (plan.allowOwnBots) {
+    if (!plan.allowOwnBots) {
+      parts.add(tr.plans_catalog_own_bots_excluded);
+    } else {
       parts.add(
         plan.maxBots == 0
             ? tr.subscriptions_hub_unlimited_bots
             : tr.plans_catalog_bots_max(plan.maxBots),
       );
-    } else {
-      parts.add(tr.plan_limit_own_bots_title);
     }
-    parts.add(
-      plan.allowTurnkey
-          ? tr.subscriptions_hub_hosted_section
-          : tr.plan_limit_turnkey_title,
-    );
+    if (!plan.allowTurnkey) {
+      parts.add(tr.plans_catalog_turnkey_excluded);
+    } else {
+      parts.add(
+        plan.maxTurnkeyBots == 0
+            ? tr.plans_catalog_turnkey_unlimited
+            : tr.plans_catalog_turnkey_max(plan.maxTurnkeyBots),
+      );
+    }
     return parts.join(' · ');
   }
 
@@ -351,6 +357,8 @@ class _SubscriptionsHubPageState extends State<SubscriptionsHubPage> {
                         currentLabel: tr.plans_catalog_current,
                         chooseLabel: tr.plans_catalog_choose,
                         unavailableLabel: tr.plans_catalog_unavailable,
+                        defaultLabel: tr.plans_catalog_default_badge,
+                        defaultHint: tr.plans_catalog_default_hint,
                         busy: _busy,
                         onChoose: plan.isPurchasable
                             ? () => _choosePlan(plan)
@@ -392,6 +400,8 @@ class _PlanCatalogTile extends StatelessWidget {
     required this.currentLabel,
     required this.chooseLabel,
     required this.unavailableLabel,
+    required this.defaultLabel,
+    required this.defaultHint,
     required this.busy,
     this.onChoose,
   });
@@ -402,12 +412,22 @@ class _PlanCatalogTile extends StatelessWidget {
   final String currentLabel;
   final String chooseLabel;
   final String unavailableLabel;
+  final String defaultLabel;
+  final String defaultHint;
   final bool busy;
   final VoidCallback? onChoose;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    // L'offre par défaut est le socle : elle porte son propre badge et jamais de
+    // bouton d'achat. Une formule déjà souscrite ne se rachète pas non plus.
+    final badge = plan.isDefault
+        ? defaultLabel
+        : (isCurrent ? currentLabel : null);
+    final canBuy = !plan.isDefault && plan.isPurchasable && !isCurrent;
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
@@ -425,7 +445,7 @@ class _PlanCatalogTile extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (isCurrent)
+                if (badge != null)
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
@@ -436,7 +456,7 @@ class _PlanCatalogTile extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      currentLabel,
+                      badge,
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: theme.colorScheme.onSecondaryContainer,
                       ),
@@ -452,18 +472,28 @@ class _PlanCatalogTile extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: onChoose == null
-                  ? OutlinedButton(
-                      onPressed: null,
-                      child: Text(unavailableLabel),
-                    )
-                  : FilledButton.tonal(
-                      onPressed: busy ? null : onChoose,
-                      child: Text(chooseLabel),
-                    ),
-            ),
+            if (plan.isDefault)
+              Text(
+                defaultHint,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              )
+            else
+              SizedBox(
+                width: double.infinity,
+                child: canBuy
+                    ? FilledButton.tonal(
+                        onPressed: busy ? null : onChoose,
+                        child: Text(chooseLabel),
+                      )
+                    : OutlinedButton(
+                        onPressed: null,
+                        child: Text(
+                          isCurrent ? currentLabel : unavailableLabel,
+                        ),
+                      ),
+              ),
           ],
         ),
       ),
