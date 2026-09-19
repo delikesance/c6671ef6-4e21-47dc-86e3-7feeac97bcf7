@@ -94,6 +94,9 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
         final app = Map<String, dynamic>.from(raw);
         final id = app['id']?.toString() ?? '';
         if (id.isEmpty) continue;
+        // Une entrée marquée clé en main n'est pas un bot configuré (nettoyée au
+        // chargement par AppManager) : elle n'a rien à proposer comme token ici.
+        if (AppManager.isTurnkeyAppEntry(app)) continue;
         final full = await AppManager().getApp(id);
         final token = full['token']?.toString() ?? '';
         if (token.isEmpty) continue;
@@ -289,10 +292,12 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
 
     setState(() => _deploying = true);
     try {
-      // Technical Discord bot token validation
-      Map<String, dynamic>? botUser;
+      // Validation technique du token Discord : le serveur vérifie que le bot
+      // existe et que ses droits sont suffisants. L'identité Discord renvoyée
+      // n'est PLUS persistée — un bot clé en main est un CONTENEUR, pas un bot
+      // local (voir la note après le déploiement).
       try {
-        botUser = await _client!.validateTurnkeyDiscordToken(token);
+        await _client!.validateTurnkeyDiscordToken(token);
       } catch (tokenErr) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -316,22 +321,16 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
       );
 
       final containerId = result['container_id']?.toString() ?? '';
-      final botId = botUser['id']?.toString() ?? containerId;
-      final botName =
-          botUser['username']?.toString() ?? _selectedTemplate.title;
 
-      // Save turnkey bot in local AppManager so it appears in unified HomePage
-      try {
-        await AppManager().saveApp(botId, {
-          'id': botId,
-          'name': botName,
-          'token': token,
-          'is_turnkey': true,
-          'type': 'turnkey',
-          'container_id': containerId,
-          'template_slug': _selectedTemplate.slug ?? 'beatdock',
-        });
-      } catch (_) {}
+      // AUCUN enregistrement local ici, délibérément. Un bot clé en main est un
+      // CONTENEUR piloté par le serveur, sans configuration à éditer : l'accueil
+      // le liste via `listContainers()` (carte `HomeTurnkeyContainerCard`).
+      // L'ancien `AppManager().saveApp(...)` fabriquait un faux bot local sous
+      // l'ID DISCORD du bot, avec une config vide/par défaut, le token Discord en
+      // clair (alors qu'il vit déjà dans l'environnement du conteneur) et une
+      // ligne de bot fantôme côté manager — avec le risque d'ÉCRASER un vrai bot
+      // configuré portant le même ID Discord. Les entrées déjà créées chez les
+      // utilisateurs sont nettoyées par `AppManager.purgeTurnkeyAppEntries()`.
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
