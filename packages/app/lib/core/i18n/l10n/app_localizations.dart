@@ -15184,6 +15184,24 @@ abstract class AppLocalizations {
   /// **'Paste Discord bot token here'**
   String get container_deploy_paste_token_hint;
 
+  /// Section header for the environment variables declared by a turnkey template
+  ///
+  /// In en, this message translates to:
+  /// **'Environment Variables'**
+  String get container_deploy_env_fields_section;
+
+  /// Helper text on a template environment variable the server fills in (read-only field)
+  ///
+  /// In en, this message translates to:
+  /// **'Provided by the server'**
+  String get container_deploy_env_server_provided;
+
+  /// Validation error for a required turnkey template environment variable
+  ///
+  /// In en, this message translates to:
+  /// **'The field {field} is required.'**
+  String container_deploy_env_field_required(String field);
+
   /// Header for Discord prerequisites advice box
   ///
   /// In en, this message translates to:

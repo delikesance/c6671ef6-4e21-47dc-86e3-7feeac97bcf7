@@ -8342,6 +8342,17 @@ class AppLocalizationsJa extends AppLocalizations {
   String get container_deploy_paste_token_hint => 'Discord Botのトークンをここに貼り付け';
 
   @override
+  String get container_deploy_env_fields_section => '環境変数';
+
+  @override
+  String get container_deploy_env_server_provided => 'サーバーが設定します';
+
+  @override
+  String container_deploy_env_field_required(String field) {
+    return '「$field」は必須です。';
+  }
+
+  @override
   String get container_deploy_discord_prereqs => 'Discordの前提条件';
 
   @override

@@ -6,8 +6,10 @@ import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/features/containers/logic/hosted_app_hosting_actions.dart';
 import 'package:bot_creator/features/containers/logic/hosted_app_templates.dart';
+import 'package:bot_creator/features/containers/logic/turnkey_env_payload.dart';
 import 'package:bot_creator/features/containers/presentation/container_detail_page.dart';
 import 'package:bot_creator/features/containers/presentation/hosted_app_upsell_widgets.dart';
+import 'package:bot_creator/features/containers/presentation/turnkey_env_fields.dart';
 import 'package:bot_creator/features/subscriptions/presentation/subscriptions_hub_page.dart';
 import 'package:flutter/material.dart';
 
@@ -46,6 +48,11 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
   final _formKey = GlobalKey<FormState>();
   final _botTokenCtrl = TextEditingController();
 
+  /// Un contrôleur par variable À SAISIR du template sélectionné (le token
+  /// Discord a le sien, au-dessus : [_botTokenCtrl]).
+  final Map<String, TextEditingController> _envCtrls =
+      <String, TextEditingController>{};
+
   HostedAppTemplate _selectedTemplate = easyMusicBotTemplate;
   List<Map<String, dynamic>> _localBots = const [];
   String? _selectedBotId;
@@ -60,7 +67,47 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
   @override
   void initState() {
     super.initState();
+    _syncEnvControllers();
     unawaited(_initClient());
+  }
+
+  @override
+  void dispose() {
+    _botTokenCtrl.dispose();
+    for (final controller in _envCtrls.values) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  /// Variables du template que l'utilisateur doit saisir (le token Discord est
+  /// rendu à part, par son champ dédié).
+  List<HostedAppEnvField> get _userEnvFields =>
+      turnkeyUserEnvFields(_selectedTemplate);
+
+  /// Clés du token Discord DÉCLARÉES par le template : c'est le champ token
+  /// dédié qui les alimente, quel que soit le nom exact déclaré.
+  List<String> get _tokenEnvKeys => turnkeyTokenEnvFields(_selectedTemplate)
+      .map((field) => field.key.trim())
+      .toList(growable: false);
+
+  /// (Re)construit les contrôleurs du formulaire d'environnement quand le modèle
+  /// sélectionné change : chaque variable est pré-remplie avec la valeur par
+  /// défaut déclarée, et les contrôleurs des variables disparues sont libérés.
+  void _syncEnvControllers() {
+    final fields = _userEnvFields;
+    final wanted = <String>{for (final field in fields) field.key.trim()};
+    for (final key in _envCtrls.keys.toList()) {
+      if (!wanted.contains(key)) {
+        _envCtrls.remove(key)?.dispose();
+      }
+    }
+    for (final field in fields) {
+      _envCtrls.putIfAbsent(
+        field.key.trim(),
+        () => TextEditingController(text: initialTurnkeyEnvValue(field)),
+      );
+    }
   }
 
   Future<void> _initClient() async {
@@ -312,12 +359,26 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
         return;
       }
 
+      // L'env envoyé est celui du SCHÉMA du template : le token Discord alimente
+      // les variables token déclarées, chaque autre variable prend la saisie de
+      // l'utilisateur ou le défaut déclaré, et les variables imposées par le
+      // serveur (fixed / source "node") ne partent jamais avec une valeur
+      // inventée côté app.
+      final env = buildTurnkeyEnvPayload(
+        template: _selectedTemplate,
+        botToken: token,
+        userValues: <String, String>{
+          for (final entry in _envCtrls.entries) entry.key: entry.value.text,
+          for (final key in _tokenEnvKeys) key: token,
+        },
+      );
+
       final result = await _client!.deployContainer(
         image: _selectedTemplate.image,
         cpuMillis: _selectedTemplate.cpuMillis,
         memoryMb: _selectedTemplate.memoryMb,
         storageGb: _selectedTemplate.storageGb,
-        env: {'TOKEN': token},
+        env: env,
       );
 
       final containerId = result['container_id']?.toString() ?? '';
@@ -491,7 +552,10 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
                   child: InkWell(
                     borderRadius: BorderRadius.circular(16),
                     onTap: () {
-                      setState(() => _selectedTemplate = template);
+                      setState(() {
+                        _selectedTemplate = template;
+                        _syncEnvControllers();
+                      });
                     },
                     child: Padding(
                       padding: const EdgeInsets.all(16),
@@ -628,6 +692,23 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
                   return null;
                 },
               ),
+
+              // Un champ par variable DÉCLARÉE par le modèle sélectionné : rien
+              // n'est supposé côté app, le schéma du template fait foi.
+              if (_userEnvFields.isNotEmpty) ...[
+                const SizedBox(height: 20),
+                Text(
+                  context.tr.container_deploy_env_fields_section,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TurnkeyEnvFieldsSection(
+                  template: _selectedTemplate,
+                  controllers: _envCtrls,
+                ),
+              ],
 
               const SizedBox(height: 16),
 

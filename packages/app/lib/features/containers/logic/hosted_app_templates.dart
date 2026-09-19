@@ -10,6 +10,9 @@ class HostedAppEnvField {
     this.defaultValue = '',
     this.required = true,
     this.secret = false,
+    this.fixed = false,
+    this.source = '',
+    this.nodeVariable = '',
   });
 
   final String key;
@@ -18,6 +21,31 @@ class HostedAppEnvField {
   final bool required;
   final bool secret;
 
+  /// Le serveur impose la valeur : l'utilisateur ne peut pas la saisir et
+  /// l'app ne doit jamais en inventer une.
+  final bool fixed;
+
+  /// Origine de la valeur telle que déclarée par le template :
+  /// `""` (saisie utilisateur), `"value"` ou `"node"` (nœud d'hébergement).
+  final String source;
+
+  /// Variable du nœud d'hébergement qui alimente ce champ
+  /// (clé `source_variable` du schéma, renseignée quand `source == "node"`).
+  final String nodeVariable;
+
+  /// Vrai si la valeur est décidée par le serveur : champ figé (`fixed`) ou
+  /// alimenté par un nœud d'hébergement (`source == "node"`). Un champ
+  /// verrouillé s'affiche en lecture seule et ne part jamais avec une valeur
+  /// inventée côté app.
+  bool get isLocked => fixed || source.toLowerCase() == 'node';
+
+  /// Libellé affichable : celui du template, sinon la clé technique (identifiant
+  /// déclaré par le serveur, pas un texte d'UI à traduire).
+  String get displayLabel {
+    final raw = label?.trim() ?? '';
+    return raw.isNotEmpty ? raw : key.trim();
+  }
+
   factory HostedAppEnvField.fromJson(Map<String, dynamic> json) {
     return HostedAppEnvField(
       key: json['key']?.toString() ?? '',
@@ -25,6 +53,9 @@ class HostedAppEnvField {
       defaultValue: json['default_value']?.toString() ?? '',
       required: json['required'] == true,
       secret: json['secret'] == true,
+      fixed: json['fixed'] == true,
+      source: json['source']?.toString() ?? '',
+      nodeVariable: json['source_variable']?.toString() ?? '',
     );
   }
 }
@@ -63,7 +94,10 @@ class HostedAppTemplate {
   final List<String> tips;
 
   factory HostedAppTemplate.fromJson(Map<String, dynamic> json) {
-    final envRaw = json['env_fields'];
+    // Le manager sert `env_fields_schema` (schéma déclaratif : fixed, source,
+    // default_value…). `env_fields` reste accepté en repli pour ne pas casser
+    // une réponse plus ancienne.
+    final envRaw = json['env_fields_schema'] ?? json['env_fields'];
     final envFields = <HostedAppEnvField>[];
     if (envRaw is List) {
       for (final e in envRaw) {

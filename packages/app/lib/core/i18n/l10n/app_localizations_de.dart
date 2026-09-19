@@ -8806,6 +8806,18 @@ class AppLocalizationsDe extends AppLocalizations {
       'Discord-Bot-Token hier einfügen';
 
   @override
+  String get container_deploy_env_fields_section => 'Umgebungsvariablen';
+
+  @override
+  String get container_deploy_env_server_provided =>
+      'Vom Server bereitgestellt';
+
+  @override
+  String container_deploy_env_field_required(String field) {
+    return 'Das Feld $field ist erforderlich.';
+  }
+
+  @override
   String get container_deploy_discord_prereqs => 'Discord-Voraussetzungen';
 
   @override

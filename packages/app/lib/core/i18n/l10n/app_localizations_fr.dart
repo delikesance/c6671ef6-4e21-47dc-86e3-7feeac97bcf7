@@ -8820,6 +8820,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String get container_deploy_paste_token_hint => 'Collez le token Discord ici';
 
   @override
+  String get container_deploy_env_fields_section =>
+      'Variables d\'environnement';
+
+  @override
+  String get container_deploy_env_server_provided => 'Fourni par le serveur';
+
+  @override
+  String container_deploy_env_field_required(String field) {
+    return 'Le champ $field est requis.';
+  }
+
+  @override
   String get container_deploy_discord_prereqs => 'Prérequis Discord';
 
   @override
