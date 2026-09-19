@@ -203,9 +203,24 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
     // l'abonnement store) : si elle n'inclut pas le clé en main, inutile
     // d'aller plus loin, le déploiement sera refusé.
     if (!elig.allowTurnkey) return _DeployBlockReason.planLimit;
-    if (!elig.premium && elig.activeContainers >= elig.maxContainers) {
+    // Le VERDICT DU SERVEUR prime : c'est lui qui applique le quota au démarrage.
+    // Les heuristiques ci-dessous ne servent que de repli pour un serveur qui ne
+    // renverrait pas ces champs.
+    if (!elig.canDeploy) {
+      if (elig.isBlockedByNoMinutes) return _DeployBlockReason.noMinutes;
+      if (elig.isBlockedByPlan) return _DeployBlockReason.planLimit;
       return _DeployBlockReason.containerLimit;
     }
+    // Le quota de conteneurs s'applique à TOUT LE MONDE, premium compris : une
+    // formule d'hébergement en cours ne crée pas de place supplémentaire. Un bot
+    // clé en main n'ayant aucune configuration à sauvegarder, on le refuse AVANT la
+    // saisie du token plutôt que de laisser remplir un formulaire sans issue.
+    // (0 = illimité, d'où le garde-fou sur la valeur du plafond.)
+    if (elig.maxContainers > 0 && elig.activeContainers >= elig.maxContainers) {
+      return _DeployBlockReason.containerLimit;
+    }
+    // En revanche, l'exigence de minutes ne concerne que l'hébergement ad-financé :
+    // un compte couvert par une formule n'a pas de minutes à consommer.
     if (!elig.premium && elig.hostingMinutesBalance <= 0) {
       return _DeployBlockReason.noMinutes;
     }
