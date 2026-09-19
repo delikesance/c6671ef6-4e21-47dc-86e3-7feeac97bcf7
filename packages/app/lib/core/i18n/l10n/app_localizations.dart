@@ -3311,11 +3311,41 @@ abstract class AppLocalizations {
   /// **'Token saved, but privileged intents could not be enabled automatically. Enable them in the Discord Developer Portal.'**
   String get bot_settings_intents_auto_enable_failed;
 
+  /// Add a fallback server button
+  ///
+  /// In en, this message translates to:
+  /// **'Add a fallback server'**
+  String get bot_settings_lavalink_add_fallback;
+
   /// Choose a public server button
   ///
   /// In en, this message translates to:
   /// **'Choose a public server...'**
   String get bot_settings_lavalink_choose_server;
+
+  /// Music (Lavalink) switch subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'The bot tries the public servers on its own; no server choice is needed.'**
+  String get bot_settings_lavalink_enable_subtitle;
+
+  /// Music (Lavalink) switch title
+  ///
+  /// In en, this message translates to:
+  /// **'Music (Lavalink)'**
+  String get bot_settings_lavalink_enable_title;
+
+  /// Explanation that public servers are tried first
+  ///
+  /// In en, this message translates to:
+  /// **'Public servers are tried first. Your servers are used as a fallback when none answers.'**
+  String get bot_settings_lavalink_fallback_desc;
+
+  /// Fallback servers section title
+  ///
+  /// In en, this message translates to:
+  /// **'My fallback servers'**
+  String get bot_settings_lavalink_fallback_title;
 
   /// Host field label
   ///
@@ -3328,6 +3358,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'localhost or Lavalink server IP'**
   String get bot_settings_lavalink_host_hint;
+
+  /// Validation error for a fallback server
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a host and a port between 1 and 65535.'**
+  String get bot_settings_lavalink_invalid_server;
+
+  /// Empty state of the fallback servers list
+  ///
+  /// In en, this message translates to:
+  /// **'No fallback server yet.'**
+  String get bot_settings_lavalink_no_fallback;
 
   /// Password field label
   ///
@@ -3371,16 +3413,22 @@ abstract class AppLocalizations {
   /// **'Public servers'**
   String get bot_settings_lavalink_public_servers;
 
+  /// Remove a fallback server button
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get bot_settings_lavalink_remove_fallback;
+
   /// Save button on Lavalink tab
   ///
   /// In en, this message translates to:
   /// **'Save'**
   String get bot_settings_lavalink_save_btn;
 
-  /// Caption explaining the bot needs this config to connect
+  /// Caption explaining the bot tries public servers then the fallback ones
   ///
   /// In en, this message translates to:
-  /// **'Save this configuration so the bot can connect to the Lavalink server.'**
+  /// **'Save so the bot tries the public servers first, then your fallback servers.'**
   String get bot_settings_lavalink_save_caption;
 
   /// Lavalink server section title
@@ -3388,6 +3436,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Lavalink Server'**
   String get bot_settings_lavalink_section_title;
+
+  /// Fallback server card title
+  ///
+  /// In en, this message translates to:
+  /// **'Fallback server {index}'**
+  String bot_settings_lavalink_server_number(int index);
 
   /// Public Lavalink servers picker dialog title
   ///

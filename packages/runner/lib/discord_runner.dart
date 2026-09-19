@@ -77,7 +77,11 @@ class DiscordRunner {
         previousConfig.token.trim() != newConfig.token.trim() ||
         !_sameIntents(previousConfig.intents, newConfig.intents) ||
         previousConfig.autoSharding != newConfig.autoSharding ||
-        (previousConfig.lavalinkConfig != null) != (newConfig.lavalinkConfig != null);
+        // Musique : on compare l'ÉTAT réel. Un bloc `lavalink` présent mais éteint
+        // (`enabled: false`, cas d'un compte non premium) ne doit pas faire croire
+        // que la musique est configurée ; allumer ou éteindre doit reconnecter.
+        (previousConfig.lavalinkConfig?.enabled ?? false) !=
+            (newConfig.lavalinkConfig?.enabled ?? false);
 
     config = newConfig;
     store.updateConfig(newConfig);

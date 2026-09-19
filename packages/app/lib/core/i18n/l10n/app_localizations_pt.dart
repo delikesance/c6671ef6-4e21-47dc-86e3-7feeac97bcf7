@@ -1872,8 +1872,27 @@ class AppLocalizationsPt extends AppLocalizations {
       'Token guardado, mas os intents privilegiados nao puderam ser ativados automaticamente. Ative-os no Discord Developer Portal.';
 
   @override
+  String get bot_settings_lavalink_add_fallback =>
+      'Adicionar servidor de reserva';
+
+  @override
   String get bot_settings_lavalink_choose_server =>
       'Escolher um servidor público...';
+
+  @override
+  String get bot_settings_lavalink_enable_subtitle =>
+      'O bot testa os servidores públicos por conta própria; nenhuma escolha de servidor é necessária.';
+
+  @override
+  String get bot_settings_lavalink_enable_title => 'Música (Lavalink)';
+
+  @override
+  String get bot_settings_lavalink_fallback_desc =>
+      'Os servidores públicos são testados primeiro. Seus servidores são usados como reserva quando nenhum responde.';
+
+  @override
+  String get bot_settings_lavalink_fallback_title =>
+      'Meus servidores de reserva';
 
   @override
   String get bot_settings_lavalink_host => 'Host';
@@ -1881,6 +1900,14 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get bot_settings_lavalink_host_hint =>
       'localhost ou IP do servidor Lavalink';
+
+  @override
+  String get bot_settings_lavalink_invalid_server =>
+      'Informe um host e uma porta entre 1 e 65535.';
+
+  @override
+  String get bot_settings_lavalink_no_fallback =>
+      'Ainda não há servidor de reserva.';
 
   @override
   String get bot_settings_lavalink_password => 'Palavra-passe';
@@ -1906,14 +1933,22 @@ class AppLocalizationsPt extends AppLocalizations {
   String get bot_settings_lavalink_public_servers => 'Servidores públicos';
 
   @override
+  String get bot_settings_lavalink_remove_fallback => 'Remover';
+
+  @override
   String get bot_settings_lavalink_save_btn => 'Guardar';
 
   @override
   String get bot_settings_lavalink_save_caption =>
-      'Guarde esta configuração para que o bot se possa ligar ao servidor Lavalink.';
+      'Salve para o bot tentar primeiro os servidores públicos e depois os seus servidores de reserva.';
 
   @override
   String get bot_settings_lavalink_section_title => 'Servidor Lavalink';
+
+  @override
+  String bot_settings_lavalink_server_number(int index) {
+    return 'Servidor de reserva $index';
+  }
 
   @override
   String get bot_settings_lavalink_server_picker_title =>

@@ -1841,7 +1841,24 @@ class AppLocalizationsTr extends AppLocalizations {
       'Token kaydedildi, ancak ayricalikli intent\'ler otomatik olarak etkinlestirilemedi. Discord Developer Portal\'da etkinlestirin.';
 
   @override
+  String get bot_settings_lavalink_add_fallback => 'Yedek sunucu ekle';
+
+  @override
   String get bot_settings_lavalink_choose_server => 'Genel bir sunucu seç...';
+
+  @override
+  String get bot_settings_lavalink_enable_subtitle =>
+      'Bot genel sunucuları kendi dener; sunucu seçimi gerekmez.';
+
+  @override
+  String get bot_settings_lavalink_enable_title => 'Müzik (Lavalink)';
+
+  @override
+  String get bot_settings_lavalink_fallback_desc =>
+      'Önce genel sunucular denenir. Hiçbiri yanıt vermezse kendi sunucularınız yedek olarak kullanılır.';
+
+  @override
+  String get bot_settings_lavalink_fallback_title => 'Yedek sunucularım';
 
   @override
   String get bot_settings_lavalink_host => 'Sunucu';
@@ -1849,6 +1866,13 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get bot_settings_lavalink_host_hint =>
       'localhost veya Lavalink sunucu IP\'si';
+
+  @override
+  String get bot_settings_lavalink_invalid_server =>
+      'Bir ana bilgisayar ve 1 ile 65535 arasında bir port girin.';
+
+  @override
+  String get bot_settings_lavalink_no_fallback => 'Henüz yedek sunucu yok.';
 
   @override
   String get bot_settings_lavalink_password => 'Parola';
@@ -1874,14 +1898,22 @@ class AppLocalizationsTr extends AppLocalizations {
   String get bot_settings_lavalink_public_servers => 'Genel sunucular';
 
   @override
+  String get bot_settings_lavalink_remove_fallback => 'Kaldır';
+
+  @override
   String get bot_settings_lavalink_save_btn => 'Kaydet';
 
   @override
   String get bot_settings_lavalink_save_caption =>
-      'Botun Lavalink sunucusuna bağlanabilmesi için bu yapılandırmayı kaydedin.';
+      'Kaydedin: bot önce genel sunucuları, ardından yedek sunucularınızı dener.';
 
   @override
   String get bot_settings_lavalink_section_title => 'Lavalink Sunucusu';
+
+  @override
+  String bot_settings_lavalink_server_number(int index) {
+    return 'Yedek sunucu $index';
+  }
 
   @override
   String get bot_settings_lavalink_server_picker_title =>

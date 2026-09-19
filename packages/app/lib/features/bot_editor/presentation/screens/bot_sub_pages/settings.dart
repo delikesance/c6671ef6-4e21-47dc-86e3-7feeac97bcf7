@@ -27,10 +27,7 @@ import 'package:bot_creator/core/discord/discord_intent_sync.dart';
 import 'package:bot_creator/core/discord/portal_intent_feedback.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/editor_sub_page_ui.dart';
-import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
-import 'package:bot_creator/features/subscriptions/presentation/subscription_page.dart';
-import 'package:bot_creator_shared/services/lavalink_list_service.dart';
-import 'package:bot_creator_shared/services/lavalink_service.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/lavalink_settings_section.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'dart:developer' as developer;
 
@@ -68,14 +65,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   String? _runnerVersion;
   String _runtimeEngine = runtimeEngineDart;
   bool _isSwitchingRuntimeEngine = false;
-  // Lavalink fields
-  final TextEditingController _lavalinkHostController = TextEditingController();
-  final TextEditingController _lavalinkPortController = TextEditingController();
-  final TextEditingController _lavalinkPasswordController =
-      TextEditingController();
-  bool _lavalinkSsl = false;
-  bool _isSavingLavalink = false;
-  bool _lavalinkPasswordVisible = false;
+  // Lavalink : la page ne pilote que l'interrupteur et les serveurs de repli
+  // (schéma figé « lavalink » : enabled + custom_servers). La liste publique est
+  // sondée par le bot, jamais choisie ni stockée ici.
+  Map<String, dynamic>? _lavalinkConfigRaw;
   // External Database fields (JavaScript bots)
   String _databaseType = 'none';
   final TextEditingController _databaseUriController = TextEditingController();
@@ -89,13 +82,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   bool _showAdvancedDbFields = false;
   bool _isSavingDatabase = false;
   bool _databasePasswordVisible = false;
-  // Connection test
-  bool _isTestingConnection = false;
-  String? _connectionTestResult;
-  // Public server list
-  final LavalinkListService _lavalinkListService = LavalinkListService();
-  List<LavalinkServerEntry>? _publicServers;
-  bool _isLoadingServers = false;
 
   static const List<String> _statusTypes = <String>[
     'playing',
@@ -215,9 +201,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     _tokenController.dispose();
     _prefixController.dispose();
     _usernameController.dispose();
-    _lavalinkHostController.dispose();
-    _lavalinkPortController.dispose();
-    _lavalinkPasswordController.dispose();
     _databaseUriController.dispose();
     _databaseHostController.dispose();
     _databasePortController.dispose();
@@ -294,16 +277,12 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
           )
           ? runtimeEngineJavascript
           : runtimeEngineDart;
-      // Lavalink config
-      final lavalinkConfig =
-          (persistedApp['lavalinkConfig'] as Map<String, dynamic>?) ?? {};
-      _lavalinkHostController.text = (lavalinkConfig['host'] ?? '').toString();
-      _lavalinkPortController.text = (lavalinkConfig['port'] ?? '2333')
-          .toString();
-      _lavalinkPasswordController.text =
-          (lavalinkConfig['password'] ?? 'youshallnotpass').toString();
-      _lavalinkSsl =
-          (lavalinkConfig['useSsl'] == true) || (lavalinkConfig['ssl'] == true);
+      // Lavalink config (schéma figé : enabled + custom_servers ; l'ancienne
+      // forme est relue par le module, jamais réécrite).
+      final lavalinkConfig = persistedApp['lavalinkConfig'];
+      _lavalinkConfigRaw = lavalinkConfig is Map
+          ? Map<String, dynamic>.from(lavalinkConfig)
+          : null;
       // Database config
       final databaseConfig =
           (persistedApp['databaseConfig'] as Map<String, dynamic>?) ?? {};
@@ -331,11 +310,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     });
   }
 
-  Future<void> _saveLavalinkOnly() async {
-    setState(() {
-      _isSavingLavalink = true;
-    });
-
+  /// Persiste la charge utile Lavalink conforme au schéma figé
+  /// (`enabled` + `custom_servers`) — l'ancienne forme n'est plus écrite.
+  Future<void> _saveLavalinkConfig(Map<String, dynamic> lavalinkConfig) async {
     try {
       final botId = widget.client.user.id.toString();
       final appData = Map<String, dynamic>.from(await appManager.getApp(botId));
@@ -343,13 +320,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       if (token.isEmpty) {
         throw Exception(context.tr.bot_settings_save_token_first);
       }
-
-      final lavalinkConfig = <String, dynamic>{
-        'host': _lavalinkHostController.text.trim(),
-        'port': _lavalinkPortController.text.trim(),
-        'password': _lavalinkPasswordController.text,
-        'useSsl': _lavalinkSsl,
-      };
 
       final latestAppData = Map<String, dynamic>.from(appData);
       latestAppData['token'] = token;
@@ -387,12 +357,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
           return dialog;
         },
       );
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isSavingLavalink = false;
-        });
-      }
     }
   }
 
@@ -462,87 +426,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
           _isSavingDatabase = false;
         });
       }
-    }
-  }
-
-  Future<void> _testLavalinkConnection() async {
-    setState(() {
-      _isTestingConnection = true;
-      _connectionTestResult = null;
-    });
-
-    final host = _lavalinkHostController.text.trim();
-    final port = int.tryParse(_lavalinkPortController.text.trim()) ?? 2333;
-    final password = _lavalinkPasswordController.text.trim();
-    final useSsl = _lavalinkSsl;
-
-    final error = await LavalinkService.testConnection(
-      host: host,
-      port: port,
-      password: password,
-      useSsl: useSsl,
-    );
-
-    if (mounted) {
-      setState(() {
-        _isTestingConnection = false;
-        _connectionTestResult = error ?? '';
-      });
-    }
-  }
-
-  Future<void> _loadPublicServers() async {
-    if (_isLoadingServers) return;
-    setState(() => _isLoadingServers = true);
-    try {
-      final servers = await _lavalinkListService.getServers();
-      if (mounted) setState(() => _publicServers = servers);
-    } finally {
-      if (mounted) setState(() => _isLoadingServers = false);
-    }
-  }
-
-  Future<void> _showServerPicker(BuildContext context) async {
-    // Load servers on first open
-    if (_publicServers == null) await _loadPublicServers();
-    if (_publicServers == null || _publicServers!.isEmpty) return;
-
-    final server = await showDialog<LavalinkServerEntry>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(context.tr.bot_settings_lavalink_server_picker_title),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: _publicServers!.length,
-            itemBuilder: (ctx, i) {
-              final s = _publicServers![i];
-              return ListTile(
-                leading: Icon(s.secure ? Icons.lock : Icons.public, size: 20),
-                title: Text(s.host, style: const TextStyle(fontSize: 14)),
-                subtitle: Text(
-                  context.tr.bot_settings_lavalink_server_subtitle(
-                    s.port.toString(),
-                    s.version,
-                  ),
-                  style: const TextStyle(fontSize: 12),
-                ),
-                onTap: () => Navigator.pop(ctx, s),
-              );
-            },
-          ),
-        ),
-      ),
-    );
-
-    if (server != null && mounted) {
-      setState(() {
-        _lavalinkHostController.text = server.host;
-        _lavalinkPortController.text = server.port.toString();
-        _lavalinkPasswordController.text = server.password;
-        _lavalinkSsl = server.secure;
-      });
     }
   }
 
@@ -1752,346 +1635,14 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   }
 
   Widget _buildLavalinkTab() {
-    final isPremium = PremiumCapabilities.hasCapability(
-      PremiumCapability.lavalinkAudio,
-    );
-    final canPurchase = PremiumCapabilities.canShowPurchaseUI;
-
-    final scheme = Theme.of(context).colorScheme;
-    final inputDecoration = InputDecoration(
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: scheme.outlineVariant),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: scheme.outlineVariant),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: scheme.primary, width: 2),
-      ),
-      filled: true,
-      fillColor: scheme.surfaceContainerHighest.withValues(alpha: 0.5),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-    );
-
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: _tabContentPadding(context),
       child: Center(
         child: PageContent(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Premium banner
-              if (!isPremium) ...[
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppTheme.discord.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: AppTheme.discord.withValues(alpha: 0.3),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.lock, color: AppTheme.discord),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              context
-                                  .tr
-                                  .bot_settings_lavalink_premium_banner_title,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: AppTheme.discord,
-                              ),
-                            ),
-                            if (canPurchase)
-                              Text(
-                                context
-                                    .tr
-                                    .bot_settings_lavalink_premium_banner_desc,
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: AppTheme.grey,
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                      if (canPurchase) ...[
-                        const SizedBox(width: 12),
-                        ElevatedButton(
-                          onPressed: () {
-                            SubscriptionPage.show(context);
-                          },
-                          child: Text(
-                            context.tr.bot_settings_lavalink_view_offers,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-              ],
-
-              // Section title
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Row(
-                  children: [
-                    Icon(Icons.music_note, color: AppTheme.discord),
-                    const SizedBox(width: 10),
-                    Text(
-                      context.tr.bot_settings_lavalink_section_title,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 8),
-
-              // Public server list picker
-              if (isPremium) ...[
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.public,
-                              size: 16,
-                              color: AppTheme.discord,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              context.tr.bot_settings_lavalink_public_servers,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const Spacer(),
-                            if (_isLoadingServers)
-                              const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        SizedBox(
-                          width: double.infinity,
-                          child: OutlinedButton.icon(
-                            onPressed: _isLoadingServers
-                                ? null
-                                : () => _showServerPicker(context),
-                            icon: const Icon(Icons.list),
-                            label: Text(
-                              _publicServers != null
-                                  ? context.tr
-                                        .bot_settings_lavalink_servers_available(
-                                          _publicServers!.length,
-                                        )
-                                  : context
-                                        .tr
-                                        .bot_settings_lavalink_choose_server,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-              ],
-
-              // Host field
-              Row(
-                children: [
-                  if (!isPremium)
-                    const Padding(
-                      padding: EdgeInsets.only(right: 8),
-                      child: Icon(Icons.lock, size: 16, color: AppTheme.grey),
-                    ),
-                  Text(context.tr.bot_settings_lavalink_host),
-                ],
-              ),
-              const SizedBox(height: 6),
-              TextField(
-                controller: _lavalinkHostController,
-                enabled: isPremium,
-                decoration: inputDecoration.copyWith(
-                  hintText: context.tr.bot_settings_lavalink_host_hint,
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Port field
-              Row(
-                children: [
-                  if (!isPremium)
-                    const Padding(
-                      padding: EdgeInsets.only(right: 8),
-                      child: Icon(Icons.lock, size: 16, color: AppTheme.grey),
-                    ),
-                  Text(context.tr.bot_settings_lavalink_port),
-                ],
-              ),
-              const SizedBox(height: 6),
-              TextField(
-                controller: _lavalinkPortController,
-                enabled: isPremium,
-                keyboardType: TextInputType.number,
-                decoration: inputDecoration.copyWith(
-                  hintText: context.tr.bot_settings_lavalink_port_hint,
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Password field
-              Row(
-                children: [
-                  if (!isPremium)
-                    const Padding(
-                      padding: EdgeInsets.only(right: 8),
-                      child: Icon(Icons.lock, size: 16, color: AppTheme.grey),
-                    ),
-                  Text(context.tr.bot_settings_lavalink_password),
-                ],
-              ),
-              const SizedBox(height: 6),
-              TextField(
-                controller: _lavalinkPasswordController,
-                enabled: isPremium,
-                obscureText: !_lavalinkPasswordVisible,
-                decoration: inputDecoration.copyWith(
-                  hintText: context.tr.bot_settings_lavalink_password_hint,
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _lavalinkPasswordVisible
-                          ? Icons.visibility_off
-                          : Icons.visibility,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _lavalinkPasswordVisible = !_lavalinkPasswordVisible;
-                      });
-                    },
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // SSL toggle
-              SwitchListTile(
-                title: Row(
-                  children: [
-                    if (!isPremium)
-                      const Padding(
-                        padding: EdgeInsets.only(right: 8),
-                        child: Icon(Icons.lock, size: 16, color: AppTheme.grey),
-                      ),
-                    Text(context.tr.bot_settings_lavalink_ssl),
-                  ],
-                ),
-                subtitle: Text(
-                  context.tr.bot_settings_lavalink_ssl_subtitle,
-                  style: const TextStyle(fontSize: 12, color: AppTheme.grey),
-                ),
-                value: _lavalinkSsl,
-                onChanged: isPremium
-                    ? (value) {
-                        setState(() {
-                          _lavalinkSsl = value;
-                        });
-                      }
-                    : null,
-                controlAffinity: ListTileControlAffinity.trailing,
-              ),
-              const SizedBox(height: 12),
-
-              Text(
-                context.tr.bot_settings_lavalink_save_caption,
-                style: const TextStyle(fontSize: 12, color: AppTheme.grey),
-              ),
-              const SizedBox(height: 8),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: _isSavingLavalink ? null : _saveLavalinkOnly,
-                  icon: const Icon(Icons.music_note),
-                  label: Text(context.tr.bot_settings_lavalink_save_btn),
-                ),
-              ),
-              const SizedBox(height: 8),
-              // Test connection button
-              if (isPremium) ...[
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: _isTestingConnection
-                        ? null
-                        : _testLavalinkConnection,
-                    icon: _isTestingConnection
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.wifi_find),
-                    label: Text(
-                      _isTestingConnection
-                          ? context.tr.bot_settings_lavalink_testing
-                          : context.tr.bot_settings_lavalink_test_btn,
-                    ),
-                  ),
-                ),
-                if (_connectionTestResult != null) ...[
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      Icon(
-                        _connectionTestResult!.isEmpty
-                            ? Icons.check_circle
-                            : Icons.error,
-                        size: 16,
-                        color: _connectionTestResult!.isEmpty
-                            ? AppTheme.success
-                            : AppTheme.error,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        _connectionTestResult!.isEmpty
-                            ? context.tr.bot_settings_lavalink_success
-                            : _connectionTestResult!,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: _connectionTestResult!.isEmpty
-                              ? AppTheme.success
-                              : AppTheme.error,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ],
-            ],
+          child: LavalinkSettingsSection(
+            initialConfig: _lavalinkConfigRaw,
+            onSave: _saveLavalinkConfig,
           ),
         ),
       ),

@@ -1739,7 +1739,24 @@ class AppLocalizationsJa extends AppLocalizations {
       'トークンは保存されましたが、特権インテントを自動的に有効にできませんでした。Discord Developer Portalで有効にしてください。';
 
   @override
+  String get bot_settings_lavalink_add_fallback => 'フォールバックサーバーを追加';
+
+  @override
   String get bot_settings_lavalink_choose_server => '公開サーバーを選択...';
+
+  @override
+  String get bot_settings_lavalink_enable_subtitle =>
+      'Bot が公開サーバーを自動で試すため、サーバーの選択は不要です。';
+
+  @override
+  String get bot_settings_lavalink_enable_title => '音楽 (Lavalink)';
+
+  @override
+  String get bot_settings_lavalink_fallback_desc =>
+      '公開サーバーが先に試されます。どれも応答しない場合、あなたのサーバーがフォールバックとして使われます。';
+
+  @override
+  String get bot_settings_lavalink_fallback_title => 'フォールバックサーバー';
 
   @override
   String get bot_settings_lavalink_host => 'ホスト';
@@ -1747,6 +1764,13 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get bot_settings_lavalink_host_hint =>
       'localhost または Lavalink サーバー IP';
+
+  @override
+  String get bot_settings_lavalink_invalid_server =>
+      'ホストと 1〜65535 のポートを入力してください。';
+
+  @override
+  String get bot_settings_lavalink_no_fallback => 'フォールバックサーバーはまだありません。';
 
   @override
   String get bot_settings_lavalink_password => 'パスワード';
@@ -1772,14 +1796,22 @@ class AppLocalizationsJa extends AppLocalizations {
   String get bot_settings_lavalink_public_servers => '公開サーバー';
 
   @override
+  String get bot_settings_lavalink_remove_fallback => '削除';
+
+  @override
   String get bot_settings_lavalink_save_btn => '保存';
 
   @override
   String get bot_settings_lavalink_save_caption =>
-      'ボットが Lavalink サーバーに接続できるように、この設定を保存してください。';
+      '保存すると、Bot は公開サーバーを先に試し、次にフォールバックサーバーを使います。';
 
   @override
   String get bot_settings_lavalink_section_title => 'Lavalink サーバー';
+
+  @override
+  String bot_settings_lavalink_server_number(int index) {
+    return 'フォールバックサーバー $index';
+  }
 
   @override
   String get bot_settings_lavalink_server_picker_title => '公開 Lavalink サーバー';

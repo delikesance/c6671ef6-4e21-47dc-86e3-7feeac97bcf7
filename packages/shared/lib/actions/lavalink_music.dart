@@ -288,7 +288,9 @@ Future<Map<String, String>> getMusicInfoAction({
     }
 
     final track = session.currentTrack;
-    final player = await session.player.fetchPlayer();
+    // L'état vient de la session (source de vérité locale de la file et de la
+    // lecture) : plus de requête REST à chaque appel, donc pas de latence ni
+    // d'état incohérent avec ce que le bot vient d'ordonner.
     return {
       'isPlaying': 'true',
       'title': track?.info.title ?? '',
@@ -296,8 +298,8 @@ Future<Map<String, String>> getMusicInfoAction({
       'duration': track?.info.length.inMilliseconds.toString() ?? '0',
       'position': session.position.inMilliseconds.toString(),
       'queueSize': session.queueSize.toString(),
-      'volume': player.volume.toString(),
-      'isPaused': player.isPaused.toString(),
+      'volume': session.volume.toString(),
+      'isPaused': session.isPaused.toString(),
       'isLooping': session.loop.toString(),
       'thumbnail': _getTrackThumbnail(track),
     };
