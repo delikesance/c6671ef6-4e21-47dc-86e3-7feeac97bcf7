@@ -34,6 +34,7 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pag
 import 'package:bot_creator/features/bot_editor/presentation/widgets/bot_config_pull_dialog.dart';
 import 'package:bot_creator/features/bot_management/presentation/create_page.dart';
 import 'package:bot_creator/features/containers/presentation/container_detail_page.dart';
+import 'package:bot_creator/features/containers/presentation/home_turnkey_container_card.dart';
 import 'package:bot_creator/features/discord_rpc/logic/discord_rpc_service.dart';
 import 'package:bot_creator/features/documentation/documentation_navigation.dart';
 import 'package:bot_creator/features/home/presentation/guild_avatar.dart';
@@ -184,6 +185,18 @@ class HomePageState extends State<HomePage>
   /// ID du bot en cours d'action (démarrage/arrêt/ajout de temps).
   String? _botIdInAction;
 
+  /// Conteneurs clé en main (« turnkey ») du compte, affichés sur l'accueil à
+  /// côté des bots classiques. Remplis par [_refreshTurnkeyContainers].
+  List<ContainerInfo> _turnkeyContainers = const <ContainerInfo>[];
+
+  /// ID du conteneur dont une action (démarrage/arrêt) est en cours : sa carte
+  /// se verrouille le temps de la requête.
+  String? _containerIdInAction;
+
+  /// Garde de réentrance du chargement des conteneurs : un seul appel en vol,
+  /// pour ne jamais dupliquer la requête (accueil + tirage pour rafraîchir).
+  bool _isRefreshingTurnkeyContainers = false;
+
   /// Un AnimationController par carte (clé = bot id) pour l'effet pulse.
   final Map<String, AnimationController> _pulseControllers = {};
 
@@ -257,6 +270,9 @@ class HomePageState extends State<HomePage>
       // right away, even if the full manager sync takes longer.
       await _initRunningState();
       await syncAllBotsFromManager(silent: true);
+      // Les conteneurs clé en main du compte apparaissent dès l'ouverture de
+      // l'accueil, à côté des bots classiques.
+      await _refreshTurnkeyContainers();
       await _ensureGatewayBotEvents();
     }());
 
@@ -642,6 +658,100 @@ class HomePageState extends State<HomePage>
     } finally {
       _isRefreshingRunningState = false;
     }
+  }
+
+  // ── Conteneurs clé en main (« turnkey ») ───────────────────────────────────
+
+  /// Charge les conteneurs clé en main du compte et les expose à la liste
+  /// d'accueil, à côté des bots classiques.
+  ///
+  /// Réutilise le client global déjà résolu pour les bots ([_resolveGlobalMainApiClient])
+  /// et l'endpoint existant `listContainers()` : aucune seconde instance de
+  /// client, aucune requête dupliquée (garde de réentrance).
+  Future<void> _refreshTurnkeyContainers() async {
+    if (_isRefreshingTurnkeyContainers) return;
+    _isRefreshingTurnkeyContainers = true;
+    try {
+      final client = await _resolveGlobalMainApiClient();
+      if (client == null) return;
+      final containers = await client.listContainers();
+      if (!mounted) return;
+      setState(() => _turnkeyContainers = containers);
+    } catch (error) {
+      // Un conteneur illisible ne doit jamais casser l'accueil : les bots
+      // classiques restent affichés.
+      appendBotDebugLog(
+        '[_refreshTurnkeyContainers] Failed to load turnkey containers: $error',
+      );
+    } finally {
+      _isRefreshingTurnkeyContainers = false;
+    }
+  }
+
+  /// Arrête ou démarre un conteneur clé en main depuis sa carte d'accueil,
+  /// puis recharge la liste pour refléter le nouvel état.
+  Future<void> _toggleTurnkeyContainer(
+    ContainerInfo container, {
+    required bool start,
+  }) async {
+    if (_containerIdInAction != null) return;
+    setState(() => _containerIdInAction = container.id);
+    try {
+      final client = await _resolveGlobalMainApiClient();
+      if (client == null) return;
+      if (start) {
+        await client.startContainer(container.id);
+      } else {
+        await client.stopContainer(container.id);
+      }
+      await _refreshTurnkeyContainers();
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.tr.container_detail_failed('$error'))),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _containerIdInAction = null);
+      } else {
+        _containerIdInAction = null;
+      }
+    }
+  }
+
+  /// Ouvre la console de logs d'un conteneur clé en main depuis l'accueil.
+  Future<void> _openTurnkeyContainerLogs(ContainerInfo container) async {
+    final client = await _resolveGlobalMainApiClient();
+    if (!mounted || client == null) return;
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => HomeContainerLogsPage(
+          client: client,
+          containerId: container.id,
+          title: turnkeyContainerTitle(container, context.tr),
+        ),
+      ),
+    );
+  }
+
+  /// Ouvre le parcours existant d'ajout de temps (recharge du TTL) : la page de
+  /// détail du conteneur porte la recharge par solde/publicité, on ne la
+  /// duplique pas sur l'accueil.
+  Future<void> _openTurnkeyContainerDetail(ContainerInfo container) async {
+    final client = await _resolveGlobalMainApiClient();
+    if (!mounted) return;
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ContainerDetailPage(
+          containerId: container.id,
+          client: client,
+        ),
+      ),
+    );
+    await _refreshTurnkeyContainers();
   }
 
   int _extractFreeMinutes(dynamic raw) {
@@ -2500,7 +2610,7 @@ class HomePageState extends State<HomePage>
                   child: Center(child: CircularProgressIndicator()),
                 ),
               );
-            } else if (apps.isEmpty) {
+            } else if (apps.isEmpty && _turnkeyContainers.isEmpty) {
               children.add(const _EmptyStateWithSupport());
             } else {
               if (AdsPlacementPolicy.isPlacementEnabled(
@@ -2516,18 +2626,32 @@ class HomePageState extends State<HomePage>
                 );
               }
 
-              final cards = <Widget>[
-                for (final app in apps)
-                  _buildRedesignBotCard(
-                    context,
-                    app,
-                    // The primary action of a running bot stays visible without
-                    // an extra tap on compact layouts.
-                    initiallyExpanded:
-                        isWide ||
-                        _runningBotIds.contains(app['id']?.toString() ?? ''),
-                  ),
-              ];
+              // Bots classiques puis conteneurs clé en main : les deux familles
+              // partagent la même liste d'accueil (et le même layout ci-dessous).
+              final cards = buildHomeProjectCards(
+                botCards: <Widget>[
+                  for (final app in apps)
+                    _buildRedesignBotCard(
+                      context,
+                      app,
+                      // The primary action of a running bot stays visible without
+                      // an extra tap on compact layouts.
+                      initiallyExpanded:
+                          isWide ||
+                          _runningBotIds.contains(app['id']?.toString() ?? ''),
+                    ),
+                ],
+                containers: _turnkeyContainers,
+                actionsFor: (container) => HomeContainerActions(
+                  busy: _containerIdInAction == container.id,
+                  onStart: () =>
+                      _toggleTurnkeyContainer(container, start: true),
+                  onStop: () =>
+                      _toggleTurnkeyContainer(container, start: false),
+                  onLogs: () => _openTurnkeyContainerLogs(container),
+                  onAddTime: () => _openTurnkeyContainerDetail(container),
+                ),
+              );
 
               if (columns == 1) {
                 for (var i = 0; i < cards.length; i++) {
@@ -2558,7 +2682,12 @@ class HomePageState extends State<HomePage>
 
             return RefreshIndicator(
               key: _refreshIndicatorKey,
-              onRefresh: () => syncAllBotsFromManager(silent: false),
+              onRefresh: () async {
+                await syncAllBotsFromManager(silent: false);
+                // Un tirage rafraîchit aussi l'état des conteneurs clé en main
+                // (démarrage/arrêt/expiration), une requête pour tous.
+                await _refreshTurnkeyContainers();
+              },
               // Largeur et marges communes à toutes les pages de l'app : la
               // liste n'impose plus ses propres bornes (1000/640, sidePad 28).
               child: PageContent(
@@ -2609,7 +2738,7 @@ class HomePageState extends State<HomePage>
         (app['container_id']?.toString().isNotEmpty ?? false);
     final containerId = app['container_id']?.toString();
 
-    return _BotCard(
+    return HomeBotCard(
       key: ValueKey<String>(id),
       name: name,
       id: id,
@@ -2778,8 +2907,14 @@ class _HomeHeader extends StatelessWidget {
 
 // ── Carte bot (collapsible) ───────────────────────────────────────────────────
 
-class _BotCard extends StatefulWidget {
-  const _BotCard({
+/// Carte d'accueil d'un bot classique (repliable) : avatar, serveurs, état et
+/// actions (démarrer/arrêter, gérer, logs).
+///
+/// Publique — et non privée — pour que le test de la liste d'accueil monte la
+/// vraie carte d'un bot classique À CÔTÉ de celle d'un conteneur clé en main
+/// ([buildHomeProjectCards]), c'est-à-dire la composition réellement rendue.
+class HomeBotCard extends StatefulWidget {
+  const HomeBotCard({
     super.key,
     required this.name,
     required this.id,
@@ -2819,16 +2954,16 @@ class _BotCard extends StatefulWidget {
   final VoidCallback? onLogs;
 
   @override
-  State<_BotCard> createState() => _BotCardState();
+  State<HomeBotCard> createState() => HomeBotCardState();
 }
 
-class _BotCardState extends State<_BotCard> {
+class HomeBotCardState extends State<HomeBotCard> {
   bool _hovered = false;
   late bool _expanded = widget.initiallyExpanded;
   bool get _supportsForegroundTask => Platform.isAndroid || Platform.isIOS;
 
   @override
-  void didUpdateWidget(covariant _BotCard oldWidget) {
+  void didUpdateWidget(covariant HomeBotCard oldWidget) {
     super.didUpdateWidget(oldWidget);
     // Realign on the layout-driven default when the window width changes
     // (desktop resize / rotation).
