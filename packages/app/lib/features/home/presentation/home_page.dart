@@ -1718,6 +1718,18 @@ class HomePageState extends State<HomePage>
       String? token;
       if (!isRunning) {
         final app = await appManager.getApp(botId);
+        // Garde-fou : une entrée locale marquée clé en main est un CONTENEUR, pas
+        // un bot. Elle est purgée au chargement et filtrée de la liste d'accueil ;
+        // ce verrou garantit qu'aucun autre appelant ne peut la DÉMARRER — donc la
+        // synchroniser (`syncBot` / `saveDiscordBotSnapshot`) et créer une ligne
+        // de bot fantôme côté manager.
+        if (AppManager.isTurnkeyAppEntry(app)) {
+          appendBotDebugLog(
+            '[_toggleBot] Entrée clé en main $botId ignorée : un conteneur se '
+            'pilote depuis sa carte d\'accueil, il n\'est jamais démarré comme un bot.',
+          );
+          return;
+        }
         token = app['token']?.toString();
 
         // Sync config from manager before startup (the basic sync)
@@ -2548,7 +2560,14 @@ class HomePageState extends State<HomePage>
       stream: appManager.getAppStream(),
       initialData: appManager.isInitialized ? appManager.currentApps : null,
       builder: (context, snapshot) {
-        final apps = snapshot.data;
+        // Un bot clé en main est un conteneur, pas un bot : une entrée locale
+        // marquée comme telle (créée par une ancienne version de l'écran de
+        // déploiement) n'est jamais une carte de bot. `AppManager` les supprime
+        // au chargement ; ce filtre garantit qu'aucune ne repasse par la liste
+        // des bots — donc par une synchronisation vers le manager — entre-temps.
+        final apps = snapshot.data
+            ?.where((app) => app is! Map || !AppManager.isTurnkeyAppEntry(app))
+            .toList();
 
         return LayoutBuilder(
           builder: (context, constraints) {
