@@ -9,6 +9,7 @@ import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
+import 'package:bot_creator/features/bot_editor/logic/lavalink_config.dart';
 import 'package:bot_creator_shared/bot/bot_config.dart';
 import 'package:bot_creator_shared/utils/command_migration.dart';
 import 'package:bot_creator/features/bot_editor/logic/js_bot_payload_builder.dart';
@@ -684,10 +685,6 @@ Map<String, dynamic> _buildPayloadInBackground(Map<String, dynamic> args) {
           .toList(growable: false) ??
       const <BotStatusConfig>[];
 
-  final lavalinkConfig = (lavalinkConfigRaw != null && lavalinkConfigRaw['host']?.toString().trim().isNotEmpty == true)
-      ? LavalinkConfig.fromJson(lavalinkConfigRaw)
-      : null;
-
   final config = BotConfig(
     token: token,
     builtInLegacyHelpEnabled: appData['builtInLegacyHelpEnabled'] != false,
@@ -713,12 +710,14 @@ Map<String, dynamic> _buildPayloadInBackground(Map<String, dynamic> args) {
     inboundWebhookEndpoints: inboundWebhookEndpoints,
     statuses: statuses,
     commands: commands,
-    lavalinkConfig: lavalinkConfig,
   );
 
   config.validate();
   // Decode and re-encode to ensure the object is a clean, primitive Map that can cross isolates.
   final configJson = jsonDecode(jsonEncode(config.toJson())) as Map<String, dynamic>;
+  // Lavalink : schéma FIGÉ (contrat avec le runner) — `enabled` + `custom_servers`,
+  // jamais l'ancienne forme `lavalinkConfig`.
+  applyLavalinkSchema(configJson, lavalinkConfigRaw);
   configJson['isPremium'] = isPremium;
   return configJson;
 }

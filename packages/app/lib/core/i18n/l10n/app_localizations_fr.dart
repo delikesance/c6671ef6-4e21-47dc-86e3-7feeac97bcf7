@@ -1879,8 +1879,26 @@ class AppLocalizationsFr extends AppLocalizations {
       'Token sauvegarde, mais les intents privilegies n\'ont pas pu etre actives automatiquement. Activez-les dans le Discord Developer Portal.';
 
   @override
+  String get bot_settings_lavalink_add_fallback =>
+      'Ajouter un serveur de repli';
+
+  @override
   String get bot_settings_lavalink_choose_server =>
       'Choisir un serveur public...';
+
+  @override
+  String get bot_settings_lavalink_enable_subtitle =>
+      'Le bot essaie lui-même les serveurs publics : aucun choix de serveur n\'est nécessaire.';
+
+  @override
+  String get bot_settings_lavalink_enable_title => 'Musique (Lavalink)';
+
+  @override
+  String get bot_settings_lavalink_fallback_desc =>
+      'Les serveurs publics sont essayés d\'abord. Vos serveurs servent de repli quand aucun ne répond.';
+
+  @override
+  String get bot_settings_lavalink_fallback_title => 'Mes serveurs de repli';
 
   @override
   String get bot_settings_lavalink_host => 'Hôte';
@@ -1888,6 +1906,14 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get bot_settings_lavalink_host_hint =>
       'localhost ou IP du serveur Lavalink';
+
+  @override
+  String get bot_settings_lavalink_invalid_server =>
+      'Renseignez un hôte et un port entre 1 et 65535.';
+
+  @override
+  String get bot_settings_lavalink_no_fallback =>
+      'Aucun serveur de repli pour l\'instant.';
 
   @override
   String get bot_settings_lavalink_password => 'Mot de passe';
@@ -1913,14 +1939,22 @@ class AppLocalizationsFr extends AppLocalizations {
   String get bot_settings_lavalink_public_servers => 'Serveurs publics';
 
   @override
+  String get bot_settings_lavalink_remove_fallback => 'Retirer';
+
+  @override
   String get bot_settings_lavalink_save_btn => 'Enregistrer';
 
   @override
   String get bot_settings_lavalink_save_caption =>
-      'Enregistrez cette configuration pour que le bot puisse se connecter au serveur Lavalink.';
+      'Enregistrez : le bot essaie d\'abord les serveurs publics, puis vos serveurs de repli.';
 
   @override
   String get bot_settings_lavalink_section_title => 'Serveur Lavalink';
+
+  @override
+  String bot_settings_lavalink_server_number(int index) {
+    return 'Serveur de repli $index';
+  }
 
   @override
   String get bot_settings_lavalink_server_picker_title =>

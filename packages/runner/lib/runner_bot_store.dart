@@ -72,17 +72,41 @@ class RunnerBotStore {
   final String _dataDir;
   final Map<String, BotConfig> _memoryConfigs = <String, BotConfig>{};
 
+  /// Retire les secrets avant écriture disque, SANS toucher au schéma de
+  /// configuration.
+  ///
+  /// La musique est décrite par `lavalink: { enabled, custom_servers }` : une
+  /// reconstruction depuis l'ancienne forme (serveur unique `host`/`port`)
+  /// perdait `enabled` et `custom_servers`, donc le bot redémarrait avec la
+  /// musique activée de force et sans ses serveurs de repli.
   static BotConfig sanitizeForStorage(BotConfig config) {
+    final lavalink = config.lavalinkConfig;
     return config.copyWith(
       token: '',
-      lavalinkConfig: config.lavalinkConfig != null
-          ? LavalinkConfig(
-              host: config.lavalinkConfig!.host,
-              port: config.lavalinkConfig!.port,
+      lavalinkConfig: lavalink == null
+          ? null
+          : LavalinkConfig(
+              // Schéma figé conservé tel quel…
+              enabled: lavalink.enabled,
+              // …mais les mots de passe des serveurs de repli sont vidés : le
+              // fichier disque ne doit contenir aucun secret en clair (ils
+              // restent en RAM, cf. `_memoryConfigs`).
+              customServers: lavalink.customServers
+                  .map(
+                    (server) => LavalinkServerConfig(
+                      host: server.host,
+                      port: server.port,
+                      password: '',
+                      secure: server.secure,
+                    ),
+                  )
+                  .toList(growable: false),
+              // Ancienne forme conservée pour un lecteur plus ancien.
+              host: lavalink.host,
+              port: lavalink.port,
               password: '',
-              useSsl: config.lavalinkConfig!.useSsl,
-            )
-          : null,
+              useSsl: lavalink.useSsl,
+            ),
     );
   }
 
@@ -165,13 +189,20 @@ class RunnerBotStore {
     final mem = _memoryConfigs[botId];
     if (mem == null) return entry;
 
+    // La config en RAM est la seule qui porte les secrets : elle gagne dès
+    // qu'elle décrit une vraie configuration. `customServers` compte autant que
+    // le mot de passe du schéma hérité — sinon les serveurs de repli saisis
+    // dans l'app (dont les mots de passe sont vidés sur disque) seraient perdus.
+    final memLavalink = mem.lavalinkConfig;
+    final memLavalinkUsable =
+        memLavalink != null &&
+        (memLavalink.password.isNotEmpty || memLavalink.hasCustomServers);
+
     return entry.copyWith(
       config: entry.config.copyWith(
         token: mem.token.isNotEmpty ? mem.token : entry.config.token,
-        lavalinkConfig:
-            (mem.lavalinkConfig != null &&
-                mem.lavalinkConfig!.password.isNotEmpty)
-            ? mem.lavalinkConfig
+        lavalinkConfig: memLavalinkUsable
+            ? memLavalink
             : entry.config.lavalinkConfig,
       ),
     );

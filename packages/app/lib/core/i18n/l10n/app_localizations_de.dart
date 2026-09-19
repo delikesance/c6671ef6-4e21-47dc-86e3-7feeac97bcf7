@@ -1872,8 +1872,25 @@ class AppLocalizationsDe extends AppLocalizations {
       'Token gespeichert, aber privilegierte Intents konnten nicht automatisch aktiviert werden. Aktivieren Sie sie im Discord Developer Portal.';
 
   @override
+  String get bot_settings_lavalink_add_fallback => 'Fallback-Server hinzufügen';
+
+  @override
   String get bot_settings_lavalink_choose_server =>
       'Öffentlichen Server auswählen...';
+
+  @override
+  String get bot_settings_lavalink_enable_subtitle =>
+      'Der Bot testet die öffentlichen Server selbst; eine Serverauswahl ist nicht nötig.';
+
+  @override
+  String get bot_settings_lavalink_enable_title => 'Musik (Lavalink)';
+
+  @override
+  String get bot_settings_lavalink_fallback_desc =>
+      'Öffentliche Server werden zuerst getestet. Deine Server dienen als Fallback, wenn keiner antwortet.';
+
+  @override
+  String get bot_settings_lavalink_fallback_title => 'Meine Fallback-Server';
 
   @override
   String get bot_settings_lavalink_host => 'Host';
@@ -1881,6 +1898,13 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get bot_settings_lavalink_host_hint =>
       'localhost oder Lavalink-Server-IP';
+
+  @override
+  String get bot_settings_lavalink_invalid_server =>
+      'Gib einen Host und einen Port zwischen 1 und 65535 ein.';
+
+  @override
+  String get bot_settings_lavalink_no_fallback => 'Noch kein Fallback-Server.';
 
   @override
   String get bot_settings_lavalink_password => 'Passwort';
@@ -1906,14 +1930,22 @@ class AppLocalizationsDe extends AppLocalizations {
   String get bot_settings_lavalink_public_servers => 'Öffentliche Server';
 
   @override
+  String get bot_settings_lavalink_remove_fallback => 'Entfernen';
+
+  @override
   String get bot_settings_lavalink_save_btn => 'Speichern';
 
   @override
   String get bot_settings_lavalink_save_caption =>
-      'Speichern Sie diese Konfiguration, damit sich der Bot mit dem Lavalink-Server verbinden kann.';
+      'Speichern: Der Bot testet zuerst die öffentlichen Server, dann deine Fallback-Server.';
 
   @override
   String get bot_settings_lavalink_section_title => 'Lavalink-Server';
+
+  @override
+  String bot_settings_lavalink_server_number(int index) {
+    return 'Fallback-Server $index';
+  }
 
   @override
   String get bot_settings_lavalink_server_picker_title =>

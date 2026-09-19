@@ -10,6 +10,7 @@ import 'package:bot_creator_shared/engine/event_dispatcher.dart';
 import 'package:bot_creator_shared/engine/command_executor.dart';
 import 'package:bot_creator_shared/engine/workflow_executor.dart';
 import 'package:nyxx_lavalink/nyxx_lavalink.dart';
+import 'package:bot_creator_shared/services/lavalink_probe.dart';
 import 'package:bot_creator_shared/services/lavalink_service.dart';
 import 'package:bot_creator_shared/utils/interaction_listener_registry.dart';
 import 'package:bot_creator_shared/utils/template_resolver.dart';
@@ -25,8 +26,14 @@ class BotSession {
     required this.store,
     required this.callbacks,
     LavalinkConfig? lavalinkConfig,
+    LavalinkProbe? lavalinkProbe,
+    LavalinkConnectionTester? lavalinkConnectionTester,
+    this.lavalinkSelectionTimeout = const Duration(seconds: 4),
   }) : _token = token,
-       _lavalinkConfig = lavalinkConfig {
+       _lavalinkConfig = lavalinkConfig,
+       lavalinkConnectionTester =
+           lavalinkConnectionTester ?? LavalinkService.testConnection,
+       _probe = lavalinkProbe {
     _workflowExecutor = WorkflowExecutor(store: store, callbacks: callbacks);
     _commandExecutor = CommandExecutor(
       store: store,
@@ -47,8 +54,28 @@ class BotSession {
   final BotDataStore store;
   final BotEngineCallbacks callbacks;
 
+  /// Budget TOTAL de la phase Lavalink qui précède la connexion Discord.
+  ///
+  /// C'est une borne dure : dépassée, la sélection est abandonnée et le bot se
+  /// connecte sans musique. Jamais de démarrage suspendu à Lavalink.
+  final Duration lavalinkSelectionTimeout;
+
+  /// Test de connexion utilisé pour revérifier un serveur issu du cache.
+  /// Injectable pour les tests (aucun appel réseau).
+  final LavalinkConnectionTester lavalinkConnectionTester;
+
   String _token;
   LavalinkConfig? _lavalinkConfig;
+
+  /// Sondeur partagé par les démarrages successifs du même bot : son classement
+  /// (cache ~10 min) évite de re-sonder à chaque redémarrage.
+  LavalinkProbe? _probe;
+
+  /// Dernier serveur retenu par la sélection automatique (diagnostic).
+  LavalinkProbeTarget? _selectedServer;
+
+  LavalinkProbeTarget? get selectedServer => _selectedServer;
+
   Map<String, bool> _intentsMap = const {};
 
   String get token => _token;
@@ -116,6 +143,128 @@ class BotSession {
     );
   }
 
+  /// Plugins confiés à la passerelle Discord.
+  ///
+  /// Le plugin Lavalink n'y figure QUE si un serveur a été retenu : la
+  /// passerelle se connecte donc toujours, musique ou pas.
+  static List<NyxxPlugin> buildGatewayPlugins({LavalinkPlugin? lavalinkPlugin}) {
+    return <NyxxPlugin>[
+      logging,
+      cliIntegration,
+      ?lavalinkPlugin,
+    ];
+  }
+
+  /// Demande au sondeur le serveur à utiliser, puis construit le plugin.
+  ///
+  /// Contrat (c'est ce qui protège la passerelle Discord) :
+  /// - jamais d'exception : l'échec rend `null` (musique indisponible) ;
+  /// - jamais au-delà de [lavalinkSelectionTimeout] : la sélection est COUPÉE,
+  ///   pas attendue ; le sondage se termine en tâche de fond et alimente le
+  ///   cache du prochain démarrage ;
+  /// - un serveur issu du classement vient d'être testé par le sondeur, il
+  ///   n'est pas retesté ; un serveur de repli, ou un classement servi depuis
+  ///   le cache (~10 min), est revérifié en REST avec le temps restant.
+  ///
+  /// Publique pour être prouvée par les tests sans ouvrir de session Discord.
+  Future<LavalinkPlugin?> prepareLavalinkPlugin(LavalinkConfig? config) async {
+    _selectedServer = null;
+    if (config == null || !config.enabled) return null;
+
+    final stopwatch = Stopwatch()..start();
+    final probe = _probe ??= LavalinkProbe(
+      onLog: (message) => callbacks.onLog?.call(message, botId: botId),
+    );
+    final customServers = LavalinkProbeTarget.customServersFromJson(
+      config.customServersJson,
+    );
+
+    // Le classement déjà connu (cache) est signalé : il faudra le revérifier.
+    final rankedFromCache = probe.hasFreshCache;
+
+    final Future<LavalinkProbeTarget?> selection;
+    try {
+      selection = probe.findBestServer(customServers: customServers);
+    } catch (error) {
+      return _lavalinkUnavailable('sélection impossible ($error)');
+    }
+
+    LavalinkProbeTarget? retained;
+    try {
+      retained = await selection
+          .timeout(lavalinkSelectionTimeout, onTimeout: () => null)
+          // Une erreur tardive du sondage ne doit jamais remonter jusqu'ici.
+          .catchError((Object _) => null);
+    } catch (error) {
+      return _lavalinkUnavailable('sélection impossible ($error)');
+    }
+
+    if (retained == null) {
+      return _lavalinkUnavailable(
+        'aucun serveur n\'a répondu en ${stopwatch.elapsedMilliseconds} ms',
+      );
+    }
+
+    final justVerified =
+        !rankedFromCache &&
+        probe.cachedResults.any(
+          (result) => result.target.sameEndpointAs(retained!),
+        );
+
+    if (!justVerified) {
+      final remaining = lavalinkSelectionTimeout - stopwatch.elapsed;
+      if (remaining <= Duration.zero) {
+        return _lavalinkUnavailable('budget de sélection épuisé');
+      }
+      final error = await _testLavalinkConnection(retained).timeout(
+        remaining,
+        onTimeout: () => 'budget épuisé',
+      );
+      if (error != null) {
+        _selectedServer = null;
+        callbacks.onLog?.call(
+          'Lavalink: ${retained.endpoint} ne répond pas ($error) — '
+          'musique indisponible',
+          botId: botId,
+        );
+        return null;
+      }
+    }
+
+    _selectedServer = retained;
+    callbacks.onLog?.call(
+      'Lavalink: serveur retenu ${retained.endpoint}'
+      '${retained.isCustom ? ' (serveur personnel)' : ''} '
+      'en ${stopwatch.elapsedMilliseconds} ms — plugin prêt',
+      botId: botId,
+    );
+    return LavalinkService.createPluginForServer(
+      host: retained.host,
+      port: retained.port,
+      password: retained.password,
+      useSsl: retained.useSsl,
+    );
+  }
+
+  Future<String?> _testLavalinkConnection(LavalinkProbeTarget target) {
+    return lavalinkConnectionTester(
+      host: target.host,
+      port: target.port,
+      password: target.password,
+      useSsl: target.useSsl,
+    );
+  }
+
+  LavalinkPlugin? _lavalinkUnavailable(String reason) {
+    _selectedServer = null;
+    callbacks.onLog?.call(
+      'Lavalink: $reason — musique indisponible, la passerelle Discord '
+      'continue sans attendre',
+      botId: botId,
+    );
+    return null;
+  }
+
   /// Starts the bot gateway connection and initializes all managers.
   Future<void> start() async {
     if (isActive) return;
@@ -145,43 +294,16 @@ class BotSession {
 
     callbacks.onLog?.call('Starting bot gateway...', botId: botId);
 
-    // Build plugins list — LavalinkPlugin MUST be included here at connection time.
-    // Its afterConnect() hook (which opens the WebSocket to the Lavalink server)
-    // is only triggered during Nyxx.connectGateway; it cannot be added afterwards.
-    final localConfig = lavalinkConfig;
-    final plugins = <NyxxPlugin>[logging, cliIntegration];
+    // ── Lavalink : phase bornée AVANT la connexion Discord ────────────────
+    // Règle durement apprise : la passerelle Discord doit se connecter D'ABORD.
+    // Le plugin Lavalink ouvre son WebSocket dans son `afterConnect`, sans
+    // délai côté `nyxx_lavalink` : un serveur injoignable ferait patienter —
+    // voire bloquerait — la connexion Discord entière. On prépare donc la
+    // musique ici, sous budget borné, et l'échec n'a AUCUNE conséquence sur la
+    // connexion Discord : pas de plugin, musique indisponible, bot en ligne.
+    final lavalinkPlugin = await prepareLavalinkPlugin(lavalinkConfig);
 
-    LavalinkPlugin? lavalinkPlugin;
-    if (localConfig != null) {
-      callbacks.onLog?.call(
-        'Lavalink: pre-checking ${localConfig.host}:${localConfig.port}...',
-        botId: botId,
-      );
-
-      // Quick REST health check before attempting WebSocket
-      final preCheckError = await LavalinkService.testConnection(
-        host: localConfig.host,
-        port: localConfig.port,
-        password: localConfig.password,
-        useSsl: localConfig.useSsl,
-      );
-
-      if (preCheckError != null) {
-        callbacks.onLog?.call(
-          'Lavalink pre-check failed: $preCheckError — music disabled',
-          botId: botId,
-        );
-      } else {
-        callbacks.onLog?.call(
-          'Lavalink pre-check OK, starting plugin...',
-          botId: botId,
-        );
-        lavalinkPlugin = LavalinkService.createPlugin(localConfig);
-        if (lavalinkPlugin != null) {
-          plugins.add(lavalinkPlugin);
-        }
-      }
-    }
+    final plugins = buildGatewayPlugins(lavalinkPlugin: lavalinkPlugin);
 
     try {
       _gateway = await Nyxx.connectGateway(
@@ -191,10 +313,9 @@ class BotSession {
       );
 
       // ── Lavalink: wait for ready event now that the plugin is connected ──
-      if (lavalinkPlugin != null && localConfig != null) {
+      if (lavalinkPlugin != null) {
         _lavalinkService = LavalinkService(
           plugin: lavalinkPlugin,
-          config: localConfig,
           onLog: (msg) => callbacks.onLog?.call(msg, botId: botId),
         );
 
@@ -337,8 +458,10 @@ class BotSession {
     final newToken = config.token;
     final newLavalinkConfig = config.lavalinkConfig;
 
-    final previousHasLavalink = _lavalinkConfig != null;
-    final newHasLavalink = newLavalinkConfig != null;
+    // « Avoir Lavalink » = la musique est ACTIVÉE : c'est l'interrupteur qui
+    // décide si la passerelle doit être rebâtie avec un plugin de musique.
+    final previousHasLavalink = _lavalinkConfig?.enabled == true;
+    final newHasLavalink = newLavalinkConfig?.enabled == true;
 
     final newEffectiveIntents = await _resolveEffectiveIntents(config);
     final bool intentsChanged =
@@ -359,15 +482,18 @@ class BotSession {
       return;
     }
 
-    // If no gateway reconnect is needed, check if the Lavalink config details changed
+    // If no gateway reconnect is needed, check if the Lavalink settings changed
     if (newHasLavalink && previousHasLavalink) {
-      if (_isLavalinkConfigDifferent(_lavalinkConfig, newLavalinkConfig)) {
+      final current = _lavalinkConfig;
+      if (current != null &&
+          newLavalinkConfig != null &&
+          !current.sameSettingsAs(newLavalinkConfig)) {
         callbacks.onLog?.call(
           'Lavalink config details changed, updating service...',
           botId: botId,
         );
         _lavalinkConfig = newLavalinkConfig;
-        await _reloadLavalinkService(newLavalinkConfig);
+        await _reloadLavalinkService();
       }
     } else if (!newHasLavalink && previousHasLavalink) {
       _lavalinkConfig = null;
@@ -498,16 +624,7 @@ class BotSession {
     return true;
   }
 
-  bool _isLavalinkConfigDifferent(LavalinkConfig? a, LavalinkConfig? b) {
-    if (a == null && b == null) return false;
-    if (a == null || b == null) return true;
-    return a.host != b.host ||
-        a.port != b.port ||
-        a.password != b.password ||
-        a.useSsl != b.useSsl;
-  }
-
-  Future<void> _reloadLavalinkService(LavalinkConfig config) async {
+  Future<void> _reloadLavalinkService() async {
     // LavalinkPlugin must be registered at gateway connection time.
     // Since the gateway is already running, we must do a full restart
     // to include the new plugin in GatewayClientOptions.

@@ -44,6 +44,15 @@ class LavalinkServerEntry {
   /// Human-readable label for UI dropdowns.
   String get label => '$host:$port ($version${secure ? ", SSL" : ""})';
 
+  /// True when this entry speaks the v4 protocol (REST `/v4`).
+  ///
+  /// The bot only probes v4 servers: the pre-check and the plugin both target
+  /// the `/v4` endpoints, so a v3 entry can never be used.
+  bool get isV4 => version.trim().toLowerCase() == requiredVersion;
+
+  /// Version requise pour qu'un serveur soit exploitable.
+  static const String requiredVersion = 'v4';
+
   /// Badge URL for this server's status.
   Uri badgeUrl(String type) => Uri.parse(
         'https://lavalink-list-api.ajieblogs.eu.org/$uniqueId/badge/$type',
@@ -59,6 +68,13 @@ class LavalinkServerEntry {
 /// ```
 class LavalinkListService {
   static const _baseUrl = 'https://lavalink-list.ajieblogs.eu.org';
+
+  /// Keeps only the entries usable by the bot, i.e. [`v4`](LavalinkServerEntry.requiredVersion).
+  ///
+  /// The public list mixes v3 and v4 servers; probing a v3 one is wasted time.
+  static List<LavalinkServerEntry> filterV4(List<LavalinkServerEntry> entries) {
+    return entries.where((entry) => entry.isV4).toList(growable: false);
+  }
 
   List<LavalinkServerEntry>? _cached;
   DateTime? _lastFetch;
