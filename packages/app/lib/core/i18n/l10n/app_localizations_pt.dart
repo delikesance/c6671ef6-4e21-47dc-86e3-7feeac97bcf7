@@ -8791,6 +8791,17 @@ class AppLocalizationsPt extends AppLocalizations {
       'Cole o token do bot do Discord aqui';
 
   @override
+  String get container_deploy_env_fields_section => 'Variáveis de ambiente';
+
+  @override
+  String get container_deploy_env_server_provided => 'Fornecido pelo servidor';
+
+  @override
+  String container_deploy_env_field_required(String field) {
+    return 'O campo $field é obrigatório.';
+  }
+
+  @override
   String get container_deploy_discord_prereqs => 'Pré-requisitos do Discord';
 
   @override

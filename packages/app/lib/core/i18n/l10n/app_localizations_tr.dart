@@ -8733,6 +8733,18 @@ class AppLocalizationsTr extends AppLocalizations {
       'Discord bot belirtecini (token) buraya yapıştırın';
 
   @override
+  String get container_deploy_env_fields_section => 'Ortam değişkenleri';
+
+  @override
+  String get container_deploy_env_server_provided =>
+      'Sunucu tarafından sağlanır';
+
+  @override
+  String container_deploy_env_field_required(String field) {
+    return '$field alanı zorunludur.';
+  }
+
+  @override
   String get container_deploy_discord_prereqs => 'Discord Ön Koşulları';
 
   @override
