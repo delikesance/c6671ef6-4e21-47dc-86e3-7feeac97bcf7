@@ -270,9 +270,10 @@ class HomePageState extends State<HomePage>
       // right away, even if the full manager sync takes longer.
       await _initRunningState();
       await syncAllBotsFromManager(silent: true);
-      // Les conteneurs clé en main du compte apparaissent dès l'ouverture de
-      // l'accueil, à côté des bots classiques.
-      await _refreshTurnkeyContainers();
+      // Les conteneurs clé en main ne retardent PLUS l'affichage de l'accueil : la
+      // carte apparaît quand la réponse arrive, mais on ne fait pas attendre les bots
+      // classiques (ni l'utilisateur) derrière un aller-retour réseau.
+      unawaited(_refreshTurnkeyContainers());
       await _ensureGatewayBotEvents();
     }());
 
@@ -2649,7 +2650,7 @@ class HomePageState extends State<HomePage>
                   onStop: () =>
                       _toggleTurnkeyContainer(container, start: false),
                   onLogs: () => _openTurnkeyContainerLogs(container),
-                  onAddTime: () => _openTurnkeyContainerDetail(container),
+                  onDetail: () => _openTurnkeyContainerDetail(container),
                 ),
               );
 

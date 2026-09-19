@@ -9626,6 +9626,7 @@
   "@container_detail_console": {
     "description": "Label for the container console section"
   },
+  "container_logs_errors_count": "{count, plural, =0{Hata yok} =1{1 hata} other{{count} hata}}",
   "container_detail_deploying": "Kapsayici dagitiliyor...",
   "@container_detail_deploying": {
     "description": "Message shown while container is being deployed"
@@ -9862,6 +9863,7 @@
   "container_detail_start_btn": "Başlat",
   "container_detail_starting": "Başlatılıyor...",
   "container_detail_started_ok": "Konteyner başlatılıyor",
+  "container_detail_open": "Ayrıntılar",
   "container_detail_delete_title": "Konteyneri sil",
   "container_detail_delete_confirm": "Bu, konteyneri veritabanından ve buluttan kalıcı olarak siler. Geri alınamaz.",
   "container_detail_delete_btn": "Sil",

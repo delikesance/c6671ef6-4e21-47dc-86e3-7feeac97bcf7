@@ -9625,6 +9625,7 @@
   "@container_detail_console": {
     "description": "Label for the container console section"
   },
+  "container_logs_errors_count": "{count, plural, =0{Keine Fehler} =1{1 Fehler} other{{count} Fehler}}",
   "container_detail_deploying": "Container wird bereitgestellt...",
   "@container_detail_deploying": {
     "description": "Message shown while container is being deployed"
@@ -9862,6 +9863,7 @@
   "container_detail_start_btn": "Starten",
   "container_detail_starting": "Wird gestartet...",
   "container_detail_started_ok": "Container wird gestartet",
+  "container_detail_open": "Details",
   "container_detail_delete_title": "Container löschen",
   "container_detail_delete_confirm": "Dies löscht den Container dauerhaft aus der Datenbank und der Cloud. Dies kann nicht rückgängig gemacht werden.",
   "container_detail_delete_btn": "Löschen",

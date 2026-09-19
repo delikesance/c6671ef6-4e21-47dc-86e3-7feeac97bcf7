@@ -8926,6 +8926,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get container_detail_started_ok => 'Container wird gestartet';
 
   @override
+  String get container_detail_open => 'Details';
+
+  @override
   String get container_detail_delete_title => 'Container löschen';
 
   @override
@@ -8962,6 +8965,18 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get container_detail_console => 'Konsole';
+
+  @override
+  String container_logs_errors_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Fehler',
+      one: '1 Fehler',
+      zero: 'Keine Fehler',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get container_detail_deploying => 'Container wird bereitgestellt...';
