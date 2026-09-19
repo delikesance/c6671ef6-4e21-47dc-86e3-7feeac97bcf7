@@ -31,6 +31,16 @@ class MainApiClientException implements Exception {
   }
 }
 
+/// Réponse de `GET /gateway/snapshot` : la charge utile ET la version (`ETag`) qui
+/// l'accompagne. Les deux voyagent ensemble parce que c'est l'ETag, mémorisé par
+/// l'appelant, qui transforme le prochain appel en `304` (aucun retraitement).
+class GatewaySnapshotResponse {
+  const GatewaySnapshotResponse({required this.payload, this.etag});
+
+  final Map<String, dynamic> payload;
+  final String? etag;
+}
+
 class MainApiAuthorizationStart {
   const MainApiAuthorizationStart({
     required this.authorizeUrl,
@@ -1094,6 +1104,73 @@ class MainApiClient implements RemoteRuntimeClient {
     return _get('/gateway/runtime');
   }
 
+  /// Comme `_get`, mais rend la réponse HTTP brute : indispensable pour lire l'ETag et
+  /// distinguer un 304 (rien n'a changé) d'un 200. On réutilise `_http`, `_headers` et
+  /// `_timeout` du client (même circuit breaker, mêmes entêtes d'auth).
+  Future<http.Response> _getRaw(
+    String path, {
+    Map<String, String>? headers,
+  }) async {
+    final uri = _uri(path);
+    final merged = <String, String>{..._headers(includeAuth: true), ...?headers};
+    final response = await _http.get(uri, headers: merged).timeout(_timeout);
+    _recordCircuitSuccess(_baseUrl);
+    appendBotDebugLog(
+      '[MainApiClient] GET $uri responded with ${response.statusCode}',
+    );
+    return response;
+  }
+
+  /// État complet (compte, bots, apps hébergées) en une seule requête.
+  ///
+  /// - 200 → la charge utile analysée ;
+  /// - 304 → `null` : rien n'a changé depuis `etag`, ne rien réappliquer ;
+  /// - 404 → lève une `MainApiClientException` : le manager est plus ancien, l'appelant
+  ///   doit retomber sur son repli « une requête par bot ».
+  Future<Map<String, dynamic>?> getGatewaySnapshot({String? etag}) async {
+    return (await getGatewaySnapshotWithEtag(etag: etag))?.payload;
+  }
+
+  /// Variante de [getGatewaySnapshot] qui rend AUSSI l'ETag de la réponse : c'est lui
+  /// qu'il faut renvoyer au prochain appel (`If-None-Match`) pour obtenir un `304` et
+  /// éviter de retélécharger l'état complet à chaque repli.
+  Future<GatewaySnapshotResponse?> getGatewaySnapshotWithEtag({
+    String? etag,
+  }) async {
+    final response = await _getRaw(
+      '/gateway/snapshot',
+      // `?etag` : l'entête est omise quand il n'y a pas encore de version mémorisée.
+      headers: {'If-None-Match': ?etag},
+    );
+    if (response.statusCode == 304) return null;
+    if (response.statusCode != 200) {
+      throw MainApiClientException(
+        'GET /gateway/snapshot failed with ${response.statusCode}',
+        statusCode: response.statusCode,
+      );
+    }
+    final decoded = jsonDecode(response.body);
+    if (decoded is! Map) {
+      throw const MainApiClientException(
+        'GET /gateway/snapshot returned a non-object body',
+      );
+    }
+    return GatewaySnapshotResponse(
+      payload: Map<String, dynamic>.from(decoded.cast<dynamic, dynamic>()),
+      etag: _headerIgnoreCase(response, 'etag'),
+    );
+  }
+
+  /// Lecture d'un entête HTTP indépendante de la casse : un `ETag` renvoyé en
+  /// majuscules par Go et un `etag` côté Dart doivent produire le même 304.
+  static String? _headerIgnoreCase(http.Response response, String name) {
+    final wanted = name.toLowerCase();
+    for (final entry in response.headers.entries) {
+      if (entry.key.toLowerCase() == wanted) return entry.value;
+    }
+    return null;
+  }
+
   @override
   Future<Map<String, dynamic>> getBotRuntime(String botId) async {
     final encodedBotId = Uri.encodeComponent(botId.trim());
@@ -1727,6 +1804,18 @@ class MainApiClient implements RemoteRuntimeClient {
     return HostedAppEligibility.fromJson(json);
   }
 
+  /// Mapping des formules servi par le serveur : quelles formules existent, quels droits
+  /// elles portent, et à quels identifiants de produits elles correspondent.
+  ///
+  /// Usage : les CAPACITÉS, jamais l'affichage. L'application s'en sert pour reconnaître
+  /// les SKUs rattachés aux formules (achat et validation des reçus) — les offres montrées
+  /// à l'utilisateur restent une fonctionnalité de l'application, avec ses propres textes
+  /// et sa propre mise en page.
+  Future<PlanCatalogInfo> getGatewayPlans() async {
+    final json = await _get('/gateway/plans');
+    return PlanCatalogInfo.fromJson(json);
+  }
+
   /// Claim a rewarded-ad deploy slot for a free hosted container.
   Future<HostedAppClaimAdResult> claimHostedAppAd({
     required String placement,
@@ -1878,6 +1967,33 @@ class MainApiClient implements RemoteRuntimeClient {
       uri,
       headers: _headers(includeAuth: true, contentType: null),
     );
+  }
+
+  /// Fetch Turnkey bot templates for the specified locale.
+  Future<List<Map<String, dynamic>>> getTurnkeyTemplates({
+    String locale = 'fr',
+  }) async {
+    final json = await _get(
+      '/gateway/turnkey/templates?locale=$locale',
+      includeAuth: false,
+    );
+    final templates = json['templates'];
+    if (templates is List) {
+      return templates
+          .whereType<Map>()
+          .map((m) => Map<String, dynamic>.from(m))
+          .toList();
+    }
+    return <Map<String, dynamic>>[];
+  }
+
+  /// Technically validates a Discord bot token (/users/@me) without requiring Discord App ownership.
+  Future<Map<String, dynamic>> validateTurnkeyDiscordToken(
+    String botToken,
+  ) async {
+    return await _post('/gateway/turnkey/validate-token', <String, dynamic>{
+      'bot_token': botToken.trim(),
+    }, includeAuth: false);
   }
 
   /// Returns a shared reconnecting session for owner bot status/runtime events.
@@ -2118,6 +2234,88 @@ class ContainerInfo {
   }
 }
 
+/// Une formule du catalogue serveur : ce qu'elle permet, et les SKUs qui la
+/// vendent (liste vide = formule non achetable, par exemple accordée à la main
+/// par un administrateur).
+class PurchasablePlanInfo {
+  const PurchasablePlanInfo({
+    required this.code,
+    required this.displayName,
+    required this.maxBots,
+    required this.maxTurnkeyBots,
+    required this.allowTurnkey,
+    required this.allowOwnBots,
+    required this.productIds,
+    this.isDefault = false,
+  });
+
+  final String code;
+  final String displayName;
+
+  /// 0 = illimité (règle de tout le produit).
+  final int maxBots;
+  final int maxTurnkeyBots;
+
+  final bool allowTurnkey;
+  final bool allowOwnBots;
+  final List<String> productIds;
+
+  /// Formule attribuée d'office à tout compte sans abonnement (FREE) : elle
+  /// n'est jamais achetée, donc elle s'affiche comme un socle, sans bouton.
+  final bool isDefault;
+
+  bool get isPurchasable => productIds.isNotEmpty;
+
+  factory PurchasablePlanInfo.fromJson(Map<String, dynamic> json) {
+    final rawIds = json['product_ids'];
+    return PurchasablePlanInfo(
+      code: json['code']?.toString() ?? '',
+      displayName: json['display_name']?.toString() ?? '',
+      maxBots: ContainerInfo.parseInt(json['max_bots'], 0),
+      maxTurnkeyBots: ContainerInfo.parseInt(json['max_turnkey_bots'], 0),
+      allowTurnkey: json['allow_turnkey'] != false,
+      allowOwnBots: json['allow_own_bots'] != false,
+      isDefault: json['is_default'] == true,
+      productIds: rawIds is List
+          ? rawIds
+                .map((entry) => entry.toString())
+                .where((entry) => entry.isNotEmpty)
+                .toList()
+          : const <String>[],
+    );
+  }
+}
+
+/// Catalogue des formules achetables + état réel du compte (`/gateway/plans`).
+class PlanCatalogInfo {
+  const PlanCatalogInfo({required this.plans, this.currentTierCode});
+
+  final List<PurchasablePlanInfo> plans;
+
+  /// Formule réellement appliquée au compte, telle que le serveur la résout.
+  final String? currentTierCode;
+
+  factory PlanCatalogInfo.fromJson(Map<String, dynamic> json) {
+    final rawPlans = json['plans'];
+    final current = json['current'];
+    return PlanCatalogInfo(
+      plans: rawPlans is List
+          ? rawPlans
+                .whereType<Map>()
+                .map(
+                  (entry) => PurchasablePlanInfo.fromJson(
+                    Map<String, dynamic>.from(entry),
+                  ),
+                )
+                .toList()
+          : const <PurchasablePlanInfo>[],
+      currentTierCode: current is Map
+          ? _normalize(current['tier_code']?.toString())
+          : null,
+    );
+  }
+}
+
 class HostedAppEligibility {
   const HostedAppEligibility({
     required this.premium,
@@ -2127,21 +2325,46 @@ class HostedAppEligibility {
     required this.maxContainers,
     required this.adRewardMinutes,
     this.deployBlockedReason,
+    this.allowTurnkey = true,
+    this.planTierCode,
+    this.hostingExpiresAt,
+    this.hostingPermanent = false,
   });
 
   final bool premium;
   final int hostingMinutesBalance;
   final int activeContainers;
   final bool canDeploy;
+
+  /// Plafond de conteneurs, fixé par la formule du compte côté serveur (elle
+  /// prime sur l'abonnement store) : c'est exactement le chiffre appliqué au
+  /// démarrage, donc celui que l'écran doit montrer.
   final int maxContainers;
   final int adRewardMinutes;
 
-  /// `container_limit` | `no_minutes` | null when [canDeploy] is true.
+  /// La formule inclut-elle le clé en main / les applications hébergées ?
+  final bool allowTurnkey;
+
+  /// Code de la formule servie par le serveur (ex. `FREE`, `STARTER`, `PRO`).
+  final String? planTierCode;
+
+  /// Fin de la couverture hébergement, quand le serveur la connaît (échéance d'un
+  /// abonnement ou du dernier octroi qui couvre).
+  final DateTime? hostingExpiresAt;
+
+  /// Vrai seulement quand le serveur dit que la couverture n'a PAS d'échéance
+  /// (un octroi permanent). Les deux champs sont nuls/faux quand l'information
+  /// manque : le client ne doit alors rien affirmer sur la durée.
+  final bool hostingPermanent;
+
+  /// `container_limit` | `no_minutes` | `plan_not_included` | null when
+  /// [canDeploy] is true.
   final String? deployBlockedReason;
 
   bool get isBlockedByContainerLimit =>
       deployBlockedReason == 'container_limit';
   bool get isBlockedByNoMinutes => deployBlockedReason == 'no_minutes';
+  bool get isBlockedByPlan => deployBlockedReason == 'plan_not_included';
 
   factory HostedAppEligibility.fromJson(Map<String, dynamic> json) {
     return HostedAppEligibility(
@@ -2157,6 +2380,12 @@ class HostedAppEligibility {
       deployBlockedReason: _normalize(
         json['deploy_blocked_reason']?.toString(),
       ),
+      allowTurnkey: json['allow_turnkey'] != false,
+      planTierCode: _normalize(json['plan_tier_code']?.toString()),
+      hostingExpiresAt: DateTime.tryParse(
+        json['hosting_expires_at']?.toString() ?? '',
+      )?.toUtc(),
+      hostingPermanent: json['hosting_permanent'] == true,
     );
   }
 }

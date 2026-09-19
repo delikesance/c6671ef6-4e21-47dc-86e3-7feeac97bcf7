@@ -102,10 +102,13 @@ Future<ResolvedRemoteRuntime> resolveRemoteRuntime({
           }
         }
         if (useAssociation) {
-          final hydrated =
-              await RunnerSettings.hydrateRunnerConnectionConfig(config);
+          final hydrated = await RunnerSettings.hydrateRunnerConnectionConfig(
+            config,
+          );
           if (hydrated == null) {
-            return const ResolvedRemoteRuntime(source: RemoteRuntimeSource.local);
+            return const ResolvedRemoteRuntime(
+              source: RemoteRuntimeSource.local,
+            );
           }
           return ResolvedRemoteRuntime(
             source: RemoteRuntimeSource.runner,
@@ -159,27 +162,20 @@ Future<ResolvedRemoteRuntime> resolveRemoteRuntime({
       );
     }
 
-    final unavailableReason =
-        mainApiSession == null
-            ? (isIOS
-                ? _runtimeCopy(
-                  fr:
-                      'Le mode local n\'est pas pris en charge sur iOS. Connectez-vous a Bot Creator dans les parametres avant de demarrer ce bot.',
-                  en:
-                      'Local mode is not supported on iOS. Sign in to Bot Creator in Settings before starting this bot.',
+    final unavailableReason = mainApiSession == null
+        ? (isIOS
+              ? _runtimeCopy(
+                  fr: 'Le mode local n\'est pas pris en charge sur iOS. Connectez-vous a Bot Creator dans les parametres avant de demarrer ce bot.',
+                  en: 'Local mode is not supported on iOS. Sign in to Bot Creator in Settings before starting this bot.',
                 )
-                : _runtimeCopy(
-                  fr:
-                      'Connectez-vous a Bot Creator dans les parametres avant de demarrer ce bot.',
-                  en:
-                      'Sign in to Bot Creator in Settings before starting this bot.',
+              : _runtimeCopy(
+                  fr: 'Connectez-vous a Bot Creator dans les parametres avant de demarrer ce bot.',
+                  en: 'Sign in to Bot Creator in Settings before starting this bot.',
                 ))
-            : _runtimeCopy(
-              fr:
-                  'Votre session Bot Creator a expire. Reconnectez-vous dans les parametres pour demarrer ce bot.',
-              en:
-                  'Your Bot Creator session expired. Sign in again in Settings to start this bot.',
-            );
+        : _runtimeCopy(
+            fr: 'Votre session Bot Creator a expire. Reconnectez-vous dans les parametres pour demarrer ce bot.',
+            en: 'Your Bot Creator session expired. Sign in again in Settings to start this bot.',
+          );
 
     return ResolvedRemoteRuntime(
       source: RemoteRuntimeSource.manager,
@@ -192,10 +188,8 @@ Future<ResolvedRemoteRuntime> resolveRemoteRuntime({
     return ResolvedRemoteRuntime(
       source: RemoteRuntimeSource.manager,
       unavailableReason: _runtimeCopy(
-        fr:
-            'Le mode local n\'est pas pris en charge sur iOS. Configurez Bot Creator pour demarrer ce bot.',
-        en:
-            'Local mode is not supported on iOS. Configure Bot Creator to start this bot.',
+        fr: 'Le mode local n\'est pas pris en charge sur iOS. Configurez Bot Creator pour demarrer ce bot.',
+        en: 'Local mode is not supported on iOS. Configure Bot Creator to start this bot.',
       ),
     );
   }
@@ -229,26 +223,32 @@ Future<String> describeManagerRuntimeFailure(
   }
 
   final originalError = error.toString();
+
+  // La formule du compte prime : inutile d'interroger le diagnostic du runner,
+  // le refus vient du plan et l'offre est la seule issue.
+  if (planLimitRefusalFromError(error) != null) {
+    return _runtimeCopy(
+      fr: 'Votre formule ne permet pas ce demarrage. Consultez les offres pour changer de formule.',
+      en: 'Your plan does not allow this start. Check the plans to upgrade your formula.',
+    );
+  }
+
   if (isInvalidBotId(originalError)) {
     return _runtimeCopy(
-      fr:
-          'ID de bot invalide pour le demarrage sur les serveurs Bot Creator. Synchronisez/recree le bot puis reessayez. Erreur initiale : $error',
-      en:
-          'Invalid bot ID for startup on Bot Creator servers. Sync/recreate the bot, then retry. Original error: $error',
+      fr: 'ID de bot invalide pour le demarrage sur les serveurs Bot Creator. Synchronisez/recree le bot puis reessayez. Erreur initiale : $error',
+      en: 'Invalid bot ID for startup on Bot Creator servers. Sync/recreate the bot, then retry. Original error: $error',
     );
   }
 
   try {
     final info = await client.getRunnerInfo();
     final deployed = info['deployed'] == true;
-    final runner =
-        (info['runner'] is Map)
-            ? Map<String, dynamic>.from(info['runner'] as Map)
-            : const <String, dynamic>{};
-    final latestDeployJob =
-        (info['latest_deploy_job'] is Map)
-            ? Map<String, dynamic>.from(info['latest_deploy_job'] as Map)
-            : const <String, dynamic>{};
+    final runner = (info['runner'] is Map)
+        ? Map<String, dynamic>.from(info['runner'] as Map)
+        : const <String, dynamic>{};
+    final latestDeployJob = (info['latest_deploy_job'] is Map)
+        ? Map<String, dynamic>.from(info['latest_deploy_job'] as Map)
+        : const <String, dynamic>{};
 
     final jobStatus = (latestDeployJob['status'] ?? '').toString().trim();
     final jobError = (latestDeployJob['error'] ?? '').toString().trim();
@@ -257,44 +257,35 @@ Future<String> describeManagerRuntimeFailure(
 
     if (isInvalidBotId(jobError)) {
       return _runtimeCopy(
-        fr:
-            'ID de bot invalide pour le demarrage sur les serveurs Bot Creator. Synchronisez/recree le bot puis reessayez. Details : $jobError',
-        en:
-            'Invalid bot ID for startup on Bot Creator servers. Sync/recreate the bot, then retry. Details: $jobError',
+        fr: 'ID de bot invalide pour le demarrage sur les serveurs Bot Creator. Synchronisez/recree le bot puis reessayez. Details : $jobError',
+        en: 'Invalid bot ID for startup on Bot Creator servers. Sync/recreate the bot, then retry. Details: $jobError',
       );
     }
 
     if (!deployed) {
       return _runtimeCopy(
-        fr:
-            'Les serveurs Bot Creator ne sont pas encore prets pour ce bot. Erreur initiale : $error',
-        en:
-            'Bot Creator servers are not ready for this bot yet. Original error: $error',
+        fr: 'Les serveurs Bot Creator ne sont pas encore prets pour ce bot. Erreur initiale : $error',
+        en: 'Bot Creator servers are not ready for this bot yet. Original error: $error',
       );
     }
     if (jobStatus == 'QUEUED' || jobStatus == 'RUNNING') {
       return _runtimeCopy(
-        fr:
-            'Le demarrage sur les serveurs Bot Creator est encore en cours ($jobStatus). Le traitement peut etre en attente ou toujours en cours. Erreur initiale : $error',
-        en:
-            'Bot Creator server startup is still in progress ($jobStatus). Processing may still be queued or running. Original error: $error',
+        fr: 'Le demarrage sur les serveurs Bot Creator est encore en cours ($jobStatus). Le traitement peut etre en attente ou toujours en cours. Erreur initiale : $error',
+        en: 'Bot Creator server startup is still in progress ($jobStatus). Processing may still be queued or running. Original error: $error',
       );
     }
     if (jobStatus == 'FAILED') {
       final suffix = jobError.isEmpty ? '' : ' Details: $jobError';
       return _runtimeCopy(
-        fr:
-            'Le demarrage sur les serveurs Bot Creator a echoue.$suffix Erreur initiale : $error',
+        fr: 'Le demarrage sur les serveurs Bot Creator a echoue.$suffix Erreur initiale : $error',
         en: 'Bot Creator server startup failed.$suffix Original error: $error',
       );
     }
     if (healthStatus.toLowerCase() == 'unreachable' ||
         runnerState.toUpperCase() == 'DEGRADED') {
       return _runtimeCopy(
-        fr:
-            'Les serveurs Bot Creator sont temporairement injoignables. Erreur initiale : $error',
-        en:
-            'Bot Creator servers are temporarily unreachable. Original error: $error',
+        fr: 'Les serveurs Bot Creator sont temporairement injoignables. Erreur initiale : $error',
+        en: 'Bot Creator servers are temporarily unreachable. Original error: $error',
       );
     }
   } catch (_) {
@@ -310,6 +301,40 @@ bool isPendingFreeRuntimeCreditError(Object error) {
   final normalized = error.toString().toLowerCase();
   return normalized.contains('bot_free_time_required') ||
       normalized.contains('free runtime credits before start');
+}
+
+/// Refus de démarrage dû à la formule du compte (403 du manager).
+///
+/// Le serveur est seul juge des quotas : quand il refuse, l'écran doit proposer
+/// l'offre plutôt qu'afficher un message technique.
+enum PlanLimitRefusal {
+  excludesOwnBots,
+  botQuotaReached,
+  excludesTurnkey,
+  turnkeyQuotaReached,
+}
+
+/// Détecte un refus lié à la formule depuis l'erreur renvoyée par le manager.
+///
+/// On matche le message servi par l'API (que l'application remonte telle quelle)
+/// **et** les codes d'erreur, au cas où le code serait renvoyé à la place.
+PlanLimitRefusal? planLimitRefusalFromError(Object error) {
+  final normalized = error.toString().toLowerCase();
+  bool has(List<String> needles) => needles.any(normalized.contains);
+
+  if (has(const ['does not include personal bots', 'own_bots_not_allowed'])) {
+    return PlanLimitRefusal.excludesOwnBots;
+  }
+  if (has(const ['personal bot limit reached', 'bot_quota_reached'])) {
+    return PlanLimitRefusal.botQuotaReached;
+  }
+  if (has(const ['does not include turnkey apps', 'turnkey_not_allowed'])) {
+    return PlanLimitRefusal.excludesTurnkey;
+  }
+  if (has(const ['turnkey app limit reached', 'turnkey_quota_reached'])) {
+    return PlanLimitRefusal.turnkeyQuotaReached;
+  }
+  return null;
 }
 
 bool isPendingManagerRunnerError(Object error) {

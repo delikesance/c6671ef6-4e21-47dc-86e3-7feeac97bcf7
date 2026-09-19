@@ -74,7 +74,122 @@ class GatewayBotEventPayload {
   }
 }
 
-enum GatewayBotEventType { snapshot, botUpdated, botDeleted, ping, unknown }
+/// État de compte poussé par le canal temps réel (`account.updated`) : exactement ce
+/// que renvoyait `GET /gateway/runtime`. Le serveur reste l'autorité — l'application
+/// n'a plus besoin d'interroger l'API pour connaître sa formule.
+class GatewayAccountEventPayload {
+  const GatewayAccountEventPayload({
+    this.plan = '',
+    this.tierCode = '',
+    this.displayName = '',
+    this.maxBots = 0,
+    this.maxTurnkeyBots = 0,
+    this.allowOwnBots = true,
+    this.allowTurnkey = true,
+    this.provider = '',
+    this.expiresAt,
+  });
+
+  final String plan;
+  final String tierCode;
+  final String displayName;
+  final int maxBots;
+  final int maxTurnkeyBots;
+  final bool allowOwnBots;
+  final bool allowTurnkey;
+  final String provider;
+  final DateTime? expiresAt;
+
+  /// Projection vers la forme de `GET /gateway/runtime`, pour que les deux sources
+  /// (poussée et interrogée) traversent exactement le même code d'application.
+  Map<String, dynamic> toRuntimeMap() {
+    return <String, dynamic>{
+      'plan': plan,
+      'tier_code': tierCode,
+      'display_name': displayName,
+      'max_bots': maxBots,
+      'max_turnkey_bots': maxTurnkeyBots,
+      'allow_own_bots': allowOwnBots,
+      'allow_turnkey': allowTurnkey,
+      'provider': provider,
+      'expires_at': expiresAt?.toIso8601String(),
+    };
+  }
+
+  factory GatewayAccountEventPayload.fromJson(Map<String, dynamic> json) {
+    final expiresRaw = json['expires_at'] ?? json['expiresAt'];
+    DateTime? expires;
+    if (expiresRaw != null) {
+      expires = DateTime.tryParse(expiresRaw.toString())?.toUtc();
+    }
+    return GatewayAccountEventPayload(
+      plan: (json['plan'] ?? '').toString(),
+      tierCode: (json['tier_code'] ?? json['tierCode'] ?? '').toString(),
+      displayName: (json['display_name'] ?? json['displayName'] ?? '').toString(),
+      maxBots: GatewayBotEventPayload._asInt(
+        json['max_bots'] ?? json['maxBots'],
+      ),
+      maxTurnkeyBots: GatewayBotEventPayload._asInt(
+        json['max_turnkey_bots'] ?? json['maxTurnkeyBots'],
+      ),
+      allowOwnBots: _asBool(json['allow_own_bots'] ?? json['allowOwnBots']),
+      allowTurnkey: _asBool(json['allow_turnkey'] ?? json['allowTurnkey']),
+      provider: (json['provider'] ?? '').toString(),
+      expiresAt: expires,
+    );
+  }
+
+  static bool _asBool(dynamic raw) {
+    if (raw == null) return true;
+    if (raw is bool) return raw;
+    return raw.toString().toLowerCase() != 'false';
+  }
+}
+
+/// État d'une app hébergée poussé par le canal temps réel (`container.updated`) :
+/// remplace le sondage du statut de conteneur.
+class GatewayContainerEventPayload {
+  const GatewayContainerEventPayload({
+    required this.containerId,
+    this.state = '',
+    this.healthStatus = '',
+    this.expiresAt,
+  });
+
+  final String containerId;
+  final String state;
+  final String healthStatus;
+  final DateTime? expiresAt;
+
+  factory GatewayContainerEventPayload.fromJson(Map<String, dynamic> json) {
+    final expiresRaw = json['expires_at'] ?? json['expiresAt'];
+    DateTime? expires;
+    if (expiresRaw != null) {
+      expires = DateTime.tryParse(expiresRaw.toString())?.toUtc();
+    }
+    return GatewayContainerEventPayload(
+      containerId: (json['container_id'] ?? json['containerId'] ?? '').toString(),
+      state: (json['state'] ?? '').toString(),
+      healthStatus: (json['health_status'] ?? json['healthStatus'] ?? '')
+          .toString(),
+      expiresAt: expires,
+    );
+  }
+}
+
+enum GatewayBotEventType {
+  snapshot,
+  botUpdated,
+  botDeleted,
+  accountUpdated,
+  containerUpdated,
+  ping,
+
+  /// Type inconnu : ignoré silencieusement. C'est ce qui rend l'application
+  /// rétro-compatible — un serveur plus récent peut ajouter des événements sans la
+  /// casser, et un serveur plus ancien ne change rien à son comportement.
+  unknown,
+}
 
 class GatewayBotEvent {
   const GatewayBotEvent({
@@ -83,6 +198,8 @@ class GatewayBotEvent {
     this.ts,
     this.bot,
     this.bots = const <GatewayBotEventPayload>[],
+    this.account,
+    this.container,
   });
 
   final GatewayBotEventType type;
@@ -90,6 +207,8 @@ class GatewayBotEvent {
   final DateTime? ts;
   final GatewayBotEventPayload? bot;
   final List<GatewayBotEventPayload> bots;
+  final GatewayAccountEventPayload? account;
+  final GatewayContainerEventPayload? container;
 
   factory GatewayBotEvent.fromJson(Map<String, dynamic> json) {
     final typeRaw = (json['type'] ?? '').toString();
@@ -99,6 +218,8 @@ class GatewayBotEvent {
       'bot.config_updated' ||
       'bot.synced' => GatewayBotEventType.botUpdated,
       'bot.deleted' => GatewayBotEventType.botDeleted,
+      'account.updated' => GatewayBotEventType.accountUpdated,
+      'container.updated' => GatewayBotEventType.containerUpdated,
       'ping' => GatewayBotEventType.ping,
       _ => GatewayBotEventType.unknown,
     };
@@ -122,6 +243,20 @@ class GatewayBotEvent {
         }
       }
     }
+    final accountRaw = json['account'];
+    GatewayAccountEventPayload? account;
+    if (accountRaw is Map) {
+      account = GatewayAccountEventPayload.fromJson(
+        Map<String, dynamic>.from(accountRaw.cast<dynamic, dynamic>()),
+      );
+    }
+    final containerRaw = json['container'];
+    GatewayContainerEventPayload? container;
+    if (containerRaw is Map) {
+      container = GatewayContainerEventPayload.fromJson(
+        Map<String, dynamic>.from(containerRaw.cast<dynamic, dynamic>()),
+      );
+    }
     final tsRaw = json['ts'];
     return GatewayBotEvent(
       type: type,
@@ -129,6 +264,8 @@ class GatewayBotEvent {
       ts: tsRaw == null ? null : DateTime.tryParse(tsRaw.toString())?.toUtc(),
       bot: bot,
       bots: bots,
+      account: account,
+      container: container,
     );
   }
 }

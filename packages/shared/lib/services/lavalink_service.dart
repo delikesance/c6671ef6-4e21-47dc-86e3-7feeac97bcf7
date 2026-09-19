@@ -11,61 +11,289 @@ import 'package:http/http.dart' as http;
 import 'package:nyxx/nyxx.dart';
 import 'package:nyxx_lavalink/nyxx_lavalink.dart';
 
-/// Holds runtime state for a single guild's Lavalink player.
-class LavalinkSession {
+/// Contrôles de lecture d'une session.
+///
+/// Fine abstraction au-dessus du player `nyxx_lavalink` : elle permet de
+/// tester la file d'attente SANS serveur Lavalink (aucun réseau dans les tests).
+abstract class LavalinkAudioOutput {
+  Future<void> play(Track track);
+  Future<void> stop();
+  Future<void> setPaused(bool paused);
+  Future<void> setVolume(int volume);
+  Future<void> seekTo(Duration position);
+  Future<void> disconnect();
+
+  Track? get currentTrack;
+  Duration get position;
+  bool get isConnected;
+}
+
+/// Implémentation réelle : pilote le player de `nyxx_lavalink`.
+class NyxxLavalinkOutput implements LavalinkAudioOutput {
   final LavalinkPlayer player;
-  final List<Track> queue = [];
-  int _queueIndex = -1;
+
+  NyxxLavalinkOutput(this.player);
+
+  @override
+  Future<void> play(Track track) => player.play(track);
+
+  @override
+  Future<void> stop() => player.stopPlaying();
+
+  @override
+  Future<void> setPaused(bool paused) =>
+      paused ? player.pause() : player.resume();
+
+  @override
+  Future<void> setVolume(int volume) => player.setVolume(volume);
+
+  @override
+  Future<void> seekTo(Duration position) => player.seekTo(position);
+
+  @override
+  Future<void> disconnect() => player.disconnect();
+
+  @override
+  Track? get currentTrack => player.currentTrack;
+
+  @override
+  Duration get position => player.state.position;
+
+  @override
+  bool get isConnected => player.state.isConnected;
+}
+
+/// File d'attente et état de lecture d'une guilde.
+///
+/// MODÈLE DE FILE — IL N'Y EN A QU'UN : la file locale ci-dessous.
+/// `nyxx_lavalink` n'expose AUCUNE file (`LavalinkPlayer` ne connaît que le
+/// morceau courant) : tenir une seconde file « côté player » était la source des
+/// doublons et des skips qui rejouaient le même morceau. Règles explicites :
+/// - `_entries[_cursor]` est LE morceau courant, un point c'est tout ;
+/// - [enqueue] ajoute exactement une entrée et ne démarre la lecture que si
+///   rien ne joue (aucune croissance parasite, aucun doublon) ;
+/// - la fin d'un morceau (événement Lavalink) avance le curseur d'elle-même ;
+/// - [skip] avance le curseur sans JAMAIS rejouer le morceau courant (`loop`
+///   est un choix explicite et ne s'applique jamais à un skip) ;
+/// - file épuisée → arrêt propre.
+class LavalinkSession {
+  LavalinkSession({
+    required LavalinkAudioOutput output,
+    Stream<String>? trackEndReasons,
+    // ignore: prefer_initializing_formals
+  }) : _output = output {
+    if (trackEndReasons != null) bindTrackEnd(trackEndReasons);
+  }
+
+  /// Construit la session d'un player réel (fins de morceau comprises).
+  factory LavalinkSession.fromPlayer(LavalinkPlayer player) {
+    return LavalinkSession(
+      output: NyxxLavalinkOutput(player),
+      trackEndReasons: player.onTrackEnd.map((event) => event.reason),
+    );
+  }
+
+  LavalinkAudioOutput _output;
+  final List<Track> _entries = <Track>[];
+  int _cursor = -1;
+
+  /// Morceau demandé au player dont le démarrage n'est pas encore confirmé par
+  /// un `TrackStart` : sans lui, deux `play` rapprochés croiraient que rien ne
+  /// joue et remplaceraient le morceau précédent.
+  Track? _pendingStart;
+
+  StreamSubscription<String>? _trackEndSub;
+
   bool loop = false;
   int volume = 100;
   bool isPaused = false;
 
-  LavalinkSession({required this.player});
+  /// Entrées de la file, dans l'ordre de lecture (le morceau courant inclus).
+  List<Track> get entries => List<Track>.unmodifiable(_entries);
 
+  /// Nombre total d'entrées (morceau courant compris).
+  int get queueLength => _entries.length;
+
+  /// Nombre de morceaux ENCORE à jouer, morceau courant exclu.
+  ///
+  /// C'est le nombre exposé par `((lavalink.queueSize))` : une file qui
+  /// annonçait 15 ou 30 morceaux déjà joués n'avait aucun sens.
+  int get queueSize {
+    final remaining = _entries.length - (_cursor + 1);
+    return remaining < 0 ? 0 : remaining;
+  }
+
+  /// Le morceau courant : le curseur local d'abord, puis la confirmation du
+  /// player, puis le démarrage en cours.
   Track? get currentTrack {
-    if (player.currentTrack != null) return player.currentTrack;
-    if (_queueIndex >= 0 && _queueIndex < queue.length) {
-      return queue[_queueIndex];
+    if (_cursor >= 0 && _cursor < _entries.length) return _entries[_cursor];
+    return _output.currentTrack ?? _pendingStart;
+  }
+
+  bool get isPlaying => _output.currentTrack != null || _pendingStart != null;
+  bool get isConnected => _output.isConnected;
+  Duration get position => _output.position;
+
+  bool get _hasActivePlayback =>
+      _output.currentTrack != null || _pendingStart != null;
+
+  /// Branche le flux des fins de morceau (raisons Lavalink) : la file avance
+  /// toute seule, sans intervention.
+  void bindTrackEnd(Stream<String> reasons) {
+    unawaited(_trackEndSub?.cancel());
+    _trackEndSub = reasons.listen(
+      (reason) => unawaited(handleTrackEnd(reason)),
+    );
+  }
+
+  /// Rebranche la session sur un nouveau player (changement de salon) en
+  /// CONSERVANT la file et le curseur : rien n'est recopié, rien n'est dupliqué.
+  void rebind({
+    required LavalinkAudioOutput output,
+    Stream<String>? trackEndReasons,
+  }) {
+    _output = output;
+    if (trackEndReasons != null) bindTrackEnd(trackEndReasons);
+  }
+
+  /// Ajoute [track] à la file.
+  ///
+  /// Retourne `true` quand sa lecture a démarré immédiatement (rien ne jouait),
+  /// `false` quand il attend son tour. Un appel = une entrée.
+  Future<bool> enqueue(Track track) async {
+    _entries.add(track);
+    if (_hasActivePlayback) return false;
+    _cursor = _entries.length - 1;
+    await _startCurrent();
+    return true;
+  }
+
+  /// Passe au morceau suivant. Ne rejoue JAMAIS le morceau courant — c'était le
+  /// bug « $skipMusic relance la même chanson ». File épuisée → arrêt propre.
+  ///
+  /// La boucle n'est JAMAIS consultée ici : elle est réservée à l'enchaînement
+  /// automatique ([handleTrackEnd]). Un skip sur le dernier morceau s'arrête.
+  Future<void> skip() async {
+    final next = _nextIndex(allowLoop: false);
+    if (next == null) {
+      // Curseur posé APRÈS la dernière entrée (comme en fin de morceau) : sinon
+      // `currentTrack` continuerait de désigner un morceau qui ne joue plus.
+      _cursor = _entries.isEmpty ? -1 : _entries.length;
+      await _stopPlayback();
+      return;
+    }
+    _cursor = next;
+    await _startCurrent();
+  }
+
+  /// Fin de morceau signalée par Lavalink.
+  ///
+  /// `replaced` (morceau remplacé par un skip ou une nouvelle lecture) et
+  /// `cleanup` (player détruit) sont ignorés : sinon on avancerait deux fois
+  /// pour un seul morceau. Les autres raisons enchaînent sur le suivant ; si la
+  /// boucle est active on repart du début, sinon la lecture s'arrête là.
+  Future<void> handleTrackEnd(String reason) async {
+    if (reason == 'replaced' || reason == 'cleanup') return;
+    _pendingStart = null;
+
+    final next = _nextIndex(allowLoop: loop);
+    if (next == null) {
+      // File épuisée : le player s'est déjà arrêté tout seul.
+      _cursor = _entries.isEmpty ? -1 : _entries.length;
+      return;
+    }
+    _cursor = next;
+    await _startCurrent();
+  }
+
+  Future<void> pause() async {
+    await _output.setPaused(true);
+    isPaused = true;
+  }
+
+  Future<void> resume() async {
+    await _output.setPaused(false);
+    isPaused = false;
+  }
+
+  Future<void> setVolume(int value) async {
+    final clamped = value.clamp(0, 200);
+    await _output.setVolume(clamped);
+    volume = clamped;
+  }
+
+  void setLoop(bool value) {
+    loop = value;
+  }
+
+  Future<void> seekTo(Duration position) => _output.seekTo(position);
+
+  /// Arrête la lecture et vide la file (remise à zéro de la source de vérité).
+  Future<void> stop() async {
+    _entries.clear();
+    _cursor = -1;
+    await _stopPlayback();
+  }
+
+  /// Détache le player et libère les ressources.
+  Future<void> dispose() async {
+    await _trackEndSub?.cancel();
+    _trackEndSub = null;
+    _entries.clear();
+    _cursor = -1;
+    _pendingStart = null;
+    await _output.disconnect();
+  }
+
+  Future<void> _startCurrent() async {
+    if (_cursor < 0 || _cursor >= _entries.length) return;
+    final track = _entries[_cursor];
+    // Posé AVANT l'appel réseau : deux demandes simultanées ne peuvent pas
+    // démarrer deux morceaux à la fois.
+    _pendingStart = track;
+    await _output.play(track);
+  }
+
+  Future<void> _stopPlayback() async {
+    _pendingStart = null;
+    isPaused = false;
+    await _output.stop();
+  }
+
+  /// Index du prochain morceau à jouer, ou `null` quand il n'y en a plus.
+  ///
+  /// [allowLoop] est réservé à l'enchaînement automatique : un skip ne doit
+  /// jamais revenir au morceau courant, et une file d'un seul morceau ne le
+  /// rejoue donc jamais.
+  int? _nextIndex({required bool allowLoop}) {
+    if (_entries.isEmpty) return null;
+    final current = (_cursor >= 0 && _cursor < _entries.length)
+        ? _entries[_cursor]
+        : null;
+
+    for (var i = _cursor + 1; i < _entries.length; i++) {
+      if (!_sameTrack(_entries[i], current)) return i;
+    }
+    if (!allowLoop) return null;
+
+    for (var i = 0; i < _entries.length; i++) {
+      if (!_sameTrack(_entries[i], current)) return i;
     }
     return null;
   }
 
-  bool get isPlaying => player.currentTrack != null;
-  bool get isConnected => player.state.isConnected;
-  Duration get position => player.state.position;
-
-  int get queueSize => queue.length;
-
-  /// Advance to the next track in queue (or loop).
-  /// Returns the next track, or null if queue is empty.
-  Track? nextTrack() {
-    if (queue.isEmpty) return null;
-    _queueIndex++;
-    if (_queueIndex >= queue.length) {
-      if (loop) {
-        _queueIndex = 0;
-      } else {
-        _queueIndex = -1;
-        return null;
-      }
-    }
-    return queue[_queueIndex];
-  }
-
-  void addToQueue(Track track) {
-    queue.add(track);
-  }
-
-  void clearQueue() {
-    queue.clear();
-    _queueIndex = -1;
+  /// Deux morceaux sont identiques quand leur charge utile encodée l'est.
+  static bool _sameTrack(Track? a, Track? b) {
+    if (a == null || b == null) return false;
+    return a.encoded.isNotEmpty && a.encoded == b.encoded;
   }
 }
 
 /// Manages the Lavalink connection lifecycle and exposes player controls.
 ///
-/// The [plugin] must be created from [BotConfig.lavalinkConfig] and passed to
-/// the gateway via `GatewayClientOptions(plugins: [plugin])` before using this service.
+/// The [plugin] is created from a server retained by the auto-selection (or from
+/// the bot's own fallback servers) and passed to the gateway via
+/// `GatewayClientOptions(plugins: [plugin])` before using this service.
 class LavalinkService {
   final LavalinkPlugin _plugin;
   final Map<Snowflake, LavalinkSession> _sessions = {};
@@ -73,20 +301,37 @@ class LavalinkService {
 
   LavalinkService({
     required LavalinkPlugin plugin,
-    required LavalinkConfig config,
     this.onLog,
   }) : _plugin = plugin; // ignore: prefer_initializing_formals
 
   /// Create a [LavalinkPlugin] from a config, or return null if no config is set.
   static LavalinkPlugin? createPlugin(LavalinkConfig? config) {
     if (config == null) return null;
+    return createPluginForServer(
+      host: config.host,
+      port: config.port,
+      password: config.password,
+      useSsl: config.useSsl,
+    );
+  }
+
+  /// Create a [LavalinkPlugin] for an explicit server (le serveur retenu par la
+  /// sélection automatique, ou un serveur personnel de repli).
+  /// Returns null when the host is empty.
+  static LavalinkPlugin? createPluginForServer({
+    required String host,
+    required int port,
+    required String password,
+    required bool useSsl,
+  }) {
+    if (host.trim().isEmpty) return null;
     return LavalinkPlugin(
       base: Uri(
-        scheme: config.useSsl ? 'https' : 'http',
-        host: config.host,
-        port: config.port,
+        scheme: useSsl ? 'https' : 'http',
+        host: host,
+        port: port,
       ),
-      password: config.password,
+      password: password,
     );
   }
 
@@ -117,17 +362,18 @@ class LavalinkService {
   }
 
   /// Connect to a voice channel and return the session.
+  ///
+  /// Une seule session par guilde : si le bot change de salon, la MÊME session
+  /// est rebranchée sur le nouveau player. La file n'est jamais recopiée, donc
+  /// jamais dupliquée.
   Future<LavalinkSession> connect(
     NyxxGateway client,
     Snowflake guildId,
     Snowflake channelId,
   ) async {
-    final botVoiceState = client.guilds.cache[guildId]?.voiceStates[client.user.id];
-    final botChannelId = botVoiceState?.channelId;
-
-    // Reuse existing session if already connected to the same channel
-    if (_sessions.containsKey(guildId) && botChannelId == channelId) {
-      return _sessions[guildId]!;
+    final existing = _sessions[guildId];
+    if (existing != null && _isInRequestedChannel(client, guildId, channelId)) {
+      return existing;
     }
 
     onLog?.call('Lavalink: connecting to voice channel $channelId in guild $guildId...');
@@ -141,36 +387,42 @@ class LavalinkService {
         'Make sure the Lavalink server is running and accessible.',
       );
     });
-    final session = LavalinkSession(player: player);
 
-    // Auto-advance queue on track end
-    player.onTrackEnd.listen((event) async {
-      if (event.reason == 'finished' || event.reason == 'stopped') {
-        final next = session.nextTrack();
-        if (next != null) {
-          await player.play(next);
-        }
-      }
-    });
+    final output = NyxxLavalinkOutput(player);
+    final reasons = player.onTrackEnd.map((event) => event.reason);
 
-    final oldSession = _sessions[guildId];
-    if (oldSession != null) {
-      // Transfer queue and settings to the new session
-      session.queue.addAll(oldSession.queue);
-      session._queueIndex = oldSession._queueIndex;
-      session.loop = oldSession.loop;
+    if (existing != null) {
+      existing.rebind(output: output, trackEndReasons: reasons);
+      return existing;
     }
 
+    final session = LavalinkSession(output: output, trackEndReasons: reasons);
     _sessions[guildId] = session;
     return session;
+  }
+
+  /// Vrai quand la session est déjà branchée sur le salon demandé.
+  ///
+  /// Un état vocal non encore mis en cache (`null`) est traité comme « déjà
+  /// bon » : le cache Discord retarde, et rebrancher le player à chaque lecture
+  /// ne servirait à rien.
+  bool _isInRequestedChannel(
+    NyxxGateway client,
+    Snowflake guildId,
+    Snowflake channelId,
+  ) {
+    final session = _sessions[guildId];
+    if (session == null || !session.isConnected) return false;
+    final botChannelId =
+        client.guilds.cache[guildId]?.voiceStates[client.user.id]?.channelId;
+    return botChannelId == null || botChannelId == channelId;
   }
 
   /// Disconnect from a guild's voice channel.
   Future<void> disconnect(Snowflake guildId) async {
     final session = _sessions.remove(guildId);
     if (session != null) {
-      session.clearQueue();
-      await session.player.disconnect();
+      await session.dispose();
     }
   }
 
@@ -180,6 +432,9 @@ class LavalinkService {
   // ─── Player controls ────────────────────────────────────────────────────
 
   /// Play a track by search query. Loads via Lavalink REST API.
+  ///
+  /// Le morceau est ajouté à la file de la session (une entrée, jamais deux) et
+  /// ne démarre que si rien ne joue déjà.
   Future<Track?> play(
     NyxxGateway client,
     Snowflake guildId,
@@ -212,30 +467,26 @@ class LavalinkService {
     if (result is TrackLoadResult) {
       onLog?.call('Lavalink: found single track: ${result.data.info.title}');
       final track = result.data;
-      s.addToQueue(track);
-      if (!s.isPlaying) {
-        s._queueIndex = s.queue.length - 1;
-        await s.player.play(track);
-      }
+      await s.enqueue(track);
       return track;
     } else if (result is PlaylistLoadResult) {
-      for (final track in result.data.tracks) {
-        s.addToQueue(track);
+      final tracks = result.data.tracks;
+      if (tracks.isEmpty) return null;
+      // N morceaux demandés = N entrées à jouer, dans l'ordre : le premier
+      // démarre, les autres attendent leur tour.
+      for (final track in tracks) {
+        await s.enqueue(track);
       }
-      if (!s.isPlaying && s.queue.isNotEmpty) {
-        s._queueIndex = s.queue.length - result.data.tracks.length;
-        await s.player.play(s.queue[s._queueIndex]);
-      }
+      onLog?.call(
+        'Lavalink: playlist ajoutée — ${tracks.length} morceaux, '
+        '${s.queueSize} en attente',
+      );
       return s.currentTrack;
     } else if (result is SearchLoadResult) {
       onLog?.call('Lavalink: search results: ${result.data.length} tracks');
       final track = result.data.firstOrNull;
       if (track != null) {
-        s.addToQueue(track);
-        if (!s.isPlaying) {
-          s._queueIndex = s.queue.length - 1;
-          await s.player.play(track);
-        }
+        await s.enqueue(track);
         return track;
       }
     } else if (result is ErrorLoadResult) {
@@ -253,63 +504,52 @@ class LavalinkService {
   Future<void> pause(Snowflake guildId) async {
     final s = _sessions[guildId];
     if (s != null) {
-      await s.player.pause();
-      s.isPaused = true;
+      await s.pause();
     }
   }
 
   Future<void> resume(Snowflake guildId) async {
     final s = _sessions[guildId];
     if (s != null) {
-      await s.player.resume();
-      s.isPaused = false;
+      await s.resume();
     }
   }
 
   Future<void> skip(Snowflake guildId) async {
     final s = _sessions[guildId];
     if (s == null) return;
-    final next = s.nextTrack();
-    if (next != null) {
-      await s.player.play(next);
-    } else {
-      await s.player.stopPlaying();
-    }
+    await s.skip();
   }
 
   Future<void> stop(Snowflake guildId) async {
     final s = _sessions[guildId];
     if (s != null) {
-      s.clearQueue();
-      await s.player.stopPlaying();
+      await s.stop();
     }
   }
 
   Future<void> setVolume(Snowflake guildId, int volume) async {
     final s = _sessions[guildId];
     if (s != null) {
-      final clamped = volume.clamp(0, 200);
-      await s.player.setVolume(clamped);
-      s.volume = clamped;
+      await s.setVolume(volume);
     }
   }
 
   Future<void> setLoop(Snowflake guildId, bool loop) async {
     final s = _sessions[guildId];
-    if (s != null) s.loop = loop;
+    if (s != null) s.setLoop(loop);
   }
 
   Future<void> seekTo(Snowflake guildId, Duration position) async {
     final s = _sessions[guildId];
-    if (s != null) await s.player.seekTo(position);
+    if (s != null) await s.seekTo(position);
   }
 
   /// Dispose all sessions. The plugin lifecycle is managed by the nyxx client.
   Future<void> dispose() async {
-    for (final entry in _sessions.entries) {
-      entry.value.clearQueue();
+    for (final session in _sessions.values) {
       try {
-        await entry.value.player.disconnect();
+        await session.dispose();
       } catch (_) {}
     }
     _sessions.clear();
@@ -370,11 +610,8 @@ class LavalinkService {
     Snowflake guildId,
     Snowflake channelId,
   ) async {
-    final botVoiceState = client.guilds.cache[guildId]?.voiceStates[client.user.id];
-    final botChannelId = botVoiceState?.channelId;
-
-    if (_sessions.containsKey(guildId) && botChannelId == channelId) {
-      return _sessions[guildId]!;
+    if (_isInRequestedChannel(client, guildId, channelId)) {
+      return _sessions[guildId];
     }
     return await connect(client, guildId, channelId);
   }

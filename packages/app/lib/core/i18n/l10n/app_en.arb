@@ -1991,6 +1991,38 @@
   "@bot_settings_lavalink_choose_server": {
     "description": "Choose a public server button"
   },
+  "@bot_settings_lavalink_add_fallback": {
+    "description": "Add a fallback server button"
+  },
+  "@bot_settings_lavalink_enable_subtitle": {
+    "description": "Music (Lavalink) switch subtitle"
+  },
+  "@bot_settings_lavalink_enable_title": {
+    "description": "Music (Lavalink) switch title"
+  },
+  "@bot_settings_lavalink_fallback_desc": {
+    "description": "Explanation that public servers are tried first"
+  },
+  "@bot_settings_lavalink_fallback_title": {
+    "description": "Fallback servers section title"
+  },
+  "@bot_settings_lavalink_invalid_server": {
+    "description": "Validation error for a fallback server"
+  },
+  "@bot_settings_lavalink_no_fallback": {
+    "description": "Empty state of the fallback servers list"
+  },
+  "@bot_settings_lavalink_remove_fallback": {
+    "description": "Remove a fallback server button"
+  },
+  "@bot_settings_lavalink_server_number": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    },
+    "description": "Fallback server card title"
+  },
   "@bot_settings_lavalink_host": {
     "description": "Host field label"
   },
@@ -2016,7 +2048,7 @@
     "description": "Secure wss:// connection subtitle"
   },
   "@bot_settings_lavalink_save_caption": {
-    "description": "Caption explaining the bot needs this config to connect"
+    "description": "Caption explaining the bot tries public servers then the fallback ones"
   },
   "@bot_settings_lavalink_save_btn": {
     "description": "Save button on Lavalink tab"
@@ -8384,9 +8416,16 @@
   "bot_settings_intents_auto_enabled": "Privileged gateway intents were enabled automatically in the Developer Portal.",
   "bot_settings_intents_verified_bot_manual": "This verified bot requires manual privileged intent setup in the Discord Developer Portal.",
   "bot_settings_intents_auto_enable_failed": "Token saved, but privileged intents could not be enabled automatically. Enable them in the Discord Developer Portal.",
+  "bot_settings_lavalink_add_fallback": "Add a fallback server",
   "bot_settings_lavalink_choose_server": "Choose a public server...",
+  "bot_settings_lavalink_enable_subtitle": "The bot tries the public servers on its own; no server choice is needed.",
+  "bot_settings_lavalink_enable_title": "Music (Lavalink)",
+  "bot_settings_lavalink_fallback_desc": "Public servers are tried first. Your servers are used as a fallback when none answers.",
+  "bot_settings_lavalink_fallback_title": "My fallback servers",
   "bot_settings_lavalink_host": "Host",
   "bot_settings_lavalink_host_hint": "localhost or Lavalink server IP",
+  "bot_settings_lavalink_invalid_server": "Enter a host and a port between 1 and 65535.",
+  "bot_settings_lavalink_no_fallback": "No fallback server yet.",
   "bot_settings_lavalink_password": "Password",
   "bot_settings_lavalink_password_hint": "youshallnotpass",
   "bot_settings_lavalink_port": "Port",
@@ -8394,9 +8433,11 @@
   "bot_settings_lavalink_premium_banner_desc": "Unlock Lavalink audio support for your bot.",
   "bot_settings_lavalink_premium_banner_title": "🔒 Available with Bot Creator PREMIUM",
   "bot_settings_lavalink_public_servers": "Public servers",
+  "bot_settings_lavalink_remove_fallback": "Remove",
   "bot_settings_lavalink_save_btn": "Save",
-  "bot_settings_lavalink_save_caption": "Save this configuration so the bot can connect to the Lavalink server.",
+  "bot_settings_lavalink_save_caption": "Save so the bot tries the public servers first, then your fallback servers.",
   "bot_settings_lavalink_section_title": "Lavalink Server",
+  "bot_settings_lavalink_server_number": "Fallback server {index}",
   "bot_settings_lavalink_server_picker_title": "Public Lavalink Servers",
   "bot_settings_lavalink_server_subtitle": "Port {port} — {version}",
   "bot_settings_lavalink_servers_available": "{count} servers available",
@@ -10097,6 +10138,50 @@
       }
     }
   },
+  "subscriptions_hub_permanent": "Permanent (no expiration)",
+  "@subscriptions_hub_permanent": {
+    "description": "Label indicating a subscription has no expiration date"
+  },
+  "subscriptions_hub_unlimited_bots": "Unlimited bots",
+  "@subscriptions_hub_unlimited_bots": {
+    "description": "Badge indicating unlimited bots quota"
+  },
+  "subscriptions_hub_managed_by_server": "Managed by server",
+  "plan_limit_own_bots_title": "Personal bots not included in your plan",
+  "plan_limit_own_bots_desc": "Your plan only gives access to turnkey bots. Upgrade to a plan that includes personal bots to start this one.",
+  "plan_limit_bot_quota_title": "Running bot limit reached",
+  "plan_limit_bot_quota_desc": "Your plan limits how many bots can run at the same time. Stop a bot, or upgrade your plan.",
+  "plan_limit_bot_quota_ad_funded_desc": "Your plan runs {count} bots at the same time. This one is extra: it will run on hosting time earned by watching ads, and stop when that time runs out.",
+  "plan_limit_quota_continue_ad": "Start ad-funded",
+  "@plan_limit_bot_quota_ad_funded_desc": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "plan_limit_turnkey_title": "Turnkey bots not included in your plan",
+  "plan_limit_turnkey_desc": "Your plan does not include turnkey bots or hosted applications. Choose a plan that includes them.",
+  "plan_limit_turnkey_quota_title": "Turnkey bot limit reached",
+  "plan_limit_turnkey_quota_desc": "Your plan limits how many turnkey bots can run at the same time. Stop one, or upgrade your plan.",
+  "plan_limit_view_offers": "View plans",
+  "@plans_catalog_turnkey_max": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@plans_catalog_bots_max": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@subscriptions_hub_managed_by_server": {
+    "description": "Label indicating a subscription was granted or managed via server"
+  },
   "subscription_upgrade_annual": "Upgrade to annual",
   "subscription_upgrade_two_apps": "Upgrade to 2 containers",
   "subscription_manage_cancel_hint": "To cancel or change billing, use Manage subscription — this opens the App Store or Google Play.",
@@ -10422,8 +10507,8 @@
   "app_create_select_type_desc": "Choose the type of application you want to create to get started.",
   "app_create_type_discord": "Discord Bot",
   "app_create_type_discord_desc": "Build and run a customizable Discord bot with logic, triggers, and dynamic canvas panels.",
-  "app_create_type_hosted": "Hosted Application (Docker)",
-  "app_create_type_hosted_desc": "Run a backend app, server, or script in your favorite language (NodeJS, Python, Java...). Upload files and install packages in a secure sandbox.",
+  "app_create_type_hosted": "Turnkey Bot",
+  "app_create_type_hosted_desc": "Deploy ready-to-use bots (music, moderation, utility...) hosted 24/7 in seconds.",
   "app_create_coming_soon": "Coming Soon",
   "@app_create_select_type_title": {
     "description": "Title of the select application type screen"
@@ -10749,6 +10834,15 @@
       }
     }
   },
+  "container_deploy_token_invalid": "Invalid Discord bot token: {error}",
+  "@container_deploy_token_invalid": {
+    "description": "Snackbar shown when turnkey Discord bot token validation fails",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "container_deploy_blocked_container_limit": "You've reached your hosted app limit. Delete or stop an existing hosted app to free up a slot before deploying another.",
   "@container_deploy_blocked_container_limit": {
     "description": "Deploy eligibility banner reason when the container limit is reached"
@@ -10810,6 +10904,7 @@
   "@container_detail_started_ok": {
     "description": "Snackbar after container start is requested"
   },
+  "container_detail_open": "Details",
   "container_detail_delete_title": "Delete Container",
   "@container_detail_delete_title": {
     "description": "Title of the delete container dialog"
@@ -10857,6 +10952,15 @@
   "container_detail_console": "Logs",
   "@container_detail_console": {
     "description": "Label for the container logs section"
+  },
+  "container_logs_errors_count": "{count, plural, =0{No errors} =1{1 error} other{{count} errors}}",
+  "@container_logs_errors_count": {
+    "description": "Nombre d'erreurs du tampon de logs, affiché dans le bandeau de la console d'un conteneur.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "container_detail_deploying": "Container is being deployed...",
   "@container_detail_deploying": {

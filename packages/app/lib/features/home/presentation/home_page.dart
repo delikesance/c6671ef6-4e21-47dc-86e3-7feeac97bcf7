@@ -33,13 +33,16 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/app_editor_
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/bot_logs.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/bot_config_pull_dialog.dart';
 import 'package:bot_creator/features/bot_management/presentation/create_page.dart';
-import 'package:bot_creator/features/containers/presentation/container_list_page.dart';
+import 'package:bot_creator/features/containers/presentation/container_detail_page.dart';
+import 'package:bot_creator/features/containers/presentation/home_turnkey_container_card.dart';
 import 'package:bot_creator/features/discord_rpc/logic/discord_rpc_service.dart';
 import 'package:bot_creator/features/documentation/documentation_navigation.dart';
 import 'package:bot_creator/features/home/presentation/guild_avatar.dart';
 import 'package:bot_creator/features/home/presentation/home_ui.dart';
 import 'package:bot_creator/features/settings/presentation/settings_page.dart';
 import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
+import 'package:bot_creator/features/subscriptions/presentation/plan_limit_dialog.dart';
+import 'package:bot_creator/features/subscriptions/presentation/subscriptions_hub_page.dart';
 import 'package:bot_creator/main.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -48,6 +51,104 @@ import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nyxx/nyxx.dart' hide Locale, Logger;
 import 'package:url_launcher/url_launcher.dart';
+
+String homeUiCopy(
+  BuildContext context, {
+  required String fr,
+  required String en,
+}) {
+  return Localizations.localeOf(context).languageCode == 'fr' ? fr : en;
+}
+
+/// Issue d'une tentative de rafraîchissement de l'accueil par le snapshot agrégé.
+enum HomeSnapshotOutcome {
+  /// 200 : le snapshot (compte + bots) a été appliqué.
+  applied,
+
+  /// 304 : rien n'a changé depuis l'ETag mémorisé, donc rien à réappliquer.
+  notModified,
+
+  /// Le manager ne connaît pas `/gateway/snapshot` (404) ou est injoignable : on est
+  /// retombé sur le repli historique, une requête par bot.
+  fellBack,
+}
+
+/// Signature de l'appel réseau utilisé par le repli : une fonction plutôt qu'une
+/// interface, pour que la décision soit vérifiable avec un client factice qui compte
+/// les appels — `MainApiClient` expose exactement cette signature.
+typedef GatewaySnapshotFetcher =
+    Future<GatewaySnapshotResponse?> Function({String? etag});
+
+/// Charge utile du snapshot agrégé décomposée en objets du canal temps réel : la source
+/// interrogée (HTTP) et la source poussée (WebSocket) traversent ainsi le même code.
+class HomeSnapshotData {
+  const HomeSnapshotData({required this.bots, this.account, this.etag});
+
+  final List<GatewayBotEventPayload> bots;
+  final GatewayAccountEventPayload? account;
+  final String? etag;
+}
+
+/// Analyse la charge utile de `GET /gateway/snapshot` (`{account, bots[], containers[]}`).
+///
+/// Les clés sont celles déjà comprises par `GatewayBotEventPayload.fromJson` et
+/// `GatewayAccountEventPayload.fromJson` : même contrat que le canal temps réel, donc
+/// aucune divergence possible entre l'état poussé et l'état interrogé.
+HomeSnapshotData parseGatewaySnapshotPayload(
+  Map<String, dynamic> payload, {
+  String? etag,
+}) {
+  final bots = <GatewayBotEventPayload>[];
+  final rawBots = payload['bots'];
+  if (rawBots is List) {
+    for (final raw in rawBots) {
+      if (raw is Map) {
+        bots.add(
+          GatewayBotEventPayload.fromJson(Map<String, dynamic>.from(raw)),
+        );
+      }
+    }
+  }
+  GatewayAccountEventPayload? account;
+  final rawAccount = payload['account'];
+  if (rawAccount is Map) {
+    account = GatewayAccountEventPayload.fromJson(
+      Map<String, dynamic>.from(rawAccount),
+    );
+  }
+  return HomeSnapshotData(bots: bots, account: account, etag: etag);
+}
+
+/// Repli HTTP de l'accueil quand la WebSocket est coupée : UNE requête pour tout l'état
+/// (compte + bots) au lieu d'une par bot.
+///
+/// - `applySnapshot` est appelé sur un 200 seulement ;
+/// - un 304 (`fetchSnapshot` rend `null`) ne réapplique rien : c'est le but de l'ETag ;
+/// - toute erreur — dont le 404 d'un manager plus ancien — retombe sur le repli
+///   historique, car cesser de rafraîchir l'accueil serait une régression.
+Future<HomeSnapshotOutcome> refreshHomeFromGatewaySnapshot({
+  required GatewaySnapshotFetcher fetchSnapshot,
+  required String? etag,
+  required Future<void> Function(HomeSnapshotData snapshot) applySnapshot,
+  required Future<void> Function() fallbackToPerBotRefresh,
+}) async {
+  GatewaySnapshotResponse? response;
+  try {
+    response = await fetchSnapshot(etag: etag);
+  } catch (_) {
+    // Manager plus ancien (404) ou API injoignable : la rétro-compatibilité est une
+    // exigence, pas une option.
+    await fallbackToPerBotRefresh();
+    return HomeSnapshotOutcome.fellBack;
+  }
+  if (response == null) {
+    return HomeSnapshotOutcome.notModified;
+  }
+  await applySnapshot(
+    parseGatewaySnapshotPayload(response.payload, etag: response.etag),
+  );
+  return HomeSnapshotOutcome.applied;
+}
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, this.onManageBot});
@@ -84,6 +185,18 @@ class HomePageState extends State<HomePage>
   /// ID du bot en cours d'action (démarrage/arrêt/ajout de temps).
   String? _botIdInAction;
 
+  /// Conteneurs clé en main (« turnkey ») du compte, affichés sur l'accueil à
+  /// côté des bots classiques. Remplis par [_refreshTurnkeyContainers].
+  List<ContainerInfo> _turnkeyContainers = const <ContainerInfo>[];
+
+  /// ID du conteneur dont une action (démarrage/arrêt) est en cours : sa carte
+  /// se verrouille le temps de la requête.
+  String? _containerIdInAction;
+
+  /// Garde de réentrance du chargement des conteneurs : un seul appel en vol,
+  /// pour ne jamais dupliquer la requête (accueil + tirage pour rafraîchir).
+  bool _isRefreshingTurnkeyContainers = false;
+
   /// Un AnimationController par carte (clé = bot id) pour l'effet pulse.
   final Map<String, AnimationController> _pulseControllers = {};
 
@@ -104,6 +217,27 @@ class HomePageState extends State<HomePage>
   StreamSubscription<bool>? _gatewayConnectionSub;
   bool _gatewayEventsConnected = false;
   int _httpFallbackTick = 0;
+
+  /// Dernier ETag du snapshot agrégé : c'est lui qui transforme le repli suivant en
+  /// `304` (rien à retélécharger, rien à réappliquer) tant que l'état n'a pas bougé.
+  String? _snapshotEtag;
+
+  /// Empêche deux replis de se superposer : le tick est de 15 s alors que le délai
+  /// HTTP peut monter à 30 s. Le garde couvre TOUS les déclencheurs — le tick de 60 s,
+  /// la reprise d'application et la perte de connexion WebSocket — puisque tous passent
+  /// par [_refreshFromSnapshot].
+  bool _isRefreshingFromSnapshot = false;
+
+  /// Collaborateurs du repli, remplaçables en test uniquement.
+  ///
+  /// Le repli réel résout son client HTTP depuis la session enregistrée, ce qui n'est
+  /// pas interceptable dans un test ; or c'est précisément le NOMBRE de requêtes
+  /// (1 snapshot contre N requêtes par bot) que les tests doivent verrouiller.
+  @visibleForTesting
+  static GatewaySnapshotFetcher? debugSnapshotFetcherOverride;
+
+  @visibleForTesting
+  static Future<void> Function()? debugPerBotRefreshOverride;
 
   bool get _supportsForegroundTask => Platform.isAndroid || Platform.isIOS;
   bool get _isDesktop =>
@@ -136,6 +270,10 @@ class HomePageState extends State<HomePage>
       // right away, even if the full manager sync takes longer.
       await _initRunningState();
       await syncAllBotsFromManager(silent: true);
+      // Les conteneurs clé en main ne retardent PLUS l'affichage de l'accueil : la
+      // carte apparaît quand la réponse arrive, mais on ne fait pas attendre les bots
+      // classiques (ni l'utilisateur) derrière un aller-retour réseau.
+      unawaited(_refreshTurnkeyContainers());
       await _ensureGatewayBotEvents();
     }());
 
@@ -145,12 +283,13 @@ class HomePageState extends State<HomePage>
       if (_sessionExpiresAtByBotId.isNotEmpty) {
         setState(() {});
       }
-      // HTTP fallback only while WebSocket is down (every ~60s).
+      // Repli HTTP uniquement WebSocket coupée (toutes les ~60 s : seuil produit,
+      // conservé tel quel). Le coût du repli, lui, passe de N requêtes à une seule.
       if (!_gatewayEventsConnected) {
         _httpFallbackTick++;
         if (_httpFallbackTick >= 4) {
           _httpFallbackTick = 0;
-          unawaited(_initRunningState());
+          unawaited(_refreshFromSnapshot());
         }
       } else {
         _httpFallbackTick = 0;
@@ -181,7 +320,9 @@ class HomePageState extends State<HomePage>
       // then do the full sync in background.
       unawaited(_ensureGatewayBotEvents());
       if (!_gatewayEventsConnected) {
-        _initRunningState();
+        // WebSocket coupée : repli par le snapshot agrégé, lancé TOUT DE SUITE — attendre
+        // le tick de 60 s afficherait un état périmé au retour sur l'application.
+        unawaited(_refreshFromSnapshot());
       }
       syncAllBotsFromManager(silent: true);
     } else if (state == AppLifecycleState.paused ||
@@ -190,6 +331,69 @@ class HomePageState extends State<HomePage>
         state == AppLifecycleState.hidden) {
       unawaited(appManager.flushPendingWrites());
     }
+  }
+
+  // ── Repli HTTP : snapshot agrégé ───────────────────────────────────────────
+
+  /// Repli de l'accueil quand la WebSocket est coupée.
+  ///
+  /// Une requête unique ramène le compte et tous les bots ; c'est le remplacement de
+  /// `_initRunningState()` (une requête par bot) sur ce chemin. La rétro-compatibilité
+  /// est assurée par [refreshHomeFromGatewaySnapshot] : si le manager ne connaît pas
+  /// `/gateway/snapshot` (404), c'est `_initRunningState()` qui reprend la main.
+  ///
+  /// Point d'entrée unique des trois déclencheurs (tick de 60 s, reprise d'application,
+  /// perte de connexion WebSocket) : le garde de réentrance et la bascule vers le repli
+  /// historique sont donc partagés, et aucun déclencheur ne peut court-circuiter l'autre.
+  Future<void> _refreshFromSnapshot() async {
+    if (_isRefreshingFromSnapshot) return;
+    _isRefreshingFromSnapshot = true;
+    try {
+      // Repli historique, exécuté si le snapshot est indisponible : en test il est
+      // remplaçable pour être COMPTÉ (c'est lui qui faisait N requêtes par bot).
+      final perBotFallback = debugPerBotRefreshOverride ?? _initRunningState;
+      GatewaySnapshotFetcher fetchSnapshot;
+      final fetcherOverride = debugSnapshotFetcherOverride;
+      if (fetcherOverride != null) {
+        fetchSnapshot = fetcherOverride;
+      } else {
+        final remoteClient = await _resolveGlobalMainApiClient();
+        if (remoteClient == null) {
+          // Sans client manager, seul le repli local sait calculer l'état des bots.
+          await perBotFallback();
+          return;
+        }
+        fetchSnapshot = remoteClient.getGatewaySnapshotWithEtag;
+      }
+      final outcome = await refreshHomeFromGatewaySnapshot(
+        fetchSnapshot: fetchSnapshot,
+        etag: _snapshotEtag,
+        applySnapshot: _applySnapshot,
+        fallbackToPerBotRefresh: perBotFallback,
+      );
+      appendBotDebugLog(
+        '[home] Repli snapshot: ${outcome.name} '
+        '(etag=${_snapshotEtag ?? 'none'}).',
+      );
+    } finally {
+      _isRefreshingFromSnapshot = false;
+    }
+  }
+
+  /// Applique le snapshot agrégé avec exactement les mêmes fonctions que le canal temps
+  /// réel — `_applyPushedAccount` pour le compte, `_applyGatewayBotSnapshot` pour les
+  /// bots — pour que l'état interrogé et l'état poussé ne puissent pas diverger.
+  Future<void> _applySnapshot(HomeSnapshotData snapshot) async {
+    _snapshotEtag = snapshot.etag ?? _snapshotEtag;
+    final account = snapshot.account;
+    if (account != null) {
+      await _applyPushedAccount(account);
+    }
+    _applyGatewayBotSnapshot(snapshot.bots);
+    // `_applyGatewayBotSnapshot` marque la connexion comme active (c'est exact pour le
+    // canal temps réel). Ici on vient justement du repli : la WebSocket est toujours
+    // coupée, et si ce drapeau restait à vrai, le repli ne se relancerait jamais.
+    _gatewayEventsConnected = false;
   }
 
   // ── Initialisation de l'état running ───────────────────────────────────────
@@ -457,6 +661,100 @@ class HomePageState extends State<HomePage>
     }
   }
 
+  // ── Conteneurs clé en main (« turnkey ») ───────────────────────────────────
+
+  /// Charge les conteneurs clé en main du compte et les expose à la liste
+  /// d'accueil, à côté des bots classiques.
+  ///
+  /// Réutilise le client global déjà résolu pour les bots ([_resolveGlobalMainApiClient])
+  /// et l'endpoint existant `listContainers()` : aucune seconde instance de
+  /// client, aucune requête dupliquée (garde de réentrance).
+  Future<void> _refreshTurnkeyContainers() async {
+    if (_isRefreshingTurnkeyContainers) return;
+    _isRefreshingTurnkeyContainers = true;
+    try {
+      final client = await _resolveGlobalMainApiClient();
+      if (client == null) return;
+      final containers = await client.listContainers();
+      if (!mounted) return;
+      setState(() => _turnkeyContainers = containers);
+    } catch (error) {
+      // Un conteneur illisible ne doit jamais casser l'accueil : les bots
+      // classiques restent affichés.
+      appendBotDebugLog(
+        '[_refreshTurnkeyContainers] Failed to load turnkey containers: $error',
+      );
+    } finally {
+      _isRefreshingTurnkeyContainers = false;
+    }
+  }
+
+  /// Arrête ou démarre un conteneur clé en main depuis sa carte d'accueil,
+  /// puis recharge la liste pour refléter le nouvel état.
+  Future<void> _toggleTurnkeyContainer(
+    ContainerInfo container, {
+    required bool start,
+  }) async {
+    if (_containerIdInAction != null) return;
+    setState(() => _containerIdInAction = container.id);
+    try {
+      final client = await _resolveGlobalMainApiClient();
+      if (client == null) return;
+      if (start) {
+        await client.startContainer(container.id);
+      } else {
+        await client.stopContainer(container.id);
+      }
+      await _refreshTurnkeyContainers();
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.tr.container_detail_failed('$error'))),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _containerIdInAction = null);
+      } else {
+        _containerIdInAction = null;
+      }
+    }
+  }
+
+  /// Ouvre la console de logs d'un conteneur clé en main depuis l'accueil.
+  Future<void> _openTurnkeyContainerLogs(ContainerInfo container) async {
+    final client = await _resolveGlobalMainApiClient();
+    if (!mounted || client == null) return;
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => HomeContainerLogsPage(
+          client: client,
+          containerId: container.id,
+          title: turnkeyContainerTitle(container, context.tr),
+        ),
+      ),
+    );
+  }
+
+  /// Ouvre le parcours existant d'ajout de temps (recharge du TTL) : la page de
+  /// détail du conteneur porte la recharge par solde/publicité, on ne la
+  /// duplique pas sur l'accueil.
+  Future<void> _openTurnkeyContainerDetail(ContainerInfo container) async {
+    final client = await _resolveGlobalMainApiClient();
+    if (!mounted) return;
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ContainerDetailPage(
+          containerId: container.id,
+          client: client,
+        ),
+      ),
+    );
+    await _refreshTurnkeyContainers();
+  }
+
   int _extractFreeMinutes(dynamic raw) {
     if (raw == null) {
       return 0;
@@ -525,17 +823,29 @@ class HomePageState extends State<HomePage>
     await _gatewayEventsSub?.cancel();
     await _gatewayConnectionSub?.cancel();
     _gatewayEventsSub = session.events.listen(_onGatewayBotEvent);
-    _gatewayConnectionSub = session.connectionChanges.listen((connected) {
-      if (!mounted) return;
-      setState(() => _gatewayEventsConnected = connected);
-      if (connected) {
-        _httpFallbackTick = 0;
-      } else {
-        unawaited(_initRunningState());
-      }
-    });
+    _gatewayConnectionSub = session.connectionChanges.listen(
+      handleGatewayConnectionChange,
+    );
     if (session.isConnected && mounted) {
       setState(() => _gatewayEventsConnected = true);
+    }
+  }
+
+  /// Changement d'état du canal temps réel (WebSocket).
+  ///
+  /// Extrait du listener pour être appelable en test : c'est le déclencheur « perte de
+  /// connexion » du repli, l'autre étant la reprise d'application.
+  @visibleForTesting
+  void handleGatewayConnectionChange(bool connected) {
+    if (!mounted) return;
+    setState(() => _gatewayEventsConnected = connected);
+    if (connected) {
+      _httpFallbackTick = 0;
+    } else {
+      // Connexion perdue : repli immédiat par le snapshot agrégé (une requête au lieu
+      // d'une par bot). Attendre le tick de 60 s laisserait l'accueil figé sur l'état
+      // d'avant la coupure.
+      unawaited(_refreshFromSnapshot());
     }
   }
 
@@ -543,6 +853,12 @@ class HomePageState extends State<HomePage>
     if (!mounted) return;
     switch (event.type) {
       case GatewayBotEventType.snapshot:
+        // L'instantané porte aussi l'état du compte : plus besoin d'appeler
+        // `/gateway/runtime` à l'ouverture.
+        final snapshotAccount = event.account;
+        if (snapshotAccount != null) {
+          unawaited(_applyPushedAccount(snapshotAccount));
+        }
         _applyGatewayBotSnapshot(event.bots);
         break;
       case GatewayBotEventType.botUpdated:
@@ -557,10 +873,26 @@ class HomePageState extends State<HomePage>
           _applyGatewayBotDeleted(botId);
         }
         break;
+      case GatewayBotEventType.accountUpdated:
+        final account = event.account;
+        if (account != null) {
+          unawaited(_applyPushedAccount(account));
+        }
+        break;
+      case GatewayBotEventType.containerUpdated:
       case GatewayBotEventType.ping:
       case GatewayBotEventType.unknown:
         break;
     }
+  }
+
+  /// Applique la formule poussée par le canal temps réel : le serveur est l'autorité
+  /// et vient de donner l'état exact, donc aucune requête HTTP n'est nécessaire
+  /// (miroir de ce que faisait le rafraîchissement périodique de `/gateway/runtime`).
+  Future<void> _applyPushedAccount(GatewayAccountEventPayload account) async {
+    await SubscriptionService.applyPushedAccountState(account.toRuntimeMap());
+    if (!mounted) return;
+    setState(() {});
   }
 
   void _applyGatewayBotSnapshot(List<GatewayBotEventPayload> bots) {
@@ -1175,9 +1507,8 @@ class HomePageState extends State<HomePage>
     }
   }
 
-  String _uiCopy({required String fr, required String en}) {
-    return Localizations.localeOf(context).languageCode == 'fr' ? fr : en;
-  }
+  String _uiCopy({required String fr, required String en}) =>
+      homeUiCopy(context, fr: fr, en: en);
 
   String? _runtimeBadgeLabel(String botId) {
     final source = _runtimeSourceByBotId[botId] ?? _runtimeSource;
@@ -1359,6 +1690,23 @@ class HomePageState extends State<HomePage>
     // catch has to know whether this attempt was a start to report an outcome.
     final isRunning = _runningBotIds.contains(botId);
 
+    // Les quotas de la formule sont des quotas de DÉMARRAGE. Un bot « en plus »
+    // n'est pas refusé : il tourne financé par pub — à condition de le dire AVANT
+    // de lancer, pour que l'utilisateur sache qu'il regardera des pubs pour ce bot.
+    var adFundedByPlan = false;
+    if (!isRunning) {
+      final block = SubscriptionService.ownBotStartBlock(
+        runningBots: _runningBotIds.length,
+      );
+      if (block != null) {
+        if (!mounted) return;
+        setState(() => _botIdInAction = null);
+        final action = await _showPlanLimit(block);
+        if (action != PlanLimitAction.continueAdFunded) return;
+        adFundedByPlan = true;
+      }
+    }
+
     try {
       var runtime = await _resolveRemoteRuntime(
         botId: botId,
@@ -1370,6 +1718,18 @@ class HomePageState extends State<HomePage>
       String? token;
       if (!isRunning) {
         final app = await appManager.getApp(botId);
+        // Garde-fou : une entrée locale marquée clé en main est un CONTENEUR, pas
+        // un bot. Elle est purgée au chargement et filtrée de la liste d'accueil ;
+        // ce verrou garantit qu'aucun autre appelant ne peut la DÉMARRER — donc la
+        // synchroniser (`syncBot` / `saveDiscordBotSnapshot`) et créer une ligne
+        // de bot fantôme côté manager.
+        if (AppManager.isTurnkeyAppEntry(app)) {
+          appendBotDebugLog(
+            '[_toggleBot] Entrée clé en main $botId ignorée : un conteneur se '
+            'pilote depuis sa carte d\'accueil, il n\'est jamais démarré comme un bot.',
+          );
+          return;
+        }
         token = app['token']?.toString();
 
         // Sync config from manager before startup (the basic sync)
@@ -1522,6 +1882,7 @@ class HomePageState extends State<HomePage>
         final adUnlocked = await _maybeOfferRewardedAd(
           botId: botId,
           botToken: token,
+          adFundedByPlan: adFundedByPlan,
           successMessage: context.tr.rewarded_start_thanks,
         );
         if (!adUnlocked) {
@@ -1787,7 +2148,13 @@ class HomePageState extends State<HomePage>
       if (!isRunning) {
         unawaited(ActivationFunnel.botStartFailed(e));
       }
-      if (mounted) {
+      // Le serveur reste seul juge : un refus lié à la formule arrive ici quand
+      // la formule a changé depuis le dernier rafraîchissement local. On affiche
+      // la même explication et la même issue qu'un blocage anticipé.
+      final block = isRunning ? null : _planLimitBlockFromError(e);
+      if (mounted && block != null) {
+        await _showPlanLimit(block);
+      } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(context.tr.error_with_details(e.toString()))),
         );
@@ -1795,6 +2162,22 @@ class HomePageState extends State<HomePage>
     } finally {
       if (mounted) setState(() => _botIdInAction = null);
     }
+  }
+
+  /// Traduit un refus serveur (403 de formule) en blocage affichable.
+  PlanLimitBlock? _planLimitBlockFromError(Object error) {
+    final refusal = planLimitRefusalFromError(error);
+    return refusal == null ? null : PlanLimitDialog.blockFromRefusal(refusal);
+  }
+
+  /// Un démarrage refusé par la formule n'est pas une panne : on explique, et on
+  /// propose les offres. Un bot au-delà du quota, lui, peut démarrer financé par pub.
+  Future<PlanLimitAction> _showPlanLimit(PlanLimitBlock block) async {
+    final action = await showPlanLimitDialog(context, block);
+    if (action == PlanLimitAction.viewOffers && mounted) {
+      await SubscriptionsHubPage.open(context);
+    }
+    return action;
   }
 
   Future<int?> _fetchMainApiRuntimeBalance(String botId) async {
@@ -1977,13 +2360,17 @@ class HomePageState extends State<HomePage>
     required String botId,
     String? botToken,
     bool force = false,
+    bool adFundedByPlan = false,
     String? successMessage,
   }) async {
     if (!_supportsForegroundTask || !mounted) {
       return true;
     }
 
-    if (await _isMainApiPremiumUser(botId: botId, botToken: botToken)) {
+    // Un bot au-delà du quota tourne financé par pub, même sur un compte premium :
+    // on ne saute donc pas l'étape pub pour lui (c'est sa source de temps).
+    if (!adFundedByPlan &&
+        await _isMainApiPremiumUser(botId: botId, botToken: botToken)) {
       return true;
     }
 
@@ -2173,7 +2560,14 @@ class HomePageState extends State<HomePage>
       stream: appManager.getAppStream(),
       initialData: appManager.isInitialized ? appManager.currentApps : null,
       builder: (context, snapshot) {
-        final apps = snapshot.data;
+        // Un bot clé en main est un conteneur, pas un bot : une entrée locale
+        // marquée comme telle (créée par une ancienne version de l'écran de
+        // déploiement) n'est jamais une carte de bot. `AppManager` les supprime
+        // au chargement ; ce filtre garantit qu'aucune ne repasse par la liste
+        // des bots — donc par une synchronisation vers le manager — entre-temps.
+        final apps = snapshot.data
+            ?.where((app) => app is! Map || !AppManager.isTurnkeyAppEntry(app))
+            .toList();
 
         return LayoutBuilder(
           builder: (context, constraints) {
@@ -2217,7 +2611,6 @@ class HomePageState extends State<HomePage>
               ),
               const SizedBox(height: 20),
               _CreateBotCard(onTap: openCreate),
-              if (!_isDesktop) const _HostedAppsHomeCard(),
               const SizedBox(height: 20),
             ];
 
@@ -2237,7 +2630,7 @@ class HomePageState extends State<HomePage>
                   child: Center(child: CircularProgressIndicator()),
                 ),
               );
-            } else if (apps.isEmpty) {
+            } else if (apps.isEmpty && _turnkeyContainers.isEmpty) {
               children.add(const _EmptyStateWithSupport());
             } else {
               if (AdsPlacementPolicy.isPlacementEnabled(
@@ -2253,18 +2646,32 @@ class HomePageState extends State<HomePage>
                 );
               }
 
-              final cards = <Widget>[
-                for (final app in apps)
-                  _buildRedesignBotCard(
-                    context,
-                    app,
-                    // The primary action of a running bot stays visible without
-                    // an extra tap on compact layouts.
-                    initiallyExpanded:
-                        isWide ||
-                        _runningBotIds.contains(app['id']?.toString() ?? ''),
-                  ),
-              ];
+              // Bots classiques puis conteneurs clé en main : les deux familles
+              // partagent la même liste d'accueil (et le même layout ci-dessous).
+              final cards = buildHomeProjectCards(
+                botCards: <Widget>[
+                  for (final app in apps)
+                    _buildRedesignBotCard(
+                      context,
+                      app,
+                      // The primary action of a running bot stays visible without
+                      // an extra tap on compact layouts.
+                      initiallyExpanded:
+                          isWide ||
+                          _runningBotIds.contains(app['id']?.toString() ?? ''),
+                    ),
+                ],
+                containers: _turnkeyContainers,
+                actionsFor: (container) => HomeContainerActions(
+                  busy: _containerIdInAction == container.id,
+                  onStart: () =>
+                      _toggleTurnkeyContainer(container, start: true),
+                  onStop: () =>
+                      _toggleTurnkeyContainer(container, start: false),
+                  onLogs: () => _openTurnkeyContainerLogs(container),
+                  onDetail: () => _openTurnkeyContainerDetail(container),
+                ),
+              );
 
               if (columns == 1) {
                 for (var i = 0; i < cards.length; i++) {
@@ -2295,7 +2702,12 @@ class HomePageState extends State<HomePage>
 
             return RefreshIndicator(
               key: _refreshIndicatorKey,
-              onRefresh: () => syncAllBotsFromManager(silent: false),
+              onRefresh: () async {
+                await syncAllBotsFromManager(silent: false);
+                // Un tirage rafraîchit aussi l'état des conteneurs clé en main
+                // (démarrage/arrêt/expiration), une requête pour tous.
+                await _refreshTurnkeyContainers();
+              },
               // Largeur et marges communes à toutes les pages de l'app : la
               // liste n'impose plus ses propres bornes (1000/640, sidePad 28).
               child: PageContent(
@@ -2340,7 +2752,13 @@ class HomePageState extends State<HomePage>
     final pulseCtrl = _pulseControllers[id] ?? _fallbackPulseController;
     final freeMinutes = _displayFreeMinutesForBot(id);
 
-    return _BotCard(
+    final isTurnkey =
+        app['is_turnkey'] == true ||
+        app['type'] == 'turnkey' ||
+        (app['container_id']?.toString().isNotEmpty ?? false);
+    final containerId = app['container_id']?.toString();
+
+    return HomeBotCard(
       key: ValueKey<String>(id),
       name: name,
       id: id,
@@ -2354,7 +2772,17 @@ class HomePageState extends State<HomePage>
       freeMinutes: freeMinutes,
       pulseController: pulseCtrl,
       showPremiumLabels: _supportsForegroundTask,
+      isTurnkey: isTurnkey,
       onManage: () {
+        if (isTurnkey && containerId != null && containerId.isNotEmpty) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ContainerDetailPage(containerId: containerId),
+            ),
+          ).then((_) => _initRunningState());
+          return;
+        }
         final parsedId = int.tryParse(id) ?? 0;
         final manage = widget.onManageBot;
         if (manage != null) {
@@ -2499,8 +2927,14 @@ class _HomeHeader extends StatelessWidget {
 
 // ── Carte bot (collapsible) ───────────────────────────────────────────────────
 
-class _BotCard extends StatefulWidget {
-  const _BotCard({
+/// Carte d'accueil d'un bot classique (repliable) : avatar, serveurs, état et
+/// actions (démarrer/arrêter, gérer, logs).
+///
+/// Publique — et non privée — pour que le test de la liste d'accueil monte la
+/// vraie carte d'un bot classique À CÔTÉ de celle d'un conteneur clé en main
+/// ([buildHomeProjectCards]), c'est-à-dire la composition réellement rendue.
+class HomeBotCard extends StatefulWidget {
+  const HomeBotCard({
     super.key,
     required this.name,
     required this.id,
@@ -2518,6 +2952,7 @@ class _BotCard extends StatefulWidget {
     required this.showPremiumLabels,
     required this.freeMinutes,
     this.runtimeBadgeLabel,
+    this.isTurnkey = false,
   });
 
   final String name;
@@ -2532,22 +2967,23 @@ class _BotCard extends StatefulWidget {
   final int freeMinutes;
   final AnimationController pulseController;
   final bool showPremiumLabels;
+  final bool isTurnkey;
   final VoidCallback onManage;
   final VoidCallback onToggle;
   final VoidCallback? onAddTime;
   final VoidCallback? onLogs;
 
   @override
-  State<_BotCard> createState() => _BotCardState();
+  State<HomeBotCard> createState() => HomeBotCardState();
 }
 
-class _BotCardState extends State<_BotCard> {
+class HomeBotCardState extends State<HomeBotCard> {
   bool _hovered = false;
   late bool _expanded = widget.initiallyExpanded;
   bool get _supportsForegroundTask => Platform.isAndroid || Platform.isIOS;
 
   @override
-  void didUpdateWidget(covariant _BotCard oldWidget) {
+  void didUpdateWidget(covariant HomeBotCard oldWidget) {
     super.didUpdateWidget(oldWidget);
     // Realign on the layout-driven default when the window width changes
     // (desktop resize / rotation).
@@ -2725,11 +3161,50 @@ class _BotCardState extends State<_BotCard> {
                       HomeBotAvatar(imageUrl: widget.avatar),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: Text(
-                          widget.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: homeDisplayStyle(16, color: scheme.onSurface),
+                        child: Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                widget.name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: homeDisplayStyle(
+                                  16,
+                                  color: scheme.onSurface,
+                                ),
+                              ),
+                            ),
+                            if (widget.isTurnkey) ...[
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: scheme.primary.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(
+                                    color: scheme.primary.withValues(
+                                      alpha: 0.3,
+                                    ),
+                                  ),
+                                ),
+                                child: Text(
+                                  homeUiCopy(
+                                    context,
+                                    fr: 'Clé en main',
+                                    en: 'Turnkey',
+                                  ),
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                    color: scheme.primary,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -3087,112 +3562,6 @@ class _ServerPresenceRow extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _HostedAppsHomeCard extends StatefulWidget {
-  const _HostedAppsHomeCard();
-
-  @override
-  State<_HostedAppsHomeCard> createState() => _HostedAppsHomeCardState();
-}
-
-class _HostedAppsHomeCardState extends State<_HostedAppsHomeCard> {
-  bool _hasSession = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkSession();
-  }
-
-  Future<void> _checkSession() async {
-    final session = await MainApiSettingsStore.loadSession();
-    if (mounted) {
-      setState(() => _hasSession = session != null && !session.isExpired);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (!_hasSession) return const SizedBox.shrink();
-
-    final scheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final tokens = HomeTokens.of(context);
-    final cardColor = isDark ? tokens.card : scheme.surfaceContainer;
-    final borderColor = isDark ? tokens.cardBorder : scheme.outlineVariant;
-    return Padding(
-      padding: const EdgeInsets.only(top: 20),
-      child: Material(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(AppTheme.radiusCard),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const ContainerListPage()),
-            );
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppTheme.radiusCard),
-              border: Border.all(color: borderColor),
-            ),
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  alignment: Alignment.center,
-                  decoration: const BoxDecoration(
-                    color: AppTheme.discord,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.smart_toy_rounded,
-                    color: Colors.white,
-                    size: 26,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        context.tr.container_list_title,
-                        style: homeDisplayStyle(16),
-                      ),
-                      Text(
-                        context.tr.container_hosted_subtitle,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: homeDisplayStyle(
-                          12,
-                          weight: FontWeight.w400,
-                          color: isDark
-                              ? Colors.white.withValues(alpha: 0.30)
-                              : scheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Icon(
-                  Icons.chevron_right_rounded,
-                  size: 18,
-                  color: isDark ? tokens.muted : scheme.onSurfaceVariant,
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }

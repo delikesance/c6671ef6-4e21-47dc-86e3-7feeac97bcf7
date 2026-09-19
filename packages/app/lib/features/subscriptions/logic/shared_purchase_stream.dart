@@ -3,9 +3,8 @@ import 'dart:async';
 import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 
-typedef PurchaseUpdatesHandler = Future<void> Function(
-  List<PurchaseDetails> purchases,
-);
+typedef PurchaseUpdatesHandler =
+    Future<void> Function(List<PurchaseDetails> purchases);
 
 /// Fan-out hub for [InAppPurchase.purchaseStream], which only allows one listener.
 class SharedPurchaseStream {

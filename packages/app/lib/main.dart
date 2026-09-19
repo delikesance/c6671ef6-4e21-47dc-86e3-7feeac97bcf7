@@ -53,6 +53,8 @@ import 'package:window_manager/window_manager.dart';
 import 'package:bot_creator/features/documentation/documentation_hub_page.dart';
 import 'package:bot_creator/features/documentation/webview_platform_bootstrap.dart';
 import 'package:bot_creator/features/settings/presentation/settings_page.dart';
+import 'package:bot_creator/features/containers/logic/account_sync_worker.dart';
+import 'package:desktop_webview_window/desktop_webview_window.dart';
 
 @pragma('vm:entry-point')
 AppManager? _appManager;
@@ -117,7 +119,10 @@ bool get _isCrashlyticsSupported {
   }
 }
 
-Future<void> main() async {
+Future<void> main(List<String> args) async {
+  if (runWebViewTitleBarWidget(args)) {
+    return;
+  }
   await runZonedGuarded(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
@@ -496,6 +501,7 @@ Future<void> _warmUpServicesAfterLaunch() async {
     },
   );
 
+  AccountSyncWorker.start();
   await AppDiagnostics.logInfo('Post-launch service warm-up completed');
 }
 

@@ -1841,7 +1841,24 @@ class AppLocalizationsTr extends AppLocalizations {
       'Token kaydedildi, ancak ayricalikli intent\'ler otomatik olarak etkinlestirilemedi. Discord Developer Portal\'da etkinlestirin.';
 
   @override
+  String get bot_settings_lavalink_add_fallback => 'Yedek sunucu ekle';
+
+  @override
   String get bot_settings_lavalink_choose_server => 'Genel bir sunucu seç...';
+
+  @override
+  String get bot_settings_lavalink_enable_subtitle =>
+      'Bot genel sunucuları kendi dener; sunucu seçimi gerekmez.';
+
+  @override
+  String get bot_settings_lavalink_enable_title => 'Müzik (Lavalink)';
+
+  @override
+  String get bot_settings_lavalink_fallback_desc =>
+      'Önce genel sunucular denenir. Hiçbiri yanıt vermezse kendi sunucularınız yedek olarak kullanılır.';
+
+  @override
+  String get bot_settings_lavalink_fallback_title => 'Yedek sunucularım';
 
   @override
   String get bot_settings_lavalink_host => 'Sunucu';
@@ -1849,6 +1866,13 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get bot_settings_lavalink_host_hint =>
       'localhost veya Lavalink sunucu IP\'si';
+
+  @override
+  String get bot_settings_lavalink_invalid_server =>
+      'Bir ana bilgisayar ve 1 ile 65535 arasında bir port girin.';
+
+  @override
+  String get bot_settings_lavalink_no_fallback => 'Henüz yedek sunucu yok.';
 
   @override
   String get bot_settings_lavalink_password => 'Parola';
@@ -1874,14 +1898,22 @@ class AppLocalizationsTr extends AppLocalizations {
   String get bot_settings_lavalink_public_servers => 'Genel sunucular';
 
   @override
+  String get bot_settings_lavalink_remove_fallback => 'Kaldır';
+
+  @override
   String get bot_settings_lavalink_save_btn => 'Kaydet';
 
   @override
   String get bot_settings_lavalink_save_caption =>
-      'Botun Lavalink sunucusuna bağlanabilmesi için bu yapılandırmayı kaydedin.';
+      'Kaydedin: bot önce genel sunucuları, ardından yedek sunucularınızı dener.';
 
   @override
   String get bot_settings_lavalink_section_title => 'Lavalink Sunucusu';
+
+  @override
+  String bot_settings_lavalink_server_number(int index) {
+    return 'Yedek sunucu $index';
+  }
 
   @override
   String get bot_settings_lavalink_server_picker_title =>
@@ -7442,6 +7474,57 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String get subscriptions_hub_permanent => 'Kalıcı (son kullanma tarihi yok)';
+
+  @override
+  String get subscriptions_hub_unlimited_bots => 'Sınırsız bot';
+
+  @override
+  String get subscriptions_hub_managed_by_server =>
+      'Sunucu tarafından yönetiliyor';
+
+  @override
+  String get plan_limit_own_bots_title =>
+      'Kendi botlarınız planınıza dahil değil';
+
+  @override
+  String get plan_limit_own_bots_desc =>
+      'Planınız yalnızca hazır (turnkey) botlara erişim sağlar. Bu botu başlatmak için kendi botlarınızı içeren bir plana geçin.';
+
+  @override
+  String get plan_limit_bot_quota_title =>
+      'Aynı anda çalışan bot sınırına ulaşıldı';
+
+  @override
+  String get plan_limit_bot_quota_desc =>
+      'Planınız aynı anda çalışabilecek bot sayısını sınırlar. Bir botu durdurun veya üst bir plana geçin.';
+
+  @override
+  String plan_limit_bot_quota_ad_funded_desc(int count) {
+    return 'Planınız aynı anda $count bot çalıştırır. Bu bot bunlara ek: reklam izleyerek kazanılan barındırma süresiyle çalışır ve süre bitince durur.';
+  }
+
+  @override
+  String get plan_limit_quota_continue_ad => 'Reklamla finanse edilerek başlat';
+
+  @override
+  String get plan_limit_turnkey_title => 'Hazır botlar planınıza dahil değil';
+
+  @override
+  String get plan_limit_turnkey_desc =>
+      'Planınız hazır botları ve barındırılan uygulamaları içermiyor. Bunları içeren bir plan seçin.';
+
+  @override
+  String get plan_limit_turnkey_quota_title => 'Hazır bot sınırına ulaşıldı';
+
+  @override
+  String get plan_limit_turnkey_quota_desc =>
+      'Planınız aynı anda çalışabilecek hazır bot sayısını sınırlar. Birini durdurun veya üst bir plana geçin.';
+
+  @override
+  String get plan_limit_view_offers => 'Planları gör';
+
+  @override
   String get subscription_upgrade_annual => 'Yıllık plana yükselt';
 
   @override
@@ -8499,11 +8582,11 @@ class AppLocalizationsTr extends AppLocalizations {
       'Eylemler, olaylar ve dinamik tuval panelleri ile özelleştirilebilir bir Discord botu oluşturun ve çalıştırın.';
 
   @override
-  String get app_create_type_hosted => 'Barındırılan Uygulama (Docker)';
+  String get app_create_type_hosted => 'Hazır Bot';
 
   @override
   String get app_create_type_hosted_desc =>
-      'Tercih ettiğiniz dilde (NodeJS, Python, Java...) bir arka uç uygulaması, sunucu veya komut dosyası çalıştırın. Dosyaları yükleyin ve güvenli bir korumalı alanda paketleri yükleyin.';
+      '7/24 barındırılan kullanıma hazır bir botu (müzik, moderasyon, araçlar...) saniyeler içinde dağıtın.';
 
   @override
   String get app_create_coming_soon => 'Çok yakında';
@@ -8749,6 +8832,11 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String container_deploy_token_invalid(String error) {
+    return 'Geçersiz Discord bot belirteci: $error';
+  }
+
+  @override
   String get container_deploy_blocked_container_limit =>
       'You\'ve reached your hosted app limit. Delete or stop an existing hosted app to free up a slot before deploying another.';
 
@@ -8797,6 +8885,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get container_detail_started_ok => 'Konteyner başlatılıyor';
 
   @override
+  String get container_detail_open => 'Ayrıntılar';
+
+  @override
   String get container_detail_delete_title => 'Konteyneri sil';
 
   @override
@@ -8833,6 +8924,18 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get container_detail_console => 'Konsol';
+
+  @override
+  String container_logs_errors_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count hata',
+      one: '1 hata',
+      zero: 'Hata yok',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get container_detail_deploying => 'Kapsayici dagitiliyor...';

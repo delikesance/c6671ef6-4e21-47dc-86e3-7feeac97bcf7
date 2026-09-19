@@ -29,6 +29,25 @@ class HostedAppSubscriptionService {
   static String? _activeProductId;
   static DateTime? _subscriptionExpiresAt;
   static DateTime? _lastServerSyncAt;
+
+  /// Ce que la FORMULE du compte accorde côté serveur, relevé au dernier rafraîchissement.
+  ///
+  /// Le mapping serveur décrit des capacités ; l'application ne décide rien. Ces valeurs
+  /// servent à reconnaître un droit accordé par la formule (grant administrateur, formule
+  /// du catalogue) alors qu'aucun reçu du store n'existe sur l'appareil : sans elles, la
+  /// carte « Applications hébergées » restait « Non abonné » pour un compte que le serveur
+  /// autorise pourtant à héberger.
+  static bool _serverGrantsHostedApps = false;
+  static int? _serverMaxContainers;
+  static String? _serverPlanTierCode;
+
+  /// Durée réelle de la couverture, telle que le SERVEUR la connaît : échéance datée,
+  /// ou `_serverHostingPermanent` quand il n'y en a pas. Les deux restent « inconnus »
+  /// par défaut, ce qui interdit d'afficher « Permanent (no expiration) » sur une
+  /// couverture qui expire — c'est exactement ce que montraient les cartes.
+  static DateTime? _serverHostingExpiresAt;
+  static bool _serverHostingPermanent = false;
+
   static Timer? _expiryTimer;
   static bool _purchaseHandlerRegistered = false;
   static SharedPreferences? _prefs;
@@ -37,7 +56,47 @@ class HostedAppSubscriptionService {
   static bool _storeAvailable = false;
   static HostedAppTier? _pendingTier;
 
-  static bool get isSubscribed => _isLocalSubscriptionActive();
+  /// L'offre apps hébergées est-elle active ? Deux sources, dans cet ordre : la formule du
+  /// compte côté serveur (l'autorité quand l'utilisateur est connecté, même règle que pour
+  /// Bot Premium), puis le reçu du store.
+  ///
+  /// Les deux sont évaluées séparément à dessein : l'échéance locale mémorisée appartient au
+  /// reçu store, elle ne doit donc pas pouvoir annuler un droit accordé par le serveur.
+  static bool get isSubscribed =>
+      _isLocalSubscriptionActive() || _serverGrantsHostedApps;
+
+  /// La formule du compte accorde-t-elle l'hébergement (et non un reçu du store) ?
+  static bool get hasServerGrantedHostedApps => _serverGrantsHostedApps;
+
+  /// Injecte ce qu'une formule serveur accorde, comme si `getHostedAppEligibility` venait
+  /// de répondre — utilisé par les tests d'affichage du hub.
+  @visibleForTesting
+  static void debugSetServerGrantForTests({
+    required bool granted,
+    int? maxContainers,
+    String? planTierCode,
+    DateTime? hostingExpiresAt,
+    bool hostingPermanent = false,
+  }) {
+    _serverGrantsHostedApps = granted;
+    _serverMaxContainers = maxContainers;
+    _serverPlanTierCode = planTierCode;
+    _serverHostingExpiresAt = hostingExpiresAt;
+    _serverHostingPermanent = hostingPermanent;
+  }
+
+  /// Plafond d'apps hébergées fixé par la formule du compte (null = non renseigné).
+  static int? get serverMaxContainers => _serverMaxContainers;
+
+  /// Fin de la couverture hébergement côté serveur (null = sans échéance connue).
+  static DateTime? get hostingCoverageExpiresAt => _serverHostingExpiresAt;
+
+  /// Le serveur déclare-t-il la couverture sans échéance ? Faux par défaut : sans
+  /// information, on n'affirme rien sur la durée plutôt que d'inventer « permanent ».
+  static bool get hostingCoveragePermanent => _serverHostingPermanent;
+
+  /// Code de la formule servie par le serveur (ex. `FREE`, `PRO`, `HOST_ONE_APP`).
+  static String? get serverPlanTierCode => _serverPlanTierCode;
 
   static String? get activeProductId => _activeProductId;
 
@@ -237,7 +296,36 @@ class HostedAppSubscriptionService {
       final eligibility = await apiClient.getHostedAppEligibility();
       _lastServerSyncAt = DateTime.now().toUtc();
 
+      // La formule décide, et on la relève AVANT les sorties anticipées : même quand le
+      // service refuse l'abonnement store local, ce que le serveur accorde doit rester
+      // connu de l'affichage.
+      //
+      // `allowTurnkey` dit si la formule inclut le clé en main / les hébergements et
+      // `maxContainers` en fixe le plafond — mais le serveur renvoie 1/true par défaut
+      // quand aucune formule n'est connue (« ne rien bloquer »). Ces deux champs seuls
+      // allumeraient donc la carte pour tout le monde : `premium` est ce qui distingue une
+      // formule payante du socle gratuit.
+      _serverMaxContainers = eligibility.maxContainers;
+      _serverPlanTierCode = eligibility.planTierCode;
+      _serverGrantsHostedApps =
+          eligibility.premium &&
+          eligibility.allowTurnkey &&
+          eligibility.maxContainers > 0;
+      // La durée vient du serveur : une échéance datée, ou « permanent » quand un
+      // octroi n'a pas d'échéance. Jamais déduite localement.
+      _serverHostingExpiresAt = eligibility.hostingExpiresAt;
+      _serverHostingPermanent = eligibility.hostingPermanent;
+
       if (!eligibility.premium) {
+        // The manager does not know this purchase yet: the store notification was
+        // not attributed, or /billing/verify never ran for this account. Erasing the
+        // local state here is what left paying customers stuck on "Not subscribed"
+        // while their store subscription was live, so replay the receipt first.
+        // Only the manager can grant (it verifies the receipt server-side), this
+        // just asks it again with fresh store data.
+        if (_isSubscribed && await _reverifyFromStore()) {
+          return true;
+        }
         if (_isSubscribed) {
           await _markExpired();
         }
@@ -425,12 +513,59 @@ class HostedAppSubscriptionService {
     }
   }
 
+  /// Asks the store to replay its purchases and waits for the shared purchase
+  /// stream to verify them with the manager.
+  ///
+  /// Returns true as soon as the local state becomes active again. Bounded and rate
+  /// limited on purpose: a genuinely expired subscription must not turn every
+  /// refresh into a store round trip.
+  static Future<bool> _reverifyFromStore() async {
+    final lastAttempt = _lastStoreReverifyAt;
+    if (!_storeAvailable ||
+        (lastAttempt != null &&
+            DateTime.now().toUtc().difference(lastAttempt) <
+                _storeReverifyCooldown)) {
+      return false;
+    }
+    _lastStoreReverifyAt = DateTime.now().toUtc();
+
+    try {
+      await InAppPurchase.instance.restorePurchases();
+    } catch (error, stack) {
+      unawaited(
+        AppDiagnostics.logError(
+          'Hosted app store restore failed',
+          error,
+          stack,
+          fatal: false,
+        ),
+      );
+      return false;
+    }
+
+    final deadline = DateTime.now().toUtc().add(_storeReverifyTimeout);
+    while (DateTime.now().toUtc().isBefore(deadline)) {
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+      if (_isLocalSubscriptionActive()) {
+        return true;
+      }
+    }
+    return _isLocalSubscriptionActive();
+  }
+
+  static const Duration _storeReverifyTimeout = Duration(seconds: 8);
+  static const Duration _storeReverifyCooldown = Duration(minutes: 10);
+  static DateTime? _lastStoreReverifyAt;
+
   static Future<void> _markExpired() async {
     _expiryTimer?.cancel();
     _expiryTimer = null;
     _isSubscribed = false;
     _serverValidated = false;
     _activeProductId = null;
+    // Le droit accordé par la formule retombe avec le reste : c'est le serveur qui l'a
+    // annoncé, et c'est ici qu'un compte qui n'y a plus droit est nettoyé.
+    _serverGrantsHostedApps = false;
     await _setSubscriptionExpiry(null);
     await _prefs?.setBool(_activeKey, false);
     await _prefs?.setBool(_serverValidatedKey, false);

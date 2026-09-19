@@ -3311,11 +3311,41 @@ abstract class AppLocalizations {
   /// **'Token saved, but privileged intents could not be enabled automatically. Enable them in the Discord Developer Portal.'**
   String get bot_settings_intents_auto_enable_failed;
 
+  /// Add a fallback server button
+  ///
+  /// In en, this message translates to:
+  /// **'Add a fallback server'**
+  String get bot_settings_lavalink_add_fallback;
+
   /// Choose a public server button
   ///
   /// In en, this message translates to:
   /// **'Choose a public server...'**
   String get bot_settings_lavalink_choose_server;
+
+  /// Music (Lavalink) switch subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'The bot tries the public servers on its own; no server choice is needed.'**
+  String get bot_settings_lavalink_enable_subtitle;
+
+  /// Music (Lavalink) switch title
+  ///
+  /// In en, this message translates to:
+  /// **'Music (Lavalink)'**
+  String get bot_settings_lavalink_enable_title;
+
+  /// Explanation that public servers are tried first
+  ///
+  /// In en, this message translates to:
+  /// **'Public servers are tried first. Your servers are used as a fallback when none answers.'**
+  String get bot_settings_lavalink_fallback_desc;
+
+  /// Fallback servers section title
+  ///
+  /// In en, this message translates to:
+  /// **'My fallback servers'**
+  String get bot_settings_lavalink_fallback_title;
 
   /// Host field label
   ///
@@ -3328,6 +3358,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'localhost or Lavalink server IP'**
   String get bot_settings_lavalink_host_hint;
+
+  /// Validation error for a fallback server
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a host and a port between 1 and 65535.'**
+  String get bot_settings_lavalink_invalid_server;
+
+  /// Empty state of the fallback servers list
+  ///
+  /// In en, this message translates to:
+  /// **'No fallback server yet.'**
+  String get bot_settings_lavalink_no_fallback;
 
   /// Password field label
   ///
@@ -3371,16 +3413,22 @@ abstract class AppLocalizations {
   /// **'Public servers'**
   String get bot_settings_lavalink_public_servers;
 
+  /// Remove a fallback server button
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get bot_settings_lavalink_remove_fallback;
+
   /// Save button on Lavalink tab
   ///
   /// In en, this message translates to:
   /// **'Save'**
   String get bot_settings_lavalink_save_btn;
 
-  /// Caption explaining the bot needs this config to connect
+  /// Caption explaining the bot tries public servers then the fallback ones
   ///
   /// In en, this message translates to:
-  /// **'Save this configuration so the bot can connect to the Lavalink server.'**
+  /// **'Save so the bot tries the public servers first, then your fallback servers.'**
   String get bot_settings_lavalink_save_caption;
 
   /// Lavalink server section title
@@ -3388,6 +3436,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Lavalink Server'**
   String get bot_settings_lavalink_section_title;
+
+  /// Fallback server card title
+  ///
+  /// In en, this message translates to:
+  /// **'Fallback server {index}'**
+  String bot_settings_lavalink_server_number(int index);
 
   /// Public Lavalink servers picker dialog title
   ///
@@ -13024,6 +13078,90 @@ abstract class AppLocalizations {
   /// **'Renews until {date} at {time}'**
   String subscriptions_hub_expires_at(String date, String time);
 
+  /// Label indicating a subscription has no expiration date
+  ///
+  /// In en, this message translates to:
+  /// **'Permanent (no expiration)'**
+  String get subscriptions_hub_permanent;
+
+  /// Badge indicating unlimited bots quota
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited bots'**
+  String get subscriptions_hub_unlimited_bots;
+
+  /// Label indicating a subscription was granted or managed via server
+  ///
+  /// In en, this message translates to:
+  /// **'Managed by server'**
+  String get subscriptions_hub_managed_by_server;
+
+  /// No description provided for @plan_limit_own_bots_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal bots not included in your plan'**
+  String get plan_limit_own_bots_title;
+
+  /// No description provided for @plan_limit_own_bots_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan only gives access to turnkey bots. Upgrade to a plan that includes personal bots to start this one.'**
+  String get plan_limit_own_bots_desc;
+
+  /// No description provided for @plan_limit_bot_quota_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Running bot limit reached'**
+  String get plan_limit_bot_quota_title;
+
+  /// No description provided for @plan_limit_bot_quota_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan limits how many bots can run at the same time. Stop a bot, or upgrade your plan.'**
+  String get plan_limit_bot_quota_desc;
+
+  /// No description provided for @plan_limit_bot_quota_ad_funded_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan runs {count} bots at the same time. This one is extra: it will run on hosting time earned by watching ads, and stop when that time runs out.'**
+  String plan_limit_bot_quota_ad_funded_desc(int count);
+
+  /// No description provided for @plan_limit_quota_continue_ad.
+  ///
+  /// In en, this message translates to:
+  /// **'Start ad-funded'**
+  String get plan_limit_quota_continue_ad;
+
+  /// No description provided for @plan_limit_turnkey_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Turnkey bots not included in your plan'**
+  String get plan_limit_turnkey_title;
+
+  /// No description provided for @plan_limit_turnkey_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan does not include turnkey bots or hosted applications. Choose a plan that includes them.'**
+  String get plan_limit_turnkey_desc;
+
+  /// No description provided for @plan_limit_turnkey_quota_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Turnkey bot limit reached'**
+  String get plan_limit_turnkey_quota_title;
+
+  /// No description provided for @plan_limit_turnkey_quota_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan limits how many turnkey bots can run at the same time. Stop one, or upgrade your plan.'**
+  String get plan_limit_turnkey_quota_desc;
+
+  /// No description provided for @plan_limit_view_offers.
+  ///
+  /// In en, this message translates to:
+  /// **'View plans'**
+  String get plan_limit_view_offers;
+
   /// No description provided for @subscription_upgrade_annual.
   ///
   /// In en, this message translates to:
@@ -14779,13 +14917,13 @@ abstract class AppLocalizations {
   /// Hosted Application (Docker) option label
   ///
   /// In en, this message translates to:
-  /// **'Hosted Application (Docker)'**
+  /// **'Turnkey Bot'**
   String get app_create_type_hosted;
 
   /// Hosted Application (Docker) option description
   ///
   /// In en, this message translates to:
-  /// **'Run a backend app, server, or script in your favorite language (NodeJS, Python, Java...). Upload files and install packages in a secure sandbox.'**
+  /// **'Deploy ready-to-use bots (music, moderation, utility...) hosted 24/7 in seconds.'**
   String get app_create_type_hosted_desc;
 
   /// Coming soon label
@@ -15226,6 +15364,12 @@ abstract class AppLocalizations {
   /// **'Deployment failed: {error}'**
   String container_deploy_failed(String error);
 
+  /// Snackbar shown when turnkey Discord bot token validation fails
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid Discord bot token: {error}'**
+  String container_deploy_token_invalid(String error);
+
   /// Deploy eligibility banner reason when the container limit is reached
   ///
   /// In en, this message translates to:
@@ -15310,6 +15454,12 @@ abstract class AppLocalizations {
   /// **'Container is starting'**
   String get container_detail_started_ok;
 
+  /// No description provided for @container_detail_open.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get container_detail_open;
+
   /// Title of the delete container dialog
   ///
   /// In en, this message translates to:
@@ -15381,6 +15531,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Logs'**
   String get container_detail_console;
+
+  /// Nombre d'erreurs du tampon de logs, affiché dans le bandeau de la console d'un conteneur.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No errors} =1{1 error} other{{count} errors}}'**
+  String container_logs_errors_count(int count);
 
   /// Message shown while container is being deployed
   ///

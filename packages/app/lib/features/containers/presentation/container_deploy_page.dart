@@ -8,6 +8,7 @@ import 'package:bot_creator/features/containers/logic/hosted_app_hosting_actions
 import 'package:bot_creator/features/containers/logic/hosted_app_templates.dart';
 import 'package:bot_creator/features/containers/presentation/container_detail_page.dart';
 import 'package:bot_creator/features/containers/presentation/hosted_app_upsell_widgets.dart';
+import 'package:bot_creator/features/subscriptions/presentation/subscriptions_hub_page.dart';
 import 'package:flutter/material.dart';
 
 /// Reason the Deploy button is currently disabled, derived from the latest
@@ -24,6 +25,9 @@ enum _DeployBlockReason {
 
   /// The free/premium container limit has been reached.
   containerLimit,
+
+  /// The account formula does not include turnkey apps at all.
+  planLimit,
 
   /// No hosting minutes remain (free tier only).
   noMinutes,
@@ -90,6 +94,9 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
         final app = Map<String, dynamic>.from(raw);
         final id = app['id']?.toString() ?? '';
         if (id.isEmpty) continue;
+        // Une entrée marquée clé en main n'est pas un bot configuré (nettoyée au
+        // chargement par AppManager) : elle n'a rien à proposer comme token ici.
+        if (AppManager.isTurnkeyAppEntry(app)) continue;
         final full = await AppManager().getApp(id);
         final token = full['token']?.toString() ?? '';
         if (token.isEmpty) continue;
@@ -179,7 +186,9 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(context.tr.container_deploy_ad_unlock_failed(e.toString())),
+            content: Text(
+              context.tr.container_deploy_ad_unlock_failed(e.toString()),
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -193,9 +202,28 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
     if (_loadingEligibility) return _DeployBlockReason.loading;
     final elig = _eligibility;
     if (elig == null) return _DeployBlockReason.eligibilityError;
-    if (!elig.premium && elig.activeContainers >= elig.maxContainers) {
+    // La formule du compte est servie par le serveur (elle prime sur
+    // l'abonnement store) : si elle n'inclut pas le clé en main, inutile
+    // d'aller plus loin, le déploiement sera refusé.
+    if (!elig.allowTurnkey) return _DeployBlockReason.planLimit;
+    // Le VERDICT DU SERVEUR prime : c'est lui qui applique le quota au démarrage.
+    // Les heuristiques ci-dessous ne servent que de repli pour un serveur qui ne
+    // renverrait pas ces champs.
+    if (!elig.canDeploy) {
+      if (elig.isBlockedByNoMinutes) return _DeployBlockReason.noMinutes;
+      if (elig.isBlockedByPlan) return _DeployBlockReason.planLimit;
       return _DeployBlockReason.containerLimit;
     }
+    // Le quota de conteneurs s'applique à TOUT LE MONDE, premium compris : une
+    // formule d'hébergement en cours ne crée pas de place supplémentaire. Un bot
+    // clé en main n'ayant aucune configuration à sauvegarder, on le refuse AVANT la
+    // saisie du token plutôt que de laisser remplir un formulaire sans issue.
+    // (0 = illimité, d'où le garde-fou sur la valeur du plafond.)
+    if (elig.maxContainers > 0 && elig.activeContainers >= elig.maxContainers) {
+      return _DeployBlockReason.containerLimit;
+    }
+    // En revanche, l'exigence de minutes ne concerne que l'hébergement ad-financé :
+    // un compte couvert par une formule n'a pas de minutes à consommer.
     if (!elig.premium && elig.hostingMinutesBalance <= 0) {
       return _DeployBlockReason.noMinutes;
     }
@@ -230,6 +258,17 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
               backgroundColor: Colors.orange,
             ),
           );
+        case _DeployBlockReason.planLimit:
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(tr.plan_limit_turnkey_desc),
+              backgroundColor: Colors.orange,
+              action: SnackBarAction(
+                label: tr.plan_limit_view_offers,
+                onPressed: () => SubscriptionsHubPage.open(context),
+              ),
+            ),
+          );
         case _DeployBlockReason.noMinutes:
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -253,6 +292,26 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
 
     setState(() => _deploying = true);
     try {
+      // Validation technique du token Discord : le serveur vérifie que le bot
+      // existe et que ses droits sont suffisants. L'identité Discord renvoyée
+      // n'est PLUS persistée — un bot clé en main est un CONTENEUR, pas un bot
+      // local (voir la note après le déploiement).
+      try {
+        await _client!.validateTurnkeyDiscordToken(token);
+      } catch (tokenErr) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                context.tr.container_deploy_token_invalid(tokenErr.toString()),
+              ),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return;
+      }
+
       final result = await _client!.deployContainer(
         image: _selectedTemplate.image,
         cpuMillis: _selectedTemplate.cpuMillis,
@@ -261,8 +320,19 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
         env: {'TOKEN': token},
       );
 
+      final containerId = result['container_id']?.toString() ?? '';
+
+      // AUCUN enregistrement local ici, délibérément. Un bot clé en main est un
+      // CONTENEUR piloté par le serveur, sans configuration à éditer : l'accueil
+      // le liste via `listContainers()` (carte `HomeTurnkeyContainerCard`).
+      // L'ancien `AppManager().saveApp(...)` fabriquait un faux bot local sous
+      // l'ID DISCORD du bot, avec une config vide/par défaut, le token Discord en
+      // clair (alors qu'il vit déjà dans l'environnement du conteneur) et une
+      // ligne de bot fantôme côté manager — avec le risque d'ÉCRASER un vrai bot
+      // configuré portant le même ID Discord. Les entrées déjà créées chez les
+      // utilisateurs sont nettoyées par `AppManager.purgeTurnkeyAppEntries()`.
+
       if (mounted) {
-        final containerId = result['container_id']?.toString() ?? '';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(context.tr.container_deploy_submitted_starting),
@@ -359,6 +429,14 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
           actionLabel: tr.container_list_title,
           onAction: () => Navigator.pop(context, false),
         );
+      case _DeployBlockReason.planLimit:
+        return _DeployNoticeCard(
+          icon: Icons.lock_outline,
+          color: Colors.orange,
+          message: tr.plan_limit_turnkey_desc,
+          actionLabel: tr.plan_limit_view_offers,
+          onAction: () => SubscriptionsHubPage.open(context),
+        );
       case _DeployBlockReason.noMinutes:
         final reward = _eligibility?.adRewardMinutes ?? 0;
         return _DeployNoticeCard(
@@ -377,9 +455,7 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(context.tr.container_deploy_title),
-      ),
+      appBar: AppBar(title: Text(context.tr.container_deploy_title)),
       body: SafeArea(
         child: Form(
           key: _formKey,
@@ -427,7 +503,9 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
                               Container(
                                 padding: const EdgeInsets.all(10),
                                 decoration: BoxDecoration(
-                                  color: colorScheme.primary.withValues(alpha: 0.12),
+                                  color: colorScheme.primary.withValues(
+                                    alpha: 0.12,
+                                  ),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Icon(
@@ -442,16 +520,22 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      template.id == HostedAppTemplateId.easyMusic
-                                          ? context.tr.container_deploy_template_easy_music
+                                      template.id ==
+                                              HostedAppTemplateId.easyMusic
+                                          ? context
+                                                .tr
+                                                .container_deploy_template_easy_music
                                           : template.title,
-                                      style: theme.textTheme.titleSmall?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                      style: theme.textTheme.titleSmall
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
-                                      context.tr.container_deploy_managed_hosting,
+                                      context
+                                          .tr
+                                          .container_deploy_managed_hosting,
                                       style: TextStyle(
                                         color: colorScheme.onSurfaceVariant,
                                         fontSize: 12,
@@ -533,9 +617,8 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
                           ? Icons.visibility
                           : Icons.visibility_off,
                     ),
-                    onPressed: () => setState(
-                      () => _obscureBotToken = !_obscureBotToken,
-                    ),
+                    onPressed: () =>
+                        setState(() => _obscureBotToken = !_obscureBotToken),
                   ),
                 ),
                 validator: (val) {
@@ -550,7 +633,9 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
 
               // Guide / Prérequis Discord
               Card(
-                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
+                color: colorScheme.surfaceContainerHighest.withValues(
+                  alpha: 0.35,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                   side: BorderSide(

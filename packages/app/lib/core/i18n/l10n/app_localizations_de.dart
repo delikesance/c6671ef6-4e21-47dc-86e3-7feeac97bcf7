@@ -1872,8 +1872,25 @@ class AppLocalizationsDe extends AppLocalizations {
       'Token gespeichert, aber privilegierte Intents konnten nicht automatisch aktiviert werden. Aktivieren Sie sie im Discord Developer Portal.';
 
   @override
+  String get bot_settings_lavalink_add_fallback => 'Fallback-Server hinzufügen';
+
+  @override
   String get bot_settings_lavalink_choose_server =>
       'Öffentlichen Server auswählen...';
+
+  @override
+  String get bot_settings_lavalink_enable_subtitle =>
+      'Der Bot testet die öffentlichen Server selbst; eine Serverauswahl ist nicht nötig.';
+
+  @override
+  String get bot_settings_lavalink_enable_title => 'Musik (Lavalink)';
+
+  @override
+  String get bot_settings_lavalink_fallback_desc =>
+      'Öffentliche Server werden zuerst getestet. Deine Server dienen als Fallback, wenn keiner antwortet.';
+
+  @override
+  String get bot_settings_lavalink_fallback_title => 'Meine Fallback-Server';
 
   @override
   String get bot_settings_lavalink_host => 'Host';
@@ -1881,6 +1898,13 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get bot_settings_lavalink_host_hint =>
       'localhost oder Lavalink-Server-IP';
+
+  @override
+  String get bot_settings_lavalink_invalid_server =>
+      'Gib einen Host und einen Port zwischen 1 und 65535 ein.';
+
+  @override
+  String get bot_settings_lavalink_no_fallback => 'Noch kein Fallback-Server.';
 
   @override
   String get bot_settings_lavalink_password => 'Passwort';
@@ -1906,14 +1930,22 @@ class AppLocalizationsDe extends AppLocalizations {
   String get bot_settings_lavalink_public_servers => 'Öffentliche Server';
 
   @override
+  String get bot_settings_lavalink_remove_fallback => 'Entfernen';
+
+  @override
   String get bot_settings_lavalink_save_btn => 'Speichern';
 
   @override
   String get bot_settings_lavalink_save_caption =>
-      'Speichern Sie diese Konfiguration, damit sich der Bot mit dem Lavalink-Server verbinden kann.';
+      'Speichern: Der Bot testet zuerst die öffentlichen Server, dann deine Fallback-Server.';
 
   @override
   String get bot_settings_lavalink_section_title => 'Lavalink-Server';
+
+  @override
+  String bot_settings_lavalink_server_number(int index) {
+    return 'Fallback-Server $index';
+  }
 
   @override
   String get bot_settings_lavalink_server_picker_title =>
@@ -7504,6 +7536,57 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get subscriptions_hub_permanent => 'Dauerhaft (kein Ablauf)';
+
+  @override
+  String get subscriptions_hub_unlimited_bots => 'Unbegrenzte Bots';
+
+  @override
+  String get subscriptions_hub_managed_by_server => 'Vom Server verwaltet';
+
+  @override
+  String get plan_limit_own_bots_title =>
+      'Eigene Bots sind in deinem Tarif nicht enthalten';
+
+  @override
+  String get plan_limit_own_bots_desc =>
+      'Dein Tarif bietet nur Zugriff auf fertige (Turnkey-)Bots. Wechsle zu einem Tarif mit eigenen Bots, um diesen zu starten.';
+
+  @override
+  String get plan_limit_bot_quota_title => 'Limit laufender Bots erreicht';
+
+  @override
+  String get plan_limit_bot_quota_desc =>
+      'Dein Tarif begrenzt, wie viele Bots gleichzeitig laufen dürfen. Stoppe einen Bot oder wechsle zu einem höheren Tarif.';
+
+  @override
+  String plan_limit_bot_quota_ad_funded_desc(int count) {
+    return 'Dein Tarif lässt $count Bots gleichzeitig laufen. Dieser ist zusätzlich: er läuft mit Hosting-Zeit, die du durch Werbung verdienst, und stoppt, wenn sie aufgebraucht ist.';
+  }
+
+  @override
+  String get plan_limit_quota_continue_ad => 'Werbe-finanziert starten';
+
+  @override
+  String get plan_limit_turnkey_title =>
+      'Turnkey-Bots sind in deinem Tarif nicht enthalten';
+
+  @override
+  String get plan_limit_turnkey_desc =>
+      'Dein Tarif enthält keine Turnkey-Bots und keine gehosteten Anwendungen. Wähle einen Tarif, der sie enthält.';
+
+  @override
+  String get plan_limit_turnkey_quota_title =>
+      'Limit für Turnkey-Bots erreicht';
+
+  @override
+  String get plan_limit_turnkey_quota_desc =>
+      'Dein Tarif begrenzt, wie viele Turnkey-Bots gleichzeitig laufen dürfen. Stoppe einen oder wechsle zu einem höheren Tarif.';
+
+  @override
+  String get plan_limit_view_offers => 'Angebote ansehen';
+
+  @override
   String get subscription_upgrade_annual => 'Auf Jahresabo upgraden';
 
   @override
@@ -8570,11 +8653,11 @@ class AppLocalizationsDe extends AppLocalizations {
       'Erstellen und konfigurieren Sie einen anpassbaren Discord-Bot mit Aktionen, Ereignissen und Canvas-Ebenen.';
 
   @override
-  String get app_create_type_hosted => 'Gehostete Anwendung (Docker)';
+  String get app_create_type_hosted => 'Schlüsselfertiger Bot';
 
   @override
   String get app_create_type_hosted_desc =>
-      'Führen Sie eine Backend-App, einen Server oder ein Skript in Ihrer bevorzugten Sprache (NodeJS, Python, Java...) aus. Laden Sie Dateien hoch und installieren Sie Pakete in einer sicheren Sandbox.';
+      'Starten Sie in Sekundenschnelle einen einsatzbereiten Bot (Musik, Moderation, Utility...), der 24/7 gehostet wird.';
 
   @override
   String get app_create_coming_soon => 'Demnächst verfügbar';
@@ -8822,6 +8905,11 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String container_deploy_token_invalid(String error) {
+    return 'Ungültiges Discord-Bot-Token: $error';
+  }
+
+  @override
   String get container_deploy_blocked_container_limit =>
       'You\'ve reached your hosted app limit. Delete or stop an existing hosted app to free up a slot before deploying another.';
 
@@ -8870,6 +8958,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get container_detail_started_ok => 'Container wird gestartet';
 
   @override
+  String get container_detail_open => 'Details';
+
+  @override
   String get container_detail_delete_title => 'Container löschen';
 
   @override
@@ -8906,6 +8997,18 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get container_detail_console => 'Konsole';
+
+  @override
+  String container_logs_errors_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Fehler',
+      one: '1 Fehler',
+      zero: 'Keine Fehler',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get container_detail_deploying => 'Container wird bereitgestellt...';
