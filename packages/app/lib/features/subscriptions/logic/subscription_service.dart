@@ -60,6 +60,16 @@ class SubscriptionPurchaseResult {
   final SubscriptionPurchaseFailureReason? failureReason;
 }
 
+/// Raison pour laquelle la formule du compte empêche un démarrage — exactement
+/// celle que le serveur applique (403 au démarrage). Sert à griser l'écran et à
+/// proposer l'offre, plutôt que de laisser l'utilisateur buter sur un refus.
+enum PlanLimitBlock {
+  planExcludesOwnBots,
+  planBotQuotaReached,
+  planExcludesTurnkey,
+  planTurnkeyQuotaReached,
+}
+
 class SubscriptionService {
   SubscriptionService._();
 
@@ -68,13 +78,40 @@ class SubscriptionService {
   static const String _serverValidatedKey = 'subscription_server_validated';
   static const String _productIdKey = 'subscription_product_id';
   static const String _expiresAtKey = 'subscription_expires_at';
+  static const String _planDisplayNameKey = 'subscription_plan_display_name';
+  static const String _planTierCodeKey = 'subscription_plan_tier_code';
+  static const String _planProviderKey = 'subscription_plan_provider';
+  static const String _planMaxBotsKey = 'subscription_plan_max_bots';
+  static const String _planMaxTurnkeyBotsKey =
+      'subscription_plan_max_turnkey_bots';
+  static const String _planAllowOwnBotsKey = 'subscription_plan_allow_own_bots';
+  static const String _planAllowTurnkeyKey = 'subscription_plan_allow_turnkey';
+  static const String _planQuotasFromServerKey =
+      'subscription_plan_quotas_from_server';
 
   // ── State ──────────────────────────────────────────────────────────────────
   static bool _initialized = false;
+
+  /// SKUs réellement reconnus : les deux historiques, plus ceux annoncés par le
+  /// serveur (`/gateway/plans`). C'est le serveur qui décide des formules, donc
+  /// de la liste des produits à écouter et à valider.
+  static final Set<String> _knownProductIds = <String>{..._kSubscriptionIds};
   static bool _isSubscribed = false;
   static bool _serverValidated = false;
   static String? _activeProductId;
   static DateTime? _subscriptionExpiresAt;
+  static String? _serverPlanDisplayName;
+  static String? _serverPlanTierCode;
+  static String? _serverPlanProvider;
+  static int? _serverMaxBots;
+  static int? _serverMaxTurnkeyBots;
+  static bool _serverAllowOwnBots = true;
+  static bool _serverAllowTurnkey = true;
+
+  /// Vrai quand les quotas ci-dessus viennent réellement du serveur. Tant qu'ils
+  /// sont inconnus, l'écran ne bloque rien en local : le serveur reste le seul
+  /// juge, et un refus à tort serait bien pire qu'un 403 au démarrage.
+  static bool _planQuotasFromServer = false;
   static DateTime? _lastSyncAt;
 
   static bool? _managerPremiumOverride;
@@ -172,6 +209,12 @@ class SubscriptionService {
     _debugForceNativeBillingSourceOfTruth = value;
   }
 
+  /// Test seam for the store round trip: production asks the platform store,
+  /// which cannot answer inside a unit test. Returning true means "the store
+  /// confirmed the purchase", exactly like a successful restore + verify.
+  @visibleForTesting
+  static Future<bool> Function()? debugStoreReverifyOverride;
+
   @visibleForTesting
   static void debugSetDesktopForTests(bool? value) {
     _debugForceDesktop = value;
@@ -198,9 +241,6 @@ class SubscriptionService {
   static bool get isSubscribed {
     // Desktop platforms are premium by default.
     if (_isDesktop) return true;
-    if (_usesNativeBillingSourceOfTruth) {
-      return _isLocalSubscriptionActive();
-    }
     if (_hasFreshManagerOverride()) {
       return _managerPremiumOverride!;
     }
@@ -212,6 +252,62 @@ class SubscriptionService {
 
   /// The active product ID (if subscribed).
   static String? get activeProductId => _activeProductId;
+
+  /// The custom display name of the plan (e.g. 'Pro', 'Starter') if provided by manager.
+  static String? get activePlanDisplayName => _serverPlanDisplayName;
+
+  /// The tier code of the plan (e.g. 'TIER_1', 'PRO', 'FREE') if provided by manager.
+  static String? get activePlanTierCode => _serverPlanTierCode;
+
+  /// The provider of the subscription (e.g. 'admin_remote', 'google_play', 'stripe').
+  static String? get activePlanProvider => _serverPlanProvider;
+
+  /// Maximum bots allowed by the active plan (0 = Unlimited).
+  static int? get activePlanMaxBots => _serverMaxBots;
+
+  /// Quota de clé en main / apps hébergées de la formule servie par le serveur.
+  static int? get activePlanMaxTurnkeyBots => _serverMaxTurnkeyBots;
+
+  /// La formule inclut-elle les bots perso / le clé en main ?
+  static bool get activePlanAllowOwnBots => _serverAllowOwnBots;
+  static bool get activePlanAllowTurnkey => _serverAllowTurnkey;
+
+  /// Pourquoi un bot perso ne peut pas démarrer, selon la formule du serveur.
+  ///
+  /// Miroir exact du refus serveur (403 `own_bots_not_allowed` /
+  /// `bot_quota_reached`) : l'écran doit griser le démarrage au lieu de laisser
+  /// l'utilisateur buter sur le refus. Les quotas sont des quotas de démarrage :
+  /// on compte les bots **en marche**, et 0 = illimité.
+  static PlanLimitBlock? ownBotStartBlock({required int runningBots}) {
+    if (!_planQuotasFromServer) return null;
+    if (!_serverAllowOwnBots) return PlanLimitBlock.planExcludesOwnBots;
+    final maxBots = _serverMaxBots;
+    if (maxBots == null || maxBots <= 0) return null;
+    if (runningBots >= maxBots) return PlanLimitBlock.planBotQuotaReached;
+    return null;
+  }
+
+  /// Même contrôle pour un clé en main / une app hébergée (403
+  /// `turnkey_not_allowed` / `turnkey_quota_reached`).
+  static PlanLimitBlock? turnkeyStartBlock({required int activeApps}) {
+    if (!_planQuotasFromServer) return null;
+    if (!_serverAllowTurnkey) return PlanLimitBlock.planExcludesTurnkey;
+    final maxTurnkey = _serverMaxTurnkeyBots;
+    if (maxTurnkey == null || maxTurnkey <= 0) return null;
+    if (activeApps >= maxTurnkey) return PlanLimitBlock.planTurnkeyQuotaReached;
+    return null;
+  }
+
+  /// Whether the active subscription comes from a native mobile store purchase.
+  static bool get hasNativeStoreSubscription =>
+      _activeProductId != null &&
+      _activeProductId!.isNotEmpty &&
+      _serverPlanProvider != 'admin_remote';
+
+  /// Whether the active subscription was assigned remotely by an admin or external system.
+  static bool get isServerGranted =>
+      _serverPlanProvider == 'admin_remote' ||
+      (isSubscribed && !hasNativeStoreSubscription);
 
   static bool get canUpgradeToAnnual =>
       isSubscribed && activeProductId == kMonthlySubscriptionId;
@@ -240,10 +336,26 @@ class SubscriptionService {
       _subscriptionExpiresAt = _parseStoredDateTime(
         _prefs?.getString(_expiresAtKey),
       );
+      _serverPlanDisplayName = _prefs?.getString(_planDisplayNameKey);
+      _serverPlanTierCode = _prefs?.getString(_planTierCodeKey);
+      _serverPlanProvider = _prefs?.getString(_planProviderKey);
+      _serverMaxBots = _prefs?.getInt(_planMaxBotsKey);
+      _serverMaxTurnkeyBots = _prefs?.getInt(_planMaxTurnkeyBotsKey);
+      _serverAllowOwnBots = _prefs?.getBool(_planAllowOwnBotsKey) ?? true;
+      _serverAllowTurnkey = _prefs?.getBool(_planAllowTurnkeyKey) ?? true;
+      // Les quotas survivent à la perte du statut premium : un compte Free est
+      // lui aussi régi par une formule (FREE), et c'est elle qui décide de ce
+      // qui peut démarrer. Le prochain refresh les réécrit de toute façon.
+      _planQuotasFromServer =
+          _prefs?.getBool(_planQuotasFromServerKey) ?? false;
       _lastSyncAt = null;
 
       if (!_isSubscribed) {
         _subscriptionExpiresAt = null;
+        _serverPlanDisplayName = null;
+        _serverPlanTierCode = null;
+        _serverPlanProvider = null;
+        _serverMaxBots = null;
       }
 
       if (_isSubscribed) {
@@ -340,6 +452,46 @@ class SubscriptionService {
   static Future<SubscriptionPurchaseResult> purchaseAnnual() =>
       _purchase(kAnnualSubscriptionId);
 
+  /// Démarre l'achat d'une formule du catalogue serveur.
+  ///
+  /// Le changement de formule (upgrade/downgrade) est géré par le store dès lors
+  /// que le SKU appartient au même groupe d'abonnement : l'application n'a qu'à
+  /// acheter le produit cible.
+  static Future<SubscriptionPurchaseResult> purchaseProduct(String productId) {
+    final trimmed = productId.trim();
+    if (trimmed.isEmpty) {
+      return Future.value(
+        const SubscriptionPurchaseResult.failed(
+          SubscriptionPurchaseFailureReason.productUnavailable,
+        ),
+      );
+    }
+    return _purchase(trimmed);
+  }
+
+  /// Déclare les SKUs annoncés par le serveur (`/gateway/plans`).
+  ///
+  /// Les identifiants de produits ne sont plus figés : la formule dit à quels
+  /// SKUs elle correspond. On les ajoute à l'ensemble connu pour que le flux
+  /// d'achat et le flux de validation des reçus les reconnaissent.
+  static void registerPurchasableProductIds(Iterable<String> productIds) {
+    var added = false;
+    for (final id in productIds) {
+      final trimmed = id.trim();
+      if (trimmed.isEmpty || _knownProductIds.contains(trimmed)) continue;
+      _knownProductIds.add(trimmed);
+      added = true;
+    }
+    if (added) {
+      unawaited(
+        AppDiagnostics.logInfo(
+          'Registered server plan product ids',
+          data: {'count': _knownProductIds.length},
+        ),
+      );
+    }
+  }
+
   static Future<SubscriptionPurchaseResult> _purchase(String productId) async {
     try {
       final iap = InAppPurchase.instance;
@@ -372,7 +524,7 @@ class SubscriptionService {
       ProductDetails? product = selectPurchaseCandidate(products, productId);
 
       if (product == null) {
-        final response = await iap.queryProductDetails(_kSubscriptionIds);
+        final response = await iap.queryProductDetails(_knownProductIds);
         if (response.error != null) {
           unawaited(
             AppDiagnostics.logInfo(
@@ -662,7 +814,7 @@ class SubscriptionService {
   }
 
   static Future<void> _verifyAndDeliver(PurchaseDetails purchase) async {
-    if (!_kSubscriptionIds.contains(purchase.productID)) {
+    if (!_knownProductIds.contains(purchase.productID)) {
       return;
     }
 
@@ -791,6 +943,54 @@ class SubscriptionService {
     await _markExpired();
   }
 
+  /// Asks the store to replay its purchases and waits for the shared purchase
+  /// stream to verify them with the manager.
+  ///
+  /// Returns true as soon as the local state becomes active again. Bounded and rate
+  /// limited on purpose: a genuinely expired subscription must not turn every
+  /// refresh into a store round trip.
+  static Future<bool> _reverifyFromStore() async {
+    final override = debugStoreReverifyOverride;
+    if (override != null) {
+      return override();
+    }
+    final lastAttempt = _lastStoreReverifyAt;
+    if (!_storeAvailable ||
+        (lastAttempt != null &&
+            DateTime.now().toUtc().difference(lastAttempt) <
+                _storeReverifyCooldown)) {
+      return false;
+    }
+    _lastStoreReverifyAt = DateTime.now().toUtc();
+
+    try {
+      await InAppPurchase.instance.restorePurchases();
+    } catch (error, stack) {
+      unawaited(
+        AppDiagnostics.logError(
+          'Store restore failed while the manager reported no premium',
+          error,
+          stack,
+          fatal: false,
+        ),
+      );
+      return false;
+    }
+
+    final deadline = DateTime.now().toUtc().add(_storeReverifyTimeout);
+    while (DateTime.now().toUtc().isBefore(deadline)) {
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+      if (_isLocalSubscriptionActive()) {
+        return true;
+      }
+    }
+    return _isLocalSubscriptionActive();
+  }
+
+  static const Duration _storeReverifyTimeout = Duration(seconds: 8);
+  static const Duration _storeReverifyCooldown = Duration(minutes: 10);
+  static DateTime? _lastStoreReverifyAt;
+
   /// Called when a subscription expires or is revoked.
   /// The store will stop sending restored purchases and we reset local state.
   static Future<void> _markExpired() async {
@@ -799,11 +999,63 @@ class SubscriptionService {
     _isSubscribed = false;
     _serverValidated = false;
     _activeProductId = null;
+    _serverPlanDisplayName = null;
+    _serverPlanTierCode = null;
+    _serverPlanProvider = null;
+    _serverMaxBots = null;
     await _setSubscriptionExpiry(null);
     _lastLocalValidationAt = DateTime.now().toUtc();
     await _prefs?.setBool(_activeKey, false);
     await _prefs?.setBool(_serverValidatedKey, false);
     await _prefs?.remove(_productIdKey);
+    await _prefs?.remove(_planDisplayNameKey);
+    await _prefs?.remove(_planTierCodeKey);
+    await _prefs?.remove(_planProviderKey);
+    await _prefs?.remove(_planMaxBotsKey);
+    // Formule inconnue : on n'interdit rien (le serveur reste seul juge), et le
+    // prochain rafraîchissement réapplique les quotas réels — dont ceux de FREE.
+    _serverMaxTurnkeyBots = null;
+    _serverAllowOwnBots = true;
+    _serverAllowTurnkey = true;
+    _planQuotasFromServer = false;
+    await _prefs?.remove(_planMaxTurnkeyBotsKey);
+    await _prefs?.remove(_planAllowOwnBotsKey);
+    await _prefs?.remove(_planAllowTurnkeyKey);
+    await _prefs?.remove(_planQuotasFromServerKey);
+  }
+
+  /// Applique les quotas de la formule servie par le serveur.
+  ///
+  /// Le serveur est la seule autorité : ces valeurs décident de ce qui peut
+  /// démarrer (bots perso, clé en main / apps hébergées), donc elles sont lues
+  /// pour TOUTES les formules — y compris FREE, puisque tout le monde est Free
+  /// par défaut. Une valeur absente n'interdit rien : le serveur tranche.
+  static Future<void> _applyPlanQuotas(Map<String, dynamic> runtime) async {
+    final maxBots = runtime['max_bots'];
+    _serverMaxBots = maxBots is num ? maxBots.toInt() : null;
+
+    final maxTurnkeyBots = runtime['max_turnkey_bots'];
+    _serverMaxTurnkeyBots = maxTurnkeyBots is num
+        ? maxTurnkeyBots.toInt()
+        : null;
+
+    _serverAllowOwnBots = runtime['allow_own_bots'] != false;
+    _serverAllowTurnkey = runtime['allow_turnkey'] != false;
+    _planQuotasFromServer = true;
+
+    if (_serverMaxBots != null) {
+      await _prefs?.setInt(_planMaxBotsKey, _serverMaxBots!);
+    } else {
+      await _prefs?.remove(_planMaxBotsKey);
+    }
+    if (_serverMaxTurnkeyBots != null) {
+      await _prefs?.setInt(_planMaxTurnkeyBotsKey, _serverMaxTurnkeyBots!);
+    } else {
+      await _prefs?.remove(_planMaxTurnkeyBotsKey);
+    }
+    await _prefs?.setBool(_planAllowOwnBotsKey, _serverAllowOwnBots);
+    await _prefs?.setBool(_planAllowTurnkeyKey, _serverAllowTurnkey);
+    await _prefs?.setBool(_planQuotasFromServerKey, true);
   }
 
   static DateTime? _parseStoredDateTime(String? raw) {
@@ -948,7 +1200,23 @@ class SubscriptionService {
       _managerPremiumOverride = plan;
       _managerPremiumOverrideUpdatedAt = DateTime.now().toUtc();
       if (!plan && localPremium) {
+        // The device believes it is subscribed while the manager says otherwise:
+        // usually the purchase was never verified for this account. Replay the store
+        // receipt before erasing what we know, otherwise a paying customer lands on
+        // "Not subscribed" until they restore by hand. The manager stays the only
+        // grantor — it verifies the receipt it receives.
+        if (await _reverifyFromStore()) {
+          return true;
+        }
         await _markExpired();
+      } else if (plan && !localPremium && _usesNativeBillingSourceOfTruth) {
+        // The manager grants premium but this device holds no local proof: its
+        // cache was cleared (an older build wiped it on a stale "free" answer, or
+        // the entitlement was repaired server-side). Replay the store receipt so
+        // the app heals itself instead of asking a paying customer to restore by
+        // hand. Fire and forget: the purchase stream verifies it and repopulates
+        // the local state the mobile gate requires.
+        unawaited(_reverifyFromStore());
       }
       return plan;
     } catch (error, stack) {
@@ -1018,12 +1286,11 @@ class SubscriptionService {
         return localPremium;
       }
 
-      _managerPremiumOverride = plan;
-      _managerPremiumOverrideUpdatedAt = DateTime.now().toUtc();
-      if (!plan && localPremium) {
-        await _markExpired();
-      }
-      return plan;
+      return _applyServerPlanState(
+        runtime,
+        localPremium: localPremium,
+        allowStoreReverify: true,
+      );
     } catch (error, stack) {
       if (AppDiagnostics.isTransientNetworkError(error)) {
         _logTransientPremiumRefreshDeferred();
@@ -1041,17 +1308,143 @@ class SubscriptionService {
     }
   }
 
+  /// Applique un état de compte poussé par le canal temps réel (`account.updated`).
+  ///
+  /// Le serveur est l'autorité et vient de dire l'état exact : aucune requête HTTP
+  /// n'est faite — ni `/gateway/runtime`, ni re-vérification du store. Le repli HTTP
+  /// reste en place pour les serveurs plus anciens et si la WebSocket tombe.
+  static Future<void> applyPushedAccountState(Map<String, dynamic> runtime) async {
+    if (runtime.isEmpty) return;
+    final plan =
+        _isPremiumPlan(runtime['plan']) ??
+        _isPremiumPlan(runtime['account_plan']) ??
+        _isPremiumPlan(runtime['subscription_plan']);
+    if (plan == null) return;
+    await _applyServerPlanState(
+      runtime,
+      localPremium: _isSubscribed,
+      allowStoreReverify: false,
+    );
+  }
+
+  /// Source unique d'application d'un état de compte, qu'il vienne d'une réponse HTTP
+  /// ou d'un événement poussé : les deux chemins ne peuvent plus diverger.
+  static Future<bool> _applyServerPlanState(
+    Map<String, dynamic> runtime, {
+    required bool localPremium,
+    required bool allowStoreReverify,
+  }) async {
+    final plan =
+        _isPremiumPlan(runtime['plan']) ??
+        _isPremiumPlan(runtime['account_plan']) ??
+        _isPremiumPlan(runtime['subscription_plan']);
+    if (plan == null) return localPremium;
+
+    _managerPremiumOverride = plan;
+    _managerPremiumOverrideUpdatedAt = DateTime.now().toUtc();
+    if (plan) {
+      _isSubscribed = true;
+      _serverValidated = true;
+      _serverPlanDisplayName = runtime['display_name'] as String?;
+      _serverPlanTierCode = runtime['tier_code'] as String?;
+      _serverPlanProvider = runtime['provider'] as String?;
+      // Les quotas de la formule sont lus pour toutes les formules : ce sont
+      // eux qui décident de ce qui peut démarrer (miroir du refus serveur).
+      await _applyPlanQuotas(runtime);
+      if (runtime['expires_at'] != null) {
+        _subscriptionExpiresAt = DateTime.tryParse(
+          runtime['expires_at'].toString(),
+        )?.toUtc();
+      } else {
+        _subscriptionExpiresAt = null;
+      }
+
+      await _prefs?.setBool(_activeKey, true);
+      await _prefs?.setBool(_serverValidatedKey, true);
+      if (_serverPlanDisplayName != null) {
+        await _prefs?.setString(_planDisplayNameKey, _serverPlanDisplayName!);
+      } else {
+        await _prefs?.remove(_planDisplayNameKey);
+      }
+      if (_serverPlanTierCode != null) {
+        await _prefs?.setString(_planTierCodeKey, _serverPlanTierCode!);
+      } else {
+        await _prefs?.remove(_planTierCodeKey);
+      }
+      if (_serverPlanProvider != null) {
+        await _prefs?.setString(_planProviderKey, _serverPlanProvider!);
+      } else {
+        await _prefs?.remove(_planProviderKey);
+      }
+      if (_subscriptionExpiresAt != null) {
+        await _prefs?.setString(
+          _expiresAtKey,
+          _subscriptionExpiresAt!.toIso8601String(),
+        );
+        _scheduleExpirationTimer();
+      } else {
+        await _prefs?.remove(_expiresAtKey);
+        _expiryTimer?.cancel();
+        _expiryTimer = null;
+      }
+
+      if (allowStoreReverify &&
+          !localPremium &&
+          (_serverPlanProvider == 'google_play' ||
+              _serverPlanProvider == 'apple_in_app' ||
+              _serverPlanProvider == null)) {
+        unawaited(_reverifyFromStore());
+      }
+      return true;
+    }
+
+    if (allowStoreReverify && localPremium) {
+      if (await _reverifyFromStore()) {
+        _managerPremiumOverride = true;
+        _managerPremiumOverrideUpdatedAt = DateTime.now().toUtc();
+        return true;
+      }
+    }
+    await _markExpired();
+    // Un compte non premium suit la formule FREE : ses quotas s'appliquent aussi, et
+    // ils sont réappliqués ici même si _markExpired vient de les remettre à zéro.
+    await _applyPlanQuotas(runtime);
+    return false;
+  }
+
   /// Returns the effective premium state used by the app.
   ///
-  /// When a valid manager session exists, the manager becomes the
-  /// source of truth and local caches are refreshed against it before
-  /// granting premium-only behavior such as ad-free starts.
+  /// When a valid manager session exists, the manager is authoritative.
   static Future<bool> resolveEffectivePremiumStatus({
     MainApiClient? client,
     bool forceRefresh = false,
   }) async {
     if (_isDesktop) return true;
-    if (_usesNativeBillingSourceOfTruth) {
+    final config = await MainApiSettingsStore.loadConfig();
+    final session = await MainApiSettingsStore.loadSession();
+    if (config.isConfigured && session != null && !session.isExpired) {
+      return refreshPremiumFromServer(
+        client: client,
+        forceRefresh: forceRefresh,
+      );
+    }
+    if (!_hasFreshLocalValidation(forceRefresh: forceRefresh)) {
+      await refreshStatus();
+    }
+    return _isLocalSubscriptionActive();
+  }
+
+  /// Returns whether rewarded ads can be skipped for bot starts.
+  ///
+  /// A valid manager session is authoritative. Otherwise, native store billing
+  /// must be verifiable on-device.
+  static Future<bool> canSkipRewardedAds({
+    MainApiClient? client,
+    bool forceRefresh = false,
+    bool allowStoredManagerSession = true,
+  }) async {
+    if (_isDesktop) return true;
+    if (allowStoredManagerSession) {
       final config = await MainApiSettingsStore.loadConfig();
       final session = await MainApiSettingsStore.loadSession();
       if (config.isConfigured && session != null && !session.isExpired) {
@@ -1060,87 +1453,8 @@ class SubscriptionService {
           forceRefresh: forceRefresh,
         );
       }
-      if (!_hasFreshLocalValidation(forceRefresh: forceRefresh)) {
-        await refreshStatus();
-      }
-      return _isLocalSubscriptionActive();
-    }
-    final config = await MainApiSettingsStore.loadConfig();
-    if (!config.isConfigured) {
-      _managerPremiumOverride = null;
-      _managerPremiumOverrideUpdatedAt = null;
-      return isSubscribed;
     }
 
-    final session = await MainApiSettingsStore.loadSession();
-    if (session == null || session.isExpired) {
-      _managerPremiumOverride = null;
-      _managerPremiumOverrideUpdatedAt = null;
-      return isSubscribed;
-    }
-
-    return refreshManagerPremiumStatus(
-      client: client,
-      forceRefresh: forceRefresh,
-      preferLocalOnFailure: false,
-    );
-  }
-
-  /// Returns whether rewarded ads can be skipped for bot starts.
-  ///
-  /// This path is intentionally stricter than the generic premium UI:
-  /// a valid manager session is authoritative, otherwise native billing
-  /// must be verifiable on-device before ad-free access is granted.
-  static Future<bool> canSkipRewardedAds({
-    MainApiClient? client,
-    bool forceRefresh = false,
-    bool allowStoredManagerSession = true,
-  }) async {
-    if (_isDesktop) return true;
-    if (_usesNativeBillingSourceOfTruth) {
-      if (!_initialized) {
-        await initialize();
-      }
-      if (allowStoredManagerSession) {
-        final config = await MainApiSettingsStore.loadConfig();
-        final session = await MainApiSettingsStore.loadSession();
-        if (config.isConfigured && session != null && !session.isExpired) {
-          return refreshPremiumFromServer(
-            client: client,
-            forceRefresh: forceRefresh,
-          );
-        }
-      }
-      if (!_storeAvailable) {
-        return false;
-      }
-      if (!_hasFreshLocalValidation(forceRefresh: forceRefresh)) {
-        await refreshStatus();
-        _lastLocalValidationAt = DateTime.now().toUtc();
-      }
-      return _isLocalSubscriptionActive();
-    }
-
-    final config = allowStoredManagerSession
-        ? await MainApiSettingsStore.loadConfig()
-        : null;
-    final session = allowStoredManagerSession
-        ? await MainApiSettingsStore.loadSession()
-        : null;
-    if (client != null ||
-        (config?.isConfigured == true &&
-            session != null &&
-            !session.isExpired)) {
-      return refreshManagerPremiumStatus(
-        client: client,
-        forceRefresh: forceRefresh,
-        preferLocalOnFailure: false,
-      );
-    }
-
-    if (!_isSupportedPlatform) {
-      return false;
-    }
     if (!_initialized) {
       await initialize();
     }
@@ -1280,15 +1594,54 @@ class SubscriptionService {
     _serverValidated = false;
     _activeProductId = null;
     _subscriptionExpiresAt = null;
+    _serverPlanDisplayName = null;
+    _serverPlanTierCode = null;
+    _serverPlanProvider = null;
+    _serverMaxBots = null;
+    _serverMaxTurnkeyBots = null;
+    _serverAllowOwnBots = true;
+    _serverAllowTurnkey = true;
+    _planQuotasFromServer = false;
     _managerPremiumOverride = null;
     _managerPremiumOverrideUpdatedAt = null;
     _lastLocalValidationAt = null;
     _lastServerSyncAt = null;
     _debugForceNativeBillingSourceOfTruth = null;
     _debugForceDesktop = null;
+    debugStoreReverifyOverride = null;
+    _lastStoreReverifyAt = null;
     _prefs = null;
     products = <ProductDetails>[];
     _storeAvailable = false;
+  }
+
+  /// Injecte les quotas d'une formule comme si le serveur venait de les servir.
+  @visibleForTesting
+  static void debugSetPlanQuotasForTests({
+    bool fromServer = true,
+    int? maxBots,
+    int? maxTurnkeyBots,
+    bool allowOwnBots = true,
+    bool allowTurnkey = true,
+  }) {
+    _planQuotasFromServer = fromServer;
+    _serverMaxBots = maxBots;
+    _serverMaxTurnkeyBots = maxTurnkeyBots;
+    _serverAllowOwnBots = allowOwnBots;
+    _serverAllowTurnkey = allowTurnkey;
+  }
+
+  /// Injecte l'identité de la formule (nom affiché, code) comme si le serveur venait de la
+  /// servir — utilisé par les tests d'affichage du hub.
+  @visibleForTesting
+  static void debugSetPlanIdentityForTests({
+    String? displayName,
+    String? tierCode,
+    String? provider,
+  }) {
+    _serverPlanDisplayName = displayName;
+    _serverPlanTierCode = tierCode;
+    _serverPlanProvider = provider;
   }
 
   @visibleForTesting

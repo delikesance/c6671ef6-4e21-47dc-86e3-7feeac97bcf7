@@ -1,3 +1,12 @@
+# Décision : le gate local `make check` (-> scripts/pre-push.sh) exécute l'analyse et les tests
+# du monorepo complet (runner, shared, app mobile). Les jobs de test/analyse/scan source distants
+# sont donc retirés au profit de ce gate local, bien plus rapide à itérer.
+# La CI distante ne garde que ce qui ne peut pas tourner en local : release SemVer + tag,
+# build/scan de l'image Docker et publication sur les registres.
+# Le tag de release suit les Conventional Commits depuis le dernier tag (feat -> minor,
+# type! / BREAKING CHANGE -> major, le reste -> patch), forçable via workflow_dispatch
+# (entrée bump). La version de départ reste celle du pubspec de l'app et le numéro de
+# build Flutter (+N) ne redescend jamais : les stores refusent un build déjà publié.
 name: CI
 
 on:
@@ -5,9 +14,13 @@ on:
     branches: [main, master]
     tags:
       - "v*"
-  pull_request:
-    branches: [main, master, dev]
   workflow_dispatch:
+    inputs:
+      bump:
+        description: "Type de montée de version (auto = déduite des Conventional Commits)"
+        type: choice
+        default: auto
+        options: [auto, patch, minor, major]
 
 permissions:
   actions: read
@@ -22,135 +35,6 @@ env:
   DOCKERHUB_IMAGE_NAME: garder500/bot-creator-runner
 
 jobs:
-  quality:
-    name: Quality
-    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master') || (github.event_name == 'push' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master' && !startsWith(github.ref, 'refs/tags/v'))
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: "3.44.1"
-          channel: "stable"
-          cache: false
-
-      - name: Resolve workspace dependencies
-        run: flutter pub get
-
-      - name: Analyze packages
-        run: |
-          dart analyze packages/runner packages/shared
-          flutter analyze packages/app
-
-  unit-tests:
-    name: Unit tests
-    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master') || (github.event_name == 'push' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master' && !startsWith(github.ref, 'refs/tags/v'))
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: "3.44.1"
-          channel: "stable"
-          cache: false
-
-      - name: Resolve workspace dependencies
-        run: flutter pub get
-
-      - name: Run unit tests
-        run: |
-          cd packages/runner && dart test
-          cd ../shared && dart test
-          cd ../app && flutter test
-
-  api-integration-tests:
-    name: API integration tests
-    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master') || (github.event_name == 'push' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master' && !startsWith(github.ref, 'refs/tags/v'))
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: "3.44.1"
-          channel: "stable"
-          cache: false
-
-      - name: Resolve workspace dependencies
-        run: flutter pub get
-
-      - name: Run runner integration tests
-        run: cd packages/runner && dart test test/discord_runner_reload_mode_test.dart test/runner_runtime_controller_metrics_test.dart
-
-  swagger-drift:
-    name: Swagger drift
-    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master') || (github.event_name == 'push' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master' && !startsWith(github.ref, 'refs/tags/v'))
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: "3.44.1"
-          channel: "stable"
-          cache: false
-
-      - name: Check ARB translations and localization sync
-        run: |
-          if [ -d "packages/app" ]; then
-            cd packages/app && flutter pub get
-            dart run tools/check_hardcoded_strings.dart || true
-          fi
-
-  source-security:
-    name: Source security
-    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master') || (github.event_name == 'push' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master' && !startsWith(github.ref, 'refs/tags/v'))
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Run Trivy filesystem vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          format: 'table'
-          exit-code: '0'
-          severity: 'CRITICAL,HIGH'
-
-  container-build-scan:
-    name: Container build and scan
-    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master') || (github.event_name == 'push' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master' && !startsWith(github.ref, 'refs/tags/v'))
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build local container image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./Dockerfile
-          push: false
-          load: true
-          tags: local/runner:${{ github.sha }}
-          build-args: |
-            CACHEBUST=${{ github.run_id }}-${{ github.run_attempt }}
-
-      - name: Run Trivy container vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: local/runner:${{ github.sha }}
-          format: 'table'
-          exit-code: '0'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
-
   auto-release:
     name: Auto Release & SemVer Tag
     if: (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v'))) || (github.event_name == 'workflow_dispatch' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'))
@@ -166,26 +50,89 @@ jobs:
 
       - name: Compute and Bump SemVer
         id: version
+        # L'entrée de workflow_dispatch passe par l'environnement : shellcheck ne sait
+        # pas parser la syntaxe d'expression GitHub placée dans le script, et l'y
+        # laisser faisait échouer le lint du workflow.
+        env:
+          FORCED_BUMP: ${{ github.event.inputs.bump }}
         run: |
-          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+          set -euo pipefail
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            # Push d'un tag : la version est déjà décidée, on ne réécrit rien.
             TAG="${GITHUB_REF#refs/tags/}"
             VERSION="${TAG#v}"
           else
+            # La version de départ reste celle du pubspec de l'app : c'est lui qui
+            # est publié, et c'est lui qui est réécrit juste en dessous.
             CURRENT_FULL=$(grep -oP '(?<=version: )\S+' packages/app/pubspec.yaml)
-            CURRENT_VER=$(echo "$CURRENT_FULL" | cut -d+ -f1)
-            CURRENT_BUILD=$(echo "$CURRENT_FULL" | cut -s -d+ -f2)
-            if [ -z "$CURRENT_BUILD" ]; then CURRENT_BUILD="1"; fi
+            CURRENT_VER="${CURRENT_FULL%%+*}"
+            CURRENT_BUILD="${CURRENT_FULL##*+}"
+            # Pas de « +N » dans le pubspec : on repart de 1 (comme avant).
+            if [ "$CURRENT_BUILD" = "$CURRENT_FULL" ]; then CURRENT_BUILD="1"; fi
 
-            MAJOR=$(echo "$CURRENT_VER" | cut -d. -f1)
-            MINOR=$(echo "$CURRENT_VER" | cut -d. -f2)
-            PATCH=$(echo "$CURRENT_VER" | cut -d. -f3)
-            PATCH=$((PATCH + 1))
-            BUILD_NUMBER=$((CURRENT_BUILD + 1))
+            MAJOR="${CURRENT_VER%%.*}"
+            REST="${CURRENT_VER#*.}"
+            MINOR="${REST%%.*}"
+            PATCH="${REST#*.}"
+
+            LAST_TAG=$(git tag --list 'v*' --sort=-v:refname | head -n1 || true)
+            if [ -z "$LAST_TAG" ]; then
+              # Aucun tag : le bump se déduit de tout l'historique (la version de
+              # départ, elle, vient toujours du pubspec).
+              RANGE="HEAD"
+            else
+              RANGE="${LAST_TAG}..HEAD"
+            fi
+
+            # Le type de bump est DÉDUIT des Conventional Commits au lieu d'être
+            # systématiquement un « patch + 1 » : jusqu'ici une release qui
+            # n'apportait qu'un correctif et une release qui apportait des
+            # fonctionnalités finissaient au même endroit, et les montées mineures
+            # et majeures ne sortaient donc jamais.
+            # 'auto' (défaut) : type!: ou footer BREAKING CHANGE -> major ;
+            # feat -> minor ; tout le reste (fix, perf, chore, docs, ci) -> patch.
+            # On lit les SUJETS et les CORPS : le footer BREAKING CHANGE n'est
+            # jamais dans le sujet.
+            # Sur un push, l'entrée de workflow_dispatch est vide : le défaut 'auto'
+            # est donc posé ici, jamais dans une expression GitHub.
+            BUMP="${FORCED_BUMP:-auto}"
+            if [ "$BUMP" = "auto" ]; then
+              if git log --format='%s%n%b' "$RANGE" | grep -qE '^[a-zA-Z]+(\([^)]*\))?!:|^BREAKING[ -]CHANGE:'; then
+                BUMP="major"
+              elif git log --format='%s' "$RANGE" | grep -qE '^feat(\([^)]*\))?:'; then
+                BUMP="minor"
+              else
+                # Quoté à dessein : sans guillemets, « patch » ferait tiquer le
+                # linter (SC2209), parce que c'est aussi une commande système.
+                BUMP="patch"
+              fi
+            fi
+
+            case "$BUMP" in
+              major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
+              minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
+              patch) PATCH=$((PATCH + 1)) ;;
+              *) echo "bump invalide: $BUMP"; exit 1 ;;
+            esac
 
             VERSION="${MAJOR}.${MINOR}.${PATCH}"
             TAG="v${VERSION}"
+
+            # Relance du workflow, ou tag déjà posé à la main : on ne réécrit pas un
+            # tag existant (l'action de release échouerait), on avance d'un patch.
+            while git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; do
+              LAST_PATCH="${TAG##*.}"
+              TAG="${TAG%.*}.$((LAST_PATCH + 1))"
+              echo "Tag déjà existant, on continue en $TAG"
+            done
+            VERSION="${TAG#v}"
+
+            # Le numéro de build Flutter (+N) ne redescend JAMAIS, quel que soit le
+            # bump : les stores refusent un build déjà publié.
+            BUILD_NUMBER=$((CURRENT_BUILD + 1))
             NEW_FULL="${VERSION}+${BUILD_NUMBER}"
 
+            echo "Bump: $BUMP (dernier tag: ${LAST_TAG:-aucun}, $(git rev-list --count "$RANGE") commit(s))"
             echo "Bumping Flutter app version to $NEW_FULL"
             sed -i -E "s/^version: .*/version: $NEW_FULL/" packages/app/pubspec.yaml
             if [ -f packages/runner/pubspec.yaml ]; then
@@ -196,7 +143,7 @@ jobs:
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add packages/app/pubspec.yaml packages/runner/pubspec.yaml
             git commit -m "chore(release): bump app version to $NEW_FULL [skip ci]" || echo "No changes to commit"
-            git push origin HEAD:${{ github.ref_name }}
+            git push origin "HEAD:${GITHUB_REF#refs/heads/}"
           fi
 
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
@@ -255,6 +202,30 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
             type=sha,prefix=sha-
 
+      - name: Build image locally for scanning
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64
+          push: false
+          load: true
+          tags: local/runner:scan-${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            CACHEBUST=${{ github.run_id }}-${{ github.run_attempt }}
+
+      - name: Scan image before push (Trivy)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: local/runner:scan-${{ github.sha }}
+          format: 'table'
+          exit-code: '0'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
       - name: Build and push multi-arch image
         uses: docker/build-push-action@v6
         with:
@@ -268,33 +239,3 @@ jobs:
           cache-to: type=gha,mode=max
           build-args: |
             CACHEBUST=${{ github.run_id }}-${{ github.run_attempt }}
-
-  ci-success:
-    name: ci-success
-    needs:
-      - quality
-      - unit-tests
-      - api-integration-tests
-      - swagger-drift
-      - source-security
-      - container-build-scan
-      - auto-release
-      - publish-image
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check pipeline results
-        run: |
-          if [[ "${{ github.event_name }}" == "pull_request" || ("${{ github.event_name }}" == "workflow_dispatch" && "${{ github.ref }}" != "refs/heads/main" && "${{ github.ref }}" != "refs/heads/master") ]]; then
-            if [[ "${{ needs.quality.result }}" != "success" ]]; then exit 1; fi
-            if [[ "${{ needs.unit-tests.result }}" != "success" ]]; then exit 1; fi
-            if [[ "${{ needs.api-integration-tests.result }}" != "success" ]]; then exit 1; fi
-            if [[ "${{ needs.swagger-drift.result }}" != "success" ]]; then exit 1; fi
-            if [[ "${{ needs.source-security.result }}" != "success" ]]; then exit 1; fi
-            if [[ "${{ needs.container-build-scan.result }}" != "success" ]]; then exit 1; fi
-          fi
-          if [[ ("${{ github.event_name }}" == "push" || "${{ github.event_name }}" == "workflow_dispatch") && ("${{ github.ref }}" == "refs/heads/main" || "${{ github.ref }}" == "refs/heads/master") ]]; then
-            if [[ "${{ needs.auto-release.result }}" != "success" ]]; then exit 1; fi
-            if [[ "${{ needs.publish-image.result }}" != "success" ]]; then exit 1; fi
-          fi
-          echo "All required CI checks passed successfully."

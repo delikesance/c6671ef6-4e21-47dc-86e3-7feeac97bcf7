@@ -89,25 +89,43 @@ class BotStatusConfig {
   }
 }
 
-class LavalinkConfig {
+/// Un serveur Lavalink déclaré en configuration (serveur personnel de
+/// l'utilisateur, utilisé comme repli après la liste publique).
+///
+/// Schéma FIGÉ : `{ host, port, password, secure }`.
+/// `useSsl` / `ssl` restent lus pour ne pas casser une configuration héritée.
+class LavalinkServerConfig {
   final String host;
   final int port;
   final String password;
-  final bool useSsl;
+  final bool secure;
 
-  const LavalinkConfig({
-    this.host = 'localhost',
+  const LavalinkServerConfig({
+    required this.host,
     this.port = 2333,
     this.password = 'youshallnotpass',
-    this.useSsl = false,
+    this.secure = false,
   });
 
-  factory LavalinkConfig.fromJson(Map<String, dynamic> json) {
-    return LavalinkConfig(
-      host: (json['host'] ?? 'localhost').toString(),
-      port: int.tryParse((json['port'] ?? 2333).toString()) ?? 2333,
+  /// Lit un serveur du schéma figé. Retourne `null` si l'hôte est vide :
+  /// un repli inutilisable est ignoré plutôt que de faire échouer la lecture.
+  static LavalinkServerConfig? tryFromJson(Map<String, dynamic> json) {
+    final host = (json['host'] ?? '').toString().trim();
+    if (host.isEmpty) return null;
+
+    final parsedPort = int.tryParse((json['port'] ?? '').toString().trim());
+    final port = (parsedPort == null || parsedPort < 1 || parsedPort > 65535)
+        ? 2333
+        : parsedPort;
+
+    return LavalinkServerConfig(
+      host: host,
+      port: port,
       password: (json['password'] ?? 'youshallnotpass').toString(),
-      useSsl: json['useSsl'] == true,
+      secure:
+          json['secure'] == true ||
+          json['useSsl'] == true ||
+          json['ssl'] == true,
     );
   }
 
@@ -115,20 +133,169 @@ class LavalinkConfig {
     'host': host,
     'port': port,
     'password': password,
+    'secure': secure,
+  };
+}
+
+/// Configuration Lavalink d'un bot.
+///
+/// Deux formes cohabitent, et les deux sont LUES :
+/// - nouvelle forme (schéma figé) : `enabled` + `custom_servers` ;
+/// - ancienne forme : un serveur unique en clair (`host`/`port`/`password` au
+///   même niveau), traduite en `custom_servers[0]` à la lecture — un bot déjà
+///   configuré ne doit pas perdre sa musique après un déploiement.
+///
+/// Les champs [host], [port], [password] et [useSsl] restent exposés : ils
+/// reflètent le premier serveur déclaré et servent la compatibilité des
+/// appelants existants (runner, app).
+class LavalinkConfig {
+  /// Interrupteur de la page Lavalink : la seule chose que l'utilisateur pilote.
+  /// `false` = le bot ne sonde rien et ne se connecte à rien.
+  final bool enabled;
+
+  /// Serveurs personnels de l'utilisateur, essayés en REPLI (après la liste
+  /// publique). Peut être vide.
+  final List<LavalinkServerConfig> customServers;
+
+  final String host;
+  final int port;
+  final String password;
+  final bool useSsl;
+
+  /// Toute construction explicite vaut « musique configurée » : c'est la
+  /// traduction de l'ancien modèle, où posséder une [LavalinkConfig] suffisait
+  /// à activer la musique (runner, tests existants). Seule la lecture du JSON
+  /// peut mettre `enabled` à `false`.
+  const LavalinkConfig({
+    this.enabled = true,
+    this.customServers = const <LavalinkServerConfig>[],
+    this.host = 'localhost',
+    this.port = 2333,
+    this.password = 'youshallnotpass',
+    this.useSsl = false,
+  });
+
+  factory LavalinkConfig.fromJson(Map<String, dynamic> json) {
+    final legacyHost = (json['host'] ?? '').toString().trim();
+    final hasLegacyHost = legacyHost.isNotEmpty;
+
+    final servers = <LavalinkServerConfig>[];
+    final rawServers = json['custom_servers'];
+    if (rawServers is List) {
+      for (final entry in rawServers.whereType<Map>()) {
+        final server = LavalinkServerConfig.tryFromJson(
+          Map<String, dynamic>.from(entry),
+        );
+        if (server != null) servers.add(server);
+      }
+    }
+
+    // Rétrocompatibilité : l'ancienne forme devient `custom_servers[0]`.
+    if (hasLegacyHost && servers.isEmpty) {
+      servers.add(
+        LavalinkServerConfig(
+          host: legacyHost,
+          port: _parsePort(json['port']),
+          password: (json['password'] ?? 'youshallnotpass').toString(),
+          secure:
+              json['secure'] == true ||
+              json['useSsl'] == true ||
+              json['ssl'] == true,
+        ),
+      );
+    }
+
+    // `enabled` explicite gagne ; sinon l'ancienne forme vaut « activé »
+    // (sinon un bot déjà configuré perdrait sa musique au déploiement suivant),
+    // et une configuration sans aucun serveur est « désactivée ».
+    final rawEnabled = json['enabled'];
+    final enabled = rawEnabled is bool ? rawEnabled : hasLegacyHost;
+
+    final primary = servers.isEmpty ? null : servers.first;
+    return LavalinkConfig(
+      enabled: enabled,
+      customServers: List<LavalinkServerConfig>.unmodifiable(servers),
+      host: primary?.host ?? (hasLegacyHost ? legacyHost : 'localhost'),
+      port: primary?.port ?? _parsePort(json['port']),
+      password:
+          primary?.password ?? (json['password'] ?? 'youshallnotpass').toString(),
+      useSsl: primary?.secure ?? false,
+    );
+  }
+
+  /// Premier serveur déclaré (repli principal), ou `null` s'il n'y en a aucun.
+  LavalinkServerConfig? get primaryServer =>
+      customServers.isEmpty ? null : customServers.first;
+
+  bool get hasCustomServers => customServers.isNotEmpty;
+
+  /// Les serveurs déclarés au format du schéma figé — c'est ce que consomme le
+  /// sondeur pour construire son repli.
+  List<Map<String, dynamic>> get customServersJson =>
+      customServers.map((server) => server.toJson()).toList(growable: false);
+
+  /// Écrit les deux formes : la nouvelle (schéma figé) et l'ancienne, pour
+  /// qu'un lecteur plus ancien continue de trouver un serveur exploitable.
+  Map<String, dynamic> toJson() => {
+    'enabled': enabled,
+    'custom_servers': customServersJson,
+    'host': host,
+    'port': port,
+    'password': password,
     'useSsl': useSsl,
   };
 
+  /// Vrai quand les deux configurations produisent le même réglage — sert à
+  /// décider si la session doit être reconnectée.
+  bool sameSettingsAs(LavalinkConfig other) {
+    if (enabled != other.enabled) return false;
+    if (customServers.length != other.customServers.length) return false;
+    for (var i = 0; i < customServers.length; i++) {
+      final a = customServers[i];
+      final b = other.customServers[i];
+      if (a.host != b.host ||
+          a.port != b.port ||
+          a.password != b.password ||
+          a.secure != b.secure) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   void validate() {
-    if (host.trim().isEmpty) {
-      throw ArgumentError('LavalinkConfig: host cannot be empty');
+    // Musique désactivée : aucune contrainte, le bot ne sonde rien.
+    if (!enabled) return;
+
+    if (customServers.isEmpty) {
+      // Forme héritée (serveur unique en clair) : mêmes contrôles qu'avant.
+      if (host.trim().isEmpty) {
+        throw ArgumentError('LavalinkConfig: host cannot be empty');
+      }
+      if (password.trim().isEmpty) {
+        throw ArgumentError('LavalinkConfig: password cannot be empty');
+      }
+      if (port <= 0 || port >= 65536) {
+        throw ArgumentError('LavalinkConfig: port must be between 1 and 65535');
+      }
+      return;
     }
-    if (password.trim().isEmpty) {
-      throw ArgumentError('LavalinkConfig: password cannot be empty');
-    }
-    if (port <= 0 || port >= 65536) {
-      throw ArgumentError('LavalinkConfig: port must be between 1 and 65535');
+
+    for (final server in customServers) {
+      if (server.host.trim().isEmpty) {
+        throw ArgumentError('LavalinkConfig: host cannot be empty');
+      }
+      if (server.port <= 0 || server.port >= 65536) {
+        throw ArgumentError('LavalinkConfig: port must be between 1 and 65535');
+      }
     }
   }
+}
+
+int _parsePort(dynamic raw, {int fallback = 2333}) {
+  final parsed = int.tryParse((raw ?? '').toString().trim());
+  if (parsed == null || parsed < 1 || parsed > 65535) return fallback;
+  return parsed;
 }
 
 /// Immutable configuration loaded from a bot ZIP export.
@@ -294,11 +461,7 @@ class BotConfig {
             ) ??
             const [],
       ),
-      lavalinkConfig: json['lavalinkConfig'] != null
-          ? LavalinkConfig.fromJson(
-              Map<String, dynamic>.from(json['lavalinkConfig'] as Map),
-            )
-          : null,
+      lavalinkConfig: _parseLavalinkConfig(json),
     );
   }
 
@@ -321,7 +484,13 @@ class BotConfig {
     'statuses': statuses.map((s) => s.toJson()).toList(growable: false),
     'presenceStatus': presenceStatus,
     'commands': commands,
-    if (lavalinkConfig != null) 'lavalinkConfig': lavalinkConfig!.toJson(),
+    if (lavalinkConfig != null) ...{
+      // Les deux clés sont écrites : `lavalinkConfig` (existante) et `lavalink`
+      // (schéma figé de la sélection automatique). Un lecteur ancien comme un
+      // lecteur récent trouve donc la sienne.
+      'lavalinkConfig': lavalinkConfig!.toJson(),
+      'lavalink': lavalinkConfig!.toJson(),
+    },
   };
 
   /// Validates the minimal required fields.
@@ -347,6 +516,21 @@ class BotConfig {
   @override
   String toString() =>
       'BotConfig(commands: ${commands.length}, workflows: ${workflows.length}, scheduledTriggers: ${scheduledTriggers.length})';
+}
+
+/// Lit la configuration Lavalink d'un bot.
+///
+/// La clé historique `lavalinkConfig` est lue en premier ; la clé `lavalink`
+/// du schéma figé (activer/désactiver + `custom_servers`) est acceptée en
+/// secours, pour que le bot comprenne la configuration des deux générations.
+LavalinkConfig? _parseLavalinkConfig(Map<String, dynamic> json) {
+  for (final key in const <String>['lavalinkConfig', 'lavalink']) {
+    final raw = json[key];
+    if (raw is Map) {
+      return LavalinkConfig.fromJson(Map<String, dynamic>.from(raw));
+    }
+  }
+  return null;
 }
 
 Map<String, dynamic> _normalizeScheduledTrigger(Map<String, dynamic> raw) {

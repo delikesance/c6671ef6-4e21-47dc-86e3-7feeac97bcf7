@@ -7329,9 +7329,16 @@
   "bot_settings_intents_auto_enabled": "Ayricalikli gateway intent'leri Developer Portal'da otomatik olarak etkinlestirildi.",
   "bot_settings_intents_verified_bot_manual": "Bu dogrulanmis bot, Discord Developer Portal'da ayricalikli intent'lerin manuel olarak etkinlestirilmesini gerektirir.",
   "bot_settings_intents_auto_enable_failed": "Token kaydedildi, ancak ayricalikli intent'ler otomatik olarak etkinlestirilemedi. Discord Developer Portal'da etkinlestirin.",
+  "bot_settings_lavalink_add_fallback": "Yedek sunucu ekle",
   "bot_settings_lavalink_choose_server": "Genel bir sunucu seç...",
+  "bot_settings_lavalink_enable_subtitle": "Bot genel sunucuları kendi dener; sunucu seçimi gerekmez.",
+  "bot_settings_lavalink_enable_title": "Müzik (Lavalink)",
+  "bot_settings_lavalink_fallback_desc": "Önce genel sunucular denenir. Hiçbiri yanıt vermezse kendi sunucularınız yedek olarak kullanılır.",
+  "bot_settings_lavalink_fallback_title": "Yedek sunucularım",
   "bot_settings_lavalink_host": "Sunucu",
   "bot_settings_lavalink_host_hint": "localhost veya Lavalink sunucu IP'si",
+  "bot_settings_lavalink_invalid_server": "Bir ana bilgisayar ve 1 ile 65535 arasında bir port girin.",
+  "bot_settings_lavalink_no_fallback": "Henüz yedek sunucu yok.",
   "bot_settings_lavalink_password": "Parola",
   "bot_settings_lavalink_password_hint": "youshallnotpass",
   "bot_settings_lavalink_port": "Port",
@@ -7339,9 +7346,11 @@
   "bot_settings_lavalink_premium_banner_desc": "Botunuz için Lavalink ses desteğinin kilidini açın.",
   "bot_settings_lavalink_premium_banner_title": "🔒 Bot Creator PREMIUM ile kullanılabilir",
   "bot_settings_lavalink_public_servers": "Genel sunucular",
+  "bot_settings_lavalink_remove_fallback": "Kaldır",
   "bot_settings_lavalink_save_btn": "Kaydet",
-  "bot_settings_lavalink_save_caption": "Botun Lavalink sunucusuna bağlanabilmesi için bu yapılandırmayı kaydedin.",
+  "bot_settings_lavalink_save_caption": "Kaydedin: bot önce genel sunucuları, ardından yedek sunucularınızı dener.",
   "bot_settings_lavalink_section_title": "Lavalink Sunucusu",
+  "bot_settings_lavalink_server_number": "Yedek sunucu {index}",
   "bot_settings_lavalink_server_picker_title": "Genel Lavalink Sunucuları",
   "bot_settings_lavalink_server_subtitle": "Port {port} — {version}",
   "bot_settings_lavalink_servers_available": "{count} sunucu mevcut",
@@ -9266,8 +9275,8 @@
   "app_create_select_type_desc": "Başlamak için oluşturmak istediğiniz uygulama türünü seçin.",
   "app_create_type_discord": "Discord Botu",
   "app_create_type_discord_desc": "Eylemler, olaylar ve dinamik tuval panelleri ile özelleştirilebilir bir Discord botu oluşturun ve çalıştırın.",
-  "app_create_type_hosted": "Barındırılan Uygulama (Docker)",
-  "app_create_type_hosted_desc": "Tercih ettiğiniz dilde (NodeJS, Python, Java...) bir arka uç uygulaması, sunucu veya komut dosyası çalıştırın. Dosyaları yükleyin ve güvenli bir korumalı alanda paketleri yükleyin.",
+  "app_create_type_hosted": "Hazır Bot",
+  "app_create_type_hosted_desc": "7/24 barındırılan kullanıma hazır bir botu (müzik, moderasyon, araçlar...) saniyeler içinde dağıtın.",
   "app_create_coming_soon": "Çok yakında",
   "app_create_sample_title": "Örnek komut oluştur",
   "@app_create_sample_title": {
@@ -9540,6 +9549,15 @@
       }
     }
   },
+  "container_deploy_token_invalid": "Geçersiz Discord bot belirteci: {error}",
+  "@container_deploy_token_invalid": {
+    "description": "Snackbar shown when turnkey Discord bot token validation fails",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "container_deploy_blocked_container_limit": "You've reached your hosted app limit. Delete or stop an existing hosted app to free up a slot before deploying another.",
   "@container_deploy_blocked_container_limit": {
     "description": "Deploy eligibility banner reason when the container limit is reached"
@@ -9617,6 +9635,7 @@
   "@container_detail_console": {
     "description": "Label for the container console section"
   },
+  "container_logs_errors_count": "{count, plural, =0{Hata yok} =1{1 hata} other{{count} hata}}",
   "container_detail_deploying": "Kapsayici dagitiliyor...",
   "@container_detail_deploying": {
     "description": "Message shown while container is being deployed"
@@ -9833,12 +9852,27 @@
       }
     }
   },
+  "subscriptions_hub_permanent": "Kalıcı (son kullanma tarihi yok)",
+  "subscriptions_hub_unlimited_bots": "Sınırsız bot",
+  "subscriptions_hub_managed_by_server": "Sunucu tarafından yönetiliyor",
+  "plan_limit_own_bots_title": "Kendi botlarınız planınıza dahil değil",
+  "plan_limit_own_bots_desc": "Planınız yalnızca hazır (turnkey) botlara erişim sağlar. Bu botu başlatmak için kendi botlarınızı içeren bir plana geçin.",
+  "plan_limit_bot_quota_title": "Aynı anda çalışan bot sınırına ulaşıldı",
+  "plan_limit_bot_quota_desc": "Planınız aynı anda çalışabilecek bot sayısını sınırlar. Bir botu durdurun veya üst bir plana geçin.",
+  "plan_limit_bot_quota_ad_funded_desc": "Planınız aynı anda {count} bot çalıştırır. Bu bot bunlara ek: reklam izleyerek kazanılan barındırma süresiyle çalışır ve süre bitince durur.",
+  "plan_limit_quota_continue_ad": "Reklamla finanse edilerek başlat",
+  "plan_limit_turnkey_title": "Hazır botlar planınıza dahil değil",
+  "plan_limit_turnkey_desc": "Planınız hazır botları ve barındırılan uygulamaları içermiyor. Bunları içeren bir plan seçin.",
+  "plan_limit_turnkey_quota_title": "Hazır bot sınırına ulaşıldı",
+  "plan_limit_turnkey_quota_desc": "Planınız aynı anda çalışabilecek hazır bot sayısını sınırlar. Birini durdurun veya üst bir plana geçin.",
+  "plan_limit_view_offers": "Planları gör",
   "subscription_upgrade_annual": "Yıllık plana yükselt",
   "subscription_upgrade_two_apps": "2 konteynere yükselt",
   "subscription_manage_cancel_hint": "İptal etmek veya faturalandırmayı değiştirmek için Aboneliği yönet'i kullanın — App Store veya Google Play açılır.",
   "container_detail_start_btn": "Başlat",
   "container_detail_starting": "Başlatılıyor...",
   "container_detail_started_ok": "Konteyner başlatılıyor",
+  "container_detail_open": "Ayrıntılar",
   "container_detail_delete_title": "Konteyneri sil",
   "container_detail_delete_confirm": "Bu, konteyneri veritabanından ve buluttan kalıcı olarak siler. Geri alınamaz.",
   "container_detail_delete_btn": "Sil",

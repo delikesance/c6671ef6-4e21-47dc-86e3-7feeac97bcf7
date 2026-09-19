@@ -4,6 +4,7 @@ import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
 
+import 'package:bot_creator/core/network/poll_cadence.dart';
 import 'package:bot_creator/core/network/remote_runtime.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
@@ -43,6 +44,19 @@ class _BotLogsPageState extends State<BotLogsPage> {
   // Runner log polling
   Timer? _runnerPollTimer;
   List<String> _lastKnownRemoteLogs = const [];
+
+  /// Cadence du sondage des logs : un écran laissé ouvert sur un bot calme ne doit
+  /// pas générer 48 requêtes par minute (deux endpoints par tick).
+  final PollCadence _logsCadence = PollCadence(
+    nominal: const Duration(milliseconds: 2500),
+  );
+
+  /// Numéro du tick courant, pour n'interroger les métriques qu'un tick sur quatre.
+  int _metricsTick = 0;
+
+  /// Dernières métriques affichées, comparées en mémoire (aucune requête
+  /// supplémentaire) pour savoir si le tick courant apporte du neuf.
+  _MetricsSnapshot? _lastMetricsSnapshot;
 
   RemoteRuntimeClient? _runtimeClient;
   RemoteRuntimeSource _runtimeSource = RemoteRuntimeSource.local;
@@ -209,37 +223,77 @@ class _BotLogsPageState extends State<BotLogsPage> {
       );
       return;
     }
-    _runnerPollTimer?.cancel();
-    _runnerPollTimer = Timer.periodic(const Duration(milliseconds: 2500), (_) {
-      if (mounted) {
-        unawaited(_pollRunnerData(client));
-      }
-    });
+    // Plus de `Timer.periodic` fixe : le tick initial ci-dessus a déjà réarmé la
+    // cadence adaptative (voir `_pollRunnerData` / `_reschedulePolling`), qui s'espace
+    // tant que rien ne change au lieu de sonder toutes les 2,5 s pour rien.
   }
 
   Future<void> _restartPolling() async {
     _runnerPollTimer?.cancel();
     _runnerPollTimer = null;
     _lastKnownRemoteLogs = const [];
+    // Nouveau bot : on repart au rythme nominal et on réinterroge les métriques tout
+    // de suite, sinon le nouvel écran hériterait de l'espacement du précédent.
+    _logsCadence.reset();
+    _metricsTick = 0;
+    _lastMetricsSnapshot = null;
     await _initRunnerPolling();
   }
 
+  /// Les métriques bougent lentement (RSS, CPU, stockage) : les interroger à chaque
+  /// tick doublerait le coût sans rien apporter, un tick sur quatre suffit (~10 s).
+  static const int _metricsEveryNTicks = 4;
+
+  /// Un mébioctet : la précision à laquelle on compare les mesures de taille.
+  static const int _bytesPerMebibyte = 1024 * 1024;
+
   Future<void> _pollRunnerData(RemoteRuntimeClient client) async {
-    await Future.wait<void>(<Future<void>>[
-      _pollRunnerLogs(client),
-      _pollRunnerMetrics(client),
-    ]);
+    final outcome = await _pollRunnerLogs(client);
+    final withMetrics = _metricsTick % _metricsEveryNTicks == 0;
+    _metricsTick++;
+    if (withMetrics) {
+      final metricsOutcome = await _pollRunnerMetrics(client);
+      // Des métriques fraîches comptent comme un changement : l'utilisateur regarde
+      // l'écran, on ne veut pas ralentir juste parce que les lignes de log n'ont pas
+      // bougé.
+      if (metricsOutcome == TickOutcome.changed) {
+        _logsCadence.reset();
+      }
+    }
+    _logsCadence.consume(outcome);
+    // Réarmer un timer alors que la page est démontée laisse « A Timer is still
+    // pending even after the widget tree was disposed ».
+    if (!mounted) {
+      return;
+    }
+    _reschedulePolling();
   }
 
-  Future<void> _pollRunnerLogs(RemoteRuntimeClient client) async {
+  /// Réarme le prochain tick selon la cadence courante : c'est ce réarmement, et non
+  /// un `Timer.periodic`, qui permet d'espacer les requêtes quand rien ne change.
+  void _reschedulePolling() {
+    _runnerPollTimer?.cancel();
+    _runnerPollTimer = Timer(_logsCadence.current, () {
+      final client = _runtimeClient;
+      if (!mounted || client == null) {
+        return;
+      }
+      unawaited(_pollRunnerData(client));
+    });
+  }
+
+  Future<TickOutcome> _pollRunnerLogs(RemoteRuntimeClient client) async {
     try {
       debugPrint('[BotLogs] Polling logs for botId: $_selectedBotId');
       final lines = await client.getLogs(botId: _selectedBotId, limit: 500);
       debugPrint('[BotLogs] Received ${lines.length} log lines');
 
+      // Comparaison faite sur la charge utile déjà en mémoire : le changement se
+      // détecte sans requête supplémentaire (et avant d'écraser la référence).
+      final changed = _remoteLogsChanged(lines);
       if (lines.isEmpty) {
         _lastKnownRemoteLogs = const [];
-        return;
+        return changed ? TickOutcome.changed : TickOutcome.unchanged;
       }
 
       final overlap = _computeOverlap(_lastKnownRemoteLogs, lines);
@@ -250,12 +304,29 @@ class _BotLogsPageState extends State<BotLogsPage> {
         }
       }
       _lastKnownRemoteLogs = List<String>.from(lines);
+      return changed ? TickOutcome.changed : TickOutcome.unchanged;
     } catch (e) {
       debugPrint('[BotLogs] Error polling logs: $e');
+      // Un endpoint en échec ne doit pas être martelé : le compter comme inchangé
+      // espace le sondage, ce qui sert de repli progressif jusqu'au rétablissement.
+      return TickOutcome.unchanged;
     }
   }
 
-  Future<void> _pollRunnerMetrics(RemoteRuntimeClient client) async {
+  /// Un changement de logs se lit au nombre de lignes et à la dernière ligne :
+  /// comparer tout le tampon coûterait aussi cher que la requête qu'on économise.
+  bool _remoteLogsChanged(List<String> lines) {
+    final previous = _lastKnownRemoteLogs;
+    if (previous.length != lines.length) {
+      return true;
+    }
+    if (lines.isEmpty) {
+      return false;
+    }
+    return previous.last != lines.last;
+  }
+
+  Future<TickOutcome> _pollRunnerMetrics(RemoteRuntimeClient client) async {
     try {
       final metrics = await client.getMetrics(botId: _selectedBotId);
       final runtimeBotId = _selectedBotId ?? metrics.activeBotId;
@@ -264,6 +335,19 @@ class _BotLogsPageState extends State<BotLogsPage> {
           : metrics.bots.any(
               (bot) => bot.botId == runtimeBotId && bot.isRunning,
             );
+      // On compare ce que l'écran affiche réellement : l'état du bot, le RSS, le RSS
+      // estimé, le CPU et le stockage. Comparer ces valeurs telles quelles ne marche
+      // pas — un RSS au byte près et un CPU flottant changent à chaque mesure, ce qui
+      // remettrait la cadence au nominal à chaque tick et annulerait l'espacement.
+      final snapshot = (
+        running: isRunningForSelectedBot,
+        rssMb: _mebibytes(metrics.rssBytes),
+        estimatedRssMb: _mebibytes(metrics.botEstimatedRssBytes),
+        cpuBucket: _cpuBucket(metrics.cpuPercent),
+        storageMb: _mebibytes(metrics.storageBytes),
+      );
+      final changed = snapshot != _lastMetricsSnapshot;
+      _lastMetricsSnapshot = snapshot;
       updateBotRuntimeMetricsFromRemote(
         running: isRunningForSelectedBot,
         botId: runtimeBotId,
@@ -273,10 +357,23 @@ class _BotLogsPageState extends State<BotLogsPage> {
         cpuPercent: metrics.cpuPercent,
         storageBytes: metrics.storageBytes,
       );
+      return changed ? TickOutcome.changed : TickOutcome.unchanged;
     } catch (e) {
       debugPrint('[BotLogs] Error polling metrics: $e');
+      // Même repli que pour les logs : on espace au lieu de réessayer en boucle.
+      return TickOutcome.unchanged;
     }
   }
+
+  /// Les tailles sont comparées au mébioctet : c'est la précision de l'affichage, et
+  /// une variation plus fine n'apprend rien à l'utilisateur.
+  static int? _mebibytes(int? bytes) =>
+      bytes == null ? null : bytes ~/ _bytesPerMebibyte;
+
+  /// Le CPU est comparé par paliers de 5 points : un pourcentage décimal bouge à
+  /// chaque mesure, un écart de cet ordre reste franc à l'écran.
+  static int? _cpuBucket(double? cpuPercent) =>
+      cpuPercent == null ? null : (cpuPercent / 5).floor();
 
   Future<void> _loadBotNamesById() async {
     final namesById = await getKnownBotNamesById();
@@ -1188,6 +1285,17 @@ class _BotLogsPageState extends State<BotLogsPage> {
     return scheme.onSurfaceVariant;
   }
 }
+
+/// Métriques mémorisées d'un tick à l'autre, réduites à la précision affichée :
+/// l'égalité structurelle des « records » suffit à détecter un changement, sans
+/// requête supplémentaire ni comparaison champ par champ.
+typedef _MetricsSnapshot = ({
+  bool running,
+  int? rssMb,
+  int? estimatedRssMb,
+  int? cpuBucket,
+  int? storageMb,
+});
 
 class _ParsedLog {
   const _ParsedLog({

@@ -29,6 +29,11 @@ void main() {
     await SubscriptionService.debugResetForTests();
     SubscriptionService.debugSetNativeBillingSourceOfTruth(true);
     SubscriptionService.debugSetDesktopForTests(false);
+    // A test that fails a request opens the client's circuit breaker for the mock
+    // host, and every later test in the file is then short-circuited before its
+    // request is sent (it surfaced as "premium unexpectedly true" because the
+    // refresh fell back to the local cache).
+    MainApiClient.resetCircuitBreakers();
   });
 
   tearDown(() async {
@@ -230,6 +235,133 @@ void main() {
     },
   );
 
+  test(
+    'a store-confirmed purchase survives a manager that says free',
+    () async {
+      seedLocalPremiumCache();
+      // The store still bills this account: the receipt replays and the manager
+      // verifies it, so the "free" answer was stale, not the truth.
+      SubscriptionService.debugStoreReverifyOverride = () async => true;
+      await MainApiSettingsStore.saveConfig(
+        const MainApiConfig(baseUrl: 'https://api.example.com'),
+      );
+      await MainApiSettingsStore.saveSession(
+        MainApiSession(
+          accessToken: 'token',
+          expiresAt: DateTime.now().toUtc().add(const Duration(hours: 1)),
+        ),
+      );
+
+      final client = MainApiClient(
+        baseUrl: 'https://api.example.com',
+        accessToken: 'token',
+        httpClient: MockClient((request) async {
+          if (request.url.path.endsWith('/gateway/runtime')) {
+            return http.Response('{"plan":"FREE"}', 200);
+          }
+          return http.Response('not found', 404);
+        }),
+      );
+
+      final isPremium = await SubscriptionService.refreshPremiumFromServer(
+        client: client,
+        forceRefresh: true,
+      );
+
+      expect(
+        isPremium,
+        isTrue,
+        reason:
+            'a paying customer must not be thrown back to FREE because the '
+            'manager had not seen the purchase yet',
+      );
+      expect(SubscriptionService.isSubscribed, isTrue);
+    },
+  );
+
+  test(
+    'an unconfirmed purchase is still cleared when the store stays silent',
+    () async {
+      seedLocalPremiumCache();
+      SubscriptionService.debugStoreReverifyOverride = () async => false;
+      await MainApiSettingsStore.saveConfig(
+        const MainApiConfig(baseUrl: 'https://api.example.com'),
+      );
+      await MainApiSettingsStore.saveSession(
+        MainApiSession(
+          accessToken: 'token',
+          expiresAt: DateTime.now().toUtc().add(const Duration(hours: 1)),
+        ),
+      );
+
+      final client = MainApiClient(
+        baseUrl: 'https://api.example.com',
+        accessToken: 'token',
+        httpClient: MockClient((request) async {
+          if (request.url.path.endsWith('/gateway/runtime')) {
+            return http.Response('{"plan":"FREE"}', 200);
+          }
+          return http.Response('not found', 404);
+        }),
+      );
+
+      final isPremium = await SubscriptionService.refreshPremiumFromServer(
+        client: client,
+        forceRefresh: true,
+      );
+
+      expect(isPremium, isFalse);
+      expect(SubscriptionService.isSubscribed, isFalse);
+    },
+  );
+
+  test(
+    'a manager-granted plan replays the store when the device lost its proof',
+    () async {
+      // No cached local state at all: the account whose cache was wiped by an older
+      // build on a stale "free" answer, while the manager still grants premium.
+      var reverifyCalls = 0;
+      SubscriptionService.debugStoreReverifyOverride = () async {
+        reverifyCalls++;
+        return false;
+      };
+      await MainApiSettingsStore.saveConfig(
+        const MainApiConfig(baseUrl: 'https://api.example.com'),
+      );
+      await MainApiSettingsStore.saveSession(
+        MainApiSession(
+          accessToken: 'token',
+          expiresAt: DateTime.now().toUtc().add(const Duration(hours: 1)),
+        ),
+      );
+
+      final client = MainApiClient(
+        baseUrl: 'https://api.example.com',
+        accessToken: 'token',
+        httpClient: MockClient((request) async {
+          if (request.url.path.endsWith('/gateway/runtime')) {
+            return http.Response('{"plan":"PREMIUM"}', 200);
+          }
+          return http.Response('not found', 404);
+        }),
+      );
+
+      final isPremium = await SubscriptionService.refreshPremiumFromServer(
+        client: client,
+        forceRefresh: true,
+      );
+
+      expect(isPremium, isTrue);
+      expect(
+        reverifyCalls,
+        1,
+        reason:
+            'the store must be replayed so the device rebuilds the proof it lost, '
+            'otherwise a paying customer stays on "Not subscribed"',
+      );
+    },
+  );
+
   test('monthly subscriptions estimate one calendar month from start', () {
     final expiresAt =
         SubscriptionService.debugEstimateSubscriptionExpiryForTests(
@@ -360,5 +492,92 @@ void main() {
         isNull,
       );
     });
+  });
+
+  group('Server authority and remote subscriptions', () {
+    test(
+      'server-granted remote plan enables premium without local store purchase',
+      () async {
+        await MainApiSettingsStore.saveConfig(
+          const MainApiConfig(baseUrl: 'https://api.example.com'),
+        );
+        await MainApiSettingsStore.saveSession(
+          MainApiSession(
+            accessToken: 'token',
+            expiresAt: DateTime.now().toUtc().add(const Duration(hours: 1)),
+          ),
+        );
+
+        final client = MainApiClient(
+          baseUrl: 'https://api.example.com',
+          accessToken: 'token',
+          httpClient: MockClient((request) async {
+            if (request.url.path.endsWith('/gateway/runtime')) {
+              return http.Response(
+                '{"plan":"PREMIUM","tier_code":"PRO","display_name":"Pro","provider":"admin_remote","max_bots":0,"allow_turnkey":true}',
+                200,
+              );
+            }
+            return http.Response('not found', 404);
+          }),
+        );
+
+        final isPremium = await SubscriptionService.refreshPremiumFromServer(
+          client: client,
+          forceRefresh: true,
+        );
+
+        expect(isPremium, isTrue);
+        expect(SubscriptionService.isSubscribed, isTrue);
+        expect(SubscriptionService.activePlanDisplayName, 'Pro');
+        expect(SubscriptionService.activePlanTierCode, 'PRO');
+        expect(SubscriptionService.activePlanProvider, 'admin_remote');
+        expect(SubscriptionService.activePlanMaxBots, 0);
+        expect(SubscriptionService.isServerGranted, isTrue);
+        expect(SubscriptionService.hasNativeStoreSubscription, isFalse);
+        expect(SubscriptionService.subscriptionExpiresAt, isNull);
+      },
+    );
+
+    test(
+      'server-granted remote plan with expiry sets subscriptionExpiresAt',
+      () async {
+        await MainApiSettingsStore.saveConfig(
+          const MainApiConfig(baseUrl: 'https://api.example.com'),
+        );
+        await MainApiSettingsStore.saveSession(
+          MainApiSession(
+            accessToken: 'token',
+            expiresAt: DateTime.now().toUtc().add(const Duration(hours: 1)),
+          ),
+        );
+
+        final futureDate = DateTime.utc(2027, 5, 1, 12, 0, 0);
+        final client = MainApiClient(
+          baseUrl: 'https://api.example.com',
+          accessToken: 'token',
+          httpClient: MockClient((request) async {
+            if (request.url.path.endsWith('/gateway/runtime')) {
+              return http.Response(
+                '{"plan":"PREMIUM","tier_code":"STARTER","display_name":"Starter","provider":"admin_remote","max_bots":5,"expires_at":"2027-05-01T12:00:00Z"}',
+                200,
+              );
+            }
+            return http.Response('not found', 404);
+          }),
+        );
+
+        final isPremium = await SubscriptionService.refreshPremiumFromServer(
+          client: client,
+          forceRefresh: true,
+        );
+
+        expect(isPremium, isTrue);
+        expect(SubscriptionService.isSubscribed, isTrue);
+        expect(SubscriptionService.activePlanDisplayName, 'Starter');
+        expect(SubscriptionService.activePlanMaxBots, 5);
+        expect(SubscriptionService.subscriptionExpiresAt, futureDate);
+      },
+    );
   });
 }

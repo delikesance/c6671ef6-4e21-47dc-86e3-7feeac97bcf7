@@ -149,6 +149,18 @@ class AppManager implements BotDataStore {
 
     try {
       await getAllApps();
+      // Une passe de nettoyage au chargement : les versions précédentes de
+      // l'écran de déploiement enregistraient un bot clé en main comme un bot
+      // LOCAL (marqueur `is_turnkey` / `type: 'turnkey'`). Ces entrées ne sont pas
+      // des bots : elles sont supprimées ici, une seule fois, sans toucher aux
+      // vrais bots configurés. Voir [purgeTurnkeyAppEntries].
+      final purged = await purgeTurnkeyAppEntries();
+      if (purged > 0) {
+        debugPrint(
+          '[AppManager._init] $purged entrée(s) clé en main (faux bots locaux) '
+          'supprimée(s).',
+        );
+      }
       await _writeWorkflowCompatibilityReportIfDebug();
     } catch (error) {
       debugPrint('[AppManager._init] App list load failed: $error');
@@ -330,7 +342,49 @@ class AppManager implements BotDataStore {
     await deleteApp(botId);
   }
 
-  Future<void> deleteApp(String id) async {
+  /// Vrai si l'entrée locale [app] n'est PAS un bot configuré mais un bot clé en
+  /// main (un conteneur) enregistré par erreur comme bot local.
+  ///
+  /// Seul ce marqueur explicite compte : `is_turnkey: true` ou `type: 'turnkey'`.
+  /// On ne se fie PAS à la présence d'un `container_id` — un vrai bot ne doit
+  /// jamais être pris pour un conteneur, ni disparaître.
+  static bool isTurnkeyAppEntry(Map<dynamic, dynamic> app) {
+    if (app['is_turnkey'] == true) return true;
+    return app['type']?.toString().trim().toLowerCase() == 'turnkey';
+  }
+
+  /// Supprime, en UNE passe, les entrées locales marquées clé en main
+  /// (voir [isTurnkeyAppEntry]) : un bot clé en main est un conteneur, il n'a
+  /// aucune configuration à éditer ni token à conserver localement.
+  ///
+  /// Ne touche à AUCUNE entrée sans ce marqueur : un vrai bot configuré ne doit
+  /// jamais disparaître. Retourne le nombre d'entrées supprimées.
+  Future<int> purgeTurnkeyAppEntries() async {
+    final apps = await getAllApps();
+    final doomed = <String>[
+      for (final raw in apps)
+        if (raw is Map &&
+            isTurnkeyAppEntry(raw) &&
+            (raw['id'] ?? '').toString().trim().isNotEmpty)
+          (raw['id']).toString().trim(),
+    ];
+    if (doomed.isEmpty) return 0;
+
+    for (final id in doomed) {
+      // Pas de pierre tombale (`_deleted_bots.json`) : cette entrée n'était pas
+      // un bot, il n'y a rien à « laisser supprimé » — et une tombale portant
+      // l'ID Discord du bot effacerait le vrai bot si l'utilisateur le configure
+      // ensuite.
+      await deleteApp(id, recordTombstone: false);
+    }
+    debugPrint(
+      '[AppManager] purgeTurnkeyAppEntries: ${doomed.length} entrée(s) clé en '
+      'main supprimée(s) : ${doomed.join(', ')}',
+    );
+    return doomed.length;
+  }
+
+  Future<void> deleteApp(String id, {bool recordTombstone = true}) async {
     final path = await _path();
     final appFile = File("$path/apps/$id.json");
     if (await appFile.exists()) {
@@ -359,7 +413,11 @@ class AppManager implements BotDataStore {
     _appsStreamController.add(appsList);
 
     // Record deletion in tombstone file so bot stays deleted after restore
-    await _recordDeletion(path, id);
+    // (`recordTombstone: false` pour un nettoyage : un faux bot n'a pas de
+    // suppression à mémoriser, sinon le vrai bot du même ID serait effacé plus tard).
+    if (recordTombstone) {
+      await _recordDeletion(path, id);
+    }
   }
 
   Future<void> _recordDeletion(String path, String botId) async {

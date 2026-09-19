@@ -175,10 +175,25 @@ class _AppHomePageState extends State<AppHomePage>
           });
         }
         break;
+      case GatewayBotEventType.accountUpdated:
+        final account = event.account;
+        if (account != null) {
+          unawaited(_applyPushedAccount(account));
+        }
+        break;
+      case GatewayBotEventType.containerUpdated:
       case GatewayBotEventType.ping:
       case GatewayBotEventType.unknown:
         break;
     }
+  }
+
+  /// Formule poussée par le canal temps réel : le serveur vient de donner l'état
+  /// exact, donc aucune requête HTTP (ni `/gateway/runtime`) n'est nécessaire.
+  Future<void> _applyPushedAccount(GatewayAccountEventPayload account) async {
+    await SubscriptionService.applyPushedAccountState(account.toRuntimeMap());
+    if (!mounted) return;
+    _setState(() {});
   }
 
   void _applyGatewayBotPayload(GatewayBotEventPayload bot) {

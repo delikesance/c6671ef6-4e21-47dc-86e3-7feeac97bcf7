@@ -41,18 +41,25 @@ class BotEngine {
       await staleSession.stop();
     }
 
-    // Resolve Lavalink config from app data
+    // Resolve Lavalink config from app data. Les deux formes sont acceptées :
+    // la forme historique (host/port/password au même niveau) et la forme
+    // « interrupteur » (enabled + custom_servers). C'est `LavalinkConfig.enabled`
+    // qui décide ensuite si la musique est active.
     final appData = await store.getApp(botId);
+    final lavalinkRaw = appData['lavalinkConfig'] is Map
+        ? appData['lavalinkConfig'] as Map
+        : (appData['lavalink'] is Map ? appData['lavalink'] as Map : null);
     LavalinkConfig? lavalinkConfig;
-    if (appData['lavalinkConfig'] is Map) {
-      final raw = Map<String, dynamic>.from(appData['lavalinkConfig'] as Map);
-      if ((raw['host'] ?? '').toString().trim().isNotEmpty) {
-        lavalinkConfig = LavalinkConfig.fromJson(raw);
-        callbacks.onLog?.call(
-          'Lavalink config resolved: ${lavalinkConfig.host}:${lavalinkConfig.port} (SSL: ${lavalinkConfig.useSsl})',
-          botId: botId,
-        );
-      }
+    if (lavalinkRaw != null && lavalinkRaw.isNotEmpty) {
+      final raw = Map<String, dynamic>.from(lavalinkRaw);
+      lavalinkConfig = LavalinkConfig.fromJson(raw);
+      callbacks.onLog?.call(
+        'Lavalink config resolved: enabled=${lavalinkConfig.enabled}, '
+        'serveurs personnels=${lavalinkConfig.customServers.length} '
+        '(hérité ${lavalinkConfig.host}:${lavalinkConfig.port}, '
+        'SSL: ${lavalinkConfig.useSsl})',
+        botId: botId,
+      );
     } else {
       callbacks.onLog?.call('No Lavalink config found in app data — music features disabled', botId: botId);
     }

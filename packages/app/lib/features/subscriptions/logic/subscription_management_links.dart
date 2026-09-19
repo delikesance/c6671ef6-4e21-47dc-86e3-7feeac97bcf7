@@ -6,10 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 const String kAndroidPackageName = 'fr.botcreator.app';
 
-enum SubscriptionProductKind {
-  botPremium,
-  hostedApp,
-}
+enum SubscriptionProductKind { botPremium, hostedApp }
 
 /// Opens the platform subscription management page (cancel / change billing).
 Future<bool> openSubscriptionManagement({

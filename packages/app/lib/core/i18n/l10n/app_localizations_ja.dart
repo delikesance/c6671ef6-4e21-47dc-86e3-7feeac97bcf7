@@ -1739,7 +1739,24 @@ class AppLocalizationsJa extends AppLocalizations {
       'トークンは保存されましたが、特権インテントを自動的に有効にできませんでした。Discord Developer Portalで有効にしてください。';
 
   @override
+  String get bot_settings_lavalink_add_fallback => 'フォールバックサーバーを追加';
+
+  @override
   String get bot_settings_lavalink_choose_server => '公開サーバーを選択...';
+
+  @override
+  String get bot_settings_lavalink_enable_subtitle =>
+      'Bot が公開サーバーを自動で試すため、サーバーの選択は不要です。';
+
+  @override
+  String get bot_settings_lavalink_enable_title => '音楽 (Lavalink)';
+
+  @override
+  String get bot_settings_lavalink_fallback_desc =>
+      '公開サーバーが先に試されます。どれも応答しない場合、あなたのサーバーがフォールバックとして使われます。';
+
+  @override
+  String get bot_settings_lavalink_fallback_title => 'フォールバックサーバー';
 
   @override
   String get bot_settings_lavalink_host => 'ホスト';
@@ -1747,6 +1764,13 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get bot_settings_lavalink_host_hint =>
       'localhost または Lavalink サーバー IP';
+
+  @override
+  String get bot_settings_lavalink_invalid_server =>
+      'ホストと 1〜65535 のポートを入力してください。';
+
+  @override
+  String get bot_settings_lavalink_no_fallback => 'フォールバックサーバーはまだありません。';
 
   @override
   String get bot_settings_lavalink_password => 'パスワード';
@@ -1772,14 +1796,22 @@ class AppLocalizationsJa extends AppLocalizations {
   String get bot_settings_lavalink_public_servers => '公開サーバー';
 
   @override
+  String get bot_settings_lavalink_remove_fallback => '削除';
+
+  @override
   String get bot_settings_lavalink_save_btn => '保存';
 
   @override
   String get bot_settings_lavalink_save_caption =>
-      'ボットが Lavalink サーバーに接続できるように、この設定を保存してください。';
+      '保存すると、Bot は公開サーバーを先に試し、次にフォールバックサーバーを使います。';
 
   @override
   String get bot_settings_lavalink_section_title => 'Lavalink サーバー';
+
+  @override
+  String bot_settings_lavalink_server_number(int index) {
+    return 'フォールバックサーバー $index';
+  }
 
   @override
   String get bot_settings_lavalink_server_picker_title => '公開 Lavalink サーバー';
@@ -7098,6 +7130,54 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get subscriptions_hub_permanent => '無期限（有効期限なし）';
+
+  @override
+  String get subscriptions_hub_unlimited_bots => 'ボット無制限';
+
+  @override
+  String get subscriptions_hub_managed_by_server => 'サーバーにより管理';
+
+  @override
+  String get plan_limit_own_bots_title => 'このプランには自分のボットが含まれていません';
+
+  @override
+  String get plan_limit_own_bots_desc =>
+      'このプランではターンキーボットのみ利用できます。このボットを起動するには、自分のボットを含むプランに変更してください。';
+
+  @override
+  String get plan_limit_bot_quota_title => '同時起動できるボットの上限に達しました';
+
+  @override
+  String get plan_limit_bot_quota_desc =>
+      'このプランでは同時に起動できるボット数が制限されています。ボットを停止するか、上位のプランに変更してください。';
+
+  @override
+  String plan_limit_bot_quota_ad_funded_desc(int count) {
+    return 'このプランでは同時に$count個のボットが稼働できます。これは追加分です：広告を見て獲得した稼働時間で動作し、時間がなくなると停止します。';
+  }
+
+  @override
+  String get plan_limit_quota_continue_ad => '広告視聴で起動';
+
+  @override
+  String get plan_limit_turnkey_title => 'このプランにはターンキーボットが含まれていません';
+
+  @override
+  String get plan_limit_turnkey_desc =>
+      'このプランではターンキーボットとホスト型アプリを利用できません。含まれているプランを選択してください。';
+
+  @override
+  String get plan_limit_turnkey_quota_title => 'ターンキーボットの上限に達しました';
+
+  @override
+  String get plan_limit_turnkey_quota_desc =>
+      'このプランでは同時に起動できるターンキーボット数が制限されています。1つ停止するか、上位のプランに変更してください。';
+
+  @override
+  String get plan_limit_view_offers => 'プランを見る';
+
+  @override
   String get subscription_upgrade_annual => '年間プランにアップグレード';
 
   @override
@@ -8115,11 +8195,11 @@ class AppLocalizationsJa extends AppLocalizations {
       'アクション、イベント、キャンバスレイヤーなどを使用して、カスタマイズ可能なDiscordボットを構築して実行します。';
 
   @override
-  String get app_create_type_hosted => 'ホスト型アプリケーション (Docker)';
+  String get app_create_type_hosted => '既成ボット（ターンキー）';
 
   @override
   String get app_create_type_hosted_desc =>
-      'お好みの言語（NodeJS、Python、Javaなど）でバックエンドアプリ、サーバー、またはスクリプトを実行します。ファイルをアップロードし、安全なサンドボックスにパッケージをインストールします。';
+      '24時間365日常時稼働する既成ボット（音楽、モデレーション、ユーティリティなど）を数秒でデプロイします。';
 
   @override
   String get app_create_coming_soon => '近日公開';
@@ -8360,6 +8440,11 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String container_deploy_token_invalid(String error) {
+    return '無効なDiscordボットトークンです: $error';
+  }
+
+  @override
   String get container_deploy_blocked_container_limit =>
       'You\'ve reached your hosted app limit. Delete or stop an existing hosted app to free up a slot before deploying another.';
 
@@ -8407,6 +8492,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get container_detail_started_ok => 'コンテナを開始しています';
 
   @override
+  String get container_detail_open => '詳細';
+
+  @override
   String get container_detail_delete_title => 'コンテナを削除';
 
   @override
@@ -8443,6 +8531,18 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get container_detail_console => 'コンソール';
+
+  @override
+  String container_logs_errors_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 件のエラー',
+      one: '1 件のエラー',
+      zero: 'エラーなし',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get container_detail_deploying => 'コンテナがデプロイされています...';

@@ -7329,9 +7329,16 @@
   "bot_settings_intents_auto_enabled": "Privilegierte Gateway-Intents wurden automatisch im Developer Portal aktiviert.",
   "bot_settings_intents_verified_bot_manual": "Dieser verifizierte Bot erfordert die manuelle Aktivierung privilegierter Intents im Discord Developer Portal.",
   "bot_settings_intents_auto_enable_failed": "Token gespeichert, aber privilegierte Intents konnten nicht automatisch aktiviert werden. Aktivieren Sie sie im Discord Developer Portal.",
+  "bot_settings_lavalink_add_fallback": "Fallback-Server hinzufügen",
   "bot_settings_lavalink_choose_server": "Öffentlichen Server auswählen...",
+  "bot_settings_lavalink_enable_subtitle": "Der Bot testet die öffentlichen Server selbst; eine Serverauswahl ist nicht nötig.",
+  "bot_settings_lavalink_enable_title": "Musik (Lavalink)",
+  "bot_settings_lavalink_fallback_desc": "Öffentliche Server werden zuerst getestet. Deine Server dienen als Fallback, wenn keiner antwortet.",
+  "bot_settings_lavalink_fallback_title": "Meine Fallback-Server",
   "bot_settings_lavalink_host": "Host",
   "bot_settings_lavalink_host_hint": "localhost oder Lavalink-Server-IP",
+  "bot_settings_lavalink_invalid_server": "Gib einen Host und einen Port zwischen 1 und 65535 ein.",
+  "bot_settings_lavalink_no_fallback": "Noch kein Fallback-Server.",
   "bot_settings_lavalink_password": "Passwort",
   "bot_settings_lavalink_password_hint": "youshallnotpass",
   "bot_settings_lavalink_port": "Port",
@@ -7339,9 +7346,11 @@
   "bot_settings_lavalink_premium_banner_desc": "Schalten Sie die Lavalink-Audio-Unterstützung für Ihren Bot frei.",
   "bot_settings_lavalink_premium_banner_title": "🔒 Verfügbar mit Bot Creator PREMIUM",
   "bot_settings_lavalink_public_servers": "Öffentliche Server",
+  "bot_settings_lavalink_remove_fallback": "Entfernen",
   "bot_settings_lavalink_save_btn": "Speichern",
-  "bot_settings_lavalink_save_caption": "Speichern Sie diese Konfiguration, damit sich der Bot mit dem Lavalink-Server verbinden kann.",
+  "bot_settings_lavalink_save_caption": "Speichern: Der Bot testet zuerst die öffentlichen Server, dann deine Fallback-Server.",
   "bot_settings_lavalink_section_title": "Lavalink-Server",
+  "bot_settings_lavalink_server_number": "Fallback-Server {index}",
   "bot_settings_lavalink_server_picker_title": "Öffentliche Lavalink-Server",
   "bot_settings_lavalink_server_subtitle": "Port {port} — {version}",
   "bot_settings_lavalink_servers_available": "{count} Server verfügbar",
@@ -9265,8 +9274,8 @@
   "app_create_select_type_desc": "Wählen Sie den Typ der Anwendung, die Sie erstellen möchten, um zu beginnen.",
   "app_create_type_discord": "Discord-Bot",
   "app_create_type_discord_desc": "Erstellen und konfigurieren Sie einen anpassbaren Discord-Bot mit Aktionen, Ereignissen und Canvas-Ebenen.",
-  "app_create_type_hosted": "Gehostete Anwendung (Docker)",
-  "app_create_type_hosted_desc": "Führen Sie eine Backend-App, einen Server oder ein Skript in Ihrer bevorzugten Sprache (NodeJS, Python, Java...) aus. Laden Sie Dateien hoch und installieren Sie Pakete in einer sicheren Sandbox.",
+  "app_create_type_hosted": "Schlüsselfertiger Bot",
+  "app_create_type_hosted_desc": "Starten Sie in Sekundenschnelle einen einsatzbereiten Bot (Musik, Moderation, Utility...), der 24/7 gehostet wird.",
   "app_create_coming_soon": "Demnächst verfügbar",
   "app_create_sample_title": "Beispielbefehl erstellen",
   "@app_create_sample_title": {
@@ -9539,6 +9548,15 @@
       }
     }
   },
+  "container_deploy_token_invalid": "Ungültiges Discord-Bot-Token: {error}",
+  "@container_deploy_token_invalid": {
+    "description": "Snackbar shown when turnkey Discord bot token validation fails",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "container_deploy_blocked_container_limit": "You've reached your hosted app limit. Delete or stop an existing hosted app to free up a slot before deploying another.",
   "@container_deploy_blocked_container_limit": {
     "description": "Deploy eligibility banner reason when the container limit is reached"
@@ -9616,6 +9634,7 @@
   "@container_detail_console": {
     "description": "Label for the container console section"
   },
+  "container_logs_errors_count": "{count, plural, =0{Keine Fehler} =1{1 Fehler} other{{count} Fehler}}",
   "container_detail_deploying": "Container wird bereitgestellt...",
   "@container_detail_deploying": {
     "description": "Message shown while container is being deployed"
@@ -9833,12 +9852,27 @@
       }
     }
   },
+  "subscriptions_hub_permanent": "Dauerhaft (kein Ablauf)",
+  "subscriptions_hub_unlimited_bots": "Unbegrenzte Bots",
+  "subscriptions_hub_managed_by_server": "Vom Server verwaltet",
+  "plan_limit_own_bots_title": "Eigene Bots sind in deinem Tarif nicht enthalten",
+  "plan_limit_own_bots_desc": "Dein Tarif bietet nur Zugriff auf fertige (Turnkey-)Bots. Wechsle zu einem Tarif mit eigenen Bots, um diesen zu starten.",
+  "plan_limit_bot_quota_title": "Limit laufender Bots erreicht",
+  "plan_limit_bot_quota_desc": "Dein Tarif begrenzt, wie viele Bots gleichzeitig laufen dürfen. Stoppe einen Bot oder wechsle zu einem höheren Tarif.",
+  "plan_limit_bot_quota_ad_funded_desc": "Dein Tarif lässt {count} Bots gleichzeitig laufen. Dieser ist zusätzlich: er läuft mit Hosting-Zeit, die du durch Werbung verdienst, und stoppt, wenn sie aufgebraucht ist.",
+  "plan_limit_quota_continue_ad": "Werbe-finanziert starten",
+  "plan_limit_turnkey_title": "Turnkey-Bots sind in deinem Tarif nicht enthalten",
+  "plan_limit_turnkey_desc": "Dein Tarif enthält keine Turnkey-Bots und keine gehosteten Anwendungen. Wähle einen Tarif, der sie enthält.",
+  "plan_limit_turnkey_quota_title": "Limit für Turnkey-Bots erreicht",
+  "plan_limit_turnkey_quota_desc": "Dein Tarif begrenzt, wie viele Turnkey-Bots gleichzeitig laufen dürfen. Stoppe einen oder wechsle zu einem höheren Tarif.",
+  "plan_limit_view_offers": "Angebote ansehen",
   "subscription_upgrade_annual": "Auf Jahresabo upgraden",
   "subscription_upgrade_two_apps": "Auf 2 Container upgraden",
   "subscription_manage_cancel_hint": "Zum Kündigen oder Ändern der Abrechnung nutze Abonnement verwalten — dies öffnet den App Store oder Google Play.",
   "container_detail_start_btn": "Starten",
   "container_detail_starting": "Wird gestartet...",
   "container_detail_started_ok": "Container wird gestartet",
+  "container_detail_open": "Details",
   "container_detail_delete_title": "Container löschen",
   "container_detail_delete_confirm": "Dies löscht den Container dauerhaft aus der Datenbank und der Cloud. Dies kann nicht rückgängig gemacht werden.",
   "container_detail_delete_btn": "Löschen",
