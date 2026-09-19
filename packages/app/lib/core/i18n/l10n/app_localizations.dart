@@ -15400,6 +15400,12 @@ abstract class AppLocalizations {
   /// **'Container is starting'**
   String get container_detail_started_ok;
 
+  /// No description provided for @container_detail_open.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get container_detail_open;
+
   /// Title of the delete container dialog
   ///
   /// In en, this message translates to:
@@ -15471,6 +15477,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Logs'**
   String get container_detail_console;
+
+  /// Nombre d'erreurs du tampon de logs, affiché dans le bandeau de la console d'un conteneur.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No errors} =1{1 error} other{{count} errors}}'**
+  String container_logs_errors_count(int count);
 
   /// Message shown while container is being deployed
   ///

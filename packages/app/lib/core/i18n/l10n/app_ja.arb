@@ -9713,6 +9713,7 @@
   "@container_detail_console": {
     "description": "Label for the container console section"
   },
+  "container_logs_errors_count": "{count, plural, =0{エラーなし} =1{1 件のエラー} other{{count} 件のエラー}}",
   "container_detail_deploying": "コンテナがデプロイされています...",
   "@container_detail_deploying": {
     "description": "Message shown while container is being deployed"
@@ -9949,6 +9950,7 @@
   "container_detail_start_btn": "開始",
   "container_detail_starting": "開始中...",
   "container_detail_started_ok": "コンテナを開始しています",
+  "container_detail_open": "詳細",
   "container_detail_delete_title": "コンテナを削除",
   "container_detail_delete_confirm": "データベースとクラウドからコンテナが完全に削除されます。元に戻せません。",
   "container_detail_delete_btn": "削除",

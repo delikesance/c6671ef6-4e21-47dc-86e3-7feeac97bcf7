@@ -17,7 +17,7 @@ class HomeContainerActions {
     required this.onStart,
     required this.onStop,
     required this.onLogs,
-    required this.onAddTime,
+    required this.onDetail,
     this.busy = false,
   });
 
@@ -30,8 +30,11 @@ class HomeContainerActions {
   /// Ouvre la console de logs du conteneur.
   final VoidCallback? onLogs;
 
-  /// Ouvre le parcours existant d'ajout de temps (recharge/TTL).
-  final VoidCallback? onAddTime;
+  /// Ouvre la page de DÉTAIL du conteneur, seul endroit d'où l'on gère vraiment :
+  /// ajout de temps, ressources, et SUPPRESSION. Le raccourci « ajouter du temps »
+  /// qui ouvrait cette page par effet de bord a été retiré : sur l'accueil, ce qu'on
+  /// veut, c'est un chemin lisible vers la gestion, pas une action détournée.
+  final VoidCallback? onDetail;
 
   /// Vrai pendant une action en cours : la carte se verrouille pour éviter un
   /// double clic sur démarrer/arrêter.
@@ -360,9 +363,9 @@ class HomeTurnkeyContainerCard extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: HomeCardActionButton(
-                icon: Icons.add_rounded,
-                label: tr.home_add_time,
-                onTap: actions.onAddTime,
+                icon: Icons.tune_rounded,
+                label: tr.container_detail_open,
+                onTap: actions.onDetail,
               ),
             ),
           ],
@@ -372,8 +375,12 @@ class HomeTurnkeyContainerCard extends StatelessWidget {
   }
 }
 
-/// Console de logs d'un conteneur clé en main ouverte depuis l'accueil :
-/// enveloppe le lecteur de logs existant dans une route dédiée.
+/// Console de logs d'un conteneur clé en main ouverte depuis l'accueil.
+///
+/// Elle rend EXACTEMENT la même mise en page que le pavé « console » de la page
+/// de détail : un seul `ContainerLogsViewer` pour les deux écrans, donc plus de
+/// divergence de lisibilité entre eux. Seul l'habitacle diffère — ici une page
+/// entière, avec le même cadre de carte pour que les deux se lisent pareil.
 class HomeContainerLogsPage extends StatelessWidget {
   const HomeContainerLogsPage({
     super.key,
@@ -390,7 +397,24 @@ class HomeContainerLogsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(title)),
-      body: ContainerLogsViewer(client: client, containerId: containerId),
+      // `SafeArea` protège le bas de l'écran de la barre de navigation Android :
+      // `Scaffold` ne réserve au body que `viewInsets` (le clavier), alors que la
+      // barre système est portée par `MediaQuery.padding`. Sans cet inset, la
+      // dernière ligne de log restait sous la barre.
+      body: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Card(
+            margin: EdgeInsets.zero,
+            clipBehavior: Clip.antiAlias,
+            child: ContainerLogsViewer(
+              client: client,
+              containerId: containerId,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

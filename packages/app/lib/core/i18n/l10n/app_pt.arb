@@ -9659,6 +9659,7 @@
   "@container_detail_console": {
     "description": "Label for the container console section"
   },
+  "container_logs_errors_count": "{count, plural, =0{Sem erros} =1{1 erro} other{{count} erros}}",
   "container_detail_deploying": "Contêiner está sendo implantado...",
   "@container_detail_deploying": {
     "description": "Message shown while container is being deployed"
@@ -9895,6 +9896,7 @@
   "container_detail_start_btn": "Iniciar",
   "container_detail_starting": "Iniciando...",
   "container_detail_started_ok": "Contêiner está iniciando",
+  "container_detail_open": "Detalhes",
   "container_detail_delete_title": "Excluir contêiner",
   "container_detail_delete_confirm": "Isso exclui permanentemente o contêiner do banco de dados e da nuvem. Não pode ser desfeito.",
   "container_detail_delete_btn": "Excluir",

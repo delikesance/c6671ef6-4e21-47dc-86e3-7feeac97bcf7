@@ -82,7 +82,7 @@ HomeContainerActions _noopActions() {
     onStart: () {},
     onStop: () {},
     onLogs: () {},
-    onAddTime: () {},
+    onDetail: () {},
   );
 }
 
@@ -154,7 +154,10 @@ void main() {
       expect(
         find.descendant(
           of: containerCard,
-          matching: find.text('Ajouter du temps'),
+          // L'entrée de la carte mène à la GESTION (page de détail : temps,
+          // ressources, suppression). C'était « Ajouter du temps » — un raccourci
+          // qui n'avait de sens que parce qu'il ouvrait cette page par effet de bord.
+          matching: find.text('Détails'),
         ),
         findsOneWidget,
       );

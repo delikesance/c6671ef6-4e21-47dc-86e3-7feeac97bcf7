@@ -8853,6 +8853,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get container_detail_started_ok => 'Konteyner başlatılıyor';
 
   @override
+  String get container_detail_open => 'Ayrıntılar';
+
+  @override
   String get container_detail_delete_title => 'Konteyneri sil';
 
   @override
@@ -8889,6 +8892,18 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get container_detail_console => 'Konsol';
+
+  @override
+  String container_logs_errors_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count hata',
+      one: '1 hata',
+      zero: 'Hata yok',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get container_detail_deploying => 'Kapsayici dagitiliyor...';

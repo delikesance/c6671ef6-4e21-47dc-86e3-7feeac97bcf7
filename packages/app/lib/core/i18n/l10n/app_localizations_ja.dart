@@ -8460,6 +8460,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get container_detail_started_ok => 'コンテナを開始しています';
 
   @override
+  String get container_detail_open => '詳細';
+
+  @override
   String get container_detail_delete_title => 'コンテナを削除';
 
   @override
@@ -8496,6 +8499,18 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get container_detail_console => 'コンソール';
+
+  @override
+  String container_logs_errors_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 件のエラー',
+      one: '1 件のエラー',
+      zero: 'エラーなし',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get container_detail_deploying => 'コンテナがデプロイされています...';
