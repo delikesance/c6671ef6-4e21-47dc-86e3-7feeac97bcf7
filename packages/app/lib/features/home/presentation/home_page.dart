@@ -1806,6 +1806,40 @@ class HomePageState extends State<HomePage>
     );
   }
 
+  /// Arrête la session serveur avant de démarrer le bot sur ce poste.
+  ///
+  /// Pourquoi ce n'est pas facultatif : Discord n'accepte qu'UNE connexion par jeton, et
+  /// le manager relance tout bot dont l'état désiré est resté « en marche ». Un bot
+  /// laissé en marche côté serveur continue donc de tourner — et de consommer — alors que
+  /// l'utilisateur a explicitement demandé ce poste. Attente BORNÉE : mieux vaut démarrer
+  /// ici sans avoir pu arrêter là-bas que bloquer l'utilisateur ; l'échec est journalisé.
+  Future<void> _stopRemoteSessionBeforeLocalStart(String botId) async {
+    try {
+      final client = await _resolveMainApiClientForBot(
+        botId: botId,
+        botToken: null,
+        attemptSessionRestore: true,
+      );
+      if (client == null) {
+        return;
+      }
+      await client.stopBot(botId).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () => <String, dynamic>{},
+      );
+      appendBotDebugLog(
+        '[_toggleBot] session serveur arrêtée avant un démarrage sur ce poste',
+        botId: botId,
+      );
+    } catch (error) {
+      appendBotDebugLog(
+        '[_toggleBot] arrêt de la session serveur impossible '
+        '(démarrage local poursuivi) : $error',
+        botId: botId,
+      );
+    }
+  }
+
   Future<ResolvedRemoteRuntime> _resolveRemoteRuntime({
     String? botId,
     RemoteRuntimeSource? forcedSource,
@@ -1974,6 +2008,17 @@ class HomePageState extends State<HomePage>
       forcedSource = choice == BotStartTarget.local
           ? RemoteRuntimeSource.local
           : RemoteRuntimeSource.manager;
+    }
+
+    // ── Un démarrage ICI commence par arrêter LÀ-BAS ───────────────────────────
+    // Discord n'accepte qu'UNE connexion par jeton, et le manager relance tout bot dont
+    // l'état désiré est resté « en marche ». Sans cet arrêt, « démarrer sur ce poste »
+    // laissait la session serveur vivre et se relancer : le bot semblait démarrer H24
+    // sur Bot Creator, et la page de logs montrait (à juste titre) les logs du serveur.
+    // On ATTEND l'arrêt, borné : démarrer ici avant que là-bas soit arrêté, c'est
+    // laisser les deux sessions se disputer le jeton.
+    if (forcedSource == RemoteRuntimeSource.local) {
+      await _stopRemoteSessionBeforeLocalStart(botId);
     }
 
     try {
