@@ -164,13 +164,35 @@ void main() {
       expect(kDeviceExecutedCapabilities, isNot(contains(PremiumCapability.hostedApps)));
     });
 
-    test('les quatre capacités exécutées par l’appareil sont bien déclarées', () {
+    test('les capacités exécutées par l’appareil sont bien déclarées', () {
       expect(kDeviceExecutedCapabilities, <PremiumCapability>{
         PremiumCapability.lavalinkAudio,
         PremiumCapability.schedulerTriggers,
         PremiumCapability.analyticsExpanded,
         PremiumCapability.visualDebuggerReplay,
+        PremiumCapability.autoSharding,
+        PremiumCapability.autoRestart,
       });
+    });
+
+    test('sharding et redémarrage automatiques suivent la même règle', () {
+      // Ces deux options s'appliquent DANS le processus du bot : chez l'utilisateur
+      // quand il l'exécute ici, donc sans abonnement.
+      expect(
+        premiumCapabilityAvailableForBot(
+          PremiumCapability.autoRestart,
+          botId: 'bot-local',
+        ),
+        isTrue,
+      );
+      RunnerSettings.associateBotWithRunner('bot-heberge', kManagerRunAssociation);
+      expect(
+        premiumCapabilityAvailableForBot(
+          PremiumCapability.autoSharding,
+          botId: 'bot-heberge',
+        ),
+        isFalse,
+      );
     });
   });
 

@@ -30,18 +30,24 @@ const String kLocalRunAssociation = 'local';
 
 /// Capacités dont l'EXÉCUTION a lieu sur l'appareil de l'utilisateur lorsque le
 /// bot y tourne : la musique (le bot essaie lui-même ses serveurs de repli), le
-/// planificateur, l'analytique du tableau de bord et le rejeu de debug.
+/// planificateur, l'analytique du tableau de bord, le rejeu de debug, et les deux
+/// options que le PROCESSUS du bot applique à lui-même (sharding automatique,
+/// redémarrage automatique).
 ///
 /// Volontairement une liste fermée : une capacité absente d'ici n'est JAMAIS
 /// débloquée par le seul fait de tourner en local (elle retombe sur la formule
 /// du compte), donc l'ajout d'une future capacité serveur ne peut pas ouvrir un
-/// droit par accident.
+/// droit par accident. Les webhooks entrants n'y sont pas : ils exigent une
+/// adresse publique fournie par le serveur, donc un bot local ne peut pas les
+/// recevoir.
 const Set<PremiumCapability> kDeviceExecutedCapabilities =
     <PremiumCapability>{
       PremiumCapability.lavalinkAudio,
       PremiumCapability.schedulerTriggers,
       PremiumCapability.analyticsExpanded,
       PremiumCapability.visualDebuggerReplay,
+      PremiumCapability.autoSharding,
+      PremiumCapability.autoRestart,
     };
 
 /// Le bot [botId] tourne-t-il sur CET appareil ?
@@ -81,6 +87,18 @@ bool premiumFeatureAvailable({
   }
   return supportsDesktopLocalRun && runsOnThisDevice;
 }
+
+/// Le bot [botId] peut-il exécuter les fonctions premium DANS SON PROPRE PROCESSUS ?
+///
+/// Vue depuis le bot, la même règle que les écrans : ce qui tourne chez l'utilisateur
+/// ne dépend pas de la formule, ce qui tourne chez Bot Creator si. Sert au drapeau
+/// `isPremium` transmis au runner — un drapeau figé à « non premium » éteindrait des
+/// fonctions pourtant exécutées sur la machine de l'utilisateur.
+bool premiumExecutionAvailableForBot(String? botId) => premiumFeatureAvailable(
+  runsOnThisDevice: botRunsOnThisDevice(botId),
+  supportsDesktopLocalRun: isDesktopRunPlatform,
+  subscribed: PremiumCapabilities.isPremiumUser,
+);
 
 /// Point d'entrée des écrans : la capacité [capability] est-elle utilisable pour
 /// le bot [botId] ?
