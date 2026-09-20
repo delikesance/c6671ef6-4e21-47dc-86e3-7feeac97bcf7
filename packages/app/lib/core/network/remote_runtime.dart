@@ -66,7 +66,13 @@ Future<ResolvedRemoteRuntime> resolveRemoteRuntime({
       platform == TargetPlatform.windows ||
       platform == TargetPlatform.linux ||
       platform == TargetPlatform.macOS;
-  final effectiveSupportsManagerRuntime = supportsManagerRuntime && !isDesktop;
+  final effectiveSupportsManagerRuntime = supportsManagerRuntime;
+
+  // Le poste de travail n'est plus exclu du manager : la plateforme ne verrouille
+  // plus l'ACCÈS AUX DONNÉES du compte (solde, bots, conteneurs clé en main, snapshot).
+  // Ce qui décide d'un PILOTAGE à distance, c'est l'association du bot
+  // (`RunnerSettings.getAssociatedRunnerId(botId) == 'manager'`), traitée ci-dessous —
+  // pas l'OS. Un bot non associé reste donc exécuté en local (runner embarqué).
 
   // 1. Check for explicit bot association first (overrides global preferences)
   if (botId != null) {
@@ -147,41 +153,57 @@ Future<ResolvedRemoteRuntime> resolveRemoteRuntime({
   final mainApiConfig = await MainApiSettingsStore.loadConfig();
   final mainApiSession = await MainApiSettingsStore.loadSession();
 
-  if (mainApiConfig.isConfigured && !isDesktop) {
+  if (mainApiConfig.isConfigured) {
     final session = await loadMainApiSession();
 
     if (session != null && !session.isExpired) {
-      return ResolvedRemoteRuntime(
-        source: RemoteRuntimeSource.manager,
-        client: MainApiClient(
-          baseUrl: mainApiConfig.baseUrl,
-          accessToken: session.accessToken,
-          timeout: postTimeout,
-        ),
-        detailLabel: mainApiConfig.baseUrl,
-      );
+      // Sur un poste de travail, une résolution PAR BOT qui n'a pas été associée au
+      // manager (branche 1 ci-dessus, non prise) reste LOCALE : sinon un bot pensé pour
+      // le runner embarqué partirait sur les serveurs Bot Creator simplement parce
+      // qu'un compte est connecté. La résolution GLOBALE (`botId == null` : compte,
+      // solde, conteneurs, snapshot, état d'exécution) et toutes les plateformes
+      // mobiles gardent le manager comme source de vérité.
+      if (botId == null || !isDesktop) {
+        return ResolvedRemoteRuntime(
+          source: RemoteRuntimeSource.manager,
+          client: MainApiClient(
+            baseUrl: mainApiConfig.baseUrl,
+            accessToken: session.accessToken,
+            timeout: postTimeout,
+          ),
+          detailLabel: mainApiConfig.baseUrl,
+        );
+      }
     }
 
-    final unavailableReason = mainApiSession == null
-        ? (isIOS
-              ? _runtimeCopy(
-                  fr: 'Le mode local n\'est pas pris en charge sur iOS. Connectez-vous a Bot Creator dans les parametres avant de demarrer ce bot.',
-                  en: 'Local mode is not supported on iOS. Sign in to Bot Creator in Settings before starting this bot.',
-                )
-              : _runtimeCopy(
-                  fr: 'Connectez-vous a Bot Creator dans les parametres avant de demarrer ce bot.',
-                  en: 'Sign in to Bot Creator in Settings before starting this bot.',
-                ))
-        : _runtimeCopy(
-            fr: 'Votre session Bot Creator a expire. Reconnectez-vous dans les parametres pour demarrer ce bot.',
-            en: 'Your Bot Creator session expired. Sign in again in Settings to start this bot.',
-          );
+    // Poste de travail sans session exploitable : le manager ne doit pas devenir une
+    // prison. Un bot SANS association au manager continue de tourner en LOCAL (runner
+    // embarqué), donc on laisse la résolution descendre vers le repli runner/local au
+    // lieu de bloquer le repli local comme sur mobile. Sur mobile le comportement est
+    // inchangé : sans compte connecté, c'est le manager (à reconnecter) qui porte le
+    // message, et le repli local est explicitement interdit.
+    if (!isDesktop) {
+      final unavailableReason = mainApiSession == null
+          ? (isIOS
+                ? _runtimeCopy(
+                    fr: 'Le mode local n\'est pas pris en charge sur iOS. Connectez-vous a Bot Creator dans les parametres avant de demarrer ce bot.',
+                    en: 'Local mode is not supported on iOS. Sign in to Bot Creator in Settings before starting this bot.',
+                  )
+                : _runtimeCopy(
+                    fr: 'Connectez-vous a Bot Creator dans les parametres avant de demarrer ce bot.',
+                    en: 'Sign in to Bot Creator in Settings before starting this bot.',
+                  ))
+          : _runtimeCopy(
+              fr: 'Votre session Bot Creator a expire. Reconnectez-vous dans les parametres pour demarrer ce bot.',
+              en: 'Your Bot Creator session expired. Sign in again in Settings to start this bot.',
+            );
 
-    return ResolvedRemoteRuntime(
-      source: RemoteRuntimeSource.manager,
-      detailLabel: mainApiConfig.baseUrl,
-      unavailableReason: unavailableReason,
-    );
+      return ResolvedRemoteRuntime(
+        source: RemoteRuntimeSource.manager,
+        detailLabel: mainApiConfig.baseUrl,
+        unavailableReason: unavailableReason,
+      );
+    }
   }
 
   if (isIOS) {

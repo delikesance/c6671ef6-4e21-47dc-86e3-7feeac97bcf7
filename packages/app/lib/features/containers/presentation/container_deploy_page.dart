@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
+import 'package:bot_creator/core/platform/run_platform.dart';
 import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/features/containers/logic/hosted_app_hosting_actions.dart';
 import 'package:bot_creator/features/containers/logic/hosted_app_templates.dart';
@@ -462,7 +463,10 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
     return HostedAppFreeHostingBanner(
       eligibility: elig,
       claimingAd: _claimingAd,
-      onWatchAd: _watchAdForHostingMinutes,
+      // Desktop : aucune publicité n'y existe (le temps vient du solde serveur,
+      // ci-dessus). On ne câble donc même pas l'action — la bannière ne peut pas
+      // proposer un parcours qui mènerait à `HostedAppHostingActions`.
+      onWatchAd: isDesktopRunPlatform ? null : _watchAdForHostingMinutes,
     );
   }
 
@@ -499,6 +503,20 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
           onAction: () => SubscriptionsHubPage.open(context),
         );
       case _DeployBlockReason.noMinutes:
+        if (isDesktopRunPlatform) {
+          // Desktop : pas de publicité, donc pas de porte de sortie par une pub.
+          // On montre le SOLDE SERVEUR tel quel (c'est lui qui débloque le
+          // déploiement) et on renvoie vers les formules.
+          return _DeployNoticeCard(
+            icon: Icons.hourglass_empty,
+            color: Colors.orange,
+            message: tr.container_hosted_minutes_available(
+              _eligibility?.hostingMinutesBalance ?? 0,
+            ),
+            actionLabel: tr.plan_limit_view_offers,
+            onAction: () => SubscriptionsHubPage.open(context),
+          );
+        }
         final reward = _eligibility?.adRewardMinutes ?? 0;
         return _DeployNoticeCard(
           icon: Icons.play_circle_outline,

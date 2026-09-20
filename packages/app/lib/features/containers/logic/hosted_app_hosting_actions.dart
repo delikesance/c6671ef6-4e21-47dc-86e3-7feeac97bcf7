@@ -4,8 +4,10 @@ import 'dart:io';
 import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
+import 'package:bot_creator/core/platform/run_platform.dart';
 import 'package:bot_creator/features/ads/logic/ad_reward_service.dart';
 import 'package:bot_creator/features/ads/logic/ad_ssv_context.dart';
+import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
 /// Result of watching a rewarded ad for hosted-app hosting minutes.
@@ -31,6 +33,20 @@ class HostedAppHostingActions {
     return session.userId;
   }
 
+  /// Une publicité récompensée n'existe que sur mobile.
+  ///
+  /// Le desktop ne diffuse AUCUNE publicité : le temps d'hébergement y vient du
+  /// SOLDE SERVEUR (`hosting_minutes_balance`), qui inclut déjà les minutes
+  /// gagnées par pub sur mobile. Le garde-fou ci-dessous est conservé pour
+  /// [watchAdAndClaim] — dernière barrière si un appelant l'oubliait — mais aucune
+  /// entrée de l'interface desktop ne doit plus y mener : elle propose les
+  /// formules, jamais une pub.
+  static bool get _rewardedAdsSupported {
+    if (kIsWeb) return false;
+    if (isDesktopRunPlatform) return false;
+    return Platform.isAndroid || Platform.isIOS;
+  }
+
   static Future<HostedAppAdTopUpResult?> watchAdAndClaim({
     required MainApiClient client,
     String? ownerId,
@@ -38,7 +54,7 @@ class HostedAppHostingActions {
     String? containerId,
     bool applyToContainer = false,
   }) async {
-    if (!Platform.isAndroid && !Platform.isIOS) {
+    if (!_rewardedAdsSupported) {
       throw UnsupportedError('Rewarded ads are only available on mobile.');
     }
 
