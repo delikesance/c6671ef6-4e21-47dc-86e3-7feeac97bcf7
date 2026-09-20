@@ -8442,6 +8442,7 @@
   "premium_active_desc": "Vielen Dank für Ihre Unterstützung! Alle Anzeigen sind deaktiviert.",
   "premium_active_title": "Premium aktiv",
   "premium_card_button": "Pläne ansehen",
+  "premium_locked_hint": "Dein Konto hat den Gratis-Tarif: Das Abo wird in der Mobil-App aktiviert (dieses Gerät zeigt weder Werbung noch Käufe).",
   "premium_card_desc": "Abonnieren Sie, um alle Anzeigen zu entfernen und Ihre Bots sofort ohne Pop-up zu starten.",
   "premium_card_title": "Anzeigen entfernen",
   "quick_access_title": "Schnellzugriff",

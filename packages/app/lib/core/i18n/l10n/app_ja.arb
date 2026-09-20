@@ -8530,6 +8530,7 @@
   "premium_active_desc": "ご支援ありがとうございます！すべての広告が無効になりました。",
   "premium_active_title": "プレミアム有効",
   "premium_card_button": "プランを見る",
+  "premium_locked_hint": "アカウントは無料プランです。サブスクリプションはモバイルアプリで有効化します（このデバイスでは広告も購入も表示されません）。",
   "premium_card_desc": "サブスクライブしてすべての広告を削除し、ポップアップなしで即座にボットを起動できます。",
   "premium_card_title": "広告を削除",
   "quick_access_title": "クイックアクセス",

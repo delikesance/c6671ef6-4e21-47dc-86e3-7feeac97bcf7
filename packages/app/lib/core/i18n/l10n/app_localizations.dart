@@ -9690,6 +9690,12 @@ abstract class AppLocalizations {
   /// **'See plans'**
   String get premium_card_button;
 
+  /// No description provided for @premium_locked_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is on the free plan: the subscription is activated from the mobile app (this device shows neither ads nor purchases).'**
+  String get premium_locked_hint;
+
   /// Subscribe to remove all ads and start your bots instantly, without any popup.
   ///
   /// In en, this message translates to:

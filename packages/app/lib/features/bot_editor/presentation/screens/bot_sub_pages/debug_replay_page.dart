@@ -10,6 +10,7 @@ import 'package:bot_creator/core/network/poll_cadence.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:bot_creator/features/subscriptions/presentation/subscription_page.dart';
+import 'package:bot_creator/features/subscriptions/presentation/widgets/premium_locked_hint.dart';
 import 'package:flutter/material.dart';
 
 // ─── List page ───────────────────────────────────────────────────────────────
@@ -296,6 +297,11 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
                 icon: const Icon(Icons.workspace_premium_rounded),
                 label: Text(context.tr.premium_card_button),
               ),
+            ] else ...[
+              const SizedBox(height: 12),
+              // Sans boutique native (poste de travail), il ne restait AUCUNE action :
+              // on dit au moins pourquoi c'est verrouille et ou l'abonnement s'active.
+              const PremiumLockedHint(),
             ],
           ],
         ),

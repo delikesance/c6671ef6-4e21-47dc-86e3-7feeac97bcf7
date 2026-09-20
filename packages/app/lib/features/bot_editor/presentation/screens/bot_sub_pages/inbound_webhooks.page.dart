@@ -5,6 +5,7 @@ import 'package:bot_creator/main.dart';
 import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:bot_creator/features/subscriptions/presentation/subscription_page.dart';
+import 'package:bot_creator/features/subscriptions/presentation/widgets/premium_locked_hint.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
@@ -352,12 +353,10 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                 label: Text(context.tr.premium_card_button),
               )
             else
-              Text(
-                context.tr.subscription_unavailable_platform,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
+              // Verrou de FORMULE, pas de plateforme : la cause est la formule du compte,
+              // et « non disponible sur cette plateforme » decrivait l'achat en parlant de
+              // la fonction (voir PremiumLockedHint).
+              const PremiumLockedHint(),
           ],
         ),
       ),

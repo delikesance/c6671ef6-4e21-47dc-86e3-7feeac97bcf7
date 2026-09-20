@@ -5558,6 +5558,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get premium_card_button => 'Voir les offres';
 
   @override
+  String get premium_locked_hint =>
+      'Ton compte est en formule gratuite : l\'abonnement s\'active depuis l\'application mobile (ce poste n\'affiche ni publicité ni achat).';
+
+  @override
   String get premium_card_desc =>
       'Abonnez-vous pour supprimer toutes les publicités et démarrer vos bots instantanément, sans aucune pop-up.';
 

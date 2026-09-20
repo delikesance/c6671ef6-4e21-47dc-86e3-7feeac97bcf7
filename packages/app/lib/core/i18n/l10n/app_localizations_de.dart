@@ -5552,6 +5552,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get premium_card_button => 'Pläne ansehen';
 
   @override
+  String get premium_locked_hint =>
+      'Dein Konto hat den Gratis-Tarif: Das Abo wird in der Mobil-App aktiviert (dieses Gerät zeigt weder Werbung noch Käufe).';
+
+  @override
   String get premium_card_desc =>
       'Abonnieren Sie, um alle Anzeigen zu entfernen und Ihre Bots sofort ohne Pop-up zu starten.';
 
