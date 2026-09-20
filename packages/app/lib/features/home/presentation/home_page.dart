@@ -904,12 +904,27 @@ class HomePageState extends State<HomePage>
     return minutes < 0 ? 0 : minutes;
   }
 
+  /// Minutes d'hébergement à AFFICHER pour ce bot.
+  ///
+  /// Le décompte n'a de sens que pendant que le bot consomme : un horodatage d'expiration
+  /// est figé au moment où le serveur a ouvert la session, donc bot éteint il ne s'écoule
+  /// plus rien — l'afficher comme un compte à rebours faisait croire que le temps partait
+  /// tout seul, et le chiffre baissait à chaque redessin de l'écran.
+  ///
+  /// En marche : on décompte jusqu'à l'échéance de session. À l'arrêt : on rend le SOLDE
+  /// du serveur, tel quel — c'est lui la vérité quand rien ne tourne.
   int _displayFreeMinutesForBot(String botId) {
     final expires = _sessionExpiresAtByBotId[botId];
-    if (expires != null) {
+    final isRunning = _runningBotIds.contains(botId);
+    if (expires == null) {
+      return _freeMinutesByBotId[botId] ?? 0;
+    }
+    if (isRunning) {
       return _remainingMinutesUntil(expires);
     }
-    return _freeMinutesByBotId[botId] ?? 0;
+    // À l'arrêt, le solde du serveur prime : il vaut mieux ne rien dire qu'annoncer une
+    // expiration qui n'avance pas.
+    return _freeMinutesByBotId[botId] ?? _remainingMinutesUntil(expires);
   }
 
   void _noteBotNotFound(String botId) {
