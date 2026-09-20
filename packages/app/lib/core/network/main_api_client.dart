@@ -2003,6 +2003,25 @@ class MainApiClient implements RemoteRuntimeClient {
       headers: _headers(includeAuth: true, contentType: null),
     );
   }
+
+  /// Annonces publiées depuis l'admin (`GET /gateway/announcements`).
+  ///
+  /// Le serveur rend un TABLEAU trié du plus grave au moins grave ; `_get`
+  /// l'enveloppe sous `data` (ou le nomme `announcements`). Les entrées qui ne
+  /// sont pas des objets sont écartées ici ; le décodage champ par champ,
+  /// tolérant aux types inattendus, vit dans
+  /// `features/announcements/logic/announcement.dart`.
+  Future<List<Map<String, dynamic>>> getAnnouncements() async {
+    final json = await _get('/gateway/announcements');
+    final raw = json['announcements'] ?? json['data'];
+    if (raw is! List) {
+      return const <Map<String, dynamic>>[];
+    }
+    return raw
+        .whereType<Map>()
+        .map((entry) => Map<String, dynamic>.from(entry))
+        .toList(growable: false);
+  }
 }
 
 /// Returns true for client errors (4xx except 429) that should NOT be retried.

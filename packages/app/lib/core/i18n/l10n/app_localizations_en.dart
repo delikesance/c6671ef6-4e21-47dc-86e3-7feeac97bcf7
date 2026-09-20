@@ -9566,4 +9566,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get modal_builder_submit_actions => 'Submit Actions';
+
+  @override
+  String get announcement_see_more => 'Learn more';
+
+  @override
+  String get announcement_dismiss => 'Dismiss';
+
+  @override
+  String get announcement_acknowledge => 'Got it';
+
+  @override
+  String get announcement_later => 'Later';
+
+  @override
+  String get announcement_link_open_failed => 'Couldn\'t open the link.';
 }

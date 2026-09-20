@@ -16725,6 +16725,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Submit Actions'**
   String get modal_builder_submit_actions;
+
+  /// Learn more
+  ///
+  /// In en, this message translates to:
+  /// **'Learn more'**
+  String get announcement_see_more;
+
+  /// Dismiss
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get announcement_dismiss;
+
+  /// Got it
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get announcement_acknowledge;
+
+  /// Later
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get announcement_later;
+
+  /// Couldn't open the link.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open the link.'**
+  String get announcement_link_open_failed;
 }
 
 class _AppLocalizationsDelegate

@@ -9711,4 +9711,20 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get modal_builder_submit_actions => 'Übermittlungsaktionen';
+
+  @override
+  String get announcement_see_more => 'Mehr erfahren';
+
+  @override
+  String get announcement_dismiss => 'Schließen';
+
+  @override
+  String get announcement_acknowledge => 'Verstanden';
+
+  @override
+  String get announcement_later => 'Später';
+
+  @override
+  String get announcement_link_open_failed =>
+      'Der Link konnte nicht geöffnet werden.';
 }

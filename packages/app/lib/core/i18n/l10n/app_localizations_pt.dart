@@ -9693,4 +9693,19 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get modal_builder_submit_actions => 'Ações de Envio';
+
+  @override
+  String get announcement_see_more => 'Saber mais';
+
+  @override
+  String get announcement_dismiss => 'Fechar';
+
+  @override
+  String get announcement_acknowledge => 'Entendi';
+
+  @override
+  String get announcement_later => 'Mais tarde';
+
+  @override
+  String get announcement_link_open_failed => 'Não foi possível abrir o link.';
 }

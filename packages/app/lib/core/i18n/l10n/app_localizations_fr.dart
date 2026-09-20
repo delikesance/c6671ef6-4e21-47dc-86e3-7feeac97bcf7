@@ -9728,4 +9728,19 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get modal_builder_submit_actions => 'Actions de soumission';
+
+  @override
+  String get announcement_see_more => 'En savoir plus';
+
+  @override
+  String get announcement_dismiss => 'Fermer';
+
+  @override
+  String get announcement_acknowledge => 'J\'ai compris';
+
+  @override
+  String get announcement_later => 'Plus tard';
+
+  @override
+  String get announcement_link_open_failed => 'Impossible d\'ouvrir le lien.';
 }

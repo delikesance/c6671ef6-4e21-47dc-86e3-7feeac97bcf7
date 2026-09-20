@@ -10461,5 +10461,25 @@
   "modal_builder_submit_actions": "Gönderme Eylemleri",
   "@modal_builder_submit_actions": {
     "description": "Submit Actions"
+  },
+  "announcement_see_more": "Daha fazla bilgi",
+  "@announcement_see_more": {
+    "description": "Learn more"
+  },
+  "announcement_dismiss": "Kapat",
+  "@announcement_dismiss": {
+    "description": "Dismiss"
+  },
+  "announcement_acknowledge": "Anladım",
+  "@announcement_acknowledge": {
+    "description": "Got it"
+  },
+  "announcement_later": "Daha sonra",
+  "@announcement_later": {
+    "description": "Later"
+  },
+  "announcement_link_open_failed": "Bağlantı açılamadı.",
+  "@announcement_link_open_failed": {
+    "description": "Couldn't open the link."
   }
 }
