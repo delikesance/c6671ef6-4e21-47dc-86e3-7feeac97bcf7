@@ -35,6 +35,16 @@
   "@settings_app_update_title": {
     "description": "Updates"
   },
+  "bot_token_import_btn": "Token aus meinem Konto importieren",
+  "bot_token_import_missing": "Diesen Bot gibt es nicht in Ihrem Konto.",
+  "bot_token_import_network": "Server nicht erreichbar: prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+  "bot_token_import_no_account": "Auf diesem Gerät ist kein Konto verbunden: melden Sie sich an, um das Token zu importieren.",
+  "bot_token_import_not_stored": "In Ihrem Konto ist kein Token gespeichert: geben Sie es einmal hier ein.",
+  "bot_token_import_server_cannot_read": "Der Server kann das gespeicherte Token nicht lesen.",
+  "bot_token_import_server_unsupported": "Dieser Server bietet den Token-Import noch nicht an — aktualisieren oder neu bereitstellen.",
+  "bot_token_import_success": "Token aus Ihrem Konto importiert: die Verbindung ist wiederhergestellt.",
+  "container_invite_server_unsupported": "Dieser Server bietet die Bot-Einladung noch nicht an — aktualisieren oder neu bereitstellen.",
+  "container_invite_missing": "Dieser Container existiert nicht mehr auf dem Server — lade die Containerliste neu.",
   "settings_app_update_title": "Updates",
   "@settings_app_update_installed_version": {
     "placeholders": {

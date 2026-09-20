@@ -142,6 +142,66 @@ abstract class AppLocalizations {
   /// **'Downloading in the background — you can keep using the app.'**
   String get app_update_download_started;
 
+  /// Button that fetches a bot token from the account (Bot Token screen and bot card menu)
+  ///
+  /// In en, this message translates to:
+  /// **'Import the token from my account'**
+  String get bot_token_import_btn;
+
+  /// Import failed: 404 bot_not_found, the bot is not on this account
+  ///
+  /// In en, this message translates to:
+  /// **'This bot does not exist on your account.'**
+  String get bot_token_import_missing;
+
+  /// Import failed: network outage or retryable 5xx
+  ///
+  /// In en, this message translates to:
+  /// **'Could not reach the server: check your connection and try again.'**
+  String get bot_token_import_network;
+
+  /// Import impossible: no account session on this device
+  ///
+  /// In en, this message translates to:
+  /// **'No account is connected on this device: sign in to import the token.'**
+  String get bot_token_import_no_account;
+
+  /// Import failed: 409 token_unavailable, no credential stored server-side
+  ///
+  /// In en, this message translates to:
+  /// **'No token is stored on your account: enter it once here.'**
+  String get bot_token_import_not_stored;
+
+  /// Import failed: 500 token_decrypt_failed
+  ///
+  /// In en, this message translates to:
+  /// **'The server cannot read the stored token.'**
+  String get bot_token_import_server_cannot_read;
+
+  /// Import failed: the route does not exist on this (older) server
+  ///
+  /// In en, this message translates to:
+  /// **'This server does not offer token import yet — update or redeploy it.'**
+  String get bot_token_import_server_unsupported;
+
+  /// Result of a successful token import
+  ///
+  /// In en, this message translates to:
+  /// **'Token imported from your account: the connection is restored.'**
+  String get bot_token_import_success;
+
+  /// Turnkey bot invite failed: the identity route does not exist on this (older) server
+  ///
+  /// In en, this message translates to:
+  /// **'This server does not offer bot invite yet — update or redeploy it.'**
+  String get container_invite_server_unsupported;
+
+  /// No description provided for @container_invite_missing.
+  ///
+  /// In en, this message translates to:
+  /// **'This container no longer exists on the server — reload the container list.'**
+  String get container_invite_missing;
+
   /// Updates
   ///
   /// In en, this message translates to:

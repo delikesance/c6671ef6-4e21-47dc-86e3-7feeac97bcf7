@@ -31,6 +31,45 @@ class AppLocalizationsDe extends AppLocalizations {
       'Download läuft im Hintergrund – Sie können die App weiter nutzen.';
 
   @override
+  String get bot_token_import_btn => 'Token aus meinem Konto importieren';
+
+  @override
+  String get bot_token_import_missing =>
+      'Diesen Bot gibt es nicht in Ihrem Konto.';
+
+  @override
+  String get bot_token_import_network =>
+      'Server nicht erreichbar: prüfen Sie Ihre Verbindung und versuchen Sie es erneut.';
+
+  @override
+  String get bot_token_import_no_account =>
+      'Auf diesem Gerät ist kein Konto verbunden: melden Sie sich an, um das Token zu importieren.';
+
+  @override
+  String get bot_token_import_not_stored =>
+      'In Ihrem Konto ist kein Token gespeichert: geben Sie es einmal hier ein.';
+
+  @override
+  String get bot_token_import_server_cannot_read =>
+      'Der Server kann das gespeicherte Token nicht lesen.';
+
+  @override
+  String get bot_token_import_server_unsupported =>
+      'Dieser Server bietet den Token-Import noch nicht an — aktualisieren oder neu bereitstellen.';
+
+  @override
+  String get bot_token_import_success =>
+      'Token aus Ihrem Konto importiert: die Verbindung ist wiederhergestellt.';
+
+  @override
+  String get container_invite_server_unsupported =>
+      'Dieser Server bietet die Bot-Einladung noch nicht an — aktualisieren oder neu bereitstellen.';
+
+  @override
+  String get container_invite_missing =>
+      'Dieser Container existiert nicht mehr auf dem Server — lade die Containerliste neu.';
+
+  @override
   String get settings_app_update_title => 'Updates';
 
   @override

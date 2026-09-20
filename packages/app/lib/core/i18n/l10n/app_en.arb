@@ -32,9 +32,46 @@
     "description": "Downloading in the background — you can keep using the app."
   },
   "app_update_download_started": "Downloading in the background — you can keep using the app.",
+  "@bot_token_import_btn": {
+    "description": "Button that fetches a bot token from the account (Bot Token screen and bot card menu)"
+  },
+  "@bot_token_import_missing": {
+    "description": "Import failed: 404 bot_not_found, the bot is not on this account"
+  },
+  "@bot_token_import_network": {
+    "description": "Import failed: network outage or retryable 5xx"
+  },
+  "@bot_token_import_no_account": {
+    "description": "Import impossible: no account session on this device"
+  },
+  "@bot_token_import_not_stored": {
+    "description": "Import failed: 409 token_unavailable, no credential stored server-side"
+  },
+  "@bot_token_import_server_cannot_read": {
+    "description": "Import failed: 500 token_decrypt_failed"
+  },
+  "@bot_token_import_server_unsupported": {
+    "description": "Import failed: the route does not exist on this (older) server"
+  },
+  "@bot_token_import_success": {
+    "description": "Result of a successful token import"
+  },
+  "@container_invite_server_unsupported": {
+    "description": "Turnkey bot invite failed: the identity route does not exist on this (older) server"
+  },
   "@settings_app_update_title": {
     "description": "Updates"
   },
+  "bot_token_import_btn": "Import the token from my account",
+  "bot_token_import_missing": "This bot does not exist on your account.",
+  "bot_token_import_network": "Could not reach the server: check your connection and try again.",
+  "bot_token_import_no_account": "No account is connected on this device: sign in to import the token.",
+  "bot_token_import_not_stored": "No token is stored on your account: enter it once here.",
+  "bot_token_import_server_cannot_read": "The server cannot read the stored token.",
+  "bot_token_import_server_unsupported": "This server does not offer token import yet — update or redeploy it.",
+  "bot_token_import_success": "Token imported from your account: the connection is restored.",
+  "container_invite_server_unsupported": "This server does not offer bot invite yet — update or redeploy it.",
+  "container_invite_missing": "This container no longer exists on the server — reload the container list.",
   "settings_app_update_title": "Updates",
   "@settings_app_update_installed_version": {
     "placeholders": {

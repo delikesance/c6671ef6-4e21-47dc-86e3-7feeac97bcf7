@@ -30,6 +30,44 @@ class AppLocalizationsTr extends AppLocalizations {
       'Arka planda indiriliyor — uygulamayı kullanmaya devam edebilirsiniz.';
 
   @override
+  String get bot_token_import_btn => 'Jetonu hesabımdan içe aktar';
+
+  @override
+  String get bot_token_import_missing => 'Bu bot hesabınızda bulunmuyor.';
+
+  @override
+  String get bot_token_import_network =>
+      'Sunucuya ulaşılamadı: bağlantınızı kontrol edip yeniden deneyin.';
+
+  @override
+  String get bot_token_import_no_account =>
+      'Bu cihazda bağlı bir hesap yok: jetonu içe aktarmak için oturum açın.';
+
+  @override
+  String get bot_token_import_not_stored =>
+      'Hesabınızda kayıtlı jeton yok: bir kez burada girin.';
+
+  @override
+  String get bot_token_import_server_cannot_read =>
+      'Sunucu kayıtlı jetonu okuyamıyor.';
+
+  @override
+  String get bot_token_import_server_unsupported =>
+      'Bu sunucu henüz jeton içe aktarmayı sunmuyor — güncelleyin veya yeniden dağıtın.';
+
+  @override
+  String get bot_token_import_success =>
+      'Jeton hesabınızdan içe aktarıldı: bağlantı yeniden kuruldu.';
+
+  @override
+  String get container_invite_server_unsupported =>
+      'Bu sunucu henüz bot davetini sunmuyor — güncelleyin veya yeniden dağıtın.';
+
+  @override
+  String get container_invite_missing =>
+      'Bu kapsayıcı sunucuda artık yok — kapsayıcı listesini yenileyin.';
+
+  @override
   String get settings_app_update_title => 'Güncellemeler';
 
   @override

@@ -31,6 +31,61 @@ class MainApiClientException implements Exception {
   }
 }
 
+/// Cause d'un échec de récupération du jeton d'un bot
+/// (`POST /gateway/bots/{id}/token`), telle que l'interface doit la DIRE.
+///
+/// Le point qui coûte le plus cher à confondre : un `404` de ROUTE (manager
+/// plus ancien que l'application, la route n'existe pas encore) n'est pas un
+/// « bot absent du compte », et ce n'est pas non plus une panne réseau. Dire
+/// « vérifie ta connexion » devant un serveur en retard est un mensonge qui
+/// envoie l'utilisateur chercher une panne inexistante (constaté sur dev).
+enum BotTokenExportFailure {
+  /// `404 bot_not_found` : bot inconnu OU appartenant à un autre propriétaire —
+  /// le serveur rend volontairement la même réponse pour ne rien révéler.
+  botMissing,
+
+  /// `404` sans code applicatif (ou `501`) : la route n'existe pas sur CE
+  /// serveur. Rien à voir avec la connexion : il faut mettre à jour le serveur.
+  serverUnsupported,
+
+  /// `409 token_unavailable` : bot connu, aucune credential enregistrée côté
+  /// compte. Réessayer ne la fera pas apparaître.
+  notStored,
+
+  /// `500 token_decrypt_failed` : la credential existe mais le serveur n'arrive
+  /// pas à la relire (clé absente ou tournée). Réessayer n'y changera rien.
+  serverCannotRead,
+
+  /// Autre `5xx`, ou panne réseau : réessayer a un sens.
+  network,
+}
+
+/// Échec typé d'une récupération de jeton de bot.
+///
+/// Le message porte la CAUSE, jamais la valeur du jeton ni le corps de la
+/// réponse : cette exception finit dans les journaux et les rapports de crash.
+class BotTokenExportException implements Exception {
+  const BotTokenExportException(this.failure);
+
+  final BotTokenExportFailure failure;
+
+  @override
+  String toString() {
+    switch (failure) {
+      case BotTokenExportFailure.botMissing:
+        return 'bot token export failed: bot not found on this account (404)';
+      case BotTokenExportFailure.serverUnsupported:
+        return 'bot token export failed: route missing on this server (404/501)';
+      case BotTokenExportFailure.notStored:
+        return 'bot token export failed: no credential stored server-side (409)';
+      case BotTokenExportFailure.serverCannotRead:
+        return 'bot token export failed: server cannot decrypt its credential';
+      case BotTokenExportFailure.network:
+        return 'bot token export failed: network or retryable server error';
+    }
+  }
+}
+
 /// Réponse de `GET /gateway/snapshot` : la charge utile ET la version (`ETag`) qui
 /// l'accompagne. Les deux voyagent ensemble parce que c'est l'ETag, mémorisé par
 /// l'appelant, qui transforme le prochain appel en `304` (aucun retraitement).
@@ -796,6 +851,42 @@ class MainApiClient implements RemoteRuntimeClient {
   Future<void> deleteBot(String botId) async {
     final encodedBotId = Uri.encodeComponent(botId.trim());
     await _delete('/gateway/bots/$encodedBotId');
+  }
+
+  /// Demande au compte le jeton d'un bot déjà géré côté serveur
+  /// (`POST /gateway/bots/{id}/token`).
+  ///
+  /// Le serveur ne rend JAMAIS ce jeton dans ses listes (`GET /gateway/bots`
+  /// rédige volontairement `bot_token`) : sans cette route, un appareil qui n'a
+  /// pas saisi le jeton une première fois ne peut pas exécuter le bot en local,
+  /// et un rafraîchissement n'y change rien. L'appel est un acte explicite du
+  /// propriétaire : corps vide, session du compte (`read:bots`).
+  ///
+  /// Ne journalise ni la réponse ni le jeton : seul le code HTTP part dans les
+  /// traces (voir `_post`).
+  ///
+  /// Échoue en [BotTokenExportException], dont la cause est distinguée par
+  /// [BotTokenExportFailure] — un `404` de ROUTE (manager plus ancien que
+  /// l'app) est [BotTokenExportFailure.serverUnsupported], pas un « bot absent »
+  /// et encore moins une panne réseau.
+  Future<BotTokenExport> fetchBotToken(String botId) async {
+    final encodedBotId = Uri.encodeComponent(botId.trim());
+    final Map<String, dynamic> json;
+    try {
+      json = await _post('/gateway/bots/$encodedBotId/token', <String, dynamic>{});
+    } on MainApiClientException catch (error) {
+      throw BotTokenExportException(_classifyBotTokenExportFailure(error));
+    } catch (_) {
+      // Panne réseau, réponse illisible : même cause que les 5xx réessayables.
+      throw const BotTokenExportException(BotTokenExportFailure.network);
+    }
+    final export = BotTokenExport.fromJson(json);
+    if (export.token.isEmpty) {
+      // 200 sans jeton : le corps n'a pas la forme attendue (proxy, page
+      // d'erreur servie en 200). Aucun jeton ne doit être inventé ni stocké.
+      throw const BotTokenExportException(BotTokenExportFailure.network);
+    }
+    return export;
   }
 
   @override
@@ -2044,6 +2135,40 @@ bool _isNotFound(MainApiClientException error) {
   return error.statusCode == 404;
 }
 
+/// Traduit un échec HTTP de `POST /gateway/bots/{id}/token` en cause
+/// exploitable par l'interface.
+///
+/// Deux pièges de cette route : un `404` peut venir de la ROUTE ABSENTE
+/// (manager plus ancien que l'app — le routeur Go rend alors une page 404 sans
+/// code applicatif) ou d'un bot étranger au compte (`404 bot_not_found`) ; et un
+/// `500` de cette route est le `token_decrypt_failed` documenté, donc une panne
+/// définitive côté serveur, pas une panne réseau à réessayer.
+BotTokenExportFailure _classifyBotTokenExportFailure(
+  MainApiClientException error,
+) {
+  final appCode = error.message.trim().toLowerCase();
+  // Le code applicatif prime : il peut arriver sur un statut que le contrat ne
+  // prévoit pas (proxy, passerelle).
+  if (appCode == 'token_decrypt_failed') {
+    return BotTokenExportFailure.serverCannotRead;
+  }
+  switch (error.statusCode) {
+    case 404:
+      return appCode == 'bot_not_found'
+          ? BotTokenExportFailure.botMissing
+          : BotTokenExportFailure.serverUnsupported;
+    case 409:
+      return BotTokenExportFailure.notStored;
+    case 500:
+      return BotTokenExportFailure.serverCannotRead;
+    case 501:
+      return BotTokenExportFailure.serverUnsupported;
+  }
+  // 5xx réessayables (502/503/504) et pannes réseau : même conséquence pour
+  // l'utilisateur, « vérifie ta connexion » est ici le seul message honnête.
+  return BotTokenExportFailure.network;
+}
+
 /// Returns true for client errors (4xx except 429) that should NOT be retried.
 bool _isClientError(MainApiClientException error) {
   final code = error.statusCode;
@@ -2316,6 +2441,48 @@ class DiscordBotIdentity {
       username: (source['username'] ?? '').toString(),
       avatar: (source['avatar'] ?? '').toString(),
       inviteUrl: (source['invite_url'] ?? '').toString().trim(),
+    );
+  }
+}
+
+/// Jeton d'un bot tel que le compte le rend
+/// (`POST /gateway/bots/{id}/token`).
+///
+/// Cette route est la SEULE surface qui transporte un jeton vers l'appareil :
+/// les listes du serveur (`GET /gateway/bots`, `/gateway/snapshot`, le canal
+/// temps réel) le rédigent volontairement. La réponse porte
+/// `Cache-Control: no-store` côté serveur, et ce modèle n'est jamais journalisé
+/// ni relayé à l'analytique : seule son existence compte pour l'appelant.
+class BotTokenExport {
+  const BotTokenExport({
+    required this.botId,
+    required this.token,
+    this.validatedAt,
+  });
+
+  /// ID Discord du bot à qui appartient [token].
+  final String botId;
+
+  /// Le jeton en clair. Ne jamais l'écrire dans un journal, un message d'erreur
+  /// ni un événement analytique.
+  final String token;
+
+  /// Date de validation de la credential côté serveur ; `null` si le serveur ne
+  /// l'a pas fournie (elle est omise quand elle est nulle).
+  final DateTime? validatedAt;
+
+  factory BotTokenExport.fromJson(Map<String, dynamic> json) {
+    // Certaines routes enveloppent la charge utile sous `data` : on accepte les
+    // deux formes plutôt que de rendre un jeton vide sur une réponse saine.
+    final nested = json['data'];
+    final source = nested is Map ? Map<String, dynamic>.from(nested) : json;
+    final rawValidatedAt = source['validated_at']?.toString().trim() ?? '';
+    return BotTokenExport(
+      botId: (source['bot_id'] ?? '').toString().trim(),
+      token: (source['token'] ?? '').toString().trim(),
+      validatedAt: rawValidatedAt.isEmpty
+          ? null
+          : DateTime.tryParse(rawValidatedAt),
     );
   }
 }
