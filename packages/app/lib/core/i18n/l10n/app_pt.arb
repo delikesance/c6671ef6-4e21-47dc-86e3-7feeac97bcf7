@@ -58,6 +58,24 @@
     "description": "{version} (build {build})"
   },
   "settings_app_update_installed_version": "{version} (build {build})",
+  "@settings_app_version_value": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    },
+    "description": "App version with its value"
+  },
+  "settings_app_version_value": "App: {version}",
+  "@settings_runner_version_value": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    },
+    "description": "Runner version with its value"
+  },
+  "settings_runner_version_value": "Runner: {version}",
   "@settings_app_update_check_button": {
     "description": "Check for updates"
   },

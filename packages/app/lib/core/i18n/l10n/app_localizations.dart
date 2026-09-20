@@ -214,6 +214,18 @@ abstract class AppLocalizations {
   /// **'{version} (build {build})'**
   String settings_app_update_installed_version(String version, String build);
 
+  /// App version with its value
+  ///
+  /// In en, this message translates to:
+  /// **'App: {version}'**
+  String settings_app_version_value(String version);
+
+  /// Runner version with its value
+  ///
+  /// In en, this message translates to:
+  /// **'Runner: {version}'**
+  String settings_runner_version_value(String version);
+
   /// Check for updates
   ///
   /// In en, this message translates to:
