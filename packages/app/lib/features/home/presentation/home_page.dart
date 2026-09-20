@@ -42,6 +42,7 @@ import 'package:bot_creator/features/containers/presentation/container_detail_pa
 import 'package:bot_creator/features/containers/presentation/home_turnkey_container_card.dart';
 import 'package:bot_creator/features/discord_rpc/logic/discord_rpc_service.dart';
 import 'package:bot_creator/features/documentation/documentation_navigation.dart';
+import 'package:bot_creator/features/home/logic/bot_runtime_affinity.dart';
 import 'package:bot_creator/features/home/logic/bot_start_target.dart';
 import 'package:bot_creator/features/home/presentation/guild_avatar.dart';
 import 'package:bot_creator/features/home/presentation/home_ui.dart';
@@ -982,6 +983,9 @@ class HomePageState extends State<HomePage>
       _noteBotFound(botId);
       if (bot.isRunning) {
         running.add(botId);
+        // Le serveur dit ce bot en cours d'exécution : c'est donc lui qu'il faut
+        // arrêter (voir `noteManagerReportedRuntime`).
+        noteManagerReportedRuntime(bot);
       }
       if (bot.fundingMode == 'premium') {
         continue;
@@ -1009,6 +1013,10 @@ class HomePageState extends State<HomePage>
     final botId = bot.botId.trim();
     if (botId.isEmpty) return;
     _noteBotFound(botId);
+    // Un bot que le SERVEUR exécute s'arrête sur le serveur, d'où qu'il ait été
+    // démarré (mobile, manager) — voir `noteManagerReportedRuntime`. Posé AVANT le
+    // `setState` : écrire une préférence n'est pas un changement d'état de l'écran.
+    noteManagerReportedRuntime(bot);
     setState(() {
       if (bot.isRunning) {
         _runningBotIds = {..._runningBotIds, botId};
@@ -2297,6 +2305,10 @@ class HomePageState extends State<HomePage>
             return;
           }
           await startDesktopBot(token);
+          // Ce POSTE exécute le bot : une association « manager » héritée (ou posée par
+          // un démarrage distant précédent) ferait envoyer le prochain Stop au serveur,
+          // qui n'aurait rien à arrêter, et le bot continuerait ici.
+          RunnerSettings.associateBotWithRunner(botId, 'local');
           if (mounted) {
             setState(() {
               _runningBotIds = <String>{..._runningBotIds, botId};
