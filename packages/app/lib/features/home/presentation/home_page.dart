@@ -2167,6 +2167,16 @@ class HomePageState extends State<HomePage>
         getTimeout: const Duration(seconds: 30),
         postTimeout: const Duration(seconds: 90),
       );
+      // Témoin de décision : la pop-up promet « ce poste » ou « les serveurs Bot Creator »,
+      // et un chemin décide ensuite. Sans cette ligne, un choix non honoré ne laisse
+      // aucune trace exploitable — on ne sait pas si la cible a été perdue à la
+      // résolution, au choix du runner, ou plus loin. Le jeton n'apparaît JAMAIS ici.
+      appendBotDebugLog(
+        '[_toggleBot] choix=${forcedSource ?? 'aucun (bot deja en marche)'} '
+        'cible=${runtime.source} client=${runtime.client != null} '
+        'blocage=${runtime.blocksLocalFallback}',
+        botId: botId,
+      );
       final client = runtime.client;
       if (client != null) {
         try {
