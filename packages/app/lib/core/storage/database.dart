@@ -218,11 +218,33 @@ class AppManager implements BotDataStore {
               discriminator: discriminator,
             );
 
+      // Le jeton reçu peut être VIDE sans que le bot soit sans jeton : le manager
+      // RÉDIGE volontairement `bot_token` dans ses listes (« Zero plaintext token in
+      // summary lists », et son propre test l'exige), et un jeton ne redescend jamais du
+      // serveur. Écraser la valeur locale par du vide détruirait le seul jeton dont
+      // dispose ce poste de travail pour exécuter le bot en local — c'est arrivé :
+      // l'entrée de coffre est passée de 137 octets (jeton réel) à 41 (chaîne vide) à la
+      // première synchro, puis « Token invalid or missing » sur tous les bots.
+      // On garde donc le jeton déjà connu quand l'appel n'en apporte pas. Un effacement
+      // volontaire passe par la suppression de l'application, pas par une synchro.
+      var effectiveToken = token.trim();
+      if (effectiveToken.isEmpty) {
+        effectiveToken = (existingData['token'] ?? '').toString().trim();
+      }
+      if (effectiveToken.isEmpty) {
+        try {
+          final secure = await SecureStorageService.instance;
+          effectiveToken = ((await secure.read('bot_token:$botId')) ?? '').trim();
+        } catch (_) {
+          // Coffre indisponible : on continue sans jeton plutôt que d'échouer.
+        }
+      }
+
       final data = Map<String, dynamic>.from(existingData)
         ..['name'] = username.sanitizedUtf16
         ..['id'] = botId
         ..['avatar'] = avatarUri
-        ..['token'] = token
+        ..['token'] = effectiveToken
         ..['prefix'] = () {
           final raw = (prefix ?? existingData['prefix'] ?? '!')
               .toString()
@@ -275,13 +297,16 @@ class AppManager implements BotDataStore {
         );
 
       await _writeAppToDisk(botId, data);
-      // Dual-write token to secure storage
-      unawaited(() async {
-        try {
-          final secure = await SecureStorageService.instance;
-          await secure.write('bot_token:$botId', token);
-        } catch (_) {}
-      }());
+      // Dual-write token to secure storage — JAMAIS une valeur vide : elle écraserait
+      // le jeton local (voir le commentaire plus haut sur la rédaction côté manager).
+      if (effectiveToken.isNotEmpty) {
+        unawaited(() async {
+          try {
+            final secure = await SecureStorageService.instance;
+            await secure.write('bot_token:$botId', effectiveToken);
+          } catch (_) {}
+        }());
+      }
       if (!await allAppsFile.exists()) {
         await allAppsFile.create(recursive: true);
       }
