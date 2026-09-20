@@ -72,6 +72,16 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String settings_app_version_value(String version) {
+    return 'アプリ: $version';
+  }
+
+  @override
+  String settings_runner_version_value(String version) {
+    return 'ランナー: $version';
+  }
+
+  @override
   String get settings_app_update_check_button => 'アップデートを確認';
 
   @override

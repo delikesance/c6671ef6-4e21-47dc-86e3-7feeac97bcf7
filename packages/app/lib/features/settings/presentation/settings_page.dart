@@ -6,6 +6,7 @@ import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/core/diagnostics/diagnostics_logs_page.dart';
 import 'package:bot_creator/features/settings/presentation/code_editor_settings_page.dart';
 import 'package:bot_creator/features/settings/presentation/appearance_settings_section.dart';
+import 'package:bot_creator/features/settings/presentation/widgets/app_version_and_updates_card.dart';
 import 'package:bot_creator/features/onboarding/presentation/onboarding_page.dart';
 import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/core/analytics/user_properties.dart';
@@ -2637,6 +2638,11 @@ class _SettingPageState extends State<SettingPage> {
                     const SizedBox(height: 16),
                   ],
                 ],
+                // Version de l'APPLICATION et mises à jour : des informations globales,
+                // déplacées ici depuis les réglages d'un bot — elles n'ont rien à voir
+                // avec un bot, et le même contenu réapparaissait pour chaque bot.
+                const AppVersionAndUpdatesCard(),
+                const SizedBox(height: 16),
                 if (!_isManagedMobilePlatform && !_runnerTemporarilyDisabled)
                   Card(
                     child: ExpansionTile(

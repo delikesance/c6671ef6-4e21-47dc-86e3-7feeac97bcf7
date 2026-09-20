@@ -78,6 +78,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String settings_app_version_value(String version) {
+    return 'App: $version';
+  }
+
+  @override
+  String settings_runner_version_value(String version) {
+    return 'Runner: $version';
+  }
+
+  @override
   String get settings_app_update_check_button => 'Check for updates';
 
   @override
