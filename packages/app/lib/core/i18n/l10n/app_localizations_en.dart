@@ -9581,4 +9581,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get announcement_link_open_failed => 'Couldn\'t open the link.';
+
+  @override
+  String get container_invite_btn => 'Invite bot';
+
+  @override
+  String get container_invite_busy => 'Inviting...';
+
+  @override
+  String get container_invite_unavailable =>
+      'This application\'s bot could not be identified: its token is missing or revoked. Redeploy the bot.';
+
+  @override
+  String get container_invite_failed =>
+      'Could not invite the bot: check your connection and try again.';
+
+  @override
+  String get container_invite_open_failed => 'Could not open the invite link.';
 }

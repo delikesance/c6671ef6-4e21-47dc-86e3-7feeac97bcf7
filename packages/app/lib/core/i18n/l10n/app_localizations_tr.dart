@@ -9652,4 +9652,21 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get announcement_link_open_failed => 'Bağlantı açılamadı.';
+
+  @override
+  String get container_invite_btn => 'Botu davet et';
+
+  @override
+  String get container_invite_busy => 'Davet ediliyor...';
+
+  @override
+  String get container_invite_unavailable =>
+      'Bu uygulamanın botu tanımlanamadı: token yok veya iptal edilmiş. Dağıtımı yeniden başlatın.';
+
+  @override
+  String get container_invite_failed =>
+      'Davet gönderilemedi: bağlantınızı kontrol edip yeniden deneyin.';
+
+  @override
+  String get container_invite_open_failed => 'Davet bağlantısı açılamadı.';
 }

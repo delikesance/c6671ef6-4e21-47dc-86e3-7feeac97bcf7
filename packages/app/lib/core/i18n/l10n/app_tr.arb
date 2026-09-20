@@ -10481,5 +10481,10 @@
   "announcement_link_open_failed": "Bağlantı açılamadı.",
   "@announcement_link_open_failed": {
     "description": "Couldn't open the link."
-  }
+  },
+  "container_invite_btn": "Botu davet et",
+  "container_invite_busy": "Davet ediliyor...",
+  "container_invite_unavailable": "Bu uygulamanın botu tanımlanamadı: token yok veya iptal edilmiş. Dağıtımı yeniden başlatın.",
+  "container_invite_failed": "Davet gönderilemedi: bağlantınızı kontrol edip yeniden deneyin.",
+  "container_invite_open_failed": "Davet bağlantısı açılamadı."
 }

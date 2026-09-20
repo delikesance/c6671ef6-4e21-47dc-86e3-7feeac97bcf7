@@ -18,7 +18,9 @@ class HomeContainerActions {
     required this.onStop,
     required this.onLogs,
     required this.onDetail,
+    this.onInvite,
     this.busy = false,
+    this.inviteBusy = false,
   });
 
   /// Démarre le conteneur (état arrêté uniquement).
@@ -30,6 +32,11 @@ class HomeContainerActions {
   /// Ouvre la console de logs du conteneur.
   final VoidCallback? onLogs;
 
+  /// Invite le bot de ce conteneur dans un serveur Discord : l'à-propos ne
+  /// dépend PAS de l'état du conteneur (un bot à l'arrêt reste invitable), donc
+  /// la carte ne conditionne pas ce bouton à `container.isRunning`.
+  final VoidCallback? onInvite;
+
   /// Ouvre la page de DÉTAIL du conteneur, seul endroit d'où l'on gère vraiment :
   /// ajout de temps, ressources, et SUPPRESSION. Le raccourci « ajouter du temps »
   /// qui ouvrait cette page par effet de bord a été retiré : sur l'accueil, ce qu'on
@@ -39,6 +46,10 @@ class HomeContainerActions {
   /// Vrai pendant une action en cours : la carte se verrouille pour éviter un
   /// double clic sur démarrer/arrêter.
   final bool busy;
+
+  /// Vrai pendant une invitation en cours : le bouton « Inviter le bot » est
+  /// désactivé et porte l'indicateur d'occupation, donc aucun second envoi.
+  final bool inviteBusy;
 }
 
 /// Libellé d'un conteneur clé en main : le nom produit (« Easy Music Bot »)
@@ -360,13 +371,27 @@ class HomeTurnkeyContainerCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 10),
-            SizedBox(
-              width: double.infinity,
-              child: HomeCardActionButton(
-                icon: Icons.tune_rounded,
-                label: tr.container_detail_open,
-                onTap: actions.onDetail,
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: HomeCardActionButton(
+                    icon: Icons.person_add_alt_1_rounded,
+                    label: actions.inviteBusy
+                        ? tr.container_invite_busy
+                        : tr.container_invite_btn,
+                    loading: actions.inviteBusy,
+                    onTap: actions.inviteBusy ? null : actions.onInvite,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: HomeCardActionButton(
+                    icon: Icons.tune_rounded,
+                    label: tr.container_detail_open,
+                    onTap: actions.onDetail,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
