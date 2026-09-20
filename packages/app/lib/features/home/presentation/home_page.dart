@@ -42,6 +42,7 @@ import 'package:bot_creator/features/containers/presentation/container_detail_pa
 import 'package:bot_creator/features/containers/presentation/home_turnkey_container_card.dart';
 import 'package:bot_creator/features/discord_rpc/logic/discord_rpc_service.dart';
 import 'package:bot_creator/features/documentation/documentation_navigation.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_token_import.dart';
 import 'package:bot_creator/features/home/logic/bot_runtime_affinity.dart';
 import 'package:bot_creator/features/home/logic/bot_start_target.dart';
 import 'package:bot_creator/features/home/presentation/guild_avatar.dart';
@@ -1806,6 +1807,50 @@ class HomePageState extends State<HomePage>
     );
   }
 
+  /// Redemande au compte le jeton du bot, pour pouvoir le démarrer sur ce poste.
+  ///
+  /// Pourquoi c'est nécessaire : un bot créé/synchronisé par le serveur n'a AUCUN jeton
+  /// sur le poste — le manager le rédige volontairement dans toutes ses réponses. Sans
+  /// cette reprise, « démarrer sur ce poste » échouait sur un jeton manquant alors que le
+  /// jeton existe, sur le compte.
+  ///
+  /// Le jeton reçu est écrit par le chemin d'écriture UNIQUE (`persistImportedBotToken`,
+  /// appelé par la brique), donc il ne peut pas effacer un jeton déjà présent. On ne
+  /// prétend rien sur sa validité : la route répond `409`/`500` si elle ne peut pas le
+  /// rendre, et l'issue est journalisée telle quelle.
+  Future<String?> _recoverBotTokenForLocalStart(String botId) async {
+    try {
+      final client = await _resolveMainApiClientForBot(
+        botId: botId,
+        botToken: null,
+        attemptSessionRestore: true,
+      );
+      if (client == null) {
+        return null;
+      }
+      final outcome = await BotTokenImporter(
+        client: client,
+      ).importAutomatically(
+        botId: botId,
+        serverAnnouncesTokenValid: true,
+        hasLocalToken: false,
+      );
+      appendBotDebugLog(
+        '[_toggleBot] reprise du jeton avant démarrage sur ce poste : $outcome',
+        botId: botId,
+      );
+      final app = await appManager.getApp(botId);
+      final recovered = (app['token'] ?? '').toString().trim();
+      return recovered.isEmpty ? null : recovered;
+    } catch (error) {
+      appendBotDebugLog(
+        '[_toggleBot] reprise du jeton impossible : $error',
+        botId: botId,
+      );
+      return null;
+    }
+  }
+
   /// Arrête la session serveur avant de démarrer le bot sur ce poste.
   ///
   /// Pourquoi ce n'est pas facultatif : Discord n'accepte qu'UNE connexion par jeton, et
@@ -2316,6 +2361,13 @@ class HomePageState extends State<HomePage>
       if (token == null) {
         final app = await appManager.getApp(botId);
         token = app['token']?.toString();
+      }
+      if (token == null || token.trim().isEmpty) {
+        // Le bot est GÉRÉ par le serveur : son jeton vit chez lui et toutes les réponses
+        // le rédigent. Sans cette reprise, « démarrer sur ce poste » ne pouvait pas
+        // aboutir — il annonçait un jeton manquant pour un bot qui en a bien un, sur le
+        // compte. Une seule tentative par bot et par lancement (garde de la brique).
+        token = await _recoverBotTokenForLocalStart(botId);
       }
       if (token == null || token.trim().isEmpty) {
         throw Exception(context.tr.home_token_missing(botName));
