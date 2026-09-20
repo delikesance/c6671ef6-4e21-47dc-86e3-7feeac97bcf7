@@ -1813,6 +1813,14 @@ class AppLocalizationsTr extends AppLocalizations {
   String get bot_logs_rich_mode => 'Zengin formatlı günlükler';
 
   @override
+  String get bot_logs_server_empty =>
+      'Bot Creator sunucuları bu bot için günlük döndürmedi.';
+
+  @override
+  String get bot_logs_server_read_failed =>
+      'Günlükler Bot Creator sunucularından okunamadı.';
+
+  @override
   String get bot_logs_show_all => 'Tümünü göster';
 
   @override

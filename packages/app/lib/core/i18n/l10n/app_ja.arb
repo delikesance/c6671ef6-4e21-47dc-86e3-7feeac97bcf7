@@ -1380,6 +1380,12 @@
   "@bot_logs_rich_mode": {
     "description": "Rich formatted logs"
   },
+  "@bot_logs_server_empty": {
+    "description": "The Bot Creator servers returned no logs for this bot."
+  },
+  "@bot_logs_server_read_failed": {
+    "description": "Could not read the logs from the Bot Creator servers."
+  },
   "@bot_logs_show_all": {
     "description": "Show all"
   },
@@ -7491,6 +7497,8 @@
   "bot_logs_ram_estimated": "推定ボットRAM: {memory}",
   "bot_logs_raw_mode": "コンパクト生ログ",
   "bot_logs_rich_mode": "リッチフォーマットログ",
+  "bot_logs_server_empty": "Bot Creator サーバーはこのボットのログを返しませんでした。",
+  "bot_logs_server_read_failed": "Bot Creator サーバーからログを読み取れませんでした。",
   "bot_logs_show_all": "すべて表示",
   "bot_logs_show_less": "表示を減らす",
   "bot_logs_show_more": "もっと表示",

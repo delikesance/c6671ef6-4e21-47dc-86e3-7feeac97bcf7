@@ -379,11 +379,18 @@ extension _AppHomePageUI on _AppHomePageState {
     required String botId,
     bool fillHeight = false,
   }) {
-    return BotHomeLiveConsoleCard(
+    // Le panneau LIT les logs d'un bot hébergé (`GET /gateway/bots/{id}/logs`)
+    // au lieu d'attendre un flux poussé : sans cette lecture, la console d'un bot
+    // qui tourne sur les serveurs Bot Creator restait vide.
+    return BotServerLogsScope(
       botId: botId,
-      isLive: _botLaunched,
-      fillHeight: fillHeight,
-      onOpenLogs: () => _openBotLogsPage(botId),
+      builder: (context, serverLogs) => BotHomeLiveConsoleCard(
+        botId: botId,
+        isLive: _botLaunched,
+        fillHeight: fillHeight,
+        serverLogs: serverLogs,
+        onOpenLogs: () => _openBotLogsPage(botId),
+      ),
     );
   }
 
@@ -842,7 +849,14 @@ class BotHomeDesktopOverview extends StatelessWidget {
 }
 
 /// Carte « Logs du bot » : en-tête (titre + pastille LIVE + action) et console
-/// intégrée alimentée par le même flux que la page des logs.
+/// intégrée.
+///
+/// La console affiche DEUX sources, dans cet ordre de vérité :
+///  1. les lignes LUES sur le serveur pour un bot hébergé (`serverLogs`, rempli
+///     par `BotServerLogsScope`) : c'est ce qui la remplit même quand aucun flux
+///     ne pousse rien ;
+///  2. le flux en direct, en BONUS : ses lignes s'ajoutent à la suite.
+/// Sur un bot exécuté en local, `serverLogs` reste vide : rien ne change.
 class BotHomeLiveConsoleCard extends StatelessWidget {
   const BotHomeLiveConsoleCard({
     super.key,
@@ -850,6 +864,7 @@ class BotHomeLiveConsoleCard extends StatelessWidget {
     required this.isLive,
     required this.onOpenLogs,
     this.fillHeight = false,
+    this.serverLogs = const BotServerLogsState(),
   });
 
   final String botId;
@@ -860,11 +875,41 @@ class BotHomeLiveConsoleCard extends StatelessWidget {
   /// être bornée). `false` : hauteur historique bornée 110 → 160 px.
   final bool fillHeight;
 
+  /// Ce que la LECTURE des logs du bot hébergé a rendu
+  /// (`GET /gateway/bots/{id}/logs`). Vide tant qu'aucune lecture n'a eu lieu —
+  /// et un bot exécuté en local n'en produit jamais.
+  final BotServerLogsState serverLogs;
+
   /// Nombre de lignes affichées quand la console a une hauteur bornée.
   static const int _compactLineCount = 5;
 
   /// Plafond du nombre de lignes rendues quand la console s'étire.
   static const int _maxVisibleLines = 200;
+
+  /// Sous-titre de l'état vide : il doit dire la VÉRITÉ.
+  ///
+  /// Trois cas, dans cet ordre :
+  ///  - le serveur a répondu une liste vide → il n'y a rien à afficher, on le
+  ///    dit, au lieu de laisser croire qu'un flux poussé va finir par arriver ;
+  ///  - la lecture a échoué → on le dit aussi. La cause n'est jamais relayée :
+  ///    un message d'erreur peut recracher la réponse du serveur, et un log de
+  ///    bot peut y avoir laissé un secret échappé ;
+  ///  - sinon (bot local, lecture pas encore revenue) → texte d'origine.
+  String _emptyHintText(BuildContext context, {required bool isFr}) {
+    if (serverLogs.isEmptyFromServer) {
+      return context.tr.bot_logs_server_empty;
+    }
+    if (serverLogs.readFailed) {
+      return context.tr.bot_logs_server_read_failed;
+    }
+    return isLive
+        ? (isFr
+              ? 'En attente d\'événements en direct...'
+              : 'Waiting for live events...')
+        : (isFr
+              ? 'Démarrez le bot pour afficher les logs en direct'
+              : 'Start the bot to view live logs');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -884,7 +929,13 @@ class BotHomeLiveConsoleCard extends StatelessWidget {
         stream: getBotLogsStreamForBot(botId),
         initialData: getBotLogsSnapshotForBot(botId),
         builder: (context, snapshot) {
-          final logs = snapshot.data ?? const <String>[];
+          // La lecture des logs du bot hébergé fait autorité ; le flux en direct
+          // la complète en bonus. Sans rien de poussé, les lignes lues
+          // s'affichent quand même — c'est tout le correctif.
+          final logs = mergeBotLogLines(
+            readFromServer: serverLogs.lines,
+            live: snapshot.data ?? const <String>[],
+          );
           if (logs.isEmpty) {
             if (fillHeight) {
               final isFr = Localizations.localeOf(context).languageCode == 'fr';
@@ -923,13 +974,7 @@ class BotHomeLiveConsoleCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        isLive
-                            ? (isFr
-                                  ? 'En attente d\'événements en direct...'
-                                  : 'Waiting for live events...')
-                            : (isFr
-                                  ? 'Démarrez le bot pour afficher les logs en direct'
-                                  : 'Start the bot to view live logs'),
+                        _emptyHintText(context, isFr: isFr),
                         textAlign: TextAlign.center,
                         style: GoogleFonts.inter(
                           fontSize: 11,

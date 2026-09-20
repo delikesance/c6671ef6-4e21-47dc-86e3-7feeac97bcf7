@@ -1446,6 +1446,12 @@
   "@bot_logs_rich_mode": {
     "description": "Rich formatted logs"
   },
+  "@bot_logs_server_empty": {
+    "description": "The Bot Creator servers returned no logs for this bot."
+  },
+  "@bot_logs_server_read_failed": {
+    "description": "Could not read the logs from the Bot Creator servers."
+  },
   "@bot_logs_show_all": {
     "description": "Show all"
   },
@@ -7531,6 +7537,8 @@
   "bot_logs_ram_estimated": "RAM bot estimée : {memory}",
   "bot_logs_raw_mode": "Logs bruts compacts",
   "bot_logs_rich_mode": "Logs formatés",
+  "bot_logs_server_empty": "Les serveurs Bot Creator n'ont renvoyé aucun log pour ce bot.",
+  "bot_logs_server_read_failed": "Impossible de lire les logs depuis les serveurs Bot Creator.",
   "bot_logs_show_all": "Afficher tout",
   "bot_logs_show_less": "Afficher moins",
   "bot_logs_show_more": "Afficher plus",
