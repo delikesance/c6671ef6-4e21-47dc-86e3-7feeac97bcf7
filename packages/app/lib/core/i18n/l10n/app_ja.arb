@@ -35,6 +35,16 @@
   "@settings_app_update_title": {
     "description": "Updates"
   },
+  "bot_token_import_btn": "アカウントからトークンを取り込む",
+  "bot_token_import_missing": "このボットはあなたのアカウントに存在しません。",
+  "bot_token_import_network": "サーバーに接続できません。接続を確認して再試行してください。",
+  "bot_token_import_no_account": "この端末に接続されたアカウントがありません。サインインしてトークンを取り込んでください。",
+  "bot_token_import_not_stored": "アカウントにトークンが保存されていません。ここで一度入力してください。",
+  "bot_token_import_server_cannot_read": "サーバーが保存済みのトークンを読み取れません。",
+  "bot_token_import_server_unsupported": "このサーバーはまだトークンの取り込みに対応していません。更新または再デプロイしてください。",
+  "bot_token_import_success": "アカウントからトークンを取り込みました。接続が復元されました。",
+  "container_invite_server_unsupported": "このサーバーはまだボットの招待に対応していません。更新または再デプロイしてください。",
+  "container_invite_missing": "このコンテナはサーバー上に存在しません。コンテナ一覧を再読み込みしてください。",
   "settings_app_update_title": "アップデート",
   "@settings_app_update_installed_version": {
     "placeholders": {

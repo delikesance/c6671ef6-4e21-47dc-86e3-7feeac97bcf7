@@ -14,6 +14,19 @@ enum BotInviteOutcome {
   /// redéploiement rend une identité exploitable.
   unavailable,
 
+  /// `404` de ROUTE ABSENTE (ou `501`) : ce serveur ne connaît pas encore la
+  /// route qui rend l'identité du bot — un manager plus ancien que
+  /// l'application. Rien à voir avec la connexion : il faut mettre le serveur à
+  /// jour, et « vérifiez votre connexion » enverrait l'utilisateur chercher une
+  /// panne inexistante (constaté sur dev).
+  serverUnsupported,
+
+  /// `404` AVEC code applicatif : le serveur a bel et bien répondu, il ne connaît
+  /// pas ce conteneur pour ce compte (`{"error":"not_found"}`). Sa route existe
+  /// donc — annoncer « vérifiez votre connexion » serait faux : ce qu'il faut,
+  /// c'est recharger la liste des conteneurs.
+  containerMissing,
+
   /// Le serveur n'a pas répondu (réseau coupé, 5xx) : réessayer peut suffire.
   networkError,
 
@@ -77,9 +90,7 @@ class TurnkeyBotInviteService {
       try {
         identity = await client.fetchContainerDiscordIdentity(container.id);
       } on MainApiClientException catch (error) {
-        return error.statusCode == 409
-            ? BotInviteOutcome.unavailable
-            : BotInviteOutcome.networkError;
+        return _classifyIdentityFailure(error);
       } catch (_) {
         // Panne réseau, réponse illisible : jamais de crash, un message.
         return BotInviteOutcome.networkError;
@@ -99,6 +110,27 @@ class TurnkeyBotInviteService {
     } finally {
       _inviting = false;
     }
+  }
+
+  /// Traduit l'échec du serveur en issue visible.
+  ///
+  /// Le point qui coûte le plus cher à confondre : un `404` de ROUTE ABSENTE
+  /// (manager plus ancien que l'application) n'est pas un problème de connexion.
+  /// Quand la route n'existe pas, le routeur du manager rend sa page « 404 page
+  /// not found » — le corps n'est pas du JSON, donc le client ne dispose que du
+  /// libellé HTTP (« Not Found ») et aucun code applicatif n'arrive jusqu'ici.
+  /// Un `409` reste, lui, la réponse MÉTIER du serveur : il connaît ce bot et ne
+  /// sait pas l'identifier.
+  BotInviteOutcome _classifyIdentityFailure(MainApiClientException error) {
+    final status = error.statusCode;
+    if (status == 409) return BotInviteOutcome.unavailable;
+    if (status == 501) return BotInviteOutcome.serverUnsupported;
+    if (status == 404) {
+      return _carriesApplicationCode(error.message)
+          ? BotInviteOutcome.containerMissing
+          : BotInviteOutcome.serverUnsupported;
+    }
+    return BotInviteOutcome.networkError;
   }
 
   /// Ouvre [uri] et journalise l'invitation, comme le fait le chemin des bots
@@ -123,6 +155,16 @@ class TurnkeyBotInviteService {
   }
 }
 
+/// Vrai quand le message d'erreur portait un CODE APPLICATIF (`snake_case`,
+/// tel `container_not_found`), c'est-à-dire une réponse MÉTIER du serveur.
+///
+/// Faux pour un libellé HTTP nu (« Not Found », « Unknown error ») : c'est le
+/// signe que le corps n'était pas du JSON, donc que la route n'existe pas sur ce
+/// serveur. C'est cette distinction, et elle seule, qui décide entre « mets ton
+/// serveur à jour » et « vérifie ta connexion ».
+bool _carriesApplicationCode(String message) =>
+    RegExp(r'^[a-z][a-z0-9_]*$').hasMatch(message.trim());
+
 /// Message à montrer pour [outcome], ou chaîne vide quand il n'y a rien à dire
 /// (invitation ouverte, ou tap ignoré pendant une invitation en cours).
 ///
@@ -132,6 +174,10 @@ String botInviteOutcomeMessage(BotInviteOutcome outcome, AppLocalizations tr) {
   switch (outcome) {
     case BotInviteOutcome.unavailable:
       return tr.container_invite_unavailable;
+    case BotInviteOutcome.serverUnsupported:
+      return tr.container_invite_server_unsupported;
+    case BotInviteOutcome.containerMissing:
+      return tr.container_invite_missing;
     case BotInviteOutcome.networkError:
       return tr.container_invite_failed;
     case BotInviteOutcome.openFailed:

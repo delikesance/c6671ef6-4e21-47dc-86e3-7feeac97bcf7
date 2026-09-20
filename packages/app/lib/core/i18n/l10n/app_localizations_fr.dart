@@ -31,6 +31,44 @@ class AppLocalizationsFr extends AppLocalizations {
       'Téléchargement en arrière-plan — vous pouvez continuer à utiliser l\'application.';
 
   @override
+  String get bot_token_import_btn => 'Importer le jeton depuis mon compte';
+
+  @override
+  String get bot_token_import_missing => 'Ce bot n\'existe pas sur ton compte.';
+
+  @override
+  String get bot_token_import_network =>
+      'Serveur injoignable : vérifie ta connexion puis réessaie.';
+
+  @override
+  String get bot_token_import_no_account =>
+      'Aucun compte n\'est connecté sur cet appareil : connecte-toi pour importer le jeton.';
+
+  @override
+  String get bot_token_import_not_stored =>
+      'Aucun jeton n\'est enregistré côté compte : saisis-le une fois ici.';
+
+  @override
+  String get bot_token_import_server_cannot_read =>
+      'Le serveur n\'arrive pas à relire le jeton enregistré.';
+
+  @override
+  String get bot_token_import_server_unsupported =>
+      'Ce serveur ne propose pas encore l\'import du jeton — mets-le à jour ou redéploie-le.';
+
+  @override
+  String get bot_token_import_success =>
+      'Jeton importé depuis ton compte : la connexion est rétablie.';
+
+  @override
+  String get container_invite_server_unsupported =>
+      'Ce serveur ne propose pas encore l\'invitation du bot — mets-le à jour ou redéploie-le.';
+
+  @override
+  String get container_invite_missing =>
+      'Ce conteneur n\'existe plus côté serveur : recharge la liste des conteneurs.';
+
+  @override
   String get settings_app_update_title => 'Mises à jour';
 
   @override

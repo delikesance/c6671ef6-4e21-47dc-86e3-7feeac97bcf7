@@ -136,4 +136,67 @@ void main() {
       arbFrText('container_invite_open_failed'),
     );
   });
+
+  test(
+    '404 sans code applicatif (manager plus ancien) : serveur non à jour, pas une panne réseau',
+    () async {
+      final manager = FakeMainApiManager(
+        baseUrl: 'https://manager-old-route.test',
+        statusCode: 404,
+        // Le routeur d'un manager qui ne connaît pas la route rend sa page
+        // « 404 page not found » : aucun code applicatif dans le corps.
+        body: const <String, dynamic>{},
+      );
+      final opened = <Uri>[];
+
+      final outcome = await TurnkeyBotInviteService(
+        client: manager.client(),
+        openUrl: recordingOpener(opened),
+      ).invite(turnkeyContainer(id: _containerId));
+
+      expect(outcome, BotInviteOutcome.serverUnsupported);
+      expect(opened, isEmpty);
+      expect(
+        botInviteOutcomeMessage(outcome, tr),
+        arbFrText('container_invite_server_unsupported'),
+      );
+      expect(
+        botInviteOutcomeMessage(outcome, tr),
+        isNot(arbFrText('container_invite_failed')),
+        reason: 'le serveur est plus ancien : ce n\'est pas une panne de connexion',
+      );
+    },
+  );
+
+  test(
+    '404 avec code applicatif (conteneur inconnu) : le serveur a répondu, message dédié',
+    () async {
+      final manager = FakeMainApiManager(
+        baseUrl: 'https://manager-container-gone.test',
+        statusCode: 404,
+        // Réponse MÉTIER réelle du manager pour un conteneur qui n'est pas au
+        // porteur : `writeError(..., 404, "not_found", ...)`. La route existe donc :
+        // « vérifiez votre connexion » enverrait chercher une panne inexistante.
+        body: <String, dynamic>{'error': 'not_found'},
+      );
+      final opened = <Uri>[];
+
+      final outcome = await TurnkeyBotInviteService(
+        client: manager.client(),
+        openUrl: recordingOpener(opened),
+      ).invite(turnkeyContainer(id: _containerId));
+
+      expect(outcome, BotInviteOutcome.containerMissing);
+      expect(opened, isEmpty);
+      expect(
+        botInviteOutcomeMessage(outcome, tr),
+        arbFrText('container_invite_missing'),
+      );
+      expect(
+        botInviteOutcomeMessage(outcome, tr),
+        isNot(arbFrText('container_invite_failed')),
+        reason: 'un 404 codé n\'est pas une panne réseau',
+      );
+    },
+  );
 }

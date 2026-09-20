@@ -29,6 +29,41 @@ class AppLocalizationsJa extends AppLocalizations {
   String get app_update_download_started => 'バックグラウンドでダウンロード中です。アプリはそのまま使えます。';
 
   @override
+  String get bot_token_import_btn => 'アカウントからトークンを取り込む';
+
+  @override
+  String get bot_token_import_missing => 'このボットはあなたのアカウントに存在しません。';
+
+  @override
+  String get bot_token_import_network => 'サーバーに接続できません。接続を確認して再試行してください。';
+
+  @override
+  String get bot_token_import_no_account =>
+      'この端末に接続されたアカウントがありません。サインインしてトークンを取り込んでください。';
+
+  @override
+  String get bot_token_import_not_stored =>
+      'アカウントにトークンが保存されていません。ここで一度入力してください。';
+
+  @override
+  String get bot_token_import_server_cannot_read => 'サーバーが保存済みのトークンを読み取れません。';
+
+  @override
+  String get bot_token_import_server_unsupported =>
+      'このサーバーはまだトークンの取り込みに対応していません。更新または再デプロイしてください。';
+
+  @override
+  String get bot_token_import_success => 'アカウントからトークンを取り込みました。接続が復元されました。';
+
+  @override
+  String get container_invite_server_unsupported =>
+      'このサーバーはまだボットの招待に対応していません。更新または再デプロイしてください。';
+
+  @override
+  String get container_invite_missing =>
+      'このコンテナはサーバー上に存在しません。コンテナ一覧を再読み込みしてください。';
+
+  @override
   String get settings_app_update_title => 'アップデート';
 
   @override

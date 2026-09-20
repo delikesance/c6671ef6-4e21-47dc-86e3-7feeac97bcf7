@@ -31,6 +31,44 @@ class AppLocalizationsPt extends AppLocalizations {
       'Download em segundo plano — você pode continuar usando o aplicativo.';
 
   @override
+  String get bot_token_import_btn => 'Importar o token da minha conta';
+
+  @override
+  String get bot_token_import_missing => 'Este bot não existe na sua conta.';
+
+  @override
+  String get bot_token_import_network =>
+      'Servidor inacessível: verifique a sua ligação e tente novamente.';
+
+  @override
+  String get bot_token_import_no_account =>
+      'Nenhuma conta está ligada neste dispositivo: inicie sessão para importar o token.';
+
+  @override
+  String get bot_token_import_not_stored =>
+      'Nenhum token está guardado na sua conta: introduza-o uma vez aqui.';
+
+  @override
+  String get bot_token_import_server_cannot_read =>
+      'O servidor não consegue reler o token guardado.';
+
+  @override
+  String get bot_token_import_server_unsupported =>
+      'Este servidor ainda não disponibiliza a importação do token — atualize ou reimplante-o.';
+
+  @override
+  String get bot_token_import_success =>
+      'Token importado da sua conta: a ligação foi restabelecida.';
+
+  @override
+  String get container_invite_server_unsupported =>
+      'Este servidor ainda não disponibiliza o convite do bot — atualize ou reimplante-o.';
+
+  @override
+  String get container_invite_missing =>
+      'Este contentor já não existe no servidor — recarrega a lista de contentores.';
+
+  @override
   String get settings_app_update_title => 'Atualizações';
 
   @override

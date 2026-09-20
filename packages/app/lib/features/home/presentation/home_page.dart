@@ -29,11 +29,13 @@ import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_config_import.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_config_merge.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_token_auto_recovery.dart';
 import 'package:bot_creator/features/bot_editor/logic/js_bot_payload_builder.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/app_editor_page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/bot_logs.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/bot_config_pull_dialog.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/bot_token_import_button.dart';
 import 'package:bot_creator/features/bot_management/presentation/create_page.dart';
 import 'package:bot_creator/features/containers/logic/turnkey_bot_invite.dart';
 import 'package:bot_creator/features/containers/presentation/container_detail_page.dart';
@@ -1330,6 +1332,41 @@ class HomePageState extends State<HomePage>
       appendBotDebugLog(
         '[syncAllBotsFromManager] Total merged bot payloads=${bots.length}.',
       );
+
+      // ── Reprise automatique du jeton des bots de ce poste ──────────────────
+      // Un poste qui n'a jamais saisi le jeton d'un bot du compte ne peut pas
+      // l'exécuter localement, et un rafraîchissement n'y change rien : le
+      // manager RÉDIGE `bot_token` dans ses listes, donc la synchro n'apporte
+      // jamais le jeton. On le redemande au compte, une fois par bot et par
+      // lancement d'application (voir `recoverMissingBotTokens` : aucune rafale,
+      // aucun nouvel essai après un 409/500, rien hors ligne).
+      // Placé AVANT la phase 3 pour que le jeton repris serve aussitôt au profil
+      // Discord et au comptage de serveurs du même passage.
+      try {
+        final localTokensById = <String, String>{};
+        for (final rawApp in apps) {
+          if (rawApp is! Map) continue;
+          final localBotId = (rawApp['id'] ?? '').toString().trim();
+          if (localBotId.isEmpty) continue;
+          localTokensById[localBotId] =
+              (rawApp['token'] ?? '').toString().trim();
+        }
+        final importOutcomes = await recoverMissingBotTokens(
+          client: remoteClient,
+          accountBots: bots,
+          localTokenOf: (botId) => localTokensById[botId] ?? '',
+        );
+        if (importOutcomes.isNotEmpty) {
+          appendBotDebugLog(
+            '[syncAllBotsFromManager] Bot token recovery outcomes=${importOutcomes.map((outcome) => outcome.name).join(',')}.',
+          );
+        }
+      } catch (error) {
+        appendBotDebugLog(
+          '[syncAllBotsFromManager] Bot token recovery skipped: $error',
+        );
+      }
+
       // Phase 3: sync each bot (network calls in parallel, filesystem sequential)
       appendBotDebugLog(
         '[syncAllBotsFromManager] Syncing ${bots.length} bots - network phase in parallel.',
@@ -2834,6 +2871,10 @@ class HomePageState extends State<HomePage>
         app['type'] == 'turnkey' ||
         (app['container_id']?.toString().isNotEmpty ?? false);
     final containerId = app['container_id']?.toString();
+    // Un bot sans jeton local est inexploitable (le manager rédige le sien dans
+    // ses listes) : c'est aussi le seul cas où l'import depuis le compte a
+    // quelque chose à faire.
+    final hasLocalToken = (app['token'] ?? '').toString().trim().isNotEmpty;
 
     return HomeBotCard(
       key: ValueKey<String>(id),
@@ -2882,6 +2923,13 @@ class HomePageState extends State<HomePage>
               MaterialPageRoute(builder: (_) => BotLogsPage(botId: id)),
             )
           : null,
+      hasLocalToken: hasLocalToken,
+      onTokenImported: () async {
+        // Le jeton est écrit en local : les états de la carte (jeton présent,
+        // exécution possible) se rechargent, comme après un « gérer ».
+        if (!mounted) return;
+        await _initRunningState();
+      },
     );
   }
 
@@ -3030,6 +3078,8 @@ class HomeBotCard extends StatefulWidget {
     required this.freeMinutes,
     this.runtimeBadgeLabel,
     this.isTurnkey = false,
+    this.hasLocalToken = true,
+    this.onTokenImported,
   });
 
   final String name;
@@ -3049,6 +3099,14 @@ class HomeBotCard extends StatefulWidget {
   final VoidCallback onToggle;
   final VoidCallback? onAddTime;
   final VoidCallback? onLogs;
+
+  /// Faux quand ce poste n'a AUCUN jeton utilisable pour ce bot : c'est la
+  /// seule situation où « Importer le jeton depuis mon compte » a quelque
+  /// chose à faire, donc la seule où le bouton est offert.
+  final bool hasLocalToken;
+
+  /// Relais après un import RÉUSSI depuis la carte (l'accueil se recharge).
+  final Future<void> Function()? onTokenImported;
 
   @override
   State<HomeBotCard> createState() => HomeBotCardState();
@@ -3188,6 +3246,16 @@ class HomeBotCardState extends State<HomeBotCard> {
               label: context.tr.home_logs_tooltip,
               onTap: widget.onLogs,
             ),
+          ),
+        ],
+        // Menu de la carte : l'import du jeton n'est offert que quand ce poste
+        // n'en a aucun (sinon la question ne se pose pas), et le même widget
+        // porte l'état verrouillé et les messages que sur l'écran Bot Token.
+        if (!widget.hasLocalToken) ...[
+          const SizedBox(height: 10),
+          BotTokenImportButton(
+            botId: widget.id,
+            onImported: widget.onTokenImported,
           ),
         ],
       ],
