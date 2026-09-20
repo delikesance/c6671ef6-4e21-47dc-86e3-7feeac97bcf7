@@ -5,6 +5,7 @@ import 'package:bot_creator/core/network/gateway_bot_events.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/network/poll_cadence.dart';
+import 'package:bot_creator/core/platform/run_platform.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/containers/logic/hosted_app_hosting_actions.dart';
@@ -508,7 +509,12 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
                 HostedAppFreeHostingBanner(
                   eligibility: _eligibility!,
                   claimingAd: _claimingAd,
-                  onWatchAd: (state == 'RUNNING' || state == 'PROVISIONING')
+                  // Desktop : aucune publicité n'y est diffusée. Le temps
+                  // d'hébergement vient du SOLDE SERVEUR (bouton « appliquer les
+                  // minutes stockées » ci-dessous), jamais d'une vidéo.
+                  onWatchAd: isDesktopRunPlatform
+                      ? null
+                      : (state == 'RUNNING' || state == 'PROVISIONING')
                       ? _watchAdAndTopUp
                       : null,
                   showTopUpHint: state == 'RUNNING' || state == 'PROVISIONING',

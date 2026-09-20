@@ -12,6 +12,7 @@ import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/network/remote_runtime.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
+import 'package:bot_creator/core/platform/run_platform.dart';
 import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/utils/duration_formatter.dart';
@@ -254,9 +255,19 @@ class HomePageState extends State<HomePage>
   static Future<void> Function()? debugPerBotRefreshOverride;
 
   bool get _supportsForegroundTask => Platform.isAndroid || Platform.isIOS;
-  bool get _isDesktop =>
-      Platform.isWindows || Platform.isLinux || Platform.isMacOS;
-  bool get _supportsManagerRuntime => !kIsWeb && !_isDesktop;
+
+  /// Poste de travail, lu à travers le seam [isDesktopRunPlatform] (surchargeable en
+  /// test) et non plus avec `Platform.*` en dur : sans ce seam, aucun scénario
+  /// « desktop » n'était vérifiable, la plateforme de test ne changeant pas.
+  bool get _isDesktop => isDesktopRunPlatform;
+
+  /// Capacité de parler au manager, et RIEN de plus : la plateforme n'est plus un
+  /// verrou d'ACCÈS AUX DONNÉES du compte (solde, bots du compte, conteneurs clé en
+  /// main, snapshot). Ce qui décide du PILOTAGE à distance, c'est l'association par
+  /// bot (`RunnerSettings.getAssociatedRunnerId(botId) == 'manager'`), résolue dans
+  /// `resolveRemoteRuntime` — un bot non associé sur un poste de travail continue de
+  /// tourner en local via le runner embarqué.
+  bool get _supportsManagerRuntime => !kIsWeb;
 
   // ── Lifecycle ──────────────────────────────────────────────────────────────
 
@@ -645,7 +656,10 @@ class HomePageState extends State<HomePage>
             '[_initRunningState] Foreground plugin unavailable on this platform.',
           );
         }
-      } else {
+      } else if (_isDesktop) {
+        // Repli local : seuls les bots lancés par le runner EMBARQUÉ du poste de
+        // travail (registre `desktopRunningBotIds`) sont réputés actifs. Ailleurs ce
+        // registre est vide — d'où le test de plateforme plutôt qu'un `else` fourre-tout.
         runningIds.addAll(desktopRunningBotIds);
         appendBotDebugLog(
           '[_initRunningState] Using desktop running ids fallback: ${desktopRunningBotIds.join(',')}.',
@@ -1632,6 +1646,10 @@ class HomePageState extends State<HomePage>
     Duration getTimeout = const Duration(seconds: 30),
     Duration postTimeout = const Duration(seconds: 90),
   }) async {
+    // Seul point où la plateforme pèse encore sur l'EXÉCUTION — et seulement en creux :
+    // le web n'a pas d'accès direct au manager. Partout ailleurs (poste de travail,
+    // mobile) `resolveRemoteRuntime` tranche par bot : association « manager » → pilotage
+    // à distance, sinon runner/local (le runner embarqué reste le défaut sur desktop).
     return resolveRemoteRuntime(
       supportsManagerRuntime: _supportsManagerRuntime,
       botId: botId,
@@ -1668,9 +1686,9 @@ class HomePageState extends State<HomePage>
     String? botToken,
     bool attemptSessionRestore = true,
   }) async {
-    if (!_supportsManagerRuntime) {
-      return null;
-    }
+    // Aucun verrou de plateforme : c'est une DONNÉE du compte. Le refus légitime —
+    // manager non configuré ou session absente/expirée — est décidé plus bas par
+    // `MainApiOwnerSyncHelper`. Un poste de travail connecté doit voir ses bots.
     return _ownerSyncHelper.resolveMainApiClientForBot(
       botId: botId,
       botToken: botToken,
@@ -1681,9 +1699,8 @@ class HomePageState extends State<HomePage>
   Future<MainApiClient?> _resolveGlobalMainApiClient({
     bool attemptRestore = true,
   }) async {
-    if (!_supportsManagerRuntime) {
-      return null;
-    }
+    // Idem : plus de refus lié au poste de travail. Le compte, les bots du compte et
+    // les conteneurs clé en main sont des données du manager, pas une capacité d'OS.
     appendBotDebugLog(
       '[_resolveGlobalMainApiClient] Resolving global client (attemptRestore=$attemptRestore).',
     );
