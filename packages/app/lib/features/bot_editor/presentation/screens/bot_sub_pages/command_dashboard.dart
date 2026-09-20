@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 import 'package:bot_creator/core/storage/database.dart';
 
 import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
+import 'package:bot_creator/features/subscriptions/logic/premium_feature_gate.dart';
 import 'package:bot_creator/core/network/remote_runtime.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
@@ -472,8 +473,11 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
       );
     } else {
       final periodTotal = _commands.fold<int>(0, (sum, c) => sum + c.count);
-      final hasExpandedAnalytics = PremiumCapabilities.hasCapability(
+      // Les statistiques étendues se calculent ICI : débloquées sur un poste de
+      // travail quand le bot tourne sur cet appareil (le serveur n'est pas sollicité).
+      final hasExpandedAnalytics = premiumCapabilityAvailableForBot(
         PremiumCapability.analyticsExpanded,
+        botId: widget.botId,
       );
 
       body = Center(

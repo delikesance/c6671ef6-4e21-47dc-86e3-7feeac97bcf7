@@ -9,6 +9,7 @@ import 'package:bot_creator/core/secure/secure_storage_service.dart';
 import 'package:bot_creator/core/storage/sqlite_variable_store.dart';
 import 'package:bot_creator/core/storage/app_storage_directory.dart';
 import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
+import 'package:bot_creator/features/subscriptions/logic/premium_feature_gate.dart';
 import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/utils/string_sanitizer.dart';
 import 'package:bot_creator/features/bot_editor/logic/normalize_command_data.dart'
@@ -2084,9 +2085,18 @@ class AppManager implements BotDataStore {
       (entry) => (entry['id'] ?? '').toString() == normalizedId,
     );
 
-    final limit = PremiumCapabilities.limitFor(
+    // Le plafond suit la MÊME règle que l'accès (voir `premium_feature_gate`) : quand le
+    // bot tourne sur cet appareil, les déclencheurs ne coûtent rien au serveur, donc le
+    // plafond de la formule payante s'applique sans abonnement. Débloquer l'écran sans
+    // relever le plafond laisserait un bouton « Ajouter » qui refuse toute création.
+    final limit = premiumCapabilityAvailableForBot(
       PremiumCapability.schedulerTriggers,
-    );
+      botId: id,
+    )
+        ? PremiumCapabilities.premiumLimitFor(
+            PremiumCapability.schedulerTriggers,
+          )
+        : PremiumCapabilities.limitFor(PremiumCapability.schedulerTriggers);
     final wouldCreate = index < 0;
     if (wouldCreate && triggers.length >= limit) {
       throw StateError('scheduler_trigger_limit_reached:$limit');

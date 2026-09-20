@@ -1627,6 +1627,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
           child: LavalinkSettingsSection(
             initialConfig: _lavalinkConfigRaw,
             onSave: _saveLavalinkConfig,
+            // Le bot édité : la section en a besoin pour savoir s'il s'exécute ici
+            // (musique débloquée) ou sur Bot Creator Server (formule exigée).
+            botId: widget.client.user.id.toString(),
           ),
         ),
       ),
