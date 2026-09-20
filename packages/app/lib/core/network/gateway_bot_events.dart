@@ -591,6 +591,13 @@ class GatewayBotEventsManager {
   static final Map<String, GatewayBotEventsSession> _sessions =
       <String, GatewayBotEventsSession>{};
 
+  /// Faux canal WebSocket imposé aux sessions obtenues en test.
+  ///
+  /// Sans cette couture, prouver la liaison au canal temps réel demanderait d'ouvrir
+  /// une VRAIE socket : le test deviendrait dépendant du réseau, donc non déterministe.
+  @visibleForTesting
+  static GatewayBotEventsConnector? debugConnectorOverride;
+
   static GatewayBotEventsSession obtain({
     required String baseUrl,
     required Map<String, String> headers,
@@ -608,7 +615,7 @@ class GatewayBotEventsManager {
     final session = GatewayBotEventsSession(
       wsUrl: Uri.parse('$wsBase/gateway/bots/events'),
       headers: headers,
-      connector: connector,
+      connector: connector ?? debugConnectorOverride,
     );
     _sessions[key] = session;
     session.start();
