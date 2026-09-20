@@ -9,6 +9,62 @@ class AppLocalizationsPt extends AppLocalizations {
   AppLocalizationsPt([String locale = 'pt']) : super(locale);
 
   @override
+  String get app_update_dialog_title => 'Nova versão disponível';
+
+  @override
+  String app_update_dialog_message(String version, String installed) {
+    return 'A versão $version está disponível na loja (você usa a $installed). Atualize para receber as últimas correções.';
+  }
+
+  @override
+  String get app_update_later => 'Mais tarde';
+
+  @override
+  String get app_update_update_now => 'Atualizar';
+
+  @override
+  String get app_update_store_open_failed =>
+      'Não foi possível abrir a página da loja.';
+
+  @override
+  String get app_update_download_started =>
+      'Download em segundo plano — você pode continuar usando o aplicativo.';
+
+  @override
+  String get settings_app_update_title => 'Atualizações';
+
+  @override
+  String settings_app_update_installed_version(String version, String build) {
+    return '$version (build $build)';
+  }
+
+  @override
+  String get settings_app_update_check_button => 'Verificar atualizações';
+
+  @override
+  String get settings_app_update_checking => 'Verificando…';
+
+  @override
+  String get settings_app_update_up_to_date =>
+      'Você está na versão mais recente.';
+
+  @override
+  String settings_app_update_available(String version) {
+    return 'A versão $version está disponível na loja.';
+  }
+
+  @override
+  String get settings_app_update_unavailable =>
+      'Não foi possível verificar atualizações agora.';
+
+  @override
+  String get settings_app_update_unsupported =>
+      'As atualizações só podem ser verificadas no aplicativo Android ou iOS.';
+
+  @override
+  String get settings_app_update_open_store => 'Abrir página da loja';
+
+  @override
   String get action_add_else_if => 'Adicionar ELSE IF';
 
   @override

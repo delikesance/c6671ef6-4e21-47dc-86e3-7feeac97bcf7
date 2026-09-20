@@ -9,6 +9,60 @@ class AppLocalizationsTr extends AppLocalizations {
   AppLocalizationsTr([String locale = 'tr']) : super(locale);
 
   @override
+  String get app_update_dialog_title => 'Yeni sürüm mevcut';
+
+  @override
+  String app_update_dialog_message(String version, String installed) {
+    return 'Mağazada $version sürümü yayında (sizde $installed). En son düzeltmeler için güncelleyin.';
+  }
+
+  @override
+  String get app_update_later => 'Daha sonra';
+
+  @override
+  String get app_update_update_now => 'Güncelle';
+
+  @override
+  String get app_update_store_open_failed => 'Mağaza sayfası açılamadı.';
+
+  @override
+  String get app_update_download_started =>
+      'Arka planda indiriliyor — uygulamayı kullanmaya devam edebilirsiniz.';
+
+  @override
+  String get settings_app_update_title => 'Güncellemeler';
+
+  @override
+  String settings_app_update_installed_version(String version, String build) {
+    return '$version (derleme $build)';
+  }
+
+  @override
+  String get settings_app_update_check_button => 'Güncellemeleri denetle';
+
+  @override
+  String get settings_app_update_checking => 'Denetleniyor…';
+
+  @override
+  String get settings_app_update_up_to_date => 'En son sürümü kullanıyorsunuz.';
+
+  @override
+  String settings_app_update_available(String version) {
+    return 'Mağazada $version sürümü mevcut.';
+  }
+
+  @override
+  String get settings_app_update_unavailable =>
+      'Güncellemeler şu anda denetlenemiyor.';
+
+  @override
+  String get settings_app_update_unsupported =>
+      'Güncellemeler yalnızca Android veya iOS uygulamasında denetlenebilir.';
+
+  @override
+  String get settings_app_update_open_store => 'Mağaza sayfasını aç';
+
+  @override
   String get action_add_else_if => 'ELSE IF Ekle';
 
   @override

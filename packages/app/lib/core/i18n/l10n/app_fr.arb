@@ -1,5 +1,86 @@
 {
   "@@locale": "fr",
+  "@app_update_dialog_title": {
+    "description": "New version available"
+  },
+  "app_update_dialog_title": "Nouvelle version disponible",
+  "@app_update_dialog_message": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "installed": {
+        "type": "String"
+      }
+    },
+    "description": "Version {version} is available on the store (you have {installed}). Update to get the latest fixes."
+  },
+  "app_update_dialog_message": "La version {version} est disponible sur le store (vous utilisez la {installed}). Mettez à jour pour recevoir les derniers correctifs.",
+  "@app_update_later": {
+    "description": "Later"
+  },
+  "app_update_later": "Plus tard",
+  "@app_update_update_now": {
+    "description": "Update"
+  },
+  "app_update_update_now": "Mettre à jour",
+  "@app_update_store_open_failed": {
+    "description": "The store page could not be opened."
+  },
+  "app_update_store_open_failed": "Impossible d'ouvrir la fiche du store.",
+  "@app_update_download_started": {
+    "description": "Downloading in the background — you can keep using the app."
+  },
+  "app_update_download_started": "Téléchargement en arrière-plan — vous pouvez continuer à utiliser l'application.",
+  "@settings_app_update_title": {
+    "description": "Updates"
+  },
+  "settings_app_update_title": "Mises à jour",
+  "@settings_app_update_installed_version": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "build": {
+        "type": "String"
+      }
+    },
+    "description": "{version} (build {build})"
+  },
+  "settings_app_update_installed_version": "{version} (build {build})",
+  "@settings_app_update_check_button": {
+    "description": "Check for updates"
+  },
+  "settings_app_update_check_button": "Vérifier les mises à jour",
+  "@settings_app_update_checking": {
+    "description": "Checking…"
+  },
+  "settings_app_update_checking": "Vérification…",
+  "@settings_app_update_up_to_date": {
+    "description": "You are running the latest version."
+  },
+  "settings_app_update_up_to_date": "Vous utilisez la dernière version.",
+  "@settings_app_update_available": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    },
+    "description": "Version {version} is available on the store."
+  },
+  "settings_app_update_available": "La version {version} est disponible sur le store.",
+  "@settings_app_update_unavailable": {
+    "description": "Could not check for updates right now."
+  },
+  "settings_app_update_unavailable": "Vérification impossible pour le moment.",
+  "@settings_app_update_unsupported": {
+    "description": "Updates can only be checked in the Android or iOS app."
+  },
+  "settings_app_update_unsupported": "La vérification des mises à jour n'est disponible que sur l'application Android ou iOS.",
+  "@settings_app_update_open_store": {
+    "description": "Open store page"
+  },
+  "settings_app_update_open_store": "Ouvrir la fiche du store",
   "@action_add_else_if": {
     "description": "Add ELSE IF"
   },

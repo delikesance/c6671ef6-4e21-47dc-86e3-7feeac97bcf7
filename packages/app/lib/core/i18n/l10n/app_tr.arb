@@ -1,5 +1,86 @@
 {
   "@@locale": "tr",
+  "@app_update_dialog_title": {
+    "description": "New version available"
+  },
+  "app_update_dialog_title": "Yeni sürüm mevcut",
+  "@app_update_dialog_message": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "installed": {
+        "type": "String"
+      }
+    },
+    "description": "Version {version} is available on the store (you have {installed}). Update to get the latest fixes."
+  },
+  "app_update_dialog_message": "Mağazada {version} sürümü yayında (sizde {installed}). En son düzeltmeler için güncelleyin.",
+  "@app_update_later": {
+    "description": "Later"
+  },
+  "app_update_later": "Daha sonra",
+  "@app_update_update_now": {
+    "description": "Update"
+  },
+  "app_update_update_now": "Güncelle",
+  "@app_update_store_open_failed": {
+    "description": "The store page could not be opened."
+  },
+  "app_update_store_open_failed": "Mağaza sayfası açılamadı.",
+  "@app_update_download_started": {
+    "description": "Downloading in the background — you can keep using the app."
+  },
+  "app_update_download_started": "Arka planda indiriliyor — uygulamayı kullanmaya devam edebilirsiniz.",
+  "@settings_app_update_title": {
+    "description": "Updates"
+  },
+  "settings_app_update_title": "Güncellemeler",
+  "@settings_app_update_installed_version": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "build": {
+        "type": "String"
+      }
+    },
+    "description": "{version} (build {build})"
+  },
+  "settings_app_update_installed_version": "{version} (derleme {build})",
+  "@settings_app_update_check_button": {
+    "description": "Check for updates"
+  },
+  "settings_app_update_check_button": "Güncellemeleri denetle",
+  "@settings_app_update_checking": {
+    "description": "Checking…"
+  },
+  "settings_app_update_checking": "Denetleniyor…",
+  "@settings_app_update_up_to_date": {
+    "description": "You are running the latest version."
+  },
+  "settings_app_update_up_to_date": "En son sürümü kullanıyorsunuz.",
+  "@settings_app_update_available": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    },
+    "description": "Version {version} is available on the store."
+  },
+  "settings_app_update_available": "Mağazada {version} sürümü mevcut.",
+  "@settings_app_update_unavailable": {
+    "description": "Could not check for updates right now."
+  },
+  "settings_app_update_unavailable": "Güncellemeler şu anda denetlenemiyor.",
+  "@settings_app_update_unsupported": {
+    "description": "Updates can only be checked in the Android or iOS app."
+  },
+  "settings_app_update_unsupported": "Güncellemeler yalnızca Android veya iOS uygulamasında denetlenebilir.",
+  "@settings_app_update_open_store": {
+    "description": "Open store page"
+  },
+  "settings_app_update_open_store": "Mağaza sayfasını aç",
   "@action_add_else_if": {
     "description": "Add ELSE IF"
   },

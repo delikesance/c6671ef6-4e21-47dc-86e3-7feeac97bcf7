@@ -106,6 +106,96 @@ abstract class AppLocalizations {
     Locale('tr'),
   ];
 
+  /// New version available
+  ///
+  /// In en, this message translates to:
+  /// **'New version available'**
+  String get app_update_dialog_title;
+
+  /// Version {version} is available on the store (you have {installed}). Update to get the latest fixes.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version} is available on the store (you have {installed}). Update to get the latest fixes.'**
+  String app_update_dialog_message(String version, String installed);
+
+  /// Later
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get app_update_later;
+
+  /// Update
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get app_update_update_now;
+
+  /// The store page could not be opened.
+  ///
+  /// In en, this message translates to:
+  /// **'The store page could not be opened.'**
+  String get app_update_store_open_failed;
+
+  /// Downloading in the background — you can keep using the app.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading in the background — you can keep using the app.'**
+  String get app_update_download_started;
+
+  /// Updates
+  ///
+  /// In en, this message translates to:
+  /// **'Updates'**
+  String get settings_app_update_title;
+
+  /// {version} (build {build})
+  ///
+  /// In en, this message translates to:
+  /// **'{version} (build {build})'**
+  String settings_app_update_installed_version(String version, String build);
+
+  /// Check for updates
+  ///
+  /// In en, this message translates to:
+  /// **'Check for updates'**
+  String get settings_app_update_check_button;
+
+  /// Checking…
+  ///
+  /// In en, this message translates to:
+  /// **'Checking…'**
+  String get settings_app_update_checking;
+
+  /// You are running the latest version.
+  ///
+  /// In en, this message translates to:
+  /// **'You are running the latest version.'**
+  String get settings_app_update_up_to_date;
+
+  /// Version {version} is available on the store.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version} is available on the store.'**
+  String settings_app_update_available(String version);
+
+  /// Could not check for updates right now.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not check for updates right now.'**
+  String get settings_app_update_unavailable;
+
+  /// Updates can only be checked in the Android or iOS app.
+  ///
+  /// In en, this message translates to:
+  /// **'Updates can only be checked in the Android or iOS app.'**
+  String get settings_app_update_unsupported;
+
+  /// Open store page
+  ///
+  /// In en, this message translates to:
+  /// **'Open store page'**
+  String get settings_app_update_open_store;
+
   /// Add ELSE IF
   ///
   /// In en, this message translates to:
