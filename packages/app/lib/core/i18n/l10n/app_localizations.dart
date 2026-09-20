@@ -3251,6 +3251,18 @@ abstract class AppLocalizations {
   /// **'Rich formatted logs'**
   String get bot_logs_rich_mode;
 
+  /// The Bot Creator servers returned no logs for this bot.
+  ///
+  /// In en, this message translates to:
+  /// **'The Bot Creator servers returned no logs for this bot.'**
+  String get bot_logs_server_empty;
+
+  /// Could not read the logs from the Bot Creator servers.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not read the logs from the Bot Creator servers.'**
+  String get bot_logs_server_read_failed;
+
   /// Show all
   ///
   /// In en, this message translates to:

@@ -1848,6 +1848,14 @@ class AppLocalizationsDe extends AppLocalizations {
   String get bot_logs_rich_mode => 'Reichhaltig formatierte Protokolle';
 
   @override
+  String get bot_logs_server_empty =>
+      'Die Bot-Creator-Server haben für diesen Bot keine Logs zurückgegeben.';
+
+  @override
+  String get bot_logs_server_read_failed =>
+      'Logs konnten nicht von den Bot-Creator-Servern gelesen werden.';
+
+  @override
   String get bot_logs_show_all => 'Alle anzeigen';
 
   @override

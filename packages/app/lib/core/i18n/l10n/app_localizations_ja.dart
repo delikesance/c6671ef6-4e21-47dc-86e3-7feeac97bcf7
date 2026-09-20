@@ -1708,6 +1708,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get bot_logs_rich_mode => 'リッチフォーマットログ';
 
   @override
+  String get bot_logs_server_empty => 'Bot Creator サーバーはこのボットのログを返しませんでした。';
+
+  @override
+  String get bot_logs_server_read_failed => 'Bot Creator サーバーからログを読み取れませんでした。';
+
+  @override
   String get bot_logs_show_all => 'すべて表示';
 
   @override
