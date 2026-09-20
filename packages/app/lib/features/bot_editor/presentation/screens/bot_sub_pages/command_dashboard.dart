@@ -10,6 +10,7 @@ import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/features/subscriptions/presentation/subscription_page.dart';
+import 'package:bot_creator/features/subscriptions/presentation/widgets/premium_locked_hint.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
@@ -626,6 +627,12 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
                               label: Text(context.tr.premium_card_button),
                             ),
                           ),
+                        ] else ...[
+                          const SizedBox(height: 8),
+                          // Sans boutique native (poste de travail), il ne restait AUCUNE
+                          // action : on dit au moins pourquoi c'est verrouille et ou
+                          // l'abonnement s'active.
+                          const PremiumLockedHint(),
                         ],
                       ],
                     ),

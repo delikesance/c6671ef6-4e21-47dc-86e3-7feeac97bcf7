@@ -8476,6 +8476,7 @@
   "premium_active_desc": "Obrigado pelo seu apoio! Todos os anúncios estão desativados.",
   "premium_active_title": "Premium ativo",
   "premium_card_button": "Ver planos",
+  "premium_locked_hint": "A tua conta está no plano gratuito: a subscrição é ativada na aplicação móvel (este dispositivo não mostra publicidade nem compras).",
   "premium_card_desc": "Assine para remover todos os anúncios e iniciar seus bots instantaneamente, sem nenhum pop-up.",
   "premium_card_title": "Remover Anúncios",
   "quick_access_title": "Acesso Rápido",

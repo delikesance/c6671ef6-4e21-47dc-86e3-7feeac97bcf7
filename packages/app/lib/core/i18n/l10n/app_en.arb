@@ -9606,6 +9606,7 @@
   "premium_active_desc": "Thank you for your support! All ads are disabled.",
   "premium_active_title": "Premium active",
   "premium_card_button": "See plans",
+  "premium_locked_hint": "Your account is on the free plan: the subscription is activated from the mobile app (this device shows neither ads nor purchases).",
   "premium_card_desc": "Subscribe to remove all ads and start your bots instantly, without any popup.",
   "premium_card_title": "Remove Ads",
   "quick_access_title": "Quick Access",

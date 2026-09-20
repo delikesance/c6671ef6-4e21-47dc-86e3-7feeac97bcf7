@@ -8583,6 +8583,7 @@
   "premium_active_desc": "Merci pour votre soutien ! Toutes les publicités sont désactivées.",
   "premium_active_title": "Premium actif",
   "premium_card_button": "Voir les offres",
+  "premium_locked_hint": "Ton compte est en formule gratuite : l'abonnement s'active depuis l'application mobile (ce poste n'affiche ni publicité ni achat).",
   "premium_card_desc": "Abonnez-vous pour supprimer toutes les publicités et démarrer vos bots instantanément, sans aucune pop-up.",
   "premium_card_title": "Supprimer les pubs",
   "quick_access_title": "Accès rapide",

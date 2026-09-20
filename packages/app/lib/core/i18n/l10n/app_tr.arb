@@ -8443,6 +8443,7 @@
   "premium_active_desc": "Desteğiniz için teşekkür ederiz! Tüm reklamlar devre dışı bırakıldı.",
   "premium_active_title": "Premium aktif",
   "premium_card_button": "Planları gör",
+  "premium_locked_hint": "Hesabın ücretsiz planda: abonelik mobil uygulamadan etkinleştirilir (bu cihazda reklam ve satın alma gösterilmez).",
   "premium_card_desc": "Tüm reklamları kaldırmak ve botlarınızı herhangi bir pop-up olmadan anında başlatmak için abone olun.",
   "premium_card_title": "Reklamları Kaldır",
   "quick_access_title": "Hızlı Erişim",

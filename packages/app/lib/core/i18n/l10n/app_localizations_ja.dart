@@ -5247,6 +5247,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get premium_card_button => 'プランを見る';
 
   @override
+  String get premium_locked_hint =>
+      'アカウントは無料プランです。サブスクリプションはモバイルアプリで有効化します（このデバイスでは広告も購入も表示されません）。';
+
+  @override
   String get premium_card_desc => 'サブスクライブしてすべての広告を削除し、ポップアップなしで即座にボットを起動できます。';
 
   @override

@@ -5462,6 +5462,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get premium_card_button => 'See plans';
 
   @override
+  String get premium_locked_hint =>
+      'Your account is on the free plan: the subscription is activated from the mobile app (this device shows neither ads nor purchases).';
+
+  @override
   String get premium_card_desc =>
       'Subscribe to remove all ads and start your bots instantly, without any popup.';
 

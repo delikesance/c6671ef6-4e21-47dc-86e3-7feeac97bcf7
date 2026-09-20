@@ -5487,6 +5487,10 @@ class AppLocalizationsTr extends AppLocalizations {
   String get premium_card_button => 'Planları gör';
 
   @override
+  String get premium_locked_hint =>
+      'Hesabın ücretsiz planda: abonelik mobil uygulamadan etkinleştirilir (bu cihazda reklam ve satın alma gösterilmez).';
+
+  @override
   String get premium_card_desc =>
       'Tüm reklamları kaldırmak ve botlarınızı herhangi bir pop-up olmadan anında başlatmak için abone olun.';
 
