@@ -823,6 +823,10 @@ void appendBotDebugLog(
   if (!_debugBotLogsEnabled) {
     return;
   }
+  // Doublé dans la console de `flutter run` : le journal interne est invisible là où l'on
+  // cherche naturellement une trace quand un geste ne fait pas ce qu'on attend. C'est
+  // exactement ce qui a manqué pour diagnostiquer un choix de démarrage non honoré.
+  debugPrint('[bot-debug] $message');
   appendBotLog('DEBUG: $message', botId: botId, source: source);
 }
 

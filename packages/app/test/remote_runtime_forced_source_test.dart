@@ -104,7 +104,7 @@ void main() {
     }
   });
 
-  test('« sur le serveur » sans session retombe en local au lieu d\'échouer', () async {
+  test('« sur le serveur » sans session ne bascule PAS en local : elle le dit', () async {
     debugDefaultTargetPlatformOverride = TargetPlatform.linux;
     try {
       // Le magasin de réglages garde la session en MÉMOIRE : vider les préférences
@@ -117,8 +117,17 @@ void main() {
         forcedSource: RemoteRuntimeSource.manager,
       );
 
-      expect(runtime.source, RemoteRuntimeSource.local);
+      // La cible DEMANDÉE est rendue, sans client : le blocage du repli local devient
+      // vrai, donc l'écran explique que le serveur est hors de portée. Exécuter sur la
+      // machine autre chose que ce que l'utilisateur a choisi, sans le lui dire, était
+      // le mensonge que ce test verrouille désormais.
+      expect(runtime.source, RemoteRuntimeSource.manager);
       expect(runtime.client, isNull);
+      expect(
+        runtime.blocksLocalFallback,
+        isTrue,
+        reason: 'sinon l\'app demarrerait en local en silence apres un choix « serveur »',
+      );
     } finally {
       debugDefaultTargetPlatformOverride = null;
     }
