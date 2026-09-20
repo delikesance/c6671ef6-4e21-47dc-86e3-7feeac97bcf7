@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:bot_creator/core/analytics/monetization_funnel.dart';
+import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
 
 import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
 import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
@@ -19,11 +20,23 @@ class SubscriptionPage extends StatefulWidget {
   /// Show the subscription page as a modal bottom sheet.
   static Future<void> show(BuildContext context) {
     if (!SubscriptionService.supportsNativeBilling) {
-      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-        SnackBar(
-          content: Text(context.tr.subscription_not_available_on_platform),
-        ),
-      );
+      // Repli explicite : sans `ScaffoldMessenger` (arbre pas encore monté,
+      // écran détaché), l'échec est JOURNALISÉ — jamais avalé par un `?.` muet.
+      final messenger = ScaffoldMessenger.maybeOf(context);
+      if (messenger == null) {
+        unawaited(
+          AppDiagnostics.logInfo(
+            'Subscriptions: platform-unavailable message not shown '
+            '(no ScaffoldMessenger)',
+          ),
+        );
+      } else {
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(context.tr.subscription_not_available_on_platform),
+          ),
+        );
+      }
       return Future<void>.value();
     }
 
