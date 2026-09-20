@@ -492,6 +492,26 @@ class GatewayBotEventsSession {
     if (_disposed || generation != _generation) return;
     // Neutralise les autres rappels du même canal (erreur + fermeture + ready).
     _generation++;
+    // Le CODE DE FERMETURE est la seule chose qui distingue « le serveur a ferme »
+    // (1000 normal, 1001, 1008 politique…) d'une coupure reseau (1006). Sans lui,
+    // un canal qui s'ouvre puis se ferme en boucle ne laisse aucune trace
+    // exploitable : `onDone` ne porte aucune erreur, donc rien a afficher.
+    //
+    // Lecture DÉFENSIVE : un canal partiel (faux canal de test, implémentation qui
+    // n'expose pas ces champs) peut lever ici, et un diagnostic ne doit JAMAIS
+    // pouvoir casser la reconnexion — c'est exactement ce qu'il sert à observer.
+    var closeDetail = '';
+    try {
+      final closeCode = _channel?.closeCode;
+      final closeReason = _channel?.closeReason;
+      if (closeCode != null) {
+        closeDetail =
+            ' (closeCode=$closeCode'
+            '${closeReason == null || closeReason.isEmpty ? '' : ', raison="$closeReason"'})';
+      }
+    } catch (_) {
+      closeDetail = '';
+    }
     _setConnected(false);
     final refused = _isServerRefusal(error);
     final delay = _backoff.nextDelay(refused: refused);
@@ -500,7 +520,7 @@ class GatewayBotEventsSession {
       _log(
         'GatewayBotEventsSession: canal temps réel indisponible'
         '${refused ? ' (refus du serveur)' : ''}'
-        '${error == null ? '' : ' — $error'}'
+        '${error == null ? closeDetail : ' — $error'}'
         ' ; nouvelle tentative dans ${delay.inMilliseconds} ms',
       );
     }
