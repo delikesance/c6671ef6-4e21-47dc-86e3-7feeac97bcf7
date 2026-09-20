@@ -307,7 +307,9 @@ class HomePageState extends State<HomePage>
   /// bot (`RunnerSettings.getAssociatedRunnerId(botId) == 'manager'`), résolue dans
   /// `resolveRemoteRuntime` — un bot non associé sur un poste de travail continue de
   /// tourner en local via le runner embarqué.
-  bool get _supportsManagerRuntime => !kIsWeb;
+  // Une seule règle dans toute l'application (voir `run_platform.dart`) : le serveur
+  // pilote depuis n'importe quelle plateforme, poste de travail compris.
+  bool get _supportsManagerRuntime => supportsManagerRuntime;
 
   // ── Lifecycle ──────────────────────────────────────────────────────────────
 

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
+import 'package:bot_creator/core/platform/run_platform.dart';
 import 'dart:ui' as ui;
 
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
@@ -8,7 +9,6 @@ import 'package:bot_creator/core/network/poll_cadence.dart';
 import 'package:bot_creator/core/network/remote_runtime.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
@@ -72,11 +72,8 @@ class _BotStatsPageState extends State<BotStatsPage>
   double? _cpuPercent;
   int? _storageBytes;
 
-  bool get _supportsManagerRuntime =>
-      !kIsWeb &&
-      defaultTargetPlatform != TargetPlatform.windows &&
-      defaultTargetPlatform != TargetPlatform.linux &&
-      defaultTargetPlatform != TargetPlatform.macOS;
+  // Une seule règle dans toute l'application (voir `run_platform.dart`).
+  bool get _supportsManagerRuntime => supportsManagerRuntime;
 
   bool get _usingRemoteMetrics => _runtimeSource != RemoteRuntimeSource.local;
 

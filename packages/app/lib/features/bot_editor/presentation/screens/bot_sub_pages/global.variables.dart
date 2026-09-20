@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:bot_creator/core/platform/run_platform.dart';
 
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
@@ -86,12 +87,9 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
   }
 
   bool get _isManagerMode => _source == _VariablesSource.manager;
-  bool get _supportsManagerRuntime {
-    return !kIsWeb &&
-        defaultTargetPlatform != TargetPlatform.windows &&
-        defaultTargetPlatform != TargetPlatform.linux &&
-        defaultTargetPlatform != TargetPlatform.macOS;
-  }
+  // Une seule règle dans toute l'application (voir `run_platform.dart`) : sur un poste
+  // de travail, les variables globales doivent aussi pouvoir lire le serveur.
+  bool get _supportsManagerRuntime => supportsManagerRuntime;
 
   Future<void> _init() async {
     await _refreshSourcesAndLoad(preserveSelection: false);
