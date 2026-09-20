@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:async';
+import 'package:bot_creator/core/platform/run_platform.dart';
 import 'dart:convert';
 
 import 'package:bot_creator/main.dart';
@@ -20,7 +21,6 @@ import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:bot_creator/core/discord/discord_intent_sync.dart';
 import 'package:bot_creator/core/discord/portal_intent_feedback.dart';
@@ -87,8 +87,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     'competing',
   ];
 
-  bool get _supportsManagerRuntime =>
-      !kIsWeb && !Platform.isWindows && !Platform.isLinux && !Platform.isMacOS;
+  // Une seule règle dans toute l'application (voir `run_platform.dart`) : les réglages du
+  // bot doivent pouvoir viser le serveur depuis un poste de travail.
+  bool get _supportsManagerRuntime => supportsManagerRuntime;
 
   BotRuntimeCapabilities get _capabilities =>
       capabilitiesForEngine(_runtimeEngine);

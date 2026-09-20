@@ -51,3 +51,14 @@ VoidCallback debugOverrideDesktopPlatform(bool value) {
     debugForceDesktopPlatform = previous;
   };
 }
+
+/// Le serveur (Bot Creator Manager) peut-il piloter un bot depuis cette plateforme ?
+///
+/// Oui PARTOUT, poste de travail compris : c'est l'ASSOCIATION du bot qui décide où
+/// il s'exécute, pas la plateforme — un bot peut être hébergé pendant que l'app tourne
+/// sur un poste. Sept copies de cette règle existaient dans l'application, six
+/// répondaient « non » sur un poste de travail : la page de logs ne pouvait alors
+/// afficher que « Local sur cet appareil », les statistiques et les variables globales
+/// ignoraient le serveur, et le bot restait invisible côté hébergement. La règle vit
+/// ici, et une garde de test interdit de la réécrire dans une page.
+bool get supportsManagerRuntime => !kIsWeb;
