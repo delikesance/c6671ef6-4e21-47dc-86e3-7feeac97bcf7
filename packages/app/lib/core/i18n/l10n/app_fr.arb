@@ -8344,6 +8344,23 @@
   "home_server_count_one": "{count} serveur",
   "home_server_count_other": "{count} serveurs",
   "home_start": "Démarrer",
+  "bot_start_target_title": "Où démarrer {bot} ?",
+  "@bot_start_target_title": {
+    "placeholders": {
+      "bot": {
+        "type": "String"
+      }
+    },
+    "description": "Title of the start-target dialog"
+  },
+  "bot_start_local_title": "Démarrer en local (ce poste)",
+  "bot_start_local_desc": "Gratuit, ne consomme rien. Le bot s'arrête si tu fermes l'application.",
+  "bot_start_server_title": "Démarrer sur Bot Creator Server",
+  "bot_start_server_desc": "Consomme tes minutes d'hébergement (illimité avec PREMIUM). Le bot tourne sans ton poste.",
+  "bot_start_server_reason_platform": "Ce poste ne pilote pas l'hébergement distant.",
+  "bot_start_server_reason_no_account": "Aucun compte n'est connecté sur ce poste.",
+  "bot_start_server_reason_cloud_disabled": "L'hébergement cloud n'est pas activé sur ce serveur.",
+  "bot_start_server_reason_no_minutes": "Plus de minutes d'hébergement : regarde une publicité depuis l'application mobile, ou passe à PREMIUM.",
   "home_start_ads": "Démarrer (Voir Pub)",
   "home_start_premium": "Démarrer (Premium)",
   "home_status_offline": "Hors ligne",

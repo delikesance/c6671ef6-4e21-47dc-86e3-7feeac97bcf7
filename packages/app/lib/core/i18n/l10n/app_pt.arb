@@ -8237,6 +8237,23 @@
   "home_server_count_one": "{count} servidor",
   "home_server_count_other": "{count} servidores",
   "home_start": "Iniciar",
+  "bot_start_target_title": "Onde iniciar {bot}?",
+  "@bot_start_target_title": {
+    "placeholders": {
+      "bot": {
+        "type": "String"
+      }
+    },
+    "description": "Title of the start-target dialog"
+  },
+  "bot_start_local_title": "Iniciar localmente (este dispositivo)",
+  "bot_start_local_desc": "Grátis, não consome nada. O bot para quando fechas a aplicação.",
+  "bot_start_server_title": "Iniciar no Bot Creator Server",
+  "bot_start_server_desc": "Consome os teus minutos de alojamento (ilimitado com PREMIUM). O bot funciona sem o teu dispositivo.",
+  "bot_start_server_reason_platform": "Este dispositivo não controla o alojamento remoto.",
+  "bot_start_server_reason_no_account": "Nenhuma conta está ligada neste dispositivo.",
+  "bot_start_server_reason_cloud_disabled": "O alojamento na cloud não está ativado neste servidor.",
+  "bot_start_server_reason_no_minutes": "Sem minutos de alojamento: vê um anúncio na aplicação móvel ou passa para PREMIUM.",
   "home_start_ads": "Iniciar (Ver Anúncio)",
   "home_start_premium": "Iniciar (Premium)",
   "home_status_offline": "Offline",

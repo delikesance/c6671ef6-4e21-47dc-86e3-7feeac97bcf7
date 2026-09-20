@@ -4599,6 +4599,41 @@ class AppLocalizationsPt extends AppLocalizations {
   String get home_start => 'Iniciar';
 
   @override
+  String bot_start_target_title(String bot) {
+    return 'Onde iniciar $bot?';
+  }
+
+  @override
+  String get bot_start_local_title => 'Iniciar localmente (este dispositivo)';
+
+  @override
+  String get bot_start_local_desc =>
+      'Grátis, não consome nada. O bot para quando fechas a aplicação.';
+
+  @override
+  String get bot_start_server_title => 'Iniciar no Bot Creator Server';
+
+  @override
+  String get bot_start_server_desc =>
+      'Consome os teus minutos de alojamento (ilimitado com PREMIUM). O bot funciona sem o teu dispositivo.';
+
+  @override
+  String get bot_start_server_reason_platform =>
+      'Este dispositivo não controla o alojamento remoto.';
+
+  @override
+  String get bot_start_server_reason_no_account =>
+      'Nenhuma conta está ligada neste dispositivo.';
+
+  @override
+  String get bot_start_server_reason_cloud_disabled =>
+      'O alojamento na cloud não está ativado neste servidor.';
+
+  @override
+  String get bot_start_server_reason_no_minutes =>
+      'Sem minutos de alojamento: vê um anúncio na aplicação móvel ou passa para PREMIUM.';
+
+  @override
   String get home_start_ads => 'Iniciar (Ver Anúncio)';
 
   @override

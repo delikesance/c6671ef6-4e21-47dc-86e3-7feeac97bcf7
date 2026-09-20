@@ -8105,6 +8105,60 @@ abstract class AppLocalizations {
   /// **'Start'**
   String get home_start;
 
+  /// Title of the start-target dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Where should {bot} start?'**
+  String bot_start_target_title(String bot);
+
+  /// No description provided for @bot_start_local_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Start locally (this device)'**
+  String get bot_start_local_title;
+
+  /// No description provided for @bot_start_local_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Free, consumes nothing. The bot stops when you close the app.'**
+  String get bot_start_local_desc;
+
+  /// No description provided for @bot_start_server_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Start on Bot Creator Server'**
+  String get bot_start_server_title;
+
+  /// No description provided for @bot_start_server_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Uses your hosting minutes (unlimited with PREMIUM). The bot runs without your device.'**
+  String get bot_start_server_desc;
+
+  /// No description provided for @bot_start_server_reason_platform.
+  ///
+  /// In en, this message translates to:
+  /// **'This device cannot drive remote hosting.'**
+  String get bot_start_server_reason_platform;
+
+  /// No description provided for @bot_start_server_reason_no_account.
+  ///
+  /// In en, this message translates to:
+  /// **'No account is connected on this device.'**
+  String get bot_start_server_reason_no_account;
+
+  /// No description provided for @bot_start_server_reason_cloud_disabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud hosting is not enabled on this server.'**
+  String get bot_start_server_reason_cloud_disabled;
+
+  /// No description provided for @bot_start_server_reason_no_minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'No hosting minutes left: watch a rewarded ad from the mobile app, or go Premium.'**
+  String get bot_start_server_reason_no_minutes;
+
   /// Start (Watch Ad)
   ///
   /// In en, this message translates to:

@@ -4556,6 +4556,41 @@ class AppLocalizationsTr extends AppLocalizations {
   String get home_start => 'Başlat';
 
   @override
+  String bot_start_target_title(String bot) {
+    return '$bot nerede başlatılsın?';
+  }
+
+  @override
+  String get bot_start_local_title => 'Yerel olarak başlat (bu cihaz)';
+
+  @override
+  String get bot_start_local_desc =>
+      'Ücretsiz, hiçbir şey tüketmez. Uygulamayı kapatırsan bot durur.';
+
+  @override
+  String get bot_start_server_title => 'Bot Creator Server\'da başlat';
+
+  @override
+  String get bot_start_server_desc =>
+      'Barındırma dakikalarını tüketir (PREMIUM ile sınırsız). Bot cihazın olmadan çalışır.';
+
+  @override
+  String get bot_start_server_reason_platform =>
+      'Bu cihaz uzaktan barındırmayı yönetemez.';
+
+  @override
+  String get bot_start_server_reason_no_account =>
+      'Bu cihazda bağlı hesap yok.';
+
+  @override
+  String get bot_start_server_reason_cloud_disabled =>
+      'Bu sunucuda bulut barındırma etkin değil.';
+
+  @override
+  String get bot_start_server_reason_no_minutes =>
+      'Barındırma dakikan kalmadı: mobil uygulamadan bir reklam izle veya PREMIUM\'a geç.';
+
+  @override
   String get home_start_ads => 'Başlat (Reklam İzle)';
 
   @override

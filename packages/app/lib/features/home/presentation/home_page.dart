@@ -42,8 +42,10 @@ import 'package:bot_creator/features/containers/presentation/container_detail_pa
 import 'package:bot_creator/features/containers/presentation/home_turnkey_container_card.dart';
 import 'package:bot_creator/features/discord_rpc/logic/discord_rpc_service.dart';
 import 'package:bot_creator/features/documentation/documentation_navigation.dart';
+import 'package:bot_creator/features/home/logic/bot_start_target.dart';
 import 'package:bot_creator/features/home/presentation/guild_avatar.dart';
 import 'package:bot_creator/features/home/presentation/home_ui.dart';
+import 'package:bot_creator/features/home/presentation/widgets/bot_start_target_dialog.dart';
 import 'package:bot_creator/features/settings/presentation/settings_page.dart';
 import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
 import 'package:bot_creator/features/subscriptions/presentation/plan_limit_dialog.dart';
@@ -1678,8 +1680,35 @@ class HomePageState extends State<HomePage>
     }
   }
 
+  /// Ce qui peut être proposé pour démarrer [botId], d'après l'état RÉEL du compte.
+  ///
+  /// Mêmes faits que ceux qui décideront côté serveur — session présente et non
+  /// expirée, formule, interrupteur d'hébergement cloud du serveur, solde de minutes
+  /// de CE bot — pour ne rien proposer qui échouerait ensuite.
+  Future<BotStartChoices> _botStartChoicesFor(String botId) async {
+    // La traduction est lue AVANT toute attente : plus de `context` après un `await`.
+    final tr = context.tr;
+    var hasSession = false;
+    try {
+      final config = await MainApiSettingsStore.loadConfig();
+      final session = await MainApiSettingsStore.loadSession();
+      hasSession = config.isConfigured && session != null && !session.isExpired;
+    } catch (_) {
+      hasSession = false;
+    }
+    return resolveBotStartChoices(
+      supportsManagerRuntime: _supportsManagerRuntime,
+      hasValidSession: hasSession,
+      premium: SubscriptionService.isSubscribed,
+      cloudDisabledByServer: SubscriptionService.premiumCloudDisabled,
+      freeMinutesBalance: _freeMinutesByBotId[botId] ?? 0,
+      tr: tr,
+    );
+  }
+
   Future<ResolvedRemoteRuntime> _resolveRemoteRuntime({
     String? botId,
+    RemoteRuntimeSource? forcedSource,
     Duration getTimeout = const Duration(seconds: 30),
     Duration postTimeout = const Duration(seconds: 90),
   }) async {
@@ -1687,9 +1716,11 @@ class HomePageState extends State<HomePage>
     // le web n'a pas d'accès direct au manager. Partout ailleurs (poste de travail,
     // mobile) `resolveRemoteRuntime` tranche par bot : association « manager » → pilotage
     // à distance, sinon runner/local (le runner embarqué reste le défaut sur desktop).
+    // `forcedSource` porte le CHOIX de l'utilisateur (pop-up de démarrage) et prime.
     return resolveRemoteRuntime(
       supportsManagerRuntime: _supportsManagerRuntime,
       botId: botId,
+      forcedSource: forcedSource,
       getTimeout: getTimeout,
       postTimeout: postTimeout,
     );
@@ -1820,9 +1851,35 @@ class HomePageState extends State<HomePage>
       }
     }
 
+    // ── Où démarrer ? La question est posée, jamais devinée ───────────────────
+    // L'association du bot décidait seule jusqu'ici : un bot associé au manager
+    // repartait sur Bot Creator Server sans que rien ne le dise, alors que ce chemin
+    // consomme des minutes d'hébergement. Le choix est explicite à chaque démarrage
+    // (aucune mémoire : la décision a un coût, elle se reprend à chaque fois).
+    RemoteRuntimeSource? forcedSource;
+    if (!isRunning) {
+      if (!mounted) return;
+      final choices = await _botStartChoicesFor(botId);
+      if (!mounted) return;
+      final choice = await showBotStartTargetDialog(
+        context,
+        botName: botName,
+        choices: choices,
+      );
+      if (choice == null) {
+        // Annulé : le bot ne démarre pas, et la carte revient au repos.
+        if (mounted) setState(() => _botIdInAction = null);
+        return;
+      }
+      forcedSource = choice == BotStartTarget.local
+          ? RemoteRuntimeSource.local
+          : RemoteRuntimeSource.manager;
+    }
+
     try {
       var runtime = await _resolveRemoteRuntime(
         botId: botId,
+        forcedSource: forcedSource,
         getTimeout: const Duration(seconds: 30),
         postTimeout: const Duration(seconds: 90),
       );

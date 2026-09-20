@@ -8291,6 +8291,23 @@
   "home_server_count_one": "{count} サーバー",
   "home_server_count_other": "{count} サーバー",
   "home_start": "起動",
+  "bot_start_target_title": "{bot} をどこで起動しますか？",
+  "@bot_start_target_title": {
+    "placeholders": {
+      "bot": {
+        "type": "String"
+      }
+    },
+    "description": "Title of the start-target dialog"
+  },
+  "bot_start_local_title": "ローカルで起動（このデバイス）",
+  "bot_start_local_desc": "無料で何も消費しません。アプリを閉じるとボットは停止します。",
+  "bot_start_server_title": "Bot Creator サーバーで起動",
+  "bot_start_server_desc": "ホスティング時間を消費します（PREMIUM は無制限）。デバイスなしで動作します。",
+  "bot_start_server_reason_platform": "このデバイスから遠隔ホスティングは操作できません。",
+  "bot_start_server_reason_no_account": "このデバイスに接続されたアカウントがありません。",
+  "bot_start_server_reason_cloud_disabled": "このサーバーではクラウドホスティングが有効になっていません。",
+  "bot_start_server_reason_no_minutes": "ホスティング時間が残っていません。モバイルアプリで広告を見るか、PREMIUM にアップグレードしてください。",
   "home_start_ads": "起動 (広告を見る)",
   "home_start_premium": "起動 (プレミアム)",
   "home_status_offline": "オフライン",

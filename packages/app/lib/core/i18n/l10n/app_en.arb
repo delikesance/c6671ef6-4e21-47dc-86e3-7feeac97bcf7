@@ -9359,6 +9359,23 @@
   "home_server_count_one": "{count} server",
   "home_server_count_other": "{count} servers",
   "home_start": "Start",
+  "bot_start_target_title": "Where should {bot} start?",
+  "@bot_start_target_title": {
+    "placeholders": {
+      "bot": {
+        "type": "String"
+      }
+    },
+    "description": "Title of the start-target dialog"
+  },
+  "bot_start_local_title": "Start locally (this device)",
+  "bot_start_local_desc": "Free, consumes nothing. The bot stops when you close the app.",
+  "bot_start_server_title": "Start on Bot Creator Server",
+  "bot_start_server_desc": "Uses your hosting minutes (unlimited with PREMIUM). The bot runs without your device.",
+  "bot_start_server_reason_platform": "This device cannot drive remote hosting.",
+  "bot_start_server_reason_no_account": "No account is connected on this device.",
+  "bot_start_server_reason_cloud_disabled": "Cloud hosting is not enabled on this server.",
+  "bot_start_server_reason_no_minutes": "No hosting minutes left: watch a rewarded ad from the mobile app, or go Premium.",
   "home_start_ads": "Start (Watch Ad)",
   "home_start_premium": "Start (Premium)",
   "home_status_offline": "Offline",
