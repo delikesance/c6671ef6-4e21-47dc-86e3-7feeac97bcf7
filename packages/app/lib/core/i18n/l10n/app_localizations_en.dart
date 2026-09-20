@@ -8893,6 +8893,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'You\'re out of free hosting minutes. Watch a rewarded ad to unlock more minutes, or go Premium for unlimited hosting.';
 
   @override
+  String get container_deploy_blocked_cloud_disabled =>
+      'Cloud hosting is not enabled on this server: remote deployment is unavailable. Run the bot locally, or through your own runner.';
+
+  @override
   String get container_deploy_blocked_eligibility_error =>
       'Couldn\'t check whether you can deploy right now.';
 

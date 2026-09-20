@@ -9671,6 +9671,7 @@
     "description": "Deploy eligibility banner reason when the container limit is reached"
   },
   "container_deploy_blocked_no_minutes": "You're out of free hosting minutes. Watch a rewarded ad to unlock more minutes, or go Premium for unlimited hosting.",
+  "container_deploy_blocked_cloud_disabled": "Cloud-Hosting ist auf diesem Server nicht aktiviert: die Remote-Bereitstellung ist nicht verfügbar. Führe den Bot lokal oder über deinen eigenen Runner aus.",
   "@container_deploy_blocked_no_minutes": {
     "description": "Deploy eligibility banner reason when there are no hosting minutes left"
   },
