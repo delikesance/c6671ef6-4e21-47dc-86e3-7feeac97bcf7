@@ -396,7 +396,18 @@ class AppUpdateService {
       }
 
       final context = navigatorKey?.currentContext;
-      if (context == null || !context.mounted) return;
+      final navigator = navigatorKey?.currentState;
+      if (navigator == null || context == null || !context.mounted) {
+        // Aucune racine de navigation : rien à afficher. Journalisé, jamais
+        // avalé — sinon on ne saurait pas pourquoi la mise à jour n'a jamais
+        // été proposée.
+        unawaited(
+          AppDiagnostics.logInfo(
+            'App update: no navigation root to show the prompt',
+          ),
+        );
+        return;
+      }
 
       // Marquée AVANT l'affichage : une app tuée pendant que le dialogue est
       // ouvert ne doit pas le reproposer au lancement suivant.
@@ -406,11 +417,29 @@ class AppUpdateService {
             .catchError((Object _) => false),
       );
 
-      final accepted = await showAppUpdateDialog(
-        context,
-        availableVersion: result.availableVersion ?? '',
-        installedVersion: result.installedVersion,
-      );
+      final bool accepted;
+      try {
+        accepted = await showAppUpdateDialog(
+          context,
+          availableVersion: result.availableVersion ?? '',
+          installedVersion: result.installedVersion,
+        );
+      } catch (error, stack) {
+        // Le dialogue n'a pas pu être monté : la marque « déjà proposée » est
+        // ANNULÉE pour que la prochaine vérification la repropose. Sans ce
+        // retour en arrière, cette version serait consommée sans que
+        // l'utilisateur l'ait jamais vue.
+        await clearPromptState();
+        unawaited(
+          AppDiagnostics.logError(
+            'App update: prompt could not be mounted',
+            error,
+            stack,
+            fatal: false,
+          ),
+        );
+        return;
+      }
       if (accepted) await launchUpdate(result);
     } catch (error, stack) {
       unawaited(

@@ -967,6 +967,17 @@ class _SettingPageState extends State<SettingPage> {
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
   }
 
+  /// Le `ScaffoldMessenger` le plus proche, avec repli sur la racine de
+  /// navigation.
+  ///
+  /// Le repli est légitime : `ScaffoldMessenger` est fourni AU-DESSUS du
+  /// `Navigator` dans `MaterialApp`, donc le contexte de `navigatorKey` en voit
+  /// un — contrairement à `Overlay`, qui vit SOUS le Navigator et qu'on ne
+  /// trouve jamais depuis ce contexte-là.
+  ///
+  /// Si ni l'un ni l'autre n'existe (arbre pas encore monté, écran détaché), on
+  /// le JOURNALISE : un message utilisateur qui disparaît sans trace est un
+  /// échec impossible à diagnostiquer.
   ScaffoldMessengerState? _currentScaffoldMessenger() {
     if (!mounted) {
       return null;
@@ -976,10 +987,18 @@ class _SettingPageState extends State<SettingPage> {
       return currentMessenger;
     }
     final navigatorContext = MyApp.navigatorKey.currentContext;
-    if (navigatorContext == null) {
+    final fromNavigationRoot = navigatorContext == null
+        ? null
+        : ScaffoldMessenger.maybeOf(navigatorContext);
+    if (fromNavigationRoot == null) {
+      unawaited(
+        AppDiagnostics.logInfo(
+          'Settings: no ScaffoldMessenger found for a snackbar',
+        ),
+      );
       return null;
     }
-    return ScaffoldMessenger.maybeOf(navigatorContext);
+    return fromNavigationRoot;
   }
 
   void _showSnackBar(SnackBar snackBar) {
@@ -3453,15 +3472,28 @@ class _PrivacyPolicyCard extends StatelessWidget {
     try {
       final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
       if (!opened) {
-        ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-          SnackBar(content: Text(context.tr.app_open_link_error)),
-        );
+        _reportOpenFailure(context);
       }
     } catch (_) {
-      ScaffoldMessenger.maybeOf(
-        context,
-      )?.showSnackBar(SnackBar(content: Text(context.tr.app_open_link_error)));
+      _reportOpenFailure(context);
     }
+  }
+
+  /// L'échec d'ouverture est dit à l'utilisateur s'il y a un
+  /// `ScaffoldMessenger`, et JOURNALISÉ sinon : jamais un no-op muet.
+  void _reportOpenFailure(BuildContext context) {
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    if (messenger != null) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(context.tr.app_open_link_error)),
+      );
+      return;
+    }
+    unawaited(
+      AppDiagnostics.logInfo(
+        'Settings: link failure could not be shown to the user',
+      ),
+    );
   }
 
   @override
