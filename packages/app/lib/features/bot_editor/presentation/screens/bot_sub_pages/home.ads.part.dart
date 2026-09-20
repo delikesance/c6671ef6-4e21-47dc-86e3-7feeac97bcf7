@@ -325,32 +325,34 @@ extension _AppHomePageAds on _AppHomePageState {
     }
   }
 
-  Future<AdRewardSsvContext?> _buildMainApiAdSsvContext(String botId) async {
-    final app = await appManager.getApp(botId);
-    final botToken = (app['token'] ?? '').toString().trim();
-    if (botToken.isEmpty) return null;
+  /// Contexte SSV du flux « bot » — construction partagée avec l'accueil
+  /// (`ad_ssv_context.dart`). Ici le propriétaire est résolu via la session
+  /// Manager ET les métadonnées Discord de l'application, d'où
+  /// `discord_owner_id` en plus ; l'accueil, lui, s'en tient à la session.
+  Future<AdRewardSsvContext?> _buildMainApiAdSsvContext(String botId) {
+    return buildMainApiAdSsvContext(
+      botId: botId,
+      resolveOwnerIds: () async {
+        final app = await appManager.getApp(botId);
+        final botToken = (app['token'] ?? '').toString().trim();
+        if (botToken.isEmpty) return null;
 
-    final session = await MainApiSettingsStore.loadSession();
-    final ownerIdFromSession = (session?.userId ?? '').trim();
-    final ownerMetadata = await getDiscordApplicationOwnerMetadata(botToken);
-    final ownerIdFromDiscord = ownerMetadata?.resolveOwnerId() ?? '';
+        final session = await MainApiSettingsStore.loadSession();
+        final ownerIdFromSession = (session?.userId ?? '').trim();
+        final ownerMetadata = await getDiscordApplicationOwnerMetadata(botToken);
 
-    final ownerId =
-        ownerMetadata?.resolveOwnerId(preferredOwnerId: ownerIdFromSession) ??
-        ownerIdFromSession;
-    if (ownerId.isEmpty) return null;
+        final ownerId =
+            ownerMetadata?.resolveOwnerId(
+              preferredOwnerId: ownerIdFromSession,
+            ) ??
+            ownerIdFromSession;
+        if (ownerId.isEmpty) return null;
 
-    return AdRewardSsvContext(
-      userId: ownerId,
-      customData: Uri(
-        queryParameters: <String, String>{
-          'owner_id': ownerId,
-          'bot_id': botId,
-          'placement': 'admob_rewarded',
-          if (ownerIdFromDiscord.isNotEmpty)
-            'discord_owner_id': ownerIdFromDiscord,
-        },
-      ).query,
+        return BotAdSsvOwnerIds(
+          ownerId: ownerId,
+          discordOwnerId: ownerMetadata?.resolveOwnerId() ?? '',
+        );
+      },
     );
   }
 
