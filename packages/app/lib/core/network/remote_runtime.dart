@@ -69,9 +69,13 @@ Future<ResolvedRemoteRuntime> resolveRemoteRuntime({
         detailLabel: forcedConfig.baseUrl,
       );
     }
-    // Session perdue entre la question et la réponse : on retombe en local plutôt
-    // que d'échouer — la pop-up n'a proposé ce choix qu'avec une session valide.
-    return const ResolvedRemoteRuntime(source: RemoteRuntimeSource.local);
+    // La cible DEMANDÉE, sans client : `blocksLocalFallback` devient vrai, et l'écran
+    // explique pourquoi le serveur est hors de portée. On ne bascule PAS en local —
+    // exécuter sur la machine autre chose que ce que l'utilisateur a choisi, sans le lui
+    // dire, est exactement le mensonge que ce repli produisait : la pop-up n'offre
+    // « serveur » qu'avec une session valide, mais le résolveur la relit et peut en juger
+    // autrement. Il doit alors le DIRE, pas décider à sa place.
+    return const ResolvedRemoteRuntime(source: RemoteRuntimeSource.manager);
   }
 
   if (kIsWeb) {
