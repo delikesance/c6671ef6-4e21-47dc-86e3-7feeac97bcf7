@@ -9215,4 +9215,19 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get modal_builder_submit_actions => '送信アクション';
+
+  @override
+  String get announcement_see_more => '詳細を見る';
+
+  @override
+  String get announcement_dismiss => '閉じる';
+
+  @override
+  String get announcement_acknowledge => '了解しました';
+
+  @override
+  String get announcement_later => 'あとで';
+
+  @override
+  String get announcement_link_open_failed => 'リンクを開けませんでした。';
 }

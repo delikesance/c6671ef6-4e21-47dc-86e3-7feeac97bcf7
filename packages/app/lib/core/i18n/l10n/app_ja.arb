@@ -10548,5 +10548,25 @@
   "modal_builder_submit_actions": "送信アクション",
   "@modal_builder_submit_actions": {
     "description": "Submit Actions"
+  },
+  "announcement_see_more": "詳細を見る",
+  "@announcement_see_more": {
+    "description": "Learn more"
+  },
+  "announcement_dismiss": "閉じる",
+  "@announcement_dismiss": {
+    "description": "Dismiss"
+  },
+  "announcement_acknowledge": "了解しました",
+  "@announcement_acknowledge": {
+    "description": "Got it"
+  },
+  "announcement_later": "あとで",
+  "@announcement_later": {
+    "description": "Later"
+  },
+  "announcement_link_open_failed": "リンクを開けませんでした。",
+  "@announcement_link_open_failed": {
+    "description": "Couldn't open the link."
   }
 }

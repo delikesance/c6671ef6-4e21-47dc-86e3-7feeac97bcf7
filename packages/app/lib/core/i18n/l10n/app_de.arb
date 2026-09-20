@@ -10461,5 +10461,25 @@
   "modal_builder_submit_actions": "Übermittlungsaktionen",
   "@modal_builder_submit_actions": {
     "description": "Submit Actions"
+  },
+  "announcement_see_more": "Mehr erfahren",
+  "@announcement_see_more": {
+    "description": "Learn more"
+  },
+  "announcement_dismiss": "Schließen",
+  "@announcement_dismiss": {
+    "description": "Dismiss"
+  },
+  "announcement_acknowledge": "Verstanden",
+  "@announcement_acknowledge": {
+    "description": "Got it"
+  },
+  "announcement_later": "Später",
+  "@announcement_later": {
+    "description": "Later"
+  },
+  "announcement_link_open_failed": "Der Link konnte nicht geöffnet werden.",
+  "@announcement_link_open_failed": {
+    "description": "Couldn't open the link."
   }
 }

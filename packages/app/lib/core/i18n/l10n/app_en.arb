@@ -11910,5 +11910,25 @@
   "modal_builder_submit_actions": "Submit Actions",
   "@modal_builder_submit_actions": {
     "description": "Submit Actions"
+  },
+  "announcement_see_more": "Learn more",
+  "@announcement_see_more": {
+    "description": "Learn more"
+  },
+  "announcement_dismiss": "Dismiss",
+  "@announcement_dismiss": {
+    "description": "Dismiss"
+  },
+  "announcement_acknowledge": "Got it",
+  "@announcement_acknowledge": {
+    "description": "Got it"
+  },
+  "announcement_later": "Later",
+  "@announcement_later": {
+    "description": "Later"
+  },
+  "announcement_link_open_failed": "Couldn't open the link.",
+  "@announcement_link_open_failed": {
+    "description": "Couldn't open the link."
   }
 }

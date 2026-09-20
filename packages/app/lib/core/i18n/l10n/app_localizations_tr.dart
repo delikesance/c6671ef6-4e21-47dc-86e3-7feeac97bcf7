@@ -9637,4 +9637,19 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get modal_builder_submit_actions => 'Gönderme Eylemleri';
+
+  @override
+  String get announcement_see_more => 'Daha fazla bilgi';
+
+  @override
+  String get announcement_dismiss => 'Kapat';
+
+  @override
+  String get announcement_acknowledge => 'Anladım';
+
+  @override
+  String get announcement_later => 'Daha sonra';
+
+  @override
+  String get announcement_link_open_failed => 'Bağlantı açılamadı.';
 }
