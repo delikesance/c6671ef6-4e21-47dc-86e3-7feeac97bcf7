@@ -8204,6 +8204,23 @@
   "home_server_count_one": "{count} sunucu",
   "home_server_count_other": "{count} sunucu",
   "home_start": "Başlat",
+  "bot_start_target_title": "{bot} nerede başlatılsın?",
+  "@bot_start_target_title": {
+    "placeholders": {
+      "bot": {
+        "type": "String"
+      }
+    },
+    "description": "Title of the start-target dialog"
+  },
+  "bot_start_local_title": "Yerel olarak başlat (bu cihaz)",
+  "bot_start_local_desc": "Ücretsiz, hiçbir şey tüketmez. Uygulamayı kapatırsan bot durur.",
+  "bot_start_server_title": "Bot Creator Server'da başlat",
+  "bot_start_server_desc": "Barındırma dakikalarını tüketir (PREMIUM ile sınırsız). Bot cihazın olmadan çalışır.",
+  "bot_start_server_reason_platform": "Bu cihaz uzaktan barındırmayı yönetemez.",
+  "bot_start_server_reason_no_account": "Bu cihazda bağlı hesap yok.",
+  "bot_start_server_reason_cloud_disabled": "Bu sunucuda bulut barındırma etkin değil.",
+  "bot_start_server_reason_no_minutes": "Barındırma dakikan kalmadı: mobil uygulamadan bir reklam izle veya PREMIUM'a geç.",
   "home_start_ads": "Başlat (Reklam İzle)",
   "home_start_premium": "Başlat (Premium)",
   "home_status_offline": "Çevrimdışı",

@@ -43,7 +43,37 @@ Future<ResolvedRemoteRuntime> resolveRemoteRuntime({
   String? botId,
   Duration getTimeout = const Duration(seconds: 30),
   Duration postTimeout = const Duration(seconds: 90),
+  RemoteRuntimeSource? forcedSource,
 }) async {
+  // Choix EXPLICITE de l'utilisateur (pop-up de démarrage) : il prime sur
+  // l'association du bot. C'est ce qui rend vraie la promesse de l'écran — « en
+  // local » démarre en local même si le bot est associé au manager, et « sur le
+  // serveur » vise le manager même sans association. Sans ce passage, la pop-up
+  // serait purement décorative et le bot repartirait là où l'association décide.
+  if (forcedSource == RemoteRuntimeSource.local) {
+    return const ResolvedRemoteRuntime(source: RemoteRuntimeSource.local);
+  }
+  if (forcedSource == RemoteRuntimeSource.manager) {
+    final forcedConfig = await MainApiSettingsStore.loadConfig();
+    final forcedSession = await MainApiSettingsStore.loadSession();
+    if (forcedConfig.isConfigured &&
+        forcedSession != null &&
+        !forcedSession.isExpired) {
+      return ResolvedRemoteRuntime(
+        source: RemoteRuntimeSource.manager,
+        client: MainApiClient(
+          baseUrl: forcedConfig.baseUrl,
+          accessToken: forcedSession.accessToken,
+          timeout: postTimeout,
+        ),
+        detailLabel: forcedConfig.baseUrl,
+      );
+    }
+    // Session perdue entre la question et la réponse : on retombe en local plutôt
+    // que d'échouer — la pop-up n'a proposé ce choix qu'avec une session valide.
+    return const ResolvedRemoteRuntime(source: RemoteRuntimeSource.local);
+  }
+
   if (kIsWeb) {
     final runnerConfig = await RunnerSettings.getConfig();
     if (runnerConfig != null) {

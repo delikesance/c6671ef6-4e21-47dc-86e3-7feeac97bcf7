@@ -4532,6 +4532,41 @@ class AppLocalizationsEn extends AppLocalizations {
   String get home_start => 'Start';
 
   @override
+  String bot_start_target_title(String bot) {
+    return 'Where should $bot start?';
+  }
+
+  @override
+  String get bot_start_local_title => 'Start locally (this device)';
+
+  @override
+  String get bot_start_local_desc =>
+      'Free, consumes nothing. The bot stops when you close the app.';
+
+  @override
+  String get bot_start_server_title => 'Start on Bot Creator Server';
+
+  @override
+  String get bot_start_server_desc =>
+      'Uses your hosting minutes (unlimited with PREMIUM). The bot runs without your device.';
+
+  @override
+  String get bot_start_server_reason_platform =>
+      'This device cannot drive remote hosting.';
+
+  @override
+  String get bot_start_server_reason_no_account =>
+      'No account is connected on this device.';
+
+  @override
+  String get bot_start_server_reason_cloud_disabled =>
+      'Cloud hosting is not enabled on this server.';
+
+  @override
+  String get bot_start_server_reason_no_minutes =>
+      'No hosting minutes left: watch a rewarded ad from the mobile app, or go Premium.';
+
+  @override
   String get home_start_ads => 'Start (Watch Ad)';
 
   @override
