@@ -11,6 +11,7 @@ import 'package:bot_creator/core/utils/external_link.dart';
 import 'package:bot_creator/features/auth/presentation/desktop_oauth_webview.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
+import 'package:desktop_webview_window/desktop_webview_window.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -153,14 +154,26 @@ class MainApiAuthService {
         );
       }
 
-      final webview = await DesktopOAuthWebView.open(
-        authorizeUri: launchUri,
-        redirectUri: redirectUri,
-      );
-
-      if (webview == null) {
-        final launched = await openExternalUrl(launchUri);
-        if (!launched) {
+      // LE NAVIGATEUR D'ABORD, la fenetre embarquee ensuite.
+      //
+      // La fenetre WebKit ne sait pas toujours charger la page d'autorisation :
+      // sous Linux (WebKitGTK), discord.com echoue par une erreur interne de
+      // WebKit, la fenetre reste blanche, le consentement n'arrive jamais et la
+      // connexion meurt au bout du delai — l'utilisateur ne voit qu'une fenetre
+      // vide et n'a aucun moyen de continuer. Le navigateur du systeme affiche
+      // la page dans tous les cas, et le retour se fait de toute facon sur le
+      // serveur local (http://localhost:_desktopOAuthPort) : c'est le chemin
+      // prevu, la fenetre embarquee n'en est plus qu'un repli, pour les
+      // environnements sans navigateur (xdg-open absent, pas de session
+      // graphique).
+      final browserOpened = await openExternalUrl(launchUri);
+      Webview? webview;
+      if (!browserOpened) {
+        webview = await DesktopOAuthWebView.open(
+          authorizeUri: launchUri,
+          redirectUri: redirectUri,
+        );
+        if (webview == null) {
           throw const MainApiClientException(
             'Unable to open browser or in-app window for Discord login.',
           );
