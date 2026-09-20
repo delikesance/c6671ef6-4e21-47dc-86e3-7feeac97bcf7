@@ -21,6 +21,7 @@ import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/features/ads/logic/ad_consent_service.dart';
 import 'package:bot_creator/features/ads/logic/ad_reward_service.dart';
+import 'package:bot_creator/features/ads/logic/ad_ssv_context.dart';
 import 'package:bot_creator/features/ads/logic/ads_placement_policy.dart';
 import 'package:bot_creator/features/ads/presentation/native_ad_slot.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
@@ -2280,28 +2281,27 @@ class HomePageState extends State<HomePage>
     }
   }
 
-  Future<AdRewardSsvContext?> _buildMainApiAdSsvContext(String botId) async {
-    final app = await appManager.getApp(botId);
-    final botToken = (app['token'] ?? '').toString().trim();
-    if (botToken.isEmpty) {
-      return null;
-    }
+  /// Contexte SSV du flux « bot » — construction partagée avec l'éditeur de
+  /// bot (`ad_ssv_context.dart`) : ici, la session Manager suffit à résoudre le
+  /// propriétaire, le contexte reste donc sans `discord_owner_id` comme avant.
+  Future<AdRewardSsvContext?> _buildMainApiAdSsvContext(String botId) {
+    return buildMainApiAdSsvContext(
+      botId: botId,
+      resolveOwnerIds: () async {
+        final app = await appManager.getApp(botId);
+        final botToken = (app['token'] ?? '').toString().trim();
+        if (botToken.isEmpty) {
+          return null;
+        }
 
-    final session = await MainApiSettingsStore.loadSession();
-    final ownerId = (session?.userId ?? '').trim();
-    if (ownerId.isEmpty) {
-      return null;
-    }
+        final session = await MainApiSettingsStore.loadSession();
+        final ownerId = (session?.userId ?? '').trim();
+        if (ownerId.isEmpty) {
+          return null;
+        }
 
-    return AdRewardSsvContext(
-      userId: ownerId,
-      customData: Uri(
-        queryParameters: <String, String>{
-          'owner_id': ownerId,
-          'bot_id': botId,
-          'placement': 'admob_rewarded',
-        },
-      ).query,
+        return BotAdSsvOwnerIds(ownerId: ownerId);
+      },
     );
   }
 

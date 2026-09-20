@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/features/ads/logic/ad_reward_service.dart';
+import 'package:bot_creator/features/ads/logic/ad_ssv_context.dart';
 import 'package:uuid/uuid.dart';
 
 /// Result of watching a rewarded ad for hosted-app hosting minutes.
@@ -42,6 +44,28 @@ class HostedAppHostingActions {
 
     final resolvedOwnerId = ownerId ?? await resolveOwnerId();
 
+    // Sans contexte SSV exploitable, le callback AdMob arrive au Manager sans
+    // mapping (« ignored missing bot mapping ») : l'utilisateur aurait regardé
+    // l'annonce pour rien. On refuse donc de la montrer, en le journalisant.
+    final ssvContext = buildHostedAppAdSsvContext(
+      ownerId: resolvedOwnerId ?? '',
+      placement: placement,
+      containerId: containerId,
+    );
+    if (ssvContext == null) {
+      unawaited(
+        AppDiagnostics.logError(
+          'Hosted app rewarded ad refused: no server-side verification context',
+          StateError('missing_ssv_context'),
+          StackTrace.current,
+          fatal: false,
+          reason:
+              'owner_id introuvable (session Manager absente ou expirée) : la récompense serait perdue sans trace.',
+        ),
+      );
+      throw StateError('Ad context unavailable — no minutes granted.');
+    }
+
     if (!AdRewardService.hasReadyRewardedAd) {
       final loaded = await AdRewardService.ensureAdLoaded(
         timeout: const Duration(seconds: 6),
@@ -60,7 +84,7 @@ class HostedAppHostingActions {
     var rewardEarned = false;
     final rewardId = const Uuid().v4();
     final adShown = await AdRewardService.showRewardedAd(
-      ssvContext: AdRewardSsvContext(userId: resolvedOwnerId),
+      ssvContext: ssvContext,
       onRewardEarned: () async {
         rewardEarned = true;
       },
