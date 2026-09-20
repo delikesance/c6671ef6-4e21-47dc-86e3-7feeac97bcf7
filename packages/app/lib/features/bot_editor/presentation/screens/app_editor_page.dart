@@ -25,7 +25,6 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pag
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/scheduler.page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/settings.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/workflows.page.dart';
-import 'package:bot_creator/features/bot_editor/presentation/widgets/bot_token_import_button.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/editor_sidebar.dart';
 import 'package:bot_creator/features/home/presentation/home_page.dart';
 import 'package:bot_creator/main.dart';
@@ -1101,14 +1100,9 @@ class _OfflineTokenPageState extends State<_OfflineTokenPage> {
               ),
             ),
             const SizedBox(height: 16),
-            // Le seul chemin par lequel un jeton peut redescendre du compte :
-            // visible juste au-dessus de la saisie manuelle, pour qu'un poste
-            // qui n'a jamais eu le jeton ait un recours autre que le copier-coller.
-            BotTokenImportButton(
-              botId: widget.botId,
-              onImported: widget.onTokenSaved,
-            ),
-            const SizedBox(height: 16),
+            // Plus de bouton « importer le jeton » : la reprise est automatique, donc
+            // l'utilisateur n'a jamais à savoir d'où vient un jeton. La saisie manuelle
+            // reste juste en dessous pour ceux qui ont le leur sous la main.
             ElevatedButton.icon(
               onPressed: _saving ? null : _save,
               icon: _saving

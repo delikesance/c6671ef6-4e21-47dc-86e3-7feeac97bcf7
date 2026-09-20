@@ -35,14 +35,13 @@ import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/app_editor_page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/bot_logs.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/bot_config_pull_dialog.dart';
-import 'package:bot_creator/features/bot_editor/presentation/widgets/bot_token_import_button.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_token_import.dart';
 import 'package:bot_creator/features/bot_management/presentation/create_page.dart';
 import 'package:bot_creator/features/containers/logic/turnkey_bot_invite.dart';
 import 'package:bot_creator/features/containers/presentation/container_detail_page.dart';
 import 'package:bot_creator/features/containers/presentation/home_turnkey_container_card.dart';
 import 'package:bot_creator/features/discord_rpc/logic/discord_rpc_service.dart';
 import 'package:bot_creator/features/documentation/documentation_navigation.dart';
-import 'package:bot_creator/features/bot_editor/logic/bot_token_import.dart';
 import 'package:bot_creator/features/home/logic/bot_runtime_affinity.dart';
 import 'package:bot_creator/features/home/logic/bot_start_target.dart';
 import 'package:bot_creator/features/home/presentation/guild_avatar.dart';
@@ -3531,16 +3530,10 @@ class HomeBotCardState extends State<HomeBotCard> {
             ),
           ),
         ],
-        // Menu de la carte : l'import du jeton n'est offert que quand ce poste
-        // n'en a aucun (sinon la question ne se pose pas), et le même widget
-        // porte l'état verrouillé et les messages que sur l'écran Bot Token.
-        if (!widget.hasLocalToken) ...[
-          const SizedBox(height: 10),
-          BotTokenImportButton(
-            botId: widget.id,
-            onImported: widget.onTokenImported,
-          ),
-        ],
+        // La reprise du jeton est devenue AUTOMATIQUE (synchro + démarrage sur ce poste) :
+        // offrir un bouton « Importer le jeton depuis mon compte » obligeait l'utilisateur
+        // à comprendre un détail d'implémentation pour que son bot démarre. Il ne reste
+        // donc aucun geste à faire ici, pas même quand ce poste n'a aucun jeton.
       ],
     );
   }
