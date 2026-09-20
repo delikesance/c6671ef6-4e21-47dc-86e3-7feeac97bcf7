@@ -9042,6 +9042,10 @@ class AppLocalizationsFr extends AppLocalizations {
       'Vous n\'avez plus de minutes d\'hébergement gratuites. Regardez une publicité récompensée pour en débloquer, ou passez à Premium pour un hébergement illimité.';
 
   @override
+  String get container_deploy_blocked_cloud_disabled =>
+      'L\'hébergement cloud n\'est pas activé sur ce serveur : le déploiement à distance y est indisponible. Exécute le bot en local, ou via ton propre runner.';
+
+  @override
   String get container_deploy_blocked_eligibility_error =>
       'Impossible de vérifier si vous pouvez déployer pour le moment.';
 

@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:ui' as ui;
 
+import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -17,7 +19,26 @@ class LocaleProvider extends ChangeNotifier {
   AppLocale get locale => _locale;
 
   LocaleProvider() {
-    _locale = detectSystemLocale(ui.PlatformDispatcher.instance.locale);
+    final platformLocale = ui.PlatformDispatcher.instance.locale;
+    _locale = detectSystemLocale(platformLocale);
+    // Diagnostic de langue : l'application suit la locale du PROCESSUS, et un
+    // lancement sans locale explicite (LANG=C, variables absentes) la fait
+    // basculer en anglais sans que rien ne le signale — l'utilisateur voit alors
+    // une interface anglaise sur une machine française, sans indice. On journalise
+    // donc la valeur BRUTE de la plateforme ET la langue retenue : c'est la seule
+    // façon de trancher entre « ce poste n'est pas en français » et « la résolution
+    // se trompe ».
+    unawaited(
+      AppDiagnostics.logInfo(
+        'Locale resolved',
+        data: <String, Object?>{
+          'platformLocale': platformLocale.toString(),
+          'platformLanguageCode': platformLocale.languageCode,
+          'platformCountryCode': platformLocale.countryCode,
+          'resolved': _locale.code,
+        },
+      ),
+    );
     _load();
   }
 

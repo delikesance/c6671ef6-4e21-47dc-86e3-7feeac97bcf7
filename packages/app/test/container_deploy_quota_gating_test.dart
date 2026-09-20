@@ -14,6 +14,7 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/containers/presentation/container_deploy_page.dart';
+import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -295,6 +296,47 @@ void main() {
       );
 
       expect(launchButton(tester, tr).onPressed, isNotNull);
+    },
+  );
+
+  testWidgets(
+    'hébergement cloud coupé par le serveur : la raison affichée dit la vraie cause',
+    (WidgetTester tester) async {
+      // Le serveur a dit lui-même que l'hébergement cloud est coupé sur ce
+      // déploiement (`premium_cloud_enabled: false`).
+      await SubscriptionService.applyPushedAccountState(const <String, dynamic>{
+        'plan': 'FREE',
+        'premium_cloud_enabled': false,
+      });
+      addTearDown(() async {
+        // Sinon le fichier entier hériterait d'un « cloud coupé ».
+        await SubscriptionService.debugResetForTests();
+      });
+
+      final tr = await pumpDeployPage(
+        tester,
+        _eligibilityBody(
+          premium: false,
+          active: 0,
+          max: 1,
+          canDeploy: false,
+          blockedReason: 'no_minutes',
+          minutes: 0,
+        ),
+      );
+
+      expect(
+        find.text(tr.container_deploy_blocked_cloud_disabled),
+        findsOneWidget,
+        reason:
+            'la cause est l\'interrupteur du déploiement : proposer une publicité ou une formule '
+            'promettrait une porte qui n\'existe pas',
+      );
+      expect(
+        find.text(tr.container_deploy_blocked_no_minutes),
+        findsNothing,
+        reason: 'la phrase des minutes propose la publicité récompensée : ici elle serait fausse',
+      );
     },
   );
 }

@@ -121,6 +121,23 @@ class SubscriptionService {
   static DateTime? _lastServerSyncAt;
   static bool? _debugForceNativeBillingSourceOfTruth;
 
+  /// `premium_cloud_enabled` reçu du serveur : l'hébergement cloud est-il
+  /// réellement disponible sur CE déploiement ?
+  ///
+  /// Ce n'est ni un droit de la formule ni une propriété du poste : côté serveur
+  /// c'est `plan == PREMIUM && PREMIUM_CLOUD_ENABLED`, le second terme étant un
+  /// interrupteur de déploiement. Tant que le serveur ne l'a pas dit (`null`), on
+  /// n'affirme rien ; quand il dit NON, l'application doit le dire aussi — sinon
+  /// elle envoie l'utilisateur regarder une publicité ou acheter une formule qui
+  /// n'ouvriraient aucun hébergement.
+  static bool? get premiumCloudEnabled => _premiumCloudEnabled;
+
+  /// Vrai seulement quand le serveur a EXPLICITEMENT dit que l'hébergement cloud
+  /// est coupé (jamais sur une simple absence d'information).
+  static bool get premiumCloudDisabled => _premiumCloudEnabled == false;
+
+  static bool? _premiumCloudEnabled;
+
   /// Une formule a-t-elle déjà été reçue du SERVEUR (réponse HTTP ou événement
   /// poussé) ? Tant que non, l'app est hors ligne du point de vue des formules et
   /// garde son comportement hors connexion ; dès que oui, c'est cette formule qui
@@ -1397,6 +1414,14 @@ class SubscriptionService {
     _serverPlanKnown = true;
     _managerPremiumOverride = plan;
     _managerPremiumOverrideUpdatedAt = DateTime.now().toUtc();
+
+    // Interrupteur d'hébergement cloud, lu sur TOUTE réponse de compte : c'est
+    // justement quand la formule est gratuite que l'app doit pouvoir dire laquelle
+    // des deux causes bloque un déploiement distant (la formule, ou le déploiement
+    // lui-même). Un champ absent laisse l'état INCONNU : on n'affirme rien.
+    final rawPremiumCloud =
+        runtime['premium_cloud_enabled'] ?? runtime['premiumCloudEnabled'];
+    _premiumCloudEnabled = rawPremiumCloud is bool ? rawPremiumCloud : null;
     if (plan) {
       _isSubscribed = true;
       _serverValidated = true;
@@ -1669,6 +1694,7 @@ class SubscriptionService {
     _serverMaxTurnkeyBots = null;
     _serverAllowOwnBots = true;
     _serverAllowTurnkey = true;
+    _premiumCloudEnabled = null;
     _planQuotasFromServer = false;
     _managerPremiumOverride = null;
     _managerPremiumOverrideUpdatedAt = null;

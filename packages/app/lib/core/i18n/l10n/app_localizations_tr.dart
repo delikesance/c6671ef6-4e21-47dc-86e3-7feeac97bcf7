@@ -8953,6 +8953,10 @@ class AppLocalizationsTr extends AppLocalizations {
       'You\'re out of free hosting minutes. Watch a rewarded ad to unlock more minutes, or go Premium for unlimited hosting.';
 
   @override
+  String get container_deploy_blocked_cloud_disabled =>
+      'Bu sunucuda bulut barındırma etkin değil: uzaktan dağıtım kullanılamıyor. Botu yerel olarak veya kendi runner\'ın üzerinden çalıştır.';
+
+  @override
   String get container_deploy_blocked_eligibility_error =>
       'Couldn\'t check whether you can deploy right now.';
 

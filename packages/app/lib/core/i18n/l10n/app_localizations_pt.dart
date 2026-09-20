@@ -9012,6 +9012,10 @@ class AppLocalizationsPt extends AppLocalizations {
       'You\'re out of free hosting minutes. Watch a rewarded ad to unlock more minutes, or go Premium for unlimited hosting.';
 
   @override
+  String get container_deploy_blocked_cloud_disabled =>
+      'O alojamento na cloud não está ativado neste servidor: a implementação remota não está disponível. Executa o bot localmente ou através do teu próprio runner.';
+
+  @override
   String get container_deploy_blocked_eligibility_error =>
       'Couldn\'t check whether you can deploy right now.';
 

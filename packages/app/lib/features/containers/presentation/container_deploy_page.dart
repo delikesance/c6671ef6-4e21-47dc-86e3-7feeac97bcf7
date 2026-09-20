@@ -11,6 +11,7 @@ import 'package:bot_creator/features/containers/logic/turnkey_env_payload.dart';
 import 'package:bot_creator/features/containers/presentation/container_detail_page.dart';
 import 'package:bot_creator/features/containers/presentation/hosted_app_upsell_widgets.dart';
 import 'package:bot_creator/features/containers/presentation/turnkey_env_fields.dart';
+import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
 import 'package:bot_creator/features/subscriptions/presentation/subscriptions_hub_page.dart';
 import 'package:flutter/material.dart';
 
@@ -34,6 +35,12 @@ enum _DeployBlockReason {
 
   /// No hosting minutes remain (free tier only).
   noMinutes,
+
+  /// Le serveur a dit que l'hébergement cloud est coupé sur ce déploiement
+  /// (`premium_cloud_enabled: false`). Le blocage vient de lui ; seule
+  /// l'explication change, parce qu'aucune publicité ni aucune formule ne le
+  /// débloquerait.
+  serverCloudDisabled,
 }
 
 class ContainerDeployPage extends StatefulWidget {
@@ -253,13 +260,17 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
     // La formule du compte est servie par le serveur (elle prime sur
     // l'abonnement store) : si elle n'inclut pas le clé en main, inutile
     // d'aller plus loin, le déploiement sera refusé.
-    if (!elig.allowTurnkey) return _DeployBlockReason.planLimit;
+    if (!elig.allowTurnkey) return _explicationHonnete(_DeployBlockReason.planLimit);
     // Le VERDICT DU SERVEUR prime : c'est lui qui applique le quota au démarrage.
     // Les heuristiques ci-dessous ne servent que de repli pour un serveur qui ne
     // renverrait pas ces champs.
     if (!elig.canDeploy) {
-      if (elig.isBlockedByNoMinutes) return _DeployBlockReason.noMinutes;
-      if (elig.isBlockedByPlan) return _DeployBlockReason.planLimit;
+      if (elig.isBlockedByNoMinutes) {
+        return _explicationHonnete(_DeployBlockReason.noMinutes);
+      }
+      if (elig.isBlockedByPlan) {
+        return _explicationHonnete(_DeployBlockReason.planLimit);
+      }
       return _DeployBlockReason.containerLimit;
     }
     // Le quota de conteneurs s'applique à TOUT LE MONDE, premium compris : une
@@ -273,9 +284,30 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
     // En revanche, l'exigence de minutes ne concerne que l'hébergement ad-financé :
     // un compte couvert par une formule n'a pas de minutes à consommer.
     if (!elig.premium && elig.hostingMinutesBalance <= 0) {
-      return _DeployBlockReason.noMinutes;
+      return _explicationHonnete(_DeployBlockReason.noMinutes);
     }
     return _DeployBlockReason.none;
+  }
+
+  /// Le blocage reste celui du SERVEUR — on n'invente aucune interdiction, c'est
+  /// lui qui applique le quota. Seule l'EXPLICATION change quand l'hébergement
+  /// cloud est coupé sur ce déploiement (`premium_cloud_enabled: false`) : dans ce
+  /// cas, ni une publicité récompensée ni une formule premium ne débloqueraient
+  /// quoi que ce soit, et envoyer l'utilisateur acheter ou regarder une pub serait
+  /// une promesse fausse.
+  _DeployBlockReason _explicationHonnete(_DeployBlockReason raison) {
+    if (!SubscriptionService.premiumCloudDisabled) return raison;
+    switch (raison) {
+      case _DeployBlockReason.noMinutes:
+      case _DeployBlockReason.planLimit:
+        return _DeployBlockReason.serverCloudDisabled;
+      case _DeployBlockReason.none:
+      case _DeployBlockReason.loading:
+      case _DeployBlockReason.eligibilityError:
+      case _DeployBlockReason.containerLimit:
+      case _DeployBlockReason.serverCloudDisabled:
+        return raison;
+    }
   }
 
   bool get _canDeploy => _blockReason == _DeployBlockReason.none;
@@ -321,6 +353,15 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(tr.container_deploy_blocked_no_minutes),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        case _DeployBlockReason.serverCloudDisabled:
+          // Aucune action proposée : ni une publicité ni une formule ne rouvrent
+          // un hébergement cloud coupé sur ce déploiement.
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(tr.container_deploy_blocked_cloud_disabled),
               backgroundColor: Colors.orange,
             ),
           );
@@ -524,6 +565,15 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
           message: tr.container_deploy_blocked_no_minutes,
           actionLabel: tr.container_hosted_ad_button(reward),
           onAction: _claimingAd ? null : _watchAdForHostingMinutes,
+        );
+      case _DeployBlockReason.serverCloudDisabled:
+        // Aucune action, et surtout PAS une publicité : le message dit la vraie
+        // porte de sortie (local ou runner perso) au lieu d'en promettre une
+        // fausse (regarder une pub ou acheter une formule ne rouvrirait rien).
+        return _DeployNoticeCard(
+          icon: Icons.cloud_off_rounded,
+          color: Colors.orange,
+          message: tr.container_deploy_blocked_cloud_disabled,
         );
     }
   }

@@ -15556,6 +15556,12 @@ abstract class AppLocalizations {
   /// **'You\'re out of free hosting minutes. Watch a rewarded ad to unlock more minutes, or go Premium for unlimited hosting.'**
   String get container_deploy_blocked_no_minutes;
 
+  /// No description provided for @container_deploy_blocked_cloud_disabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud hosting is not enabled on this server: remote deployment is unavailable. Run the bot locally, or through your own runner.'**
+  String get container_deploy_blocked_cloud_disabled;
+
   /// Deploy eligibility banner shown when the eligibility check failed to load
   ///
   /// In en, this message translates to:
