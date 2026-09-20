@@ -5807,6 +5807,9 @@ class AppLocalizationsTr extends AppLocalizations {
       'Bot Creator sunucularından istatistikleri yüklemek için Ayarlar\'da Bot Creator\'a giriş yapın.';
 
   @override
+  String get runner_source_this_device => 'Bu cihaz';
+
+  @override
   String get save => 'Kaydet';
 
   @override

@@ -10230,6 +10230,12 @@ abstract class AppLocalizations {
   /// **'Sign in to Bot Creator in Settings to load stats from Bot Creator servers.'**
   String get runner_source_manager_unavailable;
 
+  /// This device
+  ///
+  /// In en, this message translates to:
+  /// **'This device'**
+  String get runner_source_this_device;
+
   /// Save
   ///
   /// In en, this message translates to:

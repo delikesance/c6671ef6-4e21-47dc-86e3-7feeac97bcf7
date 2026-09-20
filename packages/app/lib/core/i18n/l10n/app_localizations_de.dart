@@ -5870,6 +5870,9 @@ class AppLocalizationsDe extends AppLocalizations {
       'Melden Sie sich in den Einstellungen bei Bot Creator an, um Statistiken von den Bot Creator-Servern zu laden.';
 
   @override
+  String get runner_source_this_device => 'Dieses Gerät';
+
+  @override
   String get save => 'Speichern';
 
   @override

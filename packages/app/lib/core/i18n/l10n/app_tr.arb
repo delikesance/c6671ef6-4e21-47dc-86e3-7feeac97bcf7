@@ -4471,6 +4471,9 @@
   "@runner_source_manager_unavailable": {
     "description": "Sign in to Bot Creator in Settings to load stats from Bot Creator servers."
   },
+  "@runner_source_this_device": {
+    "description": "This device"
+  },
   "@save": {
     "description": "Save"
   },
@@ -8557,6 +8560,7 @@
   "runner_source_local": "Yerel",
   "runner_source_manager": "Bot Creator sunucuları",
   "runner_source_manager_unavailable": "Bot Creator sunucularından istatistikleri yüklemek için Ayarlar'da Bot Creator'a giriş yapın.",
+  "runner_source_this_device": "Bu cihaz",
   "save": "Kaydet",
   "scheduler_add_title": "Program ekle",
   "scheduler_add_trigger": "Tetikleyici ekle",

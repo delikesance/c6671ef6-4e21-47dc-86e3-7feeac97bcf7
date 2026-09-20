@@ -5,6 +5,18 @@ extension _AppHomePageLogic on _AppHomePageState {
   // Une seule règle dans toute l'application (voir `run_platform.dart`).
   bool get _supportsManagerRuntime => supportsManagerRuntime;
 
+  /// Source d'exécution VIVANTE du bot affiché par cette page.
+  ///
+  /// `null` hors poste de travail : le mobile garde son affichage historique
+  /// (`_botLaunched` + hébergement), décision produit verrouillée par des tests.
+  /// Sur un poste, la décision vient de `bot_run_source.dart` — la MÊME brique
+  /// que la carte d'accueil, donc les deux écrans ne peuvent plus annoncer deux
+  /// sources différentes pour le même bot.
+  BotRunOrigin? get _runOrigin => desktopBotRunOrigin(
+    botId: widget.client.user.id.toString(),
+    serverReportsRunning: _botLaunched,
+  );
+
   Future<bool> _requestPermissions() async {
     if (!_supportsForegroundTask) {
       return true;

@@ -5552,6 +5552,9 @@ class AppLocalizationsJa extends AppLocalizations {
       '設定でBot Creatorにサインインして、Bot Creatorサーバーからの統計を読み込んでください。';
 
   @override
+  String get runner_source_this_device => 'このデバイス';
+
+  @override
   String get save => '保存';
 
   @override
