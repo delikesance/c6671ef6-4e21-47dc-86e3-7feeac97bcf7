@@ -238,6 +238,17 @@ class HomePageState extends State<HomePage>
   bool _gatewayEventsConnected = false;
   int _httpFallbackTick = 0;
 
+  /// Session du canal temps réel actuellement câblée par l'accueil (une seule à la fois).
+  GatewayBotEventsSession? _gatewayEventsSession;
+
+  /// Identité du serveur qui a fourni [_gatewayEventsSession] (base du client manager).
+  ///
+  /// C'est elle qui distingue « le canal demandé est DÉJÀ en place » de « le canal
+  /// demandé vise un autre serveur » : changer de serveur (ou de compte) change la base,
+  /// donc impose une session neuve, tandis qu'un simple appel répété pour la même base
+  /// doit ne rien faire du tout.
+  String? _gatewayEventsClientKey;
+
   /// Dernier ETag du snapshot agrégé : c'est lui qui transforme le repli suivant en
   /// `304` (rien à retélécharger, rien à réappliquer) tant que l'état n'a pas bougé.
   String? _snapshotEtag;
@@ -258,6 +269,30 @@ class HomePageState extends State<HomePage>
 
   @visibleForTesting
   static Future<void> Function()? debugPerBotRefreshOverride;
+
+  /// Nombre de sessions du canal temps réel CÂBLÉES par l'accueil depuis le début du
+  /// processus.
+  ///
+  /// Sans ce témoin, rien ne prouve qu'un second appel ne recrée pas de session : une
+  /// session réutilisée ne se distingue pas de l'extérieur (le canal n'est pas rouvert,
+  /// aucun message n'est journalisé), et un test ne peut donc pas verrouiller
+  /// l'idempotence. Le compteur s'incrémente UNIQUEMENT quand l'accueil câble réellement
+  /// une session, jamais quand il constate que le canal est déjà en place.
+  @visibleForTesting
+  static int debugGatewaySessionsCreated = 0;
+
+  /// Client manager imposé à [_ensureGatewayBotEvents] en test.
+  ///
+  /// En production le client vient de la session enregistrée, que le test ne peut pas
+  /// connaître ; et le piloter par les préférences ferait partir de vraies requêtes HTTP.
+  /// Le test d'idempotence doit pourtant traverser la VRAIE méthode de l'accueil, d'où ce
+  /// point d'injection unique qui ne concerne que le canal temps réel.
+  @visibleForTesting
+  static MainApiClient? debugGatewayEventsClientOverride;
+
+  /// Session du canal temps réel actuellement câblée (nulle si aucune).
+  @visibleForTesting
+  GatewayBotEventsSession? get debugGatewayEventsSession => _gatewayEventsSession;
 
   bool get _supportsForegroundTask => Platform.isAndroid || Platform.isIOS;
 
@@ -333,8 +368,9 @@ class HomePageState extends State<HomePage>
     WidgetsBinding.instance.removeObserver(this);
     _statusRefreshTimer?.cancel();
     unawaited(_appsSub?.cancel());
-    unawaited(_gatewayEventsSub?.cancel());
-    unawaited(_gatewayConnectionSub?.cancel());
+    // Le canal temps réel est libéré ENTIER (WebSocket fermée), pas seulement
+    // débranché : annuler les deux abonnements laisserait la socket ouverte.
+    _releaseGatewayBotEvents();
     for (final ctrl in _pulseControllers.values) {
       ctrl.dispose();
     }
@@ -888,24 +924,78 @@ class HomePageState extends State<HomePage>
     _skippedMissingBotIds.remove(botId);
   }
 
+  /// Câble — UNE SEULE FOIS par serveur — la session du canal temps réel.
+  ///
+  /// Idempotente : un appel pour un serveur dont la session est déjà vivante ne crée rien
+  /// et n'annule RIEN. Le défaut corrigé ici se lit dans les journaux d'un utilisateur
+  /// sous la forme d'une alternance sans fin (« canal temps réel rétabli » puis
+  /// « indisponible ») : chaque appel remplaçait la session et annulait les abonnements de
+  /// la précédente, donc le canal en place — celui qui porte l'état des bots et du compte
+  /// — était détruit à chaque reprise d'application. L'indicateur de connexion retombait
+  /// à « Hors ligne » et plus aucune donnée serveur n'arrivait, alors que le serveur
+  /// exécutait bien les bots.
+  ///
+  /// Un changement de serveur (ou de compte) change la clé : l'ancienne session est alors
+  /// réellement libérée — WebSocket fermée — avant d'en câbler une neuve.
   Future<void> _ensureGatewayBotEvents() async {
-    final remoteRuntime = await _resolveRemoteRuntime(
-      getTimeout: const Duration(seconds: 10),
-      postTimeout: const Duration(seconds: 20),
-    );
-    final remoteClient = remoteRuntime.client;
-    if (remoteClient is! MainApiClient) {
+    final MainApiClient? remoteClient;
+    final override = debugGatewayEventsClientOverride;
+    if (override != null) {
+      remoteClient = override;
+    } else {
+      final remoteRuntime = await _resolveRemoteRuntime(
+        getTimeout: const Duration(seconds: 10),
+        postTimeout: const Duration(seconds: 20),
+      );
+      final client = remoteRuntime.client;
+      remoteClient = client is MainApiClient ? client : null;
+    }
+    if (remoteClient == null) {
       return;
     }
+    final clientKey = remoteClient.baseUrl;
+    // Canal DÉJÀ en place pour ce même serveur : retour immédiat, sans toucher aux
+    // abonnements vivants. C'est ici — et nulle part ailleurs — que se décide la
+    // réutilisation plutôt que la reconstruction.
+    if (_gatewayEventsSession != null && _gatewayEventsClientKey == clientKey) {
+      return;
+    }
+    _releaseGatewayBotEvents();
     final session = remoteClient.connectGatewayBotEvents();
-    await _gatewayEventsSub?.cancel();
-    await _gatewayConnectionSub?.cancel();
+    debugGatewaySessionsCreated++;
+    _gatewayEventsSession = session;
+    _gatewayEventsClientKey = clientKey;
     _gatewayEventsSub = session.events.listen(_onGatewayBotEvent);
     _gatewayConnectionSub = session.connectionChanges.listen(
       handleGatewayConnectionChange,
     );
     if (session.isConnected && mounted) {
       setState(() => _gatewayEventsConnected = true);
+    }
+  }
+
+  /// Libère la session du canal temps réel : abonnements annulés PUIS session détruite
+  /// (`GatewayBotEventsSession.dispose` ferme la WebSocket et ses flux).
+  ///
+  /// Ces libérations ne sont JAMAIS attendues : une annulation d'abonnement ne rend pas la
+  /// main avant la fermeture du flux, et `dispose()` attend ces mêmes annulations — même
+  /// constat que `GatewayBotEventsSession._connect`, qui rend la main tout de suite pour
+  /// ne pas geler sa reconnexion. Ici, attendre figerait le CÂBLAGE : le canal neuf du
+  /// nouveau serveur ne serait jamais ouvert. L'effet utile est immédiat — le
+  /// désabonnement est effectif sur-le-champ, la session marquée détruite (donc plus
+  /// aucune reconnexion) et sa WebSocket fermée dès que le flux rend la main.
+  void _releaseGatewayBotEvents() {
+    final session = _gatewayEventsSession;
+    _gatewayEventsSession = null;
+    _gatewayEventsClientKey = null;
+    final eventsSub = _gatewayEventsSub;
+    final connectionSub = _gatewayConnectionSub;
+    _gatewayEventsSub = null;
+    _gatewayConnectionSub = null;
+    unawaited(eventsSub?.cancel());
+    unawaited(connectionSub?.cancel());
+    if (session != null) {
+      unawaited(session.dispose());
     }
   }
 
