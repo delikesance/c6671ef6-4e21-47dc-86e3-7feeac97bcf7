@@ -42,6 +42,7 @@ import 'package:bot_creator/features/containers/presentation/container_detail_pa
 import 'package:bot_creator/features/containers/presentation/home_turnkey_container_card.dart';
 import 'package:bot_creator/features/discord_rpc/logic/discord_rpc_service.dart';
 import 'package:bot_creator/features/documentation/documentation_navigation.dart';
+import 'package:bot_creator/features/home/logic/bot_run_source.dart';
 import 'package:bot_creator/features/home/logic/bot_runtime_affinity.dart';
 import 'package:bot_creator/features/home/logic/bot_start_target.dart';
 import 'package:bot_creator/features/home/presentation/guild_avatar.dart';
@@ -3146,7 +3147,22 @@ class HomePageState extends State<HomePage>
     final canToggle = _botIdInAction == null;
     // Controllers are created by the app-stream listener, never during build.
     final pulseCtrl = _pulseControllers[id] ?? _fallbackPulseController;
-    final freeMinutes = _displayFreeMinutesForBot(id);
+    // Source d'exécution VIVANTE de ce bot (association + état annoncé par le
+    // serveur), décidée par la brique partagée `bot_run_source.dart` — la page de
+    // détail d'un bot l'interroge aussi. `null` sur mobile : l'affichage
+    // historique y est conservé tel quel.
+    final runOrigin = desktopBotRunOrigin(
+      botId: id,
+      serverReportsRunning: isRunning,
+    );
+    // Un bot exécuté par ce poste ne consomme pas le solde cloud : on ne laisse
+    // donc AUCUNE valeur de solde descendre jusqu'à la carte, sinon une ligne
+    // d'expiration pourrait réapparaître sans que la source soit cloud.
+    final showsHostingExpiration =
+        runOrigin == null || runOrigin.isHostedRemotely;
+    final freeMinutes = showsHostingExpiration
+        ? _displayFreeMinutesForBot(id)
+        : 0;
 
     final isTurnkey =
         app['is_turnkey'] == true ||
@@ -3168,8 +3184,12 @@ class HomePageState extends State<HomePage>
       canToggle: canToggle,
       isTogglingThisBot: _botIdInAction == id,
       initiallyExpanded: initiallyExpanded,
-      runtimeBadgeLabel: isRunning ? _runtimeBadgeLabel(id) : null,
+      runtimeBadgeLabel: runOrigin == null
+          // Mobile : badge historique, seulement quand le bot tourne.
+          ? (isRunning ? _runtimeBadgeLabel(id) : null)
+          : botRunSourceLabel(context.tr, runOrigin),
       freeMinutes: freeMinutes,
+      showsHostingExpiration: showsHostingExpiration,
       pulseController: pulseCtrl,
       showPremiumLabels: _supportsForegroundTask,
       isTurnkey: isTurnkey,
@@ -3359,6 +3379,7 @@ class HomeBotCard extends StatefulWidget {
     required this.showPremiumLabels,
     required this.freeMinutes,
     this.runtimeBadgeLabel,
+    this.showsHostingExpiration = true,
     this.isTurnkey = false,
     this.hasLocalToken = true,
     this.onTokenImported,
@@ -3374,6 +3395,16 @@ class HomeBotCard extends StatefulWidget {
   final bool initiallyExpanded;
   final String? runtimeBadgeLabel;
   final int freeMinutes;
+
+  /// Faut-il afficher la ligne d'expiration / de réserve d'hébergement ?
+  ///
+  /// Vrai par défaut (affichage historique, notamment mobile). Un écran d'un
+  /// poste de travail le passe à `false` dès que la source d'exécution n'est pas
+  /// les serveurs Bot Creator : un bot qui tourne ICI ne consomme pas le solde
+  /// cloud, donc afficher « Expire le … » serait un mensonge — c'est exactement
+  /// le défaut signalé par le propriétaire (échéance en 2038 sur un bot local).
+  final bool showsHostingExpiration;
+
   final AnimationController pulseController;
   final bool showPremiumLabels;
   final bool isTurnkey;
@@ -3426,33 +3457,51 @@ class HomeBotCardState extends State<HomeBotCard> {
         : context.tr.home_active_on_servers_other(count);
   }
 
-  /// Adding time only makes sense for a bot that is actually running, and only
-  /// on platforms able to host the foreground task. Desktop has no hosting
-  /// concept at all, so the action is never offered there.
+  /// Ajouter du temps n'a de sens que pour un bot réellement en marche, et
+  /// seulement sur les plateformes capables d'héberger la tâche de fond. Un
+  /// poste de travail n'a aucun concept d'hébergement : l'action n'y est jamais
+  /// proposée.
   bool get _showAddHosting {
     if (!widget.isRunning) return false;
     if (!_supportsForegroundTask) return false;
     return !SubscriptionService.isSubscribed;
   }
 
+  /// Ligne d'échéance de l'hébergement (« Expire le … ») ou de réserve en pause.
+  ///
+  /// N'est appelée que lorsque la ligne a le droit d'exister : un solde cloud
+  /// converti en date n'a de sens que pour un bot exécuté par les serveurs.
+  String _hostingExpirationLabel(BuildContext context) {
+    if (widget.freeMinutes <= 0) {
+      return context.tr.home_hosting_status_paused;
+    }
+    final expiresAt = DateTime.now().add(
+      Duration(minutes: widget.freeMinutes),
+    );
+    return formatSessionExpiration(context, expiresAt);
+  }
+
   Widget _buildExpandedContent(BuildContext context, ColorScheme scheme) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final tokens = HomeTokens.of(context);
-    final String expirationLabel;
-    if (widget.freeMinutes <= 0) {
-      expirationLabel = context.tr.home_hosting_status_paused;
-    } else {
-      final expiresAt = DateTime.now().add(
-        Duration(minutes: widget.freeMinutes),
-      );
-      expirationLabel = formatSessionExpiration(context, expiresAt);
-    }
-    String? statusLabel;
-    if (widget.isRunning) {
-      statusLabel =
-          '${widget.runtimeBadgeLabel ?? context.tr.home_synced_active} • $expirationLabel';
-    } else {
+    // Ligne d'échéance / de réserve : absente du layout dès que la source n'est
+    // pas les serveurs Bot Creator (`null` = rien à afficher, la ligne entière
+    // disparaît — voir `_ServerPresenceRow`).
+    final String? expirationLabel = widget.showsHostingExpiration
+        ? _hostingExpirationLabel(context)
+        : null;
+    // La source vivante (« Ce poste », « Serveurs Bot Creator ») porte l'état ;
+    // sans source, on retombe sur l'ancien libellé mobile.
+    final badge =
+        widget.runtimeBadgeLabel ??
+        (widget.isRunning ? context.tr.home_synced_active : null);
+    final String? statusLabel;
+    if (badge == null) {
       statusLabel = expirationLabel;
+    } else {
+      statusLabel = expirationLabel == null
+          ? badge
+          : '$badge • $expirationLabel';
     }
 
     return Column(

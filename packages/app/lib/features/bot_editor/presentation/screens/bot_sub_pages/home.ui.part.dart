@@ -18,6 +18,10 @@ extension _AppHomePageUI on _AppHomePageState {
     return formatHostingDuration(context, i);
   }
 
+  /// La carte d'hébergement (temps restant, échéance) ne concerne QUE les bots que le
+  /// serveur exécute : un bot lancé sur ce poste ne consomme pas le solde cloud, donc y
+  /// afficher une échéance serait un mensonge. Hors poste de travail, comportement
+  /// historique conservé (le mobile ne change pas).
   bool get _shouldShowHostingCard {
     if (_fundingMode == 'premium') {
       return false;
@@ -25,7 +29,24 @@ extension _AppHomePageUI on _AppHomePageState {
     if (SubscriptionService.isSubscribed) {
       return false;
     }
-    return _supportsForegroundTask;
+    final origin = _runOrigin;
+    if (origin == null) {
+      return _supportsForegroundTask;
+    }
+    return origin.isHostedRemotely;
+  }
+
+  /// Libellé d'état de l'en-tête : il dit QUI exécute le bot, pas ce que l'écran
+  /// aimerait afficher. Sur un poste, c'est l'état vivant qui tranche ; ailleurs,
+  /// l'ancien libellé est conservé au mot près.
+  String _headerStatusLabel(BuildContext context) {
+    final origin = _runOrigin;
+    if (origin == null) {
+      return _botLaunched
+          ? context.tr.home_hosting_status_active
+          : context.tr.home_status_offline;
+    }
+    return botRunSourceLabel(context.tr, origin) ?? context.tr.home_status_offline;
   }
 
   Widget _buildWideOverview(
@@ -90,9 +111,7 @@ extension _AppHomePageUI on _AppHomePageState {
                     ),
                   ),
                   Text(
-                    _botLaunched
-                        ? context.tr.home_hosting_status_active
-                        : context.tr.home_status_offline,
+                    _headerStatusLabel(context),
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       fontWeight: FontWeight.w500,

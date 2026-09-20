@@ -5879,6 +5879,9 @@ class AppLocalizationsFr extends AppLocalizations {
       'Connectez-vous à Bot Creator dans les paramètres pour charger les statistiques depuis les serveurs Bot Creator.';
 
   @override
+  String get runner_source_this_device => 'Ce poste';
+
+  @override
   String get save => 'Enregistrer';
 
   @override

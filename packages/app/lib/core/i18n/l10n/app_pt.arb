@@ -4504,6 +4504,9 @@
   "@runner_source_manager_unavailable": {
     "description": "Sign in to Bot Creator in Settings to load stats from Bot Creator servers."
   },
+  "@runner_source_this_device": {
+    "description": "This device"
+  },
   "@save": {
     "description": "Save"
   },
@@ -8590,6 +8593,7 @@
   "runner_source_local": "Local",
   "runner_source_manager": "Servidores Bot Creator",
   "runner_source_manager_unavailable": "Inicie sessão no Bot Creator nas Configurações para carregar estatísticas dos servidores do Bot Creator.",
+  "runner_source_this_device": "Este dispositivo",
   "save": "Guardar",
   "scheduler_add_title": "Adicionar agendamento",
   "scheduler_add_trigger": "Adicionar gatilho",

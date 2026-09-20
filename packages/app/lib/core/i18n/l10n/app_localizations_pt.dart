@@ -5861,6 +5861,9 @@ class AppLocalizationsPt extends AppLocalizations {
       'Inicie sessão no Bot Creator nas Configurações para carregar estatísticas dos servidores do Bot Creator.';
 
   @override
+  String get runner_source_this_device => 'Este dispositivo';
+
+  @override
   String get save => 'Guardar';
 
   @override

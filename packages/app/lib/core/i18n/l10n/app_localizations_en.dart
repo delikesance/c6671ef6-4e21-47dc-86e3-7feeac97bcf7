@@ -5778,6 +5778,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Sign in to Bot Creator in Settings to load stats from Bot Creator servers.';
 
   @override
+  String get runner_source_this_device => 'This device';
+
+  @override
   String get save => 'Save';
 
   @override
