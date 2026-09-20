@@ -149,27 +149,40 @@ class PremiumCapabilities {
     return !isCapabilityRolledOut(capability);
   }
 
-  static int limitFor(PremiumCapability capability) {
+  static int limitFor(PremiumCapability capability) =>
+      _limitFor(capability, premium: isPremiumUser);
+
+  /// Le plafond de la formule PAYANTE, quelle que soit la formule actuelle du compte.
+  ///
+  /// Sert à la règle « ce que l'appareil exécute ne dépend pas de la formule » : quand
+  /// le bot tourne sur la machine de l'utilisateur, la capacité n'est plus une ressource
+  /// du serveur. Ouvrir l'écran sans relever le plafond laisserait un bouton « Ajouter »
+  /// visible qui refuse toute création — pire qu'un cadenas. Le chiffre reste ICI, à un
+  /// seul endroit : personne ne le recopie ailleurs.
+  static int premiumLimitFor(PremiumCapability capability) =>
+      _limitFor(capability, premium: true);
+
+  static int _limitFor(PremiumCapability capability, {required bool premium}) {
     switch (capability) {
       case PremiumCapability.noAds:
       case PremiumCapability.instantStart:
-        return isPremiumUser ? 1 : 0;
+        return premium ? 1 : 0;
       case PremiumCapability.analyticsExpanded:
-        return isPremiumUser ? 1 : 0;
+        return premium ? 1 : 0;
       case PremiumCapability.schedulerTriggers:
-        return isPremiumUser ? 10 : 0;
+        return premium ? 10 : 0;
       case PremiumCapability.inboundWebhooks:
-        return isPremiumUser ? 5 : 0;
+        return premium ? 5 : 0;
       case PremiumCapability.visualDebuggerReplay:
-        return isPremiumUser ? 1 : 0;
+        return premium ? 1 : 0;
       case PremiumCapability.autoSharding:
-        return isPremiumUser ? 1 : 0;
+        return premium ? 1 : 0;
       case PremiumCapability.autoRestart:
-        return isPremiumUser ? 1 : 0;
+        return premium ? 1 : 0;
       case PremiumCapability.lavalinkAudio:
-        return isPremiumUser ? 1 : 0;
+        return premium ? 1 : 0;
       case PremiumCapability.hostedApps:
-        return isPremiumUser ? 2 : 1;
+        return premium ? 2 : 1;
     }
   }
 
