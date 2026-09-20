@@ -1930,6 +1930,21 @@ class MainApiClient implements RemoteRuntimeClient {
     return _post('/containers/$id/start', <String, dynamic>{});
   }
 
+  /// Résout l'identité Discord du bot que fait tourner un conteneur
+  /// (`POST /containers/{id}/discord-identity`) : le serveur est seul à savoir
+  /// quel bot un conteneur exécute, et il rend l'URL d'invitation à ouvrir.
+  ///
+  /// Échoue en `409` (`discord_identity_unavailable`) quand le token du bot est
+  /// absent ou révoqué — l'appelant doit alors inviter l'utilisateur à
+  /// redéployer, pas à réessayer.
+  Future<DiscordBotIdentity> fetchContainerDiscordIdentity(String id) async {
+    final json = await _post(
+      '/containers/$id/discord-identity',
+      <String, dynamic>{},
+    );
+    return DiscordBotIdentity.fromJson(json);
+  }
+
   /// Permanently delete a container from the database and compute layer.
   Future<void> deleteContainer(String id) async {
     await _delete('/containers/$id');
@@ -2174,6 +2189,15 @@ class ContainerInfo {
   final DateTime createdAt;
   final DateTime updatedAt;
 
+  /// Identifiant d'application Discord du bot que fait tourner ce conteneur,
+  /// quand le serveur l'a déjà résolu (`discord_application_id`).
+  ///
+  /// ABSENT (`null`) pour les conteneurs déployés avant que le serveur ne
+  /// mémorise l'identité : l'appelant fait alors résoudre l'identité par le
+  /// serveur (`POST /containers/{id}/discord-identity`). C'est l'absence, et
+  /// non une valeur vide, qui déclenche cette résolution.
+  final String? discordApplicationId;
+
   const ContainerInfo({
     required this.id,
     required this.ownerId,
@@ -2193,6 +2217,7 @@ class ContainerInfo {
     this.healthStatus = '',
     this.statusCode = '',
     this.statusMessage = '',
+    this.discordApplicationId,
     required this.expiresAt,
     required this.createdAt,
     required this.updatedAt,
@@ -2222,6 +2247,7 @@ class ContainerInfo {
       healthStatus: (json['health_status'] ?? '').toString(),
       statusCode: (json['status_code'] ?? '').toString(),
       statusMessage: (json['status_message'] ?? '').toString(),
+      discordApplicationId: _parseOptionalId(json['discord_application_id']),
       expiresAt: _parseDateTime(json['expires_at']),
       createdAt: _parseDateTime(json['created_at']),
       updatedAt: _parseDateTime(json['updated_at']),
@@ -2246,10 +2272,51 @@ class ContainerInfo {
 
   static int _parseInt(dynamic v, int fallback) => parseInt(v, fallback);
 
+  /// Identifiant technique optionnel : `null` quand le serveur ne le renvoie
+  /// pas, jamais une chaîne vide (voir [ContainerInfo.discordApplicationId]).
+  static String? _parseOptionalId(dynamic v) {
+    final value = v?.toString().trim() ?? '';
+    return value.isEmpty ? null : value;
+  }
+
   static DateTime _parseDateTime(dynamic v) {
     if (v is String) return DateTime.tryParse(v) ?? DateTime(0);
     if (v is int) return DateTime.fromMillisecondsSinceEpoch(v);
     return DateTime(0);
+  }
+}
+
+/// Identité Discord du bot que fait tourner un conteneur, telle que le serveur
+/// la résout (`POST /containers/{id}/discord-identity`) : de quoi l'inviter
+/// dans un serveur, `invite_url` étant prête à ouvrir.
+class DiscordBotIdentity {
+  const DiscordBotIdentity({
+    required this.botId,
+    this.username = '',
+    this.avatar = '',
+    this.inviteUrl = '',
+  });
+
+  /// ID Discord du bot (le `client_id` de l'URL d'invitation).
+  final String botId;
+
+  final String username;
+  final String avatar;
+
+  /// URL d'invitation composée par le serveur ; vide s'il ne l'a pas fournie.
+  final String inviteUrl;
+
+  factory DiscordBotIdentity.fromJson(Map<String, dynamic> json) {
+    // Certaines routes enveloppent la charge utile sous `data` : on accepte les
+    // deux formes plutôt que de rendre une identité vide sur une réponse saine.
+    final nested = json['data'];
+    final source = nested is Map ? Map<String, dynamic>.from(nested) : json;
+    return DiscordBotIdentity(
+      botId: (source['bot_id'] ?? '').toString().trim(),
+      username: (source['username'] ?? '').toString(),
+      avatar: (source['avatar'] ?? '').toString(),
+      inviteUrl: (source['invite_url'] ?? '').toString().trim(),
+    );
   }
 }
 

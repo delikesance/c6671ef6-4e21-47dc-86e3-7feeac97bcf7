@@ -10481,5 +10481,10 @@
   "announcement_link_open_failed": "Der Link konnte nicht geöffnet werden.",
   "@announcement_link_open_failed": {
     "description": "Couldn't open the link."
-  }
+  },
+  "container_invite_btn": "Bot einladen",
+  "container_invite_busy": "Einladung läuft...",
+  "container_invite_unavailable": "Der Bot dieser Anwendung konnte nicht identifiziert werden: sein Token fehlt oder wurde widerrufen. Starten Sie eine Neubereitstellung.",
+  "container_invite_failed": "Einladung nicht möglich: Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+  "container_invite_open_failed": "Der Einladungslink konnte nicht geöffnet werden."
 }

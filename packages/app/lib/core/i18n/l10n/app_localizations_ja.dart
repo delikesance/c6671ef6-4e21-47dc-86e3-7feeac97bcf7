@@ -9230,4 +9230,20 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get announcement_link_open_failed => 'リンクを開けませんでした。';
+
+  @override
+  String get container_invite_btn => 'ボットを招待';
+
+  @override
+  String get container_invite_busy => '招待中...';
+
+  @override
+  String get container_invite_unavailable =>
+      'このアプリのボットを識別できませんでした。トークンが存在しないか失効しています。再デプロイしてください。';
+
+  @override
+  String get container_invite_failed => '招待できませんでした。接続を確認して再試行してください。';
+
+  @override
+  String get container_invite_open_failed => '招待リンクを開けませんでした。';
 }

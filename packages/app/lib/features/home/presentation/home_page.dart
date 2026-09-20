@@ -34,6 +34,7 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/app_editor_
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/bot_logs.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/bot_config_pull_dialog.dart';
 import 'package:bot_creator/features/bot_management/presentation/create_page.dart';
+import 'package:bot_creator/features/containers/logic/turnkey_bot_invite.dart';
 import 'package:bot_creator/features/containers/presentation/container_detail_page.dart';
 import 'package:bot_creator/features/containers/presentation/home_turnkey_container_card.dart';
 import 'package:bot_creator/features/discord_rpc/logic/discord_rpc_service.dart';
@@ -197,6 +198,18 @@ class HomePageState extends State<HomePage>
   /// Garde de réentrance du chargement des conteneurs : un seul appel en vol,
   /// pour ne jamais dupliquer la requête (accueil + tirage pour rafraîchir).
   bool _isRefreshingTurnkeyContainers = false;
+
+  /// ID du conteneur dont l'INVITATION est en cours : sa carte désactive le
+  /// bouton et affiche l'indicateur d'occupation, donc pas de double envoi.
+  String? _inviteContainerIdInAction;
+
+  /// Service d'invitation unique de l'accueil.
+  ///
+  /// Il est créé UNE fois (à la première invitation) et garde donc sa garde de
+  /// réentrance entre deux clics : recréer un service par clic perdrait la
+  /// protection anti double clic. Le client est résolu au même moment, comme
+  /// pour le reste de l'accueil.
+  TurnkeyBotInviteService? _turnkeyInviteService;
 
   /// Un AnimationController par carte (clé = bot id) pour l'effet pulse.
   final Map<String, AnimationController> _pulseControllers = {};
@@ -720,6 +733,51 @@ class HomePageState extends State<HomePage>
         _containerIdInAction = null;
       }
     }
+  }
+
+  /// Invite le bot d'un conteneur clé en main dans un serveur Discord, depuis sa
+  /// carte d'accueil.
+  ///
+  /// Le parcours lui-même (identité connue → lien direct, sinon résolution par
+  /// le manager) vit dans [TurnkeyBotInviteService] ; ici on ne fait que verrouiller
+  /// la carte pendant l'appel et rendre le message d'échec — jamais de crash,
+  /// jamais de message vide devant un bouton qui ne réagit pas.
+  Future<void> _inviteTurnkeyBot(ContainerInfo container) async {
+    if (_inviteContainerIdInAction != null) return;
+    setState(() => _inviteContainerIdInAction = container.id);
+    try {
+      final service = _turnkeyInviteService ??= TurnkeyBotInviteService(
+        client: await _resolveGlobalMainApiClient(),
+      );
+      final outcome = await service.invite(container);
+      if (!mounted) return;
+      _showInviteOutcomeMessage(outcome);
+    } catch (error) {
+      // Le service attrape déjà ses propres pannes : ici, seul un imprévu
+      // (résolution du client) peut arriver, et il mérite quand même un texte.
+      appendBotDebugLog('[_inviteTurnkeyBot] Unexpected failure: $error');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.tr.container_invite_failed)),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _inviteContainerIdInAction = null);
+      } else {
+        _inviteContainerIdInAction = null;
+      }
+    }
+  }
+
+  /// Affiche le message de [outcome], en ignorant les issues qui n'ont rien à
+  /// dire (lien ouvert, tap ignoré pendant une invitation en cours).
+  void _showInviteOutcomeMessage(BotInviteOutcome outcome) {
+    final message = botInviteOutcomeMessage(outcome, context.tr);
+    if (message.isEmpty) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   /// Ouvre la console de logs d'un conteneur clé en main depuis l'accueil.
@@ -2670,6 +2728,8 @@ class HomePageState extends State<HomePage>
                       _toggleTurnkeyContainer(container, start: false),
                   onLogs: () => _openTurnkeyContainerLogs(container),
                   onDetail: () => _openTurnkeyContainerDetail(container),
+                  onInvite: () => _inviteTurnkeyBot(container),
+                  inviteBusy: _inviteContainerIdInAction == container.id,
                 ),
               );
 

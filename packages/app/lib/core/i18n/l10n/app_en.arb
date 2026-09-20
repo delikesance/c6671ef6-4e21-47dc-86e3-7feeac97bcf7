@@ -11930,5 +11930,10 @@
   "announcement_link_open_failed": "Couldn't open the link.",
   "@announcement_link_open_failed": {
     "description": "Couldn't open the link."
-  }
+  },
+  "container_invite_btn": "Invite bot",
+  "container_invite_busy": "Inviting...",
+  "container_invite_unavailable": "This application's bot could not be identified: its token is missing or revoked. Redeploy the bot.",
+  "container_invite_failed": "Could not invite the bot: check your connection and try again.",
+  "container_invite_open_failed": "Could not open the invite link."
 }

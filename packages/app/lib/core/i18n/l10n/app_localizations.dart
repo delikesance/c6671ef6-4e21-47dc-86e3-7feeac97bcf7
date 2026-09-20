@@ -16755,6 +16755,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t open the link.'**
   String get announcement_link_open_failed;
+
+  /// No description provided for @container_invite_btn.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite bot'**
+  String get container_invite_btn;
+
+  /// No description provided for @container_invite_busy.
+  ///
+  /// In en, this message translates to:
+  /// **'Inviting...'**
+  String get container_invite_busy;
+
+  /// No description provided for @container_invite_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This application\'s bot could not be identified: its token is missing or revoked. Redeploy the bot.'**
+  String get container_invite_unavailable;
+
+  /// No description provided for @container_invite_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not invite the bot: check your connection and try again.'**
+  String get container_invite_failed;
+
+  /// No description provided for @container_invite_open_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open the invite link.'**
+  String get container_invite_open_failed;
 }
 
 class _AppLocalizationsDelegate

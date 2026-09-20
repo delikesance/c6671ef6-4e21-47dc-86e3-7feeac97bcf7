@@ -10514,5 +10514,10 @@
   "announcement_link_open_failed": "Não foi possível abrir o link.",
   "@announcement_link_open_failed": {
     "description": "Couldn't open the link."
-  }
+  },
+  "container_invite_btn": "Convidar o bot",
+  "container_invite_busy": "A convidar...",
+  "container_invite_unavailable": "Não foi possível identificar o bot desta aplicação: o token está ausente ou foi revogado. Refazer o deploy.",
+  "container_invite_failed": "Não foi possível convidar: verifique a sua ligação e tente novamente.",
+  "container_invite_open_failed": "Não foi possível abrir o link de convite."
 }
