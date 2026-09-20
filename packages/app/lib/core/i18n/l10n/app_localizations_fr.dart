@@ -9,6 +9,62 @@ class AppLocalizationsFr extends AppLocalizations {
   AppLocalizationsFr([String locale = 'fr']) : super(locale);
 
   @override
+  String get app_update_dialog_title => 'Nouvelle version disponible';
+
+  @override
+  String app_update_dialog_message(String version, String installed) {
+    return 'La version $version est disponible sur le store (vous utilisez la $installed). Mettez à jour pour recevoir les derniers correctifs.';
+  }
+
+  @override
+  String get app_update_later => 'Plus tard';
+
+  @override
+  String get app_update_update_now => 'Mettre à jour';
+
+  @override
+  String get app_update_store_open_failed =>
+      'Impossible d\'ouvrir la fiche du store.';
+
+  @override
+  String get app_update_download_started =>
+      'Téléchargement en arrière-plan — vous pouvez continuer à utiliser l\'application.';
+
+  @override
+  String get settings_app_update_title => 'Mises à jour';
+
+  @override
+  String settings_app_update_installed_version(String version, String build) {
+    return '$version (build $build)';
+  }
+
+  @override
+  String get settings_app_update_check_button => 'Vérifier les mises à jour';
+
+  @override
+  String get settings_app_update_checking => 'Vérification…';
+
+  @override
+  String get settings_app_update_up_to_date =>
+      'Vous utilisez la dernière version.';
+
+  @override
+  String settings_app_update_available(String version) {
+    return 'La version $version est disponible sur le store.';
+  }
+
+  @override
+  String get settings_app_update_unavailable =>
+      'Vérification impossible pour le moment.';
+
+  @override
+  String get settings_app_update_unsupported =>
+      'La vérification des mises à jour n\'est disponible que sur l\'application Android ou iOS.';
+
+  @override
+  String get settings_app_update_open_store => 'Ouvrir la fiche du store';
+
+  @override
   String get action_add_else_if => 'Ajouter ELSE IF';
 
   @override

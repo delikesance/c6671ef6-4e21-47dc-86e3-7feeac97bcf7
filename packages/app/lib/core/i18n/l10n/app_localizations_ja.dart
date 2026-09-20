@@ -9,6 +9,58 @@ class AppLocalizationsJa extends AppLocalizations {
   AppLocalizationsJa([String locale = 'ja']) : super(locale);
 
   @override
+  String get app_update_dialog_title => '新しいバージョンがあります';
+
+  @override
+  String app_update_dialog_message(String version, String installed) {
+    return 'ストアでバージョン $version が公開されています（現在は $installed）。アップデートで最新の修正が適用されます。';
+  }
+
+  @override
+  String get app_update_later => '後で';
+
+  @override
+  String get app_update_update_now => '更新する';
+
+  @override
+  String get app_update_store_open_failed => 'ストアのページを開けませんでした。';
+
+  @override
+  String get app_update_download_started => 'バックグラウンドでダウンロード中です。アプリはそのまま使えます。';
+
+  @override
+  String get settings_app_update_title => 'アップデート';
+
+  @override
+  String settings_app_update_installed_version(String version, String build) {
+    return '$version（ビルド $build）';
+  }
+
+  @override
+  String get settings_app_update_check_button => 'アップデートを確認';
+
+  @override
+  String get settings_app_update_checking => '確認中…';
+
+  @override
+  String get settings_app_update_up_to_date => '最新バージョンを使用しています。';
+
+  @override
+  String settings_app_update_available(String version) {
+    return 'ストアでバージョン $version が公開されています。';
+  }
+
+  @override
+  String get settings_app_update_unavailable => '現在アップデートを確認できません。';
+
+  @override
+  String get settings_app_update_unsupported =>
+      'アップデートの確認は Android または iOS アプリでのみ可能です。';
+
+  @override
+  String get settings_app_update_open_store => 'ストアのページを開く';
+
+  @override
   String get action_add_else_if => 'ELSE IF を追加';
 
   @override

@@ -30,6 +30,7 @@ import 'package:bot_creator/core/analytics/user_properties.dart';
 import 'package:bot_creator/features/ads/logic/ad_consent_service.dart';
 import 'package:bot_creator/features/ads/logic/ad_native_service.dart';
 import 'package:bot_creator/features/ads/logic/ad_reward_service.dart';
+import 'package:bot_creator/features/app_update/logic/app_update_service.dart';
 import 'package:bot_creator/core/auth/mobile_account_gate.dart';
 import 'package:bot_creator/core/auth/mobile_account_session.dart';
 import 'package:bot_creator/core/network/main_api_auth_service.dart';
@@ -280,6 +281,10 @@ Future<void> _bootstrapAndRunApp() async {
 
     warmUpFuture = _warmUpServicesAfterLaunch();
     unawaited(warmUpFuture!);
+
+    // Le service de mise à jour monte son dialogue depuis la racine de
+    // navigation : on lui câble la clé au lieu de lui faire importer main.dart.
+    AppUpdateService.navigatorKey = MyApp.navigatorKey;
   } catch (error, stack) {
     await AppDiagnostics.logError(
       'Fatal startup error before runApp',
@@ -502,6 +507,22 @@ Future<void> _warmUpServicesAfterLaunch() async {
   );
 
   AccountSyncWorker.start();
+
+  // ── Détection de mise à jour ─────────────────────────────────────────────
+  // Lancée APRÈS le `runApp` (le warm-up entier est `unawaited`), donc jamais
+  // dans la chaîne d'init critique : la première peinture ne l'attend pas.
+  // Le flux lui-même est `unawaited` : attendre le dialogue Play Core /
+  // App Store laissait la tâche de démarrage ouverte jusqu'à la réponse de
+  // l'utilisateur (et un faux « did not complete within 10s » dans les logs).
+  await _runStartupTask(
+    label: 'App update check',
+    operation: 'startup_app_update_check',
+    timeout: const Duration(seconds: 10),
+    action: () async {
+      unawaited(AppUpdateService.checkAndPromptIfNeeded());
+    },
+  );
+
   await AppDiagnostics.logInfo('Post-launch service warm-up completed');
 }
 

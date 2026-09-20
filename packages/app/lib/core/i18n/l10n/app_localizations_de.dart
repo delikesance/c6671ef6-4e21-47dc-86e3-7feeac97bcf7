@@ -9,6 +9,62 @@ class AppLocalizationsDe extends AppLocalizations {
   AppLocalizationsDe([String locale = 'de']) : super(locale);
 
   @override
+  String get app_update_dialog_title => 'Neue Version verfügbar';
+
+  @override
+  String app_update_dialog_message(String version, String installed) {
+    return 'Version $version ist im Store verfügbar (Sie nutzen $installed). Aktualisieren Sie, um die neuesten Korrekturen zu erhalten.';
+  }
+
+  @override
+  String get app_update_later => 'Später';
+
+  @override
+  String get app_update_update_now => 'Aktualisieren';
+
+  @override
+  String get app_update_store_open_failed =>
+      'Die Store-Seite konnte nicht geöffnet werden.';
+
+  @override
+  String get app_update_download_started =>
+      'Download läuft im Hintergrund – Sie können die App weiter nutzen.';
+
+  @override
+  String get settings_app_update_title => 'Updates';
+
+  @override
+  String settings_app_update_installed_version(String version, String build) {
+    return '$version (Build $build)';
+  }
+
+  @override
+  String get settings_app_update_check_button => 'Nach Updates suchen';
+
+  @override
+  String get settings_app_update_checking => 'Prüfe…';
+
+  @override
+  String get settings_app_update_up_to_date =>
+      'Sie verwenden die neueste Version.';
+
+  @override
+  String settings_app_update_available(String version) {
+    return 'Version $version ist im Store verfügbar.';
+  }
+
+  @override
+  String get settings_app_update_unavailable =>
+      'Suche nach Updates derzeit nicht möglich.';
+
+  @override
+  String get settings_app_update_unsupported =>
+      'Updates können nur in der Android- oder iOS-App geprüft werden.';
+
+  @override
+  String get settings_app_update_open_store => 'Store-Seite öffnen';
+
+  @override
   String get action_add_else_if => 'ELSE IF hinzufügen';
 
   @override
