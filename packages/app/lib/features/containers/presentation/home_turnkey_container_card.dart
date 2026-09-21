@@ -56,6 +56,10 @@ class HomeContainerActions {
 /// quand l'image y correspond, sinon le titre du modèle, sinon l'image brute —
 /// même règle de résolution que la liste « Turnkey Bots ».
 String turnkeyContainerTitle(ContainerInfo container, AppLocalizations tr) {
+  final botName = container.discordBotName?.trim() ?? '';
+  if (botName.isNotEmpty) {
+    return botName;
+  }
   final template = templateForImage(container.image);
   if (template?.id == HostedAppTemplateId.easyMusic ||
       container.image.toLowerCase().contains('beatdock')) {
@@ -162,13 +166,19 @@ class HomeTurnkeyContainerCard extends StatelessWidget {
   /// conteneur n'a pas d'échéance connue.
   String? _expiryLabel(AppLocalizations tr) {
     if (container.expiresAt.millisecondsSinceEpoch == 0) return null;
-    final remaining = container.expiresAt
-        .toUtc()
-        .difference(DateTime.now().toUtc());
-    if (remaining.isNegative) return tr.container_list_expired;
+    final remaining = container.expiresAt.toUtc().difference(
+      DateTime.now().toUtc(),
+    );
+    if (remaining.isNegative) {
+      return tr.container_list_expired;
+    }
     final totalMinutes = remaining.inMinutes;
-    if (totalMinutes < 1) return tr.container_list_expiry_minutes(1);
-    if (totalMinutes < 60) return tr.container_list_expiry_minutes(totalMinutes);
+    if (totalMinutes < 1) {
+      return tr.container_list_expiry_minutes(1);
+    }
+    if (totalMinutes < 60) {
+      return tr.container_list_expiry_minutes(totalMinutes);
+    }
     final hours = totalMinutes ~/ 60;
     if (hours < 24) {
       return tr.container_list_expiry_hours(hours, totalMinutes % 60);
@@ -205,14 +215,26 @@ class HomeTurnkeyContainerCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: scheme.primary.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(12),
+                if (container.discordBotAvatarUrl != null)
+                  HomeBotAvatar(
+                    imageUrl: container.discordBotAvatarUrl,
+                    size: 44,
+                    fallbackIcon: _icon,
+                    fallbackLabel:
+                        (container.discordBotName?.trim().isNotEmpty ?? false)
+                        ? container.discordBotName!.trim()[0]
+                        : null,
+                  )
+                else
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: scheme.primary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(_icon, color: scheme.primary, size: 24),
                   ),
-                  child: Icon(_icon, color: scheme.primary, size: 24),
-                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -261,7 +283,9 @@ class HomeTurnkeyContainerCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          color: isDark ? tokens.muted : scheme.onSurfaceVariant,
+                          color: isDark
+                              ? tokens.muted
+                              : scheme.onSurfaceVariant,
                           fontSize: 12,
                         ),
                       ),
@@ -297,9 +321,7 @@ class HomeTurnkeyContainerCard extends StatelessWidget {
               Row(
                 children: [
                   Icon(
-                    expired
-                        ? Icons.timer_off_rounded
-                        : Icons.schedule_rounded,
+                    expired ? Icons.timer_off_rounded : Icons.schedule_rounded,
                     size: 14,
                     color: expired ? AppTheme.danger : scheme.onSurfaceVariant,
                   ),

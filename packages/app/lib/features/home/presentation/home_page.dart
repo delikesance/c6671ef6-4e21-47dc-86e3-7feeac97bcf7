@@ -25,6 +25,9 @@ import 'package:bot_creator/features/ads/logic/ad_reward_service.dart';
 import 'package:bot_creator/features/ads/logic/ad_ssv_context.dart';
 import 'package:bot_creator/features/ads/logic/ads_placement_policy.dart';
 import 'package:bot_creator/features/ads/presentation/native_ad_slot.dart';
+import 'package:bot_creator/features/announcements/logic/announcement.dart';
+import 'package:bot_creator/features/announcements/logic/announcement_presenter.dart';
+import 'package:bot_creator/features/announcements/presentation/announcement_banner.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_config_import.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_config_merge.dart';
@@ -72,6 +75,23 @@ String homeUiCopy(
   required String en,
 }) {
   return Localizations.localeOf(context).languageCode == 'fr' ? fr : en;
+}
+
+/// Détecte si un nom de bot masque son identité réelle (vide, 'Unnamed Bot',
+/// 'Unknown App', égal à son identifiant snowflake, ou composé uniquement de chiffres).
+bool botNameHidesIdentity(String? name, String botId) {
+  if (name == null) return true;
+  final trimmed = name.trim();
+  if (trimmed.isEmpty ||
+      trimmed == 'Unnamed Bot' ||
+      trimmed == 'Unknown App' ||
+      trimmed == botId.trim()) {
+    return true;
+  }
+  if (trimmed.length >= 15 && BigInt.tryParse(trimmed) != null) {
+    return true;
+  }
+  return false;
 }
 
 /// Issue d'une tentative de rafraîchissement de l'accueil par le snapshot agrégé.
@@ -298,7 +318,8 @@ class HomePageState extends State<HomePage>
 
   /// Session du canal temps réel actuellement câblée (nulle si aucune).
   @visibleForTesting
-  GatewayBotEventsSession? get debugGatewayEventsSession => _gatewayEventsSession;
+  GatewayBotEventsSession? get debugGatewayEventsSession =>
+      _gatewayEventsSession;
 
   bool get _supportsForegroundTask => Platform.isAndroid || Platform.isIOS;
 
@@ -323,6 +344,7 @@ class HomePageState extends State<HomePage>
   void initState() {
     super.initState();
     current = this;
+    AnnouncementPresenter.absorbOverlayIntoInline();
     _fallbackPulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 900),
@@ -871,10 +893,8 @@ class HomePageState extends State<HomePage>
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => ContainerDetailPage(
-          containerId: container.id,
-          client: client,
-        ),
+        builder: (_) =>
+            ContainerDetailPage(containerId: container.id, client: client),
       ),
     );
     await _refreshTurnkeyContainers();
@@ -1474,8 +1494,9 @@ class HomePageState extends State<HomePage>
           if (rawApp is! Map) continue;
           final localBotId = (rawApp['id'] ?? '').toString().trim();
           if (localBotId.isEmpty) continue;
-          localTokensById[localBotId] =
-              (rawApp['token'] ?? '').toString().trim();
+          localTokensById[localBotId] = (rawApp['token'] ?? '')
+              .toString()
+              .trim();
         }
         final importOutcomes = await recoverMissingBotTokens(
           client: remoteClient,
@@ -1533,37 +1554,64 @@ class HomePageState extends State<HomePage>
             var botName = bot['bot_name']?.toString() ?? 'Unnamed Bot';
             final config = bot['config'] as Map<String, dynamic>? ?? {};
 
+            Map<String, dynamic>? existingLocal;
+            try {
+              existingLocal = await appManager.getApp(botId);
+            } catch (_) {}
+
             String token = bot['bot_token']?.toString() ?? '';
-            if (token.isEmpty) {
-              try {
-                final existing = await appManager.getApp(botId);
-                token = (existing['token'] ?? '').toString();
-              } catch (_) {}
+            if (token.isEmpty && existingLocal != null) {
+              token = (existingLocal['token'] ?? '').toString();
+            }
+
+            if (botNameHidesIdentity(botName, botId) && existingLocal != null) {
+              final localName = existingLocal['name']?.toString().trim();
+              if (localName != null &&
+                  !botNameHidesIdentity(localName, botId)) {
+                botName = localName;
+              }
             }
 
             String? avatarHash =
-                bot['avatar_hash']?.toString() ?? bot['avatar']?.toString();
+                bot['avatar_hash']?.toString() ??
+                existingLocal?['avatar_hash']?.toString();
+            if (avatarHash == null || avatarHash.isEmpty) {
+              final rawAvatar =
+                  bot['avatar']?.toString() ??
+                  existingLocal?['avatar']?.toString();
+              if (rawAvatar != null && rawAvatar.isNotEmpty) {
+                final match = RegExp(
+                  r'([a-f0-9]{32}|a_[a-f0-9]{32})',
+                  caseSensitive: false,
+                ).allMatches(rawAvatar);
+                if (match.isNotEmpty) {
+                  avatarHash = match.last.group(0);
+                }
+              }
+            }
             String? discriminator = bot['discriminator']?.toString();
 
             int? fetchedApproxGuildCount;
             if (token.trim().isNotEmpty) {
-              // If avatar is missing, fetch full bot user profile from Discord REST
-              if (avatarHash == null || avatarHash.isEmpty) {
+              final shouldFetchProfile =
+                  (avatarHash == null || avatarHash.isEmpty) ||
+                  botNameHidesIdentity(botName, botId);
+              if (shouldFetchProfile) {
                 try {
                   final profile = await getDiscordBotUserProfile(token);
                   if (profile != null) {
-                    final fetchedAvatar = profile['avatar'];
+                    final fetchedAvatar = profile['avatar']?.toString();
                     if (fetchedAvatar != null && fetchedAvatar.isNotEmpty) {
                       avatarHash = fetchedAvatar;
                     }
-                    final fetchedDiscrim = profile['discriminator'];
+                    final fetchedDiscrim = profile['discriminator']?.toString();
                     if (fetchedDiscrim != null && fetchedDiscrim.isNotEmpty) {
                       discriminator = fetchedDiscrim;
                     }
-                    final fetchedName = profile['username'];
+                    final fetchedName = profile['username']?.toString();
                     if (fetchedName != null &&
                         fetchedName.isNotEmpty &&
-                        botName == 'Unnamed Bot') {
+                        !botNameHidesIdentity(fetchedName, botId)) {
                       botName = fetchedName;
                     }
                   }
@@ -1878,17 +1926,18 @@ class HomePageState extends State<HomePage>
       if (client == null) {
         return null;
       }
-      final outcome = await BotTokenImporter(
-        client: client,
-        // Même occasion saisie ici : le jeton qui vient d'arriver permet de
-        // demander à Discord le VRAI nom du bot, écrit par le chemin unique.
-        onTokenStored: (botId, token) =>
-            refreshBotIdentityFromDiscord(botId: botId, token: token),
-      ).importAutomatically(
-        botId: botId,
-        serverAnnouncesTokenValid: true,
-        hasLocalToken: false,
-      );
+      final outcome =
+          await BotTokenImporter(
+            client: client,
+            // Même occasion saisie ici : le jeton qui vient d'arriver permet de
+            // demander à Discord le VRAI nom du bot, écrit par le chemin unique.
+            onTokenStored: (botId, token) =>
+                refreshBotIdentityFromDiscord(botId: botId, token: token),
+          ).importAutomatically(
+            botId: botId,
+            serverAnnouncesTokenValid: true,
+            hasLocalToken: false,
+          );
       appendBotDebugLog(
         '[_toggleBot] reprise du jeton avant démarrage sur ce poste : $outcome',
         botId: botId,
@@ -1922,10 +1971,12 @@ class HomePageState extends State<HomePage>
       if (client == null) {
         return;
       }
-      await client.stopBot(botId).timeout(
-        const Duration(seconds: 10),
-        onTimeout: () => <String, dynamic>{},
-      );
+      await client
+          .stopBot(botId)
+          .timeout(
+            const Duration(seconds: 10),
+            onTimeout: () => <String, dynamic>{},
+          );
       appendBotDebugLog(
         '[_toggleBot] session serveur arrêtée avant un démarrage sur ce poste',
         botId: botId,
@@ -2376,10 +2427,12 @@ class HomePageState extends State<HomePage>
               );
         throw Exception(
           _uiCopy(
-            fr: 'Les serveurs Bot Creator ont ete choisis et ne peuvent pas '
+            fr:
+                'Les serveurs Bot Creator ont ete choisis et ne peuvent pas '
                 'executer ce bot : $detail. Aucune execution locale n a ete '
                 'entamee — relancez le demarrage apres avoir regle ce point.',
-            en: 'Bot Creator servers were chosen and cannot run this bot: '
+            en:
+                'Bot Creator servers were chosen and cannot run this bot: '
                 '$detail. No local run was started — retry the start once this '
                 'is resolved.',
           ),
@@ -2749,7 +2802,8 @@ class HomePageState extends State<HomePage>
           const Duration(seconds: 8),
         );
         for (final entry in bots) {
-          if ((entry['bot_id'] ?? entry['id'] ?? '').toString().trim() == botId) {
+          if ((entry['bot_id'] ?? entry['id'] ?? '').toString().trim() ==
+              botId) {
             serverEntry = entry;
             break;
           }
@@ -3219,7 +3273,20 @@ class HomePageState extends State<HomePage>
                 showShellActions: isWide,
                 onCreate: openCreate,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
+              ValueListenableBuilder<Announcement?>(
+                valueListenable: AnnouncementPresenter.bannerNotifier,
+                builder: (context, announcement, _) {
+                  if (announcement == null) return const SizedBox.shrink();
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: AnnouncementBanner(
+                      announcement: announcement,
+                      onDismiss: AnnouncementPresenter.dismissBanner,
+                    ),
+                  );
+                },
+              ),
               _CreateBotCard(onTap: openCreate),
               const SizedBox(height: 20),
             ];
@@ -3348,9 +3415,11 @@ class HomePageState extends State<HomePage>
     dynamic app, {
     required bool initiallyExpanded,
   }) {
-    final name =
-        app['name']?.toString().sanitizedUtf16 ?? context.tr.home_unknown_app;
     final id = app['id']?.toString() ?? '';
+    final rawName = app['name']?.toString().sanitizedUtf16 ?? '';
+    final name = (rawName.isNotEmpty && !botNameHidesIdentity(rawName, id))
+        ? rawName
+        : context.tr.home_unknown_app;
     final avatar = app['avatar']?.toString();
     final guildCount = switch (app['guild_count'] ??
         app['approximate_guild_count']) {
@@ -3690,9 +3759,7 @@ class HomeBotCardState extends State<HomeBotCard> {
     if (widget.freeMinutes <= 0) {
       return context.tr.home_hosting_status_paused;
     }
-    final expiresAt = DateTime.now().add(
-      Duration(minutes: widget.freeMinutes),
-    );
+    final expiresAt = DateTime.now().add(Duration(minutes: widget.freeMinutes));
     return formatSessionExpiration(context, expiresAt);
   }
 

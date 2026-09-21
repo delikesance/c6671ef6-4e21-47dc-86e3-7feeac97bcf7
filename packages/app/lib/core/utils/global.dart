@@ -122,9 +122,7 @@ Future<Map<String, String>?> getDiscordBotUserProfile(String botToken) async {
 
   final client = HttpClient();
   try {
-    final request = await client.getUrl(
-      Uri.parse('$discordUrl/users/@me'),
-    );
+    final request = await client.getUrl(Uri.parse('$discordUrl/users/@me'));
     request.headers.set(HttpHeaders.authorizationHeader, 'Bot $trimmedToken');
     request.headers.set(HttpHeaders.acceptHeader, 'application/json');
 
@@ -152,16 +150,12 @@ Future<Map<String, String>?> getDiscordBotUserProfile(String botToken) async {
       'discriminator': discriminator,
     };
   } catch (e) {
-    developer.log(
-      'Failed to fetch bot user profile: $e',
-      name: 'GlobalUtils',
-    );
+    developer.log('Failed to fetch bot user profile: $e', name: 'GlobalUtils');
     return null;
   } finally {
     client.close(force: true);
   }
 }
-
 
 Future<String?> getDiscordApplicationOwnerId(String botToken) async {
   final metadata = await getDiscordApplicationOwnerMetadata(botToken);
@@ -393,11 +387,30 @@ String makeAvatarUrl(
     }
     return "https://cdn.discordapp.com/embed/avatars/0.png";
   }
-  if (isAnimated && legacyFormat == "gif") {
-    return "https://cdn.discordapp.com/avatars/$userId/$avatarId.gif?size=1024";
+
+  var cleanAvatarId = avatarId.trim();
+  if (cleanAvatarId.contains('/')) {
+    final hashMatch = RegExp(
+      r'([a-f0-9]{32}|a_[a-f0-9]{32})',
+      caseSensitive: false,
+    ).allMatches(cleanAvatarId);
+    if (hashMatch.isNotEmpty) {
+      cleanAvatarId = hashMatch.last.group(0)!;
+    } else if (cleanAvatarId.startsWith('http://') ||
+        cleanAvatarId.startsWith('https://')) {
+      return cleanAvatarId.split('?').first;
+    }
   }
 
-  return "https://cdn.discordapp.com/avatars/$userId/$avatarId.$legacyFormat?size=1024";
+  if (cleanAvatarId.startsWith('a_')) {
+    isAnimated = true;
+  }
+
+  if (isAnimated && legacyFormat == "gif") {
+    return "https://cdn.discordapp.com/avatars/$userId/$cleanAvatarId.gif?size=1024";
+  }
+
+  return "https://cdn.discordapp.com/avatars/$userId/$cleanAvatarId.$legacyFormat?size=1024";
 }
 
 String makeGuildIcon(String guildId, String? iconId) {

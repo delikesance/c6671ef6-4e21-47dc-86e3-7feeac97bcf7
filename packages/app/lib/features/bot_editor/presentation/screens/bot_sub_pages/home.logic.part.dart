@@ -238,13 +238,42 @@ extension _AppHomePageLogic on _AppHomePageState {
     );
     final capabilities = await getBotRuntimeCapabilities(botId);
     if (mounted) {
+      var resolvedName = (app["name"] ?? '').toString();
+      final idStr = botId.trim();
+      final needsNameResolution =
+          resolvedName.isEmpty ||
+          resolvedName == idStr ||
+          resolvedName == 'Unnamed Bot' ||
+          (resolvedName.length >= 15 && BigInt.tryParse(resolvedName) != null);
+      if (needsNameResolution) {
+        unawaited(() async {
+          try {
+            final user = await widget.client.user.get().timeout(
+              const Duration(seconds: 5),
+            );
+            final fetchedUsername = user.username.trim();
+            if (fetchedUsername.isNotEmpty && mounted) {
+              _setState(() {
+                _appName = fetchedUsername;
+              });
+              if (token.isNotEmpty) {
+                await appManager.createOrUpdateApp(
+                  id: widget.client.user.id,
+                  username: fetchedUsername,
+                  token: token,
+                );
+              }
+            }
+          } catch (_) {}
+        }());
+      }
       _setState(() {
         _botLaunched = isRunning;
         _botStarting = false;
         // `app["name"]` is dynamic and a legacy/hand-edited entry can be null;
         // `_appName` is a non-nullable String, so a bare assignment threw
         // "type 'Null' is not a subtype of type 'String'" (issue 51fdaaea).
-        _appName = (app["name"] ?? '').toString();
+        _appName = resolvedName;
         avatar = app["avatar"] ?? "";
         _runtimeCapabilities = capabilities;
       });
