@@ -2061,7 +2061,12 @@ class HomePageState extends State<HomePage>
     // consomme des minutes d'hébergement. Le choix est explicite à chaque démarrage
     // (aucune mémoire : la décision a un coût, elle se reprend à chaque fois).
     RemoteRuntimeSource? forcedSource;
-    if (!isRunning) {
+    // ── Où démarrer ? La question n'a de sens QUE sur un poste de travail ──────
+    // Sur mobile, l'app ne peut pas héberger un bot dans les mêmes conditions et le
+    // choix n'appartient pas à l'utilisateur : on garde le comportement historique
+    // (l'association du bot décide), sans rien lui demander. Imposer cette question
+    // sur un téléphone serait une décision de plateforme, pas un service.
+    if (!isRunning && isDesktopRunPlatform) {
       if (!mounted) return;
       final choices = await _botStartChoicesFor(botId);
       if (!mounted) return;
