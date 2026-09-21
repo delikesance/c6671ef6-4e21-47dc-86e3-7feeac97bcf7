@@ -28,6 +28,7 @@ Future<List<BotTokenImportOutcome>> recoverMissingBotTokens({
   required List<Map<String, dynamic>> accountBots,
   required String Function(String botId) localTokenOf,
   Duration betweenAttempts = const Duration(milliseconds: 300),
+  Future<void> Function(String botId, String token)? onTokenStored,
 }) async {
   final outcomes = <BotTokenImportOutcome>[];
   final activeClient = client;
@@ -35,7 +36,13 @@ Future<List<BotTokenImportOutcome>> recoverMissingBotTokens({
   // identifiant, pour qu'une reconnexion rende la reprise possible.
   if (activeClient == null) return outcomes;
 
-  final importer = BotTokenImporter(client: activeClient);
+  final importer = BotTokenImporter(
+    client: activeClient,
+    // Transmis tel quel : c'est à l'appelant de décider si un jeton qui vient
+    // d'arriver doit servir à interroger Discord sur le nom du bot (voir
+    // `onTokenStored`). Sans rappel, rien ne change par rapport à avant.
+    onTokenStored: onTokenStored,
+  );
   for (final bot in accountBots) {
     final botId = (bot['bot_id'] ?? '').toString().trim();
     if (botId.isEmpty) continue;
