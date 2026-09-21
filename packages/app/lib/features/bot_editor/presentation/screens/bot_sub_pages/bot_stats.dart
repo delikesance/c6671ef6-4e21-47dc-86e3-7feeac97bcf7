@@ -149,7 +149,7 @@ class _BotStatsPageState extends State<BotStatsPage>
       supportsManagerRuntime: _supportsManagerRuntime,
       botId: _selectedBotId,
       getTimeout: const Duration(seconds: 30),
-      postTimeout: const Duration(seconds: 90),
+      postTimeout: const Duration(seconds: 25),
     );
     _runtimeClient = runtime.client;
     _runtimeSource = runtime.source;

@@ -3,7 +3,7 @@ part of 'home.dart';
 extension _AppHomePageSync on _AppHomePageState {
   Future<ResolvedRemoteRuntime> _resolveRemoteRuntime({
     Duration getTimeout = const Duration(seconds: 30),
-    Duration postTimeout = const Duration(seconds: 90),
+    Duration postTimeout = const Duration(seconds: 25),
   }) async {
     return resolveRemoteRuntime(
       supportsManagerRuntime: _supportsManagerRuntime,
@@ -17,7 +17,7 @@ extension _AppHomePageSync on _AppHomePageState {
     resolveRuntime:
         ({
           getTimeout = const Duration(seconds: 30),
-          postTimeout = const Duration(seconds: 90),
+          postTimeout = const Duration(seconds: 25),
         }) => _resolveRemoteRuntime(
           getTimeout: getTimeout,
           postTimeout: postTimeout,
