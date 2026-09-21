@@ -9,6 +9,110 @@ class AppLocalizationsPt extends AppLocalizations {
   AppLocalizationsPt([String locale = 'pt']) : super(locale);
 
   @override
+  String get app_update_dialog_title => 'Nova versão disponível';
+
+  @override
+  String app_update_dialog_message(String version, String installed) {
+    return 'A versão $version está disponível na loja (você usa a $installed). Atualize para receber as últimas correções.';
+  }
+
+  @override
+  String get app_update_later => 'Mais tarde';
+
+  @override
+  String get app_update_update_now => 'Atualizar';
+
+  @override
+  String get app_update_store_open_failed =>
+      'Não foi possível abrir a página da loja.';
+
+  @override
+  String get app_update_download_started =>
+      'Download em segundo plano — você pode continuar usando o aplicativo.';
+
+  @override
+  String get bot_token_import_btn => 'Importar o token da minha conta';
+
+  @override
+  String get bot_token_import_missing => 'Este bot não existe na sua conta.';
+
+  @override
+  String get bot_token_import_network =>
+      'Servidor inacessível: verifique a sua ligação e tente novamente.';
+
+  @override
+  String get bot_token_import_no_account =>
+      'Nenhuma conta está ligada neste dispositivo: inicie sessão para importar o token.';
+
+  @override
+  String get bot_token_import_not_stored =>
+      'Nenhum token está guardado na sua conta: introduza-o uma vez aqui.';
+
+  @override
+  String get bot_token_import_server_cannot_read =>
+      'O servidor não consegue reler o token guardado.';
+
+  @override
+  String get bot_token_import_server_unsupported =>
+      'Este servidor ainda não disponibiliza a importação do token — atualize ou reimplante-o.';
+
+  @override
+  String get bot_token_import_success =>
+      'Token importado da sua conta: a ligação foi restabelecida.';
+
+  @override
+  String get container_invite_server_unsupported =>
+      'Este servidor ainda não disponibiliza o convite do bot — atualize ou reimplante-o.';
+
+  @override
+  String get container_invite_missing =>
+      'Este contentor já não existe no servidor — recarrega a lista de contentores.';
+
+  @override
+  String get settings_app_update_title => 'Atualizações';
+
+  @override
+  String settings_app_update_installed_version(String version, String build) {
+    return '$version (build $build)';
+  }
+
+  @override
+  String settings_app_version_value(String version) {
+    return 'App: $version';
+  }
+
+  @override
+  String settings_runner_version_value(String version) {
+    return 'Runner: $version';
+  }
+
+  @override
+  String get settings_app_update_check_button => 'Verificar atualizações';
+
+  @override
+  String get settings_app_update_checking => 'Verificando…';
+
+  @override
+  String get settings_app_update_up_to_date =>
+      'Você está na versão mais recente.';
+
+  @override
+  String settings_app_update_available(String version) {
+    return 'A versão $version está disponível na loja.';
+  }
+
+  @override
+  String get settings_app_update_unavailable =>
+      'Não foi possível verificar atualizações agora.';
+
+  @override
+  String get settings_app_update_unsupported =>
+      'As atualizações só podem ser verificadas no aplicativo Android ou iOS.';
+
+  @override
+  String get settings_app_update_open_store => 'Abrir página da loja';
+
+  @override
   String get action_add_else_if => 'Adicionar ELSE IF';
 
   @override
@@ -1737,6 +1841,14 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get bot_logs_rich_mode => 'Logs formatados';
+
+  @override
+  String get bot_logs_server_empty =>
+      'Os servidores Bot Creator não retornaram logs para este bot.';
+
+  @override
+  String get bot_logs_server_read_failed =>
+      'Não foi possível ler os logs dos servidores Bot Creator.';
 
   @override
   String get bot_logs_show_all => 'Mostrar tudo';
@@ -4362,6 +4474,20 @@ class AppLocalizationsPt extends AppLocalizations {
   String get home_add_time => 'Adicionar Tempo';
 
   @override
+  String get home_add_time_mobile_only =>
+      'Os anúncios recompensados são assistidos no aplicativo móvel; o tempo creditado vale em todos os lugares.';
+
+  @override
+  String get home_hosting_unlimited_overline => 'Alojamento incluído';
+
+  @override
+  String get home_hosting_unlimited_headline =>
+      'Ilimitado com a tua subscrição';
+
+  @override
+  String get home_hosting_remaining_overline => 'Tempo restante';
+
+  @override
   String get home_overline => 'MEUS PROJETOS';
 
   @override
@@ -4493,6 +4619,41 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get home_start => 'Iniciar';
+
+  @override
+  String bot_start_target_title(String bot) {
+    return 'Onde iniciar $bot?';
+  }
+
+  @override
+  String get bot_start_local_title => 'Iniciar localmente (este dispositivo)';
+
+  @override
+  String get bot_start_local_desc =>
+      'Grátis, não consome nada. O bot para quando fechas a aplicação.';
+
+  @override
+  String get bot_start_server_title => 'Iniciar no Bot Creator Server';
+
+  @override
+  String get bot_start_server_desc =>
+      'Consome os teus minutos de alojamento (ilimitado com PREMIUM). O bot funciona sem o teu dispositivo.';
+
+  @override
+  String get bot_start_server_reason_platform =>
+      'Este dispositivo não controla o alojamento remoto.';
+
+  @override
+  String get bot_start_server_reason_no_account =>
+      'Nenhuma conta está ligada neste dispositivo.';
+
+  @override
+  String get bot_start_server_reason_cloud_disabled =>
+      'O alojamento na cloud não está ativado neste servidor.';
+
+  @override
+  String get bot_start_server_reason_no_minutes =>
+      'Sem minutos de alojamento: vê um anúncio na aplicação móvel ou passa para PREMIUM.';
 
   @override
   String get home_start_ads => 'Iniciar (Ver Anúncio)';
@@ -5448,6 +5609,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String get premium_card_button => 'Ver planos';
 
   @override
+  String get premium_locked_hint =>
+      'A tua conta está no plano gratuito: a subscrição é ativada na aplicação móvel (este dispositivo não mostra publicidade nem compras).';
+
+  @override
   String get premium_card_desc =>
       'Assine para remover todos os anúncios e iniciar seus bots instantaneamente, sem nenhum pop-up.';
 
@@ -5718,6 +5883,9 @@ class AppLocalizationsPt extends AppLocalizations {
       'Inicie sessão no Bot Creator nas Configurações para carregar estatísticas dos servidores do Bot Creator.';
 
   @override
+  String get runner_source_this_device => 'Este dispositivo';
+
+  @override
   String get save => 'Guardar';
 
   @override
@@ -5798,6 +5966,21 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get scoped_delete_title => 'Apagar Variável Scoped';
+
+  @override
+  String get scoped_declare_detected => 'Declarar esta variável';
+
+  @override
+  String get scoped_detected_badge => 'Detetada';
+
+  @override
+  String scoped_detected_hint(int count) {
+    return 'Nenhuma definição declarada · $count valor(es) armazenado(s)';
+  }
+
+  @override
+  String get scoped_detected_tooltip =>
+      'Valor presente nos dados do bot sem definição declarada. Exibido tal como está; nada é inventado.';
 
   @override
   String get scoped_empty => 'Nenhuma variável scoped definida';
@@ -8624,6 +8807,10 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
+  String get settings_runtime_engine_switch_empty_payload =>
+      'Troca cancelada: a nova configuração ficaria vazia (nenhum comando, nenhum evento, nenhum webhook, nenhuma variável). Seus comandos e workflows locais não foram alterados.';
+
+  @override
   String get app_create_select_type_title => 'Selecionar Tipo de Aplicação';
 
   @override
@@ -8791,6 +8978,17 @@ class AppLocalizationsPt extends AppLocalizations {
       'Cole o token do bot do Discord aqui';
 
   @override
+  String get container_deploy_env_fields_section => 'Variáveis de ambiente';
+
+  @override
+  String get container_deploy_env_server_provided => 'Fornecido pelo servidor';
+
+  @override
+  String container_deploy_env_field_required(String field) {
+    return 'O campo $field é obrigatório.';
+  }
+
+  @override
   String get container_deploy_discord_prereqs => 'Pré-requisitos do Discord';
 
   @override
@@ -8901,6 +9099,10 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get container_deploy_blocked_no_minutes =>
       'You\'re out of free hosting minutes. Watch a rewarded ad to unlock more minutes, or go Premium for unlimited hosting.';
+
+  @override
+  String get container_deploy_blocked_cloud_disabled =>
+      'O alojamento na cloud não está ativado neste servidor: a implementação remota não está disponível. Executa o bot localmente ou através do teu próprio runner.';
 
   @override
   String get container_deploy_blocked_eligibility_error =>
@@ -9626,4 +9828,37 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get modal_builder_submit_actions => 'Ações de Envio';
+
+  @override
+  String get announcement_see_more => 'Saber mais';
+
+  @override
+  String get announcement_dismiss => 'Fechar';
+
+  @override
+  String get announcement_acknowledge => 'Entendi';
+
+  @override
+  String get announcement_later => 'Mais tarde';
+
+  @override
+  String get announcement_link_open_failed => 'Não foi possível abrir o link.';
+
+  @override
+  String get container_invite_btn => 'Convidar o bot';
+
+  @override
+  String get container_invite_busy => 'A convidar...';
+
+  @override
+  String get container_invite_unavailable =>
+      'Não foi possível identificar o bot desta aplicação: o token está ausente ou foi revogado. Refazer o deploy.';
+
+  @override
+  String get container_invite_failed =>
+      'Não foi possível convidar: verifique a sua ligação e tente novamente.';
+
+  @override
+  String get container_invite_open_failed =>
+      'Não foi possível abrir o link de convite.';
 }

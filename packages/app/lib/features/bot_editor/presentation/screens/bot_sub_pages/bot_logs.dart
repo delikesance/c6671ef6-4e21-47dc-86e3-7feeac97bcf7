@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:bot_creator/core/platform/run_platform.dart';
 
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
@@ -63,11 +64,9 @@ class _BotLogsPageState extends State<BotLogsPage> {
   String? _runtimeLabel;
   String? _runtimeUnavailableReason;
 
-  bool get _supportsManagerRuntime =>
-      !kIsWeb &&
-      defaultTargetPlatform != TargetPlatform.windows &&
-      defaultTargetPlatform != TargetPlatform.linux &&
-      defaultTargetPlatform != TargetPlatform.macOS;
+  // Une seule règle dans toute l'application : le serveur pilote depuis n'importe
+  // quelle plateforme, poste de travail compris (voir `run_platform.dart`).
+  bool get _supportsManagerRuntime => supportsManagerRuntime;
 
   bool get _usingRemoteSource => _runtimeSource != RemoteRuntimeSource.local;
 

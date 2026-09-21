@@ -1,5 +1,114 @@
 {
   "@@locale": "tr",
+  "@app_update_dialog_title": {
+    "description": "New version available"
+  },
+  "app_update_dialog_title": "Yeni sürüm mevcut",
+  "@app_update_dialog_message": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "installed": {
+        "type": "String"
+      }
+    },
+    "description": "Version {version} is available on the store (you have {installed}). Update to get the latest fixes."
+  },
+  "app_update_dialog_message": "Mağazada {version} sürümü yayında (sizde {installed}). En son düzeltmeler için güncelleyin.",
+  "@app_update_later": {
+    "description": "Later"
+  },
+  "app_update_later": "Daha sonra",
+  "@app_update_update_now": {
+    "description": "Update"
+  },
+  "app_update_update_now": "Güncelle",
+  "@app_update_store_open_failed": {
+    "description": "The store page could not be opened."
+  },
+  "app_update_store_open_failed": "Mağaza sayfası açılamadı.",
+  "@app_update_download_started": {
+    "description": "Downloading in the background — you can keep using the app."
+  },
+  "app_update_download_started": "Arka planda indiriliyor — uygulamayı kullanmaya devam edebilirsiniz.",
+  "@settings_app_update_title": {
+    "description": "Updates"
+  },
+  "bot_token_import_btn": "Jetonu hesabımdan içe aktar",
+  "bot_token_import_missing": "Bu bot hesabınızda bulunmuyor.",
+  "bot_token_import_network": "Sunucuya ulaşılamadı: bağlantınızı kontrol edip yeniden deneyin.",
+  "bot_token_import_no_account": "Bu cihazda bağlı bir hesap yok: jetonu içe aktarmak için oturum açın.",
+  "bot_token_import_not_stored": "Hesabınızda kayıtlı jeton yok: bir kez burada girin.",
+  "bot_token_import_server_cannot_read": "Sunucu kayıtlı jetonu okuyamıyor.",
+  "bot_token_import_server_unsupported": "Bu sunucu henüz jeton içe aktarmayı sunmuyor — güncelleyin veya yeniden dağıtın.",
+  "bot_token_import_success": "Jeton hesabınızdan içe aktarıldı: bağlantı yeniden kuruldu.",
+  "container_invite_server_unsupported": "Bu sunucu henüz bot davetini sunmuyor — güncelleyin veya yeniden dağıtın.",
+  "container_invite_missing": "Bu kapsayıcı sunucuda artık yok — kapsayıcı listesini yenileyin.",
+  "settings_app_update_title": "Güncellemeler",
+  "@settings_app_update_installed_version": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "build": {
+        "type": "String"
+      }
+    },
+    "description": "{version} (build {build})"
+  },
+  "settings_app_update_installed_version": "{version} (derleme {build})",
+  "@settings_app_version_value": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    },
+    "description": "App version with its value"
+  },
+  "settings_app_version_value": "Uygulama: {version}",
+  "@settings_runner_version_value": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    },
+    "description": "Runner version with its value"
+  },
+  "settings_runner_version_value": "Runner: {version}",
+  "@settings_app_update_check_button": {
+    "description": "Check for updates"
+  },
+  "settings_app_update_check_button": "Güncellemeleri denetle",
+  "@settings_app_update_checking": {
+    "description": "Checking…"
+  },
+  "settings_app_update_checking": "Denetleniyor…",
+  "@settings_app_update_up_to_date": {
+    "description": "You are running the latest version."
+  },
+  "settings_app_update_up_to_date": "En son sürümü kullanıyorsunuz.",
+  "@settings_app_update_available": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    },
+    "description": "Version {version} is available on the store."
+  },
+  "settings_app_update_available": "Mağazada {version} sürümü mevcut.",
+  "@settings_app_update_unavailable": {
+    "description": "Could not check for updates right now."
+  },
+  "settings_app_update_unavailable": "Güncellemeler şu anda denetlenemiyor.",
+  "@settings_app_update_unsupported": {
+    "description": "Updates can only be checked in the Android or iOS app."
+  },
+  "settings_app_update_unsupported": "Güncellemeler yalnızca Android veya iOS uygulamasında denetlenebilir.",
+  "@settings_app_update_open_store": {
+    "description": "Open store page"
+  },
+  "settings_app_update_open_store": "Mağaza sayfasını aç",
   "@action_add_else_if": {
     "description": "Add ELSE IF"
   },
@@ -1270,6 +1379,12 @@
   },
   "@bot_logs_rich_mode": {
     "description": "Rich formatted logs"
+  },
+  "@bot_logs_server_empty": {
+    "description": "The Bot Creator servers returned no logs for this bot."
+  },
+  "@bot_logs_server_read_failed": {
+    "description": "Could not read the logs from the Bot Creator servers."
   },
   "@bot_logs_show_all": {
     "description": "Show all"
@@ -4362,6 +4477,9 @@
   "@runner_source_manager_unavailable": {
     "description": "Sign in to Bot Creator in Settings to load stats from Bot Creator servers."
   },
+  "@runner_source_this_device": {
+    "description": "This device"
+  },
   "@save": {
     "description": "Save"
   },
@@ -4466,6 +4584,23 @@
   },
   "@scoped_delete_title": {
     "description": "Delete Scoped Variable"
+  },
+  "@scoped_declare_detected": {
+    "description": "Declare this variable"
+  },
+  "@scoped_detected_badge": {
+    "description": "Detected"
+  },
+  "@scoped_detected_hint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "No declared definition \u00b7 {count} stored value(s)"
+  },
+  "@scoped_detected_tooltip": {
+    "description": "Value present in the bot data without a declared definition. Shown as-is; nothing is invented."
   },
   "@scoped_empty": {
     "description": "No scoped variables defined"
@@ -7292,6 +7427,8 @@
   "bot_logs_ram_estimated": "Tahmini bot RAM: {memory}",
   "bot_logs_raw_mode": "Sıkıştırılmış ham günlükler",
   "bot_logs_rich_mode": "Zengin formatlı günlükler",
+  "bot_logs_server_empty": "Bot Creator sunucuları bu bot için günlük döndürmedi.",
+  "bot_logs_server_read_failed": "Günlükler Bot Creator sunucularından okunamadı.",
   "bot_logs_show_all": "Tümünü göster",
   "bot_logs_show_less": "Daha az göster",
   "bot_logs_show_more": "Daha fazla göster",
@@ -8059,6 +8196,10 @@
   "guilds_tab_short": "Sunucular",
   "hint_use_variables": "Gerekiyorsa değişkenleri/şablonları kullanın",
   "home_add_time": "Zaman Ekle",
+  "home_add_time_mobile_only": "Ödüllü reklamlar mobil uygulamada izlenir; kazanılan süre her yerde geçerlidir.",
+  "home_hosting_unlimited_overline": "Barındırma dahil",
+  "home_hosting_unlimited_headline": "Aboneliğinle sınırsız",
+  "home_hosting_remaining_overline": "Kalan süre",
   "home_overline": "PROJELERİM",
   "home_create_bot_title": "Bot oluştur",
   "home_create_bot_subtitle": "Discord botun iki tıkta",
@@ -8095,6 +8236,23 @@
   "home_server_count_one": "{count} sunucu",
   "home_server_count_other": "{count} sunucu",
   "home_start": "Başlat",
+  "bot_start_target_title": "{bot} nerede başlatılsın?",
+  "@bot_start_target_title": {
+    "placeholders": {
+      "bot": {
+        "type": "String"
+      }
+    },
+    "description": "Title of the start-target dialog"
+  },
+  "bot_start_local_title": "Yerel olarak başlat (bu cihaz)",
+  "bot_start_local_desc": "Ücretsiz, hiçbir şey tüketmez. Uygulamayı kapatırsan bot durur.",
+  "bot_start_server_title": "Bot Creator Server'da başlat",
+  "bot_start_server_desc": "Barındırma dakikalarını tüketir (PREMIUM ile sınırsız). Bot cihazın olmadan çalışır.",
+  "bot_start_server_reason_platform": "Bu cihaz uzaktan barındırmayı yönetemez.",
+  "bot_start_server_reason_no_account": "Bu cihazda bağlı hesap yok.",
+  "bot_start_server_reason_cloud_disabled": "Bu sunucuda bulut barındırma etkin değil.",
+  "bot_start_server_reason_no_minutes": "Barındırma dakikan kalmadı: mobil uygulamadan bir reklam izle veya PREMIUM'a geç.",
   "home_start_ads": "Başlat (Reklam İzle)",
   "home_start_premium": "Başlat (Premium)",
   "home_status_offline": "Çevrimdışı",
@@ -8352,6 +8510,7 @@
   "premium_active_desc": "Desteğiniz için teşekkür ederiz! Tüm reklamlar devre dışı bırakıldı.",
   "premium_active_title": "Premium aktif",
   "premium_card_button": "Planları gör",
+  "premium_locked_hint": "Hesabın ücretsiz planda: abonelik mobil uygulamadan etkinleştirilir (bu cihazda reklam ve satın alma gösterilmez).",
   "premium_card_desc": "Tüm reklamları kaldırmak ve botlarınızı herhangi bir pop-up olmadan anında başlatmak için abone olun.",
   "premium_card_title": "Reklamları Kaldır",
   "quick_access_title": "Hızlı Erişim",
@@ -8430,6 +8589,7 @@
   "runner_source_local": "Yerel",
   "runner_source_manager": "Bot Creator sunucuları",
   "runner_source_manager_unavailable": "Bot Creator sunucularından istatistikleri yüklemek için Ayarlar'da Bot Creator'a giriş yapın.",
+  "runner_source_this_device": "Bu cihaz",
   "save": "Kaydet",
   "scheduler_add_title": "Program ekle",
   "scheduler_add_trigger": "Tetikleyici ekle",
@@ -8453,6 +8613,10 @@
   "scoped_default_value_hint": "İsteğe bağlı",
   "scoped_delete_confirm": "\"{key}\" ve saklanan tüm çalışma zamanı verileri silinsin mi?",
   "scoped_delete_title": "Kapsamlı Değişkeni Sil",
+  "scoped_declare_detected": "Bu değişkeni bildir",
+  "scoped_detected_badge": "Algılandı",
+  "scoped_detected_hint": "Bildirilmiş tanım yok · {count} kayıtlı değer",
+  "scoped_detected_tooltip": "Bot verisinde tanımı bildirilmemiş değer. Olduğu gibi gösterilir; hiçbir şey uydurulmaz.",
   "scoped_empty": "Tanımlanmış kapsamlı değişken yok",
   "scoped_empty_subtitle": "Kapsamlı değişkenler Discord bağlamı (kullanıcı, sunucu…) başına bir değer saklar. Çalışma zamanında bot tarafından doldurulurlar.",
   "scoped_explore_runtime": "Çalışma zamanı verilerini keşfet",
@@ -9271,6 +9435,7 @@
   "settings_runtime_engine_switch_dialog_confirm": "Motoru değiştir",
   "settings_runtime_engine_switch_success": "Çalışma zamanı motoru güncellendi. Hazır olduğunuzda botu yeniden başlatın.",
   "settings_runtime_engine_switch_error": "Çalışma zamanı motoru değiştirilemedi: {error}",
+  "settings_runtime_engine_switch_empty_payload": "Geçiş iptal edildi: yeni yapılandırma boş olurdu (komut, olay, webhook veya değişken yok). Yerel komutlarınız ve iş akışlarınız değiştirilmedi.",
   "app_create_select_type_title": "Uygulama Türünü Seçin",
   "app_create_select_type_desc": "Başlamak için oluşturmak istediğiniz uygulama türünü seçin.",
   "app_create_type_discord": "Discord Botu",
@@ -9419,6 +9584,23 @@
   "@container_deploy_paste_token_hint": {
     "description": "Hint text for Discord bot token field"
   },
+  "container_deploy_env_fields_section": "Ortam değişkenleri",
+  "@container_deploy_env_fields_section": {
+    "description": "Section header for the environment variables declared by a turnkey template"
+  },
+  "container_deploy_env_server_provided": "Sunucu tarafından sağlanır",
+  "@container_deploy_env_server_provided": {
+    "description": "Helper text on a template environment variable the server fills in (read-only field)"
+  },
+  "container_deploy_env_field_required": "{field} alanı zorunludur.",
+  "@container_deploy_env_field_required": {
+    "description": "Validation error for a required turnkey template environment variable",
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
   "container_deploy_discord_prereqs": "Discord Ön Koşulları",
   "@container_deploy_discord_prereqs": {
     "description": "Header for Discord prerequisites advice box"
@@ -9563,6 +9745,7 @@
     "description": "Deploy eligibility banner reason when the container limit is reached"
   },
   "container_deploy_blocked_no_minutes": "You're out of free hosting minutes. Watch a rewarded ad to unlock more minutes, or go Premium for unlimited hosting.",
+  "container_deploy_blocked_cloud_disabled": "Bu sunucuda bulut barındırma etkin değil: uzaktan dağıtım kullanılamıyor. Botu yerel olarak veya kendi runner'ın üzerinden çalıştır.",
   "@container_deploy_blocked_no_minutes": {
     "description": "Deploy eligibility banner reason when there are no hosting minutes left"
   },
@@ -10363,5 +10546,30 @@
   "modal_builder_submit_actions": "Gönderme Eylemleri",
   "@modal_builder_submit_actions": {
     "description": "Submit Actions"
-  }
+  },
+  "announcement_see_more": "Daha fazla bilgi",
+  "@announcement_see_more": {
+    "description": "Learn more"
+  },
+  "announcement_dismiss": "Kapat",
+  "@announcement_dismiss": {
+    "description": "Dismiss"
+  },
+  "announcement_acknowledge": "Anladım",
+  "@announcement_acknowledge": {
+    "description": "Got it"
+  },
+  "announcement_later": "Daha sonra",
+  "@announcement_later": {
+    "description": "Later"
+  },
+  "announcement_link_open_failed": "Bağlantı açılamadı.",
+  "@announcement_link_open_failed": {
+    "description": "Couldn't open the link."
+  },
+  "container_invite_btn": "Botu davet et",
+  "container_invite_busy": "Davet ediliyor...",
+  "container_invite_unavailable": "Bu uygulamanın botu tanımlanamadı: token yok veya iptal edilmiş. Dağıtımı yeniden başlatın.",
+  "container_invite_failed": "Davet gönderilemedi: bağlantınızı kontrol edip yeniden deneyin.",
+  "container_invite_open_failed": "Davet bağlantısı açılamadı."
 }

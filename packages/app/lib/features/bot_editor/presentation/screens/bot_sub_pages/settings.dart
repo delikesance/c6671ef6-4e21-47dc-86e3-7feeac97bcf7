@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:async';
+import 'package:bot_creator/core/platform/run_platform.dart';
 import 'dart:convert';
 
 import 'package:bot_creator/main.dart';
@@ -12,23 +13,21 @@ import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/features/bot_editor/logic/js_runner_capabilities.dart';
+import 'package:bot_creator/core/utils/bot_payload_guard.dart';
 import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
-import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:bot_creator/core/discord/discord_intent_sync.dart';
 import 'package:bot_creator/core/discord/portal_intent_feedback.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/editor_sub_page_ui.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/lavalink_settings_section.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'dart:developer' as developer;
 
 class AppSettingsPage extends StatefulWidget {
@@ -61,8 +60,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   bool _builtInLegacyHelpEnabled = true;
   final List<_StatusDraft> _statusDrafts = <_StatusDraft>[];
   String _presenceStatus = 'online';
-  String _appVersion = '';
-  String? _runnerVersion;
   String _runtimeEngine = runtimeEngineDart;
   bool _isSwitchingRuntimeEngine = false;
   // Lavalink : la page ne pilote que l'interrupteur et les serveurs de repli
@@ -91,8 +88,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     'competing',
   ];
 
-  bool get _supportsManagerRuntime =>
-      !kIsWeb && !Platform.isWindows && !Platform.isLinux && !Platform.isMacOS;
+  // Une seule règle dans toute l'application (voir `run_platform.dart`) : les réglages du
+  // bot doivent pouvoir viser le serveur depuis un poste de travail.
+  bool get _supportsManagerRuntime => supportsManagerRuntime;
 
   BotRuntimeCapabilities get _capabilities =>
       capabilitiesForEngine(_runtimeEngine);
@@ -128,6 +126,19 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(context.tr.settings_runtime_engine_switch_success),
+        ),
+      );
+    } on DegenerateBotPayloadException {
+      // POURQUOI un message dédié : la bascule a été REFUSÉE avant tout
+      // effacement. Afficher le diagnostic brut de la garde ferait croire à une
+      // panne alors que, précisément, rien n'a été touché.
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            context.tr.settings_runtime_engine_switch_empty_payload,
+          ),
+          backgroundColor: AppTheme.error,
         ),
       );
     } catch (error) {
@@ -193,7 +204,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       parameters: {"app_id": widget.client.application.id.toString()},
     );
     _init();
-    _loadVersions();
   }
 
   @override
@@ -296,17 +306,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       _databasePasswordController.text = (databaseConfig['password'] ?? '')
           .toString();
       _databaseSsl = databaseConfig['ssl'] == true;
-    });
-  }
-
-  Future<void> _loadVersions() async {
-    final info = await PackageInfo.fromPlatform();
-    final client = await RunnerSettings.createClient();
-    final rv = await client?.getRunnerVersion();
-    if (!mounted) return;
-    setState(() {
-      _appVersion = '${info.version}+${info.buildNumber}';
-      _runnerVersion = rv;
     });
   }
 
@@ -1643,6 +1642,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
           child: LavalinkSettingsSection(
             initialConfig: _lavalinkConfigRaw,
             onSave: _saveLavalinkConfig,
+            // Le bot édité : la section en a besoin pour savoir s'il s'exécute ici
+            // (musique débloquée) ou sur Bot Creator Server (formule exigée).
+            botId: widget.client.user.id.toString(),
           ),
         ),
       ),
@@ -2012,45 +2014,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   },
                 ),
               ),
-              const SizedBox(height: 12),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(14),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        context.tr.settings_version_title,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          const Icon(Icons.phone_android, size: 18),
-                          const SizedBox(width: 8),
-                          Text(
-                            '${context.tr.settings_app_version}: $_appVersion',
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          const Icon(Icons.dns_outlined, size: 18),
-                          const SizedBox(width: 8),
-                          Text(
-                            '${context.tr.settings_runner_version}: ${_runnerVersion ?? context.tr.settings_runner_not_connected}',
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
               const SizedBox(height: 24),
               const Divider(),
               const SizedBox(height: 12),

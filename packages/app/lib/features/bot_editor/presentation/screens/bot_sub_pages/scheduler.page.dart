@@ -1,7 +1,9 @@
 import 'package:bot_creator/main.dart';
 
 import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
+import 'package:bot_creator/features/subscriptions/logic/premium_feature_gate.dart';
 import 'package:bot_creator/features/subscriptions/presentation/subscription_page.dart';
+import 'package:bot_creator/features/subscriptions/presentation/widgets/premium_locked_hint.dart';
 import 'package:flutter/material.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
@@ -24,8 +26,14 @@ class _SchedulerPageState extends State<SchedulerPage> {
   List<Map<String, dynamic>> _triggers = const <Map<String, dynamic>>[];
   List<String> _workflowNames = const <String>[];
 
-  bool get _hasSchedulerCapability =>
-      PremiumCapabilities.hasCapability(PremiumCapability.schedulerTriggers);
+  /// La capacité du planificateur dépend de l'ENDROIT où le bot tourne, pas de
+  /// l'OS : sur un poste de travail avec un bot local, les déclencheurs
+  /// s'exécutent chez l'utilisateur, donc ils sont ouverts sans abonnement
+  /// (`premium_feature_gate.dart`).
+  bool get _hasSchedulerCapability => premiumCapabilityAvailableForBot(
+    PremiumCapability.schedulerTriggers,
+    botId: widget.botId,
+  );
 
   @override
   void initState() {
@@ -290,12 +298,10 @@ class _SchedulerPageState extends State<SchedulerPage> {
                 label: Text(context.tr.premium_card_button),
               )
             else
-              Text(
-                context.tr.subscription_unavailable_platform,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
+              // Verrou de FORMULE, pas de plateforme : la cause est la formule du compte,
+              // et « non disponible sur cette plateforme » decrivait l'achat en parlant de
+              // la fonction (voir PremiumLockedHint).
+              const PremiumLockedHint(),
           ],
         ),
       ),

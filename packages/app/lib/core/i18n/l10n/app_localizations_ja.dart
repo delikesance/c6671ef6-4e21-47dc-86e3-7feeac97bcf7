@@ -9,6 +9,103 @@ class AppLocalizationsJa extends AppLocalizations {
   AppLocalizationsJa([String locale = 'ja']) : super(locale);
 
   @override
+  String get app_update_dialog_title => '新しいバージョンがあります';
+
+  @override
+  String app_update_dialog_message(String version, String installed) {
+    return 'ストアでバージョン $version が公開されています（現在は $installed）。アップデートで最新の修正が適用されます。';
+  }
+
+  @override
+  String get app_update_later => '後で';
+
+  @override
+  String get app_update_update_now => '更新する';
+
+  @override
+  String get app_update_store_open_failed => 'ストアのページを開けませんでした。';
+
+  @override
+  String get app_update_download_started => 'バックグラウンドでダウンロード中です。アプリはそのまま使えます。';
+
+  @override
+  String get bot_token_import_btn => 'アカウントからトークンを取り込む';
+
+  @override
+  String get bot_token_import_missing => 'このボットはあなたのアカウントに存在しません。';
+
+  @override
+  String get bot_token_import_network => 'サーバーに接続できません。接続を確認して再試行してください。';
+
+  @override
+  String get bot_token_import_no_account =>
+      'この端末に接続されたアカウントがありません。サインインしてトークンを取り込んでください。';
+
+  @override
+  String get bot_token_import_not_stored =>
+      'アカウントにトークンが保存されていません。ここで一度入力してください。';
+
+  @override
+  String get bot_token_import_server_cannot_read => 'サーバーが保存済みのトークンを読み取れません。';
+
+  @override
+  String get bot_token_import_server_unsupported =>
+      'このサーバーはまだトークンの取り込みに対応していません。更新または再デプロイしてください。';
+
+  @override
+  String get bot_token_import_success => 'アカウントからトークンを取り込みました。接続が復元されました。';
+
+  @override
+  String get container_invite_server_unsupported =>
+      'このサーバーはまだボットの招待に対応していません。更新または再デプロイしてください。';
+
+  @override
+  String get container_invite_missing =>
+      'このコンテナはサーバー上に存在しません。コンテナ一覧を再読み込みしてください。';
+
+  @override
+  String get settings_app_update_title => 'アップデート';
+
+  @override
+  String settings_app_update_installed_version(String version, String build) {
+    return '$version（ビルド $build）';
+  }
+
+  @override
+  String settings_app_version_value(String version) {
+    return 'アプリ: $version';
+  }
+
+  @override
+  String settings_runner_version_value(String version) {
+    return 'ランナー: $version';
+  }
+
+  @override
+  String get settings_app_update_check_button => 'アップデートを確認';
+
+  @override
+  String get settings_app_update_checking => '確認中…';
+
+  @override
+  String get settings_app_update_up_to_date => '最新バージョンを使用しています。';
+
+  @override
+  String settings_app_update_available(String version) {
+    return 'ストアでバージョン $version が公開されています。';
+  }
+
+  @override
+  String get settings_app_update_unavailable => '現在アップデートを確認できません。';
+
+  @override
+  String get settings_app_update_unsupported =>
+      'アップデートの確認は Android または iOS アプリでのみ可能です。';
+
+  @override
+  String get settings_app_update_open_store => 'ストアのページを開く';
+
+  @override
   String get action_add_else_if => 'ELSE IF を追加';
 
   @override
@@ -1609,6 +1706,12 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get bot_logs_rich_mode => 'リッチフォーマットログ';
+
+  @override
+  String get bot_logs_server_empty => 'Bot Creator サーバーはこのボットのログを返しませんでした。';
+
+  @override
+  String get bot_logs_server_read_failed => 'Bot Creator サーバーからログを読み取れませんでした。';
 
   @override
   String get bot_logs_show_all => 'すべて表示';
@@ -4118,6 +4221,19 @@ class AppLocalizationsJa extends AppLocalizations {
   String get home_add_time => '時間を追加';
 
   @override
+  String get home_add_time_mobile_only =>
+      '報酬付き広告はモバイルアプリで視聴します。獲得した時間はどこでも有効です。';
+
+  @override
+  String get home_hosting_unlimited_overline => 'ホスティング込み';
+
+  @override
+  String get home_hosting_unlimited_headline => 'サブスクリプションで無制限';
+
+  @override
+  String get home_hosting_remaining_overline => '残り時間';
+
+  @override
   String get home_overline => 'マイプロジェクト';
 
   @override
@@ -4242,6 +4358,38 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get home_start => '起動';
+
+  @override
+  String bot_start_target_title(String bot) {
+    return '$bot をどこで起動しますか？';
+  }
+
+  @override
+  String get bot_start_local_title => 'ローカルで起動（このデバイス）';
+
+  @override
+  String get bot_start_local_desc => '無料で何も消費しません。アプリを閉じるとボットは停止します。';
+
+  @override
+  String get bot_start_server_title => 'Bot Creator サーバーで起動';
+
+  @override
+  String get bot_start_server_desc =>
+      'ホスティング時間を消費します（PREMIUM は無制限）。デバイスなしで動作します。';
+
+  @override
+  String get bot_start_server_reason_platform => 'このデバイスから遠隔ホスティングは操作できません。';
+
+  @override
+  String get bot_start_server_reason_no_account => 'このデバイスに接続されたアカウントがありません。';
+
+  @override
+  String get bot_start_server_reason_cloud_disabled =>
+      'このサーバーではクラウドホスティングが有効になっていません。';
+
+  @override
+  String get bot_start_server_reason_no_minutes =>
+      'ホスティング時間が残っていません。モバイルアプリで広告を見るか、PREMIUM にアップグレードしてください。';
 
   @override
   String get home_start_ads => '起動 (広告を見る)';
@@ -5160,6 +5308,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get premium_card_button => 'プランを見る';
 
   @override
+  String get premium_locked_hint =>
+      'アカウントは無料プランです。サブスクリプションはモバイルアプリで有効化します（このデバイスでは広告も購入も表示されません）。';
+
+  @override
   String get premium_card_desc => 'サブスクライブしてすべての広告を削除し、ポップアップなしで即座にボットを起動できます。';
 
   @override
@@ -5419,6 +5571,9 @@ class AppLocalizationsJa extends AppLocalizations {
       '設定でBot Creatorにサインインして、Bot Creatorサーバーからの統計を読み込んでください。';
 
   @override
+  String get runner_source_this_device => 'このデバイス';
+
+  @override
   String get save => '保存';
 
   @override
@@ -5498,6 +5653,21 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get scoped_delete_title => 'スコープ変数を削除';
+
+  @override
+  String get scoped_declare_detected => 'この変数を宣言する';
+
+  @override
+  String get scoped_detected_badge => '検出済み';
+
+  @override
+  String scoped_detected_hint(int count) {
+    return '宣言された定義なし · 保存値 $count 件';
+  }
+
+  @override
+  String get scoped_detected_tooltip =>
+      '定義が宣言されていないがボットのデータに存在する値です。そのまま表示され、何も提造しません。';
 
   @override
   String get scoped_empty => 'スコープ変数が定義されていません';
@@ -8182,6 +8352,10 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get settings_runtime_engine_switch_empty_payload =>
+      '切り替えを中止しました: 新しい構成は空になります (コマンド・イベント・Webhook・変数がいずれもありません)。ローカルのコマンドとワークフローは変更されていません。';
+
+  @override
   String get app_create_select_type_title => 'アプリケーションの種類を選択';
 
   @override
@@ -8342,6 +8516,17 @@ class AppLocalizationsJa extends AppLocalizations {
   String get container_deploy_paste_token_hint => 'Discord Botのトークンをここに貼り付け';
 
   @override
+  String get container_deploy_env_fields_section => '環境変数';
+
+  @override
+  String get container_deploy_env_server_provided => 'サーバーが設定します';
+
+  @override
+  String container_deploy_env_field_required(String field) {
+    return '「$field」は必須です。';
+  }
+
+  @override
   String get container_deploy_discord_prereqs => 'Discordの前提条件';
 
   @override
@@ -8451,6 +8636,10 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get container_deploy_blocked_no_minutes =>
       'You\'re out of free hosting minutes. Watch a rewarded ad to unlock more minutes, or go Premium for unlimited hosting.';
+
+  @override
+  String get container_deploy_blocked_cloud_disabled =>
+      'このサーバーではクラウドホスティングが有効になっていません。リモートでのデプロイは利用できません。ボットはローカル、または自分のランナーで実行してください。';
 
   @override
   String get container_deploy_blocked_eligibility_error =>
@@ -9152,4 +9341,35 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get modal_builder_submit_actions => '送信アクション';
+
+  @override
+  String get announcement_see_more => '詳細を見る';
+
+  @override
+  String get announcement_dismiss => '閉じる';
+
+  @override
+  String get announcement_acknowledge => '了解しました';
+
+  @override
+  String get announcement_later => 'あとで';
+
+  @override
+  String get announcement_link_open_failed => 'リンクを開けませんでした。';
+
+  @override
+  String get container_invite_btn => 'ボットを招待';
+
+  @override
+  String get container_invite_busy => '招待中...';
+
+  @override
+  String get container_invite_unavailable =>
+      'このアプリのボットを識別できませんでした。トークンが存在しないか失効しています。再デプロイしてください。';
+
+  @override
+  String get container_invite_failed => '招待できませんでした。接続を確認して再試行してください。';
+
+  @override
+  String get container_invite_open_failed => '招待リンクを開けませんでした。';
 }

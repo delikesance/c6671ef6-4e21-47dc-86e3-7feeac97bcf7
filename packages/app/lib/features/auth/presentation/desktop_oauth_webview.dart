@@ -3,10 +3,19 @@ import 'dart:io';
 import 'package:desktop_webview_window/desktop_webview_window.dart';
 import 'package:flutter/foundation.dart';
 
-/// Launches a dedicated in-app desktop WebView window for OAuth authentication.
+/// Fenetre embarquee (WebKit sous Linux) pour l'autorisation OAuth sur desktop.
 ///
-/// Bypasses Google's disallowed_useragent restriction by appending Chrome desktop
-/// tokens and intercepts callbacks to the local loopback server or closes cleanly on completion.
+/// REPLI, pas chemin nominal : `MainApiAuthService._connectDesktop` ouvre
+/// D'ABORD le navigateur du systeme. Cette fenetre ne sert que la ou aucun
+/// navigateur n'est disponible, parce que le moteur embarque ne sait pas
+/// toujours charger la page d'autorisation (sous Linux, WebKitGTK echoue sur
+/// discord.com par une erreur interne : fenetre blanche, consentement jamais
+/// rendu, connexion perdue au bout du delai).
+///
+/// Elle ne peut pas non plus se faire passer pour Chrome : le plugin n'expose
+/// que `setApplicationNameForUserAgent`, qui AJOUTE un nom d'application a l'UA
+/// par defaut au lieu de la remplacer — la constante ci-dessous n'est donc pas
+/// l'UA reellement envoyee.
 class DesktopOAuthWebView {
   DesktopOAuthWebView._();
 

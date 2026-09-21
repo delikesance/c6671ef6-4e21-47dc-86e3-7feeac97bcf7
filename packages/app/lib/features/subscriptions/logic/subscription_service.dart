@@ -5,6 +5,7 @@ import 'package:bot_creator/core/analytics/monetization_funnel.dart';
 import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
+import 'package:bot_creator/core/platform/run_platform.dart';
 import 'package:bot_creator/features/subscriptions/logic/app_account_token.dart';
 import 'package:bot_creator/features/subscriptions/logic/shared_purchase_stream.dart';
 import 'package:flutter/foundation.dart';
@@ -119,7 +120,30 @@ class SubscriptionService {
   static DateTime? _lastLocalValidationAt;
   static DateTime? _lastServerSyncAt;
   static bool? _debugForceNativeBillingSourceOfTruth;
-  static bool? _debugForceDesktop;
+
+  /// `premium_cloud_enabled` reçu du serveur : l'hébergement cloud est-il
+  /// réellement disponible sur CE déploiement ?
+  ///
+  /// Ce n'est ni un droit de la formule ni une propriété du poste : côté serveur
+  /// c'est `plan == PREMIUM && PREMIUM_CLOUD_ENABLED`, le second terme étant un
+  /// interrupteur de déploiement. Tant que le serveur ne l'a pas dit (`null`), on
+  /// n'affirme rien ; quand il dit NON, l'application doit le dire aussi — sinon
+  /// elle envoie l'utilisateur regarder une publicité ou acheter une formule qui
+  /// n'ouvriraient aucun hébergement.
+  static bool? get premiumCloudEnabled => _premiumCloudEnabled;
+
+  /// Vrai seulement quand le serveur a EXPLICITEMENT dit que l'hébergement cloud
+  /// est coupé (jamais sur une simple absence d'information).
+  static bool get premiumCloudDisabled => _premiumCloudEnabled == false;
+
+  static bool? _premiumCloudEnabled;
+
+  /// Une formule a-t-elle déjà été reçue du SERVEUR (réponse HTTP ou événement
+  /// poussé) ? Tant que non, l'app est hors ligne du point de vue des formules et
+  /// garde son comportement hors connexion ; dès que oui, c'est cette formule qui
+  /// fait autorité sur TOUTES les plateformes, desktop compris.
+  static bool _serverPlanKnown = false;
+
   static Timer? _expiryTimer;
   static SharedPreferences? _prefs;
   static bool _purchaseHandlerRegistered = false;
@@ -215,10 +239,23 @@ class SubscriptionService {
   @visibleForTesting
   static Future<bool> Function()? debugStoreReverifyOverride;
 
+  /// Force la plateforme « desktop » pour les tests.
+  ///
+  /// Écrit le seam PARTAGÉ (`run_platform.dart`) et non un drapeau local : les
+  /// écrans et le service répondent ainsi à la même question de la même façon,
+  /// ce qu'un drapeau privé ne garantissait pas. `null` rend la main à la
+  /// plateforme réelle (fin de forçage).
   @visibleForTesting
   static void debugSetDesktopForTests(bool? value) {
-    _debugForceDesktop = value;
+    _desktopOverrideRestore?.call();
+    _desktopOverrideRestore = null;
+    if (value == null) return;
+    _desktopOverrideRestore = debugOverrideDesktopPlatform(value);
   }
+
+  /// Restauration du forçage posé par [debugSetDesktopForTests], pour que
+  /// `null` (et la remise à zéro des tests) rende vraiment la valeur d'origine.
+  static VoidCallback? _desktopOverrideRestore;
 
   static bool? _isPremiumPlan(dynamic rawPlan) {
     if (rawPlan == null) {
@@ -237,14 +274,41 @@ class SubscriptionService {
     return null;
   }
 
+  /// État premium de repli quand le serveur ne peut pas être joint (hors ligne,
+  /// panne, serveur plus ancien).
+  ///
+  /// Sur desktop, aucune boutique native ne peut prouver un abonnement : le repli
+  /// reste donc « premium » TANT QU'aucune formule serveur n'a été reçue, ce qui
+  /// préserve le comportement hors connexion historique. Dès qu'une formule est
+  /// connue, elle seule décide — desktop compris.
+  static bool get _offlineFallbackPremium {
+    if (_isDesktop && !_serverPlanKnown) return true;
+    return _isLocalSubscriptionActive();
+  }
+
+  /// Une session Manager valide existe-t-elle ?
+  ///
+  /// C'est elle qui rend la vérité serveur joignable : sans session (ou sans API
+  /// configurée), l'app n'a rien à interroger et garde son comportement local.
+  static Future<bool> _hasManagerSession() async {
+    try {
+      final config = await MainApiSettingsStore.loadConfig();
+      final session = await MainApiSettingsStore.loadSession();
+      return config.isConfigured && session != null && !session.isExpired;
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// Whether the user holds an active premium subscription.
   static bool get isSubscribed {
-    // Desktop platforms are premium by default.
-    if (_isDesktop) return true;
+    // La formule reçue du serveur prime sur toute déduction locale : c'est elle
+    // qui porte le solde de temps d'hébergement (minutes gagnées par pub sur
+    // mobile comprises) et les droits du compte.
     if (_hasFreshManagerOverride()) {
       return _managerPremiumOverride!;
     }
-    return _isLocalSubscriptionActive();
+    return _offlineFallbackPremium;
   }
 
   /// Whether native in-app subscriptions are available on this platform.
@@ -1145,11 +1209,14 @@ class SubscriptionService {
     bool forceRefresh = false,
     bool preferLocalOnFailure = true,
   }) async {
-    if (_isDesktop) return true;
+    // Desktop HORS session : rien à interroger, donc rien ne change — l'app reste
+    // premium par défaut comme hors connexion. Connecté, en revanche, la formule
+    // est servie par le serveur sur cette plateforme comme sur mobile.
+    if (_isDesktop && !await _hasManagerSession()) return true;
     if (_usesNativeBillingSourceOfTruth) {
       return _isLocalSubscriptionActive();
     }
-    final localPremium = _isLocalSubscriptionActive();
+    final localPremium = _offlineFallbackPremium;
     if (_hasFreshManagerOverride(forceRefresh: forceRefresh)) {
       return _managerPremiumOverride!;
     }
@@ -1249,18 +1316,20 @@ class SubscriptionService {
   ///
   /// When a valid manager session exists, the server plan is authoritative and
   /// can revoke a stale on-device premium cache (for example after admin revoke).
+  /// C'est vrai sur TOUTES les plateformes : la formule (et donc le solde de temps
+  /// d'hébergement) est une vérité serveur, pas une propriété de la plateforme.
   static Future<bool> refreshPremiumFromServer({
     MainApiClient? client,
     bool forceRefresh = false,
   }) async {
-    if (_isDesktop) {
+    if (_isDesktop && !await _hasManagerSession()) {
       return true;
     }
     if (_hasFreshServerSync(forceRefresh: forceRefresh)) {
       return _isLocalSubscriptionActive();
     }
 
-    final localPremium = _isLocalSubscriptionActive();
+    final localPremium = _offlineFallbackPremium;
 
     try {
       final config = await MainApiSettingsStore.loadConfig();
@@ -1340,8 +1409,19 @@ class SubscriptionService {
         _isPremiumPlan(runtime['subscription_plan']);
     if (plan == null) return localPremium;
 
+    // Une formule serveur est désormais connue : elle fait autorité (desktop
+    // compris) et remplace la supposition hors ligne.
+    _serverPlanKnown = true;
     _managerPremiumOverride = plan;
     _managerPremiumOverrideUpdatedAt = DateTime.now().toUtc();
+
+    // Interrupteur d'hébergement cloud, lu sur TOUTE réponse de compte : c'est
+    // justement quand la formule est gratuite que l'app doit pouvoir dire laquelle
+    // des deux causes bloque un déploiement distant (la formule, ou le déploiement
+    // lui-même). Un champ absent laisse l'état INCONNU : on n'affirme rien.
+    final rawPremiumCloud =
+        runtime['premium_cloud_enabled'] ?? runtime['premiumCloudEnabled'];
+    _premiumCloudEnabled = rawPremiumCloud is bool ? rawPremiumCloud : null;
     if (plan) {
       _isSubscribed = true;
       _serverValidated = true;
@@ -1419,7 +1499,9 @@ class SubscriptionService {
     MainApiClient? client,
     bool forceRefresh = false,
   }) async {
-    if (_isDesktop) return true;
+    // Desktop hors session : comportement hors connexion conservé (premium par
+    // défaut). Connecté, le serveur tranche ici comme sur mobile.
+    if (_isDesktop && !await _hasManagerSession()) return true;
     final config = await MainApiSettingsStore.loadConfig();
     final session = await MainApiSettingsStore.loadSession();
     if (config.isConfigured && session != null && !session.isExpired) {
@@ -1431,7 +1513,7 @@ class SubscriptionService {
     if (!_hasFreshLocalValidation(forceRefresh: forceRefresh)) {
       await refreshStatus();
     }
-    return _isLocalSubscriptionActive();
+    return _offlineFallbackPremium;
   }
 
   /// Returns whether rewarded ads can be skipped for bot starts.
@@ -1443,7 +1525,20 @@ class SubscriptionService {
     bool forceRefresh = false,
     bool allowStoredManagerSession = true,
   }) async {
-    if (_isDesktop) return true;
+    if (_isDesktop) {
+      // Desktop : la plateforme ne diffuse AUCUNE publicité récompensée, donc il
+      // n'y a jamais de pub à « sauter » — la réponse est oui, comme avant. La
+      // formule serveur est tout de même relue quand une session existe, pour que
+      // le premium affiché reste celui du serveur et non une supposition de
+      // plateforme.
+      if (allowStoredManagerSession && await _hasManagerSession()) {
+        await refreshPremiumFromServer(
+          client: client,
+          forceRefresh: forceRefresh,
+        );
+      }
+      return true;
+    }
     if (allowStoredManagerSession) {
       final config = await MainApiSettingsStore.loadConfig();
       final session = await MainApiSettingsStore.loadSession();
@@ -1486,13 +1581,11 @@ class SubscriptionService {
     }
   }
 
-  static bool get _isDesktop {
-    if (_debugForceDesktop != null) {
-      return _debugForceDesktop!;
-    }
-    if (kIsWeb) return false;
-    return Platform.isWindows || Platform.isLinux || Platform.isMacOS;
-  }
+  /// La plateforme d'exécution, lue sur le seam PARTAGÉ (`run_platform.dart`).
+  ///
+  /// Un seul point de vérité pour « suis-je sur desktop ? » : le service et les
+  /// écrans ne peuvent plus se contredire, et un test peut forcer la réponse.
+  static bool get _isDesktop => isDesktopRunPlatform;
 
   static void _scheduleExpirationTimer() {
     _expiryTimer?.cancel();
@@ -1601,13 +1694,14 @@ class SubscriptionService {
     _serverMaxTurnkeyBots = null;
     _serverAllowOwnBots = true;
     _serverAllowTurnkey = true;
+    _premiumCloudEnabled = null;
     _planQuotasFromServer = false;
     _managerPremiumOverride = null;
     _managerPremiumOverrideUpdatedAt = null;
     _lastLocalValidationAt = null;
     _lastServerSyncAt = null;
     _debugForceNativeBillingSourceOfTruth = null;
-    _debugForceDesktop = null;
+    _serverPlanKnown = false;
     debugStoreReverifyOverride = null;
     _lastStoreReverifyAt = null;
     _prefs = null;

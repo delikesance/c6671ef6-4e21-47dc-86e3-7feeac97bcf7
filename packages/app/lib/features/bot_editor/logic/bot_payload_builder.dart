@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:bot_creator/core/discord/discord_intent_sync.dart';
 import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
+import 'package:bot_creator/features/subscriptions/logic/premium_feature_gate.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
@@ -16,6 +17,36 @@ import 'package:bot_creator/features/bot_editor/logic/js_bot_payload_builder.dar
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:flutter/foundation.dart';
 import 'package:nyxx/nyxx.dart';
+
+/// Les drapeaux premium transmis au bot, calculés à UN SEUL endroit.
+///
+/// Pourquoi une fonction à part : ces quatre booléens décident de ce que le bot
+/// s'autorise à faire, et ils étaient auparavant figés sur la formule du compte — donc
+/// un bot exécuté sur la machine de l'utilisateur recevait « non premium » alors que
+/// rien n'y coûte au serveur. Les sortir ici rend la règle vérifiable directement,
+/// sans monter la base de données ni le calcul complet du payload.
+///
+/// Les webhooks entrants restent cadrés par la formule : ils exigent une adresse
+/// publique fournie par Bot Creator, qu'un bot local n'a pas.
+@visibleForTesting
+({bool inboundWebhooks, bool autoSharding, bool autoRestart, bool isPremium})
+premiumFlagsForBot(String? botId) {
+  return (
+    inboundWebhooks: premiumCapabilityAvailableForBot(
+      PremiumCapability.inboundWebhooks,
+      botId: botId,
+    ),
+    autoSharding: premiumCapabilityAvailableForBot(
+      PremiumCapability.autoSharding,
+      botId: botId,
+    ),
+    autoRestart: premiumCapabilityAvailableForBot(
+      PremiumCapability.autoRestart,
+      botId: botId,
+    ),
+    isPremium: premiumExecutionAvailableForBot(botId),
+  );
+}
 
 bool get _isDesktopPlatform {
   if (kIsWeb) return false;
@@ -574,17 +605,7 @@ Future<Map<String, dynamic>> buildBotPayload(String botId) async {
   final commands = await _appManager.listAppCommands(botId);
 
   // Evaluate premium capabilities before passing to isolate
-  final inboundWebhooks = PremiumCapabilities.hasCapability(
-    PremiumCapability.inboundWebhooks,
-  );
-  final autoSharding = PremiumCapabilities.hasCapability(
-    PremiumCapability.autoSharding,
-  );
-  final autoRestart = PremiumCapabilities.hasCapability(
-    PremiumCapability.autoRestart,
-  );
-
-  final isPremium = PremiumCapabilities.isPremiumUser;
+  final premiumFlags = premiumFlagsForBot(botId);
   final lavalinkConfigRaw = appData['lavalinkConfig'] as Map<String, dynamic>?;
 
   final payloadArgs = <String, dynamic>{
@@ -592,10 +613,10 @@ Future<Map<String, dynamic>> buildBotPayload(String botId) async {
     'token': token,
     'scopedVariables': scopedVariables,
     'commands': commands,
-    'inboundWebhooks': inboundWebhooks,
-    'autoSharding': autoSharding,
-    'autoRestart': autoRestart,
-    'isPremium': isPremium,
+    'inboundWebhooks': premiumFlags.inboundWebhooks,
+    'autoSharding': premiumFlags.autoSharding,
+    'autoRestart': premiumFlags.autoRestart,
+    'isPremium': premiumFlags.isPremium,
     'lavalinkConfig': lavalinkConfigRaw,
   };
 

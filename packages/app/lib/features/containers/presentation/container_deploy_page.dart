@@ -3,11 +3,15 @@ import 'dart:async';
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
+import 'package:bot_creator/core/platform/run_platform.dart';
 import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/features/containers/logic/hosted_app_hosting_actions.dart';
 import 'package:bot_creator/features/containers/logic/hosted_app_templates.dart';
+import 'package:bot_creator/features/containers/logic/turnkey_env_payload.dart';
 import 'package:bot_creator/features/containers/presentation/container_detail_page.dart';
 import 'package:bot_creator/features/containers/presentation/hosted_app_upsell_widgets.dart';
+import 'package:bot_creator/features/containers/presentation/turnkey_env_fields.dart';
+import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
 import 'package:bot_creator/features/subscriptions/presentation/subscriptions_hub_page.dart';
 import 'package:flutter/material.dart';
 
@@ -31,6 +35,12 @@ enum _DeployBlockReason {
 
   /// No hosting minutes remain (free tier only).
   noMinutes,
+
+  /// Le serveur a dit que l'hébergement cloud est coupé sur ce déploiement
+  /// (`premium_cloud_enabled: false`). Le blocage vient de lui ; seule
+  /// l'explication change, parce qu'aucune publicité ni aucune formule ne le
+  /// débloquerait.
+  serverCloudDisabled,
 }
 
 class ContainerDeployPage extends StatefulWidget {
@@ -46,6 +56,11 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
   final _formKey = GlobalKey<FormState>();
   final _botTokenCtrl = TextEditingController();
 
+  /// Un contrôleur par variable À SAISIR du template sélectionné (le token
+  /// Discord a le sien, au-dessus : [_botTokenCtrl]).
+  final Map<String, TextEditingController> _envCtrls =
+      <String, TextEditingController>{};
+
   HostedAppTemplate _selectedTemplate = easyMusicBotTemplate;
   List<Map<String, dynamic>> _localBots = const [];
   String? _selectedBotId;
@@ -60,7 +75,47 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
   @override
   void initState() {
     super.initState();
+    _syncEnvControllers();
     unawaited(_initClient());
+  }
+
+  @override
+  void dispose() {
+    _botTokenCtrl.dispose();
+    for (final controller in _envCtrls.values) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  /// Variables du template que l'utilisateur doit saisir (le token Discord est
+  /// rendu à part, par son champ dédié).
+  List<HostedAppEnvField> get _userEnvFields =>
+      turnkeyUserEnvFields(_selectedTemplate);
+
+  /// Clés du token Discord DÉCLARÉES par le template : c'est le champ token
+  /// dédié qui les alimente, quel que soit le nom exact déclaré.
+  List<String> get _tokenEnvKeys => turnkeyTokenEnvFields(_selectedTemplate)
+      .map((field) => field.key.trim())
+      .toList(growable: false);
+
+  /// (Re)construit les contrôleurs du formulaire d'environnement quand le modèle
+  /// sélectionné change : chaque variable est pré-remplie avec la valeur par
+  /// défaut déclarée, et les contrôleurs des variables disparues sont libérés.
+  void _syncEnvControllers() {
+    final fields = _userEnvFields;
+    final wanted = <String>{for (final field in fields) field.key.trim()};
+    for (final key in _envCtrls.keys.toList()) {
+      if (!wanted.contains(key)) {
+        _envCtrls.remove(key)?.dispose();
+      }
+    }
+    for (final field in fields) {
+      _envCtrls.putIfAbsent(
+        field.key.trim(),
+        () => TextEditingController(text: initialTurnkeyEnvValue(field)),
+      );
+    }
   }
 
   Future<void> _initClient() async {
@@ -205,13 +260,17 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
     // La formule du compte est servie par le serveur (elle prime sur
     // l'abonnement store) : si elle n'inclut pas le clé en main, inutile
     // d'aller plus loin, le déploiement sera refusé.
-    if (!elig.allowTurnkey) return _DeployBlockReason.planLimit;
+    if (!elig.allowTurnkey) return _explicationHonnete(_DeployBlockReason.planLimit);
     // Le VERDICT DU SERVEUR prime : c'est lui qui applique le quota au démarrage.
     // Les heuristiques ci-dessous ne servent que de repli pour un serveur qui ne
     // renverrait pas ces champs.
     if (!elig.canDeploy) {
-      if (elig.isBlockedByNoMinutes) return _DeployBlockReason.noMinutes;
-      if (elig.isBlockedByPlan) return _DeployBlockReason.planLimit;
+      if (elig.isBlockedByNoMinutes) {
+        return _explicationHonnete(_DeployBlockReason.noMinutes);
+      }
+      if (elig.isBlockedByPlan) {
+        return _explicationHonnete(_DeployBlockReason.planLimit);
+      }
       return _DeployBlockReason.containerLimit;
     }
     // Le quota de conteneurs s'applique à TOUT LE MONDE, premium compris : une
@@ -225,9 +284,30 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
     // En revanche, l'exigence de minutes ne concerne que l'hébergement ad-financé :
     // un compte couvert par une formule n'a pas de minutes à consommer.
     if (!elig.premium && elig.hostingMinutesBalance <= 0) {
-      return _DeployBlockReason.noMinutes;
+      return _explicationHonnete(_DeployBlockReason.noMinutes);
     }
     return _DeployBlockReason.none;
+  }
+
+  /// Le blocage reste celui du SERVEUR — on n'invente aucune interdiction, c'est
+  /// lui qui applique le quota. Seule l'EXPLICATION change quand l'hébergement
+  /// cloud est coupé sur ce déploiement (`premium_cloud_enabled: false`) : dans ce
+  /// cas, ni une publicité récompensée ni une formule premium ne débloqueraient
+  /// quoi que ce soit, et envoyer l'utilisateur acheter ou regarder une pub serait
+  /// une promesse fausse.
+  _DeployBlockReason _explicationHonnete(_DeployBlockReason raison) {
+    if (!SubscriptionService.premiumCloudDisabled) return raison;
+    switch (raison) {
+      case _DeployBlockReason.noMinutes:
+      case _DeployBlockReason.planLimit:
+        return _DeployBlockReason.serverCloudDisabled;
+      case _DeployBlockReason.none:
+      case _DeployBlockReason.loading:
+      case _DeployBlockReason.eligibilityError:
+      case _DeployBlockReason.containerLimit:
+      case _DeployBlockReason.serverCloudDisabled:
+        return raison;
+    }
   }
 
   bool get _canDeploy => _blockReason == _DeployBlockReason.none;
@@ -276,6 +356,15 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
               backgroundColor: Colors.orange,
             ),
           );
+        case _DeployBlockReason.serverCloudDisabled:
+          // Aucune action proposée : ni une publicité ni une formule ne rouvrent
+          // un hébergement cloud coupé sur ce déploiement.
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(tr.container_deploy_blocked_cloud_disabled),
+              backgroundColor: Colors.orange,
+            ),
+          );
         case _DeployBlockReason.eligibilityError:
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -312,12 +401,26 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
         return;
       }
 
+      // L'env envoyé est celui du SCHÉMA du template : le token Discord alimente
+      // les variables token déclarées, chaque autre variable prend la saisie de
+      // l'utilisateur ou le défaut déclaré, et les variables imposées par le
+      // serveur (fixed / source "node") ne partent jamais avec une valeur
+      // inventée côté app.
+      final env = buildTurnkeyEnvPayload(
+        template: _selectedTemplate,
+        botToken: token,
+        userValues: <String, String>{
+          for (final entry in _envCtrls.entries) entry.key: entry.value.text,
+          for (final key in _tokenEnvKeys) key: token,
+        },
+      );
+
       final result = await _client!.deployContainer(
         image: _selectedTemplate.image,
         cpuMillis: _selectedTemplate.cpuMillis,
         memoryMb: _selectedTemplate.memoryMb,
         storageGb: _selectedTemplate.storageGb,
-        env: {'TOKEN': token},
+        env: env,
       );
 
       final containerId = result['container_id']?.toString() ?? '';
@@ -401,7 +504,10 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
     return HostedAppFreeHostingBanner(
       eligibility: elig,
       claimingAd: _claimingAd,
-      onWatchAd: _watchAdForHostingMinutes,
+      // Desktop : aucune publicité n'y existe (le temps vient du solde serveur,
+      // ci-dessus). On ne câble donc même pas l'action — la bannière ne peut pas
+      // proposer un parcours qui mènerait à `HostedAppHostingActions`.
+      onWatchAd: isDesktopRunPlatform ? null : _watchAdForHostingMinutes,
     );
   }
 
@@ -438,6 +544,20 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
           onAction: () => SubscriptionsHubPage.open(context),
         );
       case _DeployBlockReason.noMinutes:
+        if (isDesktopRunPlatform) {
+          // Desktop : pas de publicité, donc pas de porte de sortie par une pub.
+          // On montre le SOLDE SERVEUR tel quel (c'est lui qui débloque le
+          // déploiement) et on renvoie vers les formules.
+          return _DeployNoticeCard(
+            icon: Icons.hourglass_empty,
+            color: Colors.orange,
+            message: tr.container_hosted_minutes_available(
+              _eligibility?.hostingMinutesBalance ?? 0,
+            ),
+            actionLabel: tr.plan_limit_view_offers,
+            onAction: () => SubscriptionsHubPage.open(context),
+          );
+        }
         final reward = _eligibility?.adRewardMinutes ?? 0;
         return _DeployNoticeCard(
           icon: Icons.play_circle_outline,
@@ -445,6 +565,15 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
           message: tr.container_deploy_blocked_no_minutes,
           actionLabel: tr.container_hosted_ad_button(reward),
           onAction: _claimingAd ? null : _watchAdForHostingMinutes,
+        );
+      case _DeployBlockReason.serverCloudDisabled:
+        // Aucune action, et surtout PAS une publicité : le message dit la vraie
+        // porte de sortie (local ou runner perso) au lieu d'en promettre une
+        // fausse (regarder une pub ou acheter une formule ne rouvrirait rien).
+        return _DeployNoticeCard(
+          icon: Icons.cloud_off_rounded,
+          color: Colors.orange,
+          message: tr.container_deploy_blocked_cloud_disabled,
         );
     }
   }
@@ -491,7 +620,10 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
                   child: InkWell(
                     borderRadius: BorderRadius.circular(16),
                     onTap: () {
-                      setState(() => _selectedTemplate = template);
+                      setState(() {
+                        _selectedTemplate = template;
+                        _syncEnvControllers();
+                      });
                     },
                     child: Padding(
                       padding: const EdgeInsets.all(16),
@@ -628,6 +760,23 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
                   return null;
                 },
               ),
+
+              // Un champ par variable DÉCLARÉE par le modèle sélectionné : rien
+              // n'est supposé côté app, le schéma du template fait foi.
+              if (_userEnvFields.isNotEmpty) ...[
+                const SizedBox(height: 20),
+                Text(
+                  context.tr.container_deploy_env_fields_section,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TurnkeyEnvFieldsSection(
+                  template: _selectedTemplate,
+                  controllers: _envCtrls,
+                ),
+              ],
 
               const SizedBox(height: 16),
 

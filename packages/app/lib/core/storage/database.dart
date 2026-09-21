@@ -9,6 +9,7 @@ import 'package:bot_creator/core/secure/secure_storage_service.dart';
 import 'package:bot_creator/core/storage/sqlite_variable_store.dart';
 import 'package:bot_creator/core/storage/app_storage_directory.dart';
 import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
+import 'package:bot_creator/features/subscriptions/logic/premium_feature_gate.dart';
 import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/utils/string_sanitizer.dart';
 import 'package:bot_creator/features/bot_editor/logic/normalize_command_data.dart'
@@ -210,19 +211,43 @@ class AppManager implements BotDataStore {
           (avatarHash == null &&
               discriminator == null &&
               existingAvatar != null &&
-              existingAvatar.isNotEmpty)
+              existingAvatar.isNotEmpty &&
+              !existingAvatar.contains('https://cdn.discordapp.com/avatars/'))
           ? existingAvatar
           : makeAvatarUrl(
               botId,
-              avatarId: avatarHash,
+              avatarId: avatarHash ?? existingAvatar,
               discriminator: discriminator,
             );
+
+      // Le jeton reçu peut être VIDE sans que le bot soit sans jeton : le manager
+      // RÉDIGE volontairement `bot_token` dans ses listes (« Zero plaintext token in
+      // summary lists », et son propre test l'exige), et un jeton ne redescend jamais du
+      // serveur. Écraser la valeur locale par du vide détruirait le seul jeton dont
+      // dispose ce poste de travail pour exécuter le bot en local — c'est arrivé :
+      // l'entrée de coffre est passée de 137 octets (jeton réel) à 41 (chaîne vide) à la
+      // première synchro, puis « Token invalid or missing » sur tous les bots.
+      // On garde donc le jeton déjà connu quand l'appel n'en apporte pas. Un effacement
+      // volontaire passe par la suppression de l'application, pas par une synchro.
+      var effectiveToken = token.trim();
+      if (effectiveToken.isEmpty) {
+        effectiveToken = (existingData['token'] ?? '').toString().trim();
+      }
+      if (effectiveToken.isEmpty) {
+        try {
+          final secure = await SecureStorageService.instance;
+          effectiveToken = ((await secure.read('bot_token:$botId')) ?? '')
+              .trim();
+        } catch (_) {
+          // Coffre indisponible : on continue sans jeton plutôt que d'échouer.
+        }
+      }
 
       final data = Map<String, dynamic>.from(existingData)
         ..['name'] = username.sanitizedUtf16
         ..['id'] = botId
         ..['avatar'] = avatarUri
-        ..['token'] = token
+        ..['token'] = effectiveToken
         ..['prefix'] = () {
           final raw = (prefix ?? existingData['prefix'] ?? '!')
               .toString()
@@ -275,13 +300,16 @@ class AppManager implements BotDataStore {
         );
 
       await _writeAppToDisk(botId, data);
-      // Dual-write token to secure storage
-      unawaited(() async {
-        try {
-          final secure = await SecureStorageService.instance;
-          await secure.write('bot_token:$botId', token);
-        } catch (_) {}
-      }());
+      // Dual-write token to secure storage — JAMAIS une valeur vide : elle écraserait
+      // le jeton local (voir le commentaire plus haut sur la rédaction côté manager).
+      if (effectiveToken.isNotEmpty) {
+        unawaited(() async {
+          try {
+            final secure = await SecureStorageService.instance;
+            await secure.write('bot_token:$botId', effectiveToken);
+          } catch (_) {}
+        }());
+      }
       if (!await allAppsFile.exists()) {
         await allAppsFile.create(recursive: true);
       }
@@ -498,10 +526,14 @@ class AppManager implements BotDataStore {
         }
 
         final app = Map<String, dynamic>.from(decoded);
+        final rawAvatar = (app['avatar'] ?? '').toString();
+        final cleanAvatar = rawAvatar.isNotEmpty
+            ? makeAvatarUrl(app['id'].toString(), avatarId: rawAvatar)
+            : '';
         appsList.add(<String, dynamic>{
           'id': app['id'].toString(),
           'name': (app['name'] ?? 'Unknown').toString(),
-          'avatar': (app['avatar'] ?? '').toString(),
+          'avatar': cleanAvatar,
           if (app['guild_count'] != null) 'guild_count': app['guild_count'],
           if (app['approximate_guild_count'] != null)
             'approximate_guild_count': app['approximate_guild_count'],
@@ -523,10 +555,16 @@ class AppManager implements BotDataStore {
         final content = await allAppsFile.readAsString();
         final decoded = content.isNotEmpty ? jsonDecode(content) : const [];
         if (decoded is List) {
-          final appsList = decoded
-              .whereType<Map>()
-              .map((raw) => Map<String, dynamic>.from(raw))
-              .toList();
+          final appsList = decoded.whereType<Map>().map((raw) {
+            final m = Map<String, dynamic>.from(raw);
+            final botId = (m['id'] ?? '').toString();
+            final rawAvatar = (m['avatar'] ?? '').toString();
+            if (botId.isNotEmpty &&
+                rawAvatar.contains('https://cdn.discordapp.com/avatars/')) {
+              m['avatar'] = makeAvatarUrl(botId, avatarId: rawAvatar);
+            }
+            return m;
+          }).toList();
           if (appsList.isNotEmpty) {
             _apps = appsList;
             return appsList;
@@ -2059,9 +2097,19 @@ class AppManager implements BotDataStore {
       (entry) => (entry['id'] ?? '').toString() == normalizedId,
     );
 
-    final limit = PremiumCapabilities.limitFor(
-      PremiumCapability.schedulerTriggers,
-    );
+    // Le plafond suit la MÊME règle que l'accès (voir `premium_feature_gate`) : quand le
+    // bot tourne sur cet appareil, les déclencheurs ne coûtent rien au serveur, donc le
+    // plafond de la formule payante s'applique sans abonnement. Débloquer l'écran sans
+    // relever le plafond laisserait un bouton « Ajouter » qui refuse toute création.
+    final limit =
+        premiumCapabilityAvailableForBot(
+          PremiumCapability.schedulerTriggers,
+          botId: id,
+        )
+        ? PremiumCapabilities.premiumLimitFor(
+            PremiumCapability.schedulerTriggers,
+          )
+        : PremiumCapabilities.limitFor(PremiumCapability.schedulerTriggers);
     final wouldCreate = index < 0;
     if (wouldCreate && triggers.length >= limit) {
       throw StateError('scheduler_trigger_limit_reached:$limit');

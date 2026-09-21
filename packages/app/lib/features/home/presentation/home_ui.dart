@@ -1,6 +1,8 @@
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/image_disk_cache.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/features/home/logic/hosting_time_offer.dart';
+import 'package:bot_creator/features/home/presentation/home_hosting_action_area.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -459,6 +461,10 @@ class HomeCardActionButton extends StatelessWidget {
 /// Pastille d'état + badge d'équipe, expiration prévue (surtitre + valeur), puis
 /// la décomposition du temps restant en mois / jours / heures / minutes et
 /// l'action « Ajouter du temps ».
+///
+/// C'est [offer] qui décide ce que le bas de la carte a le droit de proposer :
+/// bouton (mobile non abonné), explication (poste de travail) ou rien
+/// (abonné). Aucune condition de plateforme ni de formule n'est recopiée ici.
 class HomeHostingTimeCard extends StatelessWidget {
   const HomeHostingTimeCard({
     super.key,
@@ -468,10 +474,14 @@ class HomeHostingTimeCard extends StatelessWidget {
     required this.headline,
     required this.segments,
     required this.onAddTime,
+    this.offer = HostingTimeOffer.addTime,
     this.showTeamBadge = false,
     this.isAddingTime = false,
     this.emphasizeBorder = false,
   });
+
+  /// Ce que cet écran a le droit d'offrir (décision `hosting_time_offer.dart`).
+  final HostingTimeOffer offer;
 
   /// Libellé de la pastille d'état (« Session active »).
   final String statusLabel;
@@ -551,28 +561,16 @@ class HomeHostingTimeCard extends StatelessWidget {
               weight: FontWeight.w700,
             ),
           ),
-          const SizedBox(height: 16),
-          _HostingSegments(segments: segments),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: (onAddTime == null || isAddingTime) ? null : onAddTime,
-              icon: isAddingTime
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.add_rounded, size: 18),
-              label: Text(context.tr.home_add_time),
-              style: FilledButton.styleFrom(
-                minimumSize: const Size.fromHeight(48),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppTheme.radiusSm + 6),
-                ),
-              ),
-            ),
+          // Un abonné n'a rien à décompter : sa carte ne porte que son état, et
+          // aucune décomposition ne doit apparaître sous un « illimité ».
+          if (segments.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            _HostingSegments(segments: segments),
+          ],
+          HomeHostingActionArea(
+            offer: offer,
+            onAddTime: onAddTime,
+            isAddingTime: isAddingTime,
           ),
         ],
       ),

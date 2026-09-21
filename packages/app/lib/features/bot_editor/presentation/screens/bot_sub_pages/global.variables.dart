@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:bot_creator/core/platform/run_platform.dart';
 
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
@@ -16,7 +17,9 @@ import 'package:nyxx/nyxx.dart' hide Builder;
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
+import 'package:bot_creator/features/bot_editor/logic/scoped_variable_orphans.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/editor_sub_page_ui.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/scoped_variables_list.dart';
 
 enum _VariableMode { global, scoped }
 
@@ -45,6 +48,12 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
 
   Map<String, dynamic> _globalVariables = <String, dynamic>{};
   List<Map<String, dynamic>> _scopedDefinitions = <Map<String, dynamic>>[];
+
+  /// Variables qui n'ont qu'une VALEUR, sans aucune définition déclarée. Elles
+  /// sont recalculées à chaque chargement et ne sont jamais persistées : elles
+  /// n'existent que pour rendre visible ce que le bot a réellement écrit.
+  List<Map<String, dynamic>> _detectedDefinitions = <Map<String, dynamic>>[];
+
   _VariableMode _mode = _VariableMode.global;
   _VariablesSource _source = _VariablesSource.local;
   List<RunnerConnectionConfig> _runners = const [];
@@ -86,12 +95,9 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
   }
 
   bool get _isManagerMode => _source == _VariablesSource.manager;
-  bool get _supportsManagerRuntime {
-    return !kIsWeb &&
-        defaultTargetPlatform != TargetPlatform.windows &&
-        defaultTargetPlatform != TargetPlatform.linux &&
-        defaultTargetPlatform != TargetPlatform.macOS;
-  }
+  // Une seule règle dans toute l'application (voir `run_platform.dart`) : sur un poste
+  // de travail, les variables globales doivent aussi pouvoir lire le serveur.
+  bool get _supportsManagerRuntime => supportsManagerRuntime;
 
   Future<void> _init() async {
     await _refreshSourcesAndLoad(preserveSelection: false);
@@ -188,52 +194,6 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
     return raw;
   }
 
-  String _formatVariableValue(dynamic value) {
-    if (value == null) {
-      return 'null';
-    }
-    if (value is List || value is Map) {
-      return const JsonEncoder.withIndent('  ').convert(value);
-    }
-    return value.toString();
-  }
-
-  String _toScopedReferenceKey(String rawKey) {
-    final key = rawKey.trim();
-    if (key.isEmpty) {
-      return key;
-    }
-    if (key.startsWith('bc_') && key.length > 3) {
-      return key.substring(3);
-    }
-    return key;
-  }
-
-  String _toLegacyScopedReferenceKey(String rawKey) {
-    final key = _toScopedReferenceKey(rawKey);
-    if (key.isEmpty) {
-      return key;
-    }
-    return 'bc_$key';
-  }
-
-  static IconData _scopeIcon(String scope) {
-    switch (scope) {
-      case 'guild':
-        return Icons.dns_outlined;
-      case 'user':
-        return Icons.person_outline;
-      case 'channel':
-        return Icons.tag;
-      case 'guildMember':
-        return Icons.people_outline;
-      case 'message':
-        return Icons.chat_bubble_outline;
-      default:
-        return Icons.label_outline;
-    }
-  }
-
   Future<void> _load() async {
     setState(() {
       _loading = true;
@@ -243,14 +203,21 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
       final results = await Future.wait([
         _getSourceGlobalVariables(),
         _getSourceScopedDefinitions(),
+        _getStoredScopedValues(),
       ]);
       if (!mounted) return;
+      final definitions = List<Map<String, dynamic>>.from(results[1] as List);
       setState(() {
         _globalVariables = Map<String, dynamic>.from(
           results[0] as Map<String, dynamic>,
         );
-        _scopedDefinitions = List<Map<String, dynamic>>.from(
-          results[1] as List,
+        _scopedDefinitions = definitions;
+        // Recalculée à chaque chargement : dès que l'utilisateur déclare la
+        // définition, la clé quitte la liste des variables détectées.
+        _detectedDefinitions = detectScopedOrphanDefinitions(
+          declaredDefinitions: definitions,
+          scopedValues:
+              results[2] as Map<String, Map<String, Map<String, dynamic>>>,
         );
         _loading = false;
       });
@@ -299,6 +266,25 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
       return _requireRunnerClient().getScopedVariableDefinitions(widget.botId);
     }
     return appManager.getScopedVariableDefinitions(widget.botId);
+  }
+
+  /// Valeurs réellement stockées par l'app, par portée puis par contexte.
+  ///
+  /// POURQUOI la base locale et pas la source sélectionnée : c'est exactement ce
+  /// qui part au bot (`exportScopedVariables` alimente `scopedVariables` de la
+  /// charge utile). Les sources distantes, elles, n'exposent aucune énumération —
+  /// l'API Runner exige une portée ET une clé déjà connues — donc s'y limiter
+  /// reproduirait le défaut signalé : les données du propriétaire resteraient
+  /// invisibles. On ne fait ici que LIRE ce qui existe, jamais écrire.
+  Future<Map<String, Map<String, Map<String, dynamic>>>>
+  _getStoredScopedValues() async {
+    try {
+      return await appManager.exportScopedVariables(widget.botId);
+    } catch (_) {
+      // Une lecture impossible ne doit pas masquer les définitions déclarées :
+      // l'écran retombe alors sur son affichage historique.
+      return const <String, Map<String, Map<String, dynamic>>>{};
+    }
   }
 
   Future<void> _setSourceGlobalVariable(String key, dynamic value) async {
@@ -449,7 +435,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
   Future<void> _editGlobalVariable({String? key}) async {
     final keyCtrl = TextEditingController(text: key ?? '');
     final valueCtrl = TextEditingController(
-      text: key != null ? _formatVariableValue(_globalVariables[key]) : '',
+      text: key != null ? formatScopedVariableValue(_globalVariables[key]) : '',
     );
 
     final save = await showDialog<bool>(
@@ -564,7 +550,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
     final keyCtrl = TextEditingController(text: oldKey ?? '');
     final rawDefault = existing?['defaultValue'];
     final valueCtrl = TextEditingController(
-      text: rawDefault != null ? _formatVariableValue(rawDefault) : '',
+      text: rawDefault != null ? formatScopedVariableValue(rawDefault) : '',
     );
     String scope =
         (existing?['scope']?.toString().isNotEmpty == true
@@ -620,7 +606,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                           child: Row(
                             children: [
                               Icon(
-                                _scopeIcon(s),
+                                scopedVariableScopeIcon(s),
                                 size: 18,
                                 color: Theme.of(
                                   ctx,
@@ -679,7 +665,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                       children: [
                         Text(
                           context.tr.globals_dialog_ref_preview(
-                            '$scope.${_toScopedReferenceKey(keyCtrl.text)}',
+                            '$scope.${scopedVariableReferenceKey(keyCtrl.text)}',
                           ),
                           style: TextStyle(
                             fontFamily: 'monospace',
@@ -689,7 +675,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                         ),
                         Text(
                           context.tr.scoped_ref(
-                            '$scope.${_toScopedReferenceKey(keyCtrl.text)}',
+                            '$scope.${scopedVariableReferenceKey(keyCtrl.text)}',
                           ),
                           style: TextStyle(
                             fontSize: 11,
@@ -1028,27 +1014,6 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
         .toList();
   }
 
-  /// Returns scoped definitions grouped by scope, filtered by search query.
-  Map<String, List<Map<String, dynamic>>> get _filteredScopedByScope {
-    final q = _searchQuery.toLowerCase();
-    final filtered = _searchQuery.isEmpty
-        ? _scopedDefinitions
-        : _scopedDefinitions
-              .where(
-                (d) =>
-                    (d['key']?.toString().toLowerCase().contains(q) ?? false) ||
-                    (d['scope']?.toString().toLowerCase().contains(q) ?? false),
-              )
-              .toList();
-
-    final grouped = <String, List<Map<String, dynamic>>>{};
-    for (final def in filtered) {
-      final scope = def['scope']?.toString() ?? '';
-      (grouped[scope] ??= []).add(def);
-    }
-    return grouped;
-  }
-
   // ─── Build ────────────────────────────────────────────────────────────────
 
   String get _sourceLabel {
@@ -1184,62 +1149,11 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
     );
   }
 
-  Widget _buildEmptyState({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required VoidCallback onAdd,
-  }) {
-    return ListView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      children: [
-        SizedBox(
-          height: 320,
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    icon,
-                    size: 48,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleMedium,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    subtitle,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  FilledButton.icon(
-                    onPressed: onAdd,
-                    icon: const Icon(Icons.add),
-                    label: Text(context.tr.globals_add),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildGlobalList() {
     final entries = _filteredGlobalEntries;
 
     if (_globalVariables.isEmpty) {
-      return _buildEmptyState(
+      return VariablesEmptyState(
         icon: Icons.dataset_outlined,
         title: context.tr.globals_empty,
         subtitle: context.tr.globals_empty_subtitle,
@@ -1324,7 +1238,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                   _editGlobalVariable(key: entry.key);
                 case 'copy':
                   Clipboard.setData(
-                    ClipboardData(text: _formatVariableValue(entry.value)),
+                    ClipboardData(text: formatScopedVariableValue(entry.value)),
                   );
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(context.tr.globals_copy_value)),
@@ -1340,195 +1254,25 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
   }
 
   Widget _buildScopedList() {
-    if (_scopedDefinitions.isEmpty) {
-      return _buildEmptyState(
-        icon: Icons.account_tree_outlined,
-        title: context.tr.scoped_empty,
-        subtitle: context.tr.scoped_empty_subtitle,
-        onAdd: () => _editScopedDefinition(),
-      );
-    }
-
-    final grouped = _filteredScopedByScope;
-
-    if (grouped.isEmpty) {
-      return ListView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        children: const [
-          SizedBox(height: 120, child: Center(child: Text('—'))),
-        ],
-      );
-    }
-
-    // Build a flat list with section headers.
-    final items = <_ScopedListItem>[];
-    for (final scope in _scopes) {
-      final defs = grouped[scope];
-      if (defs == null || defs.isEmpty) continue;
-      items.add(_ScopedListItem.header(scope, defs.length));
-      for (final def in defs) {
-        items.add(_ScopedListItem.entry(def));
-      }
-    }
-    // Catch any scopes not in the predefined list.
-    for (final scope in grouped.keys) {
-      if (!_scopes.contains(scope)) {
-        final defs = grouped[scope]!;
-        items.add(_ScopedListItem.header(scope, defs.length));
-        for (final def in defs) {
-          items.add(_ScopedListItem.entry(def));
-        }
-      }
-    }
-
-    return ListView.builder(
-      padding: EdgeInsets.only(
-        bottom: FloatingGlassNavBar.contentClearanceOf(context) + 24,
+    return ScopedVariablesList(
+      // Déclarations d'abord, variables détectées ensuite : l'utilisateur
+      // retrouve ses définitions en tête de chaque portée.
+      definitions: mergeScopedDefinitions(
+        declaredDefinitions: _scopedDefinitions,
+        detectedDefinitions: _detectedDefinitions,
       ),
-      physics: const AlwaysScrollableScrollPhysics(),
-      itemCount: items.length,
-      itemBuilder: (ctx, i) {
-        final item = items[i];
-        if (item.isHeader) {
-          return Container(
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
-            child: Row(
-              children: [
-                Text(
-                  item.scope!.toUpperCase(),
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 1,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                  ),
-                  child: Text(
-                    '${item.count}',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        }
-
-        final def = item.def!;
-        final key = def['key']?.toString() ?? '';
-        final scope = def['scope']?.toString() ?? '';
-        final defaultValue = def['defaultValue'];
-        final refKey = _toScopedReferenceKey(key);
-        final legacyRefKey = _toLegacyScopedReferenceKey(key);
-        final hasLegacy = refKey != legacyRefKey;
-
-        return ListTile(
-          title: Text(
-            key,
-            style: const TextStyle(
-              fontFamily: 'monospace',
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
-            ),
-          ),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 2),
-              Text(
-                defaultValue != null && defaultValue.toString().isNotEmpty
-                    ? '= ${_formatVariableValue(defaultValue)}'
-                    : context.tr.globals_no_default,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                context.tr.scoped_ref('$scope.$refKey'),
-                style: TextStyle(
-                  fontSize: 11,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-              if (hasLegacy)
-                Text(
-                  context.tr.scoped_ref_legacy('$scope.$legacyRefKey'),
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
-                  ),
-                ),
-            ],
-          ),
-          isThreeLine: true,
-          trailing: PopupMenuButton<String>(
-            itemBuilder: (ctx) => [
-              PopupMenuItem<String>(
-                value: 'explore',
-                child: ListTile(
-                  leading: const Icon(Icons.travel_explore, size: 20),
-                  title: Text(context.tr.scoped_explore_runtime),
-                  dense: true,
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ),
-              PopupMenuItem<String>(
-                value: 'edit',
-                child: ListTile(
-                  leading: const Icon(Icons.edit_outlined, size: 20),
-                  title: Text(context.tr.globals_edit),
-                  dense: true,
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ),
-              PopupMenuItem<String>(
-                value: 'delete',
-                child: ListTile(
-                  leading: Icon(
-                    Icons.delete_outline,
-                    size: 20,
-                    color: Theme.of(ctx).colorScheme.error,
-                  ),
-                  title: Text(
-                    context.tr.delete,
-                    style: TextStyle(color: Theme.of(ctx).colorScheme.error),
-                  ),
-                  dense: true,
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ),
-            ],
-            onSelected: (action) {
-              switch (action) {
-                case 'explore':
-                  _exploreScopedKey(key, scope);
-                case 'edit':
-                  _editScopedDefinition(existing: def);
-                case 'delete':
-                  _deleteScopedDefinition(key, scope);
-              }
-            },
-          ),
-        );
-      },
+      knownScopes: _scopes,
+      searchQuery: _searchQuery,
+      onAdd: () => unawaited(_editScopedDefinition()),
+      onExplore: (key, scope) => unawaited(_exploreScopedKey(key, scope)),
+      onEdit: (definition) =>
+          unawaited(_editScopedDefinition(existing: definition)),
+      // Déclarer, c'est écrire une définition : c'est le SEUL chemin qui
+      // transforme une variable détectée en définition, et il faut l'accord de
+      // l'utilisateur. Rien n'est déduit puis persisté en silence.
+      onDeclare: (definition) =>
+          unawaited(_editScopedDefinition(existing: definition)),
+      onDelete: (key, scope) => unawaited(_deleteScopedDefinition(key, scope)),
     );
   }
 
@@ -1747,24 +1491,4 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
       ),
     );
   }
-}
-
-class _ScopedListItem {
-  final bool isHeader;
-  final String? scope;
-  final int? count;
-  final Map<String, dynamic>? def;
-
-  const _ScopedListItem._({
-    required this.isHeader,
-    this.scope,
-    this.count,
-    this.def,
-  });
-
-  factory _ScopedListItem.header(String scope, int count) =>
-      _ScopedListItem._(isHeader: true, scope: scope, count: count);
-
-  factory _ScopedListItem.entry(Map<String, dynamic> def) =>
-      _ScopedListItem._(isHeader: false, def: def);
 }

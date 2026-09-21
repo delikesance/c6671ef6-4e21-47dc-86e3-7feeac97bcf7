@@ -101,6 +101,13 @@ class RunnerSettings {
     return _botRunnerAssociation[botId];
   }
 
+  /// Vide les associations en mémoire (tests uniquement).
+  ///
+  /// La table est statique : sans cette remise à zéro, un test hérite de la trace
+  /// laissée par le précédent et ne prouve plus rien.
+  @visibleForTesting
+  static void resetAssociationsForTests() => _botRunnerAssociation.clear();
+
   static Future<void> _saveAssociations() async {
     try {
       final prefs = await SharedPreferences.getInstance();

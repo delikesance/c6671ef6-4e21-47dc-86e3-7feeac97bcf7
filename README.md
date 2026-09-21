@@ -62,6 +62,21 @@ flutter run
 
 ```
 
+### Linux desktop build
+
+The Linux desktop build links **WebKitGTK** for the embedded webview plugin
+(`desktop_webview_window`), and GTK/clang/cmake/ninja for the Flutter Linux
+runner. On NixOS those are not part of the system profile, and `webkit2gtk-4.0`
+itself has been removed from nixpkgs (the plugin falls back to it, but only after
+trying `webkit2gtk-4.1`). Build and run from the repo's dev shell, which provides
+both:
+
+```bash
+nix-shell            # GTK3, WebKitGTK 4.1, libsoup 3, pkg-config, cmake, ninja, clang
+cd packages/app
+flutter run -d linux
+```
+
 ## Runner Docker (Web bootstrap)
 
 The Docker image starts the runner in API mode by default.

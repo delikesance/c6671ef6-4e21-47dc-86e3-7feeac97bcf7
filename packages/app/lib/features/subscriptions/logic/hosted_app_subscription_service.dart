@@ -124,7 +124,16 @@ class HostedAppSubscriptionService {
   }
 
   static Future<void> initialize() async {
-    if (_initialized || !SubscriptionService.supportsNativeBilling) {
+    if (_initialized) return;
+
+    if (!SubscriptionService.supportsNativeBilling) {
+      // Desktop / web : aucune boutique native, donc aucun reçu à écouter — le
+      // volet « achat » est bien réservé au mobile. En revanche la FORMULE du
+      // compte reste servie par le SERVEUR (elle porte le droit d'héberger, son
+      // plafond et sa durée) : elle est rafraîchie ici pour que l'affichage
+      // desktop ne repose pas sur une déduction locale de plateforme.
+      _initialized = true;
+      unawaited(refreshFromServer(forceRefresh: true));
       return;
     }
 

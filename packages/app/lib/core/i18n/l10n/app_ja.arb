@@ -1,5 +1,114 @@
 {
   "@@locale": "ja",
+  "@app_update_dialog_title": {
+    "description": "New version available"
+  },
+  "app_update_dialog_title": "新しいバージョンがあります",
+  "@app_update_dialog_message": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "installed": {
+        "type": "String"
+      }
+    },
+    "description": "Version {version} is available on the store (you have {installed}). Update to get the latest fixes."
+  },
+  "app_update_dialog_message": "ストアでバージョン {version} が公開されています（現在は {installed}）。アップデートで最新の修正が適用されます。",
+  "@app_update_later": {
+    "description": "Later"
+  },
+  "app_update_later": "後で",
+  "@app_update_update_now": {
+    "description": "Update"
+  },
+  "app_update_update_now": "更新する",
+  "@app_update_store_open_failed": {
+    "description": "The store page could not be opened."
+  },
+  "app_update_store_open_failed": "ストアのページを開けませんでした。",
+  "@app_update_download_started": {
+    "description": "Downloading in the background — you can keep using the app."
+  },
+  "app_update_download_started": "バックグラウンドでダウンロード中です。アプリはそのまま使えます。",
+  "@settings_app_update_title": {
+    "description": "Updates"
+  },
+  "bot_token_import_btn": "アカウントからトークンを取り込む",
+  "bot_token_import_missing": "このボットはあなたのアカウントに存在しません。",
+  "bot_token_import_network": "サーバーに接続できません。接続を確認して再試行してください。",
+  "bot_token_import_no_account": "この端末に接続されたアカウントがありません。サインインしてトークンを取り込んでください。",
+  "bot_token_import_not_stored": "アカウントにトークンが保存されていません。ここで一度入力してください。",
+  "bot_token_import_server_cannot_read": "サーバーが保存済みのトークンを読み取れません。",
+  "bot_token_import_server_unsupported": "このサーバーはまだトークンの取り込みに対応していません。更新または再デプロイしてください。",
+  "bot_token_import_success": "アカウントからトークンを取り込みました。接続が復元されました。",
+  "container_invite_server_unsupported": "このサーバーはまだボットの招待に対応していません。更新または再デプロイしてください。",
+  "container_invite_missing": "このコンテナはサーバー上に存在しません。コンテナ一覧を再読み込みしてください。",
+  "settings_app_update_title": "アップデート",
+  "@settings_app_update_installed_version": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "build": {
+        "type": "String"
+      }
+    },
+    "description": "{version} (build {build})"
+  },
+  "settings_app_update_installed_version": "{version}（ビルド {build}）",
+  "@settings_app_version_value": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    },
+    "description": "App version with its value"
+  },
+  "settings_app_version_value": "アプリ: {version}",
+  "@settings_runner_version_value": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    },
+    "description": "Runner version with its value"
+  },
+  "settings_runner_version_value": "ランナー: {version}",
+  "@settings_app_update_check_button": {
+    "description": "Check for updates"
+  },
+  "settings_app_update_check_button": "アップデートを確認",
+  "@settings_app_update_checking": {
+    "description": "Checking…"
+  },
+  "settings_app_update_checking": "確認中…",
+  "@settings_app_update_up_to_date": {
+    "description": "You are running the latest version."
+  },
+  "settings_app_update_up_to_date": "最新バージョンを使用しています。",
+  "@settings_app_update_available": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    },
+    "description": "Version {version} is available on the store."
+  },
+  "settings_app_update_available": "ストアでバージョン {version} が公開されています。",
+  "@settings_app_update_unavailable": {
+    "description": "Could not check for updates right now."
+  },
+  "settings_app_update_unavailable": "現在アップデートを確認できません。",
+  "@settings_app_update_unsupported": {
+    "description": "Updates can only be checked in the Android or iOS app."
+  },
+  "settings_app_update_unsupported": "アップデートの確認は Android または iOS アプリでのみ可能です。",
+  "@settings_app_update_open_store": {
+    "description": "Open store page"
+  },
+  "settings_app_update_open_store": "ストアのページを開く",
   "@action_add_else_if": {
     "description": "Add ELSE IF"
   },
@@ -1270,6 +1379,12 @@
   },
   "@bot_logs_rich_mode": {
     "description": "Rich formatted logs"
+  },
+  "@bot_logs_server_empty": {
+    "description": "The Bot Creator servers returned no logs for this bot."
+  },
+  "@bot_logs_server_read_failed": {
+    "description": "Could not read the logs from the Bot Creator servers."
   },
   "@bot_logs_show_all": {
     "description": "Show all"
@@ -4407,6 +4522,9 @@
   "@runner_source_manager_unavailable": {
     "description": "Sign in to Bot Creator in Settings to load stats from Bot Creator servers."
   },
+  "@runner_source_this_device": {
+    "description": "This device"
+  },
   "@save": {
     "description": "Save"
   },
@@ -4511,6 +4629,23 @@
   },
   "@scoped_delete_title": {
     "description": "Delete Scoped Variable"
+  },
+  "@scoped_declare_detected": {
+    "description": "Declare this variable"
+  },
+  "@scoped_detected_badge": {
+    "description": "Detected"
+  },
+  "@scoped_detected_hint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "No declared definition \u00b7 {count} stored value(s)"
+  },
+  "@scoped_detected_tooltip": {
+    "description": "Value present in the bot data without a declared definition. Shown as-is; nothing is invented."
   },
   "@scoped_empty": {
     "description": "No scoped variables defined"
@@ -7379,6 +7514,8 @@
   "bot_logs_ram_estimated": "推定ボットRAM: {memory}",
   "bot_logs_raw_mode": "コンパクト生ログ",
   "bot_logs_rich_mode": "リッチフォーマットログ",
+  "bot_logs_server_empty": "Bot Creator サーバーはこのボットのログを返しませんでした。",
+  "bot_logs_server_read_failed": "Bot Creator サーバーからログを読み取れませんでした。",
   "bot_logs_show_all": "すべて表示",
   "bot_logs_show_less": "表示を減らす",
   "bot_logs_show_more": "もっと表示",
@@ -8146,6 +8283,10 @@
   "guilds_tab_short": "サーバー",
   "hint_use_variables": "必要に応じて変数/テンプレートを使用",
   "home_add_time": "時間を追加",
+  "home_add_time_mobile_only": "報酬付き広告はモバイルアプリで視聴します。獲得した時間はどこでも有効です。",
+  "home_hosting_unlimited_overline": "ホスティング込み",
+  "home_hosting_unlimited_headline": "サブスクリプションで無制限",
+  "home_hosting_remaining_overline": "残り時間",
   "home_overline": "マイプロジェクト",
   "home_create_bot_title": "ボットを作成",
   "home_create_bot_subtitle": "2クリックでDiscordボット",
@@ -8182,6 +8323,23 @@
   "home_server_count_one": "{count} サーバー",
   "home_server_count_other": "{count} サーバー",
   "home_start": "起動",
+  "bot_start_target_title": "{bot} をどこで起動しますか？",
+  "@bot_start_target_title": {
+    "placeholders": {
+      "bot": {
+        "type": "String"
+      }
+    },
+    "description": "Title of the start-target dialog"
+  },
+  "bot_start_local_title": "ローカルで起動（このデバイス）",
+  "bot_start_local_desc": "無料で何も消費しません。アプリを閉じるとボットは停止します。",
+  "bot_start_server_title": "Bot Creator サーバーで起動",
+  "bot_start_server_desc": "ホスティング時間を消費します（PREMIUM は無制限）。デバイスなしで動作します。",
+  "bot_start_server_reason_platform": "このデバイスから遠隔ホスティングは操作できません。",
+  "bot_start_server_reason_no_account": "このデバイスに接続されたアカウントがありません。",
+  "bot_start_server_reason_cloud_disabled": "このサーバーではクラウドホスティングが有効になっていません。",
+  "bot_start_server_reason_no_minutes": "ホスティング時間が残っていません。モバイルアプリで広告を見るか、PREMIUM にアップグレードしてください。",
   "home_start_ads": "起動 (広告を見る)",
   "home_start_premium": "起動 (プレミアム)",
   "home_status_offline": "オフライン",
@@ -8439,6 +8597,7 @@
   "premium_active_desc": "ご支援ありがとうございます！すべての広告が無効になりました。",
   "premium_active_title": "プレミアム有効",
   "premium_card_button": "プランを見る",
+  "premium_locked_hint": "アカウントは無料プランです。サブスクリプションはモバイルアプリで有効化します（このデバイスでは広告も購入も表示されません）。",
   "premium_card_desc": "サブスクライブしてすべての広告を削除し、ポップアップなしで即座にボットを起動できます。",
   "premium_card_title": "広告を削除",
   "quick_access_title": "クイックアクセス",
@@ -8517,6 +8676,7 @@
   "runner_source_local": "ローカル",
   "runner_source_manager": "Bot Creator サーバー",
   "runner_source_manager_unavailable": "設定でBot Creatorにサインインして、Bot Creatorサーバーからの統計を読み込んでください。",
+  "runner_source_this_device": "このデバイス",
   "save": "保存",
   "scheduler_add_title": "スケジュールを追加",
   "scheduler_add_trigger": "トリガーを追加",
@@ -8540,6 +8700,10 @@
   "scoped_default_value_hint": "オプション",
   "scoped_delete_confirm": "\"{key}\" とその保存されたすべてのランタイムデータを削除しますか？",
   "scoped_delete_title": "スコープ変数を削除",
+  "scoped_declare_detected": "この変数を宣言する",
+  "scoped_detected_badge": "検出済み",
+  "scoped_detected_hint": "宣言された定義なし · 保存値 {count} 件",
+  "scoped_detected_tooltip": "定義が宣言されていないがボットのデータに存在する値です。そのまま表示され、何も提造しません。",
   "scoped_empty": "スコープ変数が定義されていません",
   "scoped_empty_subtitle": "スコープ変数はDiscordコンテキスト（ユーザー、サーバー…）ごとに値を保存します。実行時に設定されます。",
   "scoped_explore_runtime": "ランタイムデータを探索",
@@ -9358,6 +9522,7 @@
   "settings_runtime_engine_switch_dialog_confirm": "エンジンを変更",
   "settings_runtime_engine_switch_success": "ランタイムエンジンを更新しました。準備ができたらボットを再起動してください。",
   "settings_runtime_engine_switch_error": "ランタイムエンジンの変更に失敗しました: {error}",
+  "settings_runtime_engine_switch_empty_payload": "切り替えを中止しました: 新しい構成は空になります (コマンド・イベント・Webhook・変数がいずれもありません)。ローカルのコマンドとワークフローは変更されていません。",
   "app_create_select_type_title": "アプリケーションの種類を選択",
   "app_create_select_type_desc": "開始するには、作成するアプリケーションの種類を選択してください。",
   "app_create_type_discord": "Discordボット",
@@ -9506,6 +9671,23 @@
   "@container_deploy_paste_token_hint": {
     "description": "Hint text for Discord bot token field"
   },
+  "container_deploy_env_fields_section": "環境変数",
+  "@container_deploy_env_fields_section": {
+    "description": "Section header for the environment variables declared by a turnkey template"
+  },
+  "container_deploy_env_server_provided": "サーバーが設定します",
+  "@container_deploy_env_server_provided": {
+    "description": "Helper text on a template environment variable the server fills in (read-only field)"
+  },
+  "container_deploy_env_field_required": "「{field}」は必須です。",
+  "@container_deploy_env_field_required": {
+    "description": "Validation error for a required turnkey template environment variable",
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
   "container_deploy_discord_prereqs": "Discordの前提条件",
   "@container_deploy_discord_prereqs": {
     "description": "Header for Discord prerequisites advice box"
@@ -9650,6 +9832,7 @@
     "description": "Deploy eligibility banner reason when the container limit is reached"
   },
   "container_deploy_blocked_no_minutes": "You're out of free hosting minutes. Watch a rewarded ad to unlock more minutes, or go Premium for unlimited hosting.",
+  "container_deploy_blocked_cloud_disabled": "このサーバーではクラウドホスティングが有効になっていません。リモートでのデプロイは利用できません。ボットはローカル、または自分のランナーで実行してください。",
   "@container_deploy_blocked_no_minutes": {
     "description": "Deploy eligibility banner reason when there are no hosting minutes left"
   },
@@ -10450,5 +10633,30 @@
   "modal_builder_submit_actions": "送信アクション",
   "@modal_builder_submit_actions": {
     "description": "Submit Actions"
-  }
+  },
+  "announcement_see_more": "詳細を見る",
+  "@announcement_see_more": {
+    "description": "Learn more"
+  },
+  "announcement_dismiss": "閉じる",
+  "@announcement_dismiss": {
+    "description": "Dismiss"
+  },
+  "announcement_acknowledge": "了解しました",
+  "@announcement_acknowledge": {
+    "description": "Got it"
+  },
+  "announcement_later": "あとで",
+  "@announcement_later": {
+    "description": "Later"
+  },
+  "announcement_link_open_failed": "リンクを開けませんでした。",
+  "@announcement_link_open_failed": {
+    "description": "Couldn't open the link."
+  },
+  "container_invite_btn": "ボットを招待",
+  "container_invite_busy": "招待中...",
+  "container_invite_unavailable": "このアプリのボットを識別できませんでした。トークンが存在しないか失効しています。再デプロイしてください。",
+  "container_invite_failed": "招待できませんでした。接続を確認して再試行してください。",
+  "container_invite_open_failed": "招待リンクを開けませんでした。"
 }

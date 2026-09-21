@@ -14,6 +14,7 @@ import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/containers/presentation/home_turnkey_container_card.dart';
 import 'package:bot_creator/features/home/presentation/home_page.dart';
+import 'package:bot_creator/features/home/presentation/home_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -145,10 +146,7 @@ void main() {
         findsOneWidget,
       );
       expect(
-        find.descendant(
-          of: containerCard,
-          matching: find.text('Logs du bot'),
-        ),
+        find.descendant(of: containerCard, matching: find.text('Logs du bot')),
         findsOneWidget,
       );
       expect(
@@ -184,10 +182,7 @@ void main() {
       final cards = buildHomeProjectCards(
         botCards: <Widget>[_classicBotCard(vsync: tester)],
         containers: <ContainerInfo>[
-          _container(
-            state: 'STOPPED',
-            ttl: const Duration(minutes: -5),
-          ),
+          _container(state: 'STOPPED', ttl: const Duration(minutes: -5)),
         ],
         actionsFor: (_) => _noopActions(),
       );
@@ -242,9 +237,76 @@ void main() {
 
       expect(tester.takeException(), isNull);
       expect(find.byType(HomeTurnkeyContainerCard), findsNWidgets(2));
-      // Le second conteneur hors modèle affiche son image brute, à l'arrêt.
       expect(find.text('ghcr.io/example/other-bot:v2'), findsOneWidget);
       expect(find.text('Arrêté'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'un conteneur clé en main avec nom et avatar Discord affiche le nom du bot, HomeBotAvatar et le badge clé en main',
+    (tester) async {
+      final now = DateTime.now().toUtc();
+      final container = ContainerInfo.fromJson(<String, dynamic>{
+        'id': 'turnkey-with-identity',
+        'owner_id': 'owner-1',
+        'image': _beatdockImage,
+        'cpu_millis': 250,
+        'memory_mb': 256,
+        'storage_gb': 1,
+        'state': 'RUNNING',
+        'discord_application_id': '123456789012345678',
+        'discord_bot_name': 'Super Beat Bot',
+        'discord_bot_avatar': 'abcdef1234567890',
+        'expires_at': now.add(const Duration(hours: 2)).toIso8601String(),
+        'created_at': now.toIso8601String(),
+        'updated_at': now.toIso8601String(),
+      });
+
+      final cards = buildHomeProjectCards(
+        botCards: const <Widget>[],
+        containers: <ContainerInfo>[container],
+        actionsFor: (_) => _noopActions(),
+      );
+
+      await tester.pumpWidget(host(Column(children: cards)));
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      // Le nom Discord du bot est affiché plutôt que le nom générique du template ("Bot musique simple")
+      expect(find.text('Super Beat Bot'), findsOneWidget);
+      expect(find.text('Bot musique simple'), findsNothing);
+
+      // Le badge Clé en main est strictement conservé
+      expect(find.text('Bot Clé en main'), findsOneWidget);
+
+      // HomeBotAvatar est utilisé pour afficher l'avatar Discord
+      expect(find.byType(HomeBotAvatar), findsOneWidget);
+      final avatarWidget = tester.widget<HomeBotAvatar>(
+        find.byType(HomeBotAvatar),
+      );
+      expect(
+        avatarWidget.imageUrl,
+        contains('123456789012345678/abcdef1234567890.png'),
+      );
+    },
+  );
+
+  test(
+    'botNameHidesIdentity identifie correctement les noms masquant l\'identité',
+    () {
+      const botId = '1488275294295949504';
+      expect(botNameHidesIdentity(null, botId), isTrue);
+      expect(botNameHidesIdentity('', botId), isTrue);
+      expect(botNameHidesIdentity('   ', botId), isTrue);
+      expect(botNameHidesIdentity('Unnamed Bot', botId), isTrue);
+      expect(botNameHidesIdentity('Unknown App', botId), isTrue);
+      expect(botNameHidesIdentity(botId, botId), isTrue);
+      expect(botNameHidesIdentity('1488275294295949504', botId), isTrue);
+      expect(botNameHidesIdentity('987654321012345678', botId), isTrue);
+
+      // Vrais noms valides
+      expect(botNameHidesIdentity('My Cool Music Bot', botId), isFalse);
+      expect(botNameHidesIdentity('JeremyBot', botId), isFalse);
     },
   );
 }

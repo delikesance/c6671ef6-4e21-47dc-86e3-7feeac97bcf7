@@ -8,6 +8,7 @@ import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/network/main_api_session_restore.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/network/gateway_bot_events.dart';
+import 'package:bot_creator/core/utils/bot_payload_guard.dart';
 import 'package:bot_creator/core/utils/log_redaction.dart';
 import 'package:bot_creator/core/utils/hash_util.dart';
 import 'package:flutter/foundation.dart';
@@ -28,6 +29,61 @@ class MainApiClientException implements Exception {
       return message;
     }
     return '[$statusCode] $message';
+  }
+}
+
+/// Cause d'un échec de récupération du jeton d'un bot
+/// (`POST /gateway/bots/{id}/token`), telle que l'interface doit la DIRE.
+///
+/// Le point qui coûte le plus cher à confondre : un `404` de ROUTE (manager
+/// plus ancien que l'application, la route n'existe pas encore) n'est pas un
+/// « bot absent du compte », et ce n'est pas non plus une panne réseau. Dire
+/// « vérifie ta connexion » devant un serveur en retard est un mensonge qui
+/// envoie l'utilisateur chercher une panne inexistante (constaté sur dev).
+enum BotTokenExportFailure {
+  /// `404 bot_not_found` : bot inconnu OU appartenant à un autre propriétaire —
+  /// le serveur rend volontairement la même réponse pour ne rien révéler.
+  botMissing,
+
+  /// `404` sans code applicatif (ou `501`) : la route n'existe pas sur CE
+  /// serveur. Rien à voir avec la connexion : il faut mettre à jour le serveur.
+  serverUnsupported,
+
+  /// `409 token_unavailable` : bot connu, aucune credential enregistrée côté
+  /// compte. Réessayer ne la fera pas apparaître.
+  notStored,
+
+  /// `500 token_decrypt_failed` : la credential existe mais le serveur n'arrive
+  /// pas à la relire (clé absente ou tournée). Réessayer n'y changera rien.
+  serverCannotRead,
+
+  /// Autre `5xx`, ou panne réseau : réessayer a un sens.
+  network,
+}
+
+/// Échec typé d'une récupération de jeton de bot.
+///
+/// Le message porte la CAUSE, jamais la valeur du jeton ni le corps de la
+/// réponse : cette exception finit dans les journaux et les rapports de crash.
+class BotTokenExportException implements Exception {
+  const BotTokenExportException(this.failure);
+
+  final BotTokenExportFailure failure;
+
+  @override
+  String toString() {
+    switch (failure) {
+      case BotTokenExportFailure.botMissing:
+        return 'bot token export failed: bot not found on this account (404)';
+      case BotTokenExportFailure.serverUnsupported:
+        return 'bot token export failed: route missing on this server (404/501)';
+      case BotTokenExportFailure.notStored:
+        return 'bot token export failed: no credential stored server-side (409)';
+      case BotTokenExportFailure.serverCannotRead:
+        return 'bot token export failed: server cannot decrypt its credential';
+      case BotTokenExportFailure.network:
+        return 'bot token export failed: network or retryable server error';
+    }
   }
 }
 
@@ -798,6 +854,45 @@ class MainApiClient implements RemoteRuntimeClient {
     await _delete('/gateway/bots/$encodedBotId');
   }
 
+  /// Demande au compte le jeton d'un bot déjà géré côté serveur
+  /// (`POST /gateway/bots/{id}/token`).
+  ///
+  /// Le serveur ne rend JAMAIS ce jeton dans ses listes (`GET /gateway/bots`
+  /// rédige volontairement `bot_token`) : sans cette route, un appareil qui n'a
+  /// pas saisi le jeton une première fois ne peut pas exécuter le bot en local,
+  /// et un rafraîchissement n'y change rien. L'appel est un acte explicite du
+  /// propriétaire : corps vide, session du compte (`read:bots`).
+  ///
+  /// Ne journalise ni la réponse ni le jeton : seul le code HTTP part dans les
+  /// traces (voir `_post`).
+  ///
+  /// Échoue en [BotTokenExportException], dont la cause est distinguée par
+  /// [BotTokenExportFailure] — un `404` de ROUTE (manager plus ancien que
+  /// l'app) est [BotTokenExportFailure.serverUnsupported], pas un « bot absent »
+  /// et encore moins une panne réseau.
+  Future<BotTokenExport> fetchBotToken(String botId) async {
+    final encodedBotId = Uri.encodeComponent(botId.trim());
+    final Map<String, dynamic> json;
+    try {
+      json = await _post(
+        '/gateway/bots/$encodedBotId/token',
+        <String, dynamic>{},
+      );
+    } on MainApiClientException catch (error) {
+      throw BotTokenExportException(_classifyBotTokenExportFailure(error));
+    } catch (_) {
+      // Panne réseau, réponse illisible : même cause que les 5xx réessayables.
+      throw const BotTokenExportException(BotTokenExportFailure.network);
+    }
+    final export = BotTokenExport.fromJson(json);
+    if (export.token.isEmpty) {
+      // 200 sans jeton : le corps n'a pas la forme attendue (proxy, page
+      // d'erreur servie en 200). Aucun jeton ne doit être inventé ni stocké.
+      throw const BotTokenExportException(BotTokenExportFailure.network);
+    }
+    return export;
+  }
+
   @override
   Future<RunnerStatus> getStatus({String? botId}) async {
     if (botId == null || botId.trim().isEmpty) {
@@ -910,6 +1005,13 @@ class MainApiClient implements RemoteRuntimeClient {
     Map<String, dynamic> config, {
     bool force = false,
   }) async {
+    // POURQUOI la garde est en TÊTE de méthode : c'est le dernier point avant le
+    // réseau. Une charge utile vide (aucune commande, aucun événement, aucun
+    // webhook, aucune variable) a déjà écrasé la configuration d'un bot ; on la
+    // refuse AVANT tout appel — et donc avant le repli « re-POST direct », qui
+    // rejouerait la même charge vide. Rien n'est renvoyé automatiquement.
+    assertNonDegenerateBotPayload(config, source: 'syncBot');
+
     final cacheKey = '$_baseUrl:$botId';
     final currentHash = HashUtil.calculateHash(config);
 
@@ -1046,6 +1148,11 @@ class MainApiClient implements RemoteRuntimeClient {
     required Map<String, dynamic> config,
     bool force = false,
   }) async {
+    // Même refus que `syncBot` (mêmes critères, garde partagée) : la sauvegarde
+    // Discord est un second chemin de poussée, il ne doit pas être le maillon
+    // faible qui laisse passer une charge vide.
+    assertNonDegenerateBotPayload(config, source: 'saveDiscordBotSnapshot');
+
     final normalizedBotId = botId.trim();
     final cacheKey = '$_baseUrl:snapshot:$normalizedBotId';
     final currentHash = HashUtil.calculateHash(config);
@@ -1112,7 +1219,10 @@ class MainApiClient implements RemoteRuntimeClient {
     Map<String, String>? headers,
   }) async {
     final uri = _uri(path);
-    final merged = <String, String>{..._headers(includeAuth: true), ...?headers};
+    final merged = <String, String>{
+      ..._headers(includeAuth: true),
+      ...?headers,
+    };
     final response = await _http.get(uri, headers: merged).timeout(_timeout);
     _recordCircuitSuccess(_baseUrl);
     appendBotDebugLog(
@@ -1930,6 +2040,21 @@ class MainApiClient implements RemoteRuntimeClient {
     return _post('/containers/$id/start', <String, dynamic>{});
   }
 
+  /// Résout l'identité Discord du bot que fait tourner un conteneur
+  /// (`POST /containers/{id}/discord-identity`) : le serveur est seul à savoir
+  /// quel bot un conteneur exécute, et il rend l'URL d'invitation à ouvrir.
+  ///
+  /// Échoue en `409` (`discord_identity_unavailable`) quand le token du bot est
+  /// absent ou révoqué — l'appelant doit alors inviter l'utilisateur à
+  /// redéployer, pas à réessayer.
+  Future<DiscordBotIdentity> fetchContainerDiscordIdentity(String id) async {
+    final json = await _post(
+      '/containers/$id/discord-identity',
+      <String, dynamic>{},
+    );
+    return DiscordBotIdentity.fromJson(json);
+  }
+
   /// Permanently delete a container from the database and compute layer.
   Future<void> deleteContainer(String id) async {
     await _delete('/containers/$id');
@@ -2003,11 +2128,64 @@ class MainApiClient implements RemoteRuntimeClient {
       headers: _headers(includeAuth: true, contentType: null),
     );
   }
+
+  /// Annonces publiées depuis l'admin (`GET /gateway/announcements`).
+  ///
+  /// Le serveur rend un TABLEAU trié du plus grave au moins grave ; `_get`
+  /// l'enveloppe sous `data` (ou le nomme `announcements`). Les entrées qui ne
+  /// sont pas des objets sont écartées ici ; le décodage champ par champ,
+  /// tolérant aux types inattendus, vit dans
+  /// `features/announcements/logic/announcement.dart`.
+  Future<List<Map<String, dynamic>>> getAnnouncements() async {
+    final json = await _get('/gateway/announcements');
+    final raw = json['announcements'] ?? json['data'];
+    if (raw is! List) {
+      return const <Map<String, dynamic>>[];
+    }
+    return raw
+        .whereType<Map>()
+        .map((entry) => Map<String, dynamic>.from(entry))
+        .toList(growable: false);
+  }
 }
 
 /// Returns true for client errors (4xx except 429) that should NOT be retried.
 bool _isNotFound(MainApiClientException error) {
   return error.statusCode == 404;
+}
+
+/// Traduit un échec HTTP de `POST /gateway/bots/{id}/token` en cause
+/// exploitable par l'interface.
+///
+/// Deux pièges de cette route : un `404` peut venir de la ROUTE ABSENTE
+/// (manager plus ancien que l'app — le routeur Go rend alors une page 404 sans
+/// code applicatif) ou d'un bot étranger au compte (`404 bot_not_found`) ; et un
+/// `500` de cette route est le `token_decrypt_failed` documenté, donc une panne
+/// définitive côté serveur, pas une panne réseau à réessayer.
+BotTokenExportFailure _classifyBotTokenExportFailure(
+  MainApiClientException error,
+) {
+  final appCode = error.message.trim().toLowerCase();
+  // Le code applicatif prime : il peut arriver sur un statut que le contrat ne
+  // prévoit pas (proxy, passerelle).
+  if (appCode == 'token_decrypt_failed') {
+    return BotTokenExportFailure.serverCannotRead;
+  }
+  switch (error.statusCode) {
+    case 404:
+      return appCode == 'bot_not_found'
+          ? BotTokenExportFailure.botMissing
+          : BotTokenExportFailure.serverUnsupported;
+    case 409:
+      return BotTokenExportFailure.notStored;
+    case 500:
+      return BotTokenExportFailure.serverCannotRead;
+    case 501:
+      return BotTokenExportFailure.serverUnsupported;
+  }
+  // 5xx réessayables (502/503/504) et pannes réseau : même conséquence pour
+  // l'utilisateur, « vérifie ta connexion » est ici le seul message honnête.
+  return BotTokenExportFailure.network;
 }
 
 /// Returns true for client errors (4xx except 429) that should NOT be retried.
@@ -2155,6 +2333,17 @@ class ContainerInfo {
   final DateTime createdAt;
   final DateTime updatedAt;
 
+  /// Identifiant d'application Discord du bot que fait tourner ce conteneur,
+  /// quand le serveur l'a déjà résolu (`discord_application_id`).
+  ///
+  /// ABSENT (`null`) pour les conteneurs déployés avant que le serveur ne
+  /// mémorise l'identité : l'appelant fait alors résoudre l'identité par le
+  /// serveur (`POST /containers/{id}/discord-identity`). C'est l'absence, et
+  /// non une valeur vide, qui déclenche cette résolution.
+  final String? discordApplicationId;
+  final String? discordBotName;
+  final String? discordBotAvatar;
+
   const ContainerInfo({
     required this.id,
     required this.ownerId,
@@ -2174,6 +2363,9 @@ class ContainerInfo {
     this.healthStatus = '',
     this.statusCode = '',
     this.statusMessage = '',
+    this.discordApplicationId,
+    this.discordBotName,
+    this.discordBotAvatar,
     required this.expiresAt,
     required this.createdAt,
     required this.updatedAt,
@@ -2203,10 +2395,26 @@ class ContainerInfo {
       healthStatus: (json['health_status'] ?? '').toString(),
       statusCode: (json['status_code'] ?? '').toString(),
       statusMessage: (json['status_message'] ?? '').toString(),
+      discordApplicationId: _parseOptionalId(json['discord_application_id']),
+      discordBotName: json['discord_bot_name']?.toString(),
+      discordBotAvatar: json['discord_bot_avatar']?.toString(),
       expiresAt: _parseDateTime(json['expires_at']),
       createdAt: _parseDateTime(json['created_at']),
       updatedAt: _parseDateTime(json['updated_at']),
     );
+  }
+
+  String? get discordBotAvatarUrl {
+    final avatar = discordBotAvatar?.trim() ?? '';
+    if (avatar.isEmpty) return null;
+    if (avatar.startsWith('http://') || avatar.startsWith('https://')) {
+      return avatar;
+    }
+    final appId = discordApplicationId?.trim() ?? '';
+    if (appId.isNotEmpty) {
+      return 'https://cdn.discordapp.com/avatars/$appId/$avatar.png?size=1024';
+    }
+    return null;
   }
 
   bool get isRunning => state == 'RUNNING';
@@ -2227,10 +2435,93 @@ class ContainerInfo {
 
   static int _parseInt(dynamic v, int fallback) => parseInt(v, fallback);
 
+  /// Identifiant technique optionnel : `null` quand le serveur ne le renvoie
+  /// pas, jamais une chaîne vide (voir [ContainerInfo.discordApplicationId]).
+  static String? _parseOptionalId(dynamic v) {
+    final value = v?.toString().trim() ?? '';
+    return value.isEmpty ? null : value;
+  }
+
   static DateTime _parseDateTime(dynamic v) {
     if (v is String) return DateTime.tryParse(v) ?? DateTime(0);
     if (v is int) return DateTime.fromMillisecondsSinceEpoch(v);
     return DateTime(0);
+  }
+}
+
+/// Identité Discord du bot que fait tourner un conteneur, telle que le serveur
+/// la résout (`POST /containers/{id}/discord-identity`) : de quoi l'inviter
+/// dans un serveur, `invite_url` étant prête à ouvrir.
+class DiscordBotIdentity {
+  const DiscordBotIdentity({
+    required this.botId,
+    this.username = '',
+    this.avatar = '',
+    this.inviteUrl = '',
+  });
+
+  /// ID Discord du bot (le `client_id` de l'URL d'invitation).
+  final String botId;
+
+  final String username;
+  final String avatar;
+
+  /// URL d'invitation composée par le serveur ; vide s'il ne l'a pas fournie.
+  final String inviteUrl;
+
+  factory DiscordBotIdentity.fromJson(Map<String, dynamic> json) {
+    // Certaines routes enveloppent la charge utile sous `data` : on accepte les
+    // deux formes plutôt que de rendre une identité vide sur une réponse saine.
+    final nested = json['data'];
+    final source = nested is Map ? Map<String, dynamic>.from(nested) : json;
+    return DiscordBotIdentity(
+      botId: (source['bot_id'] ?? '').toString().trim(),
+      username: (source['username'] ?? '').toString(),
+      avatar: (source['avatar'] ?? '').toString(),
+      inviteUrl: (source['invite_url'] ?? '').toString().trim(),
+    );
+  }
+}
+
+/// Jeton d'un bot tel que le compte le rend
+/// (`POST /gateway/bots/{id}/token`).
+///
+/// Cette route est la SEULE surface qui transporte un jeton vers l'appareil :
+/// les listes du serveur (`GET /gateway/bots`, `/gateway/snapshot`, le canal
+/// temps réel) le rédigent volontairement. La réponse porte
+/// `Cache-Control: no-store` côté serveur, et ce modèle n'est jamais journalisé
+/// ni relayé à l'analytique : seule son existence compte pour l'appelant.
+class BotTokenExport {
+  const BotTokenExport({
+    required this.botId,
+    required this.token,
+    this.validatedAt,
+  });
+
+  /// ID Discord du bot à qui appartient [token].
+  final String botId;
+
+  /// Le jeton en clair. Ne jamais l'écrire dans un journal, un message d'erreur
+  /// ni un événement analytique.
+  final String token;
+
+  /// Date de validation de la credential côté serveur ; `null` si le serveur ne
+  /// l'a pas fournie (elle est omise quand elle est nulle).
+  final DateTime? validatedAt;
+
+  factory BotTokenExport.fromJson(Map<String, dynamic> json) {
+    // Certaines routes enveloppent la charge utile sous `data` : on accepte les
+    // deux formes plutôt que de rendre un jeton vide sur une réponse saine.
+    final nested = json['data'];
+    final source = nested is Map ? Map<String, dynamic>.from(nested) : json;
+    final rawValidatedAt = source['validated_at']?.toString().trim() ?? '';
+    return BotTokenExport(
+      botId: (source['bot_id'] ?? '').toString().trim(),
+      token: (source['token'] ?? '').toString().trim(),
+      validatedAt: rawValidatedAt.isEmpty
+          ? null
+          : DateTime.tryParse(rawValidatedAt),
+    );
   }
 }
 
