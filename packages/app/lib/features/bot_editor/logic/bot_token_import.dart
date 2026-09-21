@@ -69,12 +69,23 @@ void resetBotTokenAutoImportAttempts() => _automaticallyAttemptedBotIds.clear();
 /// REDEMANDER au compte (`POST /gateway/bots/{id}/token`), ce que fait cette
 /// classe — une fois, ou sur demande explicite de l'utilisateur.
 class BotTokenImporter {
-  BotTokenImporter({required this.client});
+  BotTokenImporter({required this.client, this.onTokenStored});
 
   /// Client du compte (manager). `null` — compte non configuré, ou aucune
   /// session — arrête la reprise AVANT toute requête : hors connexion, le
   /// comportement reste celui d'avant.
   final MainApiClient? client;
+
+  /// Rappel exécuté APRÈS qu'un jeton vient d'être écrit sur ce poste, avec
+  /// l'identifiant du bot et le jeton fraîchement obtenu.
+  ///
+  /// Pourquoi un rappel plutôt qu'un appel direct : c'est le seul moment où le
+  /// jeton du bot est en main, donc la seule occasion d'interroger Discord pour
+  /// connaître son VRAI nom (un nom qui vaut l'ID n'est pas un nom). Il est
+  /// facultatif — sans branchement, la reprise se comporte exactement comme
+  /// avant, ce qui laisse les tests de la reprise sans aucun transport réel.
+  /// Le jeton ne doit jamais être journalisé par le rappel.
+  final Future<void> Function(String botId, String token)? onTokenStored;
 
   /// Reprise déclenchée par la synchro, pour un bot qui est (a) sur le compte,
   /// (b) sans jeton utilisable en local, (c) annoncé `token_invalid = false`.
@@ -141,6 +152,22 @@ class BotTokenImporter {
       name: 'bot_token_imported',
       parameters: <String, Object>{'bot_id': botId, 'source': source},
     );
+
+    // Le jeton vient d'arriver : c'est le moment — et le seul — où l'app peut
+    // demander à Discord qui est vraiment ce bot. Sans ce rappel, un bot dont le
+    // nom vaut son ID resterait affiché sous son ID (défaut constaté). Un échec
+    // du rappel ne change pas l'issue de la reprise : le jeton, lui, est écrit.
+    final onStored = onTokenStored;
+    if (onStored != null) {
+      try {
+        await onStored(botId, export.token);
+      } catch (error) {
+        developer.log(
+          'Bot identity refresh after a token import failed: $error',
+          name: 'BotTokenImporter',
+        );
+      }
+    }
     return BotTokenImportOutcome.imported;
   }
 }

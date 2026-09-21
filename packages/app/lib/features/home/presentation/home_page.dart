@@ -35,6 +35,7 @@ import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/app_editor_page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/bot_logs.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/bot_config_pull_dialog.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_identity_sync.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_token_import.dart';
 import 'package:bot_creator/features/bot_management/presentation/create_page.dart';
 import 'package:bot_creator/features/containers/logic/turnkey_bot_invite.dart';
@@ -354,11 +355,14 @@ class HomePageState extends State<HomePage>
       if (_sessionExpiresAtByBotId.isNotEmpty) {
         setState(() {});
       }
-      // Repli HTTP uniquement WebSocket coupée (toutes les ~60 s : seuil produit,
-      // conservé tel quel). Le coût du repli, lui, passe de N requêtes à une seule.
+      // Repli HTTP uniquement WebSocket coupée. Cadence : un tick = 15 s, donc le repli
+      // part à CHAQUE tick (15 s) et non tous les 4 (60 s). Constat : le canal temps réel
+      // ne pousse plus rien quand il est coupé, et 60 secondes d'écart entre deux
+      // corrections de statut, c'est ce que l'utilisateur ressent comme « la resynchro
+      // est interminable ». Le coût du repli est d'une seule requête agrégée (snapshot).
       if (!_gatewayEventsConnected) {
         _httpFallbackTick++;
-        if (_httpFallbackTick >= 4) {
+        if (_httpFallbackTick >= 1) {
           _httpFallbackTick = 0;
           unawaited(_refreshFromSnapshot());
         }
@@ -484,7 +488,7 @@ class HomePageState extends State<HomePage>
       final remoteClient = await _resolveGlobalMainApiClient();
       final remoteRuntime = await _resolveRemoteRuntime(
         getTimeout: const Duration(seconds: 30),
-        postTimeout: const Duration(seconds: 90),
+        postTimeout: const Duration(seconds: 25),
       );
       appendBotDebugLog(
         '[_initRunningState] Resolved runtime: source=${remoteRuntime.source}, hasClient=${remoteRuntime.client != null}, blocksLocalFallback=${remoteRuntime.blocksLocalFallback}, detail=${remoteRuntime.detailLabel ?? 'none'}.',
@@ -1476,10 +1480,31 @@ class HomePageState extends State<HomePage>
           client: remoteClient,
           accountBots: bots,
           localTokenOf: (botId) => localTokensById[botId] ?? '',
+          // Un jeton qui vient d'arriver ouvre la seule occasion d'interroger
+          // Discord sur le VRAI nom du bot : on la saisit immédiatement, avec le
+          // même garde-fou « une tentative par bot et par lancement ».
+          onTokenStored: (botId, token) =>
+              refreshBotIdentityFromDiscord(botId: botId, token: token),
         );
         if (importOutcomes.isNotEmpty) {
           appendBotDebugLog(
             '[syncAllBotsFromManager] Bot token recovery outcomes=${importOutcomes.map((outcome) => outcome.name).join(',')}.',
+          );
+        }
+
+        // ── Nom réel des bots dont le nom vaut l'ID ───────────────────────────
+        // Défaut constaté : un bot affiché sous son ID (`1488275294…`) sur sa
+        // carte et en tête de sa page, côté app ET côté compte. Un nom qui vaut
+        // l'ID n'est pas un nom : on demande son identité à Discord, une seule
+        // fois par bot et par lancement d'application (`refreshBotIdentities…` :
+        // aucune requête pour un nom déjà réel, aucune rafale, rien hors ligne).
+        final identityOutcomes = await refreshBotIdentitiesFromDiscord(
+          accountBots: bots,
+          localAppOf: (botId) => appManager.getApp(botId),
+        );
+        if (identityOutcomes.isNotEmpty) {
+          appendBotDebugLog(
+            '[syncAllBotsFromManager] Bot identity outcomes=${identityOutcomes.map((outcome) => outcome.name).join(',')}.',
           );
         }
       } catch (error) {
@@ -1848,6 +1873,10 @@ class HomePageState extends State<HomePage>
       }
       final outcome = await BotTokenImporter(
         client: client,
+        // Même occasion saisie ici : le jeton qui vient d'arriver permet de
+        // demander à Discord le VRAI nom du bot, écrit par le chemin unique.
+        onTokenStored: (botId, token) =>
+            refreshBotIdentityFromDiscord(botId: botId, token: token),
       ).importAutomatically(
         botId: botId,
         serverAnnouncesTokenValid: true,
@@ -1907,7 +1936,7 @@ class HomePageState extends State<HomePage>
     String? botId,
     RemoteRuntimeSource? forcedSource,
     Duration getTimeout = const Duration(seconds: 30),
-    Duration postTimeout = const Duration(seconds: 90),
+    Duration postTimeout = const Duration(seconds: 25),
   }) async {
     // Seul point où la plateforme pèse encore sur l'EXÉCUTION — et seulement en creux :
     // le web n'a pas d'accès direct au manager. Partout ailleurs (poste de travail,
@@ -1927,7 +1956,7 @@ class HomePageState extends State<HomePage>
     resolveRuntime:
         ({
           getTimeout = const Duration(seconds: 30),
-          postTimeout = const Duration(seconds: 90),
+          postTimeout = const Duration(seconds: 25),
         }) => _resolveRemoteRuntime(
           getTimeout: getTimeout,
           postTimeout: postTimeout,
@@ -2101,7 +2130,7 @@ class HomePageState extends State<HomePage>
         botId: botId,
         forcedSource: forcedSource,
         getTimeout: const Duration(seconds: 30),
-        postTimeout: const Duration(seconds: 90),
+        postTimeout: const Duration(seconds: 25),
       );
 
       // ── Fetch + validate token before anything else (only when starting) ──
@@ -2235,7 +2264,7 @@ class HomePageState extends State<HomePage>
               botId: botId,
               forcedSource: forcedSource,
               getTimeout: const Duration(seconds: 30),
-              postTimeout: const Duration(seconds: 90),
+              postTimeout: const Duration(seconds: 25),
             );
             usingRunner = runtime.client != null || runtime.blocksLocalFallback;
           }
@@ -2294,7 +2323,7 @@ class HomePageState extends State<HomePage>
         botId: botId,
         forcedSource: forcedSource,
         getTimeout: const Duration(seconds: 30),
-        postTimeout: const Duration(seconds: 90),
+        postTimeout: const Duration(seconds: 25),
       );
       // Témoin de décision : la pop-up promet « ce poste » ou « les serveurs Bot Creator »,
       // et un chemin décide ensuite. Sans cette ligne, un choix non honoré ne laisse
