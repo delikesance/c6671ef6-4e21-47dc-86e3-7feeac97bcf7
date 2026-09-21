@@ -1,4 +1,5 @@
 import 'package:bot_creator/core/i18n/i18n.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator/features/home/logic/bot_start_target.dart';
 import 'package:flutter/material.dart';
 
@@ -54,7 +55,15 @@ class _BotStartOptionTile extends StatelessWidget {
     final theme = Theme.of(context);
     final isServer = option.target == BotStartTarget.server;
     return OutlinedButton(
-      onPressed: () => Navigator.of(context).pop(option.target),
+      onPressed: () {
+        // Trace du GESTE, AVANT de rendre la cible : c'est ce que l'utilisateur croit
+        // avoir choisi. Sans cette ligne, un choix non honoré plus loin ne laisserait
+        // aucune preuve de ce qui a été cliqué. Une ligne par tuile, texte distinct.
+        appendBotStartTrace(
+          isServer ? 'clic=serveurs Bot Creator' : 'clic=ce poste',
+        );
+        Navigator.of(context).pop(option.target);
+      },
       style: OutlinedButton.styleFrom(
         padding: const EdgeInsets.all(14),
         alignment: Alignment.centerLeft,
