@@ -11,6 +11,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:bot_creator/core/storage/database.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_identity_scan.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_identity_sync.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';

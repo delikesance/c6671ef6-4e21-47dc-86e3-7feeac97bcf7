@@ -10,6 +10,14 @@ import 'package:bot_creator/features/bot_editor/logic/bot_token_import.dart';
 /// son canal temps réel font pendre un test de widget. La synchro appelle cette
 /// fonction, les tests l'appellent aussi : c'est le même code qui décide.
 ///
+/// Ce module sert DEUX besoins, avec la même garde et la même route :
+///   * équiper ce poste d'un jeton pour pouvoir EXÉCUTER le bot en local
+///     ([recoverMissingBotTokens], tout le compte d'un coup) ;
+///   * équiper ce poste d'un jeton pour pouvoir DEMANDER SON NOM au bot
+///     ([recoverBotTokenForIdentity], un bot à la fois, à la demande du balayage
+///     d'identité) — sans quoi un bot hébergé, dont le nom vaut son ID, restait
+///     affiché sous son ID.
+///
 /// Ce qui déclenche une reprise, bot par bot :
 ///   (a) le bot est annoncé par le compte (il est dans [accountBots]) ;
 ///   (b) il n'a AUCUN jeton utilisable sur ce poste ([localTokenOf]) ;
@@ -72,4 +80,57 @@ Future<List<BotTokenImportOutcome>> recoverMissingBotTokens({
     );
   }
   return outcomes;
+}
+
+/// Reprend le jeton d'UN bot quand la seule raison de le vouloir est de DEMANDER
+/// SON NOM à Discord.
+///
+/// Pourquoi elle existe à côté de [recoverMissingBotTokens] : un bot HÉBERGÉ n'a
+/// aucun jeton sur ce poste (le manager le rédige volontairement dans ses listes),
+/// et le balayage d'identité n'avait donc rien à présenter à Discord — un bot dont
+/// le nom vaut son ID restait affiché sous son ID. C'est la MÊME reprise qui est
+/// réutilisée ici : même route (`POST /gateway/bots/{id}/token`), même écriture par
+/// le chemin unique, et surtout la MÊME garde « une tentative par bot et par
+/// lancement » ([BotTokenImporter.importAutomatically]) — jamais une seconde
+/// infrastructure, donc jamais de rafale ni de second export d'un même jeton.
+///
+/// [accountBot] est la charge utile du compte pour ce bot : elle seule sait si le
+/// serveur annonce la credential invalide (`token_invalid`), et elle rend le jeton
+/// (`bot_token`) quand le serveur a choisi de le livrer.
+///
+/// Rend `true` quand un jeton utilisable est désormais écrit sur ce poste. Rend
+/// `false` — sans rien casser, sans rien inventer, sans exception — quand il n'y a
+/// personne à qui demander (hors ligne), quand le compte annonce le jeton invalide,
+/// quand la route refuse (404, 409, 500) ou qu'une tentative a déjà eu lieu dans ce
+/// lancement : la prochaine session retentera.
+///
+/// Ne journalise ni ne rend jamais la VALEUR du jeton : seules les issues typées de
+/// [BotTokenImporter] circulent.
+Future<bool> recoverBotTokenForIdentity({
+  required MainApiClient? client,
+  required String botId,
+  required Map<String, dynamic> accountBot,
+}) async {
+  // (hors ligne) Rien ne part, et rien n'est réservé : une reconnexion rendra la
+  // reprise possible.
+  final activeClient = client;
+  if (activeClient == null) return false;
+  // Le serveur a livré le jeton dans sa réponse : la synchro l'écrira, il n'y a rien
+  // à redemander — et redemander consommerait le quota du propriétaire pour rien.
+  if ((accountBot['bot_token'] ?? '').toString().trim().isNotEmpty) return false;
+
+  final outcome = await BotTokenImporter(
+    client: activeClient,
+  ).importAutomatically(
+    botId: botId,
+    serverAnnouncesTokenValid: accountBot['token_invalid'] != true,
+    // L'appelant n'appelle cette fonction QUE pour un bot dont la fiche locale n'a
+    // aucun jeton (c'est lui qui l'a constaté) : la garde de débit, elle, reste
+    // dans la brique, avec la revendication de la tentative AVANT l'appel réseau.
+    hasLocalToken: false,
+  );
+  // `imported` est la seule issue qui garantit l'écriture d'un jeton ; toutes les
+  // autres (déjà tenté, annoncé invalide, refus du serveur, panne) laissent la fiche
+  // intacte — c'est voulu, et il n'y a rien de plus à tenter ici.
+  return outcome == BotTokenImportOutcome.imported;
 }
