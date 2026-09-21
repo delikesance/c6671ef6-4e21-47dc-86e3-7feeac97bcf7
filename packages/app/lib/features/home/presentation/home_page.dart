@@ -35,6 +35,7 @@ import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/app_editor_page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/bot_logs.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/bot_config_pull_dialog.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_identity_scan.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_identity_sync.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_token_import.dart';
 import 'package:bot_creator/features/bot_management/presentation/create_page.dart';
@@ -1501,6 +1502,12 @@ class HomePageState extends State<HomePage>
         final identityOutcomes = await refreshBotIdentitiesFromDiscord(
           accountBots: bots,
           localAppOf: (botId) => appManager.getApp(botId),
+          // Un bot HÉBERGÉ n'a aucun jeton sur ce poste — le manager le rédige
+          // volontairement dans ses listes. Sans ce client, le balayage n'aurait
+          // rien à présenter à Discord et le nom resterait l'ID ; avec lui, il
+          // reprend le jeton par la route dédiée (`POST /gateway/bots/{id}/token`,
+          // une tentative par bot et par lancement) avant d'interroger Discord.
+          client: remoteClient,
         );
         if (identityOutcomes.isNotEmpty) {
           appendBotDebugLog(

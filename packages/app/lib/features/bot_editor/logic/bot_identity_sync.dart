@@ -173,8 +173,10 @@ Future<DiscordBotIdentity?> fetchDiscordBotIdentity({
 /// Récupère le nom réel du bot [botId] auprès de Discord et l'écrit, quand — et seulement
 /// quand — le nom local ne peut pas être un nom (vide ou égal à l'ID).
 ///
-/// [token] : jeton à utiliser. Omis ou vide, on prend celui de la fiche locale — c'est le cas
-/// de la synchro, qui n'a jamais le jeton en main (le manager le rédige).
+/// [token] : jeton à utiliser. Omis ou vide, on prend celui de la fiche locale — c'est le
+/// cas de la synchro, qui n'a jamais le jeton en main (le manager le rédige). Pour un bot
+/// HÉBERGÉ, cette fiche n'en a aucun : c'est le balayage (`bot_identity_scan.dart`) qui le
+/// reprend par la route dédiée avant d'appeler ici.
 ///
 /// Rend une issue, jamais une exception : l'appelant peut journaliser sans risquer l'écran.
 Future<BotIdentitySyncOutcome> refreshBotIdentityFromDiscord({
@@ -259,46 +261,7 @@ Future<BotIdentitySyncOutcome> refreshBotIdentityFromDiscord({
   return BotIdentitySyncOutcome.updated;
 }
 
-/// Balayage de synchro : pour chaque bot du compte dont le nom local n'en est pas un,
-/// récupère l'identité réelle — au plus une fois par bot et par lancement.
-///
-/// [localAppOf] rend la fiche DÉJÀ écrite sur ce poste (nom et jeton), relue à chaque bot :
-/// c'est la seule source du jeton, que le manager ne renvoie jamais, et une relecture voit
-/// la fiche réparée par le bot précédent. Un bot sans fiche locale est ignoré (la synchro
-/// l'écrira de toute façon).
-///
-/// Les tentatives sont espacées comme celles de la reprise de jeton : Discord tolère mal une
-/// rafale, et un 429 serait un échec fabriqué par le client lui-même.
-Future<List<BotIdentitySyncOutcome>> refreshBotIdentitiesFromDiscord({
-  required List<Map<String, dynamic>> accountBots,
-  required Future<Map<String, dynamic>> Function(String botId) localAppOf,
-  http.Client? httpClient,
-  Duration betweenAttempts = const Duration(milliseconds: 300),
-}) async {
-  final outcomes = <BotIdentitySyncOutcome>[];
-  for (final bot in accountBots) {
-    final botId = (bot['bot_id'] ?? '').toString().trim();
-    if (botId.isEmpty) continue;
-    final Map<String, dynamic> local;
-    try {
-      local = await localAppOf(botId);
-    } catch (_) {
-      continue;
-    }
-    // Nom déjà réel, ou rien à présenter à Discord : ce n'est pas une tentative, donc cela
-    // ne consomme pas la comptabilité du lancement.
-    if (!botNameHidesIdentity(local['name']?.toString(), botId)) continue;
-    if ((local['token'] ?? '').toString().trim().isEmpty) continue;
-
-    if (outcomes.isNotEmpty) {
-      await Future<void>.delayed(betweenAttempts);
-    }
-    outcomes.add(
-      await refreshBotIdentityFromDiscord(
-        botId: botId,
-        httpClient: httpClient,
-      ),
-    );
-  }
-  return outcomes;
-}
+// Le BALAYAGE de tout le compte (`refreshBotIdentitiesFromDiscord`) vit dans
+// `bot_identity_scan.dart` : c'est lui qui reprend au besoin le jeton d'un bot hébergé par
+// la route dédiée avant d'appeler la fonction ci-dessus, faute de quoi il n'y a rien à
+// présenter à Discord et le nom reste l'ID à l'écran.
