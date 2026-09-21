@@ -90,6 +90,34 @@ bool serverBotIsRunning(Map<String, dynamic>? botEntry) {
   return desired == 'RUNNING' && runtime != 'stopped' && runtime != 'error';
 }
 
+/// Vrai si CE POSTE exécute le bot, lu sur les FAITS d'exécution locale.
+///
+/// Pourquoi pas l'ensemble `_runningBotIds` de la page d'accueil, qui servait
+/// jusqu'ici : c'est un état d'ÉCRAN, remplacé en bloc à chaque rafraîchissement de
+/// liste et à chaque changement de bot courant. Mesuré chez le propriétaire : un bot
+/// réellement démarré sur le poste (son gateway annonçait « Connected to Gateway »)
+/// s'y lisait encore « arrete » cinq secondes plus tard, et la ligne de réalité
+/// annonçait « demarre nulle part (echec) » — un faux échec sur un démarrage réussi,
+/// qui envoie chercher la panne là où il n'y en a pas.
+///
+/// Les trois sources retenues sont celles que le DÉMARRAGE produit lui-même, et
+/// chacune SURVIT à l'écran qui l'a lancé :
+///   * une session du moteur desktop est ouverte pour ce bot : elle vit tant que le
+///     gateway est connecté, et c'est elle que « démarrer en local » allume ;
+///   * la session mobile (service d'avant-plan) tourne pour ce bot ;
+///   * le runner JS embarqué est l'association enregistrée au démarrage réussi
+///     (l'exécution est alors dans le processus du runner, pas dans cette app).
+///
+/// Aucune de ces sources n'est une intention : une association « manager », une
+/// préférence, ou le fait d'avoir cliqué ne suffisent pas à dire « en marche ».
+bool thisMachineExecutesBot({
+  required bool desktopEngineSession,
+  required bool mobileSession,
+  required bool embeddedRunnerSession,
+}) {
+  return desktopEngineSession || mobileSession || embeddedRunnerSession;
+}
+
 /// Rend la ligne de journal du contrôle de réalité, SANS le préfixe `[demarrage]`
 /// (ajouté par le journal).
 ///

@@ -44,7 +44,9 @@ import 'package:bot_creator/features/discord_rpc/logic/discord_rpc_service.dart'
 import 'package:bot_creator/features/documentation/documentation_navigation.dart';
 import 'package:bot_creator/features/home/logic/bot_run_source.dart';
 import 'package:bot_creator/features/home/logic/bot_runtime_affinity.dart';
+import 'package:bot_creator/features/home/logic/bot_start_branch.dart';
 import 'package:bot_creator/features/home/logic/bot_start_outcome.dart';
+import 'package:bot_creator/features/home/logic/bot_start_server_request.dart';
 import 'package:bot_creator/features/home/logic/bot_start_target.dart';
 import 'package:bot_creator/features/home/presentation/guild_avatar.dart';
 import 'package:bot_creator/features/home/presentation/home_ui.dart';
@@ -2221,8 +2223,12 @@ class HomePageState extends State<HomePage>
             botToken: token,
           );
           if (sessionRestored) {
+            // `forcedSource` est REPASSÉ ici : cette seconde résolution décidait
+            // auparavant sans le choix de l'utilisateur, et c'est exactement par là que
+            // « serveurs Bot Creator » devenait un démarrage local silencieux.
             runtime = await _resolveRemoteRuntime(
               botId: botId,
+              forcedSource: forcedSource,
               getTimeout: const Duration(seconds: 30),
               postTimeout: const Duration(seconds: 90),
             );
@@ -2275,8 +2281,13 @@ class HomePageState extends State<HomePage>
       }
 
       // ── Runner API (API only) ─────────────────────────────────────────────
+      // `forcedSource` est repassé ICI aussi : c'est la résolution qui décide vraiment
+      // du chemin emprunté. Sans le choix de l'utilisateur, un « local » pouvait
+      // repartir sur les serveurs ET un « serveurs » retomber en local — les deux dans
+      // le dos de l'utilisateur.
       runtime = await _resolveRemoteRuntime(
         botId: botId,
+        forcedSource: forcedSource,
         getTimeout: const Duration(seconds: 30),
         postTimeout: const Duration(seconds: 90),
       );
@@ -2290,17 +2301,57 @@ class HomePageState extends State<HomePage>
         'blocage=${runtime.blocksLocalFallback}',
         botId: botId,
       );
+
+      // ── GARDE : le choix de l'utilisateur ne se replie JAMAIS en silence ──────
+      // Mesuré chez le propriétaire : « clic=serveurs Bot Creator », puis un démarrage
+      // local sans un mot. Le repli venait de résolutions qui perdaient le choix
+      // (corrigées ci-dessus) ; cette garde le rend impossible même si une résolution
+      // future l'oubliait : si les serveurs ont été choisis et que la branche décidée
+      // n'est pas la leur, on EXPLIQUE et on s'arrête. Exécuter sur la machine de
+      // l'utilisateur autre chose que ce qu'il a choisi est le défaut, pas une option.
+      final startPlan = planBotStart(
+        serverChosen: forcedSource == RemoteRuntimeSource.manager,
+        hasRemoteClient: runtime.client != null,
+        clientIsManager: runtime.client is MainApiClient,
+        runnerIsEmbedded:
+            RunnerSettings.getAssociatedRunnerId(botId) ==
+            RunnerSettings.embeddedRunnerId,
+        supportsForegroundTask: _supportsForegroundTask,
+        // Le moteur ne pèse que sans client distant, exactement comme le code : la
+        // ligne ne peut donc pas annoncer une sous-branche que le code n'emprunte pas.
+        engineIsJavascript:
+            runtime.client == null &&
+            await getBotRuntimeEngine(botId) == runtimeEngineJavascript,
+        serverUnavailableDetail: runtime.unavailableReason ?? '',
+      );
+      if (!startPlan.allowed) {
+        appendBotStartTrace(startPlan.refusalTrace!, botId: botId);
+        final detail =
+            startPlan.serverUnavailableDetail?.trim().isNotEmpty ?? false
+            ? startPlan.serverUnavailableDetail!.trim()
+            : _uiCopy(
+                fr: 'aucune session serveur exploitable depuis ce poste',
+                en: 'no usable server session from this device',
+              );
+        throw Exception(
+          _uiCopy(
+            fr: 'Les serveurs Bot Creator ont ete choisis et ne peuvent pas '
+                'executer ce bot : $detail. Aucune execution locale n a ete '
+                'entamee — relancez le demarrage apres avoir regle ce point.',
+            en: 'Bot Creator servers were chosen and cannot run this bot: '
+                '$detail. No local run was started — retry the start once this '
+                'is resolved.',
+          ),
+        );
+      }
+
       final client = runtime.client;
       if (client != null) {
         // Nomme la BRANCHE réellement empruntée. La ligne témoin ci-dessus dit la cible
-        // retenue, celle-ci dit le code qui s'exécute : sans elle, un choix « serveurs »
-        // honoré par la branche locale resterait indistinguable d'un vrai démarrage distant.
-        appendBotStartTrace(
-          client is MainApiClient
-              ? 'branche=SERVEUR'
-              : 'branche=LOCAL (moteur JS embarque)',
-          botId: botId,
-        );
+        // retenue, celle-ci dit le code qui s'exécute : la branche vient du PLAN, établi
+        // par les mêmes tests que ce bloc, donc le libellé ne peut pas désigner une
+        // autre branche que celle où l'on entre.
+        appendBotStartTrace(startPlan.branchTrace, botId: botId);
         try {
           if (isRunning) {
             appendBotLog(
@@ -2347,10 +2398,14 @@ class HomePageState extends State<HomePage>
             }
             await client.syncBot(botId, botName, payload);
             if (client is MainApiClient) {
-              await startManagerBotWithCreditRetry(
+              // Encadré : la demande part, puis le RÉSULTAT est écrit. Sans ces deux
+              // lignes, un refus du serveur ne laissait aucune trace côté démarrage —
+              // on ne pouvait pas distinguer « jamais demandé » de « demandé et refusé ».
+              await requestManagerBotStartWithTraces(
                 client: client,
                 botId: botId,
                 botName: botName,
+                trace: (message) => appendBotStartTrace(message, botId: botId),
               );
               RunnerSettings.associateBotWithRunner(botId, 'manager');
             } else {
@@ -2418,7 +2473,10 @@ class HomePageState extends State<HomePage>
 
       if (_supportsForegroundTask) {
         // ── Mobile (Android / iOS) ─────────────────────────────────────────
-        appendBotStartTrace('branche=MOBILE', botId: botId);
+        appendBotStartTrace(
+          botStartBranchTrace(BotStartBranch.mobile),
+          botId: botId,
+        );
         if (isRunning) {
           appendBotLog('Bot stop requested', botId: botId);
           await stopMobileBotSession(botId: botId);
@@ -2503,7 +2561,7 @@ class HomePageState extends State<HomePage>
             }
 
             appendBotStartTrace(
-              'branche=LOCAL (moteur JS embarque)',
+              botStartBranchTrace(BotStartBranch.localJsEngine),
               botId: botId,
             );
             final client = runnerConfig.createClient();
@@ -2540,7 +2598,10 @@ class HomePageState extends State<HomePage>
             );
             return;
           }
-          appendBotStartTrace('branche=LOCAL (desktop)', botId: botId);
+          appendBotStartTrace(
+            botStartBranchTrace(BotStartBranch.localDesktop),
+            botId: botId,
+          );
           await startDesktopBot(token);
           // Ce POSTE exécute le bot : une association « manager » héritée (ou posée par
           // un démarrage distant précédent) ferait envoyer le prochain Stop au serveur,
@@ -2620,7 +2681,21 @@ class HomePageState extends State<HomePage>
     // surtout pas un appel réseau lancé depuis un écran qui n'existe plus.
     if (!mounted) return;
 
-    final localRunning = _runningBotIds.contains(botId);
+    // « Ce poste l'exécute-t-il ? » — lu OÙ le démarrage local l'écrit.
+    //
+    // Pourquoi pas l'ensemble des bots en marche de la page d'accueil, qui servait
+    // jusqu'ici : c'est un état d'ÉCRAN, remplacé en bloc à chaque rafraîchissement de
+    // liste. Mesuré chez le propriétaire : le bot tournait bien ici (son gateway Nyxx
+    // annonçait « Connected to Gateway ») et la ligne annonçait pourtant
+    // « LOCAL=arrete … demarre nulle part (echec) ». Le diagnostic désignait une panne
+    // là où il n'y en avait pas — c'est le deuxième mensonge corrigé ici.
+    final localRunning = thisMachineExecutesBot(
+      desktopEngineSession: isDesktopBotRunningId(botId),
+      mobileSession: isMobileBotRunning(botId),
+      embeddedRunnerSession:
+          RunnerSettings.getAssociatedRunnerId(botId) ==
+          RunnerSettings.embeddedRunnerId,
+    );
 
     bool? serverRunning;
     Map<String, dynamic>? serverEntry;
