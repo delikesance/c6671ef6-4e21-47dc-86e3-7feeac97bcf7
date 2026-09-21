@@ -874,7 +874,10 @@ class MainApiClient implements RemoteRuntimeClient {
     final encodedBotId = Uri.encodeComponent(botId.trim());
     final Map<String, dynamic> json;
     try {
-      json = await _post('/gateway/bots/$encodedBotId/token', <String, dynamic>{});
+      json = await _post(
+        '/gateway/bots/$encodedBotId/token',
+        <String, dynamic>{},
+      );
     } on MainApiClientException catch (error) {
       throw BotTokenExportException(_classifyBotTokenExportFailure(error));
     } catch (_) {
@@ -1216,7 +1219,10 @@ class MainApiClient implements RemoteRuntimeClient {
     Map<String, String>? headers,
   }) async {
     final uri = _uri(path);
-    final merged = <String, String>{..._headers(includeAuth: true), ...?headers};
+    final merged = <String, String>{
+      ..._headers(includeAuth: true),
+      ...?headers,
+    };
     final response = await _http.get(uri, headers: merged).timeout(_timeout);
     _recordCircuitSuccess(_baseUrl);
     appendBotDebugLog(
@@ -2335,6 +2341,8 @@ class ContainerInfo {
   /// serveur (`POST /containers/{id}/discord-identity`). C'est l'absence, et
   /// non une valeur vide, qui déclenche cette résolution.
   final String? discordApplicationId;
+  final String? discordBotName;
+  final String? discordBotAvatar;
 
   const ContainerInfo({
     required this.id,
@@ -2356,6 +2364,8 @@ class ContainerInfo {
     this.statusCode = '',
     this.statusMessage = '',
     this.discordApplicationId,
+    this.discordBotName,
+    this.discordBotAvatar,
     required this.expiresAt,
     required this.createdAt,
     required this.updatedAt,
@@ -2386,10 +2396,25 @@ class ContainerInfo {
       statusCode: (json['status_code'] ?? '').toString(),
       statusMessage: (json['status_message'] ?? '').toString(),
       discordApplicationId: _parseOptionalId(json['discord_application_id']),
+      discordBotName: json['discord_bot_name']?.toString(),
+      discordBotAvatar: json['discord_bot_avatar']?.toString(),
       expiresAt: _parseDateTime(json['expires_at']),
       createdAt: _parseDateTime(json['created_at']),
       updatedAt: _parseDateTime(json['updated_at']),
     );
+  }
+
+  String? get discordBotAvatarUrl {
+    final avatar = discordBotAvatar?.trim() ?? '';
+    if (avatar.isEmpty) return null;
+    if (avatar.startsWith('http://') || avatar.startsWith('https://')) {
+      return avatar;
+    }
+    final appId = discordApplicationId?.trim() ?? '';
+    if (appId.isNotEmpty) {
+      return 'https://cdn.discordapp.com/avatars/$appId/$avatar.png?size=1024';
+    }
+    return null;
   }
 
   bool get isRunning => state == 'RUNNING';

@@ -29,7 +29,9 @@ import 'package:bot_creator/core/i18n/l10n/app_localizations_fr.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/secure/secure_storage_service.dart';
+import 'package:bot_creator/features/announcements/logic/announcement.dart';
 import 'package:bot_creator/features/announcements/logic/announcement_policy.dart';
+import 'package:bot_creator/features/announcements/logic/announcement_presenter.dart';
 import 'package:bot_creator/features/announcements/logic/announcement_service.dart';
 import 'package:bot_creator/features/announcements/presentation/announcement_banner.dart';
 
@@ -141,11 +143,54 @@ void main() {
       );
       expect(find.text(_bannerTitle), findsOneWidget);
       expect(find.text(_bannerBody), findsOneWidget);
-      expect(tester.takeException(), isNull);
+      // Sur écran large (test par défaut 800x600) : toast en bas à droite
+      final positioned = tester.widget<Positioned>(
+        find.ancestor(
+          of: find.byType(AnnouncementBanner),
+          matching: find.byType(Positioned),
+        ),
+      );
+      expect(positioned.bottom, isNotNull);
+      expect(positioned.right, 16);
+      expect(positioned.top, isNull);
 
       // Affichée pour de vrai : la marque « vue » est posée.
       final prefs = await SharedPreferences.getInstance();
       expect(_seenIds(prefs), <String>{_bannerId});
+    },
+  );
+
+  testWidgets(
+    'sur écran compact : la bannière se place en haut sous la barre d\'état',
+    (tester) async {
+      tester.view.physicalSize = const Size(400, 800);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      final navigatorKey = GlobalKey<NavigatorState>();
+      AnnouncementService.navigatorKey = navigatorKey;
+      AnnouncementService.debugClientResolver = () async => _fakeClient();
+      AnnouncementService.debugAnnouncementsFetcher = (_) async =>
+          _bannerPayload();
+
+      await tester.pumpWidget(_host(navigatorKey));
+      await AnnouncementService.refresh();
+      await tester.pump();
+
+      expect(find.byType(AnnouncementBanner), findsOneWidget);
+      final positioned = tester.widget<Positioned>(
+        find.ancestor(
+          of: find.byType(AnnouncementBanner),
+          matching: find.byType(Positioned),
+        ),
+      );
+      expect(positioned.top, isNotNull);
+      expect(positioned.left, 12);
+      expect(positioned.right, 12);
+      expect(positioned.bottom, isNull);
     },
   );
 
@@ -252,6 +297,59 @@ void main() {
         reason: 'Vue, donc jamais deux fois — même après une relance.',
       );
       expect(find.text(_bannerTitle), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'quand un hôte en ligne écoute, la bannière s\'affiche sans créer d\'overlay',
+    (tester) async {
+      final navigatorKey = GlobalKey<NavigatorState>();
+      AnnouncementService.navigatorKey = navigatorKey;
+      AnnouncementService.debugClientResolver = () async => _fakeClient();
+      AnnouncementService.debugAnnouncementsFetcher = (_) async =>
+          _bannerPayload();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          navigatorKey: navigatorKey,
+          locale: const Locale('fr'),
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          home: Scaffold(
+            body: ValueListenableBuilder<Announcement?>(
+              valueListenable: AnnouncementPresenter.bannerNotifier,
+              builder: (context, announcement, _) {
+                if (announcement == null) return const Text('aucun bandeau');
+                return AnnouncementBanner(
+                  announcement: announcement,
+                  onDismiss: AnnouncementPresenter.dismissBanner,
+                );
+              },
+            ),
+          ),
+        ),
+      );
+
+      expect(AnnouncementPresenter.hasInlineHost, isTrue);
+      await AnnouncementService.refresh();
+      await tester.pump();
+
+      // Rendu dans le corps directement, pas dans un Positioned d'overlay flottant.
+      expect(find.byType(AnnouncementBanner), findsOneWidget);
+      expect(
+        find.ancestor(
+          of: find.byType(AnnouncementBanner),
+          matching: find.byType(Positioned),
+        ),
+        findsNothing,
+      );
+
+      // Fermeture via dismissBanner
+      await tester.tap(find.byTooltip(tr.announcement_dismiss));
+      await tester.pump();
+
+      expect(find.byType(AnnouncementBanner), findsNothing);
+      expect(find.text('aucun bandeau'), findsOneWidget);
     },
   );
 }

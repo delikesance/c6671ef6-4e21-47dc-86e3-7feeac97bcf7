@@ -452,10 +452,14 @@ class _AppHomePageState extends State<AppHomePage>
 
   @override
   Widget build(BuildContext context) {
-    final displayName = _appName.isNotEmpty
-        ? _appName
-        : widget.client.user.id.toString();
     final botId = widget.client.user.id.toString();
+    final clientUser = widget.client.user;
+    final clientUsername = clientUser is User ? clientUser.username.trim() : '';
+    final rawName = _appName.trim();
+    final displayName =
+        (rawName.isNotEmpty && rawName != botId && rawName != 'Unnamed Bot')
+        ? rawName
+        : (clientUsername.isNotEmpty ? clientUsername : botId);
     final isWide =
         MediaQuery.sizeOf(context).width >= AppTheme.desktopBreakpoint;
 

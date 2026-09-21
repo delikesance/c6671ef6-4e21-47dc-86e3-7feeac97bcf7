@@ -125,7 +125,8 @@ class GatewayAccountEventPayload {
     return GatewayAccountEventPayload(
       plan: (json['plan'] ?? '').toString(),
       tierCode: (json['tier_code'] ?? json['tierCode'] ?? '').toString(),
-      displayName: (json['display_name'] ?? json['displayName'] ?? '').toString(),
+      displayName: (json['display_name'] ?? json['displayName'] ?? '')
+          .toString(),
       maxBots: GatewayBotEventPayload._asInt(
         json['max_bots'] ?? json['maxBots'],
       ),
@@ -168,7 +169,8 @@ class GatewayContainerEventPayload {
       expires = DateTime.tryParse(expiresRaw.toString())?.toUtc();
     }
     return GatewayContainerEventPayload(
-      containerId: (json['container_id'] ?? json['containerId'] ?? '').toString(),
+      containerId: (json['container_id'] ?? json['containerId'] ?? '')
+          .toString(),
       state: (json['state'] ?? '').toString(),
       healthStatus: (json['health_status'] ?? json['healthStatus'] ?? '')
           .toString(),
@@ -444,6 +446,7 @@ class GatewayBotEventsSession {
             // Une poignée de main qui ne répond jamais ne doit pas geler la
             // reconnexion : sans délai, le canal resterait mort sans nouvel essai.
             connectTimeout: const Duration(seconds: 20),
+            pingInterval: const Duration(seconds: 15),
           );
       channel = connect(wsUrl);
     } catch (error) {

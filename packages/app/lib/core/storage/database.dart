@@ -211,11 +211,12 @@ class AppManager implements BotDataStore {
           (avatarHash == null &&
               discriminator == null &&
               existingAvatar != null &&
-              existingAvatar.isNotEmpty)
+              existingAvatar.isNotEmpty &&
+              !existingAvatar.contains('https://cdn.discordapp.com/avatars/'))
           ? existingAvatar
           : makeAvatarUrl(
               botId,
-              avatarId: avatarHash,
+              avatarId: avatarHash ?? existingAvatar,
               discriminator: discriminator,
             );
 
@@ -235,7 +236,8 @@ class AppManager implements BotDataStore {
       if (effectiveToken.isEmpty) {
         try {
           final secure = await SecureStorageService.instance;
-          effectiveToken = ((await secure.read('bot_token:$botId')) ?? '').trim();
+          effectiveToken = ((await secure.read('bot_token:$botId')) ?? '')
+              .trim();
         } catch (_) {
           // Coffre indisponible : on continue sans jeton plutôt que d'échouer.
         }
@@ -524,10 +526,14 @@ class AppManager implements BotDataStore {
         }
 
         final app = Map<String, dynamic>.from(decoded);
+        final rawAvatar = (app['avatar'] ?? '').toString();
+        final cleanAvatar = rawAvatar.isNotEmpty
+            ? makeAvatarUrl(app['id'].toString(), avatarId: rawAvatar)
+            : '';
         appsList.add(<String, dynamic>{
           'id': app['id'].toString(),
           'name': (app['name'] ?? 'Unknown').toString(),
-          'avatar': (app['avatar'] ?? '').toString(),
+          'avatar': cleanAvatar,
           if (app['guild_count'] != null) 'guild_count': app['guild_count'],
           if (app['approximate_guild_count'] != null)
             'approximate_guild_count': app['approximate_guild_count'],
@@ -549,10 +555,16 @@ class AppManager implements BotDataStore {
         final content = await allAppsFile.readAsString();
         final decoded = content.isNotEmpty ? jsonDecode(content) : const [];
         if (decoded is List) {
-          final appsList = decoded
-              .whereType<Map>()
-              .map((raw) => Map<String, dynamic>.from(raw))
-              .toList();
+          final appsList = decoded.whereType<Map>().map((raw) {
+            final m = Map<String, dynamic>.from(raw);
+            final botId = (m['id'] ?? '').toString();
+            final rawAvatar = (m['avatar'] ?? '').toString();
+            if (botId.isNotEmpty &&
+                rawAvatar.contains('https://cdn.discordapp.com/avatars/')) {
+              m['avatar'] = makeAvatarUrl(botId, avatarId: rawAvatar);
+            }
+            return m;
+          }).toList();
           if (appsList.isNotEmpty) {
             _apps = appsList;
             return appsList;
@@ -2089,10 +2101,11 @@ class AppManager implements BotDataStore {
     // bot tourne sur cet appareil, les déclencheurs ne coûtent rien au serveur, donc le
     // plafond de la formule payante s'applique sans abonnement. Débloquer l'écran sans
     // relever le plafond laisserait un bouton « Ajouter » qui refuse toute création.
-    final limit = premiumCapabilityAvailableForBot(
-      PremiumCapability.schedulerTriggers,
-      botId: id,
-    )
+    final limit =
+        premiumCapabilityAvailableForBot(
+          PremiumCapability.schedulerTriggers,
+          botId: id,
+        )
         ? PremiumCapabilities.premiumLimitFor(
             PremiumCapability.schedulerTriggers,
           )
