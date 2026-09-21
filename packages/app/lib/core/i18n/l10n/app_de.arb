@@ -4585,6 +4585,23 @@
   "@scoped_delete_title": {
     "description": "Delete Scoped Variable"
   },
+  "@scoped_declare_detected": {
+    "description": "Declare this variable"
+  },
+  "@scoped_detected_badge": {
+    "description": "Detected"
+  },
+  "@scoped_detected_hint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "No declared definition \u00b7 {count} stored value(s)"
+  },
+  "@scoped_detected_tooltip": {
+    "description": "Value present in the bot data without a declared definition. Shown as-is; nothing is invented."
+  },
   "@scoped_empty": {
     "description": "No scoped variables defined"
   },
@@ -8178,6 +8195,10 @@
   "guilds_tab_short": "Server",
   "hint_use_variables": "Verwenden Sie bei Bedarf Variablen/Vorlagen",
   "home_add_time": "Zeit hinzufügen",
+  "home_add_time_mobile_only": "Belohnte Werbung wird in der mobilen App angesehen; die gutgeschriebene Zeit zählt überall.",
+  "home_hosting_unlimited_overline": "Hosting inklusive",
+  "home_hosting_unlimited_headline": "Unbegrenzt mit deinem Abo",
+  "home_hosting_remaining_overline": "Verbleibende Zeit",
   "home_overline": "MEINE PROJEKTE",
   "home_create_bot_title": "Bot erstellen",
   "home_create_bot_subtitle": "Dein Discord-Bot in zwei Klicks",
@@ -8591,6 +8612,10 @@
   "scoped_default_value_hint": "Optional",
   "scoped_delete_confirm": "Lösche \"{key}\" und alle zugehörigen gespeicherten Laufzeitdaten?",
   "scoped_delete_title": "Geltungsbereichsvariable löschen",
+  "scoped_declare_detected": "Diese Variable deklarieren",
+  "scoped_detected_badge": "Erkannt",
+  "scoped_detected_hint": "Keine deklarierte Definition · {count} gespeicherte Werte",
+  "scoped_detected_tooltip": "Wert in den Bot-Daten ohne deklarierte Definition. Unverändert angezeigt, nichts wird erfunden.",
   "scoped_empty": "Keine Geltungsbereichsvariablen definiert",
   "scoped_empty_subtitle": "Geltungsbereichsvariablen speichern einen Wert pro Discord-Kontext (Benutzer, Server…). Sie werden vom Bot zur Laufzeit gefüllt.",
   "scoped_explore_runtime": "Laufzeitdaten erkunden",

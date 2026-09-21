@@ -4433,6 +4433,19 @@ class AppLocalizationsTr extends AppLocalizations {
   String get home_add_time => 'Zaman Ekle';
 
   @override
+  String get home_add_time_mobile_only =>
+      'Ödüllü reklamlar mobil uygulamada izlenir; kazanılan süre her yerde geçerlidir.';
+
+  @override
+  String get home_hosting_unlimited_overline => 'Barındırma dahil';
+
+  @override
+  String get home_hosting_unlimited_headline => 'Aboneliğinle sınırsız';
+
+  @override
+  String get home_hosting_remaining_overline => 'Kalan süre';
+
+  @override
   String get home_overline => 'PROJELERİM';
 
   @override
@@ -5899,6 +5912,21 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get scoped_delete_title => 'Kapsamlı Değişkeni Sil';
+
+  @override
+  String get scoped_declare_detected => 'Bu değişkeni bildir';
+
+  @override
+  String get scoped_detected_badge => 'Algılandı';
+
+  @override
+  String scoped_detected_hint(int count) {
+    return 'Bildirilmiş tanım yok · $count kayıtlı değer';
+  }
+
+  @override
+  String get scoped_detected_tooltip =>
+      'Bot verisinde tanımı bildirilmemiş değer. Olduğu gibi gösterilir; hiçbir şey uydurulmaz.';
 
   @override
   String get scoped_empty => 'Tanımlanmış kapsamlı değişken yok';

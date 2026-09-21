@@ -4221,6 +4221,19 @@ class AppLocalizationsJa extends AppLocalizations {
   String get home_add_time => '時間を追加';
 
   @override
+  String get home_add_time_mobile_only =>
+      '報酬付き広告はモバイルアプリで視聴します。獲得した時間はどこでも有効です。';
+
+  @override
+  String get home_hosting_unlimited_overline => 'ホスティング込み';
+
+  @override
+  String get home_hosting_unlimited_headline => 'サブスクリプションで無制限';
+
+  @override
+  String get home_hosting_remaining_overline => '残り時間';
+
+  @override
   String get home_overline => 'マイプロジェクト';
 
   @override
@@ -5640,6 +5653,21 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get scoped_delete_title => 'スコープ変数を削除';
+
+  @override
+  String get scoped_declare_detected => 'この変数を宣言する';
+
+  @override
+  String get scoped_detected_badge => '検出済み';
+
+  @override
+  String scoped_detected_hint(int count) {
+    return '宣言された定義なし · 保存値 $count 件';
+  }
+
+  @override
+  String get scoped_detected_tooltip =>
+      '定義が宣言されていないがボットのデータに存在する値です。そのまま表示され、何も提造しません。';
 
   @override
   String get scoped_empty => 'スコープ変数が定義されていません';

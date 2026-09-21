@@ -4289,6 +4289,18 @@
     "description": "Active on {count} servers"
   },
   "@home_add_time": {
+  "@home_add_time_mobile_only": {
+    "description": "home_add_time_mobile_only"
+  },
+  "@home_hosting_unlimited_overline": {
+    "description": "home_hosting_unlimited_overline"
+  },
+  "@home_hosting_unlimited_headline": {
+    "description": "home_hosting_unlimited_headline"
+  },
+  "@home_hosting_remaining_overline": {
+    "description": "home_hosting_remaining_overline"
+  },
     "description": "Add Time"
   },
   "@home_create_bot_subtitle": {
@@ -5558,6 +5570,23 @@
   },
   "@scoped_delete_title": {
     "description": "Delete Scoped Variable"
+  },
+  "@scoped_declare_detected": {
+    "description": "Declare this variable"
+  },
+  "@scoped_detected_badge": {
+    "description": "Detected"
+  },
+  "@scoped_detected_hint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "No declared definition \u00b7 {count} stored value(s)"
+  },
+  "@scoped_detected_tooltip": {
+    "description": "Value present in the bot data without a declared definition. Shown as-is; nothing is invented."
   },
   "@scoped_empty": {
     "description": "No scoped variables defined"
@@ -9334,6 +9363,10 @@
   "guilds_tab_short": "Servers",
   "hint_use_variables": "Use variables/templates if needed",
   "home_add_time": "Add Time",
+  "home_add_time_mobile_only": "Rewarded ads are watched in the mobile app; credited time counts everywhere.",
+  "home_hosting_unlimited_overline": "Hosting included",
+  "home_hosting_unlimited_headline": "Unlimited with your subscription",
+  "home_hosting_remaining_overline": "Time left",
   "home_overline": "MY PROJECTS",
   "home_create_bot_title": "Create a bot",
   "home_create_bot_subtitle": "Your Discord bot in two clicks",
@@ -9755,6 +9788,10 @@
   "scoped_default_value_hint": "Optional",
   "scoped_delete_confirm": "Delete \"{key}\" and all its stored runtime data?",
   "scoped_delete_title": "Delete Scoped Variable",
+  "scoped_declare_detected": "Declare this variable",
+  "scoped_detected_badge": "Detected",
+  "scoped_detected_hint": "No declared definition · {count} stored value(s)",
+  "scoped_detected_tooltip": "Value present in the bot data without a declared definition. Shown as-is; nothing is invented.",
   "scoped_empty": "No scoped variables defined",
   "scoped_empty_subtitle": "Scoped variables store a value per Discord context (user, server…). They are populated by the bot at runtime.",
   "scoped_explore_runtime": "Explore runtime data",

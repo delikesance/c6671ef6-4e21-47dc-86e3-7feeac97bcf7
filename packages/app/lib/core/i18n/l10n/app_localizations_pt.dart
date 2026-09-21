@@ -4474,6 +4474,20 @@ class AppLocalizationsPt extends AppLocalizations {
   String get home_add_time => 'Adicionar Tempo';
 
   @override
+  String get home_add_time_mobile_only =>
+      'Os anúncios recompensados são assistidos no aplicativo móvel; o tempo creditado vale em todos os lugares.';
+
+  @override
+  String get home_hosting_unlimited_overline => 'Alojamento incluído';
+
+  @override
+  String get home_hosting_unlimited_headline =>
+      'Ilimitado com a tua subscrição';
+
+  @override
+  String get home_hosting_remaining_overline => 'Tempo restante';
+
+  @override
   String get home_overline => 'MEUS PROJETOS';
 
   @override
@@ -5952,6 +5966,21 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get scoped_delete_title => 'Apagar Variável Scoped';
+
+  @override
+  String get scoped_declare_detected => 'Declarar esta variável';
+
+  @override
+  String get scoped_detected_badge => 'Detetada';
+
+  @override
+  String scoped_detected_hint(int count) {
+    return 'Nenhuma definição declarada · $count valor(es) armazenado(s)';
+  }
+
+  @override
+  String get scoped_detected_tooltip =>
+      'Valor presente nos dados do bot sem definição declarada. Exibido tal como está; nada é inventado.';
 
   @override
   String get scoped_empty => 'Nenhuma variável scoped definida';

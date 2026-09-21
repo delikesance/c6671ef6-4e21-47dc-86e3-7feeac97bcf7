@@ -4410,6 +4410,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get home_add_time => 'Add Time';
 
   @override
+  String get home_add_time_mobile_only =>
+      'Rewarded ads are watched in the mobile app; credited time counts everywhere.';
+
+  @override
+  String get home_hosting_unlimited_overline => 'Hosting included';
+
+  @override
+  String get home_hosting_unlimited_headline =>
+      'Unlimited with your subscription';
+
+  @override
+  String get home_hosting_remaining_overline => 'Time left';
+
+  @override
   String get home_overline => 'MY PROJECTS';
 
   @override
@@ -5870,6 +5884,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scoped_delete_title => 'Delete Scoped Variable';
+
+  @override
+  String get scoped_declare_detected => 'Declare this variable';
+
+  @override
+  String get scoped_detected_badge => 'Detected';
+
+  @override
+  String scoped_detected_hint(int count) {
+    return 'No declared definition · $count stored value(s)';
+  }
+
+  @override
+  String get scoped_detected_tooltip =>
+      'Value present in the bot data without a declared definition. Shown as-is; nothing is invented.';
 
   @override
   String get scoped_empty => 'No scoped variables defined';

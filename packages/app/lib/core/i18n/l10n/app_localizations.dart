@@ -7901,6 +7901,30 @@ abstract class AppLocalizations {
   /// **'Add Time'**
   String get home_add_time;
 
+  /// No description provided for @home_add_time_mobile_only.
+  ///
+  /// In en, this message translates to:
+  /// **'Rewarded ads are watched in the mobile app; credited time counts everywhere.'**
+  String get home_add_time_mobile_only;
+
+  /// No description provided for @home_hosting_unlimited_overline.
+  ///
+  /// In en, this message translates to:
+  /// **'Hosting included'**
+  String get home_hosting_unlimited_overline;
+
+  /// No description provided for @home_hosting_unlimited_headline.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited with your subscription'**
+  String get home_hosting_unlimited_headline;
+
+  /// No description provided for @home_hosting_remaining_overline.
+  ///
+  /// In en, this message translates to:
+  /// **'Time left'**
+  String get home_hosting_remaining_overline;
+
   /// No description provided for @home_overline.
   ///
   /// In en, this message translates to:
@@ -10385,6 +10409,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete Scoped Variable'**
   String get scoped_delete_title;
+
+  /// Declare this variable
+  ///
+  /// In en, this message translates to:
+  /// **'Declare this variable'**
+  String get scoped_declare_detected;
+
+  /// Detected
+  ///
+  /// In en, this message translates to:
+  /// **'Detected'**
+  String get scoped_detected_badge;
+
+  /// No declared definition · {count} stored value(s)
+  ///
+  /// In en, this message translates to:
+  /// **'No declared definition · {count} stored value(s)'**
+  String scoped_detected_hint(int count);
+
+  /// Value present in the bot data without a declared definition. Shown as-is; nothing is invented.
+  ///
+  /// In en, this message translates to:
+  /// **'Value present in the bot data without a declared definition. Shown as-is; nothing is invented.'**
+  String get scoped_detected_tooltip;
 
   /// No scoped variables defined
   ///

@@ -4684,6 +4684,23 @@
   "@scoped_delete_title": {
     "description": "Delete Scoped Variable"
   },
+  "@scoped_declare_detected": {
+    "description": "Declare this variable"
+  },
+  "@scoped_detected_badge": {
+    "description": "Detected"
+  },
+  "@scoped_detected_hint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "No declared definition \u00b7 {count} stored value(s)"
+  },
+  "@scoped_detected_tooltip": {
+    "description": "Value present in the bot data without a declared definition. Shown as-is; nothing is invented."
+  },
   "@scoped_empty": {
     "description": "No scoped variables defined"
   },
@@ -8319,6 +8336,10 @@
   "guilds_tab_short": "Serveurs",
   "hint_use_variables": "Utilisez des variables/templates si nécessaire",
   "home_add_time": "Ajouter du temps",
+  "home_add_time_mobile_only": "Les pubs récompensées se regardent dans l'application mobile ; le temps crédité compte partout.",
+  "home_hosting_unlimited_overline": "Hébergement inclus",
+  "home_hosting_unlimited_headline": "Illimité avec ton abonnement",
+  "home_hosting_remaining_overline": "Temps restant",
   "home_overline": "MES PROJETS",
   "home_create_bot_title": "Créer un bot",
   "home_create_bot_subtitle": "Votre bot Discord en deux clics",
@@ -8732,6 +8753,10 @@
   "scoped_default_value_hint": "Optionnel",
   "scoped_delete_confirm": "Supprimer « {key} » et toutes ses données runtime stockées ?",
   "scoped_delete_title": "Supprimer la variable scopée",
+  "scoped_declare_detected": "Déclarer cette variable",
+  "scoped_detected_badge": "Détectée",
+  "scoped_detected_hint": "Aucune définition déclarée · {count} valeur(s) stockée(s)",
+  "scoped_detected_tooltip": "Valeur présente dans les données du bot sans définition déclarée. Affichée telle quelle, rien n'est inventé.",
   "scoped_empty": "Aucune variable scopée définie",
   "scoped_empty_subtitle": "Les variables scopées stockent une valeur par contexte Discord (utilisateur, serveur...). Elles sont peuplées par le bot à l'exécution.",
   "scoped_explore_runtime": "Explorer les données runtime",

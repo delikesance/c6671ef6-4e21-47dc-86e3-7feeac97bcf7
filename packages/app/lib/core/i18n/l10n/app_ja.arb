@@ -4630,6 +4630,23 @@
   "@scoped_delete_title": {
     "description": "Delete Scoped Variable"
   },
+  "@scoped_declare_detected": {
+    "description": "Declare this variable"
+  },
+  "@scoped_detected_badge": {
+    "description": "Detected"
+  },
+  "@scoped_detected_hint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "No declared definition \u00b7 {count} stored value(s)"
+  },
+  "@scoped_detected_tooltip": {
+    "description": "Value present in the bot data without a declared definition. Shown as-is; nothing is invented."
+  },
   "@scoped_empty": {
     "description": "No scoped variables defined"
   },
@@ -8266,6 +8283,10 @@
   "guilds_tab_short": "サーバー",
   "hint_use_variables": "必要に応じて変数/テンプレートを使用",
   "home_add_time": "時間を追加",
+  "home_add_time_mobile_only": "報酬付き広告はモバイルアプリで視聴します。獲得した時間はどこでも有効です。",
+  "home_hosting_unlimited_overline": "ホスティング込み",
+  "home_hosting_unlimited_headline": "サブスクリプションで無制限",
+  "home_hosting_remaining_overline": "残り時間",
   "home_overline": "マイプロジェクト",
   "home_create_bot_title": "ボットを作成",
   "home_create_bot_subtitle": "2クリックでDiscordボット",
@@ -8679,6 +8700,10 @@
   "scoped_default_value_hint": "オプション",
   "scoped_delete_confirm": "\"{key}\" とその保存されたすべてのランタイムデータを削除しますか？",
   "scoped_delete_title": "スコープ変数を削除",
+  "scoped_declare_detected": "この変数を宣言する",
+  "scoped_detected_badge": "検出済み",
+  "scoped_detected_hint": "宣言された定義なし · 保存値 {count} 件",
+  "scoped_detected_tooltip": "定義が宣言されていないがボットのデータに存在する値です。そのまま表示され、何も提造しません。",
   "scoped_empty": "スコープ変数が定義されていません",
   "scoped_empty_subtitle": "スコープ変数はDiscordコンテキスト（ユーザー、サーバー…）ごとに値を保存します。実行時に設定されます。",
   "scoped_explore_runtime": "ランタイムデータを探索",
