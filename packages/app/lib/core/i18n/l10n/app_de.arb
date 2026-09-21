@@ -1,5 +1,114 @@
 {
   "@@locale": "de",
+  "@app_update_dialog_title": {
+    "description": "New version available"
+  },
+  "app_update_dialog_title": "Neue Version verfügbar",
+  "@app_update_dialog_message": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "installed": {
+        "type": "String"
+      }
+    },
+    "description": "Version {version} is available on the store (you have {installed}). Update to get the latest fixes."
+  },
+  "app_update_dialog_message": "Version {version} ist im Store verfügbar (Sie nutzen {installed}). Aktualisieren Sie, um die neuesten Korrekturen zu erhalten.",
+  "@app_update_later": {
+    "description": "Later"
+  },
+  "app_update_later": "Später",
+  "@app_update_update_now": {
+    "description": "Update"
+  },
+  "app_update_update_now": "Aktualisieren",
+  "@app_update_store_open_failed": {
+    "description": "The store page could not be opened."
+  },
+  "app_update_store_open_failed": "Die Store-Seite konnte nicht geöffnet werden.",
+  "@app_update_download_started": {
+    "description": "Downloading in the background — you can keep using the app."
+  },
+  "app_update_download_started": "Download läuft im Hintergrund – Sie können die App weiter nutzen.",
+  "@settings_app_update_title": {
+    "description": "Updates"
+  },
+  "bot_token_import_btn": "Token aus meinem Konto importieren",
+  "bot_token_import_missing": "Diesen Bot gibt es nicht in Ihrem Konto.",
+  "bot_token_import_network": "Server nicht erreichbar: prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+  "bot_token_import_no_account": "Auf diesem Gerät ist kein Konto verbunden: melden Sie sich an, um das Token zu importieren.",
+  "bot_token_import_not_stored": "In Ihrem Konto ist kein Token gespeichert: geben Sie es einmal hier ein.",
+  "bot_token_import_server_cannot_read": "Der Server kann das gespeicherte Token nicht lesen.",
+  "bot_token_import_server_unsupported": "Dieser Server bietet den Token-Import noch nicht an — aktualisieren oder neu bereitstellen.",
+  "bot_token_import_success": "Token aus Ihrem Konto importiert: die Verbindung ist wiederhergestellt.",
+  "container_invite_server_unsupported": "Dieser Server bietet die Bot-Einladung noch nicht an — aktualisieren oder neu bereitstellen.",
+  "container_invite_missing": "Dieser Container existiert nicht mehr auf dem Server — lade die Containerliste neu.",
+  "settings_app_update_title": "Updates",
+  "@settings_app_update_installed_version": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "build": {
+        "type": "String"
+      }
+    },
+    "description": "{version} (build {build})"
+  },
+  "settings_app_update_installed_version": "{version} (Build {build})",
+  "@settings_app_version_value": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    },
+    "description": "App version with its value"
+  },
+  "settings_app_version_value": "App: {version}",
+  "@settings_runner_version_value": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    },
+    "description": "Runner version with its value"
+  },
+  "settings_runner_version_value": "Runner: {version}",
+  "@settings_app_update_check_button": {
+    "description": "Check for updates"
+  },
+  "settings_app_update_check_button": "Nach Updates suchen",
+  "@settings_app_update_checking": {
+    "description": "Checking…"
+  },
+  "settings_app_update_checking": "Prüfe…",
+  "@settings_app_update_up_to_date": {
+    "description": "You are running the latest version."
+  },
+  "settings_app_update_up_to_date": "Sie verwenden die neueste Version.",
+  "@settings_app_update_available": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    },
+    "description": "Version {version} is available on the store."
+  },
+  "settings_app_update_available": "Version {version} ist im Store verfügbar.",
+  "@settings_app_update_unavailable": {
+    "description": "Could not check for updates right now."
+  },
+  "settings_app_update_unavailable": "Suche nach Updates derzeit nicht möglich.",
+  "@settings_app_update_unsupported": {
+    "description": "Updates can only be checked in the Android or iOS app."
+  },
+  "settings_app_update_unsupported": "Updates können nur in der Android- oder iOS-App geprüft werden.",
+  "@settings_app_update_open_store": {
+    "description": "Open store page"
+  },
+  "settings_app_update_open_store": "Store-Seite öffnen",
   "@action_add_else_if": {
     "description": "Add ELSE IF"
   },
@@ -1270,6 +1379,12 @@
   },
   "@bot_logs_rich_mode": {
     "description": "Rich formatted logs"
+  },
+  "@bot_logs_server_empty": {
+    "description": "The Bot Creator servers returned no logs for this bot."
+  },
+  "@bot_logs_server_read_failed": {
+    "description": "Could not read the logs from the Bot Creator servers."
   },
   "@bot_logs_show_all": {
     "description": "Show all"
@@ -4362,6 +4477,9 @@
   "@runner_source_manager_unavailable": {
     "description": "Sign in to Bot Creator in Settings to load stats from Bot Creator servers."
   },
+  "@runner_source_this_device": {
+    "description": "This device"
+  },
   "@save": {
     "description": "Save"
   },
@@ -4466,6 +4584,23 @@
   },
   "@scoped_delete_title": {
     "description": "Delete Scoped Variable"
+  },
+  "@scoped_declare_detected": {
+    "description": "Declare this variable"
+  },
+  "@scoped_detected_badge": {
+    "description": "Detected"
+  },
+  "@scoped_detected_hint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "No declared definition \u00b7 {count} stored value(s)"
+  },
+  "@scoped_detected_tooltip": {
+    "description": "Value present in the bot data without a declared definition. Shown as-is; nothing is invented."
   },
   "@scoped_empty": {
     "description": "No scoped variables defined"
@@ -7292,6 +7427,8 @@
   "bot_logs_ram_estimated": "Geschätzter Bot-RAM: {memory}",
   "bot_logs_raw_mode": "Kompakte Rohprotokolle",
   "bot_logs_rich_mode": "Reichhaltig formatierte Protokolle",
+  "bot_logs_server_empty": "Die Bot-Creator-Server haben für diesen Bot keine Logs zurückgegeben.",
+  "bot_logs_server_read_failed": "Logs konnten nicht von den Bot-Creator-Servern gelesen werden.",
   "bot_logs_show_all": "Alle anzeigen",
   "bot_logs_show_less": "Weniger anzeigen",
   "bot_logs_show_more": "Mehr anzeigen",
@@ -8058,6 +8195,10 @@
   "guilds_tab_short": "Server",
   "hint_use_variables": "Verwenden Sie bei Bedarf Variablen/Vorlagen",
   "home_add_time": "Zeit hinzufügen",
+  "home_add_time_mobile_only": "Belohnte Werbung wird in der mobilen App angesehen; die gutgeschriebene Zeit zählt überall.",
+  "home_hosting_unlimited_overline": "Hosting inklusive",
+  "home_hosting_unlimited_headline": "Unbegrenzt mit deinem Abo",
+  "home_hosting_remaining_overline": "Verbleibende Zeit",
   "home_overline": "MEINE PROJEKTE",
   "home_create_bot_title": "Bot erstellen",
   "home_create_bot_subtitle": "Dein Discord-Bot in zwei Klicks",
@@ -8094,6 +8235,23 @@
   "home_server_count_one": "{count} Server",
   "home_server_count_other": "{count} Server",
   "home_start": "Starten",
+  "bot_start_target_title": "Wo soll {bot} starten?",
+  "@bot_start_target_title": {
+    "placeholders": {
+      "bot": {
+        "type": "String"
+      }
+    },
+    "description": "Title of the start-target dialog"
+  },
+  "bot_start_local_title": "Lokal starten (dieses Gerät)",
+  "bot_start_local_desc": "Kostenlos, verbraucht nichts. Der Bot stoppt, wenn du die App schließt.",
+  "bot_start_server_title": "Auf Bot Creator Server starten",
+  "bot_start_server_desc": "Verbraucht deine Hosting-Minuten (unbegrenzt mit PREMIUM). Der Bot läuft ohne dein Gerät.",
+  "bot_start_server_reason_platform": "Dieses Gerät kann kein Remote-Hosting steuern.",
+  "bot_start_server_reason_no_account": "Auf diesem Gerät ist kein Konto verbunden.",
+  "bot_start_server_reason_cloud_disabled": "Cloud-Hosting ist auf diesem Server nicht aktiviert.",
+  "bot_start_server_reason_no_minutes": "Keine Hosting-Minuten mehr: sieh dir eine Werbung in der Mobil-App an oder hol dir PREMIUM.",
   "home_start_ads": "Start (Anzeige ansehen)",
   "home_start_premium": "Starten (Premium)",
   "home_status_offline": "Offline",
@@ -8351,6 +8509,7 @@
   "premium_active_desc": "Vielen Dank für Ihre Unterstützung! Alle Anzeigen sind deaktiviert.",
   "premium_active_title": "Premium aktiv",
   "premium_card_button": "Pläne ansehen",
+  "premium_locked_hint": "Dein Konto hat den Gratis-Tarif: Das Abo wird in der Mobil-App aktiviert (dieses Gerät zeigt weder Werbung noch Käufe).",
   "premium_card_desc": "Abonnieren Sie, um alle Anzeigen zu entfernen und Ihre Bots sofort ohne Pop-up zu starten.",
   "premium_card_title": "Anzeigen entfernen",
   "quick_access_title": "Schnellzugriff",
@@ -8429,6 +8588,7 @@
   "runner_source_local": "Lokal",
   "runner_source_manager": "Bot Creator Server",
   "runner_source_manager_unavailable": "Melden Sie sich in den Einstellungen bei Bot Creator an, um Statistiken von den Bot Creator-Servern zu laden.",
+  "runner_source_this_device": "Dieses Gerät",
   "save": "Speichern",
   "scheduler_add_title": "Zeitplan hinzufügen",
   "scheduler_add_trigger": "Auslöser hinzufügen",
@@ -8452,6 +8612,10 @@
   "scoped_default_value_hint": "Optional",
   "scoped_delete_confirm": "Lösche \"{key}\" und alle zugehörigen gespeicherten Laufzeitdaten?",
   "scoped_delete_title": "Geltungsbereichsvariable löschen",
+  "scoped_declare_detected": "Diese Variable deklarieren",
+  "scoped_detected_badge": "Erkannt",
+  "scoped_detected_hint": "Keine deklarierte Definition · {count} gespeicherte Werte",
+  "scoped_detected_tooltip": "Wert in den Bot-Daten ohne deklarierte Definition. Unverändert angezeigt, nichts wird erfunden.",
   "scoped_empty": "Keine Geltungsbereichsvariablen definiert",
   "scoped_empty_subtitle": "Geltungsbereichsvariablen speichern einen Wert pro Discord-Kontext (Benutzer, Server…). Sie werden vom Bot zur Laufzeit gefüllt.",
   "scoped_explore_runtime": "Laufzeitdaten erkunden",
@@ -9270,6 +9434,7 @@
   "settings_runtime_engine_switch_dialog_confirm": "Engine wechseln",
   "settings_runtime_engine_switch_success": "Laufzeit-Engine aktualisiert. Starten Sie den Bot neu, wenn Sie bereit sind.",
   "settings_runtime_engine_switch_error": "Engine-Wechsel fehlgeschlagen: {error}",
+  "settings_runtime_engine_switch_empty_payload": "Wechsel abgebrochen: Die neue Konfiguration wäre leer (kein Befehl, kein Ereignis, kein Webhook, keine Variable). Ihre lokalen Befehle und Workflows wurden nicht angetastet.",
   "app_create_select_type_title": "Anwendungstyp auswählen",
   "app_create_select_type_desc": "Wählen Sie den Typ der Anwendung, die Sie erstellen möchten, um zu beginnen.",
   "app_create_type_discord": "Discord-Bot",
@@ -9418,6 +9583,23 @@
   "@container_deploy_paste_token_hint": {
     "description": "Hint text for Discord bot token field"
   },
+  "container_deploy_env_fields_section": "Umgebungsvariablen",
+  "@container_deploy_env_fields_section": {
+    "description": "Section header for the environment variables declared by a turnkey template"
+  },
+  "container_deploy_env_server_provided": "Vom Server bereitgestellt",
+  "@container_deploy_env_server_provided": {
+    "description": "Helper text on a template environment variable the server fills in (read-only field)"
+  },
+  "container_deploy_env_field_required": "Das Feld {field} ist erforderlich.",
+  "@container_deploy_env_field_required": {
+    "description": "Validation error for a required turnkey template environment variable",
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
   "container_deploy_discord_prereqs": "Discord-Voraussetzungen",
   "@container_deploy_discord_prereqs": {
     "description": "Header for Discord prerequisites advice box"
@@ -9562,6 +9744,7 @@
     "description": "Deploy eligibility banner reason when the container limit is reached"
   },
   "container_deploy_blocked_no_minutes": "You're out of free hosting minutes. Watch a rewarded ad to unlock more minutes, or go Premium for unlimited hosting.",
+  "container_deploy_blocked_cloud_disabled": "Cloud-Hosting ist auf diesem Server nicht aktiviert: die Remote-Bereitstellung ist nicht verfügbar. Führe den Bot lokal oder über deinen eigenen Runner aus.",
   "@container_deploy_blocked_no_minutes": {
     "description": "Deploy eligibility banner reason when there are no hosting minutes left"
   },
@@ -10363,5 +10546,30 @@
   "modal_builder_submit_actions": "Übermittlungsaktionen",
   "@modal_builder_submit_actions": {
     "description": "Submit Actions"
-  }
+  },
+  "announcement_see_more": "Mehr erfahren",
+  "@announcement_see_more": {
+    "description": "Learn more"
+  },
+  "announcement_dismiss": "Schließen",
+  "@announcement_dismiss": {
+    "description": "Dismiss"
+  },
+  "announcement_acknowledge": "Verstanden",
+  "@announcement_acknowledge": {
+    "description": "Got it"
+  },
+  "announcement_later": "Später",
+  "@announcement_later": {
+    "description": "Later"
+  },
+  "announcement_link_open_failed": "Der Link konnte nicht geöffnet werden.",
+  "@announcement_link_open_failed": {
+    "description": "Couldn't open the link."
+  },
+  "container_invite_btn": "Bot einladen",
+  "container_invite_busy": "Einladung läuft...",
+  "container_invite_unavailable": "Der Bot dieser Anwendung konnte nicht identifiziert werden: sein Token fehlt oder wurde widerrufen. Starten Sie eine Neubereitstellung.",
+  "container_invite_failed": "Einladung nicht möglich: Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+  "container_invite_open_failed": "Der Einladungslink konnte nicht geöffnet werden."
 }

@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
+import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
 
 /// Responsive design helper utilities
 class ResponsiveHelper {
@@ -41,6 +45,11 @@ class ResponsiveHelper {
 
 extension ScaffoldParentExtension on BuildContext {
   /// Open the parent Scaffold's drawer if it exists.
+  ///
+  /// Le repli explicite vise le `Scaffold` le PLUS PROCHE (`Scaffold.maybeOf`,
+  /// dont le fournisseur est un ancêtre de ce contexte — le lookup est donc
+  /// légitime). Quand il n'y en a aucun, on le JOURNALISE : un bouton qui ne
+  /// répond pas et ne laisse aucune trace est indiagnosticable.
   void openParentDrawer() {
     ScaffoldState? parent;
     int count = 0;
@@ -55,11 +64,15 @@ extension ScaffoldParentExtension on BuildContext {
       }
       return true; // continue traversing
     });
-    if (parent != null) {
-      parent!.openDrawer();
-    } else {
-      // Fallback: if there is only one Scaffold in the context tree, open it
-      Scaffold.maybeOf(this)?.openDrawer();
+    final target = parent ?? Scaffold.maybeOf(this);
+    if (target == null) {
+      unawaited(
+        AppDiagnostics.logInfo(
+          'Responsive: no Scaffold to open a drawer on',
+        ),
+      );
+      return;
     }
+    target.openDrawer();
   }
 }

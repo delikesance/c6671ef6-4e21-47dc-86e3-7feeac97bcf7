@@ -12,6 +12,7 @@ import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/network/remote_runtime.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
+import 'package:bot_creator/core/platform/run_platform.dart';
 import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/utils/duration_formatter.dart';
@@ -21,24 +22,40 @@ import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/features/ads/logic/ad_consent_service.dart';
 import 'package:bot_creator/features/ads/logic/ad_reward_service.dart';
+import 'package:bot_creator/features/ads/logic/ad_ssv_context.dart';
 import 'package:bot_creator/features/ads/logic/ads_placement_policy.dart';
 import 'package:bot_creator/features/ads/presentation/native_ad_slot.dart';
+import 'package:bot_creator/features/announcements/logic/announcement.dart';
+import 'package:bot_creator/features/announcements/logic/announcement_presenter.dart';
+import 'package:bot_creator/features/announcements/presentation/announcement_banner.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_config_import.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_config_merge.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_token_auto_recovery.dart';
 import 'package:bot_creator/features/bot_editor/logic/js_bot_payload_builder.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/app_editor_page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/bot_logs.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/bot_config_pull_dialog.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_identity_scan.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_identity_sync.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_token_import.dart';
 import 'package:bot_creator/features/bot_management/presentation/create_page.dart';
+import 'package:bot_creator/features/containers/logic/turnkey_bot_invite.dart';
 import 'package:bot_creator/features/containers/presentation/container_detail_page.dart';
 import 'package:bot_creator/features/containers/presentation/home_turnkey_container_card.dart';
 import 'package:bot_creator/features/discord_rpc/logic/discord_rpc_service.dart';
 import 'package:bot_creator/features/documentation/documentation_navigation.dart';
+import 'package:bot_creator/features/home/logic/bot_run_source.dart';
+import 'package:bot_creator/features/home/logic/bot_runtime_affinity.dart';
+import 'package:bot_creator/features/home/logic/bot_start_branch.dart';
+import 'package:bot_creator/features/home/logic/bot_start_outcome.dart';
+import 'package:bot_creator/features/home/logic/bot_start_server_request.dart';
+import 'package:bot_creator/features/home/logic/bot_start_target.dart';
 import 'package:bot_creator/features/home/presentation/guild_avatar.dart';
 import 'package:bot_creator/features/home/presentation/home_ui.dart';
+import 'package:bot_creator/features/home/presentation/widgets/bot_start_target_dialog.dart';
 import 'package:bot_creator/features/settings/presentation/settings_page.dart';
 import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
 import 'package:bot_creator/features/subscriptions/presentation/plan_limit_dialog.dart';
@@ -58,6 +75,23 @@ String homeUiCopy(
   required String en,
 }) {
   return Localizations.localeOf(context).languageCode == 'fr' ? fr : en;
+}
+
+/// Détecte si un nom de bot masque son identité réelle (vide, 'Unnamed Bot',
+/// 'Unknown App', égal à son identifiant snowflake, ou composé uniquement de chiffres).
+bool botNameHidesIdentity(String? name, String botId) {
+  if (name == null) return true;
+  final trimmed = name.trim();
+  if (trimmed.isEmpty ||
+      trimmed == 'Unnamed Bot' ||
+      trimmed == 'Unknown App' ||
+      trimmed == botId.trim()) {
+    return true;
+  }
+  if (trimmed.length >= 15 && BigInt.tryParse(trimmed) != null) {
+    return true;
+  }
+  return false;
 }
 
 /// Issue d'une tentative de rafraîchissement de l'accueil par le snapshot agrégé.
@@ -197,6 +231,18 @@ class HomePageState extends State<HomePage>
   /// pour ne jamais dupliquer la requête (accueil + tirage pour rafraîchir).
   bool _isRefreshingTurnkeyContainers = false;
 
+  /// ID du conteneur dont l'INVITATION est en cours : sa carte désactive le
+  /// bouton et affiche l'indicateur d'occupation, donc pas de double envoi.
+  String? _inviteContainerIdInAction;
+
+  /// Service d'invitation unique de l'accueil.
+  ///
+  /// Il est créé UNE fois (à la première invitation) et garde donc sa garde de
+  /// réentrance entre deux clics : recréer un service par clic perdrait la
+  /// protection anti double clic. Le client est résolu au même moment, comme
+  /// pour le reste de l'accueil.
+  TurnkeyBotInviteService? _turnkeyInviteService;
+
   /// Un AnimationController par carte (clé = bot id) pour l'effet pulse.
   final Map<String, AnimationController> _pulseControllers = {};
 
@@ -217,6 +263,17 @@ class HomePageState extends State<HomePage>
   StreamSubscription<bool>? _gatewayConnectionSub;
   bool _gatewayEventsConnected = false;
   int _httpFallbackTick = 0;
+
+  /// Session du canal temps réel actuellement câblée par l'accueil (une seule à la fois).
+  GatewayBotEventsSession? _gatewayEventsSession;
+
+  /// Identité du serveur qui a fourni [_gatewayEventsSession] (base du client manager).
+  ///
+  /// C'est elle qui distingue « le canal demandé est DÉJÀ en place » de « le canal
+  /// demandé vise un autre serveur » : changer de serveur (ou de compte) change la base,
+  /// donc impose une session neuve, tandis qu'un simple appel répété pour la même base
+  /// doit ne rien faire du tout.
+  String? _gatewayEventsClientKey;
 
   /// Dernier ETag du snapshot agrégé : c'est lui qui transforme le repli suivant en
   /// `304` (rien à retélécharger, rien à réappliquer) tant que l'état n'a pas bougé.
@@ -239,10 +296,47 @@ class HomePageState extends State<HomePage>
   @visibleForTesting
   static Future<void> Function()? debugPerBotRefreshOverride;
 
+  /// Nombre de sessions du canal temps réel CÂBLÉES par l'accueil depuis le début du
+  /// processus.
+  ///
+  /// Sans ce témoin, rien ne prouve qu'un second appel ne recrée pas de session : une
+  /// session réutilisée ne se distingue pas de l'extérieur (le canal n'est pas rouvert,
+  /// aucun message n'est journalisé), et un test ne peut donc pas verrouiller
+  /// l'idempotence. Le compteur s'incrémente UNIQUEMENT quand l'accueil câble réellement
+  /// une session, jamais quand il constate que le canal est déjà en place.
+  @visibleForTesting
+  static int debugGatewaySessionsCreated = 0;
+
+  /// Client manager imposé à [_ensureGatewayBotEvents] en test.
+  ///
+  /// En production le client vient de la session enregistrée, que le test ne peut pas
+  /// connaître ; et le piloter par les préférences ferait partir de vraies requêtes HTTP.
+  /// Le test d'idempotence doit pourtant traverser la VRAIE méthode de l'accueil, d'où ce
+  /// point d'injection unique qui ne concerne que le canal temps réel.
+  @visibleForTesting
+  static MainApiClient? debugGatewayEventsClientOverride;
+
+  /// Session du canal temps réel actuellement câblée (nulle si aucune).
+  @visibleForTesting
+  GatewayBotEventsSession? get debugGatewayEventsSession =>
+      _gatewayEventsSession;
+
   bool get _supportsForegroundTask => Platform.isAndroid || Platform.isIOS;
-  bool get _isDesktop =>
-      Platform.isWindows || Platform.isLinux || Platform.isMacOS;
-  bool get _supportsManagerRuntime => !kIsWeb && !_isDesktop;
+
+  /// Poste de travail, lu à travers le seam [isDesktopRunPlatform] (surchargeable en
+  /// test) et non plus avec `Platform.*` en dur : sans ce seam, aucun scénario
+  /// « desktop » n'était vérifiable, la plateforme de test ne changeant pas.
+  bool get _isDesktop => isDesktopRunPlatform;
+
+  /// Capacité de parler au manager, et RIEN de plus : la plateforme n'est plus un
+  /// verrou d'ACCÈS AUX DONNÉES du compte (solde, bots du compte, conteneurs clé en
+  /// main, snapshot). Ce qui décide du PILOTAGE à distance, c'est l'association par
+  /// bot (`RunnerSettings.getAssociatedRunnerId(botId) == 'manager'`), résolue dans
+  /// `resolveRemoteRuntime` — un bot non associé sur un poste de travail continue de
+  /// tourner en local via le runner embarqué.
+  // Une seule règle dans toute l'application (voir `run_platform.dart`) : le serveur
+  // pilote depuis n'importe quelle plateforme, poste de travail compris.
+  bool get _supportsManagerRuntime => supportsManagerRuntime;
 
   // ── Lifecycle ──────────────────────────────────────────────────────────────
 
@@ -250,6 +344,7 @@ class HomePageState extends State<HomePage>
   void initState() {
     super.initState();
     current = this;
+    AnnouncementPresenter.absorbOverlayIntoInline();
     _fallbackPulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 900),
@@ -283,11 +378,14 @@ class HomePageState extends State<HomePage>
       if (_sessionExpiresAtByBotId.isNotEmpty) {
         setState(() {});
       }
-      // Repli HTTP uniquement WebSocket coupée (toutes les ~60 s : seuil produit,
-      // conservé tel quel). Le coût du repli, lui, passe de N requêtes à une seule.
+      // Repli HTTP uniquement WebSocket coupée. Cadence : un tick = 15 s, donc le repli
+      // part à CHAQUE tick (15 s) et non tous les 4 (60 s). Constat : le canal temps réel
+      // ne pousse plus rien quand il est coupé, et 60 secondes d'écart entre deux
+      // corrections de statut, c'est ce que l'utilisateur ressent comme « la resynchro
+      // est interminable ». Le coût du repli est d'une seule requête agrégée (snapshot).
       if (!_gatewayEventsConnected) {
         _httpFallbackTick++;
-        if (_httpFallbackTick >= 4) {
+        if (_httpFallbackTick >= 1) {
           _httpFallbackTick = 0;
           unawaited(_refreshFromSnapshot());
         }
@@ -303,8 +401,9 @@ class HomePageState extends State<HomePage>
     WidgetsBinding.instance.removeObserver(this);
     _statusRefreshTimer?.cancel();
     unawaited(_appsSub?.cancel());
-    unawaited(_gatewayEventsSub?.cancel());
-    unawaited(_gatewayConnectionSub?.cancel());
+    // Le canal temps réel est libéré ENTIER (WebSocket fermée), pas seulement
+    // débranché : annuler les deux abonnements laisserait la socket ouverte.
+    _releaseGatewayBotEvents();
     for (final ctrl in _pulseControllers.values) {
       ctrl.dispose();
     }
@@ -412,7 +511,7 @@ class HomePageState extends State<HomePage>
       final remoteClient = await _resolveGlobalMainApiClient();
       final remoteRuntime = await _resolveRemoteRuntime(
         getTimeout: const Duration(seconds: 30),
-        postTimeout: const Duration(seconds: 90),
+        postTimeout: const Duration(seconds: 25),
       );
       appendBotDebugLog(
         '[_initRunningState] Resolved runtime: source=${remoteRuntime.source}, hasClient=${remoteRuntime.client != null}, blocksLocalFallback=${remoteRuntime.blocksLocalFallback}, detail=${remoteRuntime.detailLabel ?? 'none'}.',
@@ -631,7 +730,10 @@ class HomePageState extends State<HomePage>
             '[_initRunningState] Foreground plugin unavailable on this platform.',
           );
         }
-      } else {
+      } else if (_isDesktop) {
+        // Repli local : seuls les bots lancés par le runner EMBARQUÉ du poste de
+        // travail (registre `desktopRunningBotIds`) sont réputés actifs. Ailleurs ce
+        // registre est vide — d'où le test de plateforme plutôt qu'un `else` fourre-tout.
         runningIds.addAll(desktopRunningBotIds);
         appendBotDebugLog(
           '[_initRunningState] Using desktop running ids fallback: ${desktopRunningBotIds.join(',')}.',
@@ -721,6 +823,51 @@ class HomePageState extends State<HomePage>
     }
   }
 
+  /// Invite le bot d'un conteneur clé en main dans un serveur Discord, depuis sa
+  /// carte d'accueil.
+  ///
+  /// Le parcours lui-même (identité connue → lien direct, sinon résolution par
+  /// le manager) vit dans [TurnkeyBotInviteService] ; ici on ne fait que verrouiller
+  /// la carte pendant l'appel et rendre le message d'échec — jamais de crash,
+  /// jamais de message vide devant un bouton qui ne réagit pas.
+  Future<void> _inviteTurnkeyBot(ContainerInfo container) async {
+    if (_inviteContainerIdInAction != null) return;
+    setState(() => _inviteContainerIdInAction = container.id);
+    try {
+      final service = _turnkeyInviteService ??= TurnkeyBotInviteService(
+        client: await _resolveGlobalMainApiClient(),
+      );
+      final outcome = await service.invite(container);
+      if (!mounted) return;
+      _showInviteOutcomeMessage(outcome);
+    } catch (error) {
+      // Le service attrape déjà ses propres pannes : ici, seul un imprévu
+      // (résolution du client) peut arriver, et il mérite quand même un texte.
+      appendBotDebugLog('[_inviteTurnkeyBot] Unexpected failure: $error');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.tr.container_invite_failed)),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _inviteContainerIdInAction = null);
+      } else {
+        _inviteContainerIdInAction = null;
+      }
+    }
+  }
+
+  /// Affiche le message de [outcome], en ignorant les issues qui n'ont rien à
+  /// dire (lien ouvert, tap ignoré pendant une invitation en cours).
+  void _showInviteOutcomeMessage(BotInviteOutcome outcome) {
+    final message = botInviteOutcomeMessage(outcome, context.tr);
+    if (message.isEmpty) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
+  }
+
   /// Ouvre la console de logs d'un conteneur clé en main depuis l'accueil.
   Future<void> _openTurnkeyContainerLogs(ContainerInfo container) async {
     final client = await _resolveGlobalMainApiClient();
@@ -746,10 +893,8 @@ class HomePageState extends State<HomePage>
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => ContainerDetailPage(
-          containerId: container.id,
-          client: client,
-        ),
+        builder: (_) =>
+            ContainerDetailPage(containerId: container.id, client: client),
       ),
     );
     await _refreshTurnkeyContainers();
@@ -787,12 +932,27 @@ class HomePageState extends State<HomePage>
     return minutes < 0 ? 0 : minutes;
   }
 
+  /// Minutes d'hébergement à AFFICHER pour ce bot.
+  ///
+  /// Le décompte n'a de sens que pendant que le bot consomme : un horodatage d'expiration
+  /// est figé au moment où le serveur a ouvert la session, donc bot éteint il ne s'écoule
+  /// plus rien — l'afficher comme un compte à rebours faisait croire que le temps partait
+  /// tout seul, et le chiffre baissait à chaque redessin de l'écran.
+  ///
+  /// En marche : on décompte jusqu'à l'échéance de session. À l'arrêt : on rend le SOLDE
+  /// du serveur, tel quel — c'est lui la vérité quand rien ne tourne.
   int _displayFreeMinutesForBot(String botId) {
     final expires = _sessionExpiresAtByBotId[botId];
-    if (expires != null) {
+    final isRunning = _runningBotIds.contains(botId);
+    if (expires == null) {
+      return _freeMinutesByBotId[botId] ?? 0;
+    }
+    if (isRunning) {
       return _remainingMinutesUntil(expires);
     }
-    return _freeMinutesByBotId[botId] ?? 0;
+    // À l'arrêt, le solde du serveur prime : il vaut mieux ne rien dire qu'annoncer une
+    // expiration qui n'avance pas.
+    return _freeMinutesByBotId[botId] ?? _remainingMinutesUntil(expires);
   }
 
   void _noteBotNotFound(String botId) {
@@ -810,24 +970,78 @@ class HomePageState extends State<HomePage>
     _skippedMissingBotIds.remove(botId);
   }
 
+  /// Câble — UNE SEULE FOIS par serveur — la session du canal temps réel.
+  ///
+  /// Idempotente : un appel pour un serveur dont la session est déjà vivante ne crée rien
+  /// et n'annule RIEN. Le défaut corrigé ici se lit dans les journaux d'un utilisateur
+  /// sous la forme d'une alternance sans fin (« canal temps réel rétabli » puis
+  /// « indisponible ») : chaque appel remplaçait la session et annulait les abonnements de
+  /// la précédente, donc le canal en place — celui qui porte l'état des bots et du compte
+  /// — était détruit à chaque reprise d'application. L'indicateur de connexion retombait
+  /// à « Hors ligne » et plus aucune donnée serveur n'arrivait, alors que le serveur
+  /// exécutait bien les bots.
+  ///
+  /// Un changement de serveur (ou de compte) change la clé : l'ancienne session est alors
+  /// réellement libérée — WebSocket fermée — avant d'en câbler une neuve.
   Future<void> _ensureGatewayBotEvents() async {
-    final remoteRuntime = await _resolveRemoteRuntime(
-      getTimeout: const Duration(seconds: 10),
-      postTimeout: const Duration(seconds: 20),
-    );
-    final remoteClient = remoteRuntime.client;
-    if (remoteClient is! MainApiClient) {
+    final MainApiClient? remoteClient;
+    final override = debugGatewayEventsClientOverride;
+    if (override != null) {
+      remoteClient = override;
+    } else {
+      final remoteRuntime = await _resolveRemoteRuntime(
+        getTimeout: const Duration(seconds: 10),
+        postTimeout: const Duration(seconds: 20),
+      );
+      final client = remoteRuntime.client;
+      remoteClient = client is MainApiClient ? client : null;
+    }
+    if (remoteClient == null) {
       return;
     }
+    final clientKey = remoteClient.baseUrl;
+    // Canal DÉJÀ en place pour ce même serveur : retour immédiat, sans toucher aux
+    // abonnements vivants. C'est ici — et nulle part ailleurs — que se décide la
+    // réutilisation plutôt que la reconstruction.
+    if (_gatewayEventsSession != null && _gatewayEventsClientKey == clientKey) {
+      return;
+    }
+    _releaseGatewayBotEvents();
     final session = remoteClient.connectGatewayBotEvents();
-    await _gatewayEventsSub?.cancel();
-    await _gatewayConnectionSub?.cancel();
+    debugGatewaySessionsCreated++;
+    _gatewayEventsSession = session;
+    _gatewayEventsClientKey = clientKey;
     _gatewayEventsSub = session.events.listen(_onGatewayBotEvent);
     _gatewayConnectionSub = session.connectionChanges.listen(
       handleGatewayConnectionChange,
     );
     if (session.isConnected && mounted) {
       setState(() => _gatewayEventsConnected = true);
+    }
+  }
+
+  /// Libère la session du canal temps réel : abonnements annulés PUIS session détruite
+  /// (`GatewayBotEventsSession.dispose` ferme la WebSocket et ses flux).
+  ///
+  /// Ces libérations ne sont JAMAIS attendues : une annulation d'abonnement ne rend pas la
+  /// main avant la fermeture du flux, et `dispose()` attend ces mêmes annulations — même
+  /// constat que `GatewayBotEventsSession._connect`, qui rend la main tout de suite pour
+  /// ne pas geler sa reconnexion. Ici, attendre figerait le CÂBLAGE : le canal neuf du
+  /// nouveau serveur ne serait jamais ouvert. L'effet utile est immédiat — le
+  /// désabonnement est effectif sur-le-champ, la session marquée détruite (donc plus
+  /// aucune reconnexion) et sa WebSocket fermée dès que le flux rend la main.
+  void _releaseGatewayBotEvents() {
+    final session = _gatewayEventsSession;
+    _gatewayEventsSession = null;
+    _gatewayEventsClientKey = null;
+    final eventsSub = _gatewayEventsSub;
+    final connectionSub = _gatewayConnectionSub;
+    _gatewayEventsSub = null;
+    _gatewayConnectionSub = null;
+    unawaited(eventsSub?.cancel());
+    unawaited(connectionSub?.cancel());
+    if (session != null) {
+      unawaited(session.dispose());
     }
   }
 
@@ -905,6 +1119,9 @@ class HomePageState extends State<HomePage>
       _noteBotFound(botId);
       if (bot.isRunning) {
         running.add(botId);
+        // Le serveur dit ce bot en cours d'exécution : c'est donc lui qu'il faut
+        // arrêter (voir `noteManagerReportedRuntime`).
+        noteManagerReportedRuntime(bot);
       }
       if (bot.fundingMode == 'premium') {
         continue;
@@ -932,6 +1149,10 @@ class HomePageState extends State<HomePage>
     final botId = bot.botId.trim();
     if (botId.isEmpty) return;
     _noteBotFound(botId);
+    // Un bot que le SERVEUR exécute s'arrête sur le serveur, d'où qu'il ait été
+    // démarré (mobile, manager) — voir `noteManagerReportedRuntime`. Posé AVANT le
+    // `setState` : écrire une préférence n'est pas un changement d'état de l'écran.
+    noteManagerReportedRuntime(bot);
     setState(() {
       if (bot.isRunning) {
         _runningBotIds = {..._runningBotIds, botId};
@@ -1257,6 +1478,69 @@ class HomePageState extends State<HomePage>
       appendBotDebugLog(
         '[syncAllBotsFromManager] Total merged bot payloads=${bots.length}.',
       );
+
+      // ── Reprise automatique du jeton des bots de ce poste ──────────────────
+      // Un poste qui n'a jamais saisi le jeton d'un bot du compte ne peut pas
+      // l'exécuter localement, et un rafraîchissement n'y change rien : le
+      // manager RÉDIGE `bot_token` dans ses listes, donc la synchro n'apporte
+      // jamais le jeton. On le redemande au compte, une fois par bot et par
+      // lancement d'application (voir `recoverMissingBotTokens` : aucune rafale,
+      // aucun nouvel essai après un 409/500, rien hors ligne).
+      // Placé AVANT la phase 3 pour que le jeton repris serve aussitôt au profil
+      // Discord et au comptage de serveurs du même passage.
+      try {
+        final localTokensById = <String, String>{};
+        for (final rawApp in apps) {
+          if (rawApp is! Map) continue;
+          final localBotId = (rawApp['id'] ?? '').toString().trim();
+          if (localBotId.isEmpty) continue;
+          localTokensById[localBotId] = (rawApp['token'] ?? '')
+              .toString()
+              .trim();
+        }
+        final importOutcomes = await recoverMissingBotTokens(
+          client: remoteClient,
+          accountBots: bots,
+          localTokenOf: (botId) => localTokensById[botId] ?? '',
+          // Un jeton qui vient d'arriver ouvre la seule occasion d'interroger
+          // Discord sur le VRAI nom du bot : on la saisit immédiatement, avec le
+          // même garde-fou « une tentative par bot et par lancement ».
+          onTokenStored: (botId, token) =>
+              refreshBotIdentityFromDiscord(botId: botId, token: token),
+        );
+        if (importOutcomes.isNotEmpty) {
+          appendBotDebugLog(
+            '[syncAllBotsFromManager] Bot token recovery outcomes=${importOutcomes.map((outcome) => outcome.name).join(',')}.',
+          );
+        }
+
+        // ── Nom réel des bots dont le nom vaut l'ID ───────────────────────────
+        // Défaut constaté : un bot affiché sous son ID (`1488275294…`) sur sa
+        // carte et en tête de sa page, côté app ET côté compte. Un nom qui vaut
+        // l'ID n'est pas un nom : on demande son identité à Discord, une seule
+        // fois par bot et par lancement d'application (`refreshBotIdentities…` :
+        // aucune requête pour un nom déjà réel, aucune rafale, rien hors ligne).
+        final identityOutcomes = await refreshBotIdentitiesFromDiscord(
+          accountBots: bots,
+          localAppOf: (botId) => appManager.getApp(botId),
+          // Un bot HÉBERGÉ n'a aucun jeton sur ce poste — le manager le rédige
+          // volontairement dans ses listes. Sans ce client, le balayage n'aurait
+          // rien à présenter à Discord et le nom resterait l'ID ; avec lui, il
+          // reprend le jeton par la route dédiée (`POST /gateway/bots/{id}/token`,
+          // une tentative par bot et par lancement) avant d'interroger Discord.
+          client: remoteClient,
+        );
+        if (identityOutcomes.isNotEmpty) {
+          appendBotDebugLog(
+            '[syncAllBotsFromManager] Bot identity outcomes=${identityOutcomes.map((outcome) => outcome.name).join(',')}.',
+          );
+        }
+      } catch (error) {
+        appendBotDebugLog(
+          '[syncAllBotsFromManager] Bot token recovery skipped: $error',
+        );
+      }
+
       // Phase 3: sync each bot (network calls in parallel, filesystem sequential)
       appendBotDebugLog(
         '[syncAllBotsFromManager] Syncing ${bots.length} bots - network phase in parallel.',
@@ -1270,37 +1554,64 @@ class HomePageState extends State<HomePage>
             var botName = bot['bot_name']?.toString() ?? 'Unnamed Bot';
             final config = bot['config'] as Map<String, dynamic>? ?? {};
 
+            Map<String, dynamic>? existingLocal;
+            try {
+              existingLocal = await appManager.getApp(botId);
+            } catch (_) {}
+
             String token = bot['bot_token']?.toString() ?? '';
-            if (token.isEmpty) {
-              try {
-                final existing = await appManager.getApp(botId);
-                token = (existing['token'] ?? '').toString();
-              } catch (_) {}
+            if (token.isEmpty && existingLocal != null) {
+              token = (existingLocal['token'] ?? '').toString();
+            }
+
+            if (botNameHidesIdentity(botName, botId) && existingLocal != null) {
+              final localName = existingLocal['name']?.toString().trim();
+              if (localName != null &&
+                  !botNameHidesIdentity(localName, botId)) {
+                botName = localName;
+              }
             }
 
             String? avatarHash =
-                bot['avatar_hash']?.toString() ?? bot['avatar']?.toString();
+                bot['avatar_hash']?.toString() ??
+                existingLocal?['avatar_hash']?.toString();
+            if (avatarHash == null || avatarHash.isEmpty) {
+              final rawAvatar =
+                  bot['avatar']?.toString() ??
+                  existingLocal?['avatar']?.toString();
+              if (rawAvatar != null && rawAvatar.isNotEmpty) {
+                final match = RegExp(
+                  r'([a-f0-9]{32}|a_[a-f0-9]{32})',
+                  caseSensitive: false,
+                ).allMatches(rawAvatar);
+                if (match.isNotEmpty) {
+                  avatarHash = match.last.group(0);
+                }
+              }
+            }
             String? discriminator = bot['discriminator']?.toString();
 
             int? fetchedApproxGuildCount;
             if (token.trim().isNotEmpty) {
-              // If avatar is missing, fetch full bot user profile from Discord REST
-              if (avatarHash == null || avatarHash.isEmpty) {
+              final shouldFetchProfile =
+                  (avatarHash == null || avatarHash.isEmpty) ||
+                  botNameHidesIdentity(botName, botId);
+              if (shouldFetchProfile) {
                 try {
                   final profile = await getDiscordBotUserProfile(token);
                   if (profile != null) {
-                    final fetchedAvatar = profile['avatar'];
+                    final fetchedAvatar = profile['avatar']?.toString();
                     if (fetchedAvatar != null && fetchedAvatar.isNotEmpty) {
                       avatarHash = fetchedAvatar;
                     }
-                    final fetchedDiscrim = profile['discriminator'];
+                    final fetchedDiscrim = profile['discriminator']?.toString();
                     if (fetchedDiscrim != null && fetchedDiscrim.isNotEmpty) {
                       discriminator = fetchedDiscrim;
                     }
-                    final fetchedName = profile['username'];
+                    final fetchedName = profile['username']?.toString();
                     if (fetchedName != null &&
                         fetchedName.isNotEmpty &&
-                        botName == 'Unnamed Bot') {
+                        !botNameHidesIdentity(fetchedName, botId)) {
                       botName = fetchedName;
                     }
                   }
@@ -1568,14 +1879,132 @@ class HomePageState extends State<HomePage>
     }
   }
 
+  /// Ce qui peut être proposé pour démarrer [botId], d'après l'état RÉEL du compte.
+  ///
+  /// Mêmes faits que ceux qui décideront côté serveur — session présente et non
+  /// expirée, formule, interrupteur d'hébergement cloud du serveur, solde de minutes
+  /// de CE bot — pour ne rien proposer qui échouerait ensuite.
+  Future<BotStartChoices> _botStartChoicesFor(String botId) async {
+    // La traduction est lue AVANT toute attente : plus de `context` après un `await`.
+    final tr = context.tr;
+    var hasSession = false;
+    try {
+      final config = await MainApiSettingsStore.loadConfig();
+      final session = await MainApiSettingsStore.loadSession();
+      hasSession = config.isConfigured && session != null && !session.isExpired;
+    } catch (_) {
+      hasSession = false;
+    }
+    return resolveBotStartChoices(
+      supportsManagerRuntime: _supportsManagerRuntime,
+      hasValidSession: hasSession,
+      premium: SubscriptionService.isSubscribed,
+      cloudDisabledByServer: SubscriptionService.premiumCloudDisabled,
+      freeMinutesBalance: _freeMinutesByBotId[botId] ?? 0,
+      tr: tr,
+    );
+  }
+
+  /// Redemande au compte le jeton du bot, pour pouvoir le démarrer sur ce poste.
+  ///
+  /// Pourquoi c'est nécessaire : un bot créé/synchronisé par le serveur n'a AUCUN jeton
+  /// sur le poste — le manager le rédige volontairement dans toutes ses réponses. Sans
+  /// cette reprise, « démarrer sur ce poste » échouait sur un jeton manquant alors que le
+  /// jeton existe, sur le compte.
+  ///
+  /// Le jeton reçu est écrit par le chemin d'écriture UNIQUE (`persistImportedBotToken`,
+  /// appelé par la brique), donc il ne peut pas effacer un jeton déjà présent. On ne
+  /// prétend rien sur sa validité : la route répond `409`/`500` si elle ne peut pas le
+  /// rendre, et l'issue est journalisée telle quelle.
+  Future<String?> _recoverBotTokenForLocalStart(String botId) async {
+    try {
+      final client = await _resolveMainApiClientForBot(
+        botId: botId,
+        botToken: null,
+        attemptSessionRestore: true,
+      );
+      if (client == null) {
+        return null;
+      }
+      final outcome =
+          await BotTokenImporter(
+            client: client,
+            // Même occasion saisie ici : le jeton qui vient d'arriver permet de
+            // demander à Discord le VRAI nom du bot, écrit par le chemin unique.
+            onTokenStored: (botId, token) =>
+                refreshBotIdentityFromDiscord(botId: botId, token: token),
+          ).importAutomatically(
+            botId: botId,
+            serverAnnouncesTokenValid: true,
+            hasLocalToken: false,
+          );
+      appendBotDebugLog(
+        '[_toggleBot] reprise du jeton avant démarrage sur ce poste : $outcome',
+        botId: botId,
+      );
+      final app = await appManager.getApp(botId);
+      final recovered = (app['token'] ?? '').toString().trim();
+      return recovered.isEmpty ? null : recovered;
+    } catch (error) {
+      appendBotDebugLog(
+        '[_toggleBot] reprise du jeton impossible : $error',
+        botId: botId,
+      );
+      return null;
+    }
+  }
+
+  /// Arrête la session serveur avant de démarrer le bot sur ce poste.
+  ///
+  /// Pourquoi ce n'est pas facultatif : Discord n'accepte qu'UNE connexion par jeton, et
+  /// le manager relance tout bot dont l'état désiré est resté « en marche ». Un bot
+  /// laissé en marche côté serveur continue donc de tourner — et de consommer — alors que
+  /// l'utilisateur a explicitement demandé ce poste. Attente BORNÉE : mieux vaut démarrer
+  /// ici sans avoir pu arrêter là-bas que bloquer l'utilisateur ; l'échec est journalisé.
+  Future<void> _stopRemoteSessionBeforeLocalStart(String botId) async {
+    try {
+      final client = await _resolveMainApiClientForBot(
+        botId: botId,
+        botToken: null,
+        attemptSessionRestore: true,
+      );
+      if (client == null) {
+        return;
+      }
+      await client
+          .stopBot(botId)
+          .timeout(
+            const Duration(seconds: 10),
+            onTimeout: () => <String, dynamic>{},
+          );
+      appendBotDebugLog(
+        '[_toggleBot] session serveur arrêtée avant un démarrage sur ce poste',
+        botId: botId,
+      );
+    } catch (error) {
+      appendBotDebugLog(
+        '[_toggleBot] arrêt de la session serveur impossible '
+        '(démarrage local poursuivi) : $error',
+        botId: botId,
+      );
+    }
+  }
+
   Future<ResolvedRemoteRuntime> _resolveRemoteRuntime({
     String? botId,
+    RemoteRuntimeSource? forcedSource,
     Duration getTimeout = const Duration(seconds: 30),
-    Duration postTimeout = const Duration(seconds: 90),
+    Duration postTimeout = const Duration(seconds: 25),
   }) async {
+    // Seul point où la plateforme pèse encore sur l'EXÉCUTION — et seulement en creux :
+    // le web n'a pas d'accès direct au manager. Partout ailleurs (poste de travail,
+    // mobile) `resolveRemoteRuntime` tranche par bot : association « manager » → pilotage
+    // à distance, sinon runner/local (le runner embarqué reste le défaut sur desktop).
+    // `forcedSource` porte le CHOIX de l'utilisateur (pop-up de démarrage) et prime.
     return resolveRemoteRuntime(
       supportsManagerRuntime: _supportsManagerRuntime,
       botId: botId,
+      forcedSource: forcedSource,
       getTimeout: getTimeout,
       postTimeout: postTimeout,
     );
@@ -1585,7 +2014,7 @@ class HomePageState extends State<HomePage>
     resolveRuntime:
         ({
           getTimeout = const Duration(seconds: 30),
-          postTimeout = const Duration(seconds: 90),
+          postTimeout = const Duration(seconds: 25),
         }) => _resolveRemoteRuntime(
           getTimeout: getTimeout,
           postTimeout: postTimeout,
@@ -1609,9 +2038,9 @@ class HomePageState extends State<HomePage>
     String? botToken,
     bool attemptSessionRestore = true,
   }) async {
-    if (!_supportsManagerRuntime) {
-      return null;
-    }
+    // Aucun verrou de plateforme : c'est une DONNÉE du compte. Le refus légitime —
+    // manager non configuré ou session absente/expirée — est décidé plus bas par
+    // `MainApiOwnerSyncHelper`. Un poste de travail connecté doit voir ses bots.
     return _ownerSyncHelper.resolveMainApiClientForBot(
       botId: botId,
       botToken: botToken,
@@ -1622,9 +2051,8 @@ class HomePageState extends State<HomePage>
   Future<MainApiClient?> _resolveGlobalMainApiClient({
     bool attemptRestore = true,
   }) async {
-    if (!_supportsManagerRuntime) {
-      return null;
-    }
+    // Idem : plus de refus lié au poste de travail. Le compte, les bots du compte et
+    // les conteneurs clé en main sont des données du manager, pas une capacité d'OS.
     appendBotDebugLog(
       '[_resolveGlobalMainApiClient] Resolving global client (attemptRestore=$attemptRestore).',
     );
@@ -1686,6 +2114,13 @@ class HomePageState extends State<HomePage>
     if (_botIdInAction != null) return;
     setState(() => _botIdInAction = botId);
 
+    // Trace du GESTE, avant toute décision : le seul point qui prouve que le bouton a
+    // été pressé, et dans quel sens. Aucun jeton n'y apparaît.
+    appendBotStartTrace(
+      'bouton presse bot=$botId enMarche=${_runningBotIds.contains(botId)}',
+      botId: botId,
+    );
+
     // Read before the try: the same method also stops a running bot, and the
     // catch has to know whether this attempt was a start to report an outcome.
     final isRunning = _runningBotIds.contains(botId);
@@ -1707,11 +2142,53 @@ class HomePageState extends State<HomePage>
       }
     }
 
+    // ── Où démarrer ? La question est posée, jamais devinée ───────────────────
+    // L'association du bot décidait seule jusqu'ici : un bot associé au manager
+    // repartait sur Bot Creator Server sans que rien ne le dise, alors que ce chemin
+    // consomme des minutes d'hébergement. Le choix est explicite à chaque démarrage
+    // (aucune mémoire : la décision a un coût, elle se reprend à chaque fois).
+    RemoteRuntimeSource? forcedSource;
+    // ── Où démarrer ? La question n'a de sens QUE sur un poste de travail ──────
+    // Sur mobile, l'app ne peut pas héberger un bot dans les mêmes conditions et le
+    // choix n'appartient pas à l'utilisateur : on garde le comportement historique
+    // (l'association du bot décide), sans rien lui demander. Imposer cette question
+    // sur un téléphone serait une décision de plateforme, pas un service.
+    if (!isRunning && isDesktopRunPlatform) {
+      if (!mounted) return;
+      final choices = await _botStartChoicesFor(botId);
+      if (!mounted) return;
+      final choice = await showBotStartTargetDialog(
+        context,
+        botName: botName,
+        choices: choices,
+      );
+      if (choice == null) {
+        // Annulé : le bot ne démarre pas, et la carte revient au repos.
+        if (mounted) setState(() => _botIdInAction = null);
+        return;
+      }
+      forcedSource = choice == BotStartTarget.local
+          ? RemoteRuntimeSource.local
+          : RemoteRuntimeSource.manager;
+    }
+
+    // ── Un démarrage ICI commence par arrêter LÀ-BAS ───────────────────────────
+    // Discord n'accepte qu'UNE connexion par jeton, et le manager relance tout bot dont
+    // l'état désiré est resté « en marche ». Sans cet arrêt, « démarrer sur ce poste »
+    // laissait la session serveur vivre et se relancer : le bot semblait démarrer H24
+    // sur Bot Creator, et la page de logs montrait (à juste titre) les logs du serveur.
+    // On ATTEND l'arrêt, borné : démarrer ici avant que là-bas soit arrêté, c'est
+    // laisser les deux sessions se disputer le jeton.
+    if (forcedSource == RemoteRuntimeSource.local) {
+      await _stopRemoteSessionBeforeLocalStart(botId);
+    }
+
     try {
       var runtime = await _resolveRemoteRuntime(
         botId: botId,
+        forcedSource: forcedSource,
         getTimeout: const Duration(seconds: 30),
-        postTimeout: const Duration(seconds: 90),
+        postTimeout: const Duration(seconds: 25),
       );
 
       // ── Fetch + validate token before anything else (only when starting) ──
@@ -1838,10 +2315,14 @@ class HomePageState extends State<HomePage>
             botToken: token,
           );
           if (sessionRestored) {
+            // `forcedSource` est REPASSÉ ici : cette seconde résolution décidait
+            // auparavant sans le choix de l'utilisateur, et c'est exactement par là que
+            // « serveurs Bot Creator » devenait un démarrage local silencieux.
             runtime = await _resolveRemoteRuntime(
               botId: botId,
+              forcedSource: forcedSource,
               getTimeout: const Duration(seconds: 30),
-              postTimeout: const Duration(seconds: 90),
+              postTimeout: const Duration(seconds: 25),
             );
             usingRunner = runtime.client != null || runtime.blocksLocalFallback;
           }
@@ -1892,13 +2373,79 @@ class HomePageState extends State<HomePage>
       }
 
       // ── Runner API (API only) ─────────────────────────────────────────────
+      // `forcedSource` est repassé ICI aussi : c'est la résolution qui décide vraiment
+      // du chemin emprunté. Sans le choix de l'utilisateur, un « local » pouvait
+      // repartir sur les serveurs ET un « serveurs » retomber en local — les deux dans
+      // le dos de l'utilisateur.
       runtime = await _resolveRemoteRuntime(
         botId: botId,
+        forcedSource: forcedSource,
         getTimeout: const Duration(seconds: 30),
-        postTimeout: const Duration(seconds: 90),
+        postTimeout: const Duration(seconds: 25),
       );
+      // Témoin de décision : la pop-up promet « ce poste » ou « les serveurs Bot Creator »,
+      // et un chemin décide ensuite. Sans cette ligne, un choix non honoré ne laisse
+      // aucune trace exploitable — on ne sait pas si la cible a été perdue à la
+      // résolution, au choix du runner, ou plus loin. Le jeton n'apparaît JAMAIS ici.
+      appendBotDebugLog(
+        '[_toggleBot] choix=${forcedSource ?? 'aucun (bot deja en marche)'} '
+        'cible=${runtime.source} client=${runtime.client != null} '
+        'blocage=${runtime.blocksLocalFallback}',
+        botId: botId,
+      );
+
+      // ── GARDE : le choix de l'utilisateur ne se replie JAMAIS en silence ──────
+      // Mesuré chez le propriétaire : « clic=serveurs Bot Creator », puis un démarrage
+      // local sans un mot. Le repli venait de résolutions qui perdaient le choix
+      // (corrigées ci-dessus) ; cette garde le rend impossible même si une résolution
+      // future l'oubliait : si les serveurs ont été choisis et que la branche décidée
+      // n'est pas la leur, on EXPLIQUE et on s'arrête. Exécuter sur la machine de
+      // l'utilisateur autre chose que ce qu'il a choisi est le défaut, pas une option.
+      final startPlan = planBotStart(
+        serverChosen: forcedSource == RemoteRuntimeSource.manager,
+        hasRemoteClient: runtime.client != null,
+        clientIsManager: runtime.client is MainApiClient,
+        runnerIsEmbedded:
+            RunnerSettings.getAssociatedRunnerId(botId) ==
+            RunnerSettings.embeddedRunnerId,
+        supportsForegroundTask: _supportsForegroundTask,
+        // Le moteur ne pèse que sans client distant, exactement comme le code : la
+        // ligne ne peut donc pas annoncer une sous-branche que le code n'emprunte pas.
+        engineIsJavascript:
+            runtime.client == null &&
+            await getBotRuntimeEngine(botId) == runtimeEngineJavascript,
+        serverUnavailableDetail: runtime.unavailableReason ?? '',
+      );
+      if (!startPlan.allowed) {
+        appendBotStartTrace(startPlan.refusalTrace!, botId: botId);
+        final detail =
+            startPlan.serverUnavailableDetail?.trim().isNotEmpty ?? false
+            ? startPlan.serverUnavailableDetail!.trim()
+            : _uiCopy(
+                fr: 'aucune session serveur exploitable depuis ce poste',
+                en: 'no usable server session from this device',
+              );
+        throw Exception(
+          _uiCopy(
+            fr:
+                'Les serveurs Bot Creator ont ete choisis et ne peuvent pas '
+                'executer ce bot : $detail. Aucune execution locale n a ete '
+                'entamee — relancez le demarrage apres avoir regle ce point.',
+            en:
+                'Bot Creator servers were chosen and cannot run this bot: '
+                '$detail. No local run was started — retry the start once this '
+                'is resolved.',
+          ),
+        );
+      }
+
       final client = runtime.client;
       if (client != null) {
+        // Nomme la BRANCHE réellement empruntée. La ligne témoin ci-dessus dit la cible
+        // retenue, celle-ci dit le code qui s'exécute : la branche vient du PLAN, établi
+        // par les mêmes tests que ce bloc, donc le libellé ne peut pas désigner une
+        // autre branche que celle où l'on entre.
+        appendBotStartTrace(startPlan.branchTrace, botId: botId);
         try {
           if (isRunning) {
             appendBotLog(
@@ -1945,10 +2492,14 @@ class HomePageState extends State<HomePage>
             }
             await client.syncBot(botId, botName, payload);
             if (client is MainApiClient) {
-              await startManagerBotWithCreditRetry(
+              // Encadré : la demande part, puis le RÉSULTAT est écrit. Sans ces deux
+              // lignes, un refus du serveur ne laissait aucune trace côté démarrage —
+              // on ne pouvait pas distinguer « jamais demandé » de « demandé et refusé ».
+              await requestManagerBotStartWithTraces(
                 client: client,
                 botId: botId,
                 botName: botName,
+                trace: (message) => appendBotStartTrace(message, botId: botId),
               );
               RunnerSettings.associateBotWithRunner(botId, 'manager');
             } else {
@@ -1993,6 +2544,13 @@ class HomePageState extends State<HomePage>
         token = app['token']?.toString();
       }
       if (token == null || token.trim().isEmpty) {
+        // Le bot est GÉRÉ par le serveur : son jeton vit chez lui et toutes les réponses
+        // le rédigent. Sans cette reprise, « démarrer sur ce poste » ne pouvait pas
+        // aboutir — il annonçait un jeton manquant pour un bot qui en a bien un, sur le
+        // compte. Une seule tentative par bot et par lancement (garde de la brique).
+        token = await _recoverBotTokenForLocalStart(botId);
+      }
+      if (token == null || token.trim().isEmpty) {
         throw Exception(context.tr.home_token_missing(botName));
       }
 
@@ -2009,6 +2567,10 @@ class HomePageState extends State<HomePage>
 
       if (_supportsForegroundTask) {
         // ── Mobile (Android / iOS) ─────────────────────────────────────────
+        appendBotStartTrace(
+          botStartBranchTrace(BotStartBranch.mobile),
+          botId: botId,
+        );
         if (isRunning) {
           appendBotLog('Bot stop requested', botId: botId);
           await stopMobileBotSession(botId: botId);
@@ -2092,6 +2654,10 @@ class HomePageState extends State<HomePage>
               );
             }
 
+            appendBotStartTrace(
+              botStartBranchTrace(BotStartBranch.localJsEngine),
+              botId: botId,
+            );
             final client = runnerConfig.createClient();
             startBotLogSession(
               botId: botId,
@@ -2126,7 +2692,15 @@ class HomePageState extends State<HomePage>
             );
             return;
           }
+          appendBotStartTrace(
+            botStartBranchTrace(BotStartBranch.localDesktop),
+            botId: botId,
+          );
           await startDesktopBot(token);
+          // Ce POSTE exécute le bot : une association « manager » héritée (ou posée par
+          // un démarrage distant précédent) ferait envoyer le prochain Stop au serveur,
+          // qui n'aurait rien à arrêter, et le bot continuerait ici.
+          RunnerSettings.associateBotWithRunner(botId, 'local');
           if (mounted) {
             setState(() {
               _runningBotIds = <String>{..._runningBotIds, botId};
@@ -2161,7 +2735,98 @@ class HomePageState extends State<HomePage>
       }
     } finally {
       if (mounted) setState(() => _botIdInAction = null);
+      // Contrôle de RÉALITÉ, pour un démarrage seulement : il doit être programmé même
+      // si la tentative a levé, sinon l'échec — le cas qui a motivé ces traces — serait
+      // le seul à n'en laisser aucune.
+      if (!isRunning) {
+        _scheduleBotStartRealityChecks(botId);
+      }
     }
+  }
+
+  /// Programme les deux contrôles de réalité d'un démarrage (5 s puis 10 s).
+  ///
+  /// Pourquoi DEUX : le serveur met parfois quelques secondes à faire passer
+  /// `runtime_state` à `running` (placement du conteneur). Un contrôle unique à 5 s
+  /// déclarerait « échec » un démarrage simplement lent ; celui de 10 s tranche.
+  /// Aucun des deux n'est ATTENDU : le démarrage ne doit jamais dépendre d'un
+  /// diagnostic, qui n'est là que pour dire la vérité après coup.
+  void _scheduleBotStartRealityChecks(String botId) {
+    for (final seconds in const <int>[5, 10]) {
+      unawaited(
+        Future<void>.delayed(Duration(seconds: seconds), () {
+          unawaited(_logBotStartReality(botId: botId, moment: '+${seconds}s'));
+        }),
+      );
+    }
+  }
+
+  /// Interroge LES DEUX sources (locale et serveur) et journalise où le bot tourne
+  /// réellement, quelques secondes après le geste.
+  ///
+  /// La décision elle-même est pure ([resolveBotStartOutcome] / [formatBotStartRealityLog]):
+  /// c'est donc la même phrase que celle prouvée par le test, pas une copie.
+  /// Ne journalise JAMAIS un jeton ni le corps d'une réponse : uniquement des états.
+  Future<void> _logBotStartReality({
+    required String botId,
+    required String moment,
+  }) async {
+    // Application fermée (ou page démontée) entre-temps : plus rien à observer, et
+    // surtout pas un appel réseau lancé depuis un écran qui n'existe plus.
+    if (!mounted) return;
+
+    // « Ce poste l'exécute-t-il ? » — lu OÙ le démarrage local l'écrit.
+    //
+    // Pourquoi pas l'ensemble des bots en marche de la page d'accueil, qui servait
+    // jusqu'ici : c'est un état d'ÉCRAN, remplacé en bloc à chaque rafraîchissement de
+    // liste. Mesuré chez le propriétaire : le bot tournait bien ici (son gateway Nyxx
+    // annonçait « Connected to Gateway ») et la ligne annonçait pourtant
+    // « LOCAL=arrete … demarre nulle part (echec) ». Le diagnostic désignait une panne
+    // là où il n'y en avait pas — c'est le deuxième mensonge corrigé ici.
+    final localRunning = thisMachineExecutesBot(
+      desktopEngineSession: isDesktopBotRunningId(botId),
+      mobileSession: isMobileBotRunning(botId),
+      embeddedRunnerSession:
+          RunnerSettings.getAssociatedRunnerId(botId) ==
+          RunnerSettings.embeddedRunnerId,
+    );
+
+    bool? serverRunning;
+    Map<String, dynamic>? serverEntry;
+    try {
+      // Client du COMPTE, session en cache uniquement : le contrôle ne déclenche ni
+      // connexion ni échange de jeton, et n'a donc rien à gagner à échouer bruyamment.
+      final client = await _resolveGlobalMainApiClient(attemptRestore: false);
+      if (client != null) {
+        final bots = await client.listBots().timeout(
+          const Duration(seconds: 8),
+        );
+        for (final entry in bots) {
+          if ((entry['bot_id'] ?? entry['id'] ?? '').toString().trim() ==
+              botId) {
+            serverEntry = entry;
+            break;
+          }
+        }
+        // Entrée absente = le compte ne gère pas ce bot : le serveur ne l'exécute pas.
+        serverRunning = serverBotIsRunning(serverEntry);
+      }
+    } catch (_) {
+      // Serveur injoignable, session absente : l'état reste « non lu », ce que la
+      // ligne dira. Un diagnostic ne doit jamais lever — c'est lui qui explique.
+      serverRunning = null;
+    }
+
+    if (!mounted) return;
+    appendBotStartTrace(
+      formatBotStartRealityLog(
+        moment: moment,
+        localRunning: localRunning,
+        serverRunning: serverRunning,
+        serverBotEntry: serverEntry,
+      ),
+      botId: botId,
+    );
   }
 
   /// Traduit un refus serveur (403 de formule) en blocage affichable.
@@ -2280,28 +2945,27 @@ class HomePageState extends State<HomePage>
     }
   }
 
-  Future<AdRewardSsvContext?> _buildMainApiAdSsvContext(String botId) async {
-    final app = await appManager.getApp(botId);
-    final botToken = (app['token'] ?? '').toString().trim();
-    if (botToken.isEmpty) {
-      return null;
-    }
+  /// Contexte SSV du flux « bot » — construction partagée avec l'éditeur de
+  /// bot (`ad_ssv_context.dart`) : ici, la session Manager suffit à résoudre le
+  /// propriétaire, le contexte reste donc sans `discord_owner_id` comme avant.
+  Future<AdRewardSsvContext?> _buildMainApiAdSsvContext(String botId) {
+    return buildMainApiAdSsvContext(
+      botId: botId,
+      resolveOwnerIds: () async {
+        final app = await appManager.getApp(botId);
+        final botToken = (app['token'] ?? '').toString().trim();
+        if (botToken.isEmpty) {
+          return null;
+        }
 
-    final session = await MainApiSettingsStore.loadSession();
-    final ownerId = (session?.userId ?? '').trim();
-    if (ownerId.isEmpty) {
-      return null;
-    }
+        final session = await MainApiSettingsStore.loadSession();
+        final ownerId = (session?.userId ?? '').trim();
+        if (ownerId.isEmpty) {
+          return null;
+        }
 
-    return AdRewardSsvContext(
-      userId: ownerId,
-      customData: Uri(
-        queryParameters: <String, String>{
-          'owner_id': ownerId,
-          'bot_id': botId,
-          'placement': 'admob_rewarded',
-        },
-      ).query,
+        return BotAdSsvOwnerIds(ownerId: ownerId);
+      },
     );
   }
 
@@ -2609,7 +3273,20 @@ class HomePageState extends State<HomePage>
                 showShellActions: isWide,
                 onCreate: openCreate,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
+              ValueListenableBuilder<Announcement?>(
+                valueListenable: AnnouncementPresenter.bannerNotifier,
+                builder: (context, announcement, _) {
+                  if (announcement == null) return const SizedBox.shrink();
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: AnnouncementBanner(
+                      announcement: announcement,
+                      onDismiss: AnnouncementPresenter.dismissBanner,
+                    ),
+                  );
+                },
+              ),
               _CreateBotCard(onTap: openCreate),
               const SizedBox(height: 20),
             ];
@@ -2670,6 +3347,8 @@ class HomePageState extends State<HomePage>
                       _toggleTurnkeyContainer(container, start: false),
                   onLogs: () => _openTurnkeyContainerLogs(container),
                   onDetail: () => _openTurnkeyContainerDetail(container),
+                  onInvite: () => _inviteTurnkeyBot(container),
+                  inviteBusy: _inviteContainerIdInAction == container.id,
                 ),
               );
 
@@ -2736,9 +3415,11 @@ class HomePageState extends State<HomePage>
     dynamic app, {
     required bool initiallyExpanded,
   }) {
-    final name =
-        app['name']?.toString().sanitizedUtf16 ?? context.tr.home_unknown_app;
     final id = app['id']?.toString() ?? '';
+    final rawName = app['name']?.toString().sanitizedUtf16 ?? '';
+    final name = (rawName.isNotEmpty && !botNameHidesIdentity(rawName, id))
+        ? rawName
+        : context.tr.home_unknown_app;
     final avatar = app['avatar']?.toString();
     final guildCount = switch (app['guild_count'] ??
         app['approximate_guild_count']) {
@@ -2750,13 +3431,32 @@ class HomePageState extends State<HomePage>
     final canToggle = _botIdInAction == null;
     // Controllers are created by the app-stream listener, never during build.
     final pulseCtrl = _pulseControllers[id] ?? _fallbackPulseController;
-    final freeMinutes = _displayFreeMinutesForBot(id);
+    // Source d'exécution VIVANTE de ce bot (association + état annoncé par le
+    // serveur), décidée par la brique partagée `bot_run_source.dart` — la page de
+    // détail d'un bot l'interroge aussi. `null` sur mobile : l'affichage
+    // historique y est conservé tel quel.
+    final runOrigin = desktopBotRunOrigin(
+      botId: id,
+      serverReportsRunning: isRunning,
+    );
+    // Un bot exécuté par ce poste ne consomme pas le solde cloud : on ne laisse
+    // donc AUCUNE valeur de solde descendre jusqu'à la carte, sinon une ligne
+    // d'expiration pourrait réapparaître sans que la source soit cloud.
+    final showsHostingExpiration =
+        runOrigin == null || runOrigin.isHostedRemotely;
+    final freeMinutes = showsHostingExpiration
+        ? _displayFreeMinutesForBot(id)
+        : 0;
 
     final isTurnkey =
         app['is_turnkey'] == true ||
         app['type'] == 'turnkey' ||
         (app['container_id']?.toString().isNotEmpty ?? false);
     final containerId = app['container_id']?.toString();
+    // Un bot sans jeton local est inexploitable (le manager rédige le sien dans
+    // ses listes) : c'est aussi le seul cas où l'import depuis le compte a
+    // quelque chose à faire.
+    final hasLocalToken = (app['token'] ?? '').toString().trim().isNotEmpty;
 
     return HomeBotCard(
       key: ValueKey<String>(id),
@@ -2768,8 +3468,12 @@ class HomePageState extends State<HomePage>
       canToggle: canToggle,
       isTogglingThisBot: _botIdInAction == id,
       initiallyExpanded: initiallyExpanded,
-      runtimeBadgeLabel: isRunning ? _runtimeBadgeLabel(id) : null,
+      runtimeBadgeLabel: runOrigin == null
+          // Mobile : badge historique, seulement quand le bot tourne.
+          ? (isRunning ? _runtimeBadgeLabel(id) : null)
+          : botRunSourceLabel(context.tr, runOrigin),
       freeMinutes: freeMinutes,
+      showsHostingExpiration: showsHostingExpiration,
       pulseController: pulseCtrl,
       showPremiumLabels: _supportsForegroundTask,
       isTurnkey: isTurnkey,
@@ -2805,6 +3509,13 @@ class HomePageState extends State<HomePage>
               MaterialPageRoute(builder: (_) => BotLogsPage(botId: id)),
             )
           : null,
+      hasLocalToken: hasLocalToken,
+      onTokenImported: () async {
+        // Le jeton est écrit en local : les états de la carte (jeton présent,
+        // exécution possible) se rechargent, comme après un « gérer ».
+        if (!mounted) return;
+        await _initRunningState();
+      },
     );
   }
 
@@ -2952,7 +3663,10 @@ class HomeBotCard extends StatefulWidget {
     required this.showPremiumLabels,
     required this.freeMinutes,
     this.runtimeBadgeLabel,
+    this.showsHostingExpiration = true,
     this.isTurnkey = false,
+    this.hasLocalToken = true,
+    this.onTokenImported,
   });
 
   final String name;
@@ -2965,6 +3679,16 @@ class HomeBotCard extends StatefulWidget {
   final bool initiallyExpanded;
   final String? runtimeBadgeLabel;
   final int freeMinutes;
+
+  /// Faut-il afficher la ligne d'expiration / de réserve d'hébergement ?
+  ///
+  /// Vrai par défaut (affichage historique, notamment mobile). Un écran d'un
+  /// poste de travail le passe à `false` dès que la source d'exécution n'est pas
+  /// les serveurs Bot Creator : un bot qui tourne ICI ne consomme pas le solde
+  /// cloud, donc afficher « Expire le … » serait un mensonge — c'est exactement
+  /// le défaut signalé par le propriétaire (échéance en 2038 sur un bot local).
+  final bool showsHostingExpiration;
+
   final AnimationController pulseController;
   final bool showPremiumLabels;
   final bool isTurnkey;
@@ -2972,6 +3696,14 @@ class HomeBotCard extends StatefulWidget {
   final VoidCallback onToggle;
   final VoidCallback? onAddTime;
   final VoidCallback? onLogs;
+
+  /// Faux quand ce poste n'a AUCUN jeton utilisable pour ce bot : c'est la
+  /// seule situation où « Importer le jeton depuis mon compte » a quelque
+  /// chose à faire, donc la seule où le bouton est offert.
+  final bool hasLocalToken;
+
+  /// Relais après un import RÉUSSI depuis la carte (l'accueil se recharge).
+  final Future<void> Function()? onTokenImported;
 
   @override
   State<HomeBotCard> createState() => HomeBotCardState();
@@ -3009,33 +3741,49 @@ class HomeBotCardState extends State<HomeBotCard> {
         : context.tr.home_active_on_servers_other(count);
   }
 
-  /// Adding time only makes sense for a bot that is actually running, and only
-  /// on platforms able to host the foreground task. Desktop has no hosting
-  /// concept at all, so the action is never offered there.
+  /// Ajouter du temps n'a de sens que pour un bot réellement en marche, et
+  /// seulement sur les plateformes capables d'héberger la tâche de fond. Un
+  /// poste de travail n'a aucun concept d'hébergement : l'action n'y est jamais
+  /// proposée.
   bool get _showAddHosting {
     if (!widget.isRunning) return false;
     if (!_supportsForegroundTask) return false;
     return !SubscriptionService.isSubscribed;
   }
 
+  /// Ligne d'échéance de l'hébergement (« Expire le … ») ou de réserve en pause.
+  ///
+  /// N'est appelée que lorsque la ligne a le droit d'exister : un solde cloud
+  /// converti en date n'a de sens que pour un bot exécuté par les serveurs.
+  String _hostingExpirationLabel(BuildContext context) {
+    if (widget.freeMinutes <= 0) {
+      return context.tr.home_hosting_status_paused;
+    }
+    final expiresAt = DateTime.now().add(Duration(minutes: widget.freeMinutes));
+    return formatSessionExpiration(context, expiresAt);
+  }
+
   Widget _buildExpandedContent(BuildContext context, ColorScheme scheme) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final tokens = HomeTokens.of(context);
-    final String expirationLabel;
-    if (widget.freeMinutes <= 0) {
-      expirationLabel = context.tr.home_hosting_status_paused;
-    } else {
-      final expiresAt = DateTime.now().add(
-        Duration(minutes: widget.freeMinutes),
-      );
-      expirationLabel = formatSessionExpiration(context, expiresAt);
-    }
-    String? statusLabel;
-    if (widget.isRunning) {
-      statusLabel =
-          '${widget.runtimeBadgeLabel ?? context.tr.home_synced_active} • $expirationLabel';
-    } else {
+    // Ligne d'échéance / de réserve : absente du layout dès que la source n'est
+    // pas les serveurs Bot Creator (`null` = rien à afficher, la ligne entière
+    // disparaît — voir `_ServerPresenceRow`).
+    final String? expirationLabel = widget.showsHostingExpiration
+        ? _hostingExpirationLabel(context)
+        : null;
+    // La source vivante (« Ce poste », « Serveurs Bot Creator ») porte l'état ;
+    // sans source, on retombe sur l'ancien libellé mobile.
+    final badge =
+        widget.runtimeBadgeLabel ??
+        (widget.isRunning ? context.tr.home_synced_active : null);
+    final String? statusLabel;
+    if (badge == null) {
       statusLabel = expirationLabel;
+    } else {
+      statusLabel = expirationLabel == null
+          ? badge
+          : '$badge • $expirationLabel';
     }
 
     return Column(
@@ -3113,6 +3861,10 @@ class HomeBotCardState extends State<HomeBotCard> {
             ),
           ),
         ],
+        // La reprise du jeton est devenue AUTOMATIQUE (synchro + démarrage sur ce poste) :
+        // offrir un bouton « Importer le jeton depuis mon compte » obligeait l'utilisateur
+        // à comprendre un détail d'implémentation pour que son bot démarre. Il ne reste
+        // donc aucun geste à faire ici, pas même quand ce poste n'a aucun jeton.
       ],
     );
   }

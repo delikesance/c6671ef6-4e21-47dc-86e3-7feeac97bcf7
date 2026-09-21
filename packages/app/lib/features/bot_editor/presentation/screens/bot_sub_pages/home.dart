@@ -4,8 +4,10 @@ import 'dart:developer' as developer;
 import 'dart:io';
 
 import 'package:bot_creator/core/analytics/activation_funnel.dart';
+import 'package:bot_creator/core/platform/run_platform.dart';
 import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
+import 'package:bot_creator/core/network/bot_server_logs_reader.dart';
 import 'package:bot_creator/core/network/gateway_bot_events.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_owner_sync.dart';
@@ -20,6 +22,7 @@ import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/utils/responsive.dart';
 import 'package:bot_creator/features/ads/logic/ad_consent_service.dart';
 import 'package:bot_creator/features/ads/logic/ad_reward_service.dart';
+import 'package:bot_creator/features/ads/logic/ad_ssv_context.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_config_import.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
@@ -32,6 +35,9 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pag
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/bot_stats.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/debug_replay_page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_config_versions_page.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/bot_logs_console_scope.dart';
+import 'package:bot_creator/features/home/logic/bot_run_source.dart';
+import 'package:bot_creator/features/home/logic/hosting_time_offer.dart';
 import 'package:bot_creator/features/home/presentation/home_ui.dart';
 import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
 import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
@@ -446,10 +452,14 @@ class _AppHomePageState extends State<AppHomePage>
 
   @override
   Widget build(BuildContext context) {
-    final displayName = _appName.isNotEmpty
-        ? _appName
-        : widget.client.user.id.toString();
     final botId = widget.client.user.id.toString();
+    final clientUser = widget.client.user;
+    final clientUsername = clientUser is User ? clientUser.username.trim() : '';
+    final rawName = _appName.trim();
+    final displayName =
+        (rawName.isNotEmpty && rawName != botId && rawName != 'Unnamed Bot')
+        ? rawName
+        : (clientUsername.isNotEmpty ? clientUsername : botId);
     final isWide =
         MediaQuery.sizeOf(context).width >= AppTheme.desktopBreakpoint;
 

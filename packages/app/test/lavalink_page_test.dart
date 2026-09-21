@@ -10,6 +10,7 @@
 //      {"enabled": bool, "custom_servers": [{host, port, password, secure}]},
 //      et plus jamais l'ancienne forme `lavalinkConfig`.
 import 'package:bot_creator/core/i18n/i18n.dart';
+import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:bot_creator/features/bot_editor/logic/lavalink_config.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/lavalink_settings_section.dart';
 import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
@@ -17,6 +18,7 @@ import 'package:bot_creator/features/subscriptions/logic/subscription_service.da
 import 'package:bot_creator_shared/bot/bot_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 const Key _enabledSwitch = Key('lavalink_enabled_switch');
 const Key _addServer = Key('lavalink_add_server_button');
@@ -27,16 +29,23 @@ void main() {
     // Compte premium par défaut : les tests qui vérifient le verrouillage
     // non premium désactivent explicitement ce contournement.
     PremiumCapabilities.debugPremiumBypass = true;
+    // Les associations de bots sont statiques : sans remise à zéro, un test hérite de
+    // la trace laissée par le précédent et la règle « où tourne le bot » ne prouverait
+    // plus rien.
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+    RunnerSettings.resetAssociationsForTests();
   });
 
   tearDown(() {
     PremiumCapabilities.debugPremiumBypass = false;
     SubscriptionService.debugSetDesktopForTests(null);
+    RunnerSettings.resetAssociationsForTests();
   });
 
   Future<List<Map<String, dynamic>>> pumpSection(
     WidgetTester tester, {
     Map<String, dynamic>? initialConfig,
+    String botId = 'bot-test',
   }) async {
     final saved = <Map<String, dynamic>>[];
     await tester.pumpWidget(
@@ -49,6 +58,7 @@ void main() {
             child: LavalinkSettingsSection(
               initialConfig: initialConfig,
               onSave: (config) async => saved.add(config),
+              botId: botId,
             ),
           ),
         ),
@@ -400,6 +410,76 @@ void main() {
               find.byKey(const Key('lavalink_server_secure_0')),
             )
             .onChanged,
+        isNull,
+      );
+    });
+  });
+
+  // La règle produit : quand le bot tourne sur CET appareil, la musique n'est plus une
+  // ressource du serveur (le bot interroge lui-même ses serveurs) — il n'y a donc rien à
+  // facturer, et le cadrage suit l'ENDROIT D'EXÉCUTION, pas la plateforme. Le mobile garde
+  // exactement son comportement, et un bot hébergé reste cadré par la formule : c'est le
+  // « excepté le Running côté serveur ».
+  group('règle produit : poste de travail, bot exécuté ici', () {
+    testWidgets('compte gratuit + bot sur cet appareil → aucun cadenas, contrôles '
+        'réellement utilisables', (tester) async {
+      PremiumCapabilities.debugPremiumBypass = false;
+      SubscriptionService.debugSetDesktopForTests(true);
+      // Formule CONNUE et gratuite. Indispensable : hors ligne, un poste de travail se
+      // déclare premium (repli assumé), donc sans cette ligne le test passerait pour la
+      // mauvaise raison — il prouverait le repli, pas la règle.
+      await SubscriptionService.applyPushedAccountState(
+        const <String, dynamic>{'plan': 'FREE'},
+      );
+      final l10n = await AppLocalizations.delegate.load(const Locale('fr'));
+
+      await pumpSection(tester);
+
+      expect(
+        find.text(l10n.bot_settings_lavalink_premium_banner_title),
+        findsNothing,
+        reason: 'rien à vendre : le bot tourne chez l’utilisateur',
+      );
+      expect(find.byIcon(Icons.lock), findsNothing);
+      expect(
+        tester.widget<SwitchListTile>(find.byKey(_enabledSwitch)).onChanged,
+        isNotNull,
+        reason: 'utilisable, pas seulement visible : un bouton grisé serait un mensonge',
+      );
+      expect(
+        tester.widget<OutlinedButton>(find.byKey(_addServer)).onPressed,
+        isNotNull,
+      );
+      expect(
+        tester.widget<ElevatedButton>(find.byKey(_saveButton)).onPressed,
+        isNotNull,
+      );
+    });
+
+    testWidgets('compte gratuit + bot sur Bot Creator Server → cadré comme avant', (
+      tester,
+    ) async {
+      PremiumCapabilities.debugPremiumBypass = false;
+      SubscriptionService.debugSetDesktopForTests(true);
+      // Formule CONNUE et gratuite (voir le cas précédent), sinon le repli « desktop
+      // hors ligne = premium » masquerait la règle testée.
+      await SubscriptionService.applyPushedAccountState(
+        const <String, dynamic>{'plan': 'FREE'},
+      );
+      // Le bot est parti sur l'infrastructure : c'est le « excepté le Running côté
+      // serveur » de la règle.
+      RunnerSettings.associateBotWithRunner('bot-heberge', 'manager');
+      final l10n = await AppLocalizations.delegate.load(const Locale('fr'));
+
+      await pumpSection(tester, botId: 'bot-heberge');
+
+      expect(
+        find.text(l10n.bot_settings_lavalink_premium_banner_title),
+        findsOneWidget,
+      );
+      expect(find.byIcon(Icons.lock), findsWidgets);
+      expect(
+        tester.widget<SwitchListTile>(find.byKey(_enabledSwitch)).onChanged,
         isNull,
       );
     });

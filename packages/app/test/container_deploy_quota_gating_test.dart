@@ -14,6 +14,8 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/containers/presentation/container_deploy_page.dart';
+import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -206,30 +208,84 @@ void main() {
     },
   );
 
-  testWidgets(
-    'minutes épuisées (ad-financé) : lancement grisé',
-    (WidgetTester tester) async {
-      final tr = await pumpDeployPage(
-        tester,
-        _eligibilityBody(
-          premium: false,
-          active: 0,
-          max: 1,
-          minutes: 0,
-          canDeploy: false,
-          blockedReason: 'no_minutes',
-        ),
-      );
+  // La plateforme est forcée PUIS RESTAURÉE DANS LE CORPS du test : le binding de test
+  // vérifie à la fin de chaque corps que les variables de debug de `foundation` sont
+  // intactes, donc un `setUp`/`tearDown` (ou un `addTearDown`) arrive trop tard et fait
+  // échouer le test sur cet invariant. L'hôte de la suite est Linux, donc « poste de
+  // travail » par défaut : le parcours mobile doit se déclarer explicitement.
+  group('parcours mobile (publicité récompensée)', () {
+    testWidgets(
+      'minutes épuisées (ad-financé, mobile) : lancement grisé et porte de sortie par la pub',
+      (WidgetTester tester) async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.android;
+        final tr = await pumpDeployPage(
+          tester,
+          _eligibilityBody(
+            premium: false,
+            active: 0,
+            max: 1,
+            minutes: 0,
+            canDeploy: false,
+            blockedReason: 'no_minutes',
+          ),
+        );
 
-      // Sans minutes, l'écran ne propose plus de lancement du tout : il met en avant
-      // l'unique porte de sortie (regarder une publicité). C'est encore plus strict
-      // qu'un bouton grisé, donc conforme à la règle « pas de configuration à sauver
-      // pour rien ».
-      expect(find.text(tr.container_deploy_launch_btn), findsNothing);
-      expect(find.text(tr.container_deploy_blocked_no_minutes), findsOneWidget);
-      expect(find.text(tr.container_hosted_ad_button(60)), findsWidgets);
-    },
-  );
+        // Sans minutes, l'écran ne propose plus de lancement du tout : il met en avant
+        // l'unique porte de sortie (regarder une publicité). C'est encore plus strict
+        // qu'un bouton grisé, donc conforme à la règle « pas de configuration à sauver
+        // pour rien ».
+        expect(find.text(tr.container_deploy_launch_btn), findsNothing);
+        expect(find.text(tr.container_deploy_blocked_no_minutes), findsOneWidget);
+        expect(find.text(tr.container_hosted_ad_button(60)), findsWidgets);
+
+        debugDefaultTargetPlatformOverride = null;
+      },
+    );
+  });
+
+  group('poste de travail (aucune publicité)', () {
+    testWidgets(
+      'minutes épuisées : le solde serveur et les formules, jamais une vidéo',
+      (WidgetTester tester) async {
+        // Le desktop ne diffuse aucune publicité : le temps d'hébergement y vient du
+        // solde serveur (`hosting_minutes_balance`, qui inclut déjà les minutes gagnées
+        // par pub sur mobile). L'écran doit donc montrer ce solde et renvoyer aux
+        // formules — jamais proposer une vidéo qui n'existe pas.
+        debugDefaultTargetPlatformOverride = TargetPlatform.linux;
+        final tr = await pumpDeployPage(
+          tester,
+          _eligibilityBody(
+            premium: false,
+            active: 0,
+            max: 1,
+            minutes: 0,
+            canDeploy: false,
+            blockedReason: 'no_minutes',
+          ),
+        );
+
+        expect(
+          find.text(tr.container_hosted_ad_button(60)),
+          findsNothing,
+          reason: 'aucun parcours publicitaire ne doit exister sur un poste de travail',
+        );
+        expect(
+          find.text(tr.container_hosted_minutes_available(0)),
+          findsWidgets,
+          reason:
+              'le solde annoncé par le serveur doit être affiché (bannière et avis '
+              'peuvent le rappeler tous les deux)',
+        );
+        expect(
+          find.text(tr.plan_limit_view_offers),
+          findsWidgets,
+          reason: 'la porte de sortie desktop est la formule, pas la publicité',
+        );
+
+        debugDefaultTargetPlatformOverride = null;
+      },
+    );
+  });
 
   testWidgets(
     'compte ad-financé avec des minutes : lancement actif',
@@ -240,6 +296,47 @@ void main() {
       );
 
       expect(launchButton(tester, tr).onPressed, isNotNull);
+    },
+  );
+
+  testWidgets(
+    'hébergement cloud coupé par le serveur : la raison affichée dit la vraie cause',
+    (WidgetTester tester) async {
+      // Le serveur a dit lui-même que l'hébergement cloud est coupé sur ce
+      // déploiement (`premium_cloud_enabled: false`).
+      await SubscriptionService.applyPushedAccountState(const <String, dynamic>{
+        'plan': 'FREE',
+        'premium_cloud_enabled': false,
+      });
+      addTearDown(() async {
+        // Sinon le fichier entier hériterait d'un « cloud coupé ».
+        await SubscriptionService.debugResetForTests();
+      });
+
+      final tr = await pumpDeployPage(
+        tester,
+        _eligibilityBody(
+          premium: false,
+          active: 0,
+          max: 1,
+          canDeploy: false,
+          blockedReason: 'no_minutes',
+          minutes: 0,
+        ),
+      );
+
+      expect(
+        find.text(tr.container_deploy_blocked_cloud_disabled),
+        findsOneWidget,
+        reason:
+            'la cause est l\'interrupteur du déploiement : proposer une publicité ou une formule '
+            'promettrait une porte qui n\'existe pas',
+      );
+      expect(
+        find.text(tr.container_deploy_blocked_no_minutes),
+        findsNothing,
+        reason: 'la phrase des minutes propose la publicité récompensée : ici elle serait fausse',
+      );
     },
   );
 }

@@ -93,8 +93,13 @@ void main() {
     expect(runtime.blocksLocalFallback, isTrue);
   });
 
+  // Le poste de travail n'est plus un refus : ce qui décide d'un PILOTAGE à distance,
+  // c'est l'association du bot, pas l'OS (voir `remote_runtime.dart`). Ces deux tests
+  // remplacent le test historique « desktop ignores manager runtime », qui encodait le
+  // verrou de plateforme à l'origine du défaut signalé (aucune donnée du compte affichée
+  // sur desktop alors que le serveur les renvoyait).
   test(
-    'desktop ignores manager runtime and still uses direct runner',
+    'poste de travail : la résolution globale consulte le manager dès qu\'une session existe',
     () async {
       debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
       await MainApiSettingsStore.saveConfig(
@@ -106,6 +111,8 @@ void main() {
           expiresAt: DateTime.now().toUtc().add(const Duration(hours: 1)),
         ),
       );
+      // Un runner local existe : il ne doit PAS l'emporter pour la donnée du compte
+      // (compte, solde de temps, bots du compte, conteneurs clé en main, snapshot).
       await RunnerSettings.addRunner(
         const RunnerConnectionConfig(
           id: 'runner-1',
@@ -115,10 +122,33 @@ void main() {
 
       final runtime = await resolveRemoteRuntime(supportsManagerRuntime: true);
 
-      expect(runtime.source, RemoteRuntimeSource.runner);
+      expect(runtime.source, RemoteRuntimeSource.manager);
       expect(runtime.client, isNotNull);
+      expect(runtime.blocksLocalFallback, isFalse);
     },
   );
+
+  test('poste de travail : un bot associé au manager reste piloté à distance', () async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+    await MainApiSettingsStore.saveConfig(
+      const MainApiConfig(baseUrl: 'https://api.example.com'),
+    );
+    await MainApiSettingsStore.saveSession(
+      MainApiSession(
+        accessToken: 'token',
+        expiresAt: DateTime.now().toUtc().add(const Duration(hours: 1)),
+      ),
+    );
+    RunnerSettings.associateBotWithRunner('bot-associe', 'manager');
+
+    final runtime = await resolveRemoteRuntime(
+      supportsManagerRuntime: true,
+      botId: 'bot-associe',
+    );
+
+    expect(runtime.source, RemoteRuntimeSource.manager);
+    expect(runtime.client, isNotNull);
+  });
 
   test('desktop falls back to local when no runner is configured', () async {
     debugDefaultTargetPlatformOverride = TargetPlatform.windows;

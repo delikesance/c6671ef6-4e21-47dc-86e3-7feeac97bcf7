@@ -1,7 +1,7 @@
-import 'dart:convert';
-
 import 'package:bot_creator/core/discord/discord_intent_sync.dart';
 import 'package:bot_creator/core/storage/database.dart';
+import 'package:bot_creator/core/utils/bot_payload_guard.dart';
+import 'package:bot_creator/features/bot_editor/logic/js_bot_payload_helpers.dart';
 import 'package:bot_creator/features/bot_editor/logic/normalize_command_data.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/features/bot_editor/logic/workflow_call.dart';
@@ -46,7 +46,7 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
     if (executionMode != 'javascript') {
       if (script.trim().isEmpty) {
         script =
-            _synthesizeJsFromWorkflowActions(
+            synthesizeJsFromWorkflowActions(
               (data['actions'] as List?) ?? const [],
             ) ??
             '';
@@ -56,26 +56,26 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
       continue;
     }
 
-    final discordType = _resolveDiscordCommandType(data['commandType']);
-    final commandId = (normalized['id'] ?? '').toString();
     final rawName = (normalized['name'] ?? '').toString().trim();
     if (rawName.isEmpty) {
-      debugPrint('[buildJsBotPayload] Skipping "$commandId": empty name.');
+      debugPrint(
+        '[buildJsBotPayload] Skipping "${(normalized['id'] ?? '').toString()}": '
+        'empty name.',
+      );
       continue;
     }
-    final uniqueName = _deduplicateCommandName(rawName, usedNames);
-    final aliases = normalizeLegacyCommandAliases(data['legacyAliases'])
-        .map(cleanLegacyCommandTriggerName)
-        .where((a) => a.isNotEmpty)
-        .toSet()
-        .toList();
+    final uniqueName = deduplicateCommandName(rawName, usedNames);
     commands.add({
-      'id': commandId,
+      'id': (normalized['id'] ?? '').toString(),
       'type': 'command',
       'name': uniqueName,
       'description': (data['description'] ?? uniqueName).toString(),
-      'discordType': discordType,
-      'aliases': aliases,
+      'discordType': resolveDiscordCommandType(data['commandType']),
+      'aliases': normalizeLegacyCommandAliases(data['legacyAliases'])
+          .map(cleanLegacyCommandTriggerName)
+          .where((alias) => alias.isNotEmpty)
+          .toSet()
+          .toList(),
       'options': data['options'] ?? const [],
       'enabled': normalized['enabled'] != false,
       'script': script,
@@ -152,7 +152,7 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
     if (executionMode != workflowExecutionModeJavascript &&
         script.trim().isEmpty) {
       script =
-          _synthesizeJsFromWorkflowActions(
+          synthesizeJsFromWorkflowActions(
             (wf['actions'] as List?) ?? const [],
             preferMessage: true,
           ) ??
@@ -172,10 +172,8 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
   }
 
   final prefixRaw = (appData['prefix'] ?? '').toString().trim();
-  final hasPrefixCommands = commands.any(
-    (command) => (command['name'] ?? '').toString().trim().isNotEmpty,
-  );
-  final includePrefix = prefixRaw.isNotEmpty && hasPrefixCommands;
+  final includePrefix =
+      prefixRaw.isNotEmpty && commands.isNotEmpty;
 
   final presenceStatusRaw = (appData['presenceStatus'] ?? 'online')
       .toString()
@@ -213,7 +211,7 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
     });
   }
 
-  return {
+  final payload = <String, dynamic>{
     'runtimeEngine': runtimeEngineJavascript,
     'token': token,
     if (includePrefix) 'prefix': prefixRaw,
@@ -243,64 +241,16 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
     ),
     'scriptTimeoutMs': 15 * 60 * 1000,
   };
+
+  // POURQUOI cette garde est ICI : ce constructeur SAUTE les commandes sans
+  // script (`continue` ci-dessus) et pouvait donc rendre une charge utile
+  // « vide sans automatisation » — exactement la charge de 378 octets qui a
+  // remplacé la config d'un bot. On refuse explicitement au lieu de rendre du
+  // vide : l'appelant reçoit une erreur lisible, et rien n'est poussé.
+  assertNonDegenerateBotPayload(payload, source: 'buildJsBotPayload');
+  return payload;
 }
 
 Future<void> validateJsBotPayloadOrThrow(String botId) async {
   await buildJsBotPayload(botId);
-}
-
-String? _synthesizeJsFromWorkflowActions(
-  List<dynamic> actions, {
-  bool preferMessage = false,
-}) {
-  for (final raw in actions) {
-    if (raw is! Map) {
-      continue;
-    }
-    final type = (raw['type'] ?? '').toString();
-    if (type != 'respondWithMessage' && type != 'sendMessage') {
-      continue;
-    }
-    final payload = Map<String, dynamic>.from(
-      (raw['payload'] as Map?)?.cast<String, dynamic>() ?? const {},
-    );
-    final content = (payload['content'] ?? '').toString();
-    if (content.trim().isEmpty) {
-      continue;
-    }
-    final ephemeral = payload['ephemeral'] == true;
-    if (preferMessage) {
-      return 'await message.reply(${jsonEncode(content)});';
-    }
-    if (ephemeral) {
-      return 'await interaction.reply({ content: ${jsonEncode(content)}, ephemeral: true });';
-    }
-    return 'await interaction.reply(${jsonEncode(content)});';
-  }
-  return null;
-}
-
-/// Appends a numeric suffix (`name`, `name_2`, ...) on collision so the payload
-/// never contains two identical names (runner-js rejects that with a 400).
-String _deduplicateCommandName(String name, Set<String> usedNames) {
-  if (usedNames.add(name)) return name;
-  var suffix = 2;
-  var candidate = '${name}_$suffix';
-  while (!usedNames.add(candidate)) {
-    suffix += 1;
-    candidate = '${name}_$suffix';
-  }
-  debugPrint('[buildJsBotPayload] Duplicate "$name" -> "$candidate".');
-  return candidate;
-}
-
-String _resolveDiscordCommandType(Object? rawCommandType) {
-  final raw = (rawCommandType ?? 'chatInput').toString().trim().toLowerCase();
-  if (raw == 'user' || raw == 'usercommand' || raw == 'user_command') {
-    return 'user';
-  }
-  if (raw == 'message' || raw == 'messagecommand' || raw == 'message_command') {
-    return 'message';
-  }
-  return 'chatInput';
 }

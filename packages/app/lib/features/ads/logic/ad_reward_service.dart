@@ -2,23 +2,17 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:bot_creator/features/ads/logic/ad_mediation_debug.dart';
+import 'package:bot_creator/features/ads/logic/ad_ssv_context.dart';
 import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
 import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-class AdRewardSsvContext {
-  const AdRewardSsvContext({this.userId, this.customData});
-
-  final String? userId;
-  final String? customData;
-
-  bool get hasValues {
-    final user = userId?.trim() ?? '';
-    final custom = customData?.trim() ?? '';
-    return user.isNotEmpty || custom.isNotEmpty;
-  }
-}
+// Les appelants historiques importent ce fichier pour `AdRewardSsvContext` ;
+// le type vit désormais dans `ad_ssv_context.dart` avec les constructeurs
+// partagés, et reste ré-exporté ici.
+export 'package:bot_creator/features/ads/logic/ad_ssv_context.dart'
+    show AdRewardSsvContext, BotAdSsvOwnerIds;
 
 class AdRewardService {
   AdRewardService._();
@@ -190,19 +184,37 @@ class AdRewardService {
     return trimmed;
   }
 
+  /// Applique le contexte SSV à l'annonce chargée.
+  ///
+  /// Renvoie `false` — et donc refuse de montrer l'annonce — quand aucun
+  /// contexte exploitable n'est fourni : sans lui, le callback AdMob arrive
+  /// sans mapping côté Manager et la récompense de l'utilisateur est perdue
+  /// (c'est exactement le bug « ignored missing bot mapping » observé en prod,
+  /// où l'annonce était montée sans aucune option de vérification serveur).
   static Future<bool> _applySsvContext(
     RewardedAd ad,
     AdRewardSsvContext? ssvContext,
   ) async {
-    if (ssvContext == null || !ssvContext.hasValues) {
-      return true;
+    final context = ssvContext;
+    if (context == null || !canShowRewardedAdWithSsv(context)) {
+      unawaited(
+        AppDiagnostics.logError(
+          'Rewarded ad refused: no server-side verification context',
+          StateError('missing_ssv_context'),
+          StackTrace.current,
+          fatal: false,
+          reason:
+              'userId/customData absents : montrer l\'annonce perdrait la récompense.',
+        ),
+      );
+      return false;
     }
 
     try {
       await ad.setServerSideOptions(
         ServerSideVerificationOptions(
-          userId: _nonEmpty(ssvContext.userId),
-          customData: _nonEmpty(ssvContext.customData),
+          userId: _nonEmpty(context.userId),
+          customData: _nonEmpty(context.customData),
         ),
       );
       return true;
@@ -217,69 +229,6 @@ class AdRewardService {
       );
       return false;
     }
-  }
-
-  static void showRewardedAdNonBlocking({
-    Future<void> Function()? onRewardEarned,
-  }) {
-    if (!_initialized || !_isSupportedPlatform) {
-      return;
-    }
-
-    if (_isShowing) {
-      return;
-    }
-
-    final ad = _rewardedAd;
-    if (ad == null) {
-      _preloadRewardedAd();
-      return;
-    }
-
-    _rewardedAd = null;
-    _isShowing = true;
-    _lastShownAt = DateTime.now();
-
-    ad.fullScreenContentCallback = FullScreenContentCallback(
-      onAdShowedFullScreenContent: (_) {
-        unawaited(AppDiagnostics.logInfo('Rewarded ad displayed'));
-      },
-      onAdDismissedFullScreenContent: (ad) {
-        ad.dispose();
-        _isShowing = false;
-        _preloadRewardedAd();
-      },
-      onAdFailedToShowFullScreenContent: (ad, error) {
-        ad.dispose();
-        _isShowing = false;
-        unawaited(
-          AppDiagnostics.logInfo(
-            'Rewarded ad failed to show',
-            data: {'error': error.message, 'code': error.code},
-          ),
-        );
-        _preloadRewardedAd();
-      },
-    );
-
-    ad.show(
-      onUserEarnedReward: (_, reward) {
-        _notifyRewardEarned(onRewardEarned);
-        unawaited(
-          AppDiagnostics.logInfo(
-            'Reward earned from rewarded ad',
-            data: {'amount': reward.amount, 'type': reward.type},
-          ),
-        );
-      },
-    );
-
-    // Ensure a future ad is prepared even if callbacks are delayed.
-    Future<void>.delayed(const Duration(seconds: 10), () {
-      if (!_isShowing && _rewardedAd == null) {
-        _preloadRewardedAd();
-      }
-    });
   }
 
   static void _notifyRewardEarned(Future<void> Function()? callback) {

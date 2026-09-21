@@ -90,6 +90,7 @@ dependencies:
   google_fonts: ^6.2.1
   window_manager: ^0.5.2
   desktop_webview_window: ^0.3.0
+  in_app_update: ^5.0.0
 
 
 dependency_overrides:

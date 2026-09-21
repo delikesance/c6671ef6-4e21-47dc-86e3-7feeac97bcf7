@@ -18,7 +18,9 @@ class HomeContainerActions {
     required this.onStop,
     required this.onLogs,
     required this.onDetail,
+    this.onInvite,
     this.busy = false,
+    this.inviteBusy = false,
   });
 
   /// Démarre le conteneur (état arrêté uniquement).
@@ -30,6 +32,11 @@ class HomeContainerActions {
   /// Ouvre la console de logs du conteneur.
   final VoidCallback? onLogs;
 
+  /// Invite le bot de ce conteneur dans un serveur Discord : l'à-propos ne
+  /// dépend PAS de l'état du conteneur (un bot à l'arrêt reste invitable), donc
+  /// la carte ne conditionne pas ce bouton à `container.isRunning`.
+  final VoidCallback? onInvite;
+
   /// Ouvre la page de DÉTAIL du conteneur, seul endroit d'où l'on gère vraiment :
   /// ajout de temps, ressources, et SUPPRESSION. Le raccourci « ajouter du temps »
   /// qui ouvrait cette page par effet de bord a été retiré : sur l'accueil, ce qu'on
@@ -39,12 +46,20 @@ class HomeContainerActions {
   /// Vrai pendant une action en cours : la carte se verrouille pour éviter un
   /// double clic sur démarrer/arrêter.
   final bool busy;
+
+  /// Vrai pendant une invitation en cours : le bouton « Inviter le bot » est
+  /// désactivé et porte l'indicateur d'occupation, donc aucun second envoi.
+  final bool inviteBusy;
 }
 
 /// Libellé d'un conteneur clé en main : le nom produit (« Easy Music Bot »)
 /// quand l'image y correspond, sinon le titre du modèle, sinon l'image brute —
 /// même règle de résolution que la liste « Turnkey Bots ».
 String turnkeyContainerTitle(ContainerInfo container, AppLocalizations tr) {
+  final botName = container.discordBotName?.trim() ?? '';
+  if (botName.isNotEmpty) {
+    return botName;
+  }
   final template = templateForImage(container.image);
   if (template?.id == HostedAppTemplateId.easyMusic ||
       container.image.toLowerCase().contains('beatdock')) {
@@ -151,13 +166,19 @@ class HomeTurnkeyContainerCard extends StatelessWidget {
   /// conteneur n'a pas d'échéance connue.
   String? _expiryLabel(AppLocalizations tr) {
     if (container.expiresAt.millisecondsSinceEpoch == 0) return null;
-    final remaining = container.expiresAt
-        .toUtc()
-        .difference(DateTime.now().toUtc());
-    if (remaining.isNegative) return tr.container_list_expired;
+    final remaining = container.expiresAt.toUtc().difference(
+      DateTime.now().toUtc(),
+    );
+    if (remaining.isNegative) {
+      return tr.container_list_expired;
+    }
     final totalMinutes = remaining.inMinutes;
-    if (totalMinutes < 1) return tr.container_list_expiry_minutes(1);
-    if (totalMinutes < 60) return tr.container_list_expiry_minutes(totalMinutes);
+    if (totalMinutes < 1) {
+      return tr.container_list_expiry_minutes(1);
+    }
+    if (totalMinutes < 60) {
+      return tr.container_list_expiry_minutes(totalMinutes);
+    }
     final hours = totalMinutes ~/ 60;
     if (hours < 24) {
       return tr.container_list_expiry_hours(hours, totalMinutes % 60);
@@ -194,14 +215,26 @@ class HomeTurnkeyContainerCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: scheme.primary.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(12),
+                if (container.discordBotAvatarUrl != null)
+                  HomeBotAvatar(
+                    imageUrl: container.discordBotAvatarUrl,
+                    size: 44,
+                    fallbackIcon: _icon,
+                    fallbackLabel:
+                        (container.discordBotName?.trim().isNotEmpty ?? false)
+                        ? container.discordBotName!.trim()[0]
+                        : null,
+                  )
+                else
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: scheme.primary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(_icon, color: scheme.primary, size: 24),
                   ),
-                  child: Icon(_icon, color: scheme.primary, size: 24),
-                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -250,7 +283,9 @@ class HomeTurnkeyContainerCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          color: isDark ? tokens.muted : scheme.onSurfaceVariant,
+                          color: isDark
+                              ? tokens.muted
+                              : scheme.onSurfaceVariant,
                           fontSize: 12,
                         ),
                       ),
@@ -286,9 +321,7 @@ class HomeTurnkeyContainerCard extends StatelessWidget {
               Row(
                 children: [
                   Icon(
-                    expired
-                        ? Icons.timer_off_rounded
-                        : Icons.schedule_rounded,
+                    expired ? Icons.timer_off_rounded : Icons.schedule_rounded,
                     size: 14,
                     color: expired ? AppTheme.danger : scheme.onSurfaceVariant,
                   ),
@@ -360,13 +393,27 @@ class HomeTurnkeyContainerCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 10),
-            SizedBox(
-              width: double.infinity,
-              child: HomeCardActionButton(
-                icon: Icons.tune_rounded,
-                label: tr.container_detail_open,
-                onTap: actions.onDetail,
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: HomeCardActionButton(
+                    icon: Icons.person_add_alt_1_rounded,
+                    label: actions.inviteBusy
+                        ? tr.container_invite_busy
+                        : tr.container_invite_btn,
+                    loading: actions.inviteBusy,
+                    onTap: actions.inviteBusy ? null : actions.onInvite,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: HomeCardActionButton(
+                    icon: Icons.tune_rounded,
+                    label: tr.container_detail_open,
+                    onTap: actions.onDetail,
+                  ),
+                ),
+              ],
             ),
           ],
         ),

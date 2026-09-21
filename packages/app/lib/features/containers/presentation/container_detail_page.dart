@@ -5,11 +5,13 @@ import 'package:bot_creator/core/network/gateway_bot_events.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/network/poll_cadence.dart';
+import 'package:bot_creator/core/platform/run_platform.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/containers/logic/hosted_app_hosting_actions.dart';
 import 'package:bot_creator/features/containers/logic/hosted_app_status.dart';
 import 'package:bot_creator/features/containers/logic/hosted_app_templates.dart';
+import 'package:bot_creator/features/containers/logic/turnkey_bot_invite.dart';
 import 'package:bot_creator/features/containers/presentation/hosted_app_upsell_widgets.dart';
 
 class ContainerDetailPage extends StatefulWidget {
@@ -29,6 +31,11 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
   bool _stopping = false;
   bool _starting = false;
   bool _deleting = false;
+  bool _inviting = false;
+
+  /// Service d'invitation unique de la page : réutiliser la même instance est ce
+  /// qui rend sa garde de réentrance efficace entre deux taps.
+  TurnkeyBotInviteService? _inviteService;
   bool _claimingAd = false;
   bool _loadingEligibility = true;
   HostedAppEligibility? _eligibility;
@@ -297,6 +304,84 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
     }
   }
 
+  /// Conteneur tel que le service d'invitation le lit.
+  ///
+  /// La page ne tient pas de [ContainerInfo] : elle ne charge qu'un statut
+  /// (`GET /containers/{id}`) et son identifiant. On relit donc le statut par le
+  /// même modèle que partout ailleurs, en imposant `widget.containerId` — c'est
+  /// la seule clé dont l'invitation a besoin, et elle ne doit jamais dépendre de
+  /// la façon dont le serveur nomme l'identifiant dans ce statut.
+  ///
+  /// `null` tant que le statut n'est pas chargé : l'appelant le dit alors
+  /// explicitement, plutôt que d'inviter sur un conteneur vide.
+  ContainerInfo? _containerForInvite() {
+    final status = _status;
+    if (status == null) return null;
+    return ContainerInfo.fromJson(<String, dynamic>{
+      ...status,
+      'id': widget.containerId,
+    });
+  }
+
+  /// Invite le bot de ce conteneur dans un serveur Discord.
+  ///
+  /// Le parcours (identité déjà connue → lien direct, sinon résolution par le
+  /// manager) appartient à [TurnkeyBotInviteService]. Toute issue d'échec a un
+  /// texte via [botInviteOutcomeMessage] : devant ce bouton, un tap ne reste
+  /// jamais sans réponse.
+  Future<void> _inviteBot() async {
+    if (_inviting) return;
+    final container = _containerForInvite();
+    setState(() => _inviting = true);
+    try {
+      if (container == null) {
+        // Statut indisponible : on le DIT, on n'invite pas à l'aveugle.
+        _showInviteMessage(BotInviteOutcome.networkError);
+        return;
+      }
+      final service = _inviteService ??= TurnkeyBotInviteService(client: _client);
+      final outcome = await service.invite(container);
+      if (!mounted) return;
+      _showInviteMessage(outcome);
+    } catch (error) {
+      if (mounted) _showInviteMessage(BotInviteOutcome.networkError);
+    } finally {
+      if (mounted) {
+        setState(() => _inviting = false);
+      } else {
+        _inviting = false;
+      }
+    }
+  }
+
+  /// Affiche le message de [outcome] : « opened » et « busy » n'ont rien à dire,
+  /// et une chaîne vide ne produit donc aucun SnackBar.
+  void _showInviteMessage(BotInviteOutcome outcome) {
+    final message = botInviteOutcomeMessage(outcome, context.tr);
+    if (message.isEmpty) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
+    );
+  }
+
+  /// Bouton d'invitation : même famille visuelle que les boutons voisins
+  /// (Démarrer / Arrêter), désactivé avec indicateur pendant l'appel.
+  Widget _inviteBotButton(AppLocalizations tr) {
+    return OutlinedButton.icon(
+      onPressed: _inviting ? null : _inviteBot,
+      icon: _inviting
+          ? const SizedBox(
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : const Icon(Icons.person_add_alt_1),
+      label: Text(
+        _inviting ? tr.container_invite_busy : tr.container_invite_btn,
+      ),
+    );
+  }
+
   Future<void> _deleteContainer() async {
     if (_client == null) return;
     final tr = context.tr;
@@ -424,7 +509,12 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
                 HostedAppFreeHostingBanner(
                   eligibility: _eligibility!,
                   claimingAd: _claimingAd,
-                  onWatchAd: (state == 'RUNNING' || state == 'PROVISIONING')
+                  // Desktop : aucune publicité n'y est diffusée. Le temps
+                  // d'hébergement vient du SOLDE SERVEUR (bouton « appliquer les
+                  // minutes stockées » ci-dessous), jamais d'une vidéo.
+                  onWatchAd: isDesktopRunPlatform
+                      ? null
+                      : (state == 'RUNNING' || state == 'PROVISIONING')
                       ? _watchAdAndTopUp
                       : null,
                   showTopUpHint: state == 'RUNNING' || state == 'PROVISIONING',
@@ -549,6 +639,13 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
                       : const Icon(Icons.power_settings_new),
                   label: Text(_stopping ? tr.container_state_stopping : tr.container_detail_stop_title),
                 ),
+                // Invitation juste sous « Éteindre » : le bot peut tourner sans
+                // être encore dans un serveur, c'est même le cas à la sortie du
+                // déploiement — c'est ici qu'on y remédie.
+                if (state == 'RUNNING') ...[
+                  const SizedBox(height: 12),
+                  _inviteBotButton(tr),
+                ],
                 if (state == 'RUNNING') ...[
                 const SizedBox(height: 24),
                 Text(tr.container_detail_console, style: Theme.of(context).textTheme.titleSmall),
@@ -591,6 +688,8 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
                       : const Icon(Icons.play_arrow),
                   label: Text(_starting ? tr.container_detail_starting : tr.container_detail_start_btn),
                 ),
+                const SizedBox(height: 12),
+                _inviteBotButton(tr),
               ],
               // Suppression accessible à TOUT moment : un conteneur EN MARCHE doit
               // pouvoir être détruit (le serveur l'arrête d'abord — Deployment et

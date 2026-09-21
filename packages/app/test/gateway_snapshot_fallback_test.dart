@@ -618,16 +618,18 @@ void main() {
           await settle(tester);
           expect(fetcher.calls, 1);
 
-          // 61 s plus tard, le ticker de repli doit avoir refait un snapshot. C'est la
+          // 61 s plus tard, le ticker de repli doit avoir refait des snapshots. C'est la
           // preuve que `_gatewayEventsConnected` est resté à faux après application :
           // s'il passait à vrai, le ticker se croirait reconnecté et ne relancerait
           // plus rien (l'accueil ne se rafraîchirait jamais tant que la WebSocket est
-          // coupée).
+          // coupée). L'attente porte sur le FAIT (le repli se relance encore), pas sur
+          // la cadence : elle était de 60 s, elle est de 15 s depuis la décision de
+          // corriger plus vite un statut resté faux, et ce test n'a pas à la figer.
           await tester.pump(const Duration(seconds: 61));
           await settle(tester);
           expect(
             fetcher.calls,
-            2,
+            greaterThan(2),
             reason: 'le drapeau ne doit pas faire croire que la WebSocket est revenue',
           );
         });

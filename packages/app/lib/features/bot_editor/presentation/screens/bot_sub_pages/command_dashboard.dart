@@ -1,16 +1,18 @@
 import 'dart:async';
 import 'dart:math' as math;
+import 'package:bot_creator/core/platform/run_platform.dart';
 import 'dart:ui' as ui;
 
 import 'package:bot_creator/core/storage/database.dart';
 
 import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
+import 'package:bot_creator/features/subscriptions/logic/premium_feature_gate.dart';
 import 'package:bot_creator/core/network/remote_runtime.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/features/subscriptions/presentation/subscription_page.dart';
-import 'package:flutter/foundation.dart';
+import 'package:bot_creator/features/subscriptions/presentation/widgets/premium_locked_hint.dart';
 import 'package:flutter/material.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
@@ -54,11 +56,8 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
   bool _hasManagerSource = false;
   String? _managerUnavailableReason;
 
-  bool get _supportsManagerRuntime =>
-      !kIsWeb &&
-      defaultTargetPlatform != TargetPlatform.windows &&
-      defaultTargetPlatform != TargetPlatform.linux &&
-      defaultTargetPlatform != TargetPlatform.macOS;
+  // Une seule règle dans toute l'application (voir `run_platform.dart`).
+  bool get _supportsManagerRuntime => supportsManagerRuntime;
 
   @override
   void initState() {
@@ -471,8 +470,11 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
       );
     } else {
       final periodTotal = _commands.fold<int>(0, (sum, c) => sum + c.count);
-      final hasExpandedAnalytics = PremiumCapabilities.hasCapability(
+      // Les statistiques étendues se calculent ICI : débloquées sur un poste de
+      // travail quand le bot tourne sur cet appareil (le serveur n'est pas sollicité).
+      final hasExpandedAnalytics = premiumCapabilityAvailableForBot(
         PremiumCapability.analyticsExpanded,
+        botId: widget.botId,
       );
 
       body = Center(
@@ -626,6 +628,12 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
                               label: Text(context.tr.premium_card_button),
                             ),
                           ),
+                        ] else ...[
+                          const SizedBox(height: 8),
+                          // Sans boutique native (poste de travail), il ne restait AUCUNE
+                          // action : on dit au moins pourquoi c'est verrouille et ou
+                          // l'abonnement s'active.
+                          const PremiumLockedHint(),
                         ],
                       ],
                     ),

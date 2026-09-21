@@ -1,3 +1,24 @@
+Bot Creator v2.3.0
+
+New Features:
+- Ready-Made Bots now fill in the variables their template declares: server-provided values (like your music server credentials) arrive pre-filled and locked, so a bot always starts with a valid configuration
+- Your bot picks a working music server on its own, and only falls back to the ones you saved
+- Ready-Made Bots appear in your home list, with readable logs and the ability to stop, restart or delete them
+- The app now tells you when a new version is available, and lets you update from the store
+- Rewarded ads pay more when you watch several in a day: up to 4 hours per ad for a bot, and the same scale for Ready-Made Bots
+
+Improvements:
+- Much lighter on the network: your status arrives over the live connection, one snapshot request replaces many, and polling slows down when you are not watching — better battery, fewer rate-limit errors
+- Your hosting end date is now the real one sent by the server, instead of a misleading "permanent"
+- Full translations for the new screens in German, Japanese, Portuguese and Turkish
+- Google Drive reconnects silently in the background
+
+Bug Fixes:
+- A subscription is no longer erased locally when the server answers late: the store is re-checked before anything is cleared
+- Fixed the container quota not blocking a launch in some cases
+- A Ready-Made Bot no longer creates a phantom, unconfigured bot in your list
+- Rewarded ads: an ad watched to the end now always counts, and an ad is no longer shown when the reward could not be validated
+
 Bot Creator v2.1.11
 
 New Features:

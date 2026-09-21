@@ -7,10 +7,17 @@
 // contrôles restent VISIBLES mais GRISÉS, avec un cadenas et la mention
 // « 🔒 Disponible avec Bot Creator PREMIUM » — un levier d'abonnement ne se
 // masque jamais.
+//
+// Nuance ajoutée par la règle produit : quand le bot tourne sur CET appareil, la
+// musique n'est plus une ressource du serveur — le bot interroge lui-même ses
+// serveurs. Le cadrage suit donc l'endroit d'exécution (voir `premium_feature_gate`),
+// pas la plateforme : c'est la même page qui se dégrise sur un poste de travail et
+// qui reste grisée pour un bot hébergé.
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/bot_editor/logic/lavalink_config.dart';
 import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
+import 'package:bot_creator/features/subscriptions/logic/premium_feature_gate.dart';
 import 'package:bot_creator/features/subscriptions/presentation/subscription_page.dart';
 import 'package:flutter/material.dart';
 
@@ -19,6 +26,7 @@ class LavalinkSettingsSection extends StatefulWidget {
     super.key,
     required this.initialConfig,
     required this.onSave,
+    required this.botId,
   });
 
   /// Contenu persisté de `lavalinkConfig` (schéma figé, ou ancienne forme relue
@@ -27,6 +35,11 @@ class LavalinkSettingsSection extends StatefulWidget {
 
   /// Persiste la charge utile conforme au schéma figé.
   final Future<void> Function(Map<String, dynamic> config) onSave;
+
+  /// Bot édité : indispensable pour savoir OÙ il s'exécute, et donc si la musique
+  /// reste cadrée par la formule (bot sur Bot Creator Server) ou non (bot sur ce
+  /// poste — la règle produit ne réserve au serveur que le Running côté serveur).
+  final String botId;
 
   @override
   State<LavalinkSettingsSection> createState() =>
@@ -143,8 +156,12 @@ class _LavalinkSettingsSectionState extends State<LavalinkSettingsSection> {
     final tr = context.tr;
     final scheme = Theme.of(context).colorScheme;
     final inputDecoration = _inputDecoration(scheme);
-    final isPremium = PremiumCapabilities.hasCapability(
+    // La musique s'exécute ICI (le bot interroge lui-même les serveurs publics) : sur
+    // un poste de travail elle n'est donc plus cadrée par la formule tant que le bot
+    // tourne sur cet appareil. Règle produit : seul le Running côté serveur l'est.
+    final isPremium = premiumCapabilityAvailableForBot(
       PremiumCapability.lavalinkAudio,
+      botId: widget.botId,
     );
     final canPurchase = PremiumCapabilities.canShowPurchaseUI;
 

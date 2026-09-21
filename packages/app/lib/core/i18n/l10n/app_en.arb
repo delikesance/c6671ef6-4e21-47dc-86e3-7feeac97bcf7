@@ -1,5 +1,141 @@
 {
   "@@locale": "en",
+  "@app_update_dialog_title": {
+    "description": "New version available"
+  },
+  "app_update_dialog_title": "New version available",
+  "@app_update_dialog_message": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "installed": {
+        "type": "String"
+      }
+    },
+    "description": "Version {version} is available on the store (you have {installed}). Update to get the latest fixes."
+  },
+  "app_update_dialog_message": "Version {version} is available on the store (you have {installed}). Update to get the latest fixes.",
+  "@app_update_later": {
+    "description": "Later"
+  },
+  "app_update_later": "Later",
+  "@app_update_update_now": {
+    "description": "Update"
+  },
+  "app_update_update_now": "Update",
+  "@app_update_store_open_failed": {
+    "description": "The store page could not be opened."
+  },
+  "app_update_store_open_failed": "The store page could not be opened.",
+  "@app_update_download_started": {
+    "description": "Downloading in the background — you can keep using the app."
+  },
+  "app_update_download_started": "Downloading in the background — you can keep using the app.",
+  "@bot_token_import_btn": {
+    "description": "Button that fetches a bot token from the account (Bot Token screen and bot card menu)"
+  },
+  "@bot_token_import_missing": {
+    "description": "Import failed: 404 bot_not_found, the bot is not on this account"
+  },
+  "@bot_token_import_network": {
+    "description": "Import failed: network outage or retryable 5xx"
+  },
+  "@bot_token_import_no_account": {
+    "description": "Import impossible: no account session on this device"
+  },
+  "@bot_token_import_not_stored": {
+    "description": "Import failed: 409 token_unavailable, no credential stored server-side"
+  },
+  "@bot_token_import_server_cannot_read": {
+    "description": "Import failed: 500 token_decrypt_failed"
+  },
+  "@bot_token_import_server_unsupported": {
+    "description": "Import failed: the route does not exist on this (older) server"
+  },
+  "@bot_token_import_success": {
+    "description": "Result of a successful token import"
+  },
+  "@container_invite_server_unsupported": {
+    "description": "Turnkey bot invite failed: the identity route does not exist on this (older) server"
+  },
+  "@settings_app_update_title": {
+    "description": "Updates"
+  },
+  "bot_token_import_btn": "Import the token from my account",
+  "bot_token_import_missing": "This bot does not exist on your account.",
+  "bot_token_import_network": "Could not reach the server: check your connection and try again.",
+  "bot_token_import_no_account": "No account is connected on this device: sign in to import the token.",
+  "bot_token_import_not_stored": "No token is stored on your account: enter it once here.",
+  "bot_token_import_server_cannot_read": "The server cannot read the stored token.",
+  "bot_token_import_server_unsupported": "This server does not offer token import yet — update or redeploy it.",
+  "bot_token_import_success": "Token imported from your account: the connection is restored.",
+  "container_invite_server_unsupported": "This server does not offer bot invite yet — update or redeploy it.",
+  "container_invite_missing": "This container no longer exists on the server — reload the container list.",
+  "settings_app_update_title": "Updates",
+  "@settings_app_update_installed_version": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "build": {
+        "type": "String"
+      }
+    },
+    "description": "{version} (build {build})"
+  },
+  "settings_app_update_installed_version": "{version} (build {build})",
+  "@settings_app_version_value": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    },
+    "description": "App version with its value"
+  },
+  "settings_app_version_value": "App: {version}",
+  "@settings_runner_version_value": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    },
+    "description": "Runner version with its value"
+  },
+  "settings_runner_version_value": "Runner: {version}",
+  "@settings_app_update_check_button": {
+    "description": "Check for updates"
+  },
+  "settings_app_update_check_button": "Check for updates",
+  "@settings_app_update_checking": {
+    "description": "Checking…"
+  },
+  "settings_app_update_checking": "Checking…",
+  "@settings_app_update_up_to_date": {
+    "description": "You are running the latest version."
+  },
+  "settings_app_update_up_to_date": "You are running the latest version.",
+  "@settings_app_update_available": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    },
+    "description": "Version {version} is available on the store."
+  },
+  "settings_app_update_available": "Version {version} is available on the store.",
+  "@settings_app_update_unavailable": {
+    "description": "Could not check for updates right now."
+  },
+  "settings_app_update_unavailable": "Could not check for updates right now.",
+  "@settings_app_update_unsupported": {
+    "description": "Updates can only be checked in the Android or iOS app."
+  },
+  "settings_app_update_unsupported": "Updates can only be checked in the Android or iOS app.",
+  "@settings_app_update_open_store": {
+    "description": "Open store page"
+  },
+  "settings_app_update_open_store": "Open store page",
   "@action_add_else_if": {
     "description": "Add ELSE IF"
   },
@@ -1648,6 +1784,12 @@
   },
   "@bot_logs_rich_mode": {
     "description": "Rich formatted logs"
+  },
+  "@bot_logs_server_empty": {
+    "description": "The Bot Creator servers returned no logs for this bot."
+  },
+  "@bot_logs_server_read_failed": {
+    "description": "Could not read the logs from the Bot Creator servers."
   },
   "@bot_logs_show_all": {
     "description": "Show all"
@@ -4147,6 +4289,18 @@
     "description": "Active on {count} servers"
   },
   "@home_add_time": {
+  "@home_add_time_mobile_only": {
+    "description": "home_add_time_mobile_only"
+  },
+  "@home_hosting_unlimited_overline": {
+    "description": "home_hosting_unlimited_overline"
+  },
+  "@home_hosting_unlimited_headline": {
+    "description": "home_hosting_unlimited_headline"
+  },
+  "@home_hosting_remaining_overline": {
+    "description": "home_hosting_remaining_overline"
+  },
     "description": "Add Time"
   },
   "@home_create_bot_subtitle": {
@@ -5309,6 +5463,9 @@
   "@runner_source_manager_unavailable": {
     "description": "Sign in to Bot Creator in Settings to load stats from Bot Creator servers."
   },
+  "@runner_source_this_device": {
+    "description": "This device"
+  },
   "@save": {
     "description": "Save"
   },
@@ -5413,6 +5570,23 @@
   },
   "@scoped_delete_title": {
     "description": "Delete Scoped Variable"
+  },
+  "@scoped_declare_detected": {
+    "description": "Declare this variable"
+  },
+  "@scoped_detected_badge": {
+    "description": "Detected"
+  },
+  "@scoped_detected_hint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "No declared definition \u00b7 {count} stored value(s)"
+  },
+  "@scoped_detected_tooltip": {
+    "description": "Value present in the bot data without a declared definition. Shown as-is; nothing is invented."
   },
   "@scoped_empty": {
     "description": "No scoped variables defined"
@@ -8379,6 +8553,8 @@
   "bot_logs_ram_estimated": "Estimated bot RAM: {memory}",
   "bot_logs_raw_mode": "Compact raw logs",
   "bot_logs_rich_mode": "Rich formatted logs",
+  "bot_logs_server_empty": "The Bot Creator servers returned no logs for this bot.",
+  "bot_logs_server_read_failed": "Could not read the logs from the Bot Creator servers.",
   "bot_logs_show_all": "Show all",
   "bot_logs_show_less": "Show less",
   "bot_logs_show_more": "Show more",
@@ -9187,6 +9363,10 @@
   "guilds_tab_short": "Servers",
   "hint_use_variables": "Use variables/templates if needed",
   "home_add_time": "Add Time",
+  "home_add_time_mobile_only": "Rewarded ads are watched in the mobile app; credited time counts everywhere.",
+  "home_hosting_unlimited_overline": "Hosting included",
+  "home_hosting_unlimited_headline": "Unlimited with your subscription",
+  "home_hosting_remaining_overline": "Time left",
   "home_overline": "MY PROJECTS",
   "home_create_bot_title": "Create a bot",
   "home_create_bot_subtitle": "Your Discord bot in two clicks",
@@ -9223,6 +9403,23 @@
   "home_server_count_one": "{count} server",
   "home_server_count_other": "{count} servers",
   "home_start": "Start",
+  "bot_start_target_title": "Where should {bot} start?",
+  "@bot_start_target_title": {
+    "placeholders": {
+      "bot": {
+        "type": "String"
+      }
+    },
+    "description": "Title of the start-target dialog"
+  },
+  "bot_start_local_title": "Start locally (this device)",
+  "bot_start_local_desc": "Free, consumes nothing. The bot stops when you close the app.",
+  "bot_start_server_title": "Start on Bot Creator Server",
+  "bot_start_server_desc": "Uses your hosting minutes (unlimited with PREMIUM). The bot runs without your device.",
+  "bot_start_server_reason_platform": "This device cannot drive remote hosting.",
+  "bot_start_server_reason_no_account": "No account is connected on this device.",
+  "bot_start_server_reason_cloud_disabled": "Cloud hosting is not enabled on this server.",
+  "bot_start_server_reason_no_minutes": "No hosting minutes left: watch a rewarded ad from the mobile app, or go Premium.",
   "home_start_ads": "Start (Watch Ad)",
   "home_start_premium": "Start (Premium)",
   "home_status_offline": "Offline",
@@ -9488,6 +9685,7 @@
   "premium_active_desc": "Thank you for your support! All ads are disabled.",
   "premium_active_title": "Premium active",
   "premium_card_button": "See plans",
+  "premium_locked_hint": "Your account is on the free plan: the subscription is activated from the mobile app (this device shows neither ads nor purchases).",
   "premium_card_desc": "Subscribe to remove all ads and start your bots instantly, without any popup.",
   "premium_card_title": "Remove Ads",
   "quick_access_title": "Quick Access",
@@ -9566,6 +9764,7 @@
   "runner_source_local": "Local",
   "runner_source_manager": "Bot Creator servers",
   "runner_source_manager_unavailable": "Sign in to Bot Creator in Settings to load stats from Bot Creator servers.",
+  "runner_source_this_device": "This device",
   "save": "Save",
   "scheduler_add_title": "Add schedule",
   "scheduler_add_trigger": "Add trigger",
@@ -9589,6 +9788,10 @@
   "scoped_default_value_hint": "Optional",
   "scoped_delete_confirm": "Delete \"{key}\" and all its stored runtime data?",
   "scoped_delete_title": "Delete Scoped Variable",
+  "scoped_declare_detected": "Declare this variable",
+  "scoped_detected_badge": "Detected",
+  "scoped_detected_hint": "No declared definition · {count} stored value(s)",
+  "scoped_detected_tooltip": "Value present in the bot data without a declared definition. Shown as-is; nothing is invented.",
   "scoped_empty": "No scoped variables defined",
   "scoped_empty_subtitle": "Scoped variables store a value per Discord context (user, server…). They are populated by the bot at runtime.",
   "scoped_explore_runtime": "Explore runtime data",
@@ -10496,6 +10699,7 @@
   "settings_runtime_engine_switch_dialog_confirm": "Change engine",
   "settings_runtime_engine_switch_success": "Runtime engine updated. Restart the bot when you are ready.",
   "settings_runtime_engine_switch_error": "Failed to change runtime engine: {error}",
+  "settings_runtime_engine_switch_empty_payload": "Switch cancelled: the new configuration would be empty (no command, no event, no webhook, no variable). Your local commands and workflows were left untouched.",
   "@settings_runtime_engine_switch_error": {
     "placeholders": {
       "error": {
@@ -10704,6 +10908,23 @@
   "@container_deploy_paste_token_hint": {
     "description": "Hint text for Discord bot token field"
   },
+  "container_deploy_env_fields_section": "Environment Variables",
+  "@container_deploy_env_fields_section": {
+    "description": "Section header for the environment variables declared by a turnkey template"
+  },
+  "container_deploy_env_server_provided": "Provided by the server",
+  "@container_deploy_env_server_provided": {
+    "description": "Helper text on a template environment variable the server fills in (read-only field)"
+  },
+  "container_deploy_env_field_required": "The field {field} is required.",
+  "@container_deploy_env_field_required": {
+    "description": "Validation error for a required turnkey template environment variable",
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
   "container_deploy_discord_prereqs": "Discord Prerequisites",
   "@container_deploy_discord_prereqs": {
     "description": "Header for Discord prerequisites advice box"
@@ -10848,6 +11069,7 @@
     "description": "Deploy eligibility banner reason when the container limit is reached"
   },
   "container_deploy_blocked_no_minutes": "You're out of free hosting minutes. Watch a rewarded ad to unlock more minutes, or go Premium for unlimited hosting.",
+  "container_deploy_blocked_cloud_disabled": "Cloud hosting is not enabled on this server: remote deployment is unavailable. Run the bot locally, or through your own runner.",
   "@container_deploy_blocked_no_minutes": {
     "description": "Deploy eligibility banner reason when there are no hosting minutes left"
   },
@@ -11812,5 +12034,30 @@
   "modal_builder_submit_actions": "Submit Actions",
   "@modal_builder_submit_actions": {
     "description": "Submit Actions"
-  }
+  },
+  "announcement_see_more": "Learn more",
+  "@announcement_see_more": {
+    "description": "Learn more"
+  },
+  "announcement_dismiss": "Dismiss",
+  "@announcement_dismiss": {
+    "description": "Dismiss"
+  },
+  "announcement_acknowledge": "Got it",
+  "@announcement_acknowledge": {
+    "description": "Got it"
+  },
+  "announcement_later": "Later",
+  "@announcement_later": {
+    "description": "Later"
+  },
+  "announcement_link_open_failed": "Couldn't open the link.",
+  "@announcement_link_open_failed": {
+    "description": "Couldn't open the link."
+  },
+  "container_invite_btn": "Invite bot",
+  "container_invite_busy": "Inviting...",
+  "container_invite_unavailable": "This application's bot could not be identified: its token is missing or revoked. Redeploy the bot.",
+  "container_invite_failed": "Could not invite the bot: check your connection and try again.",
+  "container_invite_open_failed": "Could not open the invite link."
 }

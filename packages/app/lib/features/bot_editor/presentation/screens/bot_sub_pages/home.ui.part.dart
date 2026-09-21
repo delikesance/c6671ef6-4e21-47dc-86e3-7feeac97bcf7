@@ -18,7 +18,45 @@ extension _AppHomePageUI on _AppHomePageState {
     return formatHostingDuration(context, i);
   }
 
+  /// Plan d'affichage du temps d'hébergement sur un POSTE DE TRAVAIL, décidé par
+  /// la brique partagée (`hosting_time_offer.dart`) : ce que l'écran a le droit
+  /// d'OFFRIR (bouton pub, explication, état « illimité ») et ce qu'il a le droit
+  /// d'ANNONCER comme échéance (la date du serveur, ou rien).
+  ///
+  /// `null` hors poste de travail : le mobile garde sa règle de visibilité
+  /// historique, au mot près.
+  HostingTimePlan? get _desktopHostingPlan => desktopHostingTimePlan(
+    botId: widget.client.user.id.toString(),
+    serverReportsRunning: _botLaunched,
+    serverSessionExpiresAt: _sessionExpiresAt,
+    premiumFunded: _fundingMode == 'premium',
+  );
+
+  /// Hors poste de travail, la carte garde sa règle historique — sauf sur un
+  /// point : plus aucune date n'est FABRIQUÉE depuis le solde. Un stock de
+  /// minutes n'est pas une échéance, sur aucune plateforme.
+  HostingTimePlan get _historicalHostingPlan => HostingTimePlan(
+    offer: resolveHostingTimeOffer(
+      isDesktop: false,
+      hasNoAds: hasNoAdsEntitlement(),
+      premiumFunded: _fundingMode == 'premium',
+    ),
+    deadline: resolveHostingDeadline(
+      runOrigin: null,
+      serverProvidesDeadline: _sessionExpiresAt != null,
+    ),
+  );
+
   bool get _shouldShowHostingCard {
+    final plan = _desktopHostingPlan;
+    if (plan != null) {
+      // Sur un poste : un abonné voit son état « illimité » (rien n'expire, rien
+      // à obtenir), un bot réellement hébergé voit son échéance réelle ou son
+      // temps restant, un bot exécuté par ce poste ne voit rien — il ne consomme
+      // pas le solde cloud.
+      return plan.showsHostingCard;
+    }
+    // Règle historique hors poste de travail, au mot près.
     if (_fundingMode == 'premium') {
       return false;
     }
@@ -26,6 +64,19 @@ extension _AppHomePageUI on _AppHomePageState {
       return false;
     }
     return _supportsForegroundTask;
+  }
+
+  /// Libellé d'état de l'en-tête : il dit QUI exécute le bot, pas ce que l'écran
+  /// aimerait afficher. Sur un poste, c'est l'état vivant qui tranche ; ailleurs,
+  /// l'ancien libellé est conservé au mot près.
+  String _headerStatusLabel(BuildContext context) {
+    final origin = _runOrigin;
+    if (origin == null) {
+      return _botLaunched
+          ? context.tr.home_hosting_status_active
+          : context.tr.home_status_offline;
+    }
+    return botRunSourceLabel(context.tr, origin) ?? context.tr.home_status_offline;
   }
 
   Widget _buildWideOverview(
@@ -90,9 +141,7 @@ extension _AppHomePageUI on _AppHomePageState {
                     ),
                   ),
                   Text(
-                    _botLaunched
-                        ? context.tr.home_hosting_status_active
-                        : context.tr.home_status_offline,
+                    _headerStatusLabel(context),
                     style: GoogleFonts.inter(
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
@@ -360,11 +409,18 @@ extension _AppHomePageUI on _AppHomePageState {
     required String botId,
     bool fillHeight = false,
   }) {
-    return BotHomeLiveConsoleCard(
+    // Le panneau LIT les logs d'un bot hébergé (`GET /gateway/bots/{id}/logs`)
+    // au lieu d'attendre un flux poussé : sans cette lecture, la console d'un bot
+    // qui tourne sur les serveurs Bot Creator restait vide.
+    return BotServerLogsScope(
       botId: botId,
-      isLive: _botLaunched,
-      fillHeight: fillHeight,
-      onOpenLogs: () => _openBotLogsPage(botId),
+      builder: (context, serverLogs) => BotHomeLiveConsoleCard(
+        botId: botId,
+        isLive: _botLaunched,
+        fillHeight: fillHeight,
+        serverLogs: serverLogs,
+        onOpenLogs: () => _openBotLogsPage(botId),
+      ),
     );
   }
 
@@ -481,6 +537,46 @@ extension _AppHomePageUI on _AppHomePageState {
   Widget _buildHostingCard(BuildContext context) {
     final balance = _displayFreeMinutesBalance();
     final parts = splitHostingDuration(balance);
+    // Sur un poste, la décision est partagée ; ailleurs, la règle historique.
+    final plan = _desktopHostingPlan ?? _historicalHostingPlan;
+    final expiresAt = _sessionExpiresAt;
+    final unlimited = plan.showsUnlimitedState;
+    final breakdown = _hostingSegments(parts);
+
+    // Contenu écrit : une seule vérité à la fois, décidée par la brique partagée
+    // (`resolveHostingCardCopy`). L'écran ne choisit plus lui-même ce qu'il
+    // écrit, donc il ne peut plus FABRIQUER une échéance depuis le solde :
+    //   * un abonné lit son ÉTAT (« illimité ») ;
+    //   * sinon l'échéance RÉELLE du serveur, quand il en fournit une ;
+    //   * sinon le TEMPS RESTANT (le solde) — 138 mois de stock ne font pas le
+    //     14 février 2038 ;
+    //   * bot arrêté : la réserve attend.
+    final cardCopy = switch (resolveHostingCardCopy(
+      plan,
+      botLaunched: _botLaunched,
+      serverSessionExpiresAt: expiresAt,
+    )) {
+      HostingCardCopy.unlimited => (
+        overline: context.tr.home_hosting_unlimited_overline,
+        headline: context.tr.home_hosting_unlimited_headline,
+        segments: const <({String value, String label})>[],
+      ),
+      HostingCardCopy.serverDeadline => (
+        overline: context.tr.home_hosting_expiration_expected,
+        headline: formatHostingExpiration(context, expiresAt!),
+        segments: breakdown,
+      ),
+      HostingCardCopy.remainingTime => (
+        overline: context.tr.home_hosting_remaining_overline,
+        headline: formatDuration(balance),
+        segments: breakdown,
+      ),
+      HostingCardCopy.preservedTime => (
+        overline: context.tr.home_hosting_time_preserved_overline,
+        headline: formatDuration(balance),
+        segments: breakdown,
+      ),
+    };
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -515,39 +611,38 @@ extension _AppHomePageUI on _AppHomePageState {
               : context.tr.home_hosting_status_paused_short,
           // Quand le bot tourne, la pastille porte la santé de la réserve
           // (vert / orange / rouge) ; arrêté, la réserve est simplement en
-          // attente.
-          statusColor: _botLaunched
-              ? _hostingTimeColor(balance)
-              : AppTheme.warning,
-          overline: _botLaunched
-              ? context.tr.home_hosting_expiration_expected
-              : context.tr.home_hosting_time_preserved_overline,
-          headline: _botLaunched
-              ? formatHostingExpiration(
-                  context,
-                  _sessionExpiresAt ??
-                      DateTime.now().add(Duration(minutes: balance)),
-                )
-              : formatDuration(balance),
-          segments: [
-            (
-              value: _twoDigits(parts.months),
-              label: context.tr.unit_short_month,
-            ),
-            (value: _twoDigits(parts.days), label: context.tr.unit_short_day),
-            (value: _twoDigits(parts.hours), label: context.tr.unit_short_hour),
-            (
-              value: _twoDigits(parts.minutes),
-              label: context.tr.unit_short_minute,
-            ),
-          ],
+          // attente. Un abonné n'a plus de réserve à surveiller : sa pastille
+          // ne peut pas devenir rouge pour un solde qu'il ne consomme pas.
+          statusColor: unlimited
+              ? (_botLaunched ? AppTheme.online : AppTheme.warning)
+              : (_botLaunched
+                    ? _hostingTimeColor(balance)
+                    : AppTheme.warning),
+          overline: cardCopy.overline,
+          headline: cardCopy.headline,
+          segments: cardCopy.segments,
+          // Ce que cet écran a le droit d'OFFRIR : bouton (mobile non abonné),
+          // explication (poste de travail), rien (abonné).
+          offer: plan.offer,
           showTeamBadge: _ownerMetadata?.teamId.isNotEmpty == true,
-          emphasizeBorder: balance < 120 && _botLaunched,
+          emphasizeBorder: !unlimited && balance < 120 && _botLaunched,
           isAddingTime: _isAddingTime,
           onAddTime: _isAddingTime ? null : _addRuntimeTime,
         ),
       ],
     );
+  }
+
+  /// Décomposition du temps restant : une valeur et un libellé par unité.
+  List<({String value, String label})> _hostingSegments(
+    HostingDurationParts parts,
+  ) {
+    return [
+      (value: _twoDigits(parts.months), label: context.tr.unit_short_month),
+      (value: _twoDigits(parts.days), label: context.tr.unit_short_day),
+      (value: _twoDigits(parts.hours), label: context.tr.unit_short_hour),
+      (value: _twoDigits(parts.minutes), label: context.tr.unit_short_minute),
+    ];
   }
 
   /// Complète une valeur sur deux chiffres (« 07 », « 05 », « 53 »).
@@ -823,7 +918,14 @@ class BotHomeDesktopOverview extends StatelessWidget {
 }
 
 /// Carte « Logs du bot » : en-tête (titre + pastille LIVE + action) et console
-/// intégrée alimentée par le même flux que la page des logs.
+/// intégrée.
+///
+/// La console affiche DEUX sources, dans cet ordre de vérité :
+///  1. les lignes LUES sur le serveur pour un bot hébergé (`serverLogs`, rempli
+///     par `BotServerLogsScope`) : c'est ce qui la remplit même quand aucun flux
+///     ne pousse rien ;
+///  2. le flux en direct, en BONUS : ses lignes s'ajoutent à la suite.
+/// Sur un bot exécuté en local, `serverLogs` reste vide : rien ne change.
 class BotHomeLiveConsoleCard extends StatelessWidget {
   const BotHomeLiveConsoleCard({
     super.key,
@@ -831,6 +933,7 @@ class BotHomeLiveConsoleCard extends StatelessWidget {
     required this.isLive,
     required this.onOpenLogs,
     this.fillHeight = false,
+    this.serverLogs = const BotServerLogsState(),
   });
 
   final String botId;
@@ -841,11 +944,41 @@ class BotHomeLiveConsoleCard extends StatelessWidget {
   /// être bornée). `false` : hauteur historique bornée 110 → 160 px.
   final bool fillHeight;
 
+  /// Ce que la LECTURE des logs du bot hébergé a rendu
+  /// (`GET /gateway/bots/{id}/logs`). Vide tant qu'aucune lecture n'a eu lieu —
+  /// et un bot exécuté en local n'en produit jamais.
+  final BotServerLogsState serverLogs;
+
   /// Nombre de lignes affichées quand la console a une hauteur bornée.
   static const int _compactLineCount = 5;
 
   /// Plafond du nombre de lignes rendues quand la console s'étire.
   static const int _maxVisibleLines = 200;
+
+  /// Sous-titre de l'état vide : il doit dire la VÉRITÉ.
+  ///
+  /// Trois cas, dans cet ordre :
+  ///  - le serveur a répondu une liste vide → il n'y a rien à afficher, on le
+  ///    dit, au lieu de laisser croire qu'un flux poussé va finir par arriver ;
+  ///  - la lecture a échoué → on le dit aussi. La cause n'est jamais relayée :
+  ///    un message d'erreur peut recracher la réponse du serveur, et un log de
+  ///    bot peut y avoir laissé un secret échappé ;
+  ///  - sinon (bot local, lecture pas encore revenue) → texte d'origine.
+  String _emptyHintText(BuildContext context, {required bool isFr}) {
+    if (serverLogs.isEmptyFromServer) {
+      return context.tr.bot_logs_server_empty;
+    }
+    if (serverLogs.readFailed) {
+      return context.tr.bot_logs_server_read_failed;
+    }
+    return isLive
+        ? (isFr
+              ? 'En attente d\'événements en direct...'
+              : 'Waiting for live events...')
+        : (isFr
+              ? 'Démarrez le bot pour afficher les logs en direct'
+              : 'Start the bot to view live logs');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -865,7 +998,13 @@ class BotHomeLiveConsoleCard extends StatelessWidget {
         stream: getBotLogsStreamForBot(botId),
         initialData: getBotLogsSnapshotForBot(botId),
         builder: (context, snapshot) {
-          final logs = snapshot.data ?? const <String>[];
+          // La lecture des logs du bot hébergé fait autorité ; le flux en direct
+          // la complète en bonus. Sans rien de poussé, les lignes lues
+          // s'affichent quand même — c'est tout le correctif.
+          final logs = mergeBotLogLines(
+            readFromServer: serverLogs.lines,
+            live: snapshot.data ?? const <String>[],
+          );
           if (logs.isEmpty) {
             if (fillHeight) {
               final isFr = Localizations.localeOf(context).languageCode == 'fr';
@@ -904,13 +1043,7 @@ class BotHomeLiveConsoleCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        isLive
-                            ? (isFr
-                                  ? 'En attente d\'événements en direct...'
-                                  : 'Waiting for live events...')
-                            : (isFr
-                                  ? 'Démarrez le bot pour afficher les logs en direct'
-                                  : 'Start the bot to view live logs'),
+                        _emptyHintText(context, isFr: isFr),
                         textAlign: TextAlign.center,
                         style: GoogleFonts.inter(
                           fontSize: 11,

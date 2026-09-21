@@ -106,6 +106,168 @@ abstract class AppLocalizations {
     Locale('tr'),
   ];
 
+  /// New version available
+  ///
+  /// In en, this message translates to:
+  /// **'New version available'**
+  String get app_update_dialog_title;
+
+  /// Version {version} is available on the store (you have {installed}). Update to get the latest fixes.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version} is available on the store (you have {installed}). Update to get the latest fixes.'**
+  String app_update_dialog_message(String version, String installed);
+
+  /// Later
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get app_update_later;
+
+  /// Update
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get app_update_update_now;
+
+  /// The store page could not be opened.
+  ///
+  /// In en, this message translates to:
+  /// **'The store page could not be opened.'**
+  String get app_update_store_open_failed;
+
+  /// Downloading in the background — you can keep using the app.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading in the background — you can keep using the app.'**
+  String get app_update_download_started;
+
+  /// Button that fetches a bot token from the account (Bot Token screen and bot card menu)
+  ///
+  /// In en, this message translates to:
+  /// **'Import the token from my account'**
+  String get bot_token_import_btn;
+
+  /// Import failed: 404 bot_not_found, the bot is not on this account
+  ///
+  /// In en, this message translates to:
+  /// **'This bot does not exist on your account.'**
+  String get bot_token_import_missing;
+
+  /// Import failed: network outage or retryable 5xx
+  ///
+  /// In en, this message translates to:
+  /// **'Could not reach the server: check your connection and try again.'**
+  String get bot_token_import_network;
+
+  /// Import impossible: no account session on this device
+  ///
+  /// In en, this message translates to:
+  /// **'No account is connected on this device: sign in to import the token.'**
+  String get bot_token_import_no_account;
+
+  /// Import failed: 409 token_unavailable, no credential stored server-side
+  ///
+  /// In en, this message translates to:
+  /// **'No token is stored on your account: enter it once here.'**
+  String get bot_token_import_not_stored;
+
+  /// Import failed: 500 token_decrypt_failed
+  ///
+  /// In en, this message translates to:
+  /// **'The server cannot read the stored token.'**
+  String get bot_token_import_server_cannot_read;
+
+  /// Import failed: the route does not exist on this (older) server
+  ///
+  /// In en, this message translates to:
+  /// **'This server does not offer token import yet — update or redeploy it.'**
+  String get bot_token_import_server_unsupported;
+
+  /// Result of a successful token import
+  ///
+  /// In en, this message translates to:
+  /// **'Token imported from your account: the connection is restored.'**
+  String get bot_token_import_success;
+
+  /// Turnkey bot invite failed: the identity route does not exist on this (older) server
+  ///
+  /// In en, this message translates to:
+  /// **'This server does not offer bot invite yet — update or redeploy it.'**
+  String get container_invite_server_unsupported;
+
+  /// No description provided for @container_invite_missing.
+  ///
+  /// In en, this message translates to:
+  /// **'This container no longer exists on the server — reload the container list.'**
+  String get container_invite_missing;
+
+  /// Updates
+  ///
+  /// In en, this message translates to:
+  /// **'Updates'**
+  String get settings_app_update_title;
+
+  /// {version} (build {build})
+  ///
+  /// In en, this message translates to:
+  /// **'{version} (build {build})'**
+  String settings_app_update_installed_version(String version, String build);
+
+  /// App version with its value
+  ///
+  /// In en, this message translates to:
+  /// **'App: {version}'**
+  String settings_app_version_value(String version);
+
+  /// Runner version with its value
+  ///
+  /// In en, this message translates to:
+  /// **'Runner: {version}'**
+  String settings_runner_version_value(String version);
+
+  /// Check for updates
+  ///
+  /// In en, this message translates to:
+  /// **'Check for updates'**
+  String get settings_app_update_check_button;
+
+  /// Checking…
+  ///
+  /// In en, this message translates to:
+  /// **'Checking…'**
+  String get settings_app_update_checking;
+
+  /// You are running the latest version.
+  ///
+  /// In en, this message translates to:
+  /// **'You are running the latest version.'**
+  String get settings_app_update_up_to_date;
+
+  /// Version {version} is available on the store.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version} is available on the store.'**
+  String settings_app_update_available(String version);
+
+  /// Could not check for updates right now.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not check for updates right now.'**
+  String get settings_app_update_unavailable;
+
+  /// Updates can only be checked in the Android or iOS app.
+  ///
+  /// In en, this message translates to:
+  /// **'Updates can only be checked in the Android or iOS app.'**
+  String get settings_app_update_unsupported;
+
+  /// Open store page
+  ///
+  /// In en, this message translates to:
+  /// **'Open store page'**
+  String get settings_app_update_open_store;
+
   /// Add ELSE IF
   ///
   /// In en, this message translates to:
@@ -3088,6 +3250,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Rich formatted logs'**
   String get bot_logs_rich_mode;
+
+  /// The Bot Creator servers returned no logs for this bot.
+  ///
+  /// In en, this message translates to:
+  /// **'The Bot Creator servers returned no logs for this bot.'**
+  String get bot_logs_server_empty;
+
+  /// Could not read the logs from the Bot Creator servers.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not read the logs from the Bot Creator servers.'**
+  String get bot_logs_server_read_failed;
 
   /// Show all
   ///
@@ -7727,6 +7901,30 @@ abstract class AppLocalizations {
   /// **'Add Time'**
   String get home_add_time;
 
+  /// No description provided for @home_add_time_mobile_only.
+  ///
+  /// In en, this message translates to:
+  /// **'Rewarded ads are watched in the mobile app; credited time counts everywhere.'**
+  String get home_add_time_mobile_only;
+
+  /// No description provided for @home_hosting_unlimited_overline.
+  ///
+  /// In en, this message translates to:
+  /// **'Hosting included'**
+  String get home_hosting_unlimited_overline;
+
+  /// No description provided for @home_hosting_unlimited_headline.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited with your subscription'**
+  String get home_hosting_unlimited_headline;
+
+  /// No description provided for @home_hosting_remaining_overline.
+  ///
+  /// In en, this message translates to:
+  /// **'Time left'**
+  String get home_hosting_remaining_overline;
+
   /// No description provided for @home_overline.
   ///
   /// In en, this message translates to:
@@ -7942,6 +8140,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Start'**
   String get home_start;
+
+  /// Title of the start-target dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Where should {bot} start?'**
+  String bot_start_target_title(String bot);
+
+  /// No description provided for @bot_start_local_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Start locally (this device)'**
+  String get bot_start_local_title;
+
+  /// No description provided for @bot_start_local_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Free, consumes nothing. The bot stops when you close the app.'**
+  String get bot_start_local_desc;
+
+  /// No description provided for @bot_start_server_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Start on Bot Creator Server'**
+  String get bot_start_server_title;
+
+  /// No description provided for @bot_start_server_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Uses your hosting minutes (unlimited with PREMIUM). The bot runs without your device.'**
+  String get bot_start_server_desc;
+
+  /// No description provided for @bot_start_server_reason_platform.
+  ///
+  /// In en, this message translates to:
+  /// **'This device cannot drive remote hosting.'**
+  String get bot_start_server_reason_platform;
+
+  /// No description provided for @bot_start_server_reason_no_account.
+  ///
+  /// In en, this message translates to:
+  /// **'No account is connected on this device.'**
+  String get bot_start_server_reason_no_account;
+
+  /// No description provided for @bot_start_server_reason_cloud_disabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud hosting is not enabled on this server.'**
+  String get bot_start_server_reason_cloud_disabled;
+
+  /// No description provided for @bot_start_server_reason_no_minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'No hosting minutes left: watch a rewarded ad from the mobile app, or go Premium.'**
+  String get bot_start_server_reason_no_minutes;
 
   /// Start (Watch Ad)
   ///
@@ -9540,6 +9792,12 @@ abstract class AppLocalizations {
   /// **'See plans'**
   String get premium_card_button;
 
+  /// No description provided for @premium_locked_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is on the free plan: the subscription is activated from the mobile app (this device shows neither ads nor purchases).'**
+  String get premium_locked_hint;
+
   /// Subscribe to remove all ads and start your bots instantly, without any popup.
   ///
   /// In en, this message translates to:
@@ -10008,6 +10266,12 @@ abstract class AppLocalizations {
   /// **'Sign in to Bot Creator in Settings to load stats from Bot Creator servers.'**
   String get runner_source_manager_unavailable;
 
+  /// This device
+  ///
+  /// In en, this message translates to:
+  /// **'This device'**
+  String get runner_source_this_device;
+
   /// Save
   ///
   /// In en, this message translates to:
@@ -10145,6 +10409,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete Scoped Variable'**
   String get scoped_delete_title;
+
+  /// Declare this variable
+  ///
+  /// In en, this message translates to:
+  /// **'Declare this variable'**
+  String get scoped_declare_detected;
+
+  /// Detected
+  ///
+  /// In en, this message translates to:
+  /// **'Detected'**
+  String get scoped_detected_badge;
+
+  /// No declared definition · {count} stored value(s)
+  ///
+  /// In en, this message translates to:
+  /// **'No declared definition · {count} stored value(s)'**
+  String scoped_detected_hint(int count);
+
+  /// Value present in the bot data without a declared definition. Shown as-is; nothing is invented.
+  ///
+  /// In en, this message translates to:
+  /// **'Value present in the bot data without a declared definition. Shown as-is; nothing is invented.'**
+  String get scoped_detected_tooltip;
 
   /// No scoped variables defined
   ///
@@ -14890,6 +15178,12 @@ abstract class AppLocalizations {
   /// **'Failed to change runtime engine: {error}'**
   String settings_runtime_engine_switch_error(String error);
 
+  /// No description provided for @settings_runtime_engine_switch_empty_payload.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch cancelled: the new configuration would be empty (no command, no event, no webhook, no variable). Your local commands and workflows were left untouched.'**
+  String get settings_runtime_engine_switch_empty_payload;
+
   /// Title of the select application type screen
   ///
   /// In en, this message translates to:
@@ -15184,6 +15478,24 @@ abstract class AppLocalizations {
   /// **'Paste Discord bot token here'**
   String get container_deploy_paste_token_hint;
 
+  /// Section header for the environment variables declared by a turnkey template
+  ///
+  /// In en, this message translates to:
+  /// **'Environment Variables'**
+  String get container_deploy_env_fields_section;
+
+  /// Helper text on a template environment variable the server fills in (read-only field)
+  ///
+  /// In en, this message translates to:
+  /// **'Provided by the server'**
+  String get container_deploy_env_server_provided;
+
+  /// Validation error for a required turnkey template environment variable
+  ///
+  /// In en, this message translates to:
+  /// **'The field {field} is required.'**
+  String container_deploy_env_field_required(String field);
+
   /// Header for Discord prerequisites advice box
   ///
   /// In en, this message translates to:
@@ -15381,6 +15693,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You\'re out of free hosting minutes. Watch a rewarded ad to unlock more minutes, or go Premium for unlimited hosting.'**
   String get container_deploy_blocked_no_minutes;
+
+  /// No description provided for @container_deploy_blocked_cloud_disabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud hosting is not enabled on this server: remote deployment is unavailable. Run the bot locally, or through your own runner.'**
+  String get container_deploy_blocked_cloud_disabled;
 
   /// Deploy eligibility banner shown when the eligibility check failed to load
   ///
@@ -16617,6 +16935,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Submit Actions'**
   String get modal_builder_submit_actions;
+
+  /// Learn more
+  ///
+  /// In en, this message translates to:
+  /// **'Learn more'**
+  String get announcement_see_more;
+
+  /// Dismiss
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get announcement_dismiss;
+
+  /// Got it
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get announcement_acknowledge;
+
+  /// Later
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get announcement_later;
+
+  /// Couldn't open the link.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open the link.'**
+  String get announcement_link_open_failed;
+
+  /// No description provided for @container_invite_btn.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite bot'**
+  String get container_invite_btn;
+
+  /// No description provided for @container_invite_busy.
+  ///
+  /// In en, this message translates to:
+  /// **'Inviting...'**
+  String get container_invite_busy;
+
+  /// No description provided for @container_invite_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This application\'s bot could not be identified: its token is missing or revoked. Redeploy the bot.'**
+  String get container_invite_unavailable;
+
+  /// No description provided for @container_invite_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not invite the bot: check your connection and try again.'**
+  String get container_invite_failed;
+
+  /// No description provided for @container_invite_open_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open the invite link.'**
+  String get container_invite_open_failed;
 }
 
 class _AppLocalizationsDelegate

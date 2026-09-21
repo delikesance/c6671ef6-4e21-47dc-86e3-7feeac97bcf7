@@ -1100,6 +1100,9 @@ class _OfflineTokenPageState extends State<_OfflineTokenPage> {
               ),
             ),
             const SizedBox(height: 16),
+            // Plus de bouton « importer le jeton » : la reprise est automatique, donc
+            // l'utilisateur n'a jamais à savoir d'où vient un jeton. La saisie manuelle
+            // reste juste en dessous pour ceux qui ont le leur sous la main.
             ElevatedButton.icon(
               onPressed: _saving ? null : _save,
               icon: _saving

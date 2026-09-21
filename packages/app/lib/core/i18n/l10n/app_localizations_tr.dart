@@ -9,6 +9,108 @@ class AppLocalizationsTr extends AppLocalizations {
   AppLocalizationsTr([String locale = 'tr']) : super(locale);
 
   @override
+  String get app_update_dialog_title => 'Yeni sürüm mevcut';
+
+  @override
+  String app_update_dialog_message(String version, String installed) {
+    return 'Mağazada $version sürümü yayında (sizde $installed). En son düzeltmeler için güncelleyin.';
+  }
+
+  @override
+  String get app_update_later => 'Daha sonra';
+
+  @override
+  String get app_update_update_now => 'Güncelle';
+
+  @override
+  String get app_update_store_open_failed => 'Mağaza sayfası açılamadı.';
+
+  @override
+  String get app_update_download_started =>
+      'Arka planda indiriliyor — uygulamayı kullanmaya devam edebilirsiniz.';
+
+  @override
+  String get bot_token_import_btn => 'Jetonu hesabımdan içe aktar';
+
+  @override
+  String get bot_token_import_missing => 'Bu bot hesabınızda bulunmuyor.';
+
+  @override
+  String get bot_token_import_network =>
+      'Sunucuya ulaşılamadı: bağlantınızı kontrol edip yeniden deneyin.';
+
+  @override
+  String get bot_token_import_no_account =>
+      'Bu cihazda bağlı bir hesap yok: jetonu içe aktarmak için oturum açın.';
+
+  @override
+  String get bot_token_import_not_stored =>
+      'Hesabınızda kayıtlı jeton yok: bir kez burada girin.';
+
+  @override
+  String get bot_token_import_server_cannot_read =>
+      'Sunucu kayıtlı jetonu okuyamıyor.';
+
+  @override
+  String get bot_token_import_server_unsupported =>
+      'Bu sunucu henüz jeton içe aktarmayı sunmuyor — güncelleyin veya yeniden dağıtın.';
+
+  @override
+  String get bot_token_import_success =>
+      'Jeton hesabınızdan içe aktarıldı: bağlantı yeniden kuruldu.';
+
+  @override
+  String get container_invite_server_unsupported =>
+      'Bu sunucu henüz bot davetini sunmuyor — güncelleyin veya yeniden dağıtın.';
+
+  @override
+  String get container_invite_missing =>
+      'Bu kapsayıcı sunucuda artık yok — kapsayıcı listesini yenileyin.';
+
+  @override
+  String get settings_app_update_title => 'Güncellemeler';
+
+  @override
+  String settings_app_update_installed_version(String version, String build) {
+    return '$version (derleme $build)';
+  }
+
+  @override
+  String settings_app_version_value(String version) {
+    return 'Uygulama: $version';
+  }
+
+  @override
+  String settings_runner_version_value(String version) {
+    return 'Runner: $version';
+  }
+
+  @override
+  String get settings_app_update_check_button => 'Güncellemeleri denetle';
+
+  @override
+  String get settings_app_update_checking => 'Denetleniyor…';
+
+  @override
+  String get settings_app_update_up_to_date => 'En son sürümü kullanıyorsunuz.';
+
+  @override
+  String settings_app_update_available(String version) {
+    return 'Mağazada $version sürümü mevcut.';
+  }
+
+  @override
+  String get settings_app_update_unavailable =>
+      'Güncellemeler şu anda denetlenemiyor.';
+
+  @override
+  String get settings_app_update_unsupported =>
+      'Güncellemeler yalnızca Android veya iOS uygulamasında denetlenebilir.';
+
+  @override
+  String get settings_app_update_open_store => 'Mağaza sayfasını aç';
+
+  @override
   String get action_add_else_if => 'ELSE IF Ekle';
 
   @override
@@ -1709,6 +1811,14 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get bot_logs_rich_mode => 'Zengin formatlı günlükler';
+
+  @override
+  String get bot_logs_server_empty =>
+      'Bot Creator sunucuları bu bot için günlük döndürmedi.';
+
+  @override
+  String get bot_logs_server_read_failed =>
+      'Günlükler Bot Creator sunucularından okunamadı.';
 
   @override
   String get bot_logs_show_all => 'Tümünü göster';
@@ -4323,6 +4433,19 @@ class AppLocalizationsTr extends AppLocalizations {
   String get home_add_time => 'Zaman Ekle';
 
   @override
+  String get home_add_time_mobile_only =>
+      'Ödüllü reklamlar mobil uygulamada izlenir; kazanılan süre her yerde geçerlidir.';
+
+  @override
+  String get home_hosting_unlimited_overline => 'Barındırma dahil';
+
+  @override
+  String get home_hosting_unlimited_headline => 'Aboneliğinle sınırsız';
+
+  @override
+  String get home_hosting_remaining_overline => 'Kalan süre';
+
+  @override
   String get home_overline => 'PROJELERİM';
 
   @override
@@ -4452,6 +4575,41 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get home_start => 'Başlat';
+
+  @override
+  String bot_start_target_title(String bot) {
+    return '$bot nerede başlatılsın?';
+  }
+
+  @override
+  String get bot_start_local_title => 'Yerel olarak başlat (bu cihaz)';
+
+  @override
+  String get bot_start_local_desc =>
+      'Ücretsiz, hiçbir şey tüketmez. Uygulamayı kapatırsan bot durur.';
+
+  @override
+  String get bot_start_server_title => 'Bot Creator Server\'da başlat';
+
+  @override
+  String get bot_start_server_desc =>
+      'Barındırma dakikalarını tüketir (PREMIUM ile sınırsız). Bot cihazın olmadan çalışır.';
+
+  @override
+  String get bot_start_server_reason_platform =>
+      'Bu cihaz uzaktan barındırmayı yönetemez.';
+
+  @override
+  String get bot_start_server_reason_no_account =>
+      'Bu cihazda bağlı hesap yok.';
+
+  @override
+  String get bot_start_server_reason_cloud_disabled =>
+      'Bu sunucuda bulut barındırma etkin değil.';
+
+  @override
+  String get bot_start_server_reason_no_minutes =>
+      'Barındırma dakikan kalmadı: mobil uygulamadan bir reklam izle veya PREMIUM\'a geç.';
 
   @override
   String get home_start_ads => 'Başlat (Reklam İzle)';
@@ -5395,6 +5553,10 @@ class AppLocalizationsTr extends AppLocalizations {
   String get premium_card_button => 'Planları gör';
 
   @override
+  String get premium_locked_hint =>
+      'Hesabın ücretsiz planda: abonelik mobil uygulamadan etkinleştirilir (bu cihazda reklam ve satın alma gösterilmez).';
+
+  @override
   String get premium_card_desc =>
       'Tüm reklamları kaldırmak ve botlarınızı herhangi bir pop-up olmadan anında başlatmak için abone olun.';
 
@@ -5666,6 +5828,9 @@ class AppLocalizationsTr extends AppLocalizations {
       'Bot Creator sunucularından istatistikleri yüklemek için Ayarlar\'da Bot Creator\'a giriş yapın.';
 
   @override
+  String get runner_source_this_device => 'Bu cihaz';
+
+  @override
   String get save => 'Kaydet';
 
   @override
@@ -5747,6 +5912,21 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get scoped_delete_title => 'Kapsamlı Değişkeni Sil';
+
+  @override
+  String get scoped_declare_detected => 'Bu değişkeni bildir';
+
+  @override
+  String get scoped_detected_badge => 'Algılandı';
+
+  @override
+  String scoped_detected_hint(int count) {
+    return 'Bildirilmiş tanım yok · $count kayıtlı değer';
+  }
+
+  @override
+  String get scoped_detected_tooltip =>
+      'Bot verisinde tanımı bildirilmemiş değer. Olduğu gibi gösterilir; hiçbir şey uydurulmaz.';
 
   @override
   String get scoped_empty => 'Tanımlanmış kapsamlı değişken yok';
@@ -8568,6 +8748,10 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String get settings_runtime_engine_switch_empty_payload =>
+      'Geçiş iptal edildi: yeni yapılandırma boş olurdu (komut, olay, webhook veya değişken yok). Yerel komutlarınız ve iş akışlarınız değiştirilmedi.';
+
+  @override
   String get app_create_select_type_title => 'Uygulama Türünü Seçin';
 
   @override
@@ -8733,6 +8917,18 @@ class AppLocalizationsTr extends AppLocalizations {
       'Discord bot belirtecini (token) buraya yapıştırın';
 
   @override
+  String get container_deploy_env_fields_section => 'Ortam değişkenleri';
+
+  @override
+  String get container_deploy_env_server_provided =>
+      'Sunucu tarafından sağlanır';
+
+  @override
+  String container_deploy_env_field_required(String field) {
+    return '$field alanı zorunludur.';
+  }
+
+  @override
   String get container_deploy_discord_prereqs => 'Discord Ön Koşulları';
 
   @override
@@ -8843,6 +9039,10 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get container_deploy_blocked_no_minutes =>
       'You\'re out of free hosting minutes. Watch a rewarded ad to unlock more minutes, or go Premium for unlimited hosting.';
+
+  @override
+  String get container_deploy_blocked_cloud_disabled =>
+      'Bu sunucuda bulut barındırma etkin değil: uzaktan dağıtım kullanılamıyor. Botu yerel olarak veya kendi runner\'ın üzerinden çalıştır.';
 
   @override
   String get container_deploy_blocked_eligibility_error =>
@@ -9571,4 +9771,36 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get modal_builder_submit_actions => 'Gönderme Eylemleri';
+
+  @override
+  String get announcement_see_more => 'Daha fazla bilgi';
+
+  @override
+  String get announcement_dismiss => 'Kapat';
+
+  @override
+  String get announcement_acknowledge => 'Anladım';
+
+  @override
+  String get announcement_later => 'Daha sonra';
+
+  @override
+  String get announcement_link_open_failed => 'Bağlantı açılamadı.';
+
+  @override
+  String get container_invite_btn => 'Botu davet et';
+
+  @override
+  String get container_invite_busy => 'Davet ediliyor...';
+
+  @override
+  String get container_invite_unavailable =>
+      'Bu uygulamanın botu tanımlanamadı: token yok veya iptal edilmiş. Dağıtımı yeniden başlatın.';
+
+  @override
+  String get container_invite_failed =>
+      'Davet gönderilemedi: bağlantınızı kontrol edip yeniden deneyin.';
+
+  @override
+  String get container_invite_open_failed => 'Davet bağlantısı açılamadı.';
 }
