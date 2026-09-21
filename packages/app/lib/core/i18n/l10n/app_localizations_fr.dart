@@ -8833,6 +8833,10 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get settings_runtime_engine_switch_empty_payload =>
+      'Bascule annulée : la nouvelle configuration serait vide (aucune commande, aucun événement, aucun webhook, aucune variable). Vos commandes et workflows locaux n\'ont pas été touchés.';
+
+  @override
   String get app_create_select_type_title => 'Choisir le type d\'application';
 
   @override

@@ -9522,6 +9522,7 @@
   "settings_runtime_engine_switch_dialog_confirm": "エンジンを変更",
   "settings_runtime_engine_switch_success": "ランタイムエンジンを更新しました。準備ができたらボットを再起動してください。",
   "settings_runtime_engine_switch_error": "ランタイムエンジンの変更に失敗しました: {error}",
+  "settings_runtime_engine_switch_empty_payload": "切り替えを中止しました: 新しい構成は空になります (コマンド・イベント・Webhook・変数がいずれもありません)。ローカルのコマンドとワークフローは変更されていません。",
   "app_create_select_type_title": "アプリケーションの種類を選択",
   "app_create_select_type_desc": "開始するには、作成するアプリケーションの種類を選択してください。",
   "app_create_type_discord": "Discordボット",

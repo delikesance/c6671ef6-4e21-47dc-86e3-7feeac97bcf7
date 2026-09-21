@@ -10699,6 +10699,7 @@
   "settings_runtime_engine_switch_dialog_confirm": "Change engine",
   "settings_runtime_engine_switch_success": "Runtime engine updated. Restart the bot when you are ready.",
   "settings_runtime_engine_switch_error": "Failed to change runtime engine: {error}",
+  "settings_runtime_engine_switch_empty_payload": "Switch cancelled: the new configuration would be empty (no command, no event, no webhook, no variable). Your local commands and workflows were left untouched.",
   "@settings_runtime_engine_switch_error": {
     "placeholders": {
       "error": {

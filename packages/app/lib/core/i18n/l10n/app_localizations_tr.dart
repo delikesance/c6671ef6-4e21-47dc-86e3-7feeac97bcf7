@@ -8748,6 +8748,10 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String get settings_runtime_engine_switch_empty_payload =>
+      'Geçiş iptal edildi: yeni yapılandırma boş olurdu (komut, olay, webhook veya değişken yok). Yerel komutlarınız ve iş akışlarınız değiştirilmedi.';
+
+  @override
   String get app_create_select_type_title => 'Uygulama Türünü Seçin';
 
   @override

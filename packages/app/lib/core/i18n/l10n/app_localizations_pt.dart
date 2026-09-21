@@ -8807,6 +8807,10 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
+  String get settings_runtime_engine_switch_empty_payload =>
+      'Troca cancelada: a nova configuração ficaria vazia (nenhum comando, nenhum evento, nenhum webhook, nenhuma variável). Seus comandos e workflows locais não foram alterados.';
+
+  @override
   String get app_create_select_type_title => 'Selecionar Tipo de Aplicação';
 
   @override

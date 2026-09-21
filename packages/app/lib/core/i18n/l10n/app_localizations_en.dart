@@ -8689,6 +8689,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get settings_runtime_engine_switch_empty_payload =>
+      'Switch cancelled: the new configuration would be empty (no command, no event, no webhook, no variable). Your local commands and workflows were left untouched.';
+
+  @override
   String get app_create_select_type_title => 'Select Application Type';
 
   @override

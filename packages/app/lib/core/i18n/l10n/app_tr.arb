@@ -9435,6 +9435,7 @@
   "settings_runtime_engine_switch_dialog_confirm": "Motoru değiştir",
   "settings_runtime_engine_switch_success": "Çalışma zamanı motoru güncellendi. Hazır olduğunuzda botu yeniden başlatın.",
   "settings_runtime_engine_switch_error": "Çalışma zamanı motoru değiştirilemedi: {error}",
+  "settings_runtime_engine_switch_empty_payload": "Geçiş iptal edildi: yeni yapılandırma boş olurdu (komut, olay, webhook veya değişken yok). Yerel komutlarınız ve iş akışlarınız değiştirilmedi.",
   "app_create_select_type_title": "Uygulama Türünü Seçin",
   "app_create_select_type_desc": "Başlamak için oluşturmak istediğiniz uygulama türünü seçin.",
   "app_create_type_discord": "Discord Botu",

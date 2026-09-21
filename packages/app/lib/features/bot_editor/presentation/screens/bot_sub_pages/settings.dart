@@ -13,6 +13,7 @@ import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/features/bot_editor/logic/js_runner_capabilities.dart';
+import 'package:bot_creator/core/utils/bot_payload_guard.dart';
 import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
@@ -125,6 +126,19 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(context.tr.settings_runtime_engine_switch_success),
+        ),
+      );
+    } on DegenerateBotPayloadException {
+      // POURQUOI un message dédié : la bascule a été REFUSÉE avant tout
+      // effacement. Afficher le diagnostic brut de la garde ferait croire à une
+      // panne alors que, précisément, rien n'a été touché.
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            context.tr.settings_runtime_engine_switch_empty_payload,
+          ),
+          backgroundColor: AppTheme.error,
         ),
       );
     } catch (error) {

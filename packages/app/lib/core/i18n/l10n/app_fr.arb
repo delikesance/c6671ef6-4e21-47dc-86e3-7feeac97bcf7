@@ -9489,6 +9489,7 @@
   "settings_runtime_engine_switch_dialog_confirm": "Changer le moteur",
   "settings_runtime_engine_switch_success": "Moteur d'exécution mis à jour. Redémarrez le bot quand vous êtes prêt.",
   "settings_runtime_engine_switch_error": "Échec du changement de moteur : {error}",
+  "settings_runtime_engine_switch_empty_payload": "Bascule annulée : la nouvelle configuration serait vide (aucune commande, aucun événement, aucun webhook, aucune variable). Vos commandes et workflows locaux n'ont pas été touchés.",
   "app_create_select_type_title": "Choisir le type d'application",
   "app_create_select_type_desc": "Sélectionnez le type d'application que vous souhaitez créer pour commencer.",
   "app_create_type_discord": "Bot Discord",
