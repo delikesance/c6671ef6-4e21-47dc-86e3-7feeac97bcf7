@@ -8,6 +8,7 @@ import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/network/main_api_session_restore.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/network/gateway_bot_events.dart';
+import 'package:bot_creator/core/utils/bot_payload_guard.dart';
 import 'package:bot_creator/core/utils/log_redaction.dart';
 import 'package:bot_creator/core/utils/hash_util.dart';
 import 'package:flutter/foundation.dart';
@@ -1001,6 +1002,13 @@ class MainApiClient implements RemoteRuntimeClient {
     Map<String, dynamic> config, {
     bool force = false,
   }) async {
+    // POURQUOI la garde est en TÊTE de méthode : c'est le dernier point avant le
+    // réseau. Une charge utile vide (aucune commande, aucun événement, aucun
+    // webhook, aucune variable) a déjà écrasé la configuration d'un bot ; on la
+    // refuse AVANT tout appel — et donc avant le repli « re-POST direct », qui
+    // rejouerait la même charge vide. Rien n'est renvoyé automatiquement.
+    assertNonDegenerateBotPayload(config, source: 'syncBot');
+
     final cacheKey = '$_baseUrl:$botId';
     final currentHash = HashUtil.calculateHash(config);
 
@@ -1137,6 +1145,11 @@ class MainApiClient implements RemoteRuntimeClient {
     required Map<String, dynamic> config,
     bool force = false,
   }) async {
+    // Même refus que `syncBot` (mêmes critères, garde partagée) : la sauvegarde
+    // Discord est un second chemin de poussée, il ne doit pas être le maillon
+    // faible qui laisse passer une charge vide.
+    assertNonDegenerateBotPayload(config, source: 'saveDiscordBotSnapshot');
+
     final normalizedBotId = botId.trim();
     final cacheKey = '$_baseUrl:snapshot:$normalizedBotId';
     final currentHash = HashUtil.calculateHash(config);

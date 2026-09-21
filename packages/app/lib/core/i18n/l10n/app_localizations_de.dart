@@ -8822,6 +8822,10 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get settings_runtime_engine_switch_empty_payload =>
+      'Wechsel abgebrochen: Die neue Konfiguration wäre leer (kein Befehl, kein Ereignis, kein Webhook, keine Variable). Ihre lokalen Befehle und Workflows wurden nicht angetastet.';
+
+  @override
   String get app_create_select_type_title => 'Anwendungstyp auswählen';
 
   @override

@@ -9434,6 +9434,7 @@
   "settings_runtime_engine_switch_dialog_confirm": "Engine wechseln",
   "settings_runtime_engine_switch_success": "Laufzeit-Engine aktualisiert. Starten Sie den Bot neu, wenn Sie bereit sind.",
   "settings_runtime_engine_switch_error": "Engine-Wechsel fehlgeschlagen: {error}",
+  "settings_runtime_engine_switch_empty_payload": "Wechsel abgebrochen: Die neue Konfiguration wäre leer (kein Befehl, kein Ereignis, kein Webhook, keine Variable). Ihre lokalen Befehle und Workflows wurden nicht angetastet.",
   "app_create_select_type_title": "Anwendungstyp auswählen",
   "app_create_select_type_desc": "Wählen Sie den Typ der Anwendung, die Sie erstellen möchten, um zu beginnen.",
   "app_create_type_discord": "Discord-Bot",

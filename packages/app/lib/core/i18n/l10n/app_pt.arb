@@ -9468,6 +9468,7 @@
   "settings_runtime_engine_switch_dialog_confirm": "Alterar motor",
   "settings_runtime_engine_switch_success": "Motor de execução atualizado. Reinicie o bot quando estiver pronto.",
   "settings_runtime_engine_switch_error": "Falha ao alterar o motor de execução: {error}",
+  "settings_runtime_engine_switch_empty_payload": "Troca cancelada: a nova configuração ficaria vazia (nenhum comando, nenhum evento, nenhum webhook, nenhuma variável). Seus comandos e workflows locais não foram alterados.",
   "app_create_select_type_title": "Selecionar Tipo de Aplicação",
   "app_create_select_type_desc": "Escolha o tipo de aplicação que deseja criar para começar.",
   "app_create_type_discord": "Bot do Discord",

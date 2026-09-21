@@ -8352,6 +8352,10 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get settings_runtime_engine_switch_empty_payload =>
+      '切り替えを中止しました: 新しい構成は空になります (コマンド・イベント・Webhook・変数がいずれもありません)。ローカルのコマンドとワークフローは変更されていません。';
+
+  @override
   String get app_create_select_type_title => 'アプリケーションの種類を選択';
 
   @override

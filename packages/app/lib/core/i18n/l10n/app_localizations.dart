@@ -15178,6 +15178,12 @@ abstract class AppLocalizations {
   /// **'Failed to change runtime engine: {error}'**
   String settings_runtime_engine_switch_error(String error);
 
+  /// No description provided for @settings_runtime_engine_switch_empty_payload.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch cancelled: the new configuration would be empty (no command, no event, no webhook, no variable). Your local commands and workflows were left untouched.'**
+  String get settings_runtime_engine_switch_empty_payload;
+
   /// Title of the select application type screen
   ///
   /// In en, this message translates to:
