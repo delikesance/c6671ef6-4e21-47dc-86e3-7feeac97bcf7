@@ -16,13 +16,14 @@ import 'package:bot_creator/features/announcements/logic/announcement_policy.dar
 import 'package:bot_creator/features/announcements/presentation/announcement_style.dart';
 
 /// Affiche le dialogue et rend la main quand il est fermé.
-Future<void> showAnnouncementDialog(
+/// Renvoie `true` si l'utilisateur a cliqué sur acquitter (« Compris » / « Got it »).
+Future<bool?> showAnnouncementDialog(
   BuildContext context, {
   required Announcement announcement,
   AnnouncementLinkOpener? openLink,
 }) async {
   final deferAllowed = modalBarrierDismissible(announcement);
-  await showDialog<void>(
+  return showDialog<bool>(
     context: context,
     barrierDismissible: deferAllowed,
     builder: (dialogContext) {
@@ -63,12 +64,12 @@ Future<void> showAnnouncementDialog(
             // Report : seulement quand l'annonce l'autorise.
             if (deferAllowed)
               TextButton(
-                onPressed: () => Navigator.of(dialogContext).pop(),
+                onPressed: () => Navigator.of(dialogContext).pop(false),
                 child: Text(tr.announcement_later),
               ),
             // Acquittement : jamais conditionnel — c'est la sortie garantie.
             FilledButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
+              onPressed: () => Navigator.of(dialogContext).pop(true),
               child: Text(tr.announcement_acknowledge),
             ),
           ],

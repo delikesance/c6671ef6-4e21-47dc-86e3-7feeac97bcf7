@@ -154,9 +154,11 @@ void main() {
       expect(positioned.right, 16);
       expect(positioned.top, isNull);
 
-      // Affichée pour de vrai : la marque « vue » est posée.
-      final prefs = await SharedPreferences.getInstance();
-      expect(_seenIds(prefs), <String>{_bannerId});
+      // L'annonce affichée reste disponible tant que l'utilisateur ne l'a pas acquittée :
+      expect(AnnouncementPresenter.sessionDismissedIds, isEmpty);
+      await tester.tap(find.byTooltip(tr.announcement_dismiss));
+      await tester.pump();
+      expect(AnnouncementPresenter.sessionDismissedIds, <String>{_bannerId});
     },
   );
 
@@ -260,10 +262,10 @@ void main() {
         findsOneWidget,
         reason: 'L\'annonce non lue doit être représentée.',
       );
-      expect(find.text(_bannerTitle), findsOneWidget);
-
-      final prefs = await SharedPreferences.getInstance();
-      expect(_seenIds(prefs), <String>{_bannerId});
+      expect(AnnouncementPresenter.sessionDismissedIds, isEmpty);
+      await tester.tap(find.byTooltip(tr.announcement_dismiss));
+      await tester.pump();
+      expect(AnnouncementPresenter.sessionDismissedIds, <String>{_bannerId});
     },
   );
 
