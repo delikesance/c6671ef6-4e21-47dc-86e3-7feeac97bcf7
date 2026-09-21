@@ -4618,6 +4618,23 @@
   "@scoped_delete_title": {
     "description": "Delete Scoped Variable"
   },
+  "@scoped_declare_detected": {
+    "description": "Declare this variable"
+  },
+  "@scoped_detected_badge": {
+    "description": "Detected"
+  },
+  "@scoped_detected_hint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "No declared definition \u00b7 {count} stored value(s)"
+  },
+  "@scoped_detected_tooltip": {
+    "description": "Value present in the bot data without a declared definition. Shown as-is; nothing is invented."
+  },
   "@scoped_empty": {
     "description": "No scoped variables defined"
   },
@@ -8212,6 +8229,10 @@
   "guilds_tab_short": "Servidores",
   "hint_use_variables": "Use variáveis/modelos se necessário",
   "home_add_time": "Adicionar Tempo",
+  "home_add_time_mobile_only": "Os anúncios recompensados são assistidos no aplicativo móvel; o tempo creditado vale em todos os lugares.",
+  "home_hosting_unlimited_overline": "Alojamento incluído",
+  "home_hosting_unlimited_headline": "Ilimitado com a tua subscrição",
+  "home_hosting_remaining_overline": "Tempo restante",
   "home_overline": "MEUS PROJETOS",
   "home_create_bot_title": "Criar um bot",
   "home_create_bot_subtitle": "O teu bot Discord em dois cliques",
@@ -8625,6 +8646,10 @@
   "scoped_default_value_hint": "Opcional",
   "scoped_delete_confirm": "Apagar \"{key}\" e todos os seus dados de execução armazenados?",
   "scoped_delete_title": "Apagar Variável Scoped",
+  "scoped_declare_detected": "Declarar esta variável",
+  "scoped_detected_badge": "Detetada",
+  "scoped_detected_hint": "Nenhuma definição declarada · {count} valor(es) armazenado(s)",
+  "scoped_detected_tooltip": "Valor presente nos dados do bot sem definição declarada. Exibido tal como está; nada é inventado.",
   "scoped_empty": "Nenhuma variável scoped definida",
   "scoped_empty_subtitle": "Variáveis scoped armazenam um valor por contexto do Discord (utilizador, servidor…). São preenchidas pelo bot em execução.",
   "scoped_explore_runtime": "Explorar dados de execução",

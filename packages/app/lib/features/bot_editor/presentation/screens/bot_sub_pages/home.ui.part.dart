@@ -18,22 +18,52 @@ extension _AppHomePageUI on _AppHomePageState {
     return formatHostingDuration(context, i);
   }
 
-  /// La carte d'hébergement (temps restant, échéance) ne concerne QUE les bots que le
-  /// serveur exécute : un bot lancé sur ce poste ne consomme pas le solde cloud, donc y
-  /// afficher une échéance serait un mensonge. Hors poste de travail, comportement
-  /// historique conservé (le mobile ne change pas).
+  /// Plan d'affichage du temps d'hébergement sur un POSTE DE TRAVAIL, décidé par
+  /// la brique partagée (`hosting_time_offer.dart`) : ce que l'écran a le droit
+  /// d'OFFRIR (bouton pub, explication, état « illimité ») et ce qu'il a le droit
+  /// d'ANNONCER comme échéance (la date du serveur, ou rien).
+  ///
+  /// `null` hors poste de travail : le mobile garde sa règle de visibilité
+  /// historique, au mot près.
+  HostingTimePlan? get _desktopHostingPlan => desktopHostingTimePlan(
+    botId: widget.client.user.id.toString(),
+    serverReportsRunning: _botLaunched,
+    serverSessionExpiresAt: _sessionExpiresAt,
+    premiumFunded: _fundingMode == 'premium',
+  );
+
+  /// Hors poste de travail, la carte garde sa règle historique — sauf sur un
+  /// point : plus aucune date n'est FABRIQUÉE depuis le solde. Un stock de
+  /// minutes n'est pas une échéance, sur aucune plateforme.
+  HostingTimePlan get _historicalHostingPlan => HostingTimePlan(
+    offer: resolveHostingTimeOffer(
+      isDesktop: false,
+      hasNoAds: hasNoAdsEntitlement(),
+      premiumFunded: _fundingMode == 'premium',
+    ),
+    deadline: resolveHostingDeadline(
+      runOrigin: null,
+      serverProvidesDeadline: _sessionExpiresAt != null,
+    ),
+  );
+
   bool get _shouldShowHostingCard {
+    final plan = _desktopHostingPlan;
+    if (plan != null) {
+      // Sur un poste : un abonné voit son état « illimité » (rien n'expire, rien
+      // à obtenir), un bot réellement hébergé voit son échéance réelle ou son
+      // temps restant, un bot exécuté par ce poste ne voit rien — il ne consomme
+      // pas le solde cloud.
+      return plan.showsHostingCard;
+    }
+    // Règle historique hors poste de travail, au mot près.
     if (_fundingMode == 'premium') {
       return false;
     }
     if (SubscriptionService.isSubscribed) {
       return false;
     }
-    final origin = _runOrigin;
-    if (origin == null) {
-      return _supportsForegroundTask;
-    }
-    return origin.isHostedRemotely;
+    return _supportsForegroundTask;
   }
 
   /// Libellé d'état de l'en-tête : il dit QUI exécute le bot, pas ce que l'écran
@@ -507,6 +537,46 @@ extension _AppHomePageUI on _AppHomePageState {
   Widget _buildHostingCard(BuildContext context) {
     final balance = _displayFreeMinutesBalance();
     final parts = splitHostingDuration(balance);
+    // Sur un poste, la décision est partagée ; ailleurs, la règle historique.
+    final plan = _desktopHostingPlan ?? _historicalHostingPlan;
+    final expiresAt = _sessionExpiresAt;
+    final unlimited = plan.showsUnlimitedState;
+    final breakdown = _hostingSegments(parts);
+
+    // Contenu écrit : une seule vérité à la fois, décidée par la brique partagée
+    // (`resolveHostingCardCopy`). L'écran ne choisit plus lui-même ce qu'il
+    // écrit, donc il ne peut plus FABRIQUER une échéance depuis le solde :
+    //   * un abonné lit son ÉTAT (« illimité ») ;
+    //   * sinon l'échéance RÉELLE du serveur, quand il en fournit une ;
+    //   * sinon le TEMPS RESTANT (le solde) — 138 mois de stock ne font pas le
+    //     14 février 2038 ;
+    //   * bot arrêté : la réserve attend.
+    final cardCopy = switch (resolveHostingCardCopy(
+      plan,
+      botLaunched: _botLaunched,
+      serverSessionExpiresAt: expiresAt,
+    )) {
+      HostingCardCopy.unlimited => (
+        overline: context.tr.home_hosting_unlimited_overline,
+        headline: context.tr.home_hosting_unlimited_headline,
+        segments: const <({String value, String label})>[],
+      ),
+      HostingCardCopy.serverDeadline => (
+        overline: context.tr.home_hosting_expiration_expected,
+        headline: formatHostingExpiration(context, expiresAt!),
+        segments: breakdown,
+      ),
+      HostingCardCopy.remainingTime => (
+        overline: context.tr.home_hosting_remaining_overline,
+        headline: formatDuration(balance),
+        segments: breakdown,
+      ),
+      HostingCardCopy.preservedTime => (
+        overline: context.tr.home_hosting_time_preserved_overline,
+        headline: formatDuration(balance),
+        segments: breakdown,
+      ),
+    };
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -541,39 +611,38 @@ extension _AppHomePageUI on _AppHomePageState {
               : context.tr.home_hosting_status_paused_short,
           // Quand le bot tourne, la pastille porte la santé de la réserve
           // (vert / orange / rouge) ; arrêté, la réserve est simplement en
-          // attente.
-          statusColor: _botLaunched
-              ? _hostingTimeColor(balance)
-              : AppTheme.warning,
-          overline: _botLaunched
-              ? context.tr.home_hosting_expiration_expected
-              : context.tr.home_hosting_time_preserved_overline,
-          headline: _botLaunched
-              ? formatHostingExpiration(
-                  context,
-                  _sessionExpiresAt ??
-                      DateTime.now().add(Duration(minutes: balance)),
-                )
-              : formatDuration(balance),
-          segments: [
-            (
-              value: _twoDigits(parts.months),
-              label: context.tr.unit_short_month,
-            ),
-            (value: _twoDigits(parts.days), label: context.tr.unit_short_day),
-            (value: _twoDigits(parts.hours), label: context.tr.unit_short_hour),
-            (
-              value: _twoDigits(parts.minutes),
-              label: context.tr.unit_short_minute,
-            ),
-          ],
+          // attente. Un abonné n'a plus de réserve à surveiller : sa pastille
+          // ne peut pas devenir rouge pour un solde qu'il ne consomme pas.
+          statusColor: unlimited
+              ? (_botLaunched ? AppTheme.online : AppTheme.warning)
+              : (_botLaunched
+                    ? _hostingTimeColor(balance)
+                    : AppTheme.warning),
+          overline: cardCopy.overline,
+          headline: cardCopy.headline,
+          segments: cardCopy.segments,
+          // Ce que cet écran a le droit d'OFFRIR : bouton (mobile non abonné),
+          // explication (poste de travail), rien (abonné).
+          offer: plan.offer,
           showTeamBadge: _ownerMetadata?.teamId.isNotEmpty == true,
-          emphasizeBorder: balance < 120 && _botLaunched,
+          emphasizeBorder: !unlimited && balance < 120 && _botLaunched,
           isAddingTime: _isAddingTime,
           onAddTime: _isAddingTime ? null : _addRuntimeTime,
         ),
       ],
     );
+  }
+
+  /// Décomposition du temps restant : une valeur et un libellé par unité.
+  List<({String value, String label})> _hostingSegments(
+    HostingDurationParts parts,
+  ) {
+    return [
+      (value: _twoDigits(parts.months), label: context.tr.unit_short_month),
+      (value: _twoDigits(parts.days), label: context.tr.unit_short_day),
+      (value: _twoDigits(parts.hours), label: context.tr.unit_short_hour),
+      (value: _twoDigits(parts.minutes), label: context.tr.unit_short_minute),
+    ];
   }
 
   /// Complète une valeur sur deux chiffres (« 07 », « 05 », « 53 »).

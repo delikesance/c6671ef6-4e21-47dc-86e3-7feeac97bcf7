@@ -4585,6 +4585,23 @@
   "@scoped_delete_title": {
     "description": "Delete Scoped Variable"
   },
+  "@scoped_declare_detected": {
+    "description": "Declare this variable"
+  },
+  "@scoped_detected_badge": {
+    "description": "Detected"
+  },
+  "@scoped_detected_hint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    },
+    "description": "No declared definition \u00b7 {count} stored value(s)"
+  },
+  "@scoped_detected_tooltip": {
+    "description": "Value present in the bot data without a declared definition. Shown as-is; nothing is invented."
+  },
   "@scoped_empty": {
     "description": "No scoped variables defined"
   },
@@ -8179,6 +8196,10 @@
   "guilds_tab_short": "Sunucular",
   "hint_use_variables": "Gerekiyorsa değişkenleri/şablonları kullanın",
   "home_add_time": "Zaman Ekle",
+  "home_add_time_mobile_only": "Ödüllü reklamlar mobil uygulamada izlenir; kazanılan süre her yerde geçerlidir.",
+  "home_hosting_unlimited_overline": "Barındırma dahil",
+  "home_hosting_unlimited_headline": "Aboneliğinle sınırsız",
+  "home_hosting_remaining_overline": "Kalan süre",
   "home_overline": "PROJELERİM",
   "home_create_bot_title": "Bot oluştur",
   "home_create_bot_subtitle": "Discord botun iki tıkta",
@@ -8592,6 +8613,10 @@
   "scoped_default_value_hint": "İsteğe bağlı",
   "scoped_delete_confirm": "\"{key}\" ve saklanan tüm çalışma zamanı verileri silinsin mi?",
   "scoped_delete_title": "Kapsamlı Değişkeni Sil",
+  "scoped_declare_detected": "Bu değişkeni bildir",
+  "scoped_detected_badge": "Algılandı",
+  "scoped_detected_hint": "Bildirilmiş tanım yok · {count} kayıtlı değer",
+  "scoped_detected_tooltip": "Bot verisinde tanımı bildirilmemiş değer. Olduğu gibi gösterilir; hiçbir şey uydurulmaz.",
   "scoped_empty": "Tanımlanmış kapsamlı değişken yok",
   "scoped_empty_subtitle": "Kapsamlı değişkenler Discord bağlamı (kullanıcı, sunucu…) başına bir değer saklar. Çalışma zamanında bot tarafından doldurulurlar.",
   "scoped_explore_runtime": "Çalışma zamanı verilerini keşfet",
