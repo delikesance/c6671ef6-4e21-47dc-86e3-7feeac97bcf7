@@ -830,6 +830,20 @@ void appendBotDebugLog(
   appendBotLog('DEBUG: $message', botId: botId, source: source);
 }
 
+/// Trace de DÉMARRAGE : toujours visible dans la console de `flutter run`.
+///
+/// Pourquoi pas [appendBotDebugLog] seul : celui-ci ne double dans la console que si
+/// les journaux de débogage sont ACTIVÉS dans l'application. Or le geste de démarrage
+/// doit laisser une trace même sans ce réglage — c'est exactement ce qu'on vient
+/// chercher quand le bot ne démarre pas là où on l'a demandé. La ligne part donc
+/// TOUJOURS dans la console et dans le journal du bot, en une seule copie.
+///
+/// [message] ne doit jamais contenir de jeton ni un corps de réponse.
+void appendBotStartTrace(String message, {String? botId}) {
+  debugPrint('[demarrage] $message');
+  appendBotLog('DEBUG: [demarrage] $message', botId: botId);
+}
+
 String _formatNyxxLogRecord(LogRecord record) {
   final buffer = StringBuffer(
     '[${record.level.name}] [${record.loggerName}] ${record.message}',

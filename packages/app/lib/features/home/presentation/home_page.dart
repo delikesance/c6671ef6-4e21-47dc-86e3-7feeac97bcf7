@@ -44,6 +44,7 @@ import 'package:bot_creator/features/discord_rpc/logic/discord_rpc_service.dart'
 import 'package:bot_creator/features/documentation/documentation_navigation.dart';
 import 'package:bot_creator/features/home/logic/bot_run_source.dart';
 import 'package:bot_creator/features/home/logic/bot_runtime_affinity.dart';
+import 'package:bot_creator/features/home/logic/bot_start_outcome.dart';
 import 'package:bot_creator/features/home/logic/bot_start_target.dart';
 import 'package:bot_creator/features/home/presentation/guild_avatar.dart';
 import 'package:bot_creator/features/home/presentation/home_ui.dart';
@@ -2024,6 +2025,13 @@ class HomePageState extends State<HomePage>
     if (_botIdInAction != null) return;
     setState(() => _botIdInAction = botId);
 
+    // Trace du GESTE, avant toute décision : le seul point qui prouve que le bouton a
+    // été pressé, et dans quel sens. Aucun jeton n'y apparaît.
+    appendBotStartTrace(
+      'bouton presse bot=$botId enMarche=${_runningBotIds.contains(botId)}',
+      botId: botId,
+    );
+
     // Read before the try: the same method also stops a running bot, and the
     // catch has to know whether this attempt was a start to report an outcome.
     final isRunning = _runningBotIds.contains(botId);
@@ -2284,6 +2292,15 @@ class HomePageState extends State<HomePage>
       );
       final client = runtime.client;
       if (client != null) {
+        // Nomme la BRANCHE réellement empruntée. La ligne témoin ci-dessus dit la cible
+        // retenue, celle-ci dit le code qui s'exécute : sans elle, un choix « serveurs »
+        // honoré par la branche locale resterait indistinguable d'un vrai démarrage distant.
+        appendBotStartTrace(
+          client is MainApiClient
+              ? 'branche=SERVEUR'
+              : 'branche=LOCAL (moteur JS embarque)',
+          botId: botId,
+        );
         try {
           if (isRunning) {
             appendBotLog(
@@ -2401,6 +2418,7 @@ class HomePageState extends State<HomePage>
 
       if (_supportsForegroundTask) {
         // ── Mobile (Android / iOS) ─────────────────────────────────────────
+        appendBotStartTrace('branche=MOBILE', botId: botId);
         if (isRunning) {
           appendBotLog('Bot stop requested', botId: botId);
           await stopMobileBotSession(botId: botId);
@@ -2484,6 +2502,10 @@ class HomePageState extends State<HomePage>
               );
             }
 
+            appendBotStartTrace(
+              'branche=LOCAL (moteur JS embarque)',
+              botId: botId,
+            );
             final client = runnerConfig.createClient();
             startBotLogSession(
               botId: botId,
@@ -2518,6 +2540,7 @@ class HomePageState extends State<HomePage>
             );
             return;
           }
+          appendBotStartTrace('branche=LOCAL (desktop)', botId: botId);
           await startDesktopBot(token);
           // Ce POSTE exécute le bot : une association « manager » héritée (ou posée par
           // un démarrage distant précédent) ferait envoyer le prochain Stop au serveur,
@@ -2557,7 +2580,83 @@ class HomePageState extends State<HomePage>
       }
     } finally {
       if (mounted) setState(() => _botIdInAction = null);
+      // Contrôle de RÉALITÉ, pour un démarrage seulement : il doit être programmé même
+      // si la tentative a levé, sinon l'échec — le cas qui a motivé ces traces — serait
+      // le seul à n'en laisser aucune.
+      if (!isRunning) {
+        _scheduleBotStartRealityChecks(botId);
+      }
     }
+  }
+
+  /// Programme les deux contrôles de réalité d'un démarrage (5 s puis 10 s).
+  ///
+  /// Pourquoi DEUX : le serveur met parfois quelques secondes à faire passer
+  /// `runtime_state` à `running` (placement du conteneur). Un contrôle unique à 5 s
+  /// déclarerait « échec » un démarrage simplement lent ; celui de 10 s tranche.
+  /// Aucun des deux n'est ATTENDU : le démarrage ne doit jamais dépendre d'un
+  /// diagnostic, qui n'est là que pour dire la vérité après coup.
+  void _scheduleBotStartRealityChecks(String botId) {
+    for (final seconds in const <int>[5, 10]) {
+      unawaited(
+        Future<void>.delayed(Duration(seconds: seconds), () {
+          unawaited(_logBotStartReality(botId: botId, moment: '+${seconds}s'));
+        }),
+      );
+    }
+  }
+
+  /// Interroge LES DEUX sources (locale et serveur) et journalise où le bot tourne
+  /// réellement, quelques secondes après le geste.
+  ///
+  /// La décision elle-même est pure ([resolveBotStartOutcome] / [formatBotStartRealityLog]):
+  /// c'est donc la même phrase que celle prouvée par le test, pas une copie.
+  /// Ne journalise JAMAIS un jeton ni le corps d'une réponse : uniquement des états.
+  Future<void> _logBotStartReality({
+    required String botId,
+    required String moment,
+  }) async {
+    // Application fermée (ou page démontée) entre-temps : plus rien à observer, et
+    // surtout pas un appel réseau lancé depuis un écran qui n'existe plus.
+    if (!mounted) return;
+
+    final localRunning = _runningBotIds.contains(botId);
+
+    bool? serverRunning;
+    Map<String, dynamic>? serverEntry;
+    try {
+      // Client du COMPTE, session en cache uniquement : le contrôle ne déclenche ni
+      // connexion ni échange de jeton, et n'a donc rien à gagner à échouer bruyamment.
+      final client = await _resolveGlobalMainApiClient(attemptRestore: false);
+      if (client != null) {
+        final bots = await client.listBots().timeout(
+          const Duration(seconds: 8),
+        );
+        for (final entry in bots) {
+          if ((entry['bot_id'] ?? entry['id'] ?? '').toString().trim() == botId) {
+            serverEntry = entry;
+            break;
+          }
+        }
+        // Entrée absente = le compte ne gère pas ce bot : le serveur ne l'exécute pas.
+        serverRunning = serverBotIsRunning(serverEntry);
+      }
+    } catch (_) {
+      // Serveur injoignable, session absente : l'état reste « non lu », ce que la
+      // ligne dira. Un diagnostic ne doit jamais lever — c'est lui qui explique.
+      serverRunning = null;
+    }
+
+    if (!mounted) return;
+    appendBotStartTrace(
+      formatBotStartRealityLog(
+        moment: moment,
+        localRunning: localRunning,
+        serverRunning: serverRunning,
+        serverBotEntry: serverEntry,
+      ),
+      botId: botId,
+    );
   }
 
   /// Traduit un refus serveur (403 de formule) en blocage affichable.
