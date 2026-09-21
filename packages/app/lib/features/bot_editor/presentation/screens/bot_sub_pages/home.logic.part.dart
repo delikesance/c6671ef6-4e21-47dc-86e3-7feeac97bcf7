@@ -290,7 +290,7 @@ extension _AppHomePageLogic on _AppHomePageState {
 
       var remoteRuntime = await _resolveRemoteRuntime(
         getTimeout: const Duration(seconds: 30),
-        postTimeout: const Duration(seconds: 90),
+        postTimeout: const Duration(seconds: 25),
       );
 
       if (!_botLaunched && remoteRuntime.blocksLocalFallback) {
@@ -302,7 +302,7 @@ extension _AppHomePageLogic on _AppHomePageState {
         if (sessionRestored) {
           remoteRuntime = await _resolveRemoteRuntime(
             getTimeout: const Duration(seconds: 30),
-            postTimeout: const Duration(seconds: 90),
+            postTimeout: const Duration(seconds: 25),
           );
         }
 

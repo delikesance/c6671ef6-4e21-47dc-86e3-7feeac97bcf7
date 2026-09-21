@@ -42,7 +42,10 @@ Future<ResolvedRemoteRuntime> resolveRemoteRuntime({
   required bool supportsManagerRuntime,
   String? botId,
   Duration getTimeout = const Duration(seconds: 30),
-  Duration postTimeout = const Duration(seconds: 90),
+  // Plafond d'ecriture volontairement BORNÉ : un POST qui n'aboutit pas ne doit pas figer
+  // l'interface ni bloquer la suite de la sequence. Mieux vaut un echec lisible (et
+  // reessayable) qu'une attente de 90 secondes qui ressemble a un gel de l'application.
+  Duration postTimeout = const Duration(seconds: 25),
   RemoteRuntimeSource? forcedSource,
 }) async {
   // Choix EXPLICITE de l'utilisateur (pop-up de démarrage) : il prime sur

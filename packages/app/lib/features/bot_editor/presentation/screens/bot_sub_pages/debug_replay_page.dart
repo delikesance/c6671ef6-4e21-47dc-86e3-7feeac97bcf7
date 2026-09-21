@@ -70,7 +70,7 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
 
     final client = config.createClient(
       getTimeout: const Duration(seconds: 30),
-      postTimeout: const Duration(seconds: 90),
+      postTimeout: const Duration(seconds: 25),
     );
     _runnerClient = client;
 
