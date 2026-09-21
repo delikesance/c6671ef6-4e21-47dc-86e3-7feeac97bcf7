@@ -189,31 +189,24 @@ class AnnouncementService {
     final context = navigatorKey?.currentContext;
     if (context == null || !context.mounted) return;
 
-    // Marquée AVANT l'affichage : une app tuée pendant que l'annonce est à
-    // l'écran ne la remontre pas au lancement suivant. C'est cette écriture —
-    // et elle seule — qui garantit « jamais deux fois ».
-    await AnnouncementPresenter.markSeen(selection.id);
-
-    final presented = switch (presentationFor(selection.severity)) {
-      AnnouncementPresentation.banner => AnnouncementPresenter.showBanner(
-        host: _bannerHost(),
-        announcement: selection,
-        onDismissed: () => unawaited(_showNextFromCache()),
-      ),
-      AnnouncementPresentation.modal => AnnouncementPresenter.showModal(
-        context: context,
-        announcement: selection,
-        navigatorAlive: navigatorKey?.currentState != null,
-        onClosed: () => unawaited(_showNextFromCache()),
-      ),
-    };
-
-    // Présentation impossible : l'annonce n'a PAS été lue, la marque « vue »
-    // est donc ANNULÉE. Sans ce retour en arrière, l'écriture faite ci-dessus
-    // la consommerait en silence — la garantie « jamais deux fois » protège ce
-    // qui a été VU, pas ce qui a échoué à s'afficher.
-    if (!presented) {
-      await AnnouncementPresenter.unmarkSeen(selection.id);
+    // Tant que l'annonce est disponible côté serveur pour l'utilisateur,
+    // elle reste affichée et n'est jamais masquée d'office. Elle ne sera
+    // masquée pour la session courante qu'après clic explicite de
+    // l'utilisateur (« Got it » / « Compris »).
+    switch (presentationFor(selection.severity)) {
+      case AnnouncementPresentation.banner:
+        AnnouncementPresenter.showBanner(
+          host: _bannerHost(),
+          announcement: selection,
+          onDismissed: () => unawaited(_showNextFromCache()),
+        );
+      case AnnouncementPresentation.modal:
+        AnnouncementPresenter.showModal(
+          context: context,
+          announcement: selection,
+          navigatorAlive: navigatorKey?.currentState != null,
+          onClosed: () => unawaited(_showNextFromCache()),
+        );
     }
   }
 

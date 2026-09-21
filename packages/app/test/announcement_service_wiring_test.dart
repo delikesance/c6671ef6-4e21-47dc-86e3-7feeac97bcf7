@@ -23,9 +23,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:bot_creator/features/announcements/logic/announcement_policy.dart';
+import 'package:bot_creator/features/announcements/logic/announcement_presenter.dart';
 import 'package:bot_creator/features/announcements/logic/announcement_service.dart';
 import 'package:bot_creator/features/announcements/presentation/announcement_banner.dart';
 
@@ -39,55 +38,58 @@ void main() {
   tearDown(disposeAnnouncementHarness);
 
   group('branche 1 — bannière affichée, marquée vue, puis plus rien', () {
-    testWidgets(
-      'une bannière s\'affiche, la clé « vue » est écrite, et le '
-      'rafraîchissement suivant n\'affiche plus rien',
-      (tester) async {
-        useValidSession();
-        final navigatorKey = GlobalKey<NavigatorState>();
-        AnnouncementService.navigatorKey = navigatorKey;
-        var fetches = 0;
-        AnnouncementService.debugClientResolver = () async =>
-            fakeAnnouncementClient();
-        AnnouncementService.debugAnnouncementsFetcher = (_) async {
-          fetches++;
-          return bannerPayload();
-        };
+    testWidgets('une bannière s\'affiche, la clé « vue » est écrite, et le '
+        'rafraîchissement suivant n\'affiche plus rien', (tester) async {
+      useValidSession();
+      final navigatorKey = GlobalKey<NavigatorState>();
+      AnnouncementService.navigatorKey = navigatorKey;
+      var fetches = 0;
+      AnnouncementService.debugClientResolver = () async =>
+          fakeAnnouncementClient();
+      AnnouncementService.debugAnnouncementsFetcher = (_) async {
+        fetches++;
+        return bannerPayload();
+      };
 
-        await tester.pumpWidget(announcementHost(navigatorKey));
+      await tester.pumpWidget(announcementHost(navigatorKey));
 
-        await AnnouncementService.refresh();
-        await tester.pump();
+      await AnnouncementService.refresh();
+      await tester.pump();
 
-        // L'annonce est à l'écran : la charge utile a bien été décodée et
-        // confiée à la bannière.
-        expect(find.byType(AnnouncementBanner), findsOneWidget);
-        expect(find.text(bannerTitle), findsOneWidget);
-        expect(find.text(bannerBody), findsOneWidget);
-        expect(fetches, 1);
+      // L'annonce est à l'écran : la charge utile a bien été décodée et
+      // confiée à la bannière.
+      expect(find.byType(AnnouncementBanner), findsOneWidget);
+      expect(find.text(bannerTitle), findsOneWidget);
+      expect(find.text(bannerBody), findsOneWidget);
+      expect(fetches, 1);
 
-        // La clé qui garantit « jamais deux fois » est écrite AVANT
-        // l'affichage, avec un horodatage.
-        final prefs = await SharedPreferences.getInstance();
-        final seenKey = AnnouncementSeenStore.keyFor(bannerId);
-        expect(seenKey, '${AnnouncementSeenStore.keyPrefix}$bannerId');
-        expect(prefs.getKeys(), contains(seenKey));
-        expect(prefs.getInt(seenKey), isNotNull);
+      // L'annonce ne doit PAS être masquée avant l'action utilisateur :
+      expect(
+        AnnouncementPresenter.sessionDismissedIds,
+        isNot(contains(bannerId)),
+      );
 
-        // Fermeture par la croix.
-        await tester.tap(find.byTooltip(tr.announcement_dismiss));
-        await tester.pump();
-        expect(find.byType(AnnouncementBanner), findsNothing);
+      // Fermeture par la croix / bouton Compris :
+      await tester.tap(find.byTooltip(tr.announcement_dismiss));
+      await tester.pump();
+      expect(find.byType(AnnouncementBanner), findsNothing);
+      expect(AnnouncementPresenter.sessionDismissedIds, contains(bannerId));
 
-        // Second rafraîchissement : la requête repart (forcée, donc hors
-        // budget) mais PLUS RIEN ne s'affiche — l'annonce est déjà vue.
-        await AnnouncementService.refresh(force: true);
-        await tester.pump();
-        expect(fetches, 2);
-        expect(find.byType(AnnouncementBanner), findsNothing);
-        expect(find.text(bannerTitle), findsNothing);
-      },
-    );
+      // Second rafraîchissement dans la même session : la requête repart mais
+      // l'annonce acquittée pour la session n'est plus réaffichée.
+      await AnnouncementService.refresh(force: true);
+      await tester.pump();
+      expect(fetches, 2);
+      expect(find.byType(AnnouncementBanner), findsNothing);
+      expect(find.text(bannerTitle), findsNothing);
+
+      // Nouvelle session (fresh start) : l'annonce réapparaît tant que le serveur la sert !
+      AnnouncementPresenter.reset();
+      await AnnouncementService.refresh(force: true);
+      await tester.pump();
+      expect(find.byType(AnnouncementBanner), findsOneWidget);
+      expect(find.text(bannerTitle), findsOneWidget);
+    });
   });
 
   group('branche 2 — dialogue critique et ses sorties', () {

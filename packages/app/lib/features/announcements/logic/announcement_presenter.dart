@@ -18,14 +18,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/utils/responsive.dart';
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 import 'package:bot_creator/features/announcements/logic/announcement.dart';
-import 'package:bot_creator/features/announcements/logic/announcement_policy.dart';
 import 'package:bot_creator/features/announcements/presentation/announcement_banner.dart';
 import 'package:bot_creator/features/announcements/presentation/announcement_dialog.dart';
 
@@ -74,73 +72,47 @@ class AnnouncementPresenter {
     _onBannerDismissed = null;
     _bannerEntry = null;
     bannerNotifier.value = null;
+    _sessionDismissedIds.clear();
   }
 
-  // ── Mémoire « déjà vue » ─────────────────────────────────────────────────
+  // ── Mémoire de session (« ignorée pour la session après clic sur Compris ») ──
 
-  /// Identifiants déjà vus, relus des préférences (vide si indisponibles).
-  static Future<Set<String>> seenIds() async {
-    final prefs = await _preferences();
-    if (prefs == null) return const <String>{};
-    return AnnouncementSeenStore.idsFromKeys(prefs.getKeys());
-  }
+  static final Set<String> _sessionDismissedIds = <String>{};
 
-  /// Écrit la marque « vue » AVANT l'affichage : une app tuée pendant que
-  /// l'annonce est à l'écran ne la remontre pas au lancement suivant.
-  static Future<void> markSeen(String id) async {
-    final prefs = await _preferences();
-    if (prefs == null) return;
-    try {
-      await prefs.setInt(
-        AnnouncementSeenStore.keyFor(id),
-        DateTime.now().toUtc().millisecondsSinceEpoch,
-      );
-      // Mémoire bornée : sans cela, une clé par annonce vue pour toujours
-      // ferait grossir `SharedPreferences` indéfiniment.
-      final seenAt = <String, int>{};
-      for (final key in prefs.getKeys()) {
-        if (!key.startsWith(AnnouncementSeenStore.keyPrefix)) continue;
-        seenAt[key] = prefs.getInt(key) ?? 0;
-      }
-      for (final key in AnnouncementSeenStore.keysToEvict(seenAt)) {
-        await prefs.remove(key);
-      }
-    } catch (error, stack) {
-      unawaited(
-        AppDiagnostics.logError(
-          'Announcements: could not persist the seen marker',
-          error,
-          stack,
-          fatal: false,
-        ),
-      );
-    }
-  }
+  /// Identifiants ignorés pour la session en cours.
+  static Set<String> get sessionDismissedIds =>
+      Set<String>.unmodifiable(_sessionDismissedIds);
 
-  /// Annule la marque « vue » : l'annonce n'a pas été montrée, elle doit donc
-  /// pouvoir se représenter (cadence nominale, ou retour au premier plan).
+  /// Identifiants acquittés pour la session courante.
   ///
-  /// C'est le pendant de [markSeen] : « jamais deux fois » ne vaut que pour ce
-  /// qui a réellement été affiché.
-  static Future<void> unmarkSeen(String id) async {
-    final prefs = await _preferences();
-    if (prefs == null) return;
-    try {
-      await prefs.remove(AnnouncementSeenStore.keyFor(id));
-    } catch (error, stack) {
-      unawaited(
-        AppDiagnostics.logError(
-          'Announcements: could not clear the seen marker',
-          error,
-          stack,
-          fatal: false,
-        ),
-      );
-    }
+  /// Règle : tant que l'annonce est disponible côté serveur, elle ne doit
+  /// jamais être cachée après un redémarrage. Elle n'est masquée QUE durant la
+  /// session en cours après clic sur « Got it » / « Compris ».
+  static Future<Set<String>> seenIds() async =>
+      Set<String>.unmodifiable(_sessionDismissedIds);
+
+  /// Ignore l'annonce pour la durée de la session courante (clic sur « Got it » / « Compris »).
+  static void dismissForSession(String id) {
+    _sessionDismissedIds.add(id);
   }
 
-  /// Déclenche la fermeture d'une bannière affichée (en ligne ou overlay).
+  /// Acquitte une annonce pour la session courante.
+  static Future<void> markSeen(String id) async {
+    dismissForSession(id);
+  }
+
+  /// Annule l'acquittement d'une annonce dans la session courante.
+  static Future<void> unmarkSeen(String id) async {
+    _sessionDismissedIds.remove(id);
+  }
+
+  /// Déclenche la fermeture d'une bannière affichée (en ligne ou overlay)
+  /// suite au clic sur « Got it » / « Compris ».
   static void dismissBanner() {
+    final current = bannerNotifier.value;
+    if (current != null) {
+      dismissForSession(current.id);
+    }
     final callback = _onBannerDismissed;
     _onBannerDismissed = null;
     removeBanner();
@@ -295,6 +267,7 @@ class AnnouncementPresenter {
     unawaited(() async {
       try {
         await showAnnouncementDialog(context, announcement: announcement);
+        dismissForSession(announcement.id);
       } catch (error, stack) {
         unawaited(
           AppDiagnostics.logError(
@@ -304,8 +277,6 @@ class AnnouncementPresenter {
             fatal: false,
           ),
         );
-        // Le dialogue n'a pas été vu : la marque « vue » est rendue, sinon
-        // l'annonce critique serait perdue pour de bon.
         await unmarkSeen(announcement.id);
       } finally {
         _modalVisible = false;
@@ -332,21 +303,5 @@ class AnnouncementPresenter {
         reason: announcement.id,
       ),
     );
-  }
-
-  static Future<SharedPreferences?> _preferences() async {
-    try {
-      return await SharedPreferences.getInstance();
-    } catch (error, stack) {
-      unawaited(
-        AppDiagnostics.logError(
-          'Announcements: preferences unavailable',
-          error,
-          stack,
-          fatal: false,
-        ),
-      );
-      return null;
-    }
   }
 }
