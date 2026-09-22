@@ -155,10 +155,6 @@ void initRunnerAutoReload() {
     Map<String, dynamic> command,
   ) async {
     if (AppManager.isSyncingFromRemote) return;
-    if (await getBotRuntimeEngine(botId) == runtimeEngineJavascript) {
-      _batcher.requestSync(botId, _executeSync);
-      return;
-    }
     try {
       final client = await RunnerSettings.createClientForBot(botId);
       if (client != null) {

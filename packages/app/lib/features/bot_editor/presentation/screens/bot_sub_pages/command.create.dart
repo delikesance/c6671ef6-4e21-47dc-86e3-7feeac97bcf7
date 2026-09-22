@@ -1226,10 +1226,17 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     }
   }
 
-  Future<bool> _syncCommandChangesToCloud({required String botId}) async {
+  Future<bool> _syncCommandChangesToCloud({
+    required String botId,
+    String? commandId,
+    Map<String, dynamic>? commandData,
+  }) async {
+    final effectiveCommandId = (commandId != null && commandId.isNotEmpty)
+        ? commandId
+        : (!widget.id.isZero ? widget.id.toString() : _existingCommandStorageId);
     // Cloud sync is now supported on all platforms including desktop.
     developer.log(
-      '[_syncCommandChangesToCloud] START botId=$botId commandName="$_commandName"',
+      '[_syncCommandChangesToCloud] START botId=$botId commandId=$effectiveCommandId commandName="$_commandName"',
       name: 'CommandCreatePage',
     );
     try {
@@ -1264,6 +1271,37 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         '[_syncCommandChangesToCloud] Main API client resolved OK for botId=$botId',
         name: 'CommandCreatePage',
       );
+
+      // Fast-path: Delta sync individual command (< 100ms, avoids full 1.5MB rebuild and team overwrite drift)
+      if (effectiveCommandId != null && effectiveCommandId.isNotEmpty) {
+        try {
+          final singleCommand = commandData ??
+              await appManager.getAppCommand(botId, effectiveCommandId);
+          if (singleCommand.isNotEmpty) {
+            developer.log(
+              '[_syncCommandChangesToCloud] attempting delta command sync botId=$botId commandId=$effectiveCommandId',
+              name: 'CommandCreatePage',
+            );
+            await mainApiClient.syncCommand(
+              botId,
+              botName.isEmpty ? botId : botName,
+              effectiveCommandId,
+              singleCommand,
+            );
+            developer.log(
+              '[_syncCommandChangesToCloud] delta syncCommand SUCCESS botId=$botId commandId=$effectiveCommandId',
+              name: 'CommandCreatePage',
+            );
+            return true;
+          }
+        } catch (deltaErr, deltaTrace) {
+          developer.log(
+            '[_syncCommandChangesToCloud] delta syncCommand FAILED for botId=$botId: $deltaErr — falling back to full bot sync',
+            name: 'CommandCreatePage',
+            stackTrace: deltaTrace,
+          );
+        }
+      }
 
       developer.log(
         '[_syncCommandChangesToCloud] building bot payload for botId=$botId',
@@ -1328,7 +1366,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     }
   }
 
-  void _notifyCloudSyncFailed(String botId) {
+  void _notifyCloudSyncFailed(String botId, {String? commandId}) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -1336,7 +1374,10 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         action: SnackBarAction(
           label: context.tr.command_cloud_sync_retry,
           onPressed: () {
-            unawaited(_syncCommandChangesToCloud(botId: botId));
+            unawaited(_syncCommandChangesToCloud(
+              botId: botId,
+              commandId: commandId,
+            ));
           },
         ),
       ),
@@ -1982,31 +2023,35 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
             '[_updateOrCreate] calling createCommand on Discord (botId=$botId commandName="$_commandName" type=$_commandType folder="$_folder" optionsCount=${effectiveOptions.length})',
             name: 'CommandCreatePage',
           );
-          await createCommand(
+          final createdCommand = await createCommand(
             client,
             commandBuilder,
             data: commandData,
             folder: _folder,
           );
+          final createdCommandId = createdCommand.id.toString();
           developer.log(
-            '[_updateOrCreate] Discord createCommand succeeded (botId=$botId commandName="$_commandName")',
+            '[_updateOrCreate] Discord createCommand succeeded (botId=$botId commandName="$_commandName" commandId=$createdCommandId)',
             name: 'CommandCreatePage',
           );
           // Cloud sync is not supported on Desktop platforms
           if (!_isDesktop) {
             developer.log(
-              '[_updateOrCreate] triggering cloud sync after create (botId=$botId)',
+              '[_updateOrCreate] triggering cloud sync after create (botId=$botId commandId=$createdCommandId)',
               name: 'CommandCreatePage',
             );
 
             updateStatus('cloud_sync');
-            final cloudSyncOk = await _syncCommandChangesToCloud(botId: botId);
+            final cloudSyncOk = await _syncCommandChangesToCloud(
+              botId: botId,
+              commandId: createdCommandId,
+            );
             developer.log(
-              '[_updateOrCreate] cloud sync after create result=$cloudSyncOk (botId=$botId)',
+              '[_updateOrCreate] cloud sync after create result=$cloudSyncOk (botId=$botId commandId=$createdCommandId)',
               name: 'CommandCreatePage',
             );
             if (!cloudSyncOk) {
-              _notifyCloudSyncFailed(botId);
+              _notifyCloudSyncFailed(botId, commandId: createdCommandId);
             }
           }
           // Delete the old temp-ID file if this was a local-only command
@@ -2077,18 +2122,21 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           // Cloud sync is not supported on Desktop platforms
           if (!_isDesktop) {
             developer.log(
-              '[_updateOrCreate] triggering cloud sync after update (botId=$botId)',
+              '[_updateOrCreate] triggering cloud sync after update (botId=$botId commandId=${widget.id})',
               name: 'CommandCreatePage',
             );
 
             updateStatus('cloud_sync');
-            final cloudSyncOk = await _syncCommandChangesToCloud(botId: botId);
+            final cloudSyncOk = await _syncCommandChangesToCloud(
+              botId: botId,
+              commandId: widget.id.toString(),
+            );
             developer.log(
-              '[_updateOrCreate] cloud sync after update result=$cloudSyncOk (botId=$botId)',
+              '[_updateOrCreate] cloud sync after update result=$cloudSyncOk (botId=$botId commandId=${widget.id})',
               name: 'CommandCreatePage',
             );
             if (!cloudSyncOk) {
-              _notifyCloudSyncFailed(botId);
+              _notifyCloudSyncFailed(botId, commandId: widget.id.toString());
             }
           }
         }

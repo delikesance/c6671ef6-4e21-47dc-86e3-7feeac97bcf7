@@ -8,12 +8,14 @@ class FolderPickerDialog extends StatefulWidget {
   final String title;
   final String currentFolder;
   final CommandFolderTreeResult tree;
+  final String? excludePrefix;
 
   const FolderPickerDialog({
     super.key,
     required this.title,
     required this.currentFolder,
     required this.tree,
+    this.excludePrefix,
   });
 
   /// Helper to show the dialog and return the chosen folder path (or empty string for root).
@@ -22,6 +24,7 @@ class FolderPickerDialog extends StatefulWidget {
     required String title,
     required String currentFolder,
     required CommandFolderTreeResult tree,
+    String? excludePrefix,
   }) {
     return showDialog<String>(
       context: context,
@@ -29,6 +32,7 @@ class FolderPickerDialog extends StatefulWidget {
         title: title,
         currentFolder: currentFolder,
         tree: tree,
+        excludePrefix: excludePrefix,
       ),
     );
   }
@@ -62,9 +66,15 @@ class _FolderPickerDialogState extends State<FolderPickerDialog> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final flattened = widget.tree.flatten();
-    final filtered = _searchFilter.isEmpty
+    final allowed = widget.excludePrefix == null || widget.excludePrefix!.isEmpty
         ? flattened
         : flattened.where((f) {
+            final exc = widget.excludePrefix!;
+            return f.fullPath != exc && !f.fullPath.startsWith('$exc/');
+          }).toList();
+    final filtered = _searchFilter.isEmpty
+        ? allowed
+        : allowed.where((f) {
             return f.displayName.toLowerCase().contains(_searchFilter) ||
                 f.fullPath.toLowerCase().contains(_searchFilter);
           }).toList();
