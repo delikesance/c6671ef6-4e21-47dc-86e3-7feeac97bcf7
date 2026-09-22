@@ -13582,6 +13582,162 @@ abstract class AppLocalizations {
   /// **'Official support'**
   String get support_discord_badge;
 
+  /// No description provided for @team_tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Team'**
+  String get team_tab;
+
+  /// No description provided for @team_tab_short.
+  ///
+  /// In en, this message translates to:
+  /// **'Team'**
+  String get team_tab_short;
+
+  /// No description provided for @team_chat_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Team & chat'**
+  String get team_chat_title;
+
+  /// No description provided for @team_chat_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No messages yet. Start the conversation with your team.'**
+  String get team_chat_empty;
+
+  /// No description provided for @team_chat_input_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a message...'**
+  String get team_chat_input_hint;
+
+  /// No description provided for @team_permissions_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Permissions'**
+  String get team_permissions_title;
+
+  /// No description provided for @team_chat_send.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get team_chat_send;
+
+  /// No description provided for @team_chat_load_error.
+  ///
+  /// In en, this message translates to:
+  /// **'The team chat could not be loaded.'**
+  String get team_chat_load_error;
+
+  /// No description provided for @team_chat_send_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Message not sent. Check your connection and try again.'**
+  String get team_chat_send_error;
+
+  /// No description provided for @team_collaborators_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Collaborators'**
+  String get team_collaborators_title;
+
+  /// No description provided for @team_collaborators_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No collaborator yet. Add someone by their Discord user ID.'**
+  String get team_collaborators_empty;
+
+  /// No description provided for @team_add_by_discord_id.
+  ///
+  /// In en, this message translates to:
+  /// **'Add by Discord user ID'**
+  String get team_add_by_discord_id;
+
+  /// No description provided for @team_add_discord_id_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Discord user ID'**
+  String get team_add_discord_id_label;
+
+  /// No description provided for @team_add_error.
+  ///
+  /// In en, this message translates to:
+  /// **'The collaborator could not be added.'**
+  String get team_add_error;
+
+  /// No description provided for @team_remove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get team_remove;
+
+  /// No description provided for @team_remove_confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name} from this bot\'s team? They will immediately lose access to the bot and to its chat.'**
+  String team_remove_confirm(String name);
+
+  /// No description provided for @team_remove_error.
+  ///
+  /// In en, this message translates to:
+  /// **'The collaborator could not be removed.'**
+  String get team_remove_error;
+
+  /// No description provided for @team_not_in_portal_warning.
+  ///
+  /// In en, this message translates to:
+  /// **'This Discord user ID is not part of your application\'s team in the Discord Developer Portal. You can still add them: this bot will simply not show up in their portal team.'**
+  String get team_not_in_portal_warning;
+
+  /// No description provided for @team_permission_edit_commands.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit commands'**
+  String get team_permission_edit_commands;
+
+  /// No description provided for @team_permission_start_stop.
+  ///
+  /// In en, this message translates to:
+  /// **'Start and stop the bot'**
+  String get team_permission_start_stop;
+
+  /// No description provided for @team_permission_claim_ads.
+  ///
+  /// In en, this message translates to:
+  /// **'Claim ad rewards'**
+  String get team_permission_claim_ads;
+
+  /// No description provided for @team_permission_invite.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite the bot to servers'**
+  String get team_permission_invite;
+
+  /// No description provided for @team_permission_view_chat.
+  ///
+  /// In en, this message translates to:
+  /// **'Read and write in the team chat'**
+  String get team_permission_view_chat;
+
+  /// No description provided for @team_portal_section_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Discord Developer Portal team (read-only)'**
+  String get team_portal_section_title;
+
+  /// No description provided for @team_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The team chat needs a connection to the Bot Creator server.'**
+  String get team_unavailable;
+
+  /// No description provided for @team_owner_badge.
+  ///
+  /// In en, this message translates to:
+  /// **'OWNER'**
+  String get team_owner_badge;
+
   /// Join the Discord server
   ///
   /// In en, this message translates to:
