@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:bot_creator/features/team/logic/team_models.dart';
 import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -185,6 +186,15 @@ enum GatewayBotEventType {
   botDeleted,
   accountUpdated,
   containerUpdated,
+
+  /// Message du tchat d'équipe (`team.chat.message`) : arrive sur TOUS les
+  /// appareils de l'équipe, y compris celui qui a envoyé le message.
+  teamChatMessage,
+
+  /// L'équipe du bot a changé — quelqu'un a été ajouté, retiré, ou voit ses
+  /// droits modifiés (`team.members.updated`). `teamMembersBotId` porte le bot
+  /// concerné, pour que les autres bots de l'application ignorent l'événement.
+  teamMembersUpdated,
   ping,
 
   /// Type inconnu : ignoré silencieusement. C'est ce qui rend l'application
@@ -202,6 +212,8 @@ class GatewayBotEvent {
     this.bots = const <GatewayBotEventPayload>[],
     this.account,
     this.container,
+    this.teamMessage,
+    this.teamMembersBotId,
   });
 
   final GatewayBotEventType type;
@@ -211,6 +223,12 @@ class GatewayBotEvent {
   final List<GatewayBotEventPayload> bots;
   final GatewayAccountEventPayload? account;
   final GatewayContainerEventPayload? container;
+
+  /// Message de tchat d'équipe (`team.chat.message`), déjà décodé.
+  final TeamChatMessage? teamMessage;
+
+  /// Bot dont l'équipe vient de changer (`team.members.updated`).
+  final String? teamMembersBotId;
 
   factory GatewayBotEvent.fromJson(Map<String, dynamic> json) {
     final typeRaw = (json['type'] ?? '').toString();
@@ -222,6 +240,8 @@ class GatewayBotEvent {
       'bot.deleted' => GatewayBotEventType.botDeleted,
       'account.updated' => GatewayBotEventType.accountUpdated,
       'container.updated' => GatewayBotEventType.containerUpdated,
+      'team.chat.message' => GatewayBotEventType.teamChatMessage,
+      'team.members.updated' => GatewayBotEventType.teamMembersUpdated,
       'ping' => GatewayBotEventType.ping,
       _ => GatewayBotEventType.unknown,
     };
@@ -259,6 +279,21 @@ class GatewayBotEvent {
         Map<String, dynamic>.from(containerRaw.cast<dynamic, dynamic>()),
       );
     }
+    // Décodage défensif : le tchat d'équipe transite par le canal temps réel, donc
+    // une forme inattendue doit seulement laisser le champ à null — jamais faire
+    // tomber le flux d'événements de toute l'application.
+    final teamMessageRaw = json['team_message'];
+    TeamChatMessage? teamMessage;
+    if (teamMessageRaw is Map) {
+      teamMessage = TeamChatMessage.fromJson(
+        Map<String, dynamic>.from(teamMessageRaw.cast<dynamic, dynamic>()),
+      );
+    }
+    final teamMembersRaw = json['team_members'];
+    String? teamMembersBotId;
+    if (teamMembersRaw is Map) {
+      teamMembersBotId = (teamMembersRaw['bot_id'] ?? '').toString();
+    }
     final tsRaw = json['ts'];
     return GatewayBotEvent(
       type: type,
@@ -268,6 +303,8 @@ class GatewayBotEvent {
       bots: bots,
       account: account,
       container: container,
+      teamMessage: teamMessage,
+      teamMembersBotId: teamMembersBotId,
     );
   }
 }
