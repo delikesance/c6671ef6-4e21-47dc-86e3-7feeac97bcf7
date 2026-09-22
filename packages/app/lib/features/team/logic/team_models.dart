@@ -117,6 +117,7 @@ class BotCollaborator {
 class TeamChatMessage {
   const TeamChatMessage({
     this.id = 0,
+    this.botId,
     this.authorUserId = '',
     this.authorDisplayName = '',
     this.content = '',
@@ -124,6 +125,15 @@ class TeamChatMessage {
   });
 
   final int id;
+
+  /// Bot dont le fil porte ce message, quand le serveur le nomme (le même canal
+  /// temps réel transporte les messages de tous les bots du compte).
+  ///
+  /// `null` = non nommé : le serveur ne l'a pas envoyé, ou l'a envoyé d'une
+  /// forme illisible. L'appelant doit alors retomber sur son heuristique — c'est
+  /// pourquoi l'absence se distingue d'une chaîne vide.
+  final String? botId;
+
   final String authorUserId;
   final String authorDisplayName;
   final String content;
@@ -147,6 +157,7 @@ class TeamChatMessage {
     }
     return TeamChatMessage(
       id: _asInt(json['id']),
+      botId: _asOptionalId(json['bot_id']),
       authorUserId: _asString(json['author_user_id']),
       authorDisplayName: _asString(json['author_display_name']),
       content: _asString(json['content']),
@@ -158,6 +169,15 @@ class TeamChatMessage {
 /// Chaîne défensive : `null` devient une chaîne vide, tout le reste passe par
 /// `toString()` (un `int` de contenu reste lisible plutôt que de faire jeter).
 String _asString(dynamic raw) => raw == null ? '' : raw.toString();
+
+/// Identifiant OPTIONNEL : absent, vide ou d'un type inattendu vaut `null`
+/// (« non nommé »), jamais une chaîne vide et jamais une exception — un
+/// décodage qui jette ferait tomber tout le flux d'événements du compte.
+String? _asOptionalId(dynamic raw) {
+  if (raw is! String) return null;
+  final trimmed = raw.trim();
+  return trimmed.isEmpty ? null : trimmed;
+}
 
 /// Entier défensif : un identifiant arrivé en chaîne (certains serveurs JSON
 /// encodent les grands entiers ainsi) reste exploitable.

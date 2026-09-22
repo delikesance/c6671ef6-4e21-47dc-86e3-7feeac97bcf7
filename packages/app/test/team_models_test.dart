@@ -125,6 +125,38 @@ void main() {
       expect(message.authorDisplayName, '');
       expect(message.content, '123');
     });
+
+    // Le fil d'équipe nomme désormais le bot concerné (`bot_id`) : c'est la
+    // seule autorité qui permet à la page de ne pas confondre les équipes, un
+    // même canal temps réel portant les messages de TOUS les bots du compte.
+    test('fromJson reads the bot id that names the thread', () {
+      final message = TeamChatMessage.fromJson(<String, dynamic>{
+        'id': 11,
+        'bot_id': 'bot-1',
+        'author_user_id': 'user-1',
+        'content': 'Hello team',
+      });
+
+      expect(message.botId, 'bot-1');
+    });
+
+    test('fromJson without a bot_id leaves it unknown instead of empty', () {
+      final message = TeamChatMessage.fromJson(<String, dynamic>{'id': 12});
+
+      // `null` et non `''` : « le serveur ne l'a pas dit » est une information
+      // (le filtre retombe alors sur son heuristique), une chaîne vide non.
+      expect(message.botId, isNull);
+    });
+
+    test('fromJson with an unreadable bot_id does not throw', () {
+      final message = TeamChatMessage.fromJson(<String, dynamic>{
+        'id': 13,
+        'bot_id': <String, dynamic>{'nested': true},
+      });
+
+      expect(message.botId, isNull);
+      expect(message.content, '');
+    });
   });
 
   group('BotCollaborator', () {

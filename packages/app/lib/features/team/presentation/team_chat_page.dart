@@ -65,6 +65,26 @@ class _TeamChatPageState extends State<TeamChatPage> {
   String? _error;
   bool _sending = false;
 
+  /// Droits EFFECTIFS du lecteur sur CE bot, tels que le serveur les accorde
+  /// (`my_permissions` de la route d'équipe, via [fetchMyTeamPermissions]).
+  ///
+  /// `null` = INCONNUS : le chargement n'a pas encore abouti, le serveur est
+  /// plus ancien, ou l'appel a échoué. La page est alors FERMÉE — aucun
+  /// contrôle de gestion n'est rendu —, jamais l'inverse : l'interface ne
+  /// promet pas une action que le serveur refusera (`bot_permission_denied`).
+  BotPermissions? _myPermissions;
+
+  /// Le contrôle d'ajout/retrait de collaborateur est-il accordé au LECTEUR ?
+  ///
+  /// Le drapeau est `can_invite`, et lui seul : la route renvoie les droits
+  /// EFFECTIFS, dont le propriétaire les a tous (règle serveur
+  /// `EffectivePermissions`), donc « propriétaire » est couvert par ce même
+  /// droit sans qu'il faille le deviner côté client. Le `is_owner` de la même
+  /// réponse est rendu à CÔTÉ de `my_permissions`, que
+  /// [MainApiClient.fetchMyTeamPermissions] ne remonte pas : le propriétaire y
+  /// est reconnu par ses droits, pas par une seconde lecture.
+  bool get _canManageTeam => _myPermissions?.canInvite == true;
+
   final TextEditingController _composerController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
@@ -136,11 +156,20 @@ class _TeamChatPageState extends State<TeamChatPage> {
       case GatewayBotEventType.teamChatMessage:
         final message = event.teamMessage;
         if (message == null) return;
-        // Le canal temps réel est celui du COMPTE et l'événement ne nomme pas le
-        // bot concerné : on ne retient un message que si son auteur est déjà
-        // membre de l'équipe de CE bot. Sans ce filtre, la page d'un bot
-        // afficherait la conversation d'un autre.
-        if (!_isKnownTeamMember(message.authorUserId)) return;
+        // Le fil NOMME désormais le bot concerné : c'est la seule autorité, et
+        // elle ne dépend plus de qui est déjà dans l'équipe. L'heuristique
+        // « l'auteur est-il un membre connu ? » perdait les premiers messages
+        // d'un collaborateur tout juste ajouté, et laissait entrer le message
+        // d'un autre bot dont l'auteur est membre des deux équipes.
+        final botId = message.botId;
+        if (botId != null) {
+          if (botId != widget.botId) return;
+        } else if (!_isKnownTeamMember(message.authorUserId)) {
+          // Repli pour un serveur plus ancien (ou un message venu du REST, qui
+          // ne porte pas `bot_id`) : sans le nom du bot, l'auteur est le seul
+          // indice disponible.
+          return;
+        }
         _appendMessage(message);
         break;
       case GatewayBotEventType.teamMembersUpdated:
@@ -169,6 +198,9 @@ class _TeamChatPageState extends State<TeamChatPage> {
         _error = null;
       });
     }
+    // Lancés avec le reste : les droits du lecteur décident de l'affichage des
+    // contrôles de gestion, mais leur échec ne doit rien fermer d'autre.
+    unawaited(_loadMyPermissions());
     try {
       final results = await Future.wait(<Future<List<Map<String, dynamic>>>>[
         client.listTeamCollaborators(widget.botId),
@@ -203,6 +235,28 @@ class _TeamChatPageState extends State<TeamChatPage> {
       }
       _showError(context.tr.team_chat_load_error);
     }
+  }
+
+  /// Charge les droits EFFECTIFS du lecteur sur ce bot (`my_permissions`).
+  ///
+  /// Échec ou bloc absent = droits INCONNUS, donc contrôles de gestion masqués :
+  /// le refus par défaut, jamais l'ouverture. Rejouer un rafraîchissement
+  /// (bouton, tirer-pour-rafraîchir) retente l'appel.
+  Future<void> _loadMyPermissions() async {
+    final client = _client;
+    if (client == null) return;
+    Map<String, dynamic>? raw;
+    try {
+      raw = await client.fetchMyTeamPermissions(widget.botId);
+    } catch (_) {
+      // Droits indisponibles : rien à dire à l'utilisateur, l'écran reste
+      // utilisable — seuls les contrôles de gestion s'effacent.
+      raw = null;
+    }
+    if (!mounted) return;
+    setState(() {
+      _myPermissions = raw == null ? null : BotPermissions.fromJson(raw);
+    });
   }
 
   /// Recharge la seule liste des collaborateurs (changement de droits poussé par
@@ -302,12 +356,18 @@ class _TeamChatPageState extends State<TeamChatPage> {
 
     final draft = await showDialog<_CollaboratorDraft>(
       context: context,
+      // `dialogContext` est celui de la MODALE (son `Navigator`/overlay), et
+      // `builderContext` celui de l'arbre qu'elle bâtit : tous deux viennent du
+      // dialogue. Bâtir les widgets de la modale depuis le `context` de la PAGE
+      // ferait, si la page est démontée pendant que la modale est ouverte,
+      // chercher l'ancêtre d'un widget désactivé — Flutter jette alors
+      // « Looking up a deactivated widget's ancestor ».
       builder: (dialogContext) {
         return StatefulBuilder(
-          builder: (dialogContext, setDialogState) {
+          builder: (builderContext, setDialogState) {
             final userId = idController.text.trim();
             return AlertDialog(
-              title: Text(context.tr.team_add_by_discord_id),
+              title: Text(builderContext.tr.team_add_by_discord_id),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -318,19 +378,19 @@ class _TeamChatPageState extends State<TeamChatPage> {
                       autofocus: true,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
-                        labelText: context.tr.team_add_discord_id_label,
+                        labelText: builderContext.tr.team_add_discord_id_label,
                         border: const OutlineInputBorder(),
                       ),
                       onChanged: (_) => setDialogState(() {}),
                     ),
                     const SizedBox(height: AppTheme.spacingLg),
                     Text(
-                      context.tr.team_permissions_title,
+                      builderContext.tr.team_permissions_title,
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 4),
                     _PermissionTile(
-                      label: context.tr.team_permission_edit_commands,
+                      label: builderContext.tr.team_permission_edit_commands,
                       value: permissions.canEditCommands,
                       onChanged: (checked) => setDialogState(
                         () => permissions = permissions.copyWith(
@@ -339,7 +399,7 @@ class _TeamChatPageState extends State<TeamChatPage> {
                       ),
                     ),
                     _PermissionTile(
-                      label: context.tr.team_permission_start_stop,
+                      label: builderContext.tr.team_permission_start_stop,
                       value: permissions.canStartStop,
                       onChanged: (checked) => setDialogState(
                         () => permissions = permissions.copyWith(
@@ -348,7 +408,7 @@ class _TeamChatPageState extends State<TeamChatPage> {
                       ),
                     ),
                     _PermissionTile(
-                      label: context.tr.team_permission_claim_ads,
+                      label: builderContext.tr.team_permission_claim_ads,
                       value: permissions.canClaimAds,
                       onChanged: (checked) => setDialogState(
                         () => permissions = permissions.copyWith(
@@ -357,7 +417,7 @@ class _TeamChatPageState extends State<TeamChatPage> {
                       ),
                     ),
                     _PermissionTile(
-                      label: context.tr.team_permission_invite,
+                      label: builderContext.tr.team_permission_invite,
                       value: permissions.canInvite,
                       onChanged: (checked) => setDialogState(
                         () => permissions = permissions.copyWith(
@@ -366,7 +426,7 @@ class _TeamChatPageState extends State<TeamChatPage> {
                       ),
                     ),
                     _PermissionTile(
-                      label: context.tr.team_permission_view_chat,
+                      label: builderContext.tr.team_permission_view_chat,
                       value: permissions.canViewChat,
                       onChanged: (checked) => setDialogState(
                         () => permissions = permissions.copyWith(
@@ -389,7 +449,7 @@ class _TeamChatPageState extends State<TeamChatPage> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(dialogContext).pop(),
-                  child: Text(context.tr.cancel),
+                  child: Text(builderContext.tr.cancel),
                 ),
                 FilledButton(
                   onPressed: userId.isEmpty
@@ -400,7 +460,7 @@ class _TeamChatPageState extends State<TeamChatPage> {
                             permissions: permissions,
                           ),
                         ),
-                  child: Text(context.tr.common_save),
+                  child: Text(builderContext.tr.common_save),
                 ),
               ],
             );
@@ -620,13 +680,18 @@ class _TeamChatPageState extends State<TeamChatPage> {
                     ),
                   ),
                 ),
-                TextButton.icon(
-                  onPressed: _client == null
-                      ? null
-                      : _showAddCollaboratorDialog,
-                  icon: const Icon(Icons.person_add_alt_1_outlined, size: 18),
-                  label: Text(context.tr.team_add_by_discord_id),
-                ),
+                // Contrôle d'AJOUT : rendu seulement si le SERVEUR a accordé le
+                // droit d'inviter au lecteur. Absent — et non grisé — sinon, y
+                // compris tant que les droits sont inconnus : l'interface ne
+                // promet pas une action que le serveur refusera.
+                if (_canManageTeam)
+                  TextButton.icon(
+                    onPressed: _client == null
+                        ? null
+                        : _showAddCollaboratorDialog,
+                    icon: const Icon(Icons.person_add_alt_1_outlined, size: 18),
+                    label: Text(context.tr.team_add_by_discord_id),
+                  ),
               ],
             ),
           ),
@@ -647,9 +712,11 @@ class _TeamChatPageState extends State<TeamChatPage> {
             for (final collaborator in _collaborators)
               _CollaboratorTile(
                 collaborator: collaborator,
-                onRemove: collaborator.isOwner
-                    ? null
-                    : () => _confirmRemove(collaborator),
+                // Retrait : même droit que l'ajout, ET jamais sur la ligne du
+                // propriétaire — il ne se retire pas de son propre bot.
+                onRemove: _canManageTeam && !collaborator.isOwner
+                    ? () => _confirmRemove(collaborator)
+                    : null,
               ),
         ],
       ),
