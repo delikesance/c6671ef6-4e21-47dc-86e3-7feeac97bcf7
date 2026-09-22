@@ -849,6 +849,69 @@ class MainApiClient implements RemoteRuntimeClient {
         .toList(growable: false);
   }
 
+  /// Normalise une liste JSON en `List<Map<String, dynamic>>`.
+  ///
+  /// Le canal renvoie des listes (`bots`, `collaborators`, `messages`) dont les
+  /// éléments peuvent être de formes variées : un élément non-objet est ignoré
+  /// plutôt que de faire jeter tout l'appel.
+  List<Map<String, dynamic>> _asMapList(dynamic raw) {
+    if (raw is! List) {
+      return const <Map<String, dynamic>>[];
+    }
+    return raw
+        .whereType<Map>()
+        .map((entry) => Map<String, dynamic>.from(entry))
+        .toList(growable: false);
+  }
+
+  /// Équipe d'un bot : le propriétaire et ses collaborateurs, avec leurs droits.
+  Future<List<Map<String, dynamic>>> listTeamCollaborators(String botId) async {
+    final json = await _get('/gateway/bots/$botId/team/collaborators');
+    return _asMapList(json['collaborators']);
+  }
+
+  /// Ajoute un collaborateur, ou remplace ses droits s'il est déjà membre.
+  Future<void> upsertTeamCollaborator(
+    String botId,
+    String userId,
+    Map<String, dynamic> permissions,
+  ) => _post('/gateway/bots/$botId/team/collaborators', <String, dynamic>{
+    'user_id': userId,
+    'permissions': permissions,
+  });
+
+  /// Retire un collaborateur de l'équipe : il perd l'accès au bot et au tchat.
+  Future<void> removeTeamCollaborator(String botId, String userId) =>
+      _delete('/gateway/bots/$botId/team/collaborators/$userId');
+
+  /// Page du tchat d'équipe, du plus récent au plus ancien.
+  ///
+  /// [beforeId] pagine vers le passé : le tchat est **persisté côté serveur**,
+  /// donc un appareil qui rejoint ouvre la conversation, il ne la recommence pas.
+  Future<List<Map<String, dynamic>>> listTeamChatMessages(
+    String botId, {
+    int? beforeId,
+    int limit = 50,
+  }) async {
+    final json = await _get(
+      '/gateway/bots/$botId/team/chat',
+      query: <String, String?>{
+        'before_id': beforeId?.toString(),
+        'limit': limit.toString(),
+      },
+    );
+    return _asMapList(json['messages']);
+  }
+
+  /// Publie un message dans le tchat d'équipe ; le serveur en fait un événement
+  /// temps réel (`team.chat.message`) pour les autres appareils.
+  Future<Map<String, dynamic>> sendTeamChatMessage(
+    String botId,
+    String content,
+  ) => _post('/gateway/bots/$botId/team/chat', <String, dynamic>{
+    'content': content,
+  });
+
   Future<void> deleteBot(String botId) async {
     final encodedBotId = Uri.encodeComponent(botId.trim());
     await _delete('/gateway/bots/$encodedBotId');

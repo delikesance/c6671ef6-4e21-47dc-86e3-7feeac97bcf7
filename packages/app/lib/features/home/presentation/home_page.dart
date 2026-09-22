@@ -1097,6 +1097,11 @@ class HomePageState extends State<HomePage>
       case GatewayBotEventType.ping:
       case GatewayBotEventType.unknown:
         break;
+      // Consommé par l'onglet Team (lot suivant) : l'accueil n'a rien à en faire
+      // aujourd'hui, mais l'énumération exhaustive doit être à jour.
+      case GatewayBotEventType.teamChatMessage:
+      case GatewayBotEventType.teamMembersUpdated:
+        break;
     }
   }
 

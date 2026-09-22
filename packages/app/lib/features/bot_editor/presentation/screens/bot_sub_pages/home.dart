@@ -191,6 +191,11 @@ class _AppHomePageState extends State<AppHomePage>
       case GatewayBotEventType.ping:
       case GatewayBotEventType.unknown:
         break;
+      // Consommé par l'onglet Team (lot suivant) : aucune logique métier ici, on
+      // ne fait que garder l'énumération exhaustive.
+      case GatewayBotEventType.teamChatMessage:
+      case GatewayBotEventType.teamMembersUpdated:
+        break;
     }
   }
 
