@@ -849,6 +849,67 @@ class MainApiClient implements RemoteRuntimeClient {
         .toList(growable: false);
   }
 
+  /// Identifiant d'un bot tel que les listes du manager le portent : `bot_id`
+  /// (`GET /gateway/bots`, `/gateway/snapshot`, canal temps réel), avec `id` en
+  /// secours pour les charges utiles locales. Jamais de cast qui pourrait jeter.
+  static String botIdOf(Map<String, dynamic> bot) =>
+      (bot['bot_id'] ?? bot['id'])?.toString().trim() ?? '';
+
+  /// Propriétaire annoncé d'un bot, tel que le payload du manager le porte :
+  /// `owner_id` (champ additif de `GET /gateway/bots`), ou le bloc `team`.
+  /// Chaîne vide quand le serveur ne dit rien — aucune invention locale.
+  static String _botOwnerIdOf(Map<String, dynamic> bot) {
+    final team = bot['team'];
+    final owner = bot['owner'];
+    final candidates = <Object?>[
+      bot['owner_id'],
+      bot['ownerId'],
+      team is Map ? team['owner_user_id'] : null,
+      team is Map ? team['ownerUserId'] : null,
+      owner is Map ? owner['id'] : null,
+      owner is Map ? owner['owner_id'] : null,
+    ];
+    for (final candidate in candidates) {
+      final value = candidate?.toString().trim() ?? '';
+      if (value.isNotEmpty) return value;
+    }
+    return '';
+  }
+
+  /// Les bots où l'utilisateur n'est que COLLABORATEUR, avec l'identifiant de
+  /// leur propriétaire quand le serveur le donne (chaîne vide sinon).
+  ///
+  /// Un seul appel (`GET /gateway/bots`) : les deux informations — le partage
+  /// (`is_collaborative`) et le propriétaire (`owner_id`) — viennent du même
+  /// payload. Un bot dont l'identifiant est illisible est ignoré.
+  Future<Map<String, String>> fetchCollaborativeBotOwners() async {
+    final bots = await listBots();
+    final owners = <String, String>{};
+    for (final bot in bots) {
+      if (bot['is_collaborative'] != true) continue;
+      final id = botIdOf(bot);
+      if (id.isEmpty) continue;
+      owners[id] = _botOwnerIdOf(bot);
+    }
+    return owners;
+  }
+
+  /// Les bots où l'utilisateur n'est que collaborateur (`is_collaborative`).
+  ///
+  /// Tolérant : un serveur plus ancien ne renvoie pas le champ => ensemble vide,
+  /// donc tout reste dans « My bots » (aucun faux positif).
+  Future<Set<String>> fetchCollaborativeBotIds() async {
+    final bots = await listBots();
+    final ids = <String>{};
+    for (final bot in bots) {
+      if (bot['is_collaborative'] == true) {
+        final id = botIdOf(bot);
+        if (id.isNotEmpty) ids.add(id);
+      }
+    }
+    return ids;
+  }
+
   /// Normalise une liste JSON en `List<Map<String, dynamic>>`.
   ///
   /// Le canal renvoie des listes (`bots`, `collaborators`, `messages`) dont les

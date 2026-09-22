@@ -9249,6 +9249,8 @@
   "team_portal_section_title": "Équipe du portail développeur Discord (lecture seule)",
   "team_unavailable": "Le tchat d'équipe nécessite une connexion au serveur Bot Creator.",
   "team_owner_badge": "PROPRIÉTAIRE",
+  "home_section_my_bots": "MES BOTS",
+  "home_section_shared_with_me": "PARTAGÉS AVEC MOI",
   "support_join_discord": "Rejoindre le serveur Discord",
   "template_fun_description": "Pile ou face, sondages et boule magique.",
   "template_fun_name": "Bot fun",

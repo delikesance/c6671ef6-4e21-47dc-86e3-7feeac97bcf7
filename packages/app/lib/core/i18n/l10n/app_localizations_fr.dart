@@ -7945,6 +7945,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get team_owner_badge => 'PROPRIÉTAIRE';
 
   @override
+  String get home_section_my_bots => 'MES BOTS';
+
+  @override
+  String get home_section_shared_with_me => 'PARTAGÉS AVEC MOI';
+
+  @override
   String get support_join_discord => 'Rejoindre le serveur Discord';
 
   @override
