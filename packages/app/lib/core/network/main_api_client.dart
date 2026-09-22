@@ -931,6 +931,21 @@ class MainApiClient implements RemoteRuntimeClient {
     return _asMapList(json['collaborators']);
   }
 
+  /// Mes droits sur un bot, tels que le SERVEUR les accorde : le bloc
+  /// `my_permissions` de la route d'équipe (`can_start_stop`, `can_claim_ads`, …).
+  ///
+  /// `null` quand le serveur ne renvoie pas ce bloc (serveur plus ancien) : les
+  /// droits sont alors INCONNUS, et l'appelant doit retomber sur un refus plutôt
+  /// que d'offrir une action que le propriétaire n'a peut-être pas accordée.
+  Future<Map<String, dynamic>?> fetchMyTeamPermissions(String botId) async {
+    final json = await _get('/gateway/bots/$botId/team/collaborators');
+    final raw = json['my_permissions'];
+    if (raw is! Map) {
+      return null;
+    }
+    return Map<String, dynamic>.from(raw);
+  }
+
   /// Ajoute un collaborateur, ou remplace ses droits s'il est déjà membre.
   Future<void> upsertTeamCollaborator(
     String botId,

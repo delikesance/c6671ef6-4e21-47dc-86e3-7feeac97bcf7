@@ -61,6 +61,7 @@ import 'package:bot_creator/features/settings/presentation/settings_page.dart';
 import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
 import 'package:bot_creator/features/subscriptions/presentation/plan_limit_dialog.dart';
 import 'package:bot_creator/features/subscriptions/presentation/subscriptions_hub_page.dart';
+import 'package:bot_creator/features/team/logic/team_models.dart';
 import 'package:bot_creator/main.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -271,6 +272,12 @@ class HomePageState extends State<HomePage>
   /// vide s'il ne le donne pas). Sert uniquement au libellé de la carte, jamais
   /// à décider d'un droit.
   Map<String, String> _sharedBotOwnerIds = <String, String>{};
+
+  /// Droits de l'utilisateur sur les bots PARTAGÉS, lus côté serveur
+  /// (`my_permissions`). Une entrée ABSENTE = droits inconnus => la carte
+  /// partagée n'offre aucune action sensible (démarrage/arrêt désactivés).
+  Map<String, BotPermissions> _sharedBotPermissions =
+      <String, BotPermissions>{};
 
   /// Empêche deux chargements du partage de se superposer (démarrage, reprise,
   /// rafraîchissement manuel).
@@ -539,6 +546,12 @@ class HomePageState extends State<HomePage>
         _collaborativeBotIds = owners.keys.toSet();
         _sharedBotOwnerIds = owners;
       });
+      // Les droits ne concernent QUE les bots partagés : une requête par bot
+      // partagé, aucune pour les miens (le propriétaire a tous les droits).
+      await _loadSharedBotPermissions(
+        client,
+        owners.keys.toList(growable: false),
+      );
     } catch (error) {
       appendBotDebugLog(
         '[_loadSharedBots] Sharing unavailable, keeping everything in My bots: $error',
@@ -547,11 +560,39 @@ class HomePageState extends State<HomePage>
         setState(() {
           _collaborativeBotIds = <String>{};
           _sharedBotOwnerIds = <String, String>{};
+          _sharedBotPermissions = <String, BotPermissions>{};
         });
       }
     } finally {
       _isLoadingSharedBots = false;
     }
+  }
+
+  /// Mes droits sur chaque bot partagé (`my_permissions`).
+  ///
+  /// Un bot dont les droits restent illisibles (serveur plus ancien, erreur
+  /// réseau) n'obtient AUCUNE entrée : la carte retombe alors sur le refus au
+  /// lieu d'offrir une action que le propriétaire n'a peut-être pas accordée.
+  Future<void> _loadSharedBotPermissions(
+    MainApiClient client,
+    List<String> botIds,
+  ) async {
+    if (botIds.isEmpty) return;
+    final permissions = <String, BotPermissions>{};
+    for (final botId in botIds) {
+      try {
+        final raw = await client.fetchMyTeamPermissions(botId);
+        if (raw == null) continue;
+        permissions[botId] = BotPermissions.fromJson(raw);
+      } catch (error) {
+        appendBotDebugLog(
+          '[_loadSharedBotPermissions] Rights unavailable for $botId: $error',
+        );
+      }
+      if (!mounted) return;
+    }
+    if (!mounted) return;
+    setState(() => _sharedBotPermissions = permissions);
   }
 
   Future<void> _initRunningState() async {
@@ -3557,7 +3598,14 @@ class HomePageState extends State<HomePage>
       _ => 0,
     };
     final isRunning = _runningBotIds.contains(id);
-    final canToggle = _botIdInAction == null;
+    // Droits de l'utilisateur sur un bot PARTAGÉ, tels que le serveur les
+    // annonce (`my_permissions`). `null` = droits INCONNUS (serveur plus ancien,
+    // hors ligne) : on n'offre alors aucune action que le propriétaire n'a
+    // peut-être pas accordée — le refus par défaut, jamais l'inverse.
+    final permissions = shared ? _sharedBotPermissions[id] : null;
+    final canEdit = !shared || (permissions?.canEditCommands ?? false);
+    final canStartStop = !shared || (permissions?.canStartStop ?? false);
+    final canToggle = _botIdInAction == null && canStartStop;
     // Nom du propriétaire : uniquement une INFORMATION, reçue du serveur.
     final ownerId = shared ? (_sharedBotOwnerIds[id] ?? '') : '';
     // Controllers are created by the app-stream listener, never during build.
@@ -3612,30 +3660,38 @@ class HomePageState extends State<HomePage>
       // un bot à moi garde EXACTEMENT l'affichage d'avant.
       showTeamBadge: shared,
       ownerLabel: ownerId.isEmpty ? null : ownerId,
-      onManage: () {
-        if (isTurnkey && containerId != null && containerId.isNotEmpty) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => ContainerDetailPage(containerId: containerId),
-            ),
-          ).then((_) => _initRunningState());
-          return;
-        }
-        final parsedId = int.tryParse(id) ?? 0;
-        final manage = widget.onManageBot;
-        if (manage != null) {
-          manage(id, name);
-          return;
-        }
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) =>
-                AppEditPage(appName: name, id: parsedId, avatarUrl: avatar),
-          ),
-        ).then((_) => _initRunningState());
-      },
+      onManage: canEdit
+          ? () {
+              if (isTurnkey && containerId != null && containerId.isNotEmpty) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        ContainerDetailPage(containerId: containerId),
+                  ),
+                ).then((_) => _initRunningState());
+                return;
+              }
+              final parsedId = int.tryParse(id) ?? 0;
+              final manage = widget.onManageBot;
+              if (manage != null) {
+                manage(id, name);
+                return;
+              }
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => AppEditPage(
+                    appName: name,
+                    id: parsedId,
+                    avatarUrl: avatar,
+                  ),
+                ),
+              ).then((_) => _initRunningState());
+            }
+          // Sans droit d'édition, le bouton n'existe PAS (plutôt qu'un bouton
+          // désactivé qui laisserait croire qu'il suffit d'insister).
+          : null,
       onToggle: () => _toggleBot(botId: id, botName: name),
       // Ajouter du temps engage de l'argent : jamais sur le bot d'un autre.
       onAddTime: shared ? null : () => _addHostingTime(id),
@@ -3857,7 +3913,7 @@ class HomeBotCard extends StatefulWidget {
   /// d'afficher un libellé inventé.
   final String? ownerLabel;
 
-  final VoidCallback onManage;
+  final VoidCallback? onManage;
   final VoidCallback onToggle;
   final VoidCallback? onAddTime;
   final VoidCallback? onLogs;
@@ -3991,15 +4047,17 @@ class HomeBotCardState extends State<HomeBotCard> {
                 stopSquare: widget.isRunning,
               ),
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: HomeCardActionButton(
-                icon: Icons.tune_rounded,
-                iconSize: 14,
-                label: context.tr.home_manage,
-                onTap: widget.onManage,
+            if (widget.onManage != null) ...[
+              const SizedBox(width: 10),
+              Expanded(
+                child: HomeCardActionButton(
+                  icon: Icons.tune_rounded,
+                  iconSize: 14,
+                  label: context.tr.home_manage,
+                  onTap: widget.onManage,
+                ),
               ),
-            ),
+            ],
           ],
         ),
         if (_showAddHosting) ...[
