@@ -62,6 +62,7 @@ import 'package:bot_creator/features/subscriptions/logic/subscription_service.da
 import 'package:bot_creator/features/subscriptions/presentation/plan_limit_dialog.dart';
 import 'package:bot_creator/features/subscriptions/presentation/subscriptions_hub_page.dart';
 import 'package:bot_creator/features/team/logic/team_models.dart';
+import 'package:bot_creator/features/team/presentation/team_chat_page.dart';
 import 'package:bot_creator/main.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -3692,6 +3693,17 @@ class HomePageState extends State<HomePage>
           // Sans droit d'édition, le bouton n'existe PAS (plutôt qu'un bouton
           // désactivé qui laisserait croire qu'il suffit d'insister).
           : null,
+      // Le tchat d'équipe est l'USAGE PRINCIPAL d'un collaborateur, et le serveur
+      // le lui accorde par défaut (`can_view_chat`) : son accès ne dépend donc
+      // d'AUCUN droit d'édition — sinon un collaborateur sans `can_edit_commands`
+      // se retrouverait sans le moindre chemin vers son équipe. « Gérer », lui,
+      // reste conditionné par `can_edit_commands` (voir `onManage` ci-dessus).
+      onTeam: !shared
+          ? null
+          : () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => TeamChatPage(botId: id)),
+            ),
       onToggle: () => _toggleBot(botId: id, botName: name),
       // Ajouter du temps engage de l'argent : jamais sur le bot d'un autre.
       onAddTime: shared ? null : () => _addHostingTime(id),
@@ -3871,6 +3883,7 @@ class HomeBotCard extends StatefulWidget {
     required this.onLogs,
     required this.showPremiumLabels,
     required this.freeMinutes,
+    this.onTeam,
     this.runtimeBadgeLabel,
     this.showsHostingExpiration = true,
     this.isTurnkey = false,
@@ -3914,6 +3927,13 @@ class HomeBotCard extends StatefulWidget {
   final String? ownerLabel;
 
   final VoidCallback? onManage;
+
+  /// Ouvre le tchat d'équipe du bot. Renseigné sur une carte PARTAGÉE
+  /// uniquement : le collaborateur garde ainsi un chemin vers son équipe même
+  /// sans droit d'édition. `null` sur une carte « à moi », qui garde donc
+  /// exactement ses actions d'avant.
+  final VoidCallback? onTeam;
+
   final VoidCallback onToggle;
   final VoidCallback? onAddTime;
   final VoidCallback? onLogs;
@@ -4055,6 +4075,20 @@ class HomeBotCardState extends State<HomeBotCard> {
                   iconSize: 14,
                   label: context.tr.home_manage,
                   onTap: widget.onManage,
+                ),
+              ),
+            ],
+            // Chemin vers l'équipe : offert même sans droit d'édition, c'est
+            // l'usage principal d'un collaborateur. MÊME libellé que l'onglet du
+            // même nom dans l'éditeur du bot.
+            if (widget.onTeam != null) ...[
+              const SizedBox(width: 10),
+              Expanded(
+                child: HomeCardActionButton(
+                  icon: Icons.groups_outlined,
+                  iconSize: 14,
+                  label: context.tr.team_tab,
+                  onTap: widget.onTeam,
                 ),
               ),
             ],
