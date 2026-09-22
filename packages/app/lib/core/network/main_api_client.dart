@@ -882,6 +882,11 @@ class MainApiClient implements RemoteRuntimeClient {
   /// Un seul appel (`GET /gateway/bots`) : les deux informations — le partage
   /// (`is_collaborative`) et le propriétaire (`owner_id`) — viennent du même
   /// payload. Un bot dont l'identifiant est illisible est ignoré.
+  ///
+  /// Tolérant : un serveur plus ancien ne renvoie pas `is_collaborative` => le
+  /// map est vide, donc tout reste dans « My bots » (aucun faux positif). Le
+  /// test est un test STRICT de booléen : une valeur d'un autre type (chaîne
+  /// `"true"`) est traitée comme absente, jamais convertie.
   Future<Map<String, String>> fetchCollaborativeBotOwners() async {
     final bots = await listBots();
     final owners = <String, String>{};
@@ -892,22 +897,6 @@ class MainApiClient implements RemoteRuntimeClient {
       owners[id] = _botOwnerIdOf(bot);
     }
     return owners;
-  }
-
-  /// Les bots où l'utilisateur n'est que collaborateur (`is_collaborative`).
-  ///
-  /// Tolérant : un serveur plus ancien ne renvoie pas le champ => ensemble vide,
-  /// donc tout reste dans « My bots » (aucun faux positif).
-  Future<Set<String>> fetchCollaborativeBotIds() async {
-    final bots = await listBots();
-    final ids = <String>{};
-    for (final bot in bots) {
-      if (bot['is_collaborative'] == true) {
-        final id = botIdOf(bot);
-        if (id.isNotEmpty) ids.add(id);
-      }
-    }
-    return ids;
   }
 
   /// Normalise une liste JSON en `List<Map<String, dynamic>>`.
