@@ -13738,6 +13738,18 @@ abstract class AppLocalizations {
   /// **'OWNER'**
   String get team_owner_badge;
 
+  /// No description provided for @home_section_my_bots.
+  ///
+  /// In en, this message translates to:
+  /// **'MY BOTS'**
+  String get home_section_my_bots;
+
+  /// No description provided for @home_section_shared_with_me.
+  ///
+  /// In en, this message translates to:
+  /// **'SHARED WITH ME'**
+  String get home_section_shared_with_me;
+
   /// Join the Discord server
   ///
   /// In en, this message translates to:

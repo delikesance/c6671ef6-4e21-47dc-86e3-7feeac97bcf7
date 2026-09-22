@@ -53,6 +53,7 @@ import 'package:bot_creator/features/home/logic/bot_start_branch.dart';
 import 'package:bot_creator/features/home/logic/bot_start_outcome.dart';
 import 'package:bot_creator/features/home/logic/bot_start_server_request.dart';
 import 'package:bot_creator/features/home/logic/bot_start_target.dart';
+import 'package:bot_creator/features/home/logic/home_project_split.dart';
 import 'package:bot_creator/features/home/presentation/guild_avatar.dart';
 import 'package:bot_creator/features/home/presentation/home_ui.dart';
 import 'package:bot_creator/features/home/presentation/widgets/bot_start_target_dialog.dart';
@@ -257,6 +258,24 @@ class HomePageState extends State<HomePage>
   final Map<String, DateTime> _sessionExpiresAtByBotId = <String, DateTime>{};
   final Map<String, int> _botNotFoundStreak = <String, int>{};
   final Set<String> _skippedMissingBotIds = <String>{};
+
+  /// Ids des bots où l'utilisateur n'est QUE collaborateur, tels que le SERVEUR
+  /// les annonce (`is_collaborative` sur `GET /gateway/bots`).
+  ///
+  /// Aucune heuristique locale : un serveur plus ancien ne renvoie pas ce champ,
+  /// l'ensemble reste vide, et TOUS les bots restent dans « My bots » — un faux
+  /// positif déplacerait un bot de son propriétaire vers un écran étranger.
+  Set<String> _collaborativeBotIds = <String>{};
+
+  /// Identifiant du propriétaire par bot PARTAGÉ (`owner_id` du serveur, chaîne
+  /// vide s'il ne le donne pas). Sert uniquement au libellé de la carte, jamais
+  /// à décider d'un droit.
+  Map<String, String> _sharedBotOwnerIds = <String, String>{};
+
+  /// Empêche deux chargements du partage de se superposer (démarrage, reprise,
+  /// rafraîchissement manuel).
+  bool _isLoadingSharedBots = false;
+
   static const int _missingBot404Threshold = 3;
   Timer? _statusRefreshTimer;
   StreamSubscription<GatewayBotEvent>? _gatewayEventsSub;
@@ -499,6 +518,41 @@ class HomePageState extends State<HomePage>
 
   /// Guards against concurrent [_initRunningState] calls.
   bool _isRefreshingRunningState = false;
+
+  // ── Partage : ce qui m'appartient, ce qu'on m'a partagé ────────────────────
+
+  /// Charge l'ensemble des bots PARTAGÉS et, pour eux seuls, mes droits.
+  ///
+  /// Dégradation SILENCIEUSE : hors ligne, sans session manager, ou face à un
+  /// serveur plus ancien qui n'annonce pas `is_collaborative`, l'ensemble
+  /// redevient vide et l'accueil montre tout dans « My bots ». Jamais d'écran
+  /// d'erreur, jamais de fausse section « partagé ».
+  Future<void> _loadSharedBots() async {
+    if (_isLoadingSharedBots) return;
+    _isLoadingSharedBots = true;
+    try {
+      final client = await _resolveGlobalMainApiClient();
+      if (client == null) return;
+      final owners = await client.fetchCollaborativeBotOwners();
+      if (!mounted) return;
+      setState(() {
+        _collaborativeBotIds = owners.keys.toSet();
+        _sharedBotOwnerIds = owners;
+      });
+    } catch (error) {
+      appendBotDebugLog(
+        '[_loadSharedBots] Sharing unavailable, keeping everything in My bots: $error',
+      );
+      if (mounted) {
+        setState(() {
+          _collaborativeBotIds = <String>{};
+          _sharedBotOwnerIds = <String, String>{};
+        });
+      }
+    } finally {
+      _isLoadingSharedBots = false;
+    }
+  }
 
   Future<void> _initRunningState() async {
     if (_isRefreshingRunningState) return;
@@ -1405,6 +1459,9 @@ class HomePageState extends State<HomePage>
 
       if (mounted) {
         await _initRunningState();
+        // Aucun client manager : le partage ne peut pas être rafraîchi, mais
+        // l'appel reste tenté (il retombe silencieusement sur « tout à moi »).
+        await _loadSharedBots();
       }
       return;
     }
@@ -1760,6 +1817,9 @@ class HomePageState extends State<HomePage>
           '[syncAllBotsFromManager] Triggering _initRunningState after bot sync.',
         );
         await _initRunningState();
+        // Le partage vient du serveur : c'est ici qu'il se rafraîchit, comme le
+        // reste des données du compte (démarrage, reprise, tirer-pour-actualiser).
+        await _loadSharedBots();
       }
     } catch (e) {
       appendBotDebugLog('[syncAllBotsFromManager] Sync failed: $e');
@@ -3329,11 +3389,22 @@ class HomePageState extends State<HomePage>
                 );
               }
 
+              // Deux sections : ce que je POSSÈDE, puis ce qu'on m'a PARTAGÉ. Le
+              // partage ne vient jamais d'une heuristique locale : seuls les ids
+              // annoncés par le serveur (`is_collaborative`) basculent, donc un
+              // bot ne peut pas apparaître dans les deux sections.
+              final appMaps = <Map<String, dynamic>>[
+                for (final app in apps)
+                  if (app is Map) Map<String, dynamic>.from(app),
+              ];
+              final split = splitHomeProjects(appMaps, _collaborativeBotIds);
+
               // Bots classiques puis conteneurs clé en main : les deux familles
               // partagent la même liste d'accueil (et le même layout ci-dessous).
-              final cards = buildHomeProjectCards(
+              // Les conteneurs clé en main sont TOUJOURS à moi.
+              final ownCards = buildHomeProjectCards(
                 botCards: <Widget>[
-                  for (final app in apps)
+                  for (final app in split.owned)
                     _buildRedesignBotCard(
                       context,
                       app,
@@ -3345,42 +3416,47 @@ class HomePageState extends State<HomePage>
                     ),
                 ],
                 containers: _turnkeyContainers,
-                actionsFor: (container) => HomeContainerActions(
-                  busy: _containerIdInAction == container.id,
-                  onStart: () =>
-                      _toggleTurnkeyContainer(container, start: true),
-                  onStop: () =>
-                      _toggleTurnkeyContainer(container, start: false),
-                  onLogs: () => _openTurnkeyContainerLogs(container),
-                  onDetail: () => _openTurnkeyContainerDetail(container),
-                  onInvite: () => _inviteTurnkeyBot(container),
-                  inviteBusy: _inviteContainerIdInAction == container.id,
-                ),
+                actionsFor: _homeContainerActions,
               );
 
-              if (columns == 1) {
-                for (var i = 0; i < cards.length; i++) {
-                  children.add(
-                    Padding(
-                      padding: EdgeInsets.only(
-                        bottom: i == cards.length - 1 ? 0 : 20,
-                      ),
-                      child: cards[i],
-                    ),
-                  );
-                }
-              } else {
-                const gap = 20.0;
-                final cardWidth = (innerWidth - (columns - 1) * gap) / columns;
-                children.add(
-                  Wrap(
-                    spacing: gap,
-                    runSpacing: gap,
-                    children: [
-                      for (final card in cards)
-                        SizedBox(width: cardWidth, child: card),
-                    ],
+              final sharedCards = split.shared.isEmpty
+                  ? const <Widget>[]
+                  : buildHomeProjectCards(
+                      botCards: <Widget>[
+                        for (final app in split.shared)
+                          _buildRedesignBotCard(
+                            context,
+                            app,
+                            // Une carte partagée reste repliée : ses actions sont
+                            // conditionnées par les droits accordés, pas par la
+                            // largeur de l'écran.
+                            initiallyExpanded: false,
+                            shared: true,
+                          ),
+                      ],
+                      containers: const <ContainerInfo>[],
+                      actionsFor: _homeContainerActions,
+                    );
+
+              final sections = <({String title, List<Widget> cards})>[
+                (title: context.tr.home_section_my_bots, cards: ownCards),
+                if (sharedCards.isNotEmpty)
+                  (
+                    title: context.tr.home_section_shared_with_me,
+                    cards: sharedCards,
                   ),
+              ];
+
+              for (var index = 0; index < sections.length; index++) {
+                if (index > 0) {
+                  children.add(const SizedBox(height: 28));
+                }
+                children.add(_HomeSectionTitle(label: sections[index].title));
+                _addHomeCards(
+                  children,
+                  sections[index].cards,
+                  columns,
+                  innerWidth,
                 );
               }
             }
@@ -3416,10 +3492,57 @@ class HomePageState extends State<HomePage>
     );
   }
 
+  /// Actions d'une carte de conteneur clé en main (identiques avant/après la
+  /// séparation en sections : cette extraction ne change AUCUN comportement).
+  HomeContainerActions _homeContainerActions(ContainerInfo container) =>
+      HomeContainerActions(
+        busy: _containerIdInAction == container.id,
+        onStart: () => _toggleTurnkeyContainer(container, start: true),
+        onStop: () => _toggleTurnkeyContainer(container, start: false),
+        onLogs: () => _openTurnkeyContainerLogs(container),
+        onDetail: () => _openTurnkeyContainerDetail(container),
+        onInvite: () => _inviteTurnkeyBot(container),
+        inviteBusy: _inviteContainerIdInAction == container.id,
+      );
+
+  /// Range les cartes d'une section : une colonne en compact, la grille à deux
+  /// colonnes en large — exactement le layout d'avant, partagé par « My bots »
+  /// et « Shared with me » pour qu'ils ne puissent pas diverger.
+  void _addHomeCards(
+    List<Widget> children,
+    List<Widget> cards,
+    int columns,
+    double innerWidth,
+  ) {
+    if (columns == 1) {
+      for (var i = 0; i < cards.length; i++) {
+        children.add(
+          Padding(
+            padding: EdgeInsets.only(bottom: i == cards.length - 1 ? 0 : 20),
+            child: cards[i],
+          ),
+        );
+      }
+      return;
+    }
+    const gap = 20.0;
+    final cardWidth = (innerWidth - (columns - 1) * gap) / columns;
+    children.add(
+      Wrap(
+        spacing: gap,
+        runSpacing: gap,
+        children: [
+          for (final card in cards) SizedBox(width: cardWidth, child: card),
+        ],
+      ),
+    );
+  }
+
   Widget _buildRedesignBotCard(
     BuildContext context,
     dynamic app, {
     required bool initiallyExpanded,
+    bool shared = false,
   }) {
     final id = app['id']?.toString() ?? '';
     final rawName = app['name']?.toString().sanitizedUtf16 ?? '';
@@ -3435,6 +3558,8 @@ class HomePageState extends State<HomePage>
     };
     final isRunning = _runningBotIds.contains(id);
     final canToggle = _botIdInAction == null;
+    // Nom du propriétaire : uniquement une INFORMATION, reçue du serveur.
+    final ownerId = shared ? (_sharedBotOwnerIds[id] ?? '') : '';
     // Controllers are created by the app-stream listener, never during build.
     final pulseCtrl = _pulseControllers[id] ?? _fallbackPulseController;
     // Source d'exécution VIVANTE de ce bot (association + état annoncé par le
@@ -3483,6 +3608,10 @@ class HomePageState extends State<HomePage>
       pulseController: pulseCtrl,
       showPremiumLabels: _supportsForegroundTask,
       isTurnkey: isTurnkey,
+      // Un bot partagé porte le badge d'équipe et le nom de son propriétaire ;
+      // un bot à moi garde EXACTEMENT l'affichage d'avant.
+      showTeamBadge: shared,
+      ownerLabel: ownerId.isEmpty ? null : ownerId,
       onManage: () {
         if (isTurnkey && containerId != null && containerId.isNotEmpty) {
           Navigator.push(
@@ -3508,7 +3637,8 @@ class HomePageState extends State<HomePage>
         ).then((_) => _initRunningState());
       },
       onToggle: () => _toggleBot(botId: id, botName: name),
-      onAddTime: () => _addHostingTime(id),
+      // Ajouter du temps engage de l'argent : jamais sur le bot d'un autre.
+      onAddTime: shared ? null : () => _addHostingTime(id),
       onLogs: isRunning
           ? () => Navigator.push(
               context,
@@ -3555,6 +3685,23 @@ class HomePageState extends State<HomePage>
 }
 
 // ── En-tête d'accueil ─────────────────────────────────────────────────────────
+
+/// En-tête de section de la liste d'accueil (« MY BOTS », « SHARED WITH ME ») :
+/// le MÊME style que le surtitre « MY PROJECTS » ([homeSectionLabelStyle]), donc
+/// aucune hiérarchie visuelle inventée pour la séparation.
+class _HomeSectionTitle extends StatelessWidget {
+  const _HomeSectionTitle({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Text(label, style: homeSectionLabelStyle(context)),
+    );
+  }
+}
 
 class _HomeHeader extends StatelessWidget {
   const _HomeHeader({
@@ -3671,6 +3818,8 @@ class HomeBotCard extends StatefulWidget {
     this.runtimeBadgeLabel,
     this.showsHostingExpiration = true,
     this.isTurnkey = false,
+    this.showTeamBadge = false,
+    this.ownerLabel,
     this.hasLocalToken = true,
     this.onTokenImported,
   });
@@ -3698,6 +3847,16 @@ class HomeBotCard extends StatefulWidget {
   final AnimationController pulseController;
   final bool showPremiumLabels;
   final bool isTurnkey;
+
+  /// Badge « équipe » : vrai sur une carte PARTAGÉE (le bot ne m'appartient pas).
+  /// Faux par défaut, donc une carte à moi ne change pas d'un pixel.
+  final bool showTeamBadge;
+
+  /// Propriétaire du bot, quand la carte doit le nommer (bot partagé). `null`
+  /// quand le serveur ne l'a pas annoncé : la ligne entière disparaît plutôt que
+  /// d'afficher un libellé inventé.
+  final String? ownerLabel;
+
   final VoidCallback onManage;
   final VoidCallback onToggle;
   final VoidCallback? onAddTime;
@@ -3919,46 +4078,73 @@ class HomeBotCardState extends State<HomeBotCard> {
                       HomeBotAvatar(imageUrl: widget.avatar),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: Row(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            Flexible(
-                              child: Text(
-                                widget.name,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: homeDisplayStyle(
-                                  16,
-                                  color: scheme.onSurface,
-                                ),
-                              ),
-                            ),
-                            if (widget.isTurnkey) ...[
-                              const SizedBox(width: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 6,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: scheme.primary.withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(6),
-                                  border: Border.all(
-                                    color: scheme.primary.withValues(
-                                      alpha: 0.3,
+                            Row(
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    widget.name,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: homeDisplayStyle(
+                                      16,
+                                      color: scheme.onSurface,
                                     ),
                                   ),
                                 ),
-                                child: Text(
-                                  homeUiCopy(
-                                    context,
-                                    fr: 'Clé en main',
-                                    en: 'Turnkey',
+                                if (widget.isTurnkey) ...[
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: scheme.primary.withValues(
+                                        alpha: 0.15,
+                                      ),
+                                      borderRadius: BorderRadius.circular(6),
+                                      border: Border.all(
+                                        color: scheme.primary.withValues(
+                                          alpha: 0.3,
+                                        ),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      homeUiCopy(
+                                        context,
+                                        fr: 'Clé en main',
+                                        en: 'Turnkey',
+                                      ),
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                        color: scheme.primary,
+                                      ),
+                                    ),
                                   ),
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                    color: scheme.primary,
-                                  ),
+                                ],
+                                if (widget.showTeamBadge) ...[
+                                  const SizedBox(width: 8),
+                                  const _SharedBotBadge(),
+                                ],
+                              ],
+                            ),
+                            if (widget.ownerLabel != null) ...[
+                              const SizedBox(height: 2),
+                              Text(
+                                widget.ownerLabel!,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.inter(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
+                                  color: isDark
+                                      ? tokens.muted
+                                      : scheme.onSurfaceVariant,
                                 ),
                               ),
                             ],
@@ -3994,6 +4180,41 @@ class HomeBotCardState extends State<HomeBotCard> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Badge « équipe » d'une carte PARTAGÉE : ce bot appartient à quelqu'un d'autre.
+///
+/// Libellé pris dans l'i18n (`team_tab_short`) plutôt qu'écrit en dur : une UI
+/// française n'affiche pas un mot anglais figé.
+class _SharedBotBadge extends StatelessWidget {
+  const _SharedBotBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: AppTheme.discord.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: AppTheme.discord.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.groups, size: 11, color: AppTheme.discord),
+          const SizedBox(width: 4),
+          Text(
+            context.tr.team_tab_short,
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.discord,
+            ),
+          ),
+        ],
       ),
     );
   }

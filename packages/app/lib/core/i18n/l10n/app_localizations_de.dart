@@ -7933,6 +7933,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get team_owner_badge => 'OWNER';
 
   @override
+  String get home_section_my_bots => 'MY BOTS';
+
+  @override
+  String get home_section_shared_with_me => 'SHARED WITH ME';
+
+  @override
   String get support_join_discord => 'Tritt dem Discord-Server bei';
 
   @override

@@ -9194,6 +9194,8 @@
   "team_portal_section_title": "Discord Developer Portal team (read-only)",
   "team_unavailable": "The team chat needs a connection to the Bot Creator server.",
   "team_owner_badge": "OWNER",
+  "home_section_my_bots": "MY BOTS",
+  "home_section_shared_with_me": "SHARED WITH ME",
   "support_join_discord": "Discordサーバーに参加",
   "template_fun_description": "コイントス、投票、マジック8ボール。",
   "template_fun_name": "お楽しみボット",
