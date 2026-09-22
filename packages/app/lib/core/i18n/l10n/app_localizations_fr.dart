@@ -7855,6 +7855,96 @@ class AppLocalizationsFr extends AppLocalizations {
   String get support_discord_badge => 'Support officiel';
 
   @override
+  String get team_tab => 'Équipe';
+
+  @override
+  String get team_tab_short => 'Équipe';
+
+  @override
+  String get team_chat_title => 'Équipe et tchat';
+
+  @override
+  String get team_chat_empty =>
+      'Aucun message pour l\'instant. Lancez la conversation avec votre équipe.';
+
+  @override
+  String get team_chat_input_hint => 'Écrire un message...';
+
+  @override
+  String get team_permissions_title => 'Droits accordés';
+
+  @override
+  String get team_chat_send => 'Envoyer';
+
+  @override
+  String get team_chat_load_error =>
+      'Le tchat d\'équipe n\'a pas pu être chargé.';
+
+  @override
+  String get team_chat_send_error =>
+      'Message non envoyé. Vérifiez votre connexion puis réessayez.';
+
+  @override
+  String get team_collaborators_title => 'Collaborateurs';
+
+  @override
+  String get team_collaborators_empty =>
+      'Aucun collaborateur pour le moment. Ajoutez quelqu\'un par son identifiant Discord.';
+
+  @override
+  String get team_add_by_discord_id => 'Ajouter par identifiant Discord';
+
+  @override
+  String get team_add_discord_id_label =>
+      'Identifiant Discord de l\'utilisateur';
+
+  @override
+  String get team_add_error => 'Le collaborateur n\'a pas pu être ajouté.';
+
+  @override
+  String get team_remove => 'Retirer';
+
+  @override
+  String team_remove_confirm(String name) {
+    return 'Retirer $name de l\'équipe de ce bot ? Cette personne perdra immédiatement l\'accès au bot et à son tchat.';
+  }
+
+  @override
+  String get team_remove_error => 'Le collaborateur n\'a pas pu être retiré.';
+
+  @override
+  String get team_not_in_portal_warning =>
+      'Cet identifiant Discord ne fait pas partie de l\'équipe de votre application dans le portail développeur Discord. Vous pouvez quand même l\'ajouter : ce bot n\'apparaîtra simplement pas dans l\'équipe de son portail.';
+
+  @override
+  String get team_permission_edit_commands => 'Modifier les commandes';
+
+  @override
+  String get team_permission_start_stop => 'Démarrer et arrêter le bot';
+
+  @override
+  String get team_permission_claim_ads =>
+      'Réclamer les récompenses publicitaires';
+
+  @override
+  String get team_permission_invite => 'Inviter le bot sur des serveurs';
+
+  @override
+  String get team_permission_view_chat =>
+      'Lire et écrire dans le tchat d\'équipe';
+
+  @override
+  String get team_portal_section_title =>
+      'Équipe du portail développeur Discord (lecture seule)';
+
+  @override
+  String get team_unavailable =>
+      'Le tchat d\'équipe nécessite une connexion au serveur Bot Creator.';
+
+  @override
+  String get team_owner_badge => 'PROPRIÉTAIRE';
+
+  @override
   String get support_join_discord => 'Rejoindre le serveur Discord';
 
   @override
