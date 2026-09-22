@@ -16,10 +16,12 @@ import 'package:bot_creator/features/bot_editor/logic/js_runner_capabilities.dar
 import 'package:bot_creator/core/utils/bot_payload_guard.dart';
 import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_identity_sync.dart';
 
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
-import 'package:bot_creator/core/network/main_api_client.dart';
+import 'package:bot_creator/core/network/main_api_client.dart'
+    hide DiscordBotIdentity;
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -57,6 +59,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   final TextEditingController _prefixController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
   String? _selectedAvatarPath;
+  String? _selectedBannerPath;
+  String? _currentBannerUrl;
+  int? _bannerAccentColor;
+  bool _removeBanner = false;
   bool _builtInLegacyHelpEnabled = true;
   final List<_StatusDraft> _statusDrafts = <_StatusDraft>[];
   String _presenceStatus = 'online';
@@ -255,9 +261,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       _statusDrafts.add(_StatusDraft.fromMap(status));
     }
 
-    // Fetch Discord Application Owner Metadata if we have a token
+    // Fetch Discord Application Owner Metadata and Bot Identity if we have a token
     final token = (persistedApp['token'] ?? '').toString().trim();
     DiscordApplicationOwnerMetadata? ownerMetadata;
+    DiscordBotIdentity? botIdentity;
     if (token.isNotEmpty) {
       try {
         ownerMetadata = await getDiscordApplicationOwnerMetadata(token);
@@ -267,12 +274,27 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
           name: 'AppSettingsPage',
         );
       }
+      try {
+        botIdentity = await fetchDiscordBotIdentity(token: token);
+      } catch (e) {
+        developer.log(
+          'Error fetching bot identity: $e',
+          name: 'AppSettingsPage',
+        );
+      }
     }
 
     if (!mounted) return;
     setState(() {
       app = fetchedApp;
       _ownerMetadata = ownerMetadata;
+      _currentBannerUrl = makeBannerUrl(
+        widget.client.user.id.toString(),
+        bannerHash: botIdentity?.bannerHash,
+      );
+      _bannerAccentColor = botIdentity?.accentColor;
+      _selectedBannerPath = null;
+      _removeBanner = false;
       _savedToken = (persistedApp['token'] ?? '').toString().trim();
       _tokenController.text = _savedToken;
       _prefixController.text =
@@ -650,6 +672,21 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
         );
       }
 
+      final shouldUpdateBanner = _selectedBannerPath != null || _removeBanner;
+      if (shouldUpdateBanner) {
+        final updatedUser = await updateDiscordBotBanner(
+          token,
+          bannerPath: _selectedBannerPath,
+          removeBanner: _removeBanner,
+        );
+        final bannerHash = (updatedUser['banner'] ?? '').toString();
+        setState(() {
+          _currentBannerUrl = makeBannerUrl(botId, bannerHash: bannerHash);
+          _selectedBannerPath = null;
+          _removeBanner = false;
+        });
+      }
+
       final latestAppData = Map<String, dynamic>.from(
         await appManager.getApp(botId),
       );
@@ -883,6 +920,27 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
 
     setState(() {
       _selectedAvatarPath = path;
+    });
+  }
+
+  Future<void> _pickBannerFile() async {
+    final result = await FilePicker.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: const ['png', 'jpg', 'jpeg', 'gif'],
+    );
+
+    if (result == null || result.files.isEmpty) {
+      return;
+    }
+
+    final path = result.files.first.path;
+    if (path == null || path.isEmpty) {
+      return;
+    }
+
+    setState(() {
+      _selectedBannerPath = path;
+      _removeBanner = false;
     });
   }
 
@@ -2294,15 +2352,87 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
           Stack(
             clipBehavior: Clip.none,
             children: [
-              Container(
-                height: 80,
-                decoration: const BoxDecoration(
-                  color: AppTheme.discord,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
+              GestureDetector(
+                onTap: _pickBannerFile,
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: Container(
+                    height: 90,
+                    decoration: BoxDecoration(
+                      color: _bannerAccentColor != null
+                          ? Color(0xFF000000 | _bannerAccentColor!)
+                          : AppTheme.discord,
+                      borderRadius:
+                          const BorderRadius.vertical(top: Radius.circular(15)),
+                      image: _selectedBannerPath != null
+                          ? DecorationImage(
+                              image: FileImage(File(_selectedBannerPath!)),
+                              fit: BoxFit.cover,
+                            )
+                          : (_currentBannerUrl != null && !_removeBanner)
+                              ? DecorationImage(
+                                  image: NetworkImage(_currentBannerUrl!),
+                                  fit: BoxFit.cover,
+                                )
+                              : null,
+                    ),
+                    child: Stack(
+                      children: [
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: Tooltip(
+                            message: context.tr.common_edit,
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withValues(alpha: 0.5),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.camera_alt_outlined,
+                                size: 16,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                        if (_selectedBannerPath != null ||
+                            (_currentBannerUrl != null && !_removeBanner))
+                          Positioned(
+                            top: 8,
+                            right: 44,
+                            child: Tooltip(
+                              message: context.tr.delete,
+                              child: GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    _selectedBannerPath = null;
+                                    _removeBanner = true;
+                                  });
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withValues(alpha: 0.5),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.delete_outline,
+                                    size: 16,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
               Positioned(
-                top: 40,
+                top: 45,
                 left: 16,
                 child: GestureDetector(
                   onTap: _pickAvatarFile,
