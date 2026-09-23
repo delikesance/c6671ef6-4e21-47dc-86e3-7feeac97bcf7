@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/gateway_bot_events.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
+import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/network/remote_runtime.dart';
 import 'package:bot_creator/core/platform/run_platform.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
@@ -93,6 +94,11 @@ class _TeamChatPageState extends State<TeamChatPage> {
   final Map<String, String> _userDisplayNames = <String, String>{};
   final Map<String, String> _userAvatars = <String, String>{};
   final Set<String> _pendingUserLookups = <String>{};
+
+  /// Messages locaux en attente de confirmation serveur ou en échec temporaire.
+  final List<_LocalPendingMessage> _pendingMessages = <_LocalPendingMessage>[];
+  String _myDisplayName = '';
+  StreamSubscription<bool>? _connectionSub;
 
   /// Équipe officielle du portail Discord de CE bot, mise en cache au niveau de
   /// la page : la vérification ne coûte donc jamais un appel réseau par frappe.
@@ -207,6 +213,7 @@ class _TeamChatPageState extends State<TeamChatPage> {
   @override
   void dispose() {
     unawaited(_eventsSub?.cancel());
+    unawaited(_connectionSub?.cancel());
     _composerController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -224,10 +231,20 @@ class _TeamChatPageState extends State<TeamChatPage> {
       return;
     }
     _subscribeToEvents(client);
+    unawaited(_loadCurrentUser());
     await _load();
     // Lancée en tâche de fond : l'équipe du portail sert la modale d'ajout et
     // l'encart en lecture seule, mais ne doit pas retarder le tchat.
     unawaited(_ensurePortalTeam());
+  }
+
+  Future<void> _loadCurrentUser() async {
+    final session = await MainApiSettingsStore.loadSession();
+    if (session != null && mounted) {
+      setState(() {
+        _myDisplayName = session.username ?? '';
+      });
+    }
   }
 
   /// Client du runtime courant : le tchat d'équipe est une donnée du COMPTE
@@ -247,9 +264,14 @@ class _TeamChatPageState extends State<TeamChatPage> {
   /// Abonnement au canal d'événements du compte. Le désabonnement vit en
   /// [dispose] : une page fermée ne doit plus rien rafraîchir.
   void _subscribeToEvents(MainApiClient client) {
-    _eventsSub = client.connectGatewayBotEvents().events.listen(
-      _onGatewayEvent,
-    );
+    final session = client.connectGatewayBotEvents();
+    _eventsSub = session.events.listen(_onGatewayEvent);
+    _connectionSub = session.connectionChanges.listen((connected) {
+      if (connected && !_loading && mounted) {
+        // Reconnecté au hub d'événements : réconciliation transparente des messages manqués
+        unawaited(_load(showSpinner: false));
+      }
+    });
   }
 
   void _onGatewayEvent(GatewayBotEvent event) {
@@ -385,7 +407,12 @@ class _TeamChatPageState extends State<TeamChatPage> {
   /// d'un message à TOUS les appareils, y compris celui qui l'a envoyé.
   void _appendMessage(TeamChatMessage message) {
     if (_containsMessage(message)) return;
-    setState(() => _messages.add(message));
+    setState(() {
+      _pendingMessages.removeWhere(
+        (p) => p.content == message.content && !p.isFailed,
+      );
+      _messages.add(message);
+    });
     _scrollToLatest();
   }
 
@@ -623,24 +650,77 @@ class _TeamChatPageState extends State<TeamChatPage> {
     final content = _composerController.text.trim();
     final client = _client;
     if (content.isEmpty || client == null || _sending) return;
-    setState(() => _sending = true);
-    try {
-      final response = await client.sendTeamChatMessage(widget.botId, content);
-      if (!mounted) return;
-      _composerController.clear();
-      // Réponse exploitable : le message apparaît sans attendre l'aller-retour
-      // de l'événement. Sinon le serveur le pousse à tous les appareils, dont
-      // celui-ci : rien ne manque.
+
+    _composerController.clear();
+    final pending = _LocalPendingMessage(
+      id: 'local_${DateTime.now().microsecondsSinceEpoch}',
+      content: content,
+      createdAt: DateTime.now(),
+    );
+    setState(() {
+      _sending = true;
+      _pendingMessages.add(pending);
+    });
+    _scrollToLatest();
+
+    await _dispatchSendMessage(pending);
+  }
+
+  Future<void> _dispatchSendMessage(_LocalPendingMessage pending) async {
+    final client = _client;
+    if (client == null) return;
+
+    setState(() {
+      pending.isFailed = false;
+    });
+
+    Map<String, dynamic>? response;
+
+    // Retry loop with exponential backoff: up to 3 attempts on network/route drops
+    for (var attempt = 1; attempt <= 3; attempt++) {
+      try {
+        response = await client.sendTeamChatMessage(
+          widget.botId,
+          pending.content,
+        );
+        break;
+      } catch (e) {
+        if (attempt < 3) {
+          await Future<void>.delayed(Duration(milliseconds: 300 * attempt));
+        }
+      }
+    }
+
+    if (!mounted) return;
+
+    if (response != null) {
+      setState(() {
+        _pendingMessages.remove(pending);
+        _sending = false;
+      });
       final created = _createdMessage(response);
       if (created != null) {
         _appendMessage(created);
       }
-    } catch (_) {
-      if (!mounted) return;
+    } else {
+      setState(() {
+        pending.isFailed = true;
+        _sending = false;
+      });
       _showError(context.tr.team_chat_send_error);
-    } finally {
-      if (mounted) setState(() => _sending = false);
     }
+  }
+
+  void _retryMessage(_LocalPendingMessage pending) {
+    if (_sending) return;
+    setState(() => _sending = true);
+    unawaited(_dispatchSendMessage(pending));
+  }
+
+  void _discardPendingMessage(_LocalPendingMessage pending) {
+    setState(() {
+      _pendingMessages.remove(pending);
+    });
   }
 
   TeamChatMessage? _createdMessage(Map<String, dynamic> response) {
@@ -754,7 +834,7 @@ class _TeamChatPageState extends State<TeamChatPage> {
                     ],
                   ),
                 ),
-                if (_messages.isEmpty)
+                if (_messages.isEmpty && _pendingMessages.isEmpty)
                   Padding(
                     padding: const EdgeInsets.symmetric(
                       vertical: AppTheme.spacingXl,
@@ -780,7 +860,7 @@ class _TeamChatPageState extends State<TeamChatPage> {
                       ],
                     ),
                   )
-                else
+                else ...[
                   for (final message in _messages)
                     _ChatMessageTile(
                       message: message,
@@ -790,6 +870,14 @@ class _TeamChatPageState extends State<TeamChatPage> {
                       ),
                       timeLabel: _timestampLabel(context, message.createdAt),
                     ),
+                  for (final pending in _pendingMessages)
+                    _PendingChatMessageTile(
+                      pending: pending,
+                      authorName: _myDisplayName,
+                      onRetry: () => _retryMessage(pending),
+                      onDismiss: () => _discardPendingMessage(pending),
+                    ),
+                ],
               ],
             ),
           ),
@@ -1664,4 +1752,159 @@ class _CollaboratorDraft {
 
   final String userId;
   final BotPermissions permissions;
+}
+
+/// Message local en cours d'envoi ou en échec temporaire.
+class _LocalPendingMessage {
+  final String id;
+  final String content;
+  final DateTime createdAt;
+  bool isFailed = false;
+
+  _LocalPendingMessage({
+    required this.id,
+    required this.content,
+    required this.createdAt,
+  });
+}
+
+/// Rendu d'un message local avec état en vol et bouton de réessai en cas d'échec.
+class _PendingChatMessageTile extends StatelessWidget {
+  const _PendingChatMessageTile({
+    required this.pending,
+    required this.authorName,
+    required this.onRetry,
+    required this.onDismiss,
+  });
+
+  final _LocalPendingMessage pending;
+  final String authorName;
+  final VoidCallback onRetry;
+  final VoidCallback onDismiss;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isFailed = pending.isFailed;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CircleAvatar(
+            radius: 16,
+            backgroundColor: isFailed ? AppTheme.error : AppTheme.discord,
+            child: Icon(
+              isFailed ? Icons.error_outline : Icons.person,
+              size: 18,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        authorName.isNotEmpty ? authorName : 'Moi',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                          color: Colors.white,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      isFailed ? 'Échec d\'envoi' : 'Envoi...',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: isFailed ? AppTheme.error : AppTheme.grey,
+                        fontWeight: isFailed
+                            ? FontWeight.w500
+                            : FontWeight.normal,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isFailed
+                        ? AppTheme.error.withValues(alpha: 0.1)
+                        : scheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                    borderRadius: const BorderRadius.only(
+                      topRight: Radius.circular(12),
+                      bottomLeft: Radius.circular(12),
+                      bottomRight: Radius.circular(12),
+                    ),
+                    border: Border.all(
+                      color: isFailed
+                          ? AppTheme.error.withValues(alpha: 0.5)
+                          : scheme.outlineVariant.withValues(alpha: 0.4),
+                    ),
+                  ),
+                  child: SelectableText(
+                    pending.content,
+                    style: TextStyle(
+                      fontSize: 13,
+                      height: 1.35,
+                      color: isFailed
+                          ? Colors.white.withValues(alpha: 0.8)
+                          : null,
+                    ),
+                  ),
+                ),
+                if (isFailed) ...[
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      TextButton.icon(
+                        style: TextButton.styleFrom(
+                          visualDensity: VisualDensity.compact,
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          foregroundColor: AppTheme.discord,
+                        ),
+                        icon: const Icon(Icons.refresh, size: 14),
+                        label: Text(
+                          context.tr.common_retry,
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                        onPressed: onRetry,
+                      ),
+                      const SizedBox(width: 8),
+                      TextButton.icon(
+                        style: TextButton.styleFrom(
+                          visualDensity: VisualDensity.compact,
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          foregroundColor: AppTheme.grey,
+                        ),
+                        icon: const Icon(Icons.close, size: 14),
+                        label: Text(
+                          context.tr.common_cancel,
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                        onPressed: onDismiss,
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

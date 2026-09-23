@@ -198,6 +198,7 @@ class _FakeTeamClient extends MainApiClient {
     this.myPermissions,
     this.permissionsFail = false,
     this.gatewaySession,
+    this.onSendMessage,
   }) : super(
          baseUrl: 'https://manager.test',
          accessToken: 'jeton-de-compte',
@@ -246,11 +247,19 @@ class _FakeTeamClient extends MainApiClient {
     return myPermissions;
   }
 
+  final Future<Map<String, dynamic>> Function(String botId, String content)?
+  onSendMessage;
+
   @override
   Future<Map<String, dynamic>> sendTeamChatMessage(
     String botId,
     String content,
-  ) async => const <String, dynamic>{};
+  ) async {
+    if (onSendMessage != null) {
+      return onSendMessage!(botId, content);
+    }
+    return const <String, dynamic>{};
+  }
 
   @override
   GatewayBotEventsSession connectGatewayBotEvents() =>
@@ -952,6 +961,114 @@ void main() {
         find.widgetWithText(TextButton, tr.team_add_by_discord_id),
         findsOneWidget,
       );
+    },
+  );
+
+  testWidgets(
+    'cas 11 — échec temporaire d\'envoi puis retry : le message est retenté automatiquement et confirmé sans perte',
+    (tester) async {
+      int attempts = 0;
+      final client = _FakeTeamClient(
+        collaborators: const <Map<String, dynamic>>[],
+        messages: const <Map<String, dynamic>>[],
+        myPermissions: _myRights(canInvite: false),
+        onSendMessage: (botId, content) async {
+          attempts++;
+          if (attempts == 1) {
+            throw const SocketException('Transient network routing drop');
+          }
+          return <String, dynamic>{
+            'message': <String, dynamic>{
+              'id': 777,
+              'bot_id': botId,
+              'author_user_id': _ownerUserId,
+              'author_display_name': 'Moi',
+              'content': content,
+              'created_at': DateTime.now().toUtc().toIso8601String(),
+            },
+          };
+        },
+      );
+
+      await tester.pumpWidget(
+        _host(TeamChatPage(botId: _botId, client: client)),
+      );
+      await _settleTeamPage(tester);
+
+      // Saisie du message
+      await tester.enterText(find.byType(TextField), 'Message avec retry');
+      await tester.tap(find.byIcon(Icons.send_rounded));
+      await tester.pump();
+
+      // Première tentative a échoué, retry loop attend 300ms
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pumpAndSettle();
+
+      expect(attempts, 2);
+      expect(find.text('Message avec retry'), findsOneWidget);
+      expect(find.text('Échec d\'envoi'), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'cas 12 — panne persistante d\'envoi : le message reste visible en échec avec bouton Réessayer',
+    (tester) async {
+      int attempts = 0;
+      bool serverRecovered = false;
+
+      final client = _FakeTeamClient(
+        collaborators: const <Map<String, dynamic>>[],
+        messages: const <Map<String, dynamic>>[],
+        myPermissions: _myRights(canInvite: false),
+        onSendMessage: (botId, content) async {
+          attempts++;
+          if (!serverRecovered) {
+            throw const SocketException('Route dispatch failure 502');
+          }
+          return <String, dynamic>{
+            'message': <String, dynamic>{
+              'id': 888,
+              'bot_id': botId,
+              'author_user_id': _ownerUserId,
+              'author_display_name': 'Moi',
+              'content': content,
+              'created_at': DateTime.now().toUtc().toIso8601String(),
+            },
+          };
+        },
+      );
+
+      await tester.pumpWidget(
+        _host(TeamChatPage(botId: _botId, client: client)),
+      );
+      await _settleTeamPage(tester);
+
+      // Saisie et envoi
+      await tester.enterText(find.byType(TextField), 'Message persistant');
+      await tester.tap(find.byIcon(Icons.send_rounded));
+      await tester.pump();
+
+      // Épuise les 3 tentatives du retry loop
+      await tester.pump(const Duration(milliseconds: 350));
+      await tester.pump(const Duration(milliseconds: 650));
+      await tester.pumpAndSettle();
+
+      expect(attempts, 3);
+      expect(find.text('Message persistant'), findsOneWidget);
+      expect(find.text('Échec d\'envoi'), findsOneWidget);
+      expect(find.text(tr.common_retry), findsOneWidget);
+
+      // Le serveur repart
+      serverRecovered = true;
+
+      // Clic sur Réessayer
+      await tester.tap(find.text(tr.common_retry));
+      await tester.pump();
+      await tester.pumpAndSettle();
+
+      expect(attempts, 4);
+      expect(find.text('Message persistant'), findsOneWidget);
+      expect(find.text('Échec d\'envoi'), findsNothing);
     },
   );
 }
