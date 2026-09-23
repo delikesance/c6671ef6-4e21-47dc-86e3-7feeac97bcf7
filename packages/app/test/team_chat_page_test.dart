@@ -30,6 +30,7 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/i18n/l10n/app_localizations_fr.dart';
 import 'package:bot_creator/core/network/gateway_bot_events.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
+import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/features/team/logic/team_models.dart';
@@ -396,7 +397,15 @@ void main() {
     }
   });
 
-  setUp(() => _writeBotRecord(documentsDir));
+  setUp(() async {
+    _writeBotRecord(documentsDir);
+    // Amorce `AppManager` hors du temps simulé pour éviter le timer de _startStreamUpdateLoop
+    final appManager = AppManager();
+    await appManager.getAllApps();
+    for (var i = 0; i < 300 && !appManager.isInitialized; i++) {
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+    }
+  });
 
   testWidgets('cas 1 — les deux collaborateurs simulés sont rendus', (
     tester,
@@ -852,6 +861,97 @@ void main() {
       );
       await _settleTeamPage(tester);
       expect(_chatContent(fallbackContent), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'cas 9 — le message sans display_name résout le pseudo depuis le portail',
+    (tester) async {
+      const String portalUsername = 'garder500';
+      const String messageContent = 'Hey';
+
+      final client = _FakeTeamClient(
+        collaborators: <Map<String, dynamic>>[
+          _collaborator(
+            userId: _ownerUserId,
+            displayName: _ownerName,
+            isOwner: true,
+          ),
+        ],
+        messages: <Map<String, dynamic>>[
+          <String, dynamic>{
+            'id': 201,
+            'author_user_id': _outsiderUserId,
+            'author_display_name': '', // pas d'username fourni par le serveur
+            'content': messageContent,
+            'created_at': DateTime.utc(
+              2026,
+              9,
+              21,
+              14,
+              54,
+            ).millisecondsSinceEpoch,
+          },
+        ],
+      );
+
+      // Le portail connait cet utilisateur sous le pseudo 'garder500'
+      await _pumpTeamPage(
+        tester,
+        client: client,
+        portalLookup: (String botToken) async =>
+            DiscordApplicationOwnerMetadata(
+              ownerId: _ownerUserId,
+              ownerUsername: _portalOwnerName,
+              teamId: '777777777777777777',
+              teamName: 'Équipe officielle',
+              teamOwnerUserId: _outsiderUserId,
+              teamOwnerUsername: portalUsername,
+              teamMemberUserIds: const <String>[_outsiderUserId],
+              teamMembersInfo: const <Map<String, dynamic>>[
+                <String, dynamic>{
+                  'id': _outsiderUserId,
+                  'username': portalUsername,
+                  'avatar': '',
+                  'role': 'admin',
+                },
+              ],
+            ),
+      );
+
+      // Le pseudo résolu 'garder500' est affiché comme auteur du message, et non son ID brut
+      expect(find.text(portalUsername), findsWidgets);
+      expect(_chatContent(messageContent), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'cas 10 — sur écran mobile compact, le titre Collaborateurs et le bouton d\'ajout s\'affichent sans écrasement',
+    (tester) async {
+      tester.view.physicalSize = const Size(360, 740);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      final client = _FakeTeamClient(
+        collaborators: const <Map<String, dynamic>>[],
+        messages: const <Map<String, dynamic>>[],
+        myPermissions: _myRights(canInvite: true),
+      );
+
+      await tester.pumpWidget(
+        _host(TeamChatPage(botId: _botId, client: client)),
+      );
+      await _settleTeamPage(tester);
+
+      expect(tester.takeException(), isNull);
+      expect(find.text(tr.team_collaborators_title), findsOneWidget);
+      expect(
+        find.widgetWithText(TextButton, tr.team_add_by_discord_id),
+        findsOneWidget,
+      );
     },
   );
 }
