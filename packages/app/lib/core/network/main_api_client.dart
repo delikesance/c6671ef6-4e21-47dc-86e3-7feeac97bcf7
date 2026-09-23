@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
@@ -303,6 +304,32 @@ class MainApiClient implements RemoteRuntimeClient {
     return headers;
   }
 
+  Future<void> _ensureFreshAccessToken() async {
+    if (Platform.environment.containsKey('FLUTTER_TEST') &&
+        !MainApiSettingsStore.isSessionLoaded) {
+      return;
+    }
+    try {
+      final session = await loadMainApiSession();
+      if (session != null) {
+        if (session.isExpired || session.expiresSoon()) {
+          final refreshed = await restoreMainApiSessionIfNeeded(
+            timeout: _timeout,
+            httpClient: _http,
+          );
+          if (refreshed?.accessToken != null &&
+              refreshed!.accessToken.trim().isNotEmpty) {
+            _accessToken = refreshed.accessToken;
+          }
+        } else if (_accessToken == null || _accessToken!.isEmpty) {
+          _accessToken = session.accessToken;
+        }
+      }
+    } catch (e) {
+      debugPrint('[MainApiClient] Proactive token check error: $e');
+    }
+  }
+
   Future<Map<String, dynamic>> _get(
     String path, {
     Map<String, String?>? query,
@@ -312,6 +339,10 @@ class MainApiClient implements RemoteRuntimeClient {
       throw MainApiClientException(
         'Circuit breaker open for $_baseUrl — too many failures.',
       );
+    }
+
+    if (includeAuth) {
+      await _ensureFreshAccessToken();
     }
 
     final uri = _uri(path, query: query);
@@ -379,6 +410,10 @@ class MainApiClient implements RemoteRuntimeClient {
       throw MainApiClientException(
         'Circuit breaker open for $_baseUrl — too many failures.',
       );
+    }
+
+    if (includeAuth) {
+      await _ensureFreshAccessToken();
     }
 
     final uri = _uri(path);
@@ -455,6 +490,10 @@ class MainApiClient implements RemoteRuntimeClient {
       );
     }
 
+    if (includeAuth) {
+      await _ensureFreshAccessToken();
+    }
+
     final uri = _uri(path, query: query);
     appendBotDebugLog(
       '[MainApiClient] DELETE ${redactUriForLog(uri.toString())}',
@@ -524,6 +563,10 @@ class MainApiClient implements RemoteRuntimeClient {
       );
     }
 
+    if (includeAuth) {
+      await _ensureFreshAccessToken();
+    }
+
     final uri = _uri(path);
     final encodedBody = jsonEncode(body);
     appendBotDebugLog('[MainApiClient] PUT ${redactUriForLog(uri.toString())}');
@@ -588,6 +631,10 @@ class MainApiClient implements RemoteRuntimeClient {
       throw MainApiClientException(
         'Circuit breaker open for $_baseUrl — too many failures.',
       );
+    }
+
+    if (includeAuth) {
+      await _ensureFreshAccessToken();
     }
 
     final uri = _uri(path);
@@ -689,6 +736,7 @@ class MainApiClient implements RemoteRuntimeClient {
       final session = await restoreMainApiSessionIfNeeded(
         timeout: _timeout,
         force: true,
+        httpClient: _http,
       );
       return session?.accessToken;
     } catch (e) {
@@ -1346,6 +1394,7 @@ class MainApiClient implements RemoteRuntimeClient {
     String path, {
     Map<String, String>? headers,
   }) async {
+    await _ensureFreshAccessToken();
     final uri = _uri(path);
     final merged = <String, String>{
       ..._headers(includeAuth: true),

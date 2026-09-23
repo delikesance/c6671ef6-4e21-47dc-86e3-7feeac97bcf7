@@ -153,6 +153,8 @@ class MainApiSettingsStore {
   static MainApiSession? _memorySession;
   static bool _memorySessionLoaded = false;
 
+  static bool get isSessionLoaded => _memorySessionLoaded;
+
   static void invalidateSessionCache() {
     _memorySession = null;
     _memorySessionLoaded = false;
@@ -195,8 +197,12 @@ class MainApiSettingsStore {
     }
 
     if (jsonStr == null || jsonStr.trim().isEmpty) {
-      final prefs = await SharedPreferences.getInstance();
-      jsonStr = prefs.getString(_sessionKey);
+      try {
+        final prefs = await SharedPreferences.getInstance().timeout(
+          const Duration(milliseconds: 50),
+        );
+        jsonStr = prefs.getString(_sessionKey);
+      } catch (_) {}
     }
 
     if (jsonStr == null || jsonStr.trim().isEmpty) {
@@ -232,9 +238,7 @@ class MainApiSettingsStore {
     if (existing?.isManagedAccount ?? false) {
       return false;
     }
-    await saveSession(
-      session.copyWith(authMethod: MainApiAuthMethod.botToken),
-    );
+    await saveSession(session.copyWith(authMethod: MainApiAuthMethod.botToken));
     return true;
   }
 
