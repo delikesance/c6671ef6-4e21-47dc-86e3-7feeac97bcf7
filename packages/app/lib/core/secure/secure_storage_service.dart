@@ -23,13 +23,30 @@ class SecureStorageService {
     required this.storageDir,
     required this.encryptionKey,
     required this.flutterSecureStorage,
+    this.inMemoryStore,
   });
 
   final String storageDir;
   final encrypt_lib.Key encryptionKey;
   final FlutterSecureStorage? flutterSecureStorage;
+  final Map<String, String>? inMemoryStore;
 
   static SecureStorageService? _instance;
+
+  @visibleForTesting
+  static void setMockInstance(SecureStorageService? mock) {
+    _instance = mock;
+  }
+
+  @visibleForTesting
+  static SecureStorageService createInMemory({String storageDir = '/tmp'}) {
+    return SecureStorageService._(
+      storageDir: storageDir,
+      encryptionKey: encrypt_lib.Key.fromLength(32),
+      flutterSecureStorage: null,
+      inMemoryStore: <String, String>{},
+    );
+  }
 
   /// Returns the singleton [SecureStorageService], initializing it on first
   /// call. Initialization is async because we need to resolve storage paths
@@ -53,15 +70,7 @@ class SecureStorageService {
     // Derive encryption key (AES-256 requires 32 bytes)
     final encryptionKey = await _deriveKey(supportDir);
 
-    // Try to create FlutterSecureStorage; may throw on unsupported platforms
-    FlutterSecureStorage? fss;
-    try {
-      fss = const FlutterSecureStorage();
-      // Probe it to see if the native plugin is available
-      await fss.containsKey(key: '_probe_');
-    } catch (_) {
-      fss = null;
-    }
+    const fss = FlutterSecureStorage();
 
     return SecureStorageService._(
       storageDir: storageDir,
@@ -72,12 +81,16 @@ class SecureStorageService {
 
   /// Resolves the application support directory.
   static Future<String> _getSupportDir() async {
+    if (Platform.environment.containsKey('FLUTTER_TEST')) {
+      return Directory.systemTemp.path;
+    }
     try {
       final dir = await getApplicationSupportDirectory();
       return dir.path;
     } catch (_) {
       // Fallback for environments where path_provider isn't available
-      final home = Platform.environment['HOME'] ??
+      final home =
+          Platform.environment['HOME'] ??
           Platform.environment['USERPROFILE'] ??
           '/tmp';
       return p.join(home, '.local', 'share', 'bot_creator');
@@ -119,7 +132,8 @@ class SecureStorageService {
   /// Attempts to set file permissions to 0600 (owner read/write only) on Unix.
   static void _restrictFilePermissions(File file) {
     try {
-      if (!Platform.isWindows) {
+      if (!Platform.isWindows &&
+          !Platform.environment.containsKey('FLUTTER_TEST')) {
         // Use chmod via Process to set 0600 permissions
         Process.run('chmod', ['600', file.path]);
       }
@@ -145,6 +159,10 @@ class SecureStorageService {
   /// Writes to both flutter_secure_storage (if available) and the encrypted
   /// file fallback, ensuring dual-write coverage.
   Future<void> write(String key, String value) async {
+    if (inMemoryStore != null) {
+      inMemoryStore![key] = value;
+      return;
+    }
     if (flutterSecureStorage != null) {
       try {
         await flutterSecureStorage!.write(key: key, value: value);
@@ -160,10 +178,15 @@ class SecureStorageService {
   /// Tries flutter_secure_storage first (on supported platforms), then
   /// falls back to reading the encrypted file.
   Future<String?> read(String key) async {
+    if (inMemoryStore != null) {
+      return inMemoryStore![key];
+    }
     // Try flutter_secure_storage first
     if (flutterSecureStorage != null) {
       try {
-        final result = await flutterSecureStorage!.read(key: key);
+        final result = await flutterSecureStorage!
+            .read(key: key)
+            .timeout(const Duration(milliseconds: 200));
         if (result != null && result.isNotEmpty) {
           return result;
         }
@@ -178,6 +201,10 @@ class SecureStorageService {
 
   /// Deletes a value from secure storage.
   Future<void> delete(String key) async {
+    if (inMemoryStore != null) {
+      inMemoryStore!.remove(key);
+      return;
+    }
     if (flutterSecureStorage != null) {
       try {
         await flutterSecureStorage!.delete(key: key);
@@ -192,6 +219,10 @@ class SecureStorageService {
 
   /// Clears all values from secure storage.
   Future<void> clear() async {
+    if (inMemoryStore != null) {
+      inMemoryStore!.clear();
+      return;
+    }
     if (flutterSecureStorage != null) {
       try {
         await flutterSecureStorage!.deleteAll();

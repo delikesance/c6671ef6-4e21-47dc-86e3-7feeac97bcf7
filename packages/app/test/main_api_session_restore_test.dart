@@ -50,4 +50,30 @@ void main() {
     expect(restored, isNull);
     expect(await MainApiSettingsStore.loadSession(), isNull);
   });
+
+  test(
+    'transient network failure during refresh preserves stored session without clearing',
+    () async {
+      await MainApiSettingsStore.saveConfig(
+        const MainApiConfig(baseUrl: 'https://127.0.0.1:54321'),
+      );
+      final expiredSession = MainApiSession(
+        accessToken: 'expired-token',
+        expiresAt: DateTime.now().toUtc().subtract(const Duration(hours: 1)),
+        refreshToken: 'persistent-refresh-token',
+        authMethod: MainApiAuthMethod.discordOauth,
+      );
+      await MainApiSettingsStore.saveSession(expiredSession);
+
+      // restore attempts to connect to 127.0.0.1:54321, fails with connection error
+      final restored = await restoreMainApiSessionIfNeeded(
+        timeout: const Duration(milliseconds: 200),
+      );
+
+      // Session is NOT wiped! Preserved for offline editing and draft retention
+      expect(restored, isNotNull);
+      expect(restored?.refreshToken, 'persistent-refresh-token');
+      expect(await MainApiSettingsStore.loadSession(), isNotNull);
+    },
+  );
 }

@@ -9,9 +9,14 @@ import 'package:bot_creator/features/auth/presentation/mobile_email_login_form.d
 import 'package:flutter/material.dart';
 
 class MobileAccountRequiredPage extends StatefulWidget {
-  const MobileAccountRequiredPage({super.key, required this.onConnected});
+  const MobileAccountRequiredPage({
+    super.key,
+    required this.onConnected,
+    this.onDismiss,
+  });
 
   final VoidCallback onConnected;
+  final VoidCallback? onDismiss;
 
   @override
   State<MobileAccountRequiredPage> createState() =>
@@ -85,6 +90,15 @@ class _MobileAccountRequiredPageState extends State<MobileAccountRequiredPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  if (widget.onDismiss != null)
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: IconButton(
+                        icon: const Icon(Icons.close),
+                        tooltip: tr.common_close,
+                        onPressed: widget.onDismiss,
+                      ),
+                    ),
                   Icon(
                     Icons.account_circle_outlined,
                     size: 56,
@@ -153,6 +167,14 @@ class _MobileAccountRequiredPageState extends State<MobileAccountRequiredPage> {
                         widget.onConnected();
                       },
                     ),
+                  if (widget.onDismiss != null) ...[
+                    const SizedBox(height: 12),
+                    TextButton.icon(
+                      onPressed: widget.onDismiss,
+                      icon: const Icon(Icons.edit_note_outlined, size: 18),
+                      label: Text(tr.edit_shell_local_draft),
+                    ),
+                  ],
                 ],
               ),
             ),

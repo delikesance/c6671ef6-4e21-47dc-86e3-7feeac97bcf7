@@ -8,7 +8,13 @@ import 'package:flutter/foundation.dart';
 class MobileAccountGate {
   MobileAccountGate._();
 
+  @visibleForTesting
+  static bool? debugOverrideIsRequired;
+
   static bool get isRequired {
+    if (debugOverrideIsRequired != null) {
+      return debugOverrideIsRequired!;
+    }
     if (kIsWeb) {
       return false;
     }
@@ -70,9 +76,17 @@ class MobileAccountGate {
     }
 
     if (session!.isExpired || session.expiresSoon()) {
-      session = await restoreMainApiSessionIfNeeded();
+      final restored = await restoreMainApiSessionIfNeeded();
+      if (restored != null) {
+        session = restored;
+      }
     }
 
-    return isManagedAccountSession(session);
+    final currentSession = await MainApiSettingsStore.loadSession();
+    if (currentSession == null) {
+      return false;
+    }
+
+    return isRefreshableManagedAccountSession(currentSession);
   }
 }
