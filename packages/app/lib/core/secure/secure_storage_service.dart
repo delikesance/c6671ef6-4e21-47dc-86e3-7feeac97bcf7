@@ -70,7 +70,18 @@ class SecureStorageService {
     // Derive encryption key (AES-256 requires 32 bytes)
     final encryptionKey = await _deriveKey(supportDir);
 
-    const fss = FlutterSecureStorage();
+    // Le plugin natif n'est pas joignable partout (tests, Linux sans
+    // libsecret/D-Bus). On le SONDE une fois pour décider, plutôt que de
+    // découvrir l'échec à chaque lecture : sans sonde, chaque `read`/`write`
+    // lance un appel de canal qui échoue, et `flutterSecureStorage` reste non
+    // nul alors que rien ne peut aboutir.
+    FlutterSecureStorage? fss;
+    try {
+      fss = const FlutterSecureStorage();
+      await fss.containsKey(key: '_probe_');
+    } catch (_) {
+      fss = null;
+    }
 
     return SecureStorageService._(
       storageDir: storageDir,
@@ -82,7 +93,17 @@ class SecureStorageService {
   /// Resolves the application support directory.
   static Future<String> _getSupportDir() async {
     if (Platform.environment.containsKey('FLUTTER_TEST')) {
-      return Directory.systemTemp.path;
+      // Dossier PROPRE À CE PROCESSUS : `Directory.systemTemp.path` est partagé
+      // par tous les fichiers de test (et persiste entre deux exécutions). Deux
+      // fichiers qui manipulent le même identifiant de bot se lisaient alors le
+      // jeton l'un de l'autre — `bot_identity_scan_test` écrit un jeton pour
+      // 1488275294295949504, et `app_token_preserved_test` y relisait ce jeton
+      // en croyant en avoir inventé un. Un coffre neuf par exécution rend
+      // chaque fichier hermétique.
+      final isolated = await Directory.systemTemp.createTemp(
+        'bot_creator_test_vault_',
+      );
+      return isolated.path;
     }
     try {
       final dir = await getApplicationSupportDirectory();
@@ -184,9 +205,15 @@ class SecureStorageService {
     // Try flutter_secure_storage first
     if (flutterSecureStorage != null) {
       try {
-        final result = await flutterSecureStorage!
-            .read(key: key)
-            .timeout(const Duration(milliseconds: 200));
+        // Pas de `.timeout()` ici : un délai armé à chaque lecture crée un
+        // `Timer` en vol dans le service, que la garde de
+        // `announcement_service_wiring_network_test` (à raison) refuse — un
+        // `Timer` non identifié doit rester impossible. Il était aussi trop
+        // court : une lecture de trousseau à froid (Keystore Android) dépasse
+        // régulièrement 200 ms, et le jeton serait alors « absent » à tort.
+        // L'indisponibilité du plugin est déjà tranchée à la création, par la
+        // sonde de `_create()`.
+        final result = await flutterSecureStorage!.read(key: key);
         if (result != null && result.isNotEmpty) {
           return result;
         }
