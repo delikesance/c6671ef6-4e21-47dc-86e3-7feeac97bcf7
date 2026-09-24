@@ -412,9 +412,26 @@ extension _AppHomePageLogic on _AppHomePageState {
                   );
                 } catch (_) {}
               }
-            }
-            await remoteClient.syncBot(botId, _appName, payload);
-            if (remoteClient is MainApiClient) {
+              // La poussée de DÉMARRAGE passe par la MÊME orchestration que la
+              // poussée canonique : un `409 bot_config_overshrink` — suppression
+              // massive, peut-être volontaire — n'est pas une panne mais une
+              // QUESTION, et on la POSE au lieu d'afficher un simple message qui
+              // obligerait l'utilisateur à relancer son geste pour confirmer.
+              // Sans accord, rien n'est envoyé, le local reste intact, et le
+              // démarrage s'arrête ici : lancer le bot sur la configuration que
+              // le serveur vient de refuser serait un mensonge sur ce qui a été
+              // appliqué.
+              final pushOutcome = await pushStartBotConfigToleratingOvershrink(
+                client: remoteClient,
+                botId: botId,
+                botName: _appName,
+                config: payload,
+                askConfirmation: _askOvershrinkConfirmation,
+              );
+              if (pushOutcome != BotConfigPushOutcome.sent) {
+                _reportOvershrinkNothingSent();
+                return;
+              }
               await startManagerBotWithCreditRetry(
                 client: remoteClient,
                 botId: botId,
@@ -422,6 +439,7 @@ extension _AppHomePageLogic on _AppHomePageState {
               );
               RunnerSettings.associateBotWithRunner(botId, 'manager');
             } else {
+              await remoteClient.syncBot(botId, _appName, payload);
               await remoteClient.startBot(botId, botName: _appName);
               final runnerConfig = await RunnerSettings.resolveConfigForBot(
                 botId,

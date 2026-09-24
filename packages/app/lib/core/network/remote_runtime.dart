@@ -598,3 +598,35 @@ Future<BotConfigPushOutcome> pushBotConfigToleratingOvershrink({
     confirmOvershrink: true,
   );
 }
+
+/// La poussée de configuration d'un DÉMARRAGE de bot, sur-réduction comprise.
+///
+/// POURQUOI elle existe : un démarrage pousse la configuration AVANT de demander
+/// au serveur de lancer le bot, et cette poussée est refusée pour sur-réduction
+/// exactement comme la poussée canonique. La règle est identique — demander,
+/// rejouer la MÊME poussée sur accord SEULEMENT, ne jamais demander deux fois —
+/// et elle vit dans [pushBotConfigToleratingOvershrink]. Cette fonction n'en
+/// adapte que le TRANSPORT : l'écran de démarrage détient un client de runtime
+/// (manager ou runner), pas un client d'API.
+///
+/// Le drapeau `confirmOvershrink` n'existe que sur le protocole du MANAGER, seul
+/// serveur qui refuse une sur-réduction : un runner reçoit donc EXACTEMENT la
+/// poussée d'aujourd'hui, sans champ ajouté — et ne peut pas, non plus, produire
+/// [isBotConfigOvershrinkRefusal], qui exige une erreur d'API de statut `409`.
+Future<BotConfigPushOutcome> pushStartBotConfigToleratingOvershrink({
+  required RemoteRuntimeClient client,
+  required String botId,
+  required String botName,
+  required Map<String, dynamic> config,
+  required Future<bool> Function() askConfirmation,
+}) => pushBotConfigToleratingOvershrink(
+  push: (confirmOvershrink) => client is MainApiClient
+      ? client.syncBot(
+          botId,
+          botName,
+          config,
+          confirmOvershrink: confirmOvershrink,
+        )
+      : client.syncBot(botId, botName, config),
+  askConfirmation: askConfirmation,
+);
