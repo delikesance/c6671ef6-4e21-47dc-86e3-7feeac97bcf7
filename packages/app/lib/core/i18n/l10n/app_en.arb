@@ -3,6 +3,112 @@
   "@app_update_dialog_title": {
     "description": "New version available"
   },
+  "@menu_file": {
+    "description": "Title of the File menu in the macOS menu bar."
+  },
+  "@menu_new_bot": {
+    "description": "File menu item that opens the bot creation page."
+  },
+  "@menu_close_window": {
+    "description": "File menu item that closes the current window (Cmd+W)."
+  },
+  "@menu_edit": {
+    "description": "Title of the Edit menu in the macOS menu bar."
+  },
+  "@menu_undo": {
+    "description": "Standard Edit menu item (undo the last text edit)."
+  },
+  "@menu_redo": {
+    "description": "Standard Edit menu item (redo the last undone text edit)."
+  },
+  "@menu_cut": {
+    "description": "Standard Edit menu item (cut the current selection)."
+  },
+  "@menu_copy": {
+    "description": "Standard Edit menu item (copy the current selection)."
+  },
+  "@menu_paste": {
+    "description": "Standard Edit menu item (paste the clipboard)."
+  },
+  "@menu_select_all": {
+    "description": "Standard Edit menu item (select everything in the field)."
+  },
+  "@menu_view": {
+    "description": "Title of the View menu in the macOS menu bar."
+  },
+  "@menu_theme": {
+    "description": "View submenu that switches the light/dark/system theme."
+  },
+  "@menu_window": {
+    "description": "Title of the Window menu in the macOS menu bar."
+  },
+  "@menu_help": {
+    "description": "Title of the Help menu in the macOS menu bar."
+  },
+  "@menu_preferences": {
+    "description": "Application menu item that opens the settings (Cmd+,)."
+  },
+  "@menu_website": {
+    "description": "Help menu item that opens the Bot Creator website."
+  },
+  "@bot_config_versions_restore_error_detail": {
+    "placeholders": {
+      "reason": {"type": "String"}
+    },
+    "description": "Shown when a bot config version restore fails; {reason} carries the server status/code/message."
+  },
+  "@bot_config_versions_restore_refused": {
+    "description": "Shown when the server answered the restore without the ok flag: nothing was restored."
+  },
+  "@bot_config_versions_restore_local_failed": {
+    "placeholders": {
+      "reason": {"type": "String"}
+    },
+    "description": "Shown when the server restored the version but applying it to the local data failed."
+  },
+  "@import_engine_title": {
+    "description": "Label of the runtime engine selector in the bot import preview."
+  },
+  "@import_engine_missing": {
+    "description": "Shown when the imported ZIP does not declare a runtime engine, so the user must choose."
+  },
+  "@import_engine_declared": {
+    "placeholders": {
+      "engine": {"type": "String"}
+    },
+    "description": "Shown when the imported ZIP declares the runtime engine; the value is not editable."
+  },
+  "@import_engine_will_switch": {
+    "placeholders": {
+      "from": {"type": "String"},
+      "to": {"type": "String"}
+    },
+    "description": "Warning that the import changes the bot runtime engine on the next restart."
+  },
+  "@import_engine_dart_label": {
+    "description": "Name of the Bot Creator (Dart / blocks) runtime engine."
+  },
+  "@import_engine_javascript_label": {
+    "description": "Name of the JavaScript runtime engine."
+  },
+  "@bot_config_versions_restore_too_small": {
+    "description": "Shown when the server refuses to restore a config version below its plausibility floor (409 bot_config_version_too_small)."
+  },
+  "@bot_config_versions_force_restore_title": {
+    "description": "Title of the dialog offering to force a restore of a config version the server considers too small."
+  },
+  "@bot_config_versions_force_restore_body": {
+    "description": "Explains why the server refuses by itself and that a restore can be forced, since a restore is a deliberate step backwards."
+  },
+  "@bot_config_versions_force_restore_confirm": {
+    "description": "Confirm label of the forced restore dialog and button label in the command history sheet."
+  },
+  "@bot_config_versions_force_restore_keep": {
+    "description": "Cancel label of the forced restore dialog: keep the version currently live."
+  },
+  "@bot_config_versions_restore_too_small_unforced": {
+    "description": "Shown when a forced restore is still refused: the manager has to accept it for this version."
+  },
   "app_update_dialog_title": "New version available",
   "@app_update_dialog_message": {
     "placeholders": {
@@ -12151,5 +12257,36 @@
   "command_history_restore_confirm": "Restore this version? The content currently on the server will be replaced by this version. The restore itself is recorded as a new version, so it stays undoable.",
   "@command_history_restore_confirm": {
     "description": "Confirmation asked BEFORE overwriting: the restore must never happen without an explicit agreement."
-  }
+  },
+  "menu_file": "File",
+  "menu_new_bot": "New bot",
+  "menu_close_window": "Close window",
+  "menu_edit": "Edit",
+  "menu_undo": "Undo",
+  "menu_redo": "Redo",
+  "menu_cut": "Cut",
+  "menu_copy": "Copy",
+  "menu_paste": "Paste",
+  "menu_select_all": "Select all",
+  "menu_view": "View",
+  "menu_theme": "Theme",
+  "menu_window": "Window",
+  "menu_help": "Help",
+  "menu_preferences": "Preferences…",
+  "menu_website": "Website",
+  "bot_config_versions_restore_error_detail": "Failed to restore version: {reason}",
+  "bot_config_versions_restore_refused": "The server did not confirm the restore. Nothing was restored.",
+  "bot_config_versions_restore_local_failed": "The server restored the version, but applying it locally failed: {reason}",
+  "import_engine_title": "Runtime engine",
+  "import_engine_missing": "This ZIP does not declare an engine. Choose the one this bot must use:",
+  "import_engine_declared": "Engine declared by the ZIP: {engine}",
+  "import_engine_will_switch": "The bot will switch from {from} to {to} on its next restart.",
+  "import_engine_dart_label": "Bot Creator (Dart / blocks)",
+  "import_engine_javascript_label": "JavaScript (runner-js)",
+  "bot_config_versions_restore_too_small": "Version refused by the server: it is too small to rebuild a configuration — restoring it would empty your bot. Choose a fuller version.",
+  "bot_config_versions_force_restore_title": "Restore this version despite its size?",
+  "bot_config_versions_force_restore_body": "The server considers it too small to rebuild a configuration and refuses to apply it on its own. A restore is a deliberate step backwards: you can force it.",
+  "bot_config_versions_force_restore_confirm": "Restore anyway",
+  "bot_config_versions_force_restore_keep": "Keep the current version",
+  "bot_config_versions_restore_too_small_unforced": "The server still refuses: the manager must accept a forced restore for this version."
 }

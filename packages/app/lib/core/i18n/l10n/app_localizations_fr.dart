@@ -10052,4 +10052,113 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get command_history_restore_confirm =>
       'Restaurer cette version? Le contenu actuellement sur le serveur sera remplacé par celui de cette version. La restauration est elle-même enregistrée comme une nouvelle version : elle reste annulable.';
+
+  @override
+  String get menu_file => 'Fichier';
+
+  @override
+  String get menu_new_bot => 'Nouveau bot';
+
+  @override
+  String get menu_close_window => 'Fermer la fenêtre';
+
+  @override
+  String get menu_edit => 'Édition';
+
+  @override
+  String get menu_undo => 'Annuler';
+
+  @override
+  String get menu_redo => 'Rétablir';
+
+  @override
+  String get menu_cut => 'Couper';
+
+  @override
+  String get menu_copy => 'Copier';
+
+  @override
+  String get menu_paste => 'Coller';
+
+  @override
+  String get menu_select_all => 'Tout sélectionner';
+
+  @override
+  String get menu_view => 'Affichage';
+
+  @override
+  String get menu_theme => 'Thème';
+
+  @override
+  String get menu_window => 'Fenêtre';
+
+  @override
+  String get menu_help => 'Aide';
+
+  @override
+  String get menu_preferences => 'Préférences…';
+
+  @override
+  String get menu_website => 'Site web';
+
+  @override
+  String bot_config_versions_restore_error_detail(String reason) {
+    return 'Échec de la restauration de la version : $reason';
+  }
+
+  @override
+  String get bot_config_versions_restore_refused =>
+      'Le serveur n\'a pas confirmé la restauration. Rien n\'a été restauré.';
+
+  @override
+  String bot_config_versions_restore_local_failed(String reason) {
+    return 'La version a été restaurée sur le serveur, mais son application en local a échoué : $reason';
+  }
+
+  @override
+  String get import_engine_title => 'Moteur d\'exécution';
+
+  @override
+  String get import_engine_missing =>
+      'Ce ZIP ne déclare pas de moteur. Choisis celui que ce bot doit utiliser :';
+
+  @override
+  String import_engine_declared(String engine) {
+    return 'Moteur déclaré par le ZIP : $engine';
+  }
+
+  @override
+  String import_engine_will_switch(String from, String to) {
+    return 'Le bot passera de $from à $to à son prochain redémarrage.';
+  }
+
+  @override
+  String get import_engine_dart_label => 'Bot Creator (Dart / blocs)';
+
+  @override
+  String get import_engine_javascript_label => 'JavaScript (runner-js)';
+
+  @override
+  String get bot_config_versions_restore_too_small =>
+      'Version refusée par le serveur : elle est trop réduite pour reconstituer une configuration — la restaurer viderait ton bot. Choisis une version plus complète.';
+
+  @override
+  String get bot_config_versions_force_restore_title =>
+      'Restaurer cette version malgré sa taille ?';
+
+  @override
+  String get bot_config_versions_force_restore_body =>
+      'Le serveur la juge trop réduite pour reconstituer une configuration et refuse de l\'appliquer de lui-même. Une restauration est un retour en arrière demandé : tu peux la forcer.';
+
+  @override
+  String get bot_config_versions_force_restore_confirm =>
+      'Restaurer quand même';
+
+  @override
+  String get bot_config_versions_force_restore_keep =>
+      'Garder la version actuelle';
+
+  @override
+  String get bot_config_versions_restore_too_small_unforced =>
+      'Le serveur refuse encore : le manager doit accepter une restauration forcée pour cette version.';
 }
