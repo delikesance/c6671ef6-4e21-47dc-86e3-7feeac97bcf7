@@ -9844,4 +9844,45 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bot_config_overshrink_keep_local => 'Keep local, don\'t send';
+
+  @override
+  String get command_history_title => 'Version history of this command';
+
+  @override
+  String get command_history_empty =>
+      'No version has been recorded for this command yet. Versions appear here after a save.';
+
+  @override
+  String get command_history_restore => 'Restore';
+
+  @override
+  String command_history_version_meta(Object author, Object date, num size) {
+    String _temp0 = intl.Intl.pluralLogic(
+      size,
+      locale: localeName,
+      other: '$size bytes',
+      one: '1 byte',
+    );
+    return '$author · $date · $_temp0';
+  }
+
+  @override
+  String get command_history_conflict =>
+      'This version was not restored: the command changed on the server since you loaded it. Nothing has been written anywhere — reload the server version to overwrite it for real.';
+
+  @override
+  String get command_history_conflict_reload =>
+      'Reload server version and overwrite';
+
+  @override
+  String get command_history_unavailable_no_v2 =>
+      'History is not available for this bot: the server does not offer the granular /api/v2 API yet, so no version can be listed or restored. This is not an empty history.';
+
+  @override
+  String get command_history_unavailable_offline =>
+      'The version list could not be fetched (offline or server unreachable). Versions are never stored on this device, so the list has to be retrieved from the server.';
+
+  @override
+  String get command_history_restore_confirm =>
+      'Restore this version? The content currently on the server will be replaced by this version. The restore itself is recorded as a new version, so it stays undoable.';
 }

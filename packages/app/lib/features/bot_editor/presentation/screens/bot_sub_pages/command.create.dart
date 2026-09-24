@@ -37,6 +37,7 @@ import 'package:bot_creator/core/network/bot_data_models.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/storage/granular_data_layer.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/command_history_sheet.dart';
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 import 'package:bot_creator_shared/utils/legacy_command_triggers.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bdfd_editor_page.dart';
@@ -1421,6 +1422,29 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     );
   }
 
+  /// Ouvre l'historique des versions de CETTE commande (les cinq dernières).
+  ///
+  /// POURQUOI UN BOUTON DANS L'ÉDITEUR : l'historique est une propriété d'UNE
+  /// commande, et c'est ici qu'on la modifie — proposer une restauration depuis
+  /// un autre écran obligerait l'utilisateur à retrouver d'abord la commande.
+  ///
+  /// RIEN N'EST ÉCRIT ICI : la modale lit, demande confirmation, puis restaure
+  /// par le dépôt (qui pose la précondition de révision). Une v2 non armée
+  /// n'empêche pas la modale de s'ouvrir : elle dit alors pourquoi l'historique
+  /// n'est pas disponible.
+  Future<void> _openCommandHistory() async {
+    final botId = _botIdForConfig;
+    final commandId = _existingCommandStorageId;
+    if (botId == null || commandId == null) {
+      return;
+    }
+    await showCommandHistorySheet(
+      context,
+      botId: botId,
+      commandId: commandId,
+    );
+  }
+
   Widget _buildCommandOptionsCard() {
     return Card(
       child: Padding(
@@ -2230,6 +2254,18 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                 onPressed: _openCommandSettings,
                 icon: const Icon(Icons.tune_rounded),
               ),
+              // L'HISTORIQUE DES VERSIONS de CETTE commande : cinq versions,
+              // leur date, leur auteur, et la restauration. Le bouton n'existe
+              // que pour une commande DÉJÀ enregistrée — une commande jamais
+              // sauvegardée n'a aucun historique côté serveur, et la modale le
+              // dirait de toute façon (elle distingue « aucune version » de
+              // « historique indisponible »).
+              if (_isEditingExistingCommand && !_isDataIncomplete)
+                IconButton(
+                  tooltip: context.tr.command_history_title,
+                  onPressed: _openCommandHistory,
+                  icon: const Icon(Icons.history_rounded),
+                ),
               if (!_isEditingExistingCommand)
                 IconButton(
                   tooltip: context.tr.serialization_import_title,

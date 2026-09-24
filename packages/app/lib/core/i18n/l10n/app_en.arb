@@ -12115,5 +12115,41 @@
   "bot_config_overshrink_keep_local": "Keep local, don't send",
   "@bot_config_overshrink_keep_local": {
     "description": "Cancel button of the overshrink dialog: send nothing, keep the local work."
+  },
+  "command_history_title": "Version history of this command",
+  "@command_history_title": {
+    "description": "Title of the per-command history sheet, opened from the command editor."
+  },
+  "command_history_empty": "No version has been recorded for this command yet. Versions appear here after a save.",
+  "@command_history_empty": {
+    "description": "Empty state of the history list: an empty history is a LEGITIMATE state, not an error."
+  },
+  "command_history_restore": "Restore",
+  "@command_history_restore": {
+    "description": "Label of the per-version restore button."
+  },
+  "command_history_version_meta": "{author} · {date} · {size, plural, =1{1 byte} other{{size} bytes}}",
+  "@command_history_version_meta": {
+    "description": "One line per history entry: author, already localized date and size. A FORMAT (placeholders), never a sentence built by string concatenation in Dart."
+  },
+  "command_history_conflict": "This version was not restored: the command changed on the server since you loaded it. Nothing has been written anywhere — reload the server version to overwrite it for real.",
+  "@command_history_conflict": {
+    "description": "Conflict state after a 409 on restore: nothing was written, the user must reload the server version before overwriting."
+  },
+  "command_history_conflict_reload": "Reload server version and overwrite",
+  "@command_history_conflict_reload": {
+    "description": "Label of the conflict resolution action: reload the CURRENT server version, then replay the restore on that revision."
+  },
+  "command_history_unavailable_no_v2": "History is not available for this bot: the server does not offer the granular /api/v2 API yet, so no version can be listed or restored. This is not an empty history.",
+  "@command_history_unavailable_no_v2": {
+    "description": "Why the history cannot exist for this client at all (granular save not armed). Must never be shown as \"no version recorded\"."
+  },
+  "command_history_unavailable_offline": "The version list could not be fetched (offline or server unreachable). Versions are never stored on this device, so the list has to be retrieved from the server.",
+  "@command_history_unavailable_offline": {
+    "description": "Offline/unreachable state of the history list: the list is not cached locally in this lot, so the sheet says so instead of blocking."
+  },
+  "command_history_restore_confirm": "Restore this version? The content currently on the server will be replaced by this version. The restore itself is recorded as a new version, so it stays undoable.",
+  "@command_history_restore_confirm": {
+    "description": "Confirmation asked BEFORE overwriting: the restore must never happen without an explicit agreement."
   }
 }

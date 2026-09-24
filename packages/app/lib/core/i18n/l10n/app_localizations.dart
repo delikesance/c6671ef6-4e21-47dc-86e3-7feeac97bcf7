@@ -17193,6 +17193,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Keep local, don\'t send'**
   String get bot_config_overshrink_keep_local;
+
+  /// Title of the per-command history sheet, opened from the command editor.
+  ///
+  /// In en, this message translates to:
+  /// **'Version history of this command'**
+  String get command_history_title;
+
+  /// Empty state of the history list: an empty history is a LEGITIMATE state, not an error.
+  ///
+  /// In en, this message translates to:
+  /// **'No version has been recorded for this command yet. Versions appear here after a save.'**
+  String get command_history_empty;
+
+  /// Label of the per-version restore button.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get command_history_restore;
+
+  /// One line per history entry: author, already localized date and size. A FORMAT (placeholders), never a sentence built by string concatenation in Dart.
+  ///
+  /// In en, this message translates to:
+  /// **'{author} · {date} · {size, plural, =1{1 byte} other{{size} bytes}}'**
+  String command_history_version_meta(Object author, Object date, num size);
+
+  /// Conflict state after a 409 on restore: nothing was written, the user must reload the server version before overwriting.
+  ///
+  /// In en, this message translates to:
+  /// **'This version was not restored: the command changed on the server since you loaded it. Nothing has been written anywhere — reload the server version to overwrite it for real.'**
+  String get command_history_conflict;
+
+  /// Label of the conflict resolution action: reload the CURRENT server version, then replay the restore on that revision.
+  ///
+  /// In en, this message translates to:
+  /// **'Reload server version and overwrite'**
+  String get command_history_conflict_reload;
+
+  /// Why the history cannot exist for this client at all (granular save not armed). Must never be shown as "no version recorded".
+  ///
+  /// In en, this message translates to:
+  /// **'History is not available for this bot: the server does not offer the granular /api/v2 API yet, so no version can be listed or restored. This is not an empty history.'**
+  String get command_history_unavailable_no_v2;
+
+  /// Offline/unreachable state of the history list: the list is not cached locally in this lot, so the sheet says so instead of blocking.
+  ///
+  /// In en, this message translates to:
+  /// **'The version list could not be fetched (offline or server unreachable). Versions are never stored on this device, so the list has to be retrieved from the server.'**
+  String get command_history_unavailable_offline;
+
+  /// Confirmation asked BEFORE overwriting: the restore must never happen without an explicit agreement.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore this version? The content currently on the server will be replaced by this version. The restore itself is recorded as a new version, so it stays undoable.'**
+  String get command_history_restore_confirm;
 }
 
 class _AppLocalizationsDelegate

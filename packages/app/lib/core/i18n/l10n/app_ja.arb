@@ -10691,5 +10691,14 @@
   "bot_config_overshrink_title": "この縮小された設定を本当に送信しますか？",
   "bot_config_overshrink_body": "このBotの設定の大部分が削除されました。まだ何も送信されていません。サーバーは以前のバージョンを実行し続けており、ローカルの設定はそのままです。",
   "bot_config_overshrink_send_anyway": "それでも送信",
-  "bot_config_overshrink_keep_local": "送信せずローカルに保持"
+  "bot_config_overshrink_keep_local": "送信せずローカルに保持",
+  "command_history_title": "このコマンドのバージョン履歴",
+  "command_history_empty": "このコマンドにはまだバージョンが記録されていません。保存するとここに表示されます。",
+  "command_history_restore": "復元",
+  "command_history_version_meta": "{author} · {date} · {size, plural, =1{1 バイト} other{{size} バイト}}",
+  "command_history_conflict": "このバージョンは復元されませんでした。読み込んだあとにサーバー上でコマンドが変更されています。どこにも書き込みは行われていません — 本当に上書きするにはサーバーのバージョンを再読み込みしてください。",
+  "command_history_conflict_reload": "サーバーのバージョンを再読み込みして上書き",
+  "command_history_unavailable_no_v2": "このボットでは履歴を利用できません。サーバーがまだ granular /api/v2 API を提供していないため、バージョンの一覧表示も復元もできません。履歴が空という意味ではありません。",
+  "command_history_unavailable_offline": "バージョン一覧を取得できませんでした（オフライン、またはサーバーに接続できません）。バージョンはこの端末には保存されないため、一覧はサーバーから取得する必要があります。",
+  "command_history_restore_confirm": "このバージョンを復元しますか？サーバー上にある現在の内容がこのバージョンの内容に置き換わります。復元自体も新しいバージョンとして記録されるため、取り消せます。"
 }
