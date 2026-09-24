@@ -1,9 +1,11 @@
+import 'package:bot_creator/core/i18n/l10n/app_localizations.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_session_restore.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:bot_creator/core/storage/runtime_preferences.dart';
+import 'package:bot_creator/core/utils/bot_payload_guard.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:ui' as ui;
@@ -426,4 +428,28 @@ Future<void> startManagerBotWithCreditRetry({
       await Future<void>.delayed(retryDelay);
     }
   }
+}
+
+/// Vrai quand [error] est le refus typé de la garde anti-config-vide.
+bool isBotPayloadRefusal(Object error) =>
+    error is DegenerateBotPayloadException;
+
+/// Message localisé à afficher quand la poussée a été REFUSÉE par la garde
+/// anti-config-vide, ou `null` quand [error] n'est pas un refus — l'appelant
+/// garde alors son message d'erreur habituel.
+///
+/// POURQUOI cette traduction vit ICI, à côté de [describeManagerRuntimeFailure] :
+/// les écrans qui poussent une configuration importent déjà ce fichier, et une
+/// seule phrase doit servir partout. Le refus doit dire les deux choses que
+/// l'utilisateur ne peut pas deviner — rien n'est parti, et rien n'a été effacé
+/// en local — sans quoi il croirait à une panne et « réparerait » une
+/// configuration intacte.
+String? localizedBotPayloadRefusalMessage(
+  AppLocalizations l10n,
+  Object error,
+) {
+  if (!isBotPayloadRefusal(error)) {
+    return null;
+  }
+  return l10n.bot_payload_refused_local_kept;
 }

@@ -9826,4 +9826,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get container_invite_open_failed => 'Could not open the invite link.';
+
+  @override
+  String get bot_payload_refused_local_kept =>
+      'Push refused: the configuration to send was empty (no command, no event, no webhook, no variable). Nothing was sent and your local configuration was left untouched — you can keep editing.';
 }

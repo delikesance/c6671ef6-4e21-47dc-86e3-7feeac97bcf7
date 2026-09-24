@@ -9953,4 +9953,8 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get container_invite_open_failed =>
       'Não foi possível abrir o link de convite.';
+
+  @override
+  String get bot_payload_refused_local_kept =>
+      'Envio recusado: a configuração a enviar estava vazia (nenhum comando, nenhum evento, nenhum webhook, nenhuma variável). Nada foi enviado e a sua configuração local ficou intacta — pode continuar a editar.';
 }

@@ -10632,5 +10632,6 @@
   "container_invite_busy": "A convidar...",
   "container_invite_unavailable": "Não foi possível identificar o bot desta aplicação: o token está ausente ou foi revogado. Refazer o deploy.",
   "container_invite_failed": "Não foi possível convidar: verifique a sua ligação e tente novamente.",
-  "container_invite_open_failed": "Não foi possível abrir o link de convite."
+  "container_invite_open_failed": "Não foi possível abrir o link de convite.",
+  "bot_payload_refused_local_kept": "Envio recusado: a configuração a enviar estava vazia (nenhum comando, nenhum evento, nenhum webhook, nenhuma variável). Nada foi enviado e a sua configuração local ficou intacta — pode continuar a editar."
 }

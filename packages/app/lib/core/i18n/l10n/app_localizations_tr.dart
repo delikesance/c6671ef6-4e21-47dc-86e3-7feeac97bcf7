@@ -9895,4 +9895,8 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get container_invite_open_failed => 'Davet bağlantısı açılamadı.';
+
+  @override
+  String get bot_payload_refused_local_kept =>
+      'Gönderim reddedildi: Gönderilecek yapılandırma boştu (komut, olay, webhook veya değişken yok). Hiçbir şey gönderilmedi ve yerel yapılandırmanız olduğu gibi kaldı — düzenlemeye devam edebilirsiniz.';
 }

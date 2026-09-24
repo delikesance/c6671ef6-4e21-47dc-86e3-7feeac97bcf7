@@ -2631,6 +2631,14 @@ class HomePageState extends State<HomePage>
             }
           }
         } catch (error) {
+          // La garde anti-config-vide a refusé AVANT tout appel réseau : la
+          // laisser passer dans `describeManagerRuntimeFailure` la déguiserait en
+          // panne des serveurs Bot Creator (« pas encore prêts », « démarrage en
+          // cours »). On la laisse donc remonter TELLE QUELLE : le `catch`
+          // extérieur affiche son message localisé dédié.
+          if (isBotPayloadRefusal(error)) {
+            rethrow;
+          }
           if (client is MainApiClient) {
             throw Exception(await describeManagerRuntimeFailure(client, error));
           }
@@ -2830,11 +2838,28 @@ class HomePageState extends State<HomePage>
       if (!isRunning) {
         unawaited(ActivationFunnel.botStartFailed(e));
       }
+      // POURQUOI ce cas AVANT tout le reste : la poussée a été REFUSÉE par la
+      // garde anti-config-vide. Rien n'est parti, rien n'a été effacé en local —
+      // annoncer le diagnostic brut (ou une panne serveur) ferait croire à une
+      // perte de configuration et pousserait à « réparer » des données intactes.
+      // `mounted` AVANT `context.tr` : la page peut avoir été quittée pendant la
+      // tentative, et lire les traductions sur un contexte détruit lèverait dans
+      // le `catch` — soit une erreur masquant l'erreur d'origine.
+      final refusal = mounted
+          ? localizedBotPayloadRefusalMessage(context.tr, e)
+          : null;
       // Le serveur reste seul juge : un refus lié à la formule arrive ici quand
       // la formule a changé depuis le dernier rafraîchissement local. On affiche
       // la même explication et la même issue qu'un blocage anticipé.
       final block = isRunning ? null : _planLimitBlockFromError(e);
-      if (mounted && block != null) {
+      if (mounted && refusal != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(refusal),
+            backgroundColor: AppTheme.error,
+          ),
+        );
+      } else if (mounted && block != null) {
         await _showPlanLimit(block);
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

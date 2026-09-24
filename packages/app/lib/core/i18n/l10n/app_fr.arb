@@ -10648,5 +10648,6 @@
   "container_invite_busy": "Invitation en cours...",
   "container_invite_unavailable": "Le bot de cette application n'a pas pu être identifié : son token est absent ou révoqué. Relancez un déploiement.",
   "container_invite_failed": "Invitation impossible : vérifiez votre connexion puis réessayez.",
-  "container_invite_open_failed": "Impossible d'ouvrir le lien d'invitation."
+  "container_invite_open_failed": "Impossible d'ouvrir le lien d'invitation.",
+  "bot_payload_refused_local_kept": "Envoi refusé : la configuration à transmettre était vide (aucune commande, aucun événement, aucun webhook, aucune variable). Rien n'a été envoyé et votre configuration locale est restée intacte — vous pouvez continuer à modifier."
 }
