@@ -150,8 +150,132 @@ void main() {
         final zipBytes = Uint8List.fromList(ZipEncoder().encode(archive));
         final preview = parseExportZip(zipBytes);
         expect(preview.runtimeEngine, runtimeEngineJavascript);
+        // …mais c'est une DÉDUCTION, pas une déclaration : l'import doit
+        // pouvoir le dire à l'utilisateur au lieu de l'appliquer en silence.
+        expect(
+          preview.runtimeEngineDeclared,
+          isFalse,
+          reason: 'sans runtimeEngine au manifeste, le moteur reste à choisir',
+        );
       },
     );
+
+    test('un ZIP muet ne bascule PAS le moteur du bot, même si le contenu '
+        'est JavaScript', () async {
+      final archive = Archive();
+      final manifest = {
+        'version': 1,
+        // Pas de runtimeEngine : le ZIP ne dit rien du moteur.
+        'sections': ['commands'],
+      };
+      archive.addFile(
+        ArchiveFile.bytes('manifest.json', utf8.encode(jsonEncode(manifest))),
+      );
+      archive.addFile(
+        ArchiveFile.bytes(
+          'commands/cmd1.json',
+          utf8.encode(
+            jsonEncode({
+              'id': 'cmd1',
+              'name': 'restore_me',
+              'data': {
+                'executionMode': 'javascript',
+                'jsScriptContent': 'console.log("hello");',
+              },
+            }),
+          ),
+        ),
+      );
+
+      final preview = parseExportZip(
+        Uint8List.fromList(ZipEncoder().encode(archive)),
+      );
+
+      await setBotRuntimeEngine(botId, runtimeEngineDart);
+      // Aucun choix explicite : le moteur du bot doit rester celui qu'il est.
+      await importBot(botId, preview: preview);
+
+      expect(
+        await getBotRuntimeEngine(botId),
+        runtimeEngineDart,
+        reason:
+            'un moteur DÉDUIT du contenu ne doit jamais être appliqué tout '
+            'seul : c\'est ce qui faisait redevenir Dart des bots JavaScript',
+      );
+    });
+
+    test('un ZIP muet applique le moteur CHOISI par l\'utilisateur', () async {
+      final archive = Archive();
+      archive.addFile(
+        ArchiveFile.bytes(
+          'manifest.json',
+          utf8.encode(
+            jsonEncode({
+              'version': 1,
+              'sections': ['commands'],
+            }),
+          ),
+        ),
+      );
+      archive.addFile(
+        ArchiveFile.bytes(
+          'commands/cmd1.json',
+          utf8.encode(
+            jsonEncode({
+              'id': 'cmd1',
+              'name': 'from_js_zip',
+              'data': {
+                'executionMode': 'javascript',
+                'jsScriptContent': 'console.log("hello");',
+              },
+            }),
+          ),
+        ),
+      );
+
+      final preview = parseExportZip(
+        Uint8List.fromList(ZipEncoder().encode(archive)),
+      );
+
+      await setBotRuntimeEngine(botId, runtimeEngineDart);
+      await importBot(
+        botId,
+        preview: preview,
+        runtimeEngine: runtimeEngineJavascript,
+      );
+
+      expect(await getBotRuntimeEngine(botId), runtimeEngineJavascript);
+    });
+
+    test('un ZIP qui DÉCLARE son moteur s\'applique sans question', () async {
+      final archive = Archive();
+      archive.addFile(
+        ArchiveFile.bytes(
+          'manifest.json',
+          utf8.encode(
+            jsonEncode({
+              'version': 1,
+              'runtimeEngine': runtimeEngineJavascript,
+              'sections': <String>[],
+            }),
+          ),
+        ),
+      );
+
+      final preview = parseExportZip(
+        Uint8List.fromList(ZipEncoder().encode(archive)),
+      );
+      expect(preview.runtimeEngineDeclared, isTrue);
+
+      await setBotRuntimeEngine(botId, runtimeEngineDart);
+      await importBot(botId, preview: preview);
+
+      expect(
+        await getBotRuntimeEngine(botId),
+        runtimeEngineJavascript,
+        reason: 'le manifeste reste la référence quand il déclare le moteur',
+      );
+    });
 
     test(
       'applyManagerConfigToLocal preserves local runtimeEngine when remote lacks it',
