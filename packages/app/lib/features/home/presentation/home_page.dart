@@ -14,6 +14,7 @@ import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:bot_creator/core/platform/run_platform.dart';
 import 'package:bot_creator/core/storage/database.dart';
+import 'package:bot_creator/core/storage/granular_data_layer.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/utils/duration_formatter.dart';
 import 'package:bot_creator/core/utils/global.dart';
@@ -442,6 +443,12 @@ class HomePageState extends State<HomePage>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       MainApiClient.resetCircuitBreakers();
+      // La couche granulaire est (re)tentée à chaque reprise : c'est ce qui
+      // l'installe après une CONNEXION (au démarrage il n'y a encore aucune
+      // session, donc aucun manager à interroger), et ce qui repose la sonde de
+      // capacité quand la première a échoué. Idempotente : une fois installée,
+      // elle ne reconstruit rien et ne réinterroge pas le serveur.
+      unawaited(ensureGranularDataLayer());
       // Immediately refresh running state so the UI updates fast,
       // then do the full sync in background.
       unawaited(_ensureGatewayBotEvents());

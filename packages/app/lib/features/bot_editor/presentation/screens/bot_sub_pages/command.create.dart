@@ -33,8 +33,10 @@ import 'package:bot_creator/core/utils/responsive.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
+import 'package:bot_creator/core/network/bot_data_models.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
+import 'package:bot_creator/core/storage/granular_data_layer.dart';
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 import 'package:bot_creator_shared/utils/legacy_command_triggers.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bdfd_editor_page.dart';
@@ -1278,6 +1280,33 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           final singleCommand = commandData ??
               await appManager.getAppCommand(botId, effectiveCommandId);
           if (singleCommand.isNotEmpty) {
+            // ── ÉCRITURE GRANULAIRE : SEULEMENT SI LA SONDE A ARMÉ /api/v2 ────
+            // Sans v2 armée, `granularCommandSaveFor` rend `null` SANS émettre
+            // la moindre requête, et l'appel qui suit est celui d'aujourd'hui,
+            // au caractère près. Tant que la façade n'est pas déployée, ce bloc
+            // ne peut donc rien changer à la sauvegarde de personne.
+            final granularSave = granularCommandSaveFor(
+              granularDataRepository,
+              botId: botId,
+              commandId: effectiveCommandId,
+              command: singleCommand,
+            );
+            if (granularSave != null) {
+              developer.log(
+                '[_syncCommandChangesToCloud] écriture GRANULAIRE (v2) botId=$botId commandId=$effectiveCommandId',
+                name: 'CommandCreatePage',
+              );
+              final outcome = await granularSave;
+              developer.log(
+                '[_syncCommandChangesToCloud] écriture granulaire rendue : $outcome',
+                name: 'CommandCreatePage',
+              );
+              // Le cloud n'a la commande QUE si le serveur l'a acceptée. Un
+              // conflit de révision et une mise en file ne sont pas un succès :
+              // le travail local est sauf, la poussée ne l'est pas, et le dire
+              // faux ferait disparaître la reprise proposée à l'utilisateur.
+              return outcome is SavedGranular || outcome is SavedLegacy;
+            }
             developer.log(
               '[_syncCommandChangesToCloud] attempting delta command sync botId=$botId commandId=$effectiveCommandId',
               name: 'CommandCreatePage',

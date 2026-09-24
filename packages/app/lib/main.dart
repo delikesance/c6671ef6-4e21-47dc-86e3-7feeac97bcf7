@@ -24,6 +24,7 @@ import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator/features/notifications/logic/notification_service.dart';
 import 'package:bot_creator/core/storage/database.dart';
+import 'package:bot_creator/core/storage/granular_data_layer.dart';
 import 'package:bot_creator/features/discord_rpc/logic/discord_rpc_service.dart';
 import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/core/analytics/user_properties.dart';
@@ -223,6 +224,15 @@ Future<void> main(List<String> args) async {
 Future<void> _bootstrapAndRunApp() async {
   try {
     appManager = AppManager();
+
+    // ── Couche granulaire `/api/v2` : dépôt, file hors-ligne, sonde ──────────
+    // Branchée ICI, une fois, et SANS bloquer le lancement : la sonde part en
+    // tâche de fond, et une sonde qui échoue (500, réseau coupé, serveur sans la
+    // route) laisse simplement la v2 DÉSARMÉE — c'est-à-dire le comportement
+    // d'aujourd'hui, à l'identique. Le lancement de l'application ne dépend
+    // d'aucune route d'API. Sans session, il n'y a aucun manager à interroger :
+    // la couche sera installée à la prochaine reprise d'application.
+    unawaited(ensureGranularDataLayer());
 
     // ── PostHog analytics & session recording ─────────────────────────
     await PosthogService.init();
