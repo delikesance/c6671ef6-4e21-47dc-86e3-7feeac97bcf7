@@ -436,6 +436,13 @@ extension _AppHomePageLogic on _AppHomePageState {
             unawaited(ActivationFunnel.botStart());
           }
         } catch (error) {
+          // Refus de la garde anti-config-vide : il a eu lieu AVANT tout appel
+          // réseau. Le passer par `describeManagerRuntimeFailure` le présenterait
+          // comme une panne des serveurs Bot Creator alors que rien n'a été
+          // envoyé — on le laisse donc remonter tel quel vers le message dédié.
+          if (isBotPayloadRefusal(error)) {
+            rethrow;
+          }
           if (remoteClient is MainApiClient) {
             throw Exception(
               await describeManagerRuntimeFailure(remoteClient, error),
@@ -582,9 +589,16 @@ extension _AppHomePageLogic on _AppHomePageState {
         _botStarting = false;
       });
       if (mounted) {
+        // La poussée refusée par la garde anti-config-vide a son propre message :
+        // il dit les deux choses que l'utilisateur ignore — rien n'est parti, et
+        // rien n'a été effacé en local. Sinon, le message d'échec habituel.
+        final refusal = localizedBotPayloadRefusalMessage(context.tr, e);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(context.tr.bot_home_start_error(e.toString())),
+            content: Text(
+              refusal ?? context.tr.bot_home_start_error(e.toString()),
+            ),
+            backgroundColor: refusal == null ? null : AppTheme.error,
           ),
         );
       }

@@ -10599,5 +10599,6 @@
   "container_invite_busy": "Einladung läuft...",
   "container_invite_unavailable": "Der Bot dieser Anwendung konnte nicht identifiziert werden: sein Token fehlt oder wurde widerrufen. Starten Sie eine Neubereitstellung.",
   "container_invite_failed": "Einladung nicht möglich: Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
-  "container_invite_open_failed": "Der Einladungslink konnte nicht geöffnet werden."
+  "container_invite_open_failed": "Der Einladungslink konnte nicht geöffnet werden.",
+  "bot_payload_refused_local_kept": "Senden abgelehnt: Die zu übertragende Konfiguration war leer (kein Befehl, kein Ereignis, kein Webhook, keine Variable). Es wurde nichts gesendet, Ihre lokale Konfiguration blieb unverändert — Sie können weiter bearbeiten."
 }

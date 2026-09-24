@@ -9464,4 +9464,8 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get container_invite_open_failed => '招待リンクを開けませんでした。';
+
+  @override
+  String get bot_payload_refused_local_kept =>
+      '送信を拒否しました: 送信する設定が空でした（コマンド・イベント・Webhook・変数がいずれもありません）。何も送信されておらず、ローカルの設定はそのままです — 編集を続けられます。';
 }

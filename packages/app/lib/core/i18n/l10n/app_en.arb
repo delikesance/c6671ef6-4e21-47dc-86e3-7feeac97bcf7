@@ -12095,5 +12095,9 @@
   "container_invite_busy": "Inviting...",
   "container_invite_unavailable": "This application's bot could not be identified: its token is missing or revoked. Redeploy the bot.",
   "container_invite_failed": "Could not invite the bot: check your connection and try again.",
-  "container_invite_open_failed": "Could not open the invite link."
+  "container_invite_open_failed": "Could not open the invite link.",
+  "bot_payload_refused_local_kept": "Push refused: the configuration to send was empty (no command, no event, no webhook, no variable). Nothing was sent and your local configuration was left untouched — you can keep editing.",
+  "@bot_payload_refused_local_kept": {
+    "description": "Push refused by the empty-config guard: nothing was sent and the local configuration was left untouched."
+  }
 }

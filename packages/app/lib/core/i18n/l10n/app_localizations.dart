@@ -17163,6 +17163,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not open the invite link.'**
   String get container_invite_open_failed;
+
+  /// Push refused by the empty-config guard: nothing was sent and the local configuration was left untouched.
+  ///
+  /// In en, this message translates to:
+  /// **'Push refused: the configuration to send was empty (no command, no event, no webhook, no variable). Nothing was sent and your local configuration was left untouched — you can keep editing.'**
+  String get bot_payload_refused_local_kept;
 }
 
 class _AppLocalizationsDelegate

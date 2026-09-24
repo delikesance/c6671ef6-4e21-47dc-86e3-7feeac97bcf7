@@ -9991,4 +9991,8 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get container_invite_open_failed =>
       'Impossible d\'ouvrir le lien d\'invitation.';
+
+  @override
+  String get bot_payload_refused_local_kept =>
+      'Envoi refusé : la configuration à transmettre était vide (aucune commande, aucun événement, aucun webhook, aucune variable). Rien n\'a été envoyé et votre configuration locale est restée intacte — vous pouvez continuer à modifier.';
 }

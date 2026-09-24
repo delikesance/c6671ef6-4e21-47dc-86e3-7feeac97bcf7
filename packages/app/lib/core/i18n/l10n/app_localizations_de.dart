@@ -9972,4 +9972,8 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get container_invite_open_failed =>
       'Der Einladungslink konnte nicht geöffnet werden.';
+
+  @override
+  String get bot_payload_refused_local_kept =>
+      'Senden abgelehnt: Die zu übertragende Konfiguration war leer (kein Befehl, kein Ereignis, kein Webhook, keine Variable). Es wurde nichts gesendet, Ihre lokale Konfiguration blieb unverändert — Sie können weiter bearbeiten.';
 }

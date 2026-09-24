@@ -203,9 +203,16 @@ extension _AppHomePageSync on _AppHomePageState {
     } catch (e) {
       appendBotDebugLog('[_pushToRemote] FAILED: $e');
       if (showSnack && mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(e.toString())));
+        // Refus de la garde anti-config-vide : la copie locale est restée
+        // intacte et rien n'a été envoyé. Afficher le diagnostic brut ferait
+        // croire à une panne ; on montre donc le message dédié, traduit.
+        final refusal = localizedBotPayloadRefusalMessage(context.tr, e);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(refusal ?? e.toString()),
+            backgroundColor: refusal == null ? null : AppTheme.error,
+          ),
+        );
       }
     } finally {
       _setState(() => _isPushingApp = false);
@@ -1113,8 +1120,22 @@ extension _AppHomePageSync on _AppHomePageState {
                             } catch (e) {
                               setDialogState(() => isProcessing = false);
                               if (mounted) {
+                                // Les trois issues touchent le Cloud : la garde
+                                // anti-config-vide peut les refuser. Le refus a
+                                // son message (rien n'est parti, rien n'a été
+                                // effacé en local) ; sinon, message habituel.
+                                final refusal =
+                                    localizedBotPayloadRefusalMessage(
+                                      context.tr,
+                                      e,
+                                    );
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Erreur: $e')),
+                                  SnackBar(
+                                    content: Text(refusal ?? 'Erreur: $e'),
+                                    backgroundColor: refusal == null
+                                        ? null
+                                        : AppTheme.error,
+                                  ),
                                 );
                               }
                             }
@@ -1163,8 +1184,22 @@ extension _AppHomePageSync on _AppHomePageState {
                             } catch (e) {
                               setDialogState(() => isProcessing = false);
                               if (mounted) {
+                                // Les trois issues touchent le Cloud : la garde
+                                // anti-config-vide peut les refuser. Le refus a
+                                // son message (rien n'est parti, rien n'a été
+                                // effacé en local) ; sinon, message habituel.
+                                final refusal =
+                                    localizedBotPayloadRefusalMessage(
+                                      context.tr,
+                                      e,
+                                    );
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Erreur: $e')),
+                                  SnackBar(
+                                    content: Text(refusal ?? 'Erreur: $e'),
+                                    backgroundColor: refusal == null
+                                        ? null
+                                        : AppTheme.error,
+                                  ),
                                 );
                               }
                             }
@@ -1213,8 +1248,22 @@ extension _AppHomePageSync on _AppHomePageState {
                             } catch (e) {
                               setDialogState(() => isProcessing = false);
                               if (mounted) {
+                                // Les trois issues touchent le Cloud : la garde
+                                // anti-config-vide peut les refuser. Le refus a
+                                // son message (rien n'est parti, rien n'a été
+                                // effacé en local) ; sinon, message habituel.
+                                final refusal =
+                                    localizedBotPayloadRefusalMessage(
+                                      context.tr,
+                                      e,
+                                    );
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Erreur: $e')),
+                                  SnackBar(
+                                    content: Text(refusal ?? 'Erreur: $e'),
+                                    backgroundColor: refusal == null
+                                        ? null
+                                        : AppTheme.error,
+                                  ),
                                 );
                               }
                             }
