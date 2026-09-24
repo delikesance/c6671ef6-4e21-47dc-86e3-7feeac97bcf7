@@ -239,9 +239,33 @@ class MainApiClient implements RemoteRuntimeClient {
     }
   }
 
+  /// LE SIGNAL « LE MANAGER RÉPOND DE NOUVEAU ».
+  ///
+  /// POURQUOI ICI, ET NULLE PART AILLEURS : le disjoncteur est le seul objet de
+  /// l'application qui sache qu'une panne a eu lieu ET qu'elle est terminée. La
+  /// première requête qui aboutit après des échecs EST le retour de
+  /// connectivité — sans sonde périodique, sans dépendance de plateforme, et
+  /// sans plugin réseau de plus.
+  ///
+  /// `null` par défaut : strictement inerte tant que rien n'est branché. Le
+  /// rappel n'est appelé QU'UNE FOIS par panne (la trace d'échec est consommée
+  /// en le lisant), donc il ne peut pas devenir une boucle quand l'appelant
+  /// fait lui-même des requêtes.
+  static void Function()? onConnectivityRestored;
+
   /// Records a success, resetting the circuit breaker.
   static void _recordCircuitSuccess(String baseUrl) {
-    _circuits.remove(baseUrl);
+    final hadFailure = _circuits.remove(baseUrl) != null;
+    if (!hadFailure) return;
+    final notify = onConnectivityRestored;
+    if (notify == null) return;
+    try {
+      notify();
+    } catch (error) {
+      // Un abonné ne doit JAMAIS casser la requête qui vient d'aboutir : c'est
+      // la requête de l'utilisateur qui compte, pas notre notification.
+      debugPrint('[MainApiClient] connectivity-restored hook failed: $error');
+    }
   }
 
   /// Resets all circuit breakers and health caches (e.g. when app resumes from background).
