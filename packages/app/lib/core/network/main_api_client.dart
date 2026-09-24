@@ -5,6 +5,7 @@ import 'dart:math';
 
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator_shared/bot/bot_config.dart';
+import 'package:bot_creator/core/network/bot_data_models.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/network/main_api_session_restore.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
@@ -192,6 +193,14 @@ class MainApiClient implements RemoteRuntimeClient {
   /// Retry configuration.
   static const int _maxRetries = 3;
   static const Duration _baseRetryDelay = Duration(seconds: 1);
+
+  /// Le délai de reprise effectif de CETTE instance.
+  ///
+  /// POURQUOI UN SEAM ICI : l'échelle de reprise (1 s, 2 s, 4 s) est invisible
+  /// dans un test qui la subit — un test de panne réseau attendrait 7 secondes
+  /// de vraies horloges, donc serait lent ET instable sur une machine chargée.
+  /// La valeur par défaut reste celle de la production, à l'identique.
+  Duration get _retryDelay => _retryBaseDelayOverride ?? _baseRetryDelay;
   static const double _retryBackoffMultiplier = 2.0;
 
   /// Cleans up the hash caches using LRU eviction when they exceed the max size.
@@ -265,16 +274,19 @@ class MainApiClient implements RemoteRuntimeClient {
     String? accessToken,
     http.Client? httpClient,
     Duration? timeout,
+    Duration? retryDelay,
   }) : _baseUrl = MainApiConfig.normalizeBaseUrl(baseUrl),
        _accessToken = _normalize(accessToken),
        _http = httpClient ?? http.Client(),
-       _timeout = timeout ?? const Duration(seconds: 30);
+       _timeout = timeout ?? const Duration(seconds: 30),
+       _retryBaseDelayOverride = retryDelay;
 
   final String _baseUrl;
   String get baseUrl => _baseUrl;
   String? _accessToken;
   final http.Client _http;
   final Duration _timeout;
+  final Duration? _retryBaseDelayOverride;
 
   @override
   RemoteRuntimeSource get runtimeSource => RemoteRuntimeSource.manager;
@@ -303,6 +315,7 @@ class MainApiClient implements RemoteRuntimeClient {
   Map<String, String> _headers({
     bool includeAuth = true,
     String? contentType = 'application/json',
+    Map<String, String>? extraHeaders,
   }) {
     final headers = <String, String>{};
     if (contentType != null) {
@@ -311,7 +324,30 @@ class MainApiClient implements RemoteRuntimeClient {
     if (includeAuth && _accessToken != null) {
       headers['authorization'] = 'Bearer $_accessToken';
     }
+    if (extraHeaders != null) {
+      headers.addAll(extraHeaders);
+    }
     return headers;
+  }
+
+  /// L'en-tête `If-Match` d'une écriture granulaire, ou `null` s'il n'y a rien
+  /// à affirmer.
+  ///
+  /// DEUX PITIQUES, TRAITÉES ICI ET NULLE PART AILLEURS :
+  ///
+  ///  1. la valeur est ENTOURÉE DE GUILLEMETS — c'est la forme standard d'un
+  ///     validateur d'entité, et le serveur les retire avant de comparer. Les
+  ///     omettre « marcherait » contre un serveur tolérant et casserait le jour
+  ///     où une passerelle stricte s'intercalerait ;
+  ///  2. une révision ABSENTE ou VIDE n'émet AUCUN en-tête. Envoyer
+  ///     `If-Match: ""` voudrait dire « la révision est la chaîne vide », ce qui
+  ///     n'est pas la même chose que « je n'affirme rien » — le serveur, lui,
+  ///     refuse une révision vide à raison. Ne rien envoyer est donc la seule
+  ///     écriture honnête quand aucune révision n'est connue.
+  Map<String, String>? _ifMatchHeaders(String? revision) {
+    final normalized = revision?.trim();
+    if (normalized == null || normalized.isEmpty) return null;
+    return <String, String>{'if-match': '"$normalized"'};
   }
 
   Future<void> _ensureFreshAccessToken() async {
@@ -390,7 +426,7 @@ class MainApiClient implements RemoteRuntimeClient {
           '[MainApiClient] GET $uri attempt ${attempt + 1}/$_maxRetries failed: $error — retrying...',
         );
         await Future<void>.delayed(
-          _baseRetryDelay * pow(_retryBackoffMultiplier, attempt),
+          _retryDelay * pow(_retryBackoffMultiplier, attempt),
         );
       } catch (error) {
         lastError = error;
@@ -402,7 +438,7 @@ class MainApiClient implements RemoteRuntimeClient {
           '[MainApiClient] GET $uri attempt ${attempt + 1}/$_maxRetries failed: $error — retrying...',
         );
         await Future<void>.delayed(
-          _baseRetryDelay * pow(_retryBackoffMultiplier, attempt),
+          _retryDelay * pow(_retryBackoffMultiplier, attempt),
         );
       }
     }
@@ -415,6 +451,7 @@ class MainApiClient implements RemoteRuntimeClient {
     String path,
     Map<String, dynamic> body, {
     bool includeAuth = true,
+    Map<String, String>? extraHeaders,
   }) async {
     if (_isCircuitOpen(_baseUrl)) {
       throw MainApiClientException(
@@ -438,7 +475,10 @@ class MainApiClient implements RemoteRuntimeClient {
         final response = await _http
             .post(
               uri,
-              headers: _headers(includeAuth: includeAuth),
+              headers: _headers(
+                includeAuth: includeAuth,
+                extraHeaders: extraHeaders,
+              ),
               body: encodedBody,
             )
             .timeout(_timeout);
@@ -468,7 +508,7 @@ class MainApiClient implements RemoteRuntimeClient {
           '[MainApiClient] POST $uri attempt ${attempt + 1}/$_maxRetries failed: $error — retrying...',
         );
         await Future<void>.delayed(
-          _baseRetryDelay * pow(_retryBackoffMultiplier, attempt),
+          _retryDelay * pow(_retryBackoffMultiplier, attempt),
         );
       } catch (error) {
         lastError = error;
@@ -480,7 +520,7 @@ class MainApiClient implements RemoteRuntimeClient {
           '[MainApiClient] POST $uri attempt ${attempt + 1}/$_maxRetries failed: $error — retrying...',
         );
         await Future<void>.delayed(
-          _baseRetryDelay * pow(_retryBackoffMultiplier, attempt),
+          _retryDelay * pow(_retryBackoffMultiplier, attempt),
         );
       }
     }
@@ -541,7 +581,7 @@ class MainApiClient implements RemoteRuntimeClient {
           '[MainApiClient] DELETE $uri attempt ${attempt + 1}/$_maxRetries failed: $error — retrying...',
         );
         await Future<void>.delayed(
-          _baseRetryDelay * pow(_retryBackoffMultiplier, attempt),
+          _retryDelay * pow(_retryBackoffMultiplier, attempt),
         );
       } catch (error) {
         lastError = error;
@@ -553,7 +593,7 @@ class MainApiClient implements RemoteRuntimeClient {
           '[MainApiClient] DELETE $uri attempt ${attempt + 1}/$_maxRetries failed: $error — retrying...',
         );
         await Future<void>.delayed(
-          _baseRetryDelay * pow(_retryBackoffMultiplier, attempt),
+          _retryDelay * pow(_retryBackoffMultiplier, attempt),
         );
       }
     }
@@ -614,7 +654,7 @@ class MainApiClient implements RemoteRuntimeClient {
           rethrow;
         }
         await Future<void>.delayed(
-          _baseRetryDelay * pow(_retryBackoffMultiplier, attempt),
+          _retryDelay * pow(_retryBackoffMultiplier, attempt),
         );
       } catch (error) {
         lastError = error;
@@ -623,7 +663,7 @@ class MainApiClient implements RemoteRuntimeClient {
           rethrow;
         }
         await Future<void>.delayed(
-          _baseRetryDelay * pow(_retryBackoffMultiplier, attempt),
+          _retryDelay * pow(_retryBackoffMultiplier, attempt),
         );
       }
     }
@@ -636,6 +676,7 @@ class MainApiClient implements RemoteRuntimeClient {
     String path,
     Map<String, dynamic> body, {
     bool includeAuth = true,
+    Map<String, String>? extraHeaders,
   }) async {
     if (_isCircuitOpen(_baseUrl)) {
       throw MainApiClientException(
@@ -659,7 +700,10 @@ class MainApiClient implements RemoteRuntimeClient {
         final response = await _http
             .patch(
               uri,
-              headers: _headers(includeAuth: includeAuth),
+              headers: _headers(
+                includeAuth: includeAuth,
+                extraHeaders: extraHeaders,
+              ),
               body: encodedBody,
             )
             .timeout(_timeout);
@@ -686,7 +730,7 @@ class MainApiClient implements RemoteRuntimeClient {
           rethrow;
         }
         await Future<void>.delayed(
-          _baseRetryDelay * pow(_retryBackoffMultiplier, attempt),
+          _retryDelay * pow(_retryBackoffMultiplier, attempt),
         );
       } catch (error) {
         lastError = error;
@@ -695,7 +739,7 @@ class MainApiClient implements RemoteRuntimeClient {
           rethrow;
         }
         await Future<void>.delayed(
-          _baseRetryDelay * pow(_retryBackoffMultiplier, attempt),
+          _retryDelay * pow(_retryBackoffMultiplier, attempt),
         );
       }
     }
@@ -1571,6 +1615,130 @@ class MainApiClient implements RemoteRuntimeClient {
       throw const MainApiClientException('Invalid version config format');
     }
     return Map<String, dynamic>.from(decoded);
+  }
+
+  // ─── /api/v2 : la façade granulaire ────────────────────────────────────────
+  //
+  // COMMENT CES MÉTHODES SONT ÉCRITES, ET POURQUOI ELLES RESSEMBLENT AU LEGACY :
+  // elles passent par la MÊME plomberie que le reste du client (`_get`, `_post`,
+  // `_patch` : authentification proactive, reprise, disjoncteur, décodage et
+  // exception typée portant le code applicatif). Une seconde plomberie pour la
+  // v2 serait une seconde façon d'échouer.
+  //
+  // CE QUE CES MÉTHODES NE FONT PAS : elles ne décident JAMAIS du format. Elles
+  // appellent la route qu'on leur demande et rendent ce que le serveur répond —
+  // c'est `BotDataRepository` qui choisit, sonde en main. Un client qui
+  // choisirait tout seul serait un client qui suppose.
+  //
+  // REPRISE DES ÉCRITURES : une écriture granulaire est IDEMPOTENTE sous
+  // `If-Match` — rejouer la même écriture avec la même précondition ne peut pas
+  // écrire deux fois, puisque le serveur refuse dès que la révision a bougé. La
+  // reprise automatique est donc sûre ici. Conséquence bornée et connue : si la
+  // première tentative a abouti mais que sa réponse s'est perdue, la reprise
+  // rend `409` et l'appelant recharge — l'écriture, elle, est bien en place.
+
+  /// Sonde `GET /api/v2/capabilities`.
+  ///
+  /// Rend `null` quand la ROUTE n'existe pas (404/405) : c'est le cas NOMINAL
+  /// d'un serveur plus ancien que l'application, pas une panne. Toute autre
+  /// erreur (401, 5xx, réseau) est relayée : une sonde qui échoue ne prouve
+  /// aucune absence, et le dépôt ne doit pas désarmer la v2 sur une panne.
+  Future<BotCapabilities?> fetchCapabilities() async {
+    try {
+      final json = await _get('/api/v2/capabilities');
+      return BotCapabilities.fromWire(json);
+    } on MainApiClientException catch (error) {
+      if (error.statusCode == 404 || error.statusCode == 405) return null;
+      rethrow;
+    }
+  }
+
+  /// `GET /api/v2/bots/{botId}/commands` : la liste ALLÉGÉE.
+  Future<CommandPage> listCommandsV2(String botId) async {
+    final encodedBotId = Uri.encodeComponent(botId.trim());
+    final json = await _get('/api/v2/bots/$encodedBotId/commands');
+    return CommandPage.fromWire(json);
+  }
+
+  /// `GET /api/v2/bots/{botId}/commands/{commandId}` : la commande ENTIÈRE.
+  Future<CommandDetail> getCommandV2(String botId, String commandId) async {
+    final encodedBotId = Uri.encodeComponent(botId.trim());
+    final encodedCommandId = Uri.encodeComponent(commandId.trim());
+    final json = await _get(
+      '/api/v2/bots/$encodedBotId/commands/$encodedCommandId',
+    );
+    final raw = json['command'];
+    if (raw is! Map) {
+      throw const MainApiClientException('Invalid command payload');
+    }
+    return CommandDetail(
+      botId: botId.trim(),
+      commandId: commandId.trim(),
+      raw: Map<String, dynamic>.from(raw),
+      revision: (json['revision'] ?? '').toString().trim(),
+    );
+  }
+
+  /// `PATCH /api/v2/bots/{botId}/commands/{commandId}` : l'écriture ciblée.
+  ///
+  /// La commande est ENVELOPPÉE (`{"command": …}`) comme côté serveur, qui
+  /// REFUSE les champs inconnus : une faute de frappe dans le corps devient une
+  /// erreur nommée au lieu d'une commande silencieusement réduite à une clé.
+  Future<GranularWriteResult> patchCommandV2(
+    String botId,
+    String commandId,
+    Map<String, dynamic> command, {
+    String? ifMatch,
+  }) async {
+    final encodedBotId = Uri.encodeComponent(botId.trim());
+    final encodedCommandId = Uri.encodeComponent(commandId.trim());
+    final json = await _patch(
+      '/api/v2/bots/$encodedBotId/commands/$encodedCommandId',
+      <String, dynamic>{'command': command},
+      extraHeaders: _ifMatchHeaders(ifMatch),
+    );
+    return GranularWriteResult.fromWire(json);
+  }
+
+  /// `GET /api/v2/bots/{botId}/commands/{commandId}/history` : métadonnées des
+  /// dernières versions journalisées (aucun contenu de version ne sort d'ici).
+  Future<List<CommandVersionInfo>> listCommandHistoryV2(
+    String botId,
+    String commandId, {
+    int? limit,
+  }) async {
+    final encodedBotId = Uri.encodeComponent(botId.trim());
+    final encodedCommandId = Uri.encodeComponent(commandId.trim());
+    final json = await _get(
+      '/api/v2/bots/$encodedBotId/commands/$encodedCommandId/history',
+      query: <String, String?>{
+        if (limit != null) 'limit': limit.toString(),
+      },
+    );
+    return CommandVersionInfo.listFromWire(json);
+  }
+
+  /// `POST /api/v2/bots/{botId}/commands/{commandId}/rollback/{historyId}` :
+  /// réapplique le contenu d'une version journalisée.
+  ///
+  /// La restauration est journalisée côté serveur comme une NOUVELLE entrée :
+  /// elle est donc annulable, et ce n'est pas la même promesse qu'un écrasement.
+  Future<GranularWriteResult> restoreCommandVersionV2(
+    String botId,
+    String commandId,
+    String historyId, {
+    String? ifMatch,
+  }) async {
+    final encodedBotId = Uri.encodeComponent(botId.trim());
+    final encodedCommandId = Uri.encodeComponent(commandId.trim());
+    final encodedHistoryId = Uri.encodeComponent(historyId.trim());
+    final json = await _post(
+      '/api/v2/bots/$encodedBotId/commands/$encodedCommandId/rollback/'
+      '$encodedHistoryId',
+      const <String, dynamic>{},
+      extraHeaders: _ifMatchHeaders(ifMatch),
+    );
+    return GranularWriteResult.fromWire(json);
   }
 
   @override

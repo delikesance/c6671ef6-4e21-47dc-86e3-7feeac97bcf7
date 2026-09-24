@@ -455,6 +455,25 @@ void initRunnerAutoReload() {
   };
 }
 
+/// LE POINT D'ENTRÉE PUBLIC DU CHEMIN LEGACY : pousser le document ENTIER d'un
+/// bot par le circuit qui tourne déjà (`buildRemotePayload` → `buildBotPayload`,
+/// puis relais au runner local et envoi au manager).
+///
+/// POURQUOI CETTE FONCTION EXISTE, ET POURQUOI ELLE N'EST PAS UNE SECONDE
+/// IMPLÉMENTATION : le repli du dépôt de données (`BotDataRepository`) doit
+/// rejouer une sauvegarde par le chemin EXISTANT, et ce chemin vit ici, autour
+/// d'un batcher privé. Exposer une porte d'entrée qui pousse IMMÉDIATEMENT (en
+/// annulant l'attente en cours pour ce bot) évite de dupliquer la construction
+/// du document ou de rendre le batcher public — deux façons de laisser diverger
+/// l'ancien et le nouveau chemin.
+///
+/// ELLE N'ATTEND PAS LA FIN DE LA POUSSÉE : `_performSync` lance la tâche sans
+/// l'attendre, comme pour chaque sauvegarde de commande de l'application. Un
+/// appelant qui l'attend sait que la poussée est DEMANDÉE, pas terminée.
+Future<void> pushWholeBotDocumentToManager(String botId) async {
+  _batcher.requestSync(botId, _executeSync, immediate: true);
+}
+
 Future<void> _executeSync(String botId) async {
   try {
     final engine = await getBotRuntimeEngine(botId);
