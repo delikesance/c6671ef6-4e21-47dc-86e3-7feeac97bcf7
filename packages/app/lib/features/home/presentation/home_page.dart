@@ -39,6 +39,7 @@ import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/app_editor_page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/bot_logs.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/bot_config_pull_dialog.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/bot_config_overshrink_dialog.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_identity_scan.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_identity_sync.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_token_import.dart';
@@ -2604,9 +2605,26 @@ class HomePageState extends State<HomePage>
                   // Best-effort only: do not block start if save route fails.
                 }
               }
-            }
-            await client.syncBot(botId, botName, payload);
-            if (client is MainApiClient) {
+              // La poussée de DÉMARRAGE passe par la MÊME orchestration que la
+              // poussée canonique : un `409 bot_config_overshrink` — suppression
+              // massive, peut-être volontaire — n'est pas une panne mais une
+              // QUESTION, et on la POSE au lieu d'afficher un simple message qui
+              // obligerait l'utilisateur à relancer son geste pour confirmer.
+              // Sans accord, rien n'est envoyé, le local reste intact, et le
+              // démarrage s'arrête ici : lancer le bot sur la configuration que
+              // le serveur vient de refuser serait un mensonge sur ce qui a été
+              // appliqué.
+              final pushOutcome = await pushStartBotConfigToleratingOvershrink(
+                client: client,
+                botId: botId,
+                botName: botName,
+                config: payload,
+                askConfirmation: _askOvershrinkConfirmation,
+              );
+              if (pushOutcome != BotConfigPushOutcome.sent) {
+                _reportOvershrinkNothingSent();
+                return;
+              }
               // Encadré : la demande part, puis le RÉSULTAT est écrit. Sans ces deux
               // lignes, un refus du serveur ne laissait aucune trace côté démarrage —
               // on ne pouvait pas distinguer « jamais demandé » de « demandé et refusé ».
@@ -2618,6 +2636,7 @@ class HomePageState extends State<HomePage>
               );
               RunnerSettings.associateBotWithRunner(botId, 'manager');
             } else {
+              await client.syncBot(botId, botName, payload);
               await client.startBot(botId, botName: botName);
               final runnerConfig = await RunnerSettings.resolveConfigForBot(
                 botId,
@@ -2981,6 +3000,36 @@ class HomePageState extends State<HomePage>
   PlanLimitBlock? _planLimitBlockFromError(Object error) {
     final refusal = planLimitRefusalFromError(error);
     return refusal == null ? null : PlanLimitDialog.blockFromRefusal(refusal);
+  }
+
+  /// Pose la question du refus SERVEUR de sur-réduction (`409
+  /// bot_config_overshrink`) — la MÊME question que la poussée canonique.
+  ///
+  /// Sans interface pour la poser (page quittée pendant la tentative), la réponse
+  /// est NON : ne rien envoyer est la seule issue qui ne peut pas remplacer la
+  /// configuration vivante du bot.
+  Future<bool> _askOvershrinkConfirmation() async {
+    if (!mounted) {
+      return false;
+    }
+    return showBotConfigOvershrinkConfirmation(context);
+  }
+
+  /// Dit que la poussée n'a rien envoyé et n'a rien effacé.
+  ///
+  /// POURQUOI la phrase du dialogue sert aussi ici : elle dit exactement cela
+  /// (rien n'est parti, la configuration locale est intacte, le serveur tourne
+  /// toujours sur la précédente), et l'i18n de ce lot reste à quatre clés.
+  void _reportOvershrinkNothingSent() {
+    if (!mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(localizedBotConfigOvershrinkConfirmation(context.tr).body),
+        backgroundColor: AppTheme.error,
+      ),
+    );
   }
 
   /// Un démarrage refusé par la formule n'est pas une panne : on explique, et on

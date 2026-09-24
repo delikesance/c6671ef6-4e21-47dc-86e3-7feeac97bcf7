@@ -12,7 +12,11 @@
 //   (c) sur annulation, AUCUNE requête n'est émise après le refus et la
 //       configuration locale est INCHANGÉE ;
 //   (d) un autre 409 ou une autre erreur ne déclenche PAS ce dialogue, et le
-//       refus n'est pas présenté comme une panne serveur.
+//       refus n'est pas présenté comme une panne serveur ;
+//   (e) les poussées de DÉMARRAGE de bot (home_page / home.logic.part) passent
+//       par la MÊME orchestration : elles POSENT la question au lieu de se
+//       contenter d'un message — et le démarrage n'a lieu que si la
+//       configuration est RÉELLEMENT partie.
 //
 // LIMITE ASSUMÉE : `AppHomePage` (et ses `part` home.sync/home.logic) n'est pas
 // montable dans ce dépôt. Le dialogue est donc prouvé via la brique extraite
@@ -20,6 +24,12 @@
 // l'enchaînement « refus → demande → rejeu » via
 // `pushBotConfigToleratingOvershrink`, qui est EXACTEMENT la fonction appelée par
 // l'écran (le seul écart est le transport, remplacé par un client HTTP simulé).
+//
+// Le groupe (e) applique la même méthode à la poussée de DÉMARRAGE : elle passe
+// par `pushStartBotConfigToleratingOvershrink`, la fonction EXACTE que les deux
+// écrans de démarrage appellent, et le harnais ne démarre le bot que sur
+// `BotConfigPushOutcome.sent` — comme le fait l'écran (`return` immédiat sur
+// toute autre issue).
 import 'dart:convert';
 import 'dart:io';
 
@@ -44,6 +54,12 @@ const MethodChannel _pathProviderChannel = MethodChannel(
 
 const String _botId = 'overshrink-confirmation-bot';
 const String _botName = 'OvershrinkBot';
+
+/// Bot des poussées de DÉMARRAGE (groupe (e)), DISTINCT de [_botId] : le cache de
+/// hash de `MainApiClient` est statique et partagé par les tests du fichier, donc
+/// un identifiant vierge garantit que la première poussée part réellement.
+const String _startBotId = 'overshrink-start-bot';
+const String _startBotName = 'OvershrinkStartBot';
 
 /// Les 6 langues servies par l'application.
 const List<String> _locales = <String>['en', 'fr', 'de', 'ja', 'pt', 'tr'];
@@ -632,7 +648,324 @@ void main() {
       expect(result, isA<MainApiClientException>());
     });
   });
+
+  // ─── (e) Poussée de DÉMARRAGE ────────────────────────────────────────────
+  //
+  // Le défaut fermé par ce lot : la poussée de démarrage se contentait d'un
+  // MESSAGE (« rien n'est envoyé… ») et l'utilisateur devait relancer son geste
+  // pour confirmer. Elle passe désormais par la même orchestration que la
+  // poussée canonique et POSE la question.
+  group('(e) poussée de DÉMARRAGE : la question est posée, pas seulement affichée', () {
+    // Chaque test crée SON bot (voir [_seedStartBot]) au lieu d'en partager un :
+    // le cache de hash de `MainApiClient` est statique et indexé par identifiant
+    // de bot, donc un bot partagé rend les poussées suivantes silencieusement
+    // dédupliquées — et le test ne teste alors plus rien.
+
+    testWidgets(
+      '(a)+(b) ce 409 ouvre la question, et sur accord la MÊME poussée repart '
+      'avec le drapeau',
+      (tester) async {
+        final fr = await AppLocalizations.delegate.load(const Locale('fr'));
+        final requests = <http.Request>[];
+        Object? result;
+        // Un bot NEUF pour ce test : voir [_seedStartBot].
+        final botId = await _seedStartBot(tester, 'ab');
+
+        await tester.pumpWidget(
+          _startHarnessApp(
+            locale: 'fr',
+            client: _overshrinkClient(requests),
+            botId: botId,
+            onResult: (value) => result = value,
+          ),
+        );
+
+        await tester.tap(find.text('start'));
+        await tester.pumpAndSettle();
+
+        // (a) La poussée de DÉMARRAGE ouvre la question — elle ne se contente
+        // plus d'un message : les quatre phrases sont là, donc l'utilisateur
+        // peut répondre SANS relancer son geste.
+        expect(find.text(fr.bot_config_overshrink_title), findsOneWidget);
+        expect(find.text(fr.bot_config_overshrink_body), findsOneWidget);
+        expect(find.text(fr.bot_config_overshrink_send_anyway), findsOneWidget);
+        expect(find.text(fr.bot_config_overshrink_keep_local), findsOneWidget);
+        debugPrint(
+          '[PREUVE] question OUVERTE par le démarrage = '
+          '${fr.bot_config_overshrink_title}',
+        );
+        // …et rien n'a été appliqué pendant qu'elle est posée : ni
+        // configuration acceptée, ni ordre de démarrage.
+        expect(
+          requests.any(_isStartPost),
+          isFalse,
+          reason: 'le bot ne doit pas démarrer tant que la question est ouverte',
+        );
+
+        await tester.tap(find.text(fr.bot_config_overshrink_send_anyway));
+        await tester.pumpAndSettle();
+
+        final bodies = _syncBodies(requests);
+        debugPrint(
+          '[PREUVE] corps des POST /gateway/bots/sync (démarrage) = $bodies',
+        );
+        expect(result, BotConfigPushOutcome.sent);
+        // (b) Le rejeu : la MÊME poussée — même bot, même nom — drapeau du
+        // contrat en plus, inspecté dans le corps émis.
+        expect(bodies.length, greaterThanOrEqualTo(2));
+        expect(bodies.last['confirmOvershrink'], isTrue);
+        expect(bodies.last['botId'], botId);
+        expect(bodies.last['botName'], _startBotName);
+        expect(
+          bodies.take(bodies.length - 1).every(
+            (body) => body.containsKey('confirmOvershrink') == false,
+          ),
+          isTrue,
+          reason: 'le drapeau ne doit apparaître qu’après un accord explicite',
+        );
+        // Le démarrage SUIT le rejeu — jamais avant, jamais sans lui.
+        expect(requests.where(_isStartPost).length, 1);
+        expect(
+          requests.indexWhere(_isStartPost),
+          greaterThan(requests.lastIndexWhere(_isSyncPost)),
+        );
+      },
+    );
+
+    testWidgets('(c) sur annulation : aucune requête, aucun démarrage, local '
+        'intact', (tester) async {
+      final fr = await AppLocalizations.delegate.load(const Locale('fr'));
+      // Un bot NEUF pour ce test : voir [_seedStartBot].
+      final botId = await _seedStartBot(tester, 'c');
+      // Les lectures sur DISQUE se font dans `runAsync` : dans le corps d'un
+      // `testWidgets`, le temps est factice, et une entrée/sortie RÉELLE ne se
+      // termine jamais — le test bloque alors indéfiniment au lieu d'échouer (il
+      // ne « rate » pas : il ne rend jamais la main, et tout le fichier avec
+      // lui). C'était la cause du gel, et non le code testé.
+      final appBefore = (await tester.runAsync(
+        () => appManager.getApp(botId),
+      ))!;
+      final commandsBefore = (await tester.runAsync(
+        () => appManager.listAppCommands(botId),
+      ))!;
+      final requests = <http.Request>[];
+      Object? result;
+
+      await tester.pumpWidget(
+        _startHarnessApp(
+          locale: 'fr',
+          client: _overshrinkClient(requests),
+          botId: botId,
+          onResult: (value) => result = value,
+        ),
+      );
+
+      await tester.tap(find.text('start'));
+      await tester.pumpAndSettle();
+      final requestsWhenAsked = requests.length;
+      // La question a bien été posée PAR une poussée réelle (sinon le reste de
+      // ce test ne prouverait rien).
+      expect(
+        requestsWhenAsked,
+        greaterThan(0),
+        reason: 'la poussée de démarrage doit avoir atteint le serveur',
+      );
+
+      await tester.tap(find.text(fr.bot_config_overshrink_keep_local));
+      await tester.pumpAndSettle();
+
+      expect(result, BotConfigPushOutcome.keptLocal);
+      debugPrint(
+        '[PREUVE] démarrage : requêtes à la question=$requestsWhenAsked, '
+        'total après annulation=${requests.length}',
+      );
+      expect(
+        requests.length,
+        requestsWhenAsked,
+        reason: 'aucune requête après l’annulation',
+      );
+      expect(
+        requests.any(_isStartPost),
+        isFalse,
+        reason: 'rien n’est parti : le bot ne doit PAS démarrer',
+      );
+      expect(
+        _syncBodies(requests).every(
+          (body) => body.containsKey('confirmOvershrink') == false,
+        ),
+        isTrue,
+      );
+      // La copie locale est INCHANGÉE, à l'entrée près.
+      expect(
+        await tester.runAsync(() => appManager.getApp(botId)),
+        appBefore,
+      );
+      expect(
+        (await tester.runAsync(
+          () => appManager.listAppCommands(botId),
+        ))!
+            .map((c) => c['id'])
+            .toList(),
+        commandsBefore.map((c) => c['id']).toList(),
+      );
+    });
+
+    testWidgets('(d) un AUTRE 409 ne pose aucune question et ne démarre rien', (
+      tester,
+    ) async {
+      final fr = await AppLocalizations.delegate.load(const Locale('fr'));
+      // Un bot NEUF pour ce test : voir [_seedStartBot].
+      final botId = await _seedStartBot(tester, 'd');
+      final requests = <http.Request>[];
+      Object? result;
+
+      await tester.pumpWidget(
+        _startHarnessApp(
+          locale: 'fr',
+          client: _refusingClient(requests, _otherConflictError()),
+          botId: botId,
+          onResult: (value) => result = value,
+        ),
+      );
+
+      await tester.tap(find.text('start'));
+      await tester.pumpAndSettle();
+
+      expect(find.text(fr.bot_config_overshrink_title), findsNothing);
+      expect(find.text(fr.bot_config_overshrink_body), findsNothing);
+      expect(result, isA<MainApiClientException>());
+      expect((result! as MainApiClientException).statusCode, 409);
+      expect(
+        requests.any(_isStartPost),
+        isFalse,
+        reason: 'un refus d’une autre nature n’autorise aucun démarrage',
+      );
+    });
+  });
 }
+
+/// Crée un bot NEUF (son entrée + une commande) et rend son identifiant.
+///
+/// POURQUOI UN BOT NEUF PAR TEST : `MainApiClient` garde un cache STATIQUE du
+/// dernier hash poussé, indexé PAR IDENTIFIANT DE BOT. Deux tests qui poussent la
+/// même configuration pour le même bot ne produisent donc qu'UNE seule requête —
+/// le second n'atteint jamais le serveur, ne reçoit jamais son 409 et n'ouvre
+/// jamais la question : il ne teste plus rien. Le client l'annonce lui-même
+/// (`Sync skipped for … (already current)`), et c'est ce qui faisait passer ces
+/// tests pour verts alors qu'ils n'exerçaient plus le chemin.
+///
+/// LES ÉCRITURES PASSENT PAR `runAsync` : hors de `runAsync`, le corps d'un
+/// `testWidgets` vit dans un temps FACTICE, et une entrée/sortie réelle ne s'y
+/// termine jamais — le test bloque alors indéfiniment au lieu d'échouer, et il
+/// emporte le fichier entier (aucun délai n'expire non plus, puisque les
+/// minuteurs du temps factice n'avancent que si le test pompe des images).
+Future<String> _seedStartBot(WidgetTester tester, String suffix) async {
+  final botId = '$_startBotId-$suffix';
+  await tester.runAsync(() async {
+    await appManager.saveApp(botId, <String, dynamic>{
+      'id': botId,
+      'username': _startBotName,
+      'token': 'test-token',
+      'runtimeEngine': 'javascript',
+      'workflows': <Map<String, dynamic>>[],
+    });
+    await appManager.saveAppCommand(
+      botId,
+      'cmd-start',
+      <String, dynamic>{
+        'id': 'cmd-start',
+        'name': 'ping',
+        'type': 'chatInput',
+        'data': <String, dynamic>{
+          'executionMode': 'javascript',
+          'jsScriptContent': 'await interaction.reply("pong");',
+        },
+      },
+    );
+  });
+  return botId;
+}
+
+/// Vrai quand [request] est l'ordre de démarrage du bot (`POST …/start`).
+bool _isStartPost(http.Request request) =>
+    request.method == 'POST' && request.url.path.endsWith('/start');
+
+/// Réplique de l'enchaînement d'une poussée de DÉMARRAGE, celle de
+/// `HomePageState._toggleBot` (features/home) et de
+/// `_AppHomePageState._toggleBotLaunchState` (bot_sub_pages/home.logic) :
+/// la configuration part par [pushStartBotConfigToleratingOvershrink] — la
+/// fonction EXACTE que ces deux écrans appellent — et l'ordre de démarrage n'est
+/// émis QUE si la configuration est RÉELLEMENT partie (`sent`), exactement comme
+/// l'écran qui rend la main sur toute autre issue. Seul le transport est simulé.
+class _StartPushHarness extends StatefulWidget {
+  const _StartPushHarness({
+    required this.client,
+    required this.botId,
+    required this.onResult,
+  });
+
+  final MainApiClient client;
+
+  /// Le bot de CE test, rendu par [_seedStartBot] : un identifiant NEUF à chaque
+  /// test, sans quoi le cache statique du client déduplique la poussée et le test
+  /// n'exerce plus rien.
+  final String botId;
+
+  final void Function(Object result) onResult;
+
+  @override
+  State<_StartPushHarness> createState() => _StartPushHarnessState();
+}
+
+class _StartPushHarnessState extends State<_StartPushHarness> {
+  Future<void> _run() async {
+    try {
+      final outcome = await pushStartBotConfigToleratingOvershrink(
+        client: widget.client,
+        botId: widget.botId,
+        botName: _startBotName,
+        config: _validPayload(),
+        askConfirmation: () async {
+          // Le modèle suivi par les deux écrans : sans interface pour poser la
+          // question, la réponse est NON.
+          if (!mounted) {
+            return false;
+          }
+          return showBotConfigOvershrinkConfirmation(context);
+        },
+      );
+      // Le seuil du démarrage : rien ne part avant que la configuration soit
+      // arrivée.
+      if (outcome == BotConfigPushOutcome.sent) {
+        await widget.client.startBot(widget.botId, botName: _startBotName);
+      }
+      widget.onResult(outcome);
+    } catch (error) {
+      widget.onResult(error);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: ElevatedButton(onPressed: _run, child: const Text('start')),
+      ),
+    );
+  }
+}
+
+Widget _startHarnessApp({
+  required String locale,
+  required MainApiClient client,
+  required String botId,
+  required void Function(Object result) onResult,
+}) => MaterialApp(
+  locale: Locale(locale),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  home: _StartPushHarness(client: client, botId: botId, onResult: onResult),
+);
 
 /// Appelle [body] et rend l'erreur attrapée — ou `null` si rien n'a levé.
 Future<Object?> _catching(Future<Object?> Function() body) async {
