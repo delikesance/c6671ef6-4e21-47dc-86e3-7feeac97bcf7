@@ -9521,4 +9521,111 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get command_history_restore_confirm =>
       'このバージョンを復元しますか？サーバー上にある現在の内容がこのバージョンの内容に置き換わります。復元自体も新しいバージョンとして記録されるため、取り消せます。';
+
+  @override
+  String get menu_file => 'ファイル';
+
+  @override
+  String get menu_new_bot => '新しいボット';
+
+  @override
+  String get menu_close_window => 'ウインドウを閉じる';
+
+  @override
+  String get menu_edit => '編集';
+
+  @override
+  String get menu_undo => '取り消す';
+
+  @override
+  String get menu_redo => 'やり直す';
+
+  @override
+  String get menu_cut => 'カット';
+
+  @override
+  String get menu_copy => 'コピー';
+
+  @override
+  String get menu_paste => 'ペースト';
+
+  @override
+  String get menu_select_all => 'すべて選択';
+
+  @override
+  String get menu_view => '表示';
+
+  @override
+  String get menu_theme => 'テーマ';
+
+  @override
+  String get menu_window => 'ウインドウ';
+
+  @override
+  String get menu_help => 'ヘルプ';
+
+  @override
+  String get menu_preferences => '環境設定…';
+
+  @override
+  String get menu_website => 'ウェブサイト';
+
+  @override
+  String bot_config_versions_restore_error_detail(String reason) {
+    return 'バージョンを復元できませんでした: $reason';
+  }
+
+  @override
+  String get bot_config_versions_restore_refused =>
+      'サーバーが復元を確認しませんでした。何も復元されていません。';
+
+  @override
+  String bot_config_versions_restore_local_failed(String reason) {
+    return 'サーバー側では復元されましたが、ローカルへの反映に失敗しました: $reason';
+  }
+
+  @override
+  String get import_engine_title => '実行エンジン';
+
+  @override
+  String get import_engine_missing =>
+      'このZIPにはエンジンの記載がありません。このボットが使うエンジンを選択してください:';
+
+  @override
+  String import_engine_declared(String engine) {
+    return 'ZIPで指定されたエンジン: $engine';
+  }
+
+  @override
+  String import_engine_will_switch(String from, String to) {
+    return '次回の再起動でボットは $from から $to に切り替わります。';
+  }
+
+  @override
+  String get import_engine_dart_label => 'Bot Creator（Dart / ブロック）';
+
+  @override
+  String get import_engine_javascript_label => 'JavaScript（runner-js）';
+
+  @override
+  String get bot_config_versions_restore_too_small =>
+      'サーバーが拒否したバージョンです。構成として小さすぎます（復元するとボットが空になります）。より完全なバージョンを選んでください。';
+
+  @override
+  String get bot_config_versions_force_restore_title =>
+      'サイズが小さくてもこのバージョンを復元しますか？';
+
+  @override
+  String get bot_config_versions_force_restore_body =>
+      'サーバーは構成として小さすぎると判断し、自動では適用しません。復元は明示的な巻き戻しなので、強制できます。';
+
+  @override
+  String get bot_config_versions_force_restore_confirm => 'それでも復元';
+
+  @override
+  String get bot_config_versions_force_restore_keep => '現在のバージョンを維持';
+
+  @override
+  String get bot_config_versions_restore_too_small_unforced =>
+      'サーバーは依然として拒否しています。このバージョンの強制復元をマネージャーが受け入れる必要があります。';
 }

@@ -50,10 +50,12 @@ library;
 
 import 'dart:async';
 
+import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/bot_data_models.dart';
 import 'package:bot_creator/core/network/bot_data_repository.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
+import 'package:bot_creator/core/network/remote_runtime.dart';
 import 'package:bot_creator/core/storage/granular_data_layer.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -146,6 +148,22 @@ class _CommandHistorySheetState extends State<CommandHistorySheet> {
   /// Distinct du conflit : celui-ci n'a rien écrit, celle-là n'a rien pu faire.
   bool _restoreFailed = false;
 
+  /// POURQUOI la restauration a échoué, quand l'application le sait.
+  ///
+  /// Sans lui, l'écran ne pouvait afficher qu'un « échec » indistinct : le code
+  /// du serveur était capturé dans `failure` puis… jamais montré ni journalisé.
+  String? _restoreFailureReason;
+
+  /// Vrai quand le serveur a refusé la version parce qu'elle est trop pauvre
+  /// (`409 bot_config_version_too_small`). C'est un refus de FOND, pas un
+  /// conflit : il ne se règle ni en relisant, ni en écrasant, seulement en
+  /// choisissant une autre version — ou en DEMANDANT une restauration forcée.
+  bool _restoreFloorRefused = false;
+
+  /// Vrai quand la restauration FORCÉE elle-même a été refusée : le serveur
+  /// n'accepte pas (encore) de forcer ce cas, et il le dit.
+  bool _restoreFloorUnforced = false;
+
   @override
   void initState() {
     super.initState();
@@ -219,7 +237,13 @@ class _CommandHistorySheetState extends State<CommandHistorySheet> {
     await _restore(version.historyId);
   }
 
-  Future<void> _restore(String historyId) async {
+  /// [confirmOvershrink] : restauration FORCÉE, demandée quand le serveur a
+  /// refusé la version pour cause de plancher de plausibilité. Ce drapeau n'est
+  /// posé qu'APRÈS un accord explicite (le bouton « Restaurer quand même »).
+  Future<void> _restore(
+    String historyId, {
+    bool confirmOvershrink = false,
+  }) async {
     final repository = widget.repository;
     if (repository == null) {
       _setPhase(CommandHistoryPhase.noGranularApi);
@@ -230,6 +254,9 @@ class _CommandHistorySheetState extends State<CommandHistorySheet> {
       _pendingHistoryId = historyId;
       _conflict = false;
       _restoreFailed = false;
+      _restoreFailureReason = null;
+      _restoreFloorRefused = false;
+      _restoreFloorUnforced = false;
     });
 
     SaveOutcome? outcome;
@@ -239,11 +266,41 @@ class _CommandHistorySheetState extends State<CommandHistorySheet> {
         widget.botId,
         widget.commandId,
         historyId,
+        confirmOvershrink: confirmOvershrink,
       );
     } on MainApiClientException catch (error) {
       // Un `409` n'est PAS un échec : la révision attendue est périmée, et le
       // serveur n'a rien écrit. On garde la version choisie en attente pour
       // pouvoir la rejouer après un rechargement.
+      //
+      // SAUF le refus de PLANCHER (la version visée pèse moins que le plancher
+      // de plausibilité) : relire n'y changerait rien — la version existe, elle
+      // est trop pauvre. Le poser en conflit enverrait l'utilisateur en boucle
+      // sur un « recharger et écraser » qui ne peut pas aboutir.
+      if (isBotConfigVersionFloorRefusal(error)) {
+        AppDiagnostics.logError(
+          'Command version restore refused: version below the floor',
+          error,
+          StackTrace.current,
+          fatal: false,
+          information:
+              'botId=${widget.botId} commandId=${widget.commandId} '
+              'historyId=$historyId code=${error.code} '
+              'forced=$confirmOvershrink',
+        );
+        if (!mounted) return;
+        setState(() {
+          _busy = false;
+          _conflict = false;
+          _restoreFailed = true;
+          _restoreFloorRefused = true;
+          // Forcée ET refusée : le serveur doit accepter la restauration forcée
+          // pour ce cas. Le dire, plutôt que de reproposer le même bouton.
+          _restoreFloorUnforced = confirmOvershrink;
+          _restoreFailureReason = null;
+        });
+        return;
+      }
       if (error.statusCode == 409) {
         if (!mounted) return;
         setState(() {
@@ -259,9 +316,21 @@ class _CommandHistorySheetState extends State<CommandHistorySheet> {
 
     if (!mounted) return;
     if (failure != null) {
+      // La raison part au journal ET à l'écran : sans elle, « échec » ne dit ni
+      // si la version existe encore, ni si le serveur a refusé, ni pourquoi.
+      AppDiagnostics.logError(
+        'Command version restore failed',
+        failure,
+        StackTrace.current,
+        fatal: false,
+        information:
+            'botId=${widget.botId} commandId=${widget.commandId} '
+            'historyId=$historyId',
+      );
       setState(() {
         _busy = false;
         _restoreFailed = true;
+        _restoreFailureReason = describeApiFailure(failure!);
       });
       return;
     }
@@ -293,6 +362,38 @@ class _CommandHistorySheetState extends State<CommandHistorySheet> {
     }
   }
 
+  /// La phrase à afficher pour une restauration refusée.
+  ///
+  /// Quatre natures, quatre phrases — et aucune ne dit « panne » là où le
+  /// serveur a simplement répondu non : un refus de plancher (la version est
+  /// vide, mais forceable), un refus de plancher PERSISTANT malgré la demande
+  /// forcée, une raison technique nommée, ou un échec sans détail.
+  String _restoreFailureMessage(AppLocalizations tr) {
+    if (_restoreFloorUnforced) {
+      return tr.bot_config_versions_restore_too_small_unforced;
+    }
+    if (_restoreFloorRefused) {
+      return tr.bot_config_versions_restore_too_small;
+    }
+    final reason = _restoreFailureReason;
+    if (reason == null || reason.isEmpty) {
+      return tr.bot_config_versions_restore_error;
+    }
+    return tr.bot_config_versions_restore_error_detail(reason);
+  }
+
+  /// Rejoue la restauration choisie en DEMANDANT au serveur de la forcer.
+  ///
+  /// Une restauration est un retour en arrière demandé : si le serveur refuse
+  /// la version à cause de son plancher de plausibilité, c'est à l'utilisateur
+  /// de décider s'il veut malgré tout y revenir — pas à l'application de
+  /// l'en empêcher.
+  Future<void> _restoreForced() async {
+    final historyId = _pendingHistoryId;
+    if (historyId == null) return;
+    await _restore(historyId, confirmOvershrink: true);
+  }
+
   /// RECHARGER la version serveur, PUIS rejouer la restauration choisie.
   ///
   /// L'ordre est le sujet : on relit d'abord (c'est de cette lecture que vient
@@ -308,17 +409,30 @@ class _CommandHistorySheetState extends State<CommandHistorySheet> {
     setState(() {
       _busy = true;
       _restoreFailed = false;
+      _restoreFailureReason = null;
     });
 
     try {
       await repository.getCommand(widget.botId, widget.commandId);
-    } catch (_) {
+    } catch (error) {
       if (!mounted) return;
-      // Le rechargement lui-même a échoué : on ne rejoue PAS à l'aveugle.
+      // Le rechargement lui-même a échoué : on ne rejoue PAS à l'aveugle. La
+      // raison est nommée, sinon l'utilisateur voit un échec sans savoir que
+      // c'est la RELECTURE qui a lâché (rien n'a donc été écrit).
+      AppDiagnostics.logError(
+        'Command version restore aborted: reload failed',
+        error,
+        StackTrace.current,
+        fatal: false,
+        information:
+            'botId=${widget.botId} commandId=${widget.commandId} '
+            'historyId=$historyId',
+      );
       setState(() {
         _busy = false;
         _conflict = false;
         _restoreFailed = true;
+        _restoreFailureReason = describeApiFailure(error);
       });
       return;
     }
@@ -414,8 +528,18 @@ class _CommandHistorySheetState extends State<CommandHistorySheet> {
           if (_restoreFailed)
             _Notice(
               icon: Icons.error_outline_rounded,
-              message: tr.bot_config_versions_restore_error,
+              message: _restoreFailureMessage(tr),
             ),
+          // Le refus de plancher n'est pas une impasse : la version visée a déjà
+          // tourné pour ce bot, la décision revient à l'utilisateur.
+          if (_restoreFloorRefused && !_restoreFloorUnforced) ...[
+            const SizedBox(height: 8),
+            FilledButton.icon(
+              onPressed: _busy ? null : _restoreForced,
+              icon: const Icon(Icons.restore_page_rounded),
+              label: Text(tr.bot_config_versions_force_restore_confirm),
+            ),
+          ],
           if (_versions.isEmpty)
             // ÉTAT LÉGITIME, pas une erreur : l'utilisateur ne doit pas
             // chercher une panne là où il n'y en a pas.
@@ -535,10 +659,7 @@ class _ConflictPanel extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          FilledButton(
-            onPressed: onReload,
-            child: Text(reloadLabel),
-          ),
+          FilledButton(onPressed: onReload, child: Text(reloadLabel)),
         ],
       ),
     );

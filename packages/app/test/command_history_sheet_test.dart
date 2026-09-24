@@ -53,6 +53,7 @@ class _FakeManager {
     this.historyAvailable = true,
     this.versions = const <Map<String, dynamic>>[],
     this.rollbackRefusesOnce = false,
+    this.rollbackFloorRefusesOnce = false,
     this.serverRevision = 'rev-server',
   });
 
@@ -71,6 +72,10 @@ class _FakeManager {
 
   /// Le premier `rollback` est-il refusé par un `409` de révision périmée ?
   bool rollbackRefusesOnce;
+
+  /// Le premier `rollback` est-il refusé par le PLANCHER de plausibilité
+  /// (`409 bot_config_version_too_small`) : la version visée est trop pauvre.
+  bool rollbackFloorRefusesOnce;
 
   /// La révision que le serveur dira lors du RECHARGEMENT.
   String serverRevision = 'rev-server';
@@ -147,10 +152,29 @@ class _FakeManager {
           500,
         );
       }
-      return http.Response(jsonEncode(<String, dynamic>{'versions': versions}), 200);
+      return http.Response(
+        jsonEncode(<String, dynamic>{'versions': versions}),
+        200,
+      );
     }
 
     if (path.contains('/rollback/')) {
+      if (rollbackFloorRefusesOnce) {
+        rollbackFloorRefusesOnce = false;
+        // Le refus EXACT du serveur observé en vrai : la version visée pèse
+        // moins que le plancher de plausibilité. Ce n'est pas une précondition
+        // périmée — relire n'y changerait rien.
+        return http.Response(
+          jsonEncode(<String, String>{
+            'code': 'bot_config_version_too_small',
+            'message':
+                'bot_config_version_too_small: version '
+                'configs/1488275294295949504/versions/2026-09-21T02h37m50s.json '
+                'is 1776 bytes (floor is 2048 bytes)',
+          }),
+          409,
+        );
+      }
       if (rollbackRefusesOnce) {
         rollbackRefusesOnce = false;
         // Le 409 exact du contrat : il PORTE la révision courante, et c'est ce
@@ -316,14 +340,16 @@ void main() {
       expect(find.text(fr.bot_config_versions_restore_error), findsNothing);
 
       // La limite demandée est celle du journal (5), pas une devinette.
-      final historyRequest = manager.requests
-          .firstWhere((request) => request.url.path.endsWith('/history'));
+      final historyRequest = manager.requests.firstWhere(
+        (request) => request.url.path.endsWith('/history'),
+      );
       expect(historyRequest.url.queryParameters['limit'], '5');
       debugPrint('[PREUVE] requêtes émises = ${manager.requests.length}');
     });
 
-    testWidgets('l\'anglais sert « bytes » et non l\'unité française',
-        (tester) async {
+    testWidgets('l\'anglais sert « bytes » et non l\'unité française', (
+      tester,
+    ) async {
       final en = await AppLocalizations.delegate.load(const Locale('en'));
       final manager = _FakeManager(
         versions: <Map<String, dynamic>>[
@@ -356,8 +382,9 @@ void main() {
   });
 
   group('(b) la liste vide', () {
-    testWidgets('dit l\'état légitime, pas une indisponibilité ni une panne',
-        (tester) async {
+    testWidgets('dit l\'état légitime, pas une indisponibilité ni une panne', (
+      tester,
+    ) async {
       final fr = await AppLocalizations.delegate.load(const Locale('fr'));
       final manager = _FakeManager(versions: const <Map<String, dynamic>>[]);
       final repository = await _armedRepository(manager);
@@ -382,8 +409,9 @@ void main() {
       expect(manager.historyCalls, 1);
     });
 
-    testWidgets('une liste NON RÉCUPÉRÉE n\'est pas affichée comme vide',
-        (tester) async {
+    testWidgets('une liste NON RÉCUPÉRÉE n\'est pas affichée comme vide', (
+      tester,
+    ) async {
       final fr = await AppLocalizations.delegate.load(const Locale('fr'));
       final manager = _FakeManager(historyAvailable: false);
       final repository = await _armedRepository(manager);
@@ -402,8 +430,10 @@ void main() {
       // qu'elle n'a pas pu le récupérer, elle ne bloque pas et ne ment pas.
       expect(find.text(fr.command_history_unavailable_offline), findsOneWidget);
       expect(find.text(fr.command_history_empty), findsNothing);
-      debugPrint('[PREUVE] liste indisponible = '
-          '${fr.command_history_unavailable_offline}');
+      debugPrint(
+        '[PREUVE] liste indisponible = '
+        '${fr.command_history_unavailable_offline}',
+      );
     });
   });
 
@@ -450,10 +480,13 @@ void main() {
       expect(
         manager.historyCalls,
         0,
-        reason: 'sans v2 armée, la route d\'historique ne doit pas être appelée',
+        reason:
+            'sans v2 armée, la route d\'historique ne doit pas être appelée',
       );
-      debugPrint('[PREUVE] décision sans v2 = '
-          '${fr.command_history_unavailable_no_v2}');
+      debugPrint(
+        '[PREUVE] décision sans v2 = '
+        '${fr.command_history_unavailable_no_v2}',
+      );
     });
   });
 
@@ -481,7 +514,9 @@ void main() {
       await _pumpFrames(tester);
 
       // 1. L'utilisateur choisit une version et confirme.
-      await tester.tap(find.widgetWithText(TextButton, fr.command_history_restore));
+      await tester.tap(
+        find.widgetWithText(TextButton, fr.command_history_restore),
+      );
       await _pumpFrames(tester);
       await tester.tap(
         find.widgetWithText(FilledButton, fr.command_history_restore),
@@ -493,7 +528,8 @@ void main() {
       expect(
         manager.rollbackCalls.first.headers['if-match'],
         isNull,
-        reason: 'aucune révision n\'était connue : la 1re tentative part sans '
+        reason:
+            'aucune révision n\'était connue : la 1re tentative part sans '
             'précondition, et c\'est le serveur qui refuse',
       );
       expect(find.text(fr.command_history_conflict), findsOneWidget);
@@ -542,8 +578,9 @@ void main() {
       expect(find.text(fr.bot_config_versions_restore_error), findsNothing);
     });
 
-    testWidgets('un échec de RECHARGEMENT ne rejoue rien à l\'aveugle',
-        (tester) async {
+    testWidgets('un échec de RECHARGEMENT ne rejoue rien à l\'aveugle', (
+      tester,
+    ) async {
       final fr = await AppLocalizations.delegate.load(const Locale('fr'));
       final manager = _FakeManager(
         rollbackRefusesOnce: true,
@@ -562,7 +599,9 @@ void main() {
         ),
       );
       await _pumpFrames(tester);
-      await tester.tap(find.widgetWithText(TextButton, fr.command_history_restore));
+      await tester.tap(
+        find.widgetWithText(TextButton, fr.command_history_restore),
+      );
       await _pumpFrames(tester);
       await tester.tap(
         find.widgetWithText(FilledButton, fr.command_history_restore),
@@ -583,6 +622,90 @@ void main() {
       // Le rejeu NE DOIT PAS avoir lieu : rien n'est écrasé sans avoir relu.
       expect(manager.rollbackCalls, hasLength(1));
     });
+
+    testWidgets(
+      'un 409 de PLANCHER (version trop pauvre) est un REFUS nommé, pas un '
+      'conflit : aucune relecture, un rejeu, la phrase du plancher',
+      (tester) async {
+        final fr = await AppLocalizations.delegate.load(const Locale('fr'));
+        final manager = _FakeManager(
+          rollbackFloorRefusesOnce: true,
+          versions: <Map<String, dynamic>>[
+            _version(historyId: 'h1', createdAt: '2026-09-21T02:37:50Z'),
+          ],
+        );
+        final repository = await _armedRepository(manager);
+
+        await tester.pumpWidget(
+          _sheetApp(
+            locale: 'fr',
+            botId: _botId,
+            commandId: _commandId,
+            repository: repository,
+          ),
+        );
+        await _pumpFrames(tester);
+
+        // L'utilisateur choisit la version trop pauvre et confirme.
+        await tester.tap(
+          find.widgetWithText(TextButton, fr.command_history_restore),
+        );
+        await _pumpFrames(tester);
+        await tester.tap(
+          find.widgetWithText(FilledButton, fr.command_history_restore),
+        );
+        await _pumpFrames(tester);
+
+        // La phrase dit le FOND (la version est trop réduite), et elle est
+        // TRADUITE : recracher la phrase brute du serveur afficherait un chemin
+        // de stockage interne en anglais.
+        expect(
+          find.text(fr.bot_config_versions_restore_too_small),
+          findsOneWidget,
+          reason:
+              'le refus de plancher doit être nommé, pas résumé en « échec »',
+        );
+        // AUCUN dialogue de conflit : relire ne changerait rien, donc proposer
+        // « recharger et écraser » enverrait l'utilisateur en boucle.
+        expect(find.text(fr.command_history_conflict), findsNothing);
+        expect(
+          find.widgetWithText(FilledButton, fr.command_history_conflict_reload),
+          findsNothing,
+        );
+        // Une seule écriture tentée, et aucune relecture.
+        expect(manager.rollbackCalls, hasLength(1));
+        expect(manager.commandReads, isEmpty);
+
+        // 2. La décision revient à l'utilisateur : le bouton de restauration
+        // FORCÉE est là (la version a déjà tourné pour ce bot).
+        final forceButton = find.widgetWithText(
+          FilledButton,
+          fr.bot_config_versions_force_restore_confirm,
+        );
+        expect(forceButton, findsOneWidget);
+        await tester.tap(forceButton);
+        await _pumpFrames(tester);
+
+        // 3. Le rejeu DEMANDE la restauration forcée — la preuve est dans le
+        // corps de la requête, pas dans une intention.
+        expect(manager.rollbackCalls, hasLength(2));
+        expect(
+          manager.rollbackCalls.last.body,
+          contains('confirmOvershrink'),
+          reason:
+              'forcer la restauration se DEMANDE au serveur, ça ne se déduit pas',
+        );
+        // Le serveur accepte la restauration forcée : l'écran de refus disparaît.
+        expect(
+          find.text(fr.bot_config_versions_restore_too_small),
+          findsNothing,
+        );
+        debugPrint(
+          '[PREUVE] refus de plancher affiché = '
+          '${fr.bot_config_versions_restore_too_small}',
+        );
+      },
+    );
   });
 
   group('(e) la restauration demande confirmation', () {
@@ -605,12 +728,16 @@ void main() {
       );
       await _pumpFrames(tester);
 
-      await tester.tap(find.widgetWithText(TextButton, fr.command_history_restore));
+      await tester.tap(
+        find.widgetWithText(TextButton, fr.command_history_restore),
+      );
       await _pumpFrames(tester);
 
       // La question est posée, et elle dit ce qui va être remplacé.
       expect(find.text(fr.command_history_restore_confirm), findsOneWidget);
-      debugPrint('[PREUVE] confirmation = ${fr.command_history_restore_confirm}');
+      debugPrint(
+        '[PREUVE] confirmation = ${fr.command_history_restore_confirm}',
+      );
 
       await tester.tap(find.widgetWithText(OutlinedButton, fr.common_cancel));
       await _pumpFrames(tester);
@@ -622,7 +749,9 @@ void main() {
       );
 
       // Puis un accord explicite : là seulement, une écriture part.
-      await tester.tap(find.widgetWithText(TextButton, fr.command_history_restore));
+      await tester.tap(
+        find.widgetWithText(TextButton, fr.command_history_restore),
+      );
       await _pumpFrames(tester);
       await tester.tap(
         find.widgetWithText(FilledButton, fr.command_history_restore),
@@ -674,7 +803,11 @@ void main() {
       // Le format porte les trois métadonnées, dans les 6 langues.
       for (final code in _locales) {
         final l10n = await AppLocalizations.delegate.load(Locale(code));
-        final formatted = l10n.command_history_version_meta('auteur', 'date', 3);
+        final formatted = l10n.command_history_version_meta(
+          'auteur',
+          'date',
+          3,
+        );
         expect(formatted, contains('auteur'));
         expect(formatted, contains('date'));
         expect(formatted, contains('3'));

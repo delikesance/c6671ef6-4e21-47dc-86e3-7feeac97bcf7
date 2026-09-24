@@ -1,5 +1,7 @@
+import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
+import 'package:bot_creator/core/network/remote_runtime.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_config_import.dart';
 import 'package:flutter/material.dart';
@@ -75,7 +77,13 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
     return const <Map<String, dynamic>>[];
   }
 
-  Future<void> _restoreVersion(String versionKey) async {
+  /// [confirmOvershrink] : restauration FORCÉE, demandée après que le manager a
+  /// refusé la version pour cause de plancher de plausibilité. Le drapeau n'est
+  /// posé qu'APRÈS un accord explicite (voir [_offerForcedRestore]).
+  Future<void> _restoreVersion(
+    String versionKey, {
+    bool confirmOvershrink = false,
+  }) async {
     setState(() => _isLoadingDiff = true);
 
     // Fetch version config to show what's inside
@@ -245,14 +253,71 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
     try {
       final client = await widget.resolveClient(widget.botId, widget.botToken);
       if (client == null) {
-        throw Exception('Failed to resolve API client');
+        throw const MainApiClientException('API client could not be resolved');
       }
-      final success = await client.restoreBotConfigVersion(
-        widget.botId,
-        versionKey,
-      );
+
+      // Phase 1 — la décision du serveur. C'est SA raison qu'on veut afficher :
+      // jusqu'ici elle était jetée (un `catch (_)` nu), d'où un « échec de la
+      // restauration » impossible à expliquer, même en switchant de moteur.
+      final bool success;
+      try {
+        success = await client.restoreBotConfigVersion(
+          widget.botId,
+          versionKey,
+          confirmOvershrink: confirmOvershrink,
+        );
+      } on MainApiClientException catch (error, stack) {
+        AppDiagnostics.logError(
+          'Bot config version restore refused by server',
+          error,
+          stack,
+          fatal: false,
+          information:
+              'botId=${widget.botId} version=$versionKey '
+              'status=${error.statusCode} code=${error.code} '
+              'forced=$confirmOvershrink',
+        );
+        if (isBotConfigVersionFloorRefusal(error)) {
+          // Le plancher protège une POUSSÉE (suppression massive peut-être
+          // involontaire). Une restauration, elle, est un retour en arrière
+          // DEMANDÉ : on ne reste pas bloqué dessus, on propose de la forcer.
+          if (confirmOvershrink) {
+            // Même forcée, elle est refusée : le manager n'accepte pas encore la
+            // restauration forcée pour cette version. Le dire tel quel plutôt
+            // que de laisser croire à une panne de l'application.
+            _showRestoreFailure(
+              context.tr.bot_config_versions_restore_too_small_unforced,
+            );
+            return;
+          }
+          await _offerForcedRestore(versionKey);
+          return;
+        }
+        _showRestoreFailure(
+          context.tr.bot_config_versions_restore_error_detail(
+            _describeFailure(error),
+          ),
+        );
+        return;
+      }
+
       if (!mounted) return;
-      if (success) {
+      if (!success) {
+        AppDiagnostics.logError(
+          'Bot config version restore not confirmed by server',
+          'restoreBotConfigVersion returned false',
+          StackTrace.current,
+          fatal: false,
+          information: 'botId=${widget.botId} version=$versionKey',
+        );
+        _showRestoreFailure(context.tr.bot_config_versions_restore_refused);
+        return;
+      }
+
+      // Phase 2 — application locale. Le serveur A restauré : le dire autrement
+      // serait mentir sur l'état réel du bot (et rendre le diagnostic suivant
+      // incompréhensible).
+      try {
         final remoteConfig = await client.getBotConfig(widget.botId);
         if (remoteConfig['inboundWebhooks'] is bool) {
           remoteConfig.remove('inboundWebhooks');
@@ -273,28 +338,41 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
           botId: widget.botId,
           remoteConfig: remoteConfig,
         );
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(context.tr.bot_config_versions_restored),
-            backgroundColor: AppTheme.success,
+      } catch (error, stack) {
+        AppDiagnostics.logError(
+          'Bot config version restored but not applied locally',
+          error,
+          stack,
+          fatal: false,
+          information: 'botId=${widget.botId} version=$versionKey',
+        );
+        _showRestoreFailure(
+          context.tr.bot_config_versions_restore_local_failed(
+            _describeFailure(error),
           ),
         );
-        Navigator.pop(context);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(context.tr.bot_config_versions_restore_error),
-            backgroundColor: AppTheme.error,
-          ),
-        );
+        return;
       }
-    } catch (_) {
+
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(context.tr.bot_config_versions_restore_error),
-          backgroundColor: AppTheme.error,
+          content: Text(context.tr.bot_config_versions_restored),
+          backgroundColor: AppTheme.success,
+        ),
+      );
+      Navigator.pop(context);
+    } catch (error, stack) {
+      AppDiagnostics.logError(
+        'Bot config version restore failed',
+        error,
+        stack,
+        fatal: false,
+        information: 'botId=${widget.botId} version=$versionKey',
+      );
+      _showRestoreFailure(
+        context.tr.bot_config_versions_restore_error_detail(
+          _describeFailure(error),
         ),
       );
     } finally {
@@ -303,6 +381,49 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
       }
     }
   }
+
+  /// Propose de FORCER la restauration que le manager a refusée.
+  ///
+  /// POURQUOI une question plutôt qu'un refus sec : le plancher de plausibilité
+  /// protège une POUSSÉE — une suppression massive possiblement accidentelle.
+  /// Une restauration est l'inverse : un retour en arrière explicitement
+  /// demandé, dont la version a déjà tourné pour ce bot. Poser la question
+  /// laisse la décision à l'utilisateur au lieu de la lui interdire.
+  Future<void> _offerForcedRestore(String versionKey) async {
+    final agreed = await AppTheme.showConfirmDialog(
+      context,
+      title: context.tr.bot_config_versions_force_restore_title,
+      content: context.tr.bot_config_versions_force_restore_body,
+      confirmLabel: context.tr.bot_config_versions_force_restore_confirm,
+      cancelLabel: context.tr.bot_config_versions_force_restore_keep,
+      isDestructive: true,
+    );
+    if (!agreed || !mounted) return;
+    await _restoreVersion(versionKey, confirmOvershrink: true);
+  }
+
+  /// Affiche la raison RÉELLE d'un échec de restauration.
+  ///
+  /// POURQUOI : l'écran n'affichait qu'un « échec de la restauration » muet,
+  /// sans rien du serveur — impossible de distinguer une version disparue, un
+  /// refus d'API ou un moteur dépareillé. La raison part aussi au journal de
+  /// diagnostic, consultable après coup.
+  void _showRestoreFailure(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppTheme.error,
+        duration: const Duration(seconds: 8),
+      ),
+    );
+  }
+
+  /// Réduit une exception à une raison lisible : statut, code d'API, message.
+  ///
+  /// Le code est la partie stable du contrat (cf. `MainApiClientException`) :
+  /// c'est lui qui permet de nommer la cause, pas la phrase du serveur.
+  String _describeFailure(Object error) => describeApiFailure(error);
 
   @override
   Widget build(BuildContext context) {

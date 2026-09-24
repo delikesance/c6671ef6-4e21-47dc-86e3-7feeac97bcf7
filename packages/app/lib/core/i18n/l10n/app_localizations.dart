@@ -17247,6 +17247,192 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Restore this version? The content currently on the server will be replaced by this version. The restore itself is recorded as a new version, so it stays undoable.'**
   String get command_history_restore_confirm;
+
+  /// Title of the File menu in the macOS menu bar.
+  ///
+  /// In en, this message translates to:
+  /// **'File'**
+  String get menu_file;
+
+  /// File menu item that opens the bot creation page.
+  ///
+  /// In en, this message translates to:
+  /// **'New bot'**
+  String get menu_new_bot;
+
+  /// File menu item that closes the current window (Cmd+W).
+  ///
+  /// In en, this message translates to:
+  /// **'Close window'**
+  String get menu_close_window;
+
+  /// Title of the Edit menu in the macOS menu bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get menu_edit;
+
+  /// Standard Edit menu item (undo the last text edit).
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get menu_undo;
+
+  /// Standard Edit menu item (redo the last undone text edit).
+  ///
+  /// In en, this message translates to:
+  /// **'Redo'**
+  String get menu_redo;
+
+  /// Standard Edit menu item (cut the current selection).
+  ///
+  /// In en, this message translates to:
+  /// **'Cut'**
+  String get menu_cut;
+
+  /// Standard Edit menu item (copy the current selection).
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get menu_copy;
+
+  /// Standard Edit menu item (paste the clipboard).
+  ///
+  /// In en, this message translates to:
+  /// **'Paste'**
+  String get menu_paste;
+
+  /// Standard Edit menu item (select everything in the field).
+  ///
+  /// In en, this message translates to:
+  /// **'Select all'**
+  String get menu_select_all;
+
+  /// Title of the View menu in the macOS menu bar.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get menu_view;
+
+  /// View submenu that switches the light/dark/system theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get menu_theme;
+
+  /// Title of the Window menu in the macOS menu bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Window'**
+  String get menu_window;
+
+  /// Title of the Help menu in the macOS menu bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Help'**
+  String get menu_help;
+
+  /// Application menu item that opens the settings (Cmd+,).
+  ///
+  /// In en, this message translates to:
+  /// **'Preferences…'**
+  String get menu_preferences;
+
+  /// Help menu item that opens the Bot Creator website.
+  ///
+  /// In en, this message translates to:
+  /// **'Website'**
+  String get menu_website;
+
+  /// Shown when a bot config version restore fails; {reason} carries the server status/code/message.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to restore version: {reason}'**
+  String bot_config_versions_restore_error_detail(String reason);
+
+  /// Shown when the server answered the restore without the ok flag: nothing was restored.
+  ///
+  /// In en, this message translates to:
+  /// **'The server did not confirm the restore. Nothing was restored.'**
+  String get bot_config_versions_restore_refused;
+
+  /// Shown when the server restored the version but applying it to the local data failed.
+  ///
+  /// In en, this message translates to:
+  /// **'The server restored the version, but applying it locally failed: {reason}'**
+  String bot_config_versions_restore_local_failed(String reason);
+
+  /// Label of the runtime engine selector in the bot import preview.
+  ///
+  /// In en, this message translates to:
+  /// **'Runtime engine'**
+  String get import_engine_title;
+
+  /// Shown when the imported ZIP does not declare a runtime engine, so the user must choose.
+  ///
+  /// In en, this message translates to:
+  /// **'This ZIP does not declare an engine. Choose the one this bot must use:'**
+  String get import_engine_missing;
+
+  /// Shown when the imported ZIP declares the runtime engine; the value is not editable.
+  ///
+  /// In en, this message translates to:
+  /// **'Engine declared by the ZIP: {engine}'**
+  String import_engine_declared(String engine);
+
+  /// Warning that the import changes the bot runtime engine on the next restart.
+  ///
+  /// In en, this message translates to:
+  /// **'The bot will switch from {from} to {to} on its next restart.'**
+  String import_engine_will_switch(String from, String to);
+
+  /// Name of the Bot Creator (Dart / blocks) runtime engine.
+  ///
+  /// In en, this message translates to:
+  /// **'Bot Creator (Dart / blocks)'**
+  String get import_engine_dart_label;
+
+  /// Name of the JavaScript runtime engine.
+  ///
+  /// In en, this message translates to:
+  /// **'JavaScript (runner-js)'**
+  String get import_engine_javascript_label;
+
+  /// Shown when the server refuses to restore a config version below its plausibility floor (409 bot_config_version_too_small).
+  ///
+  /// In en, this message translates to:
+  /// **'Version refused by the server: it is too small to rebuild a configuration — restoring it would empty your bot. Choose a fuller version.'**
+  String get bot_config_versions_restore_too_small;
+
+  /// Title of the dialog offering to force a restore of a config version the server considers too small.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore this version despite its size?'**
+  String get bot_config_versions_force_restore_title;
+
+  /// Explains why the server refuses by itself and that a restore can be forced, since a restore is a deliberate step backwards.
+  ///
+  /// In en, this message translates to:
+  /// **'The server considers it too small to rebuild a configuration and refuses to apply it on its own. A restore is a deliberate step backwards: you can force it.'**
+  String get bot_config_versions_force_restore_body;
+
+  /// Confirm label of the forced restore dialog and button label in the command history sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore anyway'**
+  String get bot_config_versions_force_restore_confirm;
+
+  /// Cancel label of the forced restore dialog: keep the version currently live.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the current version'**
+  String get bot_config_versions_force_restore_keep;
+
+  /// Shown when a forced restore is still refused: the manager has to accept it for this version.
+  ///
+  /// In en, this message translates to:
+  /// **'The server still refuses: the manager must accept a forced restore for this version.'**
+  String get bot_config_versions_restore_too_small_unforced;
 }
 
 class _AppLocalizationsDelegate

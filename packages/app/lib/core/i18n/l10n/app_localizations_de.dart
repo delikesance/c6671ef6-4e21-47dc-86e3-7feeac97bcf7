@@ -10031,4 +10031,113 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get command_history_restore_confirm =>
       'Diese Version wiederherstellen? Der aktuell auf dem Server liegende Inhalt wird durch den Inhalt dieser Version ersetzt. Die Wiederherstellung selbst wird als neue Version aufgezeichnet und bleibt damit rückgängig zu machen.';
+
+  @override
+  String get menu_file => 'Datei';
+
+  @override
+  String get menu_new_bot => 'Neuer Bot';
+
+  @override
+  String get menu_close_window => 'Fenster schließen';
+
+  @override
+  String get menu_edit => 'Bearbeiten';
+
+  @override
+  String get menu_undo => 'Rückgängig';
+
+  @override
+  String get menu_redo => 'Wiederholen';
+
+  @override
+  String get menu_cut => 'Ausschneiden';
+
+  @override
+  String get menu_copy => 'Kopieren';
+
+  @override
+  String get menu_paste => 'Einsetzen';
+
+  @override
+  String get menu_select_all => 'Alles auswählen';
+
+  @override
+  String get menu_view => 'Ansicht';
+
+  @override
+  String get menu_theme => 'Design';
+
+  @override
+  String get menu_window => 'Fenster';
+
+  @override
+  String get menu_help => 'Hilfe';
+
+  @override
+  String get menu_preferences => 'Einstellungen…';
+
+  @override
+  String get menu_website => 'Webseite';
+
+  @override
+  String bot_config_versions_restore_error_detail(String reason) {
+    return 'Version konnte nicht wiederhergestellt werden: $reason';
+  }
+
+  @override
+  String get bot_config_versions_restore_refused =>
+      'Der Server hat die Wiederherstellung nicht bestätigt. Es wurde nichts wiederhergestellt.';
+
+  @override
+  String bot_config_versions_restore_local_failed(String reason) {
+    return 'Die Version wurde auf dem Server wiederhergestellt, die lokale Übernahme ist aber fehlgeschlagen: $reason';
+  }
+
+  @override
+  String get import_engine_title => 'Laufzeit-Engine';
+
+  @override
+  String get import_engine_missing =>
+      'Diese ZIP-Datei deklariert keinen Motor. Wähle den Motor, den dieser Bot verwenden soll:';
+
+  @override
+  String import_engine_declared(String engine) {
+    return 'Von der ZIP-Datei angegebener Motor: $engine';
+  }
+
+  @override
+  String import_engine_will_switch(String from, String to) {
+    return 'Der Bot wechselt beim nächsten Neustart von $from zu $to.';
+  }
+
+  @override
+  String get import_engine_dart_label => 'Bot Creator (Dart / Blöcke)';
+
+  @override
+  String get import_engine_javascript_label => 'JavaScript (runner-js)';
+
+  @override
+  String get bot_config_versions_restore_too_small =>
+      'Version vom Server abgelehnt: Sie ist zu klein für eine Konfiguration — die Wiederherstellung würde den Bot leeren. Wähle eine vollständigere Version.';
+
+  @override
+  String get bot_config_versions_force_restore_title =>
+      'Diese Version trotz ihrer Größe wiederherstellen?';
+
+  @override
+  String get bot_config_versions_force_restore_body =>
+      'Der Server hält sie für zu klein für eine Konfiguration und wendet sie nicht von selbst an. Eine Wiederherstellung ist ein ausdrücklich gewünschter Rückschritt: Du kannst sie erzwingen.';
+
+  @override
+  String get bot_config_versions_force_restore_confirm =>
+      'Trotzdem wiederherstellen';
+
+  @override
+  String get bot_config_versions_force_restore_keep =>
+      'Aktuelle Version behalten';
+
+  @override
+  String get bot_config_versions_restore_too_small_unforced =>
+      'Der Server lehnt weiterhin ab: Der Manager muss eine erzwungene Wiederherstellung für diese Version akzeptieren.';
 }
