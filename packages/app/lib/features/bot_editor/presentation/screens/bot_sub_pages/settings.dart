@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:async';
 import 'package:bot_creator/core/platform/run_platform.dart';
-import 'dart:convert';
 
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/features/home/presentation/home_page.dart';
@@ -16,10 +15,12 @@ import 'package:bot_creator/features/bot_editor/logic/js_runner_capabilities.dar
 import 'package:bot_creator/core/utils/bot_payload_guard.dart';
 import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_identity_sync.dart';
 
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
-import 'package:bot_creator/core/network/main_api_client.dart';
+import 'package:bot_creator/core/network/main_api_client.dart'
+    hide DiscordBotIdentity;
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -46,7 +47,6 @@ class AppSettingsPage extends StatefulWidget {
 
 class _AppSettingsPageState extends State<AppSettingsPage> {
   Application? app;
-  DiscordApplicationOwnerMetadata? _ownerMetadata;
   bool _isSavingToken = false;
   bool _isForceSyncing = false;
   bool _isSavingPrefix = false;
@@ -57,6 +57,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   final TextEditingController _prefixController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
   String? _selectedAvatarPath;
+  String? _selectedBannerPath;
+  String? _currentBannerUrl;
+  int? _bannerAccentColor;
+  bool _removeBanner = false;
   bool _builtInLegacyHelpEnabled = true;
   final List<_StatusDraft> _statusDrafts = <_StatusDraft>[];
   String _presenceStatus = 'online';
@@ -255,15 +259,15 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       _statusDrafts.add(_StatusDraft.fromMap(status));
     }
 
-    // Fetch Discord Application Owner Metadata if we have a token
+    // Fetch Bot Identity if we have a token
     final token = (persistedApp['token'] ?? '').toString().trim();
-    DiscordApplicationOwnerMetadata? ownerMetadata;
+    DiscordBotIdentity? botIdentity;
     if (token.isNotEmpty) {
       try {
-        ownerMetadata = await getDiscordApplicationOwnerMetadata(token);
+        botIdentity = await fetchDiscordBotIdentity(token: token);
       } catch (e) {
         developer.log(
-          'Error fetching owner metadata: $e',
+          'Error fetching bot identity: $e',
           name: 'AppSettingsPage',
         );
       }
@@ -272,7 +276,13 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     if (!mounted) return;
     setState(() {
       app = fetchedApp;
-      _ownerMetadata = ownerMetadata;
+      _currentBannerUrl = makeBannerUrl(
+        widget.client.user.id.toString(),
+        bannerHash: botIdentity?.bannerHash,
+      );
+      _bannerAccentColor = botIdentity?.accentColor;
+      _selectedBannerPath = null;
+      _removeBanner = false;
       _savedToken = (persistedApp['token'] ?? '').toString().trim();
       _tokenController.text = _savedToken;
       _prefixController.text =
@@ -650,6 +660,21 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
         );
       }
 
+      final shouldUpdateBanner = _selectedBannerPath != null || _removeBanner;
+      if (shouldUpdateBanner) {
+        final updatedUser = await updateDiscordBotBanner(
+          token,
+          bannerPath: _selectedBannerPath,
+          removeBanner: _removeBanner,
+        );
+        final bannerHash = (updatedUser['banner'] ?? '').toString();
+        setState(() {
+          _currentBannerUrl = makeBannerUrl(botId, bannerHash: bannerHash);
+          _selectedBannerPath = null;
+          _removeBanner = false;
+        });
+      }
+
       final latestAppData = Map<String, dynamic>.from(
         await appManager.getApp(botId),
       );
@@ -886,6 +911,27 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     });
   }
 
+  Future<void> _pickBannerFile() async {
+    final result = await FilePicker.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: const ['png', 'jpg', 'jpeg', 'gif'],
+    );
+
+    if (result == null || result.files.isEmpty) {
+      return;
+    }
+
+    final path = result.files.first.path;
+    if (path == null || path.isEmpty) {
+      return;
+    }
+
+    setState(() {
+      _selectedBannerPath = path;
+      _removeBanner = false;
+    });
+  }
+
   EdgeInsets _tabContentPadding(BuildContext context) {
     // Marges horizontales : elles viennent de `PageContent`
     // (`AppPageLayout`), qui porte aussi la largeur maximale commune. Seule la
@@ -906,7 +952,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _buildProfilePreviewCard(),
-              _buildTeamOwnershipSection(),
 
               // Token Update Section
               Padding(
@@ -2294,15 +2339,88 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
           Stack(
             clipBehavior: Clip.none,
             children: [
-              Container(
-                height: 80,
-                decoration: const BoxDecoration(
-                  color: AppTheme.discord,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
+              GestureDetector(
+                onTap: _pickBannerFile,
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: Container(
+                    height: 90,
+                    decoration: BoxDecoration(
+                      color: _bannerAccentColor != null
+                          ? Color(0xFF000000 | _bannerAccentColor!)
+                          : AppTheme.discord,
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(15),
+                      ),
+                      image: _selectedBannerPath != null
+                          ? DecorationImage(
+                              image: FileImage(File(_selectedBannerPath!)),
+                              fit: BoxFit.cover,
+                            )
+                          : (_currentBannerUrl != null && !_removeBanner)
+                          ? DecorationImage(
+                              image: NetworkImage(_currentBannerUrl!),
+                              fit: BoxFit.cover,
+                            )
+                          : null,
+                    ),
+                    child: Stack(
+                      children: [
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: Tooltip(
+                            message: context.tr.common_edit,
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withValues(alpha: 0.5),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.camera_alt_outlined,
+                                size: 16,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                        if (_selectedBannerPath != null ||
+                            (_currentBannerUrl != null && !_removeBanner))
+                          Positioned(
+                            top: 8,
+                            right: 44,
+                            child: Tooltip(
+                              message: context.tr.delete,
+                              child: GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    _selectedBannerPath = null;
+                                    _removeBanner = true;
+                                  });
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withValues(alpha: 0.5),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.delete_outline,
+                                    size: 16,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
               Positioned(
-                top: 40,
+                top: 45,
                 left: 16,
                 child: GestureDetector(
                   onTap: _pickAvatarFile,
@@ -2525,422 +2643,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ],
                 const SizedBox(height: 8),
               ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTeamOwnershipSection() {
-    if (_ownerMetadata == null) {
-      return const SizedBox.shrink();
-    }
-
-    final meta = _ownerMetadata!;
-    final hasTeam = meta.teamId.isNotEmpty;
-
-    // Pretty-printed raw JSON string
-    String prettyJson = '';
-    try {
-      prettyJson = const JsonEncoder.withIndent('  ').convert(meta.rawJson);
-    } catch (_) {
-      prettyJson = meta.rawJson.toString();
-    }
-
-    final scheme = Theme.of(context).colorScheme;
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 24),
-      decoration: BoxDecoration(
-        color: scheme.surfaceContainer,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: scheme.outlineVariant),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Header
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: scheme.surfaceContainerHighest.withValues(alpha: 0.5),
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(15),
-              ),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  hasTeam ? Icons.groups_outlined : Icons.person_outline,
-                  color: AppTheme.discord,
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    hasTeam
-                        ? context.tr.settings_team_ownership
-                        : context.tr.settings_personal_ownership,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: (hasTeam ? AppTheme.discord : AppTheme.success)
-                        .withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: (hasTeam ? AppTheme.discord : AppTheme.success)
-                          .withValues(alpha: 0.3),
-                    ),
-                  ),
-                  child: Text(
-                    hasTeam
-                        ? context.tr.settings_team_pill
-                        : context.tr.settings_solo_pill,
-                    style: TextStyle(
-                      color: hasTeam ? AppTheme.discord : AppTheme.success,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 10,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Visual Content
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (hasTeam) ...[
-                  // Team Name
-                  Row(
-                    children: [
-                      Text(
-                        context.tr.settings_team_name_label,
-                        style: const TextStyle(
-                          color: AppTheme.discordText,
-                          fontSize: 13,
-                        ),
-                      ),
-                      Text(
-                        meta.teamName,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Text(
-                        context.tr.settings_team_id_label,
-                        style: const TextStyle(
-                          color: AppTheme.discordText,
-                          fontSize: 13,
-                        ),
-                      ),
-                      SelectableText(
-                        meta.teamId,
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontFamily: 'monospace',
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Team Owner
-                  Text(
-                    context.tr.settings_team_owner_label,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                      color: AppTheme.discordText,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: AppTheme.discordDarkBg,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.stars, color: Colors.amber, size: 20),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                meta.teamOwnerUsername.isNotEmpty
-                                    ? meta.teamOwnerUsername
-                                    : context.tr.settings_owner_fallback,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SelectableText(
-                                meta.teamOwnerUserId,
-                                style: const TextStyle(
-                                  fontFamily: 'monospace',
-                                  fontSize: 11,
-                                  color: AppTheme.discordText,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.amber.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            context.tr.settings_owner_badge,
-                            style: const TextStyle(
-                              color: Colors.amber,
-                              fontSize: 9,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Team Members
-                  Text(
-                    context.tr.settings_team_members_label(
-                      meta.teamMembersInfo.length,
-                    ),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                      color: AppTheme.discordText,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: meta.teamMembersInfo.length,
-                    separatorBuilder: (_, _) => const SizedBox(height: 6),
-                    itemBuilder: (context, idx) {
-                      final member = meta.teamMembersInfo[idx];
-                      final isOwner = member['id'] == meta.teamOwnerUserId;
-                      return Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppTheme.discordDarkBg.withValues(alpha: 0.6),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 12,
-                              backgroundColor: AppTheme.discord,
-                              backgroundImage:
-                                  member['avatar'] != null &&
-                                      member['avatar'].toString().isNotEmpty
-                                  ? NetworkImage(
-                                      makeAvatarUrl(
-                                        member['id'].toString(),
-                                        avatarId: member['avatar'].toString(),
-                                      ),
-                                    )
-                                  : null,
-                              child:
-                                  member['avatar'] == null ||
-                                      member['avatar'].toString().isEmpty
-                                  ? const Icon(
-                                      Icons.person,
-                                      size: 14,
-                                      color: Colors.white,
-                                    )
-                                  : null,
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    member['username']?.toString() ?? '',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                  SelectableText(
-                                    member['id']?.toString() ?? '',
-                                    style: const TextStyle(
-                                      fontFamily: 'monospace',
-                                      fontSize: 10,
-                                      color: AppTheme.discordText,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color:
-                                    (isOwner ? Colors.amber : AppTheme.discord)
-                                        .withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Text(
-                                isOwner
-                                    ? context.tr.settings_owner_badge
-                                    : member['role']
-                                              ?.toString()
-                                              .toUpperCase() ??
-                                          context.tr.settings_member_badge,
-                                style: TextStyle(
-                                  color: isOwner
-                                      ? Colors.amber
-                                      : AppTheme.discord,
-                                  fontSize: 8,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ] else ...[
-                  // Personal Owner info
-                  Row(
-                    children: [
-                      Text(
-                        context.tr.settings_personal_owner_label,
-                        style: const TextStyle(
-                          color: AppTheme.discordText,
-                          fontSize: 13,
-                        ),
-                      ),
-                      Text(
-                        meta.ownerUsername.isNotEmpty
-                            ? meta.ownerUsername
-                            : context.tr.settings_personal_owner_fallback,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Text(
-                        context.tr.settings_personal_owner_id_label,
-                        style: const TextStyle(
-                          color: AppTheme.discordText,
-                          fontSize: 13,
-                        ),
-                      ),
-                      SelectableText(
-                        meta.ownerId,
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontFamily: 'monospace',
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ],
-            ),
-          ),
-
-          // Collapsible JSON View
-          Theme(
-            data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-            child: Material(
-              color: Colors.transparent,
-              child: ExpansionTile(
-                title: Text(
-                  context.tr.settings_raw_json_tile,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.discordText,
-                  ),
-                ),
-                leading: const Icon(
-                  Icons.code,
-                  size: 20,
-                  color: AppTheme.discordText,
-                ),
-                childrenPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                expandedAlignment: Alignment.topLeft,
-                children: [
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .surfaceContainerHighest
-                          .withValues(alpha: 0.5),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.outlineVariant,
-                      ),
-                    ),
-                    child: SelectableText(
-                      prettyJson,
-                      style: const TextStyle(
-                        fontFamily: 'monospace',
-                        fontSize: 11,
-                        color: Colors.lightGreenAccent,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
             ),
           ),
         ],

@@ -244,7 +244,7 @@ Future<void> stopDesktopBot({String? botId}) async {
 }
 
 
-Future<void> createCommand(
+Future<ApplicationCommand> createCommand(
   NyxxRest client,
   ApplicationCommandBuilder commandBuilder, {
   Map<String, dynamic> data = const {},
@@ -270,12 +270,13 @@ Future<void> createCommand(
       command.id.toString(),
       commandData,
     );
+    return command;
   } catch (e) {
     throw Exception('Failed to create command: $e');
   }
 }
 
-Future<void> updateCommand(
+Future<ApplicationCommand> updateCommand(
   NyxxRest client,
   Snowflake commandId, {
   required ApplicationCommandUpdateBuilder commandBuilder,
@@ -303,6 +304,7 @@ Future<void> updateCommand(
       command.id.toString(),
       commandData,
     );
+    return command;
   } catch (e) {
     throw Exception('Failed to update command: $e');
   }

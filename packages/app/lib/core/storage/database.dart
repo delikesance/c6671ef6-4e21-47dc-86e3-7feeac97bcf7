@@ -2343,7 +2343,7 @@ class AppManager implements BotDataStore {
 
   List<Map<String, dynamic>> _coerceWorkflowList(dynamic raw) {
     if (raw is! List) {
-      return const <Map<String, dynamic>>[];
+      return <Map<String, dynamic>>[];
     }
 
     final result = <Map<String, dynamic>>[];

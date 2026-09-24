@@ -7833,6 +7833,98 @@ class AppLocalizationsPt extends AppLocalizations {
   String get support_discord_badge => 'Suporte oficial';
 
   @override
+  String get team_tab => 'Team';
+
+  @override
+  String get team_tab_short => 'Team';
+
+  @override
+  String get team_chat_title => 'Team & chat';
+
+  @override
+  String get team_chat_empty =>
+      'No messages yet. Start the conversation with your team.';
+
+  @override
+  String get team_chat_input_hint => 'Write a message...';
+
+  @override
+  String get team_permissions_title => 'Permissions';
+
+  @override
+  String get team_chat_send => 'Send';
+
+  @override
+  String get team_chat_load_error => 'The team chat could not be loaded.';
+
+  @override
+  String get team_chat_send_error =>
+      'Message not sent. Check your connection and try again.';
+
+  @override
+  String get team_collaborators_title => 'Collaborators';
+
+  @override
+  String get team_collaborators_empty =>
+      'No collaborator yet. Add someone by their Discord user ID.';
+
+  @override
+  String get team_add_by_discord_id => 'Add by Discord user ID';
+
+  @override
+  String get team_add_discord_id_label => 'Discord user ID';
+
+  @override
+  String get team_add_error => 'The collaborator could not be added.';
+
+  @override
+  String get team_remove => 'Remove';
+
+  @override
+  String team_remove_confirm(String name) {
+    return 'Remove $name from this bot\'s team? They will immediately lose access to the bot and to its chat.';
+  }
+
+  @override
+  String get team_remove_error => 'The collaborator could not be removed.';
+
+  @override
+  String get team_not_in_portal_warning =>
+      'This Discord user ID is not part of your application\'s team in the Discord Developer Portal. You can still add them: this bot will simply not show up in their portal team.';
+
+  @override
+  String get team_permission_edit_commands => 'Edit commands';
+
+  @override
+  String get team_permission_start_stop => 'Start and stop the bot';
+
+  @override
+  String get team_permission_claim_ads => 'Claim ad rewards';
+
+  @override
+  String get team_permission_invite => 'Invite the bot to servers';
+
+  @override
+  String get team_permission_view_chat => 'Read and write in the team chat';
+
+  @override
+  String get team_portal_section_title =>
+      'Discord Developer Portal team (read-only)';
+
+  @override
+  String get team_unavailable =>
+      'The team chat needs a connection to the Bot Creator server.';
+
+  @override
+  String get team_owner_badge => 'OWNER';
+
+  @override
+  String get home_section_my_bots => 'MY BOTS';
+
+  @override
+  String get home_section_shared_with_me => 'SHARED WITH ME';
+
+  @override
   String get support_join_discord => 'Juntar-se ao servidor de Discord';
 
   @override
@@ -9861,4 +9953,63 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get container_invite_open_failed =>
       'Não foi possível abrir o link de convite.';
+
+  @override
+  String get bot_payload_refused_local_kept =>
+      'Envio recusado: a configuração a enviar estava vazia (nenhum comando, nenhum evento, nenhum webhook, nenhuma variável). Nada foi enviado e a sua configuração local ficou intacta — pode continuar a editar.';
+
+  @override
+  String get bot_config_overshrink_title =>
+      'Tem a certeza de que quer enviar esta configuração reduzida?';
+
+  @override
+  String get bot_config_overshrink_body =>
+      'Removeu a maior parte da configuração deste bot. Ainda nada foi enviado: o servidor continua a executar a versão anterior e a sua configuração local está intacta.';
+
+  @override
+  String get bot_config_overshrink_send_anyway => 'Enviar mesmo assim';
+
+  @override
+  String get bot_config_overshrink_keep_local => 'Manter local, sem enviar';
+
+  @override
+  String get command_history_title => 'Histórico de versões deste comando';
+
+  @override
+  String get command_history_empty =>
+      'Ainda não há nenhuma versão registada para este comando. As versões aparecem aqui depois de guardar.';
+
+  @override
+  String get command_history_restore => 'Restaurar';
+
+  @override
+  String command_history_version_meta(Object author, Object date, num size) {
+    String _temp0 = intl.Intl.pluralLogic(
+      size,
+      locale: localeName,
+      other: '$size bytes',
+      one: '1 byte',
+    );
+    return '$author · $date · $_temp0';
+  }
+
+  @override
+  String get command_history_conflict =>
+      'Esta versão não foi restaurada: o comando mudou no servidor desde que o carregou. Nada foi escrito em lado nenhum — recarregue a versão do servidor para sobrescrever de facto.';
+
+  @override
+  String get command_history_conflict_reload =>
+      'Recarregar a versão do servidor e sobrescrever';
+
+  @override
+  String get command_history_unavailable_no_v2 =>
+      'O histórico não está disponível para este bot: o servidor ainda não oferece a API granular /api/v2, por isso não é possível listar nem restaurar versões. Isto não é um histórico vazio.';
+
+  @override
+  String get command_history_unavailable_offline =>
+      'Não foi possível obter a lista de versões (offline ou servidor inacessível). As versões nunca são armazenadas neste dispositivo, por isso a lista tem de ser obtida do servidor.';
+
+  @override
+  String get command_history_restore_confirm =>
+      'Restaurar esta versão? O conteúdo que está atualmente no servidor será substituído pelo desta versão. A restauração é registada como uma nova versão, por isso continua a ser reversível.';
 }

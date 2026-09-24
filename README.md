@@ -69,7 +69,16 @@ The Linux desktop build links **WebKitGTK** for the embedded webview plugin
 runner. On NixOS those are not part of the system profile, and `webkit2gtk-4.0`
 itself has been removed from nixpkgs (the plugin falls back to it, but only after
 trying `webkit2gtk-4.1`). Build and run from the repo's dev shell, which provides
-both:
+On Ubuntu/Debian:
+
+```bash
+sudo apt-get install clang cmake ninja-build pkg-config \
+  libgtk-3-dev libwebkit2gtk-4.1-dev libsoup-3.0-dev libsecret-1-dev
+cd packages/app
+flutter run -d linux
+```
+
+On NixOS:
 
 ```bash
 nix-shell            # GTK3, WebKitGTK 4.1, libsoup 3, pkg-config, cmake, ninja, clang

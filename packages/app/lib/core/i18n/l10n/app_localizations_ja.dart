@@ -7418,6 +7418,98 @@ class AppLocalizationsJa extends AppLocalizations {
   String get support_discord_badge => '公式サポート';
 
   @override
+  String get team_tab => 'Team';
+
+  @override
+  String get team_tab_short => 'Team';
+
+  @override
+  String get team_chat_title => 'Team & chat';
+
+  @override
+  String get team_chat_empty =>
+      'No messages yet. Start the conversation with your team.';
+
+  @override
+  String get team_chat_input_hint => 'Write a message...';
+
+  @override
+  String get team_permissions_title => 'Permissions';
+
+  @override
+  String get team_chat_send => 'Send';
+
+  @override
+  String get team_chat_load_error => 'The team chat could not be loaded.';
+
+  @override
+  String get team_chat_send_error =>
+      'Message not sent. Check your connection and try again.';
+
+  @override
+  String get team_collaborators_title => 'Collaborators';
+
+  @override
+  String get team_collaborators_empty =>
+      'No collaborator yet. Add someone by their Discord user ID.';
+
+  @override
+  String get team_add_by_discord_id => 'Add by Discord user ID';
+
+  @override
+  String get team_add_discord_id_label => 'Discord user ID';
+
+  @override
+  String get team_add_error => 'The collaborator could not be added.';
+
+  @override
+  String get team_remove => 'Remove';
+
+  @override
+  String team_remove_confirm(String name) {
+    return 'Remove $name from this bot\'s team? They will immediately lose access to the bot and to its chat.';
+  }
+
+  @override
+  String get team_remove_error => 'The collaborator could not be removed.';
+
+  @override
+  String get team_not_in_portal_warning =>
+      'This Discord user ID is not part of your application\'s team in the Discord Developer Portal. You can still add them: this bot will simply not show up in their portal team.';
+
+  @override
+  String get team_permission_edit_commands => 'Edit commands';
+
+  @override
+  String get team_permission_start_stop => 'Start and stop the bot';
+
+  @override
+  String get team_permission_claim_ads => 'Claim ad rewards';
+
+  @override
+  String get team_permission_invite => 'Invite the bot to servers';
+
+  @override
+  String get team_permission_view_chat => 'Read and write in the team chat';
+
+  @override
+  String get team_portal_section_title =>
+      'Discord Developer Portal team (read-only)';
+
+  @override
+  String get team_unavailable =>
+      'The team chat needs a connection to the Bot Creator server.';
+
+  @override
+  String get team_owner_badge => 'OWNER';
+
+  @override
+  String get home_section_my_bots => 'MY BOTS';
+
+  @override
+  String get home_section_shared_with_me => 'SHARED WITH ME';
+
+  @override
   String get support_join_discord => 'Discordサーバーに参加';
 
   @override
@@ -9372,4 +9464,61 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get container_invite_open_failed => '招待リンクを開けませんでした。';
+
+  @override
+  String get bot_payload_refused_local_kept =>
+      '送信を拒否しました: 送信する設定が空でした（コマンド・イベント・Webhook・変数がいずれもありません）。何も送信されておらず、ローカルの設定はそのままです — 編集を続けられます。';
+
+  @override
+  String get bot_config_overshrink_title => 'この縮小された設定を本当に送信しますか？';
+
+  @override
+  String get bot_config_overshrink_body =>
+      'このBotの設定の大部分が削除されました。まだ何も送信されていません。サーバーは以前のバージョンを実行し続けており、ローカルの設定はそのままです。';
+
+  @override
+  String get bot_config_overshrink_send_anyway => 'それでも送信';
+
+  @override
+  String get bot_config_overshrink_keep_local => '送信せずローカルに保持';
+
+  @override
+  String get command_history_title => 'このコマンドのバージョン履歴';
+
+  @override
+  String get command_history_empty =>
+      'このコマンドにはまだバージョンが記録されていません。保存するとここに表示されます。';
+
+  @override
+  String get command_history_restore => '復元';
+
+  @override
+  String command_history_version_meta(Object author, Object date, num size) {
+    String _temp0 = intl.Intl.pluralLogic(
+      size,
+      locale: localeName,
+      other: '$size バイト',
+      one: '1 バイト',
+    );
+    return '$author · $date · $_temp0';
+  }
+
+  @override
+  String get command_history_conflict =>
+      'このバージョンは復元されませんでした。読み込んだあとにサーバー上でコマンドが変更されています。どこにも書き込みは行われていません — 本当に上書きするにはサーバーのバージョンを再読み込みしてください。';
+
+  @override
+  String get command_history_conflict_reload => 'サーバーのバージョンを再読み込みして上書き';
+
+  @override
+  String get command_history_unavailable_no_v2 =>
+      'このボットでは履歴を利用できません。サーバーがまだ granular /api/v2 API を提供していないため、バージョンの一覧表示も復元もできません。履歴が空という意味ではありません。';
+
+  @override
+  String get command_history_unavailable_offline =>
+      'バージョン一覧を取得できませんでした（オフライン、またはサーバーに接続できません）。バージョンはこの端末には保存されないため、一覧はサーバーから取得する必要があります。';
+
+  @override
+  String get command_history_restore_confirm =>
+      'このバージョンを復元しますか？サーバー上にある現在の内容がこのバージョンの内容に置き換わります。復元自体も新しいバージョンとして記録されるため、取り消せます。';
 }

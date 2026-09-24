@@ -15,7 +15,10 @@ const runtimeEngineJavascript = 'javascript';
 
 Future<String> getBotRuntimeEngine(String botId) async {
   final app = await AppManager().getApp(botId);
-  final raw = (app['runtimeEngine'] ?? runtimeEngineDart).toString().trim().toLowerCase();
+  final raw = (app['runtimeEngine'] ?? runtimeEngineDart)
+      .toString()
+      .trim()
+      .toLowerCase();
   if (raw == runtimeEngineJavascript) {
     return runtimeEngineJavascript;
   }
@@ -64,10 +67,7 @@ Future<void> stopBotIfRunning(
       final status = await remoteClient.getStatus(botId: trimmedBotId);
       if (status.isBotRunning(trimmedBotId)) {
         await remoteClient.stopBot(trimmedBotId);
-        endBotLogSession(
-          botId: trimmedBotId,
-          source: remoteRuntime.source,
-        );
+        endBotLogSession(botId: trimmedBotId, source: remoteRuntime.source);
         stopped = true;
       }
     } catch (_) {
@@ -88,9 +88,7 @@ Future<void> stopBotIfRunning(
   }
 
   if (stopped) {
-    setBotRuntimeActive(
-      isDesktopBotRunning || mobileRunningBotIds.isNotEmpty,
-    );
+    setBotRuntimeActive(isDesktopBotRunning || mobileRunningBotIds.isNotEmpty);
   }
 }
 
@@ -111,7 +109,9 @@ Future<void> clearBotAutomationData(String botId) async {
     await AppManager().deleteWorkflow(trimmedBotId, name);
   }
 
-  final app = Map<String, dynamic>.from(await AppManager().getApp(trimmedBotId));
+  final app = Map<String, dynamic>.from(
+    await AppManager().getApp(trimmedBotId),
+  );
   app['scheduledTriggers'] = <Map<String, dynamic>>[];
   app['inboundWebhooks'] = <Map<String, dynamic>>[];
   app['inboundWebhookEndpoints'] = <Map<String, dynamic>>[];
@@ -146,8 +146,9 @@ Future<void> _syncBotConfigToManager(
     return;
   }
 
-  final botName =
-      (app['username'] ?? app['name'] ?? trimmedBotId).toString().trim();
+  final botName = (app['username'] ?? app['name'] ?? trimmedBotId)
+      .toString()
+      .trim();
   // `payloadOverride` existe pour la bascule de moteur : la charge doit être
   // celle VALIDÉE avant l'effacement local, jamais une reconstruction tardive.
   final payload = payloadOverride ?? await buildRemotePayload(trimmedBotId);
@@ -174,6 +175,7 @@ Future<Map<String, dynamic>> _buildEnginePayloadOrThrow(
   final payload = engine == runtimeEngineJavascript
       ? await buildJsBotPayload(botId)
       : await buildBotPayload(botId);
+  payload['runtimeEngine'] = normalizeRuntimeEngine(engine);
   assertNonDegenerateBotPayload(payload, source: 'switchBotRuntimeEngine');
   return payload;
 }
@@ -220,22 +222,21 @@ Future<void> switchBotRuntimeEngine(
     forceSnapshot: true,
   );
 
-  await deleteAllDiscordApplicationCommands(trimmedBotId);
-
-  // 3. Effacement local : autorisé seulement maintenant que la cible est
-  //    construite ET validée.
-  await clearBotAutomationData(trimmedBotId);
-  await setBotRuntimeEngine(trimmedBotId, targetEngine);
-  await AppManager().invalidatePayloadCache(trimmedBotId);
-
-  // 4. On pousse la charge VALIDÉE à l'étape 1, jamais une reconstruction :
-  //    les données locales viennent d'être vidées, une reconstruction
-  //    donnerait la charge vide de l'incident (378 octets) et écraserait la
-  //    configuration conservée pour la restauration.
+  // 3. Pousser la charge cible VALIDÉE au manager AVANT tout effacement local.
+  //    Si la poussée échoue (serveur inaccessible, refus, erreur réseau),
+  //    l'exception remonte et les commandes locales restent INTACTES.
   await _syncBotConfigToManager(
     trimmedBotId,
     supportsManagerRuntime: supportsManagerRuntime,
     forceSnapshot: true,
     payloadOverride: targetPayload,
   );
+
+  await deleteAllDiscordApplicationCommands(trimmedBotId);
+
+  // 4. Effacement local : autorisé seulement maintenant que le serveur distant
+  //    a validé et persisté la bascule avec succès.
+  await clearBotAutomationData(trimmedBotId);
+  await setBotRuntimeEngine(trimmedBotId, targetEngine);
+  await AppManager().invalidatePayloadCache(trimmedBotId);
 }

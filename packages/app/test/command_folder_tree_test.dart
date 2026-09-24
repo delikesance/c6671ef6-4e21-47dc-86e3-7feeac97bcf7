@@ -168,4 +168,117 @@ void main() {
       },
     );
   });
+
+  group('cascadeMoveFolder', () {
+    test('moves folder to root when destination is empty', () {
+      final commands = <Map<String, dynamic>>[
+        {'id': '1', 'name': 'kick', 'folder': 'Admin/Moderation'},
+        {'id': '2', 'name': 'ban', 'folder': 'Admin/Moderation/Bans'},
+        {'id': '3', 'name': 'help', 'folder': 'General'},
+      ];
+      final empty = {'Admin/Moderation/Mutes', 'General/Info'};
+
+      final updated = <Map<String, dynamic>>[];
+      final success = cascadeMoveFolder(
+        sourcePath: 'Admin/Moderation',
+        destinationParentPath: '',
+        commands: commands,
+        emptyFolders: empty,
+        onUpdateCommand: updated.add,
+      );
+
+      expect(success, isTrue);
+      expect(updated.length, 2);
+      expect(
+        updated.firstWhere((c) => c['id'] == '1')['folder'],
+        'Moderation',
+      );
+      expect(
+        updated.firstWhere((c) => c['id'] == '2')['folder'],
+        'Moderation/Bans',
+      );
+      expect(empty, contains('Moderation/Mutes'));
+      expect(empty, contains('General/Info'));
+      expect(empty, isNot(contains('Admin/Moderation/Mutes')));
+    });
+
+    test('moves folder into destination parent', () {
+      final commands = <Map<String, dynamic>>[
+        {'id': '1', 'name': 'kick', 'folder': 'Moderation'},
+        {'id': '2', 'name': 'ban', 'folder': 'Moderation/Bans'},
+      ];
+      final empty = {'Moderation/Logs'};
+
+      final updated = <Map<String, dynamic>>[];
+      final success = cascadeMoveFolder(
+        sourcePath: 'Moderation',
+        destinationParentPath: 'Staff/Security',
+        commands: commands,
+        emptyFolders: empty,
+        onUpdateCommand: updated.add,
+      );
+
+      expect(success, isTrue);
+      expect(
+        updated.firstWhere((c) => c['id'] == '1')['folder'],
+        'Staff/Security/Moderation',
+      );
+      expect(
+        updated.firstWhere((c) => c['id'] == '2')['folder'],
+        'Staff/Security/Moderation/Bans',
+      );
+      expect(empty, contains('Staff/Security/Moderation/Logs'));
+      expect(empty, isNot(contains('Moderation/Logs')));
+    });
+
+    test('prevents cycle when moving into self or subfolder', () {
+      final commands = <Map<String, dynamic>>[
+        {'id': '1', 'name': 'kick', 'folder': 'Moderation'},
+      ];
+      final empty = <String>{};
+      final updated = <Map<String, dynamic>>[];
+
+      final selfMove = cascadeMoveFolder(
+        sourcePath: 'Moderation',
+        destinationParentPath: 'Moderation',
+        commands: commands,
+        emptyFolders: empty,
+        onUpdateCommand: updated.add,
+      );
+      expect(selfMove, isFalse);
+
+      final childMove = cascadeMoveFolder(
+        sourcePath: 'Moderation',
+        destinationParentPath: 'Moderation/Sub',
+        commands: commands,
+        emptyFolders: empty,
+        onUpdateCommand: updated.add,
+      );
+      expect(childMove, isFalse);
+      expect(updated, isEmpty);
+    });
+  });
+
+  group('cascadeDeleteFolderAndCommands', () {
+    test('deletes folder and collects all nested command IDs', () {
+      final commands = <Map<String, dynamic>>[
+        {'id': '1', 'name': 'kick', 'folder': 'Moderation'},
+        {'id': '2', 'name': 'ban', 'folder': 'Moderation/Bans'},
+        {'id': '3', 'name': 'help', 'folder': 'General'},
+      ];
+      final empty = {'Moderation/Logs', 'General/Info'};
+
+      final deletedCommandIds = <String>[];
+      cascadeDeleteFolderAndCommands(
+        targetPath: 'Moderation',
+        commands: commands,
+        emptyFolders: empty,
+        onDeleteCommand: deletedCommandIds.add,
+      );
+
+      expect(deletedCommandIds, containsAll(['1', '2']));
+      expect(deletedCommandIds, isNot(contains('3')));
+      expect(empty, {'General/Info'});
+    });
+  });
 }

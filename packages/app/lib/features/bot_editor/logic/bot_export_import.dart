@@ -1,9 +1,13 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
+import 'package:bot_creator/core/storage/app_storage_directory.dart';
 import 'package:bot_creator/main.dart';
+import 'package:bot_creator/features/bot_editor/logic/command_folder_tree.dart';
 import 'package:bot_creator/features/bot_editor/logic/normalize_command_data.dart';
+import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/features/bot_editor/logic/workflow_call.dart';
 
 /// Manifest schema version for export compatibility.
@@ -17,10 +21,12 @@ enum ExportSection { commands, workflows, status, globalVariables }
 /// The ZIP structure:
 /// ```
 /// manifest.json
-/// commands/{commandId}.json   (if commands selected)
+/// commands/{commandId}.json   (or commands/{folder}/{commandId}.json)
 /// workflows.json              (if workflows selected)
 /// status.json                 (if status selected)
 /// global_variables.json       (if globalVariables selected)
+/// empty_folders.json          (optional, preserved command folder structure)
+/// empty_workflow_folders.json (optional, preserved workflow folder structure)
 /// ```
 ///
 /// The bot token is NEVER included in the export.
@@ -37,22 +43,21 @@ Future<Uint8List> exportBot(
 }) async {
   final archive = Archive();
   final appData = await appManager.getApp(botId);
+  final runtimeEngine = await getBotRuntimeEngine(botId);
 
   final manifest = <String, dynamic>{
     'version': _manifestVersion,
     'exportedAt': DateTime.now().toIso8601String(),
     'sections': sections.map((s) => s.name).toList(),
+    'runtimeEngine': runtimeEngine,
   };
 
   // Commands
   if (sections.contains(ExportSection.commands)) {
     final commands = await appManager.listAppCommands(botId);
-    final selectedCommands =
-        commandIds != null
-            ? commands.where(
-              (c) => commandIds.contains((c['id'] ?? '').toString()),
-            )
-            : commands;
+    final selectedCommands = commandIds != null
+        ? commands.where((c) => commandIds.contains((c['id'] ?? '').toString()))
+        : commands;
 
     for (final cmd in selectedCommands) {
       final id = (cmd['id'] ?? '').toString();
@@ -62,26 +67,55 @@ Future<Uint8List> exportBot(
       // Strip token if somehow present
       final sanitized = Map<String, dynamic>.from(full)..remove('token');
       final json = const JsonEncoder.withIndent('  ').convert(sanitized);
-      archive.addFile(
-        ArchiveFile.bytes('commands/$id.json', utf8.encode(json)),
+
+      final folder = normalizeFolderPath(
+        (sanitized['folder'] ?? cmd['folder'] ?? '').toString(),
       );
+      final zipEntryPath = folder.isEmpty
+          ? 'commands/$id.json'
+          : 'commands/$folder/$id.json';
+
+      archive.addFile(ArchiveFile.bytes(zipEntryPath, utf8.encode(json)));
     }
     manifest['commandCount'] = selectedCommands.length;
+
+    // Export empty folders metadata if available
+    try {
+      final storagePath = await getAppStoragePath();
+      final emptyCmdFile = File('$storagePath/apps/$botId/_empty_folders.json');
+      if (await emptyCmdFile.exists()) {
+        final emptyBytes = await emptyCmdFile.readAsBytes();
+        archive.addFile(ArchiveFile.bytes('empty_folders.json', emptyBytes));
+      }
+    } catch (_) {}
   }
 
   // Workflows
   if (sections.contains(ExportSection.workflows)) {
     final workflows = await appManager.getWorkflows(botId);
-    final selectedWorkflows =
-        workflowNames != null
-            ? workflows.where(
-              (w) => workflowNames.contains((w['name'] ?? '').toString()),
-            )
-            : workflows;
+    final selectedWorkflows = workflowNames != null
+        ? workflows.where(
+            (w) => workflowNames.contains((w['name'] ?? '').toString()),
+          )
+        : workflows;
     final list = selectedWorkflows.toList();
     final json = const JsonEncoder.withIndent('  ').convert(list);
     archive.addFile(ArchiveFile.bytes('workflows.json', utf8.encode(json)));
     manifest['workflowCount'] = list.length;
+
+    // Export empty workflow folders metadata if available
+    try {
+      final storagePath = await getAppStoragePath();
+      final emptyWfFile = File(
+        '$storagePath/apps/$botId/_empty_workflow_folders.json',
+      );
+      if (await emptyWfFile.exists()) {
+        final emptyBytes = await emptyWfFile.readAsBytes();
+        archive.addFile(
+          ArchiveFile.bytes('empty_workflow_folders.json', emptyBytes),
+        );
+      }
+    } catch (_) {}
   }
 
   // Status (statuses + activities, but NOT token)
@@ -116,17 +150,23 @@ Future<Uint8List> exportBot(
 /// Result of parsing an exported ZIP for preview.
 class ImportPreview {
   final int manifestVersion;
+  final String runtimeEngine;
   final List<Map<String, dynamic>> commands;
   final List<Map<String, dynamic>> workflows;
   final Map<String, dynamic>? status;
   final Map<String, dynamic>? globalVariables;
+  final Set<String> emptyFolders;
+  final Set<String> emptyWorkflowFolders;
 
   const ImportPreview({
     required this.manifestVersion,
+    this.runtimeEngine = runtimeEngineDart,
     required this.commands,
     required this.workflows,
     this.status,
     this.globalVariables,
+    this.emptyFolders = const {},
+    this.emptyWorkflowFolders = const {},
   });
 
   bool get hasCommands => commands.isNotEmpty;
@@ -146,40 +186,91 @@ ImportPreview parseExportZip(Uint8List zipBytes) {
   // Read manifest
   final manifestFile = archive.findFile('manifest.json');
   int version = 1;
+  String? manifestEngine;
   if (manifestFile != null) {
     final manifestJson = utf8.decode(manifestFile.content as List<int>);
     final manifest = jsonDecode(manifestJson) as Map<String, dynamic>;
     version = (manifest['version'] as int?) ?? 1;
+    manifestEngine = manifest['runtimeEngine']?.toString();
+  }
+
+  // Read empty folders if stored
+  final emptyFolders = <String>{};
+  final emptyCmdFile = archive.findFile('empty_folders.json');
+  if (emptyCmdFile != null) {
+    try {
+      final json = utf8.decode(emptyCmdFile.content as List<int>);
+      final list = (jsonDecode(json) as List).cast<String>();
+      emptyFolders.addAll(list);
+    } catch (_) {}
+  }
+
+  final emptyWorkflowFolders = <String>{};
+  final emptyWfFile = archive.findFile('empty_workflow_folders.json');
+  if (emptyWfFile != null) {
+    try {
+      final json = utf8.decode(emptyWfFile.content as List<int>);
+      final list = (jsonDecode(json) as List).cast<String>();
+      emptyWorkflowFolders.addAll(list);
+    } catch (_) {}
   }
 
   // Read commands
   final commands = <Map<String, dynamic>>[];
+  bool hasJsCommands = false;
   for (final file in archive.files) {
     if (file.name.startsWith('commands/') && file.name.endsWith('.json')) {
       try {
         final json = utf8.decode(file.content as List<int>);
         final cmd = Map<String, dynamic>.from(jsonDecode(json) as Map);
+
+        // Deduce folder from ZIP path if not explicit in JSON (e.g. commands/admin/moderation/ban.json)
+        if ((cmd['folder'] ?? '').toString().trim().isEmpty) {
+          final segments = file.name.split('/');
+          if (segments.length > 2) {
+            final folderSegments = segments.sublist(1, segments.length - 1);
+            cmd['folder'] = folderSegments.join('/');
+          }
+        }
+
         commands.add(normalizeCommandData(cmd));
+
+        if (cmd['executionMode'] == runtimeEngineJavascript ||
+            (cmd['data'] is Map &&
+                cmd['data']['executionMode'] == runtimeEngineJavascript) ||
+            (cmd['jsScriptContent'] != null &&
+                cmd['jsScriptContent'].toString().trim().isNotEmpty) ||
+            (cmd['data'] is Map &&
+                cmd['data']['jsScriptContent'] != null &&
+                cmd['data']['jsScriptContent'].toString().trim().isNotEmpty)) {
+          hasJsCommands = true;
+        }
       } catch (_) {}
     }
   }
 
   // Read workflows
   var workflows = <Map<String, dynamic>>[];
+  bool hasJsWorkflows = false;
   final workflowsFile = archive.findFile('workflows.json');
   if (workflowsFile != null) {
     try {
       final json = utf8.decode(workflowsFile.content as List<int>);
       final list = jsonDecode(json) as List;
-      workflows =
-          list
-              .whereType<Map>()
-              .map(
-                (w) => normalizeStoredWorkflowDefinition(
-                  Map<String, dynamic>.from(w),
-                ),
-              )
-              .toList();
+      workflows = list
+          .whereType<Map>()
+          .map(
+            (w) =>
+                normalizeStoredWorkflowDefinition(Map<String, dynamic>.from(w)),
+          )
+          .toList();
+
+      hasJsWorkflows = workflows.any(
+        (w) =>
+            w['executionMode'] == runtimeEngineJavascript ||
+            (w['jsScriptContent'] != null &&
+                w['jsScriptContent'].toString().trim().isNotEmpty),
+      );
     } catch (_) {}
   }
 
@@ -203,12 +294,23 @@ ImportPreview parseExportZip(Uint8List zipBytes) {
     } catch (_) {}
   }
 
+  // Resolve runtime engine: prefer manifest, fallback heuristically to content
+  final resolvedEngine =
+      (manifestEngine != null && manifestEngine.trim().isNotEmpty)
+      ? normalizeRuntimeEngine(manifestEngine)
+      : (hasJsCommands || hasJsWorkflows
+            ? runtimeEngineJavascript
+            : runtimeEngineDart);
+
   return ImportPreview(
     manifestVersion: version,
+    runtimeEngine: resolvedEngine,
     commands: commands,
     workflows: workflows,
     status: status,
     globalVariables: globalVars,
+    emptyFolders: emptyFolders,
+    emptyWorkflowFolders: emptyWorkflowFolders,
   );
 }
 
@@ -234,6 +336,42 @@ Future<ImportResult> importBot(
   int workflowsImported = 0;
   int workflowsSkipped = 0;
 
+  // Restore runtime engine deterministically from export
+  await setBotRuntimeEngine(botId, preview.runtimeEngine);
+
+  // Restore empty folders metadata
+  try {
+    final storagePath = await getAppStoragePath();
+    if (preview.emptyFolders.isNotEmpty) {
+      final file = File('$storagePath/apps/$botId/_empty_folders.json');
+      final existing = <String>{};
+      if (await file.exists()) {
+        try {
+          final content = await file.readAsString();
+          existing.addAll((jsonDecode(content) as List).cast<String>());
+        } catch (_) {}
+      }
+      existing.addAll(preview.emptyFolders);
+      await file.parent.create(recursive: true);
+      await file.writeAsString(jsonEncode(existing.toList()));
+    }
+    if (preview.emptyWorkflowFolders.isNotEmpty) {
+      final file = File(
+        '$storagePath/apps/$botId/_empty_workflow_folders.json',
+      );
+      final existing = <String>{};
+      if (await file.exists()) {
+        try {
+          final content = await file.readAsString();
+          existing.addAll((jsonDecode(content) as List).cast<String>());
+        } catch (_) {}
+      }
+      existing.addAll(preview.emptyWorkflowFolders);
+      await file.parent.create(recursive: true);
+      await file.writeAsString(jsonEncode(existing.toList()));
+    }
+  } catch (_) {}
+
   // Import commands
   if (importCommands && preview.hasCommands) {
     final existingCommands = await appManager.listAppCommands(botId);
@@ -248,6 +386,8 @@ Future<ImportResult> importBot(
       final nameLower = name.toLowerCase();
       final existing = existingByName[nameLower];
 
+      final folder = (cmd['folder'] ?? '').toString().trim();
+
       if (existing != null) {
         final resolution = commandResolutions[nameLower];
         if (resolution == null || resolution == ConflictResolution.skip) {
@@ -258,6 +398,9 @@ Future<ImportResult> importBot(
         final existingId = (existing['id'] ?? '').toString();
         final sanitized = Map<String, dynamic>.from(cmd)..remove('token');
         sanitized['id'] = existingId;
+        if (folder.isNotEmpty) {
+          sanitized['folder'] = folder;
+        }
         await appManager.saveAppCommand(botId, existingId, sanitized);
         commandsImported++;
       } else {
@@ -265,6 +408,9 @@ Future<ImportResult> importBot(
         final localId = DateTime.now().microsecondsSinceEpoch.toString();
         final sanitized = Map<String, dynamic>.from(cmd)..remove('token');
         sanitized['id'] = localId;
+        if (folder.isNotEmpty) {
+          sanitized['folder'] = folder;
+        }
         await appManager.saveAppCommand(botId, localId, sanitized);
         commandsImported++;
       }
@@ -307,11 +453,19 @@ Future<ImportResult> importBot(
           parseWorkflowArgumentDefinitions(wf['arguments']),
         ),
         workflowType: workflowType,
-        eventTrigger:
-            workflowType == workflowTypeEvent
-                ? normalizeWorkflowEventTrigger(wf['eventTrigger'])
-                : null,
+        eventTrigger: workflowType == workflowTypeEvent
+            ? normalizeWorkflowEventTrigger(wf['eventTrigger'])
+            : null,
         folder: (wf['folder'] ?? '').toString().trim(),
+        executionMode: wf['executionMode']?.toString(),
+        jsScriptContent: wf['jsScriptContent']?.toString(),
+        eventVariableAliases: wf['eventVariableAliases'] is Map
+            ? Map<String, String>.from(
+                (wf['eventVariableAliases'] as Map).map(
+                  (k, v) => MapEntry(k.toString(), v.toString()),
+                ),
+              )
+            : null,
       );
       workflowsImported++;
     }

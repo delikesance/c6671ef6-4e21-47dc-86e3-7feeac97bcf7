@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bot_creator/core/analytics/user_identity.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
+import 'package:http/http.dart' as http;
 
 Future<MainApiSession?>? _activeRestoreFuture;
 
@@ -15,8 +16,13 @@ Future<MainApiSession?> loadMainApiSession() {
 Future<MainApiSession?> ensureMainApiSession({
   Duration timeout = const Duration(seconds: 6),
   bool force = false,
+  http.Client? httpClient,
 }) {
-  return restoreMainApiSessionIfNeeded(timeout: timeout, force: force);
+  return restoreMainApiSessionIfNeeded(
+    timeout: timeout,
+    force: force,
+    httpClient: httpClient,
+  );
 }
 
 /// Restores a persisted Main API session by refreshing when the access token
@@ -24,6 +30,7 @@ Future<MainApiSession?> ensureMainApiSession({
 Future<MainApiSession?> restoreMainApiSessionIfNeeded({
   Duration timeout = const Duration(seconds: 6),
   bool force = false,
+  http.Client? httpClient,
 }) async {
   if (_activeRestoreFuture != null) {
     return _activeRestoreFuture;
@@ -36,6 +43,7 @@ Future<MainApiSession?> restoreMainApiSessionIfNeeded({
     final result = await _restoreMainApiSessionIfNeededInternal(
       timeout: timeout,
       force: force,
+      httpClient: httpClient,
     );
     _publishRestoredIdentity(result);
     completer.complete(result);
@@ -70,6 +78,7 @@ void _publishRestoredIdentity(MainApiSession? session) {
 Future<MainApiSession?> _restoreMainApiSessionIfNeededInternal({
   required Duration timeout,
   required bool force,
+  http.Client? httpClient,
 }) async {
   final config = await MainApiSettingsStore.loadConfig();
   var session = await loadMainApiSession();
@@ -94,6 +103,7 @@ Future<MainApiSession?> _restoreMainApiSessionIfNeededInternal({
   final client = MainApiClient(
     baseUrl: config.baseUrl,
     timeout: timeout,
+    httpClient: httpClient,
   );
   try {
     final refreshedSession = await client.refreshSession(
@@ -104,14 +114,14 @@ Future<MainApiSession?> _restoreMainApiSessionIfNeededInternal({
     await MainApiSettingsStore.saveSession(merged);
     return merged;
   } catch (error) {
-    if (error is MainApiClientException &&
-        (error.statusCode == 401 || error.statusCode == 403)) {
+    if (error is MainApiClientException && error.statusCode == 401) {
       await MainApiSettingsStore.clearSession();
       return null;
     }
-    if (session.isExpired) {
-      return null;
-    }
+    // Transient network drops, timeouts, socket errors, or 5xx server issues:
+    // Distinguish temporary dropouts from permanent auth revocation.
+    // Retain the existing session in storage so offline editing workflows and
+    // active drafts are not destroyed.
     return session;
   }
 }

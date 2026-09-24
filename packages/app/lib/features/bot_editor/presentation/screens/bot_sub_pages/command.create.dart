@@ -33,8 +33,11 @@ import 'package:bot_creator/core/utils/responsive.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
+import 'package:bot_creator/core/network/bot_data_models.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
+import 'package:bot_creator/core/storage/granular_data_layer.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/command_history_sheet.dart';
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 import 'package:bot_creator_shared/utils/legacy_command_triggers.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bdfd_editor_page.dart';
@@ -1226,10 +1229,17 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     }
   }
 
-  Future<bool> _syncCommandChangesToCloud({required String botId}) async {
+  Future<bool> _syncCommandChangesToCloud({
+    required String botId,
+    String? commandId,
+    Map<String, dynamic>? commandData,
+  }) async {
+    final effectiveCommandId = (commandId != null && commandId.isNotEmpty)
+        ? commandId
+        : (!widget.id.isZero ? widget.id.toString() : _existingCommandStorageId);
     // Cloud sync is now supported on all platforms including desktop.
     developer.log(
-      '[_syncCommandChangesToCloud] START botId=$botId commandName="$_commandName"',
+      '[_syncCommandChangesToCloud] START botId=$botId commandId=$effectiveCommandId commandName="$_commandName"',
       name: 'CommandCreatePage',
     );
     try {
@@ -1264,6 +1274,64 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         '[_syncCommandChangesToCloud] Main API client resolved OK for botId=$botId',
         name: 'CommandCreatePage',
       );
+
+      // Fast-path: Delta sync individual command (< 100ms, avoids full 1.5MB rebuild and team overwrite drift)
+      if (effectiveCommandId != null && effectiveCommandId.isNotEmpty) {
+        try {
+          final singleCommand = commandData ??
+              await appManager.getAppCommand(botId, effectiveCommandId);
+          if (singleCommand.isNotEmpty) {
+            // ── ÉCRITURE GRANULAIRE : SEULEMENT SI LA SONDE A ARMÉ /api/v2 ────
+            // Sans v2 armée, `granularCommandSaveFor` rend `null` SANS émettre
+            // la moindre requête, et l'appel qui suit est celui d'aujourd'hui,
+            // au caractère près. Tant que la façade n'est pas déployée, ce bloc
+            // ne peut donc rien changer à la sauvegarde de personne.
+            final granularSave = granularCommandSaveFor(
+              granularDataRepository,
+              botId: botId,
+              commandId: effectiveCommandId,
+              command: singleCommand,
+            );
+            if (granularSave != null) {
+              developer.log(
+                '[_syncCommandChangesToCloud] écriture GRANULAIRE (v2) botId=$botId commandId=$effectiveCommandId',
+                name: 'CommandCreatePage',
+              );
+              final outcome = await granularSave;
+              developer.log(
+                '[_syncCommandChangesToCloud] écriture granulaire rendue : $outcome',
+                name: 'CommandCreatePage',
+              );
+              // Le cloud n'a la commande QUE si le serveur l'a acceptée. Un
+              // conflit de révision et une mise en file ne sont pas un succès :
+              // le travail local est sauf, la poussée ne l'est pas, et le dire
+              // faux ferait disparaître la reprise proposée à l'utilisateur.
+              return outcome is SavedGranular || outcome is SavedLegacy;
+            }
+            developer.log(
+              '[_syncCommandChangesToCloud] attempting delta command sync botId=$botId commandId=$effectiveCommandId',
+              name: 'CommandCreatePage',
+            );
+            await mainApiClient.syncCommand(
+              botId,
+              botName.isEmpty ? botId : botName,
+              effectiveCommandId,
+              singleCommand,
+            );
+            developer.log(
+              '[_syncCommandChangesToCloud] delta syncCommand SUCCESS botId=$botId commandId=$effectiveCommandId',
+              name: 'CommandCreatePage',
+            );
+            return true;
+          }
+        } catch (deltaErr, deltaTrace) {
+          developer.log(
+            '[_syncCommandChangesToCloud] delta syncCommand FAILED for botId=$botId: $deltaErr — falling back to full bot sync',
+            name: 'CommandCreatePage',
+            stackTrace: deltaTrace,
+          );
+        }
+      }
 
       developer.log(
         '[_syncCommandChangesToCloud] building bot payload for botId=$botId',
@@ -1328,7 +1396,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     }
   }
 
-  void _notifyCloudSyncFailed(String botId) {
+  void _notifyCloudSyncFailed(String botId, {String? commandId}) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -1336,7 +1404,10 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         action: SnackBarAction(
           label: context.tr.command_cloud_sync_retry,
           onPressed: () {
-            unawaited(_syncCommandChangesToCloud(botId: botId));
+            unawaited(_syncCommandChangesToCloud(
+              botId: botId,
+              commandId: commandId,
+            ));
           },
         ),
       ),
@@ -1348,6 +1419,29 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       context,
       botId: _botIdForConfig,
       initialSection: DocumentationSection.botCreatorDocs,
+    );
+  }
+
+  /// Ouvre l'historique des versions de CETTE commande (les cinq dernières).
+  ///
+  /// POURQUOI UN BOUTON DANS L'ÉDITEUR : l'historique est une propriété d'UNE
+  /// commande, et c'est ici qu'on la modifie — proposer une restauration depuis
+  /// un autre écran obligerait l'utilisateur à retrouver d'abord la commande.
+  ///
+  /// RIEN N'EST ÉCRIT ICI : la modale lit, demande confirmation, puis restaure
+  /// par le dépôt (qui pose la précondition de révision). Une v2 non armée
+  /// n'empêche pas la modale de s'ouvrir : elle dit alors pourquoi l'historique
+  /// n'est pas disponible.
+  Future<void> _openCommandHistory() async {
+    final botId = _botIdForConfig;
+    final commandId = _existingCommandStorageId;
+    if (botId == null || commandId == null) {
+      return;
+    }
+    await showCommandHistorySheet(
+      context,
+      botId: botId,
+      commandId: commandId,
     );
   }
 
@@ -1982,31 +2076,35 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
             '[_updateOrCreate] calling createCommand on Discord (botId=$botId commandName="$_commandName" type=$_commandType folder="$_folder" optionsCount=${effectiveOptions.length})',
             name: 'CommandCreatePage',
           );
-          await createCommand(
+          final createdCommand = await createCommand(
             client,
             commandBuilder,
             data: commandData,
             folder: _folder,
           );
+          final createdCommandId = createdCommand.id.toString();
           developer.log(
-            '[_updateOrCreate] Discord createCommand succeeded (botId=$botId commandName="$_commandName")',
+            '[_updateOrCreate] Discord createCommand succeeded (botId=$botId commandName="$_commandName" commandId=$createdCommandId)',
             name: 'CommandCreatePage',
           );
           // Cloud sync is not supported on Desktop platforms
           if (!_isDesktop) {
             developer.log(
-              '[_updateOrCreate] triggering cloud sync after create (botId=$botId)',
+              '[_updateOrCreate] triggering cloud sync after create (botId=$botId commandId=$createdCommandId)',
               name: 'CommandCreatePage',
             );
 
             updateStatus('cloud_sync');
-            final cloudSyncOk = await _syncCommandChangesToCloud(botId: botId);
+            final cloudSyncOk = await _syncCommandChangesToCloud(
+              botId: botId,
+              commandId: createdCommandId,
+            );
             developer.log(
-              '[_updateOrCreate] cloud sync after create result=$cloudSyncOk (botId=$botId)',
+              '[_updateOrCreate] cloud sync after create result=$cloudSyncOk (botId=$botId commandId=$createdCommandId)',
               name: 'CommandCreatePage',
             );
             if (!cloudSyncOk) {
-              _notifyCloudSyncFailed(botId);
+              _notifyCloudSyncFailed(botId, commandId: createdCommandId);
             }
           }
           // Delete the old temp-ID file if this was a local-only command
@@ -2077,18 +2175,21 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           // Cloud sync is not supported on Desktop platforms
           if (!_isDesktop) {
             developer.log(
-              '[_updateOrCreate] triggering cloud sync after update (botId=$botId)',
+              '[_updateOrCreate] triggering cloud sync after update (botId=$botId commandId=${widget.id})',
               name: 'CommandCreatePage',
             );
 
             updateStatus('cloud_sync');
-            final cloudSyncOk = await _syncCommandChangesToCloud(botId: botId);
+            final cloudSyncOk = await _syncCommandChangesToCloud(
+              botId: botId,
+              commandId: widget.id.toString(),
+            );
             developer.log(
-              '[_updateOrCreate] cloud sync after update result=$cloudSyncOk (botId=$botId)',
+              '[_updateOrCreate] cloud sync after update result=$cloudSyncOk (botId=$botId commandId=${widget.id})',
               name: 'CommandCreatePage',
             );
             if (!cloudSyncOk) {
-              _notifyCloudSyncFailed(botId);
+              _notifyCloudSyncFailed(botId, commandId: widget.id.toString());
             }
           }
         }
@@ -2153,6 +2254,18 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                 onPressed: _openCommandSettings,
                 icon: const Icon(Icons.tune_rounded),
               ),
+              // L'HISTORIQUE DES VERSIONS de CETTE commande : cinq versions,
+              // leur date, leur auteur, et la restauration. Le bouton n'existe
+              // que pour une commande DÉJÀ enregistrée — une commande jamais
+              // sauvegardée n'a aucun historique côté serveur, et la modale le
+              // dirait de toute façon (elle distingue « aucune version » de
+              // « historique indisponible »).
+              if (_isEditingExistingCommand && !_isDataIncomplete)
+                IconButton(
+                  tooltip: context.tr.command_history_title,
+                  onPressed: _openCommandHistory,
+                  icon: const Icon(Icons.history_rounded),
+                ),
               if (!_isEditingExistingCommand)
                 IconButton(
                   tooltip: context.tr.serialization_import_title,

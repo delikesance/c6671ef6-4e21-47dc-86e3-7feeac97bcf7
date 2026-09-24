@@ -40,6 +40,8 @@ class DiscordBotIdentity {
     this.avatarHash = '',
     this.discriminator = '',
     this.globalName = '',
+    this.bannerHash = '',
+    this.accentColor,
   });
 
   /// Identifiant Discord du bot : sert à VÉRIFIER que le jeton est bien le sien.
@@ -56,6 +58,12 @@ class DiscordBotIdentity {
 
   /// Nom d'affichage global, quand Discord en fournit un (`global_name`).
   final String globalName;
+
+  /// Empreinte de bannière Discord.
+  final String bannerHash;
+
+  /// Couleur d'accentuation en entier (hex Discord).
+  final int? accentColor;
 }
 
 /// Un nom qui vaut l'ID, ou pas de nom du tout, n'apprend rien à personne.
@@ -156,6 +164,10 @@ Future<DiscordBotIdentity?> fetchDiscordBotIdentity({
       avatarHash: (body['avatar'] ?? '').toString().trim(),
       discriminator: (body['discriminator'] ?? '').toString().trim(),
       globalName: (body['global_name'] ?? '').toString().trim(),
+      bannerHash: (body['banner'] ?? '').toString().trim(),
+      accentColor: body['accent_color'] is int
+          ? body['accent_color'] as int
+          : null,
     );
   } on TimeoutException {
     developer.log('Discord identity request timed out.', name: 'BotIdentitySync');
