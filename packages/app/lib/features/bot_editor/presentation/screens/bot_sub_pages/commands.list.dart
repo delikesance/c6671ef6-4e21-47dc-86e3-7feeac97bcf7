@@ -1239,40 +1239,156 @@ class _AppCommandsPageState extends State<AppCommandsPage>
     await _load();
   }
 
-  Future<void> _deleteFolderDialog(String targetPath) async {
-    final cleanTarget = normalizeFolderPath(targetPath);
-    final confirmed = await AppTheme.showConfirmDialog(
-      context,
-      title: context.tr.commands_delete_folder,
-      content: context.tr.commands_delete_folder_desc,
-      confirmLabel: context.tr.confirm,
-      isDestructive: true,
+  Future<void> _moveFolderDialog(String sourcePath) async {
+    final cleanSource = normalizeFolderPath(sourcePath);
+    if (cleanSource.isEmpty) return;
+
+    final tree = buildCommandFolderTree(
+      commands: _commands,
+      emptyFolders: _emptyFolders,
     );
-    if (!confirmed || !mounted) return;
+
+    final destParent = await FolderPickerDialog.show(
+      context: context,
+      title: context.tr.commands_move_to_folder,
+      currentFolder: folderParentPath(cleanSource),
+      tree: tree,
+      excludePrefix: cleanSource,
+    );
+
+    if (destParent == null || !mounted) return;
 
     final updatedCommands = <Map<String, dynamic>>[];
-    cascadeDeleteFolder(
-      targetPath: cleanTarget,
+    final success = cascadeMoveFolder(
+      sourcePath: cleanSource,
+      destinationParentPath: destParent,
       commands: _commands,
       emptyFolders: _emptyFolders,
       onUpdateCommand: (cmd) => updatedCommands.add(cmd),
     );
 
+    if (!success) return;
+
     for (final cmd in updatedCommands) {
       final id = (cmd['id'] ?? '').toString();
       final full = await appManager.getAppCommand(widget.botId, id);
       if (full.isEmpty) continue;
-      final updated = Map<String, dynamic>.from(full)..remove('folder');
+      final updated = Map<String, dynamic>.from(full);
+      final newFolder = (cmd['folder'] ?? '').toString().trim();
+      if (newFolder.isEmpty) {
+        updated.remove('folder');
+      } else {
+        updated['folder'] = newFolder;
+      }
       await appManager.saveAppCommand(widget.botId, id, updated);
     }
 
     unawaited(refreshBotRuntime(widget.botId));
-    // Clean up expanded folders
+    await _saveEmptyFolders();
+    await _load();
+  }
+
+  Future<void> _deleteFolderDialog(String targetPath) async {
+    final cleanTarget = normalizeFolderPath(targetPath);
+    if (cleanTarget.isEmpty) return;
+
     final targetPrefix = '$cleanTarget/';
+    final cmdsInFolder = _commands.where((c) {
+      final f = normalizeFolderPath((c['folder'] ?? '').toString());
+      return f == cleanTarget || f.startsWith(targetPrefix);
+    }).toList();
+
+    if (cmdsInFolder.isEmpty) {
+      final confirmed = await AppTheme.showConfirmDialog(
+        context,
+        title: context.tr.commands_delete_folder,
+        content: context.tr.commands_delete_folder_desc,
+        confirmLabel: context.tr.confirm,
+        isDestructive: true,
+      );
+      if (!confirmed || !mounted) return;
+
+      final updatedCommands = <Map<String, dynamic>>[];
+      cascadeDeleteFolder(
+        targetPath: cleanTarget,
+        commands: _commands,
+        emptyFolders: _emptyFolders,
+        onUpdateCommand: (cmd) => updatedCommands.add(cmd),
+      );
+      _expandedFolders.removeWhere(
+        (f) => f == cleanTarget || f.startsWith(targetPrefix),
+      );
+      await _saveEmptyFolders();
+      await _load();
+      return;
+    }
+
+    final choice = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(context.tr.commands_delete_folder),
+        content: Text(
+          '${context.tr.commands_delete_folder_desc}\n\n(${cmdsInFolder.length} command(s))',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(context.tr.cancel),
+          ),
+          OutlinedButton(
+            onPressed: () => Navigator.of(ctx).pop('keep'),
+            child: Text(context.tr.commands_delete_folder),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+              foregroundColor: Theme.of(ctx).colorScheme.onError,
+            ),
+            onPressed: () => Navigator.of(ctx).pop('delete_all'),
+            child: Text(
+              '${context.tr.delete} (${cmdsInFolder.length})',
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (choice == null || !mounted) return;
+
+    if (choice == 'keep') {
+      final updatedCommands = <Map<String, dynamic>>[];
+      cascadeDeleteFolder(
+        targetPath: cleanTarget,
+        commands: _commands,
+        emptyFolders: _emptyFolders,
+        onUpdateCommand: (cmd) => updatedCommands.add(cmd),
+      );
+
+      for (final cmd in updatedCommands) {
+        final id = (cmd['id'] ?? '').toString();
+        final full = await appManager.getAppCommand(widget.botId, id);
+        if (full.isEmpty) continue;
+        final updated = Map<String, dynamic>.from(full)..remove('folder');
+        await appManager.saveAppCommand(widget.botId, id, updated);
+      }
+    } else if (choice == 'delete_all') {
+      final idsToDelete = <String>[];
+      cascadeDeleteFolderAndCommands(
+        targetPath: cleanTarget,
+        commands: _commands,
+        emptyFolders: _emptyFolders,
+        onDeleteCommand: (id) => idsToDelete.add(id),
+      );
+
+      for (final id in idsToDelete) {
+        await appManager.deleteAppCommand(widget.botId, id);
+      }
+    }
+
+    unawaited(refreshBotRuntime(widget.botId));
     _expandedFolders.removeWhere(
       (f) => f == cleanTarget || f.startsWith(targetPrefix),
     );
-
     await _saveEmptyFolders();
     await _load();
   }
@@ -1329,6 +1445,52 @@ class _AppCommandsPageState extends State<AppCommandsPage>
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(context.tr.cmd_batch_delete_success(count))),
+    );
+    setState(() {
+      _isSelectMode = false;
+      _selectedCommandIds.clear();
+    });
+    await _load();
+  }
+
+  Future<void> _batchMoveSelected() async {
+    final count = _selectedCommandIds.length;
+    if (count == 0) return;
+
+    final tree = buildCommandFolderTree(
+      commands: _commands,
+      emptyFolders: _emptyFolders,
+    );
+
+    final destFolder = await FolderPickerDialog.show(
+      context: context,
+      title: context.tr.commands_move_to_folder,
+      currentFolder: '',
+      tree: tree,
+    );
+
+    if (destFolder == null || !mounted) return;
+
+    for (final id in _selectedCommandIds) {
+      final full = await appManager.getAppCommand(widget.botId, id);
+      if (full.isEmpty) continue;
+      final updated = Map<String, dynamic>.from(full);
+      if (destFolder.isEmpty) {
+        updated.remove('folder');
+      } else {
+        updated['folder'] = destFolder;
+      }
+      await appManager.saveAppCommand(widget.botId, id, updated);
+    }
+
+    unawaited(refreshBotRuntime(widget.botId));
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          '${context.tr.commands_move_to_folder}: $count',
+        ),
+      ),
     );
     setState(() {
       _isSelectMode = false;
@@ -1679,6 +1841,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
             });
           },
           onRename: () => _renameFolderDialog(node.fullPath),
+          onMove: () => _moveFolderDialog(node.fullPath),
           onDelete: () => _deleteFolderDialog(node.fullPath),
           onAddSubfolder: () =>
               _showCreateFolderDialog(parentPath: node.fullPath),
@@ -1774,6 +1937,38 @@ class _AppCommandsPageState extends State<AppCommandsPage>
             : editorSubPageLeading(context),
         actions: _isSelectMode
             ? [
+                IconButton(
+                  icon: Icon(
+                    _selectedCommandIds.length == _commands.length &&
+                            _commands.isNotEmpty
+                        ? Icons.deselect_rounded
+                        : Icons.select_all_rounded,
+                  ),
+                  tooltip: _selectedCommandIds.length == _commands.length &&
+                          _commands.isNotEmpty
+                      ? context.tr.marketplace_publish_deselect_all
+                      : context.tr.marketplace_publish_select_all,
+                  onPressed: () {
+                    setState(() {
+                      if (_selectedCommandIds.length == _commands.length) {
+                        _selectedCommandIds.clear();
+                      } else {
+                        _selectedCommandIds.clear();
+                        for (final c in _commands) {
+                          final id = (c['id'] ?? '').toString();
+                          if (id.isNotEmpty) _selectedCommandIds.add(id);
+                        }
+                      }
+                    });
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.drive_file_move_outlined),
+                  tooltip: context.tr.commands_move_to_folder,
+                  onPressed: _selectedCommandIds.isNotEmpty
+                      ? _batchMoveSelected
+                      : null,
+                ),
                 IconButton(
                   icon: const Icon(Icons.delete_outline_rounded),
                   tooltip: context.tr.delete,
@@ -2035,6 +2230,7 @@ class CommandFolderHeader extends StatelessWidget {
   final bool isExpanded;
   final VoidCallback onToggle;
   final VoidCallback onRename;
+  final VoidCallback? onMove;
   final VoidCallback onDelete;
   final VoidCallback? onAddSubfolder;
   final VoidCallback? onNewCommand;
@@ -2049,6 +2245,7 @@ class CommandFolderHeader extends StatelessWidget {
     required this.isExpanded,
     required this.onToggle,
     required this.onRename,
+    this.onMove,
     required this.onDelete,
     this.onAddSubfolder,
     this.onNewCommand,
@@ -2157,6 +2354,17 @@ class CommandFolderHeader extends StatelessWidget {
                     ],
                   ),
                 ),
+                if (onMove != null)
+                  PopupMenuItem(
+                    value: 'move',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.drive_file_move_outlined, size: 18),
+                        const SizedBox(width: 8),
+                        Text(context.tr.commands_move_to_folder),
+                      ],
+                    ),
+                  ),
                 PopupMenuItem(
                   value: 'delete',
                   child: Row(
@@ -2175,6 +2383,8 @@ class CommandFolderHeader extends StatelessWidget {
                   onAddSubfolder?.call();
                 } else if (value == 'rename') {
                   onRename();
+                } else if (value == 'move') {
+                  onMove?.call();
                 } else if (value == 'delete') {
                   onDelete();
                 }

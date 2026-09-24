@@ -35,6 +35,7 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pag
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/bot_stats.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/debug_replay_page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_config_versions_page.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/bot_config_overshrink_dialog.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/bot_logs_console_scope.dart';
 import 'package:bot_creator/features/home/logic/bot_run_source.dart';
 import 'package:bot_creator/features/home/logic/hosting_time_offer.dart';
@@ -190,6 +191,12 @@ class _AppHomePageState extends State<AppHomePage>
       case GatewayBotEventType.containerUpdated:
       case GatewayBotEventType.ping:
       case GatewayBotEventType.unknown:
+        break;
+      // Consommé par l'onglet « Équipe et tchat », qui s'abonne lui-même au canal
+      // pendant qu'il est monté : aucune logique métier ici, on ne fait que
+      // garder l'énumération exhaustive.
+      case GatewayBotEventType.teamChatMessage:
+      case GatewayBotEventType.teamMembersUpdated:
         break;
     }
   }

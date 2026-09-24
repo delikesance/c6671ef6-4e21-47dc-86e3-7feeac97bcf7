@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator_shared/bot/bot_config.dart';
+import 'package:bot_creator/core/network/bot_data_models.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/network/main_api_session_restore.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
@@ -18,10 +20,20 @@ import 'package:web_socket_channel/io.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MainApiClientException implements Exception {
-  const MainApiClientException(this.message, {this.statusCode});
+  const MainApiClientException(this.message, {this.statusCode, this.code});
 
   final String message;
   final int? statusCode;
+
+  /// Code applicatif rendu par le serveur (`domain.APIError.code`, ex.
+  /// `bot_config_overshrink`, `token_decrypt_failed`).
+  ///
+  /// POURQUOI ce champ existe séparément du [message] : la phrase du message est
+  /// faite pour un humain et peut changer (tailles, détails) ; le code, lui, est
+  /// le contrat. Des décisions d'interface — « ce 409 est une QUESTION, pas une
+  /// panne » — ne doivent pas dépendre d'un `contains` sur une phrase.
+  /// `null` quand la réponse ne porte pas de code (panne réseau, corps vide).
+  final String? code;
 
   @override
   String toString() {
@@ -181,6 +193,14 @@ class MainApiClient implements RemoteRuntimeClient {
   /// Retry configuration.
   static const int _maxRetries = 3;
   static const Duration _baseRetryDelay = Duration(seconds: 1);
+
+  /// Le délai de reprise effectif de CETTE instance.
+  ///
+  /// POURQUOI UN SEAM ICI : l'échelle de reprise (1 s, 2 s, 4 s) est invisible
+  /// dans un test qui la subit — un test de panne réseau attendrait 7 secondes
+  /// de vraies horloges, donc serait lent ET instable sur une machine chargée.
+  /// La valeur par défaut reste celle de la production, à l'identique.
+  Duration get _retryDelay => _retryBaseDelayOverride ?? _baseRetryDelay;
   static const double _retryBackoffMultiplier = 2.0;
 
   /// Cleans up the hash caches using LRU eviction when they exceed the max size.
@@ -219,9 +239,33 @@ class MainApiClient implements RemoteRuntimeClient {
     }
   }
 
+  /// LE SIGNAL « LE MANAGER RÉPOND DE NOUVEAU ».
+  ///
+  /// POURQUOI ICI, ET NULLE PART AILLEURS : le disjoncteur est le seul objet de
+  /// l'application qui sache qu'une panne a eu lieu ET qu'elle est terminée. La
+  /// première requête qui aboutit après des échecs EST le retour de
+  /// connectivité — sans sonde périodique, sans dépendance de plateforme, et
+  /// sans plugin réseau de plus.
+  ///
+  /// `null` par défaut : strictement inerte tant que rien n'est branché. Le
+  /// rappel n'est appelé QU'UNE FOIS par panne (la trace d'échec est consommée
+  /// en le lisant), donc il ne peut pas devenir une boucle quand l'appelant
+  /// fait lui-même des requêtes.
+  static void Function()? onConnectivityRestored;
+
   /// Records a success, resetting the circuit breaker.
   static void _recordCircuitSuccess(String baseUrl) {
-    _circuits.remove(baseUrl);
+    final hadFailure = _circuits.remove(baseUrl) != null;
+    if (!hadFailure) return;
+    final notify = onConnectivityRestored;
+    if (notify == null) return;
+    try {
+      notify();
+    } catch (error) {
+      // Un abonné ne doit JAMAIS casser la requête qui vient d'aboutir : c'est
+      // la requête de l'utilisateur qui compte, pas notre notification.
+      debugPrint('[MainApiClient] connectivity-restored hook failed: $error');
+    }
   }
 
   /// Resets all circuit breakers and health caches (e.g. when app resumes from background).
@@ -254,16 +298,19 @@ class MainApiClient implements RemoteRuntimeClient {
     String? accessToken,
     http.Client? httpClient,
     Duration? timeout,
+    Duration? retryDelay,
   }) : _baseUrl = MainApiConfig.normalizeBaseUrl(baseUrl),
        _accessToken = _normalize(accessToken),
        _http = httpClient ?? http.Client(),
-       _timeout = timeout ?? const Duration(seconds: 30);
+       _timeout = timeout ?? const Duration(seconds: 30),
+       _retryBaseDelayOverride = retryDelay;
 
   final String _baseUrl;
   String get baseUrl => _baseUrl;
   String? _accessToken;
   final http.Client _http;
   final Duration _timeout;
+  final Duration? _retryBaseDelayOverride;
 
   @override
   RemoteRuntimeSource get runtimeSource => RemoteRuntimeSource.manager;
@@ -292,6 +339,7 @@ class MainApiClient implements RemoteRuntimeClient {
   Map<String, String> _headers({
     bool includeAuth = true,
     String? contentType = 'application/json',
+    Map<String, String>? extraHeaders,
   }) {
     final headers = <String, String>{};
     if (contentType != null) {
@@ -300,7 +348,56 @@ class MainApiClient implements RemoteRuntimeClient {
     if (includeAuth && _accessToken != null) {
       headers['authorization'] = 'Bearer $_accessToken';
     }
+    if (extraHeaders != null) {
+      headers.addAll(extraHeaders);
+    }
     return headers;
+  }
+
+  /// L'en-tête `If-Match` d'une écriture granulaire, ou `null` s'il n'y a rien
+  /// à affirmer.
+  ///
+  /// DEUX PITIQUES, TRAITÉES ICI ET NULLE PART AILLEURS :
+  ///
+  ///  1. la valeur est ENTOURÉE DE GUILLEMETS — c'est la forme standard d'un
+  ///     validateur d'entité, et le serveur les retire avant de comparer. Les
+  ///     omettre « marcherait » contre un serveur tolérant et casserait le jour
+  ///     où une passerelle stricte s'intercalerait ;
+  ///  2. une révision ABSENTE ou VIDE n'émet AUCUN en-tête. Envoyer
+  ///     `If-Match: ""` voudrait dire « la révision est la chaîne vide », ce qui
+  ///     n'est pas la même chose que « je n'affirme rien » — le serveur, lui,
+  ///     refuse une révision vide à raison. Ne rien envoyer est donc la seule
+  ///     écriture honnête quand aucune révision n'est connue.
+  Map<String, String>? _ifMatchHeaders(String? revision) {
+    final normalized = revision?.trim();
+    if (normalized == null || normalized.isEmpty) return null;
+    return <String, String>{'if-match': '"$normalized"'};
+  }
+
+  Future<void> _ensureFreshAccessToken() async {
+    if (Platform.environment.containsKey('FLUTTER_TEST') &&
+        !MainApiSettingsStore.isSessionLoaded) {
+      return;
+    }
+    try {
+      final session = await loadMainApiSession();
+      if (session != null) {
+        if (session.isExpired || session.expiresSoon()) {
+          final refreshed = await restoreMainApiSessionIfNeeded(
+            timeout: _timeout,
+            httpClient: _http,
+          );
+          if (refreshed?.accessToken != null &&
+              refreshed!.accessToken.trim().isNotEmpty) {
+            _accessToken = refreshed.accessToken;
+          }
+        } else if (_accessToken == null || _accessToken!.isEmpty) {
+          _accessToken = session.accessToken;
+        }
+      }
+    } catch (e) {
+      debugPrint('[MainApiClient] Proactive token check error: $e');
+    }
   }
 
   Future<Map<String, dynamic>> _get(
@@ -312,6 +409,10 @@ class MainApiClient implements RemoteRuntimeClient {
       throw MainApiClientException(
         'Circuit breaker open for $_baseUrl — too many failures.',
       );
+    }
+
+    if (includeAuth) {
+      await _ensureFreshAccessToken();
     }
 
     final uri = _uri(path, query: query);
@@ -349,7 +450,7 @@ class MainApiClient implements RemoteRuntimeClient {
           '[MainApiClient] GET $uri attempt ${attempt + 1}/$_maxRetries failed: $error — retrying...',
         );
         await Future<void>.delayed(
-          _baseRetryDelay * pow(_retryBackoffMultiplier, attempt),
+          _retryDelay * pow(_retryBackoffMultiplier, attempt),
         );
       } catch (error) {
         lastError = error;
@@ -361,7 +462,7 @@ class MainApiClient implements RemoteRuntimeClient {
           '[MainApiClient] GET $uri attempt ${attempt + 1}/$_maxRetries failed: $error — retrying...',
         );
         await Future<void>.delayed(
-          _baseRetryDelay * pow(_retryBackoffMultiplier, attempt),
+          _retryDelay * pow(_retryBackoffMultiplier, attempt),
         );
       }
     }
@@ -374,11 +475,16 @@ class MainApiClient implements RemoteRuntimeClient {
     String path,
     Map<String, dynamic> body, {
     bool includeAuth = true,
+    Map<String, String>? extraHeaders,
   }) async {
     if (_isCircuitOpen(_baseUrl)) {
       throw MainApiClientException(
         'Circuit breaker open for $_baseUrl — too many failures.',
       );
+    }
+
+    if (includeAuth) {
+      await _ensureFreshAccessToken();
     }
 
     final uri = _uri(path);
@@ -393,7 +499,10 @@ class MainApiClient implements RemoteRuntimeClient {
         final response = await _http
             .post(
               uri,
-              headers: _headers(includeAuth: includeAuth),
+              headers: _headers(
+                includeAuth: includeAuth,
+                extraHeaders: extraHeaders,
+              ),
               body: encodedBody,
             )
             .timeout(_timeout);
@@ -423,7 +532,7 @@ class MainApiClient implements RemoteRuntimeClient {
           '[MainApiClient] POST $uri attempt ${attempt + 1}/$_maxRetries failed: $error — retrying...',
         );
         await Future<void>.delayed(
-          _baseRetryDelay * pow(_retryBackoffMultiplier, attempt),
+          _retryDelay * pow(_retryBackoffMultiplier, attempt),
         );
       } catch (error) {
         lastError = error;
@@ -435,7 +544,7 @@ class MainApiClient implements RemoteRuntimeClient {
           '[MainApiClient] POST $uri attempt ${attempt + 1}/$_maxRetries failed: $error — retrying...',
         );
         await Future<void>.delayed(
-          _baseRetryDelay * pow(_retryBackoffMultiplier, attempt),
+          _retryDelay * pow(_retryBackoffMultiplier, attempt),
         );
       }
     }
@@ -453,6 +562,10 @@ class MainApiClient implements RemoteRuntimeClient {
       throw MainApiClientException(
         'Circuit breaker open for $_baseUrl — too many failures.',
       );
+    }
+
+    if (includeAuth) {
+      await _ensureFreshAccessToken();
     }
 
     final uri = _uri(path, query: query);
@@ -492,7 +605,7 @@ class MainApiClient implements RemoteRuntimeClient {
           '[MainApiClient] DELETE $uri attempt ${attempt + 1}/$_maxRetries failed: $error — retrying...',
         );
         await Future<void>.delayed(
-          _baseRetryDelay * pow(_retryBackoffMultiplier, attempt),
+          _retryDelay * pow(_retryBackoffMultiplier, attempt),
         );
       } catch (error) {
         lastError = error;
@@ -504,7 +617,7 @@ class MainApiClient implements RemoteRuntimeClient {
           '[MainApiClient] DELETE $uri attempt ${attempt + 1}/$_maxRetries failed: $error — retrying...',
         );
         await Future<void>.delayed(
-          _baseRetryDelay * pow(_retryBackoffMultiplier, attempt),
+          _retryDelay * pow(_retryBackoffMultiplier, attempt),
         );
       }
     }
@@ -522,6 +635,10 @@ class MainApiClient implements RemoteRuntimeClient {
       throw MainApiClientException(
         'Circuit breaker open for $_baseUrl — too many failures.',
       );
+    }
+
+    if (includeAuth) {
+      await _ensureFreshAccessToken();
     }
 
     final uri = _uri(path);
@@ -561,7 +678,7 @@ class MainApiClient implements RemoteRuntimeClient {
           rethrow;
         }
         await Future<void>.delayed(
-          _baseRetryDelay * pow(_retryBackoffMultiplier, attempt),
+          _retryDelay * pow(_retryBackoffMultiplier, attempt),
         );
       } catch (error) {
         lastError = error;
@@ -570,7 +687,7 @@ class MainApiClient implements RemoteRuntimeClient {
           rethrow;
         }
         await Future<void>.delayed(
-          _baseRetryDelay * pow(_retryBackoffMultiplier, attempt),
+          _retryDelay * pow(_retryBackoffMultiplier, attempt),
         );
       }
     }
@@ -583,11 +700,16 @@ class MainApiClient implements RemoteRuntimeClient {
     String path,
     Map<String, dynamic> body, {
     bool includeAuth = true,
+    Map<String, String>? extraHeaders,
   }) async {
     if (_isCircuitOpen(_baseUrl)) {
       throw MainApiClientException(
         'Circuit breaker open for $_baseUrl — too many failures.',
       );
+    }
+
+    if (includeAuth) {
+      await _ensureFreshAccessToken();
     }
 
     final uri = _uri(path);
@@ -602,7 +724,10 @@ class MainApiClient implements RemoteRuntimeClient {
         final response = await _http
             .patch(
               uri,
-              headers: _headers(includeAuth: includeAuth),
+              headers: _headers(
+                includeAuth: includeAuth,
+                extraHeaders: extraHeaders,
+              ),
               body: encodedBody,
             )
             .timeout(_timeout);
@@ -629,7 +754,7 @@ class MainApiClient implements RemoteRuntimeClient {
           rethrow;
         }
         await Future<void>.delayed(
-          _baseRetryDelay * pow(_retryBackoffMultiplier, attempt),
+          _retryDelay * pow(_retryBackoffMultiplier, attempt),
         );
       } catch (error) {
         lastError = error;
@@ -638,7 +763,7 @@ class MainApiClient implements RemoteRuntimeClient {
           rethrow;
         }
         await Future<void>.delayed(
-          _baseRetryDelay * pow(_retryBackoffMultiplier, attempt),
+          _retryDelay * pow(_retryBackoffMultiplier, attempt),
         );
       }
     }
@@ -671,7 +796,15 @@ class MainApiClient implements RemoteRuntimeClient {
                   response.reasonPhrase ??
                   'Unknown error')
               .toString();
-      throw MainApiClientException(message, statusCode: response.statusCode);
+      final rawCode = json['code'];
+      final code = rawCode is String && rawCode.trim().isNotEmpty
+          ? rawCode.trim()
+          : null;
+      throw MainApiClientException(
+        message,
+        statusCode: response.statusCode,
+        code: code,
+      );
     }
 
     return json;
@@ -689,6 +822,7 @@ class MainApiClient implements RemoteRuntimeClient {
       final session = await restoreMainApiSessionIfNeeded(
         timeout: _timeout,
         force: true,
+        httpClient: _http,
       );
       return session?.accessToken;
     } catch (e) {
@@ -849,6 +983,134 @@ class MainApiClient implements RemoteRuntimeClient {
         .toList(growable: false);
   }
 
+  /// Identifiant d'un bot tel que les listes du manager le portent : `bot_id`
+  /// (`GET /gateway/bots`, `/gateway/snapshot`, canal temps réel), avec `id` en
+  /// secours pour les charges utiles locales. Jamais de cast qui pourrait jeter.
+  static String botIdOf(Map<String, dynamic> bot) =>
+      (bot['bot_id'] ?? bot['id'])?.toString().trim() ?? '';
+
+  /// Propriétaire annoncé d'un bot, tel que le payload du manager le porte :
+  /// `owner_id` (champ additif de `GET /gateway/bots`), ou le bloc `team`.
+  /// Chaîne vide quand le serveur ne dit rien — aucune invention locale.
+  static String _botOwnerIdOf(Map<String, dynamic> bot) {
+    final team = bot['team'];
+    final owner = bot['owner'];
+    final candidates = <Object?>[
+      bot['owner_id'],
+      bot['ownerId'],
+      team is Map ? team['owner_user_id'] : null,
+      team is Map ? team['ownerUserId'] : null,
+      owner is Map ? owner['id'] : null,
+      owner is Map ? owner['owner_id'] : null,
+    ];
+    for (final candidate in candidates) {
+      final value = candidate?.toString().trim() ?? '';
+      if (value.isNotEmpty) return value;
+    }
+    return '';
+  }
+
+  /// Les bots où l'utilisateur n'est que COLLABORATEUR, avec l'identifiant de
+  /// leur propriétaire quand le serveur le donne (chaîne vide sinon).
+  ///
+  /// Un seul appel (`GET /gateway/bots`) : les deux informations — le partage
+  /// (`is_collaborative`) et le propriétaire (`owner_id`) — viennent du même
+  /// payload. Un bot dont l'identifiant est illisible est ignoré.
+  ///
+  /// Tolérant : un serveur plus ancien ne renvoie pas `is_collaborative` => le
+  /// map est vide, donc tout reste dans « My bots » (aucun faux positif). Le
+  /// test est un test STRICT de booléen : une valeur d'un autre type (chaîne
+  /// `"true"`) est traitée comme absente, jamais convertie.
+  Future<Map<String, String>> fetchCollaborativeBotOwners() async {
+    final bots = await listBots();
+    final owners = <String, String>{};
+    for (final bot in bots) {
+      if (bot['is_collaborative'] != true) continue;
+      final id = botIdOf(bot);
+      if (id.isEmpty) continue;
+      owners[id] = _botOwnerIdOf(bot);
+    }
+    return owners;
+  }
+
+  /// Normalise une liste JSON en `List<Map<String, dynamic>>`.
+  ///
+  /// Le canal renvoie des listes (`bots`, `collaborators`, `messages`) dont les
+  /// éléments peuvent être de formes variées : un élément non-objet est ignoré
+  /// plutôt que de faire jeter tout l'appel.
+  List<Map<String, dynamic>> _asMapList(dynamic raw) {
+    if (raw is! List) {
+      return const <Map<String, dynamic>>[];
+    }
+    return raw
+        .whereType<Map>()
+        .map((entry) => Map<String, dynamic>.from(entry))
+        .toList(growable: false);
+  }
+
+  /// Équipe d'un bot : le propriétaire et ses collaborateurs, avec leurs droits.
+  Future<List<Map<String, dynamic>>> listTeamCollaborators(String botId) async {
+    final json = await _get('/gateway/bots/$botId/team/collaborators');
+    return _asMapList(json['collaborators']);
+  }
+
+  /// Mes droits sur un bot, tels que le SERVEUR les accorde : le bloc
+  /// `my_permissions` de la route d'équipe (`can_start_stop`, `can_claim_ads`, …).
+  ///
+  /// `null` quand le serveur ne renvoie pas ce bloc (serveur plus ancien) : les
+  /// droits sont alors INCONNUS, et l'appelant doit retomber sur un refus plutôt
+  /// que d'offrir une action que le propriétaire n'a peut-être pas accordée.
+  Future<Map<String, dynamic>?> fetchMyTeamPermissions(String botId) async {
+    final json = await _get('/gateway/bots/$botId/team/collaborators');
+    final raw = json['my_permissions'];
+    if (raw is! Map) {
+      return null;
+    }
+    return Map<String, dynamic>.from(raw);
+  }
+
+  /// Ajoute un collaborateur, ou remplace ses droits s'il est déjà membre.
+  Future<void> upsertTeamCollaborator(
+    String botId,
+    String userId,
+    Map<String, dynamic> permissions,
+  ) => _post('/gateway/bots/$botId/team/collaborators', <String, dynamic>{
+    'user_id': userId,
+    'permissions': permissions,
+  });
+
+  /// Retire un collaborateur de l'équipe : il perd l'accès au bot et au tchat.
+  Future<void> removeTeamCollaborator(String botId, String userId) =>
+      _delete('/gateway/bots/$botId/team/collaborators/$userId');
+
+  /// Page du tchat d'équipe, du plus récent au plus ancien.
+  ///
+  /// [beforeId] pagine vers le passé : le tchat est **persisté côté serveur**,
+  /// donc un appareil qui rejoint ouvre la conversation, il ne la recommence pas.
+  Future<List<Map<String, dynamic>>> listTeamChatMessages(
+    String botId, {
+    int? beforeId,
+    int limit = 50,
+  }) async {
+    final json = await _get(
+      '/gateway/bots/$botId/team/chat',
+      query: <String, String?>{
+        'before_id': beforeId?.toString(),
+        'limit': limit.toString(),
+      },
+    );
+    return _asMapList(json['messages']);
+  }
+
+  /// Publie un message dans le tchat d'équipe ; le serveur en fait un événement
+  /// temps réel (`team.chat.message`) pour les autres appareils.
+  Future<Map<String, dynamic>> sendTeamChatMessage(
+    String botId,
+    String content,
+  ) => _post('/gateway/bots/$botId/team/chat', <String, dynamic>{
+    'content': content,
+  });
+
   Future<void> deleteBot(String botId) async {
     final encodedBotId = Uri.encodeComponent(botId.trim());
     await _delete('/gateway/bots/$encodedBotId');
@@ -1004,6 +1266,7 @@ class MainApiClient implements RemoteRuntimeClient {
     String botName,
     Map<String, dynamic> config, {
     bool force = false,
+    bool confirmOvershrink = false,
   }) async {
     // POURQUOI la garde est en TÊTE de méthode : c'est le dernier point avant le
     // réseau. Une charge utile vide (aucune commande, aucun événement, aucun
@@ -1021,6 +1284,14 @@ class MainApiClient implements RemoteRuntimeClient {
     }
 
     final safeConfig = _sanitizeConfigForUpload(config);
+
+    // Le drapeau n'est posé QUE quand l'utilisateur a répondu oui au dialogue de
+    // sur-réduction. Il voyage dans les deux corps visant `/gateway/bots/sync`
+    // (chemin pré-signé et repli direct) : une poussée rejouée doit être la MÊME,
+    // à ce champ près.
+    final overshrinkConsent = <String, dynamic>{
+      if (confirmOvershrink) 'confirmOvershrink': true,
+    };
 
     try {
       // 1. Get presigned ticket
@@ -1041,6 +1312,7 @@ class MainApiClient implements RemoteRuntimeClient {
           'botId': botId,
           'botName': botName,
           'configUrl': ticket.configUrl,
+          ...overshrinkConsent,
         },
       );
     } catch (error) {
@@ -1055,6 +1327,7 @@ class MainApiClient implements RemoteRuntimeClient {
           'botId': botId,
           'botName': botName,
           'config': safeConfig,
+          ...overshrinkConsent,
         },
       );
     }
@@ -1218,6 +1491,7 @@ class MainApiClient implements RemoteRuntimeClient {
     String path, {
     Map<String, String>? headers,
   }) async {
+    await _ensureFreshAccessToken();
     final uri = _uri(path);
     final merged = <String, String>{
       ..._headers(includeAuth: true),
@@ -1365,6 +1639,130 @@ class MainApiClient implements RemoteRuntimeClient {
       throw const MainApiClientException('Invalid version config format');
     }
     return Map<String, dynamic>.from(decoded);
+  }
+
+  // ─── /api/v2 : la façade granulaire ────────────────────────────────────────
+  //
+  // COMMENT CES MÉTHODES SONT ÉCRITES, ET POURQUOI ELLES RESSEMBLENT AU LEGACY :
+  // elles passent par la MÊME plomberie que le reste du client (`_get`, `_post`,
+  // `_patch` : authentification proactive, reprise, disjoncteur, décodage et
+  // exception typée portant le code applicatif). Une seconde plomberie pour la
+  // v2 serait une seconde façon d'échouer.
+  //
+  // CE QUE CES MÉTHODES NE FONT PAS : elles ne décident JAMAIS du format. Elles
+  // appellent la route qu'on leur demande et rendent ce que le serveur répond —
+  // c'est `BotDataRepository` qui choisit, sonde en main. Un client qui
+  // choisirait tout seul serait un client qui suppose.
+  //
+  // REPRISE DES ÉCRITURES : une écriture granulaire est IDEMPOTENTE sous
+  // `If-Match` — rejouer la même écriture avec la même précondition ne peut pas
+  // écrire deux fois, puisque le serveur refuse dès que la révision a bougé. La
+  // reprise automatique est donc sûre ici. Conséquence bornée et connue : si la
+  // première tentative a abouti mais que sa réponse s'est perdue, la reprise
+  // rend `409` et l'appelant recharge — l'écriture, elle, est bien en place.
+
+  /// Sonde `GET /api/v2/capabilities`.
+  ///
+  /// Rend `null` quand la ROUTE n'existe pas (404/405) : c'est le cas NOMINAL
+  /// d'un serveur plus ancien que l'application, pas une panne. Toute autre
+  /// erreur (401, 5xx, réseau) est relayée : une sonde qui échoue ne prouve
+  /// aucune absence, et le dépôt ne doit pas désarmer la v2 sur une panne.
+  Future<BotCapabilities?> fetchCapabilities() async {
+    try {
+      final json = await _get('/api/v2/capabilities');
+      return BotCapabilities.fromWire(json);
+    } on MainApiClientException catch (error) {
+      if (error.statusCode == 404 || error.statusCode == 405) return null;
+      rethrow;
+    }
+  }
+
+  /// `GET /api/v2/bots/{botId}/commands` : la liste ALLÉGÉE.
+  Future<CommandPage> listCommandsV2(String botId) async {
+    final encodedBotId = Uri.encodeComponent(botId.trim());
+    final json = await _get('/api/v2/bots/$encodedBotId/commands');
+    return CommandPage.fromWire(json);
+  }
+
+  /// `GET /api/v2/bots/{botId}/commands/{commandId}` : la commande ENTIÈRE.
+  Future<CommandDetail> getCommandV2(String botId, String commandId) async {
+    final encodedBotId = Uri.encodeComponent(botId.trim());
+    final encodedCommandId = Uri.encodeComponent(commandId.trim());
+    final json = await _get(
+      '/api/v2/bots/$encodedBotId/commands/$encodedCommandId',
+    );
+    final raw = json['command'];
+    if (raw is! Map) {
+      throw const MainApiClientException('Invalid command payload');
+    }
+    return CommandDetail(
+      botId: botId.trim(),
+      commandId: commandId.trim(),
+      raw: Map<String, dynamic>.from(raw),
+      revision: (json['revision'] ?? '').toString().trim(),
+    );
+  }
+
+  /// `PATCH /api/v2/bots/{botId}/commands/{commandId}` : l'écriture ciblée.
+  ///
+  /// La commande est ENVELOPPÉE (`{"command": …}`) comme côté serveur, qui
+  /// REFUSE les champs inconnus : une faute de frappe dans le corps devient une
+  /// erreur nommée au lieu d'une commande silencieusement réduite à une clé.
+  Future<GranularWriteResult> patchCommandV2(
+    String botId,
+    String commandId,
+    Map<String, dynamic> command, {
+    String? ifMatch,
+  }) async {
+    final encodedBotId = Uri.encodeComponent(botId.trim());
+    final encodedCommandId = Uri.encodeComponent(commandId.trim());
+    final json = await _patch(
+      '/api/v2/bots/$encodedBotId/commands/$encodedCommandId',
+      <String, dynamic>{'command': command},
+      extraHeaders: _ifMatchHeaders(ifMatch),
+    );
+    return GranularWriteResult.fromWire(json);
+  }
+
+  /// `GET /api/v2/bots/{botId}/commands/{commandId}/history` : métadonnées des
+  /// dernières versions journalisées (aucun contenu de version ne sort d'ici).
+  Future<List<CommandVersionInfo>> listCommandHistoryV2(
+    String botId,
+    String commandId, {
+    int? limit,
+  }) async {
+    final encodedBotId = Uri.encodeComponent(botId.trim());
+    final encodedCommandId = Uri.encodeComponent(commandId.trim());
+    final json = await _get(
+      '/api/v2/bots/$encodedBotId/commands/$encodedCommandId/history',
+      query: <String, String?>{
+        if (limit != null) 'limit': limit.toString(),
+      },
+    );
+    return CommandVersionInfo.listFromWire(json);
+  }
+
+  /// `POST /api/v2/bots/{botId}/commands/{commandId}/rollback/{historyId}` :
+  /// réapplique le contenu d'une version journalisée.
+  ///
+  /// La restauration est journalisée côté serveur comme une NOUVELLE entrée :
+  /// elle est donc annulable, et ce n'est pas la même promesse qu'un écrasement.
+  Future<GranularWriteResult> restoreCommandVersionV2(
+    String botId,
+    String commandId,
+    String historyId, {
+    String? ifMatch,
+  }) async {
+    final encodedBotId = Uri.encodeComponent(botId.trim());
+    final encodedCommandId = Uri.encodeComponent(commandId.trim());
+    final encodedHistoryId = Uri.encodeComponent(historyId.trim());
+    final json = await _post(
+      '/api/v2/bots/$encodedBotId/commands/$encodedCommandId/rollback/'
+      '$encodedHistoryId',
+      const <String, dynamic>{},
+      extraHeaders: _ifMatchHeaders(ifMatch),
+    );
+    return GranularWriteResult.fromWire(json);
   }
 
   @override

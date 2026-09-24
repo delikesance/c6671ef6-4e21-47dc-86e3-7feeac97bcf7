@@ -155,10 +155,6 @@ void initRunnerAutoReload() {
     Map<String, dynamic> command,
   ) async {
     if (AppManager.isSyncingFromRemote) return;
-    if (await getBotRuntimeEngine(botId) == runtimeEngineJavascript) {
-      _batcher.requestSync(botId, _executeSync);
-      return;
-    }
     try {
       final client = await RunnerSettings.createClientForBot(botId);
       if (client != null) {
@@ -459,6 +455,37 @@ void initRunnerAutoReload() {
   };
 }
 
+/// LE POINT D'ENTRÉE PUBLIC DU CHEMIN LEGACY : pousser le document ENTIER d'un
+/// bot par le circuit qui tourne déjà (`buildRemotePayload` → `buildBotPayload`,
+/// puis relais au runner local et envoi au manager).
+///
+/// POURQUOI CETTE FONCTION EXISTE, ET POURQUOI ELLE N'EST PAS UNE SECONDE
+/// IMPLÉMENTATION : le repli du dépôt de données (`BotDataRepository`) doit
+/// rejouer une sauvegarde par le chemin EXISTANT, et ce chemin vit ici, autour
+/// d'un batcher privé. Exposer une porte d'entrée qui pousse IMMÉDIATEMENT (en
+/// annulant l'attente en cours pour ce bot) évite de dupliquer la construction
+/// du document ou de rendre le batcher public — deux façons de laisser diverger
+/// l'ancien et le nouveau chemin.
+///
+/// ELLE N'ATTEND PAS LA FIN DE LA POUSSÉE : `_performSync` lance la tâche sans
+/// l'attendre, comme pour chaque sauvegarde de commande de l'application. Un
+/// appelant qui l'attend sait que la poussée est DEMANDÉE, pas terminée.
+Future<void> pushWholeBotDocumentToManager(String botId) async {
+  _batcher.requestSync(botId, _executeSync, immediate: true);
+}
+
+/// LE DÉCLENCHEUR « POUSSÉE RÉUSSIE » DE LA FILE HORS-LIGNE.
+///
+/// Appelé APRÈS qu'un document entier a été accepté par le manager, jamais
+/// avant, et JAMAIS attendu : le vidage de la file fait ses propres appels
+/// réseau et ne doit pas allonger la chaîne de synchronisation.
+///
+/// `null` tant qu'aucun coordinateur n'est branché — strictement inerte en son
+/// absence. Un crochet qui n'existe pas ne peut pas casser la synchronisation
+/// d'un utilisateur, et c'est la seule forme acceptable pour un point
+/// d'accroche ajouté à un chemin qui tourne déjà en production.
+Future<void> Function(String botId)? onBotDocumentPushed;
+
 Future<void> _executeSync(String botId) async {
   try {
     final engine = await getBotRuntimeEngine(botId);
@@ -529,6 +556,19 @@ Future<void> _executeSync(String botId) async {
             );
             await mainApiClient.syncBot(botId, botName, payload);
             debugPrint('[AutoReload] Synced bot $botId to cloud (batched).');
+            // La poussée a été ACCEPTÉE : c'est la preuve la plus fraîche que
+            // le manager répond. On en profite pour vider la file hors-ligne,
+            // sans l'attendre (voir [onBotDocumentPushed]).
+            final outboxPushHook = onBotDocumentPushed;
+            if (outboxPushHook != null) {
+              unawaited(
+                outboxPushHook(botId).catchError((Object error) {
+                  debugPrint(
+                    '[AutoReload] Outbox drain skipped for $botId: $error',
+                  );
+                }),
+              );
+            }
           }
         }
       } catch (error) {

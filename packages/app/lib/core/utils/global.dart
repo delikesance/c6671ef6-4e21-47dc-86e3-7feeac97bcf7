@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:http/http.dart' as http;
 import 'package:nyxx/nyxx.dart';
 import 'dart:developer' as developer;
 import 'package:bot_creator_shared/utils/global.dart' as shared_global;
@@ -477,4 +478,65 @@ class LogBuffer {
 
   @override
   String toString() => _entries.toString();
+}
+
+String? makeBannerUrl(String userId, {String? bannerHash, int size = 1024}) {
+  if (bannerHash == null || bannerHash.isEmpty) return null;
+  final ext = bannerHash.startsWith('a_') ? 'gif' : 'png';
+  return 'https://cdn.discordapp.com/banners/$userId/$bannerHash.$ext?size=$size';
+}
+
+Future<Map<String, dynamic>> updateDiscordBotBanner(
+  String botToken, {
+  String? bannerPath,
+  bool removeBanner = false,
+  http.Client? httpClient,
+}) async {
+  final trimmedToken = botToken.trim();
+  if (trimmedToken.isEmpty) throw Exception('Missing bot token');
+
+  final client = httpClient ?? http.Client();
+  final ownsClient = httpClient == null;
+
+  try {
+    final Map<String, dynamic> body = {};
+    if (removeBanner) {
+      body['banner'] = null;
+    } else if (bannerPath != null && bannerPath.isNotEmpty) {
+      final file = File(bannerPath);
+      if (!await file.exists()) {
+        throw Exception('Banner file not found: $bannerPath');
+      }
+      final bytes = await file.readAsBytes();
+      final ext = bannerPath.split('.').last.toLowerCase();
+      final mime = ext == 'gif'
+          ? 'image/gif'
+          : (ext == 'jpg' || ext == 'jpeg')
+              ? 'image/jpeg'
+              : 'image/png';
+      final base64Str = base64Encode(bytes);
+      body['banner'] = 'data:$mime;base64,$base64Str';
+    } else {
+      throw Exception('Nothing to update');
+    }
+
+    final resp = await client.patch(
+      Uri.parse('$discordUrl/users/@me'),
+      headers: {
+        'Authorization': 'Bot $trimmedToken',
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: jsonEncode(body),
+    );
+
+    if (resp.statusCode < 200 || resp.statusCode >= 300) {
+      throw Exception('Discord API error ${resp.statusCode}: ${resp.body}');
+    }
+
+    final decoded = jsonDecode(resp.body);
+    return Map<String, dynamic>.from(decoded as Map);
+  } finally {
+    if (ownsClient) client.close();
+  }
 }

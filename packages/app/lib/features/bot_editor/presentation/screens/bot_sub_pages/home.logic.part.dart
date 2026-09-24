@@ -412,9 +412,26 @@ extension _AppHomePageLogic on _AppHomePageState {
                   );
                 } catch (_) {}
               }
-            }
-            await remoteClient.syncBot(botId, _appName, payload);
-            if (remoteClient is MainApiClient) {
+              // La poussée de DÉMARRAGE passe par la MÊME orchestration que la
+              // poussée canonique : un `409 bot_config_overshrink` — suppression
+              // massive, peut-être volontaire — n'est pas une panne mais une
+              // QUESTION, et on la POSE au lieu d'afficher un simple message qui
+              // obligerait l'utilisateur à relancer son geste pour confirmer.
+              // Sans accord, rien n'est envoyé, le local reste intact, et le
+              // démarrage s'arrête ici : lancer le bot sur la configuration que
+              // le serveur vient de refuser serait un mensonge sur ce qui a été
+              // appliqué.
+              final pushOutcome = await pushStartBotConfigToleratingOvershrink(
+                client: remoteClient,
+                botId: botId,
+                botName: _appName,
+                config: payload,
+                askConfirmation: _askOvershrinkConfirmation,
+              );
+              if (pushOutcome != BotConfigPushOutcome.sent) {
+                _reportOvershrinkNothingSent();
+                return;
+              }
               await startManagerBotWithCreditRetry(
                 client: remoteClient,
                 botId: botId,
@@ -422,6 +439,7 @@ extension _AppHomePageLogic on _AppHomePageState {
               );
               RunnerSettings.associateBotWithRunner(botId, 'manager');
             } else {
+              await remoteClient.syncBot(botId, _appName, payload);
               await remoteClient.startBot(botId, botName: _appName);
               final runnerConfig = await RunnerSettings.resolveConfigForBot(
                 botId,
@@ -436,6 +454,17 @@ extension _AppHomePageLogic on _AppHomePageState {
             unawaited(ActivationFunnel.botStart());
           }
         } catch (error) {
+          // Refus de la garde anti-config-vide : il a eu lieu AVANT tout appel
+          // réseau. Le passer par `describeManagerRuntimeFailure` le présenterait
+          // comme une panne des serveurs Bot Creator alors que rien n'a été
+          // envoyé — on le laisse donc remonter tel quel vers le message dédié.
+          // Même traitement pour le refus SERVEUR de sur-réduction
+          // (`409 bot_config_overshrink`) : c'est une question posée au
+          // propriétaire, pas un serveur qui serait « pas encore prêt ».
+          if (isBotPayloadRefusal(error) ||
+              isBotConfigOvershrinkRefusal(error)) {
+            rethrow;
+          }
           if (remoteClient is MainApiClient) {
             throw Exception(
               await describeManagerRuntimeFailure(remoteClient, error),
@@ -582,9 +611,20 @@ extension _AppHomePageLogic on _AppHomePageState {
         _botStarting = false;
       });
       if (mounted) {
+        // La poussée refusée par la garde anti-config-vide a son propre message :
+        // il dit les deux choses que l'utilisateur ignore — rien n'est parti, et
+        // rien n'a été effacé en local. Sinon, le message d'échec habituel. Le
+        // refus SERVEUR de sur-réduction reçoit la même phrase (une seule version
+        // des faits), sans passer pour une panne.
+        final refusal =
+            localizedBotPayloadRefusalMessage(context.tr, e) ??
+            localizedBotConfigOvershrinkNothingSent(context.tr, e);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(context.tr.bot_home_start_error(e.toString())),
+            content: Text(
+              refusal ?? context.tr.bot_home_start_error(e.toString()),
+            ),
+            backgroundColor: refusal == null ? null : AppTheme.error,
           ),
         );
       }

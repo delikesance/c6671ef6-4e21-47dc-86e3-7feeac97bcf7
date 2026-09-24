@@ -274,3 +274,71 @@ void cascadeDeleteFolder({
     return normalized == cleanTarget || normalized.startsWith(targetPrefix);
   });
 }
+
+/// Moves [sourcePath] into [destinationParentPath].
+/// If [destinationParentPath] is empty (''), [sourcePath] is moved to root (its display name becomes the top-level path).
+/// Otherwise, new path is '$destinationParentPath/${folderDisplayName(sourcePath)}'.
+/// Returns false if destination is invalid (e.g. cycle: destination is source or child of source).
+bool cascadeMoveFolder({
+  required String sourcePath,
+  required String destinationParentPath,
+  required List<Map<String, dynamic>> commands,
+  required Set<String> emptyFolders,
+  required void Function(Map<String, dynamic> updatedCommand) onUpdateCommand,
+}) {
+  final cleanSource = normalizeFolderPath(sourcePath);
+  final cleanDest = normalizeFolderPath(destinationParentPath);
+  if (cleanSource.isEmpty) return false;
+
+  // Cycle prevention: cannot move into self or child
+  if (cleanDest == cleanSource || cleanDest.startsWith('$cleanSource/')) {
+    return false;
+  }
+
+  // Same parent check: already there
+  final currentParent = folderParentPath(cleanSource);
+  if (cleanDest == currentParent) {
+    return true; // no-op
+  }
+
+  final folderName = folderDisplayName(cleanSource);
+  final newPath = cleanDest.isEmpty ? folderName : '$cleanDest/$folderName';
+
+  cascadeRenameFolder(
+    oldPath: cleanSource,
+    newPath: newPath,
+    commands: commands,
+    emptyFolders: emptyFolders,
+    onUpdateCommand: onUpdateCommand,
+  );
+  return true;
+}
+
+/// Deletes a folder AND all commands inside it (unlike cascadeDeleteFolder which un-folders them).
+void cascadeDeleteFolderAndCommands({
+  required String targetPath,
+  required List<Map<String, dynamic>> commands,
+  required Set<String> emptyFolders,
+  required void Function(String commandId) onDeleteCommand,
+}) {
+  final cleanTarget = normalizeFolderPath(targetPath);
+  if (cleanTarget.isEmpty) return;
+
+  final targetPrefix = '$cleanTarget/';
+
+  for (final cmd in commands) {
+    final current = normalizeFolderPath((cmd['folder'] ?? '').toString());
+    if (current == cleanTarget || current.startsWith(targetPrefix)) {
+      final id = (cmd['id'] ?? '').toString();
+      if (id.isNotEmpty) {
+        onDeleteCommand(id);
+      }
+    }
+  }
+
+  emptyFolders.removeWhere((f) {
+    final normalized = normalizeFolderPath(f);
+    return normalized == cleanTarget || normalized.startsWith(targetPrefix);
+  });
+}
+

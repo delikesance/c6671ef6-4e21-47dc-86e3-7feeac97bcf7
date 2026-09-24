@@ -27,6 +27,7 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pag
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/workflows.page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/editor_sidebar.dart';
 import 'package:bot_creator/features/home/presentation/home_page.dart';
+import 'package:bot_creator/features/team/presentation/team_chat_page.dart';
 import 'package:bot_creator/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -475,6 +476,14 @@ class _AppEditPageState extends State<AppEditPage>
         compactLabel: context.tr.emojis_tab_short,
         category: 'modules',
         page: EmojisPage(botId: _botId),
+      ),
+      _AppPageEntry(
+        id: 'team',
+        icon: Icons.groups_outlined,
+        label: context.tr.team_tab,
+        compactLabel: context.tr.team_tab_short,
+        category: 'modules',
+        page: TeamChatPage(botId: _botId),
       ),
       _AppPageEntry(
         id: 'guilds',

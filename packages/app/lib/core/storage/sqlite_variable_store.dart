@@ -1,14 +1,18 @@
 import 'dart:convert';
 
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:bot_creator/core/storage/app_storage_directory.dart';
-import 'package:path/path.dart';
-import 'package:flutter/foundation.dart';
+import 'package:bot_creator/core/storage/variables_database.dart';
 import 'package:bot_creator_shared/bot/variable_database.dart';
 import 'package:bot_creator_shared/utils/bdfd_duration_parser.dart';
 
 /// SQLite implementation of [VariableDatabase] using sqflite (Flutter apps).
 /// Supports Windows, Mac, Linux, iOS, Android.
+///
+/// LA BASE (`databases/variables.db`) ET SON SCHÉMA SONT OUVERTS AILLEURS :
+/// `variables_database.dart` les possède, parce que la file hors-ligne
+/// (`command_outbox`) vit dans le MÊME fichier. Cette classe ne fait plus
+/// qu'accéder à ses tables — l'ouvrir ici en plus aurait figé deux jeux
+/// d'options sur un seul descripteur, et le second perdant silencieusement.
 ///
 /// Schema:
 /// ```sql
@@ -31,141 +35,14 @@ import 'package:bot_creator_shared/utils/bdfd_duration_parser.dart';
 class SqliteVariableStore implements VariableDatabase {
   late Database _db;
   bool _initialized = false;
-  static bool _ffiInitialized = false;
 
   SqliteVariableStore();
 
   /// Initialize database connection and create schema if needed.
   Future<void> init() async {
     if (_initialized) return;
-
-    // sqflite on desktop requires explicit FFI initialization.
-    if (!kIsWeb &&
-        (defaultTargetPlatform == TargetPlatform.windows ||
-            defaultTargetPlatform == TargetPlatform.linux)) {
-      if (!_ffiInitialized) {
-        sqfliteFfiInit();
-        databaseFactory = databaseFactoryFfi;
-        _ffiInitialized = true;
-      }
-    }
-
-    // Determine database path
-    final docsDir = await getAppStorageDirectory();
-    final dbPath = join(docsDir.path, 'databases', 'variables.db');
-
-    _db = await openDatabase(
-      dbPath,
-      version: 5,
-      onCreate: (db, version) async {
-        await _createSchema(db);
-      },
-      onUpgrade: (db, oldVersion, newVersion) async {
-        if (oldVersion < 2) {
-          await _migrateSchemaToV2(db);
-        }
-        if (oldVersion < 3) {
-          await _ensureSecondaryIndexes(db);
-        }
-        if (oldVersion < 4) {
-          await _migrateExpiresAtColumn(db);
-        }
-        if (oldVersion < 5) {
-          await _migrateExpiresAtColumn(db);
-        }
-      },
-    );
-
-    await _ensureSecondaryIndexes(_db);
-    await _ensureExpiresAtColumn(_db);
-
+    _db = await openVariablesDatabase();
     _initialized = true;
-  }
-
-  Future<void> _ensureExpiresAtColumn(DatabaseExecutor db) async {
-    try {
-      final rows = await db.rawQuery(
-        "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'variables' LIMIT 1",
-      );
-      if (rows.isEmpty) return;
-      final sql = (rows.first['sql'] as String?) ?? '';
-      if (sql.contains('expires_at')) return;
-
-      await db.execute('ALTER TABLE variables ADD COLUMN expires_at INTEGER');
-    } catch (_) {}
-  }
-
-  Future<void> _createSchema(DatabaseExecutor db) async {
-    await db.execute('''
-      CREATE TABLE variables (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        bot_id TEXT NOT NULL,
-        scope TEXT NOT NULL,
-        context_id_1 TEXT NOT NULL,
-        context_id_2 TEXT,
-        key TEXT NOT NULL,
-        value_raw TEXT NOT NULL,
-        value_type TEXT NOT NULL,
-        created_at INTEGER NOT NULL,
-        updated_at INTEGER NOT NULL,
-        expires_at INTEGER,
-        UNIQUE(bot_id, scope, context_id_1, context_id_2, key),
-        CHECK(scope IN ('_global_', 'guild', 'user', 'channel', 'guildMember', 'message'))
-      )
-    ''');
-    await db.execute(
-      'CREATE INDEX IF NOT EXISTS idx_bot_lookup ON variables(bot_id, scope, context_id_1, context_id_2)',
-    );
-    await _ensureSecondaryIndexes(db);
-  }
-
-  Future<void> _ensureSecondaryIndexes(DatabaseExecutor db) async {
-    await db.execute(
-      'CREATE INDEX IF NOT EXISTS idx_scope_key_lookup ON variables(bot_id, scope, key)',
-    );
-  }
-
-  Future<void> _migrateSchemaToV2(DatabaseExecutor db) async {
-    await db.execute('''
-      CREATE TABLE variables_v2 (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        bot_id TEXT NOT NULL,
-        scope TEXT NOT NULL,
-        context_id_1 TEXT NOT NULL,
-        context_id_2 TEXT,
-        key TEXT NOT NULL,
-        value_raw TEXT NOT NULL,
-        value_type TEXT NOT NULL,
-        created_at INTEGER NOT NULL,
-        updated_at INTEGER NOT NULL,
-        UNIQUE(bot_id, scope, context_id_1, context_id_2, key),
-        CHECK(scope IN ('_global_', 'guild', 'user', 'channel', 'guildMember', 'message'))
-      )
-    ''');
-
-    await db.execute('''
-      INSERT INTO variables_v2 (
-        id, bot_id, scope, context_id_1, context_id_2, key, value_raw, value_type, created_at, updated_at
-      )
-      SELECT
-        id, bot_id, scope, context_id_1, context_id_2, key, value_raw, value_type, created_at, updated_at
-      FROM variables
-      WHERE scope IN ('_global_', 'guild', 'user', 'channel', 'guildMember', 'message')
-    ''');
-
-    await db.execute('DROP TABLE variables');
-    await db.execute('ALTER TABLE variables_v2 RENAME TO variables');
-    await db.execute(
-      'CREATE INDEX IF NOT EXISTS idx_bot_lookup ON variables(bot_id, scope, context_id_1, context_id_2)',
-    );
-  }
-
-  Future<void> _migrateExpiresAtColumn(DatabaseExecutor db) async {
-    try {
-      await db.execute('ALTER TABLE variables ADD COLUMN expires_at INTEGER');
-    } catch (_) {
-      // Column might already exist from a failed migration attempt or different branch
-    }
   }
 
   @override

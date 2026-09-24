@@ -1,4 +1,5 @@
 import 'package:bot_creator/core/storage/database.dart';
+import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 
 List<Map<String, dynamic>> extractCommandListFromConfig(dynamic raw) {
   if (raw is List) {
@@ -54,7 +55,24 @@ Future<void> applyManagerConfigToLocal({
   AppManager.isSyncingFromRemote = true;
   try {
     if (saveAppMetadata) {
-      await appManager.saveApp(botId, remoteConfig);
+      final existingApp = await appManager.getApp(botId);
+      final merged = Map<String, dynamic>.from(existingApp)
+        ..addAll(remoteConfig);
+
+      // Guard runtime engine against unintended mutation or null erasure
+      final remoteEngine = (remoteConfig['runtimeEngine'] ?? '')
+          .toString()
+          .trim();
+      final localEngine = (existingApp['runtimeEngine'] ?? '')
+          .toString()
+          .trim();
+      if (remoteEngine.isNotEmpty) {
+        merged['runtimeEngine'] = normalizeRuntimeEngine(remoteEngine);
+      } else if (localEngine.isNotEmpty) {
+        merged['runtimeEngine'] = normalizeRuntimeEngine(localEngine);
+      }
+
+      await appManager.saveApp(botId, merged);
     }
 
     final remoteCommands = extractCommandListFromConfig(
@@ -77,12 +95,19 @@ Future<void> applyManagerConfigToLocal({
       }
       cmdData.remove('simpleConfig');
 
+      // Preserve folder hierarchy from remote command, command data, or local copy
+      final rawFolder =
+          (cmd['folder'] ?? cmdData['folder'] ?? localCmd['folder'] ?? '')
+              .toString()
+              .trim();
+
       await appManager.saveAppCommand(botId, cmdId, <String, dynamic>{
         'name': cmdName,
         'description': (cmd['description'] ?? '').toString(),
         'type': localCommandTypeFromRemote(cmd, cmdData),
         'id': cmdId,
         'data': cmdData,
+        if (rawFolder.isNotEmpty) 'folder': rawFolder,
         'createdAt': (localCmd['createdAt'] ?? DateTime.now().toIso8601String())
             .toString(),
         'updatedAt': (cmd['updatedAt'] ?? DateTime.now().toIso8601String())
@@ -145,6 +170,15 @@ Future<void> applyManagerWorkflowsToLocal({
             ? Map<String, dynamic>.from(wf['eventTrigger'] as Map)
             : null,
         folder: wf['folder']?.toString(),
+        eventVariableAliases: wf['eventVariableAliases'] is Map
+            ? Map<String, String>.from(
+                (wf['eventVariableAliases'] as Map).map(
+                  (k, v) => MapEntry(k.toString(), v.toString()),
+                ),
+              )
+            : null,
+        executionMode: wf['executionMode']?.toString(),
+        jsScriptContent: wf['jsScriptContent']?.toString(),
       );
     }
   }

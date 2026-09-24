@@ -14,6 +14,7 @@ import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:bot_creator/core/platform/run_platform.dart';
 import 'package:bot_creator/core/storage/database.dart';
+import 'package:bot_creator/core/storage/granular_data_layer.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/utils/duration_formatter.dart';
 import 'package:bot_creator/core/utils/global.dart';
@@ -38,6 +39,7 @@ import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/app_editor_page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/bot_logs.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/bot_config_pull_dialog.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/bot_config_overshrink_dialog.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_identity_scan.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_identity_sync.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_token_import.dart';
@@ -53,6 +55,7 @@ import 'package:bot_creator/features/home/logic/bot_start_branch.dart';
 import 'package:bot_creator/features/home/logic/bot_start_outcome.dart';
 import 'package:bot_creator/features/home/logic/bot_start_server_request.dart';
 import 'package:bot_creator/features/home/logic/bot_start_target.dart';
+import 'package:bot_creator/features/home/logic/home_project_split.dart';
 import 'package:bot_creator/features/home/presentation/guild_avatar.dart';
 import 'package:bot_creator/features/home/presentation/home_ui.dart';
 import 'package:bot_creator/features/home/presentation/widgets/bot_start_target_dialog.dart';
@@ -60,6 +63,8 @@ import 'package:bot_creator/features/settings/presentation/settings_page.dart';
 import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
 import 'package:bot_creator/features/subscriptions/presentation/plan_limit_dialog.dart';
 import 'package:bot_creator/features/subscriptions/presentation/subscriptions_hub_page.dart';
+import 'package:bot_creator/features/team/logic/team_models.dart';
+import 'package:bot_creator/features/team/presentation/team_chat_page.dart';
 import 'package:bot_creator/main.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -257,6 +262,30 @@ class HomePageState extends State<HomePage>
   final Map<String, DateTime> _sessionExpiresAtByBotId = <String, DateTime>{};
   final Map<String, int> _botNotFoundStreak = <String, int>{};
   final Set<String> _skippedMissingBotIds = <String>{};
+
+  /// Ids des bots où l'utilisateur n'est QUE collaborateur, tels que le SERVEUR
+  /// les annonce (`is_collaborative` sur `GET /gateway/bots`).
+  ///
+  /// Aucune heuristique locale : un serveur plus ancien ne renvoie pas ce champ,
+  /// l'ensemble reste vide, et TOUS les bots restent dans « My bots » — un faux
+  /// positif déplacerait un bot de son propriétaire vers un écran étranger.
+  Set<String> _collaborativeBotIds = <String>{};
+
+  /// Identifiant du propriétaire par bot PARTAGÉ (`owner_id` du serveur, chaîne
+  /// vide s'il ne le donne pas). Sert uniquement au libellé de la carte, jamais
+  /// à décider d'un droit.
+  Map<String, String> _sharedBotOwnerIds = <String, String>{};
+
+  /// Droits de l'utilisateur sur les bots PARTAGÉS, lus côté serveur
+  /// (`my_permissions`). Une entrée ABSENTE = droits inconnus => la carte
+  /// partagée n'offre aucune action sensible (démarrage/arrêt désactivés).
+  Map<String, BotPermissions> _sharedBotPermissions =
+      <String, BotPermissions>{};
+
+  /// Empêche deux chargements du partage de se superposer (démarrage, reprise,
+  /// rafraîchissement manuel).
+  bool _isLoadingSharedBots = false;
+
   static const int _missingBot404Threshold = 3;
   Timer? _statusRefreshTimer;
   StreamSubscription<GatewayBotEvent>? _gatewayEventsSub;
@@ -415,6 +444,12 @@ class HomePageState extends State<HomePage>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       MainApiClient.resetCircuitBreakers();
+      // La couche granulaire est (re)tentée à chaque reprise : c'est ce qui
+      // l'installe après une CONNEXION (au démarrage il n'y a encore aucune
+      // session, donc aucun manager à interroger), et ce qui repose la sonde de
+      // capacité quand la première a échoué. Idempotente : une fois installée,
+      // elle ne reconstruit rien et ne réinterroge pas le serveur.
+      unawaited(ensureGranularDataLayer());
       // Immediately refresh running state so the UI updates fast,
       // then do the full sync in background.
       unawaited(_ensureGatewayBotEvents());
@@ -499,6 +534,75 @@ class HomePageState extends State<HomePage>
 
   /// Guards against concurrent [_initRunningState] calls.
   bool _isRefreshingRunningState = false;
+
+  // ── Partage : ce qui m'appartient, ce qu'on m'a partagé ────────────────────
+
+  /// Charge l'ensemble des bots PARTAGÉS et, pour eux seuls, mes droits.
+  ///
+  /// Dégradation SILENCIEUSE : hors ligne, sans session manager, ou face à un
+  /// serveur plus ancien qui n'annonce pas `is_collaborative`, l'ensemble
+  /// redevient vide et l'accueil montre tout dans « My bots ». Jamais d'écran
+  /// d'erreur, jamais de fausse section « partagé ».
+  Future<void> _loadSharedBots() async {
+    if (_isLoadingSharedBots) return;
+    _isLoadingSharedBots = true;
+    try {
+      final client = await _resolveGlobalMainApiClient();
+      if (client == null) return;
+      final owners = await client.fetchCollaborativeBotOwners();
+      if (!mounted) return;
+      setState(() {
+        _collaborativeBotIds = owners.keys.toSet();
+        _sharedBotOwnerIds = owners;
+      });
+      // Les droits ne concernent QUE les bots partagés : une requête par bot
+      // partagé, aucune pour les miens (le propriétaire a tous les droits).
+      await _loadSharedBotPermissions(
+        client,
+        owners.keys.toList(growable: false),
+      );
+    } catch (error) {
+      appendBotDebugLog(
+        '[_loadSharedBots] Sharing unavailable, keeping everything in My bots: $error',
+      );
+      if (mounted) {
+        setState(() {
+          _collaborativeBotIds = <String>{};
+          _sharedBotOwnerIds = <String, String>{};
+          _sharedBotPermissions = <String, BotPermissions>{};
+        });
+      }
+    } finally {
+      _isLoadingSharedBots = false;
+    }
+  }
+
+  /// Mes droits sur chaque bot partagé (`my_permissions`).
+  ///
+  /// Un bot dont les droits restent illisibles (serveur plus ancien, erreur
+  /// réseau) n'obtient AUCUNE entrée : la carte retombe alors sur le refus au
+  /// lieu d'offrir une action que le propriétaire n'a peut-être pas accordée.
+  Future<void> _loadSharedBotPermissions(
+    MainApiClient client,
+    List<String> botIds,
+  ) async {
+    if (botIds.isEmpty) return;
+    final permissions = <String, BotPermissions>{};
+    for (final botId in botIds) {
+      try {
+        final raw = await client.fetchMyTeamPermissions(botId);
+        if (raw == null) continue;
+        permissions[botId] = BotPermissions.fromJson(raw);
+      } catch (error) {
+        appendBotDebugLog(
+          '[_loadSharedBotPermissions] Rights unavailable for $botId: $error',
+        );
+      }
+      if (!mounted) return;
+    }
+    if (!mounted) return;
+    setState(() => _sharedBotPermissions = permissions);
+  }
 
   Future<void> _initRunningState() async {
     if (_isRefreshingRunningState) return;
@@ -1097,6 +1201,12 @@ class HomePageState extends State<HomePage>
       case GatewayBotEventType.ping:
       case GatewayBotEventType.unknown:
         break;
+      // Consommé par l'onglet « Équipe et tchat », qui s'abonne lui-même au canal
+      // pendant qu'il est monté : l'accueil n'a rien à en faire, mais
+      // l'énumération exhaustive doit être à jour.
+      case GatewayBotEventType.teamChatMessage:
+      case GatewayBotEventType.teamMembersUpdated:
+        break;
     }
   }
 
@@ -1399,6 +1509,9 @@ class HomePageState extends State<HomePage>
 
       if (mounted) {
         await _initRunningState();
+        // Aucun client manager : le partage ne peut pas être rafraîchi, mais
+        // l'appel reste tenté (il retombe silencieusement sur « tout à moi »).
+        await _loadSharedBots();
       }
       return;
     }
@@ -1754,6 +1867,9 @@ class HomePageState extends State<HomePage>
           '[syncAllBotsFromManager] Triggering _initRunningState after bot sync.',
         );
         await _initRunningState();
+        // Le partage vient du serveur : c'est ici qu'il se rafraîchit, comme le
+        // reste des données du compte (démarrage, reprise, tirer-pour-actualiser).
+        await _loadSharedBots();
       }
     } catch (e) {
       appendBotDebugLog('[syncAllBotsFromManager] Sync failed: $e');
@@ -2489,9 +2605,26 @@ class HomePageState extends State<HomePage>
                   // Best-effort only: do not block start if save route fails.
                 }
               }
-            }
-            await client.syncBot(botId, botName, payload);
-            if (client is MainApiClient) {
+              // La poussée de DÉMARRAGE passe par la MÊME orchestration que la
+              // poussée canonique : un `409 bot_config_overshrink` — suppression
+              // massive, peut-être volontaire — n'est pas une panne mais une
+              // QUESTION, et on la POSE au lieu d'afficher un simple message qui
+              // obligerait l'utilisateur à relancer son geste pour confirmer.
+              // Sans accord, rien n'est envoyé, le local reste intact, et le
+              // démarrage s'arrête ici : lancer le bot sur la configuration que
+              // le serveur vient de refuser serait un mensonge sur ce qui a été
+              // appliqué.
+              final pushOutcome = await pushStartBotConfigToleratingOvershrink(
+                client: client,
+                botId: botId,
+                botName: botName,
+                config: payload,
+                askConfirmation: _askOvershrinkConfirmation,
+              );
+              if (pushOutcome != BotConfigPushOutcome.sent) {
+                _reportOvershrinkNothingSent();
+                return;
+              }
               // Encadré : la demande part, puis le RÉSULTAT est écrit. Sans ces deux
               // lignes, un refus du serveur ne laissait aucune trace côté démarrage —
               // on ne pouvait pas distinguer « jamais demandé » de « demandé et refusé ».
@@ -2503,6 +2636,7 @@ class HomePageState extends State<HomePage>
               );
               RunnerSettings.associateBotWithRunner(botId, 'manager');
             } else {
+              await client.syncBot(botId, botName, payload);
               await client.startBot(botId, botName: botName);
               final runnerConfig = await RunnerSettings.resolveConfigForBot(
                 botId,
@@ -2523,6 +2657,17 @@ class HomePageState extends State<HomePage>
             }
           }
         } catch (error) {
+          // La garde anti-config-vide a refusé AVANT tout appel réseau : la
+          // laisser passer dans `describeManagerRuntimeFailure` la déguiserait en
+          // panne des serveurs Bot Creator (« pas encore prêts », « démarrage en
+          // cours »). On la laisse donc remonter TELLE QUELLE : le `catch`
+          // extérieur affiche son message localisé dédié. Idem pour le refus
+          // SERVEUR de sur-réduction (`409 bot_config_overshrink`) : c'est une
+          // question à poser au propriétaire, pas une panne.
+          if (isBotPayloadRefusal(error) ||
+              isBotConfigOvershrinkRefusal(error)) {
+            rethrow;
+          }
           if (client is MainApiClient) {
             throw Exception(await describeManagerRuntimeFailure(client, error));
           }
@@ -2722,11 +2867,33 @@ class HomePageState extends State<HomePage>
       if (!isRunning) {
         unawaited(ActivationFunnel.botStartFailed(e));
       }
+      // POURQUOI ce cas AVANT tout le reste : la poussée a été REFUSÉE par la
+      // garde anti-config-vide. Rien n'est parti, rien n'a été effacé en local —
+      // annoncer le diagnostic brut (ou une panne serveur) ferait croire à une
+      // perte de configuration et pousserait à « réparer » des données intactes.
+      // `mounted` AVANT `context.tr` : la page peut avoir été quittée pendant la
+      // tentative, et lire les traductions sur un contexte détruit lèverait dans
+      // le `catch` — soit une erreur masquant l'erreur d'origine.
+      // Le refus SERVEUR de sur-réduction reçoit la même phrase qu'une poussée
+      // refusée en local (une seule version des faits) : rien n'est parti, la
+      // configuration locale est intacte — et jamais « les serveurs ne sont pas
+      // prêts », qui serait un mensonge sur un refus volontaire.
+      final refusal = mounted
+          ? (localizedBotPayloadRefusalMessage(context.tr, e) ??
+                localizedBotConfigOvershrinkNothingSent(context.tr, e))
+          : null;
       // Le serveur reste seul juge : un refus lié à la formule arrive ici quand
       // la formule a changé depuis le dernier rafraîchissement local. On affiche
       // la même explication et la même issue qu'un blocage anticipé.
       final block = isRunning ? null : _planLimitBlockFromError(e);
-      if (mounted && block != null) {
+      if (mounted && refusal != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(refusal),
+            backgroundColor: AppTheme.error,
+          ),
+        );
+      } else if (mounted && block != null) {
         await _showPlanLimit(block);
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -2833,6 +3000,36 @@ class HomePageState extends State<HomePage>
   PlanLimitBlock? _planLimitBlockFromError(Object error) {
     final refusal = planLimitRefusalFromError(error);
     return refusal == null ? null : PlanLimitDialog.blockFromRefusal(refusal);
+  }
+
+  /// Pose la question du refus SERVEUR de sur-réduction (`409
+  /// bot_config_overshrink`) — la MÊME question que la poussée canonique.
+  ///
+  /// Sans interface pour la poser (page quittée pendant la tentative), la réponse
+  /// est NON : ne rien envoyer est la seule issue qui ne peut pas remplacer la
+  /// configuration vivante du bot.
+  Future<bool> _askOvershrinkConfirmation() async {
+    if (!mounted) {
+      return false;
+    }
+    return showBotConfigOvershrinkConfirmation(context);
+  }
+
+  /// Dit que la poussée n'a rien envoyé et n'a rien effacé.
+  ///
+  /// POURQUOI la phrase du dialogue sert aussi ici : elle dit exactement cela
+  /// (rien n'est parti, la configuration locale est intacte, le serveur tourne
+  /// toujours sur la précédente), et l'i18n de ce lot reste à quatre clés.
+  void _reportOvershrinkNothingSent() {
+    if (!mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(localizedBotConfigOvershrinkConfirmation(context.tr).body),
+        backgroundColor: AppTheme.error,
+      ),
+    );
   }
 
   /// Un démarrage refusé par la formule n'est pas une panne : on explique, et on
@@ -3323,11 +3520,22 @@ class HomePageState extends State<HomePage>
                 );
               }
 
+              // Deux sections : ce que je POSSÈDE, puis ce qu'on m'a PARTAGÉ. Le
+              // partage ne vient jamais d'une heuristique locale : seuls les ids
+              // annoncés par le serveur (`is_collaborative`) basculent, donc un
+              // bot ne peut pas apparaître dans les deux sections.
+              final appMaps = <Map<String, dynamic>>[
+                for (final app in apps)
+                  if (app is Map) Map<String, dynamic>.from(app),
+              ];
+              final split = splitHomeProjects(appMaps, _collaborativeBotIds);
+
               // Bots classiques puis conteneurs clé en main : les deux familles
               // partagent la même liste d'accueil (et le même layout ci-dessous).
-              final cards = buildHomeProjectCards(
+              // Les conteneurs clé en main sont TOUJOURS à moi.
+              final ownCards = buildHomeProjectCards(
                 botCards: <Widget>[
-                  for (final app in apps)
+                  for (final app in split.owned)
                     _buildRedesignBotCard(
                       context,
                       app,
@@ -3339,42 +3547,47 @@ class HomePageState extends State<HomePage>
                     ),
                 ],
                 containers: _turnkeyContainers,
-                actionsFor: (container) => HomeContainerActions(
-                  busy: _containerIdInAction == container.id,
-                  onStart: () =>
-                      _toggleTurnkeyContainer(container, start: true),
-                  onStop: () =>
-                      _toggleTurnkeyContainer(container, start: false),
-                  onLogs: () => _openTurnkeyContainerLogs(container),
-                  onDetail: () => _openTurnkeyContainerDetail(container),
-                  onInvite: () => _inviteTurnkeyBot(container),
-                  inviteBusy: _inviteContainerIdInAction == container.id,
-                ),
+                actionsFor: _homeContainerActions,
               );
 
-              if (columns == 1) {
-                for (var i = 0; i < cards.length; i++) {
-                  children.add(
-                    Padding(
-                      padding: EdgeInsets.only(
-                        bottom: i == cards.length - 1 ? 0 : 20,
-                      ),
-                      child: cards[i],
-                    ),
-                  );
-                }
-              } else {
-                const gap = 20.0;
-                final cardWidth = (innerWidth - (columns - 1) * gap) / columns;
-                children.add(
-                  Wrap(
-                    spacing: gap,
-                    runSpacing: gap,
-                    children: [
-                      for (final card in cards)
-                        SizedBox(width: cardWidth, child: card),
-                    ],
+              final sharedCards = split.shared.isEmpty
+                  ? const <Widget>[]
+                  : buildHomeProjectCards(
+                      botCards: <Widget>[
+                        for (final app in split.shared)
+                          _buildRedesignBotCard(
+                            context,
+                            app,
+                            // Une carte partagée reste repliée : ses actions sont
+                            // conditionnées par les droits accordés, pas par la
+                            // largeur de l'écran.
+                            initiallyExpanded: false,
+                            shared: true,
+                          ),
+                      ],
+                      containers: const <ContainerInfo>[],
+                      actionsFor: _homeContainerActions,
+                    );
+
+              final sections = <({String title, List<Widget> cards})>[
+                (title: context.tr.home_section_my_bots, cards: ownCards),
+                if (sharedCards.isNotEmpty)
+                  (
+                    title: context.tr.home_section_shared_with_me,
+                    cards: sharedCards,
                   ),
+              ];
+
+              for (var index = 0; index < sections.length; index++) {
+                if (index > 0) {
+                  children.add(const SizedBox(height: 28));
+                }
+                children.add(_HomeSectionTitle(label: sections[index].title));
+                _addHomeCards(
+                  children,
+                  sections[index].cards,
+                  columns,
+                  innerWidth,
                 );
               }
             }
@@ -3410,10 +3623,57 @@ class HomePageState extends State<HomePage>
     );
   }
 
+  /// Actions d'une carte de conteneur clé en main (identiques avant/après la
+  /// séparation en sections : cette extraction ne change AUCUN comportement).
+  HomeContainerActions _homeContainerActions(ContainerInfo container) =>
+      HomeContainerActions(
+        busy: _containerIdInAction == container.id,
+        onStart: () => _toggleTurnkeyContainer(container, start: true),
+        onStop: () => _toggleTurnkeyContainer(container, start: false),
+        onLogs: () => _openTurnkeyContainerLogs(container),
+        onDetail: () => _openTurnkeyContainerDetail(container),
+        onInvite: () => _inviteTurnkeyBot(container),
+        inviteBusy: _inviteContainerIdInAction == container.id,
+      );
+
+  /// Range les cartes d'une section : une colonne en compact, la grille à deux
+  /// colonnes en large — exactement le layout d'avant, partagé par « My bots »
+  /// et « Shared with me » pour qu'ils ne puissent pas diverger.
+  void _addHomeCards(
+    List<Widget> children,
+    List<Widget> cards,
+    int columns,
+    double innerWidth,
+  ) {
+    if (columns == 1) {
+      for (var i = 0; i < cards.length; i++) {
+        children.add(
+          Padding(
+            padding: EdgeInsets.only(bottom: i == cards.length - 1 ? 0 : 20),
+            child: cards[i],
+          ),
+        );
+      }
+      return;
+    }
+    const gap = 20.0;
+    final cardWidth = (innerWidth - (columns - 1) * gap) / columns;
+    children.add(
+      Wrap(
+        spacing: gap,
+        runSpacing: gap,
+        children: [
+          for (final card in cards) SizedBox(width: cardWidth, child: card),
+        ],
+      ),
+    );
+  }
+
   Widget _buildRedesignBotCard(
     BuildContext context,
     dynamic app, {
     required bool initiallyExpanded,
+    bool shared = false,
   }) {
     final id = app['id']?.toString() ?? '';
     final rawName = app['name']?.toString().sanitizedUtf16 ?? '';
@@ -3428,7 +3688,16 @@ class HomePageState extends State<HomePage>
       _ => 0,
     };
     final isRunning = _runningBotIds.contains(id);
-    final canToggle = _botIdInAction == null;
+    // Droits de l'utilisateur sur un bot PARTAGÉ, tels que le serveur les
+    // annonce (`my_permissions`). `null` = droits INCONNUS (serveur plus ancien,
+    // hors ligne) : on n'offre alors aucune action que le propriétaire n'a
+    // peut-être pas accordée — le refus par défaut, jamais l'inverse.
+    final permissions = shared ? _sharedBotPermissions[id] : null;
+    final canEdit = !shared || (permissions?.canEditCommands ?? false);
+    final canStartStop = !shared || (permissions?.canStartStop ?? false);
+    final canToggle = _botIdInAction == null && canStartStop;
+    // Nom du propriétaire : uniquement une INFORMATION, reçue du serveur.
+    final ownerId = shared ? (_sharedBotOwnerIds[id] ?? '') : '';
     // Controllers are created by the app-stream listener, never during build.
     final pulseCtrl = _pulseControllers[id] ?? _fallbackPulseController;
     // Source d'exécution VIVANTE de ce bot (association + état annoncé par le
@@ -3477,32 +3746,56 @@ class HomePageState extends State<HomePage>
       pulseController: pulseCtrl,
       showPremiumLabels: _supportsForegroundTask,
       isTurnkey: isTurnkey,
-      onManage: () {
-        if (isTurnkey && containerId != null && containerId.isNotEmpty) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => ContainerDetailPage(containerId: containerId),
+      // Un bot partagé porte le badge d'équipe et le nom de son propriétaire ;
+      // un bot à moi garde EXACTEMENT l'affichage d'avant.
+      showTeamBadge: shared,
+      ownerLabel: ownerId.isEmpty ? null : ownerId,
+      onManage: canEdit
+          ? () {
+              if (isTurnkey && containerId != null && containerId.isNotEmpty) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        ContainerDetailPage(containerId: containerId),
+                  ),
+                ).then((_) => _initRunningState());
+                return;
+              }
+              final parsedId = int.tryParse(id) ?? 0;
+              final manage = widget.onManageBot;
+              if (manage != null) {
+                manage(id, name);
+                return;
+              }
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => AppEditPage(
+                    appName: name,
+                    id: parsedId,
+                    avatarUrl: avatar,
+                  ),
+                ),
+              ).then((_) => _initRunningState());
+            }
+          // Sans droit d'édition, le bouton n'existe PAS (plutôt qu'un bouton
+          // désactivé qui laisserait croire qu'il suffit d'insister).
+          : null,
+      // Le tchat d'équipe est l'USAGE PRINCIPAL d'un collaborateur, et le serveur
+      // le lui accorde par défaut (`can_view_chat`) : son accès ne dépend donc
+      // d'AUCUN droit d'édition — sinon un collaborateur sans `can_edit_commands`
+      // se retrouverait sans le moindre chemin vers son équipe. « Gérer », lui,
+      // reste conditionné par `can_edit_commands` (voir `onManage` ci-dessus).
+      onTeam: !shared
+          ? null
+          : () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => TeamChatPage(botId: id)),
             ),
-          ).then((_) => _initRunningState());
-          return;
-        }
-        final parsedId = int.tryParse(id) ?? 0;
-        final manage = widget.onManageBot;
-        if (manage != null) {
-          manage(id, name);
-          return;
-        }
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) =>
-                AppEditPage(appName: name, id: parsedId, avatarUrl: avatar),
-          ),
-        ).then((_) => _initRunningState());
-      },
       onToggle: () => _toggleBot(botId: id, botName: name),
-      onAddTime: () => _addHostingTime(id),
+      // Ajouter du temps engage de l'argent : jamais sur le bot d'un autre.
+      onAddTime: shared ? null : () => _addHostingTime(id),
       onLogs: isRunning
           ? () => Navigator.push(
               context,
@@ -3549,6 +3842,23 @@ class HomePageState extends State<HomePage>
 }
 
 // ── En-tête d'accueil ─────────────────────────────────────────────────────────
+
+/// En-tête de section de la liste d'accueil (« MY BOTS », « SHARED WITH ME ») :
+/// le MÊME style que le surtitre « MY PROJECTS » ([homeSectionLabelStyle]), donc
+/// aucune hiérarchie visuelle inventée pour la séparation.
+class _HomeSectionTitle extends StatelessWidget {
+  const _HomeSectionTitle({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Text(label, style: homeSectionLabelStyle(context)),
+    );
+  }
+}
 
 class _HomeHeader extends StatelessWidget {
   const _HomeHeader({
@@ -3662,9 +3972,12 @@ class HomeBotCard extends StatefulWidget {
     required this.onLogs,
     required this.showPremiumLabels,
     required this.freeMinutes,
+    this.onTeam,
     this.runtimeBadgeLabel,
     this.showsHostingExpiration = true,
     this.isTurnkey = false,
+    this.showTeamBadge = false,
+    this.ownerLabel,
     this.hasLocalToken = true,
     this.onTokenImported,
   });
@@ -3692,7 +4005,24 @@ class HomeBotCard extends StatefulWidget {
   final AnimationController pulseController;
   final bool showPremiumLabels;
   final bool isTurnkey;
-  final VoidCallback onManage;
+
+  /// Badge « équipe » : vrai sur une carte PARTAGÉE (le bot ne m'appartient pas).
+  /// Faux par défaut, donc une carte à moi ne change pas d'un pixel.
+  final bool showTeamBadge;
+
+  /// Propriétaire du bot, quand la carte doit le nommer (bot partagé). `null`
+  /// quand le serveur ne l'a pas annoncé : la ligne entière disparaît plutôt que
+  /// d'afficher un libellé inventé.
+  final String? ownerLabel;
+
+  final VoidCallback? onManage;
+
+  /// Ouvre le tchat d'équipe du bot. Renseigné sur une carte PARTAGÉE
+  /// uniquement : le collaborateur garde ainsi un chemin vers son équipe même
+  /// sans droit d'édition. `null` sur une carte « à moi », qui garde donc
+  /// exactement ses actions d'avant.
+  final VoidCallback? onTeam;
+
   final VoidCallback onToggle;
   final VoidCallback? onAddTime;
   final VoidCallback? onLogs;
@@ -3826,15 +4156,31 @@ class HomeBotCardState extends State<HomeBotCard> {
                 stopSquare: widget.isRunning,
               ),
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: HomeCardActionButton(
-                icon: Icons.tune_rounded,
-                iconSize: 14,
-                label: context.tr.home_manage,
-                onTap: widget.onManage,
+            if (widget.onManage != null) ...[
+              const SizedBox(width: 10),
+              Expanded(
+                child: HomeCardActionButton(
+                  icon: Icons.tune_rounded,
+                  iconSize: 14,
+                  label: context.tr.home_manage,
+                  onTap: widget.onManage,
+                ),
               ),
-            ),
+            ],
+            // Chemin vers l'équipe : offert même sans droit d'édition, c'est
+            // l'usage principal d'un collaborateur. MÊME libellé que l'onglet du
+            // même nom dans l'éditeur du bot.
+            if (widget.onTeam != null) ...[
+              const SizedBox(width: 10),
+              Expanded(
+                child: HomeCardActionButton(
+                  icon: Icons.groups_outlined,
+                  iconSize: 14,
+                  label: context.tr.team_tab,
+                  onTap: widget.onTeam,
+                ),
+              ),
+            ],
           ],
         ),
         if (_showAddHosting) ...[
@@ -3913,46 +4259,73 @@ class HomeBotCardState extends State<HomeBotCard> {
                       HomeBotAvatar(imageUrl: widget.avatar),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: Row(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            Flexible(
-                              child: Text(
-                                widget.name,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: homeDisplayStyle(
-                                  16,
-                                  color: scheme.onSurface,
-                                ),
-                              ),
-                            ),
-                            if (widget.isTurnkey) ...[
-                              const SizedBox(width: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 6,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: scheme.primary.withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(6),
-                                  border: Border.all(
-                                    color: scheme.primary.withValues(
-                                      alpha: 0.3,
+                            Row(
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    widget.name,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: homeDisplayStyle(
+                                      16,
+                                      color: scheme.onSurface,
                                     ),
                                   ),
                                 ),
-                                child: Text(
-                                  homeUiCopy(
-                                    context,
-                                    fr: 'Clé en main',
-                                    en: 'Turnkey',
+                                if (widget.isTurnkey) ...[
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: scheme.primary.withValues(
+                                        alpha: 0.15,
+                                      ),
+                                      borderRadius: BorderRadius.circular(6),
+                                      border: Border.all(
+                                        color: scheme.primary.withValues(
+                                          alpha: 0.3,
+                                        ),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      homeUiCopy(
+                                        context,
+                                        fr: 'Clé en main',
+                                        en: 'Turnkey',
+                                      ),
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                        color: scheme.primary,
+                                      ),
+                                    ),
                                   ),
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                    color: scheme.primary,
-                                  ),
+                                ],
+                                if (widget.showTeamBadge) ...[
+                                  const SizedBox(width: 8),
+                                  const _SharedBotBadge(),
+                                ],
+                              ],
+                            ),
+                            if (widget.ownerLabel != null) ...[
+                              const SizedBox(height: 2),
+                              Text(
+                                widget.ownerLabel!,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.inter(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
+                                  color: isDark
+                                      ? tokens.muted
+                                      : scheme.onSurfaceVariant,
                                 ),
                               ),
                             ],
@@ -3988,6 +4361,41 @@ class HomeBotCardState extends State<HomeBotCard> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Badge « équipe » d'une carte PARTAGÉE : ce bot appartient à quelqu'un d'autre.
+///
+/// Libellé pris dans l'i18n (`team_tab_short`) plutôt qu'écrit en dur : une UI
+/// française n'affiche pas un mot anglais figé.
+class _SharedBotBadge extends StatelessWidget {
+  const _SharedBotBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: AppTheme.discord.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: AppTheme.discord.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.groups, size: 11, color: AppTheme.discord),
+          const SizedBox(width: 4),
+          Text(
+            context.tr.team_tab_short,
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.discord,
+            ),
+          ),
+        ],
       ),
     );
   }
