@@ -9481,4 +9481,44 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get bot_config_overshrink_keep_local => '送信せずローカルに保持';
+
+  @override
+  String get command_history_title => 'このコマンドのバージョン履歴';
+
+  @override
+  String get command_history_empty =>
+      'このコマンドにはまだバージョンが記録されていません。保存するとここに表示されます。';
+
+  @override
+  String get command_history_restore => '復元';
+
+  @override
+  String command_history_version_meta(Object author, Object date, num size) {
+    String _temp0 = intl.Intl.pluralLogic(
+      size,
+      locale: localeName,
+      other: '$size バイト',
+      one: '1 バイト',
+    );
+    return '$author · $date · $_temp0';
+  }
+
+  @override
+  String get command_history_conflict =>
+      'このバージョンは復元されませんでした。読み込んだあとにサーバー上でコマンドが変更されています。どこにも書き込みは行われていません — 本当に上書きするにはサーバーのバージョンを再読み込みしてください。';
+
+  @override
+  String get command_history_conflict_reload => 'サーバーのバージョンを再読み込みして上書き';
+
+  @override
+  String get command_history_unavailable_no_v2 =>
+      'このボットでは履歴を利用できません。サーバーがまだ granular /api/v2 API を提供していないため、バージョンの一覧表示も復元もできません。履歴が空という意味ではありません。';
+
+  @override
+  String get command_history_unavailable_offline =>
+      'バージョン一覧を取得できませんでした（オフライン、またはサーバーに接続できません）。バージョンはこの端末には保存されないため、一覧はサーバーから取得する必要があります。';
+
+  @override
+  String get command_history_restore_confirm =>
+      'このバージョンを復元しますか？サーバー上にある現在の内容がこのバージョンの内容に置き換わります。復元自体も新しいバージョンとして記録されるため、取り消せます。';
 }

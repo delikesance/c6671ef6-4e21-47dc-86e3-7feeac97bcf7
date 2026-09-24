@@ -10604,5 +10604,14 @@
   "bot_config_overshrink_title": "Möchten Sie diese reduzierte Konfiguration wirklich senden?",
   "bot_config_overshrink_body": "Sie haben den größten Teil der Konfiguration dieses Bots entfernt. Es wurde noch nichts gesendet: der Server führt weiterhin die vorherige Version aus und Ihre lokale Konfiguration ist unverändert.",
   "bot_config_overshrink_send_anyway": "Trotzdem senden",
-  "bot_config_overshrink_keep_local": "Lokal behalten, nicht senden"
+  "bot_config_overshrink_keep_local": "Lokal behalten, nicht senden",
+  "command_history_title": "Versionsverlauf dieses Befehls",
+  "command_history_empty": "Für diesen Befehl wurde noch keine Version aufgezeichnet. Versionen erscheinen hier nach dem Speichern.",
+  "command_history_restore": "Wiederherstellen",
+  "command_history_version_meta": "{author} · {date} · {size, plural, =1{1 Byte} other{{size} Byte}}",
+  "command_history_conflict": "Diese Version wurde nicht wiederhergestellt: Der Befehl hat sich auf dem Server seit dem Laden geändert. Es wurde nirgends etwas geschrieben — lade die Serverversion neu, um wirklich zu überschreiben.",
+  "command_history_conflict_reload": "Serverversion neu laden und überschreiben",
+  "command_history_unavailable_no_v2": "Der Verlauf ist für diesen Bot nicht verfügbar: Der Server bietet die granulare /api/v2-API noch nicht an, daher kann keine Version aufgelistet oder wiederhergestellt werden. Das ist kein leerer Verlauf.",
+  "command_history_unavailable_offline": "Die Versionsliste konnte nicht geladen werden (offline oder Server nicht erreichbar). Versionen werden nie auf diesem Gerät gespeichert, die Liste muss vom Server geholt werden.",
+  "command_history_restore_confirm": "Diese Version wiederherstellen? Der aktuell auf dem Server liegende Inhalt wird durch den Inhalt dieser Version ersetzt. Die Wiederherstellung selbst wird als neue Version aufgezeichnet und bleibt damit rückgängig zu machen."
 }

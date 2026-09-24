@@ -9990,4 +9990,45 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get bot_config_overshrink_keep_local => 'Lokal behalten, nicht senden';
+
+  @override
+  String get command_history_title => 'Versionsverlauf dieses Befehls';
+
+  @override
+  String get command_history_empty =>
+      'Für diesen Befehl wurde noch keine Version aufgezeichnet. Versionen erscheinen hier nach dem Speichern.';
+
+  @override
+  String get command_history_restore => 'Wiederherstellen';
+
+  @override
+  String command_history_version_meta(Object author, Object date, num size) {
+    String _temp0 = intl.Intl.pluralLogic(
+      size,
+      locale: localeName,
+      other: '$size Byte',
+      one: '1 Byte',
+    );
+    return '$author · $date · $_temp0';
+  }
+
+  @override
+  String get command_history_conflict =>
+      'Diese Version wurde nicht wiederhergestellt: Der Befehl hat sich auf dem Server seit dem Laden geändert. Es wurde nirgends etwas geschrieben — lade die Serverversion neu, um wirklich zu überschreiben.';
+
+  @override
+  String get command_history_conflict_reload =>
+      'Serverversion neu laden und überschreiben';
+
+  @override
+  String get command_history_unavailable_no_v2 =>
+      'Der Verlauf ist für diesen Bot nicht verfügbar: Der Server bietet die granulare /api/v2-API noch nicht an, daher kann keine Version aufgelistet oder wiederhergestellt werden. Das ist kein leerer Verlauf.';
+
+  @override
+  String get command_history_unavailable_offline =>
+      'Die Versionsliste konnte nicht geladen werden (offline oder Server nicht erreichbar). Versionen werden nie auf diesem Gerät gespeichert, die Liste muss vom Server geholt werden.';
+
+  @override
+  String get command_history_restore_confirm =>
+      'Diese Version wiederherstellen? Der aktuell auf dem Server liegende Inhalt wird durch den Inhalt dieser Version ersetzt. Die Wiederherstellung selbst wird als neue Version aufgezeichnet und bleibt damit rückgängig zu machen.';
 }

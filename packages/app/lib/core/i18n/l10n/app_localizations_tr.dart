@@ -9913,4 +9913,45 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get bot_config_overshrink_keep_local => 'Yerel kalsın, gönderme';
+
+  @override
+  String get command_history_title => 'Bu komutun sürüm geçmişi';
+
+  @override
+  String get command_history_empty =>
+      'Bu komut için henüz hiç sürüm kaydedilmedi. Sürümler kaydettikten sonra burada görünür.';
+
+  @override
+  String get command_history_restore => 'Geri yükle';
+
+  @override
+  String command_history_version_meta(Object author, Object date, num size) {
+    String _temp0 = intl.Intl.pluralLogic(
+      size,
+      locale: localeName,
+      other: '$size bayt',
+      one: '1 bayt',
+    );
+    return '$author · $date · $_temp0';
+  }
+
+  @override
+  String get command_history_conflict =>
+      'Bu sürüm geri yüklenmedi: siz yükledikten sonra komut sunucuda değişti. Hiçbir yere yazılmadı — gerçekten üzerine yazmak için sunucudaki sürümü yeniden yükleyin.';
+
+  @override
+  String get command_history_conflict_reload =>
+      'Sunucudaki sürümü yeniden yükle ve üzerine yaz';
+
+  @override
+  String get command_history_unavailable_no_v2 =>
+      'Bu bot için geçmiş kullanılamıyor: sunucu henüz granular /api/v2 API\'sini sunmuyor, bu yüzden hiçbir sürüm listelenemez veya geri yüklenemez. Bu boş bir geçmiş değil.';
+
+  @override
+  String get command_history_unavailable_offline =>
+      'Sürüm listesi alınamadı (çevrimdışı veya sunucuya ulaşılamıyor). Sürümler bu cihazda hiç saklanmaz, bu yüzden liste sunucudan alınmalıdır.';
+
+  @override
+  String get command_history_restore_confirm =>
+      'Bu sürüm geri yüklensin mi? Sunucuda bulunan mevcut içerik bu sürümün içeriğiyle değiştirilecek. Geri yükleme işlemi yeni bir sürüm olarak kaydedilir, böylece geri alınabilir kalır.';
 }

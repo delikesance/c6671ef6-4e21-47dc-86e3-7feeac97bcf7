@@ -10010,4 +10010,46 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get bot_config_overshrink_keep_local =>
       'Garder en local, sans envoyer';
+
+  @override
+  String get command_history_title =>
+      'Historique des versions de cette commande';
+
+  @override
+  String get command_history_empty =>
+      'Aucune version n\'a encore été enregistrée pour cette commande. Les versions apparaissent ici après un enregistrement.';
+
+  @override
+  String get command_history_restore => 'Restaurer';
+
+  @override
+  String command_history_version_meta(Object author, Object date, num size) {
+    String _temp0 = intl.Intl.pluralLogic(
+      size,
+      locale: localeName,
+      other: '$size octets',
+      one: '1 octet',
+    );
+    return '$author · $date · $_temp0';
+  }
+
+  @override
+  String get command_history_conflict =>
+      'Cette version n\'a pas été restaurée : la commande a changé sur le serveur depuis votre chargement. Rien n\'a été écrit nulle part — rechargez la version du serveur pour écraser pour de bon.';
+
+  @override
+  String get command_history_conflict_reload =>
+      'Recharger la version du serveur et écraser';
+
+  @override
+  String get command_history_unavailable_no_v2 =>
+      'L\'historique n\'est pas disponible pour ce bot : le serveur ne propose pas encore l\'API granulaire /api/v2, aucune version ne peut donc être listée ni restaurée. Ce n\'est pas un historique vide.';
+
+  @override
+  String get command_history_unavailable_offline =>
+      'La liste des versions n\'a pas pu être récupérée (hors-ligne ou serveur injoignable). Les versions ne sont jamais stockées sur cet appareil : la liste doit être récupérée depuis le serveur.';
+
+  @override
+  String get command_history_restore_confirm =>
+      'Restaurer cette version? Le contenu actuellement sur le serveur sera remplacé par celui de cette version. La restauration est elle-même enregistrée comme une nouvelle version : elle reste annulable.';
 }
