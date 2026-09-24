@@ -474,6 +474,18 @@ Future<void> pushWholeBotDocumentToManager(String botId) async {
   _batcher.requestSync(botId, _executeSync, immediate: true);
 }
 
+/// LE DÉCLENCHEUR « POUSSÉE RÉUSSIE » DE LA FILE HORS-LIGNE.
+///
+/// Appelé APRÈS qu'un document entier a été accepté par le manager, jamais
+/// avant, et JAMAIS attendu : le vidage de la file fait ses propres appels
+/// réseau et ne doit pas allonger la chaîne de synchronisation.
+///
+/// `null` tant qu'aucun coordinateur n'est branché — strictement inerte en son
+/// absence. Un crochet qui n'existe pas ne peut pas casser la synchronisation
+/// d'un utilisateur, et c'est la seule forme acceptable pour un point
+/// d'accroche ajouté à un chemin qui tourne déjà en production.
+Future<void> Function(String botId)? onBotDocumentPushed;
+
 Future<void> _executeSync(String botId) async {
   try {
     final engine = await getBotRuntimeEngine(botId);
@@ -544,6 +556,19 @@ Future<void> _executeSync(String botId) async {
             );
             await mainApiClient.syncBot(botId, botName, payload);
             debugPrint('[AutoReload] Synced bot $botId to cloud (batched).');
+            // La poussée a été ACCEPTÉE : c'est la preuve la plus fraîche que
+            // le manager répond. On en profite pour vider la file hors-ligne,
+            // sans l'attendre (voir [onBotDocumentPushed]).
+            final outboxPushHook = onBotDocumentPushed;
+            if (outboxPushHook != null) {
+              unawaited(
+                outboxPushHook(botId).catchError((Object error) {
+                  debugPrint(
+                    '[AutoReload] Outbox drain skipped for $botId: $error',
+                  );
+                }),
+              );
+            }
           }
         }
       } catch (error) {
