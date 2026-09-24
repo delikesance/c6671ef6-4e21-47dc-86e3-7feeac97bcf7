@@ -186,9 +186,20 @@ extension _AppHomePageSync on _AppHomePageState {
           '[_pushToRemote] Payload built: commands=$cmdCount workflows=$wfCount',
         );
 
-        await mainClient
-            .syncBot(botId, user.username, payload, force: true)
-            .timeout(const Duration(seconds: 20));
+        final pushed = await _pushPayloadToManager(
+          client: mainClient,
+          botId: botId,
+          botName: user.username,
+          payload: payload,
+          notify: showSnack,
+        );
+        if (!pushed) {
+          // Rien n'est parti : l'utilisateur a gardé sa version locale (ou le
+          // serveur refuse même sur accord). On sort AVANT le message de succès —
+          // annoncer un envoi qui n'a pas eu lieu est exactement le mensonge que
+          // ce lot corrige.
+          return;
+        }
         appendBotDebugLog(
           '[_pushToRemote] Pushed canonical config to Manager for $botId',
         );
@@ -206,7 +217,11 @@ extension _AppHomePageSync on _AppHomePageState {
         // Refus de la garde anti-config-vide : la copie locale est restée
         // intacte et rien n'a été envoyé. Afficher le diagnostic brut ferait
         // croire à une panne ; on montre donc le message dédié, traduit.
-        final refusal = localizedBotPayloadRefusalMessage(context.tr, e);
+        // Même raison pour le refus SERVEUR de sur-réduction : il ne doit ni
+        // passer pour une panne, ni pour une erreur de l'application.
+        final refusal =
+            localizedBotPayloadRefusalMessage(context.tr, e) ??
+            localizedBotConfigOvershrinkNothingSent(context.tr, e);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(refusal ?? e.toString()),
@@ -217,6 +232,81 @@ extension _AppHomePageSync on _AppHomePageState {
     } finally {
       _setState(() => _isPushingApp = false);
     }
+  }
+
+  /// Pousse [payload] vers le Manager et traite le refus de SUR-RÉDUCTION
+  /// (`409 bot_config_overshrink`).
+  ///
+  /// Le manager refuse une configuration nettement plus petite que la
+  /// configuration vivante : c'est une suppression MASSIVE, souvent volontaire.
+  /// Il n'a RIEN appliqué et a restauré la version précédente ; la même poussée,
+  /// rejouée avec le drapeau du contrat (`confirmOvershrink: true`), passe. C'est
+  /// donc une QUESTION à poser, pas une panne : on demande, et on ne rejoue que
+  /// sur accord.
+  ///
+  /// Rend `true` seulement quand la configuration est réellement partie (l'envoi
+  /// rejoué après accord EST un envoi) ; `false` quand l'utilisateur a gardé sa
+  /// version locale — l'appelant ne doit alors pas annoncer un succès.
+  Future<bool> _pushPayloadToManager({
+    required MainApiClient client,
+    required String botId,
+    required String botName,
+    required Map<String, dynamic> payload,
+    required bool notify,
+  }) async {
+    final outcome = await pushBotConfigToleratingOvershrink(
+      push: (confirmOvershrink) => client
+          .syncBot(
+            botId,
+            botName,
+            payload,
+            force: true,
+            confirmOvershrink: confirmOvershrink,
+          )
+          .timeout(const Duration(seconds: 20)),
+      askConfirmation: _askOvershrinkConfirmation,
+    );
+
+    if (outcome == BotConfigPushOutcome.sent) {
+      return true;
+    }
+
+    appendBotDebugLog(
+      '[_pushToRemote] Nothing sent ($outcome): local configuration kept for $botId',
+    );
+    if (notify) {
+      _reportOvershrinkNothingSent();
+    }
+    return false;
+  }
+
+  /// Pose la question du refus de sur-réduction.
+  ///
+  /// Sans interface pour la poser (page quittée pendant la tentative), la réponse
+  /// est NON : ne rien envoyer est la seule issue qui ne peut pas remplacer la
+  /// configuration vivante du bot.
+  Future<bool> _askOvershrinkConfirmation() async {
+    if (!mounted) {
+      return false;
+    }
+    return showBotConfigOvershrinkConfirmation(context);
+  }
+
+  /// Dit que la poussée n'a rien envoyé et n'a rien effacé.
+  ///
+  /// POURQUOI la phrase du dialogue sert aussi ici : elle dit exactement cela
+  /// (rien n'est parti, la configuration locale est intacte, le serveur tourne
+  /// toujours sur la précédente), et l'i18n de ce lot reste à quatre clés.
+  void _reportOvershrinkNothingSent() {
+    if (!mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(localizedBotConfigOvershrinkConfirmation(context.tr).body),
+        backgroundColor: AppTheme.error,
+      ),
+    );
   }
 
   // ─── Pull from Cloud ────────────────────────────────────────────

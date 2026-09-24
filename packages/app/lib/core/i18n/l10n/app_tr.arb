@@ -10600,5 +10600,9 @@
   "container_invite_unavailable": "Bu uygulamanın botu tanımlanamadı: token yok veya iptal edilmiş. Dağıtımı yeniden başlatın.",
   "container_invite_failed": "Davet gönderilemedi: bağlantınızı kontrol edip yeniden deneyin.",
   "container_invite_open_failed": "Davet bağlantısı açılamadı.",
-  "bot_payload_refused_local_kept": "Gönderim reddedildi: Gönderilecek yapılandırma boştu (komut, olay, webhook veya değişken yok). Hiçbir şey gönderilmedi ve yerel yapılandırmanız olduğu gibi kaldı — düzenlemeye devam edebilirsiniz."
+  "bot_payload_refused_local_kept": "Gönderim reddedildi: Gönderilecek yapılandırma boştu (komut, olay, webhook veya değişken yok). Hiçbir şey gönderilmedi ve yerel yapılandırmanız olduğu gibi kaldı — düzenlemeye devam edebilirsiniz.",
+  "bot_config_overshrink_title": "Bu küçültülmüş yapılandırmayı göndermek istediğinizden emin misiniz?",
+  "bot_config_overshrink_body": "Bu botun yapılandırmasının büyük bölümünü sildiniz. Henüz hiçbir şey gönderilmedi: sunucu hâlâ önceki sürümü çalıştırıyor ve yerel yapılandırmanız olduğu gibi duruyor.",
+  "bot_config_overshrink_send_anyway": "Yine de gönder",
+  "bot_config_overshrink_keep_local": "Yerel kalsın, gönderme"
 }

@@ -17169,6 +17169,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Push refused: the configuration to send was empty (no command, no event, no webhook, no variable). Nothing was sent and your local configuration was left untouched — you can keep editing.'**
   String get bot_payload_refused_local_kept;
+
+  /// Server-side refusal of a massive, possibly deliberate deletion: ask the user whether the smaller configuration should be pushed anyway.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to send this reduced configuration?'**
+  String get bot_config_overshrink_title;
+
+  /// States the two facts the user cannot guess: nothing was sent, and nothing was lost locally.
+  ///
+  /// In en, this message translates to:
+  /// **'You removed most of this bot\'s configuration. Nothing has been sent yet: the servers still run the previous version, and your local configuration is intact.'**
+  String get bot_config_overshrink_body;
+
+  /// Confirm button of the overshrink dialog: replay the same push with confirmOvershrink.
+  ///
+  /// In en, this message translates to:
+  /// **'Send anyway'**
+  String get bot_config_overshrink_send_anyway;
+
+  /// Cancel button of the overshrink dialog: send nothing, keep the local work.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep local, don\'t send'**
+  String get bot_config_overshrink_keep_local;
 }
 
 class _AppLocalizationsDelegate

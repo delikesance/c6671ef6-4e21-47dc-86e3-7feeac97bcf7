@@ -9830,4 +9830,18 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get bot_payload_refused_local_kept =>
       'Push refused: the configuration to send was empty (no command, no event, no webhook, no variable). Nothing was sent and your local configuration was left untouched — you can keep editing.';
+
+  @override
+  String get bot_config_overshrink_title =>
+      'Are you sure you want to send this reduced configuration?';
+
+  @override
+  String get bot_config_overshrink_body =>
+      'You removed most of this bot\'s configuration. Nothing has been sent yet: the servers still run the previous version, and your local configuration is intact.';
+
+  @override
+  String get bot_config_overshrink_send_anyway => 'Send anyway';
+
+  @override
+  String get bot_config_overshrink_keep_local => 'Keep local, don\'t send';
 }

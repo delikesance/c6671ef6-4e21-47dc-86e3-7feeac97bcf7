@@ -453,3 +453,148 @@ String? localizedBotPayloadRefusalMessage(
   }
   return l10n.bot_payload_refused_local_kept;
 }
+
+/// Code applicatif du refus SERVEUR d'une sur-réduction VOLONTAIRE :
+/// `POST /gateway/bots/sync` rend `409 bot_config_overshrink` quand la
+/// configuration poussée passe sous le plancher de plausibilité ou pèse moins de
+/// 20 % de la configuration vivante. Le serveur n'applique RIEN et a restauré la
+/// configuration précédente.
+const String botConfigOvershrinkErrorCode = 'bot_config_overshrink';
+
+/// Vrai quand [error] est CE refus précis : statut `409` ET code
+/// [botConfigOvershrinkErrorCode].
+///
+/// POURQUOI c'est distinct de [isBotPayloadRefusal] : la garde LOCALE (charge
+/// vide) refuse AVANT le réseau, sans rien demander à personne. Ici le serveur a
+/// bien reçu la poussée, l'a refusée et a restauré la configuration précédente :
+/// ce n'est ni une panne, ni une erreur de l'application, c'est une QUESTION.
+/// Laisser un tel refus filer vers le diagnostic de panne afficherait « les
+/// serveurs Bot Creator ne sont pas prêts » devant un refus volontaire.
+///
+/// Le statut est vérifié EN PLUS du code : un `409` d'une autre nature
+/// (`bot_config_unreadable`, `token_unavailable`…) ne doit pas ouvrir ce
+/// dialogue.
+bool isBotConfigOvershrinkRefusal(Object error) {
+  if (error is! MainApiClientException) {
+    return false;
+  }
+  if (error.statusCode != 409) {
+    return false;
+  }
+  final code = (error.code ?? '').trim().toLowerCase();
+  if (code == botConfigOvershrinkErrorCode) {
+    return true;
+  }
+  // Repli : certaines passerelles ne recopient que le texte de l'erreur. Le
+  // message du manager COMMENCE par le code (`bot_config_overshrink: ...`), donc
+  // le refus reste reconnaissable même sans le champ `code` — et ce repli ne
+  // peut jamais accepter un `409` d'une autre nature.
+  return error.message.toLowerCase().contains(botConfigOvershrinkErrorCode);
+}
+
+/// Les quatre phrases du dialogue de sur-réduction, traduites.
+class BotConfigOvershrinkConfirmation {
+  const BotConfigOvershrinkConfirmation({
+    required this.title,
+    required this.body,
+    required this.confirmLabel,
+    required this.keepLocalLabel,
+  });
+
+  final String title;
+  final String body;
+  final String confirmLabel;
+  final String keepLocalLabel;
+}
+
+/// Phrases du dialogue de sur-réduction (`409 bot_config_overshrink`).
+///
+/// La question ne dépend pas du contenu refusé : elle dit les deux choses que
+/// l'utilisateur ne peut pas deviner — RIEN n'a encore été envoyé, et sa copie
+/// locale est intacte (le serveur fait toujours tourner la configuration
+/// précédente) — puis demande s'il veut envoyer quand même.
+BotConfigOvershrinkConfirmation localizedBotConfigOvershrinkConfirmation(
+  AppLocalizations l10n,
+) => BotConfigOvershrinkConfirmation(
+  title: l10n.bot_config_overshrink_title,
+  body: l10n.bot_config_overshrink_body,
+  confirmLabel: l10n.bot_config_overshrink_send_anyway,
+  keepLocalLabel: l10n.bot_config_overshrink_keep_local,
+);
+
+/// Phrase à afficher quand le refus de sur-réduction n'a PAS ouvert de dialogue
+/// (poussée de démarrage, ou écran sans interface pour poser la question) :
+/// rien n'est parti, rien n'a été effacé. `null` quand [error] n'est pas ce refus.
+///
+/// POURQUOI la même phrase que le corps du dialogue : l'utilisateur ne doit
+/// entendre qu'une version des faits, et les quatre clés i18n du dialogue
+/// suffisent à couvrir le retour après annulation.
+String? localizedBotConfigOvershrinkNothingSent(
+  AppLocalizations l10n,
+  Object error,
+) => isBotConfigOvershrinkRefusal(error)
+    ? l10n.bot_config_overshrink_body
+    : null;
+
+/// Issue d'une poussée de configuration vers le manager.
+enum BotConfigPushOutcome {
+  /// La configuration est partie — du premier coup, ou après accord explicite.
+  sent,
+
+  /// Rien n'est parti et rien n'a été effacé : l'utilisateur a gardé sa version
+  /// locale.
+  keptLocal,
+
+  /// Rien n'est parti : le serveur refuse la sur-réduction MÊME avec l'accord
+  /// explicite (plancher absolu — configuration quasi vide). Redemander la même
+  /// chose ne changerait rien.
+  overshrinkFloorRefused,
+}
+
+/// Pousse une configuration vers le manager en traitant le refus SERVEUR de
+/// sur-réduction.
+///
+/// Contrat (`POST /gateway/bots/sync`) : la poussée part D'ABORD sans
+/// `confirmOvershrink`. Si le serveur la refuse par `409 bot_config_overshrink`
+/// — suppression massive, peut-être volontaire — on demande confirmation
+/// ([askConfirmation]) et, sur accord SEULEMENT, on rejoue EXACTEMENT la même
+/// poussée avec `confirmOvershrink: true`.
+///
+/// POURQUOI cette orchestration vit ici et pas dans l'écran : c'est une règle
+/// (rien ne part sans accord, on ne demande jamais deux fois, un refus ne se
+/// déguise pas en succès), et elle se prouve sans monter `AppHomePage`.
+///
+/// Toute erreur qui n'est PAS ce refus remonte telle quelle : une panne reste une
+/// panne, et l'appelant garde son message d'erreur habituel.
+Future<BotConfigPushOutcome> pushBotConfigToleratingOvershrink({
+  required Future<void> Function(bool confirmOvershrink) push,
+  required Future<bool> Function() askConfirmation,
+  bool confirmOvershrink = false,
+}) async {
+  try {
+    await push(confirmOvershrink);
+    return BotConfigPushOutcome.sent;
+  } catch (error) {
+    if (!isBotConfigOvershrinkRefusal(error)) {
+      rethrow;
+    }
+    if (confirmOvershrink) {
+      // Le drapeau du contrat était DÉJÀ posé : ce n'est plus une question mais
+      // le plancher absolu du serveur, qui refuse même sur accord.
+      return BotConfigPushOutcome.overshrinkFloorRefused;
+    }
+  }
+
+  final confirmed = await askConfirmation();
+  if (!confirmed) {
+    // Refus de l'utilisateur : rien n'est envoyé, rien n'est effacé.
+    return BotConfigPushOutcome.keptLocal;
+  }
+  // Accord explicite : LA MÊME poussée, drapeau du contrat en plus. Un second
+  // refus ne rouvre pas le dialogue (voir [BotConfigPushOutcome.overshrinkFloorRefused]).
+  return pushBotConfigToleratingOvershrink(
+    push: push,
+    askConfirmation: askConfirmation,
+    confirmOvershrink: true,
+  );
+}

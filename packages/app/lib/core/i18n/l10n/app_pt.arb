@@ -10633,5 +10633,9 @@
   "container_invite_unavailable": "Não foi possível identificar o bot desta aplicação: o token está ausente ou foi revogado. Refazer o deploy.",
   "container_invite_failed": "Não foi possível convidar: verifique a sua ligação e tente novamente.",
   "container_invite_open_failed": "Não foi possível abrir o link de convite.",
-  "bot_payload_refused_local_kept": "Envio recusado: a configuração a enviar estava vazia (nenhum comando, nenhum evento, nenhum webhook, nenhuma variável). Nada foi enviado e a sua configuração local ficou intacta — pode continuar a editar."
+  "bot_payload_refused_local_kept": "Envio recusado: a configuração a enviar estava vazia (nenhum comando, nenhum evento, nenhum webhook, nenhuma variável). Nada foi enviado e a sua configuração local ficou intacta — pode continuar a editar.",
+  "bot_config_overshrink_title": "Tem a certeza de que quer enviar esta configuração reduzida?",
+  "bot_config_overshrink_body": "Removeu a maior parte da configuração deste bot. Ainda nada foi enviado: o servidor continua a executar a versão anterior e a sua configuração local está intacta.",
+  "bot_config_overshrink_send_anyway": "Enviar mesmo assim",
+  "bot_config_overshrink_keep_local": "Manter local, sem enviar"
 }

@@ -10600,5 +10600,9 @@
   "container_invite_unavailable": "Der Bot dieser Anwendung konnte nicht identifiziert werden: sein Token fehlt oder wurde widerrufen. Starten Sie eine Neubereitstellung.",
   "container_invite_failed": "Einladung nicht möglich: Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
   "container_invite_open_failed": "Der Einladungslink konnte nicht geöffnet werden.",
-  "bot_payload_refused_local_kept": "Senden abgelehnt: Die zu übertragende Konfiguration war leer (kein Befehl, kein Ereignis, kein Webhook, keine Variable). Es wurde nichts gesendet, Ihre lokale Konfiguration blieb unverändert — Sie können weiter bearbeiten."
+  "bot_payload_refused_local_kept": "Senden abgelehnt: Die zu übertragende Konfiguration war leer (kein Befehl, kein Ereignis, kein Webhook, keine Variable). Es wurde nichts gesendet, Ihre lokale Konfiguration blieb unverändert — Sie können weiter bearbeiten.",
+  "bot_config_overshrink_title": "Möchten Sie diese reduzierte Konfiguration wirklich senden?",
+  "bot_config_overshrink_body": "Sie haben den größten Teil der Konfiguration dieses Bots entfernt. Es wurde noch nichts gesendet: der Server führt weiterhin die vorherige Version aus und Ihre lokale Konfiguration ist unverändert.",
+  "bot_config_overshrink_send_anyway": "Trotzdem senden",
+  "bot_config_overshrink_keep_local": "Lokal behalten, nicht senden"
 }

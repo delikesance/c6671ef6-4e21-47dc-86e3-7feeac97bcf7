@@ -9976,4 +9976,18 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get bot_payload_refused_local_kept =>
       'Senden abgelehnt: Die zu übertragende Konfiguration war leer (kein Befehl, kein Ereignis, kein Webhook, keine Variable). Es wurde nichts gesendet, Ihre lokale Konfiguration blieb unverändert — Sie können weiter bearbeiten.';
+
+  @override
+  String get bot_config_overshrink_title =>
+      'Möchten Sie diese reduzierte Konfiguration wirklich senden?';
+
+  @override
+  String get bot_config_overshrink_body =>
+      'Sie haben den größten Teil der Konfiguration dieses Bots entfernt. Es wurde noch nichts gesendet: der Server führt weiterhin die vorherige Version aus und Ihre lokale Konfiguration ist unverändert.';
+
+  @override
+  String get bot_config_overshrink_send_anyway => 'Trotzdem senden';
+
+  @override
+  String get bot_config_overshrink_keep_local => 'Lokal behalten, nicht senden';
 }

@@ -9995,4 +9995,19 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get bot_payload_refused_local_kept =>
       'Envoi refusé : la configuration à transmettre était vide (aucune commande, aucun événement, aucun webhook, aucune variable). Rien n\'a été envoyé et votre configuration locale est restée intacte — vous pouvez continuer à modifier.';
+
+  @override
+  String get bot_config_overshrink_title =>
+      'Voulez-vous vraiment envoyer cette configuration réduite?';
+
+  @override
+  String get bot_config_overshrink_body =>
+      'Vous avez supprimé l\'essentiel de la configuration de ce bot. Rien n\'a encore été envoyé : le serveur fait toujours tourner la version précédente et votre configuration locale est intacte.';
+
+  @override
+  String get bot_config_overshrink_send_anyway => 'Envoyer quand même';
+
+  @override
+  String get bot_config_overshrink_keep_local =>
+      'Garder en local, sans envoyer';
 }
