@@ -9468,4 +9468,17 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get bot_payload_refused_local_kept =>
       '送信を拒否しました: 送信する設定が空でした（コマンド・イベント・Webhook・変数がいずれもありません）。何も送信されておらず、ローカルの設定はそのままです — 編集を続けられます。';
+
+  @override
+  String get bot_config_overshrink_title => 'この縮小された設定を本当に送信しますか？';
+
+  @override
+  String get bot_config_overshrink_body =>
+      'このBotの設定の大部分が削除されました。まだ何も送信されていません。サーバーは以前のバージョンを実行し続けており、ローカルの設定はそのままです。';
+
+  @override
+  String get bot_config_overshrink_send_anyway => 'それでも送信';
+
+  @override
+  String get bot_config_overshrink_keep_local => '送信せずローカルに保持';
 }

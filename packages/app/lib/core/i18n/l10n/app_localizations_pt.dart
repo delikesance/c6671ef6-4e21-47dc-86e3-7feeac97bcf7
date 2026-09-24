@@ -9957,4 +9957,18 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get bot_payload_refused_local_kept =>
       'Envio recusado: a configuração a enviar estava vazia (nenhum comando, nenhum evento, nenhum webhook, nenhuma variável). Nada foi enviado e a sua configuração local ficou intacta — pode continuar a editar.';
+
+  @override
+  String get bot_config_overshrink_title =>
+      'Tem a certeza de que quer enviar esta configuração reduzida?';
+
+  @override
+  String get bot_config_overshrink_body =>
+      'Removeu a maior parte da configuração deste bot. Ainda nada foi enviado: o servidor continua a executar a versão anterior e a sua configuração local está intacta.';
+
+  @override
+  String get bot_config_overshrink_send_anyway => 'Enviar mesmo assim';
+
+  @override
+  String get bot_config_overshrink_keep_local => 'Manter local, sem enviar';
 }

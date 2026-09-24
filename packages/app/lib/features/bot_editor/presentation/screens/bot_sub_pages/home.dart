@@ -35,6 +35,7 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pag
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/bot_stats.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/debug_replay_page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_config_versions_page.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/bot_config_overshrink_dialog.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/bot_logs_console_scope.dart';
 import 'package:bot_creator/features/home/logic/bot_run_source.dart';
 import 'package:bot_creator/features/home/logic/hosting_time_offer.dart';

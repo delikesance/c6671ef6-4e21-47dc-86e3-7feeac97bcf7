@@ -2635,8 +2635,11 @@ class HomePageState extends State<HomePage>
           // laisser passer dans `describeManagerRuntimeFailure` la déguiserait en
           // panne des serveurs Bot Creator (« pas encore prêts », « démarrage en
           // cours »). On la laisse donc remonter TELLE QUELLE : le `catch`
-          // extérieur affiche son message localisé dédié.
-          if (isBotPayloadRefusal(error)) {
+          // extérieur affiche son message localisé dédié. Idem pour le refus
+          // SERVEUR de sur-réduction (`409 bot_config_overshrink`) : c'est une
+          // question à poser au propriétaire, pas une panne.
+          if (isBotPayloadRefusal(error) ||
+              isBotConfigOvershrinkRefusal(error)) {
             rethrow;
           }
           if (client is MainApiClient) {
@@ -2845,8 +2848,13 @@ class HomePageState extends State<HomePage>
       // `mounted` AVANT `context.tr` : la page peut avoir été quittée pendant la
       // tentative, et lire les traductions sur un contexte détruit lèverait dans
       // le `catch` — soit une erreur masquant l'erreur d'origine.
+      // Le refus SERVEUR de sur-réduction reçoit la même phrase qu'une poussée
+      // refusée en local (une seule version des faits) : rien n'est parti, la
+      // configuration locale est intacte — et jamais « les serveurs ne sont pas
+      // prêts », qui serait un mensonge sur un refus volontaire.
       final refusal = mounted
-          ? localizedBotPayloadRefusalMessage(context.tr, e)
+          ? (localizedBotPayloadRefusalMessage(context.tr, e) ??
+                localizedBotConfigOvershrinkNothingSent(context.tr, e))
           : null;
       // Le serveur reste seul juge : un refus lié à la formule arrive ici quand
       // la formule a changé depuis le dernier rafraîchissement local. On affiche

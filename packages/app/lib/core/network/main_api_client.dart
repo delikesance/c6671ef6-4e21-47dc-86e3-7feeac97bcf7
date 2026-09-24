@@ -19,10 +19,20 @@ import 'package:web_socket_channel/io.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MainApiClientException implements Exception {
-  const MainApiClientException(this.message, {this.statusCode});
+  const MainApiClientException(this.message, {this.statusCode, this.code});
 
   final String message;
   final int? statusCode;
+
+  /// Code applicatif rendu par le serveur (`domain.APIError.code`, ex.
+  /// `bot_config_overshrink`, `token_decrypt_failed`).
+  ///
+  /// POURQUOI ce champ existe séparément du [message] : la phrase du message est
+  /// faite pour un humain et peut changer (tailles, détails) ; le code, lui, est
+  /// le contrat. Des décisions d'interface — « ce 409 est une QUESTION, pas une
+  /// panne » — ne doivent pas dépendre d'un `contains` sur une phrase.
+  /// `null` quand la réponse ne porte pas de code (panne réseau, corps vide).
+  final String? code;
 
   @override
   String toString() {
@@ -718,7 +728,15 @@ class MainApiClient implements RemoteRuntimeClient {
                   response.reasonPhrase ??
                   'Unknown error')
               .toString();
-      throw MainApiClientException(message, statusCode: response.statusCode);
+      final rawCode = json['code'];
+      final code = rawCode is String && rawCode.trim().isNotEmpty
+          ? rawCode.trim()
+          : null;
+      throw MainApiClientException(
+        message,
+        statusCode: response.statusCode,
+        code: code,
+      );
     }
 
     return json;
@@ -1180,6 +1198,7 @@ class MainApiClient implements RemoteRuntimeClient {
     String botName,
     Map<String, dynamic> config, {
     bool force = false,
+    bool confirmOvershrink = false,
   }) async {
     // POURQUOI la garde est en TÊTE de méthode : c'est le dernier point avant le
     // réseau. Une charge utile vide (aucune commande, aucun événement, aucun
@@ -1197,6 +1216,14 @@ class MainApiClient implements RemoteRuntimeClient {
     }
 
     final safeConfig = _sanitizeConfigForUpload(config);
+
+    // Le drapeau n'est posé QUE quand l'utilisateur a répondu oui au dialogue de
+    // sur-réduction. Il voyage dans les deux corps visant `/gateway/bots/sync`
+    // (chemin pré-signé et repli direct) : une poussée rejouée doit être la MÊME,
+    // à ce champ près.
+    final overshrinkConsent = <String, dynamic>{
+      if (confirmOvershrink) 'confirmOvershrink': true,
+    };
 
     try {
       // 1. Get presigned ticket
@@ -1217,6 +1244,7 @@ class MainApiClient implements RemoteRuntimeClient {
           'botId': botId,
           'botName': botName,
           'configUrl': ticket.configUrl,
+          ...overshrinkConsent,
         },
       );
     } catch (error) {
@@ -1231,6 +1259,7 @@ class MainApiClient implements RemoteRuntimeClient {
           'botId': botId,
           'botName': botName,
           'config': safeConfig,
+          ...overshrinkConsent,
         },
       );
     }

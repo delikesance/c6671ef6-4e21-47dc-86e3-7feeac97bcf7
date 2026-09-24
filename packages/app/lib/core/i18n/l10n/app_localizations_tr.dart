@@ -9899,4 +9899,18 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get bot_payload_refused_local_kept =>
       'Gönderim reddedildi: Gönderilecek yapılandırma boştu (komut, olay, webhook veya değişken yok). Hiçbir şey gönderilmedi ve yerel yapılandırmanız olduğu gibi kaldı — düzenlemeye devam edebilirsiniz.';
+
+  @override
+  String get bot_config_overshrink_title =>
+      'Bu küçültülmüş yapılandırmayı göndermek istediğinizden emin misiniz?';
+
+  @override
+  String get bot_config_overshrink_body =>
+      'Bu botun yapılandırmasının büyük bölümünü sildiniz. Henüz hiçbir şey gönderilmedi: sunucu hâlâ önceki sürümü çalıştırıyor ve yerel yapılandırmanız olduğu gibi duruyor.';
+
+  @override
+  String get bot_config_overshrink_send_anyway => 'Yine de gönder';
+
+  @override
+  String get bot_config_overshrink_keep_local => 'Yerel kalsın, gönderme';
 }

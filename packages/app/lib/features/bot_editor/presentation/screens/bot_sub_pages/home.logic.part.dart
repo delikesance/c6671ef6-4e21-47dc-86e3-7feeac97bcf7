@@ -440,7 +440,11 @@ extension _AppHomePageLogic on _AppHomePageState {
           // réseau. Le passer par `describeManagerRuntimeFailure` le présenterait
           // comme une panne des serveurs Bot Creator alors que rien n'a été
           // envoyé — on le laisse donc remonter tel quel vers le message dédié.
-          if (isBotPayloadRefusal(error)) {
+          // Même traitement pour le refus SERVEUR de sur-réduction
+          // (`409 bot_config_overshrink`) : c'est une question posée au
+          // propriétaire, pas un serveur qui serait « pas encore prêt ».
+          if (isBotPayloadRefusal(error) ||
+              isBotConfigOvershrinkRefusal(error)) {
             rethrow;
           }
           if (remoteClient is MainApiClient) {
@@ -591,8 +595,12 @@ extension _AppHomePageLogic on _AppHomePageState {
       if (mounted) {
         // La poussée refusée par la garde anti-config-vide a son propre message :
         // il dit les deux choses que l'utilisateur ignore — rien n'est parti, et
-        // rien n'a été effacé en local. Sinon, le message d'échec habituel.
-        final refusal = localizedBotPayloadRefusalMessage(context.tr, e);
+        // rien n'a été effacé en local. Sinon, le message d'échec habituel. Le
+        // refus SERVEUR de sur-réduction reçoit la même phrase (une seule version
+        // des faits), sans passer pour une panne.
+        final refusal =
+            localizedBotPayloadRefusalMessage(context.tr, e) ??
+            localizedBotConfigOvershrinkNothingSent(context.tr, e);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
