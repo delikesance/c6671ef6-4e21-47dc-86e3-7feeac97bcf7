@@ -10,9 +10,11 @@
 // lists`, et son test `TestBotGatewayListBotsIncludesDecryptedTokens` exige ce vide). La
 // synchro reprenait ce champ vide et l'écrivait par-dessus le jeton local. Un jeton ne
 // redescend jamais du serveur : la seule copie qui compte est celle du poste.
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:bot_creator/core/secure/secure_storage_service.dart';
+import 'package:bot_creator/core/storage/app_storage_directory.dart';
 import 'package:bot_creator/core/storage/database.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -113,6 +115,114 @@ void main() {
         (app['token'] ?? '').toString(),
         isEmpty,
         reason: 'sans jeton connu, on n\'en fabrique pas un',
+      );
+    },
+  );
+
+  // ─── Le jeton ne reste pas en clair sur le disque ────────────────────────
+  //
+  // Il était écrit dans `apps/<id>.json` (un JSON lisible par n'importe quel
+  // processus du poste : sauvegarde, indexeur, copie du dossier de données) et
+  // le coffre n'était qu'une SECONDE écriture, non attendue, APRÈS le fichier.
+  // L'ordre est maintenant l'inverse : coffre d'abord, fichier sans jeton.
+
+  test(
+    'le jeton ne reste pas en clair dans apps/<id>.json, et il n\'est pas perdu',
+    () async {
+      final manager = AppManager();
+      const botSansCopie = '111122223333444455';
+      await manager.createOrUpdateApp(
+        id: Snowflake.parse(botSansCopie),
+        username: 'SansCopie',
+        token: _tokenReel,
+      );
+
+      final fichier = File('${await getAppStoragePath()}/apps/$botSansCopie.json');
+      expect(await fichier.exists(), isTrue);
+      final contenu = await fichier.readAsString();
+      expect(
+        contenu.contains(_tokenReel),
+        isFalse,
+        reason: 'un secret ne doit pas rester en clair dans un fichier JSON',
+      );
+      expect(
+        contenu.contains('"token"'),
+        isFalse,
+        reason: 'le champ lui-même ne doit plus être écrit dans le fichier',
+      );
+
+      // Retirer la copie du fichier ne doit RIEN coûter : le coffre la rend.
+      final app = await manager.getApp(botSansCopie);
+      expect(app['token'], _tokenReel);
+      final secure = await SecureStorageService.instance;
+      expect(await secure.read('bot_token:$botSansCopie'), _tokenReel);
+    },
+  );
+
+  test(
+    'une copie en clair laissée par une version antérieure est retirée à la lecture',
+    () async {
+      final manager = AppManager();
+      const botHeritage = '999988887777666655';
+      final dossier = '${await getAppStoragePath()}/apps';
+      await Directory(dossier).create(recursive: true);
+      final fichier = File('$dossier/$botHeritage.json');
+      await fichier.writeAsString(
+        jsonEncode(<String, dynamic>{
+          'id': botHeritage,
+          'name': 'Heritage',
+          'token': _tokenReel,
+        }),
+      );
+      final secure = await SecureStorageService.instance;
+      await secure.write('bot_token:$botHeritage', _tokenReel);
+
+      final app = await manager.getApp(botHeritage);
+      expect(app['token'], _tokenReel, reason: 'le coffre fait foi');
+
+      // La réparation est chaînée derrière les écritures en cours : sans cette
+      // attente on lirait le fichier avant qu'elle ne l'ait nettoyé.
+      await manager.flushPendingWrites();
+      expect(
+        (await fichier.readAsString()).contains(_tokenReel),
+        isFalse,
+        reason:
+            'un fichier qui traîne encore une copie en clair est nettoyé à la première lecture',
+      );
+    },
+  );
+
+  test(
+    'la règle : le jeton ne part sur le disque que si le coffre a refusé',
+    () {
+      final sansCoffre = AppManager.appDocumentForDisk(
+        <String, dynamic>{'id': '1', 'name': 'x', 'token': _tokenReel},
+        tokenStoredInVault: false,
+      );
+      expect(
+        sansCoffre['token'],
+        _tokenReel,
+        reason: 'un jeton perdu est pire qu\'un jeton en clair : sans coffre, on garde la copie',
+      );
+
+      final avecCoffre = AppManager.appDocumentForDisk(
+        <String, dynamic>{'id': '1', 'name': 'x', 'token': _tokenReel},
+        tokenStoredInVault: true,
+      );
+      expect(
+        avecCoffre.containsKey('token'),
+        isFalse,
+        reason: 'quand le coffre l\'a, le fichier ne le porte plus',
+      );
+
+      final vide = AppManager.appDocumentForDisk(
+        <String, dynamic>{'id': '1', 'token': ''},
+        tokenStoredInVault: true,
+      );
+      expect(
+        vide.containsKey('token'),
+        isFalse,
+        reason: 'un jeton vide ne s\'écrit jamais, même dans le repli',
       );
     },
   );
