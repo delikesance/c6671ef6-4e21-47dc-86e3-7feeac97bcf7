@@ -303,13 +303,31 @@ const List<AllowListEntry> allowListedPatterns = <AllowListEntry>[
     pathFragment: '',
     // Le contenu du littéral n'est fait que d'interpolations, d'espaces, de
     // chiffres et de ponctuation : il n'y a pas un mot à traduire.
-    snippetPattern:
-        r"^[^']*'[\s\d(),.:/|*+_\[\]-]*(\$\{[^}]*\}|\$[a-zA-Z_][a-zA-Z0-9_]*)"
-        r"[\s\d(),.:/|*+_\[\]-]*'[^']*$",
+    //
+    // Les interpolations peuvent être PLUSIEURS (`'${a} / ${b}'`) : autoriser un
+    // seul groupe laissait passer des compteurs composés pour de la copie.
+        // Un raw string ne peut pas echapper de guillemet : les deux formes
+        // de guillemet sont donc ecrites \x27 (apostrophe) et \x22
+        // (guillemet), ce qui evite de melanger deux styles de litteraux.
+        snippetPattern:
+            r"^[^\x27\x22]*[\x27\x22](?:[\s\d(),.:/|*+_\[\]#•·—×°~!?=&%@\-]"
+            r"|(\$\{[^}]*\}|\$[a-zA-Z_][a-zA-Z0-9_]*))*[\x27\x22][^\x27\x22]*$",
     reason:
         'Texte 100 % DONNÉE : un compteur, un identifiant ou une longueur '
         'interpolés, sans un seul mot humain — il n\'y a donc rien à traduire. '
         'Un chiffre ou un identifiant s\'affiche tel quel dans toutes les langues.',
+  ),
+  AllowListEntry(
+    pathFragment: '',
+    // Une valeur interpolée suivie d'une UNITÉ (`'${duree} ms'`) : c'est un
+    // affichage de mesure. Le motif EXIGE l'interpolation, sinon il couvrirait
+    // aussi de la vraie copie (« 5 min restantes »).
+    snippetPattern:
+        r"Text\( [\x27\x22][^\x27\x22]*\$[^\x27\x22]*\b(?:ms|min|px|kB|MB)\b",
+    reason:
+        'Affichage de MESURE : une valeur interpolée suivie d\'une unité (ms, min, '
+        'px…) — l\'unité est un symbole international, identique dans les six '
+        'langues, et le nombre change à chaque exécution.',
   ),
   AllowListEntry(
     pathFragment: '',
@@ -340,6 +358,41 @@ const List<AllowListEntry> allowListedPatterns = <AllowListEntry>[
         'Identifiants de MOTEUR ou de langage (Dart, JS, JavaScript…) : ce sont '
         'des noms propres techniques, identiques dans les 6 langues. Même '
         'logique que l\'entrée équivalente de l\'éditeur de bot.',
+  ),
+  AllowListEntry(
+    pathFragment: '',
+    snippetPattern: r"Text\( [\x27\x22]BDFD Script[\x27\x22]",
+    reason:
+        'BDFD (« Bot Designer For Discord ») est un NOM PROPRE d\'outil : il ne se '
+        'traduit pas, et une traduction ferait perdre le repère aux utilisateurs '
+        'qui viennent de cet éditeur.',
+  ),
+  AllowListEntry(
+    pathFragment: '',
+    // Un lien : c'est une ADRESSE, la meme dans les six langues.
+    snippetPattern: r"(?:https?://|[\w-]+\.(?:fr|com|org|io)/)",
+    reason:
+        'Adresse (URL ou domaine) : une adresse ne se traduit pas — elle doit '
+        'rester cliquable et identique dans toutes les langues.',
+  ),
+  AllowListEntry(
+    pathFragment: '',
+    // Sigles et badges universels : une « traduction » les rendrait
+    // meconnaissables (un enregistrement reste REC partout).
+    snippetPattern: r"Text\( [\x27\x22](?:REC|APP)[\x27\x22],",
+    reason:
+        'Sigle universel affiche tel quel (badge d\'enregistrement, pastille '
+        'd\'application) : la forme abregee est le terme employe dans toutes les '
+        'langues, et la traduire n\'aiderait personne.',
+  ),
+  AllowListEntry(
+    pathFragment: '',
+    // Sigle technique suivi d'une DONNEE : identifiant, niveau, index de bit.
+    snippetPattern: r"Text\( [\x27\x22](?:ID|L|Bit) ?\$",
+    reason:
+        'Sigle technique suivi d\'une donnee (`ID \$botId`, `L1`, `Bit 3`) : '
+        'vocabulaire technique identique dans les six langues, le reste est un '
+        'identifiant ou un nombre.',
   ),
 ];
 

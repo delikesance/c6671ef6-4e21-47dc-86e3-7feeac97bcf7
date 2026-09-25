@@ -5641,6 +5641,148 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String actions_configured_count(num count) {
+    return '$count 件のアクションを設定済み';
+  }
+
+  @override
+  String action_card_else_if(int count) {
+    return 'それ以外の場合 $count';
+  }
+
+  @override
+  String get blueprint_cut_link => 'リンクを切断';
+
+  @override
+  String get blueprint_entry_point_hint =>
+      'エントリーポイントのトリガーノード。\nコマンドのプロパティで設定します。';
+
+  @override
+  String get blueprint_mode_label => 'ブループリント';
+
+  @override
+  String get blueprint_origin_label => '原点 (0, 0)';
+
+  @override
+  String bot_config_version_commands(int count) {
+    return '$count 件のコマンド';
+  }
+
+  @override
+  String get bot_config_version_commands_title => 'このバージョンのコマンド:';
+
+  @override
+  String bot_config_version_more_count(int count) {
+    return '… 他 $count 件';
+  }
+
+  @override
+  String bot_config_version_replace_warning(int count) {
+    return '現在の$count件のコマンドを置き換えます';
+  }
+
+  @override
+  String command_delete_discord_failed_local(String error) {
+    return 'Discordでの削除に失敗しました。ローカルの削除を適用しました。$error';
+  }
+
+  @override
+  String get common_exists => '既存';
+
+  @override
+  String get common_live_badge => 'ライブ';
+
+  @override
+  String component_choice_number(int count) {
+    return '選択肢 $count';
+  }
+
+  @override
+  String get component_ephemeral_hint => 'エフェメラル（コマンド実行者にのみ表示）';
+
+  @override
+  String get debug_persistence_title => '永続化のデバッグ';
+
+  @override
+  String element_count(int count) {
+    return '$count 件の要素';
+  }
+
+  @override
+  String embed_count(int count) {
+    return '$count 件の埋め込み';
+  }
+
+  @override
+  String get emojis_animated_label => 'アニメーション';
+
+  @override
+  String field_count(int count) {
+    return '$count 件のフィールド';
+  }
+
+  @override
+  String marketplace_actions_count(int count) {
+    return 'アクション（$count）';
+  }
+
+  @override
+  String get onb_example_label => '例:';
+
+  @override
+  String get option_autocomplete_js_hint =>
+      'interaction.respond() に名前と値の組を渡して最大25件の選択肢を返します。';
+
+  @override
+  String get permission_tap_to_cycle => 'タップして切り替え';
+
+  @override
+  String get serialization_copy_base64 => 'コンパクトなBase64ペイロードをクリップボードにコピー';
+
+  @override
+  String get settings_ads_debug_desc =>
+      'Ad Inspectorを開き、アダプター（Unity/Google）の状態を記録してメディエーションを確認します。';
+
+  @override
+  String get settings_ads_debug_title => '広告メディエーションのデバッグ';
+
+  @override
+  String settings_detected_engine(String engine) {
+    return '検出されたエンジン: $engine';
+  }
+
+  @override
+  String get variables_emojis_hint => '利用できる絵文字 — タップして挿入';
+
+  @override
+  String workflow_event_variables_count(int count) {
+    return 'イベント変数（$count）';
+  }
+
+  @override
+  String workflow_import_review_count(int count) {
+    return '$count 件のワークフローを確認して読み込みます:';
+  }
+
+  @override
+  String get workflow_rename_variables_hint => 'このワークフローの変数は任意で名前を変更できます。';
+
+  @override
+  String component_node_child_run_hint(
+    String message,
+    String workflow,
+    String entry,
+    String args,
+  ) {
+    return '$message 「$workflow」を実行します（エントリー: $entry、引数: $args）。';
+  }
+
+  @override
+  String workflows_preview_summary(String type, int count) {
+    return '$type  •  $count 件のアクション';
+  }
+
+  @override
   String get sync_cloud_update_applied => 'クラウドの更新を適用しました';
 
   @override

@@ -1072,23 +1072,21 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                                 ),
                                 SegmentedButton<String>(
                                   showSelectedIcon: false,
-                                  segments: const [
+                                  segments: [
                                     ButtonSegment<String>(
                                       value: 'linear',
                                       icon: Icon(
                                         Icons.view_agenda_outlined,
                                         size: 16,
                                       ),
-                                      label: Text(
-                                        'Blocs',
+                                      label: Text(context.tr.scratch_blocks_tab,
                                         style: TextStyle(fontSize: 12),
                                       ),
                                     ),
                                     ButtonSegment<String>(
                                       value: 'blueprint',
                                       icon: Icon(Icons.hub_outlined, size: 16),
-                                      label: Text(
-                                        'Blueprint',
+                                      label: Text(context.tr.blueprint_mode_label,
                                         style: TextStyle(fontSize: 12),
                                       ),
                                     ),
@@ -1707,8 +1705,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                   ),
                 ),
                 const SizedBox(width: 4),
-                Text(
-                  'Event Variables (${eventVars.length})',
+                Text(context.tr.workflow_event_variables_count(eventVars.length),
                   style: const TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 13,
@@ -1720,8 +1717,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
         ),
         if (_eventVariablesExpanded) ...[
           const SizedBox(height: 4),
-          Text(
-            'Optionally rename variables for this workflow.',
+          Text(context.tr.workflow_rename_variables_hint,
             style: TextStyle(fontSize: 11, color: AppTheme.grey),
           ),
           const SizedBox(height: 8),

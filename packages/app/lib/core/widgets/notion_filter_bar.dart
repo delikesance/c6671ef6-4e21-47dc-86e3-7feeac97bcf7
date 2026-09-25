@@ -1,5 +1,6 @@
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:bot_creator/core/i18n/i18n.dart';
 
 /// A filter definition for the Notion-like filter bar.
 ///
@@ -404,8 +405,7 @@ class _NotionFilterBarState extends State<NotionFilterBar> {
                   dense: true,
                   leading: Icon(filter.icon, size: 20),
                   title: Text(filter.label),
-                  subtitle: Text(
-                    '${filter.options.length} options',
+                  subtitle: Text(context.tr.marketplace_command_preview_options(filter.options.length),
                     style: const TextStyle(fontSize: 11),
                   ),
                   onTap: () {

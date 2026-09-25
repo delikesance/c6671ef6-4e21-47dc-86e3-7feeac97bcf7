@@ -857,8 +857,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            'Review ${previewEntries.length} workflow(s) to import:',
+          Text(context.tr.workflow_import_review_count(previewEntries.length),
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 8),
@@ -900,8 +899,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                                   fontSize: 13,
                                 ),
                               ),
-                              Text(
-                                '$typeLabel  •  $actionCount action(s)',
+                              Text(context.tr.workflows_preview_summary(typeLabel, actionCount),
                                 style: TextStyle(
                                   fontSize: 11,
                                   color: Theme.of(
@@ -924,8 +922,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                               ).colorScheme.tertiaryContainer,
                               borderRadius: BorderRadius.circular(4),
                             ),
-                            child: Text(
-                              'Exists',
+                            child: Text(context.tr.common_exists,
                               style: TextStyle(
                                 fontSize: 10,
                                 color: Theme.of(
@@ -995,8 +992,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Text(
-                          'Import workflow preview',
+                        Text(context.tr.workflows_import_preview_title,
                           style: Theme.of(ctx).textTheme.titleMedium,
                         ),
                         const SizedBox(height: 10),
@@ -2073,8 +2069,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                           color: Theme.of(context).colorScheme.error,
                         ),
                         const SizedBox(width: 8),
-                        Text(
-                          'Delete',
+                        Text(context.tr.common_delete,
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.error,
                           ),

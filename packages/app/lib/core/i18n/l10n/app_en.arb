@@ -3462,6 +3462,130 @@
       }
     }
   },
+  "@marketplace_actions_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@workflow_import_review_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@workflow_event_variables_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@component_choice_number": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@action_card_else_if": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@action_card_actions_configured": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@embed_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@field_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@element_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@bot_config_version_commands": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@bot_config_version_replace_warning": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@bot_config_version_more_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@settings_detected_engine": {
+    "placeholders": {
+      "engine": {
+        "type": "String"
+      }
+    }
+  },
+  "@command_delete_discord_failed_local": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@workflows_preview_summary": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@component_node_child_run_hint": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      },
+      "workflow": {
+        "type": "String"
+      },
+      "entry": {
+        "type": "String"
+      },
+      "args": {
+        "type": "String"
+      }
+    }
+  },
   "@common_ok": {
     "description": "OK"
   },
@@ -9960,6 +10084,40 @@
   "option_autocomplete_javascript": "JavaScript Autocomplete",
   "option_description_new": "Description for option {count}",
   "variables_sync_failed": "Failed to sync variable: {error}",
+  "actions_configured_count": "{count, plural, =1{1 action configured} other{{count} actions configured}}",
+  "action_card_else_if": "ELSE IF {count}",
+  "blueprint_cut_link": "Cut the link",
+  "blueprint_entry_point_hint": "Entry Point Trigger node.\nConfigured in command properties.",
+  "blueprint_mode_label": "Blueprint",
+  "blueprint_origin_label": "Origin (0, 0)",
+  "bot_config_version_commands": "{count, plural, =1{1 command} other{{count} commands}}",
+  "bot_config_version_commands_title": "Commands in this version:",
+  "bot_config_version_more_count": "… and {count} more",
+  "bot_config_version_replace_warning": "Will replace {count} current commands",
+  "command_delete_discord_failed_local": "Discord delete failed. Local delete applied. {error}",
+  "common_exists": "Exists",
+  "common_live_badge": "LIVE",
+  "component_choice_number": "Choice {count}",
+  "component_ephemeral_hint": "Ephemeral (only visible to command user)",
+  "debug_persistence_title": "Persistence debug",
+  "element_count": "{count, plural, =1{1 element} other{{count} elements}}",
+  "embed_count": "{count, plural, =1{1 embed} other{{count} embeds}}",
+  "emojis_animated_label": "animated",
+  "field_count": "{count, plural, =1{1 field} other{{count} fields}}",
+  "marketplace_actions_count": "Actions ({count})",
+  "onb_example_label": "Example:",
+  "option_autocomplete_js_hint": "Use interaction.respond() with name/value pairs to return up to 25 choices.",
+  "permission_tap_to_cycle": "Tap to cycle",
+  "serialization_copy_base64": "Copy compact Base64 payload to clipboard",
+  "settings_ads_debug_desc": "Open Ad Inspector and log adapter status (Unity/Google) to validate mediation.",
+  "settings_ads_debug_title": "Ads Mediation Debug",
+  "settings_detected_engine": "Detected engine: {engine}",
+  "variables_emojis_hint": "Available emojis — tap to insert",
+  "workflow_event_variables_count": "Event Variables ({count})",
+  "workflow_import_review_count": "{count, plural, =1{Review 1 workflow to import:} other{Review {count} workflows to import:}}",
+  "workflow_rename_variables_hint": "Optionally rename variables for this workflow.",
+  "component_node_child_run_hint": "{message} \"{workflow}\" will be executed (entry: {entry}, args: {args}).",
+  "workflows_preview_summary": "{type}  •  {count, plural, =1{1 action} other{{count} actions}}",
   "sync_cloud_update_applied": "Cloud update applied successfully",
   "sync_conflict_message": "Divergent changes exist between this local session and Cloud (Mobile). Choose how to resolve this conflict:",
   "sync_conflict_title": "Sync Conflict Detected",

@@ -793,8 +793,7 @@ class _BlueprintGraphCanvasState extends State<BlueprintGraphCanvas> {
                             color: Colors.cyanAccent,
                             size: 16,
                           ),
-                          label: const Text(
-                            'Origine (0, 0)',
+                          label: Text(context.tr.blueprint_origin_label,
                             style: TextStyle(
                               fontSize: 11,
                               color: Colors.cyanAccent,
@@ -817,8 +816,7 @@ class _BlueprintGraphCanvasState extends State<BlueprintGraphCanvas> {
                               color: Colors.redAccent,
                               size: 16,
                             ),
-                            label: const Text(
-                              'Couper le lien',
+                            label: Text(context.tr.blueprint_cut_link,
                               style: TextStyle(
                                 fontSize: 11,
                                 color: Colors.redAccent,
@@ -857,7 +855,7 @@ class _BlueprintGraphCanvasState extends State<BlueprintGraphCanvas> {
                               ),
                             ],
                           ),
-                          child: const Row(
+                          child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(
@@ -866,8 +864,7 @@ class _BlueprintGraphCanvasState extends State<BlueprintGraphCanvas> {
                                 color: Colors.white,
                               ),
                               SizedBox(width: 4),
-                              Text(
-                                'Couper',
+                              Text(context.tr.menu_cut,
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 11,

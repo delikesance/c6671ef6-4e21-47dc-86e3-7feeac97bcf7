@@ -252,8 +252,7 @@ class _VariableTextFieldState extends State<VariableTextField> {
             padding: EdgeInsets.zero,
             children: [
               const SizedBox(height: 8),
-              Text(
-                'Available emojis — tap to insert',
+              Text(context.tr.variables_emojis_hint,
                 style: TextStyle(fontSize: 11, color: AppTheme.grey),
               ),
               const SizedBox(height: 6),

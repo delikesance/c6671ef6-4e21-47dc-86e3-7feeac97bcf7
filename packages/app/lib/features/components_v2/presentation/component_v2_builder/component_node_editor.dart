@@ -1960,12 +1960,11 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                 border: Border.all(color: AppTheme.grey),
                 borderRadius: BorderRadius.circular(AppTheme.radiusXs),
               ),
-              child: const Row(
+              child: Row(
                 children: [
                   Icon(Icons.add, size: 16, color: AppTheme.grey),
                   SizedBox(width: 8),
-                  Text(
-                    'Add Child Component',
+                  Text(context.tr.component_add_child,
                     style: TextStyle(
                       color: AppTheme.grey,
                       fontWeight: FontWeight.bold,
@@ -2479,8 +2478,7 @@ class _WorkflowSelectorFieldState extends State<_WorkflowSelectorField> {
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text(
-                    '${widget.successMessage} "$_selectedWorkflow" will be executed (entry: ${_entryPointCtrl.text.trim().isEmpty ? 'default' : _entryPointCtrl.text.trim()}, args: ${_workflowArguments.length}).',
+                  child: Text(context.tr.component_node_child_run_hint(widget.successMessage, _selectedWorkflow, _entryPointCtrl.text.trim().isEmpty ? 'default' : _entryPointCtrl.text.trim(), '${_workflowArguments.length}'),
                     style: TextStyle(
                       fontSize: 12,
                       color: AppTheme.success,

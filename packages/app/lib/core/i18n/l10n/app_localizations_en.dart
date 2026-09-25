@@ -5896,6 +5896,193 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String actions_configured_count(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count actions configured',
+      one: '1 action configured',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String action_card_else_if(int count) {
+    return 'ELSE IF $count';
+  }
+
+  @override
+  String get blueprint_cut_link => 'Cut the link';
+
+  @override
+  String get blueprint_entry_point_hint =>
+      'Entry Point Trigger node.\nConfigured in command properties.';
+
+  @override
+  String get blueprint_mode_label => 'Blueprint';
+
+  @override
+  String get blueprint_origin_label => 'Origin (0, 0)';
+
+  @override
+  String bot_config_version_commands(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count commands',
+      one: '1 command',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bot_config_version_commands_title => 'Commands in this version:';
+
+  @override
+  String bot_config_version_more_count(int count) {
+    return '… and $count more';
+  }
+
+  @override
+  String bot_config_version_replace_warning(int count) {
+    return 'Will replace $count current commands';
+  }
+
+  @override
+  String command_delete_discord_failed_local(String error) {
+    return 'Discord delete failed. Local delete applied. $error';
+  }
+
+  @override
+  String get common_exists => 'Exists';
+
+  @override
+  String get common_live_badge => 'LIVE';
+
+  @override
+  String component_choice_number(int count) {
+    return 'Choice $count';
+  }
+
+  @override
+  String get component_ephemeral_hint =>
+      'Ephemeral (only visible to command user)';
+
+  @override
+  String get debug_persistence_title => 'Persistence debug';
+
+  @override
+  String element_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count elements',
+      one: '1 element',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String embed_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count embeds',
+      one: '1 embed',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get emojis_animated_label => 'animated';
+
+  @override
+  String field_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fields',
+      one: '1 field',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String marketplace_actions_count(int count) {
+    return 'Actions ($count)';
+  }
+
+  @override
+  String get onb_example_label => 'Example:';
+
+  @override
+  String get option_autocomplete_js_hint =>
+      'Use interaction.respond() with name/value pairs to return up to 25 choices.';
+
+  @override
+  String get permission_tap_to_cycle => 'Tap to cycle';
+
+  @override
+  String get serialization_copy_base64 =>
+      'Copy compact Base64 payload to clipboard';
+
+  @override
+  String get settings_ads_debug_desc =>
+      'Open Ad Inspector and log adapter status (Unity/Google) to validate mediation.';
+
+  @override
+  String get settings_ads_debug_title => 'Ads Mediation Debug';
+
+  @override
+  String settings_detected_engine(String engine) {
+    return 'Detected engine: $engine';
+  }
+
+  @override
+  String get variables_emojis_hint => 'Available emojis — tap to insert';
+
+  @override
+  String workflow_event_variables_count(int count) {
+    return 'Event Variables ($count)';
+  }
+
+  @override
+  String workflow_import_review_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Review $count workflows to import:',
+      one: 'Review 1 workflow to import:',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get workflow_rename_variables_hint =>
+      'Optionally rename variables for this workflow.';
+
+  @override
+  String component_node_child_run_hint(
+    String message,
+    String workflow,
+    String entry,
+    String args,
+  ) {
+    return '$message \"$workflow\" will be executed (entry: $entry, args: $args).';
+  }
+
+  @override
+  String workflows_preview_summary(String type, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count actions',
+      one: '1 action',
+    );
+    return '$type  •  $_temp0';
+  }
+
+  @override
   String get sync_cloud_update_applied => 'Cloud update applied successfully';
 
   @override

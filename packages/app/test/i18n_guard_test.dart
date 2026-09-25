@@ -114,10 +114,16 @@ void main() {
     // chiffre sous-estimé fait croire à une dette résorbée et arrête le travail
     // au mauvais moment.
     //
-    // La règle ne change pas, et elle est plus stricte que jamais : le plafond
-    // ne doit plus JAMAIS remonter, sauf correction de mesure documentée comme
-    // ici. Un plafond relevé pour faire passer un lot est un verrou mort.
-    const int ceiling = 103;
+    // 103 → **24** (49 sites convertis, 32 clés). Le plafond suit la dette vers
+    // le BAS ; il ne remonte jamais, sauf correction de mesure documentée.
+    //
+    // Ce qu'il reste est UN SEUL fichier, `remote_runtime.dart` : ces messages
+    // naissent dans une couche SANS `BuildContext` — traduire sur place est
+    // impossible, il faut rendre une RAISON typée que l'UI traduit (refactor,
+    // pas conversion de clés). Le plafond ne peut donc plus baisser tant que ce
+    // refactor n'est pas fait : c'est écrit ici pour que personne ne croie à un
+    // oubli.
+    const int ceiling = 24;
     final findings = findHardcodedStringFindings(rootPath: 'lib');
     final known = findings
         .where(

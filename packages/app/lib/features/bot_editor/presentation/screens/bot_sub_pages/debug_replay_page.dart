@@ -1108,8 +1108,7 @@ class _VariablesDiffSectionState extends State<_VariablesDiffSection> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (highlightedKeys.isNotEmpty) ...[
-                  Text(
-                    'Persistence debug',
+                  Text(context.tr.debug_persistence_title,
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: cs.primary,
                       fontWeight: FontWeight.w700,

@@ -10374,6 +10374,215 @@ abstract class AppLocalizations {
   /// **'Failed to sync variable: {error}'**
   String variables_sync_failed(String error);
 
+  /// No description provided for @actions_configured_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 action configured} other{{count} actions configured}}'**
+  String actions_configured_count(num count);
+
+  /// No description provided for @action_card_else_if.
+  ///
+  /// In en, this message translates to:
+  /// **'ELSE IF {count}'**
+  String action_card_else_if(int count);
+
+  /// No description provided for @blueprint_cut_link.
+  ///
+  /// In en, this message translates to:
+  /// **'Cut the link'**
+  String get blueprint_cut_link;
+
+  /// No description provided for @blueprint_entry_point_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Entry Point Trigger node.\nConfigured in command properties.'**
+  String get blueprint_entry_point_hint;
+
+  /// No description provided for @blueprint_mode_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Blueprint'**
+  String get blueprint_mode_label;
+
+  /// No description provided for @blueprint_origin_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Origin (0, 0)'**
+  String get blueprint_origin_label;
+
+  /// No description provided for @bot_config_version_commands.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 command} other{{count} commands}}'**
+  String bot_config_version_commands(int count);
+
+  /// No description provided for @bot_config_version_commands_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Commands in this version:'**
+  String get bot_config_version_commands_title;
+
+  /// No description provided for @bot_config_version_more_count.
+  ///
+  /// In en, this message translates to:
+  /// **'… and {count} more'**
+  String bot_config_version_more_count(int count);
+
+  /// No description provided for @bot_config_version_replace_warning.
+  ///
+  /// In en, this message translates to:
+  /// **'Will replace {count} current commands'**
+  String bot_config_version_replace_warning(int count);
+
+  /// No description provided for @command_delete_discord_failed_local.
+  ///
+  /// In en, this message translates to:
+  /// **'Discord delete failed. Local delete applied. {error}'**
+  String command_delete_discord_failed_local(String error);
+
+  /// No description provided for @common_exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Exists'**
+  String get common_exists;
+
+  /// No description provided for @common_live_badge.
+  ///
+  /// In en, this message translates to:
+  /// **'LIVE'**
+  String get common_live_badge;
+
+  /// No description provided for @component_choice_number.
+  ///
+  /// In en, this message translates to:
+  /// **'Choice {count}'**
+  String component_choice_number(int count);
+
+  /// No description provided for @component_ephemeral_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Ephemeral (only visible to command user)'**
+  String get component_ephemeral_hint;
+
+  /// No description provided for @debug_persistence_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Persistence debug'**
+  String get debug_persistence_title;
+
+  /// No description provided for @element_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 element} other{{count} elements}}'**
+  String element_count(int count);
+
+  /// No description provided for @embed_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 embed} other{{count} embeds}}'**
+  String embed_count(int count);
+
+  /// No description provided for @emojis_animated_label.
+  ///
+  /// In en, this message translates to:
+  /// **'animated'**
+  String get emojis_animated_label;
+
+  /// No description provided for @field_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 field} other{{count} fields}}'**
+  String field_count(int count);
+
+  /// No description provided for @marketplace_actions_count.
+  ///
+  /// In en, this message translates to:
+  /// **'Actions ({count})'**
+  String marketplace_actions_count(int count);
+
+  /// No description provided for @onb_example_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Example:'**
+  String get onb_example_label;
+
+  /// No description provided for @option_autocomplete_js_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Use interaction.respond() with name/value pairs to return up to 25 choices.'**
+  String get option_autocomplete_js_hint;
+
+  /// No description provided for @permission_tap_to_cycle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to cycle'**
+  String get permission_tap_to_cycle;
+
+  /// No description provided for @serialization_copy_base64.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy compact Base64 payload to clipboard'**
+  String get serialization_copy_base64;
+
+  /// No description provided for @settings_ads_debug_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Ad Inspector and log adapter status (Unity/Google) to validate mediation.'**
+  String get settings_ads_debug_desc;
+
+  /// No description provided for @settings_ads_debug_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Ads Mediation Debug'**
+  String get settings_ads_debug_title;
+
+  /// No description provided for @settings_detected_engine.
+  ///
+  /// In en, this message translates to:
+  /// **'Detected engine: {engine}'**
+  String settings_detected_engine(String engine);
+
+  /// No description provided for @variables_emojis_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Available emojis — tap to insert'**
+  String get variables_emojis_hint;
+
+  /// No description provided for @workflow_event_variables_count.
+  ///
+  /// In en, this message translates to:
+  /// **'Event Variables ({count})'**
+  String workflow_event_variables_count(int count);
+
+  /// No description provided for @workflow_import_review_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Review 1 workflow to import:} other{Review {count} workflows to import:}}'**
+  String workflow_import_review_count(int count);
+
+  /// No description provided for @workflow_rename_variables_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Optionally rename variables for this workflow.'**
+  String get workflow_rename_variables_hint;
+
+  /// No description provided for @component_node_child_run_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'{message} \"{workflow}\" will be executed (entry: {entry}, args: {args}).'**
+  String component_node_child_run_hint(
+    String message,
+    String workflow,
+    String entry,
+    String args,
+  );
+
+  /// No description provided for @workflows_preview_summary.
+  ///
+  /// In en, this message translates to:
+  /// **'{type}  •  {count, plural, =1{1 action} other{{count} actions}}'**
+  String workflows_preview_summary(String type, int count);
+
   /// No description provided for @sync_cloud_update_applied.
   ///
   /// In en, this message translates to:

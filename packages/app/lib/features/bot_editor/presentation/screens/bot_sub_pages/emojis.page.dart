@@ -400,10 +400,9 @@ class _EmojiCard extends StatelessWidget {
             ),
           ),
           if (emoji.animated)
-            const Padding(
-              padding: EdgeInsets.only(bottom: 2),
-              child: Text(
-                'animated',
+            Padding(
+              padding: const EdgeInsets.only(bottom: 2),
+              child: Text(context.tr.emojis_animated_label,
                 style: TextStyle(fontSize: 10, color: AppTheme.info),
               ),
             ),

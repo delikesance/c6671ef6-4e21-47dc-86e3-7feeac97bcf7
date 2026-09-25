@@ -2332,8 +2332,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                           }
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text(
-                                'Discord delete failed. Local delete applied. $e',
+                              content: Text(context.tr.command_delete_discord_failed_local('$e'),
                               ),
                             ),
                           );

@@ -155,8 +155,7 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
                       children: [
                         const Icon(Icons.code, size: 14, color: AppTheme.grey),
                         const SizedBox(width: 6),
-                        Text(
-                          '$versionCommandCount commands',
+                        Text(context.tr.bot_config_version_commands(versionCommandCount),
                           style: const TextStyle(fontSize: 13),
                         ),
                       ],
@@ -171,8 +170,7 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
                             color: AppTheme.warning,
                           ),
                           const SizedBox(width: 6),
-                          Text(
-                            'Will replace $currentCommandCount current commands',
+                          Text(context.tr.bot_config_version_replace_warning(currentCommandCount),
                             style: const TextStyle(
                               fontSize: 13,
                               color: AppTheme.warning,
@@ -188,8 +186,7 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
               // Command list preview (max 8)
               if (versionCommandNames.isNotEmpty) ...[
                 const SizedBox(height: 12),
-                Text(
-                  'Commands in this version:',
+                Text(context.tr.bot_config_version_commands_title,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -211,8 +208,7 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
                 if (versionCommandNames.length > 8)
                   Padding(
                     padding: const EdgeInsets.only(left: 8, top: 2),
-                    child: Text(
-                      '… and ${versionCommandNames.length - 8} more',
+                    child: Text(context.tr.bot_config_version_more_count(versionCommandNames.length - 8),
                       style: TextStyle(
                         fontSize: 12,
                         color: AppTheme.discordText.withValues(alpha: 0.5),

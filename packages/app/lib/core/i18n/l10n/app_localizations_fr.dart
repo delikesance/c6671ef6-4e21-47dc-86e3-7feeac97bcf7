@@ -5997,6 +5997,196 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String actions_configured_count(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count actions configurées',
+      one: '1 action configurée',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String action_card_else_if(int count) {
+    return 'SINON SI $count';
+  }
+
+  @override
+  String get blueprint_cut_link => 'Couper le lien';
+
+  @override
+  String get blueprint_entry_point_hint =>
+      'Nœud de déclenchement (Entry Point).\nConfiguré dans les propriétés de la commande.';
+
+  @override
+  String get blueprint_mode_label => 'Blueprint';
+
+  @override
+  String get blueprint_origin_label => 'Origine (0, 0)';
+
+  @override
+  String bot_config_version_commands(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count commandes',
+      one: '1 commande',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bot_config_version_commands_title =>
+      'Commandes dans cette version :';
+
+  @override
+  String bot_config_version_more_count(int count) {
+    return '… et $count de plus';
+  }
+
+  @override
+  String bot_config_version_replace_warning(int count) {
+    return 'Remplacera les $count commandes actuelles';
+  }
+
+  @override
+  String command_delete_discord_failed_local(String error) {
+    return 'Suppression Discord échouée. La suppression locale a été appliquée. $error';
+  }
+
+  @override
+  String get common_exists => 'Existe déjà';
+
+  @override
+  String get common_live_badge => 'DIRECT';
+
+  @override
+  String component_choice_number(int count) {
+    return 'Choix $count';
+  }
+
+  @override
+  String get component_ephemeral_hint =>
+      'Éphémère (visible uniquement par l\'auteur de la commande)';
+
+  @override
+  String get debug_persistence_title => 'Débogage de la persistance';
+
+  @override
+  String element_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count éléments',
+      one: '1 élément',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String embed_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count embeds',
+      one: '1 embed',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get emojis_animated_label => 'animé';
+
+  @override
+  String field_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count champs',
+      one: '1 champ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String marketplace_actions_count(int count) {
+    return 'Actions ($count)';
+  }
+
+  @override
+  String get onb_example_label => 'Exemple :';
+
+  @override
+  String get option_autocomplete_js_hint =>
+      'Utilisez interaction.respond() avec des paires nom/valeur pour renvoyer jusqu\'à 25 choix.';
+
+  @override
+  String get permission_tap_to_cycle => 'Appuyez pour changer';
+
+  @override
+  String get serialization_copy_base64 =>
+      'Copier la charge Base64 compacte dans le presse-papiers';
+
+  @override
+  String get settings_ads_debug_desc =>
+      'Ouvrez l\'Ad Inspector et consignez l\'état des adaptateurs (Unity/Google) pour valider la médiation.';
+
+  @override
+  String get settings_ads_debug_title =>
+      'Débogage de la médiation publicitaire';
+
+  @override
+  String settings_detected_engine(String engine) {
+    return 'Moteur détecté : $engine';
+  }
+
+  @override
+  String get variables_emojis_hint =>
+      'Emojis disponibles — appuyez pour insérer';
+
+  @override
+  String workflow_event_variables_count(int count) {
+    return 'Variables d\'événement ($count)';
+  }
+
+  @override
+  String workflow_import_review_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Vérifiez $count workflows à importer :',
+      one: 'Vérifiez 1 workflow à importer :',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get workflow_rename_variables_hint =>
+      'Renommez éventuellement les variables de ce workflow.';
+
+  @override
+  String component_node_child_run_hint(
+    String message,
+    String workflow,
+    String entry,
+    String args,
+  ) {
+    return '$message « $workflow » sera exécuté (entrée : $entry, args : $args).';
+  }
+
+  @override
+  String workflows_preview_summary(String type, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count actions',
+      one: '1 action',
+    );
+    return '$type  •  $_temp0';
+  }
+
+  @override
   String get sync_cloud_update_applied =>
       'Mise à jour Cloud appliquée avec succès';
 
