@@ -337,6 +337,13 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
           appManager: appManager,
           botId: widget.botId,
           remoteConfig: remoteConfig,
+          // Une RESTAURATION n'est pas une synchro : le bot doit revenir à CET
+          // état, pas fusionner avec l'état courant. Sans cette suppression, une
+          // commande créée APRÈS la version restaurée survit localement — d'où
+          // deux « eval » après restauration d'une version qui n'en avait qu'un —
+          // et la prochaine synchro la renvoie au serveur, ce qui annule la
+          // restauration en silence.
+          deleteMissingLocalCommands: true,
         );
       } catch (error, stack) {
         AppDiagnostics.logError(
