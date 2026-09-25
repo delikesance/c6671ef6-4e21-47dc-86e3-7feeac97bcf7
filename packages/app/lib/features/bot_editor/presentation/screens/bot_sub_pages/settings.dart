@@ -12,6 +12,7 @@ import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/features/bot_editor/logic/js_runner_capabilities.dart';
+import 'package:bot_creator/features/bot_editor/logic/discord_application_commands.dart';
 import 'package:bot_creator/core/utils/bot_payload_guard.dart';
 import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
@@ -790,36 +791,49 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     });
 
     try {
-      final localCommands = await appManager.listAppCommands(botId);
-      final localCommandIds = localCommands
-          .map((c) => (c['id'] ?? '').toString())
-          .where((id) => id.isNotEmpty)
-          .toSet();
+      // Réconciliation DANS LES DEUX SENS : ce qui manque sur Discord est
+      // recréé, ce qui n'existe plus localement est supprimé. Comparer par nom
+      // (et non par identifiant) est indispensable : le runner réenregistre ses
+      // commandes sans identifiant, donc Discord en attribue de nouveaux à
+      // chaque fois — par identifiant, le bouton supprimait tout et ne
+      // recréait rien.
+      final outcome = await reconcileDiscordCommandsForBot(
+        botId,
+        api: NyxxApplicationCommandsApi(widget.client),
+      );
 
-      final remoteCommands = await widget.client.commands.list();
+      if (!mounted) return;
 
-      int deletedCount = 0;
-      for (final remoteCmd in remoteCommands) {
-        final remoteId = remoteCmd.id.toString();
-        if (!localCommandIds.contains(remoteId)) {
-          await widget.client.commands.delete(remoteCmd.id);
-          deletedCount++;
-        }
+      if (outcome == null) {
+        // Rien n'a été touché : dire POURQUOI plutôt qu'afficher un succès.
+        _showSyncFeedback(
+          context.tr.settings_sync_force_no_local_commands,
+          isError: true,
+        );
+        return;
       }
 
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(context.tr.settings_sync_force_success(deletedCount)),
+      _showSyncFeedback(
+        context.tr.settings_sync_force_success_counts(
+          outcome.created,
+          outcome.relinked,
+          outcome.deleted,
         ),
+        isError: false,
       );
+
+      final failure = outcome.firstFailure;
+      if (failure != null) {
+        _showSyncFeedback(
+          context.tr.settings_sync_force_error(failure),
+          isError: true,
+        );
+      }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(context.tr.settings_sync_force_error(e.toString())),
-          backgroundColor: AppTheme.error,
-        ),
+      _showSyncFeedback(
+        context.tr.settings_sync_force_error(e.toString()),
+        isError: true,
       );
     } finally {
       if (mounted) {
@@ -828,6 +842,15 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
         });
       }
     }
+  }
+
+  void _showSyncFeedback(String message, {required bool isError}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? AppTheme.error : null,
+      ),
+    );
   }
 
   Future<void> _deleteBot() async {

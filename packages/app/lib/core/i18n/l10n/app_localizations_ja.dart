@@ -8399,7 +8399,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get settings_sync_force_desc =>
-      'Bot Creatorでローカルに定義されていないDiscordスラッシュコマンドをすべて削除します。';
+      'Discord にないコマンドを再作成し、Bot Creator で定義されていないコマンドを削除します。';
 
   @override
   String get settings_sync_force_button => 'Discordと同期する';
@@ -8409,15 +8409,23 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get settings_sync_force_dialog_desc =>
-      'これにより、Bot Creatorでローカルに定義されていないDiscordのスラッシュコマンドがすべて削除されます。本当に続行しますか？';
+      'Discord にないコマンドは再作成され、Bot Creator で定義されていないコマンドは削除されます。続行しますか？';
 
   @override
   String get settings_sync_force_dialog_confirm => '強制同期';
 
   @override
-  String settings_sync_force_success(Object count) {
-    return '強制同期が正常に完了しました。Discordから $count 件の古い/追跡されていないコマンドを削除しました。';
+  String settings_sync_force_success_counts(
+    int created,
+    int relinked,
+    int deleted,
+  ) {
+    return '同期が完了しました：Discord で $created 件を再作成、$relinked 件を再関連付け、$deleted 件を削除しました。';
   }
+
+  @override
+  String get settings_sync_force_no_local_commands =>
+      '登録するローカルコマンドがありません：Discord 側は何も変更していません（空の同期はすべてのコマンドを消してしまいます）。';
 
   @override
   String settings_sync_force_error(Object error) {

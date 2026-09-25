@@ -8882,7 +8882,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settings_sync_force_desc =>
-      'Supprime toutes les commandes slash de Discord qui ne sont pas définies localement dans Bot Creator.';
+      'Recrée sur Discord les commandes absentes et supprime celles qui ne sont plus définies dans Bot Creator.';
 
   @override
   String get settings_sync_force_button => 'Synchroniser avec Discord';
@@ -8892,15 +8892,23 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settings_sync_force_dialog_desc =>
-      'Cela supprimera toutes les commandes slash sur Discord qui ne sont pas définies localement dans Bot Creator. Êtes-vous sûr de vouloir continuer ?';
+      'Les commandes absentes sur Discord seront recréées, et celles qui ne sont plus définies dans Bot Creator seront supprimées. Continuer ?';
 
   @override
   String get settings_sync_force_dialog_confirm => 'Forcer la synchro';
 
   @override
-  String settings_sync_force_success(Object count) {
-    return 'Synchronisation forcée réussie. $count commande(s) obsolète(s)/non suivies supprimée(s) de Discord.';
+  String settings_sync_force_success_counts(
+    int created,
+    int relinked,
+    int deleted,
+  ) {
+    return 'Synchronisation terminée : $created recréée(s), $relinked rattachée(s), $deleted supprimée(s) sur Discord.';
   }
+
+  @override
+  String get settings_sync_force_no_local_commands =>
+      'Aucune commande locale à enregistrer : rien n\'a été touché sur Discord (une synchronisation à vide effacerait toutes vos commandes).';
 
   @override
   String settings_sync_force_error(Object error) {

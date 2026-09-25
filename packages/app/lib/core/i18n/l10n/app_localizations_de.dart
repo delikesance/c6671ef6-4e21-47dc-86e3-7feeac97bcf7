@@ -8868,7 +8868,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settings_sync_force_desc =>
-      'Löscht alle Discord-Slash-Befehle, die in Bot Creator nicht lokal definiert sind.';
+      'Erstellt auf Discord fehlende Befehle neu und löscht die, die in Bot Creator nicht mehr definiert sind.';
 
   @override
   String get settings_sync_force_button => 'Mit Discord synchronisieren';
@@ -8878,15 +8878,23 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settings_sync_force_dialog_desc =>
-      'Dadurch werden alle Slash-Befehle auf Discord gelöscht, die in Bot Creator nicht lokal definiert sind. Möchten Sie wirklich fortfahren?';
+      'Fehlende Befehle werden auf Discord neu erstellt, und Befehle, die in Bot Creator nicht mehr definiert sind, werden gelöscht. Fortfahren?';
 
   @override
   String get settings_sync_force_dialog_confirm => 'Erzwingen';
 
   @override
-  String settings_sync_force_success(Object count) {
-    return 'Synchronisation erfolgreich erzwungen. $count veraltete(r)/nicht verfolgte(r) Befehl(e) von Discord gelöscht.';
+  String settings_sync_force_success_counts(
+    int created,
+    int relinked,
+    int deleted,
+  ) {
+    return 'Synchronisierung abgeschlossen: $created neu erstellt, $relinked neu verknüpft, $deleted auf Discord gelöscht.';
   }
+
+  @override
+  String get settings_sync_force_no_local_commands =>
+      'Kein lokaler Befehl zum Registrieren: Auf Discord wurde nichts geändert (eine leere Synchronisierung würde alle deine Befehle löschen).';
 
   @override
   String settings_sync_force_error(Object error) {
