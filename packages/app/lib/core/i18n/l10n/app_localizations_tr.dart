@@ -6113,6 +6113,70 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String get runner_embedded_desync_detail =>
+      'Runner süreci çalışıyor ancak uygulama bağlantıyı kaybetti. Ayarlar\'daki Yeniden başlat\'ı kullanın.';
+
+  @override
+  String runtime_invalid_bot_id(String error) {
+    return 'Bot Creator sunucularında başlatma için geçersiz bot kimliği. Botu eşitleyin/yeniden oluşturun ve tekrar deneyin. Özgün hata: $error';
+  }
+
+  @override
+  String runtime_invalid_bot_id_details(String detail) {
+    return 'Bot Creator sunucularında başlatma için geçersiz bot kimliği. Botu eşitleyin/yeniden oluşturun ve tekrar deneyin. Ayrıntılar: $detail';
+  }
+
+  @override
+  String get runtime_local_unsupported_ios_configure =>
+      'Yerel mod iOS\'ta desteklenmiyor. Bu botu başlatmak için Bot Creator\'ı yapılandırın.';
+
+  @override
+  String get runtime_local_unsupported_ios_sign_in =>
+      'Yerel mod iOS\'ta desteklenmiyor. Bu botu başlatmadan önce Ayarlar\'dan Bot Creator\'a giriş yapın.';
+
+  @override
+  String get runtime_plan_limit =>
+      'Planınız bu başlatmaya izin vermiyor. Planınızı değiştirmek için tekliflere bakın.';
+
+  @override
+  String runtime_request_failed(String error) {
+    return 'Bot Creator sunucularına yapılan istek başarısız oldu: $error';
+  }
+
+  @override
+  String runtime_servers_not_ready(String error) {
+    return 'Bot Creator sunucuları bu bot için henüz hazır değil. Özgün hata: $error';
+  }
+
+  @override
+  String get runtime_session_expired =>
+      'Bot Creator oturumunuz sona erdi. Bu botu başlatmak için Ayarlar\'dan yeniden giriş yapın.';
+
+  @override
+  String get runtime_sign_in_required =>
+      'Bu botu başlatmadan önce Ayarlar\'dan Bot Creator\'a giriş yapın.';
+
+  @override
+  String runtime_startup_failed(String error) {
+    return 'Bot Creator sunucularında başlatma başarısız oldu. Özgün hata: $error';
+  }
+
+  @override
+  String runtime_startup_failed_with_detail(String detail, String error) {
+    return 'Bot Creator sunucularında başlatma başarısız oldu. Ayrıntılar: $detail Özgün hata: $error';
+  }
+
+  @override
+  String runtime_startup_in_progress(String status, String error) {
+    return 'Bot Creator sunucularında başlatma hâlâ sürüyor ($status). İşlem kuyrukte veya çalışıyor olabilir. Özgün hata: $error';
+  }
+
+  @override
+  String runtime_unreachable(String error) {
+    return 'Bot Creator sunucularına geçici olarak ulaşılamıyor. Özgün hata: $error';
+  }
+
+  @override
   String get sync_cloud_update_applied =>
       'Bulut güncellemesi başarıyla uygulandı';
 

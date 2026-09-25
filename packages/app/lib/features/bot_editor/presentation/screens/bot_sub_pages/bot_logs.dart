@@ -190,7 +190,9 @@ class _BotLogsPageState extends State<BotLogsPage> {
 
     setState(() {
       _runtimeLabel = runtime.detailLabel;
-      _runtimeUnavailableReason = runtime.unavailableReason;
+      _runtimeUnavailableReason = runtime.unavailableReason == null
+          ? null
+          : resolveRuntimeNotice(context.tr, runtime.unavailableReason!);
     });
 
     final client = _runtimeClient;

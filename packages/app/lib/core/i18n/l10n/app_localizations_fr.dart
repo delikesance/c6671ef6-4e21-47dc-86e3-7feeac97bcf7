@@ -6187,6 +6187,70 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get runner_embedded_desync_detail =>
+      'Le processus runner tourne mais l\'application a perdu la connexion. Utilisez Redémarrer dans Paramètres.';
+
+  @override
+  String runtime_invalid_bot_id(String error) {
+    return 'ID de bot invalide pour le démarrage sur les serveurs Bot Creator. Synchronisez/recréez le bot puis réessayez. Erreur initiale : $error';
+  }
+
+  @override
+  String runtime_invalid_bot_id_details(String detail) {
+    return 'ID de bot invalide pour le démarrage sur les serveurs Bot Creator. Synchronisez/recréez le bot puis réessayez. Détails : $detail';
+  }
+
+  @override
+  String get runtime_local_unsupported_ios_configure =>
+      'Le mode local n\'est pas pris en charge sur iOS. Configurez Bot Creator pour démarrer ce bot.';
+
+  @override
+  String get runtime_local_unsupported_ios_sign_in =>
+      'Le mode local n\'est pas pris en charge sur iOS. Connectez-vous à Bot Creator dans les paramètres avant de démarrer ce bot.';
+
+  @override
+  String get runtime_plan_limit =>
+      'Votre formule ne permet pas ce démarrage. Consultez les offres pour changer de formule.';
+
+  @override
+  String runtime_request_failed(String error) {
+    return 'La requête vers les serveurs Bot Creator a échoué : $error';
+  }
+
+  @override
+  String runtime_servers_not_ready(String error) {
+    return 'Les serveurs Bot Creator ne sont pas encore prêts pour ce bot. Erreur initiale : $error';
+  }
+
+  @override
+  String get runtime_session_expired =>
+      'Votre session Bot Creator a expiré. Reconnectez-vous dans les paramètres pour démarrer ce bot.';
+
+  @override
+  String get runtime_sign_in_required =>
+      'Connectez-vous à Bot Creator dans les paramètres avant de démarrer ce bot.';
+
+  @override
+  String runtime_startup_failed(String error) {
+    return 'Le démarrage sur les serveurs Bot Creator a échoué. Erreur initiale : $error';
+  }
+
+  @override
+  String runtime_startup_failed_with_detail(String detail, String error) {
+    return 'Le démarrage sur les serveurs Bot Creator a échoué. Détails : $detail Erreur initiale : $error';
+  }
+
+  @override
+  String runtime_startup_in_progress(String status, String error) {
+    return 'Le démarrage sur les serveurs Bot Creator est encore en cours ($status). Le traitement peut être en attente ou toujours en cours. Erreur initiale : $error';
+  }
+
+  @override
+  String runtime_unreachable(String error) {
+    return 'Les serveurs Bot Creator sont temporairement injoignables. Erreur initiale : $error';
+  }
+
+  @override
   String get sync_cloud_update_applied =>
       'Mise à jour Cloud appliquée avec succès';
 

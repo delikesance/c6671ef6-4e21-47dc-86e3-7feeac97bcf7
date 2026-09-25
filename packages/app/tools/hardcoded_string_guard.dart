@@ -405,72 +405,15 @@ const List<AllowListEntry> allowListedPatterns = <AllowListEntry>[
 /// entrée pour faire taire le test : corriger la chaîne. Le test bloquant
 /// échoue dès qu'un littéral apparaît hors allow-list ET hors de cet ensemble
 /// (fixture, ou fichier inconnu à ce jour).
-const Set<String> knownUiLeaks = <String>{
-  'lib/features/bot_editor/presentation/screens/bot_sub_pages/image_editor_page.dart',
-  'lib/features/bot_editor/presentation/screens/bot_sub_pages/command.create.dart',
-  'lib/features/bot_editor/presentation/screens/bot_sub_pages/commands.list.dart',
-  'lib/features/bot_editor/presentation/screens/bot_sub_pages/global.variables.dart',
-  'lib/features/bot_editor/presentation/screens/bot_sub_pages/home.sync.part.dart',
-  // Dette rendue VISIBLE par le durcissement du motif (`fr:`/`en:` en plus des
-  // paramètres nommés) : ces fichiers portaient du repli français/anglais, donc
-  // l'allemand, le japonais, le portugais et le turc affichaient de l'ANGLAIS.
-  // Le vrai correctif de `remote_runtime.dart` n'est pas une clé ARB de plus :
-  // ces messages naissent dans une couche SANS `BuildContext` (le résolveur rend
-  // une `String` que l'UI affiche telle quelle), il faut donc rendre une RAISON
-  // typée et laisser l'UI la traduire.
-  'lib/core/network/remote_runtime.dart',
-  'lib/features/home/presentation/home_page.dart',
-  'lib/features/bot_editor/presentation/screens/bot_sub_pages/bot_stats.dart',
-  'lib/features/bot_editor/presentation/screens/bot_sub_pages/bot_logs.dart',
-  'lib/features/bot_editor/presentation/screens/bot_sub_pages/home.logic.part.dart',
-  'lib/features/bot_editor/presentation/screens/bot_sub_pages/settings.dart',
-  'lib/features/bot_editor/presentation/screens/bot_sub_pages/workflow_block_editor.dart',
-  'lib/features/bot_editor/presentation/screens/bot_sub_pages/workflows.page.dart',
-  'lib/features/bot_editor/presentation/screens/bot_sub_pages/builder/action_card.dart',
-  'lib/features/bot_editor/presentation/screens/bot_sub_pages/builder/http_request_editor_page.dart',
-  'lib/features/bot_editor/presentation/screens/bot_config_versions_page.dart',
-  'lib/features/bot_editor/presentation/widgets/blueprint/blueprint_context_menu.dart',
-  'lib/features/bot_editor/presentation/widgets/blueprint/blueprint_graph_canvas.dart',
-  'lib/features/bot_editor/presentation/widgets/blueprint/blueprint_inspector_panel.dart',
-  'lib/features/bot_editor/presentation/widgets/option_widget.dart',
-  'lib/features/bot_editor/presentation/widgets/scratch_blocks/metadata_block.dart',
-  'lib/features/components_v2/presentation/component_v2_builder/component_node_editor.dart',
-  'lib/features/components_v2/presentation/component_v2_builder/modal_builder.dart',
-  'lib/features/marketplace/presentation/marketplace_detail_page.dart',
-  'lib/features/marketplace/presentation/marketplace_page.dart',
-  'lib/features/marketplace/presentation/publish_template_page.dart',
-  'lib/features/settings/presentation/settings_page.dart',
-  // ── Rendus VISIBLES par la détection du littéral passé à la ligne ──────────
-  //
-  // Le scan était LIGNE PAR LIGNE : `Text(\n  'Copie',` échappait au contrôle,
-  // donc la dette annoncée (24) était sous-estimée d'un facteur 4. Ces fichiers
-  // ne sont pas nouveaux — c'est la MESURE qui s'est améliorée. La règle ne
-  // change pas : la dette ne peut que DIMINUER, et un fichier sort de cette
-  // liste dès que ses littéraux sont localisés.
-  'lib/core/widgets/variable_text_field.dart',
-  'lib/core/widgets/notion_filter_bar.dart',
-  'lib/features/home/presentation/home_ui.dart',
-  'lib/features/bot_editor/presentation/screens/bot_sub_pages/command.create.serialization.dart',
-  'lib/features/bot_editor/presentation/screens/bot_sub_pages/export_import.page.dart',
-  'lib/features/bot_editor/presentation/screens/bot_sub_pages/debug_replay_page.dart',
-  'lib/features/bot_editor/presentation/screens/bot_sub_pages/home.ui.part.dart',
-  'lib/features/bot_editor/presentation/screens/bot_sub_pages/ad_history_sheet.dart',
-  'lib/features/bot_editor/presentation/screens/bot_sub_pages/command_dashboard.dart',
-  'lib/features/bot_editor/presentation/screens/bot_sub_pages/command.create.block_editor.dart',
-  'lib/features/bot_editor/presentation/screens/bot_sub_pages/emojis.page.dart',
-  'lib/features/bot_editor/presentation/screens/bot_sub_pages/inbound_webhooks.page.dart',
-  'lib/features/bot_editor/presentation/screens/bot_sub_pages/command.create.bdfd.dart',
-  'lib/features/bot_editor/presentation/widgets/scratch_blocks/entry_point_block.dart',
-  'lib/features/bot_editor/presentation/widgets/command_create_cards/basic_info_card.dart',
-  'lib/features/bot_editor/presentation/widgets/mobile_keyboard_accessory_bar.dart',
-  'lib/features/bot_editor/presentation/widgets/editor_sidebar.dart',
-  'lib/features/bot_editor/presentation/widgets/permission_flags_field.dart',
-  'lib/features/containers/presentation/container_detail_page.dart',
-  'lib/features/containers/presentation/registry_credentials_page.dart',
-  'lib/features/components_v2/presentation/component_v2_builder/component_v2_editor.dart',
-  'lib/features/onboarding/presentation/onboarding_page.dart',
-  'lib/main.dart',
-};
+/// VIDÉ, et il doit le rester : la dette i18n est à ZÉRO (les 24 derniers
+/// littéraux venaient du repli fr/en de `remote_runtime.dart` et
+/// `runner_settings.dart`, remplacés par des raisons traduites par l'écran).
+///
+/// Un ensemble vidé est plus strict qu'une liste partiellement morte : tant
+/// qu'un fichier y restait, un NOUVEAU littéral ajouté dans ce fichier passait
+/// inaperçu. Ici plus aucun fichier ne bénéficie d'une autorisation — la
+/// moindre chaîne d'UI codée en dur échoue, où qu'elle soit.
+const Set<String> knownUiLeaks = <String>{};
 
 // ─── API publique ─────────────────────────────────────────────────────────────
 

@@ -149,7 +149,9 @@ class _BotStatsPageState extends State<BotStatsPage>
 
     setState(() {
       _runtimeLabel = runtime.detailLabel;
-      _runtimeUnavailableReason = runtime.unavailableReason;
+      _runtimeUnavailableReason = runtime.unavailableReason == null
+          ? null
+          : resolveRuntimeNotice(context.tr, runtime.unavailableReason!);
       _rssBytes = getBotProcessRssBytesForBotFromSource(
         _selectedBotId,
         source: _runtimeSource,

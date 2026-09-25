@@ -6083,6 +6083,70 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get runner_embedded_desync_detail =>
+      'Runner process is running but the app lost its connection. Use Restart in Settings.';
+
+  @override
+  String runtime_invalid_bot_id(String error) {
+    return 'Invalid bot ID for startup on Bot Creator servers. Sync/recreate the bot, then retry. Original error: $error';
+  }
+
+  @override
+  String runtime_invalid_bot_id_details(String detail) {
+    return 'Invalid bot ID for startup on Bot Creator servers. Sync/recreate the bot, then retry. Details: $detail';
+  }
+
+  @override
+  String get runtime_local_unsupported_ios_configure =>
+      'Local mode is not supported on iOS. Configure Bot Creator to start this bot.';
+
+  @override
+  String get runtime_local_unsupported_ios_sign_in =>
+      'Local mode is not supported on iOS. Sign in to Bot Creator in Settings before starting this bot.';
+
+  @override
+  String get runtime_plan_limit =>
+      'Your plan does not allow this start. Check the plans to upgrade your formula.';
+
+  @override
+  String runtime_request_failed(String error) {
+    return 'Request to Bot Creator servers failed: $error';
+  }
+
+  @override
+  String runtime_servers_not_ready(String error) {
+    return 'Bot Creator servers are not ready for this bot yet. Original error: $error';
+  }
+
+  @override
+  String get runtime_session_expired =>
+      'Your Bot Creator session expired. Sign in again in Settings to start this bot.';
+
+  @override
+  String get runtime_sign_in_required =>
+      'Sign in to Bot Creator in Settings before starting this bot.';
+
+  @override
+  String runtime_startup_failed(String error) {
+    return 'Bot Creator server startup failed. Original error: $error';
+  }
+
+  @override
+  String runtime_startup_failed_with_detail(String detail, String error) {
+    return 'Bot Creator server startup failed. Details: $detail Original error: $error';
+  }
+
+  @override
+  String runtime_startup_in_progress(String status, String error) {
+    return 'Bot Creator server startup is still in progress ($status). Processing may still be queued or running. Original error: $error';
+  }
+
+  @override
+  String runtime_unreachable(String error) {
+    return 'Bot Creator servers are temporarily unreachable. Original error: $error';
+  }
+
+  @override
   String get sync_cloud_update_applied => 'Cloud update applied successfully';
 
   @override

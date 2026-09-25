@@ -6174,6 +6174,70 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get runner_embedded_desync_detail =>
+      'Der Runner-Prozess läuft, aber die App hat die Verbindung verloren. Nutze „Neu starten“ in den Einstellungen.';
+
+  @override
+  String runtime_invalid_bot_id(String error) {
+    return 'Ungültige Bot-ID für den Start auf den Bot-Creator-Servern. Synchronisiere/erstelle den Bot neu und versuche es erneut. Ursprünglicher Fehler: $error';
+  }
+
+  @override
+  String runtime_invalid_bot_id_details(String detail) {
+    return 'Ungültige Bot-ID für den Start auf den Bot-Creator-Servern. Synchronisiere/erstelle den Bot neu und versuche es erneut. Details: $detail';
+  }
+
+  @override
+  String get runtime_local_unsupported_ios_configure =>
+      'Der lokale Modus wird auf iOS nicht unterstützt. Konfiguriere Bot Creator, um diesen Bot zu starten.';
+
+  @override
+  String get runtime_local_unsupported_ios_sign_in =>
+      'Der lokale Modus wird auf iOS nicht unterstützt. Melde dich in den Einstellungen bei Bot Creator an, bevor du diesen Bot startest.';
+
+  @override
+  String get runtime_plan_limit =>
+      'Dein Tarif erlaubt diesen Start nicht. Sieh dir die Angebote an, um deinen Tarif zu ändern.';
+
+  @override
+  String runtime_request_failed(String error) {
+    return 'Die Anfrage an die Bot-Creator-Server ist fehlgeschlagen: $error';
+  }
+
+  @override
+  String runtime_servers_not_ready(String error) {
+    return 'Die Bot-Creator-Server sind für diesen Bot noch nicht bereit. Ursprünglicher Fehler: $error';
+  }
+
+  @override
+  String get runtime_session_expired =>
+      'Deine Bot-Creator-Sitzung ist abgelaufen. Melde dich in den Einstellungen erneut an, um diesen Bot zu starten.';
+
+  @override
+  String get runtime_sign_in_required =>
+      'Melde dich in den Einstellungen bei Bot Creator an, bevor du diesen Bot startest.';
+
+  @override
+  String runtime_startup_failed(String error) {
+    return 'Der Start auf den Bot-Creator-Servern ist fehlgeschlagen. Ursprünglicher Fehler: $error';
+  }
+
+  @override
+  String runtime_startup_failed_with_detail(String detail, String error) {
+    return 'Der Start auf den Bot-Creator-Servern ist fehlgeschlagen. Details: $detail Ursprünglicher Fehler: $error';
+  }
+
+  @override
+  String runtime_startup_in_progress(String status, String error) {
+    return 'Der Start auf den Bot-Creator-Servern läuft noch ($status). Die Verarbeitung kann noch in der Warteschlange stehen oder laufen. Ursprünglicher Fehler: $error';
+  }
+
+  @override
+  String runtime_unreachable(String error) {
+    return 'Die Bot-Creator-Server sind vorübergehend nicht erreichbar. Ursprünglicher Fehler: $error';
+  }
+
+  @override
   String get sync_cloud_update_applied =>
       'Cloud-Aktualisierung erfolgreich angewendet';
 
