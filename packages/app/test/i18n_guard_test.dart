@@ -103,7 +103,12 @@ void main() {
   // jamais monter : traduire la chaîne (clé ARB dans les 6 langues) ou la
   // justifier dans l'allow-list documentée, mais ne pas relever le plafond.
   test('la dette i18n ne peut que DIMINUER (plafond verrouillé)', () {
-    const int ceiling = 146;
+    // 146 au verrouillage (25/09), 111 après la conversion de
+    // `home.sync.part.dart` — 35 littéraux, la boîte de dialogue de conflit de
+    // synchronisation. Le plafond suit la dette VERS LE BAS : après chaque lot
+    // converti, le baisser au compte mesuré, jamais le laisser au-dessus (un
+    // plafond trop haut rend le verrou décoratif).
+    const int ceiling = 111;
     final findings = findHardcodedStringFindings(rootPath: 'lib');
     final known = findings
         .where(
