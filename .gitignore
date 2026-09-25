@@ -61,6 +61,11 @@ app.*.map.json
 /build
 /data
 /packages/runner/data
+# Données locales de l'app desktop (bots, logs, caches, base sqlite) : produites à
+# l'exécution dans packages/app/data quand on lance depuis ce dossier : elles ne
+# font pas partie du dépôt. Le schéma de ces fichiers porte un champ `token` :
+# commiter ce dossier reviendrait à publier un jeton de bot le jour où il est rempli.
+/packages/app/data
 
 # Embedded JS runner binaries (downloaded in CI via fetch-embedded-runner-js.sh)
 packages/app/assets/embedded-runner-js/*
