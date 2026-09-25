@@ -5925,6 +5925,20 @@ class AppLocalizationsPt extends AppLocalizations {
   String get runner_source_runner => 'Runner';
 
   @override
+  String get command_create_existing_folders => 'Pastas existentes';
+
+  @override
+  String get common_export => 'Exportar';
+
+  @override
+  String get workflows_folder_destination_optional =>
+      'Pasta de destino (opcional)';
+
+  @override
+  String get workflows_import_preview_title =>
+      'Pré-visualização da importação do workflow';
+
+  @override
   String get sync_cloud_update_applied =>
       'Atualização da Cloud aplicada com sucesso';
 

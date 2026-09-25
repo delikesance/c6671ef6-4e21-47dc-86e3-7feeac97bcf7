@@ -5942,6 +5942,20 @@ class AppLocalizationsFr extends AppLocalizations {
   String get runner_source_runner => 'Runner';
 
   @override
+  String get command_create_existing_folders => 'Dossiers existants';
+
+  @override
+  String get common_export => 'Exporter';
+
+  @override
+  String get workflows_folder_destination_optional =>
+      'Dossier de destination (facultatif)';
+
+  @override
+  String get workflows_import_preview_title =>
+      'Aperçu de l\'import du workflow';
+
+  @override
   String get sync_cloud_update_applied =>
       'Mise à jour Cloud appliquée avec succès';
 

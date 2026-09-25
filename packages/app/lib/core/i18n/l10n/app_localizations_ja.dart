@@ -5594,6 +5594,18 @@ class AppLocalizationsJa extends AppLocalizations {
   String get runner_source_runner => 'ランナー';
 
   @override
+  String get command_create_existing_folders => '既存のフォルダー';
+
+  @override
+  String get common_export => 'エクスポート';
+
+  @override
+  String get workflows_folder_destination_optional => '保存先フォルダー（任意）';
+
+  @override
+  String get workflows_import_preview_title => 'ワークフロー読み込みのプレビュー';
+
+  @override
   String get sync_cloud_update_applied => 'クラウドの更新を適用しました';
 
   @override

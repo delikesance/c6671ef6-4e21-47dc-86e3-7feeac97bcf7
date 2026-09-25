@@ -909,7 +909,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
             suffixIcon: _existingFolders.isNotEmpty
                 ? PopupMenuButton<String>(
                     icon: const Icon(Icons.folder_open),
-                    tooltip: 'Dossiers existants',
+                    tooltip: context.tr.command_create_existing_folders,
                     onSelected: (String selection) {
                       setState(() {
                         controller.text = selection;
@@ -2434,16 +2434,15 @@ enum SyncStepState { pending, active, success, error }
 
 class _SyncStepData {
   final String id;
-  final String title;
-  final String subtitle;
   SyncStepState state = SyncStepState.pending;
   String? error;
 
-  _SyncStepData({
-    required this.id,
-    required this.title,
-    required this.subtitle,
-  });
+  // Le TITRE et le SOUS-TITRE ne sont plus portes ici : ils sont resolus a
+  // l'affichage par `_getStepTitle`/`_getStepSubtitle`, depuis les cles ARB
+  // `cmd_deploy_*`. Les deux champs qui vivaient ici etaient du TEXTE FRANCAIS
+  // MORT — personne ne les lisait — et les garder faisait doublon avec l'ARB,
+  // avec le risque qu'ils divergent un jour de ce qui est reellement affiche.
+  _SyncStepData({required this.id});
 }
 
 class _DeploymentProgressOverlay extends StatefulWidget {
@@ -2496,48 +2495,20 @@ class _DeploymentProgressOverlayState
   void _initSteps() {
     if (widget.isLocalOnly || widget.client == null) {
       _steps = [
-        _SyncStepData(
-          id: 'local_save',
-          title: 'Sauvegarde locale',
-          subtitle: 'Enregistrement de la commande sur l\'appareil',
-        ),
-        _SyncStepData(
-          id: 'reload_runtime',
-          title: 'Rechargement du Bot',
-          subtitle: 'Application à chaud de la configuration',
-        ),
+        _SyncStepData(id: 'local_save'),
+        _SyncStepData(id: 'reload_runtime'),
       ];
     } else if (_isDesktop) {
       // Cloud sync is not supported on Desktop platforms
       _steps = [
-        _SyncStepData(
-          id: 'discord_sync',
-          title: 'Synchronisation Discord',
-          subtitle: 'Publication de la commande sur l\'API Discord',
-        ),
-        _SyncStepData(
-          id: 'reload_runtime',
-          title: 'Rechargement à chaud',
-          subtitle: 'Mise à jour instantanée du runner de votre bot',
-        ),
+        _SyncStepData(id: 'discord_sync'),
+        _SyncStepData(id: 'reload_runtime'),
       ];
     } else {
       _steps = [
-        _SyncStepData(
-          id: 'discord_sync',
-          title: 'Synchronisation Discord',
-          subtitle: 'Publication de la commande sur l\'API Discord',
-        ),
-        _SyncStepData(
-          id: 'cloud_sync',
-          title: 'Sauvegarde Cloud',
-          subtitle: 'Synchronisation sécurisée dans votre espace en ligne',
-        ),
-        _SyncStepData(
-          id: 'reload_runtime',
-          title: 'Rechargement à chaud',
-          subtitle: 'Mise à jour instantanée du runner de votre bot',
-        ),
+        _SyncStepData(id: 'discord_sync'),
+        _SyncStepData(id: 'cloud_sync'),
+        _SyncStepData(id: 'reload_runtime'),
       ];
     }
     _hasError = false;
