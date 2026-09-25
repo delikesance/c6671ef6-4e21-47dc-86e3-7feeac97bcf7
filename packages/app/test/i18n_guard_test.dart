@@ -93,6 +93,45 @@ void main() {
     );
   });
 
+  // La dette i18n ne grandit plus.
+  //
+  // Sans ce verrou, une chaîne en dur ajoutée dans un fichier DEJA listé comme
+  // « dette connue » passait totalement inaperçue : le seuil glissait d'une
+  // chaîne à chaque fois, et `knownUiLeaks` devenait une autorisation au lieu
+  // d'une dette — c'est exactement ce qui s'est produit, et c'est pourquoi le
+  // plafond est le compte MESURÉ au moment du verrouillage. Il doit BAISSER,
+  // jamais monter : traduire la chaîne (clé ARB dans les 6 langues) ou la
+  // justifier dans l'allow-list documentée, mais ne pas relever le plafond.
+  test('la dette i18n ne peut que DIMINUER (plafond verrouillé)', () {
+    const int ceiling = 146;
+    final findings = findHardcodedStringFindings(rootPath: 'lib');
+    final known = findings
+        .where(
+          (finding) =>
+              !isAllowListedFinding(finding) && isKnownUiLeakPath(finding.path),
+        )
+        .toList(growable: false);
+
+    final perFile = <String, int>{};
+    for (final finding in known) {
+      perFile.update(finding.path, (count) => count + 1, ifAbsent: () => 1);
+    }
+    final breakdown =
+        (perFile.entries.toList()..sort((a, b) => b.value.compareTo(a.value)))
+            .map((entry) => '  ${entry.value.toString().padLeft(3)}  ${entry.key}')
+            .join('\n');
+
+    expect(
+      known.length,
+      lessThanOrEqualTo(ceiling),
+      reason:
+          'Dette i18n : ${known.length} littéraux (plafond $ceiling). Une chaîne '
+          'a été ajoutée sans traduction : la traduire (clé ARB dans les 6 '
+          'langues) ou la déclarer dans l\'allow-list avec sa justification.\n'
+          'Ne PAS relever le plafond.\n$breakdown',
+    );
+  });
+
   test('parité i18n : les 6 .arb ont les mêmes clés et aucune valeur vide', () {
     final keysByLocale = <String, Set<String>>{};
     final emptyValues = <String, List<String>>{};

@@ -370,10 +370,7 @@ class _AppHomePageState extends State<AppHomePage>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              _uiCopy(
-                fr: "Impossible de récupérer l'historique (connexion API indisponible)",
-                en: "Cannot fetch ad history (API unavailable)",
-              ),
+              context.tr.ad_history_unavailable,
             ),
           ),
         );

@@ -3267,10 +3267,7 @@ class HomePageState extends State<HomePage>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              _uiCopy(
-                fr: "Limite de visionnage ou cooldown actif. Veuillez réessayer plus tard.",
-                en: "Ad cooldown or limit is active. Please try again later.",
-              ),
+              context.tr.ad_limit_or_cooldown,
             ),
           ),
         );
@@ -3292,10 +3289,7 @@ class HomePageState extends State<HomePage>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              _uiCopy(
-                fr: "Impossible de synchroniser la configuration du bot avec l'API principale.",
-                en: "Failed to sync bot configuration with the main API.",
-              ),
+              context.tr.ad_sync_config_failed,
             ),
           ),
         );
@@ -3312,10 +3306,7 @@ class HomePageState extends State<HomePage>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              _uiCopy(
-                fr: "Impossible de générer le contexte publicitaire (compte non connecté ou token manquant).",
-                en: "Failed to build ad context. Please ensure you are signed in and your bot token is set.",
-              ),
+              context.tr.ad_context_failed,
             ),
           ),
         );
