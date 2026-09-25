@@ -1533,9 +1533,21 @@ class MainApiClient implements RemoteRuntimeClient {
     // (p50 mesuré à 124,7 s sur cette route) — et AUCUN rejeu : renvoyer une
     // sauvegarde de 100 Ko pendant qu'une synchro tient le verrou par bot rend
     // un `409 bot_sync_in_progress` (trois cas sur 24 h, 21 s chacun).
+    //
+    // `bot_id` : l'identifiant sous lequel l'APP connaît ce bot. Le manager
+    // identifie le bot par son jeton (`/applications/@me`) et l'ignorait donc
+    // jusqu'ici. Sans lui, une annonce récompensée regardée pour ce bot envoie
+    // un callback SSV que le manager ne peut rattacher à aucun bot : la
+    // publicité est vue et la récompense est jetée (« no owner candidate
+    // accepted the claim »). L'envoyer permet au manager d'enregistrer la
+    // correspondance identifiant local → bot géré.
     await _postFirstAvailable(
       const <String>['/gateway/bots/discord/save', '/bots/discord/save'],
-      <String, dynamic>{'bot_token': botToken, 'config': config},
+      <String, dynamic>{
+        'bot_token': botToken,
+        'config': config,
+        'bot_id': normalizedBotId,
+      },
       timeout: _configPushTimeout,
       retryOnFailure: false,
     );
