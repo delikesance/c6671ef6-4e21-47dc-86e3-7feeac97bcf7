@@ -7176,6 +7176,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settings_export => 'Exportieren';
 
   @override
+  String get settings_runner_type_label => 'Runner-Typ';
+
+  @override
   String get settings_export_app_data => 'App-Daten exportieren';
 
   @override

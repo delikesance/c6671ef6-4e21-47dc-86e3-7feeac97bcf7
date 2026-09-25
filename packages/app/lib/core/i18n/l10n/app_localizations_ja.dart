@@ -6760,6 +6760,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settings_export => 'エクスポート';
 
   @override
+  String get settings_runner_type_label => 'ランナーの種類';
+
+  @override
   String get settings_export_app_data => 'アプリデータをエクスポート';
 
   @override

@@ -8958,6 +8958,7 @@
   "settings_execution_mode_title": "Modo de execução",
   "settings_execution_mode_use_runner": "Usar um executor hospedado por conta própria",
   "settings_export": "Exportar",
+  "settings_runner_type_label": "Tipo de runner",
   "settings_export_app_data": "Exportar Dados da App",
   "settings_export_loading": "A exportar…",
   "settings_import": "Importar",

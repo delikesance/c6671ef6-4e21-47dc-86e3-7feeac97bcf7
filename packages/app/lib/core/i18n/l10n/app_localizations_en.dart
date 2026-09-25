@@ -7066,6 +7066,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings_export => 'Export';
 
   @override
+  String get settings_runner_type_label => 'Runner type';
+
+  @override
   String get settings_export_app_data => 'Export App Data';
 
   @override

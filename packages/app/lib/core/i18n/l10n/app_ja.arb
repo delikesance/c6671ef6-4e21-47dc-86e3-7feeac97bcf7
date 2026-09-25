@@ -9012,6 +9012,7 @@
   "settings_execution_mode_title": "実行モード",
   "settings_execution_mode_use_runner": "セルフホストランナーを使用",
   "settings_export": "エクスポート",
+  "settings_runner_type_label": "ランナーの種類",
   "settings_export_app_data": "アプリデータをエクスポート",
   "settings_export_loading": "エクスポート中…",
   "settings_import": "インポート",
