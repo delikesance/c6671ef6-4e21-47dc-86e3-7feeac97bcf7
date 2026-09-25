@@ -3399,6 +3399,27 @@
   "@common_none": {
     "description": "None"
   },
+  "@sync_diff_local_only_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@sync_diff_new_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@sync_diff_updated_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "@common_ok": {
     "description": "OK"
   },
@@ -9869,6 +9890,25 @@
   "rewarded_start_continue": "Continue",
   "rewarded_start_credit_confirmed": "Reward credited: your hosting minutes have been added.",
   "rewarded_credit_syncing_message": "Your ad reward is still syncing. Try starting the bot again in a few seconds.",
+  "sync_cloud_applied": "Cloud version applied successfully",
+  "sync_diff_local_only_count": "{count, plural, =1{1 local-only} other{{count} local-only}}",
+  "sync_diff_new_count": "{count, plural, =1{+1 new} other{+{count} new}}",
+  "sync_diff_updated_count": "{count, plural, =1{1 updated} other{{count} updated}}",
+  "sync_cloud_update_applied": "Cloud update applied successfully",
+  "sync_conflict_message": "Divergent changes exist between this local session and Cloud (Mobile). Choose how to resolve this conflict:",
+  "sync_conflict_title": "Sync Conflict Detected",
+  "sync_in_progress": "Sync in progress...",
+  "sync_keep_local_description": "Keeps your local modifications and pushes them to update Cloud.",
+  "sync_keep_local_title": "Keep Local Version (Desktop)",
+  "sync_local_kept": "Local version kept and synced to Cloud",
+  "sync_merge_smart_description": "Combines additions from both sides and keeps the newest command in case of duplicates.",
+  "sync_merge_smart_done": "Smart merge completed and synced to Cloud",
+  "sync_merge_smart_title": "Smart Merge (Recommended)",
+  "sync_synced_with_cloud": "Synced with Cloud version",
+  "sync_take_cloud_description": "Replaces local un-pushed changes with the Cloud version.",
+  "sync_take_cloud_title": "Take Cloud Version (Mobile)",
+  "sync_version_cloud_mobile": "Cloud Version (Mobile)",
+  "sync_version_local_desktop": "Local Version (Desktop)",
   "rewarded_credit_syncing_title": "Credit is still syncing",
   "ad_context_failed": "Failed to build ad context. Please ensure you are signed in and your bot token is set.",
   "ad_history_unavailable": "Cannot fetch ad history (API unavailable)",
