@@ -471,7 +471,7 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
                     ),
                   ),
                   const SizedBox(height: AppTheme.spacingMd),
-                  OutlinedButton(onPressed: _retry, child: const Text('Retry')),
+                  OutlinedButton(onPressed: _retry, child: Text(context.tr.common_retry)),
                 ],
               ),
             );

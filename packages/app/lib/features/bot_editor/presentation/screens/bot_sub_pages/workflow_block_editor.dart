@@ -1319,7 +1319,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
             suffixIcon: _existingFolders.isNotEmpty
                 ? PopupMenuButton<String>(
                     icon: const Icon(Icons.folder_open),
-                    tooltip: 'Dossiers existants',
+                    tooltip: context.tr.command_create_existing_folders,
                     onSelected: (String selection) {
                       setState(() {
                         _folderController.text = selection;
@@ -1530,7 +1530,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
               suffixIcon: _existingFolders.isNotEmpty
                   ? PopupMenuButton<String>(
                       icon: const Icon(Icons.folder_open),
-                      tooltip: 'Dossiers existants',
+                      tooltip: context.tr.command_create_existing_folders,
                       onSelected: (String selection) {
                         setState(() {
                           _folderController.text = selection;

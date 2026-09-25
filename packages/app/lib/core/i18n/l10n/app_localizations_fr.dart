@@ -5956,6 +5956,47 @@ class AppLocalizationsFr extends AppLocalizations {
       'Aperçu de l\'import du workflow';
 
   @override
+  String get blueprint_close_inspector => 'Fermer l\'inspecteur';
+
+  @override
+  String get blueprint_search_action_hint => 'Rechercher une action...';
+
+  @override
+  String get common_auto => 'Auto';
+
+  @override
+  String get common_inline => 'Inline';
+
+  @override
+  String marketplace_options_count(int count) {
+    return 'Options ($count)';
+  }
+
+  @override
+  String marketplace_required_config_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count configurations',
+      one: '1 configuration',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get option_autocomplete_javascript => 'Autocomplétion JavaScript';
+
+  @override
+  String option_description_new(int count) {
+    return 'Description de l\'option $count';
+  }
+
+  @override
+  String variables_sync_failed(String error) {
+    return 'Échec de la synchronisation de la variable : $error';
+  }
+
+  @override
   String get sync_cloud_update_applied =>
       'Mise à jour Cloud appliquée avec succès';
 

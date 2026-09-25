@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator_shared/types/action.dart' show BotCreatorActionType;
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder/action_type_extension.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/scratch_block_palette.dart';
@@ -80,7 +81,7 @@ class _BlueprintContextMenuState extends State<BlueprintContextMenu> {
                   autofocus: true,
                   style: const TextStyle(color: Colors.white, fontSize: 13),
                   decoration: InputDecoration(
-                    hintText: 'Rechercher une action...',
+                    hintText: context.tr.blueprint_search_action_hint,
                     hintStyle: const TextStyle(
                       color: Colors.white38,
                       fontSize: 12,

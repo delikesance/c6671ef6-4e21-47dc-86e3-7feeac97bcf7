@@ -289,13 +289,57 @@ const List<AllowListEntry> allowListedPatterns = <AllowListEntry>[
   AllowListEntry(
     // Tous les fichiers : la règle porte sur la FORME de la ligne.
     pathFragment: '',
-    snippetPattern: r'\$\{context\.tr\.',
+    snippetPattern: r'\$\{(?:context\.)?tr\.',
     reason:
         'Ligne qui COMPOSE son texte à partir d\'une clé ARB (recherche '
-        'context.tr.… interpolée avec des données) : le littéral n\'est pas de '
-        'la copie en dur, la partie traduite est déjà une clé. Toute autre '
-        'chaîne du fichier reste soumise à la règle — c\'est pour cela que '
-        'l\'exemption est un MOTIF et non une exclusion de fichier.',
+        'context.tr.… ou tr.…, la variable locale de la même chose, interpolée '
+        'avec des données) : le littéral n\'est pas de la copie en dur, la partie '
+        'traduite est déjà une clé. Toute autre chaîne du fichier reste soumise '
+        'à la règle — c\'est pour cela que l\'exemption est un MOTIF et non une '
+        'exclusion de fichier.',
+  ),
+  // ── Littéral SANS TEXTE HUMAIN : uniquement des valeurs interpolées ──────────
+  AllowListEntry(
+    pathFragment: '',
+    // Le contenu du littéral n'est fait que d'interpolations, d'espaces, de
+    // chiffres et de ponctuation : il n'y a pas un mot à traduire.
+    snippetPattern:
+        r"^[^']*'[\s\d(),.:/|*+_\[\]-]*(\$\{[^}]*\}|\$[a-zA-Z_][a-zA-Z0-9_]*)"
+        r"[\s\d(),.:/|*+_\[\]-]*'[^']*$",
+    reason:
+        'Texte 100 % DONNÉE : un compteur, un identifiant ou une longueur '
+        'interpolés, sans un seul mot humain — il n\'y a donc rien à traduire. '
+        'Un chiffre ou un identifiant s\'affiche tel quel dans toutes les langues.',
+  ),
+  AllowListEntry(
+    pathFragment: '',
+    snippetPattern: r"hintText: '\\u",
+    reason:
+        'Placeholder de champ décoré par un EMOJI (échappement `\\uXXXX`), pas '
+        'un libellé.',
+  ),
+  AllowListEntry(
+    pathFragment: '',
+    snippetPattern: r"hintText: 'p, ping'",
+    reason:
+        'Exemple de préfixe affiché tel quel dans le champ (`p, ping`) : c\'est '
+        'une DONNÉE d\'exemple — les traduire ferait diverger l\'exemple du '
+        'comportement réel du bot.',
+  ),
+  AllowListEntry(
+    pathFragment: '',
+    snippetPattern: r"title: 'Bot Creator'",
+    reason:
+        'NOM DE MARQUE : il ne se traduit pas — le traduire ferait perdre le '
+        'produit (et l\'app apparaîtrait sous deux noms selon la langue).',
+  ),
+  AllowListEntry(
+    pathFragment: '',
+    snippetPattern: r"label: (?:const )?Text\('(?:Dart|JS|JavaScript|Java|C\+\+)'\)",
+    reason:
+        'Identifiants de MOTEUR ou de langage (Dart, JS, JavaScript…) : ce sont '
+        'des noms propres techniques, identiques dans les 6 langues. Même '
+        'logique que l\'entrée équivalente de l\'éditeur de bot.',
   ),
 ];
 

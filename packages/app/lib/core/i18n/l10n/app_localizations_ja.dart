@@ -5606,6 +5606,41 @@ class AppLocalizationsJa extends AppLocalizations {
   String get workflows_import_preview_title => 'ワークフロー読み込みのプレビュー';
 
   @override
+  String get blueprint_close_inspector => 'インスペクターを閉じる';
+
+  @override
+  String get blueprint_search_action_hint => 'アクションを検索...';
+
+  @override
+  String get common_auto => '自動';
+
+  @override
+  String get common_inline => 'インライン';
+
+  @override
+  String marketplace_options_count(int count) {
+    return 'オプション（$count）';
+  }
+
+  @override
+  String marketplace_required_config_count(int count) {
+    return '$count 件の設定';
+  }
+
+  @override
+  String get option_autocomplete_javascript => 'JavaScriptの自動補完';
+
+  @override
+  String option_description_new(int count) {
+    return 'オプション$countの説明';
+  }
+
+  @override
+  String variables_sync_failed(String error) {
+    return '変数を同期できませんでした: $error';
+  }
+
+  @override
   String get sync_cloud_update_applied => 'クラウドの更新を適用しました';
 
   @override

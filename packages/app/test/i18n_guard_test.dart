@@ -103,17 +103,21 @@ void main() {
   // jamais monter : traduire la chaîne (clé ARB dans les 6 langues) ou la
   // justifier dans l'allow-list documentée, mais ne pas relever le plafond.
   test('la dette i18n ne peut que DIMINUER (plafond verrouillé)', () {
-    // 146 au verrouillage (25/09), 111 après `home.sync.part.dart`, 99 après
-    // `bot_stats.dart`, 80 après la fin du balayage du repli `fr:`/`en:`, 50
-    // après le lot « littéraux » (`command.create.dart` : 15 littéraux FRANÇAIS
-    // qui s'affichaient tels quels dans les 5 autres langues, et
-    // `workflows.page.dart`). Le repli ne survit plus que dans
-    // `remote_runtime.dart` (couche sans `BuildContext`, à refactorer en raison
-    // typée).
+    // 146 au verrouillage (25/09), 111 (`home.sync.part.dart`), 99
+    // (`bot_stats.dart`), 80 (fin du balayage `fr:`/`en:`), 50 (littéraux de la
+    // commande et de l'import/export), 24 après le lot « petits fichiers ».
+    //
+    // Les 24 restants sont UN SEUL fichier : `remote_runtime.dart`, dont les
+    // messages naissent dans une couche SANS `BuildContext` (le résolveur rend
+    // une `String` que l'UI affiche telle quelle) — leur correctif est un
+    // refactor (raison typée rendue par le résolveur, traduite par l'UI), pas une
+    // clé ARB de plus. Tant que ce refactor n'est pas fait, le plafond reste ici
+    // et interdit toute NOUVELLE dette ailleurs.
+    //
     // Le plafond suit la dette VERS LE BAS : après chaque lot converti, le
     // baisser au compte mesuré, jamais le laisser au-dessus (un plafond trop
     // haut rend le verrou décoratif).
-    const int ceiling = 50;
+    const int ceiling = 24;
     final findings = findHardcodedStringFindings(rootPath: 'lib');
     final known = findings
         .where(

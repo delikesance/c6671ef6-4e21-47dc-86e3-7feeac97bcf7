@@ -2708,22 +2708,25 @@ class _SettingPageState extends State<SettingPage> {
                           ),
                           const SizedBox(height: 8),
                           SegmentedButton<RunnerKind>(
-                            segments: const [
-                              ButtonSegment(
+                            segments: [
+
+                              const ButtonSegment(
                                 value: RunnerKind.dart,
                                 label: Text('Dart'),
                                 icon: Icon(Icons.memory),
-                              ),
-                              ButtonSegment(
+                                ),
+
+                              const ButtonSegment(
                                 value: RunnerKind.javascript,
                                 label: Text('JS'),
                                 icon: Icon(Icons.code),
-                              ),
+                                ),
+
                               ButtonSegment(
                                 value: RunnerKind.auto,
-                                label: Text('Auto'),
-                                icon: Icon(Icons.auto_awesome),
-                              ),
+                                label: Text(context.tr.common_auto),
+                                icon: const Icon(Icons.auto_awesome),
+                                ),
                             ],
                             selected: {_runnerKind},
                             onSelectionChanged: _runnerTemporarilyDisabled

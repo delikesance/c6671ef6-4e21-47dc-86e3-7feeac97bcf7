@@ -461,7 +461,7 @@ class _TemplateCard extends StatelessWidget {
                         if (requiredVars > 0)
                           _MetaChip(
                             icon: Icons.tune,
-                            label: '$requiredVars config',
+                            label: context.tr.marketplace_required_config_count(requiredVars),
                           ),
                         _MetaChip(
                           icon: Icons.playlist_play,
