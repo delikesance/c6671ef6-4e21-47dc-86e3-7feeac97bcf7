@@ -9,6 +9,21 @@ import 'package:window_manager/window_manager.dart';
 /// Hauteur de la barre de titre custom desktop.
 const double kDesktopTitleBarHeight = 38.0;
 
+/// Réserve à gauche pour les FEUX DE CIRCULATION natifs de macOS.
+///
+/// macOS dessine lui-même les trois boutons (fermer / réduire / agrandir) dans
+/// le coin haut-gauche, PAR-DESSUS la vue Flutter, et `TitleBarStyle.hidden`
+/// (lib/main.dart) n'enlève que la barre native, pas ces boutons. Sans réserve,
+/// ils recouvrent le bouton retour universel et le titre de l'application.
+///
+/// Ils sont natifs et `window_manager` 0.5.2 n'expose aucune API pour les
+/// déplacer : c'est donc notre barre qui s'efface. 78 px = marge de 20 + trois
+/// boutons de 12 espacés de 8 + petite marge (le feu « agrandir » finit à 72).
+/// Les clics sur les feux eux-mêmes partent au système, pas à Flutter ; la
+/// réserve reste donc glissable pour ne pas perdre le déplacement de fenêtre
+/// depuis le coin.
+const double kMacTrafficLightsInset = 78.0;
+
 /// Notifier et observateur de navigation pour synchroniser la barre de titre desktop
 /// ([DesktopTitleBar]) avec l'état de l'application (bot sélectionné, possibilité de retour, etc.).
 class DesktopTitleBarNotifier extends NavigatorObserver with ChangeNotifier {
@@ -197,6 +212,16 @@ class _DesktopTitleBarState extends State<DesktopTitleBar> with WindowListener {
     setState(() => _isMaximized = false);
   }
 
+  /// Bascule agrandi/restauré. Une seule implémentation : le double-clic sur la
+  /// zone glissable et le bouton dédié (Windows/Linux) doivent faire pareil.
+  Future<void> _toggleMaximize() async {
+    if (await windowManager.isMaximized()) {
+      await windowManager.unmaximize();
+    } else {
+      await windowManager.maximize();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Si nous ne sommes pas sur un desktop OS, ne rien rendre.
@@ -230,9 +255,20 @@ class _DesktopTitleBarState extends State<DesktopTitleBar> with WindowListener {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Sur macOS, les fenêtres ont souvent les boutons à gauche, mais comme
-          // nous avons une barre custom uniforme qui remplace la barre native,
-          // on peut laisser la zone de contrôle à droite ou afficher un padding à gauche.
+          // macOS : réserve pour les feux de circulation NATIFS, qui sinon
+          // recouvrent le bouton retour et le titre (voir kMacTrafficLightsInset).
+          // La réserve reste glissable : le coin n'est pas perdu pour déplacer la
+          // fenêtre, et un double-clic y fait ce qu'il fait partout sur macOS.
+          if (isMac)
+            GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onPanStart: (_) => windowManager.startDragging(),
+              onDoubleTap: _toggleMaximize,
+              child: const SizedBox(
+                width: kMacTrafficLightsInset,
+                height: kDesktopTitleBarHeight,
+              ),
+            ),
           if (widget.canGoBack)
             _DesktopTitleBarButton(
               icon: Icons.arrow_back_rounded,
@@ -311,13 +347,7 @@ class _DesktopTitleBarState extends State<DesktopTitleBar> with WindowListener {
               onPanStart: (details) {
                 windowManager.startDragging();
               },
-              onDoubleTap: () async {
-                if (await windowManager.isMaximized()) {
-                  await windowManager.unmaximize();
-                } else {
-                  await windowManager.maximize();
-                }
-              },
+              onDoubleTap: _toggleMaximize,
               child: const SizedBox(height: kDesktopTitleBarHeight),
             ),
           ),
@@ -337,13 +367,7 @@ class _DesktopTitleBarState extends State<DesktopTitleBar> with WindowListener {
               tooltip: _isMaximized
                   ? context.tr.common_restore
                   : context.tr.common_maximize,
-              onTap: () async {
-                if (await windowManager.isMaximized()) {
-                  await windowManager.unmaximize();
-                } else {
-                  await windowManager.maximize();
-                }
-              },
+              onTap: _toggleMaximize,
             ),
             _DesktopWindowControlButton(
               icon: Icons.close_rounded,

@@ -160,5 +160,45 @@ void main() {
         debugDefaultTargetPlatformOverride = null;
       }
     });
+
+    testWidgets(
+      'macOS : rien d\'interactif sous les feux de circulation natifs',
+      (tester) async {
+        // Le bouton retour universel doit commencer APRÈS la réserve des feux :
+        // ceux-ci sont dessinés par macOS par-dessus la vue Flutter et, sans
+        // réserve, masquaient le bouton et le titre (titre de fenêtre non
+        // cliquable, retour inaccessible).
+        Future<double> backButtonLeftFor(TargetPlatform platform) async {
+          debugDefaultTargetPlatformOverride = platform;
+          await tester.pumpWidget(
+            MaterialApp(
+              locale: const Locale('en'),
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              theme: AppTheme.darkTheme(),
+              home: const Scaffold(
+                body: DesktopTitleBar(canGoBack: true, onBack: null),
+              ),
+            ),
+          );
+          await tester.pumpAndSettle();
+          return tester.getTopLeft(find.byIcon(Icons.arrow_back_rounded)).dx;
+        }
+
+        try {
+          expect(
+            await backButtonLeftFor(TargetPlatform.macOS),
+            greaterThanOrEqualTo(kMacTrafficLightsInset),
+          );
+          // Ailleurs (Linux/Windows, barre 100 % la nôtre) : aucun espace perdu.
+          expect(
+            await backButtonLeftFor(TargetPlatform.linux),
+            lessThan(kMacTrafficLightsInset),
+          );
+        } finally {
+          debugDefaultTargetPlatformOverride = null;
+        }
+      },
+    );
   });
 }
