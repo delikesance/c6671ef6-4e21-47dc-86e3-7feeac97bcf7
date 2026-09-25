@@ -178,10 +178,14 @@ CommandOutboxCoordinator _installCoordinator(
 
   // Le rejeu emprunte `BotDataRepository.saveCommand` : le dépôt choisit donc
   // le format, exactement comme pour une sauvegarde normale (v2 si elle est
-  // armée, document entier sinon).
+  // armée, document entier sinon). La précondition, elle, vient de l'ENTRÉE
+  // mise en file : la mémoire du dépôt est vide après un redémarrage, et un
+  // rejeu sans précondition écrase une version distante plus récente sans que
+  // personne ne le sache.
   final drainer = CommandOutboxDrainer(
     store: store ?? CommandOutboxStore(),
-    replay: repository.saveCommand,
+    replay: (botId, command, ifMatch) =>
+        repository.saveCommand(botId, command, ifMatch: ifMatch),
   );
   final coordinator = CommandOutboxCoordinator(
     drainer: drainer,

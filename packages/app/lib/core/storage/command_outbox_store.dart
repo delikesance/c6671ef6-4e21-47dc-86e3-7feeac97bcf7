@@ -28,14 +28,20 @@
 //     erreur et son compteur : elle est consultable, et le compteur dit à
 //     l'utilisateur ce qui s'est passé. Jamais un abandon de tout le bot.
 //
-// CE QUE LA FILE NE FAIT PAS : elle ne décide pas du format (c'est le dépôt),
+// 4. LA PRÉCONDITION VOYAGE AVEC L'ÉCRITURE. C'est la quatrième décision, et
+//     elle a coûté cher : `ifMatch` (la révision contre laquelle l'écriture a
+//     échoué) n'était PAS conservé. Au rejeu, `BotDataRepository.saveCommand`
+//     retombait sur la révision vivant EN MÉMOIRE, qui est vide après un
+//     redémarrage de l'application — la commande repartait donc sans
+//     précondition et écrasait en silence une version distante plus récente
+//     (aucun 409). La colonne `if_match` (schéma v7) porte cette révision, et le
+//     rejeu la transmet : si le document a bougé, le serveur répond 409 et
+//     l'entrée est CONSERVÉE avec sa raison, au lieu d'écraser.
+//
+// CE QUE LA FILE NE FAIT PAS : elle ne décide pas du format (c'est le dépôt) et
 // elle ne touche pas au stockage local des commandes (les fichiers
 // `apps/<botId>/<commandId>.json` sont l'affaire de l'appelant, et ils sont
-// écrits AVANT), et elle n'invente pas de précondition. Le champ `ifMatch`
-// d'une écriture mise en file n'est pas persisté : le schéma de la table est
-// figé (plan §5.2) et ne porte pas de colonne pour lui ; au rejeu,
-// `BotDataRepository.saveCommand` reprend la révision COURANTE qu'il connaît,
-// qui est celle du même dépôt qui a refusé l'écriture à l'origine.
+// écrits AVANT).
 
 import 'dart:async';
 import 'dart:convert';
@@ -79,6 +85,7 @@ class CommandOutboxEntry {
     required this.attempts,
     required this.lastError,
     required this.createdAt,
+    this.expectedRevision,
   });
 
   final String botId;
@@ -102,6 +109,18 @@ class CommandOutboxEntry {
   /// CONSERVÉ quand la même charge utile est remise en file : l'ancienneté
   /// affichée reste celle du premier `enqueue` non résolu.
   final int createdAt;
+
+  /// Révision attendue au moment de la tentative qui a échoué, ou `null` quand
+  /// l'écriture n'en portait pas (elle n'en a pas toujours : la v2 peut être
+  /// désarmée, et les lignes mises en file avant le schéma v7 n'en ont pas).
+  ///
+  /// C'est cette valeur — et non la révision du moment — que le rejeu envoie
+  /// comme précondition : rejouer contre une révision qu'on vient de relire
+  /// ferait exactement ce que la précondition doit empêcher.
+  final String? expectedRevision;
+
+  /// Vrai quand cette entrée porte de quoi refuser un écrasement silencieux.
+  bool get hasPrecondition => (expectedRevision ?? '').isNotEmpty;
 
   /// La commande décodée, ou `null` si `payload_json` ne se relit pas.
   ///
@@ -131,6 +150,7 @@ class CommandOutboxEntry {
       attempts: _rowInt(row['attempts']),
       lastError: _rowString(row['last_error']),
       createdAt: _rowInt(row['created_at']),
+      expectedRevision: _rowOptionalString(row['if_match']),
     );
   }
 
@@ -153,6 +173,14 @@ Map<String, dynamic>? _decodeCommandPayload(String payloadJson) {
 }
 
 String _rowString(Object? value) => (value ?? '').toString();
+
+/// Une colonne texte FACULTATIVE : vide et absente veulent dire la même chose
+/// (aucune précondition), et une colonne manquante dans une base ancienne ne
+/// doit pas faire tomber la lecture de la file.
+String? _rowOptionalString(Object? value) {
+  final text = (value ?? '').toString().trim();
+  return text.isEmpty ? null : text;
+}
 
 int _rowInt(Object? value) {
   if (value is int) return value;
@@ -228,6 +256,7 @@ class CommandOutboxStore {
       payloadHash,
       payloadJson,
       DateTime.now().millisecondsSinceEpoch,
+      (write.ifMatch ?? '').trim(),
     ]);
   }
 
@@ -299,11 +328,13 @@ class CommandOutboxStore {
   /// inchangées quand l'empreinte est la même (voir [enqueue]).
   static const String _upsertSql = '''
     INSERT INTO $commandOutboxTableName
-      (bot_id, command_id, payload_hash, payload_json, attempts, last_error, created_at)
-    VALUES (?, ?, ?, ?, 0, '', ?)
+      (bot_id, command_id, payload_hash, payload_json, attempts, last_error, created_at, if_match)
+    VALUES (?, ?, ?, ?, 0, '', ?, ?)
     ON CONFLICT(bot_id, command_id) DO UPDATE SET
       payload_hash = excluded.payload_hash,
       payload_json = excluded.payload_json,
+      if_match = CASE WHEN $commandOutboxTableName.payload_hash = excluded.payload_hash
+                      THEN $commandOutboxTableName.if_match ELSE excluded.if_match END,
       attempts = CASE WHEN $commandOutboxTableName.payload_hash = excluded.payload_hash
                       THEN $commandOutboxTableName.attempts ELSE 0 END,
       last_error = CASE WHEN $commandOutboxTableName.payload_hash = excluded.payload_hash
@@ -366,11 +397,19 @@ class CommandOutboxSelection {
 
 // ─── Le vidage ───────────────────────────────────────────────────────────────
 
-/// Rejoue UNE écriture. `BotDataRepository.saveCommand` a exactement cette
-/// signature : c'est ce qui fait que le rejeu emprunte le même chemin que la
-/// sauvegarde normale (v2 si elle est là, legacy sinon).
+/// Rejoue UNE écriture. Le rejeu emprunte le même chemin que la sauvegarde
+/// normale (`BotDataRepository.saveCommand`, v2 si elle est là, legacy sinon).
+///
+/// [ifMatch] est la précondition CONSERVÉE avec l'entrée (voir
+/// [CommandOutboxEntry.expectedRevision]) : la transmettre est ce qui empêche un
+/// rejeu d'écraser une version distante plus récente, en particulier après un
+/// redémarrage de l'application.
 typedef CommandOutboxReplay =
-    Future<SaveOutcome> Function(String botId, CommandDetail command);
+    Future<SaveOutcome> Function(
+      String botId,
+      CommandDetail command,
+      String? ifMatch,
+    );
 
 /// Ce qu'un vidage a donné. Des COMPTES, pas une impression : chaque catégorie
 /// correspond à une ligne de la table, et la somme doit tomber juste.
@@ -511,6 +550,7 @@ class CommandOutboxDrainer {
             commandId: entry.commandId,
             raw: command,
           ),
+          entry.expectedRevision,
         );
         switch (outcome) {
           case SavedGranular() || SavedLegacy():
