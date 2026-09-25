@@ -111,6 +111,73 @@ void main() {
   );
 
   test(
+    'une RESTAURATION, elle, supprime les commandes absentes de la version restaurée',
+    () async {
+      // Le cas réel : le stockage local contient une commande créée APRÈS la
+      // version que l'on restaure (les deux « eval » venaient de là). Une
+      // restauration doit rétablir un ÉTAT, pas faire l'union avec l'état
+      // courant — sinon la liste affiche des commandes qui n'existent plus sur
+      // le serveur, et la synchro suivante les y renvoie (la restauration est
+      // annulée en silence).
+      await appManager.saveAppCommand(botId, 'created_after', <String, dynamic>{
+        'id': 'created_after',
+        'name': 'created_after',
+        'description': 'Créée après la version restaurée',
+        'type': 'chatInput',
+        'data': <String, dynamic>{},
+      });
+      await appManager.saveAppCommand(
+        botId,
+        'in_the_version',
+        <String, dynamic>{
+          'id': 'in_the_version',
+          'name': 'in_the_version',
+          'description': 'Présente dans la version',
+          'type': 'chatInput',
+          'data': <String, dynamic>{'marker': 'état local'},
+        },
+      );
+
+      await applyManagerConfigToLocal(
+        appManager: appManager,
+        botId: botId,
+        remoteConfig: <String, dynamic>{
+          'commands': <Map<String, dynamic>>[
+            {
+              'id': 'in_the_version',
+              'name': 'in_the_version',
+              'description': 'Présente dans la version',
+              'data': <String, dynamic>{'marker': 'version restaurée'},
+            },
+          ],
+        },
+        saveAppMetadata: false,
+        deleteMissingLocalCommands: true,
+      );
+
+      final after = await appManager.listAppCommands(botId, forceRefresh: true);
+      final ids = after.map((c) => c['id']).toList();
+
+      expect(
+        ids,
+        contains('in_the_version'),
+        reason: 'la version restaurée doit être là',
+      );
+      expect(
+        ids,
+        isNot(contains('created_after')),
+        reason: 'aucune commande créée après la version ne doit survivre',
+      );
+      final restored = after.firstWhere((c) => c['id'] == 'in_the_version');
+      expect(
+        restored['name'],
+        'in_the_version',
+        reason: 'la commande présente dans la version est bien celle restaurée',
+      );
+    },
+  );
+
+  test(
     'syncManagedBotsAfterDiscordLogin fetches R2 config and preserves local commands',
     () async {
       // 1. Setup local command

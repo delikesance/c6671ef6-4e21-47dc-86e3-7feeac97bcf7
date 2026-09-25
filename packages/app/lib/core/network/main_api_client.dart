@@ -44,6 +44,23 @@ class MainApiClientException implements Exception {
   }
 }
 
+/// Réduit une exception d'API à une raison lisible : statut, code, message.
+///
+/// POURQUOI elle est partagée : les écrans qui annoncent un échec doivent dire
+/// POURQUOI (version disparue, moteur dépareillé, refus d'API) et non afficher
+/// un « échec » muet ; le code applicatif, lui, est la partie stable du contrat
+/// (cf. [MainApiClientException.code]).
+String describeApiFailure(Object error) {
+  if (error is MainApiClientException) {
+    return <String>[
+      if (error.statusCode != null) 'HTTP ${error.statusCode}',
+      if ((error.code ?? '').isNotEmpty) error.code!,
+      error.message,
+    ].join(' — ');
+  }
+  return error.toString();
+}
+
 /// Cause d'un échec de récupération du jeton d'un bot
 /// (`POST /gateway/bots/{id}/token`), telle que l'interface doit la DIRE.
 ///
@@ -1600,12 +1617,26 @@ class MainApiClient implements RemoteRuntimeClient {
     return const <Map<String, dynamic>>[];
   }
 
-  /// Restores a previous config version from the version history.
-  Future<bool> restoreBotConfigVersion(String botId, String versionKey) async {
+  /// Restaure une version de la configuration d'un bot.
+  ///
+  /// [confirmOvershrink] demande au manager une restauration FORCÉE : sans lui,
+  /// le manager refuse les versions passées sous son plancher de plausibilité
+  /// (`409 bot_config_version_too_small`). POURQUOI ce drapeau existe : ce
+  /// plancher protège une POUSSÉE (une suppression massive et involontaire),
+  /// alors qu'une restauration est par définition un retour en arrière demandé
+  /// explicitement — la version visée est celle qui tournait avant, elle est
+  /// donc légitime même si elle est pauvre. Le manager ne l'applique que
+  /// lorsqu'il honore le drapeau ; sinon il refuse encore, et l'application le
+  /// dit sans faire croire à une panne.
+  Future<bool> restoreBotConfigVersion(
+    String botId,
+    String versionKey, {
+    bool confirmOvershrink = false,
+  }) async {
     final encodedBotId = Uri.encodeComponent(botId.trim());
     final response = await _post(
       '/gateway/bots/$encodedBotId/versions/restore',
-      {'key': versionKey},
+      {'key': versionKey, if (confirmOvershrink) 'confirmOvershrink': true},
     );
     return response['ok'] == true;
   }
@@ -1735,9 +1766,7 @@ class MainApiClient implements RemoteRuntimeClient {
     final encodedCommandId = Uri.encodeComponent(commandId.trim());
     final json = await _get(
       '/api/v2/bots/$encodedBotId/commands/$encodedCommandId/history',
-      query: <String, String?>{
-        if (limit != null) 'limit': limit.toString(),
-      },
+      query: <String, String?>{if (limit != null) 'limit': limit.toString()},
     );
     return CommandVersionInfo.listFromWire(json);
   }
@@ -1752,6 +1781,7 @@ class MainApiClient implements RemoteRuntimeClient {
     String commandId,
     String historyId, {
     String? ifMatch,
+    bool confirmOvershrink = false,
   }) async {
     final encodedBotId = Uri.encodeComponent(botId.trim());
     final encodedCommandId = Uri.encodeComponent(commandId.trim());
@@ -1759,7 +1789,7 @@ class MainApiClient implements RemoteRuntimeClient {
     final json = await _post(
       '/api/v2/bots/$encodedBotId/commands/$encodedCommandId/rollback/'
       '$encodedHistoryId',
-      const <String, dynamic>{},
+      <String, dynamic>{if (confirmOvershrink) 'confirmOvershrink': true},
       extraHeaders: _ifMatchHeaders(ifMatch),
     );
     return GranularWriteResult.fromWire(json);

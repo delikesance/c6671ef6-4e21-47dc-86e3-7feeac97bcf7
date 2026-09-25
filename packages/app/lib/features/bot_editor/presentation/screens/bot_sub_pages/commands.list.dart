@@ -19,6 +19,7 @@ import 'package:bot_creator/features/ads/presentation/native_ad_slot.dart';
 import 'package:bot_creator/core/widgets/notion_filter_bar.dart';
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_config_refresh.dart';
 import 'package:bot_creator/features/bot_editor/logic/command_folder_tree.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/folder_picker_dialog.dart';
 import 'package:bot_creator_shared/utils/legacy_command_triggers.dart';
@@ -64,6 +65,24 @@ class _AppCommandsPageState extends State<AppCommandsPage>
       screenClass: "AppCommandsPage",
       parameters: {"app_id": widget.botId},
     );
+    BotConfigRefreshNotifier.instance.addListener(_onConfigReplaced);
+    _load();
+  }
+
+  @override
+  void dispose() {
+    BotConfigRefreshNotifier.instance.removeListener(_onConfigReplaced);
+    super.dispose();
+  }
+
+  /// La configuration de CE bot vient d'être remplacée depuis le serveur
+  /// (restauration de version, synchro entrante). [_commands] est une copie
+  /// locale : sans relecture, la page continue d'afficher l'ancien état — c'est
+  /// ce qui faisait qu'une restauration ne se voyait pas ici.
+  void _onConfigReplaced() {
+    if (!mounted || BotConfigRefreshNotifier.instance.botId != widget.botId) {
+      return;
+    }
     _load();
   }
 
@@ -1345,9 +1364,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
               foregroundColor: Theme.of(ctx).colorScheme.onError,
             ),
             onPressed: () => Navigator.of(ctx).pop('delete_all'),
-            child: Text(
-              '${context.tr.delete} (${cmdsInFolder.length})',
-            ),
+            child: Text('${context.tr.delete} (${cmdsInFolder.length})'),
           ),
         ],
       ),
@@ -1486,11 +1503,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
     unawaited(refreshBotRuntime(widget.botId));
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          '${context.tr.commands_move_to_folder}: $count',
-        ),
-      ),
+      SnackBar(content: Text('${context.tr.commands_move_to_folder}: $count')),
     );
     setState(() {
       _isSelectMode = false;
@@ -1944,7 +1957,8 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                         ? Icons.deselect_rounded
                         : Icons.select_all_rounded,
                   ),
-                  tooltip: _selectedCommandIds.length == _commands.length &&
+                  tooltip:
+                      _selectedCommandIds.length == _commands.length &&
                           _commands.isNotEmpty
                       ? context.tr.marketplace_publish_deselect_all
                       : context.tr.marketplace_publish_select_all,

@@ -151,6 +151,19 @@ Future<Uint8List> exportBot(
 class ImportPreview {
   final int manifestVersion;
   final String runtimeEngine;
+
+  /// Vrai quand le ZIP PORTE l'information : son manifeste déclare un moteur.
+  ///
+  /// POURQUOI ce drapeau existe : sans lui, un ZIP muet (pas de manifeste, ou
+  /// manifeste sans `runtimeEngine`) voyait son moteur DEVINÉ d'après le
+  /// contenu, et [importBot] écrasait le moteur du bot avec cette devinette.
+  /// Un bot JavaScript pouvait donc redevenir Dart sans que personne ne l'ait
+  /// demandé — et l'interface n'avait aucun moyen de le signaler, puisqu'elle
+  /// ne savait pas distinguer « déclaré » de « supposé ».
+  ///
+  /// Quand il est faux, le moteur n'est PAS une décision : c'est à l'import de
+  /// le demander (voir `import_engine_missing` côté interface).
+  final bool runtimeEngineDeclared;
   final List<Map<String, dynamic>> commands;
   final List<Map<String, dynamic>> workflows;
   final Map<String, dynamic>? status;
@@ -161,6 +174,7 @@ class ImportPreview {
   const ImportPreview({
     required this.manifestVersion,
     this.runtimeEngine = runtimeEngineDart,
+    this.runtimeEngineDeclared = false,
     required this.commands,
     required this.workflows,
     this.status,
@@ -295,8 +309,9 @@ ImportPreview parseExportZip(Uint8List zipBytes) {
   }
 
   // Resolve runtime engine: prefer manifest, fallback heuristically to content
-  final resolvedEngine =
-      (manifestEngine != null && manifestEngine.trim().isNotEmpty)
+  final engineDeclared =
+      manifestEngine != null && manifestEngine.trim().isNotEmpty;
+  final resolvedEngine = engineDeclared
       ? normalizeRuntimeEngine(manifestEngine)
       : (hasJsCommands || hasJsWorkflows
             ? runtimeEngineJavascript
@@ -305,6 +320,7 @@ ImportPreview parseExportZip(Uint8List zipBytes) {
   return ImportPreview(
     manifestVersion: version,
     runtimeEngine: resolvedEngine,
+    runtimeEngineDeclared: engineDeclared,
     commands: commands,
     workflows: workflows,
     status: status,
@@ -324,6 +340,13 @@ ImportPreview parseExportZip(Uint8List zipBytes) {
 Future<ImportResult> importBot(
   String botId, {
   required ImportPreview preview,
+
+  /// Moteur à appliquer à ce bot. `null` = « ne décide pas » : un moteur
+  /// DÉCLARÉ par le manifeste s'applique, un moteur seulement DÉDUIT du contenu
+  /// ne s'applique jamais tout seul (on garde celui du bot).
+  ///
+  /// L'interface fournit un choix explicite dès que le ZIP ne déclare rien.
+  String? runtimeEngine,
   bool importCommands = true,
   bool importWorkflows = true,
   bool importStatus = true,
@@ -336,8 +359,21 @@ Future<ImportResult> importBot(
   int workflowsImported = 0;
   int workflowsSkipped = 0;
 
-  // Restore runtime engine deterministically from export
-  await setBotRuntimeEngine(botId, preview.runtimeEngine);
+  // Moteur : celui que le ZIP DÉCLARE, ou celui CHOISI pour ce bot. Un moteur
+  // simplement déduit du contenu n'est JAMAIS appliqué ici : sans choix
+  // explicite, on garde celui du bot (écrire le moteur est une bascule, elle
+  // vide la configuration locale côté moteur — elle ne doit pas venir d'une
+  // devinette, c'est le défaut qui faisait redevenir Dart des bots JavaScript).
+  final currentEngine = normalizeRuntimeEngine(
+    await getBotRuntimeEngine(botId),
+  );
+  final requestedEngine =
+      runtimeEngine ??
+      (preview.runtimeEngineDeclared ? preview.runtimeEngine : currentEngine);
+  final resolvedEngine = normalizeRuntimeEngine(requestedEngine);
+  if (currentEngine != resolvedEngine) {
+    await setBotRuntimeEngine(botId, resolvedEngine);
+  }
 
   // Restore empty folders metadata
   try {

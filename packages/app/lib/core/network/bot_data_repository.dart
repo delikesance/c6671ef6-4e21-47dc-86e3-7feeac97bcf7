@@ -219,9 +219,7 @@ class BotDataRepository {
         // rend la décision à l'appelant, sans relâcher ni écraser quoi que ce
         // soit. La révision courante, quand le serveur la dit, permet à
         // l'interface de proposer « recharger et écraser » en connaissance.
-        return ConflictStale(
-          currentRevision: _conflictRevision(error.message),
-        );
+        return ConflictStale(currentRevision: _conflictRevision(error.message));
       }
       if (error.statusCode == 404) {
         _disarm();
@@ -248,11 +246,16 @@ class BotDataRepository {
   /// Pas de repli legacy possible (l'historique n'existe que côté v2) : un 404
   /// de route remonte tel quel. Un `409` se traite comme une écriture : rien
   /// n'est écrit, l'appelant relit.
+  ///
+  /// [confirmOvershrink] demande la restauration FORCÉE quand le serveur refuse
+  /// la version parce qu'elle est passée sous son plancher de plausibilité :
+  /// c'est un retour en arrière demandé, pas une suppression accidentelle.
   Future<SaveOutcome> restoreCommandVersion(
     String botId,
     String commandId,
     String historyId, {
     String? ifMatch,
+    bool confirmOvershrink = false,
   }) async {
     final expected = _normalizeRevision(ifMatch) ?? revisionFor(botId);
     final result = await client.restoreCommandVersionV2(
@@ -260,6 +263,7 @@ class BotDataRepository {
       commandId,
       historyId,
       ifMatch: expected,
+      confirmOvershrink: confirmOvershrink,
     );
     _rememberRevision(botId, result.revision);
     return SavedGranular(

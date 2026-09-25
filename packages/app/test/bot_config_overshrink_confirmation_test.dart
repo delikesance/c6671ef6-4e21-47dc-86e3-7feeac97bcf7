@@ -205,10 +205,7 @@ class _PushHarnessState extends State<_PushHarness> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: ElevatedButton(
-          onPressed: _run,
-          child: const Text('push'),
-        ),
+        child: ElevatedButton(onPressed: _run, child: const Text('push')),
       ),
     );
   }
@@ -355,7 +352,9 @@ void main() {
       final exception = failure as MainApiClientException;
       expect(exception.statusCode, 409);
       expect(exception.code, botConfigOvershrinkErrorCode);
-      debugPrint('[PREUVE] exception du 409 = $exception (code=${exception.code})');
+      debugPrint(
+        '[PREUVE] exception du 409 = $exception (code=${exception.code})',
+      );
     });
 
     test('les 4 phrases sont traduites dans les 6 langues', () async {
@@ -414,9 +413,9 @@ void main() {
       expect(syncBodies, isNotEmpty);
       // Rien ne part AVANT l'accord : aucune requête ne porte le drapeau.
       expect(
-        syncBodies.take(syncBodies.length - 1).every(
-          (body) => body.containsKey('confirmOvershrink') == false,
-        ),
+        syncBodies
+            .take(syncBodies.length - 1)
+            .every((body) => body.containsKey('confirmOvershrink') == false),
         isTrue,
         reason: 'le drapeau ne doit apparaître qu’après un accord explicite',
       );
@@ -432,16 +431,14 @@ void main() {
       var asked = 0;
 
       final outcome = await pushBotConfigToleratingOvershrink(
-        push: (confirmOvershrink) => _refusingClient(
-          requests,
-          _overshrinkError(),
-        ).syncBot(
-          _botId,
-          _botName,
-          _validPayload(),
-          force: true,
-          confirmOvershrink: confirmOvershrink,
-        ),
+        push: (confirmOvershrink) =>
+            _refusingClient(requests, _overshrinkError()).syncBot(
+              _botId,
+              _botName,
+              _validPayload(),
+              force: true,
+              confirmOvershrink: confirmOvershrink,
+            ),
         askConfirmation: () async {
           asked++;
           return true;
@@ -449,7 +446,11 @@ void main() {
       );
 
       expect(outcome, BotConfigPushOutcome.overshrinkFloorRefused);
-      expect(asked, 1, reason: 'on ne redemande pas ce qui vient d’être accepté');
+      expect(
+        asked,
+        1,
+        reason: 'on ne redemande pas ce qui vient d’être accepté',
+      );
     });
   });
 
@@ -486,9 +487,9 @@ void main() {
       expect(requests.length, requestsWhenAsked);
       // Et surtout : aucune requête ne porte le drapeau.
       expect(
-        _syncBodies(requests).every(
-          (body) => body.containsKey('confirmOvershrink') == false,
-        ),
+        _syncBodies(
+          requests,
+        ).every((body) => body.containsKey('confirmOvershrink') == false),
         isTrue,
       );
       // La copie locale est INCHANGÉE, à l'entrée près.
@@ -501,35 +502,40 @@ void main() {
   });
 
   group('(d) un autre refus ne déclenche pas ce dialogue', () {
-    test('409 bot_config_unreadable : remonté tel quel, aucune question', () async {
-      final l10n = await AppLocalizations.delegate.load(const Locale('en'));
-      final requests = <http.Request>[];
-      var asked = 0;
+    test(
+      '409 bot_config_unreadable : remonté tel quel, aucune question',
+      () async {
+        final l10n = await AppLocalizations.delegate.load(const Locale('en'));
+        final requests = <http.Request>[];
+        var asked = 0;
 
-      final failure = await _catching(
-        () => pushBotConfigToleratingOvershrink(
-          push: (confirmOvershrink) => _refusingClient(
-            requests,
-            _otherConflictError(),
-          ).syncBot(
-            _botId,
-            _botName,
-            _validPayload(),
-            force: true,
-            confirmOvershrink: confirmOvershrink,
+        final failure = await _catching(
+          () => pushBotConfigToleratingOvershrink(
+            push: (confirmOvershrink) =>
+                _refusingClient(requests, _otherConflictError()).syncBot(
+                  _botId,
+                  _botName,
+                  _validPayload(),
+                  force: true,
+                  confirmOvershrink: confirmOvershrink,
+                ),
+            askConfirmation: () async {
+              asked++;
+              return true;
+            },
           ),
-          askConfirmation: () async {
-            asked++;
-            return true;
-          },
-        ),
-      );
+        );
 
-      expect(failure, isA<MainApiClientException>());
-      expect((failure as MainApiClientException).statusCode, 409);
-      expect(asked, 0, reason: 'la question ne se pose que pour ce 409 précis');
-      expect(localizedBotConfigOvershrinkNothingSent(l10n, failure), isNull);
-    });
+        expect(failure, isA<MainApiClientException>());
+        expect((failure as MainApiClientException).statusCode, 409);
+        expect(
+          asked,
+          0,
+          reason: 'la question ne se pose que pour ce 409 précis',
+        );
+        expect(localizedBotConfigOvershrinkNothingSent(l10n, failure), isNull);
+      },
+    );
 
     test('une panne serveur (500) remonte, sans question', () async {
       final requests = <http.Request>[];
@@ -537,16 +543,17 @@ void main() {
 
       final failure = await _catching(
         () => pushBotConfigToleratingOvershrink(
-          push: (confirmOvershrink) => _refusingClient(
-            requests,
-            const MainApiClientException('internal_error', statusCode: 500),
-          ).syncBot(
-            _botId,
-            _botName,
-            _validPayload(),
-            force: true,
-            confirmOvershrink: confirmOvershrink,
-          ),
+          push: (confirmOvershrink) =>
+              _refusingClient(
+                requests,
+                const MainApiClientException('internal_error', statusCode: 500),
+              ).syncBot(
+                _botId,
+                _botName,
+                _validPayload(),
+                force: true,
+                confirmOvershrink: confirmOvershrink,
+              ),
           askConfirmation: () async {
             asked++;
             return true;
@@ -589,7 +596,9 @@ void main() {
       expect(find.text(fr.bot_config_overshrink_body), findsOneWidget);
       expect(find.text(fr.bot_config_overshrink_send_anyway), findsOneWidget);
       expect(find.text(fr.bot_config_overshrink_keep_local), findsOneWidget);
-      debugPrint('[PREUVE] dialogue affiché = ${fr.bot_config_overshrink_body}');
+      debugPrint(
+        '[PREUVE] dialogue affiché = ${fr.bot_config_overshrink_body}',
+      );
 
       await tester.tap(find.text(fr.bot_config_overshrink_send_anyway));
       await tester.pumpAndSettle();
@@ -598,35 +607,36 @@ void main() {
       expect(result, BotConfigPushOutcome.sent);
     });
 
-    testWidgets('sur annulation : le dialogue rend false et rien n’est rejoué', (
-      tester,
-    ) async {
-      final fr = await AppLocalizations.delegate.load(const Locale('fr'));
-      final pushes = <bool>[];
-      Object? result;
+    testWidgets(
+      'sur annulation : le dialogue rend false et rien n’est rejoué',
+      (tester) async {
+        final fr = await AppLocalizations.delegate.load(const Locale('fr'));
+        final pushes = <bool>[];
+        Object? result;
 
-      await tester.pumpWidget(
-        _harnessApp(
-          locale: 'fr',
-          push: (confirmOvershrink) async {
-            pushes.add(confirmOvershrink);
-            if (!confirmOvershrink) {
-              throw _overshrinkError();
-            }
-          },
-          onResult: (value) => result = value,
-        ),
-      );
+        await tester.pumpWidget(
+          _harnessApp(
+            locale: 'fr',
+            push: (confirmOvershrink) async {
+              pushes.add(confirmOvershrink);
+              if (!confirmOvershrink) {
+                throw _overshrinkError();
+              }
+            },
+            onResult: (value) => result = value,
+          ),
+        );
 
-      await tester.tap(find.text('push'));
-      await tester.pumpAndSettle();
+        await tester.tap(find.text('push'));
+        await tester.pumpAndSettle();
 
-      await tester.tap(find.text(fr.bot_config_overshrink_keep_local));
-      await tester.pumpAndSettle();
+        await tester.tap(find.text(fr.bot_config_overshrink_keep_local));
+        await tester.pumpAndSettle();
 
-      expect(result, BotConfigPushOutcome.keptLocal);
-      expect(pushes, <bool>[false], reason: 'aucun rejeu après annulation');
-    });
+        expect(result, BotConfigPushOutcome.keptLocal);
+        expect(pushes, <bool>[false], reason: 'aucun rejeu après annulation');
+      },
+    );
 
     testWidgets('un AUTRE 409 n’ouvre aucun dialogue', (tester) async {
       final fr = await AppLocalizations.delegate.load(const Locale('fr'));
@@ -699,7 +709,8 @@ void main() {
         expect(
           requests.any(_isStartPost),
           isFalse,
-          reason: 'le bot ne doit pas démarrer tant que la question est ouverte',
+          reason:
+              'le bot ne doit pas démarrer tant que la question est ouverte',
         );
 
         await tester.tap(find.text(fr.bot_config_overshrink_send_anyway));
@@ -717,9 +728,9 @@ void main() {
         expect(bodies.last['botId'], botId);
         expect(bodies.last['botName'], _startBotName);
         expect(
-          bodies.take(bodies.length - 1).every(
-            (body) => body.containsKey('confirmOvershrink') == false,
-          ),
+          bodies
+              .take(bodies.length - 1)
+              .every((body) => body.containsKey('confirmOvershrink') == false),
           isTrue,
           reason: 'le drapeau ne doit apparaître qu’après un accord explicite',
         );
@@ -790,22 +801,17 @@ void main() {
         reason: 'rien n’est parti : le bot ne doit PAS démarrer',
       );
       expect(
-        _syncBodies(requests).every(
-          (body) => body.containsKey('confirmOvershrink') == false,
-        ),
+        _syncBodies(
+          requests,
+        ).every((body) => body.containsKey('confirmOvershrink') == false),
         isTrue,
       );
       // La copie locale est INCHANGÉE, à l'entrée près.
-      expect(
-        await tester.runAsync(() => appManager.getApp(botId)),
-        appBefore,
-      );
+      expect(await tester.runAsync(() => appManager.getApp(botId)), appBefore);
       expect(
         (await tester.runAsync(
           () => appManager.listAppCommands(botId),
-        ))!
-            .map((c) => c['id'])
-            .toList(),
+        ))!.map((c) => c['id']).toList(),
         commandsBefore.map((c) => c['id']).toList(),
       );
     });
@@ -842,6 +848,68 @@ void main() {
       );
     });
   });
+
+  group('isBotConfigVersionFloorRefusal', () {
+    // POURQUOI ces tests : un `409` de plancher et un `409` de révision périmée
+    // sont deux refus de nature OPPOSÉE. Le premier ne se règle pas en relisant
+    // (la version est trop pauvre), le second ne se règle qu'en relisant. Les
+    // confondre envoie l'utilisateur en boucle sur « recharger et écraser ».
+    test('reconnaît le refus de plancher par son code', () {
+      expect(
+        isBotConfigVersionFloorRefusal(
+          const MainApiClientException(
+            'bot_config_version_too_small: version configs/x.json is 1776 '
+            'bytes (floor is 2048 bytes)',
+            statusCode: 409,
+            code: 'bot_config_version_too_small',
+          ),
+        ),
+        isTrue,
+      );
+    });
+
+    test('le reconnaît aussi quand seule la phrase porte le code', () {
+      expect(
+        isBotConfigVersionFloorRefusal(
+          const MainApiClientException(
+            'bot_config_version_too_small: version configs/x.json is 1776 '
+            'bytes (floor is 2048 bytes)',
+            statusCode: 409,
+          ),
+        ),
+        isTrue,
+      );
+    });
+
+    test('ne confond JAMAIS un conflit de révision avec un plancher', () {
+      expect(
+        isBotConfigVersionFloorRefusal(
+          const MainApiClientException(
+            'bot_config_revision_conflict: expected revision "rev-stale" but '
+            'the document is at revision "rev-server"',
+            statusCode: 409,
+            code: 'bot_config_revision_conflict',
+          ),
+        ),
+        isFalse,
+        reason: 'sinon le conflit de révision perdrait son dialogue',
+      );
+    });
+
+    test('exige le statut 409 : le même code en 400 est autre chose', () {
+      expect(
+        isBotConfigVersionFloorRefusal(
+          const MainApiClientException(
+            'bot_config_version_too_small',
+            statusCode: 400,
+            code: 'bot_config_version_too_small',
+          ),
+        ),
+        isFalse,
+      );
+      expect(isBotConfigVersionFloorRefusal(StateError('boom')), isFalse);
+    });
+  });
 }
 
 /// Crée un bot NEUF (son entrée + une commande) et rend son identifiant.
@@ -869,19 +937,15 @@ Future<String> _seedStartBot(WidgetTester tester, String suffix) async {
       'runtimeEngine': 'javascript',
       'workflows': <Map<String, dynamic>>[],
     });
-    await appManager.saveAppCommand(
-      botId,
-      'cmd-start',
-      <String, dynamic>{
-        'id': 'cmd-start',
-        'name': 'ping',
-        'type': 'chatInput',
-        'data': <String, dynamic>{
-          'executionMode': 'javascript',
-          'jsScriptContent': 'await interaction.reply("pong");',
-        },
+    await appManager.saveAppCommand(botId, 'cmd-start', <String, dynamic>{
+      'id': 'cmd-start',
+      'name': 'ping',
+      'type': 'chatInput',
+      'data': <String, dynamic>{
+        'executionMode': 'javascript',
+        'jsScriptContent': 'await interaction.reply("pong");',
       },
-    );
+    });
   });
   return botId;
 }
