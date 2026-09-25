@@ -1576,10 +1576,20 @@ class MainApiClient implements RemoteRuntimeClient {
   @override
   Future<void> startBot(String botId, {String? botName}) async {
     final encodedBotId = Uri.encodeComponent(botId.trim());
-    await _post('/gateway/bots/$encodedBotId/start', <String, dynamic>{
-      'bot_name': ?_normalize(botName),
-      'botName': ?_normalize(botName),
-    });
+    // AUCUN REJEU : demarrer un bot est une action a effet cote serveur (le
+    // manager provisionne/reconcilie son execution). Le defaut `_maxRetries = 3`
+    // envoyait jusqu'a quatre demarrages pour un seul clic, et le journal de
+    // production en a garde la trace (`bot_sync_in_progress` en 409 sur les
+    // envois suivants). Conforme a la regle du depot : un rejeu est reserve aux
+    // routes sans effet visible.
+    await _post(
+      '/gateway/bots/$encodedBotId/start',
+      <String, dynamic>{
+        'bot_name': ?_normalize(botName),
+        'botName': ?_normalize(botName),
+      },
+      retryOnFailure: false,
+    );
   }
 
   @override
@@ -2455,6 +2465,13 @@ class MainApiClient implements RemoteRuntimeClient {
   }
 
   /// Deploy a new container (async, returns job + container IDs).
+  ///
+  /// AUCUN REJEU : la route cree un conteneur par appel. Le manager n'a pas de
+  /// cle d'idempotence sur cette route (verifie : `DeployContainer` appelle
+  /// `Compute.Deploy` sans cle, et consomme les minutes offertes via
+  /// `OnDeployed`) : un rejeu apres un simple depassement de delai cree un
+  /// SECOND conteneur, facture, et reconsomme des minutes. L'utilisateur voit
+  /// l'echec et reclique ; il ne paie pas deux fois.
   Future<Map<String, dynamic>> deployContainer({
     required String image,
     required int cpuMillis,
@@ -2485,7 +2502,7 @@ class MainApiClient implements RemoteRuntimeClient {
         body['save_registry_label'] = saveRegistryLabel;
       }
     }
-    return _post('/containers/deploy', body);
+    return _post('/containers/deploy', body, retryOnFailure: false);
   }
 
   Future<List<RegistryCredential>> listRegistryCredentials() async {
@@ -2502,12 +2519,18 @@ class MainApiClient implements RemoteRuntimeClient {
     required String username,
     required String password,
   }) async {
-    final json = await _post('/registry-credentials', <String, dynamic>{
-      'label': label,
-      'registry_host': registryHost,
-      'username': username,
-      'password': password,
-    });
+    // AUCUN REJEU : chaque appel cree une ligne. Un rejeu laisse des doublons
+    // d'identifiants dans la liste du locataire, que rien ne distingue ensuite.
+    final json = await _post(
+      '/registry-credentials',
+      <String, dynamic>{
+        'label': label,
+        'registry_host': registryHost,
+        'username': username,
+        'password': password,
+      },
+      retryOnFailure: false,
+    );
     return RegistryCredential.fromJson(json);
   }
 
