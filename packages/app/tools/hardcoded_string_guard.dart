@@ -34,19 +34,33 @@ final RegExp _textLiteralPattern = RegExp(
 /// « Discard » s'est affiché en anglais dans une UI française. La famille de
 /// paramètres couvre aussi les libellés de dialogues, d'accessibilité, les
 /// titres, sous-titres, descriptions et messages.
+///
+/// `fr` et `en` sont dans la liste pour la MÊME raison, et c'est la faille la
+/// plus large qui restait : le repli maison `_uiCopy(fr: '…', en: '…')` rend le
+/// français ou l'anglais, et RIEN pour l'allemand, le japonais, le portugais et
+/// le turc — quatre des six langues livrées reçoivent de l'anglais. Ce motif
+/// était invisible au scan, donc la dette n'était ni comptée ni verrouillée.
 final RegExp _namedLiteralPattern = RegExp(
   r"""(?:labelText|hintText|helperText|errorText|semanticsLabel|confirmLabel|"""
   r"""cancelLabel|dialogTitle|tooltip|title|subtitle|description|message|"""
-  r"""label|content)\s*:\s*(?:const\s+)?['"][^'"\n]*[A-Za-zÀ-ÿ][^'"\n]*['"]""",
+  r"""label|content|fr|en)\s*:\s*(?:const\s+)?['"][^'"\n]*[A-Za-zÀ-ÿ][^'"\n]*['"]""",
   caseSensitive: false,
 );
 
 // ─── Exclusions internes du scan ─────────────────────────────────────────────
 
+/// Fichiers/dossiers hors scan.
+///
+/// Les deux entrées mortes qui figuraient ici (`lib/utils/trad/`,
+/// `lib/routes/app/workflows.page.dart`) ne correspondaient à AUCUN chemin :
+/// elles ne masquaient rien et laissaient croire que ces dossiers étaient
+/// couverts. `lib/l10n/` désignait l'ancien emplacement des localisations
+/// GÉNÉRÉES, qui vivent maintenant sous `lib/core/i18n/l10n/` — c'est ce chemin
+/// qui doit être exclu, sinon un changement de forme du générateur (un
+/// `title: '...'` dans les fichiers produits) ferait remonter des milliers de
+/// faux positifs et noierait la vraie dette.
 const Set<String> _skipFiles = <String>{
-  'lib/l10n/',
-  'lib/utils/trad/',
-  'lib/routes/app/workflows.page.dart',
+  'lib/core/i18n/l10n/',
 };
 
 const List<String> _skipSnippets = <String>[
@@ -288,6 +302,18 @@ const Set<String> knownUiLeaks = <String>{
   'lib/features/bot_editor/presentation/screens/bot_sub_pages/commands.list.dart',
   'lib/features/bot_editor/presentation/screens/bot_sub_pages/global.variables.dart',
   'lib/features/bot_editor/presentation/screens/bot_sub_pages/home.sync.part.dart',
+  // Dette rendue VISIBLE par le durcissement du motif (`fr:`/`en:` en plus des
+  // paramètres nommés) : ces fichiers portaient du repli français/anglais, donc
+  // l'allemand, le japonais, le portugais et le turc affichaient de l'ANGLAIS.
+  // Le vrai correctif de `remote_runtime.dart` n'est pas une clé ARB de plus :
+  // ces messages naissent dans une couche SANS `BuildContext` (le résolveur rend
+  // une `String` que l'UI affiche telle quelle), il faut donc rendre une RAISON
+  // typée et laisser l'UI la traduire.
+  'lib/core/network/remote_runtime.dart',
+  'lib/features/home/presentation/home_page.dart',
+  'lib/features/bot_editor/presentation/screens/bot_sub_pages/bot_stats.dart',
+  'lib/features/bot_editor/presentation/screens/bot_sub_pages/bot_logs.dart',
+  'lib/features/bot_editor/presentation/screens/bot_sub_pages/home.logic.part.dart',
   'lib/features/bot_editor/presentation/screens/bot_sub_pages/settings.dart',
   'lib/features/bot_editor/presentation/screens/bot_sub_pages/workflow_block_editor.dart',
   'lib/features/bot_editor/presentation/screens/bot_sub_pages/workflows.page.dart',
