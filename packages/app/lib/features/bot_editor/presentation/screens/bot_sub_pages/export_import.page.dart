@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_export_import.dart';
+import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -39,6 +40,13 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
   List<Map<String, dynamic>> _localCommands = [];
   List<Map<String, dynamic>> _localWorkflows = [];
 
+  /// Moteur ACTUEL du bot : c'est le défaut du choix proposé à l'import, donc
+  /// ce que l'utilisateur voit quand il n'a rien décidé.
+  String _botEngine = runtimeEngineDart;
+
+  /// Moteur appliqué par l'import en cours (déclaré par le ZIP, ou choisi).
+  String _importEngine = runtimeEngineDart;
+
   @override
   void initState() {
     super.initState();
@@ -48,8 +56,11 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
   Future<void> _loadLocalData() async {
     final commands = await appManager.listAppCommands(widget.botId);
     final workflows = await appManager.getWorkflows(widget.botId);
+    final engine = await getBotRuntimeEngine(widget.botId);
     if (!mounted) return;
     setState(() {
+      _botEngine = engine;
+      _importEngine = engine;
       _localCommands = commands;
       _localWorkflows = workflows;
       _selectedCommandIds
@@ -148,6 +159,12 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
       if (!mounted) return;
       setState(() {
         _importPreview = preview;
+        // Moteur : ce que le ZIP déclare, sinon le moteur ACTUEL du bot. Le
+        // défaut n'est jamais une devinette sur le contenu : un import ne doit
+        // pas changer de moteur tout seul, il le PROPOSE.
+        _importEngine = preview.runtimeEngineDeclared
+            ? preview.runtimeEngine
+            : _botEngine;
         _importCommands = preview.hasCommands;
         _importWorkflows = preview.hasWorkflows;
         _importStatus = preview.hasStatus;
@@ -192,6 +209,7 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
       final result = await importBot(
         widget.botId,
         preview: _importPreview!,
+        runtimeEngine: _importEngine,
         importCommands: _importCommands,
         importWorkflows: _importWorkflows,
         importStatus: _importStatus,
@@ -511,6 +529,8 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        _buildImportEngineSection(preview),
+        const SizedBox(height: 8),
         if (preview.hasCommands) ...[
           CheckboxListTile(
             value: _importCommands,
@@ -551,6 +571,96 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
       ],
     );
   }
+
+  /// Choix du moteur d'exécution pour CET import.
+  ///
+  /// Un ZIP qui déclare son moteur fait foi (on l'affiche, il n'est pas
+  /// modifiable). Un ZIP muet ne décide rien : on demande, en proposant le
+  /// moteur actuel du bot pour qu'un import ne bascule jamais le moteur par
+  /// surprise — c'est justement ce qui cassait des bots JavaScript.
+  Widget _buildImportEngineSection(ImportPreview preview) {
+    final theme = Theme.of(context);
+    final tr = context.tr;
+    final declared = preview.runtimeEngineDeclared;
+    final willSwitch =
+        normalizeRuntimeEngine(_importEngine) !=
+        normalizeRuntimeEngine(_botEngine);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        border: Border.all(color: theme.dividerColor),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.memory, size: 18, color: theme.colorScheme.primary),
+              const SizedBox(width: 8),
+              Text(tr.import_engine_title, style: theme.textTheme.titleSmall),
+            ],
+          ),
+          const SizedBox(height: 6),
+          if (declared)
+            Text(
+              tr.import_engine_declared(_engineLabel(_importEngine)),
+              style: theme.textTheme.bodySmall,
+            )
+          else ...[
+            Text(tr.import_engine_missing, style: theme.textTheme.bodySmall),
+            const SizedBox(height: 8),
+            SegmentedButton<String>(
+              segments: [
+                ButtonSegment(
+                  value: runtimeEngineDart,
+                  label: Text(tr.import_engine_dart_label),
+                ),
+                ButtonSegment(
+                  value: runtimeEngineJavascript,
+                  label: Text(tr.import_engine_javascript_label),
+                ),
+              ],
+              selected: {normalizeRuntimeEngine(_importEngine)},
+              onSelectionChanged: (selection) =>
+                  setState(() => _importEngine = selection.first),
+            ),
+          ],
+          if (willSwitch) ...[
+            const SizedBox(height: 8),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.warning_amber_rounded,
+                  size: 16,
+                  color: theme.colorScheme.error,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    tr.import_engine_will_switch(
+                      _engineLabel(_botEngine),
+                      _engineLabel(_importEngine),
+                    ),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.error,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  String _engineLabel(String engine) =>
+      normalizeRuntimeEngine(engine) == runtimeEngineJavascript
+      ? context.tr.import_engine_javascript_label
+      : context.tr.import_engine_dart_label;
 
   List<Widget> _buildCommandConflicts(ImportPreview preview) {
     final conflicts = <Widget>[];

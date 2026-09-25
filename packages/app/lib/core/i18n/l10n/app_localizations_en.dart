@@ -9885,4 +9885,112 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get command_history_restore_confirm =>
       'Restore this version? The content currently on the server will be replaced by this version. The restore itself is recorded as a new version, so it stays undoable.';
+
+  @override
+  String get menu_file => 'File';
+
+  @override
+  String get menu_new_bot => 'New bot';
+
+  @override
+  String get menu_close_window => 'Close window';
+
+  @override
+  String get menu_edit => 'Edit';
+
+  @override
+  String get menu_undo => 'Undo';
+
+  @override
+  String get menu_redo => 'Redo';
+
+  @override
+  String get menu_cut => 'Cut';
+
+  @override
+  String get menu_copy => 'Copy';
+
+  @override
+  String get menu_paste => 'Paste';
+
+  @override
+  String get menu_select_all => 'Select all';
+
+  @override
+  String get menu_view => 'View';
+
+  @override
+  String get menu_theme => 'Theme';
+
+  @override
+  String get menu_window => 'Window';
+
+  @override
+  String get menu_help => 'Help';
+
+  @override
+  String get menu_preferences => 'Preferences…';
+
+  @override
+  String get menu_website => 'Website';
+
+  @override
+  String bot_config_versions_restore_error_detail(String reason) {
+    return 'Failed to restore version: $reason';
+  }
+
+  @override
+  String get bot_config_versions_restore_refused =>
+      'The server did not confirm the restore. Nothing was restored.';
+
+  @override
+  String bot_config_versions_restore_local_failed(String reason) {
+    return 'The server restored the version, but applying it locally failed: $reason';
+  }
+
+  @override
+  String get import_engine_title => 'Runtime engine';
+
+  @override
+  String get import_engine_missing =>
+      'This ZIP does not declare an engine. Choose the one this bot must use:';
+
+  @override
+  String import_engine_declared(String engine) {
+    return 'Engine declared by the ZIP: $engine';
+  }
+
+  @override
+  String import_engine_will_switch(String from, String to) {
+    return 'The bot will switch from $from to $to on its next restart.';
+  }
+
+  @override
+  String get import_engine_dart_label => 'Bot Creator (Dart / blocks)';
+
+  @override
+  String get import_engine_javascript_label => 'JavaScript (runner-js)';
+
+  @override
+  String get bot_config_versions_restore_too_small =>
+      'Version refused by the server: it is too small to rebuild a configuration — restoring it would empty your bot. Choose a fuller version.';
+
+  @override
+  String get bot_config_versions_force_restore_title =>
+      'Restore this version despite its size?';
+
+  @override
+  String get bot_config_versions_force_restore_body =>
+      'The server considers it too small to rebuild a configuration and refuses to apply it on its own. A restore is a deliberate step backwards: you can force it.';
+
+  @override
+  String get bot_config_versions_force_restore_confirm => 'Restore anyway';
+
+  @override
+  String get bot_config_versions_force_restore_keep =>
+      'Keep the current version';
+
+  @override
+  String get bot_config_versions_restore_too_small_unforced =>
+      'The server still refuses: the manager must accept a forced restore for this version.';
 }

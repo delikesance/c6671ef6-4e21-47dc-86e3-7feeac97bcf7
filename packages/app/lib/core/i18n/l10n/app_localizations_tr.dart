@@ -9954,4 +9954,111 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get command_history_restore_confirm =>
       'Bu sürüm geri yüklensin mi? Sunucuda bulunan mevcut içerik bu sürümün içeriğiyle değiştirilecek. Geri yükleme işlemi yeni bir sürüm olarak kaydedilir, böylece geri alınabilir kalır.';
+
+  @override
+  String get menu_file => 'Dosya';
+
+  @override
+  String get menu_new_bot => 'Yeni bot';
+
+  @override
+  String get menu_close_window => 'Pencereyi kapat';
+
+  @override
+  String get menu_edit => 'Düzen';
+
+  @override
+  String get menu_undo => 'Geri al';
+
+  @override
+  String get menu_redo => 'Yinele';
+
+  @override
+  String get menu_cut => 'Kes';
+
+  @override
+  String get menu_copy => 'Kopyala';
+
+  @override
+  String get menu_paste => 'Yapıştır';
+
+  @override
+  String get menu_select_all => 'Tümünü seç';
+
+  @override
+  String get menu_view => 'Görünüm';
+
+  @override
+  String get menu_theme => 'Tema';
+
+  @override
+  String get menu_window => 'Pencere';
+
+  @override
+  String get menu_help => 'Yardım';
+
+  @override
+  String get menu_preferences => 'Tercihler…';
+
+  @override
+  String get menu_website => 'Web sitesi';
+
+  @override
+  String bot_config_versions_restore_error_detail(String reason) {
+    return 'Sürüm geri yüklenemedi: $reason';
+  }
+
+  @override
+  String get bot_config_versions_restore_refused =>
+      'Sunucu geri yüklemeyi onaylamadı. Hiçbir şey geri yüklenmedi.';
+
+  @override
+  String bot_config_versions_restore_local_failed(String reason) {
+    return 'Sürüm sunucuda geri yüklendi ancak yerel uygulama başarısız oldu: $reason';
+  }
+
+  @override
+  String get import_engine_title => 'Çalışma zamanı motoru';
+
+  @override
+  String get import_engine_missing =>
+      'Bu ZIP bir motor belirtmiyor. Bu botun kullanacağı motoru seçin:';
+
+  @override
+  String import_engine_declared(String engine) {
+    return 'ZIP tarafından belirtilen motor: $engine';
+  }
+
+  @override
+  String import_engine_will_switch(String from, String to) {
+    return 'Bot bir sonraki yeniden başlatmada $from yerine $to kullanacak.';
+  }
+
+  @override
+  String get import_engine_dart_label => 'Bot Creator (Dart / bloklar)';
+
+  @override
+  String get import_engine_javascript_label => 'JavaScript (runner-js)';
+
+  @override
+  String get bot_config_versions_restore_too_small =>
+      'Sunucu bu sürümü reddetti: yapılandırmayı oluşturamayacak kadar küçük — geri yüklemek botu boşaltır. Daha dolu bir sürüm seçin.';
+
+  @override
+  String get bot_config_versions_force_restore_title =>
+      'Bu sürüm boyutuna rağmen geri yüklensin mi?';
+
+  @override
+  String get bot_config_versions_force_restore_body =>
+      'Sunucu bunu yapılandırma için çok küçük buluyor ve kendi başına uygulamıyor. Geri yükleme istenen bir geri dönüştür: zorlayabilirsin.';
+
+  @override
+  String get bot_config_versions_force_restore_confirm => 'Yine de geri yükle';
+
+  @override
+  String get bot_config_versions_force_restore_keep => 'Mevcut sürümü koru';
+
+  @override
+  String get bot_config_versions_restore_too_small_unforced =>
+      'Sunucu hâlâ reddediyor: manager bu sürüm için zorunlu geri yüklemeyi kabul etmeli.';
 }

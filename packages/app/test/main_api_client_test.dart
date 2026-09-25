@@ -217,4 +217,39 @@ void main() {
     final stats = await workingClient.getCommandStats('bot-1');
     expect(stats['botId'], 'bot-1');
   });
+
+  group('describeApiFailure', () {
+    // POURQUOI ces tests : les écrans de restauration affichaient « échec » sans
+    // jamais dire pourquoi, alors que le serveur fournit un statut et un code.
+    // Ce format est la seule chose qui relie le message vu par l'utilisateur au
+    // diagnostic — il ne doit pas se dégrader en silence.
+    test('nomme le statut, le code et le message', () {
+      final reason = describeApiFailure(
+        const MainApiClientException(
+          'Version introuvable',
+          statusCode: 404,
+          code: 'bot_version_missing',
+        ),
+      );
+
+      expect(reason, 'HTTP 404 — bot_version_missing — Version introuvable');
+    });
+
+    test('reste lisible sans code ni statut', () {
+      expect(
+        describeApiFailure(const MainApiClientException('Réseau indisponible')),
+        'Réseau indisponible',
+      );
+      expect(
+        describeApiFailure(
+          const MainApiClientException('Refus', statusCode: 403),
+        ),
+        'HTTP 403 — Refus',
+      );
+    });
+
+    test('retombe sur la description de l\'exception inconnue', () {
+      expect(describeApiFailure(StateError('boom')), contains('boom'));
+    });
+  });
 }

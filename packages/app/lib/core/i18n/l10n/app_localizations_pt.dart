@@ -10012,4 +10012,112 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get command_history_restore_confirm =>
       'Restaurar esta versão? O conteúdo que está atualmente no servidor será substituído pelo desta versão. A restauração é registada como uma nova versão, por isso continua a ser reversível.';
+
+  @override
+  String get menu_file => 'Arquivo';
+
+  @override
+  String get menu_new_bot => 'Novo bot';
+
+  @override
+  String get menu_close_window => 'Fechar janela';
+
+  @override
+  String get menu_edit => 'Editar';
+
+  @override
+  String get menu_undo => 'Desfazer';
+
+  @override
+  String get menu_redo => 'Refazer';
+
+  @override
+  String get menu_cut => 'Recortar';
+
+  @override
+  String get menu_copy => 'Copiar';
+
+  @override
+  String get menu_paste => 'Colar';
+
+  @override
+  String get menu_select_all => 'Selecionar tudo';
+
+  @override
+  String get menu_view => 'Exibir';
+
+  @override
+  String get menu_theme => 'Tema';
+
+  @override
+  String get menu_window => 'Janela';
+
+  @override
+  String get menu_help => 'Ajuda';
+
+  @override
+  String get menu_preferences => 'Preferências…';
+
+  @override
+  String get menu_website => 'Site';
+
+  @override
+  String bot_config_versions_restore_error_detail(String reason) {
+    return 'Falha ao restaurar a versão: $reason';
+  }
+
+  @override
+  String get bot_config_versions_restore_refused =>
+      'O servidor não confirmou a restauração. Nada foi restaurado.';
+
+  @override
+  String bot_config_versions_restore_local_failed(String reason) {
+    return 'A versão foi restaurada no servidor, mas a aplicação local falhou: $reason';
+  }
+
+  @override
+  String get import_engine_title => 'Motor de execução';
+
+  @override
+  String get import_engine_missing =>
+      'Este ZIP não declara um motor. Escolha o motor que este bot deve usar:';
+
+  @override
+  String import_engine_declared(String engine) {
+    return 'Motor declarado pelo ZIP: $engine';
+  }
+
+  @override
+  String import_engine_will_switch(String from, String to) {
+    return 'O bot passará de $from para $to na próxima reinicialização.';
+  }
+
+  @override
+  String get import_engine_dart_label => 'Bot Creator (Dart / blocos)';
+
+  @override
+  String get import_engine_javascript_label => 'JavaScript (runner-js)';
+
+  @override
+  String get bot_config_versions_restore_too_small =>
+      'Versão recusada pelo servidor: pequena demais para reconstituir uma configuração — restaurá-la esvaziaria o bot. Escolha uma versão mais completa.';
+
+  @override
+  String get bot_config_versions_force_restore_title =>
+      'Restaurar esta versão apesar do tamanho?';
+
+  @override
+  String get bot_config_versions_force_restore_body =>
+      'O servidor a considera pequena demais para reconstituir uma configuração e recusa aplicá-la sozinho. Uma restauração é um retrocesso pedido: você pode forçá-la.';
+
+  @override
+  String get bot_config_versions_force_restore_confirm =>
+      'Restaurar mesmo assim';
+
+  @override
+  String get bot_config_versions_force_restore_keep => 'Manter a versão atual';
+
+  @override
+  String get bot_config_versions_restore_too_small_unforced =>
+      'O servidor ainda recusa: o manager precisa aceitar uma restauração forçada para esta versão.';
 }

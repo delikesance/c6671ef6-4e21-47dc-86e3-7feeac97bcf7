@@ -444,10 +444,7 @@ bool isBotPayloadRefusal(Object error) =>
 /// l'utilisateur ne peut pas deviner — rien n'est parti, et rien n'a été effacé
 /// en local — sans quoi il croirait à une panne et « réparerait » une
 /// configuration intacte.
-String? localizedBotPayloadRefusalMessage(
-  AppLocalizations l10n,
-  Object error,
-) {
+String? localizedBotPayloadRefusalMessage(AppLocalizations l10n, Object error) {
   if (!isBotPayloadRefusal(error)) {
     return null;
   }
@@ -490,6 +487,39 @@ bool isBotConfigOvershrinkRefusal(Object error) {
   // le refus reste reconnaissable même sans le champ `code` — et ce repli ne
   // peut jamais accepter un `409` d'une autre nature.
   return error.message.toLowerCase().contains(botConfigOvershrinkErrorCode);
+}
+
+/// Code applicatif du refus SERVEUR d'une version trop pauvre à la
+/// restauration : `POST /gateway/bots/{id}/versions/restore` rend
+/// `409 bot_config_version_too_small` quand le fichier de version visé pèse
+/// moins que le plancher de plausibilité (2048 octets). Le serveur n'applique
+/// RIEN : restaurer une configuration quasi vide reviendrait à vider le bot.
+const String botConfigVersionTooSmallErrorCode = 'bot_config_version_too_small';
+
+/// Vrai quand [error] est CE refus précis : statut `409` ET code connu.
+///
+/// POURQUOI c'est distinct d'un CONFLIT de révision — alors que les deux sont
+/// des `409` : une précondition périmée se règle en RELISANT, ce refus-là ne se
+/// règle pas (la version demandée existe, elle est seulement trop pauvre). Le
+/// présenter comme « recharger et écraser » fait tourner l'utilisateur en boucle
+/// sur une action qui ne peut pas aboutir ; le traiter comme une panne cache la
+/// seule information utile, à savoir que la version est vide.
+bool isBotConfigVersionFloorRefusal(Object error) {
+  if (error is! MainApiClientException) {
+    return false;
+  }
+  if (error.statusCode != 409) {
+    return false;
+  }
+  final code = (error.code ?? '').trim().toLowerCase();
+  if (code == botConfigVersionTooSmallErrorCode) {
+    return true;
+  }
+  // Repli : certaines passerelles ne recopient que le texte de l'erreur, qui
+  // COMMENCE par le code (`bot_config_version_too_small: ... is 1776 bytes`).
+  return error.message.toLowerCase().contains(
+    botConfigVersionTooSmallErrorCode,
+  );
 }
 
 /// Les quatre phrases du dialogue de sur-réduction, traduites.
