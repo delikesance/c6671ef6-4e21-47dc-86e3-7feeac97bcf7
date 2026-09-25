@@ -10823,13 +10823,27 @@
   "workflows_type_title": "Workflow type",
   "settings_sync_title": "Synchronization",
   "settings_sync_force_title": "Force Sync Commands",
-  "settings_sync_force_desc": "Deletes all Discord slash commands that are not defined locally in Bot Creator.",
+  "settings_sync_force_desc": "Recreates the commands missing on Discord and deletes those no longer defined in Bot Creator.",
   "settings_sync_force_button": "Sync with Discord",
   "settings_sync_force_dialog_title": "Force Sync Commands",
-  "settings_sync_force_dialog_desc": "This will delete all slash commands on Discord that are not defined locally in Bot Creator. Are you sure you want to continue?",
+  "settings_sync_force_dialog_desc": "Commands missing on Discord will be recreated, and commands no longer defined in Bot Creator will be deleted. Continue?",
   "settings_sync_force_dialog_confirm": "Force Sync",
-  "settings_sync_force_success": "Force sync completed successfully. Deleted {count} legacy/untracked command(s) from Discord.",
+  "settings_sync_force_success_counts": "Sync complete: {created} recreated, {relinked} relinked, {deleted} deleted on Discord.",
+  "settings_sync_force_no_local_commands": "No local command to register: nothing was touched on Discord (an empty sync would erase all your commands).",
   "settings_sync_force_error": "Failed to force sync: {error}",
+  "@settings_sync_force_success_counts": {
+    "placeholders": {
+      "created": {
+        "type": "int"
+      },
+      "relinked": {
+        "type": "int"
+      },
+      "deleted": {
+        "type": "int"
+      }
+    }
+  },
   "settings_runtime_engine_switch_dialog_title": "Change runtime engine?",
   "@settings_runtime_engine_switch_dialog_title": {
     "description": "Destructive confirmation before switching bot runtime engine"

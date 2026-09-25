@@ -8794,7 +8794,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get settings_sync_force_desc =>
-      'Bot Creator\'da yerel olarak tanımlanmamış tüm Discord eğik çizgi komutlarını siler.';
+      'Discord\'da eksik olan komutları yeniden oluşturur ve Bot Creator\'da artık tanımlı olmayanları siler.';
 
   @override
   String get settings_sync_force_button => 'Discord ile Eşitle';
@@ -8804,15 +8804,23 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get settings_sync_force_dialog_desc =>
-      'Bu işlem, Bot Creator\'da yerel olarak tanımlanmamış tüm Discord eğik çizgi komutlarını silecektir. Devam etmek istediğinizden emin misiniz?';
+      'Discord\'da eksik olan komutlar yeniden oluşturulacak, Bot Creator\'da artık tanımlı olmayan komutlar silinecek. Devam edilsin mi?';
 
   @override
   String get settings_sync_force_dialog_confirm => 'Zorla Eşitle';
 
   @override
-  String settings_sync_force_success(Object count) {
-    return 'Zorunlu senkronizasyon başarıyla tamamlandı. Discord\'dan $count eski/takip edilmeyen komut silindi.';
+  String settings_sync_force_success_counts(
+    int created,
+    int relinked,
+    int deleted,
+  ) {
+    return 'Eşitleme tamamlandı: Discord\'da $created yeniden oluşturuldu, $relinked yeniden bağlandı, $deleted silindi.';
   }
+
+  @override
+  String get settings_sync_force_no_local_commands =>
+      'Kaydedilecek yerel komut yok: Discord\'da hiçbir şey değiştirilmedi (boş bir eşitleme tüm komutlarınızı silerdi).';
 
   @override
   String settings_sync_force_error(Object error) {

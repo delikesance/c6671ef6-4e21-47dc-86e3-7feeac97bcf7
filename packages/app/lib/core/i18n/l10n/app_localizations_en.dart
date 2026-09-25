@@ -8735,7 +8735,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settings_sync_force_desc =>
-      'Deletes all Discord slash commands that are not defined locally in Bot Creator.';
+      'Recreates the commands missing on Discord and deletes those no longer defined in Bot Creator.';
 
   @override
   String get settings_sync_force_button => 'Sync with Discord';
@@ -8745,15 +8745,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settings_sync_force_dialog_desc =>
-      'This will delete all slash commands on Discord that are not defined locally in Bot Creator. Are you sure you want to continue?';
+      'Commands missing on Discord will be recreated, and commands no longer defined in Bot Creator will be deleted. Continue?';
 
   @override
   String get settings_sync_force_dialog_confirm => 'Force Sync';
 
   @override
-  String settings_sync_force_success(Object count) {
-    return 'Force sync completed successfully. Deleted $count legacy/untracked command(s) from Discord.';
+  String settings_sync_force_success_counts(
+    int created,
+    int relinked,
+    int deleted,
+  ) {
+    return 'Sync complete: $created recreated, $relinked relinked, $deleted deleted on Discord.';
   }
+
+  @override
+  String get settings_sync_force_no_local_commands =>
+      'No local command to register: nothing was touched on Discord (an empty sync would erase all your commands).';
 
   @override
   String settings_sync_force_error(Object error) {

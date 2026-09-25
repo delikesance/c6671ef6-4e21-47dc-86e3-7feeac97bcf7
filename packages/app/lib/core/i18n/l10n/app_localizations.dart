@@ -15277,7 +15277,7 @@ abstract class AppLocalizations {
   /// No description provided for @settings_sync_force_desc.
   ///
   /// In en, this message translates to:
-  /// **'Deletes all Discord slash commands that are not defined locally in Bot Creator.'**
+  /// **'Recreates the commands missing on Discord and deletes those no longer defined in Bot Creator.'**
   String get settings_sync_force_desc;
 
   /// No description provided for @settings_sync_force_button.
@@ -15295,7 +15295,7 @@ abstract class AppLocalizations {
   /// No description provided for @settings_sync_force_dialog_desc.
   ///
   /// In en, this message translates to:
-  /// **'This will delete all slash commands on Discord that are not defined locally in Bot Creator. Are you sure you want to continue?'**
+  /// **'Commands missing on Discord will be recreated, and commands no longer defined in Bot Creator will be deleted. Continue?'**
   String get settings_sync_force_dialog_desc;
 
   /// No description provided for @settings_sync_force_dialog_confirm.
@@ -15304,11 +15304,21 @@ abstract class AppLocalizations {
   /// **'Force Sync'**
   String get settings_sync_force_dialog_confirm;
 
-  /// No description provided for @settings_sync_force_success.
+  /// No description provided for @settings_sync_force_success_counts.
   ///
   /// In en, this message translates to:
-  /// **'Force sync completed successfully. Deleted {count} legacy/untracked command(s) from Discord.'**
-  String settings_sync_force_success(Object count);
+  /// **'Sync complete: {created} recreated, {relinked} relinked, {deleted} deleted on Discord.'**
+  String settings_sync_force_success_counts(
+    int created,
+    int relinked,
+    int deleted,
+  );
+
+  /// No description provided for @settings_sync_force_no_local_commands.
+  ///
+  /// In en, this message translates to:
+  /// **'No local command to register: nothing was touched on Discord (an empty sync would erase all your commands).'**
+  String get settings_sync_force_no_local_commands;
 
   /// No description provided for @settings_sync_force_error.
   ///
