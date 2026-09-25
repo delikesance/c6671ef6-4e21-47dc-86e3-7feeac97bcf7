@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:ui' as ui;
 
 import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/network/runner_kind.dart';
+import 'package:bot_creator/core/network/runtime_notice.dart';
 import 'package:bot_creator/core/runner/embedded_js_runner_service.dart';
 import 'package:bot_creator/core/secure/secure_storage_service.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
@@ -272,32 +272,30 @@ class RunnerSettings {
   }
 
   /// User-facing detail when the embedded runner failed to start.
-  static Future<String?> embeddedRunnerStartupFailureDetail() async {
+  /// Détail à afficher quand le runner embarqué n'a pas de configuration vivante,
+  /// rendu comme une RAISON traduisible — `null` quand tout va bien.
+  ///
+  /// POURQUOI une raison et pas un texte déjà écrit : ce fichier n'a pas de
+  /// `BuildContext`, donc pas de langue. Le repli fr/en qu'il portait lisait la
+  /// locale de l'APPAREIL : les quatre autres langues de l'application recevaient
+  /// de l'anglais, et changer de langue DANS l'application n'y changeait rien.
+  /// L'écran, qui a les localisations, appelle [resolveRuntimeNotice].
+  static Future<RuntimeNoticeMessage?> embeddedRunnerStartupFailureNotice() async {
     final service = EmbeddedJsRunnerService.instance;
     if (service.hasLiveConfig) {
       return null;
     }
     if (service.isRunning) {
-      return _embeddedRunnerDesyncDetail();
+      return const RuntimeNoticeMessage(RuntimeNotice.runnerEmbeddedDesync);
     }
-    return service.lastStartupError;
-  }
-
-  static String _embeddedRunnerDesyncDetail() {
-    return _runtimeCopy(
-      fr:
-          'Le processus runner tourne mais l\'application a perdu la connexion. '
-          'Utilisez Redemarrer dans Parametres.',
-      en:
-          'Runner process is running but the app lost its connection. '
-          'Use Restart in Settings.',
+    final raw = service.lastStartupError;
+    if (raw == null || raw.trim().isEmpty) {
+      return null;
+    }
+    return RuntimeNoticeMessage(
+      RuntimeNotice.runnerEmbeddedRawError,
+      error: raw,
     );
-  }
-
-  static String _runtimeCopy({required String fr, required String en}) {
-    final lang =
-        ui.PlatformDispatcher.instance.locale.languageCode.toLowerCase();
-    return lang.startsWith('fr') ? fr : en;
   }
 
   /// Refreshes stored runner metadata (URL/token) before creating a client.

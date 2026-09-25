@@ -2430,9 +2430,9 @@ class HomePageState extends State<HomePage>
           }
 
           if (!sessionRestored || runtime.blocksLocalFallback) {
-            final message =
-                runtime.unavailableReason ??
-                context.tr.bot_start_sign_in_required;
+            final message = runtime.unavailableReason == null
+                ? context.tr.bot_start_sign_in_required
+                : resolveRuntimeNotice(context.tr, runtime.unavailableReason!);
             throw Exception(message);
           }
         }
@@ -2513,7 +2513,9 @@ class HomePageState extends State<HomePage>
         engineIsJavascript:
             runtime.client == null &&
             await getBotRuntimeEngine(botId) == runtimeEngineJavascript,
-        serverUnavailableDetail: runtime.unavailableReason ?? '',
+        serverUnavailableDetail: runtime.unavailableReason == null
+            ? ''
+            : resolveRuntimeNotice(context.tr, runtime.unavailableReason!),
       );
       if (!startPlan.allowed) {
         appendBotStartTrace(startPlan.refusalTrace!, botId: botId);
@@ -2640,7 +2642,12 @@ class HomePageState extends State<HomePage>
             rethrow;
           }
           if (client is MainApiClient) {
-            throw Exception(await describeManagerRuntimeFailure(client, error));
+            throw Exception(
+              resolveRuntimeNotice(
+                context.tr,
+                await describeManagerRuntimeFailure(client, error),
+              ),
+            );
           }
           rethrow;
         }
@@ -2756,10 +2763,12 @@ class HomePageState extends State<HomePage>
               botId,
             );
             if (runnerConfig == null) {
-              final startupDetail =
-                  await RunnerSettings.embeddedRunnerStartupFailureDetail();
-              final detailSuffix =
-                  startupDetail == null || startupDetail.isEmpty
+              final startupNotice =
+                  await RunnerSettings.embeddedRunnerStartupFailureNotice();
+              final startupDetail = startupNotice == null
+                  ? ''
+                  : resolveRuntimeNotice(context.tr, startupNotice);
+              final detailSuffix = startupDetail.isEmpty
                   ? ''
                   : ' ($startupDetail)';
               throw Exception(

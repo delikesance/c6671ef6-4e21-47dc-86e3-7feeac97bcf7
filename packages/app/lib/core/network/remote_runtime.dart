@@ -3,12 +3,16 @@ import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_session_restore.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
+import 'package:bot_creator/core/network/runtime_notice.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:bot_creator/core/storage/runtime_preferences.dart';
 import 'package:bot_creator/core/utils/bot_payload_guard.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:flutter/foundation.dart';
-import 'dart:ui' as ui;
+
+/// Les raisons de démarrage impossibles vivent dans [RuntimeNotice] : ce
+/// fichier les réexporte pour que les écrans n'aient qu'un seul import.
+export 'package:bot_creator/core/network/runtime_notice.dart';
 
 class ResolvedRemoteRuntime {
   const ResolvedRemoteRuntime({
@@ -21,7 +25,7 @@ class ResolvedRemoteRuntime {
   final RemoteRuntimeSource source;
   final RemoteRuntimeClient? client;
   final String? detailLabel;
-  final String? unavailableReason;
+  final RuntimeNoticeMessage? unavailableReason;
 
   bool get isLocal => source == RemoteRuntimeSource.local;
 
@@ -33,11 +37,6 @@ class ResolvedRemoteRuntime {
 
   bool get blocksLocalFallback =>
       source == RemoteRuntimeSource.manager && client == null;
-}
-
-String _runtimeCopy({required String fr, required String en}) {
-  final lang = ui.PlatformDispatcher.instance.locale.languageCode.toLowerCase();
-  return lang.startsWith('fr') ? fr : en;
 }
 
 Future<ResolvedRemoteRuntime> resolveRemoteRuntime({
@@ -222,20 +221,11 @@ Future<ResolvedRemoteRuntime> resolveRemoteRuntime({
     // inchangé : sans compte connecté, c'est le manager (à reconnecter) qui porte le
     // message, et le repli local est explicitement interdit.
     if (!isDesktop) {
-      final unavailableReason = mainApiSession == null
+      final RuntimeNoticeMessage unavailableReason = mainApiSession == null
           ? (isIOS
-                ? _runtimeCopy(
-                    fr: 'Le mode local n\'est pas pris en charge sur iOS. Connectez-vous a Bot Creator dans les parametres avant de demarrer ce bot.',
-                    en: 'Local mode is not supported on iOS. Sign in to Bot Creator in Settings before starting this bot.',
-                  )
-                : _runtimeCopy(
-                    fr: 'Connectez-vous a Bot Creator dans les parametres avant de demarrer ce bot.',
-                    en: 'Sign in to Bot Creator in Settings before starting this bot.',
-                  ))
-          : _runtimeCopy(
-              fr: 'Votre session Bot Creator a expire. Reconnectez-vous dans les parametres pour demarrer ce bot.',
-              en: 'Your Bot Creator session expired. Sign in again in Settings to start this bot.',
-            );
+                ? const RuntimeNoticeMessage(RuntimeNotice.localUnsupportedIosSignIn)
+                : const RuntimeNoticeMessage(RuntimeNotice.signInRequired))
+          : const RuntimeNoticeMessage(RuntimeNotice.sessionExpired);
 
       return ResolvedRemoteRuntime(
         source: RemoteRuntimeSource.manager,
@@ -248,10 +238,7 @@ Future<ResolvedRemoteRuntime> resolveRemoteRuntime({
   if (isIOS) {
     return ResolvedRemoteRuntime(
       source: RemoteRuntimeSource.manager,
-      unavailableReason: _runtimeCopy(
-        fr: 'Le mode local n\'est pas pris en charge sur iOS. Configurez Bot Creator pour demarrer ce bot.',
-        en: 'Local mode is not supported on iOS. Configure Bot Creator to start this bot.',
-      ),
+      unavailableReason: const RuntimeNoticeMessage(RuntimeNotice.localUnsupportedIosConfigure),
     );
   }
 
@@ -272,7 +259,7 @@ Future<ResolvedRemoteRuntime> resolveRemoteRuntime({
   return const ResolvedRemoteRuntime(source: RemoteRuntimeSource.local);
 }
 
-Future<String> describeManagerRuntimeFailure(
+Future<RuntimeNoticeMessage> describeManagerRuntimeFailure(
   MainApiClient client,
   Object error,
 ) async {
@@ -288,17 +275,11 @@ Future<String> describeManagerRuntimeFailure(
   // La formule du compte prime : inutile d'interroger le diagnostic du runner,
   // le refus vient du plan et l'offre est la seule issue.
   if (planLimitRefusalFromError(error) != null) {
-    return _runtimeCopy(
-      fr: 'Votre formule ne permet pas ce demarrage. Consultez les offres pour changer de formule.',
-      en: 'Your plan does not allow this start. Check the plans to upgrade your formula.',
-    );
+    return const RuntimeNoticeMessage(RuntimeNotice.planLimit);
   }
 
   if (isInvalidBotId(originalError)) {
-    return _runtimeCopy(
-      fr: 'ID de bot invalide pour le demarrage sur les serveurs Bot Creator. Synchronisez/recree le bot puis reessayez. Erreur initiale : $error',
-      en: 'Invalid bot ID for startup on Bot Creator servers. Sync/recreate the bot, then retry. Original error: $error',
-    );
+    return RuntimeNoticeMessage(RuntimeNotice.invalidBotId, error: originalError);
   }
 
   try {
@@ -317,45 +298,37 @@ Future<String> describeManagerRuntimeFailure(
     final healthStatus = (runner['health_status'] ?? '').toString().trim();
 
     if (isInvalidBotId(jobError)) {
-      return _runtimeCopy(
-        fr: 'ID de bot invalide pour le demarrage sur les serveurs Bot Creator. Synchronisez/recree le bot puis reessayez. Details : $jobError',
-        en: 'Invalid bot ID for startup on Bot Creator servers. Sync/recreate the bot, then retry. Details: $jobError',
-      );
+      return RuntimeNoticeMessage(RuntimeNotice.invalidBotIdDetails, detail: jobError);
     }
 
     if (!deployed) {
-      return _runtimeCopy(
-        fr: 'Les serveurs Bot Creator ne sont pas encore prets pour ce bot. Erreur initiale : $error',
-        en: 'Bot Creator servers are not ready for this bot yet. Original error: $error',
-      );
+      return RuntimeNoticeMessage(RuntimeNotice.serversNotReady, error: originalError);
     }
     if (jobStatus == 'QUEUED' || jobStatus == 'RUNNING') {
-      return _runtimeCopy(
-        fr: 'Le demarrage sur les serveurs Bot Creator est encore en cours ($jobStatus). Le traitement peut etre en attente ou toujours en cours. Erreur initiale : $error',
-        en: 'Bot Creator server startup is still in progress ($jobStatus). Processing may still be queued or running. Original error: $error',
-      );
+      return RuntimeNoticeMessage(RuntimeNotice.startupInProgress, status: jobStatus, error: originalError);
     }
     if (jobStatus == 'FAILED') {
-      final suffix = jobError.isEmpty ? '' : ' Details: $jobError';
-      return _runtimeCopy(
-        fr: 'Le demarrage sur les serveurs Bot Creator a echoue.$suffix Erreur initiale : $error',
-        en: 'Bot Creator server startup failed.$suffix Original error: $error',
-      );
+      // Deux messages plutôt qu'un suffixe composé à la main : une phrase ne
+      // s'assemble pas en collant un fragment traduit à une autre phrase.
+      return jobError.isEmpty
+          ? RuntimeNoticeMessage(
+              RuntimeNotice.startupFailed,
+              error: originalError,
+            )
+          : RuntimeNoticeMessage(
+              RuntimeNotice.startupFailedWithDetail,
+              detail: jobError,
+              error: originalError,
+            );
     }
     if (healthStatus.toLowerCase() == 'unreachable' ||
         runnerState.toUpperCase() == 'DEGRADED') {
-      return _runtimeCopy(
-        fr: 'Les serveurs Bot Creator sont temporairement injoignables. Erreur initiale : $error',
-        en: 'Bot Creator servers are temporarily unreachable. Original error: $error',
-      );
+      return RuntimeNoticeMessage(RuntimeNotice.unreachable, error: originalError);
     }
   } catch (_) {
     // Fall back to the original error when the diagnostic endpoint is unavailable.
   }
-  return _runtimeCopy(
-    fr: 'La requete vers les serveurs Bot Creator a echoue : $error',
-    en: 'Request to Bot Creator servers failed: $error',
-  );
+  return RuntimeNoticeMessage(RuntimeNotice.requestFailed, error: originalError);
 }
 
 bool isPendingFreeRuntimeCreditError(Object error) {

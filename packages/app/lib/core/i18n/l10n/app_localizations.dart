@@ -10583,6 +10583,90 @@ abstract class AppLocalizations {
   /// **'{type}  •  {count, plural, =1{1 action} other{{count} actions}}'**
   String workflows_preview_summary(String type, int count);
 
+  /// No description provided for @runner_embedded_desync_detail.
+  ///
+  /// In en, this message translates to:
+  /// **'Runner process is running but the app lost its connection. Use Restart in Settings.'**
+  String get runner_embedded_desync_detail;
+
+  /// No description provided for @runtime_invalid_bot_id.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid bot ID for startup on Bot Creator servers. Sync/recreate the bot, then retry. Original error: {error}'**
+  String runtime_invalid_bot_id(String error);
+
+  /// No description provided for @runtime_invalid_bot_id_details.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid bot ID for startup on Bot Creator servers. Sync/recreate the bot, then retry. Details: {detail}'**
+  String runtime_invalid_bot_id_details(String detail);
+
+  /// No description provided for @runtime_local_unsupported_ios_configure.
+  ///
+  /// In en, this message translates to:
+  /// **'Local mode is not supported on iOS. Configure Bot Creator to start this bot.'**
+  String get runtime_local_unsupported_ios_configure;
+
+  /// No description provided for @runtime_local_unsupported_ios_sign_in.
+  ///
+  /// In en, this message translates to:
+  /// **'Local mode is not supported on iOS. Sign in to Bot Creator in Settings before starting this bot.'**
+  String get runtime_local_unsupported_ios_sign_in;
+
+  /// No description provided for @runtime_plan_limit.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan does not allow this start. Check the plans to upgrade your formula.'**
+  String get runtime_plan_limit;
+
+  /// No description provided for @runtime_request_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Request to Bot Creator servers failed: {error}'**
+  String runtime_request_failed(String error);
+
+  /// No description provided for @runtime_servers_not_ready.
+  ///
+  /// In en, this message translates to:
+  /// **'Bot Creator servers are not ready for this bot yet. Original error: {error}'**
+  String runtime_servers_not_ready(String error);
+
+  /// No description provided for @runtime_session_expired.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Bot Creator session expired. Sign in again in Settings to start this bot.'**
+  String get runtime_session_expired;
+
+  /// No description provided for @runtime_sign_in_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to Bot Creator in Settings before starting this bot.'**
+  String get runtime_sign_in_required;
+
+  /// No description provided for @runtime_startup_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Bot Creator server startup failed. Original error: {error}'**
+  String runtime_startup_failed(String error);
+
+  /// No description provided for @runtime_startup_failed_with_detail.
+  ///
+  /// In en, this message translates to:
+  /// **'Bot Creator server startup failed. Details: {detail} Original error: {error}'**
+  String runtime_startup_failed_with_detail(String detail, String error);
+
+  /// No description provided for @runtime_startup_in_progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Bot Creator server startup is still in progress ({status}). Processing may still be queued or running. Original error: {error}'**
+  String runtime_startup_in_progress(String status, String error);
+
+  /// No description provided for @runtime_unreachable.
+  ///
+  /// In en, this message translates to:
+  /// **'Bot Creator servers are temporarily unreachable. Original error: {error}'**
+  String runtime_unreachable(String error);
+
   /// No description provided for @sync_cloud_update_applied.
   ///
   /// In en, this message translates to:

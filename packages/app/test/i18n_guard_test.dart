@@ -103,27 +103,26 @@ void main() {
   // jamais monter : traduire la chaîne (clé ARB dans les 6 langues) ou la
   // justifier dans l'allow-list documentée, mais ne pas relever le plafond.
   test('la dette i18n ne peut que DIMINUER (plafond verrouillé)', () {
-    // 146 au verrouillage (25/09) → 111 → 99 → 80 → 50 → 24 après les lots de
-    // conversion… puis 103 : le chiffre REMONTE, et c'est la MESURE qui s'est
-    // améliorée, pas le code qui a empiré. Le scan testait les motifs LIGNE PAR
-    // LIGNE, donc tout littéral passé à la ligne (`Text(\n  'Copie',`) échappait
-    // au contrôle : la dette annoncée à 24 était sous-estimée d'un facteur 4.
-    // Le garde teste maintenant la fenêtre des deux lignes (et seulement quand le
-    // constat CHEVAUCHE le saut de ligne, sinon le littéral serait compté deux
-    // fois). Ces 79 littéraux ne sont pas nouveaux, ils étaient INVISIBLES — un
-    // chiffre sous-estimé fait croire à une dette résorbée et arrête le travail
-    // au mauvais moment.
+    // 146 au verrouillage (25/09) → 111 → 99 → 80 → 50 → 24 → 103 (le scan
+    // testait les motifs LIGNE PAR LIGNE : tout littéral passé à la ligne
+    // échappait au contrôle, la dette annoncée était sous-estimée d'un facteur 4)
+    // → 24 → ZÉRO.
     //
-    // 103 → **24** (49 sites convertis, 32 clés). Le plafond suit la dette vers
-    // le BAS ; il ne remonte jamais, sauf correction de mesure documentée.
+    // ZÉRO, et pas « presque » : le garde ne tolère plus AUCUN littéral d'UI hors
+    // allow-list, dans AUCUN fichier. La liste `knownUiLeaks` a été vidée au fur
+    // et à mesure ; si elle se remplit à nouveau, c'est une régression qui doit
+    // être vue à la relecture, pas un chiffre qui monte en silence.
     //
-    // Ce qu'il reste est UN SEUL fichier, `remote_runtime.dart` : ces messages
-    // naissent dans une couche SANS `BuildContext` — traduire sur place est
-    // impossible, il faut rendre une RAISON typée que l'UI traduit (refactor,
-    // pas conversion de clés). Le plafond ne peut donc plus baisser tant que ce
-    // refactor n'est pas fait : c'est écrit ici pour que personne ne croie à un
-    // oubli.
-    const int ceiling = 24;
+    // Les derniers 24 venaient de `remote_runtime.dart` : une couche sans
+    // `BuildContext` qui assemblait ses messages avec la locale de l'APPAREIL
+    // (fr/en seulement — quatre langues recevaient de l'anglais, et changer de
+    // langue dans l'application n'y changeait rien). Elle rend maintenant une
+    // `RuntimeNotice` que l'écran traduit, et `runner_settings.dart` — qui portait
+    // le même repli pour le runner embarqué — a été corrigé dans le même lot :
+    // c'était la même erreur, pas un cas isolé.
+    //
+    // La règle ne bouge pas : ce plafond ne doit JAMAIS remonter.
+    const int ceiling = 0;
     final findings = findHardcodedStringFindings(rootPath: 'lib');
     final known = findings
         .where(

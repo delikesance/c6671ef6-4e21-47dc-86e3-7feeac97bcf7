@@ -5783,6 +5783,69 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String get runner_embedded_desync_detail =>
+      'ランナープロセスは動作していますが、アプリが接続を失いました。設定の「再起動」を使用してください。';
+
+  @override
+  String runtime_invalid_bot_id(String error) {
+    return 'Bot Creatorサーバーでの起動に無効なBot IDです。Botを同期／再作成してから再試行してください。元のエラー: $error';
+  }
+
+  @override
+  String runtime_invalid_bot_id_details(String detail) {
+    return 'Bot Creatorサーバーでの起動に無効なBot IDです。Botを同期／再作成してから再試行してください。詳細: $detail';
+  }
+
+  @override
+  String get runtime_local_unsupported_ios_configure =>
+      'iOSではローカルモードは利用できません。このBotを起動するにはBot Creatorを設定してください。';
+
+  @override
+  String get runtime_local_unsupported_ios_sign_in =>
+      'iOSではローカルモードは利用できません。このBotを起動する前に、設定でBot Creatorにサインインしてください。';
+
+  @override
+  String get runtime_plan_limit => 'ご利用のプランではこの起動はできません。プラン一覧から変更してください。';
+
+  @override
+  String runtime_request_failed(String error) {
+    return 'Bot Creatorサーバーへのリクエストに失敗しました: $error';
+  }
+
+  @override
+  String runtime_servers_not_ready(String error) {
+    return 'Bot CreatorサーバーはこのBotの準備がまだ整っていません。元のエラー: $error';
+  }
+
+  @override
+  String get runtime_session_expired =>
+      'Bot Creatorのセッションが切れました。設定で再度サインインしてこのBotを起動してください。';
+
+  @override
+  String get runtime_sign_in_required =>
+      'このBotを起動する前に、設定でBot Creatorにサインインしてください。';
+
+  @override
+  String runtime_startup_failed(String error) {
+    return 'Bot Creatorサーバーでの起動に失敗しました。元のエラー: $error';
+  }
+
+  @override
+  String runtime_startup_failed_with_detail(String detail, String error) {
+    return 'Bot Creatorサーバーでの起動に失敗しました。詳細: $detail 元のエラー: $error';
+  }
+
+  @override
+  String runtime_startup_in_progress(String status, String error) {
+    return 'Bot Creatorサーバーでの起動がまだ進行中です（$status）。処理は待機中または実行中の可能性があります。元のエラー: $error';
+  }
+
+  @override
+  String runtime_unreachable(String error) {
+    return 'Bot Creatorサーバーに一時的に接続できません。元のエラー: $error';
+  }
+
+  @override
   String get sync_cloud_update_applied => 'クラウドの更新を適用しました';
 
   @override

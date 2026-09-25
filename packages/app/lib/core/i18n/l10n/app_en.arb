@@ -3586,6 +3586,68 @@
       }
     }
   },
+  "@runtime_invalid_bot_id": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@runtime_invalid_bot_id_details": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "@runtime_servers_not_ready": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@runtime_startup_in_progress": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      },
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@runtime_startup_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@runtime_startup_failed_with_detail": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      },
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@runtime_unreachable": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@runtime_request_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "@common_ok": {
     "description": "OK"
   },
@@ -10118,6 +10180,20 @@
   "workflow_rename_variables_hint": "Optionally rename variables for this workflow.",
   "component_node_child_run_hint": "{message} \"{workflow}\" will be executed (entry: {entry}, args: {args}).",
   "workflows_preview_summary": "{type}  •  {count, plural, =1{1 action} other{{count} actions}}",
+  "runner_embedded_desync_detail": "Runner process is running but the app lost its connection. Use Restart in Settings.",
+  "runtime_invalid_bot_id": "Invalid bot ID for startup on Bot Creator servers. Sync/recreate the bot, then retry. Original error: {error}",
+  "runtime_invalid_bot_id_details": "Invalid bot ID for startup on Bot Creator servers. Sync/recreate the bot, then retry. Details: {detail}",
+  "runtime_local_unsupported_ios_configure": "Local mode is not supported on iOS. Configure Bot Creator to start this bot.",
+  "runtime_local_unsupported_ios_sign_in": "Local mode is not supported on iOS. Sign in to Bot Creator in Settings before starting this bot.",
+  "runtime_plan_limit": "Your plan does not allow this start. Check the plans to upgrade your formula.",
+  "runtime_request_failed": "Request to Bot Creator servers failed: {error}",
+  "runtime_servers_not_ready": "Bot Creator servers are not ready for this bot yet. Original error: {error}",
+  "runtime_session_expired": "Your Bot Creator session expired. Sign in again in Settings to start this bot.",
+  "runtime_sign_in_required": "Sign in to Bot Creator in Settings before starting this bot.",
+  "runtime_startup_failed": "Bot Creator server startup failed. Original error: {error}",
+  "runtime_startup_failed_with_detail": "Bot Creator server startup failed. Details: {detail} Original error: {error}",
+  "runtime_startup_in_progress": "Bot Creator server startup is still in progress ({status}). Processing may still be queued or running. Original error: {error}",
+  "runtime_unreachable": "Bot Creator servers are temporarily unreachable. Original error: {error}",
   "sync_cloud_update_applied": "Cloud update applied successfully",
   "sync_conflict_message": "Divergent changes exist between this local session and Cloud (Mobile). Choose how to resolve this conflict:",
   "sync_conflict_title": "Sync Conflict Detected",
