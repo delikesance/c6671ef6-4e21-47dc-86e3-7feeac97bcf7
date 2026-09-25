@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:bot_creator_shared/types/action.dart' show BotCreatorActionType;
 import 'package:bot_creator/core/models/types/variable_suggestion.dart';
 import 'package:bot_creator/core/models/types/app_emoji.dart';
+import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder/action_types.dart';
 import 'blueprint_models.dart';
 import 'blueprint_layout_engine.dart';
@@ -758,7 +759,7 @@ class _BlueprintGraphCanvasState extends State<BlueprintGraphCanvas> {
                             color: Colors.white70,
                             size: 20,
                           ),
-                          tooltip: 'Zoom in',
+                          tooltip: context.tr.image_editor_zoom_in,
                           onPressed: () {
                             final matrix = _transformController.value.clone()
                               ..scaleByDouble(1.2, 1.2, 1.0, 1.0);
@@ -771,7 +772,7 @@ class _BlueprintGraphCanvasState extends State<BlueprintGraphCanvas> {
                             color: Colors.white70,
                             size: 20,
                           ),
-                          tooltip: 'Zoom out',
+                          tooltip: context.tr.image_editor_zoom_out,
                           onPressed: () {
                             final matrix = _transformController.value.clone()
                               ..scaleByDouble(0.8, 0.8, 1.0, 1.0);

@@ -3434,6 +3434,34 @@
       }
     }
   },
+  "@option_description_new": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@marketplace_options_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@marketplace_required_config_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@variables_sync_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "@common_ok": {
     "description": "OK"
   },
@@ -9923,6 +9951,15 @@
   "common_export": "Export",
   "workflows_folder_destination_optional": "Destination folder (optional)",
   "workflows_import_preview_title": "Import workflow preview",
+  "blueprint_close_inspector": "Close Inspector",
+  "blueprint_search_action_hint": "Search for an action...",
+  "common_auto": "Auto",
+  "common_inline": "Inline",
+  "marketplace_options_count": "Options ({count})",
+  "marketplace_required_config_count": "{count, plural, =1{1 config} other{{count} config}}",
+  "option_autocomplete_javascript": "JavaScript Autocomplete",
+  "option_description_new": "Description for option {count}",
+  "variables_sync_failed": "Failed to sync variable: {error}",
   "sync_cloud_update_applied": "Cloud update applied successfully",
   "sync_conflict_message": "Divergent changes exist between this local session and Cloud (Mobile). Choose how to resolve this conflict:",
   "sync_conflict_title": "Sync Conflict Detected",

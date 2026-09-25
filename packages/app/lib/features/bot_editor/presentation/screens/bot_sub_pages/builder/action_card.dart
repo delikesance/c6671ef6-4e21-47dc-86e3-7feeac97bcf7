@@ -981,7 +981,7 @@ class ActionCard extends StatelessWidget {
     if (variableSuggestions.isEmpty) return null;
     return IconButton(
       icon: const Icon(Icons.data_object, size: 18),
-      tooltip: 'Insert variable',
+      tooltip: context.tr.image_editor_insert_variable,
       visualDensity: VisualDensity.compact,
       onPressed: () =>
           _showVariablePickerDialog(context, paramKey, currentValue),

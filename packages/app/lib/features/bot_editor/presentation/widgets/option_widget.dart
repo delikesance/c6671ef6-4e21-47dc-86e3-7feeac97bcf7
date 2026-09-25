@@ -213,7 +213,7 @@ class OptionWidgetState extends State<OptionWidget> {
     final type = allowedTypes.first;
     final option = CommandOptionBuilder(
       name: 'option${target.length + 1}',
-      description: 'Description for option ${target.length + 1}',
+      description: context.tr.option_description_new(target.length + 1),
       type: type,
       isRequired: false,
     );
@@ -561,10 +561,10 @@ class OptionWidgetState extends State<OptionWidget> {
                                     icon: Icon(Icons.javascript),
                                   )
                                 else
-                                  const ButtonSegment(
+                                  ButtonSegment(
                                     value: 'inline',
-                                    label: Text('Inline'),
-                                    icon: Icon(Icons.code),
+                                    label: Text(context.tr.common_inline),
+                                    icon: const Icon(Icons.code),
                                   ),
                                 ButtonSegment(
                                   value: 'static',
@@ -1060,7 +1060,7 @@ class OptionWidgetState extends State<OptionWidget> {
                                                       script.trim().isEmpty
                                                           ? defaultJsAutocompleteScript
                                                           : script,
-                                                  title: 'Autocomplete JavaScript',
+                                                  title: context.tr.option_autocomplete_javascript,
                                                   snippets: jsAutocompleteSnippets,
                                                 ),
                                           ),

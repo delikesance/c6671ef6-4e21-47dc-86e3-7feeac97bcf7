@@ -10320,6 +10320,60 @@ abstract class AppLocalizations {
   /// **'Import workflow preview'**
   String get workflows_import_preview_title;
 
+  /// No description provided for @blueprint_close_inspector.
+  ///
+  /// In en, this message translates to:
+  /// **'Close Inspector'**
+  String get blueprint_close_inspector;
+
+  /// No description provided for @blueprint_search_action_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for an action...'**
+  String get blueprint_search_action_hint;
+
+  /// No description provided for @common_auto.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto'**
+  String get common_auto;
+
+  /// No description provided for @common_inline.
+  ///
+  /// In en, this message translates to:
+  /// **'Inline'**
+  String get common_inline;
+
+  /// No description provided for @marketplace_options_count.
+  ///
+  /// In en, this message translates to:
+  /// **'Options ({count})'**
+  String marketplace_options_count(int count);
+
+  /// No description provided for @marketplace_required_config_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 config} other{{count} config}}'**
+  String marketplace_required_config_count(int count);
+
+  /// No description provided for @option_autocomplete_javascript.
+  ///
+  /// In en, this message translates to:
+  /// **'JavaScript Autocomplete'**
+  String get option_autocomplete_javascript;
+
+  /// No description provided for @option_description_new.
+  ///
+  /// In en, this message translates to:
+  /// **'Description for option {count}'**
+  String option_description_new(int count);
+
+  /// No description provided for @variables_sync_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to sync variable: {error}'**
+  String variables_sync_failed(String error);
+
   /// No description provided for @sync_cloud_update_applied.
   ///
   /// In en, this message translates to:

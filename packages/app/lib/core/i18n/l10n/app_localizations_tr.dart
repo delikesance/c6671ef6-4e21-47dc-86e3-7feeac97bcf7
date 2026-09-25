@@ -5884,6 +5884,47 @@ class AppLocalizationsTr extends AppLocalizations {
       'İş akışı içe aktarma önizlemesi';
 
   @override
+  String get blueprint_close_inspector => 'Denetçiyi kapat';
+
+  @override
+  String get blueprint_search_action_hint => 'Bir eylem arayın...';
+
+  @override
+  String get common_auto => 'Otomatik';
+
+  @override
+  String get common_inline => 'Satır içi';
+
+  @override
+  String marketplace_options_count(int count) {
+    return 'Seçenekler ($count)';
+  }
+
+  @override
+  String marketplace_required_config_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count yapılandırma',
+      one: '1 yapılandırma',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get option_autocomplete_javascript => 'JavaScript otomatik tamamlama';
+
+  @override
+  String option_description_new(int count) {
+    return '$count numaralı seçeneğin açıklaması';
+  }
+
+  @override
+  String variables_sync_failed(String error) {
+    return 'Değişken eşitlenemedi: $error';
+  }
+
+  @override
   String get sync_cloud_update_applied =>
       'Bulut güncellemesi başarıyla uygulandı';
 

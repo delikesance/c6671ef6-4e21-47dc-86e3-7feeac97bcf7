@@ -734,7 +734,7 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
                   ],
                   if (opts.isNotEmpty) ...[
                     const SizedBox(height: 12),
-                    Text('Options (${opts.length})', style: Theme.of(ctx).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+                    Text(context.tr.marketplace_options_count(opts.length), style: Theme.of(ctx).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
                     const SizedBox(height: 4),
                     Wrap(
                       spacing: 6, runSpacing: 4,
