@@ -3365,30 +3365,51 @@ class HomePageState extends State<HomePage>
 
     final previousBalance = await _fetchMainApiRuntimeBalance(botId);
 
+    // L'annonce est terminée, mais la RÉCOMPENSE n'est pas encore créditée : le
+    // manager la valide de son côté (callback SSV), ce qui prend quelques
+    // secondes. On le dit, au lieu d'annoncer un succès que personne ne peut
+    // encore constater — l'ancien code affichait le message de succès à cet
+    // instant précis et, si le crédit n'arrivait jamais, ne laissait qu'une ligne
+    // de journal : l'utilisateur avait vu « merci » et n'avait rien reçu.
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.tr.rewarded_start_credit_pending)),
+      );
+    }
+
     unawaited(() async {
       final rewardCredited = await _waitForMainApiRewardCredit(
         botId: botId,
         previousBalance: previousBalance,
       );
+      if (rewardCredited) {
+        await _refreshBotRuntimeBalances(botIds: <String>[botId]);
+      }
+      if (!mounted) {
+        return;
+      }
       if (!rewardCredited) {
         appendBotDebugLog(
           'Reward credit still pending for $botId after ad completion; start flow continues with automatic manager retry.',
         );
-        return;
       }
-      await _refreshBotRuntimeBalances(botIds: <String>[botId]);
+      // L'état RÉEL, à l'écran : le message de succès de l'appelant (par exemple
+      // « minutes ajoutées ») n'est affiché QUE lorsque le crédit est constaté.
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(
+              rewardCredited
+                  ? (successMessage ?? context.tr.rewarded_start_credit_confirmed)
+                  : context.tr.rewarded_start_credit_unconfirmed,
+            ),
+          ),
+        );
     }());
 
     await SubscriptionService.resolveEffectivePremiumStatus(forceRefresh: true);
-    if (!mounted) {
-      return false;
-    }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(successMessage ?? context.tr.rewarded_start_thanks),
-      ),
-    );
-    return true;
+    return mounted;
   }
 
   Future<bool> _ensureAdsConsent() async {

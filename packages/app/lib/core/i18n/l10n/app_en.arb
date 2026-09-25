@@ -5528,6 +5528,15 @@
   "@rewarded_start_continue": {
     "description": "Continue"
   },
+  "@rewarded_start_credit_confirmed": {
+    "description": "Reward credited"
+  },
+  "@rewarded_start_credit_pending": {
+    "description": "Checking the reward"
+  },
+  "@rewarded_start_credit_unconfirmed": {
+    "description": "Reward not credited yet"
+  },
   "@rewarded_start_message": {
     "description": "An ad is required to start this hosting session. This helps fund the project. Premium users can skip this."
   },
@@ -9858,6 +9867,9 @@
   "review_type_line": "Type: {type}",
   "rewarded_start_complete_ad": "Please watch the entire ad to start your hosting session.",
   "rewarded_start_continue": "Continue",
+  "rewarded_start_credit_confirmed": "Reward credited: your hosting minutes have been added.",
+  "rewarded_start_credit_pending": "Ad finished. Checking your reward…",
+  "rewarded_start_credit_unconfirmed": "Reward not credited yet. The server may still validate it: refresh your minutes to see it.",
   "rewarded_start_message": "An ad is required to start this hosting session. This helps fund the project. Premium users can skip this.",
   "rewarded_start_no_ad_available": "No ad available right now. Please try again later.",
   "rewarded_start_skip": "Skip",
