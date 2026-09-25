@@ -77,10 +77,12 @@ OfflineCommandWrite _write({
   String commandId = _commandId,
   Map<String, dynamic>? command,
   String botId = _botId,
+  String? ifMatch,
 }) => OfflineCommandWrite(
   botId: botId,
   commandId: commandId,
   command: command ?? _commandPayload('ping'),
+  ifMatch: ifMatch,
 );
 
 /// Attend qu'une condition devienne vraie, horloge RÉELLE (les vidages passent
@@ -266,7 +268,8 @@ void main() {
       final store = CommandOutboxStore();
       final drainer = CommandOutboxDrainer(
         store: store,
-        replay: repository.saveCommand,
+        replay: (botId, command, ifMatch) =>
+            repository.saveCommand(botId, command, ifMatch: ifMatch),
       );
       // LE HOOK EST CELUI DU DÉPÔT : c'est le contrat entre le lot précédent
       // (qui a posé le champ) et celui-ci (qui l'implémente).
@@ -316,7 +319,7 @@ void main() {
       final calls = <String>[];
       final drainer = CommandOutboxDrainer(
         store: store,
-        replay: (botId, command) async {
+        replay: (botId, command, ifMatch) async {
           calls.add(command.commandId);
           return const SavedLegacy();
         },
@@ -339,7 +342,7 @@ void main() {
       final replayed = <String>[];
       final drainer = CommandOutboxDrainer(
         store: store,
-        replay: (botId, command) async {
+        replay: (botId, command, ifMatch) async {
           replayed.add(command.commandId);
           if (command.commandId == 'cmd-boom') {
             throw StateError('écriture refusée par le serveur');
@@ -376,7 +379,7 @@ void main() {
       final store = CommandOutboxStore();
       final drainer = CommandOutboxDrainer(
         store: store,
-        replay: (botId, command) async => const ConflictStale(
+        replay: (botId, command, ifMatch) async => const ConflictStale(
           currentRevision: 'rev-ailleurs',
         ),
       );
@@ -396,7 +399,7 @@ void main() {
       final replayed = <String>[];
       final drainer = CommandOutboxDrainer(
         store: store,
-        replay: (botId, command) async {
+        replay: (botId, command, ifMatch) async {
           replayed.add(command.commandId);
           return const QueuedOffline();
         },
@@ -427,7 +430,7 @@ void main() {
       final drainer = CommandOutboxDrainer(
         store: store,
         maxAttempts: 2,
-        replay: (botId, command) async {
+        replay: (botId, command, ifMatch) async {
           replayCalls++;
           throw StateError('toujours refusé');
         },
@@ -456,7 +459,7 @@ void main() {
       final drainer = CommandOutboxDrainer(
         store: store,
         maxAttempts: 1,
-        replay: (botId, command) async => throw StateError('refusé'),
+        replay: (botId, command, ifMatch) async => throw StateError('refusé'),
       );
       await store.enqueue(_write(command: _commandPayload('premier')));
       await drainer.drain();
@@ -476,7 +479,7 @@ void main() {
       final drainer = CommandOutboxDrainer(
         store: store,
         maxAttempts: 1,
-        replay: (botId, command) async {
+        replay: (botId, command, ifMatch) async {
           if (command.commandId == 'cmd-abandon') {
             throw StateError('refusé pour toujours');
           }
@@ -509,7 +512,7 @@ void main() {
       final replayed = <String>[];
       final drainer = CommandOutboxDrainer(
         store: store,
-        replay: (botId, command) async {
+        replay: (botId, command, ifMatch) async {
           replayed.add(command.commandId);
           return const SavedLegacy();
         },
@@ -558,7 +561,7 @@ void main() {
       final drainer = CommandOutboxDrainer(
         store: store,
         maxAttempts: 2,
-        replay: (botId, command) async => const SavedLegacy(),
+        replay: (botId, command, ifMatch) async => const SavedLegacy(),
       );
       final db = await openVariablesDatabase();
       await db.insert(commandOutboxTableName, <String, Object?>{
@@ -647,7 +650,7 @@ void main() {
       final seen = <String>[];
       final drainer = CommandOutboxDrainer(
         store: store,
-        replay: (botId, command) async {
+        replay: (botId, command, ifMatch) async {
           seen.add(command.commandId);
           return const SavedLegacy();
         },
@@ -717,7 +720,7 @@ void main() {
       var calls = 0;
       final drainer = CommandOutboxDrainer(
         store: store,
-        replay: (botId, command) async {
+        replay: (botId, command, ifMatch) async {
           calls++;
           await gate.future;
           return const SavedLegacy();
@@ -749,7 +752,7 @@ void main() {
       );
       final drainer = CommandOutboxDrainer(
         store: store,
-        replay: (botId, command) async => const SavedLegacy(),
+        replay: (botId, command, ifMatch) async => const SavedLegacy(),
       );
       final coordinator = CommandOutboxCoordinator(drainer: drainer);
 
@@ -760,6 +763,77 @@ void main() {
         isNull,
         reason: 'aucun rapport inventé : le vidage n\'a pas eu lieu',
       );
+    });
+  });
+
+  // ─── La précondition voyage avec l'écriture ──────────────────────────────
+
+  group('(d) la précondition est CONSERVÉE et transmise au rejeu', () {
+    test('une écriture mise en file garde sa révision, même relue plus tard',
+        () async {
+      await CommandOutboxStore().enqueue(_write(ifMatch: 'rev-7'));
+
+      // Une AUTRE instance lit la table : c'est l'après-redémarrage. Si la
+      // révision ne vivait qu'en mémoire, elle serait perdue ici.
+      final relu = await CommandOutboxStore().entries();
+      expect(relu.single.expectedRevision, 'rev-7');
+      expect(relu.single.hasPrecondition, isTrue);
+    });
+
+    test('le vidage transmet la précondition conservée au dépôt', () async {
+      final store = CommandOutboxStore();
+      await store.enqueue(_write(ifMatch: 'rev-7'));
+
+      final transmises = <String?>[];
+      final drainer = CommandOutboxDrainer(
+        store: store,
+        replay: (botId, command, ifMatch) async {
+          transmises.add(ifMatch);
+          return const SavedLegacy();
+        },
+      );
+
+      final report = await drainer.drain();
+      expect(report.replayed, 1);
+      expect(transmises, <String?>['rev-7'],
+          reason: 'sans cette précondition, le rejeu écrase sans rien dire');
+    });
+
+    test('une écriture sans précondition reste sans précondition', () async {
+      final store = CommandOutboxStore();
+      await store.enqueue(_write());
+
+      final transmises = <String?>[];
+      final drainer = CommandOutboxDrainer(
+        store: store,
+        replay: (botId, command, ifMatch) async {
+          transmises.add(ifMatch);
+          return const SavedLegacy();
+        },
+      );
+
+      await drainer.drain();
+      expect(transmises, <String?>[null],
+          reason: 'la v2 désarmée n\'a pas de révision : on ne l\'invente pas');
+    });
+
+    test('la même charge utile garde sa précondition ; une autre la remplace',
+        () async {
+      final store = CommandOutboxStore();
+      await store.enqueue(_write(ifMatch: 'rev-7'));
+      await store.enqueue(_write(ifMatch: ''));
+
+      expect(
+        (await store.entries()).single.expectedRevision,
+        'rev-7',
+        reason:
+            'remettre en file la MÊME écriture ne doit pas effacer sa précondition',
+      );
+
+      // Charge utile différente : c'est une nouvelle écriture, contre la
+      // révision du moment.
+      await store.enqueue(_write(command: _commandPayload('corrige'), ifMatch: 'rev-8'));
+      expect((await store.entries()).single.expectedRevision, 'rev-8');
     });
   });
 }

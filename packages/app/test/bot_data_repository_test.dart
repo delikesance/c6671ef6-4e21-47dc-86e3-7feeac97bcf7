@@ -320,4 +320,44 @@ void main() {
     expect(built.repository.revisionFor('bot-1'), 'rev-2',
         reason: 'l’écriture apprend la nouvelle révision pour l’écriture suivante');
   });
+
+  test('(g) rejeu : la precondition CONSERVEE prime sur la memoire vide', () async {
+    // LE CAS DE PRODUCTION : l'application a redemarre, la memoire du depot est
+    // vide. Une commande mise en file pendant la panne est rejouee : sans la
+    // revision conservee avec elle, le rejeu partirait SANS precondition et
+    // ecraserait en silence une version distante plus recente.
+    final headers = <String?>[];
+    final built = buildRepository((request) async {
+      if (request.url.path == '/api/v2/capabilities') {
+        return http.Response(capabilitiesJson(), 200);
+      }
+      if (request.method == 'PATCH') {
+        headers.add(request.headers['If-Match']);
+        return http.Response(
+          jsonEncode(<String, dynamic>{
+            'revision': 'rev-2',
+            'command': <String, dynamic>{'id': 'cmd-1'},
+            'history_id': 'v-9',
+            'runner_synced': true,
+          }),
+          200,
+        );
+      }
+      return http.Response(legacyDocument(), 200);
+    });
+    await built.repository.probe();
+    expect(built.repository.revisionFor('bot-1'), isNull,
+        reason: 'apres un redemarrage, le depot ne connait AUCUNE revision');
+
+    // Une entree mise en file par une version anterieure au schema v7 : elle ne
+    // porte aucune precondition, et on ne lui en invente pas une.
+    await built.repository.saveCommand('bot-1', detail(), ifMatch: null);
+    expect(headers.single, isNull,
+        reason: 'sans precondition conservee, on garde le comportement d origine');
+
+    // Une entree qui porte sa revision : c'est ELLE qui part, pas la memoire.
+    await built.repository.saveCommand('bot-1', detail(), ifMatch: 'rev-7');
+    expect(headers.last, '"rev-7"',
+        reason: 'le rejeu doit refuser d ecraser une version distante plus recente');
+  });
 }
