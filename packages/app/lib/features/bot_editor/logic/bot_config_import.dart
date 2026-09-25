@@ -1,4 +1,5 @@
 import 'package:bot_creator/core/storage/database.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_config_refresh.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 
 List<Map<String, dynamic>> extractCommandListFromConfig(dynamic raw) {
@@ -134,6 +135,13 @@ Future<void> applyManagerConfigToLocal({
   } finally {
     AppManager.isSyncingFromRemote = false;
   }
+
+  // Le remplacement est TERMINÉ : on prévient les écrans qui affichent une copie
+  // locale (liste des commandes, workflows…). Le signal est posé ici, et pas dans
+  // chaque appelant, parce que c'est le seul endroit qui remplace la copie : une
+  // restauration de version, une synchro entrante et l'amorçage de session
+  // passent tous par là, et aucun ne doit oublier de rafraîchir l'interface.
+  BotConfigRefreshNotifier.instance.notifyConfigReplaced(botId);
 }
 
 Future<void> applyManagerWorkflowsToLocal({
