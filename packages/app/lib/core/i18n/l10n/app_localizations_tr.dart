@@ -5870,6 +5870,20 @@ class AppLocalizationsTr extends AppLocalizations {
   String get runner_source_runner => 'Runner';
 
   @override
+  String get command_create_existing_folders => 'Mevcut klasörler';
+
+  @override
+  String get common_export => 'Dışa aktar';
+
+  @override
+  String get workflows_folder_destination_optional =>
+      'Hedef klasör (isteğe bağlı)';
+
+  @override
+  String get workflows_import_preview_title =>
+      'İş akışı içe aktarma önizlemesi';
+
+  @override
   String get sync_cloud_update_applied =>
       'Bulut güncellemesi başarıyla uygulandı';
 

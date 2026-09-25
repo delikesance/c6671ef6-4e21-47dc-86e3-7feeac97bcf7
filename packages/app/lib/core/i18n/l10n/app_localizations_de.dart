@@ -5933,6 +5933,18 @@ class AppLocalizationsDe extends AppLocalizations {
   String get runner_source_runner => 'Runner';
 
   @override
+  String get command_create_existing_folders => 'Vorhandene Ordner';
+
+  @override
+  String get common_export => 'Exportieren';
+
+  @override
+  String get workflows_folder_destination_optional => 'Zielordner (optional)';
+
+  @override
+  String get workflows_import_preview_title => 'Vorschau des Workflow-Imports';
+
+  @override
   String get sync_cloud_update_applied =>
       'Cloud-Aktualisierung erfolgreich angewendet';
 

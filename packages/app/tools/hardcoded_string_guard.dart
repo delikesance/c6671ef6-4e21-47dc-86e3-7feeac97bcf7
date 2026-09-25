@@ -285,6 +285,18 @@ const List<AllowListEntry> allowListedPatterns = <AllowListEntry>[
         'Noms des moteurs d\'exécution (identifiants Dart/JS), stables '
         'entre les locales.',
   ),
+  // ── Texte COMPOSÉ depuis une traduction ──────────────────────────────────────
+  AllowListEntry(
+    // Tous les fichiers : la règle porte sur la FORME de la ligne.
+    pathFragment: '',
+    snippetPattern: r'\$\{context\.tr\.',
+    reason:
+        'Ligne qui COMPOSE son texte à partir d\'une clé ARB (recherche '
+        'context.tr.… interpolée avec des données) : le littéral n\'est pas de '
+        'la copie en dur, la partie traduite est déjà une clé. Toute autre '
+        'chaîne du fichier reste soumise à la règle — c\'est pour cela que '
+        'l\'exemption est un MOTIF et non une exclusion de fichier.',
+  ),
 ];
 
 /// Dette i18n restante : fichiers contenant encore des libellés d'UI codés en

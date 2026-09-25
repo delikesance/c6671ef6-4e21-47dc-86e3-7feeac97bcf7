@@ -10296,6 +10296,30 @@ abstract class AppLocalizations {
   /// **'Runner'**
   String get runner_source_runner;
 
+  /// No description provided for @command_create_existing_folders.
+  ///
+  /// In en, this message translates to:
+  /// **'Existing folders'**
+  String get command_create_existing_folders;
+
+  /// No description provided for @common_export.
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get common_export;
+
+  /// No description provided for @workflows_folder_destination_optional.
+  ///
+  /// In en, this message translates to:
+  /// **'Destination folder (optional)'**
+  String get workflows_folder_destination_optional;
+
+  /// No description provided for @workflows_import_preview_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Import workflow preview'**
+  String get workflows_import_preview_title;
+
   /// No description provided for @sync_cloud_update_applied.
   ///
   /// In en, this message translates to:
