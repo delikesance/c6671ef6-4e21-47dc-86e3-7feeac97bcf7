@@ -4436,6 +4436,15 @@
   "@rewarded_start_continue": {
     "description": "Continue"
   },
+  "@rewarded_start_credit_confirmed": {
+    "description": "Belohnung gutgeschrieben"
+  },
+  "@rewarded_start_credit_pending": {
+    "description": "Belohnung wird geprüft"
+  },
+  "@rewarded_start_credit_unconfirmed": {
+    "description": "Belohnung noch offen"
+  },
   "@rewarded_start_message": {
     "description": "An ad is required to start this hosting session. This helps fund the project. Premium users can skip this."
   },
@@ -8576,6 +8585,9 @@
   "review_type_line": "Typ: {type}",
   "rewarded_start_complete_ad": "Bitte sehen Sie sich die gesamte Anzeige an, um Ihre Hosting-Sitzung zu starten.",
   "rewarded_start_continue": "Weiter",
+  "rewarded_start_credit_confirmed": "Belohnung gutgeschrieben: Deine Hosting-Minuten wurden hinzugefügt.",
+  "rewarded_start_credit_pending": "Werbung beendet. Belohnung wird geprüft…",
+  "rewarded_start_credit_unconfirmed": "Belohnung noch nicht gutgeschrieben. Der Server kann sie noch bestätigen: Minuten neu laden, um sie zu sehen.",
   "rewarded_start_message": "Eine Anzeige ist erforderlich, um diese Hosting-Sitzung zu starten. Dies hilft, das Projekt zu finanzieren. Premium-Benutzer können dies überspringen.",
   "rewarded_start_no_ad_available": "Derzeit ist keine Anzeige verfügbar. Bitte versuchen Sie es später erneut.",
   "rewarded_start_skip": "Überspringen",

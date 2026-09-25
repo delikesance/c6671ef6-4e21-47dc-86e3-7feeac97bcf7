@@ -4535,6 +4535,15 @@
   "@rewarded_start_continue": {
     "description": "Continue"
   },
+  "@rewarded_start_credit_confirmed": {
+    "description": "Récompense créditée"
+  },
+  "@rewarded_start_credit_pending": {
+    "description": "Vérification de la récompense"
+  },
+  "@rewarded_start_credit_unconfirmed": {
+    "description": "Récompense non créditée"
+  },
   "@rewarded_start_message": {
     "description": "An ad is required to start this hosting session. This helps fund the project. Premium users can skip this."
   },
@@ -8717,6 +8726,9 @@
   "review_type_line": "Type : {type}",
   "rewarded_start_complete_ad": "Veuillez regarder la publicité en entier pour lancer votre session d'hébergement.",
   "rewarded_start_continue": "Continuer",
+  "rewarded_start_credit_confirmed": "Récompense créditée : vos minutes d'hébergement ont été ajoutées.",
+  "rewarded_start_credit_pending": "Publicité terminée. Vérification de votre récompense…",
+  "rewarded_start_credit_unconfirmed": "Récompense non encore créditée. Le serveur peut la valider dans un instant : rechargez vos minutes pour la voir apparaître.",
   "rewarded_start_message": "Une publicité est requise pour lancer cette session d'hébergement. Cela aide à financer le projet. Les utilisateurs Premium peuvent ignorer cela.",
   "rewarded_start_no_ad_available": "Aucune publicité disponible pour le moment. Veuillez réessayer plus tard.",
   "rewarded_start_skip": "Ignorer",
