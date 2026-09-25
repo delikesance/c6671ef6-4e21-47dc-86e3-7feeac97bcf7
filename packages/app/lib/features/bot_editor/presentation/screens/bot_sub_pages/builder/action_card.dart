@@ -1658,8 +1658,7 @@ class ActionCard extends StatelessWidget {
               Icon(Icons.alt_route, color: blockColor, size: 18),
               const SizedBox(width: 6),
               Expanded(
-                child: Text(
-                  'ELSE IF ${branchIndex + 1}',
+                child: Text(context.tr.action_card_else_if(branchIndex + 1),
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: blockColor,
@@ -3705,8 +3704,7 @@ class ActionCard extends StatelessWidget {
                           AppTheme.radiusPill,
                         ),
                       ),
-                      child: Text(
-                        '$count embed${count > 1 ? 's' : ''}',
+                      child: Text(context.tr.embed_count(count),
                         style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
@@ -3827,8 +3825,7 @@ class ActionCard extends StatelessWidget {
                                             3,
                                           ),
                                         ),
-                                        child: Text(
-                                          '$fields fld',
+                                        child: Text(context.tr.field_count(fields),
                                           style: const TextStyle(
                                             fontSize: 10,
                                             color: AppTheme.discord,
@@ -3986,8 +3983,7 @@ class ActionCard extends StatelessWidget {
                           AppTheme.radiusPill,
                         ),
                       ),
-                      child: Text(
-                        '$count élément${count > 1 ? 's' : ''}',
+                      child: Text(context.tr.element_count(count),
                         style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
@@ -4245,8 +4241,7 @@ class ActionCard extends StatelessWidget {
                           AppTheme.radiusPill,
                         ),
                       ),
-                      child: Text(
-                        '$count champ${count > 1 ? 's' : ''}',
+                      child: Text(context.tr.field_count(count),
                         style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,

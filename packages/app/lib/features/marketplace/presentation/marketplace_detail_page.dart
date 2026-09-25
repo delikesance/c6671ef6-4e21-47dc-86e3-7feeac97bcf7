@@ -749,8 +749,7 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
                     ),
                   ],
                   const SizedBox(height: 16),
-                  Text(
-                    'Actions (${actions.length})',
+                  Text(context.tr.marketplace_actions_count(actions.length),
                     style: Theme.of(ctx).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 8),

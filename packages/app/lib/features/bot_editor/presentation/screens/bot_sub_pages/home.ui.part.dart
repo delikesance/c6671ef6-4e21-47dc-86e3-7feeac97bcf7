@@ -1197,8 +1197,7 @@ class BotHomeLiveConsoleCard extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 4),
-                          Text(
-                            'LIVE',
+                          Text(context.tr.common_live_badge,
                             style: GoogleFonts.inter(
                               fontSize: 10,
                               fontWeight: FontWeight.w700,

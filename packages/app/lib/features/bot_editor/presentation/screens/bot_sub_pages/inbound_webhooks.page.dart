@@ -569,8 +569,7 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                                                 color: AppTheme.error,
                                               ),
                                               const SizedBox(width: 12),
-                                              const Text(
-                                                'Delete',
+                                              Text(context.tr.common_delete,
                                                 style: TextStyle(
                                                   color: AppTheme.error,
                                                 ),

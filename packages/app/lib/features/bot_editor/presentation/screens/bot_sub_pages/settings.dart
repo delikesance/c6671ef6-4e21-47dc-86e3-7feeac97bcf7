@@ -1084,8 +1084,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               const SizedBox(height: 12),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Text(
-                  'Runtime engine',
+                child: Text(context.tr.import_engine_title,
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,

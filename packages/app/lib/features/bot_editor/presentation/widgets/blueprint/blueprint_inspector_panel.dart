@@ -125,8 +125,7 @@ class BlueprintInspectorPanel extends StatelessWidget {
                 : Center(
                     child: Padding(
                       padding: const EdgeInsets.all(24.0),
-                      child: Text(
-                        'Entry Point Trigger node.\nConfigured in command properties.',
+                      child: Text(context.tr.blueprint_entry_point_hint,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator_shared/utils/permission_flags.dart'
     show PermissionFlag, PermissionCategory, discordPermissionFlags;
+import 'package:bot_creator/core/i18n/i18n.dart';
 
 /// A tri-state toggle picker for Discord permission overwrites.
 ///
@@ -202,8 +203,7 @@ class _PermissionFlagsFieldState extends State<PermissionFlagsField> {
           const SizedBox(width: 12),
           _legendChip('Unset', Icons.radio_button_unchecked, AppTheme.grey),
           const Spacer(),
-          Text(
-            'Tap to cycle',
+          Text(context.tr.permission_tap_to_cycle,
             style: TextStyle(color: AppTheme.grey, fontSize: 11),
           ),
         ],

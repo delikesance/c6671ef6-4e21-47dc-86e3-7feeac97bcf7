@@ -2426,14 +2426,12 @@ class _SettingPageState extends State<SettingPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Ads Mediation Debug',
+                          Text(context.tr.settings_ads_debug_title,
                             style: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 8),
-                          Text(
-                            'Open Ad Inspector and log adapter status (Unity/Google) to validate mediation.',
+                          Text(context.tr.settings_ads_debug_desc,
                             style: Theme.of(context).textTheme.bodySmall
                                 ?.copyWith(color: AppTheme.grey),
                           ),
@@ -2741,7 +2739,7 @@ class _SettingPageState extends State<SettingPage> {
                               _runnerEngineLabel!.isNotEmpty) ...[
                             const SizedBox(height: 8),
                             Text(
-                              'Detected engine: $_runnerEngineLabel'
+                              '${context.tr.settings_detected_engine(_runnerEngineLabel!)}'
                               '${_runnerVersionLabel != null && _runnerVersionLabel!.isNotEmpty ? ' · v$_runnerVersionLabel' : ''}',
                               style: Theme.of(context).textTheme.bodySmall,
                             ),

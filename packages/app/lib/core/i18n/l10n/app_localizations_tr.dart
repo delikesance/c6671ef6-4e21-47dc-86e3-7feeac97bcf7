@@ -5925,6 +5925,194 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String actions_configured_count(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count eylem yapılandırıldı',
+      one: '1 eylem yapılandırıldı',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String action_card_else_if(int count) {
+    return 'DEĞİLSE $count';
+  }
+
+  @override
+  String get blueprint_cut_link => 'Bağlantıyı kes';
+
+  @override
+  String get blueprint_entry_point_hint =>
+      'Giriş noktası tetikleyici düğümü.\nKomut özelliklerinde yapılandırılır.';
+
+  @override
+  String get blueprint_mode_label => 'Blueprint';
+
+  @override
+  String get blueprint_origin_label => 'Başlangıç (0, 0)';
+
+  @override
+  String bot_config_version_commands(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count komut',
+      one: '1 komut',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bot_config_version_commands_title => 'Bu sürümdeki komutlar:';
+
+  @override
+  String bot_config_version_more_count(int count) {
+    return '… ve $count tane daha';
+  }
+
+  @override
+  String bot_config_version_replace_warning(int count) {
+    return 'Mevcut $count komutu değiştirecek';
+  }
+
+  @override
+  String command_delete_discord_failed_local(String error) {
+    return 'Discord silme başarısız. Yerel silme uygulandı. $error';
+  }
+
+  @override
+  String get common_exists => 'Mevcut';
+
+  @override
+  String get common_live_badge => 'CANLI';
+
+  @override
+  String component_choice_number(int count) {
+    return 'Seçenek $count';
+  }
+
+  @override
+  String get component_ephemeral_hint =>
+      'Geçici (yalnızca komutu kullanan görür)';
+
+  @override
+  String get debug_persistence_title => 'Kalıcılık hata ayıklama';
+
+  @override
+  String element_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count öğe',
+      one: '1 öğe',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String embed_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count embed',
+      one: '1 embed',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get emojis_animated_label => 'animasyonlu';
+
+  @override
+  String field_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count alan',
+      one: '1 alan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String marketplace_actions_count(int count) {
+    return 'Eylemler ($count)';
+  }
+
+  @override
+  String get onb_example_label => 'Örnek:';
+
+  @override
+  String get option_autocomplete_js_hint =>
+      'En fazla 25 seçenek döndürmek için interaction.respond() ile ad/değer çiftleri kullanın.';
+
+  @override
+  String get permission_tap_to_cycle => 'Değiştirmek için dokunun';
+
+  @override
+  String get serialization_copy_base64 =>
+      'Kompakt Base64 yükünü panoya kopyala';
+
+  @override
+  String get settings_ads_debug_desc =>
+      'Aracılığı doğrulamak için Ad Inspector\'ı açın ve bağdaştırıcı durumunu (Unity/Google) kaydedin.';
+
+  @override
+  String get settings_ads_debug_title => 'Reklam aracılığı hata ayıklama';
+
+  @override
+  String settings_detected_engine(String engine) {
+    return 'Algılanan motor: $engine';
+  }
+
+  @override
+  String get variables_emojis_hint =>
+      'Kullanılabilir emojiler — eklemek için dokunun';
+
+  @override
+  String workflow_event_variables_count(int count) {
+    return 'Olay değişkenleri ($count)';
+  }
+
+  @override
+  String workflow_import_review_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'İçe aktarılacak $count iş akışını gözden geçirin:',
+      one: 'İçe aktarılacak 1 iş akışını gözden geçirin:',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get workflow_rename_variables_hint =>
+      'İsteğe bağlı olarak bu iş akışının değişkenlerini yeniden adlandırın.';
+
+  @override
+  String component_node_child_run_hint(
+    String message,
+    String workflow,
+    String entry,
+    String args,
+  ) {
+    return '$message \"$workflow\" çalıştırılacak (giriş: $entry, argümanlar: $args).';
+  }
+
+  @override
+  String workflows_preview_summary(String type, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count eylem',
+      one: '1 eylem',
+    );
+    return '$type  •  $_temp0';
+  }
+
+  @override
   String get sync_cloud_update_applied =>
       'Bulut güncellemesi başarıyla uygulandı';
 

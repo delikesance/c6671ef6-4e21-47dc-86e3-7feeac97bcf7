@@ -75,8 +75,13 @@ void main() {
 
   testWidgets('MobileKeyboardAccessoryBar renders quick syntax chips', (tester) async {
     await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(
+      MaterialApp(
+        // La barre affiche des libelles TRADUITS (Insert Variable, Vars) : un
+        // banc d'essai qui monte ce widget DOIT fournir les localisations, sinon
+        // `AppLocalizations.of` ne rend rien et le widget ne se construit pas.
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: const Scaffold(
           body: MobileKeyboardAccessoryBar(
             variableSuggestions: [
               VariableSuggestion(
