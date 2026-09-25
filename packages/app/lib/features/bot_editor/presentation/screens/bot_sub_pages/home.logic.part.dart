@@ -338,10 +338,7 @@ extension _AppHomePageLogic on _AppHomePageState {
         if (remoteRuntime.blocksLocalFallback) {
           final message =
               remoteRuntime.unavailableReason ??
-              _uiCopy(
-                fr: 'Connectez-vous a Bot Creator dans les parametres avant de demarrer ce bot.',
-                en: 'Sign in to Bot Creator in Settings before starting this bot.',
-              );
+              context.tr.bot_start_sign_in_required;
 
           throw Exception(message);
         }
@@ -551,10 +548,7 @@ extension _AppHomePageLogic on _AppHomePageState {
                 ? ''
                 : ' ($startupDetail)';
             throw Exception(
-              _uiCopy(
-                fr: 'Le runner JS embarque n\'a pas pu demarrer. Relancez completement l\'application (pas un hot reload).$detailSuffix',
-                en: 'The embedded JS runner could not start. Fully restart the app (not hot reload).$detailSuffix',
-              ),
+              context.tr.bot_start_embedded_runner_failed(detailSuffix),
             );
           }
 

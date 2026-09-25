@@ -5531,6 +5531,139 @@ class AppLocalizationsJa extends AppLocalizations {
   String get rewarded_start_continue => '続ける';
 
   @override
+  String get rewarded_start_credit_confirmed => '報酬を付与しました。ホスティング時間が追加されました。';
+
+  @override
+  String get rewarded_credit_syncing_message =>
+      '広告の報酬をまだ同期しています。数秒後にもう一度ボットを起動してみてください。';
+
+  @override
+  String get sync_cloud_applied => 'クラウド版を適用しました';
+
+  @override
+  String sync_diff_local_only_count(int count) {
+    return '$count 件はローカルのみ';
+  }
+
+  @override
+  String sync_diff_new_count(int count) {
+    return '+$count 件の新規';
+  }
+
+  @override
+  String sync_diff_updated_count(int count) {
+    return '$count 件を更新';
+  }
+
+  @override
+  String get bot_stats_metrics_source => 'メトリクスの取得元';
+
+  @override
+  String get bot_stats_no_bot_selected => 'ボットが選択されていません';
+
+  @override
+  String get bot_stats_refresh_now => '今すぐ更新';
+
+  @override
+  String get bot_stats_source_local => 'このデバイス上でローカル';
+
+  @override
+  String get bot_stats_warning_title => '警告';
+
+  @override
+  String bot_start_embedded_runner_failed(String detail) {
+    return '組み込みJSランナーを起動できませんでした。アプリを完全に再起動してください（ホットリロードではなく）。$detail';
+  }
+
+  @override
+  String get bot_start_sign_in_required =>
+      'このボットを起動する前に、設定でBot Creatorにサインインしてください。';
+
+  @override
+  String get home_badge_turnkey => 'すぐに使える';
+
+  @override
+  String home_server_cannot_run_bot(String detail) {
+    return 'Bot Creatorのサーバーが選択されていますが、このボットを実行できません: $detail。ローカルでの実行は開始していません。解決後に再度起動してください。';
+  }
+
+  @override
+  String get home_server_session_unusable => 'この端末から利用できるサーバーセッションがありません';
+
+  @override
+  String get runner_source_runner => 'ランナー';
+
+  @override
+  String get sync_cloud_update_applied => 'クラウドの更新を適用しました';
+
+  @override
+  String get sync_conflict_message =>
+      'このローカルセッションとクラウド版（モバイル）で変更が分かれています。解決方法を選択してください。';
+
+  @override
+  String get sync_conflict_title => '同期の競合を検出しました';
+
+  @override
+  String get sync_in_progress => '同期中...';
+
+  @override
+  String get sync_keep_local_description => 'ローカルの変更を保持し、クラウドを更新するために送信します。';
+
+  @override
+  String get sync_keep_local_title => 'ローカル版を保持（デスクトップ）';
+
+  @override
+  String get sync_local_kept => 'ローカル版を保持し、クラウドを更新しました';
+
+  @override
+  String get sync_merge_smart_description =>
+      '両側の追加をすべて保持し、重複した場合は新しい方のコマンドを採用します。';
+
+  @override
+  String get sync_merge_smart_done => 'スマート統合を実行し、クラウドに同期しました';
+
+  @override
+  String get sync_merge_smart_title => 'スマート統合（推奨）';
+
+  @override
+  String get sync_synced_with_cloud => 'クラウド版と同期しました';
+
+  @override
+  String get sync_take_cloud_description => 'まだ送信していないローカルの変更をクラウド版で上書きします。';
+
+  @override
+  String get sync_take_cloud_title => 'クラウド版を採用（モバイル）';
+
+  @override
+  String get sync_version_cloud_mobile => 'クラウド版（モバイル）';
+
+  @override
+  String get sync_version_local_desktop => 'ローカル版（デスクトップ）';
+
+  @override
+  String get rewarded_credit_syncing_title => '報酬の反映中';
+
+  @override
+  String get ad_context_failed =>
+      '広告コンテキストを作成できませんでした（アカウント未接続、またはボットトークンがありません）。';
+
+  @override
+  String get ad_history_unavailable => '履歴を取得できません（APIに接続できません）';
+
+  @override
+  String get ad_limit_or_cooldown => '広告のクールダウンまたは上限が有効です。しばらくしてから再試行してください。';
+
+  @override
+  String get ad_sync_config_failed => 'ボットの設定をメインAPIと同期できませんでした。';
+
+  @override
+  String get rewarded_start_credit_pending => '広告が終了しました。報酬を確認しています…';
+
+  @override
+  String get rewarded_start_credit_unconfirmed =>
+      '報酬はまだ付与されていません。サーバーが後で承認する場合があります。分を再読み込みして確認してください。';
+
+  @override
   String get rewarded_start_message =>
       'このホスティングセッションを開始するには広告が必要です。これはプロジェクトの資金となります。プレミアムユーザー';
 

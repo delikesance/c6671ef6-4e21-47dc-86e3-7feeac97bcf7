@@ -5859,6 +5859,168 @@ class AppLocalizationsFr extends AppLocalizations {
   String get rewarded_start_continue => 'Continuer';
 
   @override
+  String get rewarded_start_credit_confirmed =>
+      'Récompense créditée : vos minutes d\'hébergement ont été ajoutées.';
+
+  @override
+  String get rewarded_credit_syncing_message =>
+      'La récompense pub est en cours de synchronisation. Réessaie le démarrage dans quelques secondes.';
+
+  @override
+  String get sync_cloud_applied => 'Version Cloud appliquée avec succès';
+
+  @override
+  String sync_diff_local_only_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count locaux',
+      one: '1 local',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sync_diff_new_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '+$count nouveaux',
+      one: '+1 nouveau',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sync_diff_updated_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count modifiés',
+      one: '1 modifié',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bot_stats_metrics_source => 'Source des métriques';
+
+  @override
+  String get bot_stats_no_bot_selected => 'Aucun robot sélectionné';
+
+  @override
+  String get bot_stats_refresh_now => 'Rafraîchir maintenant';
+
+  @override
+  String get bot_stats_source_local => 'Local sur cet appareil';
+
+  @override
+  String get bot_stats_warning_title => 'Avertissement';
+
+  @override
+  String bot_start_embedded_runner_failed(String detail) {
+    return 'Le runner JS embarqué n\'a pas pu démarrer. Relancez complètement l\'application (pas un hot reload).$detail';
+  }
+
+  @override
+  String get bot_start_sign_in_required =>
+      'Connectez-vous à Bot Creator dans les paramètres avant de démarrer ce bot.';
+
+  @override
+  String get home_badge_turnkey => 'Clé en main';
+
+  @override
+  String home_server_cannot_run_bot(String detail) {
+    return 'Les serveurs Bot Creator ont été choisis et ne peuvent pas exécuter ce bot : $detail. Aucune exécution locale n\'a été entamée — relancez le démarrage après avoir réglé ce point.';
+  }
+
+  @override
+  String get home_server_session_unusable =>
+      'aucune session serveur exploitable depuis ce poste';
+
+  @override
+  String get runner_source_runner => 'Runner';
+
+  @override
+  String get sync_cloud_update_applied =>
+      'Mise à jour Cloud appliquée avec succès';
+
+  @override
+  String get sync_conflict_message =>
+      'Des modifications divergentes existent entre cette session locale et la version Cloud (Mobile). Choisissez comment résoudre ce conflit :';
+
+  @override
+  String get sync_conflict_title => 'Conflit de synchronisation';
+
+  @override
+  String get sync_in_progress => 'Synchronisation en cours...';
+
+  @override
+  String get sync_keep_local_description =>
+      'Conserve vos modifications locales et les envoie pour mettre à jour le Cloud.';
+
+  @override
+  String get sync_keep_local_title => 'Conserver la version Locale (Desktop)';
+
+  @override
+  String get sync_local_kept =>
+      'Version locale conservée et mise à jour sur le Cloud';
+
+  @override
+  String get sync_merge_smart_description =>
+      'Conserve tous les ajouts des deux côtés et retient la commande la plus récente lors d\'un doublon.';
+
+  @override
+  String get sync_merge_smart_done =>
+      'Fusion intelligente effectuée et synchronisée sur le Cloud';
+
+  @override
+  String get sync_merge_smart_title => 'Fusionner intelligemment (Recommandé)';
+
+  @override
+  String get sync_synced_with_cloud => 'Synchronisé avec la version Cloud';
+
+  @override
+  String get sync_take_cloud_description =>
+      'Écrase les modifications locales non envoyées par la version Cloud.';
+
+  @override
+  String get sync_take_cloud_title => 'Prendre la version Cloud (Mobile)';
+
+  @override
+  String get sync_version_cloud_mobile => 'Version Cloud (Mobile)';
+
+  @override
+  String get sync_version_local_desktop => 'Version Locale (Desktop)';
+
+  @override
+  String get rewarded_credit_syncing_title => 'Crédit en cours';
+
+  @override
+  String get ad_context_failed =>
+      'Impossible de générer le contexte publicitaire (compte non connecté ou token manquant).';
+
+  @override
+  String get ad_history_unavailable =>
+      'Impossible de récupérer l\'historique (connexion API indisponible)';
+
+  @override
+  String get ad_limit_or_cooldown =>
+      'Limite de visionnage ou cooldown actif. Veuillez réessayer plus tard.';
+
+  @override
+  String get ad_sync_config_failed =>
+      'Impossible de synchroniser la configuration du bot avec l\'API principale.';
+
+  @override
+  String get rewarded_start_credit_pending =>
+      'Publicité terminée. Vérification de votre récompense…';
+
+  @override
+  String get rewarded_start_credit_unconfirmed =>
+      'Récompense non encore créditée. Le serveur peut la valider dans un instant : rechargez vos minutes pour la voir apparaître.';
+
+  @override
   String get rewarded_start_message =>
       'Une publicité est requise pour lancer cette session d\'hébergement. Cela aide à financer le projet. Les utilisateurs Premium peuvent ignorer cela.';
 

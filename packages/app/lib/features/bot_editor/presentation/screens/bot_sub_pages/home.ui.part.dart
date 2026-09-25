@@ -1,10 +1,6 @@
 part of 'home.dart';
 
 extension _AppHomePageUI on _AppHomePageState {
-  String _uiCopy({required String fr, required String en}) {
-    return Localizations.localeOf(context).languageCode == 'fr' ? fr : en;
-  }
-
   Color _hostingTimeColor(int minutes) {
     const minutesPerDay = 60 * 24;
     const minutesThreeDays = minutesPerDay * 3;

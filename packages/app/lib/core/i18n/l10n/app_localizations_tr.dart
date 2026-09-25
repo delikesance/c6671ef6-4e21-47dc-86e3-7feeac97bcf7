@@ -5787,6 +5787,166 @@ class AppLocalizationsTr extends AppLocalizations {
   String get rewarded_start_continue => 'Devam et';
 
   @override
+  String get rewarded_start_credit_confirmed =>
+      'Ödül tanımlandı: barındırma dakikalarınız eklendi.';
+
+  @override
+  String get rewarded_credit_syncing_message =>
+      'Reklam ödülünüz hâlâ eşitleniyor. Birkaç saniye sonra botu yeniden başlatmayı deneyin.';
+
+  @override
+  String get sync_cloud_applied => 'Bulut sürümü başarıyla uygulandı';
+
+  @override
+  String sync_diff_local_only_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count yalnızca yerel',
+      one: '1 yalnızca yerel',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sync_diff_new_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '+$count yeni',
+      one: '+1 yeni',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sync_diff_updated_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count güncellendi',
+      one: '1 güncellendi',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bot_stats_metrics_source => 'Ölçüm kaynağı';
+
+  @override
+  String get bot_stats_no_bot_selected => 'Bot seçilmedi';
+
+  @override
+  String get bot_stats_refresh_now => 'Şimdi yenile';
+
+  @override
+  String get bot_stats_source_local => 'Bu cihazda yerel';
+
+  @override
+  String get bot_stats_warning_title => 'Uyarı';
+
+  @override
+  String bot_start_embedded_runner_failed(String detail) {
+    return 'Gömülü JS çalıştırıcısı başlatılamadı. Uygulamayı tamamen yeniden başlatın (hot reload değil).$detail';
+  }
+
+  @override
+  String get bot_start_sign_in_required =>
+      'Bu botu başlatmadan önce Ayarlar\'dan Bot Creator\'a giriş yapın.';
+
+  @override
+  String get home_badge_turnkey => 'Anahtar teslim';
+
+  @override
+  String home_server_cannot_run_bot(String detail) {
+    return 'Bot Creator sunucuları seçildi ve bu botu çalıştıramıyor: $detail. Yerel çalıştırma başlatılmadı — bu sorunu çözdükten sonra yeniden başlatın.';
+  }
+
+  @override
+  String get home_server_session_unusable =>
+      'bu cihazdan kullanılabilir sunucu oturumu yok';
+
+  @override
+  String get runner_source_runner => 'Runner';
+
+  @override
+  String get sync_cloud_update_applied =>
+      'Bulut güncellemesi başarıyla uygulandı';
+
+  @override
+  String get sync_conflict_message =>
+      'Bu yerel oturum ile Bulut sürümü (Mobil) arasında farklı değişiklikler var. Bu çakışmayı nasıl çözeceğinizi seçin:';
+
+  @override
+  String get sync_conflict_title => 'Eşitleme çakışması algılandı';
+
+  @override
+  String get sync_in_progress => 'Eşitleme sürüyor...';
+
+  @override
+  String get sync_keep_local_description =>
+      'Yerel değişikliklerinizi korur ve Bulut\'u güncellemek için gönderir.';
+
+  @override
+  String get sync_keep_local_title => 'Yerel sürümü koru (Masaüstü)';
+
+  @override
+  String get sync_local_kept => 'Yerel sürüm korundu ve Bulut\'ta güncellendi';
+
+  @override
+  String get sync_merge_smart_description =>
+      'İki taraftaki tüm eklemeleri korur ve yinelenen bir komutta en yenisini alır.';
+
+  @override
+  String get sync_merge_smart_done =>
+      'Akıllı birleştirme yapıldı ve Bulut ile eşitlendi';
+
+  @override
+  String get sync_merge_smart_title => 'Akıllı birleştirme (Önerilir)';
+
+  @override
+  String get sync_synced_with_cloud => 'Bulut sürümüyle eşitlendi';
+
+  @override
+  String get sync_take_cloud_description =>
+      'Gönderilmemiş yerel değişikliklerin üzerine Bulut sürümünü yazar.';
+
+  @override
+  String get sync_take_cloud_title => 'Bulut sürümünü al (Mobil)';
+
+  @override
+  String get sync_version_cloud_mobile => 'Bulut Sürümü (Mobil)';
+
+  @override
+  String get sync_version_local_desktop => 'Yerel Sürüm (Masaüstü)';
+
+  @override
+  String get rewarded_credit_syncing_title => 'Ödül hâlâ eşitleniyor';
+
+  @override
+  String get ad_context_failed =>
+      'Reklam bağlamı oluşturulamadı (hesap bağlı değil veya bot jetonu yok).';
+
+  @override
+  String get ad_history_unavailable => 'Geçmiş alınamadı (API kullanılamıyor)';
+
+  @override
+  String get ad_limit_or_cooldown =>
+      'Reklam bekleme süresi veya sınırı etkin. Lütfen daha sonra tekrar deneyin.';
+
+  @override
+  String get ad_sync_config_failed =>
+      'Bot yapılandırması ana API ile eşitlenemedi.';
+
+  @override
+  String get rewarded_start_credit_pending =>
+      'Reklam bitti. Ödülünüz kontrol ediliyor…';
+
+  @override
+  String get rewarded_start_credit_unconfirmed =>
+      'Ödül henüz tanımlanmadı. Sunucu birazdan onaylayabilir: dakikaları yenileyerek görebilirsiniz.';
+
+  @override
   String get rewarded_start_message =>
       'Bu barındırma oturumunu başlatmak için bir reklam izlemeniz gerekiyor. Bu, projeyi finanse etmeye yardımcı olur. Premium kullanıcılar bunu atlayabilir.';
 
