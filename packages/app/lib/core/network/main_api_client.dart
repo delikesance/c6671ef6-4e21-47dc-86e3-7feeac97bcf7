@@ -1858,25 +1858,6 @@ class MainApiClient implements RemoteRuntimeClient {
     );
   }
 
-  Future<Map<String, dynamic>> claimBotAdRuntime({
-    required String botId,
-    required String placement,
-    required String rewardId,
-    required String idempotencyKey,
-    required DateTime occurredAt,
-  }) async {
-    final encodedBotId = Uri.encodeComponent(botId.trim());
-    return _post(
-      '/gateway/bots/$encodedBotId/runtime/claim-ad',
-      <String, dynamic>{
-        'placement': placement,
-        'reward_id': rewardId,
-        'occurred_at': occurredAt.toUtc().toIso8601String(),
-        'idempotency_key': idempotencyKey,
-      },
-    );
-  }
-
   Future<List<Map<String, dynamic>>> getBotAdHistory(String botId) async {
     final encodedBotId = Uri.encodeComponent(botId.trim());
     final json = await _get('/gateway/bots/$encodedBotId/runtime/ad-history');
