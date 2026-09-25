@@ -104,12 +104,14 @@ void main() {
   // justifier dans l'allow-list documentée, mais ne pas relever le plafond.
   test('la dette i18n ne peut que DIMINUER (plafond verrouillé)', () {
     // 146 au verrouillage (25/09), 111 après `home.sync.part.dart`, 99 après
-    // `bot_stats.dart` (12 littéraux, dont le helper `_uiCopy` local lui-même —
-    // il ne restait plus rien à replier, donc le helper est mort avec la dette).
+    // `bot_stats.dart`, 80 après la fin du balayage du repli `fr:`/`en:` (écran
+    // d'accueil, journal du bot, logique de démarrage). Le repli ne survit plus
+    // que dans `remote_runtime.dart` (couche sans `BuildContext`, à refactorer en
+    // raison typée) et le reste est du littéral pur.
     // Le plafond suit la dette VERS LE BAS : après chaque lot converti, le
     // baisser au compte mesuré, jamais le laisser au-dessus (un plafond trop
     // haut rend le verrou décoratif).
-    const int ceiling = 99;
+    const int ceiling = 80;
     final findings = findHardcodedStringFindings(rootPath: 'lib');
     final known = findings
         .where(

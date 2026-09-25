@@ -3420,6 +3420,20 @@
       }
     }
   },
+  "@home_server_cannot_run_bot": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "@bot_start_embedded_runner_failed": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
   "@common_ok": {
     "description": "OK"
   },
@@ -9899,6 +9913,12 @@
   "bot_stats_refresh_now": "Refresh now",
   "bot_stats_source_local": "Local on this device",
   "bot_stats_warning_title": "Warning",
+  "bot_start_embedded_runner_failed": "The embedded JS runner could not start. Fully restart the app (not hot reload).{detail}",
+  "bot_start_sign_in_required": "Sign in to Bot Creator in Settings before starting this bot.",
+  "home_badge_turnkey": "Turnkey",
+  "home_server_cannot_run_bot": "Bot Creator servers were chosen and cannot run this bot: {detail}. No local run was started — retry the start once this is resolved.",
+  "home_server_session_unusable": "no usable server session from this device",
+  "runner_source_runner": "Runner",
   "sync_cloud_update_applied": "Cloud update applied successfully",
   "sync_conflict_message": "Divergent changes exist between this local session and Cloud (Mobile). Choose how to resolve this conflict:",
   "sync_conflict_title": "Sync Conflict Detected",

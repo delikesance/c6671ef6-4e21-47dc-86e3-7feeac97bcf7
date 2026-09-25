@@ -5759,6 +5759,166 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rewarded_start_continue => 'Continue';
 
   @override
+  String get rewarded_start_credit_confirmed =>
+      'Reward credited: your hosting minutes have been added.';
+
+  @override
+  String get rewarded_credit_syncing_message =>
+      'Your ad reward is still syncing. Try starting the bot again in a few seconds.';
+
+  @override
+  String get sync_cloud_applied => 'Cloud version applied successfully';
+
+  @override
+  String sync_diff_local_only_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count local-only',
+      one: '1 local-only',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sync_diff_new_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '+$count new',
+      one: '+1 new',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sync_diff_updated_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count updated',
+      one: '1 updated',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bot_stats_metrics_source => 'Metrics Source';
+
+  @override
+  String get bot_stats_no_bot_selected => 'No bot selected';
+
+  @override
+  String get bot_stats_refresh_now => 'Refresh now';
+
+  @override
+  String get bot_stats_source_local => 'Local on this device';
+
+  @override
+  String get bot_stats_warning_title => 'Warning';
+
+  @override
+  String bot_start_embedded_runner_failed(String detail) {
+    return 'The embedded JS runner could not start. Fully restart the app (not hot reload).$detail';
+  }
+
+  @override
+  String get bot_start_sign_in_required =>
+      'Sign in to Bot Creator in Settings before starting this bot.';
+
+  @override
+  String get home_badge_turnkey => 'Turnkey';
+
+  @override
+  String home_server_cannot_run_bot(String detail) {
+    return 'Bot Creator servers were chosen and cannot run this bot: $detail. No local run was started — retry the start once this is resolved.';
+  }
+
+  @override
+  String get home_server_session_unusable =>
+      'no usable server session from this device';
+
+  @override
+  String get runner_source_runner => 'Runner';
+
+  @override
+  String get sync_cloud_update_applied => 'Cloud update applied successfully';
+
+  @override
+  String get sync_conflict_message =>
+      'Divergent changes exist between this local session and Cloud (Mobile). Choose how to resolve this conflict:';
+
+  @override
+  String get sync_conflict_title => 'Sync Conflict Detected';
+
+  @override
+  String get sync_in_progress => 'Sync in progress...';
+
+  @override
+  String get sync_keep_local_description =>
+      'Keeps your local modifications and pushes them to update Cloud.';
+
+  @override
+  String get sync_keep_local_title => 'Keep Local Version (Desktop)';
+
+  @override
+  String get sync_local_kept => 'Local version kept and synced to Cloud';
+
+  @override
+  String get sync_merge_smart_description =>
+      'Combines additions from both sides and keeps the newest command in case of duplicates.';
+
+  @override
+  String get sync_merge_smart_done =>
+      'Smart merge completed and synced to Cloud';
+
+  @override
+  String get sync_merge_smart_title => 'Smart Merge (Recommended)';
+
+  @override
+  String get sync_synced_with_cloud => 'Synced with Cloud version';
+
+  @override
+  String get sync_take_cloud_description =>
+      'Replaces local un-pushed changes with the Cloud version.';
+
+  @override
+  String get sync_take_cloud_title => 'Take Cloud Version (Mobile)';
+
+  @override
+  String get sync_version_cloud_mobile => 'Cloud Version (Mobile)';
+
+  @override
+  String get sync_version_local_desktop => 'Local Version (Desktop)';
+
+  @override
+  String get rewarded_credit_syncing_title => 'Credit is still syncing';
+
+  @override
+  String get ad_context_failed =>
+      'Failed to build ad context. Please ensure you are signed in and your bot token is set.';
+
+  @override
+  String get ad_history_unavailable =>
+      'Cannot fetch ad history (API unavailable)';
+
+  @override
+  String get ad_limit_or_cooldown =>
+      'Ad cooldown or limit is active. Please try again later.';
+
+  @override
+  String get ad_sync_config_failed =>
+      'Failed to sync bot configuration with the main API.';
+
+  @override
+  String get rewarded_start_credit_pending =>
+      'Ad finished. Checking your reward…';
+
+  @override
+  String get rewarded_start_credit_unconfirmed =>
+      'Reward not credited yet. The server may still validate it: refresh your minutes to see it.';
+
+  @override
   String get rewarded_start_message =>
       'An ad is required to start this hosting session. This helps fund the project. Premium users can skip this.';
 

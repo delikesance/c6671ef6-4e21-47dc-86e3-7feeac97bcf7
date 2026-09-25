@@ -10194,6 +10194,240 @@ abstract class AppLocalizations {
   /// **'Continue'**
   String get rewarded_start_continue;
 
+  /// Reward credited
+  ///
+  /// In en, this message translates to:
+  /// **'Reward credited: your hosting minutes have been added.'**
+  String get rewarded_start_credit_confirmed;
+
+  /// No description provided for @rewarded_credit_syncing_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Your ad reward is still syncing. Try starting the bot again in a few seconds.'**
+  String get rewarded_credit_syncing_message;
+
+  /// No description provided for @sync_cloud_applied.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud version applied successfully'**
+  String get sync_cloud_applied;
+
+  /// No description provided for @sync_diff_local_only_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 local-only} other{{count} local-only}}'**
+  String sync_diff_local_only_count(int count);
+
+  /// No description provided for @sync_diff_new_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{+1 new} other{+{count} new}}'**
+  String sync_diff_new_count(int count);
+
+  /// No description provided for @sync_diff_updated_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 updated} other{{count} updated}}'**
+  String sync_diff_updated_count(int count);
+
+  /// No description provided for @bot_stats_metrics_source.
+  ///
+  /// In en, this message translates to:
+  /// **'Metrics Source'**
+  String get bot_stats_metrics_source;
+
+  /// No description provided for @bot_stats_no_bot_selected.
+  ///
+  /// In en, this message translates to:
+  /// **'No bot selected'**
+  String get bot_stats_no_bot_selected;
+
+  /// No description provided for @bot_stats_refresh_now.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh now'**
+  String get bot_stats_refresh_now;
+
+  /// No description provided for @bot_stats_source_local.
+  ///
+  /// In en, this message translates to:
+  /// **'Local on this device'**
+  String get bot_stats_source_local;
+
+  /// No description provided for @bot_stats_warning_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Warning'**
+  String get bot_stats_warning_title;
+
+  /// No description provided for @bot_start_embedded_runner_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'The embedded JS runner could not start. Fully restart the app (not hot reload).{detail}'**
+  String bot_start_embedded_runner_failed(String detail);
+
+  /// No description provided for @bot_start_sign_in_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to Bot Creator in Settings before starting this bot.'**
+  String get bot_start_sign_in_required;
+
+  /// No description provided for @home_badge_turnkey.
+  ///
+  /// In en, this message translates to:
+  /// **'Turnkey'**
+  String get home_badge_turnkey;
+
+  /// No description provided for @home_server_cannot_run_bot.
+  ///
+  /// In en, this message translates to:
+  /// **'Bot Creator servers were chosen and cannot run this bot: {detail}. No local run was started — retry the start once this is resolved.'**
+  String home_server_cannot_run_bot(String detail);
+
+  /// No description provided for @home_server_session_unusable.
+  ///
+  /// In en, this message translates to:
+  /// **'no usable server session from this device'**
+  String get home_server_session_unusable;
+
+  /// No description provided for @runner_source_runner.
+  ///
+  /// In en, this message translates to:
+  /// **'Runner'**
+  String get runner_source_runner;
+
+  /// No description provided for @sync_cloud_update_applied.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud update applied successfully'**
+  String get sync_cloud_update_applied;
+
+  /// No description provided for @sync_conflict_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Divergent changes exist between this local session and Cloud (Mobile). Choose how to resolve this conflict:'**
+  String get sync_conflict_message;
+
+  /// No description provided for @sync_conflict_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync Conflict Detected'**
+  String get sync_conflict_title;
+
+  /// No description provided for @sync_in_progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync in progress...'**
+  String get sync_in_progress;
+
+  /// No description provided for @sync_keep_local_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Keeps your local modifications and pushes them to update Cloud.'**
+  String get sync_keep_local_description;
+
+  /// No description provided for @sync_keep_local_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep Local Version (Desktop)'**
+  String get sync_keep_local_title;
+
+  /// No description provided for @sync_local_kept.
+  ///
+  /// In en, this message translates to:
+  /// **'Local version kept and synced to Cloud'**
+  String get sync_local_kept;
+
+  /// No description provided for @sync_merge_smart_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Combines additions from both sides and keeps the newest command in case of duplicates.'**
+  String get sync_merge_smart_description;
+
+  /// No description provided for @sync_merge_smart_done.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart merge completed and synced to Cloud'**
+  String get sync_merge_smart_done;
+
+  /// No description provided for @sync_merge_smart_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart Merge (Recommended)'**
+  String get sync_merge_smart_title;
+
+  /// No description provided for @sync_synced_with_cloud.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced with Cloud version'**
+  String get sync_synced_with_cloud;
+
+  /// No description provided for @sync_take_cloud_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Replaces local un-pushed changes with the Cloud version.'**
+  String get sync_take_cloud_description;
+
+  /// No description provided for @sync_take_cloud_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Take Cloud Version (Mobile)'**
+  String get sync_take_cloud_title;
+
+  /// No description provided for @sync_version_cloud_mobile.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud Version (Mobile)'**
+  String get sync_version_cloud_mobile;
+
+  /// No description provided for @sync_version_local_desktop.
+  ///
+  /// In en, this message translates to:
+  /// **'Local Version (Desktop)'**
+  String get sync_version_local_desktop;
+
+  /// No description provided for @rewarded_credit_syncing_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit is still syncing'**
+  String get rewarded_credit_syncing_title;
+
+  /// No description provided for @ad_context_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to build ad context. Please ensure you are signed in and your bot token is set.'**
+  String get ad_context_failed;
+
+  /// No description provided for @ad_history_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot fetch ad history (API unavailable)'**
+  String get ad_history_unavailable;
+
+  /// No description provided for @ad_limit_or_cooldown.
+  ///
+  /// In en, this message translates to:
+  /// **'Ad cooldown or limit is active. Please try again later.'**
+  String get ad_limit_or_cooldown;
+
+  /// No description provided for @ad_sync_config_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to sync bot configuration with the main API.'**
+  String get ad_sync_config_failed;
+
+  /// Checking the reward
+  ///
+  /// In en, this message translates to:
+  /// **'Ad finished. Checking your reward…'**
+  String get rewarded_start_credit_pending;
+
+  /// Reward not credited yet
+  ///
+  /// In en, this message translates to:
+  /// **'Reward not credited yet. The server may still validate it: refresh your minutes to see it.'**
+  String get rewarded_start_credit_unconfirmed;
+
   /// An ad is required to start this hosting session. This helps fund the project. Premium users can skip this.
   ///
   /// In en, this message translates to:
