@@ -9065,6 +9065,7 @@
   "settings_execution_mode_title": "Mode d'exécution",
   "settings_execution_mode_use_runner": "Utiliser un runner self-hosted",
   "settings_export": "Exporter",
+  "settings_runner_type_label": "Type de runner",
   "settings_export_app_data": "Exporter les données de l'app",
   "settings_export_loading": "Export en cours...",
   "settings_import": "Importer",

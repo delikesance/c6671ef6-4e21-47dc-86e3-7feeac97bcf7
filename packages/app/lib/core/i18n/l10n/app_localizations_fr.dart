@@ -7187,6 +7187,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settings_export => 'Exporter';
 
   @override
+  String get settings_runner_type_label => 'Type de runner';
+
+  @override
   String get settings_export_app_data => 'Exporter les données de l\'app';
 
   @override

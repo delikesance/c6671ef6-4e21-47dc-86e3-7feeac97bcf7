@@ -7108,6 +7108,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settings_export => 'Dışa Aktar';
 
   @override
+  String get settings_runner_type_label => 'Çalıştırıcı türü';
+
+  @override
   String get settings_export_app_data => 'Uygulama Verilerini Dışa Aktar';
 
   @override

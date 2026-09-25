@@ -387,6 +387,35 @@ const Set<String> knownUiLeaks = <String>{
   'lib/features/marketplace/presentation/marketplace_page.dart',
   'lib/features/marketplace/presentation/publish_template_page.dart',
   'lib/features/settings/presentation/settings_page.dart',
+  // ── Rendus VISIBLES par la détection du littéral passé à la ligne ──────────
+  //
+  // Le scan était LIGNE PAR LIGNE : `Text(\n  'Copie',` échappait au contrôle,
+  // donc la dette annoncée (24) était sous-estimée d'un facteur 4. Ces fichiers
+  // ne sont pas nouveaux — c'est la MESURE qui s'est améliorée. La règle ne
+  // change pas : la dette ne peut que DIMINUER, et un fichier sort de cette
+  // liste dès que ses littéraux sont localisés.
+  'lib/core/widgets/variable_text_field.dart',
+  'lib/core/widgets/notion_filter_bar.dart',
+  'lib/features/home/presentation/home_ui.dart',
+  'lib/features/bot_editor/presentation/screens/bot_sub_pages/command.create.serialization.dart',
+  'lib/features/bot_editor/presentation/screens/bot_sub_pages/export_import.page.dart',
+  'lib/features/bot_editor/presentation/screens/bot_sub_pages/debug_replay_page.dart',
+  'lib/features/bot_editor/presentation/screens/bot_sub_pages/home.ui.part.dart',
+  'lib/features/bot_editor/presentation/screens/bot_sub_pages/ad_history_sheet.dart',
+  'lib/features/bot_editor/presentation/screens/bot_sub_pages/command_dashboard.dart',
+  'lib/features/bot_editor/presentation/screens/bot_sub_pages/command.create.block_editor.dart',
+  'lib/features/bot_editor/presentation/screens/bot_sub_pages/emojis.page.dart',
+  'lib/features/bot_editor/presentation/screens/bot_sub_pages/inbound_webhooks.page.dart',
+  'lib/features/bot_editor/presentation/screens/bot_sub_pages/command.create.bdfd.dart',
+  'lib/features/bot_editor/presentation/widgets/scratch_blocks/entry_point_block.dart',
+  'lib/features/bot_editor/presentation/widgets/command_create_cards/basic_info_card.dart',
+  'lib/features/bot_editor/presentation/widgets/mobile_keyboard_accessory_bar.dart',
+  'lib/features/bot_editor/presentation/widgets/editor_sidebar.dart',
+  'lib/features/bot_editor/presentation/widgets/permission_flags_field.dart',
+  'lib/features/containers/presentation/container_detail_page.dart',
+  'lib/features/containers/presentation/registry_credentials_page.dart',
+  'lib/features/components_v2/presentation/component_v2_builder/component_v2_editor.dart',
+  'lib/features/onboarding/presentation/onboarding_page.dart',
   'lib/main.dart',
 };
 
@@ -435,12 +464,48 @@ List<HardcodedStringFinding> findHardcodedStringFindings({
     final lines = file.readAsLinesSync();
     for (var i = 0; i < lines.length; i++) {
       final line = lines[i];
-      if (!_isHardcodedUiLiteralLine(line)) continue;
+      if (_isHardcodedUiLiteralLine(line)) {
+        findings.add(
+          HardcodedStringFinding(
+            path: normalizedPath,
+            line: i + 1,
+            content: line.trim(),
+          ),
+        );
+        continue;
+      }
+      // LE LITTÉRAL PEUT ÊTRE SUR LA LIGNE SUIVANTE : `Text(\n  'Copie',`. Le
+      // scan ligne par ligne ne le voyait pas, donc une copie passée à la ligne
+      // échappait au contrôle INDÉFINIMENT — la dette affichée était sous-
+      // estimée. On teste la fenêtre des deux lignes et on attribue le constat à
+      // la ligne du `Text(`, parce que c'est là qu'on corrige.
+      //
+      // Seul le motif `Text(` ouvre ce cas : tester AUSSI les paramètres nommés
+      // sur la fenêtre comptait deux fois le même littéral (`_runStartupTask(\n
+      // label: 'x',` signalait la ligne du dessus, que l'allow-list des labels
+      // ne couvre pas). Un paramètre nommé coupé en deux lignes reste donc hors
+      // du scan : c'est une limite CONNUE, jamais un angle mort silencieux.
+      if (i + 1 >= lines.length) continue;
+      final window = '$line\n${lines[i + 1]}';
+      if (_skipSnippets.any(window.contains)) continue;
+      final windowMatch = _textLiteralPattern.firstMatch(window);
+      if (windowMatch == null) continue;
+      // Le constat doit CHEVAUCHER le saut de ligne : si le motif tient
+      // entièrement sur la ligne suivante, le littéral vit là-bas et sera vu à
+      // son tour — le compter ici le compterait DEUX fois (et signalerait la
+      // mauvaise ligne).
+      if (!(windowMatch.start < line.length &&
+          windowMatch.end > line.length)) {
+        continue;
+      }
       findings.add(
         HardcodedStringFinding(
           path: normalizedPath,
           line: i + 1,
-          content: line.trim(),
+          // Fenêtre recollée sur une ligne : les motifs d'allow-list (composition
+          // depuis une clé ARB, donnée pure) doivent voir le LITTÉRAL, et une
+          // ligne coupée en deux les aurait rendus aveugles.
+          content: '${line.trim()} ${lines[i + 1].trim()}',
         ),
       );
     }

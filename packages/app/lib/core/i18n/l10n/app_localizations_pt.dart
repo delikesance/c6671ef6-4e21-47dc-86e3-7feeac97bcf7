@@ -7165,6 +7165,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get settings_export => 'Exportar';
 
   @override
+  String get settings_runner_type_label => 'Tipo de runner';
+
+  @override
   String get settings_export_app_data => 'Exportar Dados da App';
 
   @override

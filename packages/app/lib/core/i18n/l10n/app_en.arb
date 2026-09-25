@@ -10331,6 +10331,7 @@
   "settings_execution_mode_title": "Execution mode",
   "settings_execution_mode_use_runner": "Use a self-hosted runner",
   "settings_export": "Export",
+  "settings_runner_type_label": "Runner type",
   "settings_export_app_data": "Export App Data",
   "settings_export_loading": "Exporting…",
   "settings_import": "Import",

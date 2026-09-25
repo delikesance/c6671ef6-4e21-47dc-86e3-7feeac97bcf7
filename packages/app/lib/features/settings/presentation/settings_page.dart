@@ -2703,7 +2703,7 @@ class _SettingPageState extends State<SettingPage> {
                         ],
                         if (_showsRemoteRunnerConfig) ...[
                           Text(
-                            'Runner type',
+                            context.tr.settings_runner_type_label,
                             style: Theme.of(context).textTheme.labelLarge,
                           ),
                           const SizedBox(height: 8),

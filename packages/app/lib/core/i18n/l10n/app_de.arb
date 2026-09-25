@@ -8924,6 +8924,7 @@
   "settings_execution_mode_title": "Ausführungsmodus",
   "settings_execution_mode_use_runner": "Einen selbst gehosteten Runner verwenden",
   "settings_export": "Exportieren",
+  "settings_runner_type_label": "Runner-Typ",
   "settings_export_app_data": "App-Daten exportieren",
   "settings_export_loading": "Exportieren…",
   "settings_import": "Importieren",

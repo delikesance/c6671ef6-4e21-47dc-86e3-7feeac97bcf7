@@ -12385,6 +12385,12 @@ abstract class AppLocalizations {
   /// **'Export'**
   String get settings_export;
 
+  /// No description provided for @settings_runner_type_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Runner type'**
+  String get settings_runner_type_label;
+
   /// Export App Data
   ///
   /// In en, this message translates to:
