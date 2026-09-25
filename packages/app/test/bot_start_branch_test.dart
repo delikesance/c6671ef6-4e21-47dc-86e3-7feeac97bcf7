@@ -20,6 +20,7 @@
 // permis) fait échouer le premier scénario sur « aucune ligne branche=LOCAL ».
 import 'dart:convert';
 
+import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/network/remote_runtime.dart';
@@ -30,6 +31,7 @@ import 'package:bot_creator/features/home/logic/bot_start_branch.dart';
 import 'package:bot_creator/features/home/logic/bot_start_outcome.dart';
 import 'package:bot_creator/features/home/logic/bot_start_server_request.dart';
 import 'package:bot_creator/features/home/logic/bot_start_target.dart';
+import 'package:flutter/material.dart' show Locale;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -160,7 +162,12 @@ Future<void> _demarrer({
     supportsForegroundTask: false,
     // Le scénario mesuré : le moteur Dart du poste, choisi par défaut.
     engineIsJavascript: false,
-    serverUnavailableDetail: runtime.unavailableReason ?? '',
+    serverUnavailableDetail: runtime.unavailableReason == null
+        ? ''
+        : resolveRuntimeNotice(
+            await AppLocalizations.delegate.load(const Locale('fr')),
+            runtime.unavailableReason!,
+          ),
   );
   if (!plan.allowed) {
     appendBotStartTrace(plan.refusalTrace!, botId: _botId);

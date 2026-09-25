@@ -637,8 +637,7 @@ class _HostingTeamBadge extends StatelessWidget {
         children: [
           const Icon(Icons.groups, size: 12, color: AppTheme.discord),
           const SizedBox(width: 4),
-          Text(
-            'Team',
+          Text(context.tr.team_tab,
             style: GoogleFonts.inter(
               fontSize: 11,
               fontWeight: FontWeight.w600,

@@ -10194,6 +10194,611 @@ abstract class AppLocalizations {
   /// **'Continue'**
   String get rewarded_start_continue;
 
+  /// Reward credited
+  ///
+  /// In en, this message translates to:
+  /// **'Reward credited: your hosting minutes have been added.'**
+  String get rewarded_start_credit_confirmed;
+
+  /// No description provided for @rewarded_credit_syncing_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Your ad reward is still syncing. Try starting the bot again in a few seconds.'**
+  String get rewarded_credit_syncing_message;
+
+  /// No description provided for @sync_cloud_applied.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud version applied successfully'**
+  String get sync_cloud_applied;
+
+  /// No description provided for @sync_diff_local_only_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 local-only} other{{count} local-only}}'**
+  String sync_diff_local_only_count(int count);
+
+  /// No description provided for @sync_diff_new_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{+1 new} other{+{count} new}}'**
+  String sync_diff_new_count(int count);
+
+  /// No description provided for @sync_diff_updated_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 updated} other{{count} updated}}'**
+  String sync_diff_updated_count(int count);
+
+  /// No description provided for @bot_stats_metrics_source.
+  ///
+  /// In en, this message translates to:
+  /// **'Metrics Source'**
+  String get bot_stats_metrics_source;
+
+  /// No description provided for @bot_stats_no_bot_selected.
+  ///
+  /// In en, this message translates to:
+  /// **'No bot selected'**
+  String get bot_stats_no_bot_selected;
+
+  /// No description provided for @bot_stats_refresh_now.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh now'**
+  String get bot_stats_refresh_now;
+
+  /// No description provided for @bot_stats_source_local.
+  ///
+  /// In en, this message translates to:
+  /// **'Local on this device'**
+  String get bot_stats_source_local;
+
+  /// No description provided for @bot_stats_warning_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Warning'**
+  String get bot_stats_warning_title;
+
+  /// No description provided for @bot_start_embedded_runner_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'The embedded JS runner could not start. Fully restart the app (not hot reload).{detail}'**
+  String bot_start_embedded_runner_failed(String detail);
+
+  /// No description provided for @bot_start_sign_in_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to Bot Creator in Settings before starting this bot.'**
+  String get bot_start_sign_in_required;
+
+  /// No description provided for @home_badge_turnkey.
+  ///
+  /// In en, this message translates to:
+  /// **'Turnkey'**
+  String get home_badge_turnkey;
+
+  /// No description provided for @home_server_cannot_run_bot.
+  ///
+  /// In en, this message translates to:
+  /// **'Bot Creator servers were chosen and cannot run this bot: {detail}. No local run was started — retry the start once this is resolved.'**
+  String home_server_cannot_run_bot(String detail);
+
+  /// No description provided for @home_server_session_unusable.
+  ///
+  /// In en, this message translates to:
+  /// **'no usable server session from this device'**
+  String get home_server_session_unusable;
+
+  /// No description provided for @runner_source_runner.
+  ///
+  /// In en, this message translates to:
+  /// **'Runner'**
+  String get runner_source_runner;
+
+  /// No description provided for @command_create_existing_folders.
+  ///
+  /// In en, this message translates to:
+  /// **'Existing folders'**
+  String get command_create_existing_folders;
+
+  /// No description provided for @common_export.
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get common_export;
+
+  /// No description provided for @workflows_folder_destination_optional.
+  ///
+  /// In en, this message translates to:
+  /// **'Destination folder (optional)'**
+  String get workflows_folder_destination_optional;
+
+  /// No description provided for @workflows_import_preview_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Import workflow preview'**
+  String get workflows_import_preview_title;
+
+  /// No description provided for @blueprint_close_inspector.
+  ///
+  /// In en, this message translates to:
+  /// **'Close Inspector'**
+  String get blueprint_close_inspector;
+
+  /// No description provided for @blueprint_search_action_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for an action...'**
+  String get blueprint_search_action_hint;
+
+  /// No description provided for @common_auto.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto'**
+  String get common_auto;
+
+  /// No description provided for @common_inline.
+  ///
+  /// In en, this message translates to:
+  /// **'Inline'**
+  String get common_inline;
+
+  /// No description provided for @marketplace_options_count.
+  ///
+  /// In en, this message translates to:
+  /// **'Options ({count})'**
+  String marketplace_options_count(int count);
+
+  /// No description provided for @marketplace_required_config_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 config} other{{count} config}}'**
+  String marketplace_required_config_count(int count);
+
+  /// No description provided for @option_autocomplete_javascript.
+  ///
+  /// In en, this message translates to:
+  /// **'JavaScript Autocomplete'**
+  String get option_autocomplete_javascript;
+
+  /// No description provided for @option_description_new.
+  ///
+  /// In en, this message translates to:
+  /// **'Description for option {count}'**
+  String option_description_new(int count);
+
+  /// No description provided for @variables_sync_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to sync variable: {error}'**
+  String variables_sync_failed(String error);
+
+  /// No description provided for @actions_configured_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 action configured} other{{count} actions configured}}'**
+  String actions_configured_count(num count);
+
+  /// No description provided for @action_card_else_if.
+  ///
+  /// In en, this message translates to:
+  /// **'ELSE IF {count}'**
+  String action_card_else_if(int count);
+
+  /// No description provided for @blueprint_cut_link.
+  ///
+  /// In en, this message translates to:
+  /// **'Cut the link'**
+  String get blueprint_cut_link;
+
+  /// No description provided for @blueprint_entry_point_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Entry Point Trigger node.\nConfigured in command properties.'**
+  String get blueprint_entry_point_hint;
+
+  /// No description provided for @blueprint_mode_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Blueprint'**
+  String get blueprint_mode_label;
+
+  /// No description provided for @blueprint_origin_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Origin (0, 0)'**
+  String get blueprint_origin_label;
+
+  /// No description provided for @bot_config_version_commands.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 command} other{{count} commands}}'**
+  String bot_config_version_commands(int count);
+
+  /// No description provided for @bot_config_version_commands_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Commands in this version:'**
+  String get bot_config_version_commands_title;
+
+  /// No description provided for @bot_config_version_more_count.
+  ///
+  /// In en, this message translates to:
+  /// **'… and {count} more'**
+  String bot_config_version_more_count(int count);
+
+  /// No description provided for @bot_config_version_replace_warning.
+  ///
+  /// In en, this message translates to:
+  /// **'Will replace {count} current commands'**
+  String bot_config_version_replace_warning(int count);
+
+  /// No description provided for @command_delete_discord_failed_local.
+  ///
+  /// In en, this message translates to:
+  /// **'Discord delete failed. Local delete applied. {error}'**
+  String command_delete_discord_failed_local(String error);
+
+  /// No description provided for @common_exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Exists'**
+  String get common_exists;
+
+  /// No description provided for @common_live_badge.
+  ///
+  /// In en, this message translates to:
+  /// **'LIVE'**
+  String get common_live_badge;
+
+  /// No description provided for @component_choice_number.
+  ///
+  /// In en, this message translates to:
+  /// **'Choice {count}'**
+  String component_choice_number(int count);
+
+  /// No description provided for @component_ephemeral_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Ephemeral (only visible to command user)'**
+  String get component_ephemeral_hint;
+
+  /// No description provided for @debug_persistence_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Persistence debug'**
+  String get debug_persistence_title;
+
+  /// No description provided for @element_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 element} other{{count} elements}}'**
+  String element_count(int count);
+
+  /// No description provided for @embed_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 embed} other{{count} embeds}}'**
+  String embed_count(int count);
+
+  /// No description provided for @emojis_animated_label.
+  ///
+  /// In en, this message translates to:
+  /// **'animated'**
+  String get emojis_animated_label;
+
+  /// No description provided for @field_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 field} other{{count} fields}}'**
+  String field_count(int count);
+
+  /// No description provided for @marketplace_actions_count.
+  ///
+  /// In en, this message translates to:
+  /// **'Actions ({count})'**
+  String marketplace_actions_count(int count);
+
+  /// No description provided for @onb_example_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Example:'**
+  String get onb_example_label;
+
+  /// No description provided for @option_autocomplete_js_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Use interaction.respond() with name/value pairs to return up to 25 choices.'**
+  String get option_autocomplete_js_hint;
+
+  /// No description provided for @permission_tap_to_cycle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to cycle'**
+  String get permission_tap_to_cycle;
+
+  /// No description provided for @serialization_copy_base64.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy compact Base64 payload to clipboard'**
+  String get serialization_copy_base64;
+
+  /// No description provided for @settings_ads_debug_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Ad Inspector and log adapter status (Unity/Google) to validate mediation.'**
+  String get settings_ads_debug_desc;
+
+  /// No description provided for @settings_ads_debug_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Ads Mediation Debug'**
+  String get settings_ads_debug_title;
+
+  /// No description provided for @settings_detected_engine.
+  ///
+  /// In en, this message translates to:
+  /// **'Detected engine: {engine}'**
+  String settings_detected_engine(String engine);
+
+  /// No description provided for @variables_emojis_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Available emojis — tap to insert'**
+  String get variables_emojis_hint;
+
+  /// No description provided for @workflow_event_variables_count.
+  ///
+  /// In en, this message translates to:
+  /// **'Event Variables ({count})'**
+  String workflow_event_variables_count(int count);
+
+  /// No description provided for @workflow_import_review_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Review 1 workflow to import:} other{Review {count} workflows to import:}}'**
+  String workflow_import_review_count(int count);
+
+  /// No description provided for @workflow_rename_variables_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Optionally rename variables for this workflow.'**
+  String get workflow_rename_variables_hint;
+
+  /// No description provided for @component_node_child_run_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'{message} \"{workflow}\" will be executed (entry: {entry}, args: {args}).'**
+  String component_node_child_run_hint(
+    String message,
+    String workflow,
+    String entry,
+    String args,
+  );
+
+  /// No description provided for @workflows_preview_summary.
+  ///
+  /// In en, this message translates to:
+  /// **'{type}  •  {count, plural, =1{1 action} other{{count} actions}}'**
+  String workflows_preview_summary(String type, int count);
+
+  /// No description provided for @runner_embedded_desync_detail.
+  ///
+  /// In en, this message translates to:
+  /// **'Runner process is running but the app lost its connection. Use Restart in Settings.'**
+  String get runner_embedded_desync_detail;
+
+  /// No description provided for @runtime_invalid_bot_id.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid bot ID for startup on Bot Creator servers. Sync/recreate the bot, then retry. Original error: {error}'**
+  String runtime_invalid_bot_id(String error);
+
+  /// No description provided for @runtime_invalid_bot_id_details.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid bot ID for startup on Bot Creator servers. Sync/recreate the bot, then retry. Details: {detail}'**
+  String runtime_invalid_bot_id_details(String detail);
+
+  /// No description provided for @runtime_local_unsupported_ios_configure.
+  ///
+  /// In en, this message translates to:
+  /// **'Local mode is not supported on iOS. Configure Bot Creator to start this bot.'**
+  String get runtime_local_unsupported_ios_configure;
+
+  /// No description provided for @runtime_local_unsupported_ios_sign_in.
+  ///
+  /// In en, this message translates to:
+  /// **'Local mode is not supported on iOS. Sign in to Bot Creator in Settings before starting this bot.'**
+  String get runtime_local_unsupported_ios_sign_in;
+
+  /// No description provided for @runtime_plan_limit.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan does not allow this start. Check the plans to upgrade your formula.'**
+  String get runtime_plan_limit;
+
+  /// No description provided for @runtime_request_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Request to Bot Creator servers failed: {error}'**
+  String runtime_request_failed(String error);
+
+  /// No description provided for @runtime_servers_not_ready.
+  ///
+  /// In en, this message translates to:
+  /// **'Bot Creator servers are not ready for this bot yet. Original error: {error}'**
+  String runtime_servers_not_ready(String error);
+
+  /// No description provided for @runtime_session_expired.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Bot Creator session expired. Sign in again in Settings to start this bot.'**
+  String get runtime_session_expired;
+
+  /// No description provided for @runtime_sign_in_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to Bot Creator in Settings before starting this bot.'**
+  String get runtime_sign_in_required;
+
+  /// No description provided for @runtime_startup_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Bot Creator server startup failed. Original error: {error}'**
+  String runtime_startup_failed(String error);
+
+  /// No description provided for @runtime_startup_failed_with_detail.
+  ///
+  /// In en, this message translates to:
+  /// **'Bot Creator server startup failed. Details: {detail} Original error: {error}'**
+  String runtime_startup_failed_with_detail(String detail, String error);
+
+  /// No description provided for @runtime_startup_in_progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Bot Creator server startup is still in progress ({status}). Processing may still be queued or running. Original error: {error}'**
+  String runtime_startup_in_progress(String status, String error);
+
+  /// No description provided for @runtime_unreachable.
+  ///
+  /// In en, this message translates to:
+  /// **'Bot Creator servers are temporarily unreachable. Original error: {error}'**
+  String runtime_unreachable(String error);
+
+  /// No description provided for @sync_cloud_update_applied.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud update applied successfully'**
+  String get sync_cloud_update_applied;
+
+  /// No description provided for @sync_conflict_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Divergent changes exist between this local session and Cloud (Mobile). Choose how to resolve this conflict:'**
+  String get sync_conflict_message;
+
+  /// No description provided for @sync_conflict_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync Conflict Detected'**
+  String get sync_conflict_title;
+
+  /// No description provided for @sync_in_progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync in progress...'**
+  String get sync_in_progress;
+
+  /// No description provided for @sync_keep_local_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Keeps your local modifications and pushes them to update Cloud.'**
+  String get sync_keep_local_description;
+
+  /// No description provided for @sync_keep_local_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep Local Version (Desktop)'**
+  String get sync_keep_local_title;
+
+  /// No description provided for @sync_local_kept.
+  ///
+  /// In en, this message translates to:
+  /// **'Local version kept and synced to Cloud'**
+  String get sync_local_kept;
+
+  /// No description provided for @sync_merge_smart_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Combines additions from both sides and keeps the newest command in case of duplicates.'**
+  String get sync_merge_smart_description;
+
+  /// No description provided for @sync_merge_smart_done.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart merge completed and synced to Cloud'**
+  String get sync_merge_smart_done;
+
+  /// No description provided for @sync_merge_smart_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart Merge (Recommended)'**
+  String get sync_merge_smart_title;
+
+  /// No description provided for @sync_synced_with_cloud.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced with Cloud version'**
+  String get sync_synced_with_cloud;
+
+  /// No description provided for @sync_take_cloud_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Replaces local un-pushed changes with the Cloud version.'**
+  String get sync_take_cloud_description;
+
+  /// No description provided for @sync_take_cloud_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Take Cloud Version (Mobile)'**
+  String get sync_take_cloud_title;
+
+  /// No description provided for @sync_version_cloud_mobile.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud Version (Mobile)'**
+  String get sync_version_cloud_mobile;
+
+  /// No description provided for @sync_version_local_desktop.
+  ///
+  /// In en, this message translates to:
+  /// **'Local Version (Desktop)'**
+  String get sync_version_local_desktop;
+
+  /// No description provided for @rewarded_credit_syncing_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit is still syncing'**
+  String get rewarded_credit_syncing_title;
+
+  /// No description provided for @ad_context_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to build ad context. Please ensure you are signed in and your bot token is set.'**
+  String get ad_context_failed;
+
+  /// No description provided for @ad_history_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot fetch ad history (API unavailable)'**
+  String get ad_history_unavailable;
+
+  /// No description provided for @ad_limit_or_cooldown.
+  ///
+  /// In en, this message translates to:
+  /// **'Ad cooldown or limit is active. Please try again later.'**
+  String get ad_limit_or_cooldown;
+
+  /// No description provided for @ad_sync_config_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to sync bot configuration with the main API.'**
+  String get ad_sync_config_failed;
+
+  /// Checking the reward
+  ///
+  /// In en, this message translates to:
+  /// **'Ad finished. Checking your reward…'**
+  String get rewarded_start_credit_pending;
+
+  /// Reward not credited yet
+  ///
+  /// In en, this message translates to:
+  /// **'Reward not credited yet. The server may still validate it: refresh your minutes to see it.'**
+  String get rewarded_start_credit_unconfirmed;
+
   /// An ad is required to start this hosting session. This helps fund the project. Premium users can skip this.
   ///
   /// In en, this message translates to:
@@ -12072,6 +12677,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Export'**
   String get settings_export;
+
+  /// No description provided for @settings_runner_type_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Runner type'**
+  String get settings_runner_type_label;
 
   /// Export App Data
   ///
@@ -15277,7 +15888,7 @@ abstract class AppLocalizations {
   /// No description provided for @settings_sync_force_desc.
   ///
   /// In en, this message translates to:
-  /// **'Deletes all Discord slash commands that are not defined locally in Bot Creator.'**
+  /// **'Recreates the commands missing on Discord and deletes those no longer defined in Bot Creator.'**
   String get settings_sync_force_desc;
 
   /// No description provided for @settings_sync_force_button.
@@ -15295,7 +15906,7 @@ abstract class AppLocalizations {
   /// No description provided for @settings_sync_force_dialog_desc.
   ///
   /// In en, this message translates to:
-  /// **'This will delete all slash commands on Discord that are not defined locally in Bot Creator. Are you sure you want to continue?'**
+  /// **'Commands missing on Discord will be recreated, and commands no longer defined in Bot Creator will be deleted. Continue?'**
   String get settings_sync_force_dialog_desc;
 
   /// No description provided for @settings_sync_force_dialog_confirm.
@@ -15304,11 +15915,21 @@ abstract class AppLocalizations {
   /// **'Force Sync'**
   String get settings_sync_force_dialog_confirm;
 
-  /// No description provided for @settings_sync_force_success.
+  /// No description provided for @settings_sync_force_success_counts.
   ///
   /// In en, this message translates to:
-  /// **'Force sync completed successfully. Deleted {count} legacy/untracked command(s) from Discord.'**
-  String settings_sync_force_success(Object count);
+  /// **'Sync complete: {created} recreated, {relinked} relinked, {deleted} deleted on Discord.'**
+  String settings_sync_force_success_counts(
+    int created,
+    int relinked,
+    int deleted,
+  );
+
+  /// No description provided for @settings_sync_force_no_local_commands.
+  ///
+  /// In en, this message translates to:
+  /// **'No local command to register: nothing was touched on Discord (an empty sync would erase all your commands).'**
+  String get settings_sync_force_no_local_commands;
 
   /// No description provided for @settings_sync_force_error.
   ///

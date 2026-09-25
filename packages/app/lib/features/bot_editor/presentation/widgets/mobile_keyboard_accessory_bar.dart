@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:bot_creator/core/models/types/variable_suggestion.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/core/i18n/i18n.dart';
 
 /// A sleek accessory bar rendered above the mobile virtual keyboard.
 /// Provides instant access to Discord/BDFD syntax characters (`$`, `[`, `]`, `{`, `}`)
@@ -97,8 +98,7 @@ class MobileKeyboardAccessoryBar extends StatelessWidget {
                   children: [
                     const Icon(Icons.data_object, size: 20),
                     const SizedBox(width: 8),
-                    const Text(
-                      'Insert Variable',
+                    Text(context.tr.image_editor_insert_variable,
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     const Spacer(),
@@ -182,8 +182,7 @@ class MobileKeyboardAccessoryBar extends StatelessWidget {
               ),
               onPressed: () => _showVariablesSheet(context),
               icon: const Icon(Icons.data_object, size: 16),
-              label: const Text(
-                'Vars',
+              label: Text(context.tr.globals_tab_short,
                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
               ),
             ),

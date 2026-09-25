@@ -3399,6 +3399,255 @@
   "@common_none": {
     "description": "None"
   },
+  "@sync_diff_local_only_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@sync_diff_new_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@sync_diff_updated_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@home_server_cannot_run_bot": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "@bot_start_embedded_runner_failed": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "@option_description_new": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@marketplace_options_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@marketplace_required_config_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@variables_sync_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@marketplace_actions_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@workflow_import_review_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@workflow_event_variables_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@component_choice_number": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@action_card_else_if": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@action_card_actions_configured": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@embed_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@field_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@element_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@bot_config_version_commands": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@bot_config_version_replace_warning": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@bot_config_version_more_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@settings_detected_engine": {
+    "placeholders": {
+      "engine": {
+        "type": "String"
+      }
+    }
+  },
+  "@command_delete_discord_failed_local": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@workflows_preview_summary": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@component_node_child_run_hint": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      },
+      "workflow": {
+        "type": "String"
+      },
+      "entry": {
+        "type": "String"
+      },
+      "args": {
+        "type": "String"
+      }
+    }
+  },
+  "@runtime_invalid_bot_id": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@runtime_invalid_bot_id_details": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "@runtime_servers_not_ready": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@runtime_startup_in_progress": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      },
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@runtime_startup_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@runtime_startup_failed_with_detail": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      },
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@runtime_unreachable": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@runtime_request_failed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "@common_ok": {
     "description": "OK"
   },
@@ -5527,6 +5776,15 @@
   },
   "@rewarded_start_continue": {
     "description": "Continue"
+  },
+  "@rewarded_start_credit_confirmed": {
+    "description": "Reward credited"
+  },
+  "@rewarded_start_credit_pending": {
+    "description": "Checking the reward"
+  },
+  "@rewarded_start_credit_unconfirmed": {
+    "description": "Reward not credited yet"
   },
   "@rewarded_start_message": {
     "description": "An ad is required to start this hosting session. This helps fund the project. Premium users can skip this."
@@ -9858,6 +10116,106 @@
   "review_type_line": "Type: {type}",
   "rewarded_start_complete_ad": "Please watch the entire ad to start your hosting session.",
   "rewarded_start_continue": "Continue",
+  "rewarded_start_credit_confirmed": "Reward credited: your hosting minutes have been added.",
+  "rewarded_credit_syncing_message": "Your ad reward is still syncing. Try starting the bot again in a few seconds.",
+  "sync_cloud_applied": "Cloud version applied successfully",
+  "sync_diff_local_only_count": "{count, plural, =1{1 local-only} other{{count} local-only}}",
+  "sync_diff_new_count": "{count, plural, =1{+1 new} other{+{count} new}}",
+  "sync_diff_updated_count": "{count, plural, =1{1 updated} other{{count} updated}}",
+  "bot_stats_metrics_source": "Metrics Source",
+  "bot_stats_no_bot_selected": "No bot selected",
+  "bot_stats_refresh_now": "Refresh now",
+  "bot_stats_source_local": "Local on this device",
+  "bot_stats_warning_title": "Warning",
+  "bot_start_embedded_runner_failed": "The embedded JS runner could not start. Fully restart the app (not hot reload).{detail}",
+  "bot_start_sign_in_required": "Sign in to Bot Creator in Settings before starting this bot.",
+  "home_badge_turnkey": "Turnkey",
+  "home_server_cannot_run_bot": "Bot Creator servers were chosen and cannot run this bot: {detail}. No local run was started — retry the start once this is resolved.",
+  "home_server_session_unusable": "no usable server session from this device",
+  "runner_source_runner": "Runner",
+  "command_create_existing_folders": "Existing folders",
+  "common_export": "Export",
+  "workflows_folder_destination_optional": "Destination folder (optional)",
+  "workflows_import_preview_title": "Import workflow preview",
+  "blueprint_close_inspector": "Close Inspector",
+  "blueprint_search_action_hint": "Search for an action...",
+  "common_auto": "Auto",
+  "common_inline": "Inline",
+  "marketplace_options_count": "Options ({count})",
+  "marketplace_required_config_count": "{count, plural, =1{1 config} other{{count} config}}",
+  "option_autocomplete_javascript": "JavaScript Autocomplete",
+  "option_description_new": "Description for option {count}",
+  "variables_sync_failed": "Failed to sync variable: {error}",
+  "actions_configured_count": "{count, plural, =1{1 action configured} other{{count} actions configured}}",
+  "action_card_else_if": "ELSE IF {count}",
+  "blueprint_cut_link": "Cut the link",
+  "blueprint_entry_point_hint": "Entry Point Trigger node.\nConfigured in command properties.",
+  "blueprint_mode_label": "Blueprint",
+  "blueprint_origin_label": "Origin (0, 0)",
+  "bot_config_version_commands": "{count, plural, =1{1 command} other{{count} commands}}",
+  "bot_config_version_commands_title": "Commands in this version:",
+  "bot_config_version_more_count": "… and {count} more",
+  "bot_config_version_replace_warning": "Will replace {count} current commands",
+  "command_delete_discord_failed_local": "Discord delete failed. Local delete applied. {error}",
+  "common_exists": "Exists",
+  "common_live_badge": "LIVE",
+  "component_choice_number": "Choice {count}",
+  "component_ephemeral_hint": "Ephemeral (only visible to command user)",
+  "debug_persistence_title": "Persistence debug",
+  "element_count": "{count, plural, =1{1 element} other{{count} elements}}",
+  "embed_count": "{count, plural, =1{1 embed} other{{count} embeds}}",
+  "emojis_animated_label": "animated",
+  "field_count": "{count, plural, =1{1 field} other{{count} fields}}",
+  "marketplace_actions_count": "Actions ({count})",
+  "onb_example_label": "Example:",
+  "option_autocomplete_js_hint": "Use interaction.respond() with name/value pairs to return up to 25 choices.",
+  "permission_tap_to_cycle": "Tap to cycle",
+  "serialization_copy_base64": "Copy compact Base64 payload to clipboard",
+  "settings_ads_debug_desc": "Open Ad Inspector and log adapter status (Unity/Google) to validate mediation.",
+  "settings_ads_debug_title": "Ads Mediation Debug",
+  "settings_detected_engine": "Detected engine: {engine}",
+  "variables_emojis_hint": "Available emojis — tap to insert",
+  "workflow_event_variables_count": "Event Variables ({count})",
+  "workflow_import_review_count": "{count, plural, =1{Review 1 workflow to import:} other{Review {count} workflows to import:}}",
+  "workflow_rename_variables_hint": "Optionally rename variables for this workflow.",
+  "component_node_child_run_hint": "{message} \"{workflow}\" will be executed (entry: {entry}, args: {args}).",
+  "workflows_preview_summary": "{type}  •  {count, plural, =1{1 action} other{{count} actions}}",
+  "runner_embedded_desync_detail": "Runner process is running but the app lost its connection. Use Restart in Settings.",
+  "runtime_invalid_bot_id": "Invalid bot ID for startup on Bot Creator servers. Sync/recreate the bot, then retry. Original error: {error}",
+  "runtime_invalid_bot_id_details": "Invalid bot ID for startup on Bot Creator servers. Sync/recreate the bot, then retry. Details: {detail}",
+  "runtime_local_unsupported_ios_configure": "Local mode is not supported on iOS. Configure Bot Creator to start this bot.",
+  "runtime_local_unsupported_ios_sign_in": "Local mode is not supported on iOS. Sign in to Bot Creator in Settings before starting this bot.",
+  "runtime_plan_limit": "Your plan does not allow this start. Check the plans to upgrade your formula.",
+  "runtime_request_failed": "Request to Bot Creator servers failed: {error}",
+  "runtime_servers_not_ready": "Bot Creator servers are not ready for this bot yet. Original error: {error}",
+  "runtime_session_expired": "Your Bot Creator session expired. Sign in again in Settings to start this bot.",
+  "runtime_sign_in_required": "Sign in to Bot Creator in Settings before starting this bot.",
+  "runtime_startup_failed": "Bot Creator server startup failed. Original error: {error}",
+  "runtime_startup_failed_with_detail": "Bot Creator server startup failed. Details: {detail} Original error: {error}",
+  "runtime_startup_in_progress": "Bot Creator server startup is still in progress ({status}). Processing may still be queued or running. Original error: {error}",
+  "runtime_unreachable": "Bot Creator servers are temporarily unreachable. Original error: {error}",
+  "sync_cloud_update_applied": "Cloud update applied successfully",
+  "sync_conflict_message": "Divergent changes exist between this local session and Cloud (Mobile). Choose how to resolve this conflict:",
+  "sync_conflict_title": "Sync Conflict Detected",
+  "sync_in_progress": "Sync in progress...",
+  "sync_keep_local_description": "Keeps your local modifications and pushes them to update Cloud.",
+  "sync_keep_local_title": "Keep Local Version (Desktop)",
+  "sync_local_kept": "Local version kept and synced to Cloud",
+  "sync_merge_smart_description": "Combines additions from both sides and keeps the newest command in case of duplicates.",
+  "sync_merge_smart_done": "Smart merge completed and synced to Cloud",
+  "sync_merge_smart_title": "Smart Merge (Recommended)",
+  "sync_synced_with_cloud": "Synced with Cloud version",
+  "sync_take_cloud_description": "Replaces local un-pushed changes with the Cloud version.",
+  "sync_take_cloud_title": "Take Cloud Version (Mobile)",
+  "sync_version_cloud_mobile": "Cloud Version (Mobile)",
+  "sync_version_local_desktop": "Local Version (Desktop)",
+  "rewarded_credit_syncing_title": "Credit is still syncing",
+  "ad_context_failed": "Failed to build ad context. Please ensure you are signed in and your bot token is set.",
+  "ad_history_unavailable": "Cannot fetch ad history (API unavailable)",
+  "ad_limit_or_cooldown": "Ad cooldown or limit is active. Please try again later.",
+  "ad_sync_config_failed": "Failed to sync bot configuration with the main API.",
+  "rewarded_start_credit_pending": "Ad finished. Checking your reward…",
+  "rewarded_start_credit_unconfirmed": "Reward not credited yet. The server may still validate it: refresh your minutes to see it.",
   "rewarded_start_message": "An ad is required to start this hosting session. This helps fund the project. Premium users can skip this.",
   "rewarded_start_no_ad_available": "No ad available right now. Please try again later.",
   "rewarded_start_skip": "Skip",
@@ -10207,6 +10565,7 @@
   "settings_execution_mode_title": "Execution mode",
   "settings_execution_mode_use_runner": "Use a self-hosted runner",
   "settings_export": "Export",
+  "settings_runner_type_label": "Runner type",
   "settings_export_app_data": "Export App Data",
   "settings_export_loading": "Exporting…",
   "settings_import": "Import",
@@ -10823,13 +11182,27 @@
   "workflows_type_title": "Workflow type",
   "settings_sync_title": "Synchronization",
   "settings_sync_force_title": "Force Sync Commands",
-  "settings_sync_force_desc": "Deletes all Discord slash commands that are not defined locally in Bot Creator.",
+  "settings_sync_force_desc": "Recreates the commands missing on Discord and deletes those no longer defined in Bot Creator.",
   "settings_sync_force_button": "Sync with Discord",
   "settings_sync_force_dialog_title": "Force Sync Commands",
-  "settings_sync_force_dialog_desc": "This will delete all slash commands on Discord that are not defined locally in Bot Creator. Are you sure you want to continue?",
+  "settings_sync_force_dialog_desc": "Commands missing on Discord will be recreated, and commands no longer defined in Bot Creator will be deleted. Continue?",
   "settings_sync_force_dialog_confirm": "Force Sync",
-  "settings_sync_force_success": "Force sync completed successfully. Deleted {count} legacy/untracked command(s) from Discord.",
+  "settings_sync_force_success_counts": "Sync complete: {created} recreated, {relinked} relinked, {deleted} deleted on Discord.",
+  "settings_sync_force_no_local_commands": "No local command to register: nothing was touched on Discord (an empty sync would erase all your commands).",
   "settings_sync_force_error": "Failed to force sync: {error}",
+  "@settings_sync_force_success_counts": {
+    "placeholders": {
+      "created": {
+        "type": "int"
+      },
+      "relinked": {
+        "type": "int"
+      },
+      "deleted": {
+        "type": "int"
+      }
+    }
+  },
   "settings_runtime_engine_switch_dialog_title": "Change runtime engine?",
   "@settings_runtime_engine_switch_dialog_title": {
     "description": "Destructive confirmation before switching bot runtime engine"

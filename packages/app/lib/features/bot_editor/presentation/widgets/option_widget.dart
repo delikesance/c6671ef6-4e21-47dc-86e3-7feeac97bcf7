@@ -213,7 +213,7 @@ class OptionWidgetState extends State<OptionWidget> {
     final type = allowedTypes.first;
     final option = CommandOptionBuilder(
       name: 'option${target.length + 1}',
-      description: 'Description for option ${target.length + 1}',
+      description: context.tr.option_description_new(target.length + 1),
       type: type,
       isRequired: false,
     );
@@ -561,10 +561,10 @@ class OptionWidgetState extends State<OptionWidget> {
                                     icon: Icon(Icons.javascript),
                                   )
                                 else
-                                  const ButtonSegment(
+                                  ButtonSegment(
                                     value: 'inline',
-                                    label: Text('Inline'),
-                                    icon: Icon(Icons.code),
+                                    label: Text(context.tr.common_inline),
+                                    icon: const Icon(Icons.code),
                                   ),
                                 ButtonSegment(
                                   value: 'static',
@@ -1030,8 +1030,7 @@ class OptionWidgetState extends State<OptionWidget> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.stretch,
                                   children: [
-                                    Text(
-                                      'Use interaction.respond([{ name, value }]) to return up to 25 choices.',
+                                    Text(context.tr.option_autocomplete_js_hint,
                                       style: TextStyle(
                                         fontSize: 12,
                                         color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -1060,7 +1059,7 @@ class OptionWidgetState extends State<OptionWidget> {
                                                       script.trim().isEmpty
                                                           ? defaultJsAutocompleteScript
                                                           : script,
-                                                  title: 'Autocomplete JavaScript',
+                                                  title: context.tr.option_autocomplete_javascript,
                                                   snippets: jsAutocompleteSnippets,
                                                 ),
                                           ),
@@ -1101,8 +1100,7 @@ class OptionWidgetState extends State<OptionWidget> {
                                   crossAxisAlignment: CrossAxisAlignment.stretch,
                                   children: [
                                     if (count > 0) ...[
-                                      Text(
-                                        '$count action(s) configured',
+                                      Text(context.tr.actions_configured_count(count),
                                         style: TextStyle(
                                           fontSize: 13,
                                           color: Theme.of(context).colorScheme.primary,
@@ -1391,8 +1389,7 @@ class OptionWidgetState extends State<OptionWidget> {
                               int choiceIndex,
                             ) {
                               return ExpansionTile(
-                                title: Text(
-                                  'Choice ${choiceIndex + 1}',
+                                title: Text(context.tr.component_choice_number(choiceIndex + 1),
                                   style: const TextStyle(fontSize: 18),
                                 ),
                                 trailing: IconButton(

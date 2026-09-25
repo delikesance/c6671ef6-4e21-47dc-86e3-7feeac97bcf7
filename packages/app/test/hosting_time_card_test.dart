@@ -56,6 +56,12 @@ void main() {
     );
   }
 
+  /// Le badge d'équipe affiche un libellé TRADUIT : on lit la valeur attendue
+  /// depuis les localisations (locale du banc d'essai = fr) plutôt que de
+  /// recopier une langue, sinon le test casse à la première traduction.
+  Future<AppLocalizations> frL10n() =>
+      AppLocalizations.delegate.load(const Locale('fr'));
+
   testWidgets('bot en ligne : pastille, expiration, décomposition et action', (
     tester,
   ) async {
@@ -79,7 +85,7 @@ void main() {
     // Action principale, sur toute la largeur.
     expect(find.widgetWithText(FilledButton, 'Ajouter du temps'), findsOneWidget);
     // Pas de badge équipe quand le bot n'est pas rattaché à une équipe.
-    expect(find.text('Team'), findsNothing);
+    expect(find.text((await frL10n()).team_tab), findsNothing);
     expect(tester.takeException(), isNull);
   });
 
@@ -100,7 +106,7 @@ void main() {
     expect(find.text('Réserve disponible'), findsOneWidget);
     expect(find.text('TEMPS PRÉSERVÉ'), findsOneWidget);
     expect(find.text('136 mois, 7 jours, 5 heures, 53 minutes'), findsOneWidget);
-    expect(find.text('Team'), findsOneWidget);
+    expect(find.text((await frL10n()).team_tab), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

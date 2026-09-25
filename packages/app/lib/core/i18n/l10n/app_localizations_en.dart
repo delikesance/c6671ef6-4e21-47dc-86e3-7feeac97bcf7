@@ -5759,6 +5759,471 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rewarded_start_continue => 'Continue';
 
   @override
+  String get rewarded_start_credit_confirmed =>
+      'Reward credited: your hosting minutes have been added.';
+
+  @override
+  String get rewarded_credit_syncing_message =>
+      'Your ad reward is still syncing. Try starting the bot again in a few seconds.';
+
+  @override
+  String get sync_cloud_applied => 'Cloud version applied successfully';
+
+  @override
+  String sync_diff_local_only_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count local-only',
+      one: '1 local-only',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sync_diff_new_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '+$count new',
+      one: '+1 new',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sync_diff_updated_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count updated',
+      one: '1 updated',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bot_stats_metrics_source => 'Metrics Source';
+
+  @override
+  String get bot_stats_no_bot_selected => 'No bot selected';
+
+  @override
+  String get bot_stats_refresh_now => 'Refresh now';
+
+  @override
+  String get bot_stats_source_local => 'Local on this device';
+
+  @override
+  String get bot_stats_warning_title => 'Warning';
+
+  @override
+  String bot_start_embedded_runner_failed(String detail) {
+    return 'The embedded JS runner could not start. Fully restart the app (not hot reload).$detail';
+  }
+
+  @override
+  String get bot_start_sign_in_required =>
+      'Sign in to Bot Creator in Settings before starting this bot.';
+
+  @override
+  String get home_badge_turnkey => 'Turnkey';
+
+  @override
+  String home_server_cannot_run_bot(String detail) {
+    return 'Bot Creator servers were chosen and cannot run this bot: $detail. No local run was started — retry the start once this is resolved.';
+  }
+
+  @override
+  String get home_server_session_unusable =>
+      'no usable server session from this device';
+
+  @override
+  String get runner_source_runner => 'Runner';
+
+  @override
+  String get command_create_existing_folders => 'Existing folders';
+
+  @override
+  String get common_export => 'Export';
+
+  @override
+  String get workflows_folder_destination_optional =>
+      'Destination folder (optional)';
+
+  @override
+  String get workflows_import_preview_title => 'Import workflow preview';
+
+  @override
+  String get blueprint_close_inspector => 'Close Inspector';
+
+  @override
+  String get blueprint_search_action_hint => 'Search for an action...';
+
+  @override
+  String get common_auto => 'Auto';
+
+  @override
+  String get common_inline => 'Inline';
+
+  @override
+  String marketplace_options_count(int count) {
+    return 'Options ($count)';
+  }
+
+  @override
+  String marketplace_required_config_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count config',
+      one: '1 config',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get option_autocomplete_javascript => 'JavaScript Autocomplete';
+
+  @override
+  String option_description_new(int count) {
+    return 'Description for option $count';
+  }
+
+  @override
+  String variables_sync_failed(String error) {
+    return 'Failed to sync variable: $error';
+  }
+
+  @override
+  String actions_configured_count(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count actions configured',
+      one: '1 action configured',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String action_card_else_if(int count) {
+    return 'ELSE IF $count';
+  }
+
+  @override
+  String get blueprint_cut_link => 'Cut the link';
+
+  @override
+  String get blueprint_entry_point_hint =>
+      'Entry Point Trigger node.\nConfigured in command properties.';
+
+  @override
+  String get blueprint_mode_label => 'Blueprint';
+
+  @override
+  String get blueprint_origin_label => 'Origin (0, 0)';
+
+  @override
+  String bot_config_version_commands(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count commands',
+      one: '1 command',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bot_config_version_commands_title => 'Commands in this version:';
+
+  @override
+  String bot_config_version_more_count(int count) {
+    return '… and $count more';
+  }
+
+  @override
+  String bot_config_version_replace_warning(int count) {
+    return 'Will replace $count current commands';
+  }
+
+  @override
+  String command_delete_discord_failed_local(String error) {
+    return 'Discord delete failed. Local delete applied. $error';
+  }
+
+  @override
+  String get common_exists => 'Exists';
+
+  @override
+  String get common_live_badge => 'LIVE';
+
+  @override
+  String component_choice_number(int count) {
+    return 'Choice $count';
+  }
+
+  @override
+  String get component_ephemeral_hint =>
+      'Ephemeral (only visible to command user)';
+
+  @override
+  String get debug_persistence_title => 'Persistence debug';
+
+  @override
+  String element_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count elements',
+      one: '1 element',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String embed_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count embeds',
+      one: '1 embed',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get emojis_animated_label => 'animated';
+
+  @override
+  String field_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fields',
+      one: '1 field',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String marketplace_actions_count(int count) {
+    return 'Actions ($count)';
+  }
+
+  @override
+  String get onb_example_label => 'Example:';
+
+  @override
+  String get option_autocomplete_js_hint =>
+      'Use interaction.respond() with name/value pairs to return up to 25 choices.';
+
+  @override
+  String get permission_tap_to_cycle => 'Tap to cycle';
+
+  @override
+  String get serialization_copy_base64 =>
+      'Copy compact Base64 payload to clipboard';
+
+  @override
+  String get settings_ads_debug_desc =>
+      'Open Ad Inspector and log adapter status (Unity/Google) to validate mediation.';
+
+  @override
+  String get settings_ads_debug_title => 'Ads Mediation Debug';
+
+  @override
+  String settings_detected_engine(String engine) {
+    return 'Detected engine: $engine';
+  }
+
+  @override
+  String get variables_emojis_hint => 'Available emojis — tap to insert';
+
+  @override
+  String workflow_event_variables_count(int count) {
+    return 'Event Variables ($count)';
+  }
+
+  @override
+  String workflow_import_review_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Review $count workflows to import:',
+      one: 'Review 1 workflow to import:',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get workflow_rename_variables_hint =>
+      'Optionally rename variables for this workflow.';
+
+  @override
+  String component_node_child_run_hint(
+    String message,
+    String workflow,
+    String entry,
+    String args,
+  ) {
+    return '$message \"$workflow\" will be executed (entry: $entry, args: $args).';
+  }
+
+  @override
+  String workflows_preview_summary(String type, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count actions',
+      one: '1 action',
+    );
+    return '$type  •  $_temp0';
+  }
+
+  @override
+  String get runner_embedded_desync_detail =>
+      'Runner process is running but the app lost its connection. Use Restart in Settings.';
+
+  @override
+  String runtime_invalid_bot_id(String error) {
+    return 'Invalid bot ID for startup on Bot Creator servers. Sync/recreate the bot, then retry. Original error: $error';
+  }
+
+  @override
+  String runtime_invalid_bot_id_details(String detail) {
+    return 'Invalid bot ID for startup on Bot Creator servers. Sync/recreate the bot, then retry. Details: $detail';
+  }
+
+  @override
+  String get runtime_local_unsupported_ios_configure =>
+      'Local mode is not supported on iOS. Configure Bot Creator to start this bot.';
+
+  @override
+  String get runtime_local_unsupported_ios_sign_in =>
+      'Local mode is not supported on iOS. Sign in to Bot Creator in Settings before starting this bot.';
+
+  @override
+  String get runtime_plan_limit =>
+      'Your plan does not allow this start. Check the plans to upgrade your formula.';
+
+  @override
+  String runtime_request_failed(String error) {
+    return 'Request to Bot Creator servers failed: $error';
+  }
+
+  @override
+  String runtime_servers_not_ready(String error) {
+    return 'Bot Creator servers are not ready for this bot yet. Original error: $error';
+  }
+
+  @override
+  String get runtime_session_expired =>
+      'Your Bot Creator session expired. Sign in again in Settings to start this bot.';
+
+  @override
+  String get runtime_sign_in_required =>
+      'Sign in to Bot Creator in Settings before starting this bot.';
+
+  @override
+  String runtime_startup_failed(String error) {
+    return 'Bot Creator server startup failed. Original error: $error';
+  }
+
+  @override
+  String runtime_startup_failed_with_detail(String detail, String error) {
+    return 'Bot Creator server startup failed. Details: $detail Original error: $error';
+  }
+
+  @override
+  String runtime_startup_in_progress(String status, String error) {
+    return 'Bot Creator server startup is still in progress ($status). Processing may still be queued or running. Original error: $error';
+  }
+
+  @override
+  String runtime_unreachable(String error) {
+    return 'Bot Creator servers are temporarily unreachable. Original error: $error';
+  }
+
+  @override
+  String get sync_cloud_update_applied => 'Cloud update applied successfully';
+
+  @override
+  String get sync_conflict_message =>
+      'Divergent changes exist between this local session and Cloud (Mobile). Choose how to resolve this conflict:';
+
+  @override
+  String get sync_conflict_title => 'Sync Conflict Detected';
+
+  @override
+  String get sync_in_progress => 'Sync in progress...';
+
+  @override
+  String get sync_keep_local_description =>
+      'Keeps your local modifications and pushes them to update Cloud.';
+
+  @override
+  String get sync_keep_local_title => 'Keep Local Version (Desktop)';
+
+  @override
+  String get sync_local_kept => 'Local version kept and synced to Cloud';
+
+  @override
+  String get sync_merge_smart_description =>
+      'Combines additions from both sides and keeps the newest command in case of duplicates.';
+
+  @override
+  String get sync_merge_smart_done =>
+      'Smart merge completed and synced to Cloud';
+
+  @override
+  String get sync_merge_smart_title => 'Smart Merge (Recommended)';
+
+  @override
+  String get sync_synced_with_cloud => 'Synced with Cloud version';
+
+  @override
+  String get sync_take_cloud_description =>
+      'Replaces local un-pushed changes with the Cloud version.';
+
+  @override
+  String get sync_take_cloud_title => 'Take Cloud Version (Mobile)';
+
+  @override
+  String get sync_version_cloud_mobile => 'Cloud Version (Mobile)';
+
+  @override
+  String get sync_version_local_desktop => 'Local Version (Desktop)';
+
+  @override
+  String get rewarded_credit_syncing_title => 'Credit is still syncing';
+
+  @override
+  String get ad_context_failed =>
+      'Failed to build ad context. Please ensure you are signed in and your bot token is set.';
+
+  @override
+  String get ad_history_unavailable =>
+      'Cannot fetch ad history (API unavailable)';
+
+  @override
+  String get ad_limit_or_cooldown =>
+      'Ad cooldown or limit is active. Please try again later.';
+
+  @override
+  String get ad_sync_config_failed =>
+      'Failed to sync bot configuration with the main API.';
+
+  @override
+  String get rewarded_start_credit_pending =>
+      'Ad finished. Checking your reward…';
+
+  @override
+  String get rewarded_start_credit_unconfirmed =>
+      'Reward not credited yet. The server may still validate it: refresh your minutes to see it.';
+
+  @override
   String get rewarded_start_message =>
       'An ad is required to start this hosting session. This helps fund the project. Premium users can skip this.';
 
@@ -6850,6 +7315,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settings_export => 'Export';
+
+  @override
+  String get settings_runner_type_label => 'Runner type';
 
   @override
   String get settings_export_app_data => 'Export App Data';
@@ -8735,7 +9203,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settings_sync_force_desc =>
-      'Deletes all Discord slash commands that are not defined locally in Bot Creator.';
+      'Recreates the commands missing on Discord and deletes those no longer defined in Bot Creator.';
 
   @override
   String get settings_sync_force_button => 'Sync with Discord';
@@ -8745,15 +9213,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settings_sync_force_dialog_desc =>
-      'This will delete all slash commands on Discord that are not defined locally in Bot Creator. Are you sure you want to continue?';
+      'Commands missing on Discord will be recreated, and commands no longer defined in Bot Creator will be deleted. Continue?';
 
   @override
   String get settings_sync_force_dialog_confirm => 'Force Sync';
 
   @override
-  String settings_sync_force_success(Object count) {
-    return 'Force sync completed successfully. Deleted $count legacy/untracked command(s) from Discord.';
+  String settings_sync_force_success_counts(
+    int created,
+    int relinked,
+    int deleted,
+  ) {
+    return 'Sync complete: $created recreated, $relinked relinked, $deleted deleted on Discord.';
   }
+
+  @override
+  String get settings_sync_force_no_local_commands =>
+      'No local command to register: nothing was touched on Discord (an empty sync would erase all your commands).';
 
   @override
   String settings_sync_force_error(Object error) {

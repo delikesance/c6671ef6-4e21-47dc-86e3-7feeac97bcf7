@@ -74,14 +74,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:nyxx/nyxx.dart' hide Locale, Logger;
 import 'package:url_launcher/url_launcher.dart';
 
-String homeUiCopy(
-  BuildContext context, {
-  required String fr,
-  required String en,
-}) {
-  return Localizations.localeOf(context).languageCode == 'fr' ? fr : en;
-}
-
 /// Détecte si un nom de bot masque son identité réelle (vide, 'Unnamed Bot',
 /// 'Unknown App', égal à son identifiant snowflake, ou composé uniquement de chiffres).
 bool botNameHidesIdentity(String? name, String botId) {
@@ -1934,22 +1926,16 @@ class HomePageState extends State<HomePage>
     }
   }
 
-  String _uiCopy({required String fr, required String en}) =>
-      homeUiCopy(context, fr: fr, en: en);
-
   String? _runtimeBadgeLabel(String botId) {
     final source = _runtimeSourceByBotId[botId] ?? _runtimeSource;
     final detailLabel =
         _runtimeDetailLabelByBotId[botId] ?? _runtimeDetailLabel;
     return switch (source) {
-      RemoteRuntimeSource.manager => _uiCopy(
-        fr: 'Serveurs Bot Creator',
-        en: 'Bot Creator servers',
-      ),
+      RemoteRuntimeSource.manager => context.tr.runner_source_manager,
       RemoteRuntimeSource.runner =>
         (detailLabel?.trim().isNotEmpty ?? false)
             ? context.tr.runner_source_label(detailLabel!)
-            : _uiCopy(fr: 'Runner', en: 'Runner'),
+            : context.tr.runner_source_runner,
       RemoteRuntimeSource.local => null,
     };
   }
@@ -2444,12 +2430,9 @@ class HomePageState extends State<HomePage>
           }
 
           if (!sessionRestored || runtime.blocksLocalFallback) {
-            final message =
-                runtime.unavailableReason ??
-                _uiCopy(
-                  fr: 'Connectez-vous a Bot Creator dans les parametres avant de demarrer ce bot.',
-                  en: 'Sign in to Bot Creator in Settings before starting this bot.',
-                );
+            final message = runtime.unavailableReason == null
+                ? context.tr.bot_start_sign_in_required
+                : resolveRuntimeNotice(context.tr, runtime.unavailableReason!);
             throw Exception(message);
           }
         }
@@ -2530,28 +2513,18 @@ class HomePageState extends State<HomePage>
         engineIsJavascript:
             runtime.client == null &&
             await getBotRuntimeEngine(botId) == runtimeEngineJavascript,
-        serverUnavailableDetail: runtime.unavailableReason ?? '',
+        serverUnavailableDetail: runtime.unavailableReason == null
+            ? ''
+            : resolveRuntimeNotice(context.tr, runtime.unavailableReason!),
       );
       if (!startPlan.allowed) {
         appendBotStartTrace(startPlan.refusalTrace!, botId: botId);
         final detail =
             startPlan.serverUnavailableDetail?.trim().isNotEmpty ?? false
             ? startPlan.serverUnavailableDetail!.trim()
-            : _uiCopy(
-                fr: 'aucune session serveur exploitable depuis ce poste',
-                en: 'no usable server session from this device',
-              );
+            : context.tr.home_server_session_unusable;
         throw Exception(
-          _uiCopy(
-            fr:
-                'Les serveurs Bot Creator ont ete choisis et ne peuvent pas '
-                'executer ce bot : $detail. Aucune execution locale n a ete '
-                'entamee — relancez le demarrage apres avoir regle ce point.',
-            en:
-                'Bot Creator servers were chosen and cannot run this bot: '
-                '$detail. No local run was started — retry the start once this '
-                'is resolved.',
-          ),
+          context.tr.home_server_cannot_run_bot(detail),
         );
       }
 
@@ -2669,7 +2642,12 @@ class HomePageState extends State<HomePage>
             rethrow;
           }
           if (client is MainApiClient) {
-            throw Exception(await describeManagerRuntimeFailure(client, error));
+            throw Exception(
+              resolveRuntimeNotice(
+                context.tr,
+                await describeManagerRuntimeFailure(client, error),
+              ),
+            );
           }
           rethrow;
         }
@@ -2785,17 +2763,16 @@ class HomePageState extends State<HomePage>
               botId,
             );
             if (runnerConfig == null) {
-              final startupDetail =
-                  await RunnerSettings.embeddedRunnerStartupFailureDetail();
-              final detailSuffix =
-                  startupDetail == null || startupDetail.isEmpty
+              final startupNotice =
+                  await RunnerSettings.embeddedRunnerStartupFailureNotice();
+              final startupDetail = startupNotice == null
+                  ? ''
+                  : resolveRuntimeNotice(context.tr, startupNotice);
+              final detailSuffix = startupDetail.isEmpty
                   ? ''
                   : ' ($startupDetail)';
               throw Exception(
-                _uiCopy(
-                  fr: 'Le runner JS embarque n\'a pas pu demarrer. Relancez completement l\'application (pas un hot reload).$detailSuffix',
-                  en: 'The embedded JS runner could not start. Fully restart the app (not hot reload).$detailSuffix',
-                ),
+                context.tr.bot_start_embedded_runner_failed(detailSuffix),
               );
             }
 
@@ -3267,10 +3244,7 @@ class HomePageState extends State<HomePage>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              _uiCopy(
-                fr: "Limite de visionnage ou cooldown actif. Veuillez réessayer plus tard.",
-                en: "Ad cooldown or limit is active. Please try again later.",
-              ),
+              context.tr.ad_limit_or_cooldown,
             ),
           ),
         );
@@ -3292,10 +3266,7 @@ class HomePageState extends State<HomePage>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              _uiCopy(
-                fr: "Impossible de synchroniser la configuration du bot avec l'API principale.",
-                en: "Failed to sync bot configuration with the main API.",
-              ),
+              context.tr.ad_sync_config_failed,
             ),
           ),
         );
@@ -3312,10 +3283,7 @@ class HomePageState extends State<HomePage>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              _uiCopy(
-                fr: "Impossible de générer le contexte publicitaire (compte non connecté ou token manquant).",
-                en: "Failed to build ad context. Please ensure you are signed in and your bot token is set.",
-              ),
+              context.tr.ad_context_failed,
             ),
           ),
         );
@@ -3365,30 +3333,51 @@ class HomePageState extends State<HomePage>
 
     final previousBalance = await _fetchMainApiRuntimeBalance(botId);
 
+    // L'annonce est terminée, mais la RÉCOMPENSE n'est pas encore créditée : le
+    // manager la valide de son côté (callback SSV), ce qui prend quelques
+    // secondes. On le dit, au lieu d'annoncer un succès que personne ne peut
+    // encore constater — l'ancien code affichait le message de succès à cet
+    // instant précis et, si le crédit n'arrivait jamais, ne laissait qu'une ligne
+    // de journal : l'utilisateur avait vu « merci » et n'avait rien reçu.
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.tr.rewarded_start_credit_pending)),
+      );
+    }
+
     unawaited(() async {
       final rewardCredited = await _waitForMainApiRewardCredit(
         botId: botId,
         previousBalance: previousBalance,
       );
+      if (rewardCredited) {
+        await _refreshBotRuntimeBalances(botIds: <String>[botId]);
+      }
+      if (!mounted) {
+        return;
+      }
       if (!rewardCredited) {
         appendBotDebugLog(
           'Reward credit still pending for $botId after ad completion; start flow continues with automatic manager retry.',
         );
-        return;
       }
-      await _refreshBotRuntimeBalances(botIds: <String>[botId]);
+      // L'état RÉEL, à l'écran : le message de succès de l'appelant (par exemple
+      // « minutes ajoutées ») n'est affiché QUE lorsque le crédit est constaté.
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(
+              rewardCredited
+                  ? (successMessage ?? context.tr.rewarded_start_credit_confirmed)
+                  : context.tr.rewarded_start_credit_unconfirmed,
+            ),
+          ),
+        );
     }());
 
     await SubscriptionService.resolveEffectivePremiumStatus(forceRefresh: true);
-    if (!mounted) {
-      return false;
-    }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(successMessage ?? context.tr.rewarded_start_thanks),
-      ),
-    );
-    return true;
+    return mounted;
   }
 
   Future<bool> _ensureAdsConsent() async {
@@ -4295,11 +4284,7 @@ class HomeBotCardState extends State<HomeBotCard> {
                                       ),
                                     ),
                                     child: Text(
-                                      homeUiCopy(
-                                        context,
-                                        fr: 'Clé en main',
-                                        en: 'Turnkey',
-                                      ),
+                                      context.tr.home_badge_turnkey,
                                       style: TextStyle(
                                         fontSize: 10,
                                         fontWeight: FontWeight.bold,

@@ -299,17 +299,10 @@ class AppManager implements BotDataStore {
               const <Map<String, dynamic>>[],
         );
 
+      // `_writeAppToDisk` dépose le jeton dans le coffre AVANT d'écrire le
+      // fichier, et JAMAIS une valeur vide : une chaîne vide écraserait le jeton
+      // local (voir le commentaire plus haut sur la rédaction côté manager).
       await _writeAppToDisk(botId, data);
-      // Dual-write token to secure storage — JAMAIS une valeur vide : elle écraserait
-      // le jeton local (voir le commentaire plus haut sur la rédaction côté manager).
-      if (effectiveToken.isNotEmpty) {
-        unawaited(() async {
-          try {
-            final secure = await SecureStorageService.instance;
-            await secure.write('bot_token:$botId', effectiveToken);
-          } catch (_) {}
-        }());
-      }
       if (!await allAppsFile.exists()) {
         await allAppsFile.create(recursive: true);
       }
@@ -617,18 +610,54 @@ class AppManager implements BotDataStore {
         ? Map<String, dynamic>.from(jsonDecode(data) as Map<String, dynamic>)
         : <String, dynamic>{};
 
-    // Try to read token from secure storage; fall back to legacy JSON token
+    // Le coffre fait foi ; le jeton du fichier n'est qu'un reste des versions
+    // qui l'y écrivaient.
+    var secureToken = '';
     try {
       final secure = await SecureStorageService.instance;
-      final secureToken = await secure.read('bot_token:$id');
-      if (secureToken != null && secureToken.isNotEmpty) {
-        result['token'] = secureToken;
-      }
+      secureToken = ((await secure.read('bot_token:$id')) ?? '').trim();
     } catch (_) {
-      // Secure storage unavailable; keep legacy token from JSON
+      // Coffre indisponible : on garde le jeton du fichier, c'est le seul.
+    }
+    if (secureToken.isNotEmpty) {
+      // Ce que le FICHIER portait, avant de le remplacer par la valeur du coffre :
+      // c'est ça qui détermine s'il reste une copie en clair à retirer.
+      final fichierPortaitLeJeton =
+          (result['token'] ?? '').toString().trim().isNotEmpty;
+      result['token'] = secureToken;
+      if (fichierPortaitLeJeton) {
+        // Une copie en clair traîne encore dans le fichier : on la retire.
+        // Lancé SANS être attendu, et volontairement : `getApp` est appelé
+        // depuis la chaîne d'écriture (`_mutateApp`), et attendre ici une
+        // écriture qui se chaîne APRÈS la sienne la ferait attendre elle-même.
+        unawaited(_scrubPlaintextTokenCopy(id));
+      }
     }
 
     return result;
+  }
+
+  /// Retire du fichier un jeton resté en clair (copie d'une version antérieure).
+  ///
+  /// Relit le fichier DANS la chaîne d'écriture : écrire ici l'instantané lu par
+  /// `getApp` écraserait une sauvegarde concurrente avec des données périmées.
+  Future<void> _scrubPlaintextTokenCopy(String id) async {
+    await _enqueueAppWrite(id, () async {
+      final path = await _path();
+      final file = File("$path/apps/$id.json");
+      if (!await file.exists()) return;
+      final raw = await file.readAsString();
+      if (raw.isEmpty) return;
+      Map<String, dynamic> data;
+      try {
+        data = Map<String, dynamic>.from(jsonDecode(raw) as Map<String, dynamic>);
+      } catch (_) {
+        return;
+      }
+      if ((data['token'] ?? '').toString().isEmpty) return;
+      data.remove('token');
+      await _writeAppToDisk(id, data);
+    });
   }
 
   Future<Map<String, dynamic>?> getCachedPayload(String botId) async {
@@ -679,28 +708,85 @@ class AppManager implements BotDataStore {
   }
 
   Future<void> saveApp(String id, Map<String, dynamic> data) async {
+    // Le coffre n'est plus écrit ici : `_writeAppToDisk` s'en charge AVANT le
+    // fichier (et sait quoi faire quand le coffre refuse).
     await _enqueueAppWrite(id, () async {
       await _writeAppToDisk(id, data);
-      // Dual-write token to secure storage
-      final token = data['token']?.toString();
-      if (token != null && token.isNotEmpty) {
-        try {
-          final secure = await SecureStorageService.instance;
-          await secure.write('bot_token:$id', token);
-        } catch (_) {}
-      }
     });
     await invalidatePayloadCache(id);
     unawaited((onAfterSave ?? (_) async {}).call(id));
   }
 
+  /// Écrit le document de l'application sur le disque — SANS le jeton.
+  ///
+  /// Le jeton est un secret : il ne doit pas rester en clair dans
+  /// `apps/<id>.json`, un fichier JSON lisible par n'importe quel processus du
+  /// poste (sauvegardes, indexeur Spotlight, copie du dossier de données). Il
+  /// part donc dans le coffre système, et le fichier ne le porte plus. Rien ne
+  /// change pour les appelants : `getApp` relit le coffre en premier et rend le
+  /// jeton comme avant.
+  ///
+  /// L'ORDRE compte, et il est l'inverse de ce qui était fait : le coffre est
+  /// écrit et ATTENDU d'abord. Ce n'est que s'il refuse qu'on retombe sur la
+  /// copie JSON — un jeton perdu est pire qu'un jeton en clair (l'équipe l'a
+  /// vécu : « Token invalid or missing » sur tous les bots, sans moyen de
+  /// récupérer). Une tâche non attendue qui échoue après coup ne protège rien.
   Future<void> _writeAppToDisk(String id, Map<String, dynamic> data) async {
     final path = await _path();
     final file = File("$path/apps/$id.json");
+
+    final token = (data['token'] ?? '').toString().trim();
+    var tokenStoredInVault = false;
+    if (token.isNotEmpty) {
+      tokenStoredInVault = await storeTokenInVault(id, token);
+    }
+    final toWrite = appDocumentForDisk(
+      data,
+      tokenStoredInVault: tokenStoredInVault,
+    );
+
     if (!await file.exists()) {
       await file.create(recursive: true);
     }
-    await file.writeAsString(jsonEncode(data));
+    await file.writeAsString(jsonEncode(toWrite));
+  }
+
+  /// Ce qui part RÉELLEMENT sur le disque : le document sans son jeton.
+  ///
+  /// La règle tient en une ligne et mérite d'être isolée, parce que c'est elle
+  /// qui décide qu'un secret ne traîne plus dans un fichier — et parce que le
+  /// repli « coffre en échec » ne se simule pas avec un vrai coffre : un jeton
+  /// perdu est pire qu'un jeton en clair, donc quand le coffre a refusé, le
+  /// document garde sa copie. Un jeton vide, lui, ne s'écrit JAMAIS : il
+  /// effacerait le jeton local au prochain enregistrement.
+  @visibleForTesting
+  static Map<String, dynamic> appDocumentForDisk(
+    Map<String, dynamic> data, {
+    required bool tokenStoredInVault,
+  }) {
+    final document = Map<String, dynamic>.from(data);
+    final token = (document['token'] ?? '').toString().trim();
+    if (token.isEmpty || tokenStoredInVault) {
+      document.remove('token');
+    }
+    return document;
+  }
+
+  /// Dépose le jeton dans le coffre système et dit s'il y est.
+  ///
+  /// Rend `false` quand le coffre est indisponible : l'appelant doit alors
+  /// garder le jeton dans le fichier plutôt que de le perdre. Public (et
+  /// `visibleForTesting`) parce que c'est la seule façon de prouver ce repli :
+  /// un coffre réel en échec ne se simule pas.
+  @visibleForTesting
+  Future<bool> storeTokenInVault(String id, String token) async {
+    try {
+      final secure = await SecureStorageService.instance;
+      await secure.write('bot_token:$id', token);
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
   Future<T> _enqueueAppWrite<T>(String id, Future<T> Function() action) {
@@ -764,7 +850,11 @@ class AppManager implements BotDataStore {
       if (content.isNotEmpty) {
         final data = jsonDecode(content) as Map<String, dynamic>;
         data['guild_count'] = count;
-        await appFile.writeAsString(jsonEncode(data));
+        // Par `_writeAppToDisk`, pas en direct : c'était le SECOND écrivain du
+        // document, et un écrivain en direct ne peut pas faire respecter la règle
+        // « pas de jeton en clair dans le fichier » (il recopiait ce qu'il venait
+        // de lire, copie en clair comprise).
+        await _writeAppToDisk(id, data);
       }
     }
 

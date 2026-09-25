@@ -42,19 +42,12 @@ extension _AppHomePageAds on _AppHomePageState {
         await showDialog<void>(
           context: context,
           builder: (dialogContext) => AlertDialog(
-            title: Text(
-              _uiCopy(fr: 'Crédit en cours', en: 'Credit is still syncing'),
-            ),
-            content: Text(
-              _uiCopy(
-                fr: 'La récompense pub est en cours de synchronisation. Réessaie le démarrage dans quelques secondes.',
-                en: 'Your ad reward is still syncing. Try starting the bot again in a few seconds.',
-              ),
-            ),
+            title: Text(context.tr.rewarded_credit_syncing_title),
+            content: Text(context.tr.rewarded_credit_syncing_message),
             actions: [
               FilledButton(
                 onPressed: () => Navigator.of(dialogContext).pop(),
-                child: Text(_uiCopy(fr: 'OK', en: 'OK')),
+                child: Text(context.tr.common_ok),
               ),
             ],
           ),
@@ -163,10 +156,7 @@ extension _AppHomePageAds on _AppHomePageState {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                _uiCopy(
-                  fr: "Impossible de synchroniser la configuration du bot avec l'API principale.",
-                  en: "Failed to sync bot configuration with the main API.",
-                ),
+                context.tr.ad_sync_config_failed,
               ),
             ),
           );
@@ -182,10 +172,7 @@ extension _AppHomePageAds on _AppHomePageState {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                _uiCopy(
-                  fr: "Impossible de générer le contexte publicitaire (compte non connecté ou token manquant).",
-                  en: "Failed to build ad context. Please ensure you are signed in and your bot token is set.",
-                ),
+                context.tr.ad_context_failed,
               ),
             ),
           );
@@ -201,10 +188,7 @@ extension _AppHomePageAds on _AppHomePageState {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                _uiCopy(
-                  fr: "Limite de visionnage ou cooldown actif. Veuillez réessayer plus tard.",
-                  en: "Ad cooldown or limit is active. Please try again later.",
-                ),
+                context.tr.ad_limit_or_cooldown,
               ),
             ),
           );

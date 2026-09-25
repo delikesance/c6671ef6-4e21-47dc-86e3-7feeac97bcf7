@@ -220,6 +220,22 @@ class MainApiClient implements RemoteRuntimeClient {
   Duration get _retryDelay => _retryBaseDelayOverride ?? _baseRetryDelay;
   static const double _retryBackoffMultiplier = 2.0;
 
+  /// Budget d'une POUSSÉE de configuration (`/gateway/bots/sync`,
+  /// `/gateway/bots/discord/save`).
+  ///
+  /// Ces deux routes ne répondent pas avant que le manager ait son runner :
+  /// l'attente est bornée par MANAGED_RUNNER_HEALTH_TIMEOUT_SECONDS (120 s par
+  /// défaut), à laquelle s'ajoute le travail de synchro. Mesuré sur 24 h de
+  /// sauvegardes réelles : p50 = 125 s, maximum = 187 s.
+  ///
+  /// Le `_timeout` global (30 s) faisait donc abandonner le client PENDANT que
+  /// le serveur travaillait encore : l'abandon est journalisé côté serveur
+  /// (499 `request_canceled`,`context canceled` sur l'upload du document), et
+  /// la poussée est perdue côté utilisateur. Ce budget-ci est volontairement
+  /// SUPÉRIEUR au budget serveur — un client qui abandonne juste avant la
+  /// réponse transforme une attente en échec.
+  static const Duration configPushTimeout = Duration(minutes: 4);
+
   /// Cleans up the hash caches using LRU eviction when they exceed the max size.
   static void _evictOldestHashEntries(Map<String, String> cache) {
     if (cache.length <= _maxHashCacheEntries) return;
@@ -316,11 +332,16 @@ class MainApiClient implements RemoteRuntimeClient {
     http.Client? httpClient,
     Duration? timeout,
     Duration? retryDelay,
+
+    /// Budget d'une poussée de configuration de CETTE instance (tests) :
+    /// la valeur par défaut est [configPushTimeout], celle de la production.
+    Duration? pushTimeout,
   }) : _baseUrl = MainApiConfig.normalizeBaseUrl(baseUrl),
        _accessToken = _normalize(accessToken),
        _http = httpClient ?? http.Client(),
        _timeout = timeout ?? const Duration(seconds: 30),
-       _retryBaseDelayOverride = retryDelay;
+       _retryBaseDelayOverride = retryDelay,
+       _configPushTimeoutOverride = pushTimeout;
 
   final String _baseUrl;
   String get baseUrl => _baseUrl;
@@ -328,6 +349,18 @@ class MainApiClient implements RemoteRuntimeClient {
   final http.Client _http;
   final Duration _timeout;
   final Duration? _retryBaseDelayOverride;
+  final Duration? _configPushTimeoutOverride;
+
+  /// Le budget de poussée effectif de CETTE instance (voir [configPushTimeout]).
+  ///
+  /// POURQUOI UN SEAM ICI : le budget réel est de quatre minutes, pour rester
+  /// au-dessus du budget d'attente du serveur (~2 min). Un test qui devrait le
+  /// subir attendrait quatre minutes de vraie horloge ; il l'abaisse donc, et
+  /// vérifie ce qui compte — que le budget est RESPECTÉ et qu'un échec après
+  /// l'upload n'est PAS rejoué. La valeur par défaut reste celle de la
+  /// production, à l'identique.
+  Duration get _configPushTimeout =>
+      _configPushTimeoutOverride ?? configPushTimeout;
 
   @override
   RemoteRuntimeSource get runtimeSource => RemoteRuntimeSource.manager;
@@ -338,6 +371,8 @@ class MainApiClient implements RemoteRuntimeClient {
       accessToken: token,
       httpClient: _http,
       timeout: _timeout,
+      retryDelay: _retryBaseDelayOverride,
+      pushTimeout: _configPushTimeoutOverride,
     );
   }
 
@@ -493,6 +528,8 @@ class MainApiClient implements RemoteRuntimeClient {
     Map<String, dynamic> body, {
     bool includeAuth = true,
     Map<String, String>? extraHeaders,
+    Duration? timeout,
+    bool retryOnFailure = true,
   }) async {
     if (_isCircuitOpen(_baseUrl)) {
       throw MainApiClientException(
@@ -510,8 +547,20 @@ class MainApiClient implements RemoteRuntimeClient {
       '[MainApiClient] POST $uri body=${redactSensitiveJson(encodedBody)}',
     );
 
-    Object? lastError;
-    for (var attempt = 0; attempt <= _maxRetries; attempt++) {
+    // Une reprise n'a de sens que sur une requête SANS EFFET. Sur une poussée
+    // de configuration, chaque reprise renvoie jusqu'à 100 Ko pendant que le
+    // serveur travaille peut-être encore sur la première : avec `_maxRetries`
+    // = 3, c'est QUATRE envois pour une seule action de l'utilisateur, et le
+    // verrou de synchro par bot répond `409 bot_sync_in_progress` aux suivants.
+    // Les routes de poussée appellent donc avec `retryOnFailure: false`.
+    final int maxRetries = retryOnFailure ? _maxRetries : 0;
+
+    var attempt = 0;
+    // Le rafraîchissement de session ne consomme PAS une reprise (la panne est
+    // celle du jeton, pas celle de la requête) mais ne se répète pas.
+    var refreshedSession = false;
+
+    while (true) {
       try {
         final response = await _http
             .post(
@@ -522,52 +571,51 @@ class MainApiClient implements RemoteRuntimeClient {
               ),
               body: encodedBody,
             )
-            .timeout(_timeout);
+            .timeout(timeout ?? _timeout);
         appendBotDebugLog(
           '[MainApiClient] POST $uri responded with ${response.statusCode}',
         );
         _recordCircuitSuccess(_baseUrl);
         return _parseResponse(response);
       } on MainApiClientException catch (error) {
-        lastError = error;
         if ((error.statusCode == 401 || error.statusCode == 403) &&
-            includeAuth) {
+            includeAuth &&
+            !refreshedSession) {
           final newTokens = await _tryRefreshSession();
           if (newTokens != null) {
             _accessToken = newTokens;
+            refreshedSession = true;
             continue;
           }
         }
         if (_isClientError(error)) {
           rethrow;
         }
-        if (attempt >= _maxRetries) {
+        if (attempt >= maxRetries) {
           _recordCircuitFailure(_baseUrl);
           rethrow;
         }
         appendBotDebugLog(
-          '[MainApiClient] POST $uri attempt ${attempt + 1}/$_maxRetries failed: $error — retrying...',
+          '[MainApiClient] POST $uri attempt ${attempt + 1}/$maxRetries failed: $error — retrying...',
         );
         await Future<void>.delayed(
           _retryDelay * pow(_retryBackoffMultiplier, attempt),
         );
+        attempt++;
       } catch (error) {
-        lastError = error;
-        if (attempt >= _maxRetries) {
+        if (attempt >= maxRetries) {
           _recordCircuitFailure(_baseUrl);
           rethrow;
         }
         appendBotDebugLog(
-          '[MainApiClient] POST $uri attempt ${attempt + 1}/$_maxRetries failed: $error — retrying...',
+          '[MainApiClient] POST $uri attempt ${attempt + 1}/$maxRetries failed: $error — retrying...',
         );
         await Future<void>.delayed(
           _retryDelay * pow(_retryBackoffMultiplier, attempt),
         );
+        attempt++;
       }
     }
-
-    if (lastError is Exception) throw lastError;
-    throw const MainApiClientException('Request failed after retries.');
   }
 
   Future<Map<String, dynamic>> _delete(
@@ -1310,6 +1358,19 @@ class MainApiClient implements RemoteRuntimeClient {
       if (confirmOvershrink) 'confirmOvershrink': true,
     };
 
+    // Le document est-il DÉJÀ dans le stockage d'objets ? C'est ce qui décide si
+    // un échec a le droit d'être rejoué en repli direct.
+    //
+    // POURQUOI ce drapeau : le repli existe pour un stockage d'objets
+    // injoignable, pas pour une synchro qui échoue. Or le `catch` d'origine
+    // couvrait les DEUX et renvoyait la poussée entière (les 100 Ko de
+    // configuration) alors que le document était déjà en place et que le
+    // serveur travaillait peut-être encore sur la première — journal de l'app :
+    // « Presigned config upload failed … Falling back to legacy direct sync »,
+    // présent sur 106 des 230 synchros, chacune relançant l'attente de pool du
+    // serveur (~2 min).
+    var uploadedToObjectStore = false;
+
     try {
       // 1. Get presigned ticket
       final ticket = await presignBotConfig(botId: botId);
@@ -1321,8 +1382,9 @@ class MainApiClient implements RemoteRuntimeClient {
         fileBytes: configJsonBytes,
         contentType: 'application/json; charset=utf-8',
       );
+      uploadedToObjectStore = true;
 
-      // 3. Call sync endpoint with configUrl
+      // 3. Call sync endpoint with configUrl — budget de poussée, un seul essai
       await _postFirstAvailable(
         const <String>['/gateway/bots/sync', '/bots/sync'],
         <String, dynamic>{
@@ -1331,8 +1393,21 @@ class MainApiClient implements RemoteRuntimeClient {
           'configUrl': ticket.configUrl,
           ...overshrinkConsent,
         },
+        timeout: _configPushTimeout,
+        retryOnFailure: false,
       );
     } catch (error) {
+      if (uploadedToObjectStore) {
+        // Le document est en place : cet échec vient de la synchro elle-même.
+        // Rejouer la poussée entière ne répare rien, ne fait que renvoyer la
+        // configuration sur un serveur qui la traite encore, et se heurte au
+        // verrou de synchro par bot (409 bot_sync_in_progress).
+        debugPrint(
+          '[MainApiClient] Config sync failed after a successful upload: $error. Not replaying the config.',
+        );
+        rethrow;
+      }
+
       debugPrint(
         '[MainApiClient] Presigned config upload failed: $error. Falling back to legacy direct sync.',
       );
@@ -1346,6 +1421,8 @@ class MainApiClient implements RemoteRuntimeClient {
           'config': safeConfig,
           ...overshrinkConsent,
         },
+        timeout: _configPushTimeout,
+        retryOnFailure: false,
       );
     }
 
@@ -1452,9 +1529,27 @@ class MainApiClient implements RemoteRuntimeClient {
       return;
     }
 
+    // Même budget que `syncBot` — c'est la même attente de pool côté serveur
+    // (p50 mesuré à 124,7 s sur cette route) — et AUCUN rejeu : renvoyer une
+    // sauvegarde de 100 Ko pendant qu'une synchro tient le verrou par bot rend
+    // un `409 bot_sync_in_progress` (trois cas sur 24 h, 21 s chacun).
+    //
+    // `bot_id` : l'identifiant sous lequel l'APP connaît ce bot. Le manager
+    // identifie le bot par son jeton (`/applications/@me`) et l'ignorait donc
+    // jusqu'ici. Sans lui, une annonce récompensée regardée pour ce bot envoie
+    // un callback SSV que le manager ne peut rattacher à aucun bot : la
+    // publicité est vue et la récompense est jetée (« no owner candidate
+    // accepted the claim »). L'envoyer permet au manager d'enregistrer la
+    // correspondance identifiant local → bot géré.
     await _postFirstAvailable(
       const <String>['/gateway/bots/discord/save', '/bots/discord/save'],
-      <String, dynamic>{'bot_token': botToken, 'config': config},
+      <String, dynamic>{
+        'bot_token': botToken,
+        'config': config,
+        'bot_id': normalizedBotId,
+      },
+      timeout: _configPushTimeout,
+      retryOnFailure: false,
     );
 
     _lastSavedSnapshots[cacheKey] = currentHash;
@@ -1481,10 +1576,20 @@ class MainApiClient implements RemoteRuntimeClient {
   @override
   Future<void> startBot(String botId, {String? botName}) async {
     final encodedBotId = Uri.encodeComponent(botId.trim());
-    await _post('/gateway/bots/$encodedBotId/start', <String, dynamic>{
-      'bot_name': ?_normalize(botName),
-      'botName': ?_normalize(botName),
-    });
+    // AUCUN REJEU : demarrer un bot est une action a effet cote serveur (le
+    // manager provisionne/reconcilie son execution). Le defaut `_maxRetries = 3`
+    // envoyait jusqu'a quatre demarrages pour un seul clic, et le journal de
+    // production en a garde la trace (`bot_sync_in_progress` en 409 sur les
+    // envois suivants). Conforme a la regle du depot : un rejeu est reserve aux
+    // routes sans effet visible.
+    await _post(
+      '/gateway/bots/$encodedBotId/start',
+      <String, dynamic>{
+        'bot_name': ?_normalize(botName),
+        'botName': ?_normalize(botName),
+      },
+      retryOnFailure: false,
+    );
   }
 
   @override
@@ -1858,25 +1963,6 @@ class MainApiClient implements RemoteRuntimeClient {
     );
   }
 
-  Future<Map<String, dynamic>> claimBotAdRuntime({
-    required String botId,
-    required String placement,
-    required String rewardId,
-    required String idempotencyKey,
-    required DateTime occurredAt,
-  }) async {
-    final encodedBotId = Uri.encodeComponent(botId.trim());
-    return _post(
-      '/gateway/bots/$encodedBotId/runtime/claim-ad',
-      <String, dynamic>{
-        'placement': placement,
-        'reward_id': rewardId,
-        'occurred_at': occurredAt.toUtc().toIso8601String(),
-        'idempotency_key': idempotencyKey,
-      },
-    );
-  }
-
   Future<List<Map<String, dynamic>>> getBotAdHistory(String botId) async {
     final encodedBotId = Uri.encodeComponent(botId.trim());
     final json = await _get('/gateway/bots/$encodedBotId/runtime/ad-history');
@@ -2115,11 +2201,19 @@ class MainApiClient implements RemoteRuntimeClient {
     List<String> paths,
     Map<String, dynamic> body, {
     bool includeAuth = true,
+    Duration? timeout,
+    bool retryOnFailure = true,
   }) async {
     MainApiClientException? notFoundError;
     for (final path in paths) {
       try {
-        return await _post(path, body, includeAuth: includeAuth);
+        return await _post(
+          path,
+          body,
+          includeAuth: includeAuth,
+          timeout: timeout,
+          retryOnFailure: retryOnFailure,
+        );
       } on MainApiClientException catch (error) {
         if (_isNotFound(error)) {
           notFoundError = error;
@@ -2371,6 +2465,13 @@ class MainApiClient implements RemoteRuntimeClient {
   }
 
   /// Deploy a new container (async, returns job + container IDs).
+  ///
+  /// AUCUN REJEU : la route cree un conteneur par appel. Le manager n'a pas de
+  /// cle d'idempotence sur cette route (verifie : `DeployContainer` appelle
+  /// `Compute.Deploy` sans cle, et consomme les minutes offertes via
+  /// `OnDeployed`) : un rejeu apres un simple depassement de delai cree un
+  /// SECOND conteneur, facture, et reconsomme des minutes. L'utilisateur voit
+  /// l'echec et reclique ; il ne paie pas deux fois.
   Future<Map<String, dynamic>> deployContainer({
     required String image,
     required int cpuMillis,
@@ -2401,7 +2502,7 @@ class MainApiClient implements RemoteRuntimeClient {
         body['save_registry_label'] = saveRegistryLabel;
       }
     }
-    return _post('/containers/deploy', body);
+    return _post('/containers/deploy', body, retryOnFailure: false);
   }
 
   Future<List<RegistryCredential>> listRegistryCredentials() async {
@@ -2418,12 +2519,18 @@ class MainApiClient implements RemoteRuntimeClient {
     required String username,
     required String password,
   }) async {
-    final json = await _post('/registry-credentials', <String, dynamic>{
-      'label': label,
-      'registry_host': registryHost,
-      'username': username,
-      'password': password,
-    });
+    // AUCUN REJEU : chaque appel cree une ligne. Un rejeu laisse des doublons
+    // d'identifiants dans la liste du locataire, que rien ne distingue ensuite.
+    final json = await _post(
+      '/registry-credentials',
+      <String, dynamic>{
+        'label': label,
+        'registry_host': registryHost,
+        'username': username,
+        'password': password,
+      },
+      retryOnFailure: false,
+    );
     return RegistryCredential.fromJson(json);
   }
 

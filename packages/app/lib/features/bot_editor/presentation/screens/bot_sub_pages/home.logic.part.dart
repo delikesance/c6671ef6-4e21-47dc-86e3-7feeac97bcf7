@@ -336,12 +336,9 @@ extension _AppHomePageLogic on _AppHomePageState {
         }
 
         if (remoteRuntime.blocksLocalFallback) {
-          final message =
-              remoteRuntime.unavailableReason ??
-              _uiCopy(
-                fr: 'Connectez-vous a Bot Creator dans les parametres avant de demarrer ce bot.',
-                en: 'Sign in to Bot Creator in Settings before starting this bot.',
-              );
+          final message = remoteRuntime.unavailableReason == null
+              ? context.tr.bot_start_sign_in_required
+              : resolveRuntimeNotice(context.tr, remoteRuntime.unavailableReason!);
 
           throw Exception(message);
         }
@@ -467,7 +464,10 @@ extension _AppHomePageLogic on _AppHomePageState {
           }
           if (remoteClient is MainApiClient) {
             throw Exception(
-              await describeManagerRuntimeFailure(remoteClient, error),
+              resolveRuntimeNotice(
+                context.tr,
+                await describeManagerRuntimeFailure(remoteClient, error),
+              ),
             );
           }
           rethrow;
@@ -545,16 +545,16 @@ extension _AppHomePageLogic on _AppHomePageState {
         if (await getBotRuntimeEngine(botId) == runtimeEngineJavascript) {
           final runnerConfig = await RunnerSettings.resolveConfigForBot(botId);
           if (runnerConfig == null) {
-            final startupDetail =
-                await RunnerSettings.embeddedRunnerStartupFailureDetail();
-            final detailSuffix = startupDetail == null || startupDetail.isEmpty
+            final startupNotice =
+                await RunnerSettings.embeddedRunnerStartupFailureNotice();
+            final startupDetail = startupNotice == null
+                ? ''
+                : resolveRuntimeNotice(context.tr, startupNotice);
+            final detailSuffix = startupDetail.isEmpty
                 ? ''
                 : ' ($startupDetail)';
             throw Exception(
-              _uiCopy(
-                fr: 'Le runner JS embarque n\'a pas pu demarrer. Relancez completement l\'application (pas un hot reload).$detailSuffix',
-                en: 'The embedded JS runner could not start. Fully restart the app (not hot reload).$detailSuffix',
-              ),
+              context.tr.bot_start_embedded_runner_failed(detailSuffix),
             );
           }
 

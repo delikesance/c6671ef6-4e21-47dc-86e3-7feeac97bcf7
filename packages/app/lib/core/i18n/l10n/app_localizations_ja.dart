@@ -5531,6 +5531,391 @@ class AppLocalizationsJa extends AppLocalizations {
   String get rewarded_start_continue => '続ける';
 
   @override
+  String get rewarded_start_credit_confirmed => '報酬を付与しました。ホスティング時間が追加されました。';
+
+  @override
+  String get rewarded_credit_syncing_message =>
+      '広告の報酬をまだ同期しています。数秒後にもう一度ボットを起動してみてください。';
+
+  @override
+  String get sync_cloud_applied => 'クラウド版を適用しました';
+
+  @override
+  String sync_diff_local_only_count(int count) {
+    return '$count 件はローカルのみ';
+  }
+
+  @override
+  String sync_diff_new_count(int count) {
+    return '+$count 件の新規';
+  }
+
+  @override
+  String sync_diff_updated_count(int count) {
+    return '$count 件を更新';
+  }
+
+  @override
+  String get bot_stats_metrics_source => 'メトリクスの取得元';
+
+  @override
+  String get bot_stats_no_bot_selected => 'ボットが選択されていません';
+
+  @override
+  String get bot_stats_refresh_now => '今すぐ更新';
+
+  @override
+  String get bot_stats_source_local => 'このデバイス上でローカル';
+
+  @override
+  String get bot_stats_warning_title => '警告';
+
+  @override
+  String bot_start_embedded_runner_failed(String detail) {
+    return '組み込みJSランナーを起動できませんでした。アプリを完全に再起動してください（ホットリロードではなく）。$detail';
+  }
+
+  @override
+  String get bot_start_sign_in_required =>
+      'このボットを起動する前に、設定でBot Creatorにサインインしてください。';
+
+  @override
+  String get home_badge_turnkey => 'すぐに使える';
+
+  @override
+  String home_server_cannot_run_bot(String detail) {
+    return 'Bot Creatorのサーバーが選択されていますが、このボットを実行できません: $detail。ローカルでの実行は開始していません。解決後に再度起動してください。';
+  }
+
+  @override
+  String get home_server_session_unusable => 'この端末から利用できるサーバーセッションがありません';
+
+  @override
+  String get runner_source_runner => 'ランナー';
+
+  @override
+  String get command_create_existing_folders => '既存のフォルダー';
+
+  @override
+  String get common_export => 'エクスポート';
+
+  @override
+  String get workflows_folder_destination_optional => '保存先フォルダー（任意）';
+
+  @override
+  String get workflows_import_preview_title => 'ワークフロー読み込みのプレビュー';
+
+  @override
+  String get blueprint_close_inspector => 'インスペクターを閉じる';
+
+  @override
+  String get blueprint_search_action_hint => 'アクションを検索...';
+
+  @override
+  String get common_auto => '自動';
+
+  @override
+  String get common_inline => 'インライン';
+
+  @override
+  String marketplace_options_count(int count) {
+    return 'オプション（$count）';
+  }
+
+  @override
+  String marketplace_required_config_count(int count) {
+    return '$count 件の設定';
+  }
+
+  @override
+  String get option_autocomplete_javascript => 'JavaScriptの自動補完';
+
+  @override
+  String option_description_new(int count) {
+    return 'オプション$countの説明';
+  }
+
+  @override
+  String variables_sync_failed(String error) {
+    return '変数を同期できませんでした: $error';
+  }
+
+  @override
+  String actions_configured_count(num count) {
+    return '$count 件のアクションを設定済み';
+  }
+
+  @override
+  String action_card_else_if(int count) {
+    return 'それ以外の場合 $count';
+  }
+
+  @override
+  String get blueprint_cut_link => 'リンクを切断';
+
+  @override
+  String get blueprint_entry_point_hint =>
+      'エントリーポイントのトリガーノード。\nコマンドのプロパティで設定します。';
+
+  @override
+  String get blueprint_mode_label => 'ブループリント';
+
+  @override
+  String get blueprint_origin_label => '原点 (0, 0)';
+
+  @override
+  String bot_config_version_commands(int count) {
+    return '$count 件のコマンド';
+  }
+
+  @override
+  String get bot_config_version_commands_title => 'このバージョンのコマンド:';
+
+  @override
+  String bot_config_version_more_count(int count) {
+    return '… 他 $count 件';
+  }
+
+  @override
+  String bot_config_version_replace_warning(int count) {
+    return '現在の$count件のコマンドを置き換えます';
+  }
+
+  @override
+  String command_delete_discord_failed_local(String error) {
+    return 'Discordでの削除に失敗しました。ローカルの削除を適用しました。$error';
+  }
+
+  @override
+  String get common_exists => '既存';
+
+  @override
+  String get common_live_badge => 'ライブ';
+
+  @override
+  String component_choice_number(int count) {
+    return '選択肢 $count';
+  }
+
+  @override
+  String get component_ephemeral_hint => 'エフェメラル（コマンド実行者にのみ表示）';
+
+  @override
+  String get debug_persistence_title => '永続化のデバッグ';
+
+  @override
+  String element_count(int count) {
+    return '$count 件の要素';
+  }
+
+  @override
+  String embed_count(int count) {
+    return '$count 件の埋め込み';
+  }
+
+  @override
+  String get emojis_animated_label => 'アニメーション';
+
+  @override
+  String field_count(int count) {
+    return '$count 件のフィールド';
+  }
+
+  @override
+  String marketplace_actions_count(int count) {
+    return 'アクション（$count）';
+  }
+
+  @override
+  String get onb_example_label => '例:';
+
+  @override
+  String get option_autocomplete_js_hint =>
+      'interaction.respond() に名前と値の組を渡して最大25件の選択肢を返します。';
+
+  @override
+  String get permission_tap_to_cycle => 'タップして切り替え';
+
+  @override
+  String get serialization_copy_base64 => 'コンパクトなBase64ペイロードをクリップボードにコピー';
+
+  @override
+  String get settings_ads_debug_desc =>
+      'Ad Inspectorを開き、アダプター（Unity/Google）の状態を記録してメディエーションを確認します。';
+
+  @override
+  String get settings_ads_debug_title => '広告メディエーションのデバッグ';
+
+  @override
+  String settings_detected_engine(String engine) {
+    return '検出されたエンジン: $engine';
+  }
+
+  @override
+  String get variables_emojis_hint => '利用できる絵文字 — タップして挿入';
+
+  @override
+  String workflow_event_variables_count(int count) {
+    return 'イベント変数（$count）';
+  }
+
+  @override
+  String workflow_import_review_count(int count) {
+    return '$count 件のワークフローを確認して読み込みます:';
+  }
+
+  @override
+  String get workflow_rename_variables_hint => 'このワークフローの変数は任意で名前を変更できます。';
+
+  @override
+  String component_node_child_run_hint(
+    String message,
+    String workflow,
+    String entry,
+    String args,
+  ) {
+    return '$message 「$workflow」を実行します（エントリー: $entry、引数: $args）。';
+  }
+
+  @override
+  String workflows_preview_summary(String type, int count) {
+    return '$type  •  $count 件のアクション';
+  }
+
+  @override
+  String get runner_embedded_desync_detail =>
+      'ランナープロセスは動作していますが、アプリが接続を失いました。設定の「再起動」を使用してください。';
+
+  @override
+  String runtime_invalid_bot_id(String error) {
+    return 'Bot Creatorサーバーでの起動に無効なBot IDです。Botを同期／再作成してから再試行してください。元のエラー: $error';
+  }
+
+  @override
+  String runtime_invalid_bot_id_details(String detail) {
+    return 'Bot Creatorサーバーでの起動に無効なBot IDです。Botを同期／再作成してから再試行してください。詳細: $detail';
+  }
+
+  @override
+  String get runtime_local_unsupported_ios_configure =>
+      'iOSではローカルモードは利用できません。このBotを起動するにはBot Creatorを設定してください。';
+
+  @override
+  String get runtime_local_unsupported_ios_sign_in =>
+      'iOSではローカルモードは利用できません。このBotを起動する前に、設定でBot Creatorにサインインしてください。';
+
+  @override
+  String get runtime_plan_limit => 'ご利用のプランではこの起動はできません。プラン一覧から変更してください。';
+
+  @override
+  String runtime_request_failed(String error) {
+    return 'Bot Creatorサーバーへのリクエストに失敗しました: $error';
+  }
+
+  @override
+  String runtime_servers_not_ready(String error) {
+    return 'Bot CreatorサーバーはこのBotの準備がまだ整っていません。元のエラー: $error';
+  }
+
+  @override
+  String get runtime_session_expired =>
+      'Bot Creatorのセッションが切れました。設定で再度サインインしてこのBotを起動してください。';
+
+  @override
+  String get runtime_sign_in_required =>
+      'このBotを起動する前に、設定でBot Creatorにサインインしてください。';
+
+  @override
+  String runtime_startup_failed(String error) {
+    return 'Bot Creatorサーバーでの起動に失敗しました。元のエラー: $error';
+  }
+
+  @override
+  String runtime_startup_failed_with_detail(String detail, String error) {
+    return 'Bot Creatorサーバーでの起動に失敗しました。詳細: $detail 元のエラー: $error';
+  }
+
+  @override
+  String runtime_startup_in_progress(String status, String error) {
+    return 'Bot Creatorサーバーでの起動がまだ進行中です（$status）。処理は待機中または実行中の可能性があります。元のエラー: $error';
+  }
+
+  @override
+  String runtime_unreachable(String error) {
+    return 'Bot Creatorサーバーに一時的に接続できません。元のエラー: $error';
+  }
+
+  @override
+  String get sync_cloud_update_applied => 'クラウドの更新を適用しました';
+
+  @override
+  String get sync_conflict_message =>
+      'このローカルセッションとクラウド版（モバイル）で変更が分かれています。解決方法を選択してください。';
+
+  @override
+  String get sync_conflict_title => '同期の競合を検出しました';
+
+  @override
+  String get sync_in_progress => '同期中...';
+
+  @override
+  String get sync_keep_local_description => 'ローカルの変更を保持し、クラウドを更新するために送信します。';
+
+  @override
+  String get sync_keep_local_title => 'ローカル版を保持（デスクトップ）';
+
+  @override
+  String get sync_local_kept => 'ローカル版を保持し、クラウドを更新しました';
+
+  @override
+  String get sync_merge_smart_description =>
+      '両側の追加をすべて保持し、重複した場合は新しい方のコマンドを採用します。';
+
+  @override
+  String get sync_merge_smart_done => 'スマート統合を実行し、クラウドに同期しました';
+
+  @override
+  String get sync_merge_smart_title => 'スマート統合（推奨）';
+
+  @override
+  String get sync_synced_with_cloud => 'クラウド版と同期しました';
+
+  @override
+  String get sync_take_cloud_description => 'まだ送信していないローカルの変更をクラウド版で上書きします。';
+
+  @override
+  String get sync_take_cloud_title => 'クラウド版を採用（モバイル）';
+
+  @override
+  String get sync_version_cloud_mobile => 'クラウド版（モバイル）';
+
+  @override
+  String get sync_version_local_desktop => 'ローカル版（デスクトップ）';
+
+  @override
+  String get rewarded_credit_syncing_title => '報酬の反映中';
+
+  @override
+  String get ad_context_failed =>
+      '広告コンテキストを作成できませんでした（アカウント未接続、またはボットトークンがありません）。';
+
+  @override
+  String get ad_history_unavailable => '履歴を取得できません（APIに接続できません）';
+
+  @override
+  String get ad_limit_or_cooldown => '広告のクールダウンまたは上限が有効です。しばらくしてから再試行してください。';
+
+  @override
+  String get ad_sync_config_failed => 'ボットの設定をメインAPIと同期できませんでした。';
+
+  @override
+  String get rewarded_start_credit_pending => '広告が終了しました。報酬を確認しています…';
+
+  @override
+  String get rewarded_start_credit_unconfirmed =>
+      '報酬はまだ付与されていません。サーバーが後で承認する場合があります。分を再読み込みして確認してください。';
+
+  @override
   String get rewarded_start_message =>
       'このホスティングセッションを開始するには広告が必要です。これはプロジェクトの資金となります。プレミアムユーザー';
 
@@ -6578,6 +6963,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get settings_export => 'エクスポート';
+
+  @override
+  String get settings_runner_type_label => 'ランナーの種類';
 
   @override
   String get settings_export_app_data => 'アプリデータをエクスポート';
@@ -8399,7 +8787,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get settings_sync_force_desc =>
-      'Bot Creatorでローカルに定義されていないDiscordスラッシュコマンドをすべて削除します。';
+      'Discord にないコマンドを再作成し、Bot Creator で定義されていないコマンドを削除します。';
 
   @override
   String get settings_sync_force_button => 'Discordと同期する';
@@ -8409,15 +8797,23 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get settings_sync_force_dialog_desc =>
-      'これにより、Bot Creatorでローカルに定義されていないDiscordのスラッシュコマンドがすべて削除されます。本当に続行しますか？';
+      'Discord にないコマンドは再作成され、Bot Creator で定義されていないコマンドは削除されます。続行しますか？';
 
   @override
   String get settings_sync_force_dialog_confirm => '強制同期';
 
   @override
-  String settings_sync_force_success(Object count) {
-    return '強制同期が正常に完了しました。Discordから $count 件の古い/追跡されていないコマンドを削除しました。';
+  String settings_sync_force_success_counts(
+    int created,
+    int relinked,
+    int deleted,
+  ) {
+    return '同期が完了しました：Discord で $created 件を再作成、$relinked 件を再関連付け、$deleted 件を削除しました。';
   }
+
+  @override
+  String get settings_sync_force_no_local_commands =>
+      '登録するローカルコマンドがありません：Discord 側は何も変更していません（空の同期はすべてのコマンドを消してしまいます）。';
 
   @override
   String settings_sync_force_error(Object error) {
