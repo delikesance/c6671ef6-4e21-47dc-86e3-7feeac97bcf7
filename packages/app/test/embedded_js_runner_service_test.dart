@@ -54,7 +54,10 @@ void main() {
     });
 
     test('startup failure detail is null before any start attempt', () async {
-      expect(await RunnerSettings.embeddedRunnerStartupFailureDetail(), isNull);
+      expect(
+        await RunnerSettings.embeddedRunnerStartupFailureNotice(),
+        isNull,
+      );
       expect(EmbeddedJsRunnerService.instance.lastStartupPhase, isNull);
     });
 

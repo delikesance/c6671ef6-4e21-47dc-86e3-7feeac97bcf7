@@ -932,14 +932,8 @@ extension _AppHomePageSync on _AppHomePageState {
                       Expanded(
                         child: Text(
                           isLiveUpdate
-                              ? _uiCopy(
-                                  fr: 'Mise à jour Cloud appliquée avec succès',
-                                  en: 'Cloud update applied successfully',
-                                )
-                              : _uiCopy(
-                                  fr: 'Synchronisé avec la version Cloud',
-                                  en: 'Synced with Cloud version',
-                                ),
+                              ? context.tr.sync_cloud_update_applied
+                              : context.tr.sync_synced_with_cloud,
                         ),
                       ),
                     ],
@@ -1041,10 +1035,7 @@ extension _AppHomePageSync on _AppHomePageState {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      _uiCopy(
-                        fr: 'Conflit de synchronisation',
-                        en: 'Sync Conflict Detected',
-                      ),
+                      context.tr.sync_conflict_title,
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
@@ -1061,10 +1052,7 @@ extension _AppHomePageSync on _AppHomePageState {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(
-                        _uiCopy(
-                          fr: 'Des modifications divergentes existent entre cette session locale et la version Cloud (Mobile). Choisissez comment résoudre ce conflit :',
-                          en: 'Divergent changes exist between this local session and Cloud (Mobile). Choose how to resolve this conflict:',
-                        ),
+                        context.tr.sync_conflict_message,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: colorScheme.onSurfaceVariant,
                         ),
@@ -1088,20 +1076,14 @@ extension _AppHomePageSync on _AppHomePageState {
                           children: [
                             _buildTimestampRow(
                               icon: Icons.cloud_outlined,
-                              label: _uiCopy(
-                                fr: 'Version Cloud (Mobile)',
-                                en: 'Cloud Version (Mobile)',
-                              ),
+                              label: context.tr.sync_version_cloud_mobile,
                               timestamp: remoteTsStr,
                               color: colorScheme.primary,
                             ),
                             const SizedBox(height: 8),
                             _buildTimestampRow(
                               icon: Icons.computer_outlined,
-                              label: _uiCopy(
-                                fr: 'Version Locale (Desktop)',
-                                en: 'Local Version (Desktop)',
-                              ),
+                              label: context.tr.sync_version_local_desktop,
                               timestamp: localTsStr,
                               color: colorScheme.secondary,
                             ),
@@ -1115,7 +1097,7 @@ extension _AppHomePageSync on _AppHomePageState {
                                 children: [
                                   if (newCount > 0)
                                     Text(
-                                      '+$newCount ${_uiCopy(fr: "nouveaux", en: "new")}',
+                                      context.tr.sync_diff_new_count(newCount),
                                       style: const TextStyle(
                                         color: AppTheme.successAccent,
                                         fontWeight: FontWeight.w600,
@@ -1124,7 +1106,7 @@ extension _AppHomePageSync on _AppHomePageState {
                                     ),
                                   if (updatedCount > 0)
                                     Text(
-                                      '$updatedCount ${_uiCopy(fr: "modifiés", en: "updated")}',
+                                      context.tr.sync_diff_updated_count(updatedCount),
                                       style: const TextStyle(
                                         color: AppTheme.warning,
                                         fontWeight: FontWeight.w600,
@@ -1133,7 +1115,7 @@ extension _AppHomePageSync on _AppHomePageState {
                                     ),
                                   if (localOnlyCount > 0)
                                     Text(
-                                      '$localOnlyCount ${_uiCopy(fr: "locaux", en: "local only")}',
+                                      context.tr.sync_diff_local_only_count(localOnlyCount),
                                       style: TextStyle(
                                         color: colorScheme.secondary,
                                         fontWeight: FontWeight.w600,
@@ -1157,10 +1139,7 @@ extension _AppHomePageSync on _AppHomePageState {
                                 const CircularProgressIndicator(),
                                 const SizedBox(height: 12),
                                 Text(
-                                  _uiCopy(
-                                    fr: 'Synchronisation en cours...',
-                                    en: 'Sync in progress...',
-                                  ),
+                                  context.tr.sync_in_progress,
                                 ),
                               ],
                             ),
@@ -1170,14 +1149,8 @@ extension _AppHomePageSync on _AppHomePageState {
                         // Option 1: Smart Merge
                         _buildReconciliationOptionCard(
                           icon: Icons.merge_type_rounded,
-                          title: _uiCopy(
-                            fr: 'Fusionner intelligemment (Recommandé)',
-                            en: 'Smart Merge (Recommended)',
-                          ),
-                          description: _uiCopy(
-                            fr: 'Conserve tous les ajouts des deux côtés et retient la commande la plus récente lors d\'un doublon.',
-                            en: 'Combines additions from both sides and keeps the newest command in case of duplicates.',
-                          ),
+                          title: context.tr.sync_merge_smart_title,
+                          description: context.tr.sync_merge_smart_description,
                           isRecommended: true,
                           colorScheme: colorScheme,
                           onTap: () async {
@@ -1198,10 +1171,7 @@ extension _AppHomePageSync on _AppHomePageState {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
-                                      _uiCopy(
-                                        fr: 'Fusion intelligente effectuée et synchronisée sur le Cloud',
-                                        en: 'Smart merge completed and synced to Cloud',
-                                      ),
+                                      context.tr.sync_merge_smart_done,
                                     ),
                                     backgroundColor: AppTheme.success,
                                   ),
@@ -1236,14 +1206,8 @@ extension _AppHomePageSync on _AppHomePageState {
                         // Option 2: Cloud Version
                         _buildReconciliationOptionCard(
                           icon: Icons.cloud_download_outlined,
-                          title: _uiCopy(
-                            fr: 'Prendre la version Cloud (Mobile)',
-                            en: 'Take Cloud Version (Mobile)',
-                          ),
-                          description: _uiCopy(
-                            fr: 'Écrase les modifications locales non envoyées par la version Cloud.',
-                            en: 'Replaces local un-pushed changes with the Cloud version.',
-                          ),
+                          title: context.tr.sync_take_cloud_title,
+                          description: context.tr.sync_take_cloud_description,
                           isRecommended: false,
                           colorScheme: colorScheme,
                           onTap: () async {
@@ -1262,10 +1226,7 @@ extension _AppHomePageSync on _AppHomePageState {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
-                                      _uiCopy(
-                                        fr: 'Version Cloud appliquée avec succès',
-                                        en: 'Cloud version applied successfully',
-                                      ),
+                                      context.tr.sync_cloud_applied,
                                     ),
                                     backgroundColor: AppTheme.success,
                                   ),
@@ -1300,14 +1261,8 @@ extension _AppHomePageSync on _AppHomePageState {
                         // Option 3: Keep Local
                         _buildReconciliationOptionCard(
                           icon: Icons.computer_rounded,
-                          title: _uiCopy(
-                            fr: 'Conserver la version Locale (Desktop)',
-                            en: 'Keep Local Version (Desktop)',
-                          ),
-                          description: _uiCopy(
-                            fr: 'Conserve vos modifications locales et les envoie pour mettre à jour le Cloud.',
-                            en: 'Keeps your local modifications and pushes them to update Cloud.',
-                          ),
+                          title: context.tr.sync_keep_local_title,
+                          description: context.tr.sync_keep_local_description,
                           isRecommended: false,
                           colorScheme: colorScheme,
                           onTap: () async {
@@ -1326,10 +1281,7 @@ extension _AppHomePageSync on _AppHomePageState {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
-                                      _uiCopy(
-                                        fr: 'Version locale conservée et mise à jour sur le Cloud',
-                                        en: 'Local version kept and synced to Cloud',
-                                      ),
+                                      context.tr.sync_local_kept,
                                     ),
                                     backgroundColor: AppTheme.success,
                                   ),

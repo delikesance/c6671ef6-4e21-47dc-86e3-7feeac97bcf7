@@ -93,6 +93,64 @@ void main() {
     );
   });
 
+  // La dette i18n ne grandit plus.
+  //
+  // Sans ce verrou, une chaîne en dur ajoutée dans un fichier DEJA listé comme
+  // « dette connue » passait totalement inaperçue : le seuil glissait d'une
+  // chaîne à chaque fois, et `knownUiLeaks` devenait une autorisation au lieu
+  // d'une dette — c'est exactement ce qui s'est produit, et c'est pourquoi le
+  // plafond est le compte MESURÉ au moment du verrouillage. Il doit BAISSER,
+  // jamais monter : traduire la chaîne (clé ARB dans les 6 langues) ou la
+  // justifier dans l'allow-list documentée, mais ne pas relever le plafond.
+  test('la dette i18n ne peut que DIMINUER (plafond verrouillé)', () {
+    // 146 au verrouillage (25/09) → 111 → 99 → 80 → 50 → 24 → 103 (le scan
+    // testait les motifs LIGNE PAR LIGNE : tout littéral passé à la ligne
+    // échappait au contrôle, la dette annoncée était sous-estimée d'un facteur 4)
+    // → 24 → ZÉRO.
+    //
+    // ZÉRO, et pas « presque » : le garde ne tolère plus AUCUN littéral d'UI hors
+    // allow-list, dans AUCUN fichier. La liste `knownUiLeaks` a été vidée au fur
+    // et à mesure ; si elle se remplit à nouveau, c'est une régression qui doit
+    // être vue à la relecture, pas un chiffre qui monte en silence.
+    //
+    // Les derniers 24 venaient de `remote_runtime.dart` : une couche sans
+    // `BuildContext` qui assemblait ses messages avec la locale de l'APPAREIL
+    // (fr/en seulement — quatre langues recevaient de l'anglais, et changer de
+    // langue dans l'application n'y changeait rien). Elle rend maintenant une
+    // `RuntimeNotice` que l'écran traduit, et `runner_settings.dart` — qui portait
+    // le même repli pour le runner embarqué — a été corrigé dans le même lot :
+    // c'était la même erreur, pas un cas isolé.
+    //
+    // La règle ne bouge pas : ce plafond ne doit JAMAIS remonter.
+    const int ceiling = 0;
+    final findings = findHardcodedStringFindings(rootPath: 'lib');
+    final known = findings
+        .where(
+          (finding) =>
+              !isAllowListedFinding(finding) && isKnownUiLeakPath(finding.path),
+        )
+        .toList(growable: false);
+
+    final perFile = <String, int>{};
+    for (final finding in known) {
+      perFile.update(finding.path, (count) => count + 1, ifAbsent: () => 1);
+    }
+    final breakdown =
+        (perFile.entries.toList()..sort((a, b) => b.value.compareTo(a.value)))
+            .map((entry) => '  ${entry.value.toString().padLeft(3)}  ${entry.key}')
+            .join('\n');
+
+    expect(
+      known.length,
+      lessThanOrEqualTo(ceiling),
+      reason:
+          'Dette i18n : ${known.length} littéraux (plafond $ceiling). Une chaîne '
+          'a été ajoutée sans traduction : la traduire (clé ARB dans les 6 '
+          'langues) ou la déclarer dans l\'allow-list avec sa justification.\n'
+          'Ne PAS relever le plafond.\n$breakdown',
+    );
+  });
+
   test('parité i18n : les 6 .arb ont les mêmes clés et aucune valeur vide', () {
     final keysByLocale = <String, Set<String>>{};
     final emptyValues = <String, List<String>>{};

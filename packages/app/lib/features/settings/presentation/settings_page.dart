@@ -2426,14 +2426,12 @@ class _SettingPageState extends State<SettingPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Ads Mediation Debug',
+                          Text(context.tr.settings_ads_debug_title,
                             style: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 8),
-                          Text(
-                            'Open Ad Inspector and log adapter status (Unity/Google) to validate mediation.',
+                          Text(context.tr.settings_ads_debug_desc,
                             style: Theme.of(context).textTheme.bodySmall
                                 ?.copyWith(color: AppTheme.grey),
                           ),
@@ -2703,27 +2701,30 @@ class _SettingPageState extends State<SettingPage> {
                         ],
                         if (_showsRemoteRunnerConfig) ...[
                           Text(
-                            'Runner type',
+                            context.tr.settings_runner_type_label,
                             style: Theme.of(context).textTheme.labelLarge,
                           ),
                           const SizedBox(height: 8),
                           SegmentedButton<RunnerKind>(
-                            segments: const [
-                              ButtonSegment(
+                            segments: [
+
+                              const ButtonSegment(
                                 value: RunnerKind.dart,
                                 label: Text('Dart'),
                                 icon: Icon(Icons.memory),
-                              ),
-                              ButtonSegment(
+                                ),
+
+                              const ButtonSegment(
                                 value: RunnerKind.javascript,
                                 label: Text('JS'),
                                 icon: Icon(Icons.code),
-                              ),
+                                ),
+
                               ButtonSegment(
                                 value: RunnerKind.auto,
-                                label: Text('Auto'),
-                                icon: Icon(Icons.auto_awesome),
-                              ),
+                                label: Text(context.tr.common_auto),
+                                icon: const Icon(Icons.auto_awesome),
+                                ),
                             ],
                             selected: {_runnerKind},
                             onSelectionChanged: _runnerTemporarilyDisabled
@@ -2738,7 +2739,7 @@ class _SettingPageState extends State<SettingPage> {
                               _runnerEngineLabel!.isNotEmpty) ...[
                             const SizedBox(height: 8),
                             Text(
-                              'Detected engine: $_runnerEngineLabel'
+                              '${context.tr.settings_detected_engine(_runnerEngineLabel!)}'
                               '${_runnerVersionLabel != null && _runnerVersionLabel!.isNotEmpty ? ' · v$_runnerVersionLabel' : ''}',
                               style: Theme.of(context).textTheme.bodySmall,
                             ),

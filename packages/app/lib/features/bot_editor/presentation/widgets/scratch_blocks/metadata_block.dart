@@ -506,7 +506,7 @@ class _MetadataBlockState extends State<MetadataBlock> {
                         suffixIcon: _existingFolders.isNotEmpty
                             ? PopupMenuButton<String>(
                                 icon: const Icon(Icons.folder_open),
-                                tooltip: 'Dossiers existants',
+                                tooltip: context.tr.command_create_existing_folders,
                                 onSelected: (String selection) {
                                   setState(() {
                                     controller.text = selection;

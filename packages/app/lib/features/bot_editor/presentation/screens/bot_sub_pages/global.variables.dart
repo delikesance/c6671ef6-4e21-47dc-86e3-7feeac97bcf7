@@ -520,7 +520,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
     } on MainApiClientException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to sync variable: ${e.message}')),
+        SnackBar(content: Text(context.tr.variables_sync_failed(e.message))),
       );
       return;
     }

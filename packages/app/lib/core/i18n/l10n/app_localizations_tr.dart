@@ -5787,6 +5787,473 @@ class AppLocalizationsTr extends AppLocalizations {
   String get rewarded_start_continue => 'Devam et';
 
   @override
+  String get rewarded_start_credit_confirmed =>
+      'Ödül tanımlandı: barındırma dakikalarınız eklendi.';
+
+  @override
+  String get rewarded_credit_syncing_message =>
+      'Reklam ödülünüz hâlâ eşitleniyor. Birkaç saniye sonra botu yeniden başlatmayı deneyin.';
+
+  @override
+  String get sync_cloud_applied => 'Bulut sürümü başarıyla uygulandı';
+
+  @override
+  String sync_diff_local_only_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count yalnızca yerel',
+      one: '1 yalnızca yerel',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sync_diff_new_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '+$count yeni',
+      one: '+1 yeni',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sync_diff_updated_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count güncellendi',
+      one: '1 güncellendi',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bot_stats_metrics_source => 'Ölçüm kaynağı';
+
+  @override
+  String get bot_stats_no_bot_selected => 'Bot seçilmedi';
+
+  @override
+  String get bot_stats_refresh_now => 'Şimdi yenile';
+
+  @override
+  String get bot_stats_source_local => 'Bu cihazda yerel';
+
+  @override
+  String get bot_stats_warning_title => 'Uyarı';
+
+  @override
+  String bot_start_embedded_runner_failed(String detail) {
+    return 'Gömülü JS çalıştırıcısı başlatılamadı. Uygulamayı tamamen yeniden başlatın (hot reload değil).$detail';
+  }
+
+  @override
+  String get bot_start_sign_in_required =>
+      'Bu botu başlatmadan önce Ayarlar\'dan Bot Creator\'a giriş yapın.';
+
+  @override
+  String get home_badge_turnkey => 'Anahtar teslim';
+
+  @override
+  String home_server_cannot_run_bot(String detail) {
+    return 'Bot Creator sunucuları seçildi ve bu botu çalıştıramıyor: $detail. Yerel çalıştırma başlatılmadı — bu sorunu çözdükten sonra yeniden başlatın.';
+  }
+
+  @override
+  String get home_server_session_unusable =>
+      'bu cihazdan kullanılabilir sunucu oturumu yok';
+
+  @override
+  String get runner_source_runner => 'Runner';
+
+  @override
+  String get command_create_existing_folders => 'Mevcut klasörler';
+
+  @override
+  String get common_export => 'Dışa aktar';
+
+  @override
+  String get workflows_folder_destination_optional =>
+      'Hedef klasör (isteğe bağlı)';
+
+  @override
+  String get workflows_import_preview_title =>
+      'İş akışı içe aktarma önizlemesi';
+
+  @override
+  String get blueprint_close_inspector => 'Denetçiyi kapat';
+
+  @override
+  String get blueprint_search_action_hint => 'Bir eylem arayın...';
+
+  @override
+  String get common_auto => 'Otomatik';
+
+  @override
+  String get common_inline => 'Satır içi';
+
+  @override
+  String marketplace_options_count(int count) {
+    return 'Seçenekler ($count)';
+  }
+
+  @override
+  String marketplace_required_config_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count yapılandırma',
+      one: '1 yapılandırma',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get option_autocomplete_javascript => 'JavaScript otomatik tamamlama';
+
+  @override
+  String option_description_new(int count) {
+    return '$count numaralı seçeneğin açıklaması';
+  }
+
+  @override
+  String variables_sync_failed(String error) {
+    return 'Değişken eşitlenemedi: $error';
+  }
+
+  @override
+  String actions_configured_count(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count eylem yapılandırıldı',
+      one: '1 eylem yapılandırıldı',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String action_card_else_if(int count) {
+    return 'DEĞİLSE $count';
+  }
+
+  @override
+  String get blueprint_cut_link => 'Bağlantıyı kes';
+
+  @override
+  String get blueprint_entry_point_hint =>
+      'Giriş noktası tetikleyici düğümü.\nKomut özelliklerinde yapılandırılır.';
+
+  @override
+  String get blueprint_mode_label => 'Blueprint';
+
+  @override
+  String get blueprint_origin_label => 'Başlangıç (0, 0)';
+
+  @override
+  String bot_config_version_commands(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count komut',
+      one: '1 komut',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bot_config_version_commands_title => 'Bu sürümdeki komutlar:';
+
+  @override
+  String bot_config_version_more_count(int count) {
+    return '… ve $count tane daha';
+  }
+
+  @override
+  String bot_config_version_replace_warning(int count) {
+    return 'Mevcut $count komutu değiştirecek';
+  }
+
+  @override
+  String command_delete_discord_failed_local(String error) {
+    return 'Discord silme başarısız. Yerel silme uygulandı. $error';
+  }
+
+  @override
+  String get common_exists => 'Mevcut';
+
+  @override
+  String get common_live_badge => 'CANLI';
+
+  @override
+  String component_choice_number(int count) {
+    return 'Seçenek $count';
+  }
+
+  @override
+  String get component_ephemeral_hint =>
+      'Geçici (yalnızca komutu kullanan görür)';
+
+  @override
+  String get debug_persistence_title => 'Kalıcılık hata ayıklama';
+
+  @override
+  String element_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count öğe',
+      one: '1 öğe',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String embed_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count embed',
+      one: '1 embed',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get emojis_animated_label => 'animasyonlu';
+
+  @override
+  String field_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count alan',
+      one: '1 alan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String marketplace_actions_count(int count) {
+    return 'Eylemler ($count)';
+  }
+
+  @override
+  String get onb_example_label => 'Örnek:';
+
+  @override
+  String get option_autocomplete_js_hint =>
+      'En fazla 25 seçenek döndürmek için interaction.respond() ile ad/değer çiftleri kullanın.';
+
+  @override
+  String get permission_tap_to_cycle => 'Değiştirmek için dokunun';
+
+  @override
+  String get serialization_copy_base64 =>
+      'Kompakt Base64 yükünü panoya kopyala';
+
+  @override
+  String get settings_ads_debug_desc =>
+      'Aracılığı doğrulamak için Ad Inspector\'ı açın ve bağdaştırıcı durumunu (Unity/Google) kaydedin.';
+
+  @override
+  String get settings_ads_debug_title => 'Reklam aracılığı hata ayıklama';
+
+  @override
+  String settings_detected_engine(String engine) {
+    return 'Algılanan motor: $engine';
+  }
+
+  @override
+  String get variables_emojis_hint =>
+      'Kullanılabilir emojiler — eklemek için dokunun';
+
+  @override
+  String workflow_event_variables_count(int count) {
+    return 'Olay değişkenleri ($count)';
+  }
+
+  @override
+  String workflow_import_review_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'İçe aktarılacak $count iş akışını gözden geçirin:',
+      one: 'İçe aktarılacak 1 iş akışını gözden geçirin:',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get workflow_rename_variables_hint =>
+      'İsteğe bağlı olarak bu iş akışının değişkenlerini yeniden adlandırın.';
+
+  @override
+  String component_node_child_run_hint(
+    String message,
+    String workflow,
+    String entry,
+    String args,
+  ) {
+    return '$message \"$workflow\" çalıştırılacak (giriş: $entry, argümanlar: $args).';
+  }
+
+  @override
+  String workflows_preview_summary(String type, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count eylem',
+      one: '1 eylem',
+    );
+    return '$type  •  $_temp0';
+  }
+
+  @override
+  String get runner_embedded_desync_detail =>
+      'Runner süreci çalışıyor ancak uygulama bağlantıyı kaybetti. Ayarlar\'daki Yeniden başlat\'ı kullanın.';
+
+  @override
+  String runtime_invalid_bot_id(String error) {
+    return 'Bot Creator sunucularında başlatma için geçersiz bot kimliği. Botu eşitleyin/yeniden oluşturun ve tekrar deneyin. Özgün hata: $error';
+  }
+
+  @override
+  String runtime_invalid_bot_id_details(String detail) {
+    return 'Bot Creator sunucularında başlatma için geçersiz bot kimliği. Botu eşitleyin/yeniden oluşturun ve tekrar deneyin. Ayrıntılar: $detail';
+  }
+
+  @override
+  String get runtime_local_unsupported_ios_configure =>
+      'Yerel mod iOS\'ta desteklenmiyor. Bu botu başlatmak için Bot Creator\'ı yapılandırın.';
+
+  @override
+  String get runtime_local_unsupported_ios_sign_in =>
+      'Yerel mod iOS\'ta desteklenmiyor. Bu botu başlatmadan önce Ayarlar\'dan Bot Creator\'a giriş yapın.';
+
+  @override
+  String get runtime_plan_limit =>
+      'Planınız bu başlatmaya izin vermiyor. Planınızı değiştirmek için tekliflere bakın.';
+
+  @override
+  String runtime_request_failed(String error) {
+    return 'Bot Creator sunucularına yapılan istek başarısız oldu: $error';
+  }
+
+  @override
+  String runtime_servers_not_ready(String error) {
+    return 'Bot Creator sunucuları bu bot için henüz hazır değil. Özgün hata: $error';
+  }
+
+  @override
+  String get runtime_session_expired =>
+      'Bot Creator oturumunuz sona erdi. Bu botu başlatmak için Ayarlar\'dan yeniden giriş yapın.';
+
+  @override
+  String get runtime_sign_in_required =>
+      'Bu botu başlatmadan önce Ayarlar\'dan Bot Creator\'a giriş yapın.';
+
+  @override
+  String runtime_startup_failed(String error) {
+    return 'Bot Creator sunucularında başlatma başarısız oldu. Özgün hata: $error';
+  }
+
+  @override
+  String runtime_startup_failed_with_detail(String detail, String error) {
+    return 'Bot Creator sunucularında başlatma başarısız oldu. Ayrıntılar: $detail Özgün hata: $error';
+  }
+
+  @override
+  String runtime_startup_in_progress(String status, String error) {
+    return 'Bot Creator sunucularında başlatma hâlâ sürüyor ($status). İşlem kuyrukte veya çalışıyor olabilir. Özgün hata: $error';
+  }
+
+  @override
+  String runtime_unreachable(String error) {
+    return 'Bot Creator sunucularına geçici olarak ulaşılamıyor. Özgün hata: $error';
+  }
+
+  @override
+  String get sync_cloud_update_applied =>
+      'Bulut güncellemesi başarıyla uygulandı';
+
+  @override
+  String get sync_conflict_message =>
+      'Bu yerel oturum ile Bulut sürümü (Mobil) arasında farklı değişiklikler var. Bu çakışmayı nasıl çözeceğinizi seçin:';
+
+  @override
+  String get sync_conflict_title => 'Eşitleme çakışması algılandı';
+
+  @override
+  String get sync_in_progress => 'Eşitleme sürüyor...';
+
+  @override
+  String get sync_keep_local_description =>
+      'Yerel değişikliklerinizi korur ve Bulut\'u güncellemek için gönderir.';
+
+  @override
+  String get sync_keep_local_title => 'Yerel sürümü koru (Masaüstü)';
+
+  @override
+  String get sync_local_kept => 'Yerel sürüm korundu ve Bulut\'ta güncellendi';
+
+  @override
+  String get sync_merge_smart_description =>
+      'İki taraftaki tüm eklemeleri korur ve yinelenen bir komutta en yenisini alır.';
+
+  @override
+  String get sync_merge_smart_done =>
+      'Akıllı birleştirme yapıldı ve Bulut ile eşitlendi';
+
+  @override
+  String get sync_merge_smart_title => 'Akıllı birleştirme (Önerilir)';
+
+  @override
+  String get sync_synced_with_cloud => 'Bulut sürümüyle eşitlendi';
+
+  @override
+  String get sync_take_cloud_description =>
+      'Gönderilmemiş yerel değişikliklerin üzerine Bulut sürümünü yazar.';
+
+  @override
+  String get sync_take_cloud_title => 'Bulut sürümünü al (Mobil)';
+
+  @override
+  String get sync_version_cloud_mobile => 'Bulut Sürümü (Mobil)';
+
+  @override
+  String get sync_version_local_desktop => 'Yerel Sürüm (Masaüstü)';
+
+  @override
+  String get rewarded_credit_syncing_title => 'Ödül hâlâ eşitleniyor';
+
+  @override
+  String get ad_context_failed =>
+      'Reklam bağlamı oluşturulamadı (hesap bağlı değil veya bot jetonu yok).';
+
+  @override
+  String get ad_history_unavailable => 'Geçmiş alınamadı (API kullanılamıyor)';
+
+  @override
+  String get ad_limit_or_cooldown =>
+      'Reklam bekleme süresi veya sınırı etkin. Lütfen daha sonra tekrar deneyin.';
+
+  @override
+  String get ad_sync_config_failed =>
+      'Bot yapılandırması ana API ile eşitlenemedi.';
+
+  @override
+  String get rewarded_start_credit_pending =>
+      'Reklam bitti. Ödülünüz kontrol ediliyor…';
+
+  @override
+  String get rewarded_start_credit_unconfirmed =>
+      'Ödül henüz tanımlanmadı. Sunucu birazdan onaylayabilir: dakikaları yenileyerek görebilirsiniz.';
+
+  @override
   String get rewarded_start_message =>
       'Bu barındırma oturumunu başlatmak için bir reklam izlemeniz gerekiyor. Bu, projeyi finanse etmeye yardımcı olur. Premium kullanıcılar bunu atlayabilir.';
 
@@ -6891,6 +7358,9 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get settings_export => 'Dışa Aktar';
+
+  @override
+  String get settings_runner_type_label => 'Çalıştırıcı türü';
 
   @override
   String get settings_export_app_data => 'Uygulama Verilerini Dışa Aktar';
@@ -8794,7 +9264,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get settings_sync_force_desc =>
-      'Bot Creator\'da yerel olarak tanımlanmamış tüm Discord eğik çizgi komutlarını siler.';
+      'Discord\'da eksik olan komutları yeniden oluşturur ve Bot Creator\'da artık tanımlı olmayanları siler.';
 
   @override
   String get settings_sync_force_button => 'Discord ile Eşitle';
@@ -8804,15 +9274,23 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get settings_sync_force_dialog_desc =>
-      'Bu işlem, Bot Creator\'da yerel olarak tanımlanmamış tüm Discord eğik çizgi komutlarını silecektir. Devam etmek istediğinizden emin misiniz?';
+      'Discord\'da eksik olan komutlar yeniden oluşturulacak, Bot Creator\'da artık tanımlı olmayan komutlar silinecek. Devam edilsin mi?';
 
   @override
   String get settings_sync_force_dialog_confirm => 'Zorla Eşitle';
 
   @override
-  String settings_sync_force_success(Object count) {
-    return 'Zorunlu senkronizasyon başarıyla tamamlandı. Discord\'dan $count eski/takip edilmeyen komut silindi.';
+  String settings_sync_force_success_counts(
+    int created,
+    int relinked,
+    int deleted,
+  ) {
+    return 'Eşitleme tamamlandı: Discord\'da $created yeniden oluşturuldu, $relinked yeniden bağlandı, $deleted silindi.';
   }
+
+  @override
+  String get settings_sync_force_no_local_commands =>
+      'Kaydedilecek yerel komut yok: Discord\'da hiçbir şey değiştirilmedi (boş bir eşitleme tüm komutlarınızı silerdi).';
 
   @override
   String settings_sync_force_error(Object error) {

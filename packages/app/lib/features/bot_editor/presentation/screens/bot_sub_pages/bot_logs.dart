@@ -70,24 +70,14 @@ class _BotLogsPageState extends State<BotLogsPage> {
 
   bool get _usingRemoteSource => _runtimeSource != RemoteRuntimeSource.local;
 
-  String _uiCopy({required String fr, required String en}) {
-    return Localizations.localeOf(context).languageCode == 'fr' ? fr : en;
-  }
-
   String _runtimeSourceLabel() {
     return switch (_runtimeSource) {
-      RemoteRuntimeSource.manager => _uiCopy(
-        fr: 'Serveurs Bot Creator',
-        en: 'Bot Creator servers',
-      ),
+      RemoteRuntimeSource.manager => context.tr.runner_source_manager,
       RemoteRuntimeSource.runner =>
         (_runtimeLabel?.trim().isNotEmpty ?? false)
             ? context.tr.logs_runner_source(_runtimeLabel!)
             : context.tr.bot_stats_source_runner_api,
-      RemoteRuntimeSource.local => _uiCopy(
-        fr: 'Local sur cet appareil',
-        en: 'Local on this device',
-      ),
+      RemoteRuntimeSource.local => context.tr.bot_stats_source_local,
     };
   }
 
@@ -200,7 +190,9 @@ class _BotLogsPageState extends State<BotLogsPage> {
 
     setState(() {
       _runtimeLabel = runtime.detailLabel;
-      _runtimeUnavailableReason = runtime.unavailableReason;
+      _runtimeUnavailableReason = runtime.unavailableReason == null
+          ? null
+          : resolveRuntimeNotice(context.tr, runtime.unavailableReason!);
     });
 
     final client = _runtimeClient;

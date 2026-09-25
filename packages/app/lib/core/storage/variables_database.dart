@@ -9,7 +9,8 @@
 // locales. Le chemin, la version et le schéma vivent donc ici, une fois, et
 // les deux dépôts l'appellent.
 //
-// LA VERSION 6 AJOUTE `command_outbox`, RIEN D'AUTRE. Les migrations des
+// LA VERSION 6 AJOUTE `command_outbox`, LA 7 SA PRÉCONDITION (`if_match`).
+// Les migrations des
 // versions 1 à 5 sont reprises À L'IDENTIQUE de `SqliteVariableStore` : leur
 // ordre et leur tolérance (des `try/catch` autour des `ALTER TABLE`, parce
 // qu'une colonne peut déjà exister après une migration interrompue) décident
@@ -28,12 +29,17 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 /// Version du schéma de `databases/variables.db`.
 ///
 /// 6 = l'ajout de `command_outbox` (la file hors-ligne).
-const int variablesDatabaseSchemaVersion = 6;
+/// 7 = `if_match` : la révision attendue par une écriture mise en file, pour
+///     qu'un rejeu ne reparte jamais sans précondition (voir
+///     `addCommandOutboxIfMatchColumn`).
+const int variablesDatabaseSchemaVersion = 7;
 
 /// Nom de la table de la file hors-ligne.
 const String commandOutboxTableName = 'command_outbox';
 
-/// Le schéma de la file, TEL QUE SPÉCIFIÉ (plan §5.2), sans colonne en plus.
+/// Le schéma de la file. La colonne `if_match` s'ajoute au schéma spécifié
+/// (plan §5.2) : elle est nécessaire pour qu'un rejeu porte la précondition de
+/// l'écriture qui a échoué.
 ///
 /// LA CLÉ PRIMAIRE COMPOSITE EST LA PROMESSE DU GRANULAIRE : une ligne par
 /// couple (bot, commande), donc « le dernier qui écrit gagne » PAR COMMANDE —
@@ -48,6 +54,7 @@ const String commandOutboxCreateSql = '''
     attempts INTEGER NOT NULL DEFAULT 0,
     last_error TEXT NOT NULL DEFAULT '',
     created_at INTEGER NOT NULL,
+    if_match TEXT NOT NULL DEFAULT '',
     PRIMARY KEY (bot_id, command_id)
   )
 ''';
@@ -99,6 +106,9 @@ Future<Database> openVariablesDatabase() async {
       if (oldVersion < 6) {
         await ensureCommandOutboxTable(db);
       }
+      if (oldVersion < 7) {
+        await addCommandOutboxIfMatchColumn(db);
+      }
     },
   );
 
@@ -108,6 +118,7 @@ Future<Database> openVariablesDatabase() async {
   await ensureVariablesSecondaryIndexes(db);
   await addVariablesExpiresAtColumn(db);
   await ensureCommandOutboxTable(db);
+  await addCommandOutboxIfMatchColumn(db);
 
   return db;
 }
@@ -198,5 +209,31 @@ Future<void> addVariablesExpiresAtColumn(DatabaseExecutor db) async {
     if (sql.contains('expires_at')) return;
 
     await db.execute('ALTER TABLE variables ADD COLUMN expires_at INTEGER');
+  } catch (_) {}
+}
+
+/// Ajoute `if_match` à la file hors-ligne (version 7).
+///
+/// POURQUOI CETTE COLONNE : sans elle, une écriture mise en file perdait la
+/// révision contre laquelle elle avait échoué. Au rejeu, le dépôt retombait sur
+/// sa révision EN MÉMOIRE — vide après un redémarrage de l'application — donc la
+/// commande repartait SANS précondition et écrasait en silence une version
+/// distante plus récente. La précondition voyage désormais avec l'écriture.
+///
+/// La colonne est ajoutée avec une valeur vide par défaut : les lignes mises en
+/// file par une version antérieure restent rejouables, sans précondition —
+/// c'est leur état d'origine, on ne l'invente pas après coup.
+Future<void> addCommandOutboxIfMatchColumn(DatabaseExecutor db) async {
+  try {
+    final rows = await db.rawQuery(
+      "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = '$commandOutboxTableName' LIMIT 1",
+    );
+    if (rows.isEmpty) return;
+    final sql = (rows.first['sql'] as String?) ?? '';
+    if (sql.contains('if_match')) return;
+
+    await db.execute(
+      "ALTER TABLE $commandOutboxTableName ADD COLUMN if_match TEXT NOT NULL DEFAULT ''",
+    );
   } catch (_) {}
 }

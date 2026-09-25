@@ -171,8 +171,7 @@ class _ComponentV2EditorWidgetState extends State<ComponentV2EditorWidget> {
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 dense: true,
-                title: const Text(
-                  'Ephemeral (only visible to command user)',
+                title: Text(context.tr.component_ephemeral_hint,
                   style: TextStyle(fontSize: 13),
                 ),
                 value: _ephemeral,
@@ -248,12 +247,11 @@ class _ComponentV2EditorWidgetState extends State<ComponentV2EditorWidget> {
                     border: Border.all(color: AppTheme.grey),
                     borderRadius: BorderRadius.circular(AppTheme.radiusXs),
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
                       Icon(Icons.add, size: 16, color: AppTheme.grey),
                       SizedBox(width: 8),
-                      Text(
-                        'Add Root Component',
+                      Text(context.tr.component_add_root,
                         style: TextStyle(
                           color: AppTheme.grey,
                           fontWeight: FontWeight.bold,

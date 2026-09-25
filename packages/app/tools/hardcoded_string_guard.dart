@@ -34,19 +34,33 @@ final RegExp _textLiteralPattern = RegExp(
 /// « Discard » s'est affiché en anglais dans une UI française. La famille de
 /// paramètres couvre aussi les libellés de dialogues, d'accessibilité, les
 /// titres, sous-titres, descriptions et messages.
+///
+/// `fr` et `en` sont dans la liste pour la MÊME raison, et c'est la faille la
+/// plus large qui restait : le repli maison `_uiCopy(fr: '…', en: '…')` rend le
+/// français ou l'anglais, et RIEN pour l'allemand, le japonais, le portugais et
+/// le turc — quatre des six langues livrées reçoivent de l'anglais. Ce motif
+/// était invisible au scan, donc la dette n'était ni comptée ni verrouillée.
 final RegExp _namedLiteralPattern = RegExp(
   r"""(?:labelText|hintText|helperText|errorText|semanticsLabel|confirmLabel|"""
   r"""cancelLabel|dialogTitle|tooltip|title|subtitle|description|message|"""
-  r"""label|content)\s*:\s*(?:const\s+)?['"][^'"\n]*[A-Za-zÀ-ÿ][^'"\n]*['"]""",
+  r"""label|content|fr|en)\s*:\s*(?:const\s+)?['"][^'"\n]*[A-Za-zÀ-ÿ][^'"\n]*['"]""",
   caseSensitive: false,
 );
 
 // ─── Exclusions internes du scan ─────────────────────────────────────────────
 
+/// Fichiers/dossiers hors scan.
+///
+/// Les deux entrées mortes qui figuraient ici (`lib/utils/trad/`,
+/// `lib/routes/app/workflows.page.dart`) ne correspondaient à AUCUN chemin :
+/// elles ne masquaient rien et laissaient croire que ces dossiers étaient
+/// couverts. `lib/l10n/` désignait l'ancien emplacement des localisations
+/// GÉNÉRÉES, qui vivent maintenant sous `lib/core/i18n/l10n/` — c'est ce chemin
+/// qui doit être exclu, sinon un changement de forme du générateur (un
+/// `title: '...'` dans les fichiers produits) ferait remonter des milliers de
+/// faux positifs et noierait la vraie dette.
 const Set<String> _skipFiles = <String>{
-  'lib/l10n/',
-  'lib/utils/trad/',
-  'lib/routes/app/workflows.page.dart',
+  'lib/core/i18n/l10n/',
 };
 
 const List<String> _skipSnippets = <String>[
@@ -271,6 +285,115 @@ const List<AllowListEntry> allowListedPatterns = <AllowListEntry>[
         'Noms des moteurs d\'exécution (identifiants Dart/JS), stables '
         'entre les locales.',
   ),
+  // ── Texte COMPOSÉ depuis une traduction ──────────────────────────────────────
+  AllowListEntry(
+    // Tous les fichiers : la règle porte sur la FORME de la ligne.
+    pathFragment: '',
+    snippetPattern: r'\$\{(?:context\.)?tr\.',
+    reason:
+        'Ligne qui COMPOSE son texte à partir d\'une clé ARB (recherche '
+        'context.tr.… ou tr.…, la variable locale de la même chose, interpolée '
+        'avec des données) : le littéral n\'est pas de la copie en dur, la partie '
+        'traduite est déjà une clé. Toute autre chaîne du fichier reste soumise '
+        'à la règle — c\'est pour cela que l\'exemption est un MOTIF et non une '
+        'exclusion de fichier.',
+  ),
+  // ── Littéral SANS TEXTE HUMAIN : uniquement des valeurs interpolées ──────────
+  AllowListEntry(
+    pathFragment: '',
+    // Le contenu du littéral n'est fait que d'interpolations, d'espaces, de
+    // chiffres et de ponctuation : il n'y a pas un mot à traduire.
+    //
+    // Les interpolations peuvent être PLUSIEURS (`'${a} / ${b}'`) : autoriser un
+    // seul groupe laissait passer des compteurs composés pour de la copie.
+        // Un raw string ne peut pas echapper de guillemet : les deux formes
+        // de guillemet sont donc ecrites \x27 (apostrophe) et \x22
+        // (guillemet), ce qui evite de melanger deux styles de litteraux.
+        snippetPattern:
+            r"^[^\x27\x22]*[\x27\x22](?:[\s\d(),.:/|*+_\[\]#•·—×°~!?=&%@\-]"
+            r"|(\$\{[^}]*\}|\$[a-zA-Z_][a-zA-Z0-9_]*))*[\x27\x22][^\x27\x22]*$",
+    reason:
+        'Texte 100 % DONNÉE : un compteur, un identifiant ou une longueur '
+        'interpolés, sans un seul mot humain — il n\'y a donc rien à traduire. '
+        'Un chiffre ou un identifiant s\'affiche tel quel dans toutes les langues.',
+  ),
+  AllowListEntry(
+    pathFragment: '',
+    // Une valeur interpolée suivie d'une UNITÉ (`'${duree} ms'`) : c'est un
+    // affichage de mesure. Le motif EXIGE l'interpolation, sinon il couvrirait
+    // aussi de la vraie copie (« 5 min restantes »).
+    snippetPattern:
+        r"Text\( [\x27\x22][^\x27\x22]*\$[^\x27\x22]*\b(?:ms|min|px|kB|MB)\b",
+    reason:
+        'Affichage de MESURE : une valeur interpolée suivie d\'une unité (ms, min, '
+        'px…) — l\'unité est un symbole international, identique dans les six '
+        'langues, et le nombre change à chaque exécution.',
+  ),
+  AllowListEntry(
+    pathFragment: '',
+    snippetPattern: r"hintText: '\\u",
+    reason:
+        'Placeholder de champ décoré par un EMOJI (échappement `\\uXXXX`), pas '
+        'un libellé.',
+  ),
+  AllowListEntry(
+    pathFragment: '',
+    snippetPattern: r"hintText: 'p, ping'",
+    reason:
+        'Exemple de préfixe affiché tel quel dans le champ (`p, ping`) : c\'est '
+        'une DONNÉE d\'exemple — les traduire ferait diverger l\'exemple du '
+        'comportement réel du bot.',
+  ),
+  AllowListEntry(
+    pathFragment: '',
+    snippetPattern: r"title: 'Bot Creator'",
+    reason:
+        'NOM DE MARQUE : il ne se traduit pas — le traduire ferait perdre le '
+        'produit (et l\'app apparaîtrait sous deux noms selon la langue).',
+  ),
+  AllowListEntry(
+    pathFragment: '',
+    snippetPattern: r"label: (?:const )?Text\('(?:Dart|JS|JavaScript|Java|C\+\+)'\)",
+    reason:
+        'Identifiants de MOTEUR ou de langage (Dart, JS, JavaScript…) : ce sont '
+        'des noms propres techniques, identiques dans les 6 langues. Même '
+        'logique que l\'entrée équivalente de l\'éditeur de bot.',
+  ),
+  AllowListEntry(
+    pathFragment: '',
+    snippetPattern: r"Text\( [\x27\x22]BDFD Script[\x27\x22]",
+    reason:
+        'BDFD (« Bot Designer For Discord ») est un NOM PROPRE d\'outil : il ne se '
+        'traduit pas, et une traduction ferait perdre le repère aux utilisateurs '
+        'qui viennent de cet éditeur.',
+  ),
+  AllowListEntry(
+    pathFragment: '',
+    // Un lien : c'est une ADRESSE, la meme dans les six langues.
+    snippetPattern: r"(?:https?://|[\w-]+\.(?:fr|com|org|io)/)",
+    reason:
+        'Adresse (URL ou domaine) : une adresse ne se traduit pas — elle doit '
+        'rester cliquable et identique dans toutes les langues.',
+  ),
+  AllowListEntry(
+    pathFragment: '',
+    // Sigles et badges universels : une « traduction » les rendrait
+    // meconnaissables (un enregistrement reste REC partout).
+    snippetPattern: r"Text\( [\x27\x22](?:REC|APP)[\x27\x22],",
+    reason:
+        'Sigle universel affiche tel quel (badge d\'enregistrement, pastille '
+        'd\'application) : la forme abregee est le terme employe dans toutes les '
+        'langues, et la traduire n\'aiderait personne.',
+  ),
+  AllowListEntry(
+    pathFragment: '',
+    // Sigle technique suivi d'une DONNEE : identifiant, niveau, index de bit.
+    snippetPattern: r"Text\( [\x27\x22](?:ID|L|Bit) ?\$",
+    reason:
+        'Sigle technique suivi d\'une donnee (`ID \$botId`, `L1`, `Bit 3`) : '
+        'vocabulaire technique identique dans les six langues, le reste est un '
+        'identifiant ou un nombre.',
+  ),
 ];
 
 /// Dette i18n restante : fichiers contenant encore des libellés d'UI codés en
@@ -282,31 +405,15 @@ const List<AllowListEntry> allowListedPatterns = <AllowListEntry>[
 /// entrée pour faire taire le test : corriger la chaîne. Le test bloquant
 /// échoue dès qu'un littéral apparaît hors allow-list ET hors de cet ensemble
 /// (fixture, ou fichier inconnu à ce jour).
-const Set<String> knownUiLeaks = <String>{
-  'lib/features/bot_editor/presentation/screens/bot_sub_pages/image_editor_page.dart',
-  'lib/features/bot_editor/presentation/screens/bot_sub_pages/command.create.dart',
-  'lib/features/bot_editor/presentation/screens/bot_sub_pages/commands.list.dart',
-  'lib/features/bot_editor/presentation/screens/bot_sub_pages/global.variables.dart',
-  'lib/features/bot_editor/presentation/screens/bot_sub_pages/home.sync.part.dart',
-  'lib/features/bot_editor/presentation/screens/bot_sub_pages/settings.dart',
-  'lib/features/bot_editor/presentation/screens/bot_sub_pages/workflow_block_editor.dart',
-  'lib/features/bot_editor/presentation/screens/bot_sub_pages/workflows.page.dart',
-  'lib/features/bot_editor/presentation/screens/bot_sub_pages/builder/action_card.dart',
-  'lib/features/bot_editor/presentation/screens/bot_sub_pages/builder/http_request_editor_page.dart',
-  'lib/features/bot_editor/presentation/screens/bot_config_versions_page.dart',
-  'lib/features/bot_editor/presentation/widgets/blueprint/blueprint_context_menu.dart',
-  'lib/features/bot_editor/presentation/widgets/blueprint/blueprint_graph_canvas.dart',
-  'lib/features/bot_editor/presentation/widgets/blueprint/blueprint_inspector_panel.dart',
-  'lib/features/bot_editor/presentation/widgets/option_widget.dart',
-  'lib/features/bot_editor/presentation/widgets/scratch_blocks/metadata_block.dart',
-  'lib/features/components_v2/presentation/component_v2_builder/component_node_editor.dart',
-  'lib/features/components_v2/presentation/component_v2_builder/modal_builder.dart',
-  'lib/features/marketplace/presentation/marketplace_detail_page.dart',
-  'lib/features/marketplace/presentation/marketplace_page.dart',
-  'lib/features/marketplace/presentation/publish_template_page.dart',
-  'lib/features/settings/presentation/settings_page.dart',
-  'lib/main.dart',
-};
+/// VIDÉ, et il doit le rester : la dette i18n est à ZÉRO (les 24 derniers
+/// littéraux venaient du repli fr/en de `remote_runtime.dart` et
+/// `runner_settings.dart`, remplacés par des raisons traduites par l'écran).
+///
+/// Un ensemble vidé est plus strict qu'une liste partiellement morte : tant
+/// qu'un fichier y restait, un NOUVEAU littéral ajouté dans ce fichier passait
+/// inaperçu. Ici plus aucun fichier ne bénéficie d'une autorisation — la
+/// moindre chaîne d'UI codée en dur échoue, où qu'elle soit.
+const Set<String> knownUiLeaks = <String>{};
 
 // ─── API publique ─────────────────────────────────────────────────────────────
 
@@ -353,12 +460,48 @@ List<HardcodedStringFinding> findHardcodedStringFindings({
     final lines = file.readAsLinesSync();
     for (var i = 0; i < lines.length; i++) {
       final line = lines[i];
-      if (!_isHardcodedUiLiteralLine(line)) continue;
+      if (_isHardcodedUiLiteralLine(line)) {
+        findings.add(
+          HardcodedStringFinding(
+            path: normalizedPath,
+            line: i + 1,
+            content: line.trim(),
+          ),
+        );
+        continue;
+      }
+      // LE LITTÉRAL PEUT ÊTRE SUR LA LIGNE SUIVANTE : `Text(\n  'Copie',`. Le
+      // scan ligne par ligne ne le voyait pas, donc une copie passée à la ligne
+      // échappait au contrôle INDÉFINIMENT — la dette affichée était sous-
+      // estimée. On teste la fenêtre des deux lignes et on attribue le constat à
+      // la ligne du `Text(`, parce que c'est là qu'on corrige.
+      //
+      // Seul le motif `Text(` ouvre ce cas : tester AUSSI les paramètres nommés
+      // sur la fenêtre comptait deux fois le même littéral (`_runStartupTask(\n
+      // label: 'x',` signalait la ligne du dessus, que l'allow-list des labels
+      // ne couvre pas). Un paramètre nommé coupé en deux lignes reste donc hors
+      // du scan : c'est une limite CONNUE, jamais un angle mort silencieux.
+      if (i + 1 >= lines.length) continue;
+      final window = '$line\n${lines[i + 1]}';
+      if (_skipSnippets.any(window.contains)) continue;
+      final windowMatch = _textLiteralPattern.firstMatch(window);
+      if (windowMatch == null) continue;
+      // Le constat doit CHEVAUCHER le saut de ligne : si le motif tient
+      // entièrement sur la ligne suivante, le littéral vit là-bas et sera vu à
+      // son tour — le compter ici le compterait DEUX fois (et signalerait la
+      // mauvaise ligne).
+      if (!(windowMatch.start < line.length &&
+          windowMatch.end > line.length)) {
+        continue;
+      }
       findings.add(
         HardcodedStringFinding(
           path: normalizedPath,
           line: i + 1,
-          content: line.trim(),
+          // Fenêtre recollée sur une ligne : les motifs d'allow-list (composition
+          // depuis une clé ARB, donnée pure) doivent voir le LITTÉRAL, et une
+          // ligne coupée en deux les aurait rendus aveugles.
+          content: '${line.trim()} ${lines[i + 1].trim()}',
         ),
       );
     }

@@ -857,8 +857,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            'Review ${previewEntries.length} workflow(s) to import:',
+          Text(context.tr.workflow_import_review_count(previewEntries.length),
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 8),
@@ -900,8 +899,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                                   fontSize: 13,
                                 ),
                               ),
-                              Text(
-                                '$typeLabel  •  $actionCount action(s)',
+                              Text(context.tr.workflows_preview_summary(typeLabel, actionCount),
                                 style: TextStyle(
                                   fontSize: 11,
                                   color: Theme.of(
@@ -924,8 +922,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                               ).colorScheme.tertiaryContainer,
                               borderRadius: BorderRadius.circular(4),
                             ),
-                            child: Text(
-                              'Exists',
+                            child: Text(context.tr.common_exists,
                               style: TextStyle(
                                 fontSize: 10,
                                 color: Theme.of(
@@ -955,14 +952,14 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
           DropdownButtonFormField<String>(
             initialValue: selectedFolder.isEmpty ? null : selectedFolder,
             decoration: InputDecoration(
-              labelText: 'Destination folder (optional)',
+              labelText: context.tr.workflows_folder_destination_optional,
               border: const OutlineInputBorder(),
               isDense: true,
             ),
             items: [
-              const DropdownMenuItem<String>(
+              DropdownMenuItem<String>(
                 value: null,
-                child: Text('No folder'),
+                child: Text(context.tr.commands_no_folder),
               ),
               ...folders.map(
                 (f) => DropdownMenuItem<String>(value: f, child: Text(f)),
@@ -995,8 +992,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Text(
-                          'Import workflow preview',
+                        Text(context.tr.workflows_import_preview_title,
                           style: Theme.of(ctx).textTheme.titleMedium,
                         ),
                         const SizedBox(height: 10),
@@ -1018,7 +1014,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                             Expanded(
                               child: FilledButton(
                                 onPressed: () => Navigator.pop(ctx, true),
-                                child: const Text('Import'),
+                                child: Text(context.tr.common_import),
                               ),
                             ),
                           ],
@@ -1036,7 +1032,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
               return StatefulBuilder(
                 builder: (ctx, setState) {
                   return AlertDialog(
-                    title: const Text('Import workflow preview'),
+                    title: Text(context.tr.workflows_import_preview_title),
                     content: SizedBox(
                       width: double.maxFinite,
                       child: buildPreview(setState),
@@ -1048,7 +1044,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                       ),
                       ElevatedButton(
                         onPressed: () => Navigator.pop(ctx, true),
-                        child: const Text('Import'),
+                        child: Text(context.tr.common_import),
                       ),
                     ],
                   );
@@ -2055,11 +2051,11 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                   PopupMenuItem<String>(
                     value: 'export',
                     height: 48,
-                    child: const Row(
+                    child: Row(
                       children: [
-                        Icon(Icons.ios_share_outlined),
-                        SizedBox(width: 8),
-                        Text('Export'),
+                        const Icon(Icons.ios_share_outlined),
+                        const SizedBox(width: 8),
+                        Text(context.tr.common_export),
                       ],
                     ),
                   ),
@@ -2073,8 +2069,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                           color: Theme.of(context).colorScheme.error,
                         ),
                         const SizedBox(width: 8),
-                        Text(
-                          'Delete',
+                        Text(context.tr.common_delete,
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.error,
                           ),
@@ -2094,7 +2089,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                   ),
                   IconButton(
                     onPressed: () => _exportSingleWorkflow(workflow),
-                    tooltip: 'Export',
+                    tooltip: context.tr.common_export,
                     icon: const Icon(Icons.ios_share_outlined, size: 20),
                   ),
                   IconButton(

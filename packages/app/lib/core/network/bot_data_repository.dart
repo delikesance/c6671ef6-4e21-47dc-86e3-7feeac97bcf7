@@ -197,15 +197,26 @@ class BotDataRepository {
   /// La précondition vient de la MÉMOIRE DU DÉPÔT pour ce bot, jamais de
   /// `command.revision` : une seule source de vérité, sinon deux écritures
   /// rapprochées pourraient partir avec deux révisions différentes.
-  Future<SaveOutcome> saveCommand(String botId, CommandDetail command) async {
+  ///
+  /// [ifMatch] est la SEULE exception, et elle n'ajoute pas de source : c'est la
+  /// révision qu'une écriture précédente avait déjà reçue et contre laquelle
+  /// elle a échoué. Le rejeu de la file la fournit parce que la mémoire du dépôt
+  /// est VIDE après un redémarrage de l'application — sans elle, la commande
+  /// repartirait sans précondition et écraserait en silence une version
+  /// distante plus récente.
+  Future<SaveOutcome> saveCommand(
+    String botId,
+    CommandDetail command, {
+    String? ifMatch,
+  }) async {
     if (_caps == null) return _saveLegacy(botId);
-    final ifMatch = revisionFor(botId);
+    final expected = _normalizeRevision(ifMatch) ?? revisionFor(botId);
     try {
       final result = await client.patchCommandV2(
         botId,
         command.commandId,
         command.raw,
-        ifMatch: ifMatch,
+        ifMatch: expected,
       );
       _rememberRevision(botId, result.revision);
       return SavedGranular(
@@ -226,7 +237,7 @@ class BotDataRepository {
         return _saveLegacy(botId);
       }
       if (AppDiagnostics.isTransientNetworkError(error)) {
-        return _queueOffline(botId, command, ifMatch: ifMatch, cause: error);
+        return _queueOffline(botId, command, ifMatch: expected, cause: error);
       }
       rethrow;
     } catch (error) {
@@ -235,7 +246,7 @@ class BotDataRepository {
       // avec un bug, c'est perdre la commande ; les mettre en file, c'est la
       // garder.
       if (AppDiagnostics.isTransientNetworkError(error)) {
-        return _queueOffline(botId, command, ifMatch: ifMatch, cause: error);
+        return _queueOffline(botId, command, ifMatch: expected, cause: error);
       }
       rethrow;
     }

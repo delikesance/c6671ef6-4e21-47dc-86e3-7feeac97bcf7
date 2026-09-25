@@ -285,8 +285,7 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
               ListTile(
                 leading: const Icon(Icons.key_outlined),
                 title: Text(context.tr.serialization_export_base64_title),
-                subtitle: const Text(
-                  'Copy compact Base64 payload to clipboard',
+                subtitle: Text(context.tr.serialization_copy_base64,
                 ),
                 onTap: () async {
                   Navigator.pop(context);

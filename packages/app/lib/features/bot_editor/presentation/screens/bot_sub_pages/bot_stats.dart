@@ -77,24 +77,14 @@ class _BotStatsPageState extends State<BotStatsPage>
 
   bool get _usingRemoteMetrics => _runtimeSource != RemoteRuntimeSource.local;
 
-  String _uiCopy({required String fr, required String en}) {
-    return Localizations.localeOf(context).languageCode == 'fr' ? fr : en;
-  }
-
   String _runtimeSourceLabel() {
     return switch (_runtimeSource) {
-      RemoteRuntimeSource.manager => _uiCopy(
-        fr: 'Serveurs Bot Creator',
-        en: 'Bot Creator servers',
-      ),
+      RemoteRuntimeSource.manager => context.tr.runner_source_manager,
       RemoteRuntimeSource.runner =>
         (_runtimeLabel?.trim().isNotEmpty ?? false)
             ? context.tr.runner_source_label(_runtimeLabel!)
             : context.tr.bot_stats_source_runner_api,
-      RemoteRuntimeSource.local => _uiCopy(
-        fr: 'Local sur cet appareil',
-        en: 'Local on this device',
-      ),
+      RemoteRuntimeSource.local => context.tr.bot_stats_source_local,
     };
   }
 
@@ -159,7 +149,9 @@ class _BotStatsPageState extends State<BotStatsPage>
 
     setState(() {
       _runtimeLabel = runtime.detailLabel;
-      _runtimeUnavailableReason = runtime.unavailableReason;
+      _runtimeUnavailableReason = runtime.unavailableReason == null
+          ? null
+          : resolveRuntimeNotice(context.tr, runtime.unavailableReason!);
       _rssBytes = getBotProcessRssBytesForBotFromSource(
         _selectedBotId,
         source: _runtimeSource,
@@ -577,10 +569,7 @@ class _BotStatsPageState extends State<BotStatsPage>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  _uiCopy(
-                                    fr: 'Source des métriques',
-                                    en: 'Metrics Source',
-                                  ),
+                                  context.tr.bot_stats_metrics_source,
                                   style: Theme.of(context).textTheme.labelSmall
                                       ?.copyWith(
                                         color: Theme.of(
@@ -634,7 +623,7 @@ class _BotStatsPageState extends State<BotStatsPage>
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    _uiCopy(fr: 'Avertissement', en: 'Warning'),
+                                    context.tr.bot_stats_warning_title,
                                     style: Theme.of(context)
                                         .textTheme
                                         .labelSmall
@@ -683,8 +672,8 @@ class _BotStatsPageState extends State<BotStatsPage>
     final isDark = theme.brightness == Brightness.dark;
 
     final String statusText = isRunning
-        ? _uiCopy(fr: 'En ligne', en: 'Online')
-        : _uiCopy(fr: 'Hors ligne', en: 'Offline');
+        ? context.tr.home_status_online
+        : context.tr.home_status_offline;
     final Color statusColor = isRunning ? AppTheme.successLight : AppTheme.grey;
 
     return Container(
@@ -714,10 +703,7 @@ class _BotStatsPageState extends State<BotStatsPage>
                 Text(
                   _selectedBotId != null
                       ? (_botNamesById[_selectedBotId] ?? _selectedBotId!)
-                      : _uiCopy(
-                          fr: 'Aucun robot sélectionné',
-                          en: 'No bot selected',
-                        ),
+                      : context.tr.bot_stats_no_bot_selected,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: theme.colorScheme.onSurface,
@@ -761,7 +747,7 @@ class _BotStatsPageState extends State<BotStatsPage>
             // theme instead of forcing the brand accent.
             icon: const Icon(Icons.refresh),
             onPressed: _syncInFlight ? null : _refreshNow,
-            tooltip: _uiCopy(fr: 'Rafraîchir maintenant', en: 'Refresh now'),
+            tooltip: context.tr.bot_stats_refresh_now,
           ),
         ],
       ),

@@ -170,8 +170,9 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
       _activeRunnerId = nextActiveRunnerId;
       _source = nextSource;
       _hasManagerSource = hasManagerSource;
-      _managerUnavailableReason = hasManagerSource
-          ? runtime.unavailableReason
+      _managerUnavailableReason =
+          hasManagerSource && runtime.unavailableReason != null
+          ? resolveRuntimeNotice(context.tr, runtime.unavailableReason!)
           : null;
       _refreshingSources = false;
     });

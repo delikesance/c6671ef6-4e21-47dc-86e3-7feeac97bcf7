@@ -756,20 +756,18 @@ extension _CommandBlockEditor on _CommandCreatePageState {
                       // Segmented Button / Toggle
                       SegmentedButton<String>(
                         showSelectedIcon: false,
-                        segments: const [
+                        segments: [
                           ButtonSegment<String>(
                             value: 'linear',
                             icon: Icon(Icons.view_agenda_outlined, size: 16),
-                            label: Text(
-                              'Blocs',
+                            label: Text(context.tr.scratch_blocks_tab,
                               style: TextStyle(fontSize: 12),
                             ),
                           ),
                           ButtonSegment<String>(
                             value: 'blueprint',
                             icon: Icon(Icons.hub_outlined, size: 16),
-                            label: Text(
-                              'Blueprint',
+                            label: Text(context.tr.blueprint_mode_label,
                               style: TextStyle(fontSize: 12),
                             ),
                           ),
