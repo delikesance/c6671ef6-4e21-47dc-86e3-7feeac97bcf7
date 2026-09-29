@@ -521,7 +521,10 @@ class SubscriptionService {
   /// Le changement de formule (upgrade/downgrade) est géré par le store dès lors
   /// que le SKU appartient au même groupe d'abonnement : l'application n'a qu'à
   /// acheter le produit cible.
-  static Future<SubscriptionPurchaseResult> purchaseProduct(String productId) {
+  static Future<SubscriptionPurchaseResult> purchaseProduct(
+    String productId, {
+    String? basePlanId,
+  }) {
     final trimmed = productId.trim();
     if (trimmed.isEmpty) {
       return Future.value(
@@ -530,7 +533,7 @@ class SubscriptionService {
         ),
       );
     }
-    return _purchase(trimmed);
+    return _purchase(trimmed, basePlanId: basePlanId);
   }
 
   /// Déclare les SKUs annoncés par le serveur (`/gateway/plans`).
@@ -556,7 +559,24 @@ class SubscriptionService {
     }
   }
 
-  static Future<SubscriptionPurchaseResult> _purchase(String productId) async {
+  static Future<void> loadCatalogProducts(Iterable<String> ids) async {
+    registerPurchasableProductIds(ids);
+    if (!supportsNativeBilling) return;
+    final iap = InAppPurchase.instance;
+    if (!await iap.isAvailable()) return;
+    final response = await iap.queryProductDetails(ids.toSet());
+    if (response.error != null) return;
+    final resolvedIds = ids.toSet();
+    products = [
+      ...products.where((p) => !resolvedIds.contains(p.id)),
+      ...response.productDetails,
+    ];
+  }
+
+  static Future<SubscriptionPurchaseResult> _purchase(
+    String productId, {
+    String? basePlanId,
+  }) async {
     try {
       final iap = InAppPurchase.instance;
       var storeAvailable = _storeAvailable;
@@ -585,7 +605,11 @@ class SubscriptionService {
         ),
       );
 
-      ProductDetails? product = selectPurchaseCandidate(products, productId);
+      ProductDetails? product = selectPurchaseCandidate(
+        products,
+        productId,
+        basePlanId: basePlanId,
+      );
 
       if (product == null) {
         final response = await iap.queryProductDetails(_knownProductIds);
@@ -622,7 +646,11 @@ class SubscriptionService {
           ),
         );
         products = response.productDetails;
-        product = selectPurchaseCandidate(products, productId);
+        product = selectPurchaseCandidate(
+          products,
+          productId,
+          basePlanId: basePlanId,
+        );
       }
 
       if (product == null) {
@@ -807,15 +835,26 @@ class SubscriptionService {
   /// issue e65c3fc0). Prefer the entry that can actually be bought, i.e. the
   /// first one carrying an offer token, and fall back to the first match so
   /// non-Google stores keep their previous behaviour.
-  @visibleForTesting
   static ProductDetails? selectPurchaseCandidate(
     List<ProductDetails> catalog,
-    String productId,
-  ) {
+    String productId, {
+    String? basePlanId,
+  }) {
     ProductDetails? fallback;
     for (final ProductDetails details in catalog) {
       if (details.id != productId) {
         continue;
+      }
+      if (basePlanId != null && basePlanId.isNotEmpty) {
+        if (details is! GooglePlayProductDetails) continue;
+        final index = details.subscriptionIndex;
+        final offers = details.productDetails.subscriptionOfferDetails;
+        if (index == null ||
+            offers == null ||
+            index >= offers.length ||
+            offers[index].basePlanId != basePlanId) {
+          continue;
+        }
       }
       fallback ??= details;
       if (subscriptionOfferToken(details) != null) {
@@ -1382,7 +1421,9 @@ class SubscriptionService {
   /// Le serveur est l'autorité et vient de dire l'état exact : aucune requête HTTP
   /// n'est faite — ni `/gateway/runtime`, ni re-vérification du store. Le repli HTTP
   /// reste en place pour les serveurs plus anciens et si la WebSocket tombe.
-  static Future<void> applyPushedAccountState(Map<String, dynamic> runtime) async {
+  static Future<void> applyPushedAccountState(
+    Map<String, dynamic> runtime,
+  ) async {
     if (runtime.isEmpty) return;
     final plan =
         _isPremiumPlan(runtime['plan']) ??

@@ -1582,14 +1582,10 @@ class MainApiClient implements RemoteRuntimeClient {
     // production en a garde la trace (`bot_sync_in_progress` en 409 sur les
     // envois suivants). Conforme a la regle du depot : un rejeu est reserve aux
     // routes sans effet visible.
-    await _post(
-      '/gateway/bots/$encodedBotId/start',
-      <String, dynamic>{
-        'bot_name': ?_normalize(botName),
-        'botName': ?_normalize(botName),
-      },
-      retryOnFailure: false,
-    );
+    await _post('/gateway/bots/$encodedBotId/start', <String, dynamic>{
+      'bot_name': ?_normalize(botName),
+      'botName': ?_normalize(botName),
+    }, retryOnFailure: false);
   }
 
   @override
@@ -2448,6 +2444,17 @@ class MainApiClient implements RemoteRuntimeClient {
     return PlanCatalogInfo.fromJson(json);
   }
 
+  Future<Map<String, dynamic>> getCommerceCatalog() =>
+      _get('/gateway/commerce/catalog');
+
+  Future<Map<String, dynamic>> getAIWallet() => _get('/gateway/ai/wallet');
+  Future<Map<String, dynamic>> createAIRewardTicket(String platform) =>
+      _post('/gateway/ai/rewards/tickets', {'platform': platform});
+  Future<Map<String, dynamic>> getAIRewardTicket(String id) =>
+      _get('/gateway/ai/rewards/tickets/${Uri.encodeComponent(id)}');
+  Future<Map<String, dynamic>> spinAIRoulette(String key) =>
+      _post('/gateway/ai/roulette/spin', {'idempotency_key': key});
+
   /// Claim a rewarded-ad deploy slot for a free hosted container.
   Future<HostedAppClaimAdResult> claimHostedAppAd({
     required String placement,
@@ -2521,16 +2528,12 @@ class MainApiClient implements RemoteRuntimeClient {
   }) async {
     // AUCUN REJEU : chaque appel cree une ligne. Un rejeu laisse des doublons
     // d'identifiants dans la liste du locataire, que rien ne distingue ensuite.
-    final json = await _post(
-      '/registry-credentials',
-      <String, dynamic>{
-        'label': label,
-        'registry_host': registryHost,
-        'username': username,
-        'password': password,
-      },
-      retryOnFailure: false,
-    );
+    final json = await _post('/registry-credentials', <String, dynamic>{
+      'label': label,
+      'registry_host': registryHost,
+      'username': username,
+      'password': password,
+    }, retryOnFailure: false);
     return RegistryCredential.fromJson(json);
   }
 
