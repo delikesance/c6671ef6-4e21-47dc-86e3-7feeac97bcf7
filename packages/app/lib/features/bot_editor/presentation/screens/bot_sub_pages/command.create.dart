@@ -23,6 +23,7 @@ import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/core/diagnostics/ui_stall_bindings.dart';
 import 'package:bot_creator/features/bot_editor/logic/app_emoji_api.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
+import 'package:bot_creator/features/bot_editor/logic/command_registration_signature.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/features/bot_editor/logic/discord_application_command_rules.dart';
@@ -783,6 +784,17 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   bool get _showEditShell => !_isDataIncomplete && !_isLoading;
 
   bool _hasUnsavedChanges = false;
+  String? _publishedCommandSignature;
+
+  String _commandRegistrationSignature() => commandRegistrationSignature(
+    name: _commandName,
+    description: _effectiveCommandDescription,
+    type: _commandType,
+    options: _effectiveOptions,
+    permissions: _parseDefaultMemberPermissions(_defaultMemberPermissions),
+    integrationTypes: _integrationTypes,
+    contexts: _contexts,
+  );
 
   bool get _isDirty {
     if (!_showEditShell) return false;
@@ -1236,7 +1248,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   }) async {
     final effectiveCommandId = (commandId != null && commandId.isNotEmpty)
         ? commandId
-        : (!widget.id.isZero ? widget.id.toString() : _existingCommandStorageId);
+        : _existingCommandStorageId;
     // Cloud sync is now supported on all platforms including desktop.
     developer.log(
       '[_syncCommandChangesToCloud] START botId=$botId commandId=$effectiveCommandId commandName="$_commandName"',
@@ -1543,7 +1555,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       } catch (_) {}
 
       final explicitLocalId = _explicitLocalCommandId;
-      if (explicitLocalId != null) {
+      if (explicitLocalId != null && widget.id.isZero) {
         final botId = _botIdForConfig;
         if (botId == null) {
           if (!mounted) {
@@ -1689,7 +1701,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         }
         final commandData = await appManager.getAppCommand(
           botId,
-          widget.id.toString(),
+          _existingCommandStorageId!,
         );
         // let's set the command data to the fields
         final data = commandData["data"];
@@ -1867,6 +1879,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
             _editorMode = _editorModeAdvanced;
           }
           _syncSubcommandWorkflowRoutes();
+          _publishedCommandSignature = _commandRegistrationSignature();
           _resetDirtyState();
           _isLoading = false;
         });
@@ -1980,6 +1993,8 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         'description': _effectiveCommandDescription,
         'type': _commandTypeToText(_commandType),
         'id': commandId,
+        if (!widget.id.isZero && !_localOnlyCommand && !_legacyModeEnabled)
+          'discordId': widget.id.toString(),
         'updatedAt': DateTime.now().toIso8601String(),
         'data': commandData,
         if (_folder.isNotEmpty) 'folder': _folder,
@@ -2081,8 +2096,10 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
             commandBuilder,
             data: commandData,
             folder: _folder,
+            storageId: existingStorageId,
           );
-          final createdCommandId = createdCommand.id.toString();
+          final createdCommandId =
+              existingStorageId ?? createdCommand.id.toString();
           developer.log(
             '[_updateOrCreate] Discord createCommand succeeded (botId=$botId commandName="$_commandName" commandId=$createdCommandId)',
             name: 'CommandCreatePage',
@@ -2105,21 +2122,6 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
             );
             if (!cloudSyncOk) {
               _notifyCloudSyncFailed(botId, commandId: createdCommandId);
-            }
-          }
-          // Delete the old temp-ID file if this was a local-only command
-          if (_isLocalOnlyCommand) {
-            final previousId = existingStorageId;
-            developer.log(
-              '[_updateOrCreate] cleaning up old local-only command file (previousId=$previousId botId=$botId)',
-              name: 'CommandCreatePage',
-            );
-            if (previousId != null) {
-              await appManager.deleteAppCommand(botId, previousId);
-              developer.log(
-                '[_updateOrCreate] deleted old local-only command file (previousId=$previousId botId=$botId)',
-                name: 'CommandCreatePage',
-              );
             }
           }
         } else {
@@ -2157,19 +2159,27 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
             }
           }
 
+          final signature = _commandRegistrationSignature();
+          if (_publishedCommandSignature == signature) {
+            updateStatus('local_save');
+            await saveLocal(existingStorageId!);
+          } else {
+            developer.log(
+              '[_updateOrCreate] Updating Discord registration (botId=$botId commandId=${widget.id})',
+              name: 'CommandCreatePage',
+            );
+            await updateCommand(
+              client,
+              widget.id,
+              commandBuilder: commandBuilder,
+              data: commandData,
+              folder: _folder,
+              storageId: existingStorageId,
+            );
+          }
+          _publishedCommandSignature = signature;
           developer.log(
-            '[_updateOrCreate] calling updateCommand on Discord (botId=$botId commandId=${widget.id} commandName="$_commandName" type=$_commandType folder="$_folder" optionsCount=${effectiveOptions.length})',
-            name: 'CommandCreatePage',
-          );
-          await updateCommand(
-            client,
-            widget.id,
-            commandBuilder: commandBuilder,
-            data: commandData,
-            folder: _folder,
-          );
-          developer.log(
-            '[_updateOrCreate] Discord updateCommand succeeded (botId=$botId commandId=${widget.id})',
+            '[_updateOrCreate] Command saved (botId=$botId commandId=${widget.id})',
             name: 'CommandCreatePage',
           );
           // Cloud sync is not supported on Desktop platforms
@@ -2182,14 +2192,14 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
             updateStatus('cloud_sync');
             final cloudSyncOk = await _syncCommandChangesToCloud(
               botId: botId,
-              commandId: widget.id.toString(),
+              commandId: existingStorageId,
             );
             developer.log(
               '[_updateOrCreate] cloud sync after update result=$cloudSyncOk (botId=$botId commandId=${widget.id})',
               name: 'CommandCreatePage',
             );
             if (!cloudSyncOk) {
-              _notifyCloudSyncFailed(botId, commandId: widget.id.toString());
+              _notifyCloudSyncFailed(botId, commandId: existingStorageId);
             }
           }
         }

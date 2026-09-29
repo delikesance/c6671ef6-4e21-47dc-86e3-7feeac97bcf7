@@ -2,6 +2,7 @@ import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command_option_serialization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:nyxx/nyxx.dart';
+import 'package:bot_creator_shared/utils/application_command_lookup.dart';
 
 bool isUnknownDiscordApplicationCommandError(Object error) {
   final message = error.toString();
@@ -85,10 +86,15 @@ class DiscordCommandPlan {
 /// besoin : de quoi la reconnaître (son NOM) et de quoi la retirer (son id).
 @immutable
 class DiscordRemoteCommand {
-  const DiscordRemoteCommand({required this.id, required this.name});
+  const DiscordRemoteCommand({
+    required this.id,
+    required this.name,
+    this.type = ApplicationCommandType.chatInput,
+  });
 
   final String id;
   final String name;
+  final ApplicationCommandType type;
 }
 
 /// Ce que la réconciliation attend de Discord.
@@ -129,7 +135,9 @@ DiscordCommandPlan? discordCommandPlanFromStoredCommand(
       ? Map<String, dynamic>.from(rawData)
       : const <String, dynamic>{};
 
-  if (data['legacyLocalOnly'] == true || data['legacyModeEnabled'] == true) {
+  if (data['legacyLocalOnly'] == true ||
+      data['legacyModeEnabled'] == true ||
+      data['localOnly'] == true) {
     return null;
   }
 
@@ -187,18 +195,10 @@ class DiscordCommandReconcileOutcome {
 
 /// Aligne les commandes de Discord sur celles du bot.
 ///
-/// POURQUOI par NOM et non par identifiant : le runner enregistre ses commandes
-/// par un écrasement global SANS identifiant (`command-registerer.ts`), donc
-/// Discord réattribue un identifiant NEUF à chaque enregistrement du runner.
-/// Comparer les identifiants faisait alors passer TOUTES les commandes distantes
-/// pour des orphelines (elles étaient supprimées) et toutes les commandes locales
-/// pour absentes (aucune n'était créée) : « Synchroniser avec Discord » effaçait
-/// les commandes sans jamais en recréer une seule. C'est ce que cette fonction
-/// répare.
+/// Match by name AND type: Discord IDs may differ after an import or restore.
 ///
-/// [onRelink] reçoit (ancien id, nouvel id, enregistrement) pour que l'appelant
-/// réécrive la commande locale sous son identifiant Discord réel : sans cela, la
-/// même dérive recommence au prochain enregistrement du runner.
+/// [onRelink] receives (storage ID, Discord ID, record). The storage ID must
+/// remain stable because server history is indexed by that identity.
 Future<DiscordCommandReconcileOutcome> reconcileDiscordApplicationCommands({
   required DiscordApplicationCommandsApi api,
   required List<Map<String, dynamic>> localCommands,
@@ -211,7 +211,8 @@ Future<DiscordCommandReconcileOutcome> reconcileDiscordApplicationCommands({
 }) async {
   final remoteCommands = await api.listCommands();
   final remoteByName = <String, DiscordRemoteCommand>{
-    for (final command in remoteCommands) command.name.toLowerCase(): command,
+    for (final command in remoteCommands)
+      '${command.type}:${command.name.toLowerCase()}': command,
   };
 
   var created = 0;
@@ -228,11 +229,12 @@ Future<DiscordCommandReconcileOutcome> reconcileDiscordApplicationCommands({
     }
 
     final localId = (stored['id'] ?? '').toString().trim();
-    final match = remoteByName[plan.name.toLowerCase()];
+    final discordId = (stored['discordId'] ?? localId).toString().trim();
+    final match = remoteByName['${plan.type}:${plan.name.toLowerCase()}'];
 
     if (match != null) {
       keptRemoteIds.add(match.id);
-      if (localId.isEmpty || localId == match.id) {
+      if (localId.isEmpty || discordId == match.id) {
         continue;
       }
       try {
@@ -248,7 +250,7 @@ Future<DiscordCommandReconcileOutcome> reconcileDiscordApplicationCommands({
       final createdCommand = await api.createCommand(plan);
       keptRemoteIds.add(createdCommand.id);
       created++;
-      if (localId.isEmpty || localId == createdCommand.id) {
+      if (localId.isEmpty || discordId == createdCommand.id) {
         continue;
       }
       try {
@@ -307,7 +309,10 @@ Future<DiscordCommandReconcileOutcome?> reconcileDiscordCommandsForBot(
   }
 
   final manager = AppManager();
-  final localCommands = await manager.listAppCommands(trimmedBotId);
+  final localCommands = await manager.listAppCommands(
+    trimmedBotId,
+    forceRefresh: true,
+  );
   final registrableCount = localCommands
       .where((command) => discordCommandPlanFromStoredCommand(command) != null)
       .length;
@@ -318,16 +323,18 @@ Future<DiscordCommandReconcileOutcome?> reconcileDiscordCommandsForBot(
     return null;
   }
 
-  Future<DiscordCommandReconcileOutcome> run(DiscordApplicationCommandsApi
-      commandsApi) {
+  Future<DiscordCommandReconcileOutcome> run(
+    DiscordApplicationCommandsApi commandsApi,
+  ) {
     return reconcileDiscordApplicationCommands(
       api: commandsApi,
       localCommands: localCommands,
       onRelink: (oldId, newId, stored) async {
-        await manager.saveAppCommand(trimmedBotId, newId, stored);
-        if (oldId.isNotEmpty && oldId != newId) {
-          await manager.deleteAppCommand(trimmedBotId, oldId);
-        }
+        // The file ID is also the server's history key. Never rename it when
+        // Discord assigns a new registration ID (including after a restore).
+        await manager.saveAppCommand(
+          trimmedBotId, oldId, withDiscordCommandId(stored, oldId, newId),
+        );
       },
     );
   }
@@ -367,6 +374,7 @@ class NyxxApplicationCommandsApi implements DiscordApplicationCommandsApi {
           (command) => DiscordRemoteCommand(
             id: command.id.toString(),
             name: command.name,
+            type: command.type,
           ),
         )
         .toList(growable: false);
@@ -395,7 +403,11 @@ class NyxxApplicationCommandsApi implements DiscordApplicationCommandsApi {
     }
 
     final created = await _rest.commands.create(builder);
-    return DiscordRemoteCommand(id: created.id.toString(), name: created.name);
+    return DiscordRemoteCommand(
+      id: created.id.toString(),
+      name: created.name,
+      type: created.type,
+    );
   }
 
   @override

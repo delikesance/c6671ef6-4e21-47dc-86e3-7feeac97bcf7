@@ -41,7 +41,7 @@ class AppManager implements BotDataStore {
   onAfterCommandSave;
 
   /// Optional hook called after a single command delete.
-  static Future<void> Function(String botId, String commandId)?
+  static Future<void> Function(String botId, String commandId, {String? discordId})?
   onAfterCommandDelete;
 
   /// Optional hook called after a workflow save.
@@ -705,6 +705,21 @@ class AppManager implements BotDataStore {
         await file.delete();
       }
     } catch (_) {}
+  }
+
+  /// A restore replaces files outside saveAppCommand. Discard both memory and
+  /// archived payload caches so execution reads the restored command files.
+  Future<void> invalidateRestoredCommandCaches() async {
+    _commandListCache.clear();
+    _payloadCache.clear();
+    final storagePath = await _path();
+    final directory = Directory('$storagePath/apps');
+    if (!await directory.exists()) return;
+    await for (final entry in directory.list()) {
+      if (entry is File && entry.path.endsWith('.payload.json')) {
+        await entry.delete();
+      }
+    }
   }
 
   Future<void> saveApp(String id, Map<String, dynamic> data) async {
@@ -2622,6 +2637,7 @@ class AppManager implements BotDataStore {
 
       final decoded = Map<String, dynamic>.from(jsonDecode(data));
       final normalized = normalizeCommandData(decoded);
+      normalized['id'] = commandId;
       if (!_deepEquals(decoded, normalized)) {
         await file.writeAsString(jsonEncode(normalized));
       }
@@ -2682,7 +2698,9 @@ class AppManager implements BotDataStore {
           final fileName = entity.uri.pathSegments.last;
           final fallbackId = fileName.substring(0, fileName.length - 5);
 
-          normalized['id'] = (normalized['id'] ?? fallbackId).toString();
+          // The filename is the storage/history identity. Older sync versions
+          // wrote a new filename while leaving the previous ID in the content.
+          normalized['id'] = fallbackId;
           final rawName = (normalized['name'] ?? '').toString().trim();
           normalized['name'] = rawName.isEmpty
               ? _fallbackCommandName(fallbackId)
@@ -2721,13 +2739,16 @@ class AppManager implements BotDataStore {
       final file = File("$path/apps/$id/$commandId.json");
 
       if (!await file.exists()) await file.create(recursive: true);
-      await file.writeAsString(jsonEncode(normalizeCommandData(data)));
+      final stored = normalizeCommandData(<String, dynamic>{
+        ...data, 'id': commandId,
+      });
+      await file.writeAsString(jsonEncode(stored));
       await invalidatePayloadCache(id);
       unawaited(
         (onAfterCommandSave ?? (_, _, _) async {}).call(
           id,
           commandId,
-          Map<String, dynamic>.from(data),
+          Map<String, dynamic>.from(stored),
         ),
       );
     } finally {
@@ -2748,9 +2769,19 @@ class AppManager implements BotDataStore {
     _commandListCache.remove(id);
     final path = await _path();
     final file = File("$path/apps/$id/$commandId.json");
+    String? discordId;
+    try {
+      final command = jsonDecode(await file.readAsString()) as Map;
+      discordId = (command['discordId'] ?? commandId).toString();
+    } catch (_) {
+      // Malformed or already absent files must still be deletable.
+    }
     if (await file.exists()) await file.delete();
     await invalidatePayloadCache(id);
-    unawaited((onAfterCommandDelete ?? (_, _) async {}).call(id, commandId));
+    final hook = onAfterCommandDelete;
+    if (hook != null) {
+      unawaited(hook(id, commandId, discordId: discordId));
+    }
   }
 
   Future<void> deleteAppCommands(String id) async {
