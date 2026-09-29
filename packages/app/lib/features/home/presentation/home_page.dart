@@ -3899,9 +3899,7 @@ class _HomeHeader extends StatelessWidget {
         HomeHeaderIconButton(
           icon: Icons.auto_awesome_outlined,
           iconSize: 16,
-          tooltip: Localizations.localeOf(context).languageCode == 'fr'
-              ? 'Copilote IA'
-              : 'AI copilot',
+          tooltip: context.tr.copilot_title,
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute<void>(builder: (_) => const CopilotPage()),
@@ -4162,9 +4160,7 @@ class HomeBotCardState extends State<HomeBotCard> {
                 child: HomeCardActionButton(
                   icon: Icons.auto_awesome_outlined,
                   iconSize: 14,
-                  label: Localizations.localeOf(context).languageCode == 'fr'
-                      ? 'Copilote'
-                      : 'Copilot',
+                  label: context.tr.copilot_role_assistant,
                   onTap: widget.onCopilot,
                 ),
               ),

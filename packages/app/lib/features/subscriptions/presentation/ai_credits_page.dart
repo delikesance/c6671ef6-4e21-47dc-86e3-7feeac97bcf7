@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math' as math;
 
+import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/features/copilot/presentation/copilot_page.dart';
@@ -28,9 +29,6 @@ class _AICreditsPageState extends State<AICreditsPage> {
   List<Map<String, dynamic>> _ledger = [];
   int _offset = 0;
   bool _more = false;
-
-  String _text(String fr, String en) =>
-      Localizations.localeOf(context).languageCode == 'fr' ? fr : en;
 
   @override
   void initState() {
@@ -73,12 +71,7 @@ class _AICreditsPageState extends State<AICreditsPage> {
       }
     } catch (_) {
       if (mounted) {
-        setState(
-          () => _error = _text(
-            'Crédits IA indisponibles. Réessayez.',
-            'AI credits unavailable. Try again.',
-          ),
-        );
+        setState(() => _error = context.tr.ai_credits_unavailable);
       }
     }
   }
@@ -95,17 +88,14 @@ class _AICreditsPageState extends State<AICreditsPage> {
     }
   }
 
-  String _origin(String source) => switch (source) {
-    'kofi' => _text('Achat Ko-fi', 'Ko-fi purchase'),
-    'apple' => _text('Achat Apple', 'Apple purchase'),
-    'google' => _text('Achat Google', 'Google purchase'),
-    'roulette' => _text('Gain roulette', 'Roulette reward'),
-    'admin_grant' => _text('Attribution administrative', 'Admin grant'),
-    'admin_correction' => _text(
-      'Correction administrative',
-      'Admin correction',
-    ),
-    'copilot' => _text('Consommation IA', 'AI usage'),
+  String _origin(BuildContext context, String source) => switch (source) {
+    'kofi' => context.tr.ai_credits_origin_kofi,
+    'apple' => context.tr.ai_credits_origin_apple,
+    'google' => context.tr.ai_credits_origin_google,
+    'roulette' => context.tr.ai_credits_origin_roulette,
+    'admin_grant' => context.tr.ai_credits_origin_admin_grant,
+    'admin_correction' => context.tr.ai_credits_origin_admin_correction,
+    'copilot' => context.tr.ai_credits_origin_copilot,
     _ => source,
   };
 
@@ -145,21 +135,11 @@ class _AICreditsPageState extends State<AICreditsPage> {
         await Future<void>.delayed(const Duration(seconds: 2));
       }
       if (mounted) {
-        setState(
-          () => _error = _text(
-            'Validation de la publicité en attente. Actualisez le solde.',
-            'Ad verification pending. Refresh your balance.',
-          ),
-        );
+        setState(() => _error = context.tr.ai_credits_ad_pending);
       }
     } catch (_) {
       if (mounted) {
-        setState(
-          () => _error = _text(
-            'Publicité indisponible ou non validée.',
-            'Ad unavailable or not verified.',
-          ),
-        );
+        setState(() => _error = context.tr.ai_credits_ad_unavailable);
       }
     } finally {
       if (mounted) {
@@ -205,12 +185,7 @@ class _AICreditsPageState extends State<AICreditsPage> {
     } catch (_) {
       // Reuse the key on retry: an ambiguous network failure must never consume two spins.
       if (mounted) {
-        setState(
-          () => _error = _text(
-            'Résultat indisponible. Réessayez pour récupérer ce tour.',
-            'Result unavailable. Retry to recover this spin.',
-          ),
-        );
+        setState(() => _error = context.tr.ai_credits_spin_failed);
       }
     } finally {
       if (mounted) {
@@ -247,7 +222,7 @@ class _AICreditsPageState extends State<AICreditsPage> {
               Icon(Icons.toll_outlined, size: 18, color: colors.primary),
               const SizedBox(width: 8),
               Text(
-                _text('Votre portefeuille IA', 'Your AI wallet'),
+                context.tr.ai_credits_wallet_card_title,
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
                   color: colors.onSurfaceVariant,
                 ),
@@ -264,7 +239,7 @@ class _AICreditsPageState extends State<AICreditsPage> {
           ),
           const SizedBox(height: 4),
           Text(
-            _text('tokens disponibles', 'tokens available'),
+            context.tr.ai_credits_tokens_available,
             style: Theme.of(
               context,
             ).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
@@ -273,8 +248,11 @@ class _AICreditsPageState extends State<AICreditsPage> {
           Row(
             children: [
               for (final item in [
-                (_text('Total', 'Total'), _wallet!['balance']),
-                (_text('Réservé', 'Reserved'), _wallet!['reserved'] ?? 0),
+                (context.tr.ai_credits_label_total, _wallet!['balance']),
+                (
+                  context.tr.ai_credits_label_reserved,
+                  _wallet!['reserved'] ?? 0,
+                ),
               ])
                 Expanded(
                   child: Column(
@@ -308,7 +286,7 @@ class _AICreditsPageState extends State<AICreditsPage> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    _text('Dépenses IA bloquées', 'AI spending blocked'),
+                    context.tr.ai_credits_spending_blocked,
                     style: Theme.of(
                       context,
                     ).textTheme.bodySmall?.copyWith(color: colors.error),
@@ -340,7 +318,7 @@ class _AICreditsPageState extends State<AICreditsPage> {
         ((adUnits[platform] ?? config['ad_unit'] ?? '').toString().isNotEmpty);
     return Scaffold(
       appBar: AppBar(
-        title: Text(_text('Crédits IA', 'AI credits')),
+        title: Text(context.tr.ai_credits_title),
         actions: [
           IconButton(
             onPressed: _busy ? null : _load,
@@ -362,9 +340,15 @@ class _AICreditsPageState extends State<AICreditsPage> {
                 runSpacing: 8,
                 children: [
                   for (final item in [
-                    (_text('Achats', 'Purchases'), _wallet!['purchased']),
-                    (_text('Roulette', 'Roulette'), _wallet!['rewarded']),
-                    (_text('Attributions', 'Grants'), _wallet!['granted']),
+                    (
+                      context.tr.ai_credits_label_purchased,
+                      _wallet!['purchased'],
+                    ),
+                    (
+                      context.tr.ai_credits_label_rewarded,
+                      _wallet!['rewarded'],
+                    ),
+                    (context.tr.ai_credits_label_granted, _wallet!['granted']),
                   ])
                     Chip(
                       side: BorderSide.none,
@@ -379,21 +363,9 @@ class _AICreditsPageState extends State<AICreditsPage> {
                 ],
               ),
               const SizedBox(height: 12),
-              if (mobile)
-                Text('$spins ${_text('tours disponibles', 'available spins')}'),
-              Text(
-                _text(
-                  '1 crédit IA = 1 token utilisable.',
-                  '1 AI credit = 1 usable token.',
-                ),
-              ),
-              if (mobile)
-                Text(
-                  _text(
-                    '3 publicités maximum par jour (UTC). Les tours bonus et inutilisés sont conservés.',
-                    'Up to 3 ads per day (UTC). Bonus and unused spins are kept.',
-                  ),
-                ),
+              if (mobile) Text(context.tr.ai_credits_spins_available(spins)),
+              Text(context.tr.ai_credits_token_ratio_hint),
+              if (mobile) Text(context.tr.ai_credits_daily_ad_limit_hint),
               const SizedBox(height: 24),
               if (prizes.isNotEmpty)
                 Center(
@@ -423,8 +395,12 @@ class _AICreditsPageState extends State<AICreditsPage> {
               if (_result != null)
                 Text(
                   (_result!['bonus_spins'] as num) > 0
-                      ? '+${_result!['bonus_spins']} ${_text('tours !', 'spins!')}'
-                      : '+${_result!['credits']} ${_text('crédits !', 'credits!')}',
+                      ? context.tr.ai_credits_result_spins(
+                          (_result!['bonus_spins'] as num).toInt(),
+                        )
+                      : context.tr.ai_credits_result_credits(
+                          _number(_result!['credits']),
+                        ),
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
@@ -436,40 +412,34 @@ class _AICreditsPageState extends State<AICreditsPage> {
                           prizes.isEmpty
                       ? null
                       : () => _spin(prizes),
-                  child: Text(_text('Tourner la roulette', 'Spin the wheel')),
+                  child: Text(context.tr.ai_credits_button_spin),
                 ),
               if (mobile)
                 OutlinedButton(
                   onPressed: _busy || !supportsAds || remaining <= 0
                       ? null
                       : _ad,
-                  child: Text(
-                    _text(
-                      'Regarder une publicité (+1 tour) — $remaining restantes',
-                      'Watch an ad (+1 spin) — $remaining left',
-                    ),
-                  ),
+                  child: Text(context.tr.ai_credits_button_watch_ad(remaining)),
                 ),
               if (_busy) const Center(child: CircularProgressIndicator()),
             ],
             if (_wallet != null) ...[
               const SizedBox(height: 24),
               Text(
-                _text('Historique des crédits', 'Credit history'),
+                context.tr.ai_credits_history_title,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 8),
-              if (_ledger.isEmpty)
-                Text(_text('Aucun mouvement.', 'No movements.')),
+              if (_ledger.isEmpty) Text(context.tr.ai_credits_history_empty),
               for (final e in _ledger)
                 ExpansionTile(
                   title: Text(
-                    '${(e['delta'] as num) > 0 ? '+' : ''}${e['delta']} · ${_origin(e['source'] as String)}',
+                    '${(e['delta'] as num) > 0 ? '+' : ''}${e['delta']} · ${_origin(context, e['source'] as String)}',
                   ),
                   subtitle: Text(e['created_at'].toString()),
                   children: [
                     SelectableText(
-                      '${_text('Référence', 'Reference')} : ${e['reference']}',
+                      '${context.tr.ai_credits_reference} : ${e['reference']}',
                     ),
                     if ((e['reason'] ?? '') != '') Text(e['reason'] as String),
                     if ((e['conversation_id'] ?? '') != '')
@@ -484,9 +454,7 @@ class _AICreditsPageState extends State<AICreditsPage> {
                             ),
                           ),
                         ),
-                        child: Text(
-                          _text('Ouvrir la discussion', 'Open conversation'),
-                        ),
+                        child: Text(context.tr.ai_credits_open_conversation),
                       ),
                   ],
                 ),
@@ -501,7 +469,7 @@ class _AICreditsPageState extends State<AICreditsPage> {
                               _offset = (_offset - 50).clamp(0, 1 << 30);
                               await _loadLedger();
                             },
-                      child: Text(_text('Précédent', 'Previous')),
+                      child: Text(context.tr.ai_credits_previous),
                     ),
                     TextButton(
                       onPressed: !_more
@@ -510,7 +478,7 @@ class _AICreditsPageState extends State<AICreditsPage> {
                               _offset += 50;
                               await _loadLedger();
                             },
-                      child: Text(_text('Suivant', 'Next')),
+                      child: Text(context.tr.ai_credits_next),
                     ),
                   ],
                 ),

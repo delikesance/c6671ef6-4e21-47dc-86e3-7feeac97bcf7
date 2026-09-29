@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/utils/hash_util.dart';
@@ -48,8 +49,6 @@ class _CopilotPageState extends State<CopilotPage> {
   int _cursor = 0, _viewEpoch = 0;
   String? _requestKey;
   bool _streamDone = false;
-  String _t(String fr, String en) =>
-      Localizations.localeOf(context).languageCode == 'fr' ? fr : en;
   String get _id => _chat!['id'] as String;
   List<Map<String, dynamic>> get _actions => (_chat?['actions'] as List? ?? [])
       .map((a) => Map<String, dynamic>.from(a as Map))
@@ -202,60 +201,30 @@ class _CopilotPageState extends State<CopilotPage> {
     if (e is MainApiClientException) {
       switch (e.code) {
         case 'ai_tool_round_limit':
-          return _t(
-            'La limite de huit étapes IA est atteinte. Envoyez une nouvelle instruction pour continuer.',
-            'The eight-step AI limit was reached. Send a new instruction to continue.',
-          );
+          return context.tr.copilot_err_tool_round_limit;
         case 'ai_context_limit':
-          return _t(
-            'Contexte trop long. Continuez dans une nouvelle discussion avec un résumé.',
-            'Context too long. Continue in a new conversation with a summary.',
-          );
+          return context.tr.copilot_err_context_limit;
         case 'ai_spending_blocked':
-          return _t(
-            'Les dépenses IA sont bloquées sur ce compte.',
-            'AI spending is blocked for this account.',
-          );
+          return context.tr.copilot_err_spending_blocked;
         case 'ai_revision_conflict':
-          return _t(
-            'La discussion a changé sur un autre appareil. Actualisez-la.',
-            'The conversation changed on another device. Refresh it.',
-          );
+          return context.tr.copilot_err_revision_conflict;
         case 'ai_action_already_claimed':
-          return _t(
-            'Une action attend une validation ou sa résolution.',
-            'An action needs approval or resolution.',
-          );
+          return context.tr.copilot_err_action_claimed;
       }
       if (e.statusCode == 402) {
-        return _t(
-          'Solde insuffisant pour réserver la demande et son contexte.',
-          'Insufficient balance to reserve this request and its context.',
-        );
+        return context.tr.copilot_err_insufficient_balance;
       }
       if (e.statusCode == 401) {
-        return _t(
-          'Connectez-vous pour utiliser le copilote.',
-          'Sign in to use copilot.',
-        );
+        return context.tr.copilot_err_unauthorized;
       }
       if (e.statusCode == 404) {
-        return _t(
-          'Discussion ou bot inaccessible.',
-          'Conversation or bot is inaccessible.',
-        );
+        return context.tr.copilot_err_not_found;
       }
       if (e.statusCode == 503) {
-        return _t(
-          'Le copilote est indisponible sur le Manager.',
-          'Copilot is unavailable on the Manager.',
-        );
+        return context.tr.copilot_err_unavailable;
       }
     }
-    return _t(
-      'La demande n’a pas abouti. Actualisez pour récupérer son état.',
-      'The request did not complete. Refresh to recover its status.',
-    );
+    return context.tr.copilot_err_request_failed;
   }
 
   Future<void> _loadHistory({bool more = false}) async {
@@ -506,28 +475,26 @@ class _CopilotPageState extends State<CopilotPage> {
     return await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: Text(
-              _t('Valider l’action du copilote', 'Approve copilot action'),
-            ),
+            title: Text(context.tr.copilot_approve_dialog_title),
             content: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    '${_t('Bot', 'Bot')} : ${args['bot_id'] ?? _chat?['bot_id'] ?? '—'}',
+                    '${context.tr.copilot_bot_label} : ${args['bot_id'] ?? _chat?['bot_id'] ?? '—'}',
                   ),
                   Text(_label(fn['name'] as String)),
                   Text(
                     (fn['name'] as String).startsWith('remote_')
-                        ? _t('Manager distant', 'Remote Manager')
-                        : _t('Cet appareil', 'This device'),
+                        ? context.tr.copilot_remote_manager
+                        : context.tr.copilot_this_device,
                   ),
                   if (args['name'] != null) Text('/${args['name']}'),
                   if (args['script'] != null)
                     SelectableText(args['script'] as String),
                   ExpansionTile(
-                    title: Text(_t('Détails de l’action', 'Action details')),
+                    title: Text(context.tr.copilot_action_details_title),
                     children: [
                       SelectableText(
                         const JsonEncoder.withIndent('  ').convert(args),
@@ -540,11 +507,11 @@ class _CopilotPageState extends State<CopilotPage> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx, false),
-                child: Text(_t('Annuler', 'Cancel')),
+                child: Text(context.tr.copilot_cancel),
               ),
               FilledButton(
                 onPressed: () => Navigator.pop(ctx, true),
-                child: Text(_t('Exécuter', 'Execute')),
+                child: Text(context.tr.copilot_execute),
               ),
             ],
           ),
@@ -620,16 +587,12 @@ class _CopilotPageState extends State<CopilotPage> {
 
   String _label(String name) => switch (name) {
     'remote_start_bot' ||
-    'local_start_bot' => _t('Démarrer le bot', 'Start bot'),
-    'remote_stop_bot' || 'local_stop_bot' => _t('Arrêter le bot', 'Stop bot'),
-    'local_create_command' => _t('Créer une commande', 'Create command'),
-    'local_update_command_execution' => _t(
-      'Modifier une commande',
-      'Update command',
-    ),
-    'docs_search' ||
-    'docs_get' => _t('Consulter la documentation', 'Read documentation'),
-    _ => _t('Consulter le bot', 'Inspect bot'),
+    'local_start_bot' => context.tr.copilot_tool_start_bot,
+    'remote_stop_bot' || 'local_stop_bot' => context.tr.copilot_tool_stop_bot,
+    'local_create_command' => context.tr.copilot_tool_create_command,
+    'local_update_command_execution' => context.tr.copilot_tool_update_command,
+    'docs_search' || 'docs_get' => context.tr.copilot_tool_read_docs,
+    _ => context.tr.copilot_tool_inspect_bot,
   };
   Future<void> _menu(String action) async {
     if (_chat == null) {
@@ -644,16 +607,16 @@ class _CopilotPageState extends State<CopilotPage> {
           final title = await showDialog<String>(
             context: context,
             builder: (ctx) => AlertDialog(
-              title: Text(_t('Renommer', 'Rename')),
+              title: Text(context.tr.copilot_rename_title),
               content: TextField(controller: controller, maxLength: 200),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(ctx),
-                  child: Text(_t('Annuler', 'Cancel')),
+                  child: Text(context.tr.copilot_cancel),
                 ),
                 FilledButton(
                   onPressed: () => Navigator.pop(ctx, controller.text.trim()),
-                  child: Text(_t('Enregistrer', 'Save')),
+                  child: Text(context.tr.copilot_save),
                 ),
               ],
             ),
@@ -680,7 +643,7 @@ class _CopilotPageState extends State<CopilotPage> {
             }
           }
           final path = await FilePicker.saveFile(
-            dialogTitle: _t('Exporter la discussion', 'Export conversation'),
+            dialogTitle: context.tr.copilot_export_dialog_title,
             fileName: 'conversation.md',
             bytes: Uint8List.fromList(utf8.encode(content.toString())),
           );
@@ -692,23 +655,16 @@ class _CopilotPageState extends State<CopilotPage> {
           final yes = await showDialog<bool>(
             context: context,
             builder: (ctx) => AlertDialog(
-              title: Text(
-                _t('Supprimer la discussion ?', 'Delete conversation?'),
-              ),
-              content: Text(
-                _t(
-                  'Le contenu sera supprimé. Les mouvements de crédits seront conservés.',
-                  'Content will be deleted. Credit movements will remain.',
-                ),
-              ),
+              title: Text(context.tr.copilot_delete_confirm_title),
+              content: Text(context.tr.copilot_delete_confirm_body),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(ctx, false),
-                  child: Text(_t('Annuler', 'Cancel')),
+                  child: Text(context.tr.copilot_cancel),
                 ),
                 FilledButton(
                   onPressed: () => Navigator.pop(ctx, true),
-                  child: Text(_t('Supprimer', 'Delete')),
+                  child: Text(context.tr.copilot_delete),
                 ),
               ],
             ),
@@ -724,23 +680,16 @@ class _CopilotPageState extends State<CopilotPage> {
           final yes = await showDialog<bool>(
             context: context,
             builder: (ctx) => AlertDialog(
-              title: Text(
-                _t('Continuer avec un résumé', 'Continue with a summary'),
-              ),
-              content: Text(
-                _t(
-                  'Le résumé consomme des crédits IA (entrée + sortie). Les échanges les plus récents seront résumés, dans la limite du contexte. La discussion originale sera conservée.',
-                  'The summary uses AI credits (input + output). Recent exchanges will be summarized within the context limit. The original conversation will remain.',
-                ),
-              ),
+              title: Text(context.tr.copilot_continue_summary_title),
+              content: Text(context.tr.copilot_continue_summary_body),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(ctx, false),
-                  child: Text(_t('Annuler', 'Cancel')),
+                  child: Text(context.tr.copilot_cancel),
                 ),
                 FilledButton(
                   onPressed: () => Navigator.pop(ctx, true),
-                  child: Text(_t('Créer la suite', 'Create continuation')),
+                  child: Text(context.tr.copilot_create_continuation),
                 ),
               ],
             ),
@@ -770,14 +719,14 @@ class _CopilotPageState extends State<CopilotPage> {
       await showDialog<void>(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: Text(_t('Connexion MCP locale', 'Local MCP connection')),
+          title: Text(context.tr.copilot_mcp_local_title),
           content: SelectableText(
-            '${_mcp!.endpoint}\n\nAuthorization: Bearer ${_mcp!.bearer}\n\n${_t('Les mutations nécessitent une validation ici.', 'Mutations require approval here.')}',
+            '${_mcp!.endpoint}\n\nAuthorization: Bearer ${_mcp!.bearer}\n\n${context.tr.copilot_mcp_approval_note}',
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: Text(_t('Fermer', 'Close')),
+              child: Text(context.tr.copilot_close),
             ),
           ],
         ),
@@ -805,47 +754,44 @@ class _CopilotPageState extends State<CopilotPage> {
         );
     return Scaffold(
       appBar: AppBar(
-        title: Text(_t('Copilote IA', 'AI copilot')),
+        title: Text(context.tr.copilot_title),
         actions: [
           IconButton(
-            tooltip: _t('Historique', 'History'),
+            tooltip: context.tr.copilot_history_tooltip,
             icon: const Icon(Icons.history_rounded),
             onPressed: _busy ? null : _historySheet,
           ),
           IconButton(
-            tooltip: _t('Nouvelle discussion', 'New conversation'),
+            tooltip: context.tr.copilot_new_discussion,
             icon: const Icon(Icons.edit_square),
             onPressed: _busy ? null : _new,
           ),
           PopupMenuButton<String>(
-            tooltip: _t('Options', 'Options'),
+            tooltip: context.tr.copilot_options_tooltip,
             enabled: !_busy,
             onSelected: _handleMenu,
             itemBuilder: (_) => [
               PopupMenuItem(
                 value: 'refresh',
-                child: Text(_t('Actualiser', 'Refresh')),
+                child: Text(context.tr.copilot_action_refresh),
               ),
               PopupMenuItem(
                 value: 'wallet',
-                child: Text(_t('Crédits IA', 'AI credits')),
+                child: Text(context.tr.copilot_action_credits),
               ),
               if (_mcp?.desktop == true)
                 PopupMenuItem(
                   value: 'mcp',
-                  child: Text(_t('Connexion MCP', 'MCP connection')),
+                  child: Text(context.tr.copilot_action_mcp_connection),
                 ),
               if (_chat != null) ...[
                 const PopupMenuDivider(),
                 for (final item in [
-                  ('rename', _t('Renommer', 'Rename')),
-                  ('archive', _t('Archiver / restaurer', 'Archive / restore')),
-                  ('export', _t('Exporter Markdown', 'Export Markdown')),
-                  (
-                    'continue',
-                    _t('Continuer avec résumé', 'Continue with summary'),
-                  ),
-                  ('delete', _t('Supprimer', 'Delete')),
+                  ('rename', context.tr.copilot_rename_title),
+                  ('archive', context.tr.copilot_action_archive),
+                  ('export', context.tr.copilot_action_export),
+                  ('continue', context.tr.copilot_action_continue),
+                  ('delete', context.tr.copilot_delete),
                 ])
                   PopupMenuItem(value: item.$1, child: Text(item.$2)),
               ],
@@ -877,36 +823,26 @@ class _CopilotPageState extends State<CopilotPage> {
                           children: [
                             TextButton(
                               onPressed: _busy ? null : _refresh,
-                              child: Text(_t('Actualiser', 'Refresh')),
+                              child: Text(context.tr.copilot_action_refresh),
                             ),
                             if (_requestKey != null)
                               TextButton(
                                 onPressed: _busy ? null : _follow,
                                 child: Text(
-                                  _t(
-                                    'Récupérer la réponse',
-                                    'Recover response',
-                                  ),
+                                  context.tr.copilot_action_recover_response,
                                 ),
                               ),
                             if (_pending != null)
                               TextButton(
                                 onPressed: _busy ? null : _send,
-                                child: Text(
-                                  _t('Réessayer la demande', 'Retry request'),
-                                ),
+                                child: Text(context.tr.copilot_action_retry),
                               ),
                             if (_chat != null)
                               TextButton(
                                 onPressed: _busy
                                     ? null
                                     : () => _menu('continue'),
-                                child: Text(
-                                  _t(
-                                    'Continuer avec résumé',
-                                    'Continue with summary',
-                                  ),
-                                ),
+                                child: Text(context.tr.copilot_action_continue),
                               ),
                           ],
                         ),
@@ -967,7 +903,7 @@ class _CopilotPageState extends State<CopilotPage> {
   Widget _contextHeader(String? bot, String location) {
     final colors = Theme.of(context).colorScheme;
     final name = bot == null || bot.isEmpty
-        ? _t('Discussion globale', 'Global conversation')
+        ? context.tr.copilot_global_discussion
         : widget.botName ?? _botNames[bot] ?? bot;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 14),
@@ -1004,7 +940,7 @@ class _CopilotPageState extends State<CopilotPage> {
                 const SizedBox(height: 4),
                 Text(
                   _chat?['title'] as String? ??
-                      _t('Nouvelle discussion', 'New conversation'),
+                      context.tr.copilot_new_discussion,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -1034,8 +970,8 @@ class _CopilotPageState extends State<CopilotPage> {
                   const SizedBox(width: 5),
                   Text(
                     location == 'local'
-                        ? _t('Local', 'Local')
-                        : _t('Distant', 'Remote'),
+                        ? context.tr.copilot_location_local
+                        : context.tr.copilot_location_remote,
                     style: Theme.of(context).textTheme.labelSmall,
                   ),
                 ],
@@ -1062,9 +998,9 @@ class _CopilotPageState extends State<CopilotPage> {
         child: Row(
           children: [
             for (final metric in [
-              (_t('Disponible', 'Available'), _wallet!['available']),
-              (_t('Réservé', 'Reserved'), _wallet!['reserved'] ?? 0),
-              (_t('Total', 'Total'), _wallet!['balance']),
+              (context.tr.copilot_available, _wallet!['available']),
+              (context.tr.copilot_reserved, _wallet!['reserved'] ?? 0),
+              (context.tr.copilot_total, _wallet!['balance']),
             ])
               Expanded(
                 child: Column(
@@ -1088,7 +1024,7 @@ class _CopilotPageState extends State<CopilotPage> {
               ),
             IconButton(
               visualDensity: VisualDensity.compact,
-              tooltip: _t('Crédits IA', 'AI credits'),
+              tooltip: context.tr.copilot_action_credits,
               onPressed: () => _handleMenu('wallet'),
               icon: Icon(
                 Icons.arrow_forward_rounded,
@@ -1110,7 +1046,7 @@ class _CopilotPageState extends State<CopilotPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            _t('Un coup de main pour votre bot ?', 'A hand with your bot?'),
+            context.tr.copilot_welcome_title,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.w600,
               letterSpacing: -.5,
@@ -1118,10 +1054,7 @@ class _CopilotPageState extends State<CopilotPage> {
           ),
           const SizedBox(height: 10),
           Text(
-            _t(
-              'Explorez une idée, vérifiez une commande ou préparez une modification. Vous gardez le contrôle des actions.',
-              'Explore an idea, check a command or prepare a change. You stay in control of every action.',
-            ),
+            context.tr.copilot_welcome_subtitle,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: colors.onSurfaceVariant,
               height: 1.6,
@@ -1131,27 +1064,18 @@ class _CopilotPageState extends State<CopilotPage> {
           for (final suggestion in [
             (
               Icons.search_rounded,
-              _t('Vérifier mon bot', 'Check my bot'),
-              _t(
-                'Vérifie l’état de mon bot et propose les prochaines étapes.',
-                'Inspect my bot and suggest next steps.',
-              ),
+              context.tr.copilot_suggestion_check_title,
+              context.tr.copilot_suggestion_check_prompt,
             ),
             (
               Icons.code_rounded,
-              _t('Créer une commande', 'Create a command'),
-              _t(
-                'Aide-moi à préparer une nouvelle commande pour mon bot.',
-                'Help me prepare a new command for my bot.',
-              ),
+              context.tr.copilot_suggestion_command_title,
+              context.tr.copilot_suggestion_command_prompt,
             ),
             (
               Icons.lightbulb_outline_rounded,
-              _t('Comprendre une fonctionnalité', 'Understand a feature'),
-              _t(
-                'Explique-moi comment utiliser les fonctionnalités de Bot Creator.',
-                'Explain how to use Bot Creator features.',
-              ),
+              context.tr.copilot_suggestion_feature_title,
+              context.tr.copilot_suggestion_feature_prompt,
             ),
           ])
             Padding(
@@ -1192,7 +1116,7 @@ class _CopilotPageState extends State<CopilotPage> {
           if (_history.isNotEmpty) ...[
             const SizedBox(height: 24),
             Text(
-              _t('Reprendre une discussion', 'Continue a conversation'),
+              context.tr.copilot_history_section_title,
               style: Theme.of(
                 context,
               ).textTheme.labelMedium?.copyWith(color: colors.onSurfaceVariant),
@@ -1265,7 +1189,9 @@ class _CopilotPageState extends State<CopilotPage> {
                 ],
                 Expanded(
                   child: Text(
-                    user ? _t('Vous', 'You') : _t('Copilote', 'Copilot'),
+                    user
+                        ? context.tr.copilot_role_you
+                        : context.tr.copilot_role_assistant,
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: user ? colors.onSurfaceVariant : colors.primary,
                       fontWeight: FontWeight.w600,
@@ -1274,7 +1200,7 @@ class _CopilotPageState extends State<CopilotPage> {
                 ),
                 if (streaming)
                   Text(
-                    _t('En cours…', 'Generating…'),
+                    context.tr.copilot_generating,
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: colors.onSurfaceVariant,
                     ),
@@ -1287,7 +1213,7 @@ class _CopilotPageState extends State<CopilotPage> {
                       minHeight: 28,
                     ),
                     padding: EdgeInsets.zero,
-                    tooltip: _t('Copier le message', 'Copy message'),
+                    tooltip: context.tr.copilot_copy_message,
                     icon: Icon(
                       Icons.copy_rounded,
                       size: 14,
@@ -1330,7 +1256,9 @@ class _CopilotPageState extends State<CopilotPage> {
                   ),
                   const SizedBox(width: 5),
                   Text(
-                    '${_number(_chat?['consumed_tokens'])} ${_t('tokens dans cette discussion', 'tokens in this conversation')}',
+                    context.tr.copilot_tokens_in_discussion(
+                      _number(_chat?['consumed_tokens']),
+                    ),
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: colors.onSurfaceVariant,
                     ),
@@ -1355,7 +1283,7 @@ class _CopilotPageState extends State<CopilotPage> {
                     maxLines: 5,
                     enabled: _ready,
                     decoration: InputDecoration(
-                      hintText: _t('Votre message', 'Your message'),
+                      hintText: context.tr.copilot_input_hint,
                       border: InputBorder.none,
                       enabledBorder: InputBorder.none,
                       focusedBorder: InputBorder.none,
@@ -1367,7 +1295,7 @@ class _CopilotPageState extends State<CopilotPage> {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 4),
                   child: IconButton.filled(
-                    tooltip: _t('Envoyer', 'Send'),
+                    tooltip: context.tr.copilot_send,
                     onPressed: canSend ? () => _send() : null,
                     icon: const Icon(Icons.send, size: 19),
                   ),
@@ -1422,22 +1350,19 @@ class _CopilotPageState extends State<CopilotPage> {
             Text(switch (state) {
               'pending' =>
                 _mutating(a)
-                    ? _t('Validation requise', 'Approval required')
-                    : _t('Consultation disponible', 'Ready to inspect'),
-              'executing' => _t('Exécution en cours', 'Executing'),
-              'succeeded' => _t('Réussite', 'Succeeded'),
-              'declined' => _t('Refusée', 'Declined'),
-              'uncertain' => _t(
-                'Exécution non confirmée — vérifiez le bot',
-                'Execution unconfirmed — inspect the bot',
-              ),
-              _ => _t('Échec', 'Failed'),
+                    ? context.tr.copilot_status_approval_required
+                    : context.tr.copilot_status_ready_to_inspect,
+              'executing' => context.tr.copilot_status_executing,
+              'succeeded' => context.tr.copilot_status_succeeded,
+              'declined' => context.tr.copilot_status_declined,
+              'uncertain' => context.tr.copilot_status_unconfirmed,
+              _ => context.tr.copilot_status_failed,
             }),
             ExpansionTile(
               tilePadding: EdgeInsets.zero,
               dense: true,
               title: Text(
-                _t('Détails techniques', 'Technical details'),
+                context.tr.copilot_technical_details,
                 style: Theme.of(
                   context,
                 ).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
@@ -1457,8 +1382,8 @@ class _CopilotPageState extends State<CopilotPage> {
                         : () => _action(a, true),
                     child: Text(
                       _mutating(a)
-                          ? _t('Valider', 'Approve')
-                          : _t('Consulter', 'Inspect'),
+                          ? context.tr.copilot_approve
+                          : context.tr.copilot_inspect,
                     ),
                   ),
                   if (_mutating(a))
@@ -1466,7 +1391,7 @@ class _CopilotPageState extends State<CopilotPage> {
                       onPressed: _busy || _chat?['archived'] == true
                           ? null
                           : () => _action(a, false),
-                      child: Text(_t('Refuser', 'Decline')),
+                      child: Text(context.tr.copilot_decline),
                     ),
                 ],
               ),
@@ -1479,25 +1404,19 @@ class _CopilotPageState extends State<CopilotPage> {
                           context: context,
                           builder: (ctx) => AlertDialog(
                             title: Text(
-                              _t(
-                                'Clore sans réexécuter',
-                                'Close without replay',
-                              ),
+                              context.tr.copilot_close_without_replay,
                             ),
                             content: Text(
-                              _t(
-                                'Vérifiez le bot avant de clore cette action au résultat inconnu.',
-                                'Check the bot before closing this action with an unknown outcome.',
-                              ),
+                              context.tr.copilot_close_unconfirmed_warning,
                             ),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(ctx, false),
-                                child: Text(_t('Annuler', 'Cancel')),
+                                child: Text(context.tr.copilot_cancel),
                               ),
                               FilledButton(
                                 onPressed: () => Navigator.pop(ctx, true),
-                                child: Text(_t('Clore', 'Close')),
+                                child: Text(context.tr.copilot_close_action),
                               ),
                             ],
                           ),
@@ -1521,9 +1440,7 @@ class _CopilotPageState extends State<CopilotPage> {
                           }
                         }
                       },
-                child: Text(
-                  _t('Clore sans réexécuter', 'Close without replay'),
-                ),
+                child: Text(context.tr.copilot_close_without_replay),
               ),
           ],
         ),
@@ -1546,13 +1463,13 @@ class _CopilotPageState extends State<CopilotPage> {
             child: Column(
               children: [
                 Text(
-                  _t('Historique des discussions', 'Conversation history'),
+                  context.tr.copilot_history_sheet_title,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 TextField(
                   controller: _search,
                   decoration: InputDecoration(
-                    labelText: _t('Rechercher un titre', 'Search title'),
+                    labelText: context.tr.copilot_search_title_hint,
                   ),
                   onSubmitted: (_) async {
                     await _loadHistory();
@@ -1565,12 +1482,12 @@ class _CopilotPageState extends State<CopilotPage> {
                         ? ''
                         : _botFilter.text,
                     decoration: InputDecoration(
-                      labelText: _t('Filtrer par bot', 'Filter by bot'),
+                      labelText: context.tr.copilot_filter_by_bot,
                     ),
                     items: [
                       DropdownMenuItem(
                         value: '',
-                        child: Text(_t('Tous les bots', 'All bots')),
+                        child: Text(context.tr.copilot_all_bots),
                       ),
                       for (final id in {
                         ..._botNames.keys,
@@ -1599,7 +1516,7 @@ class _CopilotPageState extends State<CopilotPage> {
                     },
                   ),
                 SwitchListTile(
-                  title: Text(_t('Archives', 'Archives')),
+                  title: Text(context.tr.copilot_archives),
                   value: _archives,
                   onChanged: (v) async {
                     _archives = v;
@@ -1611,12 +1528,12 @@ class _CopilotPageState extends State<CopilotPage> {
                   child: ListView(
                     children: [
                       if (_history.isEmpty)
-                        Text(_t('Aucune discussion.', 'No conversations.')),
+                        Text(context.tr.copilot_no_conversations),
                       for (final c in _history)
                         ListTile(
                           title: Text(c['title'] as String),
                           subtitle: Text(
-                            '${c['bot_id'] == '' ? _t('Globale', 'Global') : c['bot_id']} · ${c['updated_at'] ?? ''}',
+                            '${c['bot_id'] == '' ? context.tr.copilot_badge_global : c['bot_id']} · ${c['updated_at'] ?? ''}',
                           ),
                           onTap: () {
                             Navigator.pop(ctx);
@@ -1637,7 +1554,7 @@ class _CopilotPageState extends State<CopilotPage> {
                               }
                             }
                           },
-                          child: Text(_t('Charger la suite', 'Load more')),
+                          child: Text(context.tr.copilot_load_more),
                         ),
                     ],
                   ),
@@ -1665,13 +1582,7 @@ class CopilotMarkdown extends StatelessWidget {
           unawaited(launchUrl(uri, mode: LaunchMode.externalApplication));
         }
       },
-      builders: {
-        'pre': _CodeBuilder(
-          Localizations.localeOf(context).languageCode == 'fr'
-              ? 'Copier le code'
-              : 'Copy code',
-        ),
-      },
+      builders: {'pre': _CodeBuilder(context.tr.copilot_copy_code)},
     ),
   );
 }

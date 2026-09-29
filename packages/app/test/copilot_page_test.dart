@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/features/copilot/presentation/copilot_page.dart';
 import 'package:flutter/material.dart';
@@ -144,7 +145,13 @@ void main() {
             );
           }),
         );
-        await tester.pumpWidget(MaterialApp(home: CopilotPage(api: api)));
+        await tester.pumpWidget(
+          MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: CopilotPage(api: api),
+          ),
+        );
         await settle(tester);
         for (
           var i = 0;
@@ -212,6 +219,8 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     await tester.pumpWidget(
       const MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: SingleChildScrollView(
             child: CopilotMarkdown(
