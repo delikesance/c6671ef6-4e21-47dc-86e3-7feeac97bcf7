@@ -366,9 +366,7 @@ class HomeTurnkeyContainerCard extends StatelessWidget {
             const SizedBox(height: 10),
             HomeCardActionButton(
               icon: Icons.auto_awesome_outlined,
-              label: Localizations.localeOf(context).languageCode == 'fr'
-                  ? 'Copilote'
-                  : 'Copilot',
+              label: tr.copilot_role_assistant,
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
