@@ -1665,12 +1665,21 @@ class CopilotMarkdown extends StatelessWidget {
           unawaited(launchUrl(uri, mode: LaunchMode.externalApplication));
         }
       },
-      builders: {'pre': _CodeBuilder()},
+      builders: {
+        'pre': _CodeBuilder(
+          Localizations.localeOf(context).languageCode == 'fr'
+              ? 'Copier le code'
+              : 'Copy code',
+        ),
+      },
     ),
   );
 }
 
 class _CodeBuilder extends MarkdownElementBuilder {
+  _CodeBuilder(this.copyTooltip);
+  final String copyTooltip;
+
   @override
   Widget? visitElementAfter(element, TextStyle? preferredStyle) {
     final code = element.textContent;
@@ -1685,7 +1694,7 @@ class _CodeBuilder extends MarkdownElementBuilder {
           ),
         ),
         IconButton(
-          tooltip: 'Copier le code / Copy code',
+          tooltip: copyTooltip,
           icon: const Icon(Icons.copy, size: 18),
           onPressed: () => Clipboard.setData(ClipboardData(text: code)),
         ),

@@ -59,9 +59,7 @@ final RegExp _namedLiteralPattern = RegExp(
 /// qui doit être exclu, sinon un changement de forme du générateur (un
 /// `title: '...'` dans les fichiers produits) ferait remonter des milliers de
 /// faux positifs et noierait la vraie dette.
-const Set<String> _skipFiles = <String>{
-  'lib/core/i18n/l10n/',
-};
+const Set<String> _skipFiles = <String>{'lib/core/i18n/l10n/'};
 
 const List<String> _skipSnippets = <String>[
   r'((${',
@@ -285,6 +283,27 @@ const List<AllowListEntry> allowListedPatterns = <AllowListEntry>[
         'Noms des moteurs d\'exécution (identifiants Dart/JS), stables '
         'entre les locales.',
   ),
+  AllowListEntry(
+    pathFragment:
+        'lib/features/bot_editor/presentation/screens/app_editor_page.dart',
+    snippetPattern: r"compactLabel: '(?:IA|AI)'",
+    reason: 'Sigle IA / AI pour le libellé compact de l’onglet copilote.',
+  ),
+  AllowListEntry(
+    pathFragment: 'lib/features/copilot/presentation/copilot_page.dart',
+    snippetPattern: r"Text\('/\$",
+    reason: 'Préfixe de commande slash dans les détails de validation MCP.',
+  ),
+  AllowListEntry(
+    pathFragment: 'lib/features/copilot/presentation/copilot_page.dart',
+    snippetPattern: r'Authorization: Bearer',
+    reason: 'En-tête HTTP technique d’authentification pour le serveur MCP.',
+  ),
+  AllowListEntry(
+    pathFragment: 'lib/features/copilot/presentation/copilot_page.dart',
+    snippetPattern: r"\$\{fn\['name'\]\}",
+    reason: 'Détails bruts des arguments d’appels d’outils du copilote.',
+  ),
   // ── Texte COMPOSÉ depuis une traduction ──────────────────────────────────────
   AllowListEntry(
     // Tous les fichiers : la règle porte sur la FORME de la ligne.
@@ -306,12 +325,12 @@ const List<AllowListEntry> allowListedPatterns = <AllowListEntry>[
     //
     // Les interpolations peuvent être PLUSIEURS (`'${a} / ${b}'`) : autoriser un
     // seul groupe laissait passer des compteurs composés pour de la copie.
-        // Un raw string ne peut pas echapper de guillemet : les deux formes
-        // de guillemet sont donc ecrites \x27 (apostrophe) et \x22
-        // (guillemet), ce qui evite de melanger deux styles de litteraux.
-        snippetPattern:
-            r"^[^\x27\x22]*[\x27\x22](?:[\s\d(),.:/|*+_\[\]#•·—×°~!?=&%@\-]"
-            r"|(\$\{[^}]*\}|\$[a-zA-Z_][a-zA-Z0-9_]*))*[\x27\x22][^\x27\x22]*$",
+    // Un raw string ne peut pas echapper de guillemet : les deux formes
+    // de guillemet sont donc ecrites \x27 (apostrophe) et \x22
+    // (guillemet), ce qui evite de melanger deux styles de litteraux.
+    snippetPattern:
+        r"^[^\x27\x22]*[\x27\x22](?:[\s\d(),.:/|*+_\[\]#•·—×°~!?=&%@\-]"
+        r"|(\$\{[^}]*\}|\$[a-zA-Z_][a-zA-Z0-9_]*))*[\x27\x22][^\x27\x22]*$",
     reason:
         'Texte 100 % DONNÉE : un compteur, un identifiant ou une longueur '
         'interpolés, sans un seul mot humain — il n\'y a donc rien à traduire. '
@@ -353,7 +372,8 @@ const List<AllowListEntry> allowListedPatterns = <AllowListEntry>[
   ),
   AllowListEntry(
     pathFragment: '',
-    snippetPattern: r"label: (?:const )?Text\('(?:Dart|JS|JavaScript|Java|C\+\+)'\)",
+    snippetPattern:
+        r"label: (?:const )?Text\('(?:Dart|JS|JavaScript|Java|C\+\+)'\)",
     reason:
         'Identifiants de MOTEUR ou de langage (Dart, JS, JavaScript…) : ce sont '
         'des noms propres techniques, identiques dans les 6 langues. Même '
@@ -490,8 +510,7 @@ List<HardcodedStringFinding> findHardcodedStringFindings({
       // entièrement sur la ligne suivante, le littéral vit là-bas et sera vu à
       // son tour — le compter ici le compterait DEUX fois (et signalerait la
       // mauvaise ligne).
-      if (!(windowMatch.start < line.length &&
-          windowMatch.end > line.length)) {
+      if (!(windowMatch.start < line.length && windowMatch.end > line.length)) {
         continue;
       }
       findings.add(
