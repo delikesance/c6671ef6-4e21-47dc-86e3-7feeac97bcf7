@@ -4,6 +4,7 @@ import 'dart:math' as math;
 
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
+import 'package:bot_creator/features/copilot/presentation/copilot_page.dart';
 import 'package:bot_creator/features/subscriptions/logic/ai_reward_ad.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
@@ -24,6 +25,9 @@ class _AICreditsPageState extends State<AICreditsPage> {
   Map<String, dynamic>? _result;
   bool _busy = false;
   double _turns = 0;
+  List<Map<String, dynamic>> _ledger = [];
+  int _offset = 0;
+  bool _more = false;
 
   String _text(String fr, String en) =>
       Localizations.localeOf(context).languageCode == 'fr' ? fr : en;
@@ -40,6 +44,7 @@ class _AICreditsPageState extends State<AICreditsPage> {
         _client = widget.api;
         _owner = _client!.accountOwnerId;
         _wallet = await _client!.getAIWallet();
+        await _loadLedger();
         if (mounted) {
           setState(() => _error = null);
         }
@@ -59,6 +64,7 @@ class _AICreditsPageState extends State<AICreditsPage> {
       );
       _owner = session.userId;
       final wallet = await _client!.getAIWallet();
+      await _loadLedger();
       if (mounted) {
         setState(() {
           _wallet = wallet;
@@ -76,6 +82,32 @@ class _AICreditsPageState extends State<AICreditsPage> {
       }
     }
   }
+
+  Future<void> _loadLedger() async {
+    final d = await _client!.getAILedger(offset: _offset);
+    if (mounted) {
+      setState(() {
+        _ledger = (d['entries'] as List)
+            .map((e) => Map<String, dynamic>.from(e as Map))
+            .toList();
+        _more = d['has_more'] == true;
+      });
+    }
+  }
+
+  String _origin(String source) => switch (source) {
+    'kofi' => _text('Achat Ko-fi', 'Ko-fi purchase'),
+    'apple' => _text('Achat Apple', 'Apple purchase'),
+    'google' => _text('Achat Google', 'Google purchase'),
+    'roulette' => _text('Gain roulette', 'Roulette reward'),
+    'admin_grant' => _text('Attribution administrative', 'Admin grant'),
+    'admin_correction' => _text(
+      'Correction administrative',
+      'Admin correction',
+    ),
+    'copilot' => _text('Consommation IA', 'AI usage'),
+    _ => source,
+  };
 
   Future<void> _ad() async {
     if (!Platform.isAndroid && !Platform.isIOS) {
@@ -316,113 +348,180 @@ class _AICreditsPageState extends State<AICreditsPage> {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(24),
-        children: [
-          if (_wallet == null && _error == null)
-            const Center(child: CircularProgressIndicator()),
-          if (_wallet != null) ...[
-            _balanceCard(),
-            const SizedBox(height: 18),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                for (final item in [
-                  (_text('Achats', 'Purchases'), _wallet!['purchased']),
-                  (_text('Roulette', 'Roulette'), _wallet!['rewarded']),
-                  (_text('Attributions', 'Grants'), _wallet!['granted']),
-                ])
-                  Chip(
-                    side: BorderSide.none,
-                    backgroundColor: Theme.of(
-                      context,
-                    ).colorScheme.surfaceContainerLow,
-                    label: Text(
-                      '${item.$1} · ${_number(item.$2)}',
-                      style: Theme.of(context).textTheme.labelSmall,
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+          children: [
+            if (_wallet == null && _error == null)
+              const Center(child: CircularProgressIndicator()),
+            if (_wallet != null) ...[
+              _balanceCard(),
+              const SizedBox(height: 18),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final item in [
+                    (_text('Achats', 'Purchases'), _wallet!['purchased']),
+                    (_text('Roulette', 'Roulette'), _wallet!['rewarded']),
+                    (_text('Attributions', 'Grants'), _wallet!['granted']),
+                  ])
+                    Chip(
+                      side: BorderSide.none,
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerLow,
+                      label: Text(
+                        '${item.$1} · ${_number(item.$2)}',
+                        style: Theme.of(context).textTheme.labelSmall,
+                      ),
                     ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            if (mobile)
-              Text('$spins ${_text('tours disponibles', 'available spins')}'),
-            Text(
-              _text(
-                '1 crédit IA = 1 token utilisable.',
-                '1 AI credit = 1 usable token.',
+                ],
               ),
-            ),
-            if (mobile)
+              const SizedBox(height: 12),
+              if (mobile)
+                Text('$spins ${_text('tours disponibles', 'available spins')}'),
               Text(
                 _text(
-                  '3 publicités maximum par jour (UTC). Les tours bonus et inutilisés sont conservés.',
-                  'Up to 3 ads per day (UTC). Bonus and unused spins are kept.',
+                  '1 crédit IA = 1 token utilisable.',
+                  '1 AI credit = 1 usable token.',
                 ),
               ),
-            const SizedBox(height: 24),
-            if (prizes.isNotEmpty)
-              Center(
-                child: SizedBox(
-                  width: 260,
-                  height: 280,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      AnimatedRotation(
-                        turns: _turns,
-                        duration: const Duration(milliseconds: 2400),
-                        curve: Curves.easeOutCubic,
-                        child: CustomPaint(
-                          size: const Size(260, 260),
-                          painter: _RoulettePainter(prizes),
-                        ),
-                      ),
-                      const Positioned(
-                        top: 0,
-                        child: Icon(Icons.arrow_drop_down, size: 40),
-                      ),
-                    ],
+              if (mobile)
+                Text(
+                  _text(
+                    '3 publicités maximum par jour (UTC). Les tours bonus et inutilisés sont conservés.',
+                    'Up to 3 ads per day (UTC). Bonus and unused spins are kept.',
                   ),
                 ),
-              ),
-            if (_result != null)
+              const SizedBox(height: 24),
+              if (prizes.isNotEmpty)
+                Center(
+                  child: SizedBox(
+                    width: 260,
+                    height: 280,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        AnimatedRotation(
+                          turns: _turns,
+                          duration: const Duration(milliseconds: 2400),
+                          curve: Curves.easeOutCubic,
+                          child: CustomPaint(
+                            size: const Size(260, 260),
+                            painter: _RoulettePainter(prizes),
+                          ),
+                        ),
+                        const Positioned(
+                          top: 0,
+                          child: Icon(Icons.arrow_drop_down, size: 40),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              if (_result != null)
+                Text(
+                  (_result!['bonus_spins'] as num) > 0
+                      ? '+${_result!['bonus_spins']} ${_text('tours !', 'spins!')}'
+                      : '+${_result!['credits']} ${_text('crédits !', 'credits!')}',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              if (mobile)
+                FilledButton(
+                  onPressed:
+                      _busy ||
+                          (spins <= 0 && _pendingSpinKey == null) ||
+                          prizes.isEmpty
+                      ? null
+                      : () => _spin(prizes),
+                  child: Text(_text('Tourner la roulette', 'Spin the wheel')),
+                ),
+              if (mobile)
+                OutlinedButton(
+                  onPressed: _busy || !supportsAds || remaining <= 0
+                      ? null
+                      : _ad,
+                  child: Text(
+                    _text(
+                      'Regarder une publicité (+1 tour) — $remaining restantes',
+                      'Watch an ad (+1 spin) — $remaining left',
+                    ),
+                  ),
+                ),
+              if (_busy) const Center(child: CircularProgressIndicator()),
+            ],
+            if (_wallet != null) ...[
+              const SizedBox(height: 24),
               Text(
-                (_result!['bonus_spins'] as num) > 0
-                    ? '+${_result!['bonus_spins']} ${_text('tours !', 'spins!')}'
-                    : '+${_result!['credits']} ${_text('crédits !', 'credits!')}',
-                textAlign: TextAlign.center,
+                _text('Historique des crédits', 'Credit history'),
                 style: Theme.of(context).textTheme.titleLarge,
               ),
-            if (mobile)
-              FilledButton(
-                onPressed:
-                    _busy ||
-                        (spins <= 0 && _pendingSpinKey == null) ||
-                        prizes.isEmpty
-                    ? null
-                    : () => _spin(prizes),
-                child: Text(_text('Tourner la roulette', 'Spin the wheel')),
-              ),
-            if (mobile)
-              OutlinedButton(
-                onPressed: _busy || !supportsAds || remaining <= 0 ? null : _ad,
-                child: Text(
-                  _text(
-                    'Regarder une publicité (+1 tour) — $remaining restantes',
-                    'Watch an ad (+1 spin) — $remaining left',
+              const SizedBox(height: 8),
+              if (_ledger.isEmpty)
+                Text(_text('Aucun mouvement.', 'No movements.')),
+              for (final e in _ledger)
+                ExpansionTile(
+                  title: Text(
+                    '${(e['delta'] as num) > 0 ? '+' : ''}${e['delta']} · ${_origin(e['source'] as String)}',
                   ),
+                  subtitle: Text(e['created_at'].toString()),
+                  children: [
+                    SelectableText(
+                      '${_text('Référence', 'Reference')} : ${e['reference']}',
+                    ),
+                    if ((e['reason'] ?? '') != '') Text(e['reason'] as String),
+                    if ((e['conversation_id'] ?? '') != '')
+                      TextButton(
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => CopilotPage(
+                              api: _client,
+                              initialConversationId:
+                                  e['conversation_id'] as String,
+                            ),
+                          ),
+                        ),
+                        child: Text(
+                          _text('Ouvrir la discussion', 'Open conversation'),
+                        ),
+                      ),
+                  ],
                 ),
+              if (_offset > 0 || _more)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton(
+                      onPressed: _offset == 0
+                          ? null
+                          : () async {
+                              _offset = (_offset - 50).clamp(0, 1 << 30);
+                              await _loadLedger();
+                            },
+                      child: Text(_text('Précédent', 'Previous')),
+                    ),
+                    TextButton(
+                      onPressed: !_more
+                          ? null
+                          : () async {
+                              _offset += 50;
+                              await _loadLedger();
+                            },
+                      child: Text(_text('Suivant', 'Next')),
+                    ),
+                  ],
+                ),
+            ],
+            if (_error != null)
+              Text(
+                _error!,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
-            if (_busy) const Center(child: CircularProgressIndicator()),
           ],
-          if (_error != null)
-            Text(
-              _error!,
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-            ),
-        ],
+        ),
       ),
     );
   }
