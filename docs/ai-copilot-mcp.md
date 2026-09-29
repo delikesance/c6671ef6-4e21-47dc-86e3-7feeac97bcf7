@@ -1,109 +1,79 @@
-# Copilote IA et passerelle MCP
+# Copilote IA, historique et crédits
 
 ## Parcours
 
-Le bouton étoile sur l'accueil ouvre le copilote sur mobile et desktop. Le compte
-Manager fournit le portefeuille commun : 1 crédit IA = 1 token. Les générations
-s'exécutent sur le Manager ; aucune clé du fournisseur n'est distribuée à l'application.
-Le contexte envoyé au modèle inclut les instructions, l'historique et les résultats
-des outils demandés. Les tokens d'entrée et de sortie sont débités au total déclaré
-par le fournisseur. Chaque étape IA est facturée, y compris une proposition que
-l'utilisateur annule ensuite ; une action sur un bot ne consomme pas de tokens par
-elle-même. L'exécution habituelle des commandes reste indépendante de ce portefeuille.
+Le copilote est disponible depuis l’accueil, les cartes de bots, la fiche du bot et la navigation de l’éditeur. L’accueil permet les discussions globales et le filtrage par bot. Une discussion de bot conserve son identifiant et son emplacement (appareil ou Manager). Les réponses affichent du Markdown, y compris tableaux et code copiable, pendant le streaming.
 
-Le Manager réserve un budget prudent (borne en octets UTF-8 du contexte, marge et
-plafond de sortie), puis libère l'excédent à la réponse. La réservation peut donc
-être supérieure au coût final. Le portefeuille distingue `balance`, `reserved` et
-`available`. Les réservations empêchent les dépenses concurrentes ; un échec libère
-le budget et une réservation abandonnée cesse de bloquer le solde après deux minutes.
-Une requête achevée et son débit sont enregistrés dans la même transaction ; le rejeu
-de sa clé rend le résultat enregistré. Un contenu différent sous cette clé est refusé.
+Les conversations appartiennent au compte qui les crée. Elles sont enregistrées sur le Manager, synchronisées entre appareils, et conservées jusqu’à suppression. Les collaborateurs et administrateurs ne peuvent pas lire les conversations personnelles d’un autre compte. L’historique permet recherche par titre, pagination, renommage, archivage, export Markdown et suppression. Les anciennes discussions déjà fermées avant cette version ne peuvent pas être récupérées.
 
-La roulette et les entrées vers l'acquisition de tokens sont réservées à iOS/Android.
-Le desktop utilise le même solde à distance. Les packs consommables dans les stores
-restent un chantier commercial distinct ; leur interface d'achat n'est pas ajoutée
-par cette fonctionnalité. La roulette n'est pas un outil proposé au modèle.
+Chaque outil a une carte indiquant consultation, validation, exécution, réussite, refus ou état non confirmé. La validation concerne une action précise. Les outils d’une discussion de bot ne peuvent pas cibler un autre bot. Les bots clé en main ont aussi leur entrée Copilote ; leur contexte utilise `container:<id>` et leurs contrôles réutilisent les règles normales de couverture, TTL et temps d’hébergement. Les outils distants sont exécutés par le Manager après contrôle d’accès ; les outils locaux passent par la passerelle de l’application et vérifient aussi le bot du contexte.
 
-## Outils et validation
+Une action revendiquée ne sera pas exécutée une seconde fois. Si l’application ou le Manager s’arrête pendant une action, son résultat peut rester non confirmé ; inspecter le bot avant de clore cette étape, sans autoriser de rejeu. La réouverture d’une discussion ne relance jamais automatiquement une mutation. Huit générations maximum sont autorisées par instruction utilisateur pour éviter une boucle d’outils sans fin.
 
-La passerelle expose un catalogue fermé : documentation officielle (`docs_search`,
-`docs_get`), liste/état/démarrage/arrêt des bots sur le Manager et sur l'appareil,
-lecture des commandes locales, registre des fonctions/blocs, création d'une commande
-et modification de son exécution. Les outils distants utilisent les routes existantes
-du Manager et leurs contrôles de compte, de bot et de scopes. Un token de lecture
-ne suffit pas pour les appels IA facturés : `/gateway/ai/copilot/reply` exige `write:bots`.
-Il ne suffit pas non plus pour démarrer/arrêter un bot, qui exige `execute:runners`.
+Une conversation trop longue propose une nouvelle discussion avec résumé, après confirmation du débit potentiel. Le résumé conserve le début et les échanges récents dans un budget de contexte borné et signale les échanges intermédiaires omis. L’original est conservé.
 
-La documentation vient du MCP public `https://bot-creator.fr/api/mcp`, via son
-initialisation et `tools/call`. Les identifiants d'authentification du Manager ne
-sont pas envoyés à ce service public. Les sorties locales retirent les clés sensibles
-et les secrets reconnaissables avant leur retour au modèle ; un utilisateur doit
-éviter de placer lui-même des identifiants dans son message.
+## Comptabilité
 
-Chaque mutation déclenche une validation dans l'application, avec l'emplacement,
-le bot et la modification proposée. Annuler empêche l'exécution. Un résultat d'outil
-ne constitue jamais une autorisation de nouvelle mutation. Le modèle ne peut pas
-déclarer une validation à la place de l'utilisateur.
+**1 crédit IA = 1 token traité**, y compris les tokens d’entrée servis depuis le cache. Le Manager réserve un budget prudent avant de contacter le fournisseur et libère l’excédent après validation de son usage. `balance` inclut les réservations ; `available = balance - reserved`.
 
-Pour les commandes, les arguments JSON sont vérifiés contre le schéma de l'outil.
-Le BDFD proposé est vérifié contre le registre fermé puis compilé par le compilateur
-de l'éditeur, qui construit les types et les payloads des blocs ; le modèle ne
-fabrique pas ces payloads. Les fonctions inconnues et les erreurs de compilation
-sont refusées avant enregistrement. Les bots Dart acceptent ce parcours ; les bots
-JavaScript restent contrôlables mais ne reçoivent pas de blocs Dart.
+Le débit, la réponse définitive et l’événement de fin sont enregistrés dans la même transaction. Une coupure de l’interface n’annule pas le travail serveur et ne déclenche aucun second appel fournisseur. Une requête interrompue sans réponse complète et usage valide est marquée en échec, libère sa réservation et n’expose aucune action exécutable. Les réservations expirent après deux minutes ; les requêtes abandonnées sont réconciliées à la consultation de l’espace IA.
 
-Une création refuse les noms déjà présents localement ou sur Discord et suit le
-parcours existant de création. Une modification d'exécution exige la révision SHA-256
-de la commande lue et conserve son ID local, son ID Discord, son nom, ses options
-et ses permissions. Une commande avec sous-commandes exige une route explicite.
-L'enregistrement déclenche la synchronisation habituelle de l'application ; sa
-réussite locale ne prouve pas que tous les runners ont déjà appliqué les changements.
+Le journal distingue achats confirmés (`kofi`, et sources stores lorsqu’elles seront intégrées), roulette, attribution administrative, correction et consommation. Une attribution administrative ne compte jamais comme achat. Les tours de roulette sont distincts des crédits. Les paiements en attente et publicités non confirmées ne créditent pas le solde. Les achats consommables des stores restent un chantier commercial distinct.
 
-Le registre est embarqué dans le Manager (`internal/services/copilot_tools.json`)
-et dans l'application (`assets/copilot/tools.json`). Modifier les deux copies ensemble.
-Le client n'utilise un outil que si son nom, son schéma et son caractère mutatif
-correspondent au contrat exposé par le Manager.
+La suppression d’une discussion efface messages, propositions, résultats et événements de streaming. Les mouvements comptables et les identifiants/fingerprints nécessaires à l’idempotence sont conservés.
 
-## Activation du Manager
+## Manager
 
-Appliquer les migrations commerciales 000077 à 000079 et la migration
-`000080_ai_copilot_usage`. Configurer uniquement sur le serveur :
+La rubrique **IA** contient vue d’ensemble, portefeuilles/mouvements et laboratoire. Chaque fiche utilisateur présente aussi son portefeuille et un lien de gestion. Les indicateurs séparent stock actuel, distribution et performances ; les nombres sont formatés selon la langue. Le laboratoire place l’historique dans une colonne latérale, replie la configuration des nouveaux tests et garde le message, les actions et le budget visibles dans leur contexte. Le mobile propose des suggestions de départ, distingue les messages de l’utilisateur et du copilote et conserve un composeur accessible en bas de l’écran.
+
+Les stocks sont calculés à l’instant de la lecture ; les flux et usages suivent la période UTC sélectionnée. Les données peuvent être filtrées par compte, origine et référence. L’export CSV parcourt tout le journal filtré. Les crédits en circulation sont la somme des soldes utilisateurs, réservations comprises. Les achats et gains indiquent la provenance des mouvements historiques, pas une répartition inventée du solde restant.
+
+Les ajustements exigent un montant signé, un motif et une clé d’idempotence. Un retrait ne peut pas dépasser le disponible. Réservations, règlements et ajustements utilisent le même verrou transactionnel de compte. Le blocage refuse les nouvelles dépenses sans empêcher le règlement des appels déjà réservés. Toutes ces actions sont inscrites dans le journal administratif existant.
+
+Les lectures exigent `admin:read`. Ajustements, sessions de laboratoire et générations facturables exigent `admin:write`. Le laboratoire appartient à l’identité administrative (`admin:<id>`), distincte des tenants utilisateurs. Son budget cumulé et ses réservations sont séparés du portefeuille utilisateur et du KPI de circulation. Les générations et outils de laboratoire ont un audit technique dédié. Les actions ne peuvent viser que les bots de test explicitement autorisés ; aucune clé fournisseur n’est transmise au navigateur.
+
+Le laboratoire permet modèles autorisés, instructions expérimentales, sessions persistantes, streaming et Markdown assaini. Il expose les outils documentaires officiels et les outils distants, jamais les outils locaux de l’application. Chaque session conserve usage, cache, latence et estimation de coût. Les tarifs sont des instantanés par appel ; une estimation n’est pas un paiement fournisseur confirmé.
+
+## Activation
+
+Appliquer les migrations jusqu’à **000081_ai_workspace** avant de démarrer le nouveau serveur. Mettre à jour l’application avec le serveur : l’ancienne route `/gateway/ai/copilot/reply` est supprimée.
+
+Configuration uniquement côté serveur :
 
 ```dotenv
 AI_PROVIDER_URL=https://api.deepseek.com/chat/completions
-AI_PROVIDER_KEY=<secret du fournisseur>
-AI_PROVIDER_MODEL=<identifiant de modèle disponible sur votre compte>
+AI_PROVIDER_KEY=<secret>
+AI_PROVIDER_MODEL=<modèle disponible>
+AI_LAB_MODELS=<liste de modèles autorisés séparés par des virgules>
+AI_LAB_BOTS=<identifiants de bots de test séparés par des virgules>
+AI_LAB_TOKEN_LIMIT=1000000
+AI_INPUT_USD_PER_MILLION=<tarif entrée hors cache>
+AI_CACHE_USD_PER_MILLION=<tarif entrée avec cache>
+AI_OUTPUT_USD_PER_MILLION=<tarif sortie>
 ```
 
-Sans clé ou modèle, les appels IA répondent `ai_copilot_disabled`. L'adaptateur
-utilise les appels d'outils de l'API Chat Completions DeepSeek, sans streaming et
-avec le mode thinking désactivé. Le délai fournisseur est de 70 secondes ; le client
-attend 80 secondes et garde la clé pour récupérer une réponse après une coupure.
-Cette récupération reste disponible dans la page ouverte ; fermer la page efface
-la conversation et la clé de reprise côté client.
-Un échec définitif nécessite une nouvelle clé, produite par le bouton Réessayer.
-Le budget de sortie est de 2 048 tokens dans le branchement actuel.
-Contrat fournisseur : [documentation officielle](https://api-docs.deepseek.com/api/create-chat-completion/).
+Les modèles du laboratoire utilisent `AI_PROVIDER_MODEL` par défaut. Sans bots autorisés, le laboratoire reste utilisable pour les prompts et la documentation. Le plafond administratif est cumulé par administrateur ; augmenter la configuration permet d’augmenter le budget, sans remettre la consommation à zéro. Sans tarifs, l’interface indique qu’ils ne sont pas configurés ; les appels historiques sans tarif sont signalés dans les estimations. La rubrique IA du Manager propose un choix français/anglais.
 
-## Connexion d'un client MCP externe sur desktop
+L’adaptateur utilise Chat Completions avec `stream: true`, `stream_options.include_usage: true`, thinking désactivé, 2 048 tokens de sortie par défaut et un délai fournisseur de 70 secondes. Le contrat fournisseur est décrit dans la [documentation DeepSeek Chat Completions](https://api-docs.deepseek.com/api/create-chat-completion/). Il conserve `prompt_cache_hit_tokens` et `prompt_cache_miss_tokens`. Le préfixe des instructions et l’ordre du catalogue sont stables. Le cache fournisseur est temporaire et n’est pas garanti ; l’historique applicatif reste la source de vérité.
 
-Sur la page Copilote, le bouton MCP lance un serveur Streamable HTTP sur
-`127.0.0.1`, avec un port disponible et un bearer aléatoire. Le dialogue affiche
-l'URL `/mcp` et l'en-tête `Authorization: Bearer …` à renseigner dans le client.
-Il expose les mêmes outils et les mêmes validations dans l'application.
+## Contrats API
 
-Ce serveur reste disponible tant que la page est ouverte. Fermer la page ferme
-le serveur ; une nouvelle ouverture fournit de nouveaux paramètres. Il n'écoute
-pas sur le réseau local et refuse les requêtes munies d'un Origin de navigateur.
-Il ne propose ni terminal, ni commandes système, ni accès libre au filesystem.
+- `GET/POST /gateway/ai/conversations` : liste privée (bot, titre, archives, offset) et création.
+- `GET/PATCH/DELETE /gateway/ai/conversations/{id}` : lecture, titre/archivage et suppression ; `?export=markdown` pour l’export.
+- `POST .../{id}/turns` : `{idempotency_key, revision, prompt, tools}`. Aucun historique arbitraire n’est accepté ; le serveur reconstruit celui enregistré.
+- `GET .../{id}/requests/{key}/events` : SSE authentifié, événements `delta`, `completed`, `error`, avec identifiants de reprise (`Last-Event-ID` ou `after`).
+- `POST .../{id}/actions/{call_id}` : validation/refus, ou enregistrement du résultat d’une action locale déjà revendiquée. Les effets distants sont exécutés côté serveur. Les contrôles démarrer/arrêter exigent aussi `execute:runners` pour les bots classiques et `containers:deploy` / `containers:write` pour les conteneurs. Une action au résultat incertain peut être close explicitement après inspection, sans réexécution.
+- `POST .../{id}/continue` : création explicite d’une suite avec résumé, clé d’idempotence obligatoire.
+- `GET /gateway/ai/ledger` : journal paginé du compte authentifié.
+- Les routes de laboratoire équivalentes vivent sous `/admin/ai/conversations` et vérifient l’identité administrative.
+- `/admin/ai/data` fournit statistiques, journal, budget laboratoire et export CSV ; `/admin/actions/ai/wallet` applique les ajustements et blocages.
 
-## Vérifications locales
+## MCP externe sur desktop
 
-Les tests couvrent le décompte fournisseur, les réservations concurrentes et leur
-libération, l'idempotence, les scopes et l'identité du compte, le refus d'outils et
-fonctions inconnus, les révisions périmées et la préservation de l'identité Discord.
-Les tests d'interface vérifient qu'annuler n'appelle pas le Manager et que valider
-appelle le contrôle du bot une seule fois. La lecture du MCP public a également
-été vérifiée depuis le client réel de la passerelle, sans action sur un bot réel.
-Une clé fournisseur de production et un rollout sont nécessaires pour l'activation
-en service ; ils ne sont pas effectués par les tests locaux.
+Le bouton MCP ouvre un serveur Streamable HTTP sur `127.0.0.1`, port disponible et bearer aléatoire. Il conserve les contrôles de catalogue, validation des arguments et confirmation explicite de chaque mutation. Il est disponible tant que la page reste ouverte. Il ne donne aucun accès général au terminal ou au filesystem. La documentation officielle est consultée sur `https://bot-creator.fr/api/mcp`, sans identifiants Manager ni clé fournisseur.
+
+## Vérification et déploiement
+
+Tests Go : parsing des flux, usage, coupure sans débit, scoping des outils, confidentialité, révisions, Markdown assaini et routes administratives. Les tests PostgreSQL (`BCM_TEST_POSTGRES_DSN`, base jetable uniquement) couvrent transactions, concurrence, blocage, provenance, budget administratif sans tenant, suppression et conservation des écritures comptables. Les tests Flutter couvrent validation/refus et rendu Markdown sur écran étroit.
+
+Déployer d’abord la migration, puis le serveur et l’application. Vérifier initialement avec les seuls bots de test configurés. Suivre réservations expirées, échecs, latence, usage/cache et écarts entre mouvements et soldes avant activation générale. La configuration d’une clé fournisseur et le déploiement en production ne sont pas effectués par les tests.

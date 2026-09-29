@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:bot_creator/features/copilot/presentation/copilot_page.dart';
 import 'dart:convert';
 import 'dart:developer' as developer;
 import 'dart:io';
@@ -368,11 +369,7 @@ class _AppHomePageState extends State<AppHomePage>
     if (remoteClient is! MainApiClient) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              context.tr.ad_history_unavailable,
-            ),
-          ),
+          SnackBar(content: Text(context.tr.ad_history_unavailable)),
         );
       }
       return;
@@ -468,6 +465,27 @@ class _AppHomePageState extends State<AppHomePage>
         MediaQuery.sizeOf(context).width >= AppTheme.desktopBreakpoint;
 
     return Scaffold(
+      appBar: AppBar(
+        title: Text(displayName),
+        actions: [
+          IconButton(
+            tooltip: Localizations.localeOf(context).languageCode == 'fr'
+                ? 'Copilote IA'
+                : 'AI copilot',
+            icon: const Icon(Icons.auto_awesome_outlined),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => CopilotPage(
+                  botId: botId,
+                  botName: displayName,
+                  location: 'local',
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         bottom: false,

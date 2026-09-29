@@ -11,17 +11,35 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   for (final allow in [false, true]) {
     testWidgets(
-      'remote action ${allow ? 'runs after approval' : 'does not run after cancellation'}',
+      'persistent copilot ${allow ? 'approves' : 'declines'} a remote action once',
       (tester) async {
-        SharedPreferences.setMockInitialValues({});
+        tester.view.physicalSize = const Size(900, 1000);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
         rootBundle.evict('assets/copilot/tools.json');
-        var replies = 0;
-        var stops = 0;
+        SharedPreferences.setMockInitialValues({});
+        var rounds = 0, stops = 0;
+        String key = '';
+        Map<String, dynamic>? conversation;
+        final action = {
+          'call_id': 'stop-call',
+          'request_key': 'first',
+          'state': 'pending',
+          'call': {
+            'id': 'stop-call',
+            'type': 'function',
+            'function': {
+              'name': 'remote_stop_bot',
+              'arguments': jsonEncode({'bot_id': '123456789012345'}),
+            },
+          },
+        };
         final api = MainApiClient(
-          baseUrl: 'https://manager.example',
-          accessToken: 'signed-user',
+          baseUrl: 'http://localhost',
+          accessToken: 'test',
           httpClient: MockClient((request) async {
-            Object result;
+            dynamic result;
             switch (request.url.path) {
               case '/gateway/ai/copilot/tools':
                 result = {
@@ -44,98 +62,177 @@ void main() {
                     },
                   ],
                 };
+              case '/gateway/bots':
+                result = {'bots': []};
               case '/gateway/ai/wallet':
-                result = {'balance': 100000, 'available': 100000};
-              case '/gateway/ai/copilot/reply':
-                final body = jsonDecode(request.body) as Map;
-                replies++;
-                if (replies == 1) {
-                  result = {
-                    'idempotency_key': body['idempotency_key'],
-                    'message': {
-                      'role': 'assistant',
-                      'content': '',
-                      'tool_calls': [
-                        {
-                          'id': 'stop-call',
-                          'type': 'function',
-                          'function': {
-                            'name': 'remote_stop_bot',
-                            'arguments': jsonEncode({
-                              'bot_id': '123456789012345',
-                            }),
-                          },
-                        },
-                      ],
-                    },
-                  };
+                result = {
+                  'balance': 100000,
+                  'reserved': 0,
+                  'available': 100000,
+                };
+              case '/gateway/ai/conversations':
+                if (request.method == 'GET') {
+                  result = {'conversations': []};
                 } else {
-                  final messages = body['messages'] as List;
-                  expect(messages.last['role'], 'tool');
-                  if (!allow) {
-                    expect(messages.last['content'], contains('cancelled'));
-                  }
-                  result = {
-                    'message': {
-                      'role': 'assistant',
-                      'content': allow ? 'Bot stopped' : 'Action cancelled',
-                    },
+                  conversation = {
+                    'id': 'c',
+                    'title': 'Test',
+                    'bot_id': '',
+                    'location': 'global',
+                    'archived': false,
+                    'revision': 0,
+                    'active_key': '',
+                    'messages': <dynamic>[],
+                    'actions': <dynamic>[],
+                    'consumed_tokens': 0,
                   };
+                  result = conversation;
                 }
-              case '/gateway/bots/123456789012345/stop':
-                stops++;
-                result = {'ok': true};
+              case '/gateway/ai/conversations/c':
+                result = conversation;
+              case '/gateway/ai/conversations/c/turns':
+                rounds++;
+                final body = jsonDecode(request.body) as Map;
+                key = body['idempotency_key'] as String;
+                conversation!['revision'] = rounds * 2;
+                conversation!['active_key'] = '';
+                if (rounds == 1) {
+                  conversation!['messages'] = [
+                    {'role': 'user', 'content': body['prompt']},
+                    {
+                      'role': 'assistant',
+                      'content': '**Proposition**',
+                      'tool_calls': [action['call']],
+                    },
+                  ];
+                  conversation!['actions'] = [action];
+                } else {
+                  (conversation!['messages'] as List).add({
+                    'role': 'assistant',
+                    'content': allow ? 'Bot stopped' : 'Action cancelled',
+                  });
+                }
+                result = {'request_key': key};
+              case '/gateway/ai/conversations/c/actions/stop-call':
+                final body = jsonDecode(request.body) as Map;
+                if (body['approve'] == true) {
+                  stops++;
+                  action['state'] = 'succeeded';
+                } else {
+                  action['state'] = 'declined';
+                }
+                (conversation!['messages'] as List).add({
+                  'role': 'tool',
+                  'tool_call_id': 'stop-call',
+                  'content': 'confirmed',
+                });
+                result = {'state': action['state']};
               default:
+                if (request.url.path.endsWith('/events')) {
+                  return http.Response(
+                    'id: 1\nevent: delta\ndata: {"text":"**Proposition**"}\n\nid: 2\nevent: completed\ndata: {"consumed_tokens":30}\n\n',
+                    200,
+                    headers: {'content-type': 'text/event-stream'},
+                  );
+                }
                 throw StateError('Unexpected ${request.url.path}');
             }
-            return http.Response(jsonEncode(result), 200);
+            return http.Response(
+              jsonEncode(result),
+              200,
+              headers: {'content-type': 'application/json'},
+            );
           }),
         );
         await tester.pumpWidget(MaterialApp(home: CopilotPage(api: api)));
+        await settle(tester);
         for (
           var i = 0;
-          i < 30 &&
-              tester.widget<TextField>(find.byType(TextField)).enabled != true;
+          i < 100 &&
+              tester.widget<TextField>(find.byType(TextField).first).enabled !=
+                  true;
           i++
         ) {
-          await tester.runAsync(
-            () => Future<void>.delayed(const Duration(milliseconds: 20)),
-          );
-          await tester.pump(const Duration(milliseconds: 100));
+          await settle(tester);
         }
         expect(
-          tester.widget<TextField>(find.byType(TextField)).enabled,
-          isTrue,
+          tester.widget<TextField>(find.byType(TextField).first).enabled,
+          true,
+          reason: tester
+              .widgetList<Text>(find.byType(Text))
+              .map((t) => t.data)
+              .join(' | '),
         );
-        expect(find.textContaining('100000'), findsOneWidget);
         expect(
-          find.byIcon(Icons.token),
-          findsNothing,
-        ); // Desktop: no reward/purchase entry.
-        await tester.enterText(find.byType(TextField), 'Stop my remote bot');
+          tester
+              .widget<IconButton>(find.widgetWithIcon(IconButton, Icons.send))
+              .onPressed,
+          isNull,
+        );
+        await tester.enterText(find.byType(TextField).first, 'Stop the bot');
+        await tester.pump();
+        expect(
+          tester
+              .widget<IconButton>(find.widgetWithIcon(IconButton, Icons.send))
+              .onPressed,
+          isNotNull,
+        );
         await tester.tap(find.byIcon(Icons.send));
-        for (
-          var i = 0;
-          i < 30 && find.byType(AlertDialog).evaluate().isEmpty;
-          i++
-        ) {
-          await tester.runAsync(
-            () => Future<void>.delayed(const Duration(milliseconds: 20)),
-          );
-          await tester.pump(const Duration(milliseconds: 100));
+        await settle(tester);
+        expect(
+          find.text('Validation requise'),
+          findsNothing,
+        ); // English locale uses the localized approval state.
+        expect(find.text('Approval required'), findsOneWidget);
+        await tester.ensureVisible(find.text(allow ? 'Approve' : 'Decline'));
+        await settle(tester);
+        await tester.tap(find.text(allow ? 'Approve' : 'Decline'));
+        await settle(tester);
+        if (allow) {
+          expect(find.text('Approve copilot action'), findsOneWidget);
+          await tester.tap(find.text('Execute'));
+          await settle(tester);
         }
-        expect(find.byType(AlertDialog), findsOneWidget);
-        expect(stops, 0);
-        await tester.tap(find.text(allow ? 'Execute' : 'Cancel'));
-        await tester.pumpAndSettle();
         expect(stops, allow ? 1 : 0);
-        expect(replies, 2);
+        expect(rounds, 2);
         expect(
           find.text(allow ? 'Bot stopped' : 'Action cancelled'),
           findsOneWidget,
         );
-        await tester.pumpWidget(const SizedBox.shrink());
+        expect(tester.takeException(), isNull);
       },
     );
+  }
+  testWidgets('Markdown renders formatted text and wide code at mobile width', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(360, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: CopilotMarkdown(
+              content:
+                  '# Title\n\n**Bold**\n\n| A | B |\n|---|---|\n| 1 | 2 |\n\n```dart\nfinal longVariable = "very long line that needs horizontal scrolling without overflowing the screen";\n```',
+            ),
+          ),
+        ),
+      ),
+    );
+    expect(find.text('# Title'), findsNothing);
+    expect(find.text('Title'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+}
+
+Future<void> settle(WidgetTester tester) async {
+  for (var i = 0; i < 20; i++) {
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 20)),
+    );
+    await tester.pump(const Duration(milliseconds: 20));
   }
 }
