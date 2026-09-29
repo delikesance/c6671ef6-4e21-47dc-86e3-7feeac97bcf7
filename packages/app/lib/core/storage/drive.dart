@@ -970,6 +970,7 @@ Future<String> restoreBackupSnapshot(
       localRootPath: localRootPath,
     );
 
+    await appm.invalidateRestoredCommandCaches();
     await appm.refreshApps();
     await appm.reapDeletedBots();
     if (restoredRuntimeDb) {
@@ -1024,6 +1025,7 @@ Future<String> restoreBackupSnapshot(
     parentId: snapshotFolderId,
     localRootPath: localRootPath,
   );
+  await appm.invalidateRestoredCommandCaches();
   await appm.refreshApps();
   await appm.reapDeletedBots();
   if (restoredRuntimeDb) {
@@ -1100,6 +1102,7 @@ Future<String> _downloadLegacyFlatBackup(
     await downloadFile(drive, fileId: file.id!, filePath: targetPath);
   }
 
+  await appm.invalidateRestoredCommandCaches();
   await appm.refreshApps();
   await appm.reapDeletedBots();
   return context.tr.download_legacy_backup;
