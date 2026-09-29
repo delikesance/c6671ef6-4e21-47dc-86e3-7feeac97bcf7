@@ -284,12 +284,6 @@ const List<AllowListEntry> allowListedPatterns = <AllowListEntry>[
         'entre les locales.',
   ),
   AllowListEntry(
-    pathFragment:
-        'lib/features/bot_editor/presentation/screens/app_editor_page.dart',
-    snippetPattern: r"compactLabel: '(?:IA|AI)'",
-    reason: 'Sigle IA / AI pour le libellé compact de l’onglet copilote.',
-  ),
-  AllowListEntry(
     pathFragment: 'lib/features/copilot/presentation/copilot_page.dart',
     snippetPattern: r"Text\('/\$",
     reason: 'Préfixe de commande slash dans les détails de validation MCP.',

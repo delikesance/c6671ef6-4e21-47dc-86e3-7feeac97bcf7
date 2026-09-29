@@ -10539,4 +10539,416 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get bot_config_versions_restore_too_small_unforced =>
       'Sunucu hâlâ reddediyor: manager bu sürüm için zorunlu geri yüklemeyi kabul etmeli.';
+
+  @override
+  String get ai_credits_title => 'Yapay Zeka Kredileri';
+
+  @override
+  String get ai_credits_unavailable =>
+      'Yapay zeka kredileri kullanılamıyor. Tekrar deneyin.';
+
+  @override
+  String get ai_credits_origin_kofi => 'Ko-fi satın alımı';
+
+  @override
+  String get ai_credits_origin_apple => 'Apple satın alımı';
+
+  @override
+  String get ai_credits_origin_google => 'Google satın alımı';
+
+  @override
+  String get ai_credits_origin_roulette => 'Çark ödülü';
+
+  @override
+  String get ai_credits_origin_admin_grant => 'Yönetici tahsisi';
+
+  @override
+  String get ai_credits_origin_admin_correction => 'Yönetici düzeltmesi';
+
+  @override
+  String get ai_credits_origin_copilot => 'Yapay zeka kullanımı';
+
+  @override
+  String get ai_credits_ad_pending =>
+      'Reklam doğrulaması bekleniyor. Bakiyenizi yenileyin.';
+
+  @override
+  String get ai_credits_ad_unavailable =>
+      'Reklam kullanılamıyor veya doğrulanmadı.';
+
+  @override
+  String get ai_credits_spin_failed =>
+      'Sonuç alınamadı. Bu çevirmeyi kurtarmak için tekrar deneyin.';
+
+  @override
+  String get ai_credits_wallet_card_title => 'Yapay Zeka Cüzdanınız';
+
+  @override
+  String get ai_credits_tokens_available => 'kullanılabilir token';
+
+  @override
+  String get ai_credits_label_total => 'Toplam';
+
+  @override
+  String get ai_credits_label_reserved => 'Ayrılmış';
+
+  @override
+  String get ai_credits_spending_blocked => 'Yapay zeka harcamaları engellendi';
+
+  @override
+  String get ai_credits_label_purchased => 'Satın Alımlar';
+
+  @override
+  String get ai_credits_label_rewarded => 'Çark';
+
+  @override
+  String get ai_credits_label_granted => 'Tahsisler';
+
+  @override
+  String ai_credits_spins_available(int count) {
+    return '$count kullanılabilir çevirme';
+  }
+
+  @override
+  String get ai_credits_token_ratio_hint =>
+      '1 yapay zeka kredisi = 1 kullanılabilir token.';
+
+  @override
+  String get ai_credits_daily_ad_limit_hint =>
+      'Günde en fazla 3 reklam (UTC). Bonus ve kullanılmayan çevirmeler saklanır.';
+
+  @override
+  String ai_credits_result_spins(int count) {
+    return '+$count çevirme!';
+  }
+
+  @override
+  String ai_credits_result_credits(String count) {
+    return '+$count kredi!';
+  }
+
+  @override
+  String get ai_credits_button_spin => 'Çarkı çevir';
+
+  @override
+  String ai_credits_button_watch_ad(int remaining) {
+    return 'Reklam izle (+1 çevirme) — $remaining kaldı';
+  }
+
+  @override
+  String get ai_credits_history_title => 'Kredi geçmişi';
+
+  @override
+  String get ai_credits_history_empty => 'Hareket yok.';
+
+  @override
+  String get ai_credits_reference => 'Referans';
+
+  @override
+  String get ai_credits_open_conversation => 'Sohbeti aç';
+
+  @override
+  String get ai_credits_previous => 'Önceki';
+
+  @override
+  String get ai_credits_next => 'Sonraki';
+
+  @override
+  String get copilot_title => 'Yapay Zeka Yardımcısı';
+
+  @override
+  String get copilot_compact_label => 'YZ';
+
+  @override
+  String get copilot_err_tool_round_limit =>
+      'Sekiz adımlı yapay zeka sınırına ulaşıldı. Devam etmek için yeni bir talimat gönderin.';
+
+  @override
+  String get copilot_err_context_limit =>
+      'Bağlam çok uzun. Bir özet ile yeni bir sohbette devam edin.';
+
+  @override
+  String get copilot_err_spending_blocked =>
+      'Bu hesap için yapay zeka harcamaları engellendi.';
+
+  @override
+  String get copilot_err_revision_conflict =>
+      'Sohbet başka bir cihazda değişti. Yenileyin.';
+
+  @override
+  String get copilot_err_action_claimed =>
+      'Bir eylem onay veya çözüm bekliyor.';
+
+  @override
+  String get copilot_err_insufficient_balance =>
+      'Bu isteği ve bağlamını ayırmak için yetersiz bakiye.';
+
+  @override
+  String get copilot_err_unauthorized =>
+      'Yardımcıyı kullanmak için oturum açın.';
+
+  @override
+  String get copilot_err_not_found => 'Sohbete veya bota erişilemiyor.';
+
+  @override
+  String get copilot_err_unavailable =>
+      'Yönetici üzerinde yardımcı kullanılamıyor.';
+
+  @override
+  String get copilot_err_request_failed =>
+      'İstek tamamlanamadı. Durumunu kurtarmak için yenileyin.';
+
+  @override
+  String get copilot_approve_dialog_title => 'Yardımcı eylemini onayla';
+
+  @override
+  String get copilot_bot_label => 'Bot';
+
+  @override
+  String get copilot_remote_manager => 'Uzak Yönetici';
+
+  @override
+  String get copilot_this_device => 'Bu cihaz';
+
+  @override
+  String get copilot_action_details_title => 'Eylem ayrıntıları';
+
+  @override
+  String get copilot_cancel => 'İptal';
+
+  @override
+  String get copilot_execute => 'Çalıştır';
+
+  @override
+  String get copilot_tool_start_bot => 'Botu başlat';
+
+  @override
+  String get copilot_tool_stop_bot => 'Botu durdur';
+
+  @override
+  String get copilot_tool_create_command => 'Komut oluştur';
+
+  @override
+  String get copilot_tool_update_command => 'Komutu güncelle';
+
+  @override
+  String get copilot_tool_read_docs => 'Belgeleri oku';
+
+  @override
+  String get copilot_tool_inspect_bot => 'Botu incele';
+
+  @override
+  String get copilot_rename_title => 'Yeniden Adlandır';
+
+  @override
+  String get copilot_save => 'Kaydet';
+
+  @override
+  String get copilot_export_dialog_title => 'Sohbeti dışa aktar';
+
+  @override
+  String get copilot_delete_confirm_title => 'Sohbet silinsin mi?';
+
+  @override
+  String get copilot_delete_confirm_body =>
+      'İçerik silinecektir. Kredi hareketleri korunacaktır.';
+
+  @override
+  String get copilot_delete => 'Sil';
+
+  @override
+  String get copilot_continue_summary_title => 'Özet ile devam et';
+
+  @override
+  String get copilot_continue_summary_body =>
+      'Özet, yapay zeka kredisi tüketir (girdi + çıktı). En son mesajlar bağlam sınırları içinde özetlenecektir. Orijinal sohbet korunacaktır.';
+
+  @override
+  String get copilot_create_continuation => 'Devamını oluştur';
+
+  @override
+  String get copilot_mcp_local_title => 'Yerel MCP bağlantısı';
+
+  @override
+  String get copilot_mcp_approval_note =>
+      'Değişiklikler burada onay gerektirir.';
+
+  @override
+  String get copilot_close => 'Kapat';
+
+  @override
+  String get copilot_history_tooltip => 'Geçmiş';
+
+  @override
+  String get copilot_new_discussion => 'Yeni sohbet';
+
+  @override
+  String get copilot_options_tooltip => 'Seçenekler';
+
+  @override
+  String get copilot_action_refresh => 'Yenile';
+
+  @override
+  String get copilot_action_credits => 'Yapay Zeka Kredileri';
+
+  @override
+  String get copilot_action_mcp_connection => 'MCP bağlantısı';
+
+  @override
+  String get copilot_action_archive => 'Arşivle / geri yükle';
+
+  @override
+  String get copilot_action_export => 'Markdown olarak dışa aktar';
+
+  @override
+  String get copilot_action_continue => 'Özet ile devam et';
+
+  @override
+  String get copilot_action_recover_response => 'Yanıtı kurtar';
+
+  @override
+  String get copilot_action_retry => 'İsteği yeniden dene';
+
+  @override
+  String get copilot_global_discussion => 'Genel sohbet';
+
+  @override
+  String get copilot_location_local => 'Yerel';
+
+  @override
+  String get copilot_location_remote => 'Uzak';
+
+  @override
+  String get copilot_available => 'Kullanılabilir';
+
+  @override
+  String get copilot_reserved => 'Ayrılmış';
+
+  @override
+  String get copilot_total => 'Toplam';
+
+  @override
+  String get copilot_welcome_title => 'Botunuz için bir yardım eli mi lazım?';
+
+  @override
+  String get copilot_welcome_subtitle =>
+      'Bir fikir keşfedin, bir komutu kontrol edin veya bir değişiklik hazırlayın. Kontrol her zaman sizde.';
+
+  @override
+  String get copilot_suggestion_check_title => 'Botumu kontrol et';
+
+  @override
+  String get copilot_suggestion_check_prompt =>
+      'Botumun durumunu kontrol et ve sonraki adımları öner.';
+
+  @override
+  String get copilot_suggestion_command_title => 'Bir komut oluştur';
+
+  @override
+  String get copilot_suggestion_command_prompt =>
+      'Botum için yeni bir komut hazırlamama yardım et.';
+
+  @override
+  String get copilot_suggestion_feature_title => 'Bir özelliği anla';
+
+  @override
+  String get copilot_suggestion_feature_prompt =>
+      'Bot Creator özelliklerini nasıl kullanacağımı açıkla.';
+
+  @override
+  String get copilot_history_section_title => 'Sohbete devam et';
+
+  @override
+  String get copilot_role_you => 'Siz';
+
+  @override
+  String get copilot_role_assistant => 'Yardımcı';
+
+  @override
+  String get copilot_generating => 'Oluşturuluyor…';
+
+  @override
+  String get copilot_copy_message => 'Mesajı kopyala';
+
+  @override
+  String copilot_tokens_in_discussion(String count) {
+    return 'Bu sohbette $count token';
+  }
+
+  @override
+  String get copilot_input_hint => 'Mesajınız';
+
+  @override
+  String get copilot_send => 'Gönder';
+
+  @override
+  String get copilot_status_approval_required => 'Onay gerekli';
+
+  @override
+  String get copilot_status_ready_to_inspect => 'İncelemeye hazır';
+
+  @override
+  String get copilot_status_executing => 'Çalıştırılıyor';
+
+  @override
+  String get copilot_status_succeeded => 'Başarılı';
+
+  @override
+  String get copilot_status_declined => 'Reddedildi';
+
+  @override
+  String get copilot_status_unconfirmed =>
+      'Çalıştırma doğrulanmadı — botu inceleyin';
+
+  @override
+  String get copilot_status_failed => 'Başarısız';
+
+  @override
+  String get copilot_technical_details => 'Teknik ayrıntılar';
+
+  @override
+  String get copilot_approve => 'Onayla';
+
+  @override
+  String get copilot_inspect => 'İncele';
+
+  @override
+  String get copilot_decline => 'Reddet';
+
+  @override
+  String get copilot_close_without_replay => 'Tekrar çalıştırmadan kapat';
+
+  @override
+  String get copilot_close_unconfirmed_warning =>
+      'Sonucu bilinmeyen bu eylemi kapatmadan önce botu kontrol edin.';
+
+  @override
+  String get copilot_close_action => 'Kapat';
+
+  @override
+  String get copilot_history_sheet_title => 'Sohbet geçmişi';
+
+  @override
+  String get copilot_search_title_hint => 'Başlık ara';
+
+  @override
+  String get copilot_filter_by_bot => 'Bota göre filtrele';
+
+  @override
+  String get copilot_all_bots => 'Tüm botlar';
+
+  @override
+  String get copilot_archives => 'Arşivler';
+
+  @override
+  String get copilot_no_conversations => 'Sohbet yok.';
+
+  @override
+  String get copilot_badge_global => 'Genel';
+
+  @override
+  String get copilot_load_more => 'Daha fazla yükle';
+
+  @override
+  String get copilot_copy_code => 'Kodu kopyala';
 }

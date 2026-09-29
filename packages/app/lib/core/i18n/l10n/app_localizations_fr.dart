@@ -10643,4 +10643,427 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get bot_config_versions_restore_too_small_unforced =>
       'Le serveur refuse encore : le manager doit accepter une restauration forcée pour cette version.';
+
+  @override
+  String get ai_credits_title => 'Crédits IA';
+
+  @override
+  String get ai_credits_unavailable => 'Crédits IA indisponibles. Réessayez.';
+
+  @override
+  String get ai_credits_origin_kofi => 'Achat Ko-fi';
+
+  @override
+  String get ai_credits_origin_apple => 'Achat Apple';
+
+  @override
+  String get ai_credits_origin_google => 'Achat Google';
+
+  @override
+  String get ai_credits_origin_roulette => 'Gain roulette';
+
+  @override
+  String get ai_credits_origin_admin_grant => 'Attribution administrative';
+
+  @override
+  String get ai_credits_origin_admin_correction => 'Correction administrative';
+
+  @override
+  String get ai_credits_origin_copilot => 'Consommation IA';
+
+  @override
+  String get ai_credits_ad_pending =>
+      'Validation de la publicité en attente. Actualisez le solde.';
+
+  @override
+  String get ai_credits_ad_unavailable =>
+      'Publicité indisponible ou non validée.';
+
+  @override
+  String get ai_credits_spin_failed =>
+      'Résultat indisponible. Réessayez pour récupérer ce tour.';
+
+  @override
+  String get ai_credits_wallet_card_title => 'Votre portefeuille IA';
+
+  @override
+  String get ai_credits_tokens_available => 'tokens disponibles';
+
+  @override
+  String get ai_credits_label_total => 'Total';
+
+  @override
+  String get ai_credits_label_reserved => 'Réservé';
+
+  @override
+  String get ai_credits_spending_blocked => 'Dépenses IA bloquées';
+
+  @override
+  String get ai_credits_label_purchased => 'Achats';
+
+  @override
+  String get ai_credits_label_rewarded => 'Roulette';
+
+  @override
+  String get ai_credits_label_granted => 'Attributions';
+
+  @override
+  String ai_credits_spins_available(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count tours disponibles',
+      one: '1 tour disponible',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ai_credits_token_ratio_hint => '1 crédit IA = 1 token utilisable.';
+
+  @override
+  String get ai_credits_daily_ad_limit_hint =>
+      '3 publicités maximum par jour (UTC). Les tours bonus et inutilisés sont conservés.';
+
+  @override
+  String ai_credits_result_spins(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count tours !',
+      one: '1 tour !',
+    );
+    return '+$_temp0';
+  }
+
+  @override
+  String ai_credits_result_credits(String count) {
+    return '+$count crédits !';
+  }
+
+  @override
+  String get ai_credits_button_spin => 'Tourner la roulette';
+
+  @override
+  String ai_credits_button_watch_ad(int remaining) {
+    return 'Regarder une publicité (+1 tour) — $remaining restantes';
+  }
+
+  @override
+  String get ai_credits_history_title => 'Historique des crédits';
+
+  @override
+  String get ai_credits_history_empty => 'Aucun mouvement.';
+
+  @override
+  String get ai_credits_reference => 'Référence';
+
+  @override
+  String get ai_credits_open_conversation => 'Ouvrir la discussion';
+
+  @override
+  String get ai_credits_previous => 'Précédent';
+
+  @override
+  String get ai_credits_next => 'Suivant';
+
+  @override
+  String get copilot_title => 'Copilote IA';
+
+  @override
+  String get copilot_compact_label => 'IA';
+
+  @override
+  String get copilot_err_tool_round_limit =>
+      'La limite de huit étapes IA est atteinte. Envoyez une nouvelle instruction pour continuer.';
+
+  @override
+  String get copilot_err_context_limit =>
+      'Contexte trop long. Continuez dans une nouvelle discussion avec un résumé.';
+
+  @override
+  String get copilot_err_spending_blocked =>
+      'Les dépenses IA sont bloquées sur ce compte.';
+
+  @override
+  String get copilot_err_revision_conflict =>
+      'La discussion a changé sur un autre appareil. Actualisez-la.';
+
+  @override
+  String get copilot_err_action_claimed =>
+      'Une action attend une validation ou sa résolution.';
+
+  @override
+  String get copilot_err_insufficient_balance =>
+      'Solde insuffisant pour réserver la demande et son contexte.';
+
+  @override
+  String get copilot_err_unauthorized =>
+      'Connectez-vous pour utiliser le copilote.';
+
+  @override
+  String get copilot_err_not_found => 'Discussion ou bot inaccessible.';
+
+  @override
+  String get copilot_err_unavailable =>
+      'Le copilote est indisponible sur le Manager.';
+
+  @override
+  String get copilot_err_request_failed =>
+      'La demande n’a pas abouti. Actualisez pour récupérer son état.';
+
+  @override
+  String get copilot_approve_dialog_title => 'Valider l’action du copilote';
+
+  @override
+  String get copilot_bot_label => 'Bot';
+
+  @override
+  String get copilot_remote_manager => 'Manager distant';
+
+  @override
+  String get copilot_this_device => 'Cet appareil';
+
+  @override
+  String get copilot_action_details_title => 'Détails de l’action';
+
+  @override
+  String get copilot_cancel => 'Annuler';
+
+  @override
+  String get copilot_execute => 'Exécuter';
+
+  @override
+  String get copilot_tool_start_bot => 'Démarrer le bot';
+
+  @override
+  String get copilot_tool_stop_bot => 'Arrêter le bot';
+
+  @override
+  String get copilot_tool_create_command => 'Créer une commande';
+
+  @override
+  String get copilot_tool_update_command => 'Modifier une commande';
+
+  @override
+  String get copilot_tool_read_docs => 'Consulter la documentation';
+
+  @override
+  String get copilot_tool_inspect_bot => 'Consulter le bot';
+
+  @override
+  String get copilot_rename_title => 'Renommer';
+
+  @override
+  String get copilot_save => 'Enregistrer';
+
+  @override
+  String get copilot_export_dialog_title => 'Exporter la discussion';
+
+  @override
+  String get copilot_delete_confirm_title => 'Supprimer la discussion ?';
+
+  @override
+  String get copilot_delete_confirm_body =>
+      'Le contenu sera supprimé. Les mouvements de crédits seront conservés.';
+
+  @override
+  String get copilot_delete => 'Supprimer';
+
+  @override
+  String get copilot_continue_summary_title => 'Continuer avec un résumé';
+
+  @override
+  String get copilot_continue_summary_body =>
+      'Le résumé consomme des crédits IA (entrée + sortie). Les échanges les plus récents seront résumés, dans la limite du contexte. La discussion originale sera conservée.';
+
+  @override
+  String get copilot_create_continuation => 'Créer la suite';
+
+  @override
+  String get copilot_mcp_local_title => 'Connexion MCP locale';
+
+  @override
+  String get copilot_mcp_approval_note =>
+      'Les mutations nécessitent une validation ici.';
+
+  @override
+  String get copilot_close => 'Fermer';
+
+  @override
+  String get copilot_history_tooltip => 'Historique';
+
+  @override
+  String get copilot_new_discussion => 'Nouvelle discussion';
+
+  @override
+  String get copilot_options_tooltip => 'Options';
+
+  @override
+  String get copilot_action_refresh => 'Actualiser';
+
+  @override
+  String get copilot_action_credits => 'Crédits IA';
+
+  @override
+  String get copilot_action_mcp_connection => 'Connexion MCP';
+
+  @override
+  String get copilot_action_archive => 'Archiver / restaurer';
+
+  @override
+  String get copilot_action_export => 'Exporter Markdown';
+
+  @override
+  String get copilot_action_continue => 'Continuer avec résumé';
+
+  @override
+  String get copilot_action_recover_response => 'Récupérer la réponse';
+
+  @override
+  String get copilot_action_retry => 'Réessayer la demande';
+
+  @override
+  String get copilot_global_discussion => 'Discussion globale';
+
+  @override
+  String get copilot_location_local => 'Local';
+
+  @override
+  String get copilot_location_remote => 'Distant';
+
+  @override
+  String get copilot_available => 'Disponible';
+
+  @override
+  String get copilot_reserved => 'Réservé';
+
+  @override
+  String get copilot_total => 'Total';
+
+  @override
+  String get copilot_welcome_title => 'Un coup de main pour votre bot ?';
+
+  @override
+  String get copilot_welcome_subtitle =>
+      'Explorez une idée, vérifiez une commande ou préparez une modification. Vous gardez le contrôle des actions.';
+
+  @override
+  String get copilot_suggestion_check_title => 'Vérifier mon bot';
+
+  @override
+  String get copilot_suggestion_check_prompt =>
+      'Vérifie l’état de mon bot et propose les prochaines étapes.';
+
+  @override
+  String get copilot_suggestion_command_title => 'Créer une commande';
+
+  @override
+  String get copilot_suggestion_command_prompt =>
+      'Aide-moi à préparer une nouvelle commande pour mon bot.';
+
+  @override
+  String get copilot_suggestion_feature_title =>
+      'Comprendre une fonctionnalité';
+
+  @override
+  String get copilot_suggestion_feature_prompt =>
+      'Explique-moi comment utiliser les fonctionnalités de Bot Creator.';
+
+  @override
+  String get copilot_history_section_title => 'Reprendre une discussion';
+
+  @override
+  String get copilot_role_you => 'Vous';
+
+  @override
+  String get copilot_role_assistant => 'Copilote';
+
+  @override
+  String get copilot_generating => 'En cours…';
+
+  @override
+  String get copilot_copy_message => 'Copier le message';
+
+  @override
+  String copilot_tokens_in_discussion(String count) {
+    return '$count tokens dans cette discussion';
+  }
+
+  @override
+  String get copilot_input_hint => 'Votre message';
+
+  @override
+  String get copilot_send => 'Envoyer';
+
+  @override
+  String get copilot_status_approval_required => 'Validation requise';
+
+  @override
+  String get copilot_status_ready_to_inspect => 'Consultation disponible';
+
+  @override
+  String get copilot_status_executing => 'Exécution en cours';
+
+  @override
+  String get copilot_status_succeeded => 'Réussite';
+
+  @override
+  String get copilot_status_declined => 'Refusée';
+
+  @override
+  String get copilot_status_unconfirmed =>
+      'Exécution non confirmée — vérifiez le bot';
+
+  @override
+  String get copilot_status_failed => 'Échec';
+
+  @override
+  String get copilot_technical_details => 'Détails techniques';
+
+  @override
+  String get copilot_approve => 'Valider';
+
+  @override
+  String get copilot_inspect => 'Consulter';
+
+  @override
+  String get copilot_decline => 'Refuser';
+
+  @override
+  String get copilot_close_without_replay => 'Clore sans réexécuter';
+
+  @override
+  String get copilot_close_unconfirmed_warning =>
+      'Vérifiez le bot avant de clore cette action au résultat inconnu.';
+
+  @override
+  String get copilot_close_action => 'Clore';
+
+  @override
+  String get copilot_history_sheet_title => 'Historique des discussions';
+
+  @override
+  String get copilot_search_title_hint => 'Rechercher un titre';
+
+  @override
+  String get copilot_filter_by_bot => 'Filtrer par bot';
+
+  @override
+  String get copilot_all_bots => 'Tous les bots';
+
+  @override
+  String get copilot_archives => 'Archives';
+
+  @override
+  String get copilot_no_conversations => 'Aucune discussion.';
+
+  @override
+  String get copilot_badge_global => 'Globale';
+
+  @override
+  String get copilot_load_more => 'Charger la suite';
+
+  @override
+  String get copilot_copy_code => 'Copier le code';
 }

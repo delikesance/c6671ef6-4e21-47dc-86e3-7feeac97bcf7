@@ -346,10 +346,8 @@ class _AppEditPageState extends State<AppEditPage>
   _AppPageEntry _copilotEntry() => _AppPageEntry(
     id: 'copilot',
     icon: Icons.auto_awesome_outlined,
-    label: Localizations.localeOf(context).languageCode == 'fr'
-        ? 'Copilote IA'
-        : 'AI copilot',
-    compactLabel: 'IA',
+    label: context.tr.copilot_title,
+    compactLabel: context.tr.copilot_compact_label,
     category: 'overview',
     beginnerEssential: true,
     page: CopilotPage(
