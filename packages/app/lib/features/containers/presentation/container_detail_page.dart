@@ -19,7 +19,11 @@ class ContainerDetailPage extends StatefulWidget {
   final String containerId;
   final MainApiClient? client;
 
-  const ContainerDetailPage({super.key, required this.containerId, this.client});
+  const ContainerDetailPage({
+    super.key,
+    required this.containerId,
+    this.client,
+  });
 
   @override
   State<ContainerDetailPage> createState() => _ContainerDetailPageState();
@@ -73,7 +77,9 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
   void _onGatewayEvent(GatewayBotEvent event) {
     if (!mounted) return;
     final container = event.container;
-    if (container == null || container.containerId != widget.containerId) return;
+    if (container == null || container.containerId != widget.containerId) {
+      return;
+    }
     final current = _status;
     if (current == null) {
       unawaited(_loadStatus());
@@ -87,10 +93,7 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
           'health_status': container.healthStatus,
         'expires_at': container.expiresAt?.toIso8601String(),
       };
-      _syncStatusTimers(
-        container.state,
-        healthStatus: container.healthStatus,
-      );
+      _syncStatusTimers(container.state, healthStatus: container.healthStatus);
     });
   }
 
@@ -102,7 +105,10 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
         final config = await MainApiSettingsStore.loadConfig();
         final session = await MainApiSettingsStore.loadSession();
         if (session != null && !session.isExpired && config.isConfigured) {
-          _client = MainApiClient(baseUrl: config.baseUrl, accessToken: session.accessToken);
+          _client = MainApiClient(
+            baseUrl: config.baseUrl,
+            accessToken: session.accessToken,
+          );
         }
       } catch (_) {}
     }
@@ -173,17 +179,18 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
         containerId: widget.containerId,
         applyToContainer: true,
       );
-      await Future.wait([
-        _refreshEligibility(),
-        _loadStatus(),
-      ]);
+      await Future.wait([_refreshEligibility(), _loadStatus()]);
       if (mounted && result != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
               result.appliedToContainer
-                  ? context.tr.container_detail_topup_applied(result.grantedMinutes)
-                  : context.tr.container_detail_topup_credited(result.grantedMinutes),
+                  ? context.tr.container_detail_topup_applied(
+                      result.grantedMinutes,
+                    )
+                  : context.tr.container_detail_topup_credited(
+                      result.grantedMinutes,
+                    ),
             ),
             backgroundColor: Colors.green,
           ),
@@ -205,7 +212,10 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
 
   Future<void> _applyStoredMinutes() async {
     final elig = _eligibility;
-    if (_client == null || elig == null || elig.premium || elig.hostingMinutesBalance <= 0) {
+    if (_client == null ||
+        elig == null ||
+        elig.premium ||
+        elig.hostingMinutesBalance <= 0) {
       return;
     }
     try {
@@ -213,15 +223,14 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
         widget.containerId,
         elig.hostingMinutesBalance,
       );
-      await Future.wait([
-        _refreshEligibility(),
-        _loadStatus(),
-      ]);
+      await Future.wait([_refreshEligibility(), _loadStatus()]);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              context.tr.container_detail_minutes_applied(elig.hostingMinutesBalance),
+              context.tr.container_detail_minutes_applied(
+                elig.hostingMinutesBalance,
+              ),
             ),
             backgroundColor: Colors.green,
           ),
@@ -264,25 +273,46 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
   Future<void> _stopContainer() async {
     if (_client == null) return;
     final tr = context.tr;
-    final confirm = await showDialog<bool>(context: context, builder: (ctx) => AlertDialog(
-      title: Text(tr.container_detail_stop_title),
-      content: Text(tr.container_detail_stop_confirm),
-      actions: [
-        TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr.cancel)),
-        FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(tr.container_detail_stop_btn)),
-      ],
-    ));
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(tr.container_detail_stop_title),
+        content: Text(tr.container_detail_stop_confirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(tr.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(tr.container_detail_stop_btn),
+          ),
+        ],
+      ),
+    );
     if (confirm != true) return;
 
     setState(() => _stopping = true);
     try {
       await _client!.stopContainer(widget.containerId);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(tr.container_detail_stopped_ok), backgroundColor: Colors.green));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(tr.container_detail_stopped_ok),
+            backgroundColor: Colors.green,
+          ),
+        );
         _loadStatus();
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(tr.container_detail_failed(e.toString())), backgroundColor: Colors.red));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(tr.container_detail_failed(e.toString())),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     } finally {
       if (mounted) setState(() => _stopping = false);
     }
@@ -295,11 +325,23 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
     try {
       await _client!.startContainer(widget.containerId);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(tr.container_detail_started_ok), backgroundColor: Colors.green));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(tr.container_detail_started_ok),
+            backgroundColor: Colors.green,
+          ),
+        );
         _loadStatus(showFullScreenLoader: true);
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(tr.container_detail_failed(e.toString())), backgroundColor: Colors.red));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(tr.container_detail_failed(e.toString())),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     } finally {
       if (mounted) setState(() => _starting = false);
     }
@@ -340,7 +382,9 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
         _showInviteMessage(BotInviteOutcome.networkError);
         return;
       }
-      final service = _inviteService ??= TurnkeyBotInviteService(client: _client);
+      final service = _inviteService ??= TurnkeyBotInviteService(
+        client: _client,
+      );
       final outcome = await service.invite(container);
       if (!mounted) return;
       _showInviteMessage(outcome);
@@ -386,25 +430,47 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
   Future<void> _deleteContainer() async {
     if (_client == null) return;
     final tr = context.tr;
-    final confirm = await showDialog<bool>(context: context, builder: (ctx) => AlertDialog(
-      title: Text(tr.container_detail_delete_title),
-      content: Text(tr.container_detail_delete_confirm),
-      actions: [
-        TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(tr.cancel)),
-        FilledButton(style: FilledButton.styleFrom(backgroundColor: Colors.red), onPressed: () => Navigator.pop(ctx, true), child: Text(tr.container_detail_delete_btn)),
-      ],
-    ));
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(tr.container_detail_delete_title),
+        content: Text(tr.container_detail_delete_confirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(tr.cancel),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(tr.container_detail_delete_btn),
+          ),
+        ],
+      ),
+    );
     if (confirm != true) return;
 
     setState(() => _deleting = true);
     try {
       await _client!.deleteContainer(widget.containerId);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(tr.container_detail_deleted_ok), backgroundColor: Colors.green));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(tr.container_detail_deleted_ok),
+            backgroundColor: Colors.green,
+          ),
+        );
         Navigator.pop(context);
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(tr.container_detail_failed(e.toString())), backgroundColor: Colors.red));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(tr.container_detail_failed(e.toString())),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     } finally {
       if (mounted) setState(() => _deleting = false);
     }
@@ -445,23 +511,37 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
 
   Color _stateColor(String state) {
     switch (state) {
-      case 'RUNNING': return Colors.green;
-      case 'PENDING': case 'PROVISIONING': return Colors.orange;
-      case 'STOPPED': case 'STOPPING': return Colors.grey;
-      case 'FAILED': return Colors.red;
-      default: return Colors.grey;
+      case 'RUNNING':
+        return Colors.green;
+      case 'PENDING':
+      case 'PROVISIONING':
+        return Colors.orange;
+      case 'STOPPED':
+      case 'STOPPING':
+        return Colors.grey;
+      case 'FAILED':
+        return Colors.red;
+      default:
+        return Colors.grey;
     }
   }
 
   String _stateLabel(String state, AppLocalizations tr) {
     switch (state) {
-      case 'RUNNING': return tr.container_state_running;
-      case 'PENDING': return tr.container_state_pending;
-      case 'PROVISIONING': return tr.container_state_provisioning;
-      case 'STOPPED': return tr.container_state_stopped;
-      case 'STOPPING': return tr.container_state_stopping;
-      case 'FAILED': return tr.container_state_failed;
-      default: return state;
+      case 'RUNNING':
+        return tr.container_state_running;
+      case 'PENDING':
+        return tr.container_state_pending;
+      case 'PROVISIONING':
+        return tr.container_state_provisioning;
+      case 'STOPPED':
+        return tr.container_state_stopped;
+      case 'STOPPING':
+        return tr.container_state_stopping;
+      case 'FAILED':
+        return tr.container_state_failed;
+      default:
+        return state;
     }
   }
 
@@ -486,17 +566,23 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
       tr: tr,
     );
     final template = templateForImage(image);
-    final botTitle = template?.title ?? (image.toLowerCase().contains('beatdock') ? 'Bot Musique' : (image.isNotEmpty ? image : 'Bot'));
-    final botIcon = template?.icon ?? (image.toLowerCase().contains('beatdock') ? Icons.music_note_rounded : Icons.smart_toy_outlined);
+    final botTitle =
+        template?.title ??
+        (image.toLowerCase().contains('beatdock')
+            ? 'Bot Musique'
+            : (image.isNotEmpty ? image : 'Bot'));
+    final botIcon =
+        template?.icon ??
+        (image.toLowerCase().contains('beatdock')
+            ? Icons.music_note_rounded
+            : Icons.smart_toy_outlined);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(botTitle),
         actions: [
           IconButton(
-            tooltip: Localizations.localeOf(context).languageCode == 'fr'
-                ? 'Copilote IA'
-                : 'AI copilot',
+            tooltip: context.tr.copilot_title,
             icon: const Icon(Icons.auto_awesome_outlined),
             onPressed: () => Navigator.push(
               context,
@@ -527,213 +613,347 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
                 16 + MediaQuery.paddingOf(context).bottom,
               ),
               children: [
-              if (!_loadingEligibility && _eligibility != null && !_eligibility!.premium) ...[
-                HostedAppFreeHostingBanner(
-                  eligibility: _eligibility!,
-                  claimingAd: _claimingAd,
-                  // Desktop : aucune publicité n'y est diffusée. Le temps
-                  // d'hébergement vient du SOLDE SERVEUR (bouton « appliquer les
-                  // minutes stockées » ci-dessous), jamais d'une vidéo.
-                  onWatchAd: isDesktopRunPlatform
-                      ? null
-                      : (state == 'RUNNING' || state == 'PROVISIONING')
-                      ? _watchAdAndTopUp
-                      : null,
-                  showTopUpHint: state == 'RUNNING' || state == 'PROVISIONING',
-                  expiresAt: _expiresAt,
-                ),
-                if (_eligibility!.hostingMinutesBalance > 0 &&
-                    (state == 'RUNNING' || state == 'PROVISIONING'))
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: OutlinedButton.icon(
-                      onPressed: _applyStoredMinutes,
-                      icon: const Icon(Icons.schedule),
-                      label: Text(
-                        context.tr.container_detail_apply_stored_minutes(
-                          _eligibility!.hostingMinutesBalance,
+                if (!_loadingEligibility &&
+                    _eligibility != null &&
+                    !_eligibility!.premium) ...[
+                  HostedAppFreeHostingBanner(
+                    eligibility: _eligibility!,
+                    claimingAd: _claimingAd,
+                    // Desktop : aucune publicité n'y est diffusée. Le temps
+                    // d'hébergement vient du SOLDE SERVEUR (bouton « appliquer les
+                    // minutes stockées » ci-dessous), jamais d'une vidéo.
+                    onWatchAd: isDesktopRunPlatform
+                        ? null
+                        : (state == 'RUNNING' || state == 'PROVISIONING')
+                        ? _watchAdAndTopUp
+                        : null,
+                    showTopUpHint:
+                        state == 'RUNNING' || state == 'PROVISIONING',
+                    expiresAt: _expiresAt,
+                  ),
+                  if (_eligibility!.hostingMinutesBalance > 0 &&
+                      (state == 'RUNNING' || state == 'PROVISIONING'))
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: OutlinedButton.icon(
+                        onPressed: _applyStoredMinutes,
+                        icon: const Icon(Icons.schedule),
+                        label: Text(
+                          context.tr.container_detail_apply_stored_minutes(
+                            _eligibility!.hostingMinutesBalance,
+                          ),
                         ),
                       ),
                     ),
+                  HostedAppPremiumUpsell(
+                    compact: true,
+                    eligibility: _eligibility,
                   ),
-                HostedAppPremiumUpsell(compact: true, eligibility: _eligibility),
-                const SizedBox(height: 8),
-              ],
-              Card(child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: colorScheme.primary.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(botIcon, color: colorScheme.primary, size: 24),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(botTitle, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
-                          if (template != null)
-                            Text(
-                              template.description,
-                              style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Row(children: [
-                  Container(width: 12, height: 12, decoration: BoxDecoration(color: _stateColor(state), shape: BoxShape.circle)),
-                  const SizedBox(width: 8),
-                  Text(tr.container_detail_state, style: Theme.of(context).textTheme.titleSmall),
-                  const Spacer(),
-                  Text(_stateLabel(state, tr), style: TextStyle(fontWeight: FontWeight.bold, color: _stateColor(state))),
-                ]),
-                if (_expiresAt != null) ...[
-                  const SizedBox(height: 12),
-                  Row(children: [
-                    const Icon(Icons.timer_outlined, size: 18),
-                    const SizedBox(width: 8),
-                    Text(tr.container_detail_expires, style: Theme.of(context).textTheme.titleSmall),
-                    const Spacer(),
-                    Text(_formatTimeRemaining(_expiresAt), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                  ]),
+                  const SizedBox(height: 8),
                 ],
-                const SizedBox(height: 12),
-                Row(children: [
-                  const Icon(Icons.memory_outlined, size: 18),
-                  const SizedBox(width: 8),
-                  Text('RAM', style: Theme.of(context).textTheme.titleSmall),
-                  const Spacer(),
-                  Text(_formatMemoryUsage(_status), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                ]),
-                const SizedBox(height: 12),
-                Row(children: [
-                  const Icon(Icons.speed_outlined, size: 18),
-                  const SizedBox(width: 8),
-                  Text('CPU', style: Theme.of(context).textTheme.titleSmall),
-                  const Spacer(),
-                  Text(_formatCpuUsage(_status), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                ]),
-              ]))),
-              if (isUnhealthy && statusDescription.isNotEmpty) ...[
-                const SizedBox(height: 12),
                 Card(
-                  color: (state == 'RUNNING' ? Colors.orange : Colors.red)
-                      .withValues(alpha: 0.08),
                   child: Padding(
                     padding: const EdgeInsets.all(16),
-                    child: Row(
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(
-                          state == 'RUNNING'
-                              ? Icons.warning_amber_rounded
-                              : Icons.error_outline,
-                          color: state == 'RUNNING' ? Colors.orange : Colors.red,
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: colorScheme.primary.withValues(
+                                  alpha: 0.12,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Icon(
+                                botIcon,
+                                color: colorScheme.primary,
+                                size: 24,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    botTitle,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleSmall
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                  ),
+                                  if (template != null)
+                                    Text(
+                                      template.description,
+                                      style: TextStyle(
+                                        color: colorScheme.onSurfaceVariant,
+                                        fontSize: 12,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            statusDescription,
-                            style: TextStyle(color: colorScheme.onSurfaceVariant),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            Container(
+                              width: 12,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                color: _stateColor(state),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              tr.container_detail_state,
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
+                            const Spacer(),
+                            Text(
+                              _stateLabel(state, tr),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: _stateColor(state),
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (_expiresAt != null) ...[
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              const Icon(Icons.timer_outlined, size: 18),
+                              const SizedBox(width: 8),
+                              Text(
+                                tr.container_detail_expires,
+                                style: Theme.of(context).textTheme.titleSmall,
+                              ),
+                              const Spacer(),
+                              Text(
+                                _formatTimeRemaining(_expiresAt),
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
                           ),
+                        ],
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            const Icon(Icons.memory_outlined, size: 18),
+                            const SizedBox(width: 8),
+                            Text(
+                              'RAM',
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
+                            const Spacer(),
+                            Text(
+                              _formatMemoryUsage(_status),
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            const Icon(Icons.speed_outlined, size: 18),
+                            const SizedBox(width: 8),
+                            Text(
+                              'CPU',
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
+                            const Spacer(),
+                            Text(
+                              _formatCpuUsage(_status),
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ),
                 ),
-              ],
-              const SizedBox(height: 24),
-              if (state == 'RUNNING' || state == 'PROVISIONING') ...[
-                FilledButton.icon(
-                  style: FilledButton.styleFrom(backgroundColor: Colors.orange.shade800),
-                  onPressed: _stopping ? null : _stopContainer,
-                  icon: _stopping
-                      ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                      : const Icon(Icons.power_settings_new),
-                  label: Text(_stopping ? tr.container_state_stopping : tr.container_detail_stop_title),
-                ),
-                // Invitation juste sous « Éteindre » : le bot peut tourner sans
-                // être encore dans un serveur, c'est même le cas à la sortie du
-                // déploiement — c'est ici qu'on y remédie.
-                if (state == 'RUNNING') ...[
+                if (isUnhealthy && statusDescription.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  Card(
+                    color: (state == 'RUNNING' ? Colors.orange : Colors.red)
+                        .withValues(alpha: 0.08),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            state == 'RUNNING'
+                                ? Icons.warning_amber_rounded
+                                : Icons.error_outline,
+                            color: state == 'RUNNING'
+                                ? Colors.orange
+                                : Colors.red,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              statusDescription,
+                              style: TextStyle(
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 24),
+                if (state == 'RUNNING' || state == 'PROVISIONING') ...[
+                  FilledButton.icon(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Colors.orange.shade800,
+                    ),
+                    onPressed: _stopping ? null : _stopContainer,
+                    icon: _stopping
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.power_settings_new),
+                    label: Text(
+                      _stopping
+                          ? tr.container_state_stopping
+                          : tr.container_detail_stop_title,
+                    ),
+                  ),
+                  // Invitation juste sous « Éteindre » : le bot peut tourner sans
+                  // être encore dans un serveur, c'est même le cas à la sortie du
+                  // déploiement — c'est ici qu'on y remédie.
+                  if (state == 'RUNNING') ...[
+                    const SizedBox(height: 12),
+                    _inviteBotButton(tr),
+                  ],
+                  if (state == 'RUNNING') ...[
+                    const SizedBox(height: 24),
+                    Text(
+                      tr.container_detail_console,
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      // 360 et non 300 : la console gagne un bandeau d'état d'une
+                      // ligne, la hauteur compense pour garder le même nombre de
+                      // lignes de log visibles qu'avant.
+                      height: 360,
+                      child: Card(
+                        clipBehavior: Clip.antiAlias,
+                        child: _client != null
+                            ? ContainerLogsViewer(
+                                key: ValueKey('logs-${widget.containerId}'),
+                                client: _client!,
+                                containerId: widget.containerId,
+                              )
+                            : Center(
+                                child: Text(tr.container_detail_not_connected),
+                              ),
+                      ),
+                    ),
+                  ],
+                ],
+                if (state == 'PENDING' || state == 'PROVISIONING')
+                  Center(
+                    child: Column(
+                      children: [
+                        const CircularProgressIndicator(),
+                        const SizedBox(height: 12),
+                        Text(
+                          statusDescription.isNotEmpty
+                              ? statusDescription
+                              : tr.container_detail_deploying,
+                        ),
+                      ],
+                    ),
+                  ),
+                if (state == 'STOPPED') ...[
+                  Text(
+                    tr.container_detail_stopped_hint,
+                    style: TextStyle(color: colorScheme.onSurfaceVariant),
+                  ),
+                  const SizedBox(height: 16),
+                  FilledButton.icon(
+                    onPressed: _starting ? null : _startContainer,
+                    icon: _starting
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.play_arrow),
+                    label: Text(
+                      _starting
+                          ? tr.container_detail_starting
+                          : tr.container_detail_start_btn,
+                    ),
+                  ),
                   const SizedBox(height: 12),
                   _inviteBotButton(tr),
                 ],
-                if (state == 'RUNNING') ...[
-                const SizedBox(height: 24),
-                Text(tr.container_detail_console, style: Theme.of(context).textTheme.titleSmall),
-                const SizedBox(height: 8),
-                SizedBox(
-                  // 360 et non 300 : la console gagne un bandeau d'état d'une
-                  // ligne, la hauteur compense pour garder le même nombre de
-                  // lignes de log visibles qu'avant.
-                  height: 360,
-                  child: Card(
-                    clipBehavior: Clip.antiAlias,
-                    child: _client != null
-                        ? ContainerLogsViewer(
-                            key: ValueKey('logs-${widget.containerId}'),
-                            client: _client!,
-                            containerId: widget.containerId,
-                          )
-                        : Center(child: Text(tr.container_detail_not_connected)),
-                  ),
-                ),
-                ],
-              ],
-              if (state == 'PENDING' || state == 'PROVISIONING')
-                Center(child: Column(children: [
-                  const CircularProgressIndicator(),
+                // Suppression accessible à TOUT moment : un conteneur EN MARCHE doit
+                // pouvoir être détruit (le serveur l'arrête d'abord — Deployment et
+                // Service Kubernetes, quota, ligne, secret de pull). La placer dans le
+                // bloc « arrêté » rendait un bot clé en main indestructible tant qu'il
+                // tournait, ce qui est précisément l'inverse de ce qu'on veut. Elle
+                // reste séparée de « Éteindre », et sa confirmation dit que c'est
+                // définitif : c'est la porte de sortie.
+                if (state != 'PENDING' && state != 'PROVISIONING') ...[
                   const SizedBox(height: 12),
-                  Text(
-                    statusDescription.isNotEmpty
-                        ? statusDescription
-                        : tr.container_detail_deploying,
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.red,
+                    ),
+                    onPressed: _deleting ? null : _deleteContainer,
+                    icon: _deleting
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.delete_outline),
+                    label: Text(
+                      _deleting
+                          ? tr.container_detail_delete_btn
+                          : tr.container_detail_delete_title,
+                    ),
                   ),
-                ])),
-              if (state == 'STOPPED') ...[
-                Text(tr.container_detail_stopped_hint, style: TextStyle(color: colorScheme.onSurfaceVariant)),
-                const SizedBox(height: 16),
-                FilledButton.icon(
-                  onPressed: _starting ? null : _startContainer,
-                  icon: _starting
-                      ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                      : const Icon(Icons.play_arrow),
-                  label: Text(_starting ? tr.container_detail_starting : tr.container_detail_start_btn),
-                ),
-                const SizedBox(height: 12),
-                _inviteBotButton(tr),
+                ],
+                if (state == 'FAILED')
+                  Center(
+                    child: Text(
+                      tr.container_detail_status_stopped(
+                        _stateLabel(state, tr),
+                      ),
+                      style: TextStyle(color: colorScheme.onSurfaceVariant),
+                    ),
+                  ),
               ],
-              // Suppression accessible à TOUT moment : un conteneur EN MARCHE doit
-              // pouvoir être détruit (le serveur l'arrête d'abord — Deployment et
-              // Service Kubernetes, quota, ligne, secret de pull). La placer dans le
-              // bloc « arrêté » rendait un bot clé en main indestructible tant qu'il
-              // tournait, ce qui est précisément l'inverse de ce qu'on veut. Elle
-              // reste séparée de « Éteindre », et sa confirmation dit que c'est
-              // définitif : c'est la porte de sortie.
-              if (state != 'PENDING' && state != 'PROVISIONING') ...[
-                const SizedBox(height: 12),
-                OutlinedButton.icon(
-                  style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
-                  onPressed: _deleting ? null : _deleteContainer,
-                  icon: _deleting
-                      ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                      : const Icon(Icons.delete_outline),
-                  label: Text(_deleting ? tr.container_detail_delete_btn : tr.container_detail_delete_title),
-                ),
-              ],
-              if (state == 'FAILED')
-                Center(child: Text(tr.container_detail_status_stopped(_stateLabel(state, tr)), style: TextStyle(color: colorScheme.onSurfaceVariant))),
-            ],
             ),
     );
   }
@@ -959,6 +1179,7 @@ class ContainerLogsViewer extends StatefulWidget {
 class _ContainerLogsViewerState extends State<ContainerLogsViewer> {
   final _scrollCtrl = ScrollController();
   String _logs = '';
+
   /// Tampon analysé une fois par tick : le défilement ne relance pas l'analyse.
   List<ContainerLogLine> _lines = const <ContainerLogLine>[];
   bool _loading = true;
@@ -1203,7 +1424,10 @@ class ContainerLogRow extends StatelessWidget {
 /// Volontairement réduit à une ligne, sans titre : l'écran porte déjà son titre,
 /// le répéter ici était du chrome en trop.
 class _LogConsoleHeaderStrip extends StatelessWidget {
-  const _LogConsoleHeaderStrip({required this.errorCount, required this.onCopy});
+  const _LogConsoleHeaderStrip({
+    required this.errorCount,
+    required this.onCopy,
+  });
 
   final int errorCount;
   final VoidCallback onCopy;
@@ -1217,7 +1441,9 @@ class _LogConsoleHeaderStrip extends StatelessWidget {
       padding: const EdgeInsets.only(left: 10, right: 2),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.5)),
+          bottom: BorderSide(
+            color: scheme.outlineVariant.withValues(alpha: 0.5),
+          ),
         ),
       ),
       child: Row(

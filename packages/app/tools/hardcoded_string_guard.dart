@@ -249,7 +249,7 @@ const List<AllowListEntry> allowListedPatterns = <AllowListEntry>[
   AllowListEntry(
     pathFragment:
         'lib/features/containers/presentation/container_detail_page.dart',
-    snippetPattern: r"^Text\('(RAM|CPU)',",
+    snippetPattern: r"^Text\s*\(\s*'(RAM|CPU)',",
     reason: 'Acronymes universels des indicateurs de ressources (RAM/CPU).',
   ),
   AllowListEntry(

@@ -72,7 +72,8 @@ extension _AppHomePageUI on _AppHomePageState {
           ? context.tr.home_hosting_status_active
           : context.tr.home_status_offline;
     }
-    return botRunSourceLabel(context.tr, origin) ?? context.tr.home_status_offline;
+    return botRunSourceLabel(context.tr, origin) ??
+        context.tr.home_status_offline;
   }
 
   Widget _buildWideOverview(
@@ -81,7 +82,7 @@ extension _AppHomePageUI on _AppHomePageState {
     required String displayName,
   }) {
     return BotHomeDesktopOverview(
-      header: _buildWideHeader(context),
+      header: _buildWideHeader(context, botId: botId, displayName: displayName),
       leftBuilder: (context, fillViewport) =>
           _buildWideLeftColumn(context, botId: botId, displayName: displayName),
       rightBuilder: (context, fillViewport) => _buildWideRightColumn(
@@ -92,7 +93,11 @@ extension _AppHomePageUI on _AppHomePageState {
     );
   }
 
-  Widget _buildWideHeader(BuildContext context) {
+  Widget _buildWideHeader(
+    BuildContext context, {
+    required String botId,
+    required String displayName,
+  }) {
     final scheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final tokens = HomeTokens.of(context);
@@ -148,11 +153,32 @@ extension _AppHomePageUI on _AppHomePageState {
               ),
             ],
           ),
-          HomeHeaderIconButton(
-            icon: Icons.sync_rounded,
-            iconSize: 14,
-            tooltip: context.tr.common_refresh,
-            onTap: _isReconciling ? null : _refreshOverview,
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              HomeHeaderIconButton(
+                icon: Icons.auto_awesome_outlined,
+                iconSize: 14,
+                tooltip: context.tr.copilot_title,
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => CopilotPage(
+                      botId: botId,
+                      botName: displayName,
+                      location: 'local',
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              HomeHeaderIconButton(
+                icon: Icons.sync_rounded,
+                iconSize: 14,
+                tooltip: context.tr.common_refresh,
+                onTap: _isReconciling ? null : _refreshOverview,
+              ),
+            ],
           ),
         ],
       ),
@@ -385,15 +411,37 @@ extension _AppHomePageUI on _AppHomePageState {
             ],
           ),
           const SizedBox(height: 8),
-          SizedBox(
-            width: double.infinity,
-            child: HomeCardActionButton(
-              icon: Icons.person_add_alt_1_rounded,
-              iconSize: 14,
-              label: context.tr.bot_home_invite,
-              onTap: () => unawaited(_openInviteLink(botId)),
-              loading: false,
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: HomeCardActionButton(
+                  icon: Icons.person_add_alt_1_rounded,
+                  iconSize: 14,
+                  label: context.tr.bot_home_invite,
+                  onTap: () => unawaited(_openInviteLink(botId)),
+                  loading: false,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: HomeCardActionButton(
+                  icon: Icons.auto_awesome_outlined,
+                  iconSize: 14,
+                  label: context.tr.copilot_title,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => CopilotPage(
+                        botId: botId,
+                        botName: displayName,
+                        location: 'local',
+                      ),
+                    ),
+                  ),
+                  loading: false,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -611,9 +659,7 @@ extension _AppHomePageUI on _AppHomePageState {
           // ne peut pas devenir rouge pour un solde qu'il ne consomme pas.
           statusColor: unlimited
               ? (_botLaunched ? AppTheme.online : AppTheme.warning)
-              : (_botLaunched
-                    ? _hostingTimeColor(balance)
-                    : AppTheme.warning),
+              : (_botLaunched ? _hostingTimeColor(balance) : AppTheme.warning),
           overline: cardCopy.overline,
           headline: cardCopy.headline,
           segments: cardCopy.segments,
@@ -1197,7 +1243,8 @@ class BotHomeLiveConsoleCard extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 4),
-                          Text(context.tr.common_live_badge,
+                          Text(
+                            context.tr.common_live_badge,
                             style: GoogleFonts.inter(
                               fontSize: 10,
                               fontWeight: FontWeight.w700,

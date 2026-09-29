@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:developer' as developer;
 import 'dart:io';
-import 'package:bot_creator/features/copilot/presentation/copilot_page.dart';
 import 'package:bot_creator/core/analytics/activation_funnel.dart';
 import 'package:bot_creator/core/analytics/analytics.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
@@ -3769,16 +3768,6 @@ class HomePageState extends State<HomePage>
               context,
               MaterialPageRoute(builder: (_) => TeamChatPage(botId: id)),
             ),
-      onCopilot: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => CopilotPage(
-            botId: id,
-            botName: name,
-            location: hasLocalToken ? 'local' : 'remote',
-          ),
-        ),
-      ),
       onToggle: () => _toggleBot(botId: id, botName: name),
       // Ajouter du temps engage de l'argent : jamais sur le bot d'un autre.
       onAddTime: shared ? null : () => _addHostingTime(id),
@@ -3896,16 +3885,6 @@ class _HomeHeader extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
-        HomeHeaderIconButton(
-          icon: Icons.auto_awesome_outlined,
-          iconSize: 16,
-          tooltip: context.tr.copilot_title,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute<void>(builder: (_) => const CopilotPage()),
-          ),
-        ),
-        const SizedBox(width: 10),
         if (showCreate) ...[
           HomeHeaderIconButton(
             icon: Icons.add_rounded,
@@ -3969,7 +3948,6 @@ class HomeBotCard extends StatefulWidget {
     required this.showPremiumLabels,
     required this.freeMinutes,
     this.onTeam,
-    this.onCopilot,
     this.runtimeBadgeLabel,
     this.showsHostingExpiration = true,
     this.isTurnkey = false,
@@ -4019,7 +3997,6 @@ class HomeBotCard extends StatefulWidget {
   /// sans droit d'édition. `null` sur une carte « à moi », qui garde donc
   /// exactement ses actions d'avant.
   final VoidCallback? onTeam;
-  final VoidCallback? onCopilot;
 
   final VoidCallback onToggle;
   final VoidCallback? onAddTime;
@@ -4154,17 +4131,6 @@ class HomeBotCardState extends State<HomeBotCard> {
                 stopSquare: widget.isRunning,
               ),
             ),
-            if (widget.onCopilot != null) ...[
-              const SizedBox(width: 10),
-              Expanded(
-                child: HomeCardActionButton(
-                  icon: Icons.auto_awesome_outlined,
-                  iconSize: 14,
-                  label: context.tr.copilot_role_assistant,
-                  onTap: widget.onCopilot,
-                ),
-              ),
-            ],
             if (widget.onManage != null) ...[
               const SizedBox(width: 10),
               Expanded(
