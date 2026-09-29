@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:bot_creator/features/copilot/presentation/copilot_page.dart';
 import 'dart:io';
 import 'dart:math' as math;
 
@@ -25,10 +24,6 @@ class _AICreditsPageState extends State<AICreditsPage> {
   Map<String, dynamic>? _result;
   bool _busy = false;
   double _turns = 0;
-  List<Map<String, dynamic>> _ledger = [];
-  int _offset = 0;
-  bool _more = false;
-  String? _source;
 
   String _text(String fr, String en) =>
       Localizations.localeOf(context).languageCode == 'fr' ? fr : en;
@@ -45,7 +40,6 @@ class _AICreditsPageState extends State<AICreditsPage> {
         _client = widget.api;
         _owner = _client!.accountOwnerId;
         _wallet = await _client!.getAIWallet();
-        await _loadLedger();
         if (mounted) {
           setState(() => _error = null);
         }
@@ -65,7 +59,6 @@ class _AICreditsPageState extends State<AICreditsPage> {
       );
       _owner = session.userId;
       final wallet = await _client!.getAIWallet();
-      await _loadLedger();
       if (mounted) {
         setState(() {
           _wallet = wallet;
@@ -84,31 +77,6 @@ class _AICreditsPageState extends State<AICreditsPage> {
     }
   }
 
-  Future<void> _loadLedger() async {
-    final d = await _client!.getAILedger(offset: _offset, source: _source);
-    if (mounted) {
-      setState(() {
-        _ledger = (d['entries'] as List)
-            .map((e) => Map<String, dynamic>.from(e as Map))
-            .toList();
-        _more = d['has_more'] == true;
-      });
-    }
-  }
-
-  String _origin(String source) => switch (source) {
-    'kofi' => _text('Achat Ko-fi', 'Ko-fi purchase'),
-    'apple' => _text('Achat Apple', 'Apple purchase'),
-    'google' => _text('Achat Google', 'Google purchase'),
-    'roulette' => _text('Gain roulette', 'Roulette reward'),
-    'admin_grant' => _text('Attribution administrative', 'Admin grant'),
-    'admin_correction' => _text(
-      'Correction administrative',
-      'Admin correction',
-    ),
-    'copilot' => _text('Consommation IA', 'AI usage'),
-    _ => source,
-  };
   Future<void> _ad() async {
     if (!Platform.isAndroid && !Platform.isIOS) {
       return;
@@ -338,10 +306,6 @@ class _AICreditsPageState extends State<AICreditsPage> {
         (Platform.isIOS || Platform.isAndroid) &&
         config['enabled'] == true &&
         ((adUnits[platform] ?? config['ad_unit'] ?? '').toString().isNotEmpty);
-    final totalWeight = prizes.fold<num>(
-      0,
-      (sum, p) => sum + (p['weight'] as num? ?? 0),
-    );
     return Scaffold(
       appBar: AppBar(
         title: Text(_text('Crédits IA', 'AI credits')),
@@ -452,107 +416,6 @@ class _AICreditsPageState extends State<AICreditsPage> {
                 ),
               ),
             if (_busy) const Center(child: CircularProgressIndicator()),
-            for (final prize in prizes)
-              Text(
-                '${prize['kind'] == 'spins' ? '+${prize['bonus_spins']} ${_text('tours', 'spins')}' : '${prize['credits']} ${_text('crédits', 'credits')}'} : ${totalWeight > 0 ? ((prize['weight'] as num) * 100 / totalWeight).toStringAsFixed(2) : '0'} %',
-              ),
-          ],
-          if (_wallet != null) ...[
-            const SizedBox(height: 20),
-            Text(
-              _text('Mouvements de crédits', 'Credit movements'),
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            DropdownButton<String>(
-              value: _source ?? '',
-              isExpanded: true,
-              items: [
-                DropdownMenuItem(
-                  value: '',
-                  child: Text(_text('Toutes origines', 'All sources')),
-                ),
-                for (final source in [
-                  'kofi',
-                  'apple',
-                  'google',
-                  'roulette',
-                  'admin_grant',
-                  'admin_correction',
-                  'copilot',
-                ])
-                  DropdownMenuItem(value: source, child: Text(_origin(source))),
-              ],
-              onChanged: (value) async {
-                _source = value == '' ? null : value;
-                _offset = 0;
-                try {
-                  await _loadLedger();
-                } catch (_) {
-                  if (mounted) {
-                    setState(
-                      () => _error = _text(
-                        'Journal indisponible',
-                        'Ledger unavailable',
-                      ),
-                    );
-                  }
-                }
-              },
-            ),
-            if (_ledger.isEmpty)
-              Text(_text('Aucun mouvement.', 'No movements.')),
-            for (final e in _ledger)
-              ExpansionTile(
-                title: Text(
-                  '${(e['delta'] as num) > 0 ? '+' : ''}${e['delta']} · ${_origin(e['source'] as String)}',
-                ),
-                subtitle: Text(e['created_at'].toString()),
-                children: [
-                  SelectableText(
-                    '${_text('Référence', 'Reference')} : ${e['reference']}',
-                  ),
-                  if ((e['reason'] ?? '') != '') Text(e['reason'] as String),
-                  if ((e['conversation_id'] ?? '') != '')
-                    TextButton(
-                      onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => CopilotPage(
-                            api: _client,
-                            initialConversationId:
-                                e['conversation_id'] as String,
-                          ),
-                        ),
-                      ),
-                      child: Text(
-                        _text('Ouvrir la discussion', 'Open conversation'),
-                      ),
-                    ),
-                ],
-              ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                TextButton(
-                  onPressed: _offset == 0
-                      ? null
-                      : () async {
-                          _offset = (_offset - 50).clamp(0, 1 << 30);
-                          await _loadLedger();
-                        },
-                  child: Text(_text('Précédent', 'Previous')),
-                ),
-                TextButton(
-                  onPressed: !_more
-                      ? null
-                      : () async {
-                          _offset += 50;
-                          await _loadLedger();
-                        },
-                  child: Text(_text('Suivant', 'Next')),
-                ),
-              ],
-            ),
           ],
           if (_error != null)
             Text(

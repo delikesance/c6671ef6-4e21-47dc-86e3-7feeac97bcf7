@@ -3899,7 +3899,9 @@ class _HomeHeader extends StatelessWidget {
         HomeHeaderIconButton(
           icon: Icons.auto_awesome_outlined,
           iconSize: 16,
-          tooltip: 'Copilote IA',
+          tooltip: Localizations.localeOf(context).languageCode == 'fr'
+              ? 'Copilote IA'
+              : 'AI copilot',
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute<void>(builder: (_) => const CopilotPage()),
