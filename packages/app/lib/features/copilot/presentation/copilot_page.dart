@@ -210,6 +210,10 @@ class _CopilotPageState extends State<CopilotPage> {
           return context.tr.copilot_err_revision_conflict;
         case 'ai_action_already_claimed':
           return context.tr.copilot_err_action_claimed;
+        case 'ai_copilot_disabled':
+          return '${context.tr.copilot_err_unavailable} (ai_copilot_disabled)';
+        case 'ai_provider_failure':
+          return '${context.tr.copilot_err_request_failed} (ai_provider_failure)';
       }
       if (e.statusCode == 402) {
         return context.tr.copilot_err_insufficient_balance;
@@ -222,6 +226,9 @@ class _CopilotPageState extends State<CopilotPage> {
       }
       if (e.statusCode == 503) {
         return context.tr.copilot_err_unavailable;
+      }
+      if (e.code != null && e.code!.isNotEmpty) {
+        return '${context.tr.copilot_err_request_failed} (${e.code})';
       }
     }
     return context.tr.copilot_err_request_failed;
