@@ -530,6 +530,7 @@ class MainApiClient implements RemoteRuntimeClient {
     Map<String, String>? extraHeaders,
     Duration? timeout,
     bool retryOnFailure = true,
+    bool logBody = true,
   }) async {
     if (_isCircuitOpen(_baseUrl)) {
       throw MainApiClientException(
@@ -544,7 +545,9 @@ class MainApiClient implements RemoteRuntimeClient {
     final uri = _uri(path);
     final encodedBody = jsonEncode(body);
     appendBotDebugLog(
-      '[MainApiClient] POST $uri body=${redactSensitiveJson(encodedBody)}',
+      logBody
+          ? '[MainApiClient] POST $uri body=${redactSensitiveJson(encodedBody)}'
+          : '[MainApiClient] POST $uri',
     );
 
     // Une reprise n'a de sens que sur une requête SANS EFFET. Sur une poussée
@@ -2448,6 +2451,16 @@ class MainApiClient implements RemoteRuntimeClient {
       _get('/gateway/commerce/catalog');
 
   Future<Map<String, dynamic>> getAIWallet() => _get('/gateway/ai/wallet');
+  Future<Map<String, dynamic>> getCopilotTools() =>
+      _get('/gateway/ai/copilot/tools');
+  Future<Map<String, dynamic>> copilotReply(Map<String, dynamic> request) =>
+      _post(
+        '/gateway/ai/copilot/reply',
+        request,
+        timeout: const Duration(seconds: 80),
+        retryOnFailure: false,
+        logBody: false,
+      );
   Future<Map<String, dynamic>> createAIRewardTicket(String platform) =>
       _post('/gateway/ai/rewards/tickets', {'platform': platform});
   Future<Map<String, dynamic>> getAIRewardTicket(String id) =>

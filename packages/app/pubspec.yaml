@@ -119,6 +119,7 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/copilot/tools.json
     - assets/embedded-runner-js/
     - assets/js_editor/discord_js_completions.json
     # Bundled Google Fonts (real static TTFs + their OFL licenses).
