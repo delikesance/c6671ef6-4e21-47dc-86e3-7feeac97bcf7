@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:bot_creator/features/copilot/presentation/copilot_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:bot_creator/core/network/gateway_bot_events.dart';
@@ -489,7 +490,28 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
     final botIcon = template?.icon ?? (image.toLowerCase().contains('beatdock') ? Icons.music_note_rounded : Icons.smart_toy_outlined);
 
     return Scaffold(
-      appBar: AppBar(title: Text(botTitle)),
+      appBar: AppBar(
+        title: Text(botTitle),
+        actions: [
+          IconButton(
+            tooltip: Localizations.localeOf(context).languageCode == 'fr'
+                ? 'Copilote IA'
+                : 'AI copilot',
+            icon: const Icon(Icons.auto_awesome_outlined),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => CopilotPage(
+                  api: _client,
+                  botId: 'container:${widget.containerId}',
+                  botName: botTitle,
+                  location: 'remote',
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           // Le bas de l'écran (dernier bouton d'action, dernière ligne de la

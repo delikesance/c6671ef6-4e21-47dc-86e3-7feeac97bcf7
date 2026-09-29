@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:bot_creator/features/copilot/presentation/copilot_page.dart';
 import 'dart:io';
 import 'dart:math' as math;
 
@@ -9,7 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
 class AICreditsPage extends StatefulWidget {
-  const AICreditsPage({super.key});
+  const AICreditsPage({super.key, this.api});
+  final MainApiClient? api;
   @override
   State<AICreditsPage> createState() => _AICreditsPageState();
 }
@@ -23,6 +25,10 @@ class _AICreditsPageState extends State<AICreditsPage> {
   Map<String, dynamic>? _result;
   bool _busy = false;
   double _turns = 0;
+  List<Map<String, dynamic>> _ledger = [];
+  int _offset = 0;
+  bool _more = false;
+  String? _source;
 
   String _text(String fr, String en) =>
       Localizations.localeOf(context).languageCode == 'fr' ? fr : en;
@@ -35,6 +41,16 @@ class _AICreditsPageState extends State<AICreditsPage> {
 
   Future<void> _load() async {
     try {
+      if (widget.api != null) {
+        _client = widget.api;
+        _owner = _client!.accountOwnerId;
+        _wallet = await _client!.getAIWallet();
+        await _loadLedger();
+        if (mounted) {
+          setState(() => _error = null);
+        }
+        return;
+      }
       final config = await MainApiSettingsStore.loadConfig();
       final session = await MainApiSettingsStore.loadSession();
       if (!config.isConfigured ||
@@ -49,6 +65,7 @@ class _AICreditsPageState extends State<AICreditsPage> {
       );
       _owner = session.userId;
       final wallet = await _client!.getAIWallet();
+      await _loadLedger();
       if (mounted) {
         setState(() {
           _wallet = wallet;
@@ -67,9 +84,38 @@ class _AICreditsPageState extends State<AICreditsPage> {
     }
   }
 
+  Future<void> _loadLedger() async {
+    final d = await _client!.getAILedger(offset: _offset, source: _source);
+    if (mounted) {
+      setState(() {
+        _ledger = (d['entries'] as List)
+            .map((e) => Map<String, dynamic>.from(e as Map))
+            .toList();
+        _more = d['has_more'] == true;
+      });
+    }
+  }
+
+  String _origin(String source) => switch (source) {
+    'kofi' => _text('Achat Ko-fi', 'Ko-fi purchase'),
+    'apple' => _text('Achat Apple', 'Apple purchase'),
+    'google' => _text('Achat Google', 'Google purchase'),
+    'roulette' => _text('Gain roulette', 'Roulette reward'),
+    'admin_grant' => _text('Attribution administrative', 'Admin grant'),
+    'admin_correction' => _text(
+      'Correction administrative',
+      'Admin correction',
+    ),
+    'copilot' => _text('Consommation IA', 'AI usage'),
+    _ => source,
+  };
   Future<void> _ad() async {
-    if (!Platform.isAndroid && !Platform.isIOS) return;
-    if (_busy || _client == null || _owner == null) return;
+    if (!Platform.isAndroid && !Platform.isIOS) {
+      return;
+    }
+    if (_busy || _client == null || _owner == null) {
+      return;
+    }
     setState(() {
       _busy = true;
       _error = null;
@@ -84,14 +130,18 @@ class _AICreditsPageState extends State<AICreditsPage> {
         owner: _owner!,
         ticket: id,
       );
-      if (!completed) return;
+      if (!completed) {
+        return;
+      }
       for (var attempt = 0; attempt < 20; attempt++) {
         final state = await _client!.getAIRewardTicket(id);
         if ((state['spins'] as num? ?? 0) > 0) {
           await _load();
           return;
         }
-        if (!mounted) return;
+        if (!mounted) {
+          return;
+        }
         await Future<void>.delayed(const Duration(seconds: 2));
       }
       if (mounted) {
@@ -112,13 +162,19 @@ class _AICreditsPageState extends State<AICreditsPage> {
         );
       }
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) {
+        setState(() => _busy = false);
+      }
     }
   }
 
   Future<void> _spin(List<Map<String, dynamic>> prizes) async {
-    if (!Platform.isAndroid && !Platform.isIOS) return;
-    if (_busy || _client == null) return;
+    if (!Platform.isAndroid && !Platform.isIOS) {
+      return;
+    }
+    if (_busy || _client == null) {
+      return;
+    }
     setState(() {
       _busy = true;
       _error = null;
@@ -142,7 +198,9 @@ class _AICreditsPageState extends State<AICreditsPage> {
       }
       await Future<void>.delayed(const Duration(milliseconds: 2400));
       _pendingSpinKey = null;
-      if (mounted) setState(() => _result = result);
+      if (mounted) {
+        setState(() => _result = result);
+      }
       await _load();
     } catch (_) {
       // Reuse the key on retry: an ambiguous network failure must never consume two spins.
@@ -155,8 +213,113 @@ class _AICreditsPageState extends State<AICreditsPage> {
         );
       }
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) {
+        setState(() => _busy = false);
+      }
     }
+  }
+
+  String _number(Object? value) => (value ?? 0).toString().replaceAllMapped(
+    RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+    (m) => '${m[1]}\u202f',
+  );
+  Widget _balanceCard() {
+    final colors = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            colors.primaryContainer.withValues(alpha: .45),
+            colors.surfaceContainerLow,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        border: Border.all(color: colors.primary.withValues(alpha: .2)),
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.toll_outlined, size: 18, color: colors.primary),
+              const SizedBox(width: 8),
+              Text(
+                _text('Votre portefeuille IA', 'Your AI wallet'),
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: colors.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Text(
+            _number(_wallet!['available'] ?? _wallet!['balance']),
+            style: Theme.of(context).textTheme.displaySmall?.copyWith(
+              fontWeight: FontWeight.w600,
+              letterSpacing: -1,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            _text('tokens disponibles', 'tokens available'),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
+          ),
+          const SizedBox(height: 22),
+          Row(
+            children: [
+              for (final item in [
+                (_text('Total', 'Total'), _wallet!['balance']),
+                (_text('Réservé', 'Reserved'), _wallet!['reserved'] ?? 0),
+              ])
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.$1,
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: colors.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        _number(item.$2),
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+          if (_wallet!['blocked'] == true) ...[
+            const SizedBox(height: 18),
+            Row(
+              children: [
+                Icon(
+                  Icons.pause_circle_outline_rounded,
+                  size: 17,
+                  color: colors.error,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    _text('Dépenses IA bloquées', 'AI spending blocked'),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: colors.error),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
   }
 
   @override
@@ -195,10 +358,30 @@ class _AICreditsPageState extends State<AICreditsPage> {
           if (_wallet == null && _error == null)
             const Center(child: CircularProgressIndicator()),
           if (_wallet != null) ...[
-            Text(
-              '${_wallet!['available'] ?? _wallet!['balance']} ${_text('tokens IA disponibles', 'AI tokens available')}',
-              style: Theme.of(context).textTheme.headlineMedium,
+            _balanceCard(),
+            const SizedBox(height: 18),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final item in [
+                  (_text('Achats', 'Purchases'), _wallet!['purchased']),
+                  (_text('Roulette', 'Roulette'), _wallet!['rewarded']),
+                  (_text('Attributions', 'Grants'), _wallet!['granted']),
+                ])
+                  Chip(
+                    side: BorderSide.none,
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainerLow,
+                    label: Text(
+                      '${item.$1} · ${_number(item.$2)}',
+                      style: Theme.of(context).textTheme.labelSmall,
+                    ),
+                  ),
+              ],
             ),
+            const SizedBox(height: 12),
             if (mobile)
               Text('$spins ${_text('tours disponibles', 'available spins')}'),
             Text(
@@ -273,6 +456,103 @@ class _AICreditsPageState extends State<AICreditsPage> {
               Text(
                 '${prize['kind'] == 'spins' ? '+${prize['bonus_spins']} ${_text('tours', 'spins')}' : '${prize['credits']} ${_text('crédits', 'credits')}'} : ${totalWeight > 0 ? ((prize['weight'] as num) * 100 / totalWeight).toStringAsFixed(2) : '0'} %',
               ),
+          ],
+          if (_wallet != null) ...[
+            const SizedBox(height: 20),
+            Text(
+              _text('Mouvements de crédits', 'Credit movements'),
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            DropdownButton<String>(
+              value: _source ?? '',
+              isExpanded: true,
+              items: [
+                DropdownMenuItem(
+                  value: '',
+                  child: Text(_text('Toutes origines', 'All sources')),
+                ),
+                for (final source in [
+                  'kofi',
+                  'apple',
+                  'google',
+                  'roulette',
+                  'admin_grant',
+                  'admin_correction',
+                  'copilot',
+                ])
+                  DropdownMenuItem(value: source, child: Text(_origin(source))),
+              ],
+              onChanged: (value) async {
+                _source = value == '' ? null : value;
+                _offset = 0;
+                try {
+                  await _loadLedger();
+                } catch (_) {
+                  if (mounted) {
+                    setState(
+                      () => _error = _text(
+                        'Journal indisponible',
+                        'Ledger unavailable',
+                      ),
+                    );
+                  }
+                }
+              },
+            ),
+            if (_ledger.isEmpty)
+              Text(_text('Aucun mouvement.', 'No movements.')),
+            for (final e in _ledger)
+              ExpansionTile(
+                title: Text(
+                  '${(e['delta'] as num) > 0 ? '+' : ''}${e['delta']} · ${_origin(e['source'] as String)}',
+                ),
+                subtitle: Text(e['created_at'].toString()),
+                children: [
+                  SelectableText(
+                    '${_text('Référence', 'Reference')} : ${e['reference']}',
+                  ),
+                  if ((e['reason'] ?? '') != '') Text(e['reason'] as String),
+                  if ((e['conversation_id'] ?? '') != '')
+                    TextButton(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => CopilotPage(
+                            api: _client,
+                            initialConversationId:
+                                e['conversation_id'] as String,
+                          ),
+                        ),
+                      ),
+                      child: Text(
+                        _text('Ouvrir la discussion', 'Open conversation'),
+                      ),
+                    ),
+                ],
+              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton(
+                  onPressed: _offset == 0
+                      ? null
+                      : () async {
+                          _offset = (_offset - 50).clamp(0, 1 << 30);
+                          await _loadLedger();
+                        },
+                  child: Text(_text('Précédent', 'Previous')),
+                ),
+                TextButton(
+                  onPressed: !_more
+                      ? null
+                      : () async {
+                          _offset += 50;
+                          await _loadLedger();
+                        },
+                  child: Text(_text('Suivant', 'Next')),
+                ),
+              ],
+            ),
           ],
           if (_error != null)
             Text(

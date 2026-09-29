@@ -28,8 +28,10 @@ class CopilotMcp {
   CopilotMcp(
     this.api, {
     required this.approve,
+    this.botId,
     http.Client? documentationClient,
   }) : _docsClient = documentationClient ?? http.Client();
+  final String? botId;
   final MainApiClient api;
   final CopilotApproval approve;
   final http.Client _docsClient;
@@ -58,6 +60,7 @@ class CopilotMcp {
     String name,
     Map<String, dynamic> arguments, {
     required String callID,
+    bool alreadyApproved = false,
   }) {
     final fingerprint = jsonEncode({'name': name, 'arguments': arguments});
     if (_callFingerprints.containsKey(callID)) {
@@ -67,12 +70,17 @@ class CopilotMcp {
       return _calls[callID]!;
     }
     _callFingerprints[callID] = fingerprint;
-    return _calls[callID] = _call(name, Map<String, dynamic>.from(arguments));
+    return _calls[callID] = _call(
+      name,
+      Map<String, dynamic>.from(arguments),
+      alreadyApproved,
+    );
   }
 
   Future<Map<String, dynamic>> _call(
     String name,
     Map<String, dynamic> args,
+    bool alreadyApproved,
   ) async {
     final candidates = tools.where((t) => t['name'] == name);
     if (candidates.isEmpty) throw StateError('Unknown MCP tool');
@@ -81,9 +89,13 @@ class CopilotMcp {
       Map<String, dynamic>.from(tool['inputSchema'] as Map),
       args,
     );
+    if (botId != null && args['bot_id'] != null && args['bot_id'] != botId) {
+      throw StateError('Tool targets another bot');
+    }
     final script = args['script'] as String?;
     if (script != null) compileCopilotCommand(script);
     if (tool['mutating'] == true &&
+        !alreadyApproved &&
         !await approve(name, Map<String, dynamic>.unmodifiable(args))) {
       return {
         'content': [
@@ -106,12 +118,15 @@ class CopilotMcp {
       case 'docs_get':
         return _documentation('get_doc', args);
       case 'remote_list_bots':
-        value = await api.listBots();
+        value = (await api.listBots())
+            .where((b) => botId == null || b['bot_id'] == botId)
+            .toList();
       case 'remote_bot_status':
         final status = await api.getStatus(botId: botID!);
         value = {
           'running': status.isBotRunning(botID),
           'bots': status.bots
+              .where((b) => botId == null || b.botId == botId)
               .map(
                 (bot) => {
                   'bot_id': bot.botId,
@@ -129,6 +144,7 @@ class CopilotMcp {
       case 'local_list_bots':
         value = (await AppManager().getAllApps())
             .whereType<Map>()
+            .where((a) => botId == null || a['id'].toString() == botId)
             .map(
               (a) => {
                 'id': a['id'],
