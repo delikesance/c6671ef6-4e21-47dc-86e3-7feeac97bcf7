@@ -11,6 +11,8 @@ import 'package:bot_creator/features/subscriptions/logic/subscription_management
 import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
 import 'package:bot_creator/features/subscriptions/presentation/hosted_app_subscription_page.dart';
 import 'package:bot_creator/features/subscriptions/presentation/subscription_page.dart';
+import 'package:bot_creator/features/subscriptions/presentation/ai_credits_page.dart';
+import 'package:bot_creator/features/subscriptions/logic/commerce_catalog.dart';
 import 'package:flutter/material.dart';
 
 /// Central page listing bot premium and hosted-app subscriptions.
@@ -50,6 +52,7 @@ class SubscriptionsHubPage extends StatefulWidget {
 class _SubscriptionsHubPageState extends State<SubscriptionsHubPage> {
   bool _loading = true;
   bool _busy = false;
+  CommerceCatalog? _commerce;
 
   @override
   void initState() {
@@ -66,10 +69,15 @@ class _SubscriptionsHubPageState extends State<SubscriptionsHubPage> {
         forceRefresh: true,
       ),
       _registerPurchasableProducts(),
+      _loadCommerce(),
     ]);
     if (mounted) {
       setState(() => _loading = false);
     }
+  }
+
+  Future<void> _loadCommerce() async {
+    _commerce = await CommerceCatalog.load();
   }
 
   /// Récupère les SKUs que le serveur rattache aux formules, pour que le store les
@@ -280,6 +288,34 @@ class _SubscriptionsHubPageState extends State<SubscriptionsHubPage> {
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
+                  if (_commerce != null)
+                    OutlinedButton(
+                      onPressed: _busy
+                          ? null
+                          : () => SubscriptionPage.show(context),
+                      child: Text(tr.plan_limit_view_offers),
+                    ),
+                  if (_commerce?.offers.any(
+                        (o) =>
+                            o.kind == 'rewarded_ai' &&
+                            o.visible(DateTime.now(), {
+                              'commerce.ai_rewards.v1',
+                            }),
+                      ) ==
+                      true)
+                    ListTile(
+                      leading: const Icon(Icons.auto_awesome),
+                      title: Text(
+                        Localizations.localeOf(context).languageCode == 'fr'
+                            ? 'Crédits IA et roulette'
+                            : 'AI credits and roulette',
+                      ),
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const AICreditsPage(),
+                        ),
+                      ),
+                    ),
                   Text(
                     tr.subscriptions_hub_subtitle,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
