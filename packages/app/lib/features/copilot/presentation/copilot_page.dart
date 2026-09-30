@@ -6,6 +6,7 @@ import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/utils/hash_util.dart';
 import 'package:bot_creator/features/copilot/logic/copilot_mcp.dart';
+import 'package:bot_creator/features/copilot/logic/copilot_catalog.dart';
 import 'package:bot_creator/features/subscriptions/presentation/ai_credits_page.dart';
 import 'package:bot_creator/features/subscriptions/logic/ai_credit_format.dart';
 import 'package:flutter/material.dart';
@@ -49,6 +50,7 @@ class _CopilotPageState extends State<CopilotPage> {
   bool _cloudManaged = false;
   final Set<String> _cloudRetried = {};
   String? _error;
+  bool _catalogMismatch = false;
   String _partial = '';
   int _cursor = 0, _viewEpoch = 0;
   String? _requestKey;
@@ -252,16 +254,22 @@ class _CopilotPageState extends State<CopilotPage> {
       );
     }
     final server = await _api!.getCopilotTools();
-    final supported = {
-      for (final t in (server['tools'] as List).whereType<Map>()) t['name']: t,
-    };
-    bridge.tools.removeWhere(
-      (t) =>
-          supported[t['name']] == null ||
-          supported[t['name']]!['mutating'] != t['mutating'] ||
-          HashUtil.calculateHash(supported[t['name']]!['inputSchema']) !=
-              HashUtil.calculateHash(t['inputSchema']),
+    final negotiated = negotiateCopilotTools(
+      bridge.tools,
+      server['tools'] as List,
     );
+    _catalogMismatch =
+        negotiated.length != bridge.tools.length ||
+        negotiated.any(
+          (t) =>
+              HashUtil.calculateHash(t['inputSchema']) !=
+              HashUtil.calculateHash(
+                bridge.tools.singleWhere(
+                  (original) => original['name'] == t['name'],
+                )['inputSchema'],
+              ),
+        );
+    bridge.tools = negotiated;
     _mcp = bridge;
   }
 
@@ -1080,6 +1088,16 @@ class _CopilotPageState extends State<CopilotPage> {
             child: Column(
               children: [
                 _contextHeader(bot, location),
+                if (_catalogMismatch)
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Text(
+                      _copy(
+                        'Certaines fonctions IA sont indisponibles : les versions de l’application et du serveur diffèrent. Mettez-les à jour pour accéder à tous les outils.',
+                        'Some AI features are unavailable because the app and server versions differ. Update them to access all tools.',
+                      ),
+                    ),
+                  ),
                 if (_wallet != null && !_busy) _walletStrip(),
                 if (_loading || _busy) const LinearProgressIndicator(),
                 if (_error != null)
