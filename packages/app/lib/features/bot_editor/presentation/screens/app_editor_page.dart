@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:bot_creator/features/copilot/presentation/copilot_page.dart';
 import 'dart:developer' as developer;
 
 import 'package:bot_creator/core/analytics/analytics.dart';
@@ -342,6 +343,19 @@ class _AppEditPageState extends State<AppEditPage>
         .toList(growable: false);
   }
 
+  _AppPageEntry _copilotEntry() => _AppPageEntry(
+    id: 'copilot',
+    icon: Icons.auto_awesome_outlined,
+    label: context.tr.copilot_title,
+    compactLabel: context.tr.copilot_compact_label,
+    category: 'overview',
+    beginnerEssential: true,
+    page: CopilotPage(
+      botId: _botId,
+      botName: widget.appName,
+      location: 'local',
+    ),
+  );
   List<_AppPageEntry> _buildEntries() {
     final eventsOnlyWorkflows =
         _capabilities.supportsEventListeners &&
@@ -349,6 +363,7 @@ class _AppEditPageState extends State<AppEditPage>
 
     if (client == null) {
       return _applyRuntimeGating([
+        _copilotEntry(),
         _AppPageEntry(
           id: 'offline_token',
           icon: Icons.vpn_key_outlined,
@@ -411,6 +426,7 @@ class _AppEditPageState extends State<AppEditPage>
     }
 
     return _applyRuntimeGating([
+      _copilotEntry(),
       _AppPageEntry(
         id: 'home',
         icon: Icons.dashboard_rounded,

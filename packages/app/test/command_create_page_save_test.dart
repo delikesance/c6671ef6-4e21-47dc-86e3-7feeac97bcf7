@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nyxx/nyxx.dart'
-    show CommandOptionBuilder, CommandOptionType;
+    show CommandOptionBuilder, CommandOptionType, Snowflake;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
@@ -273,10 +273,11 @@ void main() {
       expect(find.text('Discard'), findsOneWidget);
     });
 
-    testWidgets('saving an existing local command keeps its identity', (
+    for (final discordId in [Snowflake.zero, Snowflake(777)]) {
+    testWidgets('saving keeps the storage identity ($discordId)', (
       tester,
     ) async {
-      const botId = 'bot-edit-save';
+      final botId = 'bot-edit-save-$discordId';
       const commandId = 'local-edit-save';
       await seedLocalCommand(
         botId: botId,
@@ -286,7 +287,7 @@ void main() {
 
       await openPageFromHost(
         tester,
-        page: const CommandCreatePage(botId: botId, localCommandId: commandId),
+        page: CommandCreatePage(botId: botId, localCommandId: commandId, id: discordId),
       );
 
       // Make the page dirty by editing the command name
@@ -322,8 +323,13 @@ void main() {
 
       final saved = await readLocalCommand(botId: botId, commandId: commandId);
       expect(saved['id'], commandId);
+      if (!discordId.isZero) {
+        expect(saved['discordId'], discordId.toString());
+      }
       expect(saved.containsKey('updatedAt'), isTrue);
     });
+
+    }
 
     testWidgets(
       'saving a legacy prefix command saves locally and enforces legacyLocalOnly',

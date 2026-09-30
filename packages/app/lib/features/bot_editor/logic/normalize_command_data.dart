@@ -7,7 +7,14 @@ import 'package:bot_creator_shared/utils/legacy_command_triggers.dart';
 /// Root-level keys kept when the auto-heal branch nests the legacy payload
 /// under 'data'; clearing used to drop them, yielding duplicate names later.
 const List<String> _rootMetadataKeys = [
-  'id', 'name', 'description', 'type', 'updatedAt', 'createdAt', 'folder', //
+  'id',
+  'discordId',
+  'name',
+  'description',
+  'type',
+  'updatedAt',
+  'createdAt',
+  'folder', //
 ];
 
 Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {

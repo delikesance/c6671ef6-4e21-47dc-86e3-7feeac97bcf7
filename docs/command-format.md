@@ -30,6 +30,12 @@ Chaque commande est stockée sous la forme:
 
 Le champ racine `type` correspond au type Discord de la commande.
 
+Le champ `id` est la clé stable du fichier et de l'historique serveur. Le champ
+optionnel `discordId` contient l'identifiant de l'enregistrement Discord actuel.
+Une synchronisation met à jour `discordId` sans renommer le fichier ni changer
+`id`. Pour les anciens fichiers sans `discordId`, le runtime essaie `id`, puis
+une correspondance unique par nom et type (hors commandes locales/préfixées).
+
 ---
 
 ## 2. `data` / `CommandData`

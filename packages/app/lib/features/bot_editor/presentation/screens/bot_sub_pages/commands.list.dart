@@ -155,7 +155,9 @@ class _AppCommandsPageState extends State<AppCommandsPage>
 
   Widget _buildCommandCard(Map<String, dynamic> command) {
     final commandId = (command['id'] ?? '').toString();
-    final snowflake = _toSnowflake(commandId);
+    final snowflake = _toSnowflake(
+      (command['discordId'] ?? commandId).toString(),
+    );
     final templateOrigin = command['templateOrigin'] as Map<String, dynamic>?;
     final templateId = (templateOrigin?['templateId'] ?? '').toString();
     final name = (command['name'] ?? 'unknown').toString();
@@ -256,7 +258,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                 client: widget.client,
                 botId: widget.botId,
                 id: snowflake ?? Snowflake.zero,
-                localCommandId: snowflake == null ? commandId : null,
+                localCommandId: commandId,
               ),
             ),
           );

@@ -6,6 +6,7 @@ import 'package:bot_creator_shared/actions/handle_component_interaction.dart';
 import 'package:bot_creator_shared/types/action.dart';
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 import 'package:bot_creator_shared/utils/command_autocomplete.dart';
+import 'package:bot_creator_shared/utils/application_command_lookup.dart';
 import 'package:bot_creator_shared/utils/interaction_ack_state.dart';
 import 'package:bot_creator_shared/utils/command_workflow_routing.dart';
 import 'package:bot_creator_shared/utils/global.dart' as shared_global;
@@ -106,10 +107,16 @@ class CommandExecutor {
     final allCommands = results[0] as List<Map<String, dynamic>>;
     final listOfArgs = results[1] as Map<String, String>;
 
-    final action = allCommands.firstWhere(
-      (c) => c['id'] == commandData.id.toString(),
-      orElse: () => <String, dynamic>{},
-    );
+    final action = findApplicationCommand(
+      allCommands,
+      discordId: commandData.id.toString(),
+      name: commandData.name,
+      type: commandData.type == ApplicationCommandType.user
+          ? 'user'
+          : commandData.type == ApplicationCommandType.message
+          ? 'message'
+          : 'chatInput',
+    ) ?? <String, dynamic>{};
 
     if (action.isEmpty) {
       callbacks.onLog?.call('Command not found: ${commandData.name}', botId: botId);
@@ -246,7 +253,7 @@ class CommandExecutor {
       // a response, send a human-readable follow-up with the actual error.
       // Skip if the interaction was already responded to — the custom
       // message from $suppressErrors / $try/$catch takes priority.
-      if (!isInteractionAcknowledged(interaction)) {
+      if (isInteractionAcknowledged(interaction)) {
         try {
           final dynInteraction = interaction as dynamic;
           final message = _formatCommandError(e);
@@ -257,6 +264,8 @@ class CommandExecutor {
         } catch (_) {
           // Best-effort — if follow-up fails, we can't do anything more.
         }
+      } else {
+        await _sendErrorResponse(interaction, _formatCommandError(e), botId, runtimeVariables);
       }
     }
 
@@ -272,10 +281,12 @@ class CommandExecutor {
   }) async {
     try {
       final allCommands = await store.listAppCommands(botId);
-      final action = allCommands.firstWhere(
-        (c) => c['id'] == interaction.data.id.toString(),
-        orElse: () => <String, dynamic>{},
-      );
+      final action = findApplicationCommand(
+        allCommands,
+        discordId: interaction.data.id.toString(),
+        name: interaction.data.name,
+        type: 'chatInput',
+      ) ?? <String, dynamic>{};
 
       if (action.isEmpty) {
         await interaction.respond(const []);

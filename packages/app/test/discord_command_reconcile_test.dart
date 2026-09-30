@@ -35,7 +35,7 @@ class _FakeDiscordCommands implements DiscordApplicationCommandsApi {
       throw error;
     }
     createdPlans.add(plan);
-    final created = DiscordRemoteCommand(id: '${_nextId++}', name: plan.name);
+    final created = DiscordRemoteCommand(id: '${_nextId++}', name: plan.name, type: plan.type);
     _remote.add(created);
     return created;
   }
@@ -69,6 +69,36 @@ Map<String, dynamic> _localCommand({
 
 void main() {
   group('réconciliation des commandes avec Discord', () {
+    test(
+      'same name with different Discord types keeps separate bindings',
+      () async {
+        final api = _FakeDiscordCommands(
+          remote: const [
+            DiscordRemoteCommand(id: 'slash', name: 'daily'),
+            DiscordRemoteCommand(
+              id: 'menu',
+              name: 'daily',
+              type: ApplicationCommandType.user,
+            ),
+          ],
+        );
+        final bindings = <String, String>{};
+        final result = await reconcileDiscordApplicationCommands(
+          api: api,
+          localCommands: [
+            _localCommand(name: 'daily', id: 'stable-slash'),
+            _localCommand(name: 'daily', id: 'stable-menu', type: 'user'),
+          ],
+          onRelink: (storageId, discordId, _) async {
+            bindings[storageId] = discordId;
+          },
+        );
+        expect(bindings, {'stable-slash': 'slash', 'stable-menu': 'menu'});
+        expect(result.relinked, 2);
+        expect(result.created, 0);
+        expect(api.deletedIds, isEmpty);
+      },
+    );
     test(
       'une commande absente sur Discord est recréée (le bouton ne faisait que supprimer)',
       () async {

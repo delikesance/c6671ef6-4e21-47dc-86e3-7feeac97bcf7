@@ -6,6 +6,7 @@ import 'package:bot_creator/features/containers/logic/hosted_app_templates.dart'
 import 'package:bot_creator/features/containers/presentation/container_detail_page.dart';
 import 'package:bot_creator/features/home/presentation/home_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:bot_creator/features/copilot/presentation/copilot_page.dart';
 
 /// Actions exposées par la carte d'accueil d'un conteneur clé en main.
 ///
@@ -362,6 +363,21 @@ class HomeTurnkeyContainerCard extends StatelessWidget {
                 ),
               ),
             ],
+            const SizedBox(height: 10),
+            HomeCardActionButton(
+              icon: Icons.auto_awesome_outlined,
+              label: tr.copilot_role_assistant,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => CopilotPage(
+                    botId: 'container:${container.id}',
+                    botName: turnkeyContainerTitle(container, tr),
+                    location: 'remote',
+                  ),
+                ),
+              ),
+            ),
             const SizedBox(height: 16),
             Row(
               children: [

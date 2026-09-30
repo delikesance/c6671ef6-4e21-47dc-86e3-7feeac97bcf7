@@ -345,6 +345,41 @@ class MainApiClient implements RemoteRuntimeClient {
 
   final String _baseUrl;
   String get baseUrl => _baseUrl;
+
+  /// Display/ad identity only; the server always validates the authenticated owner.
+  String? get accountOwnerId {
+    try {
+      final parts = (_accessToken ?? '').split('.');
+      if (parts.length != 3) return null;
+      final payload =
+          jsonDecode(
+                utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))),
+              )
+              as Map;
+      final value = payload['owner_id'] ?? payload['sub'];
+      return value is String && value.isNotEmpty ? value : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  String get draftIdentity {
+    try {
+      final parts = (_accessToken ?? '').split('.');
+      if (parts.length == 3) {
+        final payload =
+            jsonDecode(
+                  utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))),
+                )
+                as Map;
+        return HashUtil.calculateHash(
+          payload['owner_id'] ?? payload['sub'] ?? _accessToken,
+        );
+      }
+    } catch (_) {}
+    return HashUtil.calculateHash(_accessToken ?? 'anonymous');
+  }
+
   String? _accessToken;
   final http.Client _http;
   final Duration _timeout;
@@ -530,6 +565,7 @@ class MainApiClient implements RemoteRuntimeClient {
     Map<String, String>? extraHeaders,
     Duration? timeout,
     bool retryOnFailure = true,
+    bool logBody = true,
   }) async {
     if (_isCircuitOpen(_baseUrl)) {
       throw MainApiClientException(
@@ -544,7 +580,9 @@ class MainApiClient implements RemoteRuntimeClient {
     final uri = _uri(path);
     final encodedBody = jsonEncode(body);
     appendBotDebugLog(
-      '[MainApiClient] POST $uri body=${redactSensitiveJson(encodedBody)}',
+      logBody
+          ? '[MainApiClient] POST $uri body=${redactSensitiveJson(encodedBody)}'
+          : '[MainApiClient] POST $uri',
     );
 
     // Une reprise n'a de sens que sur une requête SANS EFFET. Sur une poussée
@@ -1450,13 +1488,26 @@ class MainApiClient implements RemoteRuntimeClient {
     String commandId,
     Map<String, dynamic> commandJson,
   ) async {
+    await syncCommandWithStatus(botId, botName, commandId, commandJson);
+  }
+
+  Future<bool> syncCommandWithStatus(
+    String botId,
+    String botName,
+    String commandId,
+    Map<String, dynamic> commandJson,
+  ) async {
     final encodedBotId = Uri.encodeComponent(botId.trim());
-    await _post('/gateway/bots/$encodedBotId/commands/sync', <String, dynamic>{
-      'botId': botId,
-      'botName': botName,
-      'commandId': commandId,
-      'command': commandJson,
-    });
+    final response = await _post(
+      '/gateway/bots/$encodedBotId/commands/sync',
+      <String, dynamic>{
+        'botId': botId,
+        'botName': botName,
+        'commandId': commandId,
+        'command': commandJson,
+      },
+    );
+    return response['runner_synced'] == true;
   }
 
   @override
@@ -1582,14 +1633,10 @@ class MainApiClient implements RemoteRuntimeClient {
     // production en a garde la trace (`bot_sync_in_progress` en 409 sur les
     // envois suivants). Conforme a la regle du depot : un rejeu est reserve aux
     // routes sans effet visible.
-    await _post(
-      '/gateway/bots/$encodedBotId/start',
-      <String, dynamic>{
-        'bot_name': ?_normalize(botName),
-        'botName': ?_normalize(botName),
-      },
-      retryOnFailure: false,
-    );
+    await _post('/gateway/bots/$encodedBotId/start', <String, dynamic>{
+      'bot_name': ?_normalize(botName),
+      'botName': ?_normalize(botName),
+    }, retryOnFailure: false);
   }
 
   @override
@@ -2448,6 +2495,145 @@ class MainApiClient implements RemoteRuntimeClient {
     return PlanCatalogInfo.fromJson(json);
   }
 
+  Future<Map<String, dynamic>> getCommerceCatalog() =>
+      _get('/gateway/commerce/catalog');
+
+  Future<Map<String, dynamic>> getAIWallet() => _get('/gateway/ai/wallet');
+  Future<Map<String, dynamic>> getCopilotTools() =>
+      _get('/gateway/ai/copilot/tools');
+  Future<Map<String, dynamic>> listAIConversations({
+    String? botId,
+    String query = '',
+    bool archived = false,
+    int offset = 0,
+  }) => _get(
+    '/gateway/ai/conversations',
+    query: {
+      'bot_id': botId,
+      'q': query,
+      'archived': '$archived',
+      'offset': '$offset',
+    },
+  );
+  Future<Map<String, dynamic>> createAIConversation({
+    String? botId,
+    String location = 'global',
+    String? title,
+  }) => _post('/gateway/ai/conversations', {
+    'bot_id': botId ?? '',
+    'location': location,
+    'title': title ?? 'Nouvelle discussion',
+  });
+  Future<Map<String, dynamic>> continueAIConversation(String id, String key) =>
+      _post(
+        '/gateway/ai/conversations/${Uri.encodeComponent(id)}/continue',
+        {'idempotency_key': key},
+        retryOnFailure: false,
+        logBody: false,
+      );
+  Future<Map<String, dynamic>> getAIConversation(String id) =>
+      _get('/gateway/ai/conversations/${Uri.encodeComponent(id)}');
+  Future<Map<String, dynamic>> updateAIConversation(
+    String id,
+    String title,
+    bool archived,
+  ) => _patch('/gateway/ai/conversations/${Uri.encodeComponent(id)}', {
+    'title': title,
+    'archived': archived,
+  });
+  Future<Map<String, dynamic>> deleteAIConversation(String id) =>
+      _delete('/gateway/ai/conversations/${Uri.encodeComponent(id)}');
+  Future<Map<String, dynamic>> startAITurn(
+    String id,
+    Map<String, dynamic> request,
+  ) => _post(
+    '/gateway/ai/conversations/${Uri.encodeComponent(id)}/turns',
+    request,
+    retryOnFailure: false,
+    logBody: false,
+  );
+  Future<Map<String, dynamic>> summarizeAIConversation(
+    String id,
+    String key,
+    int revision,
+  ) => _post(
+    '/gateway/ai/conversations/${Uri.encodeComponent(id)}/summarize',
+    {'idempotency_key': key, 'revision': revision},
+    retryOnFailure: false,
+    logBody: false,
+  );
+  Future<Map<String, dynamic>> aiAction(
+    String id,
+    String callId,
+    Map<String, dynamic> request,
+  ) => _post(
+    '/gateway/ai/conversations/${Uri.encodeComponent(id)}/actions/${Uri.encodeComponent(callId)}',
+    request,
+    retryOnFailure: false,
+    logBody: false,
+  );
+  Future<Map<String, dynamic>> getAILedger({int offset = 0, String? source}) =>
+      _get(
+        '/gateway/ai/ledger',
+        query: {'offset': '$offset', 'source': source},
+      );
+  Stream<Map<String, dynamic>> aiEvents(
+    String id,
+    String key, {
+    int after = 0,
+  }) async* {
+    final req = http.Request(
+      'GET',
+      _uri(
+        '/gateway/ai/conversations/${Uri.encodeComponent(id)}/requests/${Uri.encodeComponent(key)}/events',
+        query: {'after': '$after'},
+      ),
+    );
+    req.headers.addAll(_headers(extraHeaders: {'accept': 'text/event-stream'}));
+    final response = await _http.send(req).timeout(const Duration(seconds: 15));
+    if (response.statusCode != 200) {
+      final raw = await response.stream.bytesToString();
+      String? code;
+      try {
+        code = (jsonDecode(raw) as Map)['code'] as String?;
+      } catch (_) {}
+      throw MainApiClientException(
+        'Stream unavailable',
+        statusCode: response.statusCode,
+        code: code,
+      );
+    }
+    String kind = '', data = '';
+    int eventId = 0;
+    await for (final line
+        in response.stream
+            .timeout(const Duration(seconds: 100))
+            .transform(utf8.decoder)
+            .transform(const LineSplitter())) {
+      if (line.startsWith('event:')) {
+        kind = line.substring(6).trim();
+      }
+      if (line.startsWith('id:')) {
+        eventId = int.tryParse(line.substring(3).trim()) ?? 0;
+      }
+      if (line.startsWith('data:')) {
+        data += line.substring(5).trim();
+      }
+      if (line.isEmpty && data.isNotEmpty) {
+        yield {'id': eventId, 'kind': kind, 'payload': jsonDecode(data)};
+        kind = '';
+        data = '';
+      }
+    }
+  }
+
+  Future<Map<String, dynamic>> createAIRewardTicket(String platform) =>
+      _post('/gateway/ai/rewards/tickets', {'platform': platform});
+  Future<Map<String, dynamic>> getAIRewardTicket(String id) =>
+      _get('/gateway/ai/rewards/tickets/${Uri.encodeComponent(id)}');
+  Future<Map<String, dynamic>> spinAIRoulette(String key) =>
+      _post('/gateway/ai/roulette/spin', {'idempotency_key': key});
+
   /// Claim a rewarded-ad deploy slot for a free hosted container.
   Future<HostedAppClaimAdResult> claimHostedAppAd({
     required String placement,
@@ -2521,16 +2707,12 @@ class MainApiClient implements RemoteRuntimeClient {
   }) async {
     // AUCUN REJEU : chaque appel cree une ligne. Un rejeu laisse des doublons
     // d'identifiants dans la liste du locataire, que rien ne distingue ensuite.
-    final json = await _post(
-      '/registry-credentials',
-      <String, dynamic>{
-        'label': label,
-        'registry_host': registryHost,
-        'username': username,
-        'password': password,
-      },
-      retryOnFailure: false,
-    );
+    final json = await _post('/registry-credentials', <String, dynamic>{
+      'label': label,
+      'registry_host': registryHost,
+      'username': username,
+      'password': password,
+    }, retryOnFailure: false);
     return RegistryCredential.fromJson(json);
   }
 

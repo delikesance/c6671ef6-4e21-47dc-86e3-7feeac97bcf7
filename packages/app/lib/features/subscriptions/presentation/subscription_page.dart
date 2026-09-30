@@ -6,6 +6,7 @@ import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
 
 import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
 import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
+import 'package:bot_creator/features/subscriptions/logic/commerce_catalog.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -59,15 +60,130 @@ class SubscriptionPage extends StatefulWidget {
 class _SubscriptionPageState extends State<SubscriptionPage> {
   bool _purchasing = false;
   String? _error;
+  CommerceCatalog? _catalog;
+  bool _catalogLoading = true;
+  bool? _subscribedOnOpen;
 
   @override
   void initState() {
     super.initState();
     unawaited(_refreshEffectivePremiumStatus());
+    unawaited(_loadCatalog());
+  }
+
+  Future<void> _loadCatalog() async {
+    CommerceCatalog? catalog;
+    try {
+      catalog = await CommerceCatalog.load();
+      final platform = Platform.isIOS ? 'ios' : 'android';
+      final ids =
+          catalog?.offers
+              .where((o) => o.kind == 'subscription')
+              .map((o) => o.nativeBinding(platform)?.productId)
+              .whereType<String>()
+              .toSet() ??
+          <String>{};
+      if (ids.isNotEmpty) await SubscriptionService.loadCatalogProducts(ids);
+    } catch (_) {
+      // A published catalog remains visible when the payment store is unavailable.
+    }
+    if (mounted) {
+      setState(() {
+        _catalog = catalog;
+        _catalogLoading = false;
+      });
+    }
+  }
+
+  Future<void> _buyOffer(CommerceBinding binding) async {
+    if (_purchasing) return;
+    setState(() {
+      _purchasing = true;
+      _error = null;
+    });
+    try {
+      final result = await SubscriptionService.purchaseProduct(
+        binding.productId,
+        basePlanId: binding.basePlanId,
+      );
+      if (!result.started && mounted) {
+        setState(
+          () => _error = subscriptionPurchaseErrorKey(result.failureReason),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _purchasing = false);
+    }
+  }
+
+  List<Widget> _remoteOffers(BuildContext context) {
+    final catalog = _catalog!;
+    final platform = Platform.isIOS ? 'ios' : 'android';
+    final locale = Localizations.localeOf(context).toLanguageTag();
+    final widgets = <Widget>[];
+    for (final offer in catalog.offers) {
+      if (offer.kind != 'subscription' ||
+          !offer.visible(DateTime.now(), {'commerce.subscription.v1'})) {
+        continue;
+      }
+      final text = offer.text(locale, catalog.defaultLocale)!;
+      final binding = offer.nativeBinding(platform);
+      final product = binding == null
+          ? null
+          : SubscriptionService.selectPurchaseCandidate(
+              SubscriptionService.products,
+              binding.productId,
+              basePlanId: binding.basePlanId,
+            );
+      widgets.add(
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(text.title, style: Theme.of(context).textTheme.titleLarge),
+                if (text.description.isNotEmpty) Text(text.description),
+                for (final benefit in text.benefits)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.check, size: 18),
+                        const SizedBox(width: 8),
+                        Expanded(child: Text(benefit)),
+                      ],
+                    ),
+                  ),
+                const SizedBox(height: 12),
+                _PlanCard(
+                  title: text.title,
+                  price:
+                      product?.price ??
+                      context.tr.subscription_error_product_unavailable,
+                  period: offer.period == 'year'
+                      ? context.tr.subscription_per_year
+                      : context.tr.subscription_per_month,
+                  isPrimary: widgets.isEmpty,
+                  onTap: _purchasing || product == null || binding == null
+                      ? null
+                      : () => _buyOffer(binding),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+    if (widgets.isEmpty) {
+      widgets.add(Text(context.tr.subscription_error_product_unavailable));
+    }
+    return widgets;
   }
 
   Future<void> _refreshEffectivePremiumStatus() async {
     await SubscriptionService.resolveEffectivePremiumStatus(forceRefresh: true);
+    _subscribedOnOpen ??= SubscriptionService.isSubscribed;
     if (!mounted) {
       return;
     }
@@ -133,7 +249,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
     final allFeatures = PremiumCapabilities.getAllFeaturesForSubscription();
 
     // Close automatically when subscription becomes active.
-    if (SubscriptionService.isSubscribed) {
+    if (_subscribedOnOpen == false && SubscriptionService.isSubscribed) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) Navigator.of(context).pop();
       });
@@ -201,45 +317,51 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
               ),
               const SizedBox(height: 28),
 
-              // Benefits (exhaustive premium feature list)
-              ...allFeatures.asMap().entries.map((entry) {
-                final feature = entry.value;
-                final comingSoon = PremiumCapabilities.isFeatureComingSoon(
-                  feature.capability,
-                );
-                return Padding(
-                  padding: EdgeInsets.only(
-                    bottom: entry.key == allFeatures.length - 1 ? 0 : 10,
-                  ),
-                  child: _BenefitRow(
-                    icon: feature.icon,
-                    text: feature.title(context.tr),
-                    subtitle: feature.description(context.tr),
-                    comingSoon: comingSoon,
-                  ),
-                );
-              }),
-              const SizedBox(height: 28),
+              if (_catalogLoading)
+                const CircularProgressIndicator()
+              else if (_catalog != null)
+                ..._remoteOffers(context)
+              else ...[
+                // Benefits (exhaustive premium feature list)
+                ...allFeatures.asMap().entries.map((entry) {
+                  final feature = entry.value;
+                  final comingSoon = PremiumCapabilities.isFeatureComingSoon(
+                    feature.capability,
+                  );
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      bottom: entry.key == allFeatures.length - 1 ? 0 : 10,
+                    ),
+                    child: _BenefitRow(
+                      icon: feature.icon,
+                      text: feature.title(context.tr),
+                      subtitle: feature.description(context.tr),
+                      comingSoon: comingSoon,
+                    ),
+                  );
+                }),
+                const SizedBox(height: 28),
 
-              // Annual plan (recommended)
-              _PlanCard(
-                title: context.tr.subscription_annual_title,
-                price: _priceForProduct(kAnnualSubscriptionId, '59,99 €'),
-                period: context.tr.subscription_per_year,
-                badge: annualBadge,
-                isPrimary: true,
-                onTap: _purchasing ? null : () => _buy(annual: true),
-              ),
-              const SizedBox(height: 12),
+                // Annual plan (recommended)
+                _PlanCard(
+                  title: context.tr.subscription_annual_title,
+                  price: _priceForProduct(kAnnualSubscriptionId, '59,99 €'),
+                  period: context.tr.subscription_per_year,
+                  badge: annualBadge,
+                  isPrimary: true,
+                  onTap: _purchasing ? null : () => _buy(annual: true),
+                ),
+                const SizedBox(height: 12),
 
-              // Monthly plan
-              _PlanCard(
-                title: context.tr.subscription_monthly_title,
-                price: _priceForProduct(kMonthlySubscriptionId, '5,99 €'),
-                period: context.tr.subscription_per_month,
-                isPrimary: false,
-                onTap: _purchasing ? null : () => _buy(annual: false),
-              ),
+                // Monthly plan
+                _PlanCard(
+                  title: context.tr.subscription_monthly_title,
+                  price: _priceForProduct(kMonthlySubscriptionId, '5,99 €'),
+                  period: context.tr.subscription_per_month,
+                  isPrimary: false,
+                  onTap: _purchasing ? null : () => _buy(annual: false),
+                ),
+              ],
               const SizedBox(height: 16),
 
               if (_purchasing)

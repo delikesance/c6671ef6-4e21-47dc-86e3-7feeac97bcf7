@@ -53,7 +53,9 @@
   },
   "@bot_config_versions_restore_error_detail": {
     "placeholders": {
-      "reason": {"type": "String"}
+      "reason": {
+        "type": "String"
+      }
     },
     "description": "Shown when a bot config version restore fails; {reason} carries the server status/code/message."
   },
@@ -62,7 +64,9 @@
   },
   "@bot_config_versions_restore_local_failed": {
     "placeholders": {
-      "reason": {"type": "String"}
+      "reason": {
+        "type": "String"
+      }
     },
     "description": "Shown when the server restored the version but applying it to the local data failed."
   },
@@ -74,14 +78,20 @@
   },
   "@import_engine_declared": {
     "placeholders": {
-      "engine": {"type": "String"}
+      "engine": {
+        "type": "String"
+      }
     },
     "description": "Shown when the imported ZIP declares the runtime engine; the value is not editable."
   },
   "@import_engine_will_switch": {
     "placeholders": {
-      "from": {"type": "String"},
-      "to": {"type": "String"}
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
     },
     "description": "Warning that the import changes the bot runtime engine on the next restart."
   },
@@ -4644,18 +4654,18 @@
     "description": "Active on {count} servers"
   },
   "@home_add_time": {
-  "@home_add_time_mobile_only": {
-    "description": "home_add_time_mobile_only"
-  },
-  "@home_hosting_unlimited_overline": {
-    "description": "home_hosting_unlimited_overline"
-  },
-  "@home_hosting_unlimited_headline": {
-    "description": "home_hosting_unlimited_headline"
-  },
-  "@home_hosting_remaining_overline": {
-    "description": "home_hosting_remaining_overline"
-  },
+    "@home_add_time_mobile_only": {
+      "description": "home_add_time_mobile_only"
+    },
+    "@home_hosting_unlimited_overline": {
+      "description": "home_hosting_unlimited_overline"
+    },
+    "@home_hosting_unlimited_headline": {
+      "description": "home_hosting_unlimited_headline"
+    },
+    "@home_hosting_remaining_overline": {
+      "description": "home_hosting_remaining_overline"
+    },
     "description": "Add Time"
   },
   "@home_create_bot_subtitle": {
@@ -5947,7 +5957,7 @@
         "type": "int"
       }
     },
-    "description": "No declared definition \u00b7 {count} stored value(s)"
+    "description": "No declared definition · {count} stored value(s)"
   },
   "@scoped_detected_tooltip": {
     "description": "Value present in the bot data without a declared definition. Shown as-is; nothing is invented."
@@ -12661,5 +12671,166 @@
   "bot_config_versions_force_restore_body": "The server considers it too small to rebuild a configuration and refuses to apply it on its own. A restore is a deliberate step backwards: you can force it.",
   "bot_config_versions_force_restore_confirm": "Restore anyway",
   "bot_config_versions_force_restore_keep": "Keep the current version",
-  "bot_config_versions_restore_too_small_unforced": "The server still refuses: the manager must accept a forced restore for this version."
+  "bot_config_versions_restore_too_small_unforced": "The server still refuses: the manager must accept a forced restore for this version.",
+  "ai_credits_title": "AI credits",
+  "ai_credits_unavailable": "AI credits unavailable. Try again.",
+  "ai_credits_origin_kofi": "Ko-fi purchase",
+  "ai_credits_origin_apple": "Apple purchase",
+  "ai_credits_origin_google": "Google purchase",
+  "ai_credits_origin_roulette": "Roulette reward",
+  "ai_credits_origin_admin_grant": "Admin grant",
+  "ai_credits_origin_admin_correction": "Admin correction",
+  "ai_credits_origin_copilot": "AI usage",
+  "ai_credits_ad_pending": "Ad verification pending. Refresh your balance.",
+  "ai_credits_ad_unavailable": "Ad unavailable or not verified.",
+  "ai_credits_spin_failed": "Result unavailable. Retry to recover this spin.",
+  "ai_credits_wallet_card_title": "Your AI wallet",
+  "ai_credits_tokens_available": "tokens available",
+  "ai_credits_label_total": "Total",
+  "ai_credits_label_reserved": "Reserved",
+  "ai_credits_spending_blocked": "AI spending blocked",
+  "ai_credits_label_purchased": "Purchases",
+  "ai_credits_label_rewarded": "Roulette",
+  "ai_credits_label_granted": "Grants",
+  "ai_credits_spins_available": "{count, plural, =1{1 available spin} other{{count} available spins}}",
+  "ai_credits_token_ratio_hint": "1 AI credit = 1 usable token.",
+  "ai_credits_daily_ad_limit_hint": "Up to 3 ads per day (UTC). Bonus and unused spins are kept.",
+  "ai_credits_result_spins": "+{count, plural, =1{1 spin!} other{{count} spins!}}",
+  "ai_credits_result_credits": "+{count} credits!",
+  "ai_credits_button_spin": "Spin the wheel",
+  "ai_credits_button_watch_ad": "Watch an ad (+1 spin) — {remaining} left",
+  "ai_credits_history_title": "Credit history",
+  "ai_credits_history_empty": "No movements.",
+  "ai_credits_reference": "Reference",
+  "ai_credits_open_conversation": "Open conversation",
+  "ai_credits_previous": "Previous",
+  "ai_credits_next": "Next",
+  "copilot_title": "AI copilot",
+  "copilot_compact_label": "AI",
+  "copilot_err_tool_round_limit": "The eight-step AI limit was reached. Send a new instruction to continue.",
+  "copilot_err_context_limit": "Context too long. Continue in a new conversation with a summary.",
+  "copilot_err_spending_blocked": "AI spending is blocked for this account.",
+  "copilot_err_revision_conflict": "The conversation changed on another device. Refresh it.",
+  "copilot_err_action_claimed": "An action needs approval or resolution.",
+  "copilot_err_insufficient_balance": "Insufficient balance to reserve this request and its context.",
+  "copilot_err_unauthorized": "Sign in to use copilot.",
+  "copilot_err_not_found": "Conversation or bot is inaccessible.",
+  "copilot_err_unavailable": "Copilot is unavailable on the Manager.",
+  "copilot_err_request_failed": "The request did not complete. Refresh to recover its status.",
+  "copilot_approve_dialog_title": "Approve copilot action",
+  "copilot_bot_label": "Bot",
+  "copilot_remote_manager": "Remote Manager",
+  "copilot_this_device": "This device",
+  "copilot_action_details_title": "Action details",
+  "copilot_cancel": "Cancel",
+  "copilot_execute": "Execute",
+  "copilot_tool_start_bot": "Start bot",
+  "copilot_tool_stop_bot": "Stop bot",
+  "copilot_tool_create_command": "Create command",
+  "copilot_tool_update_command": "Update command",
+  "copilot_tool_read_docs": "Read documentation",
+  "copilot_tool_inspect_bot": "Inspect bot",
+  "copilot_rename_title": "Rename",
+  "copilot_save": "Save",
+  "copilot_export_dialog_title": "Export conversation",
+  "copilot_delete_confirm_title": "Delete conversation?",
+  "copilot_delete_confirm_body": "Content will be deleted. Credit movements will remain.",
+  "copilot_delete": "Delete",
+  "copilot_continue_summary_title": "Continue with a summary",
+  "copilot_continue_summary_body": "The summary uses AI credits (input + output). Recent exchanges will be summarized within the context limit. The original conversation will remain.",
+  "copilot_create_continuation": "Create continuation",
+  "copilot_mcp_local_title": "Local MCP connection",
+  "copilot_mcp_approval_note": "Mutations require approval here.",
+  "copilot_close": "Close",
+  "copilot_history_tooltip": "History",
+  "copilot_new_discussion": "New conversation",
+  "copilot_options_tooltip": "Options",
+  "copilot_action_refresh": "Refresh",
+  "copilot_action_credits": "AI credits",
+  "copilot_action_mcp_connection": "MCP connection",
+  "copilot_action_archive": "Archive / restore",
+  "copilot_action_export": "Export Markdown",
+  "copilot_action_continue": "Continue with summary",
+  "copilot_action_recover_response": "Recover response",
+  "copilot_action_retry": "Retry request",
+  "copilot_global_discussion": "Global conversation",
+  "copilot_location_local": "Local",
+  "copilot_location_remote": "Remote",
+  "copilot_available": "Available",
+  "copilot_reserved": "Reserved",
+  "copilot_total": "Total",
+  "copilot_welcome_title": "A hand with your bot?",
+  "copilot_welcome_subtitle": "Explore an idea, check a command or prepare a change. You stay in control of every action.",
+  "copilot_suggestion_check_title": "Check my bot",
+  "copilot_suggestion_check_prompt": "Inspect my bot and suggest next steps.",
+  "copilot_suggestion_command_title": "Create a command",
+  "copilot_suggestion_command_prompt": "Help me prepare a new command for my bot.",
+  "copilot_suggestion_feature_title": "Understand a feature",
+  "copilot_suggestion_feature_prompt": "Explain how to use Bot Creator features.",
+  "copilot_history_section_title": "Continue a conversation",
+  "copilot_role_you": "You",
+  "copilot_role_assistant": "Copilot",
+  "copilot_generating": "Generating…",
+  "copilot_copy_message": "Copy message",
+  "copilot_tokens_in_discussion": "{count} tokens in this conversation",
+  "copilot_input_hint": "Your message",
+  "copilot_send": "Send",
+  "copilot_status_approval_required": "Approval required",
+  "copilot_status_ready_to_inspect": "Ready to inspect",
+  "copilot_status_executing": "Executing",
+  "copilot_status_succeeded": "Succeeded",
+  "copilot_status_declined": "Declined",
+  "copilot_status_unconfirmed": "Execution unconfirmed — inspect the bot",
+  "copilot_status_failed": "Failed",
+  "copilot_technical_details": "Technical details",
+  "copilot_approve": "Approve",
+  "copilot_inspect": "Inspect",
+  "copilot_decline": "Decline",
+  "copilot_close_without_replay": "Close without replay",
+  "copilot_close_unconfirmed_warning": "Check the bot before closing this action with an unknown outcome.",
+  "copilot_close_action": "Close",
+  "copilot_history_sheet_title": "Conversation history",
+  "copilot_search_title_hint": "Search title",
+  "copilot_filter_by_bot": "Filter by bot",
+  "copilot_all_bots": "All bots",
+  "copilot_archives": "Archives",
+  "copilot_no_conversations": "No conversations.",
+  "copilot_badge_global": "Global",
+  "copilot_load_more": "Load more",
+  "copilot_copy_code": "Copy code",
+  "@ai_credits_spins_available": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@ai_credits_result_spins": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@ai_credits_result_credits": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "@ai_credits_button_watch_ad": {
+    "placeholders": {
+      "remaining": {
+        "type": "int"
+      }
+    }
+  },
+  "@copilot_tokens_in_discussion": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  }
 }

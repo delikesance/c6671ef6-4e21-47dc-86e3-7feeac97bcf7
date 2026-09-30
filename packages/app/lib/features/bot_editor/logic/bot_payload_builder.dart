@@ -10,6 +10,7 @@ import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_sync_batcher.dart';
 import 'package:bot_creator/features/bot_editor/logic/lavalink_config.dart';
 import 'package:bot_creator_shared/bot/bot_config.dart';
 import 'package:bot_creator_shared/utils/command_migration.dart';
@@ -57,57 +58,7 @@ bool get _isDesktopPlatform {
 
 final _appManager = AppManager();
 
-/// Debounces and throttles synchronization requests per bot.
-class _SyncBatcher {
-  final Map<String, Timer> _debounceTimers = {};
-  final Map<String, DateTime> _firstRequestTimes = {};
-
-  // X values: 3s debounce (idle), 15s max wait (throttle).
-  static const _debounceDuration = Duration(seconds: 3);
-  static const _maxThrottleDuration = Duration(seconds: 15);
-
-  void requestSync(
-    String botId,
-    Future<void> Function(String botId) syncTask, {
-    bool immediate = false,
-  }) {
-    _debounceTimers[botId]?.cancel();
-
-    if (immediate) {
-      _debounceTimers.remove(botId);
-      _firstRequestTimes.remove(botId);
-      _performSync(botId, syncTask);
-      return;
-    }
-
-    final now = DateTime.now();
-    final firstRequest = _firstRequestTimes[botId] ?? now;
-    _firstRequestTimes[botId] = firstRequest;
-
-    final elapsedSinceFirst = now.difference(firstRequest);
-
-    if (elapsedSinceFirst >= _maxThrottleDuration) {
-      // Throttle limit reached, sync immediately.
-      _debounceTimers.remove(botId);
-      _performSync(botId, syncTask);
-    } else {
-      // Debounce: wait for idle.
-      _debounceTimers[botId] = Timer(_debounceDuration, () {
-        _performSync(botId, syncTask);
-      });
-    }
-  }
-
-  void _performSync(
-    String botId,
-    Future<void> Function(String botId) syncTask,
-  ) {
-    _firstRequestTimes.remove(botId);
-    unawaited(syncTask(botId));
-  }
-}
-
-final _batcher = _SyncBatcher();
+final _batcher = BotSyncBatcher();
 
 /// Registers the runner sync hooks so that command saves use localized
 /// updates while broader bot saves still fall back to a full reload.
@@ -168,7 +119,7 @@ void initRunnerAutoReload() {
     _batcher.requestSync(botId, _executeSync);
   };
 
-  AppManager.onAfterCommandDelete = (String botId, String commandId) async {
+  AppManager.onAfterCommandDelete = (String botId, String commandId, {String? discordId}) async {
     if (AppManager.isSyncingFromRemote) return;
 
     var deletedViaRunner = false;
@@ -208,7 +159,7 @@ void initRunnerAutoReload() {
         if (token.isNotEmpty) {
           final rest = await Nyxx.connectRest(token);
           try {
-            await rest.commands.delete(Snowflake.parse(commandId));
+            await rest.commands.delete(Snowflake.parse(discordId ?? commandId));
             debugPrint(
               '[AutoReload] Deleted command $commandId for bot $botId '
               'directly from Discord.',
@@ -547,14 +498,13 @@ Future<void> _executeSync(String botId) async {
               baseUrl: config.baseUrl,
               accessToken: session.accessToken,
             );
-            // Note: saveDiscordBotSnapshot and syncBot now benefit from 
-            // internal caching if implemented in MainApiClient or similar.
+            // This endpoint persists the config AND synchronizes the runner.
+            // A second syncBot call would repeat upload/reload/rehydration.
             await mainApiClient.saveDiscordBotSnapshot(
               botId: botId,
               botToken: botToken,
               config: payload,
             );
-            await mainApiClient.syncBot(botId, botName, payload);
             debugPrint('[AutoReload] Synced bot $botId to cloud (batched).');
             // La poussée a été ACCEPTÉE : c'est la preuve la plus fraîche que
             // le manager répond. On en profite pour vider la file hors-ligne,

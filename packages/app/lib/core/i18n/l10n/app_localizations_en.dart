@@ -10469,4 +10469,423 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get bot_config_versions_restore_too_small_unforced =>
       'The server still refuses: the manager must accept a forced restore for this version.';
+
+  @override
+  String get ai_credits_title => 'AI credits';
+
+  @override
+  String get ai_credits_unavailable => 'AI credits unavailable. Try again.';
+
+  @override
+  String get ai_credits_origin_kofi => 'Ko-fi purchase';
+
+  @override
+  String get ai_credits_origin_apple => 'Apple purchase';
+
+  @override
+  String get ai_credits_origin_google => 'Google purchase';
+
+  @override
+  String get ai_credits_origin_roulette => 'Roulette reward';
+
+  @override
+  String get ai_credits_origin_admin_grant => 'Admin grant';
+
+  @override
+  String get ai_credits_origin_admin_correction => 'Admin correction';
+
+  @override
+  String get ai_credits_origin_copilot => 'AI usage';
+
+  @override
+  String get ai_credits_ad_pending =>
+      'Ad verification pending. Refresh your balance.';
+
+  @override
+  String get ai_credits_ad_unavailable => 'Ad unavailable or not verified.';
+
+  @override
+  String get ai_credits_spin_failed =>
+      'Result unavailable. Retry to recover this spin.';
+
+  @override
+  String get ai_credits_wallet_card_title => 'Your AI wallet';
+
+  @override
+  String get ai_credits_tokens_available => 'tokens available';
+
+  @override
+  String get ai_credits_label_total => 'Total';
+
+  @override
+  String get ai_credits_label_reserved => 'Reserved';
+
+  @override
+  String get ai_credits_spending_blocked => 'AI spending blocked';
+
+  @override
+  String get ai_credits_label_purchased => 'Purchases';
+
+  @override
+  String get ai_credits_label_rewarded => 'Roulette';
+
+  @override
+  String get ai_credits_label_granted => 'Grants';
+
+  @override
+  String ai_credits_spins_available(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count available spins',
+      one: '1 available spin',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ai_credits_token_ratio_hint => '1 AI credit = 1 usable token.';
+
+  @override
+  String get ai_credits_daily_ad_limit_hint =>
+      'Up to 3 ads per day (UTC). Bonus and unused spins are kept.';
+
+  @override
+  String ai_credits_result_spins(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count spins!',
+      one: '1 spin!',
+    );
+    return '+$_temp0';
+  }
+
+  @override
+  String ai_credits_result_credits(String count) {
+    return '+$count credits!';
+  }
+
+  @override
+  String get ai_credits_button_spin => 'Spin the wheel';
+
+  @override
+  String ai_credits_button_watch_ad(int remaining) {
+    return 'Watch an ad (+1 spin) — $remaining left';
+  }
+
+  @override
+  String get ai_credits_history_title => 'Credit history';
+
+  @override
+  String get ai_credits_history_empty => 'No movements.';
+
+  @override
+  String get ai_credits_reference => 'Reference';
+
+  @override
+  String get ai_credits_open_conversation => 'Open conversation';
+
+  @override
+  String get ai_credits_previous => 'Previous';
+
+  @override
+  String get ai_credits_next => 'Next';
+
+  @override
+  String get copilot_title => 'AI copilot';
+
+  @override
+  String get copilot_compact_label => 'AI';
+
+  @override
+  String get copilot_err_tool_round_limit =>
+      'The eight-step AI limit was reached. Send a new instruction to continue.';
+
+  @override
+  String get copilot_err_context_limit =>
+      'Context too long. Continue in a new conversation with a summary.';
+
+  @override
+  String get copilot_err_spending_blocked =>
+      'AI spending is blocked for this account.';
+
+  @override
+  String get copilot_err_revision_conflict =>
+      'The conversation changed on another device. Refresh it.';
+
+  @override
+  String get copilot_err_action_claimed =>
+      'An action needs approval or resolution.';
+
+  @override
+  String get copilot_err_insufficient_balance =>
+      'Insufficient balance to reserve this request and its context.';
+
+  @override
+  String get copilot_err_unauthorized => 'Sign in to use copilot.';
+
+  @override
+  String get copilot_err_not_found => 'Conversation or bot is inaccessible.';
+
+  @override
+  String get copilot_err_unavailable =>
+      'Copilot is unavailable on the Manager.';
+
+  @override
+  String get copilot_err_request_failed =>
+      'The request did not complete. Refresh to recover its status.';
+
+  @override
+  String get copilot_approve_dialog_title => 'Approve copilot action';
+
+  @override
+  String get copilot_bot_label => 'Bot';
+
+  @override
+  String get copilot_remote_manager => 'Remote Manager';
+
+  @override
+  String get copilot_this_device => 'This device';
+
+  @override
+  String get copilot_action_details_title => 'Action details';
+
+  @override
+  String get copilot_cancel => 'Cancel';
+
+  @override
+  String get copilot_execute => 'Execute';
+
+  @override
+  String get copilot_tool_start_bot => 'Start bot';
+
+  @override
+  String get copilot_tool_stop_bot => 'Stop bot';
+
+  @override
+  String get copilot_tool_create_command => 'Create command';
+
+  @override
+  String get copilot_tool_update_command => 'Update command';
+
+  @override
+  String get copilot_tool_read_docs => 'Read documentation';
+
+  @override
+  String get copilot_tool_inspect_bot => 'Inspect bot';
+
+  @override
+  String get copilot_rename_title => 'Rename';
+
+  @override
+  String get copilot_save => 'Save';
+
+  @override
+  String get copilot_export_dialog_title => 'Export conversation';
+
+  @override
+  String get copilot_delete_confirm_title => 'Delete conversation?';
+
+  @override
+  String get copilot_delete_confirm_body =>
+      'Content will be deleted. Credit movements will remain.';
+
+  @override
+  String get copilot_delete => 'Delete';
+
+  @override
+  String get copilot_continue_summary_title => 'Continue with a summary';
+
+  @override
+  String get copilot_continue_summary_body =>
+      'The summary uses AI credits (input + output). Recent exchanges will be summarized within the context limit. The original conversation will remain.';
+
+  @override
+  String get copilot_create_continuation => 'Create continuation';
+
+  @override
+  String get copilot_mcp_local_title => 'Local MCP connection';
+
+  @override
+  String get copilot_mcp_approval_note => 'Mutations require approval here.';
+
+  @override
+  String get copilot_close => 'Close';
+
+  @override
+  String get copilot_history_tooltip => 'History';
+
+  @override
+  String get copilot_new_discussion => 'New conversation';
+
+  @override
+  String get copilot_options_tooltip => 'Options';
+
+  @override
+  String get copilot_action_refresh => 'Refresh';
+
+  @override
+  String get copilot_action_credits => 'AI credits';
+
+  @override
+  String get copilot_action_mcp_connection => 'MCP connection';
+
+  @override
+  String get copilot_action_archive => 'Archive / restore';
+
+  @override
+  String get copilot_action_export => 'Export Markdown';
+
+  @override
+  String get copilot_action_continue => 'Continue with summary';
+
+  @override
+  String get copilot_action_recover_response => 'Recover response';
+
+  @override
+  String get copilot_action_retry => 'Retry request';
+
+  @override
+  String get copilot_global_discussion => 'Global conversation';
+
+  @override
+  String get copilot_location_local => 'Local';
+
+  @override
+  String get copilot_location_remote => 'Remote';
+
+  @override
+  String get copilot_available => 'Available';
+
+  @override
+  String get copilot_reserved => 'Reserved';
+
+  @override
+  String get copilot_total => 'Total';
+
+  @override
+  String get copilot_welcome_title => 'A hand with your bot?';
+
+  @override
+  String get copilot_welcome_subtitle =>
+      'Explore an idea, check a command or prepare a change. You stay in control of every action.';
+
+  @override
+  String get copilot_suggestion_check_title => 'Check my bot';
+
+  @override
+  String get copilot_suggestion_check_prompt =>
+      'Inspect my bot and suggest next steps.';
+
+  @override
+  String get copilot_suggestion_command_title => 'Create a command';
+
+  @override
+  String get copilot_suggestion_command_prompt =>
+      'Help me prepare a new command for my bot.';
+
+  @override
+  String get copilot_suggestion_feature_title => 'Understand a feature';
+
+  @override
+  String get copilot_suggestion_feature_prompt =>
+      'Explain how to use Bot Creator features.';
+
+  @override
+  String get copilot_history_section_title => 'Continue a conversation';
+
+  @override
+  String get copilot_role_you => 'You';
+
+  @override
+  String get copilot_role_assistant => 'Copilot';
+
+  @override
+  String get copilot_generating => 'Generating…';
+
+  @override
+  String get copilot_copy_message => 'Copy message';
+
+  @override
+  String copilot_tokens_in_discussion(String count) {
+    return '$count tokens in this conversation';
+  }
+
+  @override
+  String get copilot_input_hint => 'Your message';
+
+  @override
+  String get copilot_send => 'Send';
+
+  @override
+  String get copilot_status_approval_required => 'Approval required';
+
+  @override
+  String get copilot_status_ready_to_inspect => 'Ready to inspect';
+
+  @override
+  String get copilot_status_executing => 'Executing';
+
+  @override
+  String get copilot_status_succeeded => 'Succeeded';
+
+  @override
+  String get copilot_status_declined => 'Declined';
+
+  @override
+  String get copilot_status_unconfirmed =>
+      'Execution unconfirmed — inspect the bot';
+
+  @override
+  String get copilot_status_failed => 'Failed';
+
+  @override
+  String get copilot_technical_details => 'Technical details';
+
+  @override
+  String get copilot_approve => 'Approve';
+
+  @override
+  String get copilot_inspect => 'Inspect';
+
+  @override
+  String get copilot_decline => 'Decline';
+
+  @override
+  String get copilot_close_without_replay => 'Close without replay';
+
+  @override
+  String get copilot_close_unconfirmed_warning =>
+      'Check the bot before closing this action with an unknown outcome.';
+
+  @override
+  String get copilot_close_action => 'Close';
+
+  @override
+  String get copilot_history_sheet_title => 'Conversation history';
+
+  @override
+  String get copilot_search_title_hint => 'Search title';
+
+  @override
+  String get copilot_filter_by_bot => 'Filter by bot';
+
+  @override
+  String get copilot_all_bots => 'All bots';
+
+  @override
+  String get copilot_archives => 'Archives';
+
+  @override
+  String get copilot_no_conversations => 'No conversations.';
+
+  @override
+  String get copilot_badge_global => 'Global';
+
+  @override
+  String get copilot_load_more => 'Load more';
+
+  @override
+  String get copilot_copy_code => 'Copy code';
 }
