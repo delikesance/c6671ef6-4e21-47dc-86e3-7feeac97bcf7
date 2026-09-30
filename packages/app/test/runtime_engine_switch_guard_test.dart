@@ -70,6 +70,9 @@ void main() {
   test(
     'bascule refusée quand la charge cible serait vide : commandes intactes',
     () async {
+      final app = await appManager.getApp(_refusedBotId);
+      app['inboundWebhooks'] = true;
+      await appManager.saveApp(_refusedBotId, app);
       await appManager.saveAppCommand(_refusedBotId, 'cmd-keep', {
         'id': 'cmd-keep',
         'name': 'ping',
@@ -109,6 +112,10 @@ void main() {
         'cmd-keep',
       ]);
       expect(await getBotRuntimeEngine(_refusedBotId), runtimeEngineDart);
+      expect(
+        (await appManager.getApp(_refusedBotId))['inboundWebhooks'],
+        isTrue,
+      );
       expect(failure, isA<DegenerateBotPayloadException>());
     },
   );
@@ -116,6 +123,9 @@ void main() {
   test(
     'bascule validée : moteur changé, et une reconstruction tardive serait vide',
     () async {
+      final app = await appManager.getApp(_doneBotId);
+      app['inboundWebhooks'] = false;
+      await appManager.saveApp(_doneBotId, app);
       await appManager.saveAppCommand(_doneBotId, 'cmd-js', {
         'id': 'cmd-js',
         'name': 'ping',
@@ -132,10 +142,7 @@ void main() {
         supportsManagerRuntime: false,
       );
 
-      expect(
-        await getBotRuntimeEngine(_doneBotId),
-        runtimeEngineJavascript,
-      );
+      expect(await getBotRuntimeEngine(_doneBotId), runtimeEngineJavascript);
 
       // POURQUOI cette vérification : après l'effacement local, reconstruire la
       // charge donnerait une charge VIDE. C'est donc bien la charge validée

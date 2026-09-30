@@ -12,7 +12,7 @@ Map<String, dynamic> _server(
     'host': host,
     'port': port,
     'password': password,
-    if (secure != null) 'secure': secure,
+    'secure': ?secure,
   };
 }
 
@@ -23,7 +23,12 @@ void main() {
         'enabled': true,
         'custom_servers': <dynamic>[
           _server('mon.lavalink.tld'),
-          _server('repli.lavalink.tld', port: 443, password: 'p2', secure: true),
+          _server(
+            'repli.lavalink.tld',
+            port: 443,
+            password: 'p2',
+            secure: true,
+          ),
         ],
       });
 
@@ -62,15 +67,18 @@ void main() {
       expect(config.customServers, isEmpty);
     });
 
-    test('`enabled: false` explicite reste désactivé même avec des serveurs', () {
-      final config = LavalinkConfig.fromJson(<String, dynamic>{
-        'enabled': false,
-        'custom_servers': <dynamic>[_server('a.tld')],
-      });
+    test(
+      '`enabled: false` explicite reste désactivé même avec des serveurs',
+      () {
+        final config = LavalinkConfig.fromJson(<String, dynamic>{
+          'enabled': false,
+          'custom_servers': <dynamic>[_server('a.tld')],
+        });
 
-      expect(config.enabled, isFalse);
-      expect(config.customServers, hasLength(1));
-    });
+        expect(config.enabled, isFalse);
+        expect(config.customServers, hasLength(1));
+      },
+    );
 
     test('`secure` vaut false par défaut et relit les alias hérités', () {
       final defaults = LavalinkConfig.fromJson(<String, dynamic>{
@@ -88,42 +96,48 @@ void main() {
       expect(alias.customServers.single.secure, isTrue);
     });
 
-    test('un serveur sans hôte est ignoré, un port illisible retombe sur 2333', () {
-      final config = LavalinkConfig.fromJson(<String, dynamic>{
-        'enabled': true,
-        'custom_servers': <dynamic>[
-          <String, dynamic>{'port': 2333, 'password': 'orphelin'},
-          <String, dynamic>{'host': 'bon.tld', 'port': 'pas-un-port'},
-        ],
-      });
+    test(
+      'un serveur sans hôte est ignoré, un port illisible retombe sur 2333',
+      () {
+        final config = LavalinkConfig.fromJson(<String, dynamic>{
+          'enabled': true,
+          'custom_servers': <dynamic>[
+            <String, dynamic>{'port': 2333, 'password': 'orphelin'},
+            <String, dynamic>{'host': 'bon.tld', 'port': 'pas-un-port'},
+          ],
+        });
 
-      expect(config.customServers, hasLength(1));
-      expect(config.customServers.single.host, 'bon.tld');
-      expect(config.customServers.single.port, 2333);
-    });
+        expect(config.customServers, hasLength(1));
+        expect(config.customServers.single.host, 'bon.tld');
+        expect(config.customServers.single.port, 2333);
+      },
+    );
   });
 
   group('LavalinkConfig — rétrocompatibilité de l\'ancienne forme', () {
-    test('un serveur unique en clair devient custom_servers[0] ET reste actif', () {
-      final config = LavalinkConfig.fromJson(<String, dynamic>{
-        'host': 'ancien.lavalink.tld',
-        'port': 2334,
-        'password': 'pwd',
-        'useSsl': true,
-      });
+    test(
+      'un serveur unique en clair devient custom_servers[0] ET reste actif',
+      () {
+        final config = LavalinkConfig.fromJson(<String, dynamic>{
+          'host': 'ancien.lavalink.tld',
+          'port': 2334,
+          'password': 'pwd',
+          'useSsl': true,
+        });
 
-      // Le point capital : un bot déjà configuré ne perd pas sa musique.
-      expect(config.enabled, isTrue);
-      expect(config.customServers, hasLength(1));
+        // Le point capital : un bot déjà configuré ne perd pas sa musique.
+        expect(config.enabled, isTrue);
+        expect(config.customServers, hasLength(1));
 
-      final server = config.customServers.single;
-      expect(server.host, 'ancien.lavalink.tld');
-      expect(server.port, 2334);
-      expect(server.password, 'pwd');
-      expect(server.secure, isTrue);
-      expect(config.host, 'ancien.lavalink.tld');
-      expect(config.useSsl, isTrue);
-    });
+        final server = config.customServers.single;
+        expect(server.host, 'ancien.lavalink.tld');
+        expect(server.port, 2334);
+        expect(server.password, 'pwd');
+        expect(server.secure, isTrue);
+        expect(config.host, 'ancien.lavalink.tld');
+        expect(config.useSsl, isTrue);
+      },
+    );
 
     test('l\'ancienne forme garde ses alias ssl et secure', () {
       final config = LavalinkConfig.fromJson(<String, dynamic>{
@@ -184,24 +198,27 @@ void main() {
       expect(again.customServers.map((s) => s.secure), <bool>[false, true]);
     });
 
-    test('sameSettingsAs détecte un changement d\'interrupteur ou de serveur', () {
-      final base = LavalinkConfig.fromJson(<String, dynamic>{
-        'enabled': true,
-        'custom_servers': <dynamic>[_server('a.tld')],
-      });
-      final disabled = LavalinkConfig.fromJson(<String, dynamic>{
-        'enabled': false,
-        'custom_servers': <dynamic>[_server('a.tld')],
-      });
-      final otherHost = LavalinkConfig.fromJson(<String, dynamic>{
-        'enabled': true,
-        'custom_servers': <dynamic>[_server('b.tld')],
-      });
+    test(
+      'sameSettingsAs détecte un changement d\'interrupteur ou de serveur',
+      () {
+        final base = LavalinkConfig.fromJson(<String, dynamic>{
+          'enabled': true,
+          'custom_servers': <dynamic>[_server('a.tld')],
+        });
+        final disabled = LavalinkConfig.fromJson(<String, dynamic>{
+          'enabled': false,
+          'custom_servers': <dynamic>[_server('a.tld')],
+        });
+        final otherHost = LavalinkConfig.fromJson(<String, dynamic>{
+          'enabled': true,
+          'custom_servers': <dynamic>[_server('b.tld')],
+        });
 
-      expect(base.sameSettingsAs(disabled), isFalse);
-      expect(base.sameSettingsAs(otherHost), isFalse);
-      expect(base.sameSettingsAs(base), isTrue);
-    });
+        expect(base.sameSettingsAs(disabled), isFalse);
+        expect(base.sameSettingsAs(otherHost), isFalse);
+        expect(base.sameSettingsAs(base), isTrue);
+      },
+    );
 
     test('validate ne se plaint pas d\'une musique désactivée', () {
       final disabled = LavalinkConfig.fromJson(<String, dynamic>{
@@ -278,7 +295,10 @@ void main() {
 
       final reimported = BotConfig.fromJson(legacy.toJson());
       expect(reimported.lavalinkConfig!.enabled, isTrue);
-      expect(reimported.lavalinkConfig!.customServers.single.host, 'musique.tld');
+      expect(
+        reimported.lavalinkConfig!.customServers.single.host,
+        'musique.tld',
+      );
       expect(reimported.lavalinkConfig!.customServers.single.password, 'pw');
     });
 

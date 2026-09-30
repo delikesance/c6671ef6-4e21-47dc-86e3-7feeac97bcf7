@@ -41,6 +41,7 @@ class _CopilotPageState extends State<CopilotPage> {
   MainApiClient? _api;
   CopilotMcp? _mcp;
   Map<String, dynamic>? _chat, _wallet, _pending;
+  bool _pendingRejected = false;
   List<Map<String, dynamic>> _history = [];
   final Map<String, String> _botNames = {};
   Future<void> _draftQueue = Future.value();
@@ -56,6 +57,8 @@ class _CopilotPageState extends State<CopilotPage> {
   String? _requestKey;
   String? _summaryKey;
   bool _streamDone = false;
+  bool _summarizing = false;
+  int _historyEpoch = 0;
   String get _id => _chat!['id'] as String;
   String _copy(String french, String english) =>
       Localizations.localeOf(context).languageCode == 'fr' ? french : english;
@@ -177,8 +180,10 @@ class _CopilotPageState extends State<CopilotPage> {
 
   Future<void> _restoreDraft() async {
     final key = _draftKey;
+    final text = _prompt.text;
+    await _draftQueue;
     final prefs = await SharedPreferences.getInstance();
-    if (mounted && key == _draftKey) {
+    if (mounted && key == _draftKey && _prompt.text == text) {
       _prompt.text = prefs.getString(key) ?? '';
     }
   }
@@ -234,7 +239,11 @@ class _CopilotPageState extends State<CopilotPage> {
   }
 
   Future<void> _bridge(String? bot) async {
-    await _mcp?.close();
+    final epoch = _viewEpoch;
+    final previous = _mcp;
+    _mcp = null;
+    await previous?.close();
+    if (!mounted || epoch != _viewEpoch) return;
     final bridge = CopilotMcp(
       _api!,
       botId: bot,
@@ -248,12 +257,20 @@ class _CopilotPageState extends State<CopilotPage> {
       },
     );
     await bridge.initialize();
+    if (!mounted || epoch != _viewEpoch) {
+      await bridge.close();
+      return;
+    }
     if (bot?.startsWith('container:') == true) {
       bridge.tools.removeWhere(
         (t) => (t['name'] as String).startsWith('local_'),
       );
     }
     final server = await _api!.getCopilotTools();
+    if (!mounted || epoch != _viewEpoch) {
+      await bridge.close();
+      return;
+    }
     final negotiated = negotiateCopilotTools(
       bridge.tools,
       server['tools'] as List,
@@ -314,6 +331,7 @@ class _CopilotPageState extends State<CopilotPage> {
   }
 
   Future<void> _loadHistory({bool more = false}) async {
+    final epoch = ++_historyEpoch;
     final d = await _api!.listAIConversations(
       botId:
           widget.botId ??
@@ -322,7 +340,7 @@ class _CopilotPageState extends State<CopilotPage> {
       archived: _archives,
       offset: more ? _history.length : 0,
     );
-    if (mounted) {
+    if (mounted && epoch == _historyEpoch) {
       setState(() {
         final rows = (d['conversations'] as List)
             .map((c) => Map<String, dynamic>.from(c as Map))
@@ -334,40 +352,53 @@ class _CopilotPageState extends State<CopilotPage> {
   }
 
   Future<void> _open(String id) async {
-    if (_busy) {
+    if (_busy || !mounted) {
       return;
     }
-    await _saveDraft();
-    final c = await _api!.getAIConversation(id);
-    if (!mounted) {
-      return;
-    }
-    _viewEpoch++;
-    setState(() {
-      _chat = c;
-      _partial = '';
-      _error = c['last_request_status'] == 'failed'
-          ? _describe(
-              MainApiClientException(
-                'Generation failed',
-                code: c['last_error_code'] as String?,
-              ),
-            )
-          : null;
-      _pending = null;
-      _cursor = 0;
-      _requestKey = (c['active_key'] as String?)?.isEmpty == false
-          ? c['active_key'] as String
-          : null;
-    });
-    await _bridge(
-      (c['bot_id'] as String?)?.isEmpty == false ? c['bot_id'] as String : null,
-    );
-    await _refreshCloudStatus();
-    await _restoreDraft();
-    _scrollTail(force: true);
-    if (_requestKey != null) {
-      await _follow();
+    final epoch = ++_viewEpoch;
+    try {
+      await _saveDraft();
+      if (!mounted || epoch != _viewEpoch) return;
+      final c = await _api!.getAIConversation(id);
+      if (!mounted || epoch != _viewEpoch) {
+        return;
+      }
+      setState(() {
+        _chat = c;
+        _partial = '';
+        _error = c['last_request_status'] == 'failed'
+            ? _describe(
+                MainApiClientException(
+                  'Generation failed',
+                  code: c['last_error_code'] as String?,
+                ),
+              )
+            : null;
+        _pending = null;
+        _summaryKey = null;
+        _summarizing = false;
+        _cursor = 0;
+        _requestKey = (c['active_key'] as String?)?.isEmpty == false
+            ? c['active_key'] as String
+            : null;
+      });
+      await _bridge(
+        (c['bot_id'] as String?)?.isEmpty == false
+            ? c['bot_id'] as String
+            : null,
+      );
+      if (!mounted || epoch != _viewEpoch) return;
+      await _refreshCloudStatus();
+      if (!mounted || epoch != _viewEpoch) return;
+      await _restoreDraft();
+      _scrollTail(force: true);
+      if (_requestKey != null) {
+        await _follow();
+      }
+    } catch (e) {
+      if (mounted && epoch == _viewEpoch) {
+        setState(() => _error = _describe(e));
+      }
     }
   }
 
@@ -375,17 +406,30 @@ class _CopilotPageState extends State<CopilotPage> {
     if (_busy) {
       return;
     }
-    await _saveDraft();
-    _viewEpoch++;
-    setState(() {
-      _chat = null;
-      _pending = null;
-      _requestKey = null;
-      _partial = '';
-      _error = null;
-    });
-    await _bridge(widget.botId);
-    await _restoreDraft();
+    final epoch = ++_viewEpoch;
+    try {
+      await _saveDraft();
+      if (!mounted || epoch != _viewEpoch) return;
+      setState(() {
+        _chat = null;
+        _pending = null;
+        _requestKey = null;
+        _summaryKey = null;
+        _summarizing = false;
+        _cloudManaged = false;
+        _cloudRunning = null;
+        _partial = '';
+        _error = null;
+      });
+      await _bridge(widget.botId);
+      if (!mounted || epoch != _viewEpoch) return;
+      await _refreshCloudStatus();
+      await _restoreDraft();
+    } catch (e) {
+      if (mounted && epoch == _viewEpoch) {
+        setState(() => _error = _describe(e));
+      }
+    }
   }
 
   Future<void> _refresh() async {
@@ -394,6 +438,10 @@ class _CopilotPageState extends State<CopilotPage> {
       return;
     }
     try {
+      if (_mcp == null) {
+        await _bridge((_chat?['bot_id'] ?? widget.botId)?.toString());
+        if (!mounted) return;
+      }
       if (_chat != null) {
         final c = await _api!.getAIConversation(_id);
         if (!mounted) {
@@ -415,7 +463,7 @@ class _CopilotPageState extends State<CopilotPage> {
             _summaryKey = null;
             _pending!['idempotency_key'] = const Uuid().v4();
             _pending!['revision'] = _chat!['revision'];
-            await _send();
+            await _send(null, false, true);
           } else if (_chat?['last_request_status'] == 'failed') {
             _summaryKey = null;
             _pending!['idempotency_key'] = const Uuid().v4();
@@ -437,27 +485,49 @@ class _CopilotPageState extends State<CopilotPage> {
   }
 
   Future<void> _refreshCloudStatus() async {
+    final epoch = _viewEpoch;
     final bot = (_chat?['bot_id'] ?? widget.botId)?.toString();
+    if (mounted) {
+      setState(() {
+        _cloudManaged = false;
+        _cloudRunning = null;
+      });
+    }
     if (bot == null || bot.isEmpty) return;
     try {
       final managed = (await _api!.listBots()).any(
         (b) => (b['bot_id'] ?? b['id']).toString() == bot,
       );
       final status = await _api!.getStatus(botId: bot);
-      if (mounted) {
+      if (mounted && epoch == _viewEpoch) {
         setState(() {
           _cloudManaged = managed;
           _cloudRunning = status.isBotRunning(bot);
         });
       }
     } catch (_) {
-      if (mounted) setState(() => _cloudRunning = null);
+      if (mounted && epoch == _viewEpoch) {
+        setState(() => _cloudRunning = null);
+      }
     }
   }
 
-  Future<void> _send([String? toolContinuation]) async {
-    if (_busy || !_ready) {
+  Future<void> _send([
+    String? toolContinuation,
+    bool allowSummary = true,
+    bool replayPending = false,
+  ]) async {
+    if (!mounted || _busy || !_ready || _mcp == null) {
       return;
+    }
+    // A retry reuses its key, but an edited draft is a new request.
+    if (!replayPending &&
+        toolContinuation == null &&
+        _pendingRejected &&
+        _pending != null &&
+        (_pending!['prompt'] as String).isNotEmpty &&
+        _pending!['prompt'] != _prompt.text.trim()) {
+      _pending = null;
     }
     final prompt =
         (_pending?['prompt'] as String?) ??
@@ -471,6 +541,8 @@ class _CopilotPageState extends State<CopilotPage> {
       _error = null;
     });
     try {
+      await _draftQueue;
+      if (!mounted) return;
       if (_chat == null) {
         final oldKey = _draftKey;
         _chat = await _api!.createAIConversation(
@@ -478,8 +550,13 @@ class _CopilotPageState extends State<CopilotPage> {
           location: widget.botId == null ? 'global' : widget.location,
           title: prompt.length > 60 ? prompt.substring(0, 60) : prompt,
         );
+        if (!mounted) return;
+        // Move the draft before removing its old global/bot key. An unknown
+        // acceptance or closing the page must not discard unsent text.
+        await _saveDraft();
         final prefs = await SharedPreferences.getInstance();
         await prefs.remove(oldKey);
+        if (!mounted) return;
       }
       _pending ??= {
         'idempotency_key': const Uuid().v4(),
@@ -488,7 +565,9 @@ class _CopilotPageState extends State<CopilotPage> {
         'tools': _mcp!.tools.map((t) => t['name']).toList(),
       };
       _requestKey = _pending!['idempotency_key'] as String;
+      _pendingRejected = false;
       await _api!.startAITurn(_id, _pending!);
+      if (!mounted) return;
       _pending = null;
       if (prompt.isNotEmpty && _prompt.text.trim() == prompt) _prompt.clear();
       _partial = '';
@@ -501,13 +580,38 @@ class _CopilotPageState extends State<CopilotPage> {
       await _follow();
       await _loadHistory();
     } catch (e) {
+      // A timeout can hide an accepted turn. Keep its key and body for an
+      // idempotent retry even when the composer holds the next draft.
+      if (e is MainApiClientException &&
+          (e.statusCode ?? 0) >= 400 &&
+          (e.statusCode ?? 0) < 500) {
+        _pendingRejected = true;
+      }
+      if (e is MainApiClientException &&
+          e.code == 'ai_revision_conflict' &&
+          _chat != null &&
+          _pending != null) {
+        try {
+          final latest = await _api!.getAIConversation(_id);
+          if (!mounted) return;
+          _chat = latest;
+          _pending!['idempotency_key'] = const Uuid().v4();
+          _pending!['revision'] = latest['revision'];
+          _requestKey = (latest['active_key'] as String?)?.isNotEmpty == true
+              ? latest['active_key'] as String
+              : null;
+        } catch (_) {}
+      }
       if (mounted) {
         setState(() {
           _busy = false;
           _error = _describe(e);
         });
       }
-      if (e is MainApiClientException && e.code == 'ai_context_limit') {
+      if (mounted &&
+          allowSummary &&
+          e is MainApiClientException &&
+          e.code == 'ai_context_limit') {
         await _summarizeAndRetry();
       }
     }
@@ -515,42 +619,21 @@ class _CopilotPageState extends State<CopilotPage> {
 
   Future<void> _summarizeAndRetry() async {
     if (!mounted || _chat == null || _pending == null) return;
-    final approved = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(
-          _copy('Résumer cette discussion ?', 'Summarize this conversation?'),
-        ),
-        content: Text(
-          _copy(
-            'Le résumé consomme des crédits IA. Les anciens messages resteront visibles et votre texte sera envoyé après le résumé.',
-            'The summary uses AI credits. Earlier messages stay visible, and your draft will be sent after the summary.',
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(_copy('Annuler', 'Cancel')),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(_copy('Résumer et envoyer', 'Summarize and send')),
-          ),
-        ],
-      ),
-    );
-    if (approved != true || !mounted) return;
     setState(() {
       _busy = true;
+      _summarizing = true;
       _error = null;
     });
     try {
       _summaryKey ??= const Uuid().v4();
+      _requestKey = _summaryKey;
+      _cursor = 0;
       await _api!.summarizeAIConversation(
         _id,
         _summaryKey!,
         _chat!['revision'] as int,
       );
+      if (!mounted) return;
       var completed = false;
       await for (final event in _api!.aiEvents(_id, _summaryKey!)) {
         if (event['kind'] == 'error') {
@@ -568,8 +651,11 @@ class _CopilotPageState extends State<CopilotPage> {
       _pending!['idempotency_key'] = const Uuid().v4();
       _pending!['revision'] = _chat!['revision'];
       if (!mounted) return;
-      setState(() => _busy = false);
-      await _send();
+      setState(() {
+        _busy = false;
+        _summarizing = false;
+      });
+      await _send(null, false, true);
     } catch (e) {
       if (!mounted) return;
       try {
@@ -580,8 +666,10 @@ class _CopilotPageState extends State<CopilotPage> {
           _pending!['revision'] = _chat!['revision'];
         }
       } catch (_) {}
+      if (!mounted) return;
       setState(() {
         _busy = false;
+        _summarizing = false;
         _error = _describe(e);
       });
     }
@@ -592,12 +680,14 @@ class _CopilotPageState extends State<CopilotPage> {
       return;
     }
     final epoch = _viewEpoch;
+    final id = _id;
+    final requestKey = _requestKey!;
     setState(() => _busy = true);
     _streamDone = false;
     try {
       await for (final event in _api!.aiEvents(
-        _id,
-        _requestKey!,
+        id,
+        requestKey,
         after: _cursor,
       )) {
         if (!mounted || epoch != _viewEpoch) {
@@ -606,6 +696,8 @@ class _CopilotPageState extends State<CopilotPage> {
         _cursor = event['id'] as int;
         final payload = event['payload'] as Map;
         switch (event['kind']) {
+          case 'summarizing':
+            setState(() => _summarizing = payload['phase'] == 'started');
           case 'delta':
             if (_requestKey != _summaryKey) {
               _scrollTail();
@@ -620,20 +712,42 @@ class _CopilotPageState extends State<CopilotPage> {
             _streamDone = true;
         }
       }
-      final c = await _api!.getAIConversation(_id);
-      if (!mounted) {
+      final c = await _api!.getAIConversation(id);
+      if (!mounted || epoch != _viewEpoch) {
         return;
+      }
+      // Recovery may start after the completed SSE event was already consumed.
+      // The durable request status is the authority in that case.
+      final settled = c['last_request_key'] == requestKey;
+      final completed =
+          _streamDone || (settled && c['last_request_status'] == 'completed');
+      if (settled && c['last_request_status'] == 'failed') {
+        throw MainApiClientException(
+          'Generation failed',
+          code: c['last_error_code'] as String?,
+        );
       }
       setState(() {
         _chat = c;
         _busy = false;
+        _summarizing = false;
+        if (completed) {
+          _partial = '';
+          _requestKey = null;
+          _error = null;
+        }
       });
-      if (!_streamDone && c['active_key'] != '') {
+      if (!completed && (c['active_key'] as String? ?? '').isNotEmpty) {
         throw const MainApiClientException('Stream interrupted');
       }
-      if (_streamDone) {
-        _partial = '';
-        _requestKey = null;
+      if (completed) {
+        if (requestKey == _summaryKey && _pending != null) {
+          _summaryKey = null;
+          _pending!['idempotency_key'] = const Uuid().v4();
+          _pending!['revision'] = _chat!['revision'];
+          await _send(null, false, true);
+          return;
+        }
         _wallet = await _api!.getAIWallet();
         if (mounted) {
           setState(() {});
@@ -641,9 +755,16 @@ class _CopilotPageState extends State<CopilotPage> {
         await _readActions();
       }
     } catch (e) {
-      if (mounted) {
+      // Keep persisted messages/context in sync even when the SSE stream fails.
+      Map<String, dynamic>? latest;
+      try {
+        latest = await _api!.getAIConversation(id);
+      } catch (_) {}
+      if (mounted && epoch == _viewEpoch) {
         setState(() {
+          if (latest != null) _chat = latest;
           _busy = false;
+          _summarizing = false;
           _error = _describe(e);
         });
       }
@@ -668,6 +789,7 @@ class _CopilotPageState extends State<CopilotPage> {
         _actions.every(
           (a) => ['succeeded', 'failed', 'declined'].contains(a['state']),
         ) &&
+        _messages.isNotEmpty &&
         _messages.last['role'] == 'tool') {
       await _send('');
     }
@@ -1029,6 +1151,7 @@ class _CopilotPageState extends State<CopilotPage> {
     final canSend =
         (_hasPrompt || _pending != null) &&
         _ready &&
+        _mcp != null &&
         !_busy &&
         _chat?['archived'] != true &&
         !_actions.any(
@@ -1088,64 +1211,82 @@ class _CopilotPageState extends State<CopilotPage> {
             child: Column(
               children: [
                 _contextHeader(bot, location),
-                if (_catalogMismatch)
-                  Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Text(
-                      _copy(
-                        'Certaines fonctions IA sont indisponibles : les versions de l’application et du serveur diffèrent. Mettez-les à jour pour accéder à tous les outils.',
-                        'Some AI features are unavailable because the app and server versions differ. Update them to access all tools.',
-                      ),
-                    ),
-                  ),
-                if (_wallet != null && !_busy) _walletStrip(),
                 if (_loading || _busy) const LinearProgressIndicator(),
-                if (_error != null)
-                  Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      children: [
-                        Text(
-                          _error!,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.error,
-                          ),
-                        ),
-                        Wrap(
-                          children: [
-                            TextButton(
-                              onPressed: _busy ? null : _refresh,
-                              child: Text(context.tr.copilot_action_refresh),
-                            ),
-                            if (_requestKey != null)
-                              TextButton(
-                                onPressed: _busy ? null : _follow,
-                                child: Text(
-                                  context.tr.copilot_action_recover_response,
-                                ),
-                              ),
-                            if (_pending != null)
-                              TextButton(
-                                onPressed: _busy ? null : _send,
-                                child: Text(context.tr.copilot_action_retry),
-                              ),
-                            if (_chat != null)
-                              TextButton(
-                                onPressed: _busy
-                                    ? null
-                                    : () => _menu('continue'),
-                                child: Text(context.tr.copilot_action_continue),
-                              ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
                 Expanded(
                   child: ListView(
                     controller: _scroll,
                     padding: const EdgeInsets.all(16),
                     children: [
+                      if (_catalogMismatch)
+                        Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Text(
+                            _copy(
+                              'Certaines fonctions IA sont indisponibles : les versions de l’application et du serveur diffèrent. Mettez-les à jour pour accéder à tous les outils.',
+                              'Some AI features are unavailable because the app and server versions differ. Update them to access all tools.',
+                            ),
+                          ),
+                        ),
+                      if (_wallet != null && !_busy) _walletStrip(),
+                      if (_summarizing)
+                        Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Text(
+                            _copy(
+                              'Résumé automatique du contexte… Les messages restent disponibles.',
+                              'Automatically summarizing context… Messages stay available.',
+                            ),
+                          ),
+                        ),
+                      if (_error != null)
+                        Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            children: [
+                              Text(
+                                _error!,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.error,
+                                ),
+                              ),
+                              Wrap(
+                                children: [
+                                  TextButton(
+                                    onPressed: _busy ? null : _refresh,
+                                    child: Text(
+                                      context.tr.copilot_action_refresh,
+                                    ),
+                                  ),
+                                  if (_requestKey != null)
+                                    TextButton(
+                                      onPressed: _busy ? null : _follow,
+                                      child: Text(
+                                        context
+                                            .tr
+                                            .copilot_action_recover_response,
+                                      ),
+                                    ),
+                                  if (_pending != null)
+                                    TextButton(
+                                      onPressed: _busy ? null : _send,
+                                      child: Text(
+                                        context.tr.copilot_action_retry,
+                                      ),
+                                    ),
+                                  if (_chat != null)
+                                    TextButton(
+                                      onPressed: _busy
+                                          ? null
+                                          : () => _menu('continue'),
+                                      child: Text(
+                                        context.tr.copilot_action_continue,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
                       if (_chat == null) _welcome(),
                       if ((_chat?['context_summary'] as String? ?? '')
                           .isNotEmpty)
@@ -1290,32 +1431,36 @@ class _CopilotPageState extends State<CopilotPage> {
           ),
           borderRadius: BorderRadius.circular(16),
         ),
-        child: Row(
+        child: Wrap(
+          spacing: 20,
+          runSpacing: 12,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             for (final metric in [
               (context.tr.copilot_available, _wallet!['available']),
               (context.tr.copilot_reserved, _wallet!['reserved'] ?? 0),
               (context.tr.copilot_total, _wallet!['balance']),
             ])
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      metric.$1,
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: colors.onSurfaceVariant,
-                      ),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    metric.$1,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: colors.onSurfaceVariant,
                     ),
-                    const SizedBox(height: 5),
-                    Text(
-                      _credits(metric.$2),
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    _credits(metric.$2),
+                    softWrap: false,
+                    maxLines: 1,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             IconButton(
               visualDensity: VisualDensity.compact,
@@ -1529,6 +1674,8 @@ class _CopilotPageState extends State<CopilotPage> {
 
   Widget _composer(bool canSend) {
     final colors = Theme.of(context).colorScheme;
+    final retryPending =
+        _pending != null && !_pendingRejected && _error != null;
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
       decoration: BoxDecoration(
@@ -1550,12 +1697,14 @@ class _CopilotPageState extends State<CopilotPage> {
                     color: colors.onSurfaceVariant,
                   ),
                   const SizedBox(width: 5),
-                  Text(
-                    context.tr.copilot_credits_in_discussion(
-                      _credits(_chat?['consumed_tokens']),
-                    ),
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: colors.onSurfaceVariant,
+                  Flexible(
+                    child: Text(
+                      context.tr.copilot_credits_in_discussion(
+                        _credits(_chat?['consumed_tokens']),
+                      ),
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: colors.onSurfaceVariant,
+                      ),
                     ),
                   ),
                 ],
@@ -1590,9 +1739,19 @@ class _CopilotPageState extends State<CopilotPage> {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 4),
                   child: IconButton.filled(
-                    tooltip: context.tr.copilot_send,
-                    onPressed: canSend ? () => _send() : null,
-                    icon: const Icon(Icons.send, size: 19),
+                    tooltip: retryPending
+                        ? _copy(
+                            'Réessayer la demande en attente',
+                            'Retry pending request',
+                          )
+                        : context.tr.copilot_send,
+                    onPressed: canSend
+                        ? () => _send(null, true, retryPending)
+                        : null,
+                    icon: Icon(
+                      retryPending ? Icons.replay_rounded : Icons.send,
+                      size: 19,
+                    ),
                   ),
                 ),
               ],
@@ -1834,8 +1993,12 @@ class _CopilotPageState extends State<CopilotPage> {
                     labelText: context.tr.copilot_search_title_hint,
                   ),
                   onSubmitted: (_) async {
-                    await _loadHistory();
-                    update(() {});
+                    try {
+                      await _loadHistory();
+                      if (ctx.mounted) update(() {});
+                    } catch (e) {
+                      if (mounted) setState(() => _error = _describe(e));
+                    }
                   },
                 ),
                 if (widget.botId == null)
@@ -1882,8 +2045,12 @@ class _CopilotPageState extends State<CopilotPage> {
                   value: _archives,
                   onChanged: (v) async {
                     _archives = v;
-                    await _loadHistory();
-                    update(() {});
+                    try {
+                      await _loadHistory();
+                      if (ctx.mounted) update(() {});
+                    } catch (e) {
+                      if (mounted) setState(() => _error = _describe(e));
+                    }
                   },
                 ),
                 Expanded(

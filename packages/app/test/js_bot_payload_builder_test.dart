@@ -118,6 +118,69 @@ void main() {
     },
   );
 
+  for (final enabled in [false, true]) {
+    test(
+      'legacy webhook flag $enabled preserves endpoint source and local data',
+      () async {
+        await appManager.saveAppCommand(botId, 'ping', {
+          'id': 'ping',
+          'name': 'ping',
+          'data': {
+            'executionMode': 'javascript',
+            'jsScriptContent': 'await interaction.reply("pong");',
+          },
+        });
+        final app = await appManager.getApp(botId);
+        app['inboundWebhooks'] = enabled;
+        app['inboundWebhookEndpoints'] = [
+          {
+            'id': 'welcome-hook',
+            'path': 'welcome',
+            'secret': 'test-secret',
+            'script': 'console.log("welcome");',
+          },
+          false,
+        ];
+        app['globalVariables'] = {'keep': 'unchanged'};
+        await appManager.saveApp(botId, app);
+        final before = await appManager.getApp(botId);
+        final commandsBefore = await appManager.listAppCommands(botId);
+
+        final payload = await buildJsBotPayload(botId);
+
+        final endpoints = payload['inboundWebhooks'] as List;
+        expect(endpoints, hasLength(1));
+        expect(endpoints.single['id'], 'welcome-hook');
+        expect(endpoints.single['path'], 'welcome');
+        expect(endpoints.single['script'], 'console.log("welcome");');
+        expect(payload['commands'], hasLength(1));
+        expect(payload['globalVariables'], {'keep': 'unchanged'});
+        expect(await appManager.getApp(botId), before);
+        expect(await appManager.listAppCommands(botId), commandsBefore);
+      },
+    );
+
+    test('non-list webhook fields $enabled produce no endpoints', () async {
+      await appManager.saveAppCommand(botId, 'ping', {
+        'id': 'ping',
+        'name': 'ping',
+        'data': {
+          'executionMode': 'javascript',
+          'jsScriptContent': 'await interaction.reply("pong");',
+        },
+      });
+      final app = await appManager.getApp(botId);
+      app['inboundWebhooks'] = enabled;
+      app['inboundWebhookEndpoints'] = enabled;
+      await appManager.saveApp(botId, app);
+
+      final payload = await buildJsBotPayload(botId);
+
+      expect(payload['inboundWebhooks'], isEmpty);
+      expect(payload['commands'], hasLength(1));
+    });
+  }
+
   test('includes javascript event workflows in payload events array', () async {
     await appManager.saveWorkflow(
       botId,

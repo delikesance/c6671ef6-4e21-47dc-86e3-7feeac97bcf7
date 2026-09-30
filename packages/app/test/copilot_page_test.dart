@@ -11,7 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   testWidgets(
-    'context summary asks before charging and retries the draft in place',
+    'context summary retries automatically and keeps draft on summary failure',
     (tester) async {
       tester.view.physicalSize = const Size(900, 1000);
       tester.view.devicePixelRatio = 1;
@@ -124,19 +124,7 @@ void main() {
       );
       await tester.tap(find.byIcon(Icons.send));
       await settle(tester);
-      expect(
-        find.text('Summarize this conversation?'),
-        findsOneWidget,
-        reason:
-            'turns=$turns; UI=${tester.widgetList<Text>(find.byType(Text)).map((t) => t.data).join(' | ')}',
-      );
-      expect(summaries, 0);
-      expect(
-        tester.widget<TextField>(find.byType(TextField).first).controller!.text,
-        'Keep this draft',
-      );
-      await tester.tap(find.text('Summarize and send'));
-      await settle(tester);
+      expect(find.byType(AlertDialog), findsNothing);
       expect(summaries, 1);
       expect(turns, 2);
       expect(chat['context_summary'], 'Earlier turns');
@@ -145,9 +133,7 @@ void main() {
       await tester.pump();
       await tester.tap(find.byIcon(Icons.send));
       await settle(tester);
-      expect(find.text('Summarize this conversation?'), findsOneWidget);
-      await tester.tap(find.text('Summarize and send'));
-      await settle(tester);
+      expect(find.byType(AlertDialog), findsNothing);
       expect(summaries, 2);
       expect(turns, 3);
       expect(chat['context_summary'], 'Earlier turns');
