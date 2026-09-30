@@ -253,7 +253,7 @@ class CommandExecutor {
       // a response, send a human-readable follow-up with the actual error.
       // Skip if the interaction was already responded to — the custom
       // message from $suppressErrors / $try/$catch takes priority.
-      if (!isInteractionAcknowledged(interaction)) {
+      if (isInteractionAcknowledged(interaction)) {
         try {
           final dynInteraction = interaction as dynamic;
           final message = _formatCommandError(e);
@@ -264,6 +264,8 @@ class CommandExecutor {
         } catch (_) {
           // Best-effort — if follow-up fails, we can't do anything more.
         }
+      } else {
+        await _sendErrorResponse(interaction, _formatCommandError(e), botId, runtimeVariables);
       }
     }
 

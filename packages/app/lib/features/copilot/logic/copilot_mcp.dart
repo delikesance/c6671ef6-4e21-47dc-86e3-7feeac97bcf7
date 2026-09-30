@@ -92,8 +92,43 @@ class CopilotMcp {
     if (botId != null && args['bot_id'] != null && args['bot_id'] != botId) {
       throw StateError('Tool targets another bot');
     }
+    final botID = args['bot_id'] as String?;
+    if (botID != null && !RegExp(r'^\d{15,22}$').hasMatch(botID)) {
+      throw StateError('Invalid bot ID');
+    }
     final script = args['script'] as String?;
-    if (script != null) compileCopilotCommand(script);
+    final commandMutation =
+        name == 'local_create_command' ||
+        name == 'local_update_command_execution';
+    final javascriptRuntime =
+        commandMutation &&
+        botID != null &&
+        await getBotRuntimeEngine(botID) == runtimeEngineJavascript;
+    String? existingMode;
+    if (name == 'local_update_command_execution' &&
+        args['execution_mode'] == null &&
+        botID != null) {
+      final existing = await AppManager().getAppCommand(
+        botID,
+        _commandID(args),
+      );
+      final data = existing['data'];
+      if (data is Map) existingMode = data['executionMode'] as String?;
+    }
+    final executionMode =
+        (args['execution_mode'] as String?) ??
+        existingMode ??
+        (javascriptRuntime ? 'javascript' : 'bdfd_script');
+    if (commandMutation) {
+      if (javascriptRuntime != (executionMode == 'javascript')) {
+        throw StateError('Execution mode does not match the bot runtime');
+      }
+      copilotExecutionDataForMode(
+        executionMode,
+        script: script,
+        actionsJson: args['actions_json'] as String?,
+      );
+    }
     if (tool['mutating'] == true &&
         !alreadyApproved &&
         !await approve(name, Map<String, dynamic>.unmodifiable(args))) {
@@ -108,10 +143,6 @@ class CopilotMcp {
       };
     }
     Object? value;
-    final botID = args['bot_id'] as String?;
-    if (botID != null && !RegExp(r'^\d{15,22}$').hasMatch(botID)) {
-      throw StateError('Invalid bot ID');
-    }
     switch (name) {
       case 'docs_search':
         return _documentation('search_docs', args);
@@ -165,7 +196,10 @@ class CopilotMcp {
           'action_types': BotCreatorActionType.values
               .map((t) => t.name)
               .toList(),
-          'format': 'BDFD compiled to visual blocks by the application',
+          'action_format': {
+            'type': 'respondWithMessage',
+            'payload': {'content': 'Hello'},
+          },
         };
       case 'local_get_command':
         await _localBot(botID!);
@@ -178,30 +212,32 @@ class CopilotMcp {
         };
       case 'local_update_command_execution':
         await _localBot(botID!);
-        if (await getBotRuntimeEngine(botID) == runtimeEngineJavascript) {
-          throw StateError('Visual blocks require the Dart runtime');
-        }
         final commandID = _commandID(args);
         final command = await AppManager().getAppCommand(botID, commandID);
         final updated = replaceCopilotExecution(
           command,
           args['expected_revision'] as String,
-          script!,
+          script ?? '',
           route: args['route'] as String?,
+          executionMode: executionMode,
+          actionsJson: args['actions_json'] as String?,
         );
         await AppManager().saveAppCommand(botID, commandID, updated);
+        final synced = await syncCloudCommand(botID, commandID);
         value = {
           'saved': true,
           'command_id': commandID,
+          'bot_id': botID,
+          'runner_synced': synced,
+          'message': synced
+              ? 'Commande active sur le bot cloud'
+              : 'Enregistrée, pas encore active sur le bot cloud',
           'revision': HashUtil.calculateHash(
             await AppManager().getAppCommand(botID, commandID),
           ),
         };
       case 'local_create_command':
         final app = await _localBot(botID!);
-        if (await getBotRuntimeEngine(botID) == runtimeEngineJavascript) {
-          throw StateError('Visual blocks require the Dart runtime');
-        }
         final name = args['name'] as String;
         if (!RegExp(r'^[a-z0-9_-]{1,32}$').hasMatch(name)) {
           throw const FormatException('Invalid slash command name');
@@ -225,6 +261,7 @@ class CopilotMcp {
               'Discord command already exists; import and edit it instead',
             );
           }
+          final storageId = const Uuid().v4();
           final created = await createCommand(
             rest,
             ApplicationCommandBuilder(
@@ -232,13 +269,24 @@ class CopilotMcp {
               name: name,
               description: args['description'] as String,
             ),
-            storageId: const Uuid().v4(),
-            data: copilotExecutionData(script!),
+            storageId: storageId,
+            data: copilotExecutionDataForMode(
+              executionMode,
+              script: script,
+              actionsJson: args['actions_json'] as String?,
+            ),
           );
+          final synced = await syncCloudCommand(botID, storageId);
           value = {
             'created': true,
             'discord_id': created.id.toString(),
             'name': name,
+            'command_id': storageId,
+            'bot_id': botID,
+            'runner_synced': synced,
+            'message': synced
+                ? 'Commande active sur le bot cloud'
+                : 'Créée sur Discord, pas encore active sur le bot',
           };
         } finally {
           rest.close();
@@ -344,6 +392,37 @@ class CopilotMcp {
       throw const FormatException('Invalid command ID');
     }
     return id;
+  }
+
+  /// Wait for the manager acknowledgement. A persisted command is not treated
+  /// as active until its runner confirms the update.
+  Future<bool> syncCloudCommand(String botID, String commandID) async {
+    try {
+      final command = await AppManager().getAppCommand(botID, commandID);
+      if (command.isEmpty) return false;
+      final app = await AppManager().getApp(botID);
+      final botName = (app['username'] ?? app['name'] ?? botID).toString();
+      Future<bool> delta() =>
+          api.syncCommandWithStatus(botID, botName, commandID, command);
+      try {
+        if (await delta()) return true;
+      } catch (_) {
+        // The full sync below can recover a stale or missing cloud config.
+      }
+      try {
+        await api.syncBot(
+          botID,
+          botName,
+          await buildRemotePayload(botID),
+          force: true,
+        );
+        return await delta();
+      } catch (_) {
+        return false;
+      }
+    } catch (_) {
+      return false;
+    }
   }
 
   Future<Map<String, dynamic>> _localStatus(String id) async {
