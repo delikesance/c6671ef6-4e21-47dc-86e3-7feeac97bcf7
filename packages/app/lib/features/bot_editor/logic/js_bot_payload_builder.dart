@@ -108,9 +108,14 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
   }
 
   final inboundWebhooks = <Map<String, dynamic>>[];
+  // Legacy settings store an enable/disable bool in inboundWebhooks. Only
+  // actual lists contain endpoints; do not migrate or overwrite stored data.
   final endpoints = [
-    ...(appData['inboundWebhooks'] as List?) ?? const [],
-    ...(appData['inboundWebhookEndpoints'] as List?) ?? const [],
+    for (final raw in [
+      appData['inboundWebhooks'],
+      appData['inboundWebhookEndpoints'],
+    ])
+      if (raw is List) ...raw,
   ];
   for (final endpoint in endpoints) {
     if (endpoint is! Map) {
