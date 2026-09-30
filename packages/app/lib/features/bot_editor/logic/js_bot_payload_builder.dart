@@ -30,6 +30,24 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
   }
 
   final commandsRaw = await AppManager().listAppCommands(botId);
+  final workflows = await AppManager().getWorkflows(botId);
+  String linkedScript(Map map) {
+    final direct = (map['jsScriptContent'] ?? map['script'] ?? '').toString();
+    if (direct.trim().isNotEmpty) return direct;
+    final name = (map['workflowName'] ?? '').toString();
+    final matches = workflows.where((w) => w['name'] == name);
+    if (matches.isEmpty) return '';
+    final workflow = matches.first;
+    final source = normalizeWorkflowJsScriptContent(
+      workflow['jsScriptContent'],
+    );
+    if (source.trim().isNotEmpty) return source;
+    return synthesizeJsFromWorkflowActions(
+          (workflow['actions'] as List?) ?? const [],
+        ) ??
+        '';
+  }
+
   final commands = <Map<String, dynamic>>[];
   final usedNames = <String>{};
 
@@ -69,7 +87,9 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
       'id': (normalized['id'] ?? '').toString(),
       'type': 'command',
       'name': uniqueName,
-      'description': (data['description'] ?? uniqueName).toString(),
+      'description':
+          (normalized['description'] ?? data['description'] ?? uniqueName)
+              .toString(),
       'discordType': resolveDiscordCommandType(data['commandType']),
       'aliases': normalizeLegacyCommandAliases(data['legacyAliases'])
           .map(cleanLegacyCommandTriggerName)
@@ -77,19 +97,27 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
           .toSet()
           .toList(),
       'options': data['options'] ?? const [],
+      if (data['defaultMemberPermissions'] != null)
+        'defaultMemberPermissions': data['defaultMemberPermissions'],
+      if (data['contexts'] is List) 'contexts': data['contexts'],
+      if (data['integrationTypes'] is List)
+        'integrationTypes': data['integrationTypes'],
       'enabled': normalized['enabled'] != false,
       'script': script,
     });
   }
 
   final inboundWebhooks = <Map<String, dynamic>>[];
-  final endpoints = (appData['inboundWebhookEndpoints'] as List?) ?? const [];
+  final endpoints = [
+    ...(appData['inboundWebhooks'] as List?) ?? const [],
+    ...(appData['inboundWebhookEndpoints'] as List?) ?? const [],
+  ];
   for (final endpoint in endpoints) {
     if (endpoint is! Map) {
       continue;
     }
     final map = Map<String, dynamic>.from(endpoint);
-    final script = (map['jsScriptContent'] ?? map['script'] ?? '').toString();
+    final script = linkedScript(map);
     if (script.trim().isEmpty) {
       continue;
     }
@@ -110,7 +138,7 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
       continue;
     }
     final map = Map<String, dynamic>.from(trigger);
-    final script = (map['jsScriptContent'] ?? map['script'] ?? '').toString();
+    final script = linkedScript(map);
     if (script.trim().isEmpty) {
       continue;
     }
@@ -130,7 +158,6 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
   }
 
   final events = <Map<String, dynamic>>[];
-  final workflows = await AppManager().getWorkflows(botId);
   for (final rawWorkflow in workflows) {
     final wf = normalizeStoredWorkflowDefinition(
       Map<String, dynamic>.from(rawWorkflow),
@@ -172,8 +199,7 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
   }
 
   final prefixRaw = (appData['prefix'] ?? '').toString().trim();
-  final includePrefix =
-      prefixRaw.isNotEmpty && commands.isNotEmpty;
+  final includePrefix = prefixRaw.isNotEmpty && commands.isNotEmpty;
 
   final presenceStatusRaw = (appData['presenceStatus'] ?? 'online')
       .toString()

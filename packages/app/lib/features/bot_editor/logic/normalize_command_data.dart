@@ -241,6 +241,10 @@ Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {
     'defaultMemberPermissions': (rawData['defaultMemberPermissions'] ?? '')
         .toString()
         .trim(),
+    if (rawData['contexts'] is List)
+      'contexts': List<int>.from(rawData['contexts'] as List),
+    if (rawData['integrationTypes'] is List)
+      'integrationTypes': List<int>.from(rawData['integrationTypes'] as List),
     'response': _normalizeResponseStrict({
       'mode':
           ((response['mode'] == 'text' ||

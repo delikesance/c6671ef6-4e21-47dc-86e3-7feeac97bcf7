@@ -10584,7 +10584,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get ai_credits_wallet_card_title => 'Yapay Zeka Cüzdanınız';
 
   @override
-  String get ai_credits_tokens_available => 'kullanılabilir token';
+  String get ai_credits_available => 'Kullanılabilir yapay zeka kredileri';
 
   @override
   String get ai_credits_label_total => 'Toplam';
@@ -10610,8 +10610,8 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get ai_credits_token_ratio_hint =>
-      '1 yapay zeka kredisi = 1 kullanılabilir token.';
+  String get ai_credits_usage_hint =>
+      'Kullanım, mesajlarınıza ve gerçekleştirilen işlemlere bağlıdır.';
 
   @override
   String get ai_credits_daily_ad_limit_hint =>
@@ -10871,8 +10871,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get copilot_copy_message => 'Mesajı kopyala';
 
   @override
-  String copilot_tokens_in_discussion(String count) {
-    return 'Bu sohbette $count token';
+  String copilot_credits_in_discussion(String count) {
+    return 'Bu sohbette $count yapay zeka kredisi kullanıldı';
   }
 
   @override
@@ -10951,4 +10951,31 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get copilot_copy_code => 'Kodu kopyala';
+
+  @override
+  String get copilot_tool_options => 'Komut argümanlarını düzenle';
+
+  @override
+  String get copilot_tool_settings => 'Komut ayarlarını düzenle';
+
+  @override
+  String get copilot_tool_create_workflow => 'Otomasyon oluştur';
+
+  @override
+  String get copilot_tool_update_workflow => 'Otomasyonu düzenle';
+
+  @override
+  String get copilot_tool_presence => 'Durumu ve etkinliği değiştir';
+
+  @override
+  String get copilot_tool_profile => 'Bot adını değiştir';
+
+  @override
+  String get copilot_tool_variable => 'Değişken kaydet';
+
+  @override
+  String get copilot_tool_schedule => 'Otomasyon zamanla';
+
+  @override
+  String get copilot_tool_webhook => 'Harici tetikleyici yapılandır';
 }

@@ -10065,7 +10065,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get ai_credits_wallet_card_title => 'AIウォレット';
 
   @override
-  String get ai_credits_tokens_available => '利用可能なトークン';
+  String get ai_credits_available => '利用可能なAIクレジット';
 
   @override
   String get ai_credits_label_total => '合計';
@@ -10091,7 +10091,7 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
-  String get ai_credits_token_ratio_hint => '1 AIクレジット = 1 使用可能トークン。';
+  String get ai_credits_usage_hint => '消費量はメッセージや実行した操作によって異なります。';
 
   @override
   String get ai_credits_daily_ad_limit_hint =>
@@ -10342,8 +10342,8 @@ class AppLocalizationsJa extends AppLocalizations {
   String get copilot_copy_message => 'メッセージをコピー';
 
   @override
-  String copilot_tokens_in_discussion(String count) {
-    return 'この会話のトークン数: $count';
+  String copilot_credits_in_discussion(String count) {
+    return 'この会話で使用したAIクレジット: $count';
   }
 
   @override
@@ -10421,4 +10421,31 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get copilot_copy_code => 'コードをコピー';
+
+  @override
+  String get copilot_tool_options => 'コマンドの引数を編集';
+
+  @override
+  String get copilot_tool_settings => 'コマンド設定を編集';
+
+  @override
+  String get copilot_tool_create_workflow => '自動処理を作成';
+
+  @override
+  String get copilot_tool_update_workflow => '自動処理を編集';
+
+  @override
+  String get copilot_tool_presence => 'ステータスとアクティビティを変更';
+
+  @override
+  String get copilot_tool_profile => 'ボット名を変更';
+
+  @override
+  String get copilot_tool_variable => '変数を保存';
+
+  @override
+  String get copilot_tool_schedule => '自動処理を予約';
+
+  @override
+  String get copilot_tool_webhook => '外部トリガーを設定';
 }

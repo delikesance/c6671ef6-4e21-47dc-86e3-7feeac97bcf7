@@ -38,7 +38,6 @@ CommandOptionType commandOptionTypeFromText(String text) {
   }
 }
 
-
 Map<String, dynamic>? normalizeCommandOptionAutocompleteConfig(dynamic raw) {
   // Delegate to shared for canonical normalization
   final result = normalizeSerializedAutocompleteConfig(raw);
@@ -95,8 +94,9 @@ void setCommandOptionAutocompleteConfig(
   Map<String, dynamic>? rawConfig,
 ) {
   final normalized = normalizeCommandOptionAutocompleteConfig(rawConfig);
-  _autocompleteConfigExpando[option] =
-      normalized == null ? null : cloneJsonMap(normalized);
+  _autocompleteConfigExpando[option] = normalized == null
+      ? null
+      : cloneJsonMap(normalized);
   option.hasAutocomplete = normalized?['enabled'] == true;
   if (option.hasAutocomplete == true) {
     option.choices = null;
@@ -112,6 +112,10 @@ Map<String, dynamic> serializeCommandOption(CommandOptionBuilder option) {
     'required': option.isRequired,
     if (option.minValue != null) 'minValue': option.minValue,
     if (option.maxValue != null) 'maxValue': option.maxValue,
+    if (option.minLength != null) 'minLength': option.minLength,
+    if (option.maxLength != null) 'maxLength': option.maxLength,
+    if (option.channelTypes != null)
+      'channelTypes': option.channelTypes!.map((type) => type.value).toList(),
     'autocomplete': ?autocomplete,
     if (autocomplete == null && option.choices?.isNotEmpty == true)
       'choices': option.choices!
@@ -136,6 +140,11 @@ CommandOptionBuilder deserializeCommandOption(Map<String, dynamic> raw) {
     isRequired: raw['required'] == true,
     minValue: raw['minValue'] as num?,
     maxValue: raw['maxValue'] as num?,
+    minLength: raw['minLength'] as int?,
+    maxLength: raw['maxLength'] as int?,
+    channelTypes: (raw['channelTypes'] as List?)
+        ?.map((type) => ChannelType(type as int))
+        .toList(),
   );
 
   final autocompleteConfig = normalizeCommandOptionAutocompleteConfig(

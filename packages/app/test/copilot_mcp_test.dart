@@ -119,6 +119,68 @@ void main() {
     );
   });
   test(
+    'workflow and variable sync require manager runtime acknowledgement',
+    () async {
+      var acknowledged = false;
+      final paths = <String>[];
+      final api = MainApiClient(
+        baseUrl: 'https://manager.example',
+        accessToken: 'account-secret',
+        httpClient: MockClient((request) async {
+          paths.add(request.url.path);
+          final body = jsonDecode(request.body) as Map;
+          if (request.url.path.endsWith('/workflows/sync')) {
+            expect(body['workflowName'], 'welcome');
+            expect(body['workflow'], {'name': 'welcome', 'actions': []});
+          } else if (request.url.path.endsWith('/global/set')) {
+            expect(body, {'key': 'count', 'value': 3});
+          } else {
+            expect(body['scope'], 'guild');
+            expect(body['defaultValue'], 'hello');
+            expect(body['valueType'], 'string');
+          }
+          return http.Response(
+            jsonEncode({
+              'ok': true,
+              'persisted': true,
+              'runner_synced': acknowledged,
+            }),
+            200,
+          );
+        }),
+      );
+      for (final state in [false, true]) {
+        acknowledged = state;
+        expect(
+          await api.syncWorkflowWithStatus(
+            '123456789012345',
+            'Bot',
+            'welcome',
+            {'name': 'welcome', 'actions': []},
+          ),
+          state,
+        );
+        expect(
+          await api.setVariableWithStatus('123456789012345', {
+            'key': 'count',
+            'scope': 'global',
+            'value': 3,
+          }),
+          state,
+        );
+        expect(
+          await api.setVariableWithStatus('123456789012345', {
+            'key': 'greeting',
+            'scope': 'guild',
+            'value': 'hello',
+          }),
+          state,
+        );
+      }
+      expect(paths.where((p) => p.endsWith('/workflows/sync')).length, 2);
+    },
+  );
+  test(
     'execution-only edit preserves command identity and refuses stale revision',
     () {
       final command = {
