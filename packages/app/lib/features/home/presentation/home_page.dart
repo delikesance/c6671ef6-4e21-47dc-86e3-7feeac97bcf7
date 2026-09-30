@@ -2523,9 +2523,7 @@ class HomePageState extends State<HomePage>
             startPlan.serverUnavailableDetail?.trim().isNotEmpty ?? false
             ? startPlan.serverUnavailableDetail!.trim()
             : context.tr.home_server_session_unusable;
-        throw Exception(
-          context.tr.home_server_cannot_run_bot(detail),
-        );
+        throw Exception(context.tr.home_server_cannot_run_bot(detail));
       }
 
       final client = runtime.client;
@@ -2865,10 +2863,7 @@ class HomePageState extends State<HomePage>
       final block = isRunning ? null : _planLimitBlockFromError(e);
       if (mounted && refusal != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(refusal),
-            backgroundColor: AppTheme.error,
-          ),
+          SnackBar(content: Text(refusal), backgroundColor: AppTheme.error),
         );
       } else if (mounted && block != null) {
         await _showPlanLimit(block);
@@ -3003,7 +2998,9 @@ class HomePageState extends State<HomePage>
     }
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(localizedBotConfigOvershrinkConfirmation(context.tr).body),
+        content: Text(
+          localizedBotConfigOvershrinkConfirmation(context.tr).body,
+        ),
         backgroundColor: AppTheme.error,
       ),
     );
@@ -3242,11 +3239,7 @@ class HomePageState extends State<HomePage>
     )) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              context.tr.ad_limit_or_cooldown,
-            ),
-          ),
+          SnackBar(content: Text(context.tr.ad_limit_or_cooldown)),
         );
       }
       return false;
@@ -3264,11 +3257,7 @@ class HomePageState extends State<HomePage>
     if (!snapshotReady) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              context.tr.ad_sync_config_failed,
-            ),
-          ),
+          SnackBar(content: Text(context.tr.ad_sync_config_failed)),
         );
       }
       appendBotDebugLog(
@@ -3280,13 +3269,9 @@ class HomePageState extends State<HomePage>
     final ssvContext = await _buildMainApiAdSsvContext(botId);
     if (ssvContext == null) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              context.tr.ad_context_failed,
-            ),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.tr.ad_context_failed)));
       }
       appendBotDebugLog(
         'Rewarded ad skipped for $botId: unable to resolve Discord owner via /applications/@me.',
@@ -3369,7 +3354,8 @@ class HomePageState extends State<HomePage>
           SnackBar(
             content: Text(
               rewardCredited
-                  ? (successMessage ?? context.tr.rewarded_start_credit_confirmed)
+                  ? (successMessage ??
+                        context.tr.rewarded_start_credit_confirmed)
                   : context.tr.rewarded_start_credit_unconfirmed,
             ),
           ),

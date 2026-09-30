@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:bot_creator/features/copilot/presentation/copilot_page.dart';
 import 'dart:convert';
 import 'dart:developer' as developer;
 import 'dart:io';
@@ -368,11 +369,7 @@ class _AppHomePageState extends State<AppHomePage>
     if (remoteClient is! MainApiClient) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              context.tr.ad_history_unavailable,
-            ),
-          ),
+          SnackBar(content: Text(context.tr.ad_history_unavailable)),
         );
       }
       return;
@@ -498,11 +495,32 @@ class _AppHomePageState extends State<AppHomePage>
                             }
                           },
                         ),
-                        HomeHeaderIconButton(
-                          icon: Icons.sync_rounded,
-                          iconSize: 13,
-                          tooltip: context.tr.common_refresh,
-                          onTap: _isReconciling ? null : _refreshOverview,
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            HomeHeaderIconButton(
+                              icon: Icons.auto_awesome_outlined,
+                              iconSize: 16,
+                              tooltip: context.tr.copilot_title,
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => CopilotPage(
+                                    botId: botId,
+                                    botName: displayName,
+                                    location: 'local',
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            HomeHeaderIconButton(
+                              icon: Icons.sync_rounded,
+                              iconSize: 13,
+                              tooltip: context.tr.common_refresh,
+                              onTap: _isReconciling ? null : _refreshOverview,
+                            ),
+                          ],
                         ),
                       ],
                     ),

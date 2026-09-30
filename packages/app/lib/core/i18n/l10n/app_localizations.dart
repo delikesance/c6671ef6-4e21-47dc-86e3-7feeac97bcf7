@@ -18054,6 +18054,762 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The server still refuses: the manager must accept a forced restore for this version.'**
   String get bot_config_versions_restore_too_small_unforced;
+
+  /// No description provided for @ai_credits_title.
+  ///
+  /// In en, this message translates to:
+  /// **'AI credits'**
+  String get ai_credits_title;
+
+  /// No description provided for @ai_credits_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'AI credits unavailable. Try again.'**
+  String get ai_credits_unavailable;
+
+  /// No description provided for @ai_credits_origin_kofi.
+  ///
+  /// In en, this message translates to:
+  /// **'Ko-fi purchase'**
+  String get ai_credits_origin_kofi;
+
+  /// No description provided for @ai_credits_origin_apple.
+  ///
+  /// In en, this message translates to:
+  /// **'Apple purchase'**
+  String get ai_credits_origin_apple;
+
+  /// No description provided for @ai_credits_origin_google.
+  ///
+  /// In en, this message translates to:
+  /// **'Google purchase'**
+  String get ai_credits_origin_google;
+
+  /// No description provided for @ai_credits_origin_roulette.
+  ///
+  /// In en, this message translates to:
+  /// **'Roulette reward'**
+  String get ai_credits_origin_roulette;
+
+  /// No description provided for @ai_credits_origin_admin_grant.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin grant'**
+  String get ai_credits_origin_admin_grant;
+
+  /// No description provided for @ai_credits_origin_admin_correction.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin correction'**
+  String get ai_credits_origin_admin_correction;
+
+  /// No description provided for @ai_credits_origin_copilot.
+  ///
+  /// In en, this message translates to:
+  /// **'AI usage'**
+  String get ai_credits_origin_copilot;
+
+  /// No description provided for @ai_credits_ad_pending.
+  ///
+  /// In en, this message translates to:
+  /// **'Ad verification pending. Refresh your balance.'**
+  String get ai_credits_ad_pending;
+
+  /// No description provided for @ai_credits_ad_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Ad unavailable or not verified.'**
+  String get ai_credits_ad_unavailable;
+
+  /// No description provided for @ai_credits_spin_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Result unavailable. Retry to recover this spin.'**
+  String get ai_credits_spin_failed;
+
+  /// No description provided for @ai_credits_wallet_card_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Your AI wallet'**
+  String get ai_credits_wallet_card_title;
+
+  /// No description provided for @ai_credits_tokens_available.
+  ///
+  /// In en, this message translates to:
+  /// **'tokens available'**
+  String get ai_credits_tokens_available;
+
+  /// No description provided for @ai_credits_label_total.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get ai_credits_label_total;
+
+  /// No description provided for @ai_credits_label_reserved.
+  ///
+  /// In en, this message translates to:
+  /// **'Reserved'**
+  String get ai_credits_label_reserved;
+
+  /// No description provided for @ai_credits_spending_blocked.
+  ///
+  /// In en, this message translates to:
+  /// **'AI spending blocked'**
+  String get ai_credits_spending_blocked;
+
+  /// No description provided for @ai_credits_label_purchased.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchases'**
+  String get ai_credits_label_purchased;
+
+  /// No description provided for @ai_credits_label_rewarded.
+  ///
+  /// In en, this message translates to:
+  /// **'Roulette'**
+  String get ai_credits_label_rewarded;
+
+  /// No description provided for @ai_credits_label_granted.
+  ///
+  /// In en, this message translates to:
+  /// **'Grants'**
+  String get ai_credits_label_granted;
+
+  /// No description provided for @ai_credits_spins_available.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 available spin} other{{count} available spins}}'**
+  String ai_credits_spins_available(int count);
+
+  /// No description provided for @ai_credits_token_ratio_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'1 AI credit = 1 usable token.'**
+  String get ai_credits_token_ratio_hint;
+
+  /// No description provided for @ai_credits_daily_ad_limit_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to 3 ads per day (UTC). Bonus and unused spins are kept.'**
+  String get ai_credits_daily_ad_limit_hint;
+
+  /// No description provided for @ai_credits_result_spins.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count, plural, =1{1 spin!} other{{count} spins!}}'**
+  String ai_credits_result_spins(int count);
+
+  /// No description provided for @ai_credits_result_credits.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count} credits!'**
+  String ai_credits_result_credits(String count);
+
+  /// No description provided for @ai_credits_button_spin.
+  ///
+  /// In en, this message translates to:
+  /// **'Spin the wheel'**
+  String get ai_credits_button_spin;
+
+  /// No description provided for @ai_credits_button_watch_ad.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch an ad (+1 spin) — {remaining} left'**
+  String ai_credits_button_watch_ad(int remaining);
+
+  /// No description provided for @ai_credits_history_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit history'**
+  String get ai_credits_history_title;
+
+  /// No description provided for @ai_credits_history_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No movements.'**
+  String get ai_credits_history_empty;
+
+  /// No description provided for @ai_credits_reference.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference'**
+  String get ai_credits_reference;
+
+  /// No description provided for @ai_credits_open_conversation.
+  ///
+  /// In en, this message translates to:
+  /// **'Open conversation'**
+  String get ai_credits_open_conversation;
+
+  /// No description provided for @ai_credits_previous.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous'**
+  String get ai_credits_previous;
+
+  /// No description provided for @ai_credits_next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get ai_credits_next;
+
+  /// No description provided for @copilot_title.
+  ///
+  /// In en, this message translates to:
+  /// **'AI copilot'**
+  String get copilot_title;
+
+  /// No description provided for @copilot_compact_label.
+  ///
+  /// In en, this message translates to:
+  /// **'AI'**
+  String get copilot_compact_label;
+
+  /// No description provided for @copilot_err_tool_round_limit.
+  ///
+  /// In en, this message translates to:
+  /// **'The eight-step AI limit was reached. Send a new instruction to continue.'**
+  String get copilot_err_tool_round_limit;
+
+  /// No description provided for @copilot_err_context_limit.
+  ///
+  /// In en, this message translates to:
+  /// **'Context too long. Continue in a new conversation with a summary.'**
+  String get copilot_err_context_limit;
+
+  /// No description provided for @copilot_err_spending_blocked.
+  ///
+  /// In en, this message translates to:
+  /// **'AI spending is blocked for this account.'**
+  String get copilot_err_spending_blocked;
+
+  /// No description provided for @copilot_err_revision_conflict.
+  ///
+  /// In en, this message translates to:
+  /// **'The conversation changed on another device. Refresh it.'**
+  String get copilot_err_revision_conflict;
+
+  /// No description provided for @copilot_err_action_claimed.
+  ///
+  /// In en, this message translates to:
+  /// **'An action needs approval or resolution.'**
+  String get copilot_err_action_claimed;
+
+  /// No description provided for @copilot_err_insufficient_balance.
+  ///
+  /// In en, this message translates to:
+  /// **'Insufficient balance to reserve this request and its context.'**
+  String get copilot_err_insufficient_balance;
+
+  /// No description provided for @copilot_err_unauthorized.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to use copilot.'**
+  String get copilot_err_unauthorized;
+
+  /// No description provided for @copilot_err_not_found.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversation or bot is inaccessible.'**
+  String get copilot_err_not_found;
+
+  /// No description provided for @copilot_err_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Copilot is unavailable on the Manager.'**
+  String get copilot_err_unavailable;
+
+  /// No description provided for @copilot_err_request_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'The request did not complete. Refresh to recover its status.'**
+  String get copilot_err_request_failed;
+
+  /// No description provided for @copilot_approve_dialog_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve copilot action'**
+  String get copilot_approve_dialog_title;
+
+  /// No description provided for @copilot_bot_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Bot'**
+  String get copilot_bot_label;
+
+  /// No description provided for @copilot_remote_manager.
+  ///
+  /// In en, this message translates to:
+  /// **'Remote Manager'**
+  String get copilot_remote_manager;
+
+  /// No description provided for @copilot_this_device.
+  ///
+  /// In en, this message translates to:
+  /// **'This device'**
+  String get copilot_this_device;
+
+  /// No description provided for @copilot_action_details_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Action details'**
+  String get copilot_action_details_title;
+
+  /// No description provided for @copilot_cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get copilot_cancel;
+
+  /// No description provided for @copilot_execute.
+  ///
+  /// In en, this message translates to:
+  /// **'Execute'**
+  String get copilot_execute;
+
+  /// No description provided for @copilot_tool_start_bot.
+  ///
+  /// In en, this message translates to:
+  /// **'Start bot'**
+  String get copilot_tool_start_bot;
+
+  /// No description provided for @copilot_tool_stop_bot.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop bot'**
+  String get copilot_tool_stop_bot;
+
+  /// No description provided for @copilot_tool_create_command.
+  ///
+  /// In en, this message translates to:
+  /// **'Create command'**
+  String get copilot_tool_create_command;
+
+  /// No description provided for @copilot_tool_update_command.
+  ///
+  /// In en, this message translates to:
+  /// **'Update command'**
+  String get copilot_tool_update_command;
+
+  /// No description provided for @copilot_tool_read_docs.
+  ///
+  /// In en, this message translates to:
+  /// **'Read documentation'**
+  String get copilot_tool_read_docs;
+
+  /// No description provided for @copilot_tool_inspect_bot.
+  ///
+  /// In en, this message translates to:
+  /// **'Inspect bot'**
+  String get copilot_tool_inspect_bot;
+
+  /// No description provided for @copilot_rename_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get copilot_rename_title;
+
+  /// No description provided for @copilot_save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get copilot_save;
+
+  /// No description provided for @copilot_export_dialog_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Export conversation'**
+  String get copilot_export_dialog_title;
+
+  /// No description provided for @copilot_delete_confirm_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete conversation?'**
+  String get copilot_delete_confirm_title;
+
+  /// No description provided for @copilot_delete_confirm_body.
+  ///
+  /// In en, this message translates to:
+  /// **'Content will be deleted. Credit movements will remain.'**
+  String get copilot_delete_confirm_body;
+
+  /// No description provided for @copilot_delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get copilot_delete;
+
+  /// No description provided for @copilot_continue_summary_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with a summary'**
+  String get copilot_continue_summary_title;
+
+  /// No description provided for @copilot_continue_summary_body.
+  ///
+  /// In en, this message translates to:
+  /// **'The summary uses AI credits (input + output). Recent exchanges will be summarized within the context limit. The original conversation will remain.'**
+  String get copilot_continue_summary_body;
+
+  /// No description provided for @copilot_create_continuation.
+  ///
+  /// In en, this message translates to:
+  /// **'Create continuation'**
+  String get copilot_create_continuation;
+
+  /// No description provided for @copilot_mcp_local_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Local MCP connection'**
+  String get copilot_mcp_local_title;
+
+  /// No description provided for @copilot_mcp_approval_note.
+  ///
+  /// In en, this message translates to:
+  /// **'Mutations require approval here.'**
+  String get copilot_mcp_approval_note;
+
+  /// No description provided for @copilot_close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get copilot_close;
+
+  /// No description provided for @copilot_history_tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get copilot_history_tooltip;
+
+  /// No description provided for @copilot_new_discussion.
+  ///
+  /// In en, this message translates to:
+  /// **'New conversation'**
+  String get copilot_new_discussion;
+
+  /// No description provided for @copilot_options_tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Options'**
+  String get copilot_options_tooltip;
+
+  /// No description provided for @copilot_action_refresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get copilot_action_refresh;
+
+  /// No description provided for @copilot_action_credits.
+  ///
+  /// In en, this message translates to:
+  /// **'AI credits'**
+  String get copilot_action_credits;
+
+  /// No description provided for @copilot_action_mcp_connection.
+  ///
+  /// In en, this message translates to:
+  /// **'MCP connection'**
+  String get copilot_action_mcp_connection;
+
+  /// No description provided for @copilot_action_archive.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive / restore'**
+  String get copilot_action_archive;
+
+  /// No description provided for @copilot_action_export.
+  ///
+  /// In en, this message translates to:
+  /// **'Export Markdown'**
+  String get copilot_action_export;
+
+  /// No description provided for @copilot_action_continue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with summary'**
+  String get copilot_action_continue;
+
+  /// No description provided for @copilot_action_recover_response.
+  ///
+  /// In en, this message translates to:
+  /// **'Recover response'**
+  String get copilot_action_recover_response;
+
+  /// No description provided for @copilot_action_retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry request'**
+  String get copilot_action_retry;
+
+  /// No description provided for @copilot_global_discussion.
+  ///
+  /// In en, this message translates to:
+  /// **'Global conversation'**
+  String get copilot_global_discussion;
+
+  /// No description provided for @copilot_location_local.
+  ///
+  /// In en, this message translates to:
+  /// **'Local'**
+  String get copilot_location_local;
+
+  /// No description provided for @copilot_location_remote.
+  ///
+  /// In en, this message translates to:
+  /// **'Remote'**
+  String get copilot_location_remote;
+
+  /// No description provided for @copilot_available.
+  ///
+  /// In en, this message translates to:
+  /// **'Available'**
+  String get copilot_available;
+
+  /// No description provided for @copilot_reserved.
+  ///
+  /// In en, this message translates to:
+  /// **'Reserved'**
+  String get copilot_reserved;
+
+  /// No description provided for @copilot_total.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get copilot_total;
+
+  /// No description provided for @copilot_welcome_title.
+  ///
+  /// In en, this message translates to:
+  /// **'A hand with your bot?'**
+  String get copilot_welcome_title;
+
+  /// No description provided for @copilot_welcome_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore an idea, check a command or prepare a change. You stay in control of every action.'**
+  String get copilot_welcome_subtitle;
+
+  /// No description provided for @copilot_suggestion_check_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Check my bot'**
+  String get copilot_suggestion_check_title;
+
+  /// No description provided for @copilot_suggestion_check_prompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Inspect my bot and suggest next steps.'**
+  String get copilot_suggestion_check_prompt;
+
+  /// No description provided for @copilot_suggestion_command_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a command'**
+  String get copilot_suggestion_command_title;
+
+  /// No description provided for @copilot_suggestion_command_prompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Help me prepare a new command for my bot.'**
+  String get copilot_suggestion_command_prompt;
+
+  /// No description provided for @copilot_suggestion_feature_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Understand a feature'**
+  String get copilot_suggestion_feature_title;
+
+  /// No description provided for @copilot_suggestion_feature_prompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Explain how to use Bot Creator features.'**
+  String get copilot_suggestion_feature_prompt;
+
+  /// No description provided for @copilot_history_section_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue a conversation'**
+  String get copilot_history_section_title;
+
+  /// No description provided for @copilot_role_you.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get copilot_role_you;
+
+  /// No description provided for @copilot_role_assistant.
+  ///
+  /// In en, this message translates to:
+  /// **'Copilot'**
+  String get copilot_role_assistant;
+
+  /// No description provided for @copilot_generating.
+  ///
+  /// In en, this message translates to:
+  /// **'Generating…'**
+  String get copilot_generating;
+
+  /// No description provided for @copilot_copy_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy message'**
+  String get copilot_copy_message;
+
+  /// No description provided for @copilot_tokens_in_discussion.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} tokens in this conversation'**
+  String copilot_tokens_in_discussion(String count);
+
+  /// No description provided for @copilot_input_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your message'**
+  String get copilot_input_hint;
+
+  /// No description provided for @copilot_send.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get copilot_send;
+
+  /// No description provided for @copilot_status_approval_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Approval required'**
+  String get copilot_status_approval_required;
+
+  /// No description provided for @copilot_status_ready_to_inspect.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to inspect'**
+  String get copilot_status_ready_to_inspect;
+
+  /// No description provided for @copilot_status_executing.
+  ///
+  /// In en, this message translates to:
+  /// **'Executing'**
+  String get copilot_status_executing;
+
+  /// No description provided for @copilot_status_succeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Succeeded'**
+  String get copilot_status_succeeded;
+
+  /// No description provided for @copilot_status_declined.
+  ///
+  /// In en, this message translates to:
+  /// **'Declined'**
+  String get copilot_status_declined;
+
+  /// No description provided for @copilot_status_unconfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Execution unconfirmed — inspect the bot'**
+  String get copilot_status_unconfirmed;
+
+  /// No description provided for @copilot_status_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get copilot_status_failed;
+
+  /// No description provided for @copilot_technical_details.
+  ///
+  /// In en, this message translates to:
+  /// **'Technical details'**
+  String get copilot_technical_details;
+
+  /// No description provided for @copilot_approve.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get copilot_approve;
+
+  /// No description provided for @copilot_inspect.
+  ///
+  /// In en, this message translates to:
+  /// **'Inspect'**
+  String get copilot_inspect;
+
+  /// No description provided for @copilot_decline.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline'**
+  String get copilot_decline;
+
+  /// No description provided for @copilot_close_without_replay.
+  ///
+  /// In en, this message translates to:
+  /// **'Close without replay'**
+  String get copilot_close_without_replay;
+
+  /// No description provided for @copilot_close_unconfirmed_warning.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the bot before closing this action with an unknown outcome.'**
+  String get copilot_close_unconfirmed_warning;
+
+  /// No description provided for @copilot_close_action.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get copilot_close_action;
+
+  /// No description provided for @copilot_history_sheet_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversation history'**
+  String get copilot_history_sheet_title;
+
+  /// No description provided for @copilot_search_title_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search title'**
+  String get copilot_search_title_hint;
+
+  /// No description provided for @copilot_filter_by_bot.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter by bot'**
+  String get copilot_filter_by_bot;
+
+  /// No description provided for @copilot_all_bots.
+  ///
+  /// In en, this message translates to:
+  /// **'All bots'**
+  String get copilot_all_bots;
+
+  /// No description provided for @copilot_archives.
+  ///
+  /// In en, this message translates to:
+  /// **'Archives'**
+  String get copilot_archives;
+
+  /// No description provided for @copilot_no_conversations.
+  ///
+  /// In en, this message translates to:
+  /// **'No conversations.'**
+  String get copilot_no_conversations;
+
+  /// No description provided for @copilot_badge_global.
+  ///
+  /// In en, this message translates to:
+  /// **'Global'**
+  String get copilot_badge_global;
+
+  /// No description provided for @copilot_load_more.
+  ///
+  /// In en, this message translates to:
+  /// **'Load more'**
+  String get copilot_load_more;
+
+  /// No description provided for @copilot_copy_code.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy code'**
+  String get copilot_copy_code;
 }
 
 class _AppLocalizationsDelegate

@@ -10024,4 +10024,401 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get bot_config_versions_restore_too_small_unforced =>
       'サーバーは依然として拒否しています。このバージョンの強制復元をマネージャーが受け入れる必要があります。';
+
+  @override
+  String get ai_credits_title => 'AIクレジット';
+
+  @override
+  String get ai_credits_unavailable => 'AIクレジットを利用できません。もう一度お試しください。';
+
+  @override
+  String get ai_credits_origin_kofi => 'Ko-fi購入';
+
+  @override
+  String get ai_credits_origin_apple => 'Apple購入';
+
+  @override
+  String get ai_credits_origin_google => 'Google購入';
+
+  @override
+  String get ai_credits_origin_roulette => 'ルーレット報酬';
+
+  @override
+  String get ai_credits_origin_admin_grant => '管理者付与';
+
+  @override
+  String get ai_credits_origin_admin_correction => '管理者修正';
+
+  @override
+  String get ai_credits_origin_copilot => 'AI使用量';
+
+  @override
+  String get ai_credits_ad_pending => '広告の確認待ちです。残高を更新してください。';
+
+  @override
+  String get ai_credits_ad_unavailable => '広告が利用できないか、確認されていません。';
+
+  @override
+  String get ai_credits_spin_failed => '結果を取得できません。このスピンを回収するために再試行してください。';
+
+  @override
+  String get ai_credits_wallet_card_title => 'AIウォレット';
+
+  @override
+  String get ai_credits_tokens_available => '利用可能なトークン';
+
+  @override
+  String get ai_credits_label_total => '合計';
+
+  @override
+  String get ai_credits_label_reserved => '予約済み';
+
+  @override
+  String get ai_credits_spending_blocked => 'AIの利用がブロックされています';
+
+  @override
+  String get ai_credits_label_purchased => '購入';
+
+  @override
+  String get ai_credits_label_rewarded => 'ルーレット';
+
+  @override
+  String get ai_credits_label_granted => '付与';
+
+  @override
+  String ai_credits_spins_available(int count) {
+    return '$count 回の利用可能なスピン';
+  }
+
+  @override
+  String get ai_credits_token_ratio_hint => '1 AIクレジット = 1 使用可能トークン。';
+
+  @override
+  String get ai_credits_daily_ad_limit_hint =>
+      '1日あたり最大3回の広告（UTC）。ボーナスおよび未使用のスピンは保持されます。';
+
+  @override
+  String ai_credits_result_spins(int count) {
+    return '+$count スピン！';
+  }
+
+  @override
+  String ai_credits_result_credits(String count) {
+    return '+$count クレジット！';
+  }
+
+  @override
+  String get ai_credits_button_spin => 'ルーレットを回す';
+
+  @override
+  String ai_credits_button_watch_ad(int remaining) {
+    return '広告を見る（+1スピン）— 残り $remaining';
+  }
+
+  @override
+  String get ai_credits_history_title => 'クレジット履歴';
+
+  @override
+  String get ai_credits_history_empty => '変動履歴はありません。';
+
+  @override
+  String get ai_credits_reference => '参照';
+
+  @override
+  String get ai_credits_open_conversation => '会話を開く';
+
+  @override
+  String get ai_credits_previous => '前へ';
+
+  @override
+  String get ai_credits_next => '次へ';
+
+  @override
+  String get copilot_title => 'AIコパイロット';
+
+  @override
+  String get copilot_compact_label => 'AI';
+
+  @override
+  String get copilot_err_tool_round_limit =>
+      'AIの8ステップ制限に達しました。続行するには新しい指示を送信してください。';
+
+  @override
+  String get copilot_err_context_limit => 'コンテキストが長すぎます。要約を作成して新しい会話で続けてください。';
+
+  @override
+  String get copilot_err_spending_blocked => 'このアカウントではAIの利用がブロックされています。';
+
+  @override
+  String get copilot_err_revision_conflict => '別のデバイスで会話が変更されました。更新してください。';
+
+  @override
+  String get copilot_err_action_claimed => 'アクションの承認または解決が必要です。';
+
+  @override
+  String get copilot_err_insufficient_balance =>
+      'このリクエストとコンテキストを予約するための残高が不足しています。';
+
+  @override
+  String get copilot_err_unauthorized => 'コパイロットを使用するにはログインしてください。';
+
+  @override
+  String get copilot_err_not_found => '会話またはボットにアクセスできません。';
+
+  @override
+  String get copilot_err_unavailable => 'マネージャーでコパイロットを利用できません。';
+
+  @override
+  String get copilot_err_request_failed =>
+      'リクエストが完了しませんでした。更新してステータスを取得してください。';
+
+  @override
+  String get copilot_approve_dialog_title => 'コパイロットのアクションを承認';
+
+  @override
+  String get copilot_bot_label => 'ボット';
+
+  @override
+  String get copilot_remote_manager => 'リモートマネージャー';
+
+  @override
+  String get copilot_this_device => 'このデバイス';
+
+  @override
+  String get copilot_action_details_title => 'アクションの詳細';
+
+  @override
+  String get copilot_cancel => 'キャンセル';
+
+  @override
+  String get copilot_execute => '実行';
+
+  @override
+  String get copilot_tool_start_bot => 'ボットを起動';
+
+  @override
+  String get copilot_tool_stop_bot => 'ボットを停止';
+
+  @override
+  String get copilot_tool_create_command => 'コマンドを作成';
+
+  @override
+  String get copilot_tool_update_command => 'コマンドを更新';
+
+  @override
+  String get copilot_tool_read_docs => 'ドキュメントを参照';
+
+  @override
+  String get copilot_tool_inspect_bot => 'ボットを確認';
+
+  @override
+  String get copilot_rename_title => '名前を変更';
+
+  @override
+  String get copilot_save => '保存';
+
+  @override
+  String get copilot_export_dialog_title => '会話をエクスポート';
+
+  @override
+  String get copilot_delete_confirm_title => '会話を削除しますか？';
+
+  @override
+  String get copilot_delete_confirm_body => 'コンテンツは削除されます。クレジットの移動履歴は残ります。';
+
+  @override
+  String get copilot_delete => '削除';
+
+  @override
+  String get copilot_continue_summary_title => '要約して続ける';
+
+  @override
+  String get copilot_continue_summary_body =>
+      '要約にはAIクレジット（入力＋出力）が消費されます。最新のやり取りがコンテキストの制限内で要約されます。元の会話はそのまま残ります。';
+
+  @override
+  String get copilot_create_continuation => '続きを作成';
+
+  @override
+  String get copilot_mcp_local_title => 'ローカルMCP接続';
+
+  @override
+  String get copilot_mcp_approval_note => '変更にはここでの承認が必要です。';
+
+  @override
+  String get copilot_close => '閉じる';
+
+  @override
+  String get copilot_history_tooltip => '履歴';
+
+  @override
+  String get copilot_new_discussion => '新しい会話';
+
+  @override
+  String get copilot_options_tooltip => 'オプション';
+
+  @override
+  String get copilot_action_refresh => '更新';
+
+  @override
+  String get copilot_action_credits => 'AIクレジット';
+
+  @override
+  String get copilot_action_mcp_connection => 'MCP接続';
+
+  @override
+  String get copilot_action_archive => 'アーカイブ / 復元';
+
+  @override
+  String get copilot_action_export => 'Markdownをエクスポート';
+
+  @override
+  String get copilot_action_continue => '要約して続ける';
+
+  @override
+  String get copilot_action_recover_response => '応答を復元';
+
+  @override
+  String get copilot_action_retry => 'リクエストを再試行';
+
+  @override
+  String get copilot_global_discussion => 'グローバルな会話';
+
+  @override
+  String get copilot_location_local => 'ローカル';
+
+  @override
+  String get copilot_location_remote => 'リモート';
+
+  @override
+  String get copilot_available => '利用可能';
+
+  @override
+  String get copilot_reserved => '予約済み';
+
+  @override
+  String get copilot_total => '合計';
+
+  @override
+  String get copilot_welcome_title => 'ボットのサポートが必要ですか？';
+
+  @override
+  String get copilot_welcome_subtitle =>
+      'アイデアを探求し、コマンドを確認し、変更を準備します。すべてのアクションを自分で管理できます。';
+
+  @override
+  String get copilot_suggestion_check_title => 'ボットを確認する';
+
+  @override
+  String get copilot_suggestion_check_prompt => 'ボットの状態を確認し、次のステップを提案してください。';
+
+  @override
+  String get copilot_suggestion_command_title => 'コマンドを作成する';
+
+  @override
+  String get copilot_suggestion_command_prompt =>
+      'ボット用の新しいコマンドを作成するのを手伝ってください。';
+
+  @override
+  String get copilot_suggestion_feature_title => '機能を理解する';
+
+  @override
+  String get copilot_suggestion_feature_prompt =>
+      'Bot Creatorの機能の使い方を説明してください。';
+
+  @override
+  String get copilot_history_section_title => '会話を再開';
+
+  @override
+  String get copilot_role_you => 'あなた';
+
+  @override
+  String get copilot_role_assistant => 'コパイロット';
+
+  @override
+  String get copilot_generating => '生成中…';
+
+  @override
+  String get copilot_copy_message => 'メッセージをコピー';
+
+  @override
+  String copilot_tokens_in_discussion(String count) {
+    return 'この会話のトークン数: $count';
+  }
+
+  @override
+  String get copilot_input_hint => 'メッセージを入力';
+
+  @override
+  String get copilot_send => '送信';
+
+  @override
+  String get copilot_status_approval_required => '承認が必要';
+
+  @override
+  String get copilot_status_ready_to_inspect => '確認可能';
+
+  @override
+  String get copilot_status_executing => '実行中';
+
+  @override
+  String get copilot_status_succeeded => '成功';
+
+  @override
+  String get copilot_status_declined => '拒否されました';
+
+  @override
+  String get copilot_status_unconfirmed => '実行未確認 — ボットを確認してください';
+
+  @override
+  String get copilot_status_failed => '失敗';
+
+  @override
+  String get copilot_technical_details => '技術的な詳細';
+
+  @override
+  String get copilot_approve => '承認';
+
+  @override
+  String get copilot_inspect => '確認';
+
+  @override
+  String get copilot_decline => '拒否';
+
+  @override
+  String get copilot_close_without_replay => '再実行せずに閉じる';
+
+  @override
+  String get copilot_close_unconfirmed_warning =>
+      '結果が不明なこのアクションを閉じる前に、ボットを確認してください。';
+
+  @override
+  String get copilot_close_action => '閉じる';
+
+  @override
+  String get copilot_history_sheet_title => '会話履歴';
+
+  @override
+  String get copilot_search_title_hint => 'タイトルを検索';
+
+  @override
+  String get copilot_filter_by_bot => 'ボットで絞り込み';
+
+  @override
+  String get copilot_all_bots => 'すべてのボット';
+
+  @override
+  String get copilot_archives => 'アーカイブ';
+
+  @override
+  String get copilot_no_conversations => '会話はありません。';
+
+  @override
+  String get copilot_badge_global => 'グローバル';
+
+  @override
+  String get copilot_load_more => 'さらに読み込む';
+
+  @override
+  String get copilot_copy_code => 'コードをコピー';
 }

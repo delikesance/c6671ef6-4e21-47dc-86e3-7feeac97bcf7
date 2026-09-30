@@ -1,0 +1,332 @@
+[
+  {
+    "name": "docs_search",
+    "description": "Search official Bot Creator function documentation.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "additionalProperties": false
+    },
+    "mutating": false
+  },
+  {
+    "name": "docs_get",
+    "description": "Read a function document by its slug.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "slug": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      },
+      "required": [
+        "slug"
+      ],
+      "additionalProperties": false
+    },
+    "mutating": false
+  },
+  {
+    "name": "remote_list_bots",
+    "description": "List the account's cloud bots.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "mutating": false
+  },
+  {
+    "name": "remote_bot_status",
+    "description": "Read a cloud bot's status.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "bot_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      },
+      "required": [
+        "bot_id"
+      ],
+      "additionalProperties": false
+    },
+    "mutating": false
+  },
+  {
+    "name": "remote_start_bot",
+    "description": "Start a cloud bot using its current saved configuration.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "bot_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      },
+      "required": [
+        "bot_id"
+      ],
+      "additionalProperties": false
+    },
+    "mutating": true
+  },
+  {
+    "name": "remote_stop_bot",
+    "description": "Stop a cloud bot.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "bot_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      },
+      "required": [
+        "bot_id"
+      ],
+      "additionalProperties": false
+    },
+    "mutating": true
+  },
+  {
+    "name": "local_list_bots",
+    "description": "List bots saved in this application. Tokens and secrets are excluded.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "mutating": false
+  },
+  {
+    "name": "local_bot_status",
+    "description": "Read local runtime state for a bot.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "bot_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      },
+      "required": [
+        "bot_id"
+      ],
+      "additionalProperties": false
+    },
+    "mutating": false
+  },
+  {
+    "name": "local_start_bot",
+    "description": "Start a bot on this device using its saved configuration.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "bot_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      },
+      "required": [
+        "bot_id"
+      ],
+      "additionalProperties": false
+    },
+    "mutating": true
+  },
+  {
+    "name": "local_stop_bot",
+    "description": "Stop a bot on this device.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "bot_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      },
+      "required": [
+        "bot_id"
+      ],
+      "additionalProperties": false
+    },
+    "mutating": true
+  },
+  {
+    "name": "local_list_commands",
+    "description": "Read command definitions saved locally for a bot.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "bot_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      },
+      "required": [
+        "bot_id"
+      ],
+      "additionalProperties": false
+    },
+    "mutating": false
+  },
+  {
+    "name": "local_block_registry",
+    "description": "List supported BDFD functions and visual block types. For workflow mode, actions_json is a JSON array of blocks with type and payload; inspect existing commands for payload examples.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "mutating": false
+  },
+  {
+    "name": "local_get_command",
+    "description": "Read a local command and its revision before editing it.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "bot_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "command_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      },
+      "required": [
+        "bot_id",
+        "command_id"
+      ],
+      "additionalProperties": false
+    },
+    "mutating": false
+  },
+  {
+    "name": "local_create_command",
+    "description": "Create and register a new slash command. Choose execution_mode bdfd_script for BDFD source, javascript for a JavaScript bot, or workflow for visual blocks on a Dart bot. BDFD and JavaScript use script; workflow uses actions_json (JSON array of action blocks). Default is the bot runtime's script mode. Inspect the bot runtime and block registry first. Requires approval.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "bot_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "script": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 12000
+        },
+        "execution_mode": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "actions_json": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 24000
+        }
+      },
+      "required": [
+        "bot_id",
+        "name",
+        "description"
+      ],
+      "additionalProperties": false
+    },
+    "mutating": true
+  },
+  {
+    "name": "local_update_command_execution",
+    "description": "Update only an existing command's execution. Choose execution_mode bdfd_script, javascript or workflow. BDFD and JavaScript use script; workflow uses actions_json containing an array of visual action blocks. Preserve the Discord ID, name, options and permissions. Read local_get_command first and pass its revision. Requires approval.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "bot_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "command_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "expected_revision": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "script": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 12000
+        },
+        "execution_mode": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "actions_json": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 24000
+        },
+        "route": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      },
+      "required": [
+        "bot_id",
+        "command_id",
+        "expected_revision"
+      ],
+      "additionalProperties": false
+    },
+    "mutating": true
+  }
+]

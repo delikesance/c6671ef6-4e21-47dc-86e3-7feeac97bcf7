@@ -219,13 +219,16 @@ String _timestampNow() {
   return '${_two(now.hour)}:${_two(now.minute)}:${_two(now.second)}';
 }
 
-Future<void> startDesktopBot(String token) async {
+Future<void> startDesktopBot(String token, {String? expectedBotId}) async {
   if (!Platform.isWindows && !Platform.isLinux && !Platform.isMacOS) {
     throw Exception('Desktop bot mode is only available on desktop platforms.');
   }
 
   final botUser = await shared_global.getDiscordUser(token);
   final botId = botUser.id.toString();
+  if (expectedBotId != null && botId != expectedBotId) {
+    throw StateError('Saved bot identity does not match its token');
+  }
   
   await _engine.startWithId(botId, token);
 }
@@ -249,6 +252,7 @@ Future<ApplicationCommand> createCommand(
   ApplicationCommandBuilder commandBuilder, {
   Map<String, dynamic> data = const {},
   String folder = '',
+  String? storageId,
 }) async {
   try {
     final command = await client.commands.create(commandBuilder);
@@ -256,7 +260,8 @@ Future<ApplicationCommand> createCommand(
       'name': command.name,
       'description': command.description,
       'type': _commandTypeToStorage(command.type),
-      'id': command.id.toString(),
+      'id': storageId ?? command.id.toString(),
+      'discordId': command.id.toString(),
       'createdAt': DateTime.now().toIso8601String(),
     };
     if (data.isNotEmpty) {
@@ -267,7 +272,7 @@ Future<ApplicationCommand> createCommand(
     }
     await appManager.saveAppCommand(
       client.user.id.toString(),
-      command.id.toString(),
+      storageId ?? command.id.toString(),
       commandData,
     );
     return command;
@@ -282,6 +287,7 @@ Future<ApplicationCommand> updateCommand(
   required ApplicationCommandUpdateBuilder commandBuilder,
   Map<String, dynamic> data = const {},
   String folder = '',
+  String? storageId,
 }) async {
   try {
     final command = await client.commands.update(commandId, commandBuilder);
@@ -289,7 +295,8 @@ Future<ApplicationCommand> updateCommand(
       'name': command.name,
       'description': command.description,
       'type': _commandTypeToStorage(command.type),
-      'id': command.id.toString(),
+      'id': storageId ?? command.id.toString(),
+      'discordId': command.id.toString(),
       'updatedAt': DateTime.now().toIso8601String(),
     };
 
@@ -301,7 +308,7 @@ Future<ApplicationCommand> updateCommand(
     }
     await appManager.saveAppCommand(
       client.user.id.toString(),
-      command.id.toString(),
+      storageId ?? command.id.toString(),
       commandData,
     );
     return command;
