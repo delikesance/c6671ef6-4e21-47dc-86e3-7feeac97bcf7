@@ -646,6 +646,8 @@ extension _BdfdAstTranspilationScopeActionBuilders
     final channelId = _stringifyArgument(node, 0).trim();
     if (channelId.isNotEmpty) {
       _useChannelId = channelId;
+    } else {
+      _useChannelId = null;
     }
     return null;
   }
@@ -667,8 +669,10 @@ extension _BdfdAstTranspilationScopeActionBuilders
     }
     final type = _stringifyArgument(node, 1).trim().toLowerCase();
     final categoryId = _stringifyArgument(node, 2).trim();
+    final key = '_bdfd_createchannel_${_createChannelCounter++}';
     return Action(
       type: BotCreatorActionType.createChannel,
+      key: key,
       payload: <String, dynamic>{
         'name': name,
         'type': type.isEmpty ? 'text' : type,

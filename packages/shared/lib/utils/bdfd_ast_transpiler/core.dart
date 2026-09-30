@@ -52,6 +52,7 @@ class _BdfdAstTranspilationScope {
   int _permissionCheckCounter = 0;
   int _callWorkflowCounter = 0;
   int _createEmojiCounter = 0;
+  int _createChannelCounter = 0;
   String? _lastHttpRequestKey;
   String? _lastCallWorkflowKey;
   final List<Action> _deferredInlineActions = <Action>[];
