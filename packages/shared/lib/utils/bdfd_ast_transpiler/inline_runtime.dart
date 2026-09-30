@@ -46,6 +46,13 @@ extension _BdfdAstTranspilationScopeInlineRuntime
           return '((${action.key}.tag))';
         }
         return '';
+      case 'createchannel':
+        final action = _buildCreateChannelAction(node);
+        if (action != null) {
+          _deferredInlineActions.add(action);
+          return '((${action.key}))';
+        }
+        return '';
       case 'startthread':
         final action = _buildStartThreadAction(node);
         if (action != null) {
@@ -1181,6 +1188,7 @@ extension _BdfdAstTranspilationScopeInlineRuntime
       case 'jsonarraypop':
       case 'jsonarrayshift':
       case 'addemoji':
+      case 'createchannel':
       case 'startthread':
       case 'editthread':
       case 'threadaddmember':

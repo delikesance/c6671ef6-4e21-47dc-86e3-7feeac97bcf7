@@ -37,30 +37,35 @@ void main() {
         accessToken: 'test',
         httpClient: MockClient((request) async {
           final path = request.url.path;
-          if (path == '/gateway/ai/copilot/tools')
+          if (path == '/gateway/ai/copilot/tools') {
             return http.Response('{"tools":[]}', 200);
-          if (path == '/gateway/ai/wallet')
+          }
+          if (path == '/gateway/ai/wallet') {
             return http.Response(
               '{"balance":10000,"reserved":0,"available":10000}',
               200,
             );
-          if (path == '/gateway/ai/conversations')
+          }
+          if (path == '/gateway/ai/conversations') {
             return http.Response(
               request.method == 'POST'
                   ? jsonEncode(chat)
                   : '{"conversations":[]}',
               200,
             );
-          if (path == '/gateway/ai/conversations/c')
+          }
+          if (path == '/gateway/ai/conversations/c') {
             return http.Response(jsonEncode(chat), 200);
+          }
           if (path == '/gateway/ai/conversations/c/turns') {
             turns++;
             expect(
               (jsonDecode(request.body) as Map)['prompt'],
               turns <= 2 ? 'Keep this draft' : 'Second draft',
             );
-            if (turns == 1 || turns == 3)
+            if (turns == 1 || turns == 3) {
               return http.Response('{"code":"ai_context_limit"}', 400);
+            }
             (chat['messages'] as List).addAll([
               {'role': 'user', 'content': 'Keep this draft'},
               {'role': 'assistant', 'content': 'Done'},
@@ -76,7 +81,7 @@ void main() {
             if (summaries == 1) chat['context_summary'] = 'Earlier turns';
             return http.Response(jsonEncode({'request_key': summaryKey}), 202);
           }
-          if (path.endsWith('/events'))
+          if (path.endsWith('/events')) {
             return http.Response(
               summaries == 2 && path.contains(summaryKey!)
                   ? 'id: 1\nevent: error\ndata: {"code":"ai_provider_failure"}\n\n'
@@ -84,6 +89,7 @@ void main() {
               200,
               headers: {'content-type': 'text/event-stream'},
             );
+          }
           throw StateError('Unexpected $path');
         }),
       );
