@@ -211,6 +211,14 @@ class CopilotMcp {
             'payload': {'content': 'Hello'},
           },
         };
+      case 'local_validate_bdfd':
+        final validation = validateCopilotBdfd(script!);
+        return {
+          'content': [
+            {'type': 'text', 'text': jsonEncode(validation)},
+          ],
+          'isError': validation['valid'] != true,
+        };
       case 'local_get_command':
         await _localBot(botID!);
         final commandID = _commandID(args);

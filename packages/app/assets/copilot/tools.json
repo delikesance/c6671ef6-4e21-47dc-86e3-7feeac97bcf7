@@ -1,5 +1,22 @@
 [
   {
+    "name": "local_validate_bdfd",
+    "description": "Compile a BDFD draft without saving or executing it. Returns diagnostics and valid status. Use before proposing BDFD command/workflow creation or edits; runtime_tested=false means Discord behavior is not verified.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "script": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 12000
+        }
+      },
+      "required": ["script"],
+      "additionalProperties": false
+    },
+    "mutating": false
+  },
+  {
     "name": "docs_search",
     "description": "Search official Bot Creator function documentation.",
     "inputSchema": {

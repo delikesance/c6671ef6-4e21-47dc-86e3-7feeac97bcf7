@@ -18,6 +18,73 @@ void main() {
   // the public documentation smoke test requires the explicit LIVE_MCP flag.
   HttpOverrides.global = null;
   setUp(() => SharedPreferences.setMockInitialValues({}));
+  test(
+    'BDFD preflight rejects the reported ticket script without approval',
+    () async {
+      var approvals = 0;
+      var requests = 0;
+      final bridge = CopilotMcp(
+        MainApiClient(
+          baseUrl: 'https://manager.example',
+          httpClient: MockClient((request) async {
+            requests++;
+            throw StateError(
+              'Preflight must not contact Discord or the manager',
+            );
+          }),
+        ),
+        approve: (_, _) async {
+          approvals++;
+          return true;
+        },
+      );
+      await bridge.initialize();
+      const invalid = r'''$if[$isTicket==false]
+$respondWithMessage[Only available in a ticket.;true]
+$stop
+$endif
+$if[((opts.logs.id))!=]
+$channelSendMessage[((opts.logs.id));Ticket closed by ((author.username)).]
+$endif
+$respondWithMessage[Closing in 3 seconds...;true]
+$wait[3]
+$closeTicket''';
+      final rejected = await bridge.call('local_validate_bdfd', {
+        'script': invalid,
+      }, callID: 'invalid-ticket');
+      expect(rejected['isError'], true);
+      final rejectedValue =
+          jsonDecode((rejected['content'] as List).single['text'] as String)
+              as Map;
+      expect(rejectedValue['valid'], false);
+      expect(
+        jsonEncode(rejectedValue['diagnostics']),
+        contains(r'$respondWithMessage'),
+      );
+      expect(validateCopilotBdfd(r'$let[opener;$userID]')['valid'], false);
+      final corrected = invalid
+          .replaceAll(
+            r'$respondWithMessage[Only available in a ticket.;true]',
+            r'$ephemeral$sendMessage[Only available in a ticket.]',
+          )
+          .replaceAll(
+            r'$respondWithMessage[Closing in 3 seconds...;true]',
+            r'$ephemeral$sendMessage[Closing in 3 seconds...]',
+          );
+      final accepted = await bridge.call('local_validate_bdfd', {
+        'script': corrected,
+      }, callID: 'corrected-ticket');
+      expect(accepted['isError'], false);
+      final acceptedValue =
+          jsonDecode((accepted['content'] as List).single['text'] as String)
+              as Map;
+      expect(acceptedValue['valid'], true);
+      expect(acceptedValue['runtime_tested'], false);
+      expect(approvals, 0);
+      expect(requests, 0);
+      expect(() => copilotExecutionData(invalid), throwsFormatException);
+    },
+  );
   test('closed compiler creates real blocks and refuses unknown functions', () {
     final actions = compileCopilotCommand('Hello world');
     final types = BotCreatorActionType.values.map((t) => t.name).toSet();

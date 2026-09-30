@@ -30,6 +30,45 @@ List<Map<String, dynamic>> compileCopilotCommand(String script) {
 Map<String, dynamic> copilotExecutionData(String script) =>
     copilotExecutionDataForMode('bdfd_script', script: script);
 
+/// Compile without saving or performing Discord operations. This is a syntax
+/// and supported-function check, not evidence of successful runtime execution.
+Map<String, dynamic> validateCopilotBdfd(String script) {
+  try {
+    final actions = compileCopilotCommand(script);
+    final result = BdfdCompiler().compile(script);
+    return {
+      'valid': true,
+      'validation_kind': 'compilation',
+      'runtime_tested': false,
+      'script_revision': HashUtil.calculateHash(script),
+      'action_count': actions.length,
+      'action_types': actions.map((a) => a['type']).toSet().toList(),
+      'diagnostics': [
+        for (final diagnostic in result.diagnostics)
+          {
+            'severity': diagnostic.severity.name,
+            'message': diagnostic.message,
+            if (diagnostic.line != null) 'line': diagnostic.line,
+            if (diagnostic.column != null) 'column': diagnostic.column,
+          },
+      ],
+      'message':
+          'Compilation passed. Discord permissions, resource IDs and '
+          'behavior still require runtime verification.',
+    };
+  } on FormatException catch (error) {
+    return {
+      'valid': false,
+      'validation_kind': 'compilation',
+      'runtime_tested': false,
+      'script_revision': HashUtil.calculateHash(script),
+      'diagnostics': [
+        {'severity': 'error', 'message': error.message},
+      ],
+    };
+  }
+}
+
 Map<String, dynamic> copilotExecutionDataForMode(
   String executionMode, {
   String? script,
