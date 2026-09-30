@@ -12685,7 +12685,7 @@
   "ai_credits_ad_unavailable": "Ad unavailable or not verified.",
   "ai_credits_spin_failed": "Result unavailable. Retry to recover this spin.",
   "ai_credits_wallet_card_title": "Your AI wallet",
-  "ai_credits_tokens_available": "tokens available",
+  "ai_credits_available": "AI credits available",
   "ai_credits_label_total": "Total",
   "ai_credits_label_reserved": "Reserved",
   "ai_credits_spending_blocked": "AI spending blocked",
@@ -12693,7 +12693,7 @@
   "ai_credits_label_rewarded": "Roulette",
   "ai_credits_label_granted": "Grants",
   "ai_credits_spins_available": "{count, plural, =1{1 available spin} other{{count} available spins}}",
-  "ai_credits_token_ratio_hint": "1 AI credit = 1 usable token.",
+  "ai_credits_usage_hint": "Usage depends on your messages and actions.",
   "ai_credits_daily_ad_limit_hint": "Up to 3 ads per day (UTC). Bonus and unused spins are kept.",
   "ai_credits_result_spins": "+{count, plural, =1{1 spin!} other{{count} spins!}}",
   "ai_credits_result_credits": "+{count} credits!",
@@ -12772,7 +12772,7 @@
   "copilot_role_assistant": "Copilot",
   "copilot_generating": "Generating…",
   "copilot_copy_message": "Copy message",
-  "copilot_tokens_in_discussion": "{count} tokens in this conversation",
+  "copilot_credits_in_discussion": "{count} AI credits used in this conversation",
   "copilot_input_hint": "Your message",
   "copilot_send": "Send",
   "copilot_status_approval_required": "Approval required",
@@ -12826,11 +12826,20 @@
       }
     }
   },
-  "@copilot_tokens_in_discussion": {
+  "@copilot_credits_in_discussion": {
     "placeholders": {
       "count": {
         "type": "String"
       }
     }
-  }
+  },
+  "copilot_tool_options": "Edit command arguments",
+  "copilot_tool_settings": "Edit command settings",
+  "copilot_tool_create_workflow": "Create an automation",
+  "copilot_tool_update_workflow": "Edit an automation",
+  "copilot_tool_presence": "Change status and activity",
+  "copilot_tool_profile": "Change bot name",
+  "copilot_tool_variable": "Save a variable",
+  "copilot_tool_schedule": "Schedule an automation",
+  "copilot_tool_webhook": "Configure an external trigger"
 }

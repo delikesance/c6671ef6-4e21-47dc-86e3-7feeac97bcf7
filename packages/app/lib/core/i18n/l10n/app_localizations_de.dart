@@ -10663,7 +10663,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get ai_credits_wallet_card_title => 'Ihre KI-Geldbörse';
 
   @override
-  String get ai_credits_tokens_available => 'Tokens verfügbar';
+  String get ai_credits_available => 'KI-Guthaben verfügbar';
 
   @override
   String get ai_credits_label_total => 'Gesamt';
@@ -10695,8 +10695,8 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get ai_credits_token_ratio_hint =>
-      '1 KI-Guthaben = 1 nutzbares Token.';
+  String get ai_credits_usage_hint =>
+      'Der Verbrauch hängt von Ihren Nachrichten und Aktionen ab.';
 
   @override
   String get ai_credits_daily_ad_limit_hint =>
@@ -10962,8 +10962,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get copilot_copy_message => 'Nachricht kopieren';
 
   @override
-  String copilot_tokens_in_discussion(String count) {
-    return '$count Tokens in dieser Unterhaltung';
+  String copilot_credits_in_discussion(String count) {
+    return '$count KI-Guthaben in dieser Unterhaltung verbraucht';
   }
 
   @override
@@ -11042,4 +11042,31 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get copilot_copy_code => 'Code kopieren';
+
+  @override
+  String get copilot_tool_options => 'Befehlsargumente bearbeiten';
+
+  @override
+  String get copilot_tool_settings => 'Befehlseinstellungen bearbeiten';
+
+  @override
+  String get copilot_tool_create_workflow => 'Automatisierung erstellen';
+
+  @override
+  String get copilot_tool_update_workflow => 'Automatisierung bearbeiten';
+
+  @override
+  String get copilot_tool_presence => 'Status und Aktivität ändern';
+
+  @override
+  String get copilot_tool_profile => 'Bot-Namen ändern';
+
+  @override
+  String get copilot_tool_variable => 'Variable speichern';
+
+  @override
+  String get copilot_tool_schedule => 'Automatisierung planen';
+
+  @override
+  String get copilot_tool_webhook => 'Externen Auslöser konfigurieren';
 }

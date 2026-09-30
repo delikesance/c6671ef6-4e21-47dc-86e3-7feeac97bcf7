@@ -2,12 +2,15 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'copilot_schema.dart';
 
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/core/utils/hash_util.dart';
 import 'package:bot_creator/features/copilot/logic/copilot_command.dart';
+import 'package:bot_creator/features/copilot/logic/copilot_configuration.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command_option_serialization.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
@@ -18,6 +21,9 @@ import 'package:nyxx/nyxx.dart';
 import 'package:uuid/uuid.dart';
 import 'package:bot_creator_shared/types/action.dart';
 import 'package:bot_creator_shared/utils/bdfd_functions.dart';
+import 'package:bot_creator_shared/utils/event_catalog.dart';
+
+part 'copilot_mcp_configuration.dart';
 
 typedef CopilotApproval =
     Future<bool> Function(String tool, Map<String, dynamic> arguments);
@@ -30,10 +36,14 @@ class CopilotMcp {
     required this.approve,
     this.botId,
     http.Client? documentationClient,
+    this.discordConnect,
   }) : _docsClient = documentationClient ?? http.Client();
   final String? botId;
   final MainApiClient api;
   final CopilotApproval approve;
+  final Future<NyxxRest> Function(String token)? discordConnect;
+  Future<NyxxRest> _connectDiscord(String token) =>
+      discordConnect?.call(token) ?? Nyxx.connectRest(token);
   final http.Client _docsClient;
   List<Map<String, dynamic>> tools = [];
   HttpServer? _server;
@@ -210,6 +220,21 @@ class CopilotMcp {
           'command': command,
           'revision': HashUtil.calculateHash(command),
         };
+      case 'local_update_command_options':
+      case 'local_update_command_settings':
+      case 'local_list_workflows':
+      case 'local_get_workflow':
+      case 'local_create_workflow':
+      case 'local_update_workflow':
+      case 'local_list_events':
+      case 'local_get_bot_configuration':
+      case 'local_get_bot_presence':
+      case 'local_update_bot_presence':
+      case 'local_update_bot_profile':
+      case 'local_set_variable':
+      case 'local_update_scheduled_trigger':
+      case 'local_update_inbound_webhook':
+        value = await _configurationTool(name, args);
       case 'local_update_command_execution':
         await _localBot(botID!);
         final commandID = _commandID(args);
@@ -251,7 +276,8 @@ class CopilotMcp {
         if (token.isEmpty) {
           throw StateError('Configure the bot token in the application');
         }
-        final rest = await Nyxx.connectRest(token);
+        final options = validateCopilotOptions(args['options'] as List? ?? []);
+        final rest = await _connectDiscord(token);
         try {
           if (rest.user.id.toString() != botID) {
             throw StateError('Bot identity does not match its token');
@@ -268,13 +294,18 @@ class CopilotMcp {
               type: ApplicationCommandType.chatInput,
               name: name,
               description: args['description'] as String,
+              options: deserializeCommandOptions(options),
             ),
             storageId: storageId,
-            data: copilotExecutionDataForMode(
-              executionMode,
-              script: script,
-              actionsJson: args['actions_json'] as String?,
-            ),
+            data:
+                withCopilotOptions({
+                      'data': copilotExecutionDataForMode(
+                        executionMode,
+                        script: script,
+                        actionsJson: args['actions_json'] as String?,
+                      ),
+                    }, options)['data']
+                    as Map<String, dynamic>,
           );
           final synced = await syncCloudCommand(botID, storageId);
           value = {
@@ -398,8 +429,16 @@ class CopilotMcp {
   /// as active until its runner confirms the update.
   Future<bool> syncCloudCommand(String botID, String commandID) async {
     try {
-      final command = await AppManager().getAppCommand(botID, commandID);
+      var command = await AppManager().getAppCommand(botID, commandID);
       if (command.isEmpty) return false;
+      if (await getBotRuntimeEngine(botID) == runtimeEngineJavascript) {
+        final payload = await buildRemotePayload(botID);
+        final matches = (payload['commands'] as List? ?? const [])
+            .whereType<Map>()
+            .where((c) => c['id'] == commandID);
+        if (matches.isEmpty) return false;
+        command = Map<String, dynamic>.from(matches.single);
+      }
       final app = await AppManager().getApp(botID);
       final botName = (app['username'] ?? app['name'] ?? botID).toString();
       Future<bool> delta() =>
@@ -486,29 +525,7 @@ class CopilotMcp {
     Map<String, dynamic> schema,
     Map<String, dynamic> args,
   ) {
-    final properties = Map<String, dynamic>.from(schema['properties'] as Map);
-    for (final key in schema['required'] as List? ?? []) {
-      if (!args.containsKey(key)) throw FormatException('Missing $key');
-    }
-    for (final e in args.entries) {
-      final p = properties[e.key] as Map?;
-      if (p == null) throw FormatException('Unknown argument ${e.key}');
-      if (p['type'] == 'string') {
-        if (e.value is! String ||
-            (e.value as String).trim().length < (p['minLength'] as int? ?? 0) ||
-            (e.value as String).length > (p['maxLength'] as int? ?? 100000)) {
-          throw FormatException('Invalid ${e.key}');
-        }
-      } else if (p['type'] == 'integer') {
-        if (e.value is! int ||
-            (e.value as int) < (p['minimum'] as int) ||
-            (e.value as int) > (p['maximum'] as int)) {
-          throw FormatException('Invalid ${e.key}');
-        }
-      } else {
-        throw FormatException('Unsupported schema');
-      }
-    }
+    validateCopilotSchema(schema, args);
   }
 
   Future<Map<String, dynamic>> _docsRPC(

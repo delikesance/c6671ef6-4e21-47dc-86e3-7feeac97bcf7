@@ -7,6 +7,7 @@ import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/utils/hash_util.dart';
 import 'package:bot_creator/features/copilot/logic/copilot_mcp.dart';
 import 'package:bot_creator/features/subscriptions/presentation/ai_credits_page.dart';
+import 'package:bot_creator/features/subscriptions/logic/ai_credit_format.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
@@ -667,6 +668,17 @@ class _CopilotPageState extends State<CopilotPage> {
   Future<bool> _approve(Map<String, dynamic> a) async {
     final fn = (a['call'] as Map)['function'] as Map;
     final args = jsonDecode(fn['arguments'] as String) as Map;
+    Map<String, dynamic>? preview;
+    try {
+      preview = await _mcp?.previewConfiguration(
+        fn['name'] as String,
+        Map<String, dynamic>.from(args),
+      );
+    } catch (error) {
+      if (mounted) setState(() => _error = _describe(error));
+      return false;
+    }
+    if (!mounted) return false;
     return await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
@@ -680,12 +692,69 @@ class _CopilotPageState extends State<CopilotPage> {
                     '${context.tr.copilot_bot_label} : ${args['bot_id'] ?? _chat?['bot_id'] ?? '—'}',
                   ),
                   Text(_label(fn['name'] as String)),
+                  if (preview != null &&
+                      fn['name'] == 'local_update_command_options') ...[
+                    Text(
+                      '${_copy('Avant', 'Before')} : ${(preview['before'] as List).map((o) => (o as Map)['name']).join(', ')}',
+                    ),
+                    Text(
+                      '${_copy('Après', 'After')} : ${(preview['after'] as List).map((o) => (o as Map)['name']).join(', ')}',
+                    ),
+                  ],
                   Text(
                     (fn['name'] as String).startsWith('remote_')
                         ? context.tr.copilot_remote_manager
                         : context.tr.copilot_this_device,
                   ),
                   if (args['name'] != null) Text('/${args['name']}'),
+                  if (args['option_name'] != null)
+                    Text(
+                      '${_copy('Argument', 'Argument')} : ${args['option_name']}',
+                    ),
+                  if (args['operation'] != null)
+                    Text(switch (args['operation']) {
+                      'add' => _copy(
+                        'Ajouter cet argument',
+                        'Add this argument',
+                      ),
+                      'update' => _copy(
+                        'Modifier cet argument',
+                        'Edit this argument',
+                      ),
+                      'remove' => _copy(
+                        'Supprimer cet argument',
+                        'Remove this argument',
+                      ),
+                      _ => '',
+                    }),
+                  if (args['option'] is Map) ...[
+                    if ((args['option'] as Map)['description'] != null)
+                      Text((args['option'] as Map)['description'] as String),
+                    if ((args['option'] as Map)['required'] != null)
+                      Text(
+                        (args['option'] as Map)['required'] == true
+                            ? _copy('Argument obligatoire', 'Required argument')
+                            : _copy('Argument facultatif', 'Optional argument'),
+                      ),
+                  ],
+                  if (args['username'] != null)
+                    Text(
+                      '${_copy('Nouveau nom', 'New name')} : ${args['username']}',
+                    ),
+                  if (args['workflow_name'] != null)
+                    Text(
+                      '${_copy('Automatisation', 'Automation')} : ${args['workflow_name']}',
+                    ),
+                  if (args['every_minutes'] != null)
+                    Text(
+                      _copy(
+                        'Toutes les ${args['every_minutes']} minutes',
+                        'Every ${args['every_minutes']} minutes',
+                      ),
+                    ),
+                  if (args['activities'] is List)
+                    for (final activity in args['activities'] as List)
+                      Text((activity as Map)['name'] as String),
                   if (args['script'] != null)
                     SelectableText(args['script'] as String),
                   ExpansionTile(
@@ -786,6 +855,15 @@ class _CopilotPageState extends State<CopilotPage> {
     'remote_stop_bot' || 'local_stop_bot' => context.tr.copilot_tool_stop_bot,
     'local_create_command' => context.tr.copilot_tool_create_command,
     'local_update_command_execution' => context.tr.copilot_tool_update_command,
+    'local_update_command_options' => context.tr.copilot_tool_options,
+    'local_update_command_settings' => context.tr.copilot_tool_settings,
+    'local_create_workflow' => context.tr.copilot_tool_create_workflow,
+    'local_update_workflow' => context.tr.copilot_tool_update_workflow,
+    'local_update_bot_presence' => context.tr.copilot_tool_presence,
+    'local_update_bot_profile' => context.tr.copilot_tool_profile,
+    'local_set_variable' => context.tr.copilot_tool_variable,
+    'local_update_scheduled_trigger' => context.tr.copilot_tool_schedule,
+    'local_update_inbound_webhook' => context.tr.copilot_tool_webhook,
     'docs_search' || 'docs_get' => context.tr.copilot_tool_read_docs,
     _ => context.tr.copilot_tool_inspect_bot,
   };
@@ -1002,7 +1080,7 @@ class _CopilotPageState extends State<CopilotPage> {
             child: Column(
               children: [
                 _contextHeader(bot, location),
-                if (_wallet != null) _walletStrip(),
+                if (_wallet != null && !_busy) _walletStrip(),
                 if (_loading || _busy) const LinearProgressIndicator(),
                 if (_error != null)
                   Padding(
@@ -1090,13 +1168,10 @@ class _CopilotPageState extends State<CopilotPage> {
     }
   }
 
-  String _number(Object? value) {
-    final raw = (value ?? 0).toString();
-    return raw.replaceAllMapped(
-      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-      (m) => '${m[1]}\u202f',
-    );
-  }
+  String _credits(Object? value) => formatAiCredits(
+    value,
+    locale: Localizations.localeOf(context).toString(),
+  );
 
   Widget _contextHeader(String? bot, String location) {
     final colors = Theme.of(context).colorScheme;
@@ -1216,7 +1291,7 @@ class _CopilotPageState extends State<CopilotPage> {
                     ),
                     const SizedBox(height: 5),
                     Text(
-                      _number(metric.$2),
+                      _credits(metric.$2),
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
@@ -1458,8 +1533,8 @@ class _CopilotPageState extends State<CopilotPage> {
                   ),
                   const SizedBox(width: 5),
                   Text(
-                    context.tr.copilot_tokens_in_discussion(
-                      _number(_chat?['consumed_tokens']),
+                    context.tr.copilot_credits_in_discussion(
+                      _credits(_chat?['consumed_tokens']),
                     ),
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: colors.onSurfaceVariant,
@@ -1579,10 +1654,14 @@ class _CopilotPageState extends State<CopilotPage> {
                     ? null
                     : () async {
                         setState(() => _busy = true);
-                        final synced = await _mcp!.syncCloudCommand(
-                          cloudPending['bot_id'] as String,
-                          cloudPending['command_id'] as String,
-                        );
+                        final synced = cloudPending['command_id'] is String
+                            ? await _mcp!.syncCloudCommand(
+                                cloudPending['bot_id'] as String,
+                                cloudPending['command_id'] as String,
+                              )
+                            : await _mcp!.retryCloudConfiguration(
+                                cloudPending['bot_id'] as String,
+                              );
                         if (!mounted) return;
                         setState(() {
                           _busy = false;
@@ -1705,8 +1784,8 @@ class _CopilotPageState extends State<CopilotPage> {
       final value = jsonDecode((content.first as Map)['text'] as String);
       if (value is Map &&
           value['runner_synced'] == false &&
-          value['bot_id'] is String &&
-          value['command_id'] is String) {
+          value['activation_requires_trigger'] != true &&
+          value['bot_id'] is String) {
         return Map<String, dynamic>.from(value);
       }
     } catch (_) {}
