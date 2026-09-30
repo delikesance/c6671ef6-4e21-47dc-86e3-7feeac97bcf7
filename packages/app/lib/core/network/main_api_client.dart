@@ -1488,13 +1488,26 @@ class MainApiClient implements RemoteRuntimeClient {
     String commandId,
     Map<String, dynamic> commandJson,
   ) async {
+    await syncCommandWithStatus(botId, botName, commandId, commandJson);
+  }
+
+  Future<bool> syncCommandWithStatus(
+    String botId,
+    String botName,
+    String commandId,
+    Map<String, dynamic> commandJson,
+  ) async {
     final encodedBotId = Uri.encodeComponent(botId.trim());
-    await _post('/gateway/bots/$encodedBotId/commands/sync', <String, dynamic>{
-      'botId': botId,
-      'botName': botName,
-      'commandId': commandId,
-      'command': commandJson,
-    });
+    final response = await _post(
+      '/gateway/bots/$encodedBotId/commands/sync',
+      <String, dynamic>{
+        'botId': botId,
+        'botName': botName,
+        'commandId': commandId,
+        'command': commandJson,
+      },
+    );
+    return response['runner_synced'] == true;
   }
 
   @override
@@ -2536,6 +2549,16 @@ class MainApiClient implements RemoteRuntimeClient {
   ) => _post(
     '/gateway/ai/conversations/${Uri.encodeComponent(id)}/turns',
     request,
+    retryOnFailure: false,
+    logBody: false,
+  );
+  Future<Map<String, dynamic>> summarizeAIConversation(
+    String id,
+    String key,
+    int revision,
+  ) => _post(
+    '/gateway/ai/conversations/${Uri.encodeComponent(id)}/summarize',
+    {'idempotency_key': key, 'revision': revision},
     retryOnFailure: false,
     logBody: false,
   );

@@ -5,6 +5,7 @@ import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/utils/hash_util.dart';
 import 'package:bot_creator/features/copilot/logic/copilot_command.dart';
 import 'package:bot_creator/features/copilot/logic/copilot_mcp.dart';
+import 'package:bot_creator/features/bot_editor/logic/normalize_command_data.dart';
 import 'package:bot_creator_shared/types/action.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -29,6 +30,92 @@ void main() {
     expect(
       () => compileCopilotCommand(r'$sendMessage['),
       throwsFormatException,
+    );
+  });
+  test('saved BDFD stays source-only after command normalization', () {
+    final command = normalizeCommandData({
+      'name': 'hello',
+      'type': 'chatInput',
+      'data': copilotExecutionData('Hello'),
+    });
+    final data = command['data'] as Map;
+    expect(data['executionMode'], 'bdfd_script');
+    expect(data['bdfdScriptContent'], 'Hello');
+    expect(data['actions'], isEmpty);
+  });
+  test('Copilot can save JavaScript and independent visual blocks', () {
+    final js = copilotExecutionDataForMode(
+      'javascript',
+      script: 'await interaction.reply("Hello");',
+    );
+    expect(js['executionMode'], 'javascript');
+    expect(js['jsScriptContent'], contains('interaction.reply'));
+    expect(js['bdfdScriptContent'], '');
+    expect(js['actions'], isEmpty);
+    final workflow = copilotExecutionDataForMode(
+      'workflow',
+      actionsJson: jsonEncode([
+        {
+          'type': 'respondWithMessage',
+          'payload': {'content': 'Hello'},
+        },
+      ]),
+    );
+    expect(workflow['executionMode'], 'workflow');
+    expect((workflow['actions'] as List).single['type'], 'respondWithMessage');
+    expect(workflow['jsScriptContent'], '');
+    expect(workflow['bdfdScriptContent'], '');
+    final updated = replaceCopilotExecution(
+      {
+        'id': 'command',
+        'data': {'executionMode': 'workflow', 'actions': []},
+      },
+      HashUtil.calculateHash({
+        'id': 'command',
+        'data': {'executionMode': 'workflow', 'actions': []},
+      }),
+      '',
+      executionMode: 'workflow',
+      actionsJson: jsonEncode([
+        {
+          'type': 'respondWithMessage',
+          'payload': {'content': 'Hello'},
+        },
+      ]),
+    );
+    expect((updated['data'] as Map)['executionMode'], 'workflow');
+    expect(((updated['data'] as Map)['actions'] as List), hasLength(1));
+    expect(
+      () => copilotExecutionDataForMode(
+        'workflow',
+        actionsJson: '[{"type":"invented","payload":{}}]',
+      ),
+      throwsArgumentError,
+    );
+  });
+  test('cloud command sync reports runner acknowledgement', () async {
+    var synced = false;
+    final api = MainApiClient(
+      baseUrl: 'https://manager.example',
+      accessToken: 'account-secret',
+      httpClient: MockClient((request) async {
+        expect(request.url.path, '/gateway/bots/123456789012345/commands/sync');
+        expect((jsonDecode(request.body) as Map)['commandId'], 'command');
+        return http.Response(
+          jsonEncode({'ok': true, 'persisted': true, 'runner_synced': synced}),
+          200,
+          headers: {'content-type': 'application/json'},
+        );
+      }),
+    );
+    expect(
+      await api.syncCommandWithStatus('123456789012345', 'Bot', 'command', {}),
+      isFalse,
+    );
+    synced = true;
+    expect(
+      await api.syncCommandWithStatus('123456789012345', 'Bot', 'command', {}),
+      isTrue,
     );
   });
   test(
@@ -56,9 +143,9 @@ void main() {
       final data = updated['data'] as Map;
       expect(data['defaultMemberPermissions'], '8');
       expect(data['options'], (command['data'] as Map)['options']);
-      expect(data['bdfdScriptContent'], '');
-      expect(data['executionMode'], 'workflow');
-      expect(data['actions'], isNotEmpty);
+      expect(data['bdfdScriptContent'], 'New response');
+      expect(data['executionMode'], 'bdfd_script');
+      expect(data['actions'], isEmpty);
       expect(data['response']['text'], '');
       expect(HashUtil.calculateHash(command), hash);
       expect(
@@ -94,7 +181,7 @@ void main() {
     expect(
       (updated['data']
           as Map)['subcommandWorkflows']['config/status']['actions'],
-      isNotEmpty,
+      isEmpty,
     );
   });
   test('mutation approval and idempotency protect the remote API', () async {

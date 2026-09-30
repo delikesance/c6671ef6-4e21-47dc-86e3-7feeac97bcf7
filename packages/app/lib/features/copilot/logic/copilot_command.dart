@@ -3,6 +3,7 @@ import 'package:bot_creator/core/utils/hash_util.dart';
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 import 'package:bot_creator_shared/utils/bdfd_functions.dart';
 import 'package:bot_creator_shared/utils/bdfd_lexer.dart';
+import 'package:bot_creator_shared/types/action.dart' as blocks;
 
 /// The editor compiler constructs all action types and payloads. Unknown
 /// functions supplied by AI never enter a saved command.
@@ -26,24 +27,65 @@ List<Map<String, dynamic>> compileCopilotCommand(String script) {
   return result.actions.map((a) => a.toJson()).toList();
 }
 
-Map<String, dynamic> copilotExecutionData(String script) => {
-  'executionMode': 'workflow',
-  'editorMode': 'advanced',
-  'bdfdScriptContent': '',
-  'jsScriptContent': '',
-  'actions': compileCopilotCommand(script),
-  'response': {
-    'mode': 'message',
-    'text': '',
-    'embeds': <Map<String, dynamic>>[],
-  },
-};
+Map<String, dynamic> copilotExecutionData(String script) =>
+    copilotExecutionDataForMode('bdfd_script', script: script);
+
+Map<String, dynamic> copilotExecutionDataForMode(
+  String executionMode, {
+  String? script,
+  String? actionsJson,
+}) {
+  if (!const {
+    'bdfd_script',
+    'javascript',
+    'workflow',
+  }.contains(executionMode)) {
+    throw const FormatException('Unsupported execution mode');
+  }
+  final source = script ?? '';
+  var actions = <Map<String, dynamic>>[];
+  if (executionMode == 'bdfd_script') {
+    compileCopilotCommand(source);
+  } else if (executionMode == 'javascript') {
+    if (source.trim().isEmpty || source.length > 12000) {
+      throw const FormatException('Invalid JavaScript length');
+    }
+  } else {
+    if (actionsJson == null || actionsJson.length > 24000) {
+      throw const FormatException('Visual blocks are required');
+    }
+    final decoded = jsonDecode(actionsJson);
+    if (decoded is! List || decoded.isEmpty || decoded.length > 80) {
+      throw const FormatException('Invalid visual blocks');
+    }
+    actions = decoded.map((item) {
+      if (item is! Map || item['payload'] is! Map) {
+        throw const FormatException('Invalid visual block');
+      }
+      return blocks.Action.fromJson(Map<String, dynamic>.from(item)).toJson();
+    }).toList();
+  }
+  return {
+    'executionMode': executionMode,
+    'editorMode': 'advanced',
+    'bdfdScriptContent': executionMode == 'bdfd_script' ? source : '',
+    'jsScriptContent': executionMode == 'javascript' ? source : '',
+    'actions': actions,
+    'response': {
+      'mode': 'message',
+      'text': '',
+      'embeds': <Map<String, dynamic>>[],
+    },
+  };
+}
 
 Map<String, dynamic> replaceCopilotExecution(
   Map<String, dynamic> command,
   String expectedRevision,
   String script, {
   String? route,
+  String executionMode = 'bdfd_script',
+  String? actionsJson,
 }) {
   if (command.isEmpty || HashUtil.calculateHash(command) != expectedRevision) {
     throw StateError(
@@ -66,11 +108,21 @@ Map<String, dynamic> replaceCopilotExecution(
     }
     workflows[route] = {
       ...Map<String, dynamic>.from(workflows[route] as Map),
-      ...copilotExecutionData(script),
+      ...copilotExecutionDataForMode(
+        executionMode,
+        script: script,
+        actionsJson: actionsJson,
+      ),
     };
     data['subcommandWorkflows'] = workflows;
   } else {
-    data.addAll(copilotExecutionData(script));
+    data.addAll(
+      copilotExecutionDataForMode(
+        executionMode,
+        script: script,
+        actionsJson: actionsJson,
+      ),
+    );
   }
   copy['data'] = data;
   return copy;

@@ -44,12 +44,18 @@ class _CopilotPageState extends State<CopilotPage> {
   Future<void> _draftQueue = Future.value();
   bool _busy = false, _ready = false, _archives = false, _loading = true;
   bool _historyMore = false, _hasPrompt = false;
+  bool? _cloudRunning;
+  bool _cloudManaged = false;
+  final Set<String> _cloudRetried = {};
   String? _error;
   String _partial = '';
   int _cursor = 0, _viewEpoch = 0;
   String? _requestKey;
+  String? _summaryKey;
   bool _streamDone = false;
   String get _id => _chat!['id'] as String;
+  String _copy(String french, String english) =>
+      Localizations.localeOf(context).languageCode == 'fr' ? french : english;
   List<Map<String, dynamic>> get _actions => (_chat?['actions'] as List? ?? [])
       .map((a) => Map<String, dynamic>.from(a as Map))
       .toList();
@@ -57,6 +63,65 @@ class _CopilotPageState extends State<CopilotPage> {
       (_chat?['messages'] as List? ?? [])
           .map((a) => Map<String, dynamic>.from(a as Map))
           .toList();
+  List<Widget> _conversationItems() {
+    final actions = _actions;
+    final placed = <String>{};
+    final items = <Widget>[];
+    final messages = _messages;
+    for (var messageIndex = 0; messageIndex < messages.length; messageIndex++) {
+      final message = messages[messageIndex];
+      if (message['role'] != 'user' && message['role'] != 'assistant') continue;
+      items.add(
+        KeyedSubtree(
+          key: ValueKey('message-$messageIndex'),
+          child: _messageBubble(message),
+        ),
+      );
+      if (message['role'] != 'assistant') continue;
+      final calls = (message['tool_calls'] as List? ?? const []);
+      for (final call in calls) {
+        if (call is! Map) continue;
+        final id = call['id']?.toString();
+        for (final action in actions) {
+          if (id != null && action['call_id'] == id && placed.add(id)) {
+            items.add(
+              KeyedSubtree(
+                key: ValueKey('action-$id'),
+                child: _actionCard(action),
+              ),
+            );
+          }
+        }
+      }
+    }
+    if (_partial.isNotEmpty) {
+      items.add(
+        _messageBubble({
+          'role': 'assistant',
+          'content': _partial,
+        }, streaming: true),
+      );
+    }
+    final orphans = actions
+        .where((a) => !placed.contains(a['call_id']))
+        .toList();
+    if (orphans.isNotEmpty) {
+      items.add(
+        Padding(
+          padding: const EdgeInsets.only(top: 12),
+          child: Text(
+            _copy(
+              'Actions sans message associé',
+              'Actions without a matching message',
+            ),
+          ),
+        ),
+      );
+      items.addAll(orphans.map(_actionCard));
+    }
+    return items;
+  }
+
   String get _draftKey =>
       'ai-draft:${_api?.baseUrl}:${_api?.draftIdentity}:${_chat?['id'] ?? widget.botId ?? 'global'}';
   @override
@@ -151,6 +216,8 @@ class _CopilotPageState extends State<CopilotPage> {
       }
       if (widget.initialConversationId != null) {
         await _open(widget.initialConversationId!);
+      } else {
+        await _refreshCloudStatus();
       }
     } catch (e) {
       if (mounted) {
@@ -203,7 +270,10 @@ class _CopilotPageState extends State<CopilotPage> {
         case 'ai_tool_round_limit':
           return context.tr.copilot_err_tool_round_limit;
         case 'ai_context_limit':
-          return context.tr.copilot_err_context_limit;
+          return _copy(
+            'Contexte trop long. Un résumé dans cette discussion est nécessaire.',
+            'Context too long. A summary in this conversation is needed.',
+          );
         case 'ai_spending_blocked':
           return context.tr.copilot_err_spending_blocked;
         case 'ai_revision_conflict':
@@ -284,6 +354,7 @@ class _CopilotPageState extends State<CopilotPage> {
     await _bridge(
       (c['bot_id'] as String?)?.isEmpty == false ? c['bot_id'] as String : null,
     );
+    await _refreshCloudStatus();
     await _restoreDraft();
     _scrollTail(force: true);
     if (_requestKey != null) {
@@ -327,8 +398,24 @@ class _CopilotPageState extends State<CopilotPage> {
           _partial = '';
           await _follow();
         }
+        if (_summaryKey != null &&
+            _pending != null &&
+            _chat?['active_key'] == '' &&
+            _chat?['last_request_key'] == _summaryKey) {
+          if (_chat?['last_request_status'] == 'completed') {
+            _summaryKey = null;
+            _pending!['idempotency_key'] = const Uuid().v4();
+            _pending!['revision'] = _chat!['revision'];
+            await _send();
+          } else if (_chat?['last_request_status'] == 'failed') {
+            _summaryKey = null;
+            _pending!['idempotency_key'] = const Uuid().v4();
+            _pending!['revision'] = _chat!['revision'];
+          }
+        }
       }
       _wallet = await _api!.getAIWallet();
+      await _refreshCloudStatus();
       await _loadHistory();
       if (mounted) {
         setState(() {});
@@ -340,12 +427,34 @@ class _CopilotPageState extends State<CopilotPage> {
     }
   }
 
+  Future<void> _refreshCloudStatus() async {
+    final bot = (_chat?['bot_id'] ?? widget.botId)?.toString();
+    if (bot == null || bot.isEmpty) return;
+    try {
+      final managed = (await _api!.listBots()).any(
+        (b) => (b['bot_id'] ?? b['id']).toString() == bot,
+      );
+      final status = await _api!.getStatus(botId: bot);
+      if (mounted) {
+        setState(() {
+          _cloudManaged = managed;
+          _cloudRunning = status.isBotRunning(bot);
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _cloudRunning = null);
+    }
+  }
+
   Future<void> _send([String? toolContinuation]) async {
     if (_busy || !_ready) {
       return;
     }
-    final prompt = toolContinuation ?? _prompt.text.trim();
-    if (prompt.isEmpty && toolContinuation == null) {
+    final prompt =
+        (_pending?['prompt'] as String?) ??
+        toolContinuation ??
+        _prompt.text.trim();
+    if (prompt.isEmpty && toolContinuation == null && _pending == null) {
       return;
     }
     setState(() {
@@ -372,7 +481,7 @@ class _CopilotPageState extends State<CopilotPage> {
       _requestKey = _pending!['idempotency_key'] as String;
       await _api!.startAITurn(_id, _pending!);
       _pending = null;
-      _prompt.clear();
+      if (prompt.isNotEmpty && _prompt.text.trim() == prompt) _prompt.clear();
       _partial = '';
       _cursor = 0;
       _chat = await _api!.getAIConversation(_id);
@@ -389,6 +498,83 @@ class _CopilotPageState extends State<CopilotPage> {
           _error = _describe(e);
         });
       }
+      if (e is MainApiClientException && e.code == 'ai_context_limit') {
+        await _summarizeAndRetry();
+      }
+    }
+  }
+
+  Future<void> _summarizeAndRetry() async {
+    if (!mounted || _chat == null || _pending == null) return;
+    final approved = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(
+          _copy('Résumer cette discussion ?', 'Summarize this conversation?'),
+        ),
+        content: Text(
+          _copy(
+            'Le résumé consomme des crédits IA. Les anciens messages resteront visibles et votre texte sera envoyé après le résumé.',
+            'The summary uses AI credits. Earlier messages stay visible, and your draft will be sent after the summary.',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(_copy('Annuler', 'Cancel')),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(_copy('Résumer et envoyer', 'Summarize and send')),
+          ),
+        ],
+      ),
+    );
+    if (approved != true || !mounted) return;
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      _summaryKey ??= const Uuid().v4();
+      await _api!.summarizeAIConversation(
+        _id,
+        _summaryKey!,
+        _chat!['revision'] as int,
+      );
+      var completed = false;
+      await for (final event in _api!.aiEvents(_id, _summaryKey!)) {
+        if (event['kind'] == 'error') {
+          final payload = event['payload'] as Map;
+          throw MainApiClientException(
+            'Résumé échoué',
+            code: payload['code'] as String?,
+          );
+        }
+        if (event['kind'] == 'completed') completed = true;
+      }
+      if (!completed) throw const MainApiClientException('Résumé interrompu');
+      _chat = await _api!.getAIConversation(_id);
+      _summaryKey = null;
+      _pending!['idempotency_key'] = const Uuid().v4();
+      _pending!['revision'] = _chat!['revision'];
+      if (!mounted) return;
+      setState(() => _busy = false);
+      await _send();
+    } catch (e) {
+      if (!mounted) return;
+      try {
+        _chat = await _api!.getAIConversation(_id);
+        if (_chat?['last_request_status'] == 'failed') {
+          _summaryKey = null;
+          _pending!['idempotency_key'] = const Uuid().v4();
+          _pending!['revision'] = _chat!['revision'];
+        }
+      } catch (_) {}
+      setState(() {
+        _busy = false;
+        _error = _describe(e);
+      });
     }
   }
 
@@ -412,8 +598,10 @@ class _CopilotPageState extends State<CopilotPage> {
         final payload = event['payload'] as Map;
         switch (event['kind']) {
           case 'delta':
-            _scrollTail();
-            setState(() => _partial += payload['text'] as String);
+            if (_requestKey != _summaryKey) {
+              _scrollTail();
+              setState(() => _partial += payload['text'] as String);
+            }
           case 'error':
             throw MainApiClientException(
               'Generation failed',
@@ -748,9 +936,10 @@ class _CopilotPageState extends State<CopilotPage> {
   @override
   Widget build(BuildContext context) {
     final bot = _chat?['bot_id'] ?? widget.botId;
-    final location =
-        _chat?['location'] ??
-        (widget.botId == null ? 'global' : widget.location);
+    final location = _cloudManaged
+        ? 'remote'
+        : _chat?['location'] ??
+              (widget.botId == null ? 'global' : widget.location);
     final canSend =
         (_hasPrompt || _pending != null) &&
         _ready &&
@@ -862,15 +1051,17 @@ class _CopilotPageState extends State<CopilotPage> {
                     padding: const EdgeInsets.all(16),
                     children: [
                       if (_chat == null) _welcome(),
-                      for (final m in _messages)
-                        if (m['role'] == 'user' || m['role'] == 'assistant')
-                          _messageBubble(m),
-                      if (_partial.isNotEmpty)
-                        _messageBubble({
-                          'role': 'assistant',
-                          'content': _partial,
-                        }, streaming: true),
-                      for (final a in _actions) _actionCard(a),
+                      if ((_chat?['context_summary'] as String? ?? '')
+                          .isNotEmpty)
+                        ExpansionTile(
+                          title: Text(
+                            _copy('Contexte résumé', 'Summarized context'),
+                          ),
+                          children: [
+                            SelectableText(_chat!['context_summary'] as String),
+                          ],
+                        ),
+                      ..._conversationItems(),
                     ],
                   ),
                 ),
@@ -978,6 +1169,10 @@ class _CopilotPageState extends State<CopilotPage> {
                   Text(
                     location == 'local'
                         ? context.tr.copilot_location_local
+                        : _cloudRunning == false
+                        ? '${context.tr.copilot_location_remote} · ${_copy('arrêté', 'stopped')}'
+                        : _cloudRunning == true
+                        ? '${context.tr.copilot_location_remote} · ${_copy('actif', 'running')}'
                         : context.tr.copilot_location_remote,
                     style: Theme.of(context).textTheme.labelSmall,
                   ),
@@ -1319,6 +1514,7 @@ class _CopilotPageState extends State<CopilotPage> {
     final fn = (a['call'] as Map)['function'] as Map;
     final state = a['state'];
     final colors = Theme.of(context).colorScheme;
+    final cloudPending = _pendingCloudCommand(a);
     return Card(
       elevation: 0,
       color: colors.surfaceContainerLow,
@@ -1365,6 +1561,49 @@ class _CopilotPageState extends State<CopilotPage> {
               'uncertain' => context.tr.copilot_status_unconfirmed,
               _ => context.tr.copilot_status_failed,
             }),
+            if (cloudPending != null &&
+                !_cloudRetried.contains(a['call_id'])) ...[
+              Text(
+                cloudPending['created'] == true
+                    ? _copy(
+                        'Créée sur Discord, pas encore active sur le bot',
+                        'Created on Discord, not yet active on the bot',
+                      )
+                    : _copy(
+                        'Enregistrée, pas encore active sur le bot cloud',
+                        'Saved, not yet active on the cloud bot',
+                      ),
+              ),
+              TextButton(
+                onPressed: _busy
+                    ? null
+                    : () async {
+                        setState(() => _busy = true);
+                        final synced = await _mcp!.syncCloudCommand(
+                          cloudPending['bot_id'] as String,
+                          cloudPending['command_id'] as String,
+                        );
+                        if (!mounted) return;
+                        setState(() {
+                          _busy = false;
+                          if (synced) {
+                            _cloudRetried.add(a['call_id'] as String);
+                          } else {
+                            _error = _copy(
+                              'Commande toujours inactive sur le bot cloud',
+                              'Command is still inactive on the cloud bot',
+                            );
+                          }
+                        });
+                      },
+                child: Text(
+                  _copy(
+                    'Réessayer la synchronisation',
+                    'Retry synchronization',
+                  ),
+                ),
+              ),
+            ],
             ExpansionTile(
               tilePadding: EdgeInsets.zero,
               dense: true,
@@ -1453,6 +1692,25 @@ class _CopilotPageState extends State<CopilotPage> {
         ),
       ),
     );
+  }
+
+  Map<String, dynamic>? _pendingCloudCommand(Map<String, dynamic> action) {
+    final result = action['result'];
+    if (result is! Map) return null;
+    final content = result['content'];
+    if (content is! List || content.isEmpty || content.first is! Map) {
+      return null;
+    }
+    try {
+      final value = jsonDecode((content.first as Map)['text'] as String);
+      if (value is Map &&
+          value['runner_synced'] == false &&
+          value['bot_id'] is String &&
+          value['command_id'] is String) {
+        return Map<String, dynamic>.from(value);
+      }
+    } catch (_) {}
+    return null;
   }
 
   Future<void> _historySheet() async {

@@ -10,6 +10,148 @@ import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  testWidgets(
+    'context summary asks before charging and retries the draft in place',
+    (tester) async {
+      tester.view.physicalSize = const Size(900, 1000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      SharedPreferences.setMockInitialValues({});
+      var turns = 0, summaries = 0;
+      String? summaryKey;
+      final chat = <String, dynamic>{
+        'id': 'c',
+        'title': 'Long discussion',
+        'bot_id': '',
+        'location': 'global',
+        'revision': 0,
+        'active_key': '',
+        'archived': false,
+        'messages': <dynamic>[],
+        'actions': <dynamic>[],
+        'consumed_tokens': 0,
+      };
+      final api = MainApiClient(
+        baseUrl: 'http://localhost',
+        accessToken: 'test',
+        httpClient: MockClient((request) async {
+          final path = request.url.path;
+          if (path == '/gateway/ai/copilot/tools')
+            return http.Response('{"tools":[]}', 200);
+          if (path == '/gateway/ai/wallet')
+            return http.Response(
+              '{"balance":10000,"reserved":0,"available":10000}',
+              200,
+            );
+          if (path == '/gateway/ai/conversations')
+            return http.Response(
+              request.method == 'POST'
+                  ? jsonEncode(chat)
+                  : '{"conversations":[]}',
+              200,
+            );
+          if (path == '/gateway/ai/conversations/c')
+            return http.Response(jsonEncode(chat), 200);
+          if (path == '/gateway/ai/conversations/c/turns') {
+            turns++;
+            expect(
+              (jsonDecode(request.body) as Map)['prompt'],
+              turns <= 2 ? 'Keep this draft' : 'Second draft',
+            );
+            if (turns == 1 || turns == 3)
+              return http.Response('{"code":"ai_context_limit"}', 400);
+            (chat['messages'] as List).addAll([
+              {'role': 'user', 'content': 'Keep this draft'},
+              {'role': 'assistant', 'content': 'Done'},
+            ]);
+            chat['revision'] = 4;
+            return http.Response('{"request_key":"turn"}', 202);
+          }
+          if (path == '/gateway/ai/conversations/c/summarize') {
+            summaries++;
+            summaryKey =
+                (jsonDecode(request.body) as Map)['idempotency_key'] as String;
+            chat['revision'] = summaries == 1 ? 2 : 6;
+            if (summaries == 1) chat['context_summary'] = 'Earlier turns';
+            return http.Response(jsonEncode({'request_key': summaryKey}), 202);
+          }
+          if (path.endsWith('/events'))
+            return http.Response(
+              summaries == 2 && path.contains(summaryKey!)
+                  ? 'id: 1\nevent: error\ndata: {"code":"ai_provider_failure"}\n\n'
+                  : 'id: 1\nevent: completed\ndata: {"consumed_tokens":20}\n\n',
+              200,
+              headers: {'content-type': 'text/event-stream'},
+            );
+          throw StateError('Unexpected $path');
+        }),
+      );
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: CopilotPage(api: api),
+        ),
+      );
+      await settle(tester);
+      for (
+        var i = 0;
+        i < 100 &&
+            tester.widget<TextField>(find.byType(TextField).first).enabled !=
+                true;
+        i++
+      ) {
+        await settle(tester);
+      }
+      expect(
+        tester.widget<TextField>(find.byType(TextField).first).enabled,
+        true,
+      );
+      await tester.enterText(find.byType(TextField).first, 'Keep this draft');
+      await tester.pump();
+      expect(
+        tester
+            .widget<IconButton>(find.widgetWithIcon(IconButton, Icons.send))
+            .onPressed,
+        isNotNull,
+      );
+      await tester.tap(find.byIcon(Icons.send));
+      await settle(tester);
+      expect(
+        find.text('Summarize this conversation?'),
+        findsOneWidget,
+        reason:
+            'turns=$turns; UI=${tester.widgetList<Text>(find.byType(Text)).map((t) => t.data).join(' | ')}',
+      );
+      expect(summaries, 0);
+      expect(
+        tester.widget<TextField>(find.byType(TextField).first).controller!.text,
+        'Keep this draft',
+      );
+      await tester.tap(find.text('Summarize and send'));
+      await settle(tester);
+      expect(summaries, 1);
+      expect(turns, 2);
+      expect(chat['context_summary'], 'Earlier turns');
+      expect(find.text('Done'), findsOneWidget);
+      await tester.enterText(find.byType(TextField).first, 'Second draft');
+      await tester.pump();
+      await tester.tap(find.byIcon(Icons.send));
+      await settle(tester);
+      expect(find.text('Summarize this conversation?'), findsOneWidget);
+      await tester.tap(find.text('Summarize and send'));
+      await settle(tester);
+      expect(summaries, 2);
+      expect(turns, 3);
+      expect(chat['context_summary'], 'Earlier turns');
+      expect(
+        tester.widget<TextField>(find.byType(TextField).first).controller!.text,
+        'Second draft',
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
   for (final allow in [false, true]) {
     testWidgets(
       'persistent copilot ${allow ? 'approves' : 'declines'} a remote action once',
@@ -205,6 +347,40 @@ void main() {
         expect(
           find.text(allow ? 'Bot stopped' : 'Action cancelled'),
           findsOneWidget,
+        );
+        List<String> visibleOrder() {
+          final list = tester.widget<ListView>(find.byType(ListView).first);
+          return (list.childrenDelegate as SliverChildListDelegate).children
+              .map((child) => child.key?.toString() ?? '')
+              .toList();
+        }
+
+        var order = visibleOrder();
+        expect(
+          order.indexOf("[<'message-1'>]"),
+          lessThan(order.indexOf("[<'action-stop-call'>]")),
+        );
+        expect(
+          order.indexOf("[<'action-stop-call'>]"),
+          lessThan(order.indexOf("[<'message-3'>]")),
+        );
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.pumpWidget(
+          MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: CopilotPage(api: api, initialConversationId: 'c'),
+          ),
+        );
+        await settle(tester);
+        order = visibleOrder();
+        expect(
+          order.indexOf("[<'message-1'>]"),
+          lessThan(order.indexOf("[<'action-stop-call'>]")),
+        );
+        expect(
+          order.indexOf("[<'action-stop-call'>]"),
+          lessThan(order.indexOf("[<'message-3'>]")),
         );
         expect(tester.takeException(), isNull);
       },
