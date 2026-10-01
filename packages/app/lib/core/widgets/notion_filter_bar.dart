@@ -191,9 +191,13 @@ class _NotionFilterBarState extends State<NotionFilterBar> {
                   onChanged: widget.onSearchChanged,
                   decoration: InputDecoration(
                     hintText: widget.searchHint,
-                    prefixIcon: const AppIcon.fromMaterial(
-                      Icons.search,
-                      size: 20,
+                    prefixIconConstraints: const BoxConstraints(
+                      minWidth: 36,
+                      minHeight: 36,
+                    ),
+                    prefixIcon: const Padding(
+                      padding: EdgeInsets.only(left: 10, right: 8),
+                      child: AppIcon.fromMaterial(Icons.search, size: 18),
                     ),
                     border: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),

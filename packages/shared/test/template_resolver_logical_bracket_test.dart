@@ -106,15 +106,15 @@ void main() {
           final updates = <String, String>{};
           expect(
             resolveTemplatePlaceholders('((year))', updates),
-            DateTime.now().toUtc().year.toString(),
+            DateTime.now().year.toString(),
           );
           expect(
             resolveTemplatePlaceholders('((month))', updates),
-            DateTime.now().toUtc().month.toString(),
+            DateTime.now().month.toString(),
           );
           expect(
             resolveTemplatePlaceholders('((day))', updates),
-            DateTime.now().toUtc().day.toString(),
+            DateTime.now().day.toString(),
           );
           expect(resolveTemplatePlaceholders('((hour))', updates), isNotEmpty);
           expect(

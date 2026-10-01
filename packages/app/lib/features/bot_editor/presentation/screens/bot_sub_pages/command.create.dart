@@ -2230,6 +2230,56 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     );
   }
 
+  Future<void> _handleDeleteCommand() async {
+    final shouldDelete = await AppTheme.showConfirmDialog(
+      context,
+      title: context.tr.cmd_delete_tooltip,
+      content: context.tr.cmd_delete_confirm(_commandName),
+      confirmLabel: context.tr.delete,
+      isDestructive: true,
+    );
+    if (!shouldDelete) {
+      return;
+    }
+
+    final botId = _botIdForConfig;
+    final commandId = _existingCommandStorageId;
+    if (botId == null || commandId == null) {
+      return;
+    }
+
+    final remoteClient = widget.client;
+    if (remoteClient != null && !widget.id.isZero) {
+      try {
+        await remoteClient.commands.delete(widget.id);
+      } catch (e) {
+        final message = e.toString();
+        final alreadyDeleted =
+            message.contains('10063') ||
+            message.contains('Unknown application command') ||
+            message.contains('404');
+        if (!alreadyDeleted) {
+          if (!mounted) {
+            return;
+          }
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                context.tr.command_delete_discord_failed_local('$e'),
+              ),
+            ),
+          );
+        }
+      }
+    }
+
+    await appManager.deleteAppCommand(botId, commandId);
+    if (!mounted) {
+      return;
+    }
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     final guardDiscardOnPop = _showEditShell && _isDirty;
@@ -2294,18 +2344,6 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                 onPressed: _openCommandSettings,
                 icon: const AppIcon.fromMaterial(Icons.tune_rounded),
               ),
-              // L'HISTORIQUE DES VERSIONS de CETTE commande : cinq versions,
-              // leur date, leur auteur, et la restauration. Le bouton n'existe
-              // que pour une commande DÉJÀ enregistrée — une commande jamais
-              // sauvegardée n'a aucun historique côté serveur, et la modale le
-              // dirait de toute façon (elle distingue « aucune version » de
-              // « historique indisponible »).
-              if (_isEditingExistingCommand && !_isDataIncomplete)
-                IconButton(
-                  tooltip: context.tr.command_history_title,
-                  onPressed: _openCommandHistory,
-                  icon: const AppIcon.fromMaterial(Icons.history_rounded),
-                ),
               if (!_isEditingExistingCommand)
                 IconButton(
                   tooltip: context.tr.serialization_import_title,
@@ -2314,84 +2352,109 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                     Icons.content_paste_go_outlined,
                   ),
                 ),
-              IconButton(
-                tooltip: context.tr.serialization_export_json_title,
-                onPressed: _showCommandExportOptions,
-                icon: const AppIcon.fromMaterial(Icons.copy_all_outlined),
+              PopupMenuButton<String>(
+                tooltip: Localizations.localeOf(context).languageCode == 'fr'
+                    ? 'Plus d\'options'
+                    : 'More options',
+                icon: const AppIcon.fromMaterial(Icons.more_vert_rounded),
+                onSelected: (value) async {
+                  switch (value) {
+                    case 'history':
+                      _openCommandHistory();
+                      break;
+                    case 'export':
+                      _showCommandExportOptions();
+                      break;
+                    case 'docs':
+                      _openDocumentationCenter();
+                      break;
+                    case 'delete':
+                      await _handleDeleteCommand();
+                      break;
+                    case 'cancel':
+                      Navigator.pop(context);
+                      break;
+                  }
+                },
+                itemBuilder: (context) => [
+                  if (_isEditingExistingCommand && !_isDataIncomplete)
+                    PopupMenuItem(
+                      value: 'history',
+                      child: Row(
+                        children: [
+                          const AppIcon.fromMaterial(
+                            Icons.history_rounded,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(context.tr.command_history_title),
+                        ],
+                      ),
+                    ),
+                  PopupMenuItem(
+                    value: 'export',
+                    child: Row(
+                      children: [
+                        const AppIcon.fromMaterial(
+                          Icons.copy_all_outlined,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(context.tr.serialization_export_json_title),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'docs',
+                    child: Row(
+                      children: [
+                        const AppIcon.fromMaterial(
+                          Icons.info_outline,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(context.tr.cmd_show_variables),
+                      ],
+                    ),
+                  ),
+                  if (_isEditingExistingCommand) ...[
+                    const PopupMenuDivider(),
+                    PopupMenuItem(
+                      value: 'delete',
+                      child: Row(
+                        children: [
+                          const AppIcon.fromMaterial(
+                            Icons.delete_outline,
+                            size: 20,
+                            color: Colors.red,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            context.tr.cmd_delete_tooltip,
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  if (!_isEditingExistingCommand && !_isDataIncomplete) ...[
+                    const PopupMenuDivider(),
+                    PopupMenuItem(
+                      value: 'cancel',
+                      child: Row(
+                        children: [
+                          const AppIcon.fromMaterial(
+                            Icons.close_rounded,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(context.tr.cancel),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
               ),
-              IconButton(
-                onPressed: _openDocumentationCenter,
-                tooltip: context.tr.cmd_show_variables,
-                icon: const AppIcon.fromMaterial(Icons.info_outline),
-              ),
-              if (!_isEditingExistingCommand && !_isDataIncomplete)
-                IconButton(
-                  icon: const AppIcon.fromMaterial(Icons.cancel),
-                  tooltip: context.tr.cancel,
-                  onPressed: () async {
-                    Navigator.pop(context);
-                  },
-                ),
-              if (_isEditingExistingCommand)
-                IconButton(
-                  icon: const AppIcon.fromMaterial(Icons.delete),
-                  tooltip: context.tr.cmd_delete_tooltip,
-                  onPressed: () async {
-                    final shouldDelete = await AppTheme.showConfirmDialog(
-                      context,
-                      title: context.tr.cmd_delete_tooltip,
-                      content:
-                          'This command will be deleted permanently. Continue?',
-                      confirmLabel: context.tr.delete,
-                      isDestructive: true,
-                    );
-                    if (!shouldDelete) {
-                      return;
-                    }
-
-                    final botId = _botIdForConfig;
-                    final commandId = _existingCommandStorageId;
-                    if (botId == null) {
-                      return;
-                    }
-                    if (commandId == null) {
-                      return;
-                    }
-
-                    final remoteClient = widget.client;
-                    if (remoteClient != null && !widget.id.isZero) {
-                      try {
-                        await remoteClient.commands.delete(widget.id);
-                      } catch (e) {
-                        final message = e.toString();
-                        final alreadyDeleted =
-                            message.contains('10063') ||
-                            message.contains('Unknown application command') ||
-                            message.contains('404');
-                        if (!alreadyDeleted) {
-                          if (!mounted) {
-                            return;
-                          }
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                context.tr.command_delete_discord_failed_local(
-                                  '$e',
-                                ),
-                              ),
-                            ),
-                          );
-                        }
-                      }
-                    }
-
-                    await appManager.deleteAppCommand(botId, commandId);
-                    if (!mounted) {
-                      return;
-                    }
-                    Navigator.pop(context);
-                  },
-                ),
             ],
           ),
           floatingActionButton: showStickyEditSave

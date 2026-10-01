@@ -224,187 +224,197 @@ class _CommandSandboxPageState extends State<CommandSandboxPage> {
         ),
       ],
     ),
-    body: Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 800),
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            Text(
-              label(
-                'Simulation locale · Discord et les données du bot restent intacts.',
-                'Local simulation · Discord and bot data remain untouched.',
-              ),
-            ),
-            const SizedBox(height: 16),
-            if (widget.editableScript)
-              field(source, label("Script à tester", "Test script"), lines: 5),
-            if (widget.expectedResponse != null)
+    body: SafeArea(
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
               Text(
-                label("Réponse attendue : ", "Expected response: ") +
-                    widget.expectedResponse!,
-              ),
-            if (widget.expectedValues.isNotEmpty)
-              ExpansionTile(
-                title: Text(label('Résultat attendu', 'Expected result')),
-                children: [
-                  SelectableText(
-                    const JsonEncoder.withIndent(
-                      '  ',
-                    ).convert(widget.expectedValues),
-                  ),
-                ],
-              ),
-            field(guild, label('ID du serveur simulé', 'Simulated server ID')),
-            field(user, label('ID du membre simulé', 'Simulated member ID')),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              value: admin,
-              title: Text(
-                label('Membre administrateur', 'Administrator member'),
-              ),
-              onChanged: running
-                  ? null
-                  : (value) => setState(() {
-                      admin = value;
-                    }),
-            ),
-            for (final entry in inputs.entries) field(entry.value, entry.key),
-            field(
-              message,
-              label('Message texte simulé', 'Simulated message text'),
-              lines: 2,
-            ),
-            ExpansionTile(
-              title: Text(
-                label('État initial avancé', 'Advanced initial state'),
-              ),
-              subtitle: Text(
                 label(
-                  'Variables de test et valeurs initiales (JSON)',
-                  'Test variables and initial values (JSON)',
+                  'Simulation locale · Discord et les données du bot restent intacts.',
+                  'Local simulation · Discord and bot data remain untouched.',
                 ),
               ),
-              children: [
-                field(
-                  initial,
-                  label('Fixtures JSON', 'JSON fixtures'),
-                  lines: 6,
-                ),
-                const SelectableText(
-                  '{"scoped":{"guildMember":{"10:20":{"xp":156,"level":2}}}}',
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            FilledButton.icon(
-              onPressed: running ? null : run,
-              icon: running
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const AppIcon.fromMaterial(Icons.play_arrow),
-              label: Text(label('Exécuter le test', 'Run test')),
-            ),
-            if (error != null)
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: SelectableText(error!),
-              ),
-            if (result case final value?) ...[
               const SizedBox(height: 16),
-              Text(
-                value['success'] == true && value['contract_passed'] != false
-                    ? label('Test exécuté', 'Test executed')
-                    : label('Test en échec', 'Test failed'),
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              if (value['error'] != null)
-                SelectableText(value['error'].toString()),
-              Text(
-                label('Réponses simulées', 'Simulated responses'),
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              for (final response in value['responses'] as List? ?? [])
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: responsePreview(response as Map),
-                  ),
+              if (widget.editableScript)
+                field(
+                  source,
+                  label("Script à tester", "Test script"),
+                  lines: 5,
                 ),
-              if (value['images'] case final Map images
-                  when images.isNotEmpty) ...[
+              if (widget.expectedResponse != null)
                 Text(
-                  label('Images générées', 'Generated images'),
-                  style: Theme.of(context).textTheme.titleMedium,
+                  label("Réponse attendue : ", "Expected response: ") +
+                      widget.expectedResponse!,
                 ),
-                for (final entry in images.entries)
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(entry.key.toString()),
-                          const SizedBox(height: 8),
-                          if ((value['variables']
-                                  as Map?)?['temp._canvasAttachment_${entry.key}']
-                              case final String encoded)
-                            Image.memory(
-                              base64Decode(encoded),
-                              width: 240,
-                              height: 180,
-                              fit: BoxFit.contain,
-                              errorBuilder: (_, _, _) => Text(
-                                label('Image illisible', 'Unreadable image'),
-                              ),
-                            ),
-                          Text(
-                            '${(entry.value as Map)['width']} × '
-                            '${(entry.value as Map)['height']}',
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-              ],
-              for (final key in [
-                'storage_before',
-                'storage_after',
-                'effects',
-                'logs',
-                'trace',
-                'diagnostics',
-                if (value['contract_checks'] != null) 'contract_checks',
-              ])
+              if (widget.expectedValues.isNotEmpty)
                 ExpansionTile(
-                  title: Text(switch (key) {
-                    'storage_before' => label(
-                      'Variables avant',
-                      'Variables before',
-                    ),
-                    'storage_after' => label(
-                      'Variables après',
-                      'Variables after',
-                    ),
-                    'trace' => label('Étapes exécutées', 'Executed steps'),
-                    'effects' => label('Appels simulés', 'Simulated calls'),
-                    'contract_checks' => label(
-                      'Vérifications du résultat',
-                      'Result checks',
-                    ),
-                    _ => label('Diagnostics', 'Diagnostics'),
-                  }),
+                  title: Text(label('Résultat attendu', 'Expected result')),
                   children: [
                     SelectableText(
-                      const JsonEncoder.withIndent('  ').convert(value[key]),
+                      const JsonEncoder.withIndent(
+                        '  ',
+                      ).convert(widget.expectedValues),
                     ),
                   ],
                 ),
+              field(
+                guild,
+                label('ID du serveur simulé', 'Simulated server ID'),
+              ),
+              field(user, label('ID du membre simulé', 'Simulated member ID')),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                value: admin,
+                title: Text(
+                  label('Membre administrateur', 'Administrator member'),
+                ),
+                onChanged: running
+                    ? null
+                    : (value) => setState(() {
+                        admin = value;
+                      }),
+              ),
+              for (final entry in inputs.entries) field(entry.value, entry.key),
+              field(
+                message,
+                label('Message texte simulé', 'Simulated message text'),
+                lines: 2,
+              ),
+              ExpansionTile(
+                title: Text(
+                  label('État initial avancé', 'Advanced initial state'),
+                ),
+                subtitle: Text(
+                  label(
+                    'Variables de test et valeurs initiales (JSON)',
+                    'Test variables and initial values (JSON)',
+                  ),
+                ),
+                children: [
+                  field(
+                    initial,
+                    label('Fixtures JSON', 'JSON fixtures'),
+                    lines: 6,
+                  ),
+                  const SelectableText(
+                    '{"scoped":{"guildMember":{"10:20":{"xp":156,"level":2}}}}',
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              FilledButton.icon(
+                onPressed: running ? null : run,
+                icon: running
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const AppIcon.fromMaterial(Icons.play_arrow),
+                label: Text(label('Exécuter le test', 'Run test')),
+              ),
+              if (error != null)
+                Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: SelectableText(error!),
+                ),
+              if (result case final value?) ...[
+                const SizedBox(height: 16),
+                Text(
+                  value['success'] == true && value['contract_passed'] != false
+                      ? label('Test exécuté', 'Test executed')
+                      : label('Test en échec', 'Test failed'),
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                if (value['error'] != null)
+                  SelectableText(value['error'].toString()),
+                Text(
+                  label('Réponses simulées', 'Simulated responses'),
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                for (final response in value['responses'] as List? ?? [])
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: responsePreview(response as Map),
+                    ),
+                  ),
+                if (value['images'] case final Map images
+                    when images.isNotEmpty) ...[
+                  Text(
+                    label('Images générées', 'Generated images'),
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  for (final entry in images.entries)
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(entry.key.toString()),
+                            const SizedBox(height: 8),
+                            if ((value['variables']
+                                    as Map?)?['temp._canvasAttachment_${entry.key}']
+                                case final String encoded)
+                              Image.memory(
+                                base64Decode(encoded),
+                                width: 240,
+                                height: 180,
+                                fit: BoxFit.contain,
+                                errorBuilder: (_, _, _) => Text(
+                                  label('Image illisible', 'Unreadable image'),
+                                ),
+                              ),
+                            Text(
+                              '${(entry.value as Map)['width']} × '
+                              '${(entry.value as Map)['height']}',
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+                for (final key in [
+                  'storage_before',
+                  'storage_after',
+                  'effects',
+                  'logs',
+                  'trace',
+                  'diagnostics',
+                  if (value['contract_checks'] != null) 'contract_checks',
+                ])
+                  ExpansionTile(
+                    title: Text(switch (key) {
+                      'storage_before' => label(
+                        'Variables avant',
+                        'Variables before',
+                      ),
+                      'storage_after' => label(
+                        'Variables après',
+                        'Variables after',
+                      ),
+                      'trace' => label('Étapes exécutées', 'Executed steps'),
+                      'effects' => label('Appels simulés', 'Simulated calls'),
+                      'contract_checks' => label(
+                        'Vérifications du résultat',
+                        'Result checks',
+                      ),
+                      _ => label('Diagnostics', 'Diagnostics'),
+                    }),
+                    children: [
+                      SelectableText(
+                        const JsonEncoder.withIndent('  ').convert(value[key]),
+                      ),
+                    ],
+                  ),
+              ],
+              const SizedBox(height: 32),
             ],
-          ],
+          ),
         ),
       ),
     ),

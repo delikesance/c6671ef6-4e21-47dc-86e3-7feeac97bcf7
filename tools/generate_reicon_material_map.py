@@ -137,6 +137,7 @@ ALIASES = {
     'update': 'refresh', 'upload_file': 'fileUp',
     'verified_user': 'shieldCheck',
     'vertical_align_bottom': 'alignBottom',
+    'search': 'searchNormal2', 'settings': 'setting2',
     'vertical_align_top': 'alignTop', 'videocam': 'video',
     'videogame_asset': 'gamepad', 'view_agenda': 'listSquare',
     'view_list': 'list', 'view_stream': 'list',
@@ -198,12 +199,7 @@ def main() -> None:
         f'  Icons.{name}: (outline: Reicon.outline.{target}, filled: Reicon.filled.{target}),'
         for name, target in mapped.items() if name != 'copy_outlined'
     )
-    lines.extend(['};', '', 'final Set<IconData> reiconFilledMaterialIcons = {'])
-    lines.extend(
-        f'  Icons.{name},' for name in mapped
-        if not name.endswith(('_outlined', '_outline'))
-    )
-    lines.extend(['};', ''])
+    lines.extend(['};', '', 'final Set<IconData> reiconFilledMaterialIcons = const {};', ''])
     OUTPUT.write_text('\n'.join(lines))
     print(f'Generated {len(mapped)} Material -> Reicon mappings in {OUTPUT}')
 
