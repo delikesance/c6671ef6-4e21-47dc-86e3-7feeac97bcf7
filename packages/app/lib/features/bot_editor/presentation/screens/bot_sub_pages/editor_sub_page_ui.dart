@@ -3,6 +3,8 @@ import 'package:bot_creator/core/utils/responsive.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:flutter/material.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Navigation placement of a bot editor sub-page, relative to the editor shell.
 enum EditorNavPlacement {
   /// The shell renders its permanent sidebar (wide layouts): the section list
@@ -70,7 +72,8 @@ class EditorDrawerButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      icon: const Icon(Icons.menu_rounded),
+      icon: const AppIcon.fromMaterial(Icons.menu_rounded, size: 20),
+      visualDensity: VisualDensity.compact,
       // Framework-provided tooltip, already localized in every app locale.
       tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
       onPressed: () => context.openParentDrawer(),
@@ -124,7 +127,7 @@ class EditorEmptyState extends StatelessWidget {
                   color: theme.colorScheme.surfaceContainerHighest,
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
+                child: AppIcon.fromMaterial(
                   icon,
                   size: 44,
                   color: theme.colorScheme.onSurfaceVariant,
@@ -152,7 +155,7 @@ class EditorEmptyState extends StatelessWidget {
                 const SizedBox(height: AppTheme.spacingXl),
                 FilledButton.icon(
                   onPressed: onAction,
-                  icon: Icon(actionIcon),
+                  icon: AppIcon.fromMaterial(actionIcon),
                   label: Text(actionLabel!),
                 ),
               ],

@@ -72,7 +72,7 @@ extension _CommandCreateWizard on _CommandCreatePageState {
         return ChoiceChip(
           selected: selected,
           showCheckmark: false,
-          avatar: Icon(
+          avatar: AppIcon.fromMaterial(
             _stepIconFor(index),
             size: 16,
             color: selected
@@ -102,7 +102,7 @@ extension _CommandCreateWizard on _CommandCreatePageState {
                   _currentEditorStep -= 1;
                 });
               },
-              icon: const Icon(Icons.arrow_back),
+              icon: const AppIcon.fromMaterial(Icons.arrow_back),
               label: Text(context.tr.common_back),
             ),
           ),
@@ -115,7 +115,7 @@ extension _CommandCreateWizard on _CommandCreatePageState {
                       _updateOrCreate();
                     }
                   },
-                  icon: const Icon(Icons.save),
+                  icon: const AppIcon.fromMaterial(Icons.save),
                   label: Text(
                     _isEditingExistingCommand
                         ? context.tr.wizard_save_command
@@ -128,7 +128,7 @@ extension _CommandCreateWizard on _CommandCreatePageState {
                       _currentEditorStep += 1;
                     });
                   },
-                  icon: const Icon(Icons.arrow_forward),
+                  icon: const AppIcon.fromMaterial(Icons.arrow_forward),
                   label: Text(context.tr.common_next),
                 ),
         ),
@@ -244,7 +244,7 @@ extension _CommandCreateWizard on _CommandCreatePageState {
           alignment: Alignment.centerRight,
           child: TextButton.icon(
             onPressed: _openDocumentationCenter,
-            icon: const Icon(Icons.menu_book_outlined),
+            icon: const AppIcon.fromMaterial(Icons.menu_book_outlined),
             label: Text(context.tr.docs_tab_bot_creator),
           ),
         ),
@@ -423,7 +423,7 @@ class _ReviewCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon),
+            AppIcon.fromMaterial(icon),
             const SizedBox(width: 12),
             Expanded(
               child: Column(

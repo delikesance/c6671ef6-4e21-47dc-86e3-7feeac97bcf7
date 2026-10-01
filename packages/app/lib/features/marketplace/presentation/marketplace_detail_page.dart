@@ -10,9 +10,12 @@ import 'package:flutter/material.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:uuid/uuid.dart';
 
-import 'package:bot_creator/features/bot_editor/logic/bot.dart' show refreshBotRuntime;
+import 'package:bot_creator/features/bot_editor/logic/bot.dart'
+    show refreshBotRuntime;
 
 import 'publish_template_page.dart';
+
+import 'package:bot_creator/core/widgets/app_icon.dart';
 
 /// Detail page for a marketplace template.
 class MarketplaceDetailPage extends StatefulWidget {
@@ -72,134 +75,150 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
       if (mounted) setState(() => _fetching = false);
     }
   }
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tr = context.tr;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_template.name),
-      ),
+      appBar: AppBar(title: Text(_template.name)),
       body: SafeArea(
         child: _fetching
             ? const Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(cs, tr),
-              const SizedBox(height: 24),
-              _buildStats(cs),
-              const SizedBox(height: 24),
-
-              if (_template.descriptionLong != null) ...[
-                Text(
-                  tr.marketplace_about,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  _template.descriptionLong!,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: cs.onSurfaceVariant,
-                      ),
-                ),
-                const SizedBox(height: 24),
-              ],
-
-              if (_template.requiredVariables.isNotEmpty) ...[
-                _buildVariableForm(cs, tr),
-                const SizedBox(height: 24),
-              ],
-
-              if (_template.commands.isNotEmpty) ...[
-                _buildCommandsPreview(cs, tr),
-                const SizedBox(height: 24),
-              ],
-
-              if (_template.workflows.isNotEmpty) ...[
-                _buildWorkflowsPreview(cs, tr),
-                const SizedBox(height: 24),
-              ],
-
-              if (_template.globalVariables
-                  .where((v) => !v.required)
-                  .isNotEmpty) ...[
-                _buildGlobalVarsPreview(cs, tr),
-                const SizedBox(height: 24),
-              ],
-
-              if (_template.tags.isNotEmpty) ...[
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 4,
-                  children: _template.tags.map((tag) {
-                    return Chip(
-                      label: Text(tag),
-                      visualDensity: VisualDensity.compact,
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 24),
-              ],
-
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.icon(
-                  onPressed: _applying ? null : _apply,
-                  icon: _applying
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.download),
-                  label: Text(
-                    _applying ? tr.marketplace_applying : tr.marketplace_apply,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              // Edit / Delete for own templates
-              if (_isOwner) ...[
-                Row(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: _editing ? null : _editTemplate,
-                        icon: const Icon(Icons.edit, size: 18),
-                        label: Text(tr.marketplace_edit),
+                    _buildHeader(cs, tr),
+                    const SizedBox(height: 24),
+                    _buildStats(cs),
+                    const SizedBox(height: 24),
+
+                    if (_template.descriptionLong != null) ...[
+                      Text(
+                        tr.marketplace_about,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w600),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: _deleting ? null : _confirmDelete,
-                        icon: _deleting
+                      const SizedBox(height: 8),
+                      Text(
+                        _template.descriptionLong!,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: cs.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+
+                    if (_template.requiredVariables.isNotEmpty) ...[
+                      _buildVariableForm(cs, tr),
+                      const SizedBox(height: 24),
+                    ],
+
+                    if (_template.commands.isNotEmpty) ...[
+                      _buildCommandsPreview(cs, tr),
+                      const SizedBox(height: 24),
+                    ],
+
+                    if (_template.workflows.isNotEmpty) ...[
+                      _buildWorkflowsPreview(cs, tr),
+                      const SizedBox(height: 24),
+                    ],
+
+                    if (_template.globalVariables
+                        .where((v) => !v.required)
+                        .isNotEmpty) ...[
+                      _buildGlobalVarsPreview(cs, tr),
+                      const SizedBox(height: 24),
+                    ],
+
+                    if (_template.tags.isNotEmpty) ...[
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 4,
+                        children: _template.tags.map((tag) {
+                          return Chip(
+                            label: Text(tag),
+                            visualDensity: VisualDensity.compact,
+                            materialTapTargetSize:
+                                MaterialTapTargetSize.shrinkWrap,
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        onPressed: _applying ? null : _apply,
+                        icon: _applying
                             ? const SizedBox(
-                                width: 14, height: 14,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
                               )
-                            : const Icon(Icons.delete_outline, size: 18, color: Colors.red),
-                        label: Text(tr.marketplace_delete, style: const TextStyle(color: Colors.red)),
+                            : const AppIcon.fromMaterial(Icons.download),
+                        label: Text(
+                          _applying
+                              ? tr.marketplace_applying
+                              : tr.marketplace_apply,
+                        ),
                       ),
                     ),
+                    const SizedBox(height: 12),
+
+                    // Edit / Delete for own templates
+                    if (_isOwner) ...[
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: _editing ? null : _editTemplate,
+                              icon: const AppIcon.fromMaterial(
+                                Icons.edit,
+                                size: 18,
+                              ),
+                              label: Text(tr.marketplace_edit),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: _deleting ? null : _confirmDelete,
+                              icon: _deleting
+                                  ? const SizedBox(
+                                      width: 14,
+                                      height: 14,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const AppIcon.fromMaterial(
+                                      Icons.delete_outline,
+                                      size: 18,
+                                      color: Colors.red,
+                                    ),
+                              label: Text(
+                                tr.marketplace_delete,
+                                style: const TextStyle(color: Colors.red),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+
+                    // Rating
+                    _buildRating(cs, tr),
                   ],
                 ),
-                const SizedBox(height: 12),
-              ],
-
-              // Rating
-              _buildRating(cs, tr),
-            ],
-          ),
-        ),
+              ),
       ),
     );
   }
@@ -225,22 +244,25 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
               Text(
                 _template.name,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
+                  fontWeight: FontWeight.w700,
+                ),
               ),
               const SizedBox(height: 4),
               Text(
                 _template.description,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: cs.onSurfaceVariant,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 4),
               Text(
-                tr.marketplace_by_author(_template.authorName, _template.version),
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: cs.onSurfaceVariant,
-                    ),
+                tr.marketplace_by_author(
+                  _template.authorName,
+                  _template.version,
+                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
               ),
             ],
           ),
@@ -254,10 +276,7 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
       children: [
         _StatChip(icon: Icons.download, value: '${_template.downloads}'),
         const SizedBox(width: 16),
-        _StatChip(
-          icon: Icons.star,
-          value: _template.rating.toStringAsFixed(1),
-        ),
+        _StatChip(icon: Icons.star, value: _template.rating.toStringAsFixed(1)),
         const SizedBox(width: 16),
         _StatChip(
           icon: Icons.playlist_play,
@@ -278,16 +297,16 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
       children: [
         Text(
           tr.marketplace_config_required,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 4),
         Text(
           tr.marketplace_config_hint,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: cs.onSurfaceVariant,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
         ),
         const SizedBox(height: 12),
         ..._template.requiredVariables.map((v) {
@@ -303,7 +322,7 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 suffixIcon: v.sensitive
-                    ? const Icon(Icons.lock_outline, size: 18)
+                    ? const AppIcon.fromMaterial(Icons.lock_outline, size: 18)
                     : null,
               ),
               onChanged: (val) => _variableValues[v.name] = val,
@@ -320,9 +339,9 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
       children: [
         Text(
           tr.marketplace_commands_label(_template.commands.length.toString()),
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
         ..._template.commands.take(5).map((cmd) {
@@ -335,7 +354,7 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
           return ListTile(
             dense: true,
             contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.arrow_forward, size: 20),
+            leading: const AppIcon.fromMaterial(Icons.arrow_forward, size: 20),
             title: Text(
               '/${cmd.name}',
               style: const TextStyle(fontFamily: 'monospace'),
@@ -344,7 +363,8 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
               [
                 cmd.description,
                 typeLabel,
-                if (optCount > 0) tr.marketplace_command_preview_options(optCount),
+                if (optCount > 0)
+                  tr.marketplace_command_preview_options(optCount),
                 actionCount > 0
                     ? tr.marketplace_command_preview_actions(actionCount)
                     : tr.marketplace_command_preview_no_actions,
@@ -352,7 +372,10 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
-            trailing: const Icon(Icons.visibility_outlined, size: 18),
+            trailing: const AppIcon.fromMaterial(
+              Icons.visibility_outlined,
+              size: 18,
+            ),
             onTap: () => _showCommandPreview(cmd),
           );
         }),
@@ -361,9 +384,9 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
             padding: const EdgeInsets.only(top: 4),
             child: Text(
               tr.marketplace_more(_template.commands.length - 5),
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: cs.onSurfaceVariant,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
             ),
           ),
       ],
@@ -376,16 +399,16 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
       children: [
         Text(
           tr.marketplace_workflows_label(_template.workflows.length.toString()),
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
         ..._template.workflows.take(5).map((wf) {
           return ListTile(
             dense: true,
             contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.account_tree, size: 20),
+            leading: const AppIcon.fromMaterial(Icons.account_tree, size: 20),
             title: Text(wf['name']?.toString() ?? 'Unnamed'),
             subtitle: Text(
               wf['workflowType']?.toString() ?? 'event',
@@ -399,9 +422,9 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
             padding: const EdgeInsets.only(top: 4),
             child: Text(
               tr.marketplace_more(_template.workflows.length - 5),
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: cs.onSurfaceVariant,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
             ),
           ),
       ],
@@ -409,23 +432,24 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
   }
 
   Widget _buildGlobalVarsPreview(ColorScheme cs, AppLocalizations tr) {
-    final nonRequired =
-        _template.globalVariables.where((v) => !v.required).toList();
+    final nonRequired = _template.globalVariables
+        .where((v) => !v.required)
+        .toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           tr.marketplace_variables_label,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
         ...nonRequired.take(5).map((v) {
           return ListTile(
             dense: true,
             contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.data_object, size: 20),
+            leading: const AppIcon.fromMaterial(Icons.data_object, size: 20),
             title: Text(v.name),
             subtitle: Text(
               v.defaultValue ?? '(default)',
@@ -439,9 +463,9 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
             padding: const EdgeInsets.only(top: 4),
             child: Text(
               tr.marketplace_more(nonRequired.length - 5),
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: cs.onSurfaceVariant,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
             ),
           ),
       ],
@@ -477,7 +501,10 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: Text(context.tr.delete, style: const TextStyle(color: Colors.red)),
+            child: Text(
+              context.tr.delete,
+              style: const TextStyle(color: Colors.red),
+            ),
           ),
         ],
       ),
@@ -499,9 +526,9 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toString())));
       }
     } finally {
       if (mounted) setState(() => _deleting = false);
@@ -513,9 +540,9 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
       children: [
         Text(
           tr.marketplace_rate_title,
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
         Row(
@@ -524,7 +551,7 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
             final star = i + 1;
             final filled = star <= _template.rating.round();
             return IconButton(
-              icon: Icon(
+              icon: AppIcon.fromMaterial(
                 filled ? Icons.star : Icons.star_border,
                 color: filled ? Colors.amber : cs.onSurfaceVariant,
                 size: 32,
@@ -571,9 +598,9 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toString())));
       }
     }
   }
@@ -587,7 +614,9 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
       }
       return resolved;
     } else if (data is Map) {
-      return data.map((k, v) => MapEntry(k.toString(), _resolveVariables(v, variables)));
+      return data.map(
+        (k, v) => MapEntry(k.toString(), _resolveVariables(v, variables)),
+      );
     } else if (data is List) {
       return data.map((v) => _resolveVariables(v, variables)).toList();
     }
@@ -638,7 +667,9 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
     final cs = Theme.of(context).colorScheme;
     final name = cmd.name?.toString() ?? '';
     final description = cmd.description?.toString() ?? '';
-    final data = cmd.data is Map ? Map<String, dynamic>.from(cmd.data) : <String, dynamic>{};
+    final data = cmd.data is Map
+        ? Map<String, dynamic>.from(cmd.data)
+        : <String, dynamic>{};
     final actions = (data['actions'] as List?)?.whereType<Map>().toList() ?? [];
     final opts = (data['options'] as List?)?.whereType<Map>().toList() ?? [];
 
@@ -667,30 +698,43 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
 
     String actionLabel(String? type) {
       if (type == null) return 'Unknown';
-      return type[0].toUpperCase() + type.substring(1).replaceAllMapped(
-        RegExp(r'[A-Z]'), (m) => ' ${m.group(0)}',
-      );
+      return type[0].toUpperCase() +
+          type
+              .substring(1)
+              .replaceAllMapped(RegExp(r'[A-Z]'), (m) => ' ${m.group(0)}');
     }
 
     String summarizePayload(Map<String, dynamic> payload) {
       final parts = <String>[];
       final content = payload['content'] ?? payload['text'];
       if (content != null && content.toString().isNotEmpty) {
-        parts.add(content.toString().length > 60
-            ? '${content.toString().substring(0, 57)}...'
-            : content.toString());
+        parts.add(
+          content.toString().length > 60
+              ? '${content.toString().substring(0, 57)}...'
+              : content.toString(),
+        );
       }
       final url = payload['url'];
       if (url != null && url.toString().isNotEmpty) {
-        parts.add(url.toString().length > 50
-            ? '${url.toString().substring(0, 47)}...'
-            : url.toString());
+        parts.add(
+          url.toString().length > 50
+              ? '${url.toString().substring(0, 47)}...'
+              : url.toString(),
+        );
       }
       if (parts.isEmpty) {
         final nonEmpty = payload.entries
-            .where((e) => e.key != 'key' && e.value != null && e.value.toString().isNotEmpty)
+            .where(
+              (e) =>
+                  e.key != 'key' &&
+                  e.value != null &&
+                  e.value.toString().isNotEmpty,
+            )
             .take(2)
-            .map((e) => '${e.key}: ${e.value.toString().length > 30 ? '${e.value.toString().substring(0, 27)}...' : e.value}')
+            .map(
+              (e) =>
+                  '${e.key}: ${e.value.toString().length > 30 ? '${e.value.toString().substring(0, 27)}...' : e.value}',
+            )
             .join(' | ');
         return nonEmpty.isNotEmpty ? nonEmpty : 'No parameters';
       }
@@ -717,7 +761,8 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
                 children: [
                   Center(
                     child: Container(
-                      width: 40, height: 4,
+                      width: 40,
+                      height: 4,
                       decoration: BoxDecoration(
                         color: cs.onSurfaceVariant.withAlpha(60),
                         borderRadius: BorderRadius.circular(2),
@@ -725,41 +770,69 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Text('/$name', style: Theme.of(ctx).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w700, fontFamily: 'monospace',
-                  )),
+                  Text(
+                    '/$name',
+                    style: Theme.of(ctx).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      fontFamily: 'monospace',
+                    ),
+                  ),
                   if (description.isNotEmpty) ...[
                     const SizedBox(height: 4),
-                    Text(description, style: TextStyle(color: cs.onSurfaceVariant)),
+                    Text(
+                      description,
+                      style: TextStyle(color: cs.onSurfaceVariant),
+                    ),
                   ],
                   if (opts.isNotEmpty) ...[
                     const SizedBox(height: 12),
-                    Text(context.tr.marketplace_options_count(opts.length), style: Theme.of(ctx).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+                    Text(
+                      context.tr.marketplace_options_count(opts.length),
+                      style: Theme.of(ctx).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                     const SizedBox(height: 4),
                     Wrap(
-                      spacing: 6, runSpacing: 4,
-                      children: opts.map((o) => Chip(
-                        visualDensity: VisualDensity.compact,
-                        label: Text(
-                          '${o['name'] ?? ''}${o['required'] == true ? ' *' : ''}',
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                        avatar: Icon(_optionIcon(o['type']?.toString()), size: 14),
-                      )).toList(),
+                      spacing: 6,
+                      runSpacing: 4,
+                      children: opts
+                          .map(
+                            (o) => Chip(
+                              visualDensity: VisualDensity.compact,
+                              label: Text(
+                                '${o['name'] ?? ''}${o['required'] == true ? ' *' : ''}',
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                              avatar: AppIcon.fromMaterial(
+                                _optionIcon(o['type']?.toString()),
+                                size: 14,
+                              ),
+                            ),
+                          )
+                          .toList(),
                     ),
                   ],
                   const SizedBox(height: 16),
-                  Text(context.tr.marketplace_actions_count(actions.length),
-                    style: Theme.of(ctx).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                  Text(
+                    context.tr.marketplace_actions_count(actions.length),
+                    style: Theme.of(ctx).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Expanded(
                     child: actions.isEmpty
-                        ? Center(child: Text(tr.marketplace_command_preview_no_actions))
+                        ? Center(
+                            child: Text(
+                              tr.marketplace_command_preview_no_actions,
+                            ),
+                          )
                         : ListView.separated(
                             controller: scrollController,
                             itemCount: actions.length,
-                            separatorBuilder: (_, i2) => const SizedBox(height: 6),
+                            separatorBuilder: (_, i2) =>
+                                const SizedBox(height: 6),
                             itemBuilder: (ctx, i) {
                               final action = actions[i];
                               final type = action['type']?.toString();
@@ -774,7 +847,9 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
                                 decoration: BoxDecoration(
                                   color: color.withAlpha(enabled ? 30 : 10),
                                   borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(color: color.withAlpha(80)),
+                                  border: Border.all(
+                                    color: color.withAlpha(80),
+                                  ),
                                 ),
                                 padding: const EdgeInsets.all(12),
                                 child: Row(
@@ -784,14 +859,17 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
                                       width: 6,
                                       height: 40,
                                       decoration: BoxDecoration(
-                                        color: enabled ? color : cs.onSurfaceVariant.withAlpha(40),
+                                        color: enabled
+                                            ? color
+                                            : cs.onSurfaceVariant.withAlpha(40),
                                         borderRadius: BorderRadius.circular(3),
                                       ),
                                     ),
                                     const SizedBox(width: 12),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Row(
                                             children: [
@@ -800,21 +878,40 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
                                                 style: TextStyle(
                                                   fontWeight: FontWeight.w600,
                                                   fontSize: 13,
-                                                  color: enabled ? cs.onSurface : cs.onSurfaceVariant,
-                                                  decoration: enabled ? null : TextDecoration.lineThrough,
+                                                  color: enabled
+                                                      ? cs.onSurface
+                                                      : cs.onSurfaceVariant,
+                                                  decoration: enabled
+                                                      ? null
+                                                      : TextDecoration
+                                                            .lineThrough,
                                                 ),
                                               ),
-                                              if (key != null && key.isNotEmpty) ...[
+                                              if (key != null &&
+                                                  key.isNotEmpty) ...[
                                                 const SizedBox(width: 8),
                                                 Container(
-                                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 6,
+                                                        vertical: 1,
+                                                      ),
                                                   decoration: BoxDecoration(
-                                                    color: cs.primary.withAlpha(20),
-                                                    borderRadius: BorderRadius.circular(4),
+                                                    color: cs.primary.withAlpha(
+                                                      20,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          4,
+                                                        ),
                                                   ),
                                                   child: Text(
                                                     key,
-                                                    style: TextStyle(fontSize: 10, color: cs.primary, fontFamily: 'monospace'),
+                                                    style: TextStyle(
+                                                      fontSize: 10,
+                                                      color: cs.primary,
+                                                      fontFamily: 'monospace',
+                                                    ),
                                                   ),
                                                 ),
                                               ],
@@ -823,7 +920,10 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
                                           const SizedBox(height: 2),
                                           Text(
                                             summarizePayload(payload),
-                                            style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: cs.onSurfaceVariant,
+                                            ),
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
                                           ),
@@ -847,17 +947,28 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
 
   IconData _optionIcon(String? type) {
     switch (type) {
-      case 'user': return Icons.person;
-      case 'channel': return Icons.tag;
-      case 'role': return Icons.shield;
-      case 'string': return Icons.text_fields;
-      case 'integer': case 'number': return Icons.numbers;
-      case 'boolean': return Icons.toggle_on;
-      case 'attachment': return Icons.attach_file;
-      case 'mentionable': return Icons.alternate_email;
-      default: return Icons.help_outline;
+      case 'user':
+        return Icons.person;
+      case 'channel':
+        return Icons.tag;
+      case 'role':
+        return Icons.shield;
+      case 'string':
+        return Icons.text_fields;
+      case 'integer':
+      case 'number':
+        return Icons.numbers;
+      case 'boolean':
+        return Icons.toggle_on;
+      case 'attachment':
+        return Icons.attach_file;
+      case 'mentionable':
+        return Icons.alternate_email;
+      default:
+        return Icons.help_outline;
     }
   }
+
   Future<Map<String, bool>?> _showConflictDialog(
     List<Map<String, dynamic>> conflicts,
     Map<String, String> variables,
@@ -913,11 +1024,17 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
                                 Expanded(
                                   child: Text(
                                     useTemplate
-                                        ? tr.marketplace_conflict_template_info(templateActions)
-                                        : tr.marketplace_conflict_local_info(localActions),
+                                        ? tr.marketplace_conflict_template_info(
+                                            templateActions,
+                                          )
+                                        : tr.marketplace_conflict_local_info(
+                                            localActions,
+                                          ),
                                     style: TextStyle(
                                       fontSize: 12,
-                                      color: Theme.of(ctx).colorScheme.onSurfaceVariant,
+                                      color: Theme.of(
+                                        ctx,
+                                      ).colorScheme.onSurfaceVariant,
                                     ),
                                   ),
                                 ),
@@ -971,7 +1088,8 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
 
       final rest = await Nyxx.connectRest(token);
       try {
-        final commandType = resolvedData['commandType']?.toString() ?? 'chatInput';
+        final commandType =
+            resolvedData['commandType']?.toString() ?? 'chatInput';
         final ApplicationCommandBuilder builder;
         switch (commandType) {
           case 'user':
@@ -979,7 +1097,9 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
           case 'message':
             builder = ApplicationCommandBuilder.message(name: resolvedName);
           default:
-            final rawOptions = (resolvedData['options'] as List?)?.whereType<Map>().toList() ?? [];
+            final rawOptions =
+                (resolvedData['options'] as List?)?.whereType<Map>().toList() ??
+                [];
             final options = rawOptions.isNotEmpty
                 ? deserializeCommandOptions(rawOptions)
                 : <CommandOptionBuilder>[];
@@ -990,7 +1110,8 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
             );
         }
 
-        final permissionRaw = resolvedData['defaultMemberPermissions']?.toString();
+        final permissionRaw = resolvedData['defaultMemberPermissions']
+            ?.toString();
         if (permissionRaw != null && permissionRaw.isNotEmpty) {
           final perm = int.tryParse(permissionRaw);
           if (perm != null && perm > 0) {
@@ -1028,11 +1149,7 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
       if ((_variableValues[v.name] ?? '').isEmpty && v.defaultValue == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                tr.marketplace_variable_required(v.name),
-              ),
-            ),
+            SnackBar(content: Text(tr.marketplace_variable_required(v.name))),
           );
         }
         return;
@@ -1050,14 +1167,22 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
 
       final client = widget.apiClient;
       if (client != null) {
-        await client.applyMarketplaceTemplate(_template.id, widget.botId, variables);
+        await client.applyMarketplaceTemplate(
+          _template.id,
+          widget.botId,
+          variables,
+        );
       }
 
       final appManager = AppManager();
 
       // Apply global variables
       for (final entry in variables.entries) {
-        await appManager.setGlobalVariable(widget.botId, entry.key, entry.value);
+        await appManager.setGlobalVariable(
+          widget.botId,
+          entry.key,
+          entry.value,
+        );
       }
 
       // Detect conflicts before applying commands
@@ -1072,7 +1197,8 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
       final nonConflicting = <Map<String, dynamic>>[];
 
       for (final cmd in _template.commands) {
-        final resolvedName = (_resolveVariables(cmd.name, variables) as String).toLowerCase();
+        final resolvedName = (_resolveVariables(cmd.name, variables) as String)
+            .toLowerCase();
         final existing = existingByName[resolvedName];
         if (existing != null) {
           final localData = existing['data'];
@@ -1081,13 +1207,12 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
             'resolvedName': resolvedName,
             'cmd': cmd,
             'localActions': _countActions(localData),
-            'templateActions': _countActions(Map<String, dynamic>.from(cmd.data)),
+            'templateActions': _countActions(
+              Map<String, dynamic>.from(cmd.data),
+            ),
           });
         } else {
-          nonConflicting.add({
-            'resolvedName': resolvedName,
-            'cmd': cmd,
-          });
+          nonConflicting.add({'resolvedName': resolvedName, 'cmd': cmd});
         }
       }
 
@@ -1116,8 +1241,10 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
       for (final entry in nonConflicting) {
         final cmd = entry['cmd'] as dynamic;
         final resolvedName = entry['resolvedName'] as String;
-        final resolvedDescription = _resolveVariables(cmd.description, variables) as String;
-        final resolvedData = _resolveVariables(cmd.data, variables) as Map<String, dynamic>;
+        final resolvedDescription =
+            _resolveVariables(cmd.description, variables) as String;
+        final resolvedData =
+            _resolveVariables(cmd.data, variables) as Map<String, dynamic>;
 
         if (resolvedData['response'] is Map &&
             (resolvedData['response'] as Map).containsKey('_migrated')) {
@@ -1136,7 +1263,10 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
         final localPayload = <String, dynamic>{
           'name': resolvedName,
           'description': resolvedDescription,
-          'type': resolvedData['commandType'] ?? resolvedData['type'] ?? 'chatInput',
+          'type':
+              resolvedData['commandType'] ??
+              resolvedData['type'] ??
+              'chatInput',
           'id': newCmdId,
           'createdAt': DateTime.now().toIso8601String(),
           'updatedAt': DateTime.now().toIso8601String(),
@@ -1164,8 +1294,10 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
           await appManager.deleteAppCommand(widget.botId, existingId);
         }
 
-        final resolvedDescription = _resolveVariables(cmd.description, variables) as String;
-        final resolvedData = _resolveVariables(cmd.data, variables) as Map<String, dynamic>;
+        final resolvedDescription =
+            _resolveVariables(cmd.description, variables) as String;
+        final resolvedData =
+            _resolveVariables(cmd.data, variables) as Map<String, dynamic>;
 
         if (resolvedData['response'] is Map &&
             (resolvedData['response'] as Map).containsKey('_migrated')) {
@@ -1184,7 +1316,10 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
         final localPayload = <String, dynamic>{
           'name': resolvedName,
           'description': resolvedDescription,
-          'type': resolvedData['commandType'] ?? resolvedData['type'] ?? 'chatInput',
+          'type':
+              resolvedData['commandType'] ??
+              resolvedData['type'] ??
+              'chatInput',
           'id': newCmdId,
           'createdAt': DateTime.now().toIso8601String(),
           'updatedAt': DateTime.now().toIso8601String(),
@@ -1196,7 +1331,8 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
 
       // Add workflows
       for (final workflow in _template.workflows) {
-        final resolvedWorkflow = _resolveVariables(workflow, variables) as Map<String, dynamic>;
+        final resolvedWorkflow =
+            _resolveVariables(workflow, variables) as Map<String, dynamic>;
         final wName = (resolvedWorkflow['name'] ?? '').toString();
         final wActions = (resolvedWorkflow['actions'] as List? ?? [])
             .map((e) => Map<String, dynamic>.from(e as Map))
@@ -1231,20 +1367,16 @@ class _MarketplaceDetailPageState extends State<MarketplaceDetailPage> {
         final msg = parts.isEmpty
             ? tr.marketplace_apply_success
             : 'Template applied: ${parts.join(', ')}';
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(msg)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(msg)));
         unawaited(refreshBotRuntime(widget.botId));
         Navigator.of(context).pop(true);
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              tr.marketplace_apply_error(e.toString()),
-            ),
-          ),
+          SnackBar(content: Text(tr.marketplace_apply_error(e.toString()))),
         );
       }
     } finally {
@@ -1264,12 +1396,13 @@ class _StatChip extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 16, color: Theme.of(context).colorScheme.primary),
-        const SizedBox(width: 4),
-        Text(
-          value,
-          style: Theme.of(context).textTheme.labelMedium,
+        AppIcon.fromMaterial(
+          icon,
+          size: 16,
+          color: Theme.of(context).colorScheme.primary,
         ),
+        const SizedBox(width: 4),
+        Text(value, style: Theme.of(context).textTheme.labelMedium),
       ],
     );
   }

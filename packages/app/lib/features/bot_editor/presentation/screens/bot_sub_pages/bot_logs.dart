@@ -16,6 +16,8 @@ import 'package:bot_creator/main.dart';
 import 'package:bot_creator/core/network/main_api_owner_sync.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 class BotLogsPage extends StatefulWidget {
   const BotLogsPage({super.key, this.botId});
 
@@ -430,7 +432,9 @@ class _BotLogsPageState extends State<BotLogsPage> {
             tooltip: _rawMode
                 ? context.tr.bot_logs_rich_mode
                 : context.tr.bot_logs_raw_mode,
-            icon: Icon(_rawMode ? Icons.view_agenda_outlined : Icons.terminal),
+            icon: AppIcon.fromMaterial(
+              _rawMode ? Icons.view_agenda_outlined : Icons.terminal,
+            ),
             onPressed: () {
               setState(() {
                 _rawMode = !_rawMode;
@@ -441,7 +445,7 @@ class _BotLogsPageState extends State<BotLogsPage> {
             tooltip: _debugEnabled
                 ? context.tr.bot_logs_disable_debug
                 : context.tr.bot_logs_enable_debug,
-            icon: Icon(
+            icon: AppIcon.fromMaterial(
               _debugEnabled ? Icons.bug_report : Icons.bug_report_outlined,
             ),
             onPressed: () {
@@ -453,7 +457,7 @@ class _BotLogsPageState extends State<BotLogsPage> {
           ),
           IconButton(
             tooltip: context.tr.copy,
-            icon: const Icon(Icons.copy),
+            icon: const AppIcon.fromMaterial(Icons.copy),
             onPressed: () async {
               final logs = getBotLogsSnapshotForBotFromSource(
                 _selectedBotId,
@@ -471,7 +475,7 @@ class _BotLogsPageState extends State<BotLogsPage> {
             tooltip: _showNewestFirst
                 ? context.tr.bot_logs_oldest_first
                 : context.tr.bot_logs_newest_first,
-            icon: Icon(
+            icon: AppIcon.fromMaterial(
               _showNewestFirst
                   ? Icons.vertical_align_top
                   : Icons.vertical_align_bottom,
@@ -487,7 +491,7 @@ class _BotLogsPageState extends State<BotLogsPage> {
           ),
           PopupMenuButton<int>(
             tooltip: context.tr.bot_logs_filter_count,
-            icon: const Icon(Icons.filter_list),
+            icon: const AppIcon.fromMaterial(Icons.filter_list),
             initialValue: _visibleLimit,
             onSelected: (value) {
               setState(() {
@@ -590,7 +594,7 @@ class _BotLogsPageState extends State<BotLogsPage> {
                           ),
                           child: Row(
                             children: [
-                              Icon(
+                              AppIcon.fromMaterial(
                                 _usingRemoteSource
                                     ? Icons.dns_outlined
                                     : Icons.lan,
@@ -634,7 +638,7 @@ class _BotLogsPageState extends State<BotLogsPage> {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Icon(
+                                const AppIcon.fromMaterial(
                                   Icons.info_outline,
                                   color: AppTheme.warning,
                                   size: 18,
@@ -933,7 +937,7 @@ class _BotLogsPageState extends State<BotLogsPage> {
                                                 }
                                               });
                                             },
-                                            icon: Icon(
+                                            icon: AppIcon.fromMaterial(
                                               isExpanded
                                                   ? Icons.expand_less
                                                   : Icons.expand_more,
@@ -971,7 +975,7 @@ class _BotLogsPageState extends State<BotLogsPage> {
             ? context.tr.bot_logs_go_to_latest
             : context.tr.bot_logs_go_to_bottom,
         onPressed: _jumpToEdge,
-        child: Icon(
+        child: AppIcon.fromMaterial(
           _showNewestFirst
               ? Icons.vertical_align_top
               : Icons.vertical_align_bottom,

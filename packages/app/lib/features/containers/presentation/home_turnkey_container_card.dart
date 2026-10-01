@@ -8,6 +8,8 @@ import 'package:bot_creator/features/home/presentation/home_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:bot_creator/features/copilot/presentation/copilot_page.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Actions exposées par la carte d'accueil d'un conteneur clé en main.
 ///
 /// Un bot hébergé n'a AUCUNE configuration à éditer : sa carte n'offre donc
@@ -234,7 +236,11 @@ class HomeTurnkeyContainerCard extends StatelessWidget {
                       color: scheme.primary.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(_icon, color: scheme.primary, size: 24),
+                    child: AppIcon.fromMaterial(
+                      _icon,
+                      color: scheme.primary,
+                      size: 24,
+                    ),
                   ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -321,7 +327,7 @@ class HomeTurnkeyContainerCard extends StatelessWidget {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Icon(
+                  AppIcon.fromMaterial(
                     expired ? Icons.timer_off_rounded : Icons.schedule_rounded,
                     size: 14,
                     color: expired ? AppTheme.danger : scheme.onSurfaceVariant,

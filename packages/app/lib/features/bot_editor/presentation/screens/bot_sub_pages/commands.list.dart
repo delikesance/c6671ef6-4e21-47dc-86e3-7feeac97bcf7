@@ -31,6 +31,8 @@ import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/utils/external_link.dart';
 import 'package:bot_creator/core/network/remote_runtime.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 class AppCommandsPage extends StatefulWidget {
   final NyxxRest? client;
   final String botId;
@@ -183,12 +185,15 @@ class _AppCommandsPageState extends State<AppCommandsPage>
           children: [
             if (!_isSelectMode) ...[
               IconButton(
-                icon: const Icon(Icons.drive_file_move_outlined, size: 20),
+                icon: const AppIcon.fromMaterial(
+                  Icons.drive_file_move_outlined,
+                  size: 20,
+                ),
                 tooltip: context.tr.commands_move_to_folder,
                 onPressed: () => _showMoveCommandDialog(command),
               ),
               IconButton(
-                icon: Icon(
+                icon: AppIcon.fromMaterial(
                   Icons.delete_outline,
                   size: 20,
                   color: Theme.of(context).colorScheme.error,
@@ -197,7 +202,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                 onPressed: () => _deleteCommand(commandId, name),
               ),
             ],
-            const Icon(Icons.arrow_forward_ios_outlined),
+            const AppIcon.fromMaterial(Icons.arrow_forward_ios_outlined),
           ],
         ),
         title: Row(
@@ -222,7 +227,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
+                    AppIcon.fromMaterial(
                       Icons.auto_awesome,
                       size: 12,
                       color: Theme.of(context).colorScheme.onTertiaryContainer,
@@ -295,7 +300,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
+            AppIcon.fromMaterial(
               Icons.terminal_rounded,
               size: 18,
               color: Theme.of(context).colorScheme.primary,
@@ -385,7 +390,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
+                AppIcon.fromMaterial(
                   Icons.folder_outlined,
                   size: 11,
                   color: colorScheme.onSurfaceVariant,
@@ -687,7 +692,10 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                   value: 'command',
                   child: Row(
                     children: [
-                      const Icon(Icons.add_circle_outline, size: 20),
+                      const AppIcon.fromMaterial(
+                        Icons.add_circle_outline,
+                        size: 20,
+                      ),
                       const SizedBox(width: 12),
                       Text(context.tr.commands_create_button),
                     ],
@@ -697,7 +705,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                   value: 'template',
                   child: Row(
                     children: [
-                      const Icon(Icons.auto_awesome, size: 20),
+                      const AppIcon.fromMaterial(Icons.auto_awesome, size: 20),
                       const SizedBox(width: 12),
                       Text(context.tr.marketplace_title),
                     ],
@@ -707,7 +715,10 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                   value: 'folder',
                   child: Row(
                     children: [
-                      const Icon(Icons.create_new_folder_outlined, size: 20),
+                      const AppIcon.fromMaterial(
+                        Icons.create_new_folder_outlined,
+                        size: 20,
+                      ),
                       const SizedBox(width: 12),
                       Text(context.tr.commands_create_folder),
                     ],
@@ -731,7 +742,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
+                    const AppIcon.fromMaterial(
                       Icons.add_rounded,
                       color: Colors.white,
                       size: 18,
@@ -981,7 +992,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                       color: AppTheme.successLight.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
+                    child: const AppIcon.fromMaterial(
                       Icons.check_circle_rounded,
                       size: 48,
                       color: AppTheme.success,
@@ -1565,7 +1576,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
 
     return Card(
       child: ListTile(
-        leading: const Icon(Icons.drag_handle),
+        leading: const AppIcon.fromMaterial(Icons.drag_handle),
         title: Text(
           name,
           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
@@ -1574,7 +1585,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
           value: currentFolder,
           underline: const SizedBox.shrink(),
           isDense: true,
-          icon: const Icon(Icons.folder_outlined, size: 18),
+          icon: const AppIcon.fromMaterial(Icons.folder_outlined, size: 18),
           items: [
             DropdownMenuItem<String>(
               value: '',
@@ -1644,7 +1655,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
           padding: const EdgeInsets.fromLTRB(4, 16, 4, 6),
           child: Row(
             children: [
-              Icon(
+              AppIcon.fromMaterial(
                 Icons.folder_outlined,
                 size: 18,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -1698,7 +1709,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                   ),
                 ),
               ],
-              Icon(
+              AppIcon.fromMaterial(
                 Icons.folder,
                 size: 18,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -1800,7 +1811,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                 padding: const EdgeInsets.fromLTRB(4, 16, 4, 6),
                 child: Row(
                   children: [
-                    Icon(
+                    AppIcon.fromMaterial(
                       Icons.folder_off_outlined,
                       size: 18,
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -1939,26 +1950,30 @@ class _AppCommandsPageState extends State<AppCommandsPage>
               ),
         leading: _isSelectMode
             ? IconButton(
-                icon: const Icon(Icons.close),
+                icon: const AppIcon.fromMaterial(Icons.close, size: 20),
                 tooltip: context.tr.cancel,
+                visualDensity: VisualDensity.compact,
                 onPressed: _cancelSelectMode,
               )
             : _isReorderMode
             ? IconButton(
-                icon: const Icon(Icons.close),
+                icon: const AppIcon.fromMaterial(Icons.close, size: 20),
                 tooltip: context.tr.cancel,
+                visualDensity: VisualDensity.compact,
                 onPressed: _cancelReorderMode,
               )
             : editorSubPageLeading(context),
         actions: _isSelectMode
             ? [
                 IconButton(
-                  icon: Icon(
+                  icon: AppIcon.fromMaterial(
                     _selectedCommandIds.length == _commands.length &&
                             _commands.isNotEmpty
                         ? Icons.deselect_rounded
                         : Icons.select_all_rounded,
+                    size: 20,
                   ),
+                  visualDensity: VisualDensity.compact,
                   tooltip:
                       _selectedCommandIds.length == _commands.length &&
                           _commands.isNotEmpty
@@ -1979,14 +1994,22 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                   },
                 ),
                 IconButton(
-                  icon: const Icon(Icons.drive_file_move_outlined),
+                  icon: const AppIcon.fromMaterial(
+                    Icons.drive_file_move_outlined,
+                    size: 20,
+                  ),
+                  visualDensity: VisualDensity.compact,
                   tooltip: context.tr.commands_move_to_folder,
                   onPressed: _selectedCommandIds.isNotEmpty
                       ? _batchMoveSelected
                       : null,
                 ),
                 IconButton(
-                  icon: const Icon(Icons.delete_outline_rounded),
+                  icon: const AppIcon.fromMaterial(
+                    Icons.delete_outline_rounded,
+                    size: 20,
+                  ),
+                  visualDensity: VisualDensity.compact,
                   tooltip: context.tr.delete,
                   onPressed: _selectedCommandIds.isNotEmpty
                       ? _batchDeleteSelected
@@ -1996,20 +2019,32 @@ class _AppCommandsPageState extends State<AppCommandsPage>
             : _isReorderMode
             ? [
                 IconButton(
-                  icon: const Icon(Icons.check_rounded),
+                  icon: const AppIcon.fromMaterial(
+                    Icons.check_rounded,
+                    size: 20,
+                  ),
+                  visualDensity: VisualDensity.compact,
                   tooltip: context.tr.save,
                   onPressed: _saveReorderMode,
                 ),
               ]
             : [
                 IconButton(
-                  icon: const Icon(Icons.auto_awesome_rounded),
+                  icon: const AppIcon.fromMaterial(
+                    Icons.auto_awesome_rounded,
+                    size: 20,
+                  ),
+                  visualDensity: VisualDensity.compact,
                   tooltip: context.tr.marketplace_title,
                   color: AppTheme.brandSecondary,
                   onPressed: _openMarketplace,
                 ),
                 PopupMenuButton<String>(
-                  icon: const Icon(Icons.more_vert_rounded),
+                  icon: const AppIcon.fromMaterial(
+                    Icons.more_vert_rounded,
+                    size: 20,
+                  ),
+                  iconSize: 20,
                   tooltip: context.tr.more_options_title,
                   onSelected: (value) async {
                     switch (value) {
@@ -2027,7 +2062,10 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                       enabled: _commands.isNotEmpty,
                       child: Row(
                         children: [
-                          const Icon(Icons.checklist_rounded, size: 20),
+                          const AppIcon.fromMaterial(
+                            Icons.checklist_rounded,
+                            size: 20,
+                          ),
                           const SizedBox(width: 12),
                           Text(context.tr.commands_batch_select),
                         ],
@@ -2038,7 +2076,10 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                       enabled: _commands.isNotEmpty,
                       child: Row(
                         children: [
-                          const Icon(Icons.swap_vert_rounded, size: 20),
+                          const AppIcon.fromMaterial(
+                            Icons.swap_vert_rounded,
+                            size: 20,
+                          ),
                           const SizedBox(width: 12),
                           Text(context.tr.commands_reorder_title),
                         ],
@@ -2048,7 +2089,10 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                       value: 'publish',
                       child: Row(
                         children: [
-                          const Icon(Icons.cloud_upload_outlined, size: 20),
+                          const AppIcon.fromMaterial(
+                            Icons.cloud_upload_outlined,
+                            size: 20,
+                          ),
                           const SizedBox(width: 12),
                           Text(context.tr.marketplace_publish_title),
                         ],
@@ -2102,7 +2146,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                             shape: BoxShape.circle,
                           ),
                           alignment: Alignment.center,
-                          child: Icon(
+                          child: AppIcon.fromMaterial(
                             Icons.smart_toy_rounded,
                             size: 80,
                             color: Theme.of(
@@ -2144,7 +2188,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                                 ),
                               ),
                             ),
-                            icon: const Icon(Icons.add_rounded),
+                            icon: const AppIcon.fromMaterial(Icons.add_rounded),
                             label: Text(
                               context.tr.commands_empty_create_button,
                               style: const TextStyle(
@@ -2157,7 +2201,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                         const SizedBox(height: AppTheme.spacingSm),
                         TextButton.icon(
                           onPressed: _openMarketplace,
-                          icon: Icon(
+                          icon: AppIcon.fromMaterial(
                             Icons.auto_awesome,
                             size: 18,
                             color: Theme.of(context).colorScheme.primary,
@@ -2175,7 +2219,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                           onPressed: () async {
                             await _addSamplePingCommand();
                           },
-                          icon: Icon(
+                          icon: AppIcon.fromMaterial(
                             Icons.bolt_rounded,
                             size: 18,
                             color: AppTheme.warning,
@@ -2281,7 +2325,7 @@ class CommandFolderHeader extends StatelessWidget {
             AnimatedRotation(
               turns: isExpanded ? 0.25 : 0,
               duration: const Duration(milliseconds: 200),
-              child: Icon(
+              child: AppIcon.fromMaterial(
                 Icons.chevron_right,
                 size: 20,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -2298,7 +2342,7 @@ class CommandFolderHeader extends StatelessWidget {
                 ),
               ),
             ],
-            Icon(
+            AppIcon.fromMaterial(
               isExpanded ? Icons.folder_open : Icons.folder,
               size: 18,
               color: Theme.of(context).colorScheme.primary,
@@ -2331,7 +2375,7 @@ class CommandFolderHeader extends StatelessWidget {
               ),
             ),
             PopupMenuButton<String>(
-              icon: Icon(
+              icon: AppIcon.fromMaterial(
                 Icons.more_vert,
                 size: 18,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -2343,7 +2387,10 @@ class CommandFolderHeader extends StatelessWidget {
                     value: 'add_command',
                     child: Row(
                       children: [
-                        const Icon(Icons.add_circle_outline, size: 18),
+                        const AppIcon.fromMaterial(
+                          Icons.add_circle_outline,
+                          size: 18,
+                        ),
                         const SizedBox(width: 8),
                         Text(context.tr.commands_create_button),
                       ],
@@ -2354,7 +2401,10 @@ class CommandFolderHeader extends StatelessWidget {
                     value: 'add_subfolder',
                     child: Row(
                       children: [
-                        const Icon(Icons.create_new_folder_outlined, size: 18),
+                        const AppIcon.fromMaterial(
+                          Icons.create_new_folder_outlined,
+                          size: 18,
+                        ),
                         const SizedBox(width: 8),
                         Text(context.tr.commands_create_folder),
                       ],
@@ -2364,7 +2414,7 @@ class CommandFolderHeader extends StatelessWidget {
                   value: 'rename',
                   child: Row(
                     children: [
-                      const Icon(Icons.edit, size: 18),
+                      const AppIcon.fromMaterial(Icons.edit, size: 18),
                       const SizedBox(width: 8),
                       Text(context.tr.commands_rename_folder),
                     ],
@@ -2375,7 +2425,10 @@ class CommandFolderHeader extends StatelessWidget {
                     value: 'move',
                     child: Row(
                       children: [
-                        const Icon(Icons.drive_file_move_outlined, size: 18),
+                        const AppIcon.fromMaterial(
+                          Icons.drive_file_move_outlined,
+                          size: 18,
+                        ),
                         const SizedBox(width: 8),
                         Text(context.tr.commands_move_to_folder),
                       ],
@@ -2385,7 +2438,10 @@ class CommandFolderHeader extends StatelessWidget {
                   value: 'delete',
                   child: Row(
                     children: [
-                      const Icon(Icons.delete_outline, size: 18),
+                      const AppIcon.fromMaterial(
+                        Icons.delete_outline,
+                        size: 18,
+                      ),
                       const SizedBox(width: 8),
                       Text(context.tr.commands_delete_folder),
                     ],
@@ -2450,7 +2506,7 @@ class _CommandMetaChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
+          AppIcon.fromMaterial(
             icon,
             size: 13,
             color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -2512,7 +2568,7 @@ class _SpeedDialItem extends StatelessWidget {
         FloatingActionButton.small(
           heroTag: 'speed_dial_$label',
           onPressed: onTap,
-          child: Icon(icon),
+          child: AppIcon.fromMaterial(icon),
         ),
       ],
     );
@@ -2563,7 +2619,7 @@ class _GuidanceActionTile extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
                 alignment: Alignment.center,
-                child: Icon(icon, size: 22, color: iconColor),
+                child: AppIcon.fromMaterial(icon, size: 22, color: iconColor),
               ),
               const SizedBox(width: AppTheme.spacingMd),
               Expanded(
@@ -2574,7 +2630,7 @@ class _GuidanceActionTile extends StatelessWidget {
                   ),
                 ),
               ),
-              Icon(
+              AppIcon.fromMaterial(
                 Icons.chevron_right_rounded,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),

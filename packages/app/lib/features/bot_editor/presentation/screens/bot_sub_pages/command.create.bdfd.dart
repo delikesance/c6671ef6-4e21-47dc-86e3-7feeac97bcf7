@@ -2,8 +2,7 @@ part of 'command.create.dart';
 
 extension _CommandCreateBdfd on _CommandCreatePageState {
   Widget _buildExecutionModeCard({bool includeInlineEditor = true}) {
-    final isWorkflowMode =
-        !_isBdfdScriptMode && !_isJavascriptMode;
+    final isWorkflowMode = !_isBdfdScriptMode && !_isJavascriptMode;
 
     Widget buildModeTile({
       required String value,
@@ -16,7 +15,7 @@ extension _CommandCreateBdfd on _CommandCreatePageState {
         contentPadding: EdgeInsets.zero,
         title: Row(
           children: [
-            Icon(icon, size: 18),
+            AppIcon.fromMaterial(icon, size: 18),
             const SizedBox(width: 8),
             Expanded(child: Text(title)),
           ],
@@ -92,8 +91,8 @@ extension _CommandCreateBdfd on _CommandCreatePageState {
                 isWorkflowMode
                     ? context.tr.cmd_execution_mode_workflow_note
                     : _isJavascriptMode
-                        ? context.tr.cmd_execution_mode_javascript_note
-                        : context.tr.cmd_execution_mode_bdfd_note,
+                    ? context.tr.cmd_execution_mode_javascript_note
+                    : context.tr.cmd_execution_mode_bdfd_note,
                 style: TextStyle(
                   fontSize: 12,
                   color: isWorkflowMode ? AppTheme.grey : AppTheme.warning,
@@ -119,12 +118,11 @@ extension _CommandCreateBdfd on _CommandCreatePageState {
   Widget _buildBdfdEditorTile() {
     final code = _bdfdScriptController.text;
     final isEmpty = code.trim().isEmpty;
-    final preview =
-        isEmpty
-            ? context.tr.bdfd_editor_tap_hint
-            : code.length > 200
-            ? '${code.substring(0, 200)}…'
-            : code;
+    final preview = isEmpty
+        ? context.tr.bdfd_editor_tap_hint
+        : code.length > 200
+        ? '${code.substring(0, 200)}…'
+        : code;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -132,12 +130,11 @@ extension _CommandCreateBdfd on _CommandCreatePageState {
         final result = await Navigator.push<String>(
           context,
           MaterialPageRoute<String>(
-            builder:
-                (_) => BdfdEditorPage(
-                  initialCode: _bdfdScriptController.text,
-                  title: context.tr.workflow_bdfd_editor_title,
-                  appEmojis: _appEmojis,
-                ),
+            builder: (_) => BdfdEditorPage(
+              initialCode: _bdfdScriptController.text,
+              title: context.tr.workflow_bdfd_editor_title,
+              appEmojis: _appEmojis,
+            ),
           ),
         );
         if (result != null && mounted) {
@@ -159,7 +156,11 @@ extension _CommandCreateBdfd on _CommandCreatePageState {
           children: [
             Row(
               children: [
-                const Icon(Icons.code, size: 16, color: Colors.white70),
+                const AppIcon.fromMaterial(
+                  Icons.code,
+                  size: 16,
+                  color: Colors.white70,
+                ),
                 const SizedBox(width: 8),
                 Text(
                   context.tr.cmd_bdfd_script_label,
@@ -170,7 +171,11 @@ extension _CommandCreateBdfd on _CommandCreatePageState {
                   ),
                 ),
                 const Spacer(),
-                Icon(Icons.open_in_new, size: 14, color: AppTheme.grey),
+                AppIcon.fromMaterial(
+                  Icons.open_in_new,
+                  size: 14,
+                  color: AppTheme.grey,
+                ),
               ],
             ),
             const SizedBox(height: 8),
@@ -203,7 +208,10 @@ extension _CommandCreateBdfd on _CommandCreatePageState {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(Icons.check_circle_outline, color: AppTheme.success),
+            AppIcon.fromMaterial(
+              Icons.check_circle_outline,
+              color: AppTheme.success,
+            ),
             const SizedBox(width: 10),
             Expanded(
               child: Column(
@@ -246,19 +254,19 @@ extension _CommandCreateBdfd on _CommandCreatePageState {
           ...diagnostics.map((diagnostic) {
             final isError =
                 diagnostic.severity == BdfdCompileDiagnosticSeverity.error;
-            final icon =
-                isError ? Icons.error_outline : Icons.warning_amber_rounded;
-            final label =
-                isError
-                    ? 'cmd_bdfd_diagnostics_error'
-                    : 'cmd_bdfd_diagnostics_warning';
+            final icon = isError
+                ? Icons.error_outline
+                : Icons.warning_amber_rounded;
+            final label = isError
+                ? 'cmd_bdfd_diagnostics_error'
+                : 'cmd_bdfd_diagnostics_warning';
             final color = isError ? AppTheme.error : AppTheme.warning;
             return Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(icon, size: 18, color: color),
+                  AppIcon.fromMaterial(icon, size: 18, color: color),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(

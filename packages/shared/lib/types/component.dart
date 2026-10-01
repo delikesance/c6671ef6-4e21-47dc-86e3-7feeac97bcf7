@@ -37,13 +37,14 @@ abstract class ComponentNode {
 
   static String generateId([String prefix = 'id']) {
     final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
-    final randomSuffix =
-        (1000 + (DateTime.now().microsecondsSinceEpoch % 9000)).toString();
+    final randomSuffix = (1000 + (DateTime.now().microsecondsSinceEpoch % 9000))
+        .toString();
     return '${prefix}_$timestamp$randomSuffix';
   }
 
   static ComponentNode fromJson(Map<String, dynamic> json) {
     final typeStr = json['type'] as String?;
+    if (typeStr == 'selectMenu') return SelectMenuNode.fromJson(json);
     final type = ComponentV2Type.values.firstWhere(
       (e) => e.name == typeStr,
       orElse: () => ComponentV2Type.actionRow, // default fallback
@@ -103,11 +104,10 @@ class ActionRowNode extends ComponentNode {
 
   factory ActionRowNode.fromJson(Map<String, dynamic> json) {
     return ActionRowNode(
-      components:
-          (json['components'] as List? ?? [])
-              .whereType<Map>()
-              .map((c) => ComponentNode.fromJson(Map<String, dynamic>.from(c)))
-              .toList(),
+      components: (json['components'] as List? ?? [])
+          .whereType<Map>()
+          .map((c) => ComponentNode.fromJson(Map<String, dynamic>.from(c)))
+          .toList(),
     );
   }
 
@@ -129,6 +129,7 @@ class ButtonNode extends ComponentNode {
   String emoji;
   String disabled;
   String skuId;
+
   /// Inline actions that execute when this button is clicked.
   /// Replaces the legacy workflowName/workflowEntryPoint/workflowArguments.
   List<Map<String, dynamic>> actions;
@@ -161,16 +162,12 @@ class ButtonNode extends ComponentNode {
           'payload': {
             'workflowName': legacyWorkflowName,
             'entryPoint':
-                (json['workflowEntryPoint'] ??
-                        json['onClickEntryPoint'] ??
-                        '')
+                (json['workflowEntryPoint'] ?? json['onClickEntryPoint'] ?? '')
                     .toString(),
-            'arguments':
-                Map<String, dynamic>.from(
-                  (json['workflowArguments'] as Map?)
-                          ?.cast<String, dynamic>() ??
-                      const {},
-                ),
+            'arguments': Map<String, dynamic>.from(
+              (json['workflowArguments'] as Map?)?.cast<String, dynamic>() ??
+                  const {},
+            ),
           },
         },
       ];
@@ -239,7 +236,7 @@ class SelectMenuOption {
       value: (json['value'] ?? '').toString(),
       description: (json['description'] ?? '').toString(),
       emoji: json['emoji'],
-      isDefault: json['isDefault'] == true,
+      isDefault: (json['isDefault'] ?? json['default']) == true,
     );
   }
 
@@ -262,6 +259,8 @@ class SelectMenuNode extends ComponentNode {
   int minValues;
   int maxValues;
   String disabled;
+  bool? isRequired;
+
   /// Inline actions that execute when an option is selected.
   /// Replaces the legacy workflowName/workflowEntryPoint/workflowArguments.
   List<Map<String, dynamic>> actions;
@@ -274,6 +273,7 @@ class SelectMenuNode extends ComponentNode {
     this.minValues = 1,
     this.maxValues = 1,
     this.disabled = '',
+    this.isRequired,
     this.actions = const [],
   }) : customId = customId ?? ComponentNode.generateId('select');
 
@@ -288,7 +288,9 @@ class SelectMenuNode extends ComponentNode {
       if (menuType == 'channel') resolvedType = ComponentV2Type.channelSelect;
       if (menuType == 'user') resolvedType = ComponentV2Type.userSelect;
       if (menuType == 'role') resolvedType = ComponentV2Type.roleSelect;
-      if (menuType == 'mentionable') resolvedType = ComponentV2Type.mentionableSelect;
+      if (menuType == 'mentionable') {
+        resolvedType = ComponentV2Type.mentionableSelect;
+      }
       if (menuType == 'category') resolvedType = ComponentV2Type.categorySelect;
       if (menuType == 'voice') resolvedType = ComponentV2Type.voiceSelect;
     }
@@ -309,16 +311,12 @@ class SelectMenuNode extends ComponentNode {
           'payload': {
             'workflowName': legacyWorkflowName,
             'entryPoint':
-                (json['workflowEntryPoint'] ??
-                        json['onSelectEntryPoint'] ??
-                        '')
+                (json['workflowEntryPoint'] ?? json['onSelectEntryPoint'] ?? '')
                     .toString(),
-            'arguments':
-                Map<String, dynamic>.from(
-                  (json['workflowArguments'] as Map?)
-                          ?.cast<String, dynamic>() ??
-                      const {},
-                ),
+            'arguments': Map<String, dynamic>.from(
+              (json['workflowArguments'] as Map?)?.cast<String, dynamic>() ??
+                  const {},
+            ),
           },
         },
       ];
@@ -330,16 +328,14 @@ class SelectMenuNode extends ComponentNode {
       type: resolvedType,
       customId: (json['customId'] ?? '').toString(),
       placeholder: (json['placeholder'] ?? 'Select an option...').toString(),
-      options:
-          (json['options'] as List? ?? [])
-              .whereType<Map>()
-              .map(
-                (o) => SelectMenuOption.fromJson(Map<String, dynamic>.from(o)),
-              )
-              .toList(),
+      options: (json['options'] as List? ?? [])
+          .whereType<Map>()
+          .map((o) => SelectMenuOption.fromJson(Map<String, dynamic>.from(o)))
+          .toList(),
       minValues: json['minValues'] as int? ?? 1,
       maxValues: json['maxValues'] as int? ?? 1,
       disabled: _parseDisabled(json['disabled']),
+      isRequired: (json['isRequired'] ?? json['required']) as bool?,
       actions: actions,
     );
   }
@@ -353,6 +349,7 @@ class SelectMenuNode extends ComponentNode {
     'minValues': minValues,
     'maxValues': maxValues,
     'disabled': disabled,
+    if (isRequired != null) 'isRequired': isRequired,
     if (actions.isNotEmpty) 'actions': actions,
   };
 }
@@ -375,13 +372,10 @@ class SectionNode extends ComponentNode {
     }
 
     return SectionNode(
-      components:
-          (json['components'] as List? ?? [])
-              .whereType<Map>()
-              .map(
-                (c) => TextDisplayNode.fromJson(Map<String, dynamic>.from(c)),
-              )
-              .toList(),
+      components: (json['components'] as List? ?? [])
+          .whereType<Map>()
+          .map((c) => TextDisplayNode.fromJson(Map<String, dynamic>.from(c)))
+          .toList(),
       accessory: parseAccessory(json['accessory']),
     );
   }
@@ -437,12 +431,11 @@ class ThumbnailNode extends ComponentNode {
 
   factory ThumbnailNode.fromJson(Map<String, dynamic> json) {
     return ThumbnailNode(
-      media:
-          json['media'] is Map
-              ? UnfurledMediaItemNode.fromJson(
-                Map<String, dynamic>.from(json['media']),
-              )
-              : UnfurledMediaItemNode(),
+      media: json['media'] is Map
+          ? UnfurledMediaItemNode.fromJson(
+              Map<String, dynamic>.from(json['media']),
+            )
+          : UnfurledMediaItemNode(),
       description: (json['description'] ?? '').toString(),
       isSpoiler: json['isSpoiler'] == true,
     );
@@ -470,12 +463,11 @@ class MediaGalleryItemNode {
 
   factory MediaGalleryItemNode.fromJson(Map<String, dynamic> json) {
     return MediaGalleryItemNode(
-      media:
-          json['media'] is Map
-              ? UnfurledMediaItemNode.fromJson(
-                Map<String, dynamic>.from(json['media']),
-              )
-              : UnfurledMediaItemNode(),
+      media: json['media'] is Map
+          ? UnfurledMediaItemNode.fromJson(
+              Map<String, dynamic>.from(json['media']),
+            )
+          : UnfurledMediaItemNode(),
       description: (json['description'] ?? '').toString(),
       isSpoiler: json['isSpoiler'] == true,
     );
@@ -498,14 +490,12 @@ class MediaGalleryNode extends ComponentNode {
 
   factory MediaGalleryNode.fromJson(Map<String, dynamic> json) {
     return MediaGalleryNode(
-      items:
-          (json['items'] as List? ?? [])
-              .whereType<Map>()
-              .map(
-                (i) =>
-                    MediaGalleryItemNode.fromJson(Map<String, dynamic>.from(i)),
-              )
-              .toList(),
+      items: (json['items'] as List? ?? [])
+          .whereType<Map>()
+          .map(
+            (i) => MediaGalleryItemNode.fromJson(Map<String, dynamic>.from(i)),
+          )
+          .toList(),
     );
   }
 
@@ -552,12 +542,11 @@ class FileNode extends ComponentNode {
 
   factory FileNode.fromJson(Map<String, dynamic> json) {
     return FileNode(
-      file:
-          json['file'] is Map
-              ? UnfurledMediaItemNode.fromJson(
-                Map<String, dynamic>.from(json['file']),
-              )
-              : UnfurledMediaItemNode(),
+      file: json['file'] is Map
+          ? UnfurledMediaItemNode.fromJson(
+              Map<String, dynamic>.from(json['file']),
+            )
+          : UnfurledMediaItemNode(),
       isSpoiler: json['isSpoiler'] == true,
     );
   }
@@ -586,11 +575,10 @@ class ContainerNode extends ComponentNode {
 
   factory ContainerNode.fromJson(Map<String, dynamic> json) {
     return ContainerNode(
-      components:
-          (json['components'] as List? ?? [])
-              .whereType<Map>()
-              .map((c) => ComponentNode.fromJson(Map<String, dynamic>.from(c)))
-              .toList(),
+      components: (json['components'] as List? ?? [])
+          .whereType<Map>()
+          .map((c) => ComponentNode.fromJson(Map<String, dynamic>.from(c)))
+          .toList(),
       accentColor: (json['accentColor'] ?? '').toString(),
       isSpoiler: json['isSpoiler'] == true,
     );
@@ -619,12 +607,9 @@ class LabelNode extends ComponentNode {
     return LabelNode(
       label: (json['label'] ?? '').toString(),
       description: (json['description'] ?? '').toString(),
-      component:
-          json['component'] is Map
-              ? ComponentNode.fromJson(
-                Map<String, dynamic>.from(json['component']),
-              )
-              : null,
+      component: json['component'] is Map
+          ? ComponentNode.fromJson(Map<String, dynamic>.from(json['component']))
+          : null,
     );
   }
 
@@ -658,7 +643,7 @@ class FileUploadNode extends ComponentNode {
       customId: (json['customId'] ?? '').toString(),
       minValues: json['minValues'] as int? ?? 1,
       maxValues: json['maxValues'] as int? ?? 1,
-      isRequired: json['isRequired'] == true,
+      isRequired: (json['isRequired'] ?? json['required']) == true,
     );
   }
 
@@ -690,7 +675,7 @@ class RadioGroupOptionNode {
       value: (json['value'] ?? '').toString(),
       label: (json['label'] ?? '').toString(),
       description: (json['description'] ?? '').toString(),
-      isDefault: json['isDefault'] == true,
+      isDefault: (json['isDefault'] ?? json['default']) == true,
     );
   }
 
@@ -719,15 +704,13 @@ class RadioGroupNode extends ComponentNode {
   factory RadioGroupNode.fromJson(Map<String, dynamic> json) {
     return RadioGroupNode(
       customId: (json['customId'] ?? '').toString(),
-      options:
-          (json['options'] as List? ?? [])
-              .whereType<Map>()
-              .map(
-                (o) =>
-                    RadioGroupOptionNode.fromJson(Map<String, dynamic>.from(o)),
-              )
-              .toList(),
-      isRequired: json['isRequired'] == true,
+      options: (json['options'] as List? ?? [])
+          .whereType<Map>()
+          .map(
+            (o) => RadioGroupOptionNode.fromJson(Map<String, dynamic>.from(o)),
+          )
+          .toList(),
+      isRequired: (json['isRequired'] ?? json['required']) == true,
     );
   }
 
@@ -758,7 +741,7 @@ class CheckboxGroupOptionNode {
       value: (json['value'] ?? '').toString(),
       label: (json['label'] ?? '').toString(),
       description: (json['description'] ?? '').toString(),
-      isDefault: json['isDefault'] == true,
+      isDefault: (json['isDefault'] ?? json['default']) == true,
     );
   }
 
@@ -791,18 +774,16 @@ class CheckboxGroupNode extends ComponentNode {
   factory CheckboxGroupNode.fromJson(Map<String, dynamic> json) {
     return CheckboxGroupNode(
       customId: (json['customId'] ?? '').toString(),
-      options:
-          (json['options'] as List? ?? [])
-              .whereType<Map>()
-              .map(
-                (o) => CheckboxGroupOptionNode.fromJson(
-                  Map<String, dynamic>.from(o),
-                ),
-              )
-              .toList(),
+      options: (json['options'] as List? ?? [])
+          .whereType<Map>()
+          .map(
+            (o) =>
+                CheckboxGroupOptionNode.fromJson(Map<String, dynamic>.from(o)),
+          )
+          .toList(),
       minValues: json['minValues'] as int? ?? 1,
       maxValues: json['maxValues'] as int? ?? 1,
-      isRequired: json['isRequired'] == true,
+      isRequired: (json['isRequired'] ?? json['required']) == true,
     );
   }
 
@@ -830,7 +811,7 @@ class CheckboxNode extends ComponentNode {
   factory CheckboxNode.fromJson(Map<String, dynamic> json) {
     return CheckboxNode(
       customId: (json['customId'] ?? '').toString(),
-      isDefault: json['isDefault'] == true,
+      isDefault: (json['isDefault'] ?? json['default']) == true,
     );
   }
 
@@ -870,112 +851,132 @@ class ComponentV2Definition {
 
     // Parse the new v2 standard format
     if (json.containsKey('components') && json['components'] is List) {
-      extractedComponents =
-          (json['components'] as List)
-              .whereType<Map>()
-              .map((c) => ComponentNode.fromJson(Map<String, dynamic>.from(c)))
-              .toList();
+      extractedComponents = (json['components'] as List)
+          .whereType<Map>()
+          .map((c) => ComponentNode.fromJson(Map<String, dynamic>.from(c)))
+          .toList();
     }
     // Flat items format produced by the BDFD transpiler.
     // Reconstructs the hierarchy: buttons → ActionRows, selects → ActionRows,
     // layout components (container, section, thumbnail, etc.) → direct.
     else if (json.containsKey('items')) {
       ActionRowNode? currentRow;
+      ContainerNode? container;
+      SectionNode? section;
+      final menus = <String, SelectMenuNode>{};
+      SelectMenuNode? lastMenu;
+      void append(ComponentNode node) {
+        (container?.components ?? extractedComponents).add(node);
+      }
+
       for (final rawItem in (json['items'] as List? ?? []).whereType<Map>()) {
         final item = Map<String, dynamic>.from(rawItem);
-        final type = item['type']?.toString() ?? '';
-        switch (type) {
-          case 'button':
-            final newRow = item['newRow'] == true;
-            if (newRow || currentRow == null) {
-              currentRow = ActionRowNode(components: []);
-              extractedComponents.add(currentRow);
+        switch (item['type']?.toString() ?? '') {
+          case 'actionRow':
+            currentRow = null;
+            section = null;
+            if ((item['components'] as List?)?.isNotEmpty == true) {
+              append(ActionRowNode.fromJson(item));
             }
-            currentRow.components.add(ButtonNode.fromJson(item));
+          case 'button':
+            final button = ButtonNode.fromJson(item);
+            final newRow = item['newRow'] == true;
+            if (section != null && !newRow && section.accessory == null) {
+              section.accessory = button;
+            } else {
+              section = null;
+              if (newRow || currentRow == null) {
+                currentRow = ActionRowNode(components: []);
+                append(currentRow);
+              }
+              currentRow.components.add(button);
+            }
           case 'selectMenu':
             currentRow = null;
+            section = null;
             final menu = SelectMenuNode.fromJson(item);
-            extractedComponents.add(ActionRowNode(components: [menu]));
+            menus[menu.customId] = menu;
+            lastMenu = menu;
+            append(ActionRowNode(components: [menu]));
           case 'selectMenuOption':
-            // Append to the SelectMenu in the most recent ActionRow that
-            // holds the matching menuId (or the last select menu if unset).
             final menuId = item['menuId']?.toString() ?? '';
-            for (var i = extractedComponents.length - 1; i >= 0; i--) {
-              final node = extractedComponents[i];
-              if (node is! ActionRowNode) continue;
-              for (final child in node.components) {
-                if (child is SelectMenuNode &&
-                    (child.customId == menuId || menuId.isEmpty)) {
-                  child.options.add(SelectMenuOption.fromJson(item));
-                  break;
-                }
-              }
-              break;
+            final menu = menuId.isEmpty ? lastMenu : menus[menuId];
+            menu?.options.add(SelectMenuOption.fromJson(item));
+          case 'container':
+            currentRow = null;
+            section = null;
+            container = ContainerNode(
+              components: [],
+              accentColor: (item['accentColor'] ?? item['color'] ?? '')
+                  .toString(),
+              isSpoiler: item['spoiler'] == true,
+            );
+            extractedComponents.add(container);
+          case 'section':
+            currentRow = null;
+            section = SectionNode(components: []);
+            final content = (item['content'] ?? '').toString();
+            if (content.isNotEmpty) {
+              section.components.add(TextDisplayNode(content: content));
+            }
+            append(section);
+          case 'textDisplay':
+            currentRow = null;
+            final text = TextDisplayNode(
+              content: (item['content'] ?? '').toString(),
+            );
+            if (section != null) {
+              section.components.add(text);
+            } else {
+              append(text);
+            }
+          case 'thumbnail':
+            currentRow = null;
+            final thumbnail = ThumbnailNode(
+              media: UnfurledMediaItemNode(url: (item['url'] ?? '').toString()),
+              description: (item['description'] ?? '').toString(),
+              isSpoiler: item['spoiler'] == true,
+            );
+            if (section != null) {
+              section.accessory = thumbnail;
+            } else {
+              append(thumbnail);
             }
           case 'separator':
             currentRow = null;
+            section = null;
             final divider = item['divider'];
-            final isDivider =
-                divider is bool
-                    ? divider
-                    : (divider?.toString().toLowerCase() == 'true' ||
-                        divider?.toString().toLowerCase() == 'yes');
-            final spacingRaw = item['spacing'];
-            final spacing =
-                spacingRaw is int
-                    ? spacingRaw
-                    : int.tryParse(spacingRaw?.toString() ?? '1') ?? 1;
-            extractedComponents.add(
-              SeparatorNode(isDivider: isDivider, spacing: spacing),
-            );
-          case 'textDisplay':
-            currentRow = null;
-            extractedComponents.add(
-              TextDisplayNode(content: (item['content'] ?? '').toString()),
-            );
-          case 'container':
-            currentRow = null;
-            extractedComponents.add(
-              ContainerNode(
-                accentColor:
-                    (item['accentColor'] ?? item['color'] ?? '').toString(),
-              ),
-            );
-          case 'section':
-            currentRow = null;
-            extractedComponents.add(
-              SectionNode(
-                components: [
-                  TextDisplayNode(content: (item['content'] ?? '').toString()),
-                ],
-              ),
-            );
-          case 'thumbnail':
-            currentRow = null;
-            extractedComponents.add(
-              ThumbnailNode(
-                media: UnfurledMediaItemNode(
-                  url: (item['url'] ?? '').toString(),
-                ),
+            append(
+              SeparatorNode(
+                isDivider:
+                    divider == true ||
+                    divider?.toString().toLowerCase() == 'yes',
+                spacing: int.tryParse(item['spacing']?.toString() ?? '1') ?? 1,
               ),
             );
           case 'mediaGallery':
             currentRow = null;
-            final galleryItems = (item['items'] as List? ?? [])
-                .whereType<Map>()
-                .map(
-                  (i) => MediaGalleryItemNode(
-                    media: UnfurledMediaItemNode(
-                      url: (i['url'] ?? '').toString(),
-                    ),
-                    description: (i['description'] ?? '').toString(),
-                  ),
-                )
-                .toList(growable: true);
-            extractedComponents.add(MediaGalleryNode(items: galleryItems));
+            section = null;
+            append(
+              MediaGalleryNode(
+                items: (item['items'] as List? ?? [])
+                    .whereType<Map>()
+                    .map(
+                      (i) => MediaGalleryItemNode(
+                        media: UnfurledMediaItemNode(
+                          url: (i['url'] ?? '').toString(),
+                        ),
+                        description: (i['description'] ?? '').toString(),
+                        isSpoiler: i['spoiler'] == true,
+                      ),
+                    )
+                    .toList(),
+              ),
+            );
           case 'file':
             currentRow = null;
-            extractedComponents.add(
+            section = null;
+            append(
               FileNode(
                 file: UnfurledMediaItemNode(
                   url: (item['url'] ?? '').toString(),
@@ -983,9 +984,6 @@ class ComponentV2Definition {
                 isSpoiler: item['spoiler'] == true,
               ),
             );
-          default:
-            // Unknown item type — skip.
-            break;
         }
       }
     }
@@ -993,11 +991,10 @@ class ComponentV2Definition {
     else if (json.containsKey('rows')) {
       final rows = (json['rows'] as List? ?? []).whereType<Map>();
       for (final r in rows) {
-        final buttons =
-            (r['buttons'] as List? ?? [])
-                .whereType<Map>()
-                .map((b) => ButtonNode.fromJson(Map<String, dynamic>.from(b)))
-                .toList();
+        final buttons = (r['buttons'] as List? ?? [])
+            .whereType<Map>()
+            .map((b) => ButtonNode.fromJson(Map<String, dynamic>.from(b)))
+            .toList();
         final selectMenuStr = r['selectMenu'] as Map?;
         SelectMenuNode? selectMenu;
         if (selectMenuStr != null) {
@@ -1137,16 +1134,17 @@ class ModalTextInputDefinition {
 class ModalDefinition {
   String title;
   String customId;
+
   /// Legacy text-input-only modal inputs.  Still supported for backward
   /// compatibility but `components` is the preferred format going forward.
   List<ModalTextInputDefinition> inputs;
-  /// Generic modal components.  Each entry is a [LabelNode] wrapping a
-  /// modal-eligible component: TextInput placeholder, SelectMenuNode (any
-  /// select type), FileUploadNode, RadioGroupNode, CheckboxGroupNode, or
-  /// CheckboxNode.
+
+  /// Generic modal components. Inputs are [LabelNode] wrappers around
+  /// modal-eligible components; [TextDisplayNode] is standalone static text.
   ///
   /// When non-empty this takes priority over [inputs] at send time.
   List<ComponentNode> components;
+
   /// Inline actions that execute when the modal is submitted.
   /// Replaces the legacy onSubmitWorkflow/onSubmitEntryPoint/onSubmitArguments.
   List<Map<String, dynamic>> actions;
@@ -1179,14 +1177,11 @@ class ModalDefinition {
           'type': 'callWorkflow',
           'payload': {
             'workflowName': legacyWorkflow,
-            'entryPoint':
-                (json['onSubmitEntryPoint'] ?? '').toString(),
-            'arguments':
-                Map<String, dynamic>.from(
-                  (json['onSubmitArguments'] as Map?)
-                          ?.cast<String, dynamic>() ??
-                      const {},
-                ),
+            'entryPoint': (json['onSubmitEntryPoint'] ?? '').toString(),
+            'arguments': Map<String, dynamic>.from(
+              (json['onSubmitArguments'] as Map?)?.cast<String, dynamic>() ??
+                  const {},
+            ),
           },
         },
       ];
@@ -1197,25 +1192,22 @@ class ModalDefinition {
     // Parse new-style generic components (Label wrappers).
     List<ComponentNode> parsedComponents = [];
     if (json['components'] is List) {
-      parsedComponents =
-          (json['components'] as List)
-              .whereType<Map>()
-              .map((c) => ComponentNode.fromJson(Map<String, dynamic>.from(c)))
-              .toList();
+      parsedComponents = (json['components'] as List)
+          .whereType<Map>()
+          .map((c) => ComponentNode.fromJson(Map<String, dynamic>.from(c)))
+          .toList();
     }
 
     // Parse legacy text inputs.
     List<ModalTextInputDefinition> parsedInputs = [];
     if (json['inputs'] is List) {
-      parsedInputs =
-          (json['inputs'] as List)
-              .whereType<Map>()
-              .map(
-                (i) => ModalTextInputDefinition.fromJson(
-                  Map<String, dynamic>.from(i),
-                ),
-              )
-              .toList();
+      parsedInputs = (json['inputs'] as List)
+          .whereType<Map>()
+          .map(
+            (i) =>
+                ModalTextInputDefinition.fromJson(Map<String, dynamic>.from(i)),
+          )
+          .toList();
     }
 
     return ModalDefinition(
@@ -1232,8 +1224,7 @@ class ModalDefinition {
     'customId': customId,
     if (components.isNotEmpty)
       'components': components.map((c) => c.toJson()).toList(),
-    if (components.isEmpty)
-      'inputs': inputs.map((i) => i.toJson()).toList(),
+    if (components.isEmpty) 'inputs': inputs.map((i) => i.toJson()).toList(),
     if (actions.isNotEmpty) 'actions': actions,
   };
 }

@@ -3,6 +3,8 @@ import 'package:bot_creator/core/code_editor/script_editor_language.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:flutter/material.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Extrait de code insérable depuis la barre de chips de l'éditeur
 /// ([ScriptEditorSnippetBar]).
 ///
@@ -100,7 +102,7 @@ class ScriptEditorQuickCharsBar extends StatelessWidget {
           children: [
             IconButton(
               tooltip: context.tr.code_editor_settings_title,
-              icon: Icon(
+              icon: AppIcon.fromMaterial(
                 Icons.tune,
                 size: 20,
                 color: colors.text.withValues(alpha: 0.8),

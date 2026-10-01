@@ -95,7 +95,7 @@ void main() {
       expect(checkUserPermsSelfBranch.first['value'], '1234567890');
       expect(
         checkUserPermsConditions[1]['conditions'][0]['variable'],
-        'permissions.byId.1234567890',
+        '((permissions.byId.1234567890))',
       );
       expect(
         checkUserPermsConditions[1]['conditions'][0]['value'],
@@ -182,8 +182,8 @@ void main() {
         result.actions[5].payload['condition.conditions'] as List,
       );
       expect(onlyIfContainsConditions[0]['variable'], '((message.content))');
-      expect(onlyIfContainsConditions[0]['value'], '(?i).*Hello.*');
-      expect(onlyIfContainsConditions[1]['value'], '(?i).*Hi.*');
+      expect(onlyIfContainsConditions[0]['value'], 'Hello');
+      expect(onlyIfContainsConditions[1]['value'], 'Hi');
     });
 
     test('accepts BDFD wiki permission tokens in checkUserPerms', () {
@@ -219,7 +219,7 @@ void main() {
 
       final content = result.actions[1].payload['content']?.toString() ?? '';
       expect(content, startsWith('Admin perms?: '));
-      expect(content, contains('((message.bc_check_user_perms_0))'));
+      expect(content, contains('((temp.check_user_perms_0))'));
     });
 
     test('supports checkUserPerms with option user id placeholder', () {
@@ -234,7 +234,7 @@ void main() {
       );
       expect(
         conditions[1]['conditions'][0]['variable'],
-        'permissions.byId.((opts.user.id))',
+        '((permissions.byId.((opts.user.id))))',
       );
       expect(conditions[1]['conditions'][0]['value'], 'administrator');
     });
@@ -248,10 +248,7 @@ void main() {
       expect(result.actions, hasLength(1));
       final content =
           result.actions.single.payload['content']?.toString() ?? '';
-      expect(
-        content,
-        contains('((userperms[((author.id));-1;, ]))'),
-      );
+      expect(content, contains('((member[((author.id))].permissions))'));
     });
   });
 }

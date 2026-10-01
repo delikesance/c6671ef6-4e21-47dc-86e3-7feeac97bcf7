@@ -194,6 +194,107 @@ void main() {
   }
 
   group('CommandCreatePage editor', () {
+    testWidgets('confirming nested action edits enables main save button', (
+      tester,
+    ) async {
+      const botId = 'bot-nested-dirty';
+      const commandId = 'local-nested-dirty';
+      await seedLocalCommand(
+        botId: botId,
+        commandId: commandId,
+        includeSubcommands: false,
+      );
+      await pumpCreatePage(
+        tester,
+        page: const CommandCreatePage(botId: botId, localCommandId: commandId),
+      );
+      expect(
+        tester
+            .widget<FloatingActionButton>(find.byType(FloatingActionButton))
+            .onPressed,
+        isNull,
+      );
+      await tester.ensureVisible(find.text('Add embed').first);
+      await tester.tap(find.text('Add embed').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Add embed'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('OK'));
+      await tester.pumpAndSettle();
+      expect(find.byTooltip('Save changes'), findsOneWidget);
+      expect(
+        tester
+            .widget<FloatingActionButton>(find.byType(FloatingActionButton))
+            .onPressed,
+        isNotNull,
+      );
+    });
+
+    testWidgets('confirming an unchanged nested page keeps command saved', (
+      tester,
+    ) async {
+      const botId = 'bot-nested-clean';
+      const commandId = 'local-nested-clean';
+      await seedLocalCommand(
+        botId: botId,
+        commandId: commandId,
+        includeSubcommands: false,
+      );
+      await pumpCreatePage(
+        tester,
+        page: const CommandCreatePage(botId: botId, localCommandId: commandId),
+      );
+      await tester.ensureVisible(find.text('Add embed').first);
+      await tester.tap(find.text('Add embed').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('OK'));
+      await tester.pumpAndSettle();
+      expect(find.byTooltip('All changes saved'), findsOneWidget);
+      expect(
+        tester
+            .widget<FloatingActionButton>(find.byType(FloatingActionButton))
+            .onPressed,
+        isNull,
+      );
+    });
+
+    testWidgets('confirming command option edits enables main save button', (
+      tester,
+    ) async {
+      const botId = 'bot-options-dirty';
+      const commandId = 'local-options-dirty';
+      await seedLocalCommand(
+        botId: botId,
+        commandId: commandId,
+        includeSubcommands: false,
+      );
+      await pumpCreatePage(
+        tester,
+        page: const CommandCreatePage(botId: botId, localCommandId: commandId),
+      );
+      await tester.tap(find.byTooltip('Command settings'));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('target'));
+      await tester.tap(find.text('target'));
+      await tester.pumpAndSettle();
+      final description = find.byWidgetPredicate(
+        (widget) =>
+            widget is TextFormField && widget.initialValue == 'Target value',
+      );
+      await tester.ensureVisible(description);
+      await tester.enterText(description, 'Updated option description');
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Save'));
+      await tester.pumpAndSettle();
+      expect(find.byTooltip('Save changes'), findsOneWidget);
+      expect(
+        tester
+            .widget<FloatingActionButton>(find.byType(FloatingActionButton))
+            .onPressed,
+        isNotNull,
+      );
+    });
+
     testWidgets('new command shows block editor', (tester) async {
       await pumpCreatePage(tester, page: const CommandCreatePage());
 

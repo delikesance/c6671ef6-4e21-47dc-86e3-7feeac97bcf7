@@ -1,6 +1,8 @@
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// A single block in the Scratch-like editor.
 ///
 /// Displays a colored card with a header (icon + title), an optional badge for
@@ -77,14 +79,12 @@ class ScratchBlock extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
-    final surfaceColor =
-        isDark
-            ? Color.alphaBlend(color.withAlpha(25), colorScheme.surface)
-            : Color.alphaBlend(color.withAlpha(15), colorScheme.surface);
-    final headerColor =
-        isDark
-            ? Color.alphaBlend(color.withAlpha(50), colorScheme.surface)
-            : Color.alphaBlend(color.withAlpha(30), colorScheme.surface);
+    final surfaceColor = isDark
+        ? Color.alphaBlend(color.withAlpha(25), colorScheme.surface)
+        : Color.alphaBlend(color.withAlpha(15), colorScheme.surface);
+    final headerColor = isDark
+        ? Color.alphaBlend(color.withAlpha(50), colorScheme.surface)
+        : Color.alphaBlend(color.withAlpha(30), colorScheme.surface);
 
     if (flat) {
       return Padding(
@@ -94,7 +94,7 @@ class ScratchBlock extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(icon, color: color, size: 18),
+                AppIcon.fromMaterial(icon, color: color, size: 18),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -107,19 +107,16 @@ class ScratchBlock extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (badge != null) ...[
-                  const SizedBox(width: 6),
-                  badge!,
-                ],
+                if (badge != null) ...[const SizedBox(width: 6), badge!],
               ],
             ),
             const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.only(left: 4),
-              child: child,
-            ),
+            Container(padding: const EdgeInsets.only(left: 4), child: child),
             const SizedBox(height: 8),
-            Divider(color: colorScheme.outlineVariant.withValues(alpha: 0.4), height: 1),
+            Divider(
+              color: colorScheme.outlineVariant.withValues(alpha: 0.4),
+              height: 1,
+            ),
           ],
         ),
       );
@@ -142,7 +139,10 @@ class ScratchBlock extends StatelessWidget {
             child: InkWell(
               onTap: onToggleCollapse,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
                 child: Row(
                   children: [
                     // Color strip indicator
@@ -159,7 +159,7 @@ class ScratchBlock extends StatelessWidget {
                       dragHandle!,
                       const SizedBox(width: 6),
                     ],
-                    Icon(icon, color: color, size: 20),
+                    AppIcon.fromMaterial(icon, color: color, size: 20),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Row(
@@ -205,7 +205,7 @@ class ScratchBlock extends StatelessWidget {
                         color: colorScheme.error,
                       ),
                     if (onToggleCollapse != null)
-                      Icon(
+                      AppIcon.fromMaterial(
                         collapsed ? Icons.expand_more : Icons.expand_less,
                         color: colorScheme.onSurfaceVariant,
                         size: 20,
@@ -222,7 +222,6 @@ class ScratchBlock extends StatelessWidget {
               padding: const EdgeInsets.all(AppTheme.spacingMd),
               child: child,
             ),
-
         ],
       ),
     );
@@ -249,7 +248,7 @@ class _HeaderIconButton extends StatelessWidget {
         padding: EdgeInsets.zero,
         constraints: const BoxConstraints(),
         iconSize: 18,
-        icon: Icon(icon, color: color),
+        icon: AppIcon.fromMaterial(icon, color: color),
         onPressed: onPressed,
       ),
     );

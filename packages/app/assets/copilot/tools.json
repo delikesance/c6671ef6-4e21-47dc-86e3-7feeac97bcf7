@@ -1,5 +1,57 @@
 [
   {
+    "name": "local_validate_bdfd",
+    "description": "Compile a BDFD draft without saving or executing it. Returns diagnostics and valid status. Use before proposing BDFD command/workflow creation or edits; runtime_tested=false means Discord behavior is not verified.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "script": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 12000
+        }
+      },
+      "required": [
+        "script"
+      ],
+      "additionalProperties": false
+    },
+    "mutating": false
+  },
+  {
+    "name": "local_test_command",
+    "description": "Execute a BDFD draft or action blocks in the isolated local sandbox. No real Discord, network or production storage access. Returns simulated responses, execution trace and fixture storage before/after. Test valid and invalid inputs before saving; never present this as a live Discord test. Unsupported actions fail explicitly.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "script": {
+          "type": "string",
+          "maxLength": 100000
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "scenario": {
+          "type": "object",
+          "description": "Fixtures only: options, variables, global, scoped (scope/context/key), definitions, http, entities. Role entities use {guilds:{guildId:{roles:[{id,name,color,position,permissions,hoist,mentionable}]}}} and run through the production fetcher; all Discord writes remain denied. HTTP fixtures are consumed once and must match method and URL; each fixture accepts status, body, headers, error and optional expectedRequest (body/headers). Example: http=[{method:\"GET\",url:\"https://example.com/data\",status:200,body:{value:42}}]. No external requests are allowed."
+        },
+        "expected_content": {
+          "type": "string",
+          "description": "Optional exact expected response text; multiple responses are joined with a newline."
+        },
+        "expected_values": {
+          "type": "object",
+          "description": "Optional expected result values keyed by JSON pointer, e.g. {\"/responses/0/payload/embeds/0/title\":\"Score\"}. Missing fields and incorrect values fail the contract even when execution succeeds."
+        }
+      },
+      "additionalProperties": false
+    },
+    "mutating": false
+  },
+  {
     "name": "docs_search",
     "description": "Search official Bot Creator function documentation.",
     "inputSchema": {
@@ -208,6 +260,25 @@
     "mutating": false
   },
   {
+    "name": "local_runtime_reference",
+    "description": "Read the target runtime dialect, scoped variable signatures and executable BDFD examples including server/member XP with a messageCreate workflow and /level. Read before authoring BDFD storage/math workflows. Does not run scripts or modify the bot.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "bot_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      },
+      "required": [
+        "bot_id"
+      ],
+      "additionalProperties": false
+    },
+    "mutating": false
+  },
+  {
     "name": "local_get_command",
     "description": "Read a local command and its revision before editing it.",
     "inputSchema": {
@@ -267,6 +338,561 @@
           "type": "string",
           "minLength": 2,
           "maxLength": 24000
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "subCommand",
+                  "subCommandGroup",
+                  "string",
+                  "integer",
+                  "boolean",
+                  "user",
+                  "channel",
+                  "role",
+                  "mentionable",
+                  "number",
+                  "attachment"
+                ]
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 32
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "required": {
+                "type": "boolean"
+              },
+              "minValue": {
+                "type": "number"
+              },
+              "maxValue": {
+                "type": "number"
+              },
+              "minLength": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 6000
+              },
+              "maxLength": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 6000
+              },
+              "channelTypes": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 16
+                },
+                "maxItems": 16
+              },
+              "choices": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    },
+                    "value": {}
+                  },
+                  "required": [
+                    "name",
+                    "value"
+                  ],
+                  "additionalProperties": false
+                },
+                "maxItems": 25
+              },
+              "autocomplete": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean"
+                  },
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "static",
+                      "workflow",
+                      "inline"
+                    ]
+                  },
+                  "workflow": {
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 200
+                  },
+                  "entryPoint": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "arguments": {
+                    "type": "object"
+                  },
+                  "staticChoices": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 100
+                        },
+                        "value": {}
+                      },
+                      "required": [
+                        "name",
+                        "value"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "maxItems": 25
+                  },
+                  "inlineActions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 100
+                        },
+                        "payload": {
+                          "type": "object"
+                        },
+                        "key": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        },
+                        "enabled": {
+                          "type": "boolean"
+                        },
+                        "depend_on": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 200
+                          },
+                          "maxItems": 80
+                        },
+                        "error": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "payload"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "maxItems": 80
+                  }
+                },
+                "required": [],
+                "additionalProperties": false
+              },
+              "hasAutocomplete": {
+                "type": "boolean"
+              },
+              "options": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "subCommand",
+                        "subCommandGroup",
+                        "string",
+                        "integer",
+                        "boolean",
+                        "user",
+                        "channel",
+                        "role",
+                        "mentionable",
+                        "number",
+                        "attachment"
+                      ]
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 32
+                    },
+                    "description": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    },
+                    "required": {
+                      "type": "boolean"
+                    },
+                    "minValue": {
+                      "type": "number"
+                    },
+                    "maxValue": {
+                      "type": "number"
+                    },
+                    "minLength": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 6000
+                    },
+                    "maxLength": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 6000
+                    },
+                    "channelTypes": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 16
+                      },
+                      "maxItems": 16
+                    },
+                    "choices": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 100
+                          },
+                          "value": {}
+                        },
+                        "required": [
+                          "name",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "maxItems": 25
+                    },
+                    "autocomplete": {
+                      "type": "object",
+                      "properties": {
+                        "enabled": {
+                          "type": "boolean"
+                        },
+                        "mode": {
+                          "type": "string",
+                          "enum": [
+                            "static",
+                            "workflow",
+                            "inline"
+                          ]
+                        },
+                        "workflow": {
+                          "type": "string",
+                          "minLength": 0,
+                          "maxLength": 200
+                        },
+                        "entryPoint": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 100
+                        },
+                        "arguments": {
+                          "type": "object"
+                        },
+                        "staticChoices": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 100
+                              },
+                              "value": {}
+                            },
+                            "required": [
+                              "name",
+                              "value"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "maxItems": 25
+                        },
+                        "inlineActions": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 100
+                              },
+                              "payload": {
+                                "type": "object"
+                              },
+                              "key": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "enabled": {
+                                "type": "boolean"
+                              },
+                              "depend_on": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 200
+                                },
+                                "maxItems": 80
+                              },
+                              "error": {
+                                "type": "object"
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "payload"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "maxItems": 80
+                        }
+                      },
+                      "required": [],
+                      "additionalProperties": false
+                    },
+                    "hasAutocomplete": {
+                      "type": "boolean"
+                    },
+                    "options": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "subCommand",
+                              "subCommandGroup",
+                              "string",
+                              "integer",
+                              "boolean",
+                              "user",
+                              "channel",
+                              "role",
+                              "mentionable",
+                              "number",
+                              "attachment"
+                            ]
+                          },
+                          "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 32
+                          },
+                          "description": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 100
+                          },
+                          "required": {
+                            "type": "boolean"
+                          },
+                          "minValue": {
+                            "type": "number"
+                          },
+                          "maxValue": {
+                            "type": "number"
+                          },
+                          "minLength": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 6000
+                          },
+                          "maxLength": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 6000
+                          },
+                          "channelTypes": {
+                            "type": "array",
+                            "items": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 16
+                            },
+                            "maxItems": 16
+                          },
+                          "choices": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 100
+                                },
+                                "value": {}
+                              },
+                              "required": [
+                                "name",
+                                "value"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "maxItems": 25
+                          },
+                          "autocomplete": {
+                            "type": "object",
+                            "properties": {
+                              "enabled": {
+                                "type": "boolean"
+                              },
+                              "mode": {
+                                "type": "string",
+                                "enum": [
+                                  "static",
+                                  "workflow",
+                                  "inline"
+                                ]
+                              },
+                              "workflow": {
+                                "type": "string",
+                                "minLength": 0,
+                                "maxLength": 200
+                              },
+                              "entryPoint": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 100
+                              },
+                              "arguments": {
+                                "type": "object"
+                              },
+                              "staticChoices": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "name": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 100
+                                    },
+                                    "value": {}
+                                  },
+                                  "required": [
+                                    "name",
+                                    "value"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "maxItems": 25
+                              },
+                              "inlineActions": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "type": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 100
+                                    },
+                                    "payload": {
+                                      "type": "object"
+                                    },
+                                    "key": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 200
+                                    },
+                                    "enabled": {
+                                      "type": "boolean"
+                                    },
+                                    "depend_on": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 200
+                                      },
+                                      "maxItems": 80
+                                    },
+                                    "error": {
+                                      "type": "object"
+                                    }
+                                  },
+                                  "required": [
+                                    "type",
+                                    "payload"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "maxItems": 80
+                              }
+                            },
+                            "required": [],
+                            "additionalProperties": false
+                          },
+                          "hasAutocomplete": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "name",
+                          "description"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "maxItems": 25
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "name",
+                    "description"
+                  ],
+                  "additionalProperties": false
+                },
+                "maxItems": 25
+              }
+            },
+            "required": [
+              "type",
+              "name",
+              "description"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 25
         }
       },
       "required": [
@@ -324,6 +950,1316 @@
         "bot_id",
         "command_id",
         "expected_revision"
+      ],
+      "additionalProperties": false
+    },
+    "mutating": true
+  },
+  {
+    "name": "local_update_command_options",
+    "description": "Add, edit or remove a slash command option. Read the command first and pass its revision. Preserve execution and permissions; update existing Discord command and sync cloud. Requires approval.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "bot_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "expected_revision": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "command_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "operation": {
+          "type": "string",
+          "enum": [
+            "add",
+            "update",
+            "remove"
+          ]
+        },
+        "path": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32
+          },
+          "maxItems": 2
+        },
+        "option_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "option": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "subCommand",
+                "subCommandGroup",
+                "string",
+                "integer",
+                "boolean",
+                "user",
+                "channel",
+                "role",
+                "mentionable",
+                "number",
+                "attachment"
+              ]
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "description": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "required": {
+              "type": "boolean"
+            },
+            "minValue": {
+              "type": "number"
+            },
+            "maxValue": {
+              "type": "number"
+            },
+            "minLength": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 6000
+            },
+            "maxLength": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 6000
+            },
+            "channelTypes": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 16
+              },
+              "maxItems": 16
+            },
+            "choices": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "value": {}
+                },
+                "required": [
+                  "name",
+                  "value"
+                ],
+                "additionalProperties": false
+              },
+              "maxItems": 25
+            },
+            "autocomplete": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "mode": {
+                  "type": "string",
+                  "enum": [
+                    "static",
+                    "workflow",
+                    "inline"
+                  ]
+                },
+                "workflow": {
+                  "type": "string",
+                  "minLength": 0,
+                  "maxLength": 200
+                },
+                "entryPoint": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100
+                },
+                "arguments": {
+                  "type": "object"
+                },
+                "staticChoices": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100
+                      },
+                      "value": {}
+                    },
+                    "required": [
+                      "name",
+                      "value"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "maxItems": 25
+                },
+                "inlineActions": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100
+                      },
+                      "payload": {
+                        "type": "object"
+                      },
+                      "key": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      },
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "depend_on": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        },
+                        "maxItems": 80
+                      },
+                      "error": {
+                        "type": "object"
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "payload"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "maxItems": 80
+                }
+              },
+              "required": [],
+              "additionalProperties": false
+            },
+            "hasAutocomplete": {
+              "type": "boolean"
+            },
+            "options": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "subCommand",
+                      "subCommandGroup",
+                      "string",
+                      "integer",
+                      "boolean",
+                      "user",
+                      "channel",
+                      "role",
+                      "mentionable",
+                      "number",
+                      "attachment"
+                    ]
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 32
+                  },
+                  "description": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "required": {
+                    "type": "boolean"
+                  },
+                  "minValue": {
+                    "type": "number"
+                  },
+                  "maxValue": {
+                    "type": "number"
+                  },
+                  "minLength": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 6000
+                  },
+                  "maxLength": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 6000
+                  },
+                  "channelTypes": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 16
+                    },
+                    "maxItems": 16
+                  },
+                  "choices": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 100
+                        },
+                        "value": {}
+                      },
+                      "required": [
+                        "name",
+                        "value"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "maxItems": 25
+                  },
+                  "autocomplete": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean"
+                      },
+                      "mode": {
+                        "type": "string",
+                        "enum": [
+                          "static",
+                          "workflow",
+                          "inline"
+                        ]
+                      },
+                      "workflow": {
+                        "type": "string",
+                        "minLength": 0,
+                        "maxLength": 200
+                      },
+                      "entryPoint": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100
+                      },
+                      "arguments": {
+                        "type": "object"
+                      },
+                      "staticChoices": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100
+                            },
+                            "value": {}
+                          },
+                          "required": [
+                            "name",
+                            "value"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "maxItems": 25
+                      },
+                      "inlineActions": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100
+                            },
+                            "payload": {
+                              "type": "object"
+                            },
+                            "key": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 200
+                            },
+                            "enabled": {
+                              "type": "boolean"
+                            },
+                            "depend_on": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              },
+                              "maxItems": 80
+                            },
+                            "error": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "payload"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "maxItems": 80
+                      }
+                    },
+                    "required": [],
+                    "additionalProperties": false
+                  },
+                  "hasAutocomplete": {
+                    "type": "boolean"
+                  },
+                  "options": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "subCommand",
+                            "subCommandGroup",
+                            "string",
+                            "integer",
+                            "boolean",
+                            "user",
+                            "channel",
+                            "role",
+                            "mentionable",
+                            "number",
+                            "attachment"
+                          ]
+                        },
+                        "name": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 32
+                        },
+                        "description": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 100
+                        },
+                        "required": {
+                          "type": "boolean"
+                        },
+                        "minValue": {
+                          "type": "number"
+                        },
+                        "maxValue": {
+                          "type": "number"
+                        },
+                        "minLength": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 6000
+                        },
+                        "maxLength": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 6000
+                        },
+                        "channelTypes": {
+                          "type": "array",
+                          "items": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 16
+                          },
+                          "maxItems": 16
+                        },
+                        "choices": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 100
+                              },
+                              "value": {}
+                            },
+                            "required": [
+                              "name",
+                              "value"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "maxItems": 25
+                        },
+                        "autocomplete": {
+                          "type": "object",
+                          "properties": {
+                            "enabled": {
+                              "type": "boolean"
+                            },
+                            "mode": {
+                              "type": "string",
+                              "enum": [
+                                "static",
+                                "workflow",
+                                "inline"
+                              ]
+                            },
+                            "workflow": {
+                              "type": "string",
+                              "minLength": 0,
+                              "maxLength": 200
+                            },
+                            "entryPoint": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100
+                            },
+                            "arguments": {
+                              "type": "object"
+                            },
+                            "staticChoices": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                  },
+                                  "value": {}
+                                },
+                                "required": [
+                                  "name",
+                                  "value"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "maxItems": 25
+                            },
+                            "inlineActions": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                  },
+                                  "payload": {
+                                    "type": "object"
+                                  },
+                                  "key": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 200
+                                  },
+                                  "enabled": {
+                                    "type": "boolean"
+                                  },
+                                  "depend_on": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 200
+                                    },
+                                    "maxItems": 80
+                                  },
+                                  "error": {
+                                    "type": "object"
+                                  }
+                                },
+                                "required": [
+                                  "type",
+                                  "payload"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "maxItems": 80
+                            }
+                          },
+                          "required": [],
+                          "additionalProperties": false
+                        },
+                        "hasAutocomplete": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "name",
+                        "description"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "maxItems": 25
+                  }
+                },
+                "required": [
+                  "type",
+                  "name",
+                  "description"
+                ],
+                "additionalProperties": false
+              },
+              "maxItems": 25
+            }
+          },
+          "required": [],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "bot_id",
+        "command_id",
+        "expected_revision",
+        "operation",
+        "option_name"
+      ],
+      "additionalProperties": false
+    },
+    "mutating": true
+  },
+  {
+    "name": "local_update_command_settings",
+    "description": "Update command description, default permissions, contexts or installation types. Read the command first. Requires approval.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "bot_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "expected_revision": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "command_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "default_member_permissions": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "contexts": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2
+          },
+          "maxItems": 3
+        },
+        "integration_types": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "maxItems": 2
+        }
+      },
+      "required": [
+        "bot_id",
+        "command_id",
+        "expected_revision"
+      ],
+      "additionalProperties": false
+    },
+    "mutating": true
+  },
+  {
+    "name": "local_list_workflows",
+    "description": "List saved workflows with revisions.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "bot_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      },
+      "required": [
+        "bot_id"
+      ],
+      "additionalProperties": false
+    },
+    "mutating": false
+  },
+  {
+    "name": "local_get_workflow",
+    "description": "Read a workflow and its revision before editing.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "bot_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      },
+      "required": [
+        "bot_id",
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "mutating": false
+  },
+  {
+    "name": "local_create_workflow",
+    "description": "Create a standalone workflow. Inspect runtime, block registry and events first. JavaScript needs a JavaScript runtime; visual blocks or compiled BDFD need Dart. Requires approval.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "bot_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "execution_mode": {
+          "type": "string",
+          "enum": [
+            "javascript",
+            "bdfd_script",
+            "workflow"
+          ]
+        },
+        "script": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 12000
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "payload": {
+                "type": "object"
+              },
+              "key": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "depend_on": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                "maxItems": 80
+              },
+              "error": {
+                "type": "object"
+              }
+            },
+            "required": [
+              "type",
+              "payload"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 80
+        },
+        "workflow_type": {
+          "type": "string",
+          "enum": [
+            "general",
+            "event"
+          ]
+        },
+        "entry_point": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "event_trigger": {
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "event": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "customIdFilter": {
+              "type": "string",
+              "minLength": 0,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "category",
+            "event"
+          ],
+          "additionalProperties": false
+        },
+        "arguments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "required": {
+                "type": "boolean"
+              },
+              "defaultValue": {
+                "type": "string",
+                "minLength": 0,
+                "maxLength": 1000
+              }
+            },
+            "required": [
+              "name"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 25
+        }
+      },
+      "required": [
+        "bot_id",
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "mutating": true
+  },
+  {
+    "name": "local_update_workflow",
+    "description": "Modify a saved workflow. Read it first and pass its revision. Preserve unspecified fields and use the bot runtime. Requires approval.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "bot_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "execution_mode": {
+          "type": "string",
+          "enum": [
+            "javascript",
+            "bdfd_script",
+            "workflow"
+          ]
+        },
+        "script": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 12000
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "payload": {
+                "type": "object"
+              },
+              "key": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "depend_on": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                "maxItems": 80
+              },
+              "error": {
+                "type": "object"
+              }
+            },
+            "required": [
+              "type",
+              "payload"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 80
+        },
+        "workflow_type": {
+          "type": "string",
+          "enum": [
+            "general",
+            "event"
+          ]
+        },
+        "entry_point": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "event_trigger": {
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "event": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "customIdFilter": {
+              "type": "string",
+              "minLength": 0,
+              "maxLength": 200
+            }
+          },
+          "required": [
+            "category",
+            "event"
+          ],
+          "additionalProperties": false
+        },
+        "arguments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "required": {
+                "type": "boolean"
+              },
+              "defaultValue": {
+                "type": "string",
+                "minLength": 0,
+                "maxLength": 1000
+              }
+            },
+            "required": [
+              "name"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 25
+        },
+        "expected_revision": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      },
+      "required": [
+        "bot_id",
+        "name",
+        "expected_revision"
+      ],
+      "additionalProperties": false
+    },
+    "mutating": true
+  },
+  {
+    "name": "local_list_events",
+    "description": "List supported workflow events and categories.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "mutating": false
+  },
+  {
+    "name": "local_get_bot_configuration",
+    "description": "Read bot profile, presence, variable definitions, schedules, webhooks and section revisions. Secrets excluded.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "bot_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      },
+      "required": [
+        "bot_id"
+      ],
+      "additionalProperties": false
+    },
+    "mutating": false
+  },
+  {
+    "name": "local_get_bot_presence",
+    "description": "Read saved bot status and activity with revision.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "bot_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      },
+      "required": [
+        "bot_id"
+      ],
+      "additionalProperties": false
+    },
+    "mutating": false
+  },
+  {
+    "name": "local_update_bot_presence",
+    "description": "Set saved status and activities, then synchronize cloud. Requires approval and current presence revision.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "bot_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "expected_revision": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "online",
+            "idle",
+            "dnd",
+            "invisible"
+          ]
+        },
+        "activities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "playing",
+                  "streaming",
+                  "listening",
+                  "watching",
+                  "competing"
+                ]
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "state": {
+                "type": "string",
+                "minLength": 0,
+                "maxLength": 128
+              },
+              "url": {
+                "type": "string",
+                "minLength": 0,
+                "maxLength": 1000
+              },
+              "minIntervalSeconds": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 86400
+              },
+              "maxIntervalSeconds": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 86400
+              }
+            },
+            "required": [
+              "type",
+              "name"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 10
+        }
+      },
+      "required": [
+        "bot_id",
+        "expected_revision",
+        "status",
+        "activities"
+      ],
+      "additionalProperties": false
+    },
+    "mutating": true
+  },
+  {
+    "name": "local_update_bot_profile",
+    "description": "Change global Discord bot username. Read configuration and pass profile revision. Requires approval.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "bot_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "expected_revision": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "username": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 32
+        }
+      },
+      "required": [
+        "bot_id",
+        "expected_revision",
+        "username"
+      ],
+      "additionalProperties": false
+    },
+    "mutating": true
+  },
+  {
+    "name": "local_set_variable",
+    "description": "Set a global value or declare a scoped default definition (not a particular member value). guildMember isolates each server/member pair. Pass the latest variables section revision; dependent variable writes must use the revision returned by the previous write. Requires approval.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "bot_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "expected_revision": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "key": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "scope": {
+          "type": "string",
+          "enum": [
+            "global",
+            "user",
+            "guild",
+            "channel",
+            "guildMember"
+          ]
+        },
+        "value": {},
+        "value_type": {
+          "type": "string",
+          "enum": [
+            "string",
+            "number",
+            "boolean",
+            "json"
+          ]
+        }
+      },
+      "required": [
+        "bot_id",
+        "expected_revision",
+        "key",
+        "scope",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "mutating": true
+  },
+  {
+    "name": "local_update_scheduled_trigger",
+    "description": "Create or update a periodic workflow trigger. Pass scheduled_triggers section revision. Requires approval.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "bot_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "expected_revision": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "trigger_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "workflow_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "every_minutes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10080
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 200
+        }
+      },
+      "required": [
+        "bot_id",
+        "expected_revision",
+        "workflow_name",
+        "every_minutes"
+      ],
+      "additionalProperties": false
+    },
+    "mutating": true
+  },
+  {
+    "name": "local_update_inbound_webhook",
+    "description": "Create or update an inbound webhook linked to a workflow. Credentials are generated in the application and never exposed in chat. Pass inbound_webhooks revision. Requires approval.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "bot_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "expected_revision": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "webhook_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "workflow_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "enabled": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "bot_id",
+        "expected_revision",
+        "workflow_name",
+        "path"
       ],
       "additionalProperties": false
     },

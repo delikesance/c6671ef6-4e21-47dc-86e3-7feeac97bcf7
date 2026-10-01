@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'math_parser.dart';
+import 'runtime_cooldowns.dart';
 
 final _random = Random();
 
@@ -142,7 +143,75 @@ dynamic decodeJsonStringIfNeeded(dynamic value) {
   }
 }
 
+// Resolve clock functions on demand; initial event snapshots must not freeze them.
+String? _resolveLiveClock(String key) {
+  if (key == 'gettimestamp' || key == 'timestamp') {
+    return (DateTime.now().toUtc().millisecondsSinceEpoch ~/ 1000).toString();
+  }
+  if (key == 'gettimestampms' || key == 'timestampms') {
+    return DateTime.now().toUtc().millisecondsSinceEpoch.toString();
+  }
+  if (key == 'actualtime') {
+    return DateTime.now().toUtc().toIso8601String();
+  }
+  if (key == 'day') {
+    return DateTime.now().day.toString();
+  }
+  if (key == 'month') {
+    return DateTime.now().month.toString();
+  }
+  if (key == 'year') {
+    return DateTime.now().year.toString();
+  }
+  if (key == 'hour') {
+    return DateTime.now().hour.toString();
+  }
+  if (key == 'minute') {
+    return DateTime.now().minute.toString();
+  }
+  if (key == 'second') {
+    return DateTime.now().second.toString();
+  }
+  if (key == 'time') {
+    final now = DateTime.now();
+    return '${now.hour.toString().padLeft(2, '0')}:'
+        '${now.minute.toString().padLeft(2, '0')}:'
+        '${now.second.toString().padLeft(2, '0')}';
+  }
+  if (key == 'date') {
+    final now = DateTime.now();
+    return '${now.year}-'
+        '${now.month.toString().padLeft(2, '0')}-'
+        '${now.day.toString().padLeft(2, '0')}';
+  }
+
+  return null;
+}
+
 String? _lookupVariableValue(String key, Map<String, String> updates) {
+  final cooldown = RegExp(
+    r'^cooldown(?:\[([^\]]*)\])?\.remaining$',
+    caseSensitive: false,
+  ).firstMatch(key);
+  if (cooldown != null) {
+    return RuntimeCooldowns.query(updates, cooldown.group(1));
+  }
+  final loweredUptimeKey = key.toLowerCase();
+  if (loweredUptimeKey == 'bot.uptime' || loweredUptimeKey == 'uptime') {
+    final rawUptime = updates['bot.uptime'] ?? '0';
+    final uptimeMs = int.tryParse(rawUptime) ?? 0;
+    final seconds = uptimeMs ~/ 1000;
+    final hrs = seconds ~/ 3600;
+    final mins = (seconds % 3600) ~/ 60;
+    final secs = seconds % 60;
+    return '${hrs.toString().padLeft(2, '0')}:'
+        '${mins.toString().padLeft(2, '0')}:'
+        '${secs.toString().padLeft(2, '0')}';
+  }
+  if (updates['__runtime.liveClock'] == 'true') {
+    final clockValue = _resolveLiveClock(key.toLowerCase());
+    if (clockValue != null) return clockValue;
+  }
   final val = updates[key];
   if (val != null) {
     return val;
@@ -183,103 +252,37 @@ String? _lookupVariableValue(String key, Map<String, String> updates) {
     }
   }
 
-  // Dynamic time variables resolved at template evaluation time.
-  if (loweredKey == 'gettimestamp' || loweredKey == 'timestamp') {
-    return (DateTime.now().toUtc().millisecondsSinceEpoch ~/ 1000).toString();
-  }
-  if (loweredKey == 'gettimestampms' || loweredKey == 'timestampms') {
-    return DateTime.now().toUtc().millisecondsSinceEpoch.toString();
-  }
-  if (loweredKey == 'actualtime') {
-    return DateTime.now().toUtc().toIso8601String();
-  }
-  if (loweredKey == 'day') {
-    return DateTime.now().toUtc().day.toString();
-  }
-  if (loweredKey == 'month') {
-    return DateTime.now().toUtc().month.toString();
-  }
-  if (loweredKey == 'year') {
-    return DateTime.now().toUtc().year.toString();
-  }
-  if (loweredKey == 'hour') {
-    return DateTime.now().toUtc().hour.toString();
-  }
-  if (loweredKey == 'minute') {
-    return DateTime.now().toUtc().minute.toString();
-  }
-  if (loweredKey == 'second') {
-    return DateTime.now().toUtc().second.toString();
-  }
-  if (loweredKey == 'time') {
-    final now = DateTime.now().toUtc();
-    return '${now.hour.toString().padLeft(2, '0')}:'
-        '${now.minute.toString().padLeft(2, '0')}:'
-        '${now.second.toString().padLeft(2, '0')}';
-  }
-  if (loweredKey == 'date') {
-    final now = DateTime.now().toUtc();
-    return '${now.year}-'
-        '${now.month.toString().padLeft(2, '0')}-'
-        '${now.day.toString().padLeft(2, '0')}';
-  }
-  if (loweredKey == 'bot.uptime' || loweredKey == 'uptime') {
-    final rawUptime = updates['bot.uptime'] ?? '0';
-    final uptimeMs = int.tryParse(rawUptime) ?? 0;
-    final seconds = uptimeMs ~/ 1000;
-    final hrs = seconds ~/ 3600;
-    final mins = (seconds % 3600) ~/ 60;
-    final secs = seconds % 60;
-    return '${hrs.toString().padLeft(2, '0')}:'
-        '${mins.toString().padLeft(2, '0')}:'
-        '${secs.toString().padLeft(2, '0')}';
-  }
+  final clockValue = _resolveLiveClock(loweredKey);
+  if (clockValue != null) return clockValue;
 
   // Dynamic random property fallbacks
   if (loweredKey == 'random.userid' || loweredKey == 'randomuserid') {
-    final authorId = updates['author.id'] ?? updates['user.id'] ?? '';
-    return authorId.isNotEmpty ? authorId : '0';
+    return _pickRandomEntityId(updates['random.userIds']);
   }
   if (loweredKey == 'random.user' || loweredKey == 'randomuser') {
-    final name =
-        updates['author.username'] ??
-        updates['user.username'] ??
-        updates['author.displayName'] ??
-        '';
-    return name.isNotEmpty ? name : 'User';
+    final id = _pickRandomEntityId(updates['random.userIds']);
+    if (id.isEmpty) return '';
+    try {
+      final names = jsonDecode(updates['random.userNames'] ?? '{}');
+      if (names is Map) return names[id]?.toString() ?? id;
+    } catch (_) {}
+    return id;
   }
   if (loweredKey == 'random.mention' || loweredKey == 'randommention') {
-    final authorId = updates['author.id'] ?? updates['user.id'] ?? '';
-    return authorId.isNotEmpty ? '<@$authorId>' : '<@0>';
+    final id = _pickRandomEntityId(updates['random.userIds']);
+    return id.isEmpty ? '' : '<@$id>';
   }
   if (loweredKey == 'random.channelid' || loweredKey == 'randomchannelid') {
-    final channelId =
-        updates['channel.id'] ?? updates['interaction.channel.id'] ?? '';
-    return channelId.isNotEmpty ? channelId : '0';
+    return _pickRandomEntityId(updates['random.channelIds']);
   }
   if (loweredKey == 'random.guildid' || loweredKey == 'randomguildid') {
-    final guildId =
-        updates['guild.id'] ?? updates['interaction.guild.id'] ?? '';
-    return guildId.isNotEmpty ? guildId : '0';
+    return _pickRandomEntityId(updates['random.guildIds']);
   }
   if (loweredKey == 'random.roleid' || loweredKey == 'randomroleid') {
-    final memberRoles = (updates['member.roles'] ?? '')
-        .split(',')
-        .map((s) => s.trim())
-        .where((s) => s.isNotEmpty)
-        .toList();
-    if (memberRoles.isNotEmpty) {
-      return memberRoles[_random.nextInt(memberRoles.length)];
-    }
-    return updates['guild.id'] ?? '0';
+    return _pickRandomEntityId(updates['random.roleIds']);
   }
   if (loweredKey == 'random.categoryid' || loweredKey == 'randomcategoryid') {
-    final catId =
-        updates['channel.parentId'] ??
-        updates['channel.parent_id'] ??
-        updates['category.id'] ??
-        '';
-    return catId.isNotEmpty ? catId : (updates['channel.id'] ?? '0');
+    return _pickRandomEntityId(updates['random.categoryIds']);
   }
 
   // Numeric member count fallbacks for BDFD compliance
@@ -431,6 +434,17 @@ String? _lookupVariableValue(String key, Map<String, String> updates) {
   }
 
   return null;
+}
+
+String _pickRandomEntityId(String? encoded) {
+  if (encoded == null || encoded.isEmpty) return '';
+  try {
+    final ids = jsonDecode(encoded);
+    if (ids is List && ids.isNotEmpty) {
+      return ids[_random.nextInt(ids.length)].toString();
+    }
+  } catch (_) {}
+  return '';
 }
 
 bool _isMeaningfulResolvedValue(dynamic value) {
@@ -868,6 +882,266 @@ dynamic _applyBdfdBracketFunction(
 ) {
   final name = rawName.trim().toLowerCase();
   switch (name) {
+    case 'userreacted':
+      final parts = rawArgs
+          .map((arg) => resolveTemplatePlaceholders(arg, updates).trim())
+          .toList();
+      final channelId = parts.isNotEmpty ? parts[0] : '';
+      final messageId = parts.length > 1 ? parts[1] : '';
+      final userId = parts.length > 2 ? parts[2] : '';
+      final emoji = parts.length > 3 ? parts[3] : '';
+      final key = 'userReacted[$channelId;$messageId;$userId;$emoji]';
+      final lookup =
+          _lookupVariableValue(key, updates) ??
+          _lookupVariableValue(key.toLowerCase(), updates);
+      if (lookup != null) return lookup;
+      final shorthand = 'userReacted[$channelId;$messageId;$emoji]';
+      final shortLookup =
+          _lookupVariableValue(shorthand, updates) ??
+          _lookupVariableValue(shorthand.toLowerCase(), updates);
+      if (shortLookup != null) return shortLookup;
+      return 'false';
+    case 'leaderboardposition':
+      final posJoined = rawArgs
+          .map((arg) => resolveTemplatePlaceholders(arg, updates).trim())
+          .join(';');
+      final posKey = 'leaderboardPosition[$posJoined]';
+      return _lookupVariableValue(posKey, updates) ??
+          _lookupVariableValue(posKey.toLowerCase(), updates) ??
+          _lookupVariableValue('leaderboard.position', updates) ??
+          '1';
+    case 'leaderboardvalue':
+      final valJoined = rawArgs
+          .map((arg) => resolveTemplatePlaceholders(arg, updates).trim())
+          .join(';');
+      final valKey = 'leaderboardValue[$valJoined]';
+      return _lookupVariableValue(valKey, updates) ??
+          _lookupVariableValue(valKey.toLowerCase(), updates) ??
+          _lookupVariableValue('leaderboard.value', updates) ??
+          '0';
+    case 'globaluserleaderboard':
+      final gulJoined = rawArgs
+          .map((arg) => resolveTemplatePlaceholders(arg, updates).trim())
+          .join(';');
+      final gulKey = 'globalUserLeaderboard[$gulJoined]';
+      return _lookupVariableValue(gulKey, updates) ??
+          _lookupVariableValue(gulKey.toLowerCase(), updates) ??
+          _lookupVariableValue('globalUserLeaderboard', updates) ??
+          '';
+    case 'serverleaderboard':
+      final slJoined = rawArgs
+          .map((arg) => resolveTemplatePlaceholders(arg, updates).trim())
+          .join(';');
+      final slKey = 'serverLeaderboard[$slJoined]';
+      return _lookupVariableValue(slKey, updates) ??
+          _lookupVariableValue(slKey.toLowerCase(), updates) ??
+          _lookupVariableValue('serverLeaderboard', updates) ??
+          '';
+    case 'userleaderboard':
+      final ulJoined = rawArgs
+          .map((arg) => resolveTemplatePlaceholders(arg, updates).trim())
+          .join(';');
+      final ulKey = 'userLeaderboard[$ulJoined]';
+      return _lookupVariableValue(ulKey, updates) ??
+          _lookupVariableValue(ulKey.toLowerCase(), updates) ??
+          _lookupVariableValue('userLeaderboard', updates) ??
+          '';
+    case 'bdfdhasrole':
+      final roles = resolvedArgs.isEmpty
+          ? ''
+          : _stringifyResolvedValue(resolvedArgs.first);
+      final roleId = resolvedArgs.length > 1
+          ? _stringifyResolvedValue(resolvedArgs[1]).trim()
+          : '';
+      return (roleId.isNotEmpty &&
+              roles.split(',').map((id) => id.trim()).contains(roleId))
+          .toString();
+    case 'bdfduserroles':
+      final encoded = resolvedArgs.isEmpty
+          ? '[]'
+          : _stringifyResolvedValue(resolvedArgs.first);
+      try {
+        final names = jsonDecode(encoded);
+        if (names is List) {
+          return names
+              .map((name) => name.toString())
+              .where((name) => name.isNotEmpty && name != '@everyone')
+              .join('\n');
+        }
+      } catch (_) {}
+      return '';
+    case 'bdfdismentioned':
+      final userId = resolvedArgs.isEmpty ? '' : resolvedArgs.first.toString();
+      if (userId.isEmpty) return 'false';
+      final mentions = (updates['message.mentions'] ?? '')
+          .split(',')
+          .map((id) => id.trim())
+          .where((id) => id.isNotEmpty);
+      return mentions.contains(userId).toString();
+    case 'bdfdmessageargument':
+      final parts = rawArgs
+          .map((arg) => resolveTemplatePlaceholders(arg, updates).trim())
+          .toList();
+      final first = parts.isNotEmpty ? parts[0] : '';
+      final second = parts.length > 1 ? parts[1] : '';
+      final content = updates['message.content'] ?? '';
+      final words = content
+          .trim()
+          .split(RegExp(r'\s+'))
+          .where((word) => word.isNotEmpty)
+          .toList();
+      if (first.isEmpty && second.isEmpty) return content;
+      if (first.startsWith('>')) {
+        if (first == '>') return words.isEmpty ? '' : words.last;
+        final skip = int.tryParse(first.substring(1));
+        return skip != null && skip >= 0 ? words.skip(skip).join(' ') : '';
+      }
+      final start = int.tryParse(first);
+      if (start != null && start > 0) {
+        final end = int.tryParse(second);
+        if (end != null && end > 0) {
+          return words
+              .skip(start - 1)
+              .take((end - start + 1).clamp(0, words.length))
+              .join(' ');
+        }
+        if (second.isEmpty && parts.length > 2 && parts[2] == 'true') {
+          return words.skip(start - 1).join(' ');
+        }
+        final word = start <= words.length ? words[start - 1] : '';
+        return word.isNotEmpty ? word : updates['opts.$second'] ?? '';
+      }
+      return updates['opts.${second.isNotEmpty ? second : first}'] ?? '';
+    case 'bdfdmentionedusers':
+    case 'bdfdmentionedchannels':
+      final requested = rawArgs.isNotEmpty
+          ? resolveTemplatePlaceholders(rawArgs[0], updates).trim()
+          : '';
+      final fallbackRaw = rawArgs.length > 1
+          ? resolveTemplatePlaceholders(
+              rawArgs[1],
+              updates,
+            ).trim().toLowerCase()
+          : '';
+      final index = int.tryParse(requested) ?? 1;
+      final base = name == 'bdfdmentionedchannels'
+          ? 'message.channelMentions'
+          : 'message.mentions';
+      final values = (updates[base] ?? '')
+          .split(',')
+          .where((id) => id.isNotEmpty)
+          .toList();
+      final value =
+          updates['$base[${index - 1}]'] ??
+          (index > 0 && index <= values.length ? values[index - 1] : '');
+      final fallback = const {'true', 'yes', '1'}.contains(fallbackRaw);
+      return value.isNotEmpty
+          ? value
+          : fallback
+          ? updates[name == 'bdfdmentionedchannels'
+                    ? 'channel.id'
+                    : 'author.id'] ??
+                ''
+          : '';
+    case 'bdfdremovelinks':
+      return resolveTemplatePlaceholders(
+        rawArgs.join(';'),
+        updates,
+      ).replaceAll(RegExp(r'https?://[^\s]+'), '');
+    case 'bdfdusertag':
+      final username = rawArgs.isNotEmpty
+          ? resolveTemplatePlaceholders(rawArgs[0], updates)
+          : '';
+      final discriminator = rawArgs.length > 1
+          ? resolveTemplatePlaceholders(rawArgs[1], updates)
+          : '';
+      // Contexts historically store the discriminator in user.tag/author.tag.
+      // Accept a complete tag too, for callers supplying normalized fixtures.
+      if (discriminator.contains('#')) return discriminator;
+      final number = int.tryParse(discriminator);
+      return number != null && number != 0
+          ? '$username#$discriminator'
+          : username;
+    // Compiler-generated expressions for command-local textSplit state.
+    case 'bdfdtextsplitinit':
+    case 'bdfdtextsplitget':
+    case 'bdfdtextsplitlength':
+    case 'bdfdtextsplitindex':
+    case 'bdfdtextsplitjoin':
+    case 'bdfdtextsplitedit':
+    case 'bdfdtextsplitremove':
+      final args = rawArgs
+          .map((arg) => resolveTemplatePlaceholders(arg, updates))
+          .toList();
+      String arg(int index) => index < args.length ? args[index] : '';
+      if (name == 'bdfdtextsplitinit') {
+        return jsonEncode(arg(0).split(arg(1)));
+      }
+      final decoded = jsonDecode(updates['temp._bdfd_textsplit'] ?? '[]');
+      final parts = (decoded as List).map((value) => value.toString()).toList();
+      if (name == 'bdfdtextsplitlength') return parts.length.toString();
+      if (name == 'bdfdtextsplitindex') {
+        final index = parts.indexOf(arg(0));
+        return index < 0 ? '-1' : (index + 1).toString();
+      }
+      if (name == 'bdfdtextsplitjoin') return parts.join(arg(0));
+      final index = int.tryParse(arg(0).trim());
+      final valid = index != null && index >= 1 && index <= parts.length;
+      if (name == 'bdfdtextsplitget') return valid ? parts[index - 1] : '';
+      if (valid) {
+        if (name == 'bdfdtextsplitedit') {
+          parts[index - 1] = arg(1);
+        } else {
+          parts.removeAt(index - 1);
+        }
+      }
+      return jsonEncode(parts);
+    case 'checkcontains':
+      final args = rawArgs
+          .map((arg) => resolveTemplatePlaceholders(arg, updates))
+          .toList();
+      final text = args.isEmpty ? '' : args.first;
+      return args.skip(1).any(text.contains) ? 'true' : 'false';
+    case 'replacetext':
+    case 'repeatmessage':
+    case 'removecontains':
+    case 'numberseparator':
+      final args = rawArgs
+          .map((arg) => resolveTemplatePlaceholders(arg, updates))
+          .toList();
+      final text = args.isEmpty ? '' : args.first;
+      if (name == 'repeatmessage') {
+        final count = int.tryParse(args.length > 1 ? args[1].trim() : '') ?? 1;
+        return text * count.clamp(0, 100);
+      }
+      if (name == 'removecontains') {
+        var result = text;
+        for (final target in args.skip(1)) {
+          if (target.isNotEmpty) result = result.replaceAll(target, '');
+        }
+        return result;
+      }
+      if (name == 'numberseparator') {
+        final value = num.tryParse(text.trim());
+        if (value == null) return '';
+        final separator = args.length > 1 && args[1].isNotEmpty ? args[1] : ',';
+        return _formatNumberWithSeparator(value, separator);
+      }
+      final sample = args.length > 1 ? args[1] : '';
+      final replacement = args.length > 2 ? args[2] : '';
+      final count = int.tryParse(args.length > 3 ? args[3].trim() : '') ?? 1;
+      if (sample.isEmpty) return text;
+      if (count == -1) return text.replaceAll(sample, replacement);
+      var result = text;
+      for (var i = 0; i < count; i++) {
+        final index = result.indexOf(sample);
+        if (index == -1) break;
+        result =
+            result.substring(0, index) +
+            replacement +
+            result.substring(index + sample.length);
+      }
+      return result;
     case 'calculate':
       if (rawArgs.isEmpty) {
         return null;
@@ -884,6 +1158,33 @@ dynamic _applyBdfdBracketFunction(
         result,
         enableDecimals: _isEnableDecimals(updates),
       );
+    case 'isnumber':
+    case 'isinteger':
+    case 'isboolean':
+    case 'isvalidhex':
+      final raw = rawArgs.isEmpty
+          ? ''
+          : resolveTemplatePlaceholders(rawArgs.first, updates).trim();
+      switch (name.trim().toLowerCase()) {
+        case 'isnumber':
+          return num.tryParse(raw) != null;
+        case 'isinteger':
+          return int.tryParse(raw) != null;
+        case 'isboolean':
+          return const {
+            'true',
+            'false',
+            'yes',
+            'no',
+            '1',
+            '0',
+            'on',
+            'off',
+          }.contains(raw.toLowerCase());
+        default:
+          final cleaned = raw.startsWith('#') ? raw.substring(1) : raw;
+          return RegExp(r'^[0-9a-fA-F]+$').hasMatch(cleaned);
+      }
     case 'ceil':
       final ceilValue = resolvedArgs.isEmpty
           ? null
@@ -1000,6 +1301,18 @@ dynamic _applyBdfdBracketFunction(
         return null;
       }
       return _stringifyResolvedValue(resolvedArgs.first).trim();
+    case 'sort':
+      final values = resolvedArgs
+          .map(_stringifyResolvedValue)
+          .map((value) => value.trim())
+          .where((value) => value.isNotEmpty)
+          .toList();
+      if (values.every((value) => num.tryParse(value) != null)) {
+        values.sort((a, b) => num.parse(a).compareTo(num.parse(b)));
+      } else {
+        values.sort();
+      }
+      return values.join(';');
     case 'sum':
       if (resolvedArgs.isEmpty) {
         return null;
@@ -1052,6 +1365,27 @@ dynamic _applyBdfdBracketFunction(
         return null;
       }
       return min + _random.nextInt(max - min + 1);
+    case 'randomstring':
+      final length =
+          (int.tryParse(
+                    rawArgs.isEmpty
+                        ? ''
+                        : resolveTemplatePlaceholders(
+                            rawArgs.first,
+                            updates,
+                          ).trim(),
+                  ) ??
+                  10)
+              .clamp(1, 1000);
+      const defaults =
+          'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      final supplied = rawArgs.length > 1
+          ? resolveTemplatePlaceholders(rawArgs[1], updates)
+          : '';
+      final chars = (supplied.isEmpty ? defaults : supplied).runes.toList();
+      return String.fromCharCodes(
+        List.generate(length, (_) => chars[_random.nextInt(chars.length)]),
+      );
     case 'randomtext':
       final sourceArgs = rawArgs.isNotEmpty
           ? rawArgs
@@ -1066,7 +1400,7 @@ dynamic _applyBdfdBracketFunction(
       final chosen = options[_random.nextInt(options.length)];
       return resolveTemplatePlaceholders(chosen, updates);
     case 'date':
-      final now = DateTime.now().toUtc();
+      final now = DateTime.now();
       return '${now.year}-'
           '${now.month.toString().padLeft(2, '0')}-'
           '${now.day.toString().padLeft(2, '0')}';
@@ -1090,21 +1424,26 @@ dynamic _applyBdfdBracketFunction(
         }
       }
       return 'false';
+    case 'varexists':
+      var key = resolvedArgs.isEmpty
+          ? ''
+          : _stringifyResolvedValue(resolvedArgs.first).trim().toLowerCase();
+      if (key.startsWith('bc_')) key = key.substring(3);
+      if (key.isEmpty) return 'false';
+      return updates.keys.any((entry) => entry.toLowerCase() == 'temp.$key')
+          ? 'true'
+          : 'false';
     case 'listvar':
-      final sep = resolvedArgs.isNotEmpty
-          ? _stringifyResolvedValue(resolvedArgs[0])
-          : ', ';
-      final varNames = <String>{};
-      for (final key in updates.keys) {
-        final idx = key.indexOf('.bc_');
-        if (idx >= 0) {
-          final name = key.substring(idx + 4);
-          if (name.isNotEmpty) {
-            varNames.add(name);
-          }
-        }
-      }
-      return varNames.join(sep);
+      final sep =
+          (resolvedArgs.isNotEmpty
+                  ? _stringifyResolvedValue(resolvedArgs.first)
+                  : ', ')
+              .replaceAll(r'\n', '\n');
+      final entries =
+          _inspectRuntimeVariables(updates)['temp'] ?? const <String, String>{};
+      return entries.entries
+          .map((entry) => '${entry.key}: ${jsonEncode(entry.value)}')
+          .join(sep);
     case 'userperms':
       var userId = resolvedArgs.isNotEmpty
           ? _stringifyResolvedValue(resolvedArgs[0]).trim()
@@ -1118,13 +1457,16 @@ dynamic _applyBdfdBracketFunction(
       final separator = rawArgs.length > 2 ? rawArgs[2] : ', ';
 
       final authorId = _lookupVariableValue('author.id', updates) ?? '';
-      String? rawPerms;
-      if (userId == authorId) {
-        rawPerms = _lookupVariableValue('member.permissions', updates);
-      } else {
-        rawPerms = _lookupVariableValue('permissions.byId.$userId', updates);
-      }
-      rawPerms ??= _lookupVariableValue('member.permissions', updates) ?? '';
+      final requestedPerms = resolvedArgs.length > 3
+          ? _stringifyResolvedValue(resolvedArgs[3])
+          : null;
+      final rawPerms =
+          requestedPerms ??
+          _lookupVariableValue('permissions.byId.$userId', updates) ??
+          (userId == authorId
+              ? _lookupVariableValue('member.permissions', updates)
+              : null) ??
+          '';
 
       if (rawPerms.isEmpty) {
         return '';
@@ -1196,57 +1538,110 @@ dynamic _applyBdfdBracketFunction(
           ? rawArgs[1]
           : ', ';
       final rawNames = _lookupVariableValue('bot.guildNames', updates) ?? '';
-      if (rawNames.isEmpty) {
+      final encodedNames = _lookupVariableValue('bot.guildNamesJson', updates);
+      if (rawNames.isEmpty && (encodedNames == null || encodedNames.isEmpty)) {
         return '';
       }
-      final list = rawNames
-          .split(',')
-          .map((s) => s.trim())
-          .where((s) => s.isNotEmpty)
-          .toList();
+      List<String>? parsedNames;
+      if (encodedNames != null) {
+        try {
+          final decoded = jsonDecode(encodedNames);
+          if (decoded is List) {
+            parsedNames = decoded.map((name) => name.toString()).toList();
+          }
+        } catch (_) {}
+      }
+      final list =
+          parsedNames ??
+          rawNames
+              .split(',')
+              .map((s) => s.trim())
+              .where((s) => s.isNotEmpty)
+              .toList();
       final resultList = (amount >= 0) ? list.take(amount).toList() : list;
       return resultList.join(separator);
     case 'variablescount':
-      final type = resolvedArgs.isNotEmpty
-          ? _stringifyResolvedValue(resolvedArgs[0]).trim()
-          : 'global';
-      int count = 0;
-      final lowerType = type.toLowerCase();
-      for (final key in updates.keys) {
-        if (!key.contains('.bc_')) {
-          continue;
-        }
-        final lowerKey = key.toLowerCase();
-        if (lowerType == 'user') {
-          if (lowerKey.startsWith('user[') || lowerKey.contains('member[')) {
-            count++;
-          }
-        } else if (lowerType == 'guild' || lowerType == 'server') {
-          if (lowerKey.startsWith('guild[') || lowerKey.startsWith('server[')) {
-            count++;
-          }
-        } else if (lowerType == 'channel') {
-          if (lowerKey.startsWith('channel[')) {
-            count++;
-          }
-        } else if (lowerType == 'global') {
-          if (lowerKey.startsWith('variables.')) {
-            count++;
-          }
-        } else {
-          if (lowerKey.contains('$lowerType[')) {
-            count++;
-          }
-        }
+      final type = resolvedArgs.isEmpty
+          ? ''
+          : _stringifyResolvedValue(resolvedArgs.first).trim().toLowerCase();
+      final scopes = _inspectRuntimeVariables(updates);
+      if (type.isEmpty) {
+        return scopes.values
+            .fold<int>(0, (total, values) => total + values.length)
+            .toString();
       }
-      return count.toString();
+      final normalized = switch (type) {
+        'server' => 'guild',
+        'member' || 'guildmember' => 'guildmember',
+        _ => type,
+      };
+      return (scopes[normalized]?.length ?? 0).toString();
     default:
       return null;
   }
 }
 
+// Inspect only custom values, deduplicating their context and legacy aliases.
+Map<String, Map<String, String>> _inspectRuntimeVariables(
+  Map<String, String> variables,
+) {
+  final explicitTempNames = <String>{};
+  try {
+    explicitTempNames.addAll(
+      (jsonDecode(variables['__variables.tempNames'] ?? '[]') as List).map(
+        (name) => name.toString().toLowerCase(),
+      ),
+    );
+  } catch (_) {
+    // Legacy contexts may not carry the optional inspection metadata.
+  }
+  final scopes = <String, Map<String, String>>{};
+  final scoped = RegExp(
+    r'^(user|guild|server|channel|guildMember|member|message)(?:\[[^\]]+\])?\.bc_(.+)$',
+    caseSensitive: false,
+  );
+  for (final entry in variables.entries) {
+    String? scope, name;
+    final key = entry.key;
+    if (key.toLowerCase().startsWith('temp.')) {
+      scope = 'temp';
+      name = key.substring(5).toLowerCase();
+      if (name.startsWith('bc_')) name = name.substring(3);
+      if (!explicitTempNames.contains(name) &&
+          (name.startsWith('_') || name == 'debug_last_var')) {
+        continue;
+      }
+    } else if (key.startsWith('global.')) {
+      scope = 'global';
+      name = key.substring(7);
+    } else if (key.startsWith('variables.bc_')) {
+      scope = 'global';
+      name = key.substring(13);
+    } else {
+      final match = scoped.firstMatch(key);
+      if (match != null) {
+        scope = switch (match.group(1)!.toLowerCase()) {
+          'server' => 'guild',
+          'member' => 'guildmember',
+          final value => value,
+        };
+        name = match.group(2)!;
+      }
+    }
+    if (scope != null && name != null && name.isNotEmpty) {
+      scopes.putIfAbsent(scope, () => {})[name] = entry.value;
+    }
+  }
+  return scopes;
+}
+
 bool _isEnableDecimals(Map<String, String> updates) {
-  return (updates['temp._enableDecimals'] ?? '').trim().toLowerCase() == 'yes';
+  return (updates['temp._enabledecimals'] ??
+              updates['temp._enableDecimals'] ??
+              '')
+          .trim()
+          .toLowerCase() ==
+      'yes';
 }
 
 int? _coerceInt(dynamic value) {
@@ -1879,12 +2274,17 @@ String resolveTemplatePlaceholders(
   final buffer = StringBuffer();
   var index = 0;
   while (index < initial.length) {
-    final start = initial.indexOf('((', index);
+    var start = initial.indexOf('((', index);
     if (start == -1) {
       buffer.write(initial.substring(index));
       break;
     }
 
+    // A placeholder can be surrounded by literal parentheses, for example
+    // `XP (((temp.xp)))`. The delimiter is the innermost opening pair.
+    while (start + 2 < initial.length && initial[start + 2] == '(') {
+      start++;
+    }
     buffer.write(initial.substring(index, start));
     var cursor = start + 2;
     var depth = 0;
@@ -1963,7 +2363,8 @@ bool _evaluateStringCondition(String expression, Map<String, String> updates) {
   };
 
   for (final entry in symbolOperators.entries) {
-    final splitIndex = trimmed.indexOf(entry.key);
+    final parts = _splitTopLevel(trimmed, entry.key);
+    final splitIndex = parts.length > 1 ? parts.first.length : -1;
     if (splitIndex > 0) {
       final left = resolveTemplatePlaceholders(
         trimmed.substring(0, splitIndex).trim(),
@@ -1984,16 +2385,18 @@ bool _evaluateStringCondition(String expression, Map<String, String> updates) {
     ' endswith ': 'endsWith',
   };
 
-  final lowered = ' ${trimmed.toLowerCase()} ';
+  final padded = ' $trimmed ';
+  final lowered = padded.toLowerCase();
   for (final entry in wordOperators.entries) {
-    final index = lowered.indexOf(entry.key);
-    if (index >= 0) {
+    final parts = _splitTopLevel(lowered, entry.key);
+    if (parts.length > 1) {
+      final index = parts.first.length;
       final left = resolveTemplatePlaceholders(
-        trimmed.substring(0, index).trim(),
+        padded.substring(0, index).trim(),
         updates,
       );
       final right = resolveTemplatePlaceholders(
-        trimmed.substring(index + entry.key.trim().length).trim(),
+        padded.substring(index + entry.key.length).trim(),
         updates,
       );
       return _evaluateConditionValue(left, entry.value, right);
@@ -2143,7 +2546,8 @@ void injectAlwaysAvailableVariables(
   int uptimeMs = 0,
   int pingMs = 0,
 }) {
-  final now = DateTime.now().toUtc();
+  final now = DateTime.now();
+  vars['__runtime.liveClock'] = 'true';
   vars.putIfAbsent('bot.id', () => botId);
   vars.putIfAbsent('bot.guildCount', () => '$guildCount');
   vars.putIfAbsent('bot.uptime', () => '$uptimeMs');
@@ -2152,7 +2556,7 @@ void injectAlwaysAvailableVariables(
   vars['timestamp'] = '${now.millisecondsSinceEpoch ~/ 1000}';
   vars['getTimestampMs'] = '${now.millisecondsSinceEpoch}';
   vars['timestampMs'] = '${now.millisecondsSinceEpoch}';
-  vars['actualTime'] = now.toIso8601String();
+  vars['actualTime'] = now.toUtc().toIso8601String();
   vars['day'] = '${now.day}';
   vars['month'] = '${now.month}';
   vars['year'] = '${now.year}';

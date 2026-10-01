@@ -303,7 +303,20 @@ Map<String, String> _channelExtra(
   return <String, String>{
     '$prefix.id': channel.id.toString(),
     '$prefix.name': _getChannelName(channel),
-    '$prefix.type': channel.type.toString(),
+    '$prefix.type': discordChannelTypeName(channel.type),
+    '$prefix.typeValue': channel.type.value.toString(),
+    if (channel is GuildChannel) ...{
+      '$prefix.position': channel.position.toString(),
+      '$prefix.parentId': channel.parentId?.toString() ?? '',
+      '$prefix.nsfw': channel.isNsfw.toString(),
+    },
+    if (channel is GuildTextChannel) ...{
+      '$prefix.topic': channel.topic ?? '',
+      '$prefix.slowmode': (channel.rateLimitPerUser?.inSeconds ?? 0).toString(),
+      '$prefix.lastMessageId': channel.lastMessageId?.toString() ?? '',
+      '$prefix.lastPinTimestamp':
+          channel.lastPinTimestamp?.millisecondsSinceEpoch.toString() ?? '',
+    },
   };
 }
 
@@ -314,11 +327,21 @@ Map<String, String> _messageExtra(
   if (message == null) return const <String, String>{};
 
   final content = message.content;
-  final words = content.trim().split(RegExp(r'\s+'));
+  final words = content
+      .trim()
+      .split(RegExp(r'\s+'))
+      .where((word) => word.isNotEmpty)
+      .toList();
   final mentionIds = message.mentions.map((u) => u.id.toString()).toList();
   final roleMentionIds = message.roleMentionIds
       .map((id) => id.toString())
       .toList();
+  // Discord may omit channel mention objects for ordinary messages. Tokens
+  // preserve the order in which channels were mentioned in the content.
+  final channelMentionIds = <String>{
+    ...RegExp(r'<#(\d+)>').allMatches(content).map((match) => match.group(1)!),
+    ...message.channelMentions.map((channel) => channel.id.toString()),
+  }.toList();
   final isBot = message.author is User ? (message.author as User).isBot : false;
 
   final map = <String, String>{
@@ -332,6 +355,10 @@ Map<String, String> _messageExtra(
     '$prefix.type': message.type.value.toString(),
     '$prefix.mentions': mentionIds.join(','),
     '$prefix.mention.count': mentionIds.length.toString(),
+    '$prefix.channelMentions': channelMentionIds.join(','),
+    '$prefix.channelMentions.count': channelMentionIds.length.toString(),
+    for (var idx = 0; idx < channelMentionIds.length; idx++)
+      '$prefix.channelMentions[$idx]': channelMentionIds[idx],
     '$prefix.timestamp': message.timestamp.millisecondsSinceEpoch.toString(),
     '$prefix.isEdited': (message.editedTimestamp != null).toString(),
     '$prefix.isPinned': message.isPinned.toString(),
@@ -550,6 +577,9 @@ EventExecutionContext _baseEventContext({
 }
 
 String _getChannelName(Channel channel) {
+  if (channel is GuildCategory) {
+    return channel.name;
+  }
   if (channel is GuildTextChannel) {
     return channel.name;
   }

@@ -7,6 +7,8 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 
 import 'package:bot_creator/core/theme/app_theme.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Full visual editor for a ComponentV2 message (text + recursive component nodes).
 /// Manages a [ComponentV2Definition] and notifies via [onChanged].
 class ComponentV2EditorWidget extends StatefulWidget {
@@ -109,7 +111,7 @@ class _ComponentV2EditorWidgetState extends State<ComponentV2EditorWidget> {
           ),
           child: Row(
             children: [
-              Icon(
+              AppIcon.fromMaterial(
                 Icons.dashboard_customize,
                 size: 18,
                 color: scheme.onSurface,
@@ -171,7 +173,8 @@ class _ComponentV2EditorWidgetState extends State<ComponentV2EditorWidget> {
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 dense: true,
-                title: Text(context.tr.component_ephemeral_hint,
+                title: Text(
+                  context.tr.component_ephemeral_hint,
                   style: TextStyle(fontSize: 13),
                 ),
                 value: _ephemeral,
@@ -249,9 +252,14 @@ class _ComponentV2EditorWidgetState extends State<ComponentV2EditorWidget> {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.add, size: 16, color: AppTheme.grey),
+                      AppIcon.fromMaterial(
+                        Icons.add,
+                        size: 16,
+                        color: AppTheme.grey,
+                      ),
                       SizedBox(width: 8),
-                      Text(context.tr.component_add_root,
+                      Text(
+                        context.tr.component_add_root,
                         style: TextStyle(
                           color: AppTheme.grey,
                           fontWeight: FontWeight.bold,

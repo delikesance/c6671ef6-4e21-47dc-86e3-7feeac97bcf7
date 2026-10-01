@@ -3,6 +3,8 @@ import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator/features/home/logic/bot_start_target.dart';
 import 'package:flutter/material.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Demande OÙ démarrer le bot, à chaque démarrage.
 ///
 /// Pourquoi à chaque fois : les deux exécutions n'ont pas les mêmes conséquences —
@@ -72,7 +74,7 @@ class _BotStartOptionTile extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
+          AppIcon.fromMaterial(
             isServer ? Icons.cloud_outlined : Icons.computer_outlined,
             size: 20,
           ),
@@ -115,7 +117,7 @@ class _UnavailableReason extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(
+        AppIcon.fromMaterial(
           Icons.cloud_off_outlined,
           size: 16,
           color: scheme.onSurfaceVariant,

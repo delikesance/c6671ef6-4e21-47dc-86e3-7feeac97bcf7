@@ -27,7 +27,19 @@ Future<Map<String, String>> clearAllReactionsAction(
     }
 
     final message = await channel.messages.fetch(messageId);
-    await message.deleteAllReactions();
+    final emoji = (payload['emoji'] ?? '!all').toString().trim();
+    if (emoji == '!all') {
+      await message.deleteAllReactions();
+    } else {
+      final custom = RegExp(r'^<a?:([^:>]+):(\d+)>$').firstMatch(emoji);
+      final reaction = custom == null
+          ? ReactionBuilder(name: emoji, id: null)
+          : ReactionBuilder(
+              name: custom.group(1)!,
+              id: Snowflake(int.parse(custom.group(2)!)),
+            );
+      await message.deleteReaction(reaction);
+    }
     return {'status': 'OK'};
   } catch (error) {
     return {'error': 'Failed to clear reactions: $error', 'status': ''};

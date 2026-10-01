@@ -19,6 +19,8 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/editor_sub_page_ui.dart';
 import 'package:bot_creator/core/utils/responsive.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 enum _DashboardStatsSource { local, manager, runner }
 
 final AppManager _appManager = AppManager();
@@ -518,7 +520,7 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
                     ),
                     child: Row(
                       children: [
-                        Icon(
+                        AppIcon.fromMaterial(
                           Icons.calendar_today_outlined,
                           size: 18,
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -552,7 +554,7 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
                             ],
                           ),
                         ),
-                        Icon(
+                        AppIcon.fromMaterial(
                           Icons.edit_calendar_outlined,
                           size: 18,
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -625,7 +627,9 @@ class _CommandDashboardPageState extends State<CommandDashboardPage> {
                             alignment: Alignment.centerLeft,
                             child: FilledButton.icon(
                               onPressed: () => SubscriptionPage.show(context),
-                              icon: const Icon(Icons.workspace_premium_rounded),
+                              icon: const AppIcon.fromMaterial(
+                                Icons.workspace_premium_rounded,
+                              ),
                               label: Text(context.tr.premium_card_button),
                             ),
                           ),
@@ -836,7 +840,11 @@ class _CenteredMessage extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 48, color: Theme.of(context).colorScheme.outline),
+          AppIcon.fromMaterial(
+            icon,
+            size: 48,
+            color: Theme.of(context).colorScheme.outline,
+          ),
           const SizedBox(height: 12),
           Text(
             text,
@@ -876,7 +884,7 @@ class _StatCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(icon, color: colorScheme.onSurfaceVariant),
+          AppIcon.fromMaterial(icon, color: colorScheme.onSurfaceVariant),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -1328,7 +1336,7 @@ class _StatsSourceBanner extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(
+          AppIcon.fromMaterial(
             Icons.dns_outlined,
             size: 18,
             color: colorScheme.onSurfaceVariant,
@@ -1390,7 +1398,7 @@ class _StatsSourceBanner extends StatelessWidget {
                 : () {
                     unawaited(onRefreshSources!());
                   },
-            icon: const Icon(Icons.refresh, size: 18),
+            icon: const AppIcon.fromMaterial(Icons.refresh, size: 18),
           ),
         ],
       ),

@@ -14,6 +14,8 @@ import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 import 'package:bot_creator/features/bot_editor/logic/scoped_variable_orphans.dart';
 import 'package:flutter/material.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Icône associée à une portée. Une seule table pour toute l'app : l'écran des
 /// variables et ses dialogues doivent montrer la même icône pour la même portée.
 IconData scopedVariableScopeIcon(String scope) {
@@ -62,7 +64,7 @@ class VariablesEmptyState extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
+                  AppIcon.fromMaterial(
                     icon,
                     size: 48,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -84,7 +86,7 @@ class VariablesEmptyState extends StatelessWidget {
                   const SizedBox(height: 16),
                   FilledButton.icon(
                     onPressed: onAdd,
-                    icon: const Icon(Icons.add),
+                    icon: const AppIcon.fromMaterial(Icons.add),
                     label: Text(context.tr.globals_add),
                   ),
                 ],
@@ -252,7 +254,14 @@ class _ScopedVariableTile extends StatelessWidget {
         legacyRefKey: legacyRefKey,
         hasLegacy: hasLegacy,
         storedValueCount:
-            (definition[kScopedVariableStoredCountKey] as num?)?.toInt() ?? 0,
+            (definition[kScopedVariableStoredCountKey] is num
+                    ? definition[kScopedVariableStoredCountKey] as num
+                    : num.tryParse(
+                        definition[kScopedVariableStoredCountKey]?.toString() ??
+                            '',
+                      ))
+                ?.toInt() ??
+            0,
         onExplore: () => onExplore(key, scope),
         onDeclare: () => onDeclare(definition),
       );
@@ -308,7 +317,10 @@ class _ScopedVariableTile extends StatelessWidget {
           PopupMenuItem<String>(
             value: 'explore',
             child: ListTile(
-              leading: const Icon(Icons.travel_explore, size: 20),
+              leading: const AppIcon.fromMaterial(
+                Icons.travel_explore,
+                size: 20,
+              ),
               title: Text(context.tr.scoped_explore_runtime),
               dense: true,
               contentPadding: EdgeInsets.zero,
@@ -317,7 +329,10 @@ class _ScopedVariableTile extends StatelessWidget {
           PopupMenuItem<String>(
             value: 'edit',
             child: ListTile(
-              leading: const Icon(Icons.edit_outlined, size: 20),
+              leading: const AppIcon.fromMaterial(
+                Icons.edit_outlined,
+                size: 20,
+              ),
               title: Text(context.tr.globals_edit),
               dense: true,
               contentPadding: EdgeInsets.zero,
@@ -326,7 +341,7 @@ class _ScopedVariableTile extends StatelessWidget {
           PopupMenuItem<String>(
             value: 'delete',
             child: ListTile(
-              leading: Icon(
+              leading: AppIcon.fromMaterial(
                 Icons.delete_outline,
                 size: 20,
                 color: Theme.of(ctx).colorScheme.error,
@@ -428,10 +443,7 @@ class _DetectedScopedVariableTile extends StatelessWidget {
             context.tr.scoped_detected_hint(storedValueCount),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 12,
-              color: colorScheme.onSurfaceVariant,
-            ),
+            style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
           ),
           const SizedBox(height: 2),
           Text(
@@ -454,7 +466,10 @@ class _DetectedScopedVariableTile extends StatelessWidget {
           PopupMenuItem<String>(
             value: 'explore',
             child: ListTile(
-              leading: const Icon(Icons.travel_explore, size: 20),
+              leading: const AppIcon.fromMaterial(
+                Icons.travel_explore,
+                size: 20,
+              ),
               title: Text(context.tr.scoped_explore_runtime),
               dense: true,
               contentPadding: EdgeInsets.zero,
@@ -463,7 +478,10 @@ class _DetectedScopedVariableTile extends StatelessWidget {
           PopupMenuItem<String>(
             value: 'declare',
             child: ListTile(
-              leading: const Icon(Icons.playlist_add_check, size: 20),
+              leading: const AppIcon.fromMaterial(
+                Icons.playlist_add_check,
+                size: 20,
+              ),
               title: Text(context.tr.scoped_declare_detected),
               dense: true,
               contentPadding: EdgeInsets.zero,

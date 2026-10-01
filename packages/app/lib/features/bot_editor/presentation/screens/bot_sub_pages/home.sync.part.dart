@@ -303,7 +303,9 @@ extension _AppHomePageSync on _AppHomePageState {
     }
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(localizedBotConfigOvershrinkConfirmation(context.tr).body),
+        content: Text(
+          localizedBotConfigOvershrinkConfirmation(context.tr).body,
+        ),
         backgroundColor: AppTheme.error,
       ),
     );
@@ -544,7 +546,10 @@ extension _AppHomePageSync on _AppHomePageState {
       builder: (ctx) => AlertDialog(
         title: Row(
           children: [
-            Icon(Icons.cloud_download, color: colorScheme.primary),
+            AppIcon.fromMaterial(
+              Icons.cloud_download,
+              color: colorScheme.primary,
+            ),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
@@ -628,7 +633,10 @@ extension _AppHomePageSync on _AppHomePageState {
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: Row(
                     children: [
-                      Icon(Icons.check_circle, color: AppTheme.successAccent),
+                      AppIcon.fromMaterial(
+                        Icons.check_circle,
+                        color: AppTheme.successAccent,
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -651,7 +659,7 @@ extension _AppHomePageSync on _AppHomePageState {
                   ),
                   child: Row(
                     children: [
-                      Icon(
+                      AppIcon.fromMaterial(
                         Icons.info_outline,
                         size: 16,
                         color: colorScheme.secondary,
@@ -682,7 +690,7 @@ extension _AppHomePageSync on _AppHomePageState {
             onPressed: diff.hasChanges
                 ? () => Navigator.of(ctx).pop(true)
                 : null,
-            icon: const Icon(Icons.cloud_download, size: 18),
+            icon: const AppIcon.fromMaterial(Icons.cloud_download, size: 18),
             label: Text(
               diff.hasChanges
                   ? '${context.tr.bot_home_pull} (${diff.newCommands.length + diff.updatedCommands.length})'
@@ -702,7 +710,7 @@ extension _AppHomePageSync on _AppHomePageState {
   }) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: color),
+        AppIcon.fromMaterial(icon, size: 16, color: color),
         const SizedBox(width: 8),
         Text(label, style: TextStyle(fontSize: 12, color: color)),
         const Spacer(),
@@ -722,7 +730,7 @@ extension _AppHomePageSync on _AppHomePageState {
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Icon(icon, size: 16, color: color),
+          AppIcon.fromMaterial(icon, size: 16, color: color),
           const SizedBox(width: 8),
           Text(label, style: const TextStyle(fontSize: 13)),
         ],
@@ -923,7 +931,7 @@ extension _AppHomePageSync on _AppHomePageState {
                 SnackBar(
                   content: Row(
                     children: [
-                      const Icon(
+                      const AppIcon.fromMaterial(
                         Icons.cloud_done_rounded,
                         color: Colors.white,
                         size: 20,
@@ -1026,7 +1034,7 @@ extension _AppHomePageSync on _AppHomePageState {
                       color: AppTheme.warning.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
+                    child: const AppIcon.fromMaterial(
                       Icons.sync_problem_rounded,
                       color: AppTheme.warning,
                       size: 24,
@@ -1106,7 +1114,9 @@ extension _AppHomePageSync on _AppHomePageState {
                                     ),
                                   if (updatedCount > 0)
                                     Text(
-                                      context.tr.sync_diff_updated_count(updatedCount),
+                                      context.tr.sync_diff_updated_count(
+                                        updatedCount,
+                                      ),
                                       style: const TextStyle(
                                         color: AppTheme.warning,
                                         fontWeight: FontWeight.w600,
@@ -1115,7 +1125,9 @@ extension _AppHomePageSync on _AppHomePageState {
                                     ),
                                   if (localOnlyCount > 0)
                                     Text(
-                                      context.tr.sync_diff_local_only_count(localOnlyCount),
+                                      context.tr.sync_diff_local_only_count(
+                                        localOnlyCount,
+                                      ),
                                       style: TextStyle(
                                         color: colorScheme.secondary,
                                         fontWeight: FontWeight.w600,
@@ -1138,9 +1150,7 @@ extension _AppHomePageSync on _AppHomePageState {
                               children: [
                                 const CircularProgressIndicator(),
                                 const SizedBox(height: 12),
-                                Text(
-                                  context.tr.sync_in_progress,
-                                ),
+                                Text(context.tr.sync_in_progress),
                               ],
                             ),
                           ),
@@ -1280,9 +1290,7 @@ extension _AppHomePageSync on _AppHomePageState {
                               if (mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text(
-                                      context.tr.sync_local_kept,
-                                    ),
+                                    content: Text(context.tr.sync_local_kept),
                                     backgroundColor: AppTheme.success,
                                   ),
                                 );
@@ -1366,7 +1374,7 @@ extension _AppHomePageSync on _AppHomePageState {
                         .withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(AppTheme.radiusSm),
               ),
-              child: Icon(
+              child: AppIcon.fromMaterial(
                 icon,
                 size: 20,
                 color: isRecommended

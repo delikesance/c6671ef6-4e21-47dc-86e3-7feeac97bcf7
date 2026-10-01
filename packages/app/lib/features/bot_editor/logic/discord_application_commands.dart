@@ -1,6 +1,7 @@
 import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/command_option_serialization.dart';
 import 'package:flutter/foundation.dart';
+import 'package:bot_creator_shared/utils/command_trigger_type.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:bot_creator_shared/utils/application_command_lookup.dart';
 
@@ -135,9 +136,7 @@ DiscordCommandPlan? discordCommandPlanFromStoredCommand(
       ? Map<String, dynamic>.from(rawData)
       : const <String, dynamic>{};
 
-  if (data['legacyLocalOnly'] == true ||
-      data['legacyModeEnabled'] == true ||
-      data['localOnly'] == true) {
+  if (const {'prefix', 'none'}.contains(commandTriggerType(stored))) {
     return null;
   }
 
@@ -333,7 +332,9 @@ Future<DiscordCommandReconcileOutcome?> reconcileDiscordCommandsForBot(
         // The file ID is also the server's history key. Never rename it when
         // Discord assigns a new registration ID (including after a restore).
         await manager.saveAppCommand(
-          trimmedBotId, oldId, withDiscordCommandId(stored, oldId, newId),
+          trimmedBotId,
+          oldId,
+          withDiscordCommandId(stored, oldId, newId),
         );
       },
     );

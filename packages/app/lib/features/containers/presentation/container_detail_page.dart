@@ -15,6 +15,8 @@ import 'package:bot_creator/features/containers/logic/hosted_app_templates.dart'
 import 'package:bot_creator/features/containers/logic/turnkey_bot_invite.dart';
 import 'package:bot_creator/features/containers/presentation/hosted_app_upsell_widgets.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 class ContainerDetailPage extends StatefulWidget {
   final String containerId;
   final MainApiClient? client;
@@ -420,7 +422,7 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
               height: 18,
               child: CircularProgressIndicator(strokeWidth: 2),
             )
-          : const Icon(Icons.person_add_alt_1),
+          : const AppIcon.fromMaterial(Icons.person_add_alt_1),
       label: Text(
         _inviting ? tr.container_invite_busy : tr.container_invite_btn,
       ),
@@ -583,7 +585,7 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
         actions: [
           IconButton(
             tooltip: context.tr.copilot_title,
-            icon: const Icon(Icons.auto_awesome_outlined),
+            icon: const AppIcon.fromMaterial(Icons.auto_awesome_outlined),
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(
@@ -637,7 +639,7 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
                       padding: const EdgeInsets.only(bottom: 16),
                       child: OutlinedButton.icon(
                         onPressed: _applyStoredMinutes,
-                        icon: const Icon(Icons.schedule),
+                        icon: const AppIcon.fromMaterial(Icons.schedule),
                         label: Text(
                           context.tr.container_detail_apply_stored_minutes(
                             _eligibility!.hostingMinutesBalance,
@@ -667,7 +669,7 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
                                 ),
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: Icon(
+                              child: AppIcon.fromMaterial(
                                 botIcon,
                                 color: colorScheme.primary,
                                 size: 24,
@@ -730,7 +732,10 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
                           const SizedBox(height: 12),
                           Row(
                             children: [
-                              const Icon(Icons.timer_outlined, size: 18),
+                              const AppIcon.fromMaterial(
+                                Icons.timer_outlined,
+                                size: 18,
+                              ),
                               const SizedBox(width: 8),
                               Text(
                                 tr.container_detail_expires,
@@ -750,7 +755,10 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
                         const SizedBox(height: 12),
                         Row(
                           children: [
-                            const Icon(Icons.memory_outlined, size: 18),
+                            const AppIcon.fromMaterial(
+                              Icons.memory_outlined,
+                              size: 18,
+                            ),
                             const SizedBox(width: 8),
                             Text(
                               'RAM',
@@ -769,7 +777,10 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
                         const SizedBox(height: 12),
                         Row(
                           children: [
-                            const Icon(Icons.speed_outlined, size: 18),
+                            const AppIcon.fromMaterial(
+                              Icons.speed_outlined,
+                              size: 18,
+                            ),
                             const SizedBox(width: 8),
                             Text(
                               'CPU',
@@ -799,7 +810,7 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(
+                          AppIcon.fromMaterial(
                             state == 'RUNNING'
                                 ? Icons.warning_amber_rounded
                                 : Icons.error_outline,
@@ -837,7 +848,7 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
                               color: Colors.white,
                             ),
                           )
-                        : const Icon(Icons.power_settings_new),
+                        : const AppIcon.fromMaterial(Icons.power_settings_new),
                     label: Text(
                       _stopping
                           ? tr.container_state_stopping
@@ -906,7 +917,7 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
                             height: 18,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : const Icon(Icons.play_arrow),
+                        : const AppIcon.fromMaterial(Icons.play_arrow),
                     label: Text(
                       _starting
                           ? tr.container_detail_starting
@@ -936,7 +947,7 @@ class _ContainerDetailPageState extends State<ContainerDetailPage> {
                             height: 18,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : const Icon(Icons.delete_outline),
+                        : const AppIcon.fromMaterial(Icons.delete_outline),
                     label: Text(
                       _deleting
                           ? tr.container_detail_delete_btn
@@ -1448,7 +1459,7 @@ class _LogConsoleHeaderStrip extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(
+          AppIcon.fromMaterial(
             hasErrors
                 ? Icons.error_outline_rounded
                 : Icons.check_circle_outline_rounded,
@@ -1475,7 +1486,7 @@ class _LogConsoleHeaderStrip extends StatelessWidget {
             visualDensity: VisualDensity.compact,
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints.tightFor(width: 32, height: 32),
-            icon: const Icon(Icons.copy_rounded),
+            icon: const AppIcon.fromMaterial(Icons.copy_rounded),
           ),
         ],
       ),

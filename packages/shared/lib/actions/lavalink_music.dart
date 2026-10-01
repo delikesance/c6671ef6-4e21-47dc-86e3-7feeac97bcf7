@@ -8,7 +8,11 @@ import 'package:nyxx_lavalink/nyxx_lavalink.dart';
 
 /// Resolves the voice channel the user is currently in.
 /// Returns null if the user is not in a voice channel or not found.
-Snowflake? _findUserVoiceChannel(NyxxGateway client, Snowflake guildId, Snowflake userId) {
+Snowflake? _findUserVoiceChannel(
+  NyxxGateway client,
+  Snowflake guildId,
+  Snowflake userId,
+) {
   try {
     final guild = client.guilds.cache[guildId];
     if (guild == null) return null;
@@ -47,9 +51,11 @@ Future<Map<String, String>> playMusicAction({
     Snowflake? voiceChannelId;
     if (channelId != null && channelId.value != 0) {
       voiceChannelId = channelId;
-    } else if (payload['channelId'] != null && payload['channelId'].toString().isNotEmpty) {
+    } else if (payload['channelId'] != null &&
+        payload['channelId'].toString().isNotEmpty) {
       voiceChannelId = Snowflake.parse(payload['channelId'].toString());
-    } else if (payload['userId'] != null && payload['userId'].toString().isNotEmpty) {
+    } else if (payload['userId'] != null &&
+        payload['userId'].toString().isNotEmpty) {
       final userId = Snowflake.parse(payload['userId'].toString());
       voiceChannelId = _findUserVoiceChannel(client, guildId, userId);
       if (voiceChannelId == null) {
@@ -58,7 +64,10 @@ Future<Map<String, String>> playMusicAction({
     }
 
     if (voiceChannelId == null) {
-      return {'error': 'No voice channel specified and user is not in a voice channel'};
+      return {
+        'error':
+            'No voice channel specified and user is not in a voice channel',
+      };
     }
 
     final track = await lavalinkService.play(
@@ -97,9 +106,11 @@ Future<Map<String, String>> joinVoiceAction({
     Snowflake? voiceChannelId;
     if (channelId != null && channelId.value != 0) {
       voiceChannelId = channelId;
-    } else if (payload['channelId'] != null && payload['channelId'].toString().isNotEmpty) {
+    } else if (payload['channelId'] != null &&
+        payload['channelId'].toString().isNotEmpty) {
       voiceChannelId = Snowflake.parse(payload['channelId'].toString());
-    } else if (payload['userId'] != null && payload['userId'].toString().isNotEmpty) {
+    } else if (payload['userId'] != null &&
+        payload['userId'].toString().isNotEmpty) {
       final userId = Snowflake.parse(payload['userId'].toString());
       voiceChannelId = _findUserVoiceChannel(client, guildId, userId);
       if (voiceChannelId == null) {
@@ -237,8 +248,17 @@ Future<Map<String, String>> setMusicLoopAction({
   required LavalinkService lavalinkService,
 }) async {
   try {
-    final loop = payload['loop'] == true || payload['loop']?.toString() == 'true';
-    await lavalinkService.setLoop(guildId, loop);
+    final raw = (payload['loop'] ?? 'off').toString().toLowerCase().trim();
+    final mode = switch (raw) {
+      'track' => 'track',
+      'queue' || 'true' || 'yes' => 'queue',
+      'off' || 'false' || 'no' => 'off',
+      _ => null,
+    };
+    if (mode == null) {
+      return {'error': 'Loop mode must be off, track, or queue'};
+    }
+    await lavalinkService.setLoopMode(guildId, mode);
     return {};
   } catch (e) {
     return {'error': e.toString()};
@@ -265,7 +285,10 @@ Future<Map<String, String>> seekMusicAction({
     if (positionMs == null) {
       return {'error': 'Missing position parameter'};
     }
-    await lavalinkService.seekTo(guildId, Duration(milliseconds: positionMs));
+    final milliseconds = payload['positionUnit'] == 'seconds'
+        ? positionMs * 1000
+        : positionMs;
+    await lavalinkService.seekTo(guildId, Duration(milliseconds: milliseconds));
     return {};
   } catch (e) {
     return {'error': e.toString()};
@@ -321,7 +344,8 @@ String _getTrackThumbnail(Track? track) {
   // 2. YouTube fallback using video identifier
   final source = info.sourceName.toLowerCase();
   final uriStr = info.uri?.toString() ?? '';
-  final isYoutube = source == 'youtube' ||
+  final isYoutube =
+      source == 'youtube' ||
       uriStr.contains('youtube.com') ||
       uriStr.contains('youtu.be');
 

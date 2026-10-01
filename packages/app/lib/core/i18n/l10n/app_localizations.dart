@@ -18133,11 +18133,11 @@ abstract class AppLocalizations {
   /// **'Your AI wallet'**
   String get ai_credits_wallet_card_title;
 
-  /// No description provided for @ai_credits_tokens_available.
+  /// No description provided for @ai_credits_available.
   ///
   /// In en, this message translates to:
-  /// **'tokens available'**
-  String get ai_credits_tokens_available;
+  /// **'AI credits available'**
+  String get ai_credits_available;
 
   /// No description provided for @ai_credits_label_total.
   ///
@@ -18181,11 +18181,11 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 available spin} other{{count} available spins}}'**
   String ai_credits_spins_available(int count);
 
-  /// No description provided for @ai_credits_token_ratio_hint.
+  /// No description provided for @ai_credits_usage_hint.
   ///
   /// In en, this message translates to:
-  /// **'1 AI credit = 1 usable token.'**
-  String get ai_credits_token_ratio_hint;
+  /// **'Usage depends on your messages and actions.'**
+  String get ai_credits_usage_hint;
 
   /// No description provided for @ai_credits_daily_ad_limit_hint.
   ///
@@ -18268,7 +18268,7 @@ abstract class AppLocalizations {
   /// No description provided for @copilot_err_tool_round_limit.
   ///
   /// In en, this message translates to:
-  /// **'The eight-step AI limit was reached. Send a new instruction to continue.'**
+  /// **'The AI repeated the same actions without new information. Send an instruction to try another approach.'**
   String get copilot_err_tool_round_limit;
 
   /// No description provided for @copilot_err_context_limit.
@@ -18655,11 +18655,11 @@ abstract class AppLocalizations {
   /// **'Copy message'**
   String get copilot_copy_message;
 
-  /// No description provided for @copilot_tokens_in_discussion.
+  /// No description provided for @copilot_credits_in_discussion.
   ///
   /// In en, this message translates to:
-  /// **'{count} tokens in this conversation'**
-  String copilot_tokens_in_discussion(String count);
+  /// **'{count} AI credits used in this conversation'**
+  String copilot_credits_in_discussion(String count);
 
   /// No description provided for @copilot_input_hint.
   ///
@@ -18810,6 +18810,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Copy code'**
   String get copilot_copy_code;
+
+  /// No description provided for @copilot_tool_options.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit command arguments'**
+  String get copilot_tool_options;
+
+  /// No description provided for @copilot_tool_settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit command settings'**
+  String get copilot_tool_settings;
+
+  /// No description provided for @copilot_tool_create_workflow.
+  ///
+  /// In en, this message translates to:
+  /// **'Create an automation'**
+  String get copilot_tool_create_workflow;
+
+  /// No description provided for @copilot_tool_update_workflow.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit an automation'**
+  String get copilot_tool_update_workflow;
+
+  /// No description provided for @copilot_tool_presence.
+  ///
+  /// In en, this message translates to:
+  /// **'Change status and activity'**
+  String get copilot_tool_presence;
+
+  /// No description provided for @copilot_tool_profile.
+  ///
+  /// In en, this message translates to:
+  /// **'Change bot name'**
+  String get copilot_tool_profile;
+
+  /// No description provided for @copilot_tool_variable.
+  ///
+  /// In en, this message translates to:
+  /// **'Save a variable'**
+  String get copilot_tool_variable;
+
+  /// No description provided for @copilot_tool_schedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule an automation'**
+  String get copilot_tool_schedule;
+
+  /// No description provided for @copilot_tool_webhook.
+  ///
+  /// In en, this message translates to:
+  /// **'Configure an external trigger'**
+  String get copilot_tool_webhook;
+
+  /// No description provided for @settings_text_size_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Text size'**
+  String get settings_text_size_title;
+
+  /// No description provided for @settings_text_size_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust the app’s text size relative to your device’s text setting.'**
+  String get settings_text_size_description;
+
+  /// No description provided for @settings_text_size_preview.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview: your commands, workflows and conversations.'**
+  String get settings_text_size_preview;
+
+  /// No description provided for @settings_text_size_reset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset text size'**
+  String get settings_text_size_reset;
 }
 
 class _AppLocalizationsDelegate

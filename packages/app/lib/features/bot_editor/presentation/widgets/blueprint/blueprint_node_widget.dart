@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'blueprint_models.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Interactive node card widget for the Blueprint canvas.
 class BlueprintNodeWidget extends StatelessWidget {
   final BlueprintNodeData data;
@@ -146,7 +148,7 @@ class BlueprintNodeWidget extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(data.icon, size: 16, color: Colors.white),
+          AppIcon.fromMaterial(data.icon, size: 16, color: Colors.white),
           const SizedBox(width: 6),
           Expanded(
             child: Text(
@@ -166,7 +168,11 @@ class BlueprintNodeWidget extends StatelessWidget {
               borderRadius: BorderRadius.circular(4),
               child: const Padding(
                 padding: EdgeInsets.all(2),
-                child: Icon(Icons.close, size: 14, color: Colors.white70),
+                child: AppIcon.fromMaterial(
+                  Icons.close,
+                  size: 14,
+                  color: Colors.white70,
+                ),
               ),
             ),
         ],
@@ -208,7 +214,7 @@ class BlueprintNodeWidget extends StatelessWidget {
               BoxShadow(color: pinColor.withValues(alpha: 0.5), blurRadius: 4),
             ],
           ),
-          child: const Icon(
+          child: const AppIcon.fromMaterial(
             Icons.play_arrow,
             size: 11,
             color: Color(0xFF1E2128),

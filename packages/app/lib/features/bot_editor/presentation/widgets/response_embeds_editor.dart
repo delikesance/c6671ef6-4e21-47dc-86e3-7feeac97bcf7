@@ -7,6 +7,8 @@ import 'package:bot_creator/features/bot_editor/logic/embed_normalization.dart';
 import 'package:bot_creator/core/widgets/variable_text_field.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Types of mini-blocks available for embed editing.
 enum _EmbedMiniBlockType {
   title,
@@ -96,26 +98,25 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
         AppTheme.discord;
     final confirmed = await showDialog<bool>(
       context: context,
-      builder:
-          (ctx) => AlertDialog(
-            title: Text(context.tr.embed_color_picker_title),
-            content: SingleChildScrollView(
-              child: BlockPicker(
-                pickerColor: selected,
-                onColorChanged: (c) => selected = c,
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(ctx).pop(false),
-                child: Text(context.tr.common_cancel),
-              ),
-              FilledButton(
-                onPressed: () => Navigator.of(ctx).pop(true),
-                child: Text(context.tr.common_apply),
-              ),
-            ],
+      builder: (ctx) => AlertDialog(
+        title: Text(context.tr.embed_color_picker_title),
+        content: SingleChildScrollView(
+          child: BlockPicker(
+            pickerColor: selected,
+            onColorChanged: (c) => selected = c,
           ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(context.tr.common_cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(context.tr.common_apply),
+          ),
+        ],
+      ),
     );
     if (confirmed == true) {
       _setEmbedValue(index, 'color', _formatEmbedColorHex(selected));
@@ -383,10 +384,10 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
       _EmbedMiniBlockType.footer => context.tr.embed_section_footer,
       _EmbedMiniBlockType.author => context.tr.embed_section_author,
       _EmbedMiniBlockType.media => context.tr.embed_section_media,
-      _EmbedMiniBlockType.fields when embedIndex != null => context.tr
-          .embed_fields_header(
-            List.from(_embeds[embedIndex]['fields'] ?? []).length,
-          ),
+      _EmbedMiniBlockType.fields when embedIndex != null =>
+        context.tr.embed_fields_header(
+          List.from(_embeds[embedIndex]['fields'] ?? []).length,
+        ),
       _EmbedMiniBlockType.fields => context.tr.embed_section_fields,
       _EmbedMiniBlockType.dynamicFields =>
         context.tr.embed_section_dynamic_fields,
@@ -420,7 +421,7 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
             ),
             child: Row(
               children: [
-                Icon(
+                AppIcon.fromMaterial(
                   _iconForType(type),
                   size: 16,
                   color: theme.colorScheme.primary,
@@ -440,7 +441,11 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
                   onTap: () => _removeMiniBlock(embedIndex, type),
                   child: const Padding(
                     padding: EdgeInsets.all(4),
-                    child: Icon(Icons.close, size: 16, color: AppTheme.grey),
+                    child: AppIcon.fromMaterial(
+                      Icons.close,
+                      size: 16,
+                      color: AppTheme.grey,
+                    ),
                   ),
                 ),
               ],
@@ -552,8 +557,7 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
                 opacity: useCurrentTimestamp ? 0.5 : 1,
                 child: VariableTextField(
                   label: context.tr.embed_label_timestamp,
-                  initialValue:
-                      useCurrentTimestamp ? '' : timestampValue,
+                  initialValue: useCurrentTimestamp ? '' : timestampValue,
                   suggestions: widget.variableSuggestions,
                   emojiSuggestions: widget.emojiSuggestions,
                   onChanged: (v) => _setEmbedValue(index, 'timestamp', v),
@@ -662,7 +666,7 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
                           ),
                           IconButton(
                             onPressed: () => _removeField(index, fi),
-                            icon: const Icon(
+                            icon: const AppIcon.fromMaterial(
                               Icons.delete,
                               color: AppTheme.error,
                               size: 20,
@@ -691,8 +695,8 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
                         contentPadding: EdgeInsets.zero,
                         title: Text(context.tr.embed_label_inline),
                         value: field['inline'] == true,
-                        onChanged:
-                            (v) => _setFieldValue(index, fi, 'inline', v),
+                        onChanged: (v) =>
+                            _setFieldValue(index, fi, 'inline', v),
                       ),
                     ],
                   ),
@@ -704,7 +708,7 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
                 alignment: Alignment.centerLeft,
                 child: TextButton.icon(
                   onPressed: () => _addField(index),
-                  icon: const Icon(Icons.add, size: 18),
+                  icon: const AppIcon.fromMaterial(Icons.add, size: 18),
                   label: Text(context.tr.embed_add_field),
                 ),
               ),
@@ -734,22 +738,20 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
     if (available.isEmpty) return const SizedBox.shrink();
     return PopupMenuButton<_EmbedMiniBlockType>(
       onSelected: (type) => _addMiniBlock(embedIndex, type),
-      itemBuilder:
-          (_) =>
-              available
-                  .map(
-                    (type) => PopupMenuItem(
-                      value: type,
-                      child: Row(
-                        children: [
-                          Icon(_iconForType(type), size: 18),
-                          const SizedBox(width: 8),
-                          Text(_labelForType(type)),
-                        ],
-                      ),
-                    ),
-                  )
-                  .toList(),
+      itemBuilder: (_) => available
+          .map(
+            (type) => PopupMenuItem(
+              value: type,
+              child: Row(
+                children: [
+                  AppIcon.fromMaterial(_iconForType(type), size: 18),
+                  const SizedBox(width: 8),
+                  Text(_labelForType(type)),
+                ],
+              ),
+            ),
+          )
+          .toList(),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
         decoration: BoxDecoration(
@@ -761,7 +763,7 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
+            AppIcon.fromMaterial(
               Icons.add,
               size: 18,
               color: Theme.of(context).colorScheme.primary,
@@ -814,9 +816,10 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
                   ),
                 ),
                 FilledButton.tonalIcon(
-                  onPressed:
-                      _embeds.length >= widget.maxEmbeds ? null : _addEmbed,
-                  icon: const Icon(Icons.add, size: 18),
+                  onPressed: _embeds.length >= widget.maxEmbeds
+                      ? null
+                      : _addEmbed,
+                  icon: const AppIcon.fromMaterial(Icons.add, size: 18),
                   label: Text(context.tr.embed_add_tooltip),
                   style: FilledButton.styleFrom(
                     visualDensity: VisualDensity.compact,
@@ -837,7 +840,7 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
               ),
               child: Column(
                 children: [
-                  Icon(
+                  AppIcon.fromMaterial(
                     Icons.dashboard_customize_outlined,
                     size: 32,
                     color: AppTheme.grey,
@@ -904,7 +907,7 @@ class _ResponseEmbedsEditorState extends State<ResponseEmbedsEditor> {
                             onTap: () => _removeEmbed(index),
                             child: const Padding(
                               padding: EdgeInsets.all(4),
-                              child: Icon(
+                              child: AppIcon.fromMaterial(
                                 Icons.delete_outline,
                                 color: Colors.white70,
                                 size: 18,

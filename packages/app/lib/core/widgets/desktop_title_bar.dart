@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:window_manager/window_manager.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Hauteur de la barre de titre custom desktop.
 const double kDesktopTitleBarHeight = 38.0;
 
@@ -289,7 +291,7 @@ class _DesktopTitleBarState extends State<DesktopTitleBar> with WindowListener {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
+                AppIcon.fromMaterial(
                   Icons.smart_toy_rounded,
                   size: 16,
                   color:
@@ -409,7 +411,7 @@ class _DesktopTitleBarButton extends StatelessWidget {
             width: 34,
             height: 30,
             alignment: Alignment.center,
-            child: Icon(icon, size: 18, color: fg),
+            child: AppIcon.fromMaterial(icon, size: 18, color: fg),
           ),
         ),
       ),
@@ -477,7 +479,11 @@ class _DesktopWindowControlButtonState
             height: kDesktopTitleBarHeight,
             color: bg,
             alignment: Alignment.center,
-            child: Icon(widget.icon, size: widget.iconSize, color: iconColor),
+            child: AppIcon.fromMaterial(
+              widget.icon,
+              size: widget.iconSize,
+              color: iconColor,
+            ),
           ),
         ),
       ),

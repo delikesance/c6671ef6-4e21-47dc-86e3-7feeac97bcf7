@@ -104,7 +104,8 @@ class LavalinkSession {
 
   StreamSubscription<String>? _trackEndSub;
 
-  bool loop = false;
+  String loopMode = 'off';
+  bool get loop => loopMode != 'off';
   int volume = 100;
   bool isPaused = false;
 
@@ -196,8 +197,18 @@ class LavalinkSession {
     if (reason == 'replaced' || reason == 'cleanup') return;
     _pendingStart = null;
 
-    final next = _nextIndex(allowLoop: loop);
+    if (loopMode == 'track' && _cursor >= 0 && _cursor < _entries.length) {
+      await _startCurrent();
+      return;
+    }
+
+    final next = _nextIndex(allowLoop: loopMode == 'queue');
     if (next == null) {
+      if (loopMode == 'queue' && _entries.isNotEmpty) {
+        _cursor = 0;
+        await _startCurrent();
+        return;
+      }
       // File épuisée : le player s'est déjà arrêté tout seul.
       _cursor = _entries.isEmpty ? -1 : _entries.length;
       return;
@@ -223,7 +234,14 @@ class LavalinkSession {
   }
 
   void setLoop(bool value) {
-    loop = value;
+    loopMode = value ? 'queue' : 'off';
+  }
+
+  void setLoopMode(String mode) {
+    if (!{'off', 'track', 'queue'}.contains(mode)) {
+      throw ArgumentError.value(mode, 'mode');
+    }
+    loopMode = mode;
   }
 
   Future<void> seekTo(Duration position) => _output.seekTo(position);
@@ -299,10 +317,8 @@ class LavalinkService {
   final Map<Snowflake, LavalinkSession> _sessions = {};
   final void Function(String message)? onLog;
 
-  LavalinkService({
-    required LavalinkPlugin plugin,
-    this.onLog,
-  }) : _plugin = plugin; // ignore: prefer_initializing_formals
+  LavalinkService({required LavalinkPlugin plugin, this.onLog})
+    : _plugin = plugin; // ignore: prefer_initializing_formals
 
   /// Create a [LavalinkPlugin] from a config, or return null if no config is set.
   static LavalinkPlugin? createPlugin(LavalinkConfig? config) {
@@ -326,11 +342,7 @@ class LavalinkService {
   }) {
     if (host.trim().isEmpty) return null;
     return LavalinkPlugin(
-      base: Uri(
-        scheme: useSsl ? 'https' : 'http',
-        host: host,
-        port: port,
-      ),
+      base: Uri(scheme: useSsl ? 'https' : 'http', host: host, port: port),
       password: password,
     );
   }
@@ -340,9 +352,8 @@ class LavalinkService {
   Future<void> waitForReady() async {
     await _plugin.onReady.first.timeout(
       const Duration(seconds: 30),
-      onTimeout: () => throw TimeoutException(
-        'Lavalink server did not respond within 30s',
-      ),
+      onTimeout: () =>
+          throw TimeoutException('Lavalink server did not respond within 30s'),
     );
   }
 
@@ -357,7 +368,9 @@ class LavalinkService {
       onLog?.call('Lavalink: track stuck — ${event.track.info.title}');
     });
     _plugin.onTrackException.listen((event) {
-      onLog?.call('Lavalink: track exception — ${event.exception.message ?? event.exception.cause}');
+      onLog?.call(
+        'Lavalink: track exception — ${event.exception.message ?? event.exception.cause}',
+      );
     });
   }
 
@@ -376,17 +389,23 @@ class LavalinkService {
       return existing;
     }
 
-    onLog?.call('Lavalink: connecting to voice channel $channelId in guild $guildId...');
-    final player = await _plugin.connect(client, channelId, guildId).timeout(
-      const Duration(seconds: 15),
-      onTimeout: () => throw TimeoutException('Lavalink voice connection timed out'),
-    ).catchError((e) {
-      onLog?.call('Lavalink: connect failed — $e');
-      throw Exception(
-        'Failed to connect to voice channel via Lavalink. '
-        'Make sure the Lavalink server is running and accessible.',
-      );
-    });
+    onLog?.call(
+      'Lavalink: connecting to voice channel $channelId in guild $guildId...',
+    );
+    final player = await _plugin
+        .connect(client, channelId, guildId)
+        .timeout(
+          const Duration(seconds: 15),
+          onTimeout: () =>
+              throw TimeoutException('Lavalink voice connection timed out'),
+        )
+        .catchError((e) {
+          onLog?.call('Lavalink: connect failed — $e');
+          throw Exception(
+            'Failed to connect to voice channel via Lavalink. '
+            'Make sure the Lavalink server is running and accessible.',
+          );
+        });
 
     final output = NyxxLavalinkOutput(player);
     final reasons = player.onTrackEnd.map((event) => event.reason);
@@ -446,23 +465,27 @@ class LavalinkService {
 
     final trimmedQuery = query.trim();
     final String identifier;
-    if (trimmedQuery.startsWith('http://') || trimmedQuery.startsWith('https://')) {
+    if (trimmedQuery.startsWith('http://') ||
+        trimmedQuery.startsWith('https://')) {
       identifier = trimmedQuery;
     } else {
       identifier = 'ytsearch:$trimmedQuery';
     }
 
     onLog?.call('Lavalink: searching/loading "$identifier"...');
-    final result = await _plugin.loadTrack(identifier).timeout(
-      const Duration(seconds: 30),
-      onTimeout: () => throw TimeoutException('Lavalink search timed out'),
-    ).catchError((e) {
-      onLog?.call('Lavalink: loadTrack failed — $e');
-      throw Exception(
-        'The Lavalink server did not respond correctly. '
-        'Make sure it is running and accessible.',
-      );
-    });
+    final result = await _plugin
+        .loadTrack(identifier)
+        .timeout(
+          const Duration(seconds: 30),
+          onTimeout: () => throw TimeoutException('Lavalink search timed out'),
+        )
+        .catchError((e) {
+          onLog?.call('Lavalink: loadTrack failed — $e');
+          throw Exception(
+            'The Lavalink server did not respond correctly. '
+            'Make sure it is running and accessible.',
+          );
+        });
 
     if (result is TrackLoadResult) {
       onLog?.call('Lavalink: found single track: ${result.data.info.title}');
@@ -490,14 +513,18 @@ class LavalinkService {
         return track;
       }
     } else if (result is ErrorLoadResult) {
-      onLog?.call('Lavalink: load failed — ${result.data.message ?? result.data.cause}');
+      onLog?.call(
+        'Lavalink: load failed — ${result.data.message ?? result.data.cause}',
+      );
       return null;
     } else if (result is EmptyLoadResult) {
       onLog?.call('Lavalink: no matches found for "$trimmedQuery"');
       return null;
     }
 
-    onLog?.call('Lavalink: no tracks found for "$trimmedQuery" (loadType: ${result.loadType})');
+    onLog?.call(
+      'Lavalink: no tracks found for "$trimmedQuery" (loadType: ${result.loadType})',
+    );
     return null;
   }
 
@@ -540,6 +567,11 @@ class LavalinkService {
     if (s != null) s.setLoop(loop);
   }
 
+  Future<void> setLoopMode(Snowflake guildId, String mode) async {
+    final s = _sessions[guildId];
+    if (s != null) s.setLoopMode(mode);
+  }
+
   Future<void> seekTo(Snowflake guildId, Duration position) async {
     final s = _sessions[guildId];
     if (s != null) await s.seekTo(position);
@@ -570,31 +602,43 @@ class LavalinkService {
       path: '/v4/info',
     );
 
-    final maskedPassword = password.isEmpty 
-        ? '[VIDE]' 
-        : (password.length > 4 ? '${password.substring(0, 2)}***${password.substring(password.length - 2)}' : '***');
+    final maskedPassword = password.isEmpty
+        ? '[VIDE]'
+        : (password.length > 4
+              ? '${password.substring(0, 2)}***${password.substring(password.length - 2)}'
+              : '***');
 
     print('Lavalink Connection Test: Starting...');
     print('Lavalink Connection Test: URL = $uri');
-    print('Lavalink Connection Test: Password = $maskedPassword (length: ${password.length})');
+    print(
+      'Lavalink Connection Test: Password = $maskedPassword (length: ${password.length})',
+    );
 
     try {
       final response = await http
           .get(uri, headers: {'Authorization': password})
           .timeout(const Duration(seconds: 5));
 
-      print('Lavalink Connection Test: Response received. Status Code = ${response.statusCode}');
+      print(
+        'Lavalink Connection Test: Response received. Status Code = ${response.statusCode}',
+      );
       print('Lavalink Connection Test: Response Headers = ${response.headers}');
-      print('Lavalink Connection Test: Response Body = ${response.body.length > 200 ? "${response.body.substring(0, 200)}..." : response.body}');
+      print(
+        'Lavalink Connection Test: Response Body = ${response.body.length > 200 ? "${response.body.substring(0, 200)}..." : response.body}',
+      );
 
       if (response.statusCode == 200) {
         print('Lavalink Connection Test: SUCCESS');
         return null; // Success
       }
-      print('Lavalink Connection Test: FAILED with status code ${response.statusCode}');
+      print(
+        'Lavalink Connection Test: FAILED with status code ${response.statusCode}',
+      );
       return 'Erreur ${response.statusCode}';
     } on http.ClientException catch (e) {
-      print('Lavalink Connection Test: ClientException (Connection Refused): ${e.message}');
+      print(
+        'Lavalink Connection Test: ClientException (Connection Refused): ${e.message}',
+      );
       return 'Connexion refusée : ${e.message}';
     } on TimeoutException {
       print('Lavalink Connection Test: TimeoutException (5s exceeded)');

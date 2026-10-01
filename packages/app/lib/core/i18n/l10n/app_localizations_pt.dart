@@ -10644,7 +10644,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get ai_credits_wallet_card_title => 'Sua carteira de IA';
 
   @override
-  String get ai_credits_tokens_available => 'tokens disponíveis';
+  String get ai_credits_available => 'Créditos IA disponíveis';
 
   @override
   String get ai_credits_label_total => 'Total';
@@ -10676,8 +10676,8 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String get ai_credits_token_ratio_hint =>
-      '1 crédito de IA = 1 token utilizável.';
+  String get ai_credits_usage_hint =>
+      'O consumo depende das mensagens e ações realizadas.';
 
   @override
   String get ai_credits_daily_ad_limit_hint =>
@@ -10733,7 +10733,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get copilot_err_tool_round_limit =>
-      'O limite de oito etapas da IA foi atingido. Envie uma nova instrução para continuar.';
+      'A IA repetiu as mesmas ações sem novas informações. Envie uma instrução para tentar outra abordagem.';
 
   @override
   String get copilot_err_context_limit =>
@@ -10941,8 +10941,8 @@ class AppLocalizationsPt extends AppLocalizations {
   String get copilot_copy_message => 'Copiar mensagem';
 
   @override
-  String copilot_tokens_in_discussion(String count) {
-    return '$count tokens nesta conversa';
+  String copilot_credits_in_discussion(String count) {
+    return '$count créditos IA utilizados nesta conversa';
   }
 
   @override
@@ -11021,4 +11021,45 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get copilot_copy_code => 'Copiar código';
+
+  @override
+  String get copilot_tool_options => 'Editar argumentos do comando';
+
+  @override
+  String get copilot_tool_settings => 'Editar configurações do comando';
+
+  @override
+  String get copilot_tool_create_workflow => 'Criar uma automação';
+
+  @override
+  String get copilot_tool_update_workflow => 'Editar uma automação';
+
+  @override
+  String get copilot_tool_presence => 'Alterar status e atividade';
+
+  @override
+  String get copilot_tool_profile => 'Alterar nome do bot';
+
+  @override
+  String get copilot_tool_variable => 'Salvar uma variável';
+
+  @override
+  String get copilot_tool_schedule => 'Agendar uma automação';
+
+  @override
+  String get copilot_tool_webhook => 'Configurar um gatilho externo';
+
+  @override
+  String get settings_text_size_title => 'Tamanho do texto';
+
+  @override
+  String get settings_text_size_description =>
+      'Ajusta o tamanho do texto do app em relação à configuração do seu dispositivo.';
+
+  @override
+  String get settings_text_size_preview =>
+      'Prévia: seus comandos, fluxos de trabalho e conversas.';
+
+  @override
+  String get settings_text_size_reset => 'Redefinir tamanho';
 }

@@ -104,7 +104,8 @@ void main() {
             <String, dynamic>{
               'type': 'sendMessage',
               'payload': <String, dynamic>{
-                'content': '#((_loop.count)) idx:((_loop.index)) = ((_loop.var.x))',
+                'content':
+                    '#((_loop.count)) idx:((_loop.index)) = ((_loop.var.x))',
               },
             },
           ],
@@ -119,7 +120,7 @@ void main() {
       expect(batches[2][0].payload['content'], '#3 idx:2 = c');
     });
 
-    test('caps at maxIterations', () async {
+    test('executes the entire list despite obsolete maxIterations', () async {
       final results = <String, String>{};
       final batches = <List<Action>>[];
 
@@ -141,8 +142,8 @@ void main() {
         executedBatches: batches,
       );
 
-      expect(batches, hasLength(5));
-      expect(results['loop'], 'LOOP_5');
+      expect(batches, hasLength(10));
+      expect(results['loop'], 'LOOP_10');
     });
 
     test('propagates __stopped__', () async {
@@ -260,7 +261,7 @@ void main() {
   // ─────────────────────────────────────────────────────────────────────
   // 2. FULL PIPELINE: compile → execute end-to-end tests
   // ─────────────────────────────────────────────────────────────────────
-    group(r'Full pipeline: $for list iteration end-to-end', () {
+  group(r'Full pipeline: $for list iteration end-to-end', () {
     Future<(Map<String, String>, List<String>)> runScript(
       String script, {
       Map<String, String> vars = const <String, String>{},
@@ -269,7 +270,8 @@ void main() {
       expect(
         compiled.hasErrors,
         isFalse,
-        reason: 'Compile errors: ${compiled.diagnostics.map((d) => d.message).join("; ")}',
+        reason:
+            'Compile errors: ${compiled.diagnostics.map((d) => d.message).join("; ")}',
       );
       final store = MemoryBotDataStore();
       final variables = <String, String>{
@@ -330,7 +332,7 @@ void main() {
   // ─────────────────────────────────────────────────────────────────────
   // 3. FULL PIPELINE: $json[] initialization + array operations
   // ─────────────────────────────────────────────────────────────────────
-    group(r'Full pipeline: $json[] + $jsonArray end-to-end', () {
+  group(r'Full pipeline: $json[] + $jsonArray end-to-end', () {
     Future<(Map<String, String>, List<String>)> runScript(
       String script, {
       Map<String, String> vars = const <String, String>{},
@@ -339,7 +341,8 @@ void main() {
       expect(
         compiled.hasErrors,
         isFalse,
-        reason: 'Compile errors: ${compiled.diagnostics.map((d) => d.message).join("; ")}',
+        reason:
+            'Compile errors: ${compiled.diagnostics.map((d) => d.message).join("; ")}',
       );
       final store = MemoryBotDataStore();
       final variables = <String, String>{
@@ -422,7 +425,7 @@ void main() {
   // ─────────────────────────────────────────────────────────────────────
   // 4. FULL PIPELINE: $jsonForEach + $jsonKey[]/$jsonValue[]
   // ─────────────────────────────────────────────────────────────────────
-    group(r'Full pipeline: $jsonForEach end-to-end', () {
+  group(r'Full pipeline: $jsonForEach end-to-end', () {
     Future<(Map<String, String>, List<String>)> runScript(
       String script, {
       Map<String, String> vars = const <String, String>{},
@@ -431,7 +434,8 @@ void main() {
       expect(
         compiled.hasErrors,
         isFalse,
-        reason: 'Compile errors: ${compiled.diagnostics.map((d) => d.message).join("; ")}',
+        reason:
+            'Compile errors: ${compiled.diagnostics.map((d) => d.message).join("; ")}',
       );
       final store = MemoryBotDataStore();
       final variables = <String, String>{
@@ -449,18 +453,21 @@ void main() {
       return (variables, replies);
     }
 
-    test(r'$jsonForEach iterates over object with $jsonKey[] and $jsonValue[]', () async {
-      final (_, replies) = await runScript(
-        r'$jsonParse[{"x":1,"y":2,"z":3}]'
-        r'$jsonForEach[]'
-        r'$reply$c[]$jsonKey[]=$jsonValue[]'
-        r'$endJsonForEach',
-      );
+    test(
+      r'$jsonForEach iterates over object with $jsonKey[] and $jsonValue[]',
+      () async {
+        final (_, replies) = await runScript(
+          r'$jsonParse[{"x":1,"y":2,"z":3}]'
+          r'$jsonForEach[]'
+          r'$reply$c[]$jsonKey[]=$jsonValue[]'
+          r'$endJsonForEach',
+        );
 
-      // Should produce 3 replies: x=1, y=2, z=3
-      expect(replies, hasLength(3));
-      expect(replies, containsAll(<String>['x=1', 'y=2', 'z=3']));
-    });
+        // Should produce 3 replies: x=1, y=2, z=3
+        expect(replies, hasLength(3));
+        expect(replies, containsAll(<String>['x=1', 'y=2', 'z=3']));
+      },
+    );
 
     test(r'$jsonForEach with $jsonValue[] reads value correctly', () async {
       final (variables, replies) = await runScript(
@@ -478,19 +485,22 @@ void main() {
       expect(replies[0], anyOf('Last: name=hello', 'Last: count=42'));
     });
 
-    test(r'$jsonForEach iterates over a JSON array with $jsonValue[]', () async {
-      final (_, replies) = await runScript(
-        r'$jsonParse[["sword","shield","potion"]]'
-        r'$jsonForEach[]'
-        r'$reply$c[]Item $loopCount: $jsonValue[]'
-        r'$endJsonForEach',
-      );
+    test(
+      r'$jsonForEach iterates over a JSON array with $jsonValue[]',
+      () async {
+        final (_, replies) = await runScript(
+          r'$jsonParse[["sword","shield","potion"]]'
+          r'$jsonForEach[]'
+          r'$reply$c[]Item $loopCount: $jsonValue[]'
+          r'$endJsonForEach',
+        );
 
-      expect(replies, hasLength(3));
-      expect(replies[0], 'Item 1: sword');
-      expect(replies[1], 'Item 2: shield');
-      expect(replies[2], 'Item 3: potion');
-    });
+        expect(replies, hasLength(3));
+        expect(replies[0], 'Item 1: sword');
+        expect(replies[1], 'Item 2: shield');
+        expect(replies[2], 'Item 3: potion');
+      },
+    );
 
     test(r'$jsonForEach over array sets $jsonIndex correctly', () async {
       final (_, replies) = await runScript(
@@ -538,7 +548,7 @@ void main() {
   // ─────────────────────────────────────────────────────────────────────
   // 5. COMBINED: $for + $json workflow (user scenario)
   // ─────────────────────────────────────────────────────────────────────
-    group(r'Full pipeline: combined $for + $json workflows', () {
+  group(r'Full pipeline: combined $for + $json workflows', () {
     Future<(Map<String, String>, List<String>)> runScript(
       String script, {
       Map<String, String> vars = const <String, String>{},
@@ -547,7 +557,8 @@ void main() {
       expect(
         compiled.hasErrors,
         isFalse,
-        reason: 'Compile errors: ${compiled.diagnostics.map((d) => d.message).join("; ")}',
+        reason:
+            'Compile errors: ${compiled.diagnostics.map((d) => d.message).join("; ")}',
       );
       final store = MemoryBotDataStore();
       final variables = <String, String>{

@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:bot_creator_shared/utils/command_trigger_type.dart';
+
 import 'package:bot_creator_shared/bot_creator_shared.dart';
 import 'package:bot_creator_runner/discord_runner.dart';
 import 'package:bot_creator_runner/runner_bot_store.dart';
@@ -43,8 +45,8 @@ class RunnerRuntimeController {
   bool _statsInitialized = false;
 
   static String _resolveDataDir() {
-    final configured =
-        (Platform.environment['BOT_CREATOR_DATA_DIR'] ?? '').trim();
+    final configured = (Platform.environment['BOT_CREATOR_DATA_DIR'] ?? '')
+        .trim();
     return configured.isNotEmpty ? configured : './data';
   }
 
@@ -115,7 +117,9 @@ class RunnerRuntimeController {
     final lastError = _lastErrorByBot[botId];
     final state = running
         ? 'running'
-        : (lastError != null && lastError.trim().isNotEmpty ? 'error' : 'stopped');
+        : (lastError != null && lastError.trim().isNotEmpty
+              ? 'error'
+              : 'stopped');
     return RunnerBotRuntimeState(
       botId: botId,
       botName: _botNames[botId] ?? botId,
@@ -131,16 +135,14 @@ class RunnerRuntimeController {
   }
 
   List<RunnerBotRuntimeState> listRuntimeStates() {
-    final ids =
-        <String>{
-            ..._runners.keys,
-            ..._botNames.keys,
-            ..._lastSeenAtByBot.keys,
-            ..._lastErrorByBot.keys,
-            ..._guildCountByBot.keys,
-            ..._rssBytesByBot.keys,
-          }.toList()
-          ..sort();
+    final ids = <String>{
+      ..._runners.keys,
+      ..._botNames.keys,
+      ..._lastSeenAtByBot.keys,
+      ..._lastErrorByBot.keys,
+      ..._guildCountByBot.keys,
+      ..._rssBytesByBot.keys,
+    }.toList()..sort();
     return ids.map(runtimeStateForBot).toList(growable: false);
   }
 
@@ -255,7 +257,8 @@ class RunnerRuntimeController {
       config,
       statsStore: _commandStatsStore,
       onDisconnected: (reason) => _handleBotDisconnected(botId, reason),
-      onMetrics: (metrics, {required botId}) => _handleBotMetrics(botId, metrics),
+      onMetrics: (metrics, {required botId}) =>
+          _handleBotMetrics(botId, metrics),
     );
     try {
       if (!_statsInitialized) {
@@ -554,13 +557,15 @@ class RunnerRuntimeController {
         'defaultValue': defaultValue,
         'valueType': valueType,
       };
-      final normalizedRefKey = BotConfig.normalizeScopedVariableKey(normalizedKey);
+      final normalizedRefKey = BotConfig.normalizeScopedVariableKey(
+        normalizedKey,
+      );
       final index = defs.indexWhere(
         (entry) =>
             BotConfig.normalizeScopedVariableKey(
-              (entry['key'] ?? '').toString(),
-            ) ==
-            normalizedRefKey &&
+                  (entry['key'] ?? '').toString(),
+                ) ==
+                normalizedRefKey &&
             (entry['scope'] ?? '').toString().trim() == normalizedScope,
       );
       if (index >= 0) {
@@ -588,7 +593,9 @@ class RunnerRuntimeController {
       final defs = config.scopedVariableDefinitions
           .map((entry) => Map<String, dynamic>.from(entry))
           .toList(growable: true);
-      final normalizedRefKey = BotConfig.normalizeScopedVariableKey(normalizedKey);
+      final normalizedRefKey = BotConfig.normalizeScopedVariableKey(
+        normalizedKey,
+      );
       defs.removeWhere((entry) {
         final matchesKey =
             BotConfig.normalizeScopedVariableKey(
@@ -829,7 +836,8 @@ class RunnerRuntimeController {
       config,
       statsStore: _commandStatsStore,
       onDisconnected: (reason) => _handleBotDisconnected(botId, reason),
-      onMetrics: (metrics, {required botId}) => _handleBotMetrics(botId, metrics),
+      onMetrics: (metrics, {required botId}) =>
+          _handleBotMetrics(botId, metrics),
     );
     try {
       await replacement.start();
@@ -858,21 +866,20 @@ class RunnerRuntimeController {
 enum EventWorkflowListenerMode { none, messageCreateOnly, full }
 
 EventWorkflowListenerMode resolveEventWorkflowListenerMode(BotConfig config) {
-  final hasEventWorkflows =
-      config.workflows.any((w) => w['workflowType'] == 'event');
+  final hasEventWorkflows = config.workflows.any(
+    (w) => w['workflowType'] == 'event',
+  );
   if (hasEventWorkflows) return EventWorkflowListenerMode.full;
 
-  final hasLegacyCommands =
-      config.commands.any(isLegacyCommandEnabledInConfigEntry);
+  final hasLegacyCommands = config.commands.any(
+    isLegacyCommandEnabledInConfigEntry,
+  );
   if (hasLegacyCommands) return EventWorkflowListenerMode.messageCreateOnly;
 
   return EventWorkflowListenerMode.none;
 }
 
-bool shouldRebindEventWorkflowListeners(
-  BotConfig previous,
-  BotConfig next,
-) {
+bool shouldRebindEventWorkflowListeners(BotConfig previous, BotConfig next) {
   final prevMode = resolveEventWorkflowListenerMode(previous);
   final nextMode = resolveEventWorkflowListenerMode(next);
   return prevMode != nextMode;
@@ -881,7 +888,10 @@ bool shouldRebindEventWorkflowListeners(
 bool isLegacyCommandEnabledInConfigEntry(Map<String, dynamic> entry) {
   final data = entry['data'] as Map?;
   if (data == null) return false;
-  final legacyMode = data['legacyModeEnabled'] == true;
+  final legacyMode = const {
+    'prefix',
+    'hybrid',
+  }.contains(commandTriggerType(entry));
   if (!legacyMode) return false;
 
   final type = (entry['type'] ?? data['commandType'] ?? '').toString();

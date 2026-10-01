@@ -33,8 +33,10 @@ Future<Map<String, String>> sendMessageToChannel(
     // Determine actual channel to send to
     Snowflake? targetChannelId = channelId;
 
-    final targetType =
-        (payload?['targetType'] ?? 'channel').toString().trim().toLowerCase();
+    final targetType = (payload?['targetType'] ?? 'channel')
+        .toString()
+        .trim()
+        .toLowerCase();
     if (targetType == 'user') {
       final userId = _toSnowflake(payload?['userId']);
       if (userId == null) {
@@ -60,10 +62,16 @@ Future<Map<String, String>> sendMessageToChannel(
       return {'error': 'Channel is not a text channel', 'messageId': ''};
     }
 
+    if (targetType == 'typing') {
+      await channel.triggerTyping();
+      return {'messageId': ''};
+    }
+
     final resolvedContent = resolve != null ? resolve(content) : content;
     final r = resolve ?? (s) => s;
-    final messageMode =
-        (payload?['messageMode'] ?? 'normal').toString().toLowerCase();
+    final messageMode = (payload?['messageMode'] ?? 'normal')
+        .toString()
+        .toLowerCase();
 
     List<ComponentBuilder>? components;
     bool isRichV2 = false;
@@ -81,27 +89,22 @@ Future<Map<String, String>> sendMessageToChannel(
           );
           definition = def;
           isRichV2 = def.isRichV2;
-          components = buildComponentNodes(
-            definition: def,
-            resolve: r,
-          );
+          components = buildComponentNodes(definition: def, resolve: r);
         } catch (_) {}
       }
     } else {
       // ── Normal mode (embeds + V1 components) ──────────────────────────
       if (payload != null) {
-
         // Embeds
-        final embedsRaw =
-            (payload['embeds'] is List)
-                ? List<Map<String, dynamic>>.from(
-                  (payload['embeds'] as List).whereType<Map>().map(
-                    (e) => Map<String, dynamic>.from(
-                      e.map((k, v) => MapEntry(k.toString(), v)),
-                    ),
+        final embedsRaw = (payload['embeds'] is List)
+            ? List<Map<String, dynamic>>.from(
+                (payload['embeds'] as List).whereType<Map>().map(
+                  (e) => Map<String, dynamic>.from(
+                    e.map((k, v) => MapEntry(k.toString(), v)),
                   ),
-                )
-                : <Map<String, dynamic>>[];
+                ),
+              )
+            : <Map<String, dynamic>>[];
 
         final parsedEmbeds = <EmbedBuilder>[];
         for (final embedJson in embedsRaw.take(10)) {
@@ -159,7 +162,9 @@ Future<Map<String, String>> sendMessageToChannel(
             (authorJson['author_icon_url'] ?? authorJson['icon_url'] ?? '')
                 .toString(),
           );
-          if (authorName.isNotEmpty || authorUrl.isNotEmpty || authorIcon.isNotEmpty) {
+          if (authorName.isNotEmpty ||
+              authorUrl.isNotEmpty ||
+              authorIcon.isNotEmpty) {
             embed.author = EmbedAuthorBuilder(
               name: authorName.isEmpty ? '\u200B' : authorName,
               url: authorUrl.isNotEmpty ? Uri.tryParse(authorUrl) : null,
@@ -217,23 +222,27 @@ Future<Map<String, String>> sendMessageToChannel(
         (attachments != null && attachments.isNotEmpty);
     if (!hasPayload && !isRichV2) {
       return {
-        'error': 'sendMessage needs at least content, embeds, components, or attachments',
+        'error':
+            'sendMessage needs at least content, embeds, components, or attachments',
         'messageId': '',
       };
     }
 
-    final replyId = targetType == 'reply' ? _toSnowflake(payload?['messageId']) : null;
+    final replyId = targetType == 'reply'
+        ? _toSnowflake(payload?['messageId'])
+        : null;
     final allowedMentions = parseAllowedMentions(payload, r);
 
     final message = await channel.sendMessage(
       MessageBuilder(
-        content:
-            isRichV2
-                ? null
-                : (resolvedContent.isNotEmpty ? resolvedContent : null),
+        content: isRichV2
+            ? null
+            : (resolvedContent.isNotEmpty ? resolvedContent : null),
         embeds: embeds,
         components: components,
-        referencedMessage: replyId != null ? MessageReferenceBuilder.reply(messageId: replyId) : null,
+        referencedMessage: replyId != null
+            ? MessageReferenceBuilder.reply(messageId: replyId)
+            : null,
         flags: isRichV2 ? MessageFlags(32768) : null,
         allowedMentions: allowedMentions,
         attachments: attachments,
@@ -251,7 +260,9 @@ Future<Map<String, String>> sendMessageToChannel(
     }
 
     final deleteAfterRaw =
-        (payload?['deleteAfter'] ?? payload?['deleteIn'] ?? '').toString().trim();
+        (payload?['deleteAfter'] ?? payload?['deleteIn'] ?? '')
+            .toString()
+            .trim();
     final resolvedDeleteAfter = r(deleteAfterRaw);
     if (resolvedDeleteAfter.isNotEmpty) {
       final delayDuration = parseBdfdDuration(resolvedDeleteAfter);
@@ -269,5 +280,3 @@ Future<Map<String, String>> sendMessageToChannel(
     return {'error': 'Failed to send message: $e', 'messageId': ''};
   }
 }
-
-

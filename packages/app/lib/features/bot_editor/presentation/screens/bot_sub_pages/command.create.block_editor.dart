@@ -194,7 +194,7 @@ extension _CommandBlockEditor on _CommandCreatePageState {
                     index: firstActionIdx + i,
                     child: const Padding(
                       padding: EdgeInsets.only(right: 6),
-                      child: Icon(
+                      child: AppIcon.fromMaterial(
                         Icons.drag_indicator,
                         size: 20,
                         color: Colors.grey,
@@ -257,7 +257,6 @@ extension _CommandBlockEditor on _CommandCreatePageState {
                   }
                 : null,
             onParameterChanged: (key, value) {
-              _hasUnsavedChanges = true;
               if (key == '__enabled__') {
                 _applyStateUpdate(() {
                   _actions[i]['enabled'] = value == true;
@@ -302,26 +301,32 @@ extension _CommandBlockEditor on _CommandCreatePageState {
                 return;
               }
               if (key == '__actionKey__') {
-                _actions[i]['key'] = value.toString();
-                _persistActiveSubcommandWorkflow();
+                _applyStateUpdate(() {
+                  _actions[i]['key'] = value.toString();
+                  _persistActiveSubcommandWorkflow();
+                });
                 return;
               }
               final payload = Map<String, dynamic>.from(
                 (_actions[i]['payload'] as Map?)?.cast<String, dynamic>() ??
                     const {},
               );
-              payload[key] = value;
-              _actions[i]['payload'] = payload;
-              _persistActiveSubcommandWorkflow();
+              _applyStateUpdate(() {
+                payload[key] = value;
+                _actions[i]['payload'] = payload;
+                _persistActiveSubcommandWorkflow();
+              });
             },
             onSuggestionSelected: (key, value) {
-              _hasUnsavedChanges = true;
               final payload = Map<String, dynamic>.from(
                 (_actions[i]['payload'] as Map?)?.cast<String, dynamic>() ??
                     const {},
               );
-              payload[key] = value;
-              _actions[i]['payload'] = payload;
+              _applyStateUpdate(() {
+                payload[key] = value;
+                _actions[i]['payload'] = payload;
+                _persistActiveSubcommandWorkflow();
+              });
             },
             fieldRefreshVersionOf: (_) => 0,
             onEditNestedActions:
@@ -537,7 +542,6 @@ extension _CommandBlockEditor on _CommandCreatePageState {
                     return result;
                   },
               onParameterChanged: (index, key, value) {
-                _hasUnsavedChanges = true;
                 if (key == '__enabled__') {
                   _applyStateUpdate(() {
                     _actions[index]['enabled'] = value == true;
@@ -561,8 +565,10 @@ extension _CommandBlockEditor on _CommandCreatePageState {
                   return;
                 }
                 if (key == '__actionKey__') {
-                  _actions[index]['key'] = value.toString();
-                  _persistActiveSubcommandWorkflow();
+                  _applyStateUpdate(() {
+                    _actions[index]['key'] = value.toString();
+                    _persistActiveSubcommandWorkflow();
+                  });
                   return;
                 }
                 final payload = Map<String, dynamic>.from(
@@ -570,19 +576,23 @@ extension _CommandBlockEditor on _CommandCreatePageState {
                           ?.cast<String, dynamic>() ??
                       const {},
                 );
-                payload[key] = value;
-                _actions[index]['payload'] = payload;
-                _persistActiveSubcommandWorkflow();
+                _applyStateUpdate(() {
+                  payload[key] = value;
+                  _actions[index]['payload'] = payload;
+                  _persistActiveSubcommandWorkflow();
+                });
               },
               onSuggestionSelected: (index, key, value) {
-                _hasUnsavedChanges = true;
                 final payload = Map<String, dynamic>.from(
                   (_actions[index]['payload'] as Map?)
                           ?.cast<String, dynamic>() ??
                       const {},
                 );
-                payload[key] = value;
-                _actions[index]['payload'] = payload;
+                _applyStateUpdate(() {
+                  payload[key] = value;
+                  _actions[index]['payload'] = payload;
+                  _persistActiveSubcommandWorkflow();
+                });
               },
               onRemoveAction: (nodeId, index) {
                 _applyStateUpdate(() {
@@ -759,15 +769,23 @@ extension _CommandBlockEditor on _CommandCreatePageState {
                         segments: [
                           ButtonSegment<String>(
                             value: 'linear',
-                            icon: Icon(Icons.view_agenda_outlined, size: 16),
-                            label: Text(context.tr.scratch_blocks_tab,
+                            icon: AppIcon.fromMaterial(
+                              Icons.view_agenda_outlined,
+                              size: 16,
+                            ),
+                            label: Text(
+                              context.tr.scratch_blocks_tab,
                               style: TextStyle(fontSize: 12),
                             ),
                           ),
                           ButtonSegment<String>(
                             value: 'blueprint',
-                            icon: Icon(Icons.hub_outlined, size: 16),
-                            label: Text(context.tr.blueprint_mode_label,
+                            icon: AppIcon.fromMaterial(
+                              Icons.hub_outlined,
+                              size: 16,
+                            ),
+                            label: Text(
+                              context.tr.blueprint_mode_label,
                               style: TextStyle(fontSize: 12),
                             ),
                           ),
@@ -901,7 +919,11 @@ extension _CommandBlockEditor on _CommandCreatePageState {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.edit, size: 14, color: AppTheme.grey),
+                      AppIcon.fromMaterial(
+                        Icons.edit,
+                        size: 14,
+                        color: AppTheme.grey,
+                      ),
                       const SizedBox(width: 6),
                       Text(
                         context.tr.bdfd_editor_tap_hint,
@@ -1010,7 +1032,7 @@ extension _CommandBlockEditor on _CommandCreatePageState {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
+                  AppIcon.fromMaterial(
                     Icons.warning_amber_rounded,
                     size: 18,
                     color: AppTheme.warning,
@@ -1043,7 +1065,7 @@ extension _CommandBlockEditor on _CommandCreatePageState {
         ),
         child: Column(
           children: [
-            Icon(
+            AppIcon.fromMaterial(
               Icons.touch_app_outlined,
               size: 32,
               color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -1063,7 +1085,7 @@ extension _CommandBlockEditor on _CommandCreatePageState {
             const SizedBox(height: 12),
             OutlinedButton.icon(
               onPressed: _openBlockPalette,
-              icon: const Icon(Icons.add),
+              icon: const AppIcon.fromMaterial(Icons.add),
               label: Text(context.tr.cmd_block_editor_add_action),
             ),
             TextButton(
@@ -1081,7 +1103,7 @@ extension _CommandBlockEditor on _CommandCreatePageState {
       padding: const EdgeInsets.only(top: 4),
       child: OutlinedButton.icon(
         onPressed: _openBlockPalette,
-        icon: const Icon(Icons.add),
+        icon: const AppIcon.fromMaterial(Icons.add),
         label: Text(context.tr.scratch_add_block),
         style: OutlinedButton.styleFrom(
           minimumSize: const Size(double.infinity, 48),
@@ -1121,7 +1143,7 @@ extension _CommandBlockEditor on _CommandCreatePageState {
                     color: colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                   ),
-                  child: Icon(
+                  child: AppIcon.fromMaterial(
                     Icons.menu_book_rounded,
                     color: colorScheme.onSurfaceVariant,
                     size: 20,
@@ -1161,7 +1183,10 @@ extension _CommandBlockEditor on _CommandCreatePageState {
               width: double.infinity,
               child: FilledButton.tonalIcon(
                 onPressed: _openDocumentationCenter,
-                icon: const Icon(Icons.auto_stories_rounded, size: 16),
+                icon: const AppIcon.fromMaterial(
+                  Icons.auto_stories_rounded,
+                  size: 16,
+                ),
                 label: const Text(
                   "bot-creator.fr/docs",
                   style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600),
@@ -1196,7 +1221,7 @@ extension _CommandBlockEditor on _CommandCreatePageState {
               ),
               actions: [
                 IconButton(
-                  icon: const Icon(Icons.check),
+                  icon: const AppIcon.fromMaterial(Icons.check),
                   tooltip: context.tr.common_save,
                   onPressed: () => Navigator.pop(ctx),
                 ),

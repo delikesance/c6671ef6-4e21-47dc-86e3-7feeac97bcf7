@@ -45,6 +45,7 @@ import 'dart:io';
 import '../../widgets/canvas_preview_widget.dart';
 import '../../../../../core/widgets/variable_text_field.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
 // ─── Page Entry Point ──────────────────────────────────────────────────────
 
 /// Full-screen image editor for canvas compositing operations.
@@ -200,7 +201,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
       appBar: AppBar(
         title: Text(context.tr.image_editor_title),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const AppIcon.fromMaterial(Icons.arrow_back),
           onPressed: () {
             if (_hasUnsavedChanges()) {
               _showUnsavedDialog();
@@ -296,7 +297,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.add, size: 18, color: cs.onSurface),
+              AppIcon.fromMaterial(Icons.add, size: 18, color: cs.onSurface),
               const SizedBox(width: 6),
               Text(
                 tr.image_editor_add_layer,
@@ -314,7 +315,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         children: [
           IconButton(
             onPressed: _zoom > 0.25 ? _zoomOut : null,
-            icon: const Icon(Icons.zoom_out, size: 20),
+            icon: const AppIcon.fromMaterial(Icons.zoom_out, size: 20),
             tooltip: tr.image_editor_zoom_out,
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
@@ -340,7 +341,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
           controlSpacing,
           IconButton(
             onPressed: _zoom < 3.0 ? _zoomIn : null,
-            icon: const Icon(Icons.zoom_in, size: 20),
+            icon: const AppIcon.fromMaterial(Icons.zoom_in, size: 20),
             tooltip: tr.image_editor_zoom_in,
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
@@ -348,7 +349,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
           controlSpacing,
           IconButton(
             onPressed: _zoomToFit,
-            icon: const Icon(Icons.fit_screen, size: 18),
+            icon: const AppIcon.fromMaterial(Icons.fit_screen, size: 18),
             tooltip: tr.image_editor_zoom_fit,
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
@@ -394,14 +395,14 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
       children: [
         IconButton(
           onPressed: _canUndo ? _undo : null,
-          icon: const Icon(Icons.undo, size: 20),
+          icon: const AppIcon.fromMaterial(Icons.undo, size: 20),
           tooltip: context.tr.image_editor_undo,
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
         ),
         IconButton(
           onPressed: _canRedo ? _redo : null,
-          icon: const Icon(Icons.redo, size: 20),
+          icon: const AppIcon.fromMaterial(Icons.redo, size: 20),
           tooltip: context.tr.image_editor_redo,
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
@@ -417,7 +418,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
     if (isNarrow) {
       return IconButton(
         onPressed: () => Navigator.pop(context, _operations),
-        icon: const Icon(Icons.check, size: 20),
+        icon: const AppIcon.fromMaterial(Icons.check, size: 20),
         tooltip: context.tr.common_save,
         padding: EdgeInsets.zero,
         constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
@@ -425,7 +426,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
     }
     return FilledButton.icon(
       onPressed: () => Navigator.pop(context, _operations),
-      icon: const Icon(Icons.check, size: 18),
+      icon: const AppIcon.fromMaterial(Icons.check, size: 18),
       label: Text(context.tr.common_save),
       style: FilledButton.styleFrom(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -558,7 +559,11 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.warning_amber, size: 48, color: Colors.orange.shade300),
+            AppIcon.fromMaterial(
+              Icons.warning_amber,
+              size: 48,
+              color: Colors.orange.shade300,
+            ),
             const SizedBox(height: 12),
             Text(_canvasError!, style: const TextStyle(color: Colors.orange)),
           ],
@@ -571,7 +576,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
+            AppIcon.fromMaterial(
               Icons.add_photo_alternate_outlined,
               size: 64,
               color: Theme.of(context).colorScheme.outline,
@@ -600,7 +605,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
                   _canvasError = null;
                 });
               },
-              icon: const Icon(Icons.add, size: 18),
+              icon: const AppIcon.fromMaterial(Icons.add, size: 18),
               label: Text(context.tr.action_name_canvasCreateBlock),
             ),
           ],
@@ -742,7 +747,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
               if (opType != 'create')
                 ReorderableDragStartListener(
                   index: index,
-                  child: const Icon(
+                  child: const AppIcon.fromMaterial(
                     Icons.drag_handle,
                     size: 18,
                     color: Colors.grey,
@@ -761,7 +766,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
                     }
                   });
                 },
-                child: Icon(
+                child: AppIcon.fromMaterial(
                   isHidden ? Icons.visibility_off : Icons.visibility,
                   size: 18,
                   color: isHidden
@@ -770,7 +775,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
                 ),
               ),
               const SizedBox(width: 8),
-              Icon(
+              AppIcon.fromMaterial(
                 _opIcon(opType),
                 size: 18,
                 color: isHidden ? Colors.grey : null,
@@ -812,7 +817,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
                     }
                   });
                 },
-                child: Icon(
+                child: AppIcon.fromMaterial(
                   Icons.close,
                   size: 16,
                   color: Theme.of(context).colorScheme.error,
@@ -949,7 +954,11 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
                 borderRadius: BorderRadius.circular(4),
                 child: Padding(
                   padding: const EdgeInsets.all(4),
-                  child: Icon(Icons.delete_outline, size: 18, color: cs.error),
+                  child: AppIcon.fromMaterial(
+                    Icons.delete_outline,
+                    size: 18,
+                    color: cs.error,
+                  ),
                 ),
               ),
             ],
@@ -1023,7 +1032,7 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
                   _selectedIndex = index + 1;
                 });
               },
-              icon: const Icon(Icons.copy, size: 16),
+              icon: const AppIcon.fromMaterial(Icons.copy, size: 16),
               label: Text(context.tr.common_duplicate),
             ),
           ],
@@ -1112,7 +1121,11 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 children: [
-                  Icon(_opIcon(opType), size: 20, color: cs.primary),
+                  AppIcon.fromMaterial(
+                    _opIcon(opType),
+                    size: 20,
+                    color: cs.primary,
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
@@ -1136,7 +1149,10 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
                         });
                         closeSheet();
                       },
-                      icon: const Icon(Icons.copy_outlined, size: 20),
+                      icon: const AppIcon.fromMaterial(
+                        Icons.copy_outlined,
+                        size: 20,
+                      ),
                       tooltip: context.tr.common_duplicate,
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(
@@ -1160,7 +1176,11 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
                       });
                       closeSheet();
                     },
-                    icon: Icon(Icons.delete_outline, color: cs.error, size: 20),
+                    icon: AppIcon.fromMaterial(
+                      Icons.delete_outline,
+                      color: cs.error,
+                      size: 20,
+                    ),
                     tooltip: context.tr.common_delete,
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(
@@ -1359,14 +1379,14 @@ class _ImageEditorPageState extends State<ImageEditorPage> {
             ),
           if (isUrl)
             IconButton(
-              icon: const Icon(Icons.image, size: 20),
+              icon: const AppIcon.fromMaterial(Icons.image, size: 20),
               onPressed: () => _pickImage(fieldKey),
               tooltip: context.tr.image_editor_pick_image,
               visualDensity: VisualDensity.compact,
             ),
           if (hasVars)
             IconButton(
-              icon: const Icon(Icons.data_object, size: 18),
+              icon: const AppIcon.fromMaterial(Icons.data_object, size: 18),
               onPressed: () => showVariablePicker(fieldKey),
               tooltip: context.tr.image_editor_insert_variable,
               visualDensity: VisualDensity.compact,

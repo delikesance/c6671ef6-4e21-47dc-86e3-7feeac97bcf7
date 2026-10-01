@@ -1,4 +1,4 @@
-﻿import 'package:bot_creator_shared/types/action.dart';
+import 'package:bot_creator_shared/types/action.dart';
 import 'package:bot_creator_shared/types/component.dart';
 import 'package:bot_creator_shared/utils/interaction_listener_registry.dart';
 
@@ -28,6 +28,10 @@ void registerComponentWorkflowBindings({
             botId: botId,
             customId: resolvedId,
             inlineActions: node.actions.map((a) => Action.fromJson(a)).toList(),
+            initialContext: captureComponentTemporaryContext(
+              node.actions,
+              resolve,
+            ),
             expiresAt: expiresAt,
             type: 'button',
             oneShot: false,
@@ -55,6 +59,10 @@ void registerComponentWorkflowBindings({
             botId: botId,
             customId: resolvedId,
             inlineActions: node.actions.map((a) => Action.fromJson(a)).toList(),
+            initialContext: captureComponentTemporaryContext(
+              node.actions,
+              resolve,
+            ),
             expiresAt: expiresAt,
             type: 'select',
             oneShot: false,
@@ -105,4 +113,36 @@ void registerComponentWorkflowBindings({
   for (final node in definition.components) {
     collectAndRegister(node);
   }
+}
+
+/// Retain temporary values referenced by a delayed callback. Interaction fields
+/// remain live so the callback still targets the member who clicked the menu.
+Map<String, String> captureComponentTemporaryContext(
+  List<Map<String, dynamic>> actions,
+  String Function(String) resolve,
+) {
+  final context = <String, String>{};
+  final reference = RegExp(r'\(\(\s*(temp\.[^()]+?)\s*\)\)');
+  void visit(dynamic value) {
+    if (value is Map) {
+      for (final child in value.values) {
+        visit(child);
+      }
+    } else if (value is List) {
+      for (final child in value) {
+        visit(child);
+      }
+    } else if (value is String) {
+      for (final match in reference.allMatches(value)) {
+        final key = match.group(1)!.trim();
+        final resolved = resolve(match.group(0)!);
+        if (resolved.isNotEmpty && resolved != match.group(0)) {
+          context[key] = resolved;
+        }
+      }
+    }
+  }
+
+  visit(actions);
+  return Map.unmodifiable(context);
 }

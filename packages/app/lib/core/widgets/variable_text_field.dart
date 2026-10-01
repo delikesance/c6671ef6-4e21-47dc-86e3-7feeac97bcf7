@@ -8,6 +8,8 @@ import 'package:bot_creator_shared/utils/variable_catalog.dart'
     show variableDescription;
 import 'package:bot_creator/core/i18n/i18n.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// A text field that shows autocomplete suggestions when the user types `((`
 /// for dynamic variables, or `<` for emoji names.
 ///
@@ -252,7 +254,8 @@ class _VariableTextFieldState extends State<VariableTextField> {
             padding: EdgeInsets.zero,
             children: [
               const SizedBox(height: 8),
-              Text(context.tr.variables_emojis_hint,
+              Text(
+                context.tr.variables_emojis_hint,
                 style: TextStyle(fontSize: 11, color: AppTheme.grey),
               ),
               const SizedBox(height: 6),
@@ -274,7 +277,10 @@ class _VariableTextFieldState extends State<VariableTextField> {
                             width: 20,
                             height: 20,
                             errorBuilder: (context, error, stackTrace) =>
-                                const Icon(Icons.emoji_emotions, size: 20),
+                                const AppIcon.fromMaterial(
+                                  Icons.emoji_emotions,
+                                  size: 20,
+                                ),
                           ),
                           const SizedBox(width: 8),
                           Text(
@@ -409,7 +415,11 @@ class _VariableTextFieldState extends State<VariableTextField> {
       padding: const EdgeInsets.only(top: 8, bottom: 4, left: 4),
       child: Row(
         children: [
-          Icon(_categoryIcon(cat), size: 14, color: AppTheme.grey),
+          AppIcon.fromMaterial(
+            _categoryIcon(cat),
+            size: 14,
+            color: AppTheme.grey,
+          ),
           const SizedBox(width: 4),
           Text(
             label,
@@ -475,7 +485,11 @@ class _VariableTextFieldState extends State<VariableTextField> {
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right, size: 16, color: AppTheme.grey),
+              const AppIcon.fromMaterial(
+                Icons.chevron_right,
+                size: 16,
+                color: AppTheme.grey,
+              ),
             ],
           ),
         ),

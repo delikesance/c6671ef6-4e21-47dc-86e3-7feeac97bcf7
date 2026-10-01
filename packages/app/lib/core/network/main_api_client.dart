@@ -1371,6 +1371,28 @@ class MainApiClient implements RemoteRuntimeClient {
     bool force = false,
     bool confirmOvershrink = false,
   }) async {
+    await _syncBotWithStatus(
+      botId,
+      botName,
+      config,
+      force: force,
+      confirmOvershrink: confirmOvershrink,
+    );
+  }
+
+  Future<bool> syncBotConfigurationWithStatus(
+    String botId,
+    String botName,
+    Map<String, dynamic> config,
+  ) => _syncBotWithStatus(botId, botName, config, force: true);
+
+  Future<bool> _syncBotWithStatus(
+    String botId,
+    String botName,
+    Map<String, dynamic> config, {
+    bool force = false,
+    bool confirmOvershrink = false,
+  }) async {
     // POURQUOI la garde est en TÊTE de méthode : c'est le dernier point avant le
     // réseau. Une charge utile vide (aucune commande, aucun événement, aucun
     // webhook, aucune variable) a déjà écrasé la configuration d'un bot ; on la
@@ -1383,7 +1405,7 @@ class MainApiClient implements RemoteRuntimeClient {
 
     if (!force && _lastSyncedHashes[cacheKey] == currentHash) {
       debugPrint('[MainApiClient] Sync skipped for $botId (already current).');
-      return;
+      return false;
     }
 
     final safeConfig = _sanitizeConfigForUpload(config);
@@ -1408,6 +1430,7 @@ class MainApiClient implements RemoteRuntimeClient {
     // présent sur 106 des 230 synchros, chacune relançant l'attente de pool du
     // serveur (~2 min).
     var uploadedToObjectStore = false;
+    var runnerSynced = false;
 
     try {
       // 1. Get presigned ticket
@@ -1423,7 +1446,7 @@ class MainApiClient implements RemoteRuntimeClient {
       uploadedToObjectStore = true;
 
       // 3. Call sync endpoint with configUrl — budget de poussée, un seul essai
-      await _postFirstAvailable(
+      final response = await _postFirstAvailable(
         const <String>['/gateway/bots/sync', '/bots/sync'],
         <String, dynamic>{
           'botId': botId,
@@ -1434,6 +1457,7 @@ class MainApiClient implements RemoteRuntimeClient {
         timeout: _configPushTimeout,
         retryOnFailure: false,
       );
+      runnerSynced = response['runner_synced'] == true;
     } catch (error) {
       if (uploadedToObjectStore) {
         // Le document est en place : cet échec vient de la synchro elle-même.
@@ -1451,7 +1475,7 @@ class MainApiClient implements RemoteRuntimeClient {
       );
 
       // Fallback: legacy direct POST sync with sanitized config
-      await _postFirstAvailable(
+      final response = await _postFirstAvailable(
         const <String>['/gateway/bots/sync', '/bots/sync'],
         <String, dynamic>{
           'botId': botId,
@@ -1462,12 +1486,13 @@ class MainApiClient implements RemoteRuntimeClient {
         timeout: _configPushTimeout,
         retryOnFailure: false,
       );
+      runnerSynced = response['runner_synced'] == true;
     }
 
     _lastSyncedHashes[cacheKey] = currentHash;
     _evictOldestHashEntries(_lastSyncedHashes);
     unawaited(_persistHashes(_lastSyncedHashesKey, _lastSyncedHashes));
-    return;
+    return runnerSynced;
   }
 
   @override
@@ -1534,13 +1559,50 @@ class MainApiClient implements RemoteRuntimeClient {
     String workflowName,
     Map<String, dynamic> workflowJson,
   ) async {
+    await syncWorkflowWithStatus(botId, botName, workflowName, workflowJson);
+  }
+
+  Future<bool> syncWorkflowWithStatus(
+    String botId,
+    String botName,
+    String workflowName,
+    Map<String, dynamic> workflowJson,
+  ) async {
     final encodedBotId = Uri.encodeComponent(botId.trim());
-    await _post('/gateway/bots/$encodedBotId/workflows/sync', <String, dynamic>{
-      'botId': botId,
-      'botName': botName,
-      'workflowName': workflowName,
-      'workflow': workflowJson,
-    });
+    final response = await _post(
+      '/gateway/bots/$encodedBotId/workflows/sync',
+      <String, dynamic>{
+        'botId': botId,
+        'botName': botName,
+        'workflowName': workflowName,
+        'workflow': workflowJson,
+      },
+    );
+    return response['runner_synced'] == true;
+  }
+
+  Future<bool> setVariableWithStatus(
+    String botId,
+    Map<String, dynamic> args,
+  ) async {
+    final encodedBotId = Uri.encodeComponent(botId.trim());
+    final scope = args['scope'] as String;
+    final response = await _post(
+      scope == 'global'
+          ? '/gateway/bots/$encodedBotId/variables/global/set'
+          : '/gateway/bots/$encodedBotId/variables/scoped-definitions/set',
+      scope == 'global'
+          ? {'key': args['key'], 'value': args['value']}
+          : {
+              'key': BotConfig.normalizeScopedVariableKey(
+                args['key'] as String,
+              ),
+              'scope': scope,
+              'defaultValue': args['value'],
+              'valueType': args['value_type'] ?? 'string',
+            },
+    );
+    return response['runner_synced'] == true;
   }
 
   @override

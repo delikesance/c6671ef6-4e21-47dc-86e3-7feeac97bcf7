@@ -19,6 +19,7 @@ import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blo
 import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/scratch_block_canvas.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/scratch_block_palette.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
 export 'builder/action_types.dart';
 export 'builder/action_type_extension.dart';
 export 'builder/action_card.dart';
@@ -647,7 +648,19 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
           TextField(
             decoration: InputDecoration(
               hintText: context.tr.actions_search_hint,
-              prefixIcon: const Icon(Icons.search),
+              prefixIconConstraints: const BoxConstraints(
+                minWidth: 36,
+                minHeight: 36,
+              ),
+              prefixIcon: const Padding(
+                padding: EdgeInsets.only(left: 10, right: 8),
+                child: AppIcon.fromMaterial(Icons.search, size: 18),
+              ),
+              isDense: true,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 10,
+              ),
               border: const OutlineInputBorder(),
             ),
             onChanged: (value) {
@@ -893,7 +906,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
             margin: const EdgeInsets.symmetric(vertical: 2),
             child: ListTile(
               dense: true,
-              leading: Icon(
+              leading: AppIcon.fromMaterial(
                 type.icon,
                 size: 20,
                 color: getCategoryColor(categoryName),
@@ -1271,7 +1284,11 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.add_task, size: 64, color: AppTheme.grey),
+          const AppIcon.fromMaterial(
+            Icons.add_task,
+            size: 64,
+            color: AppTheme.grey,
+          ),
           const SizedBox(height: 16),
           Text(
             context.tr.actions_empty_title,
@@ -1297,7 +1314,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
           if (!hasCopied) {
             return OutlinedButton.icon(
               onPressed: _showAddActionDialog,
-              icon: const Icon(Icons.add),
+              icon: const AppIcon.fromMaterial(Icons.add),
               label: Text(context.tr.scratch_add_block),
               style: OutlinedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 48),
@@ -1313,7 +1330,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
                 flex: 2,
                 child: OutlinedButton.icon(
                   onPressed: _showAddActionDialog,
-                  icon: const Icon(Icons.add),
+                  icon: const AppIcon.fromMaterial(Icons.add),
                   label: Text(context.tr.scratch_add_block),
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size(0, 48),
@@ -1328,7 +1345,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
                 flex: 1,
                 child: OutlinedButton.icon(
                   onPressed: _pasteAction,
-                  icon: const Icon(Icons.paste),
+                  icon: const AppIcon.fromMaterial(Icons.paste),
                   label: Text(_localString('Paste')),
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size(0, 48),
@@ -1463,7 +1480,19 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
               },
               decoration: InputDecoration(
                 hintText: context.tr.actions_search_sequence_hint,
-                prefixIcon: const Icon(Icons.search),
+                prefixIconConstraints: const BoxConstraints(
+                  minWidth: 36,
+                  minHeight: 36,
+                ),
+                prefixIcon: const Padding(
+                  padding: EdgeInsets.only(left: 10, right: 8),
+                  child: AppIcon.fromMaterial(Icons.search, size: 18),
+                ),
+                isDense: true,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
                 border: const OutlineInputBorder(),
               ),
             ),
@@ -1485,7 +1514,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
                       padding: const EdgeInsets.only(right: 8),
                       child: OutlinedButton.icon(
                         onPressed: _pasteAction,
-                        icon: const Icon(Icons.paste),
+                        icon: const AppIcon.fromMaterial(Icons.paste),
                         label: Text(_localString('Paste')),
                       ),
                     );
@@ -1493,7 +1522,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
                 ),
                 FilledButton.icon(
                   onPressed: _showAddActionDialog,
-                  icon: const Icon(Icons.add),
+                  icon: const AppIcon.fromMaterial(Icons.add),
                   label: Text(context.tr.actions_add_label),
                 ),
               ],
@@ -1541,7 +1570,7 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
               if (i > 0)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 6),
-                  child: Icon(
+                  child: AppIcon.fromMaterial(
                     Icons.chevron_right,
                     size: 14,
                     color: Theme.of(
@@ -1627,7 +1656,9 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
         actions: [
           IconButton(
             onPressed: _saveActions,
-            icon: Icon(widget.editPath.isNotEmpty ? Icons.check : Icons.save),
+            icon: AppIcon.fromMaterial(
+              widget.editPath.isNotEmpty ? Icons.check : Icons.save,
+            ),
             tooltip: widget.editPath.isNotEmpty
                 ? context.tr.common_ok
                 : context.tr.actions_save_tooltip,
@@ -1638,7 +1669,9 @@ class _ActionsBuilderPageState extends State<ActionsBuilderPage> {
           ? FloatingActionButton.extended(
               heroTag: null,
               onPressed: _saveActions,
-              icon: Icon(widget.editPath.isNotEmpty ? Icons.check : Icons.save),
+              icon: AppIcon.fromMaterial(
+                widget.editPath.isNotEmpty ? Icons.check : Icons.save,
+              ),
               label: Text(
                 widget.editPath.isNotEmpty
                     ? context.tr.common_ok

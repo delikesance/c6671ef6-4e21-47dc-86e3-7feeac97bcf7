@@ -7,6 +7,8 @@ import 'package:bot_creator/features/subscriptions/presentation/subscriptions_hu
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Premium upsell shown when free users hit the hosted-app container limit.
 class HostedAppPremiumUpsell extends StatelessWidget {
   const HostedAppPremiumUpsell({
@@ -37,7 +39,10 @@ class HostedAppPremiumUpsell extends StatelessWidget {
       if (compact) {
         return OutlinedButton.icon(
           onPressed: () => SubscriptionsHubPage.open(context),
-          icon: const Icon(Icons.workspace_premium_outlined, color: Colors.teal),
+          icon: const AppIcon.fromMaterial(
+            Icons.workspace_premium_outlined,
+            color: Colors.teal,
+          ),
           label: Text(tr.container_hosted_premium_view_btn),
         );
       }
@@ -51,7 +56,7 @@ class HostedAppPremiumUpsell extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Icon(
+                  const AppIcon.fromMaterial(
                     Icons.workspace_premium_outlined,
                     color: Colors.teal,
                   ),
@@ -75,7 +80,9 @@ class HostedAppPremiumUpsell extends StatelessWidget {
               const SizedBox(height: 12),
               FilledButton.icon(
                 onPressed: () => SubscriptionsHubPage.open(context),
-                icon: const Icon(Icons.workspace_premium_outlined),
+                icon: const AppIcon.fromMaterial(
+                  Icons.workspace_premium_outlined,
+                ),
                 label: Text(tr.container_hosted_premium_view_btn),
               ),
             ],
@@ -91,7 +98,10 @@ class HostedAppPremiumUpsell extends StatelessWidget {
     if (compact) {
       return FilledButton.tonalIcon(
         onPressed: () => HostedAppSubscriptionPage.show(context),
-        icon: const Icon(Icons.storage_rounded, color: Colors.teal),
+        icon: const AppIcon.fromMaterial(
+          Icons.storage_rounded,
+          color: Colors.teal,
+        ),
         label: Text(tr.container_hosted_premium_host_anytime_compact),
       );
     }
@@ -106,7 +116,10 @@ class HostedAppPremiumUpsell extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.storage_rounded, color: Colors.teal),
+                const AppIcon.fromMaterial(
+                  Icons.storage_rounded,
+                  color: Colors.teal,
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -127,7 +140,7 @@ class HostedAppPremiumUpsell extends StatelessWidget {
             const SizedBox(height: 12),
             FilledButton.icon(
               onPressed: () => HostedAppSubscriptionPage.show(context),
-              icon: const Icon(Icons.storage_rounded),
+              icon: const AppIcon.fromMaterial(Icons.storage_rounded),
               label: Text(tr.container_hosted_premium_view_btn),
             ),
           ],
@@ -157,7 +170,9 @@ class HostedAppFreeHostingBanner extends StatelessWidget {
   String? _formatExpiry(BuildContext context) {
     if (expiresAt == null) return null;
     final locale = Localizations.localeOf(context).toString();
-    final formatted = DateFormat.yMMMd(locale).add_jm().format(expiresAt!.toLocal());
+    final formatted = DateFormat.yMMMd(
+      locale,
+    ).add_jm().format(expiresAt!.toLocal());
     return context.tr.container_hosted_expires_at(formatted);
   }
 
@@ -221,7 +236,10 @@ class HostedAppFreeHostingBanner extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.info_outline, color: Colors.teal),
+                const AppIcon.fromMaterial(
+                  Icons.info_outline,
+                  color: Colors.teal,
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -266,7 +284,7 @@ class HostedAppFreeHostingBanner extends StatelessWidget {
                         height: 18,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Icon(Icons.play_circle_outline),
+                    : const AppIcon.fromMaterial(Icons.play_circle_outline),
                 label: Text(tr.container_hosted_ad_button(reward)),
               ),
             ],

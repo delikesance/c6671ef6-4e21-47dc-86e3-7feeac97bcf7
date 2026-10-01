@@ -21,6 +21,7 @@ class _PendingResponse {
   /// The channel ID where the target message lives.
   /// Defaults to `'((channel.id))'` when replying to the author.
   String? _replyChannelId;
+  List<String>? _dmUserIds;
 
   bool get hasPendingContent =>
       _content.toString().isNotEmpty ||
@@ -49,17 +50,18 @@ class _PendingResponse {
   }
 
   void addButton({
-    required bool newRow,
+    required Object newRow,
     required String interactionIdOrUrl,
     required String label,
     required String style,
-    bool disabled = false,
+    Object disabled = false,
     String emoji = '',
     String messageId = '',
   }) {
     _components.add(<String, dynamic>{
       'type': 'button',
       'newRow': newRow,
+      if (style.contains('((')) 'customIdOrUrl': interactionIdOrUrl,
       'customId': (style != 'link' && style != 'premium')
           ? interactionIdOrUrl
           : '',
@@ -78,7 +80,7 @@ class _PendingResponse {
     required String label,
     required String value,
     String description = '',
-    bool isDefault = false,
+    Object isDefault = false,
     String emoji = '',
   }) {
     _components.add(<String, dynamic>{
@@ -122,7 +124,7 @@ class _PendingResponse {
     String? label,
     String? style,
     String? customIdOrUrl,
-    bool? disabled,
+    Object? disabled,
     String? emoji,
   }) {
     int currentRow = 0;
@@ -171,7 +173,7 @@ class _PendingResponse {
     required String buttonIdOrUrl,
     String? label,
     String? style,
-    bool? disabled,
+    Object? disabled,
     String? emoji,
   }) {
     for (final component in _components) {
@@ -209,9 +211,9 @@ class _PendingResponse {
   void editSelectMenu({
     required String customId,
     String? placeholder,
-    int? minValues,
-    int? maxValues,
-    bool? disabled,
+    Object? minValues,
+    Object? maxValues,
+    Object? disabled,
   }) {
     for (final component in _components) {
       if (component['type'] != 'selectMenu') continue;
@@ -232,7 +234,7 @@ class _PendingResponse {
     String? label,
     String? value,
     String? description,
-    bool? isDefault,
+    Object? isDefault,
     String? emoji,
   }) {
     int currentIndex = 0;
@@ -292,7 +294,9 @@ class _PendingResponse {
 
     // $removeLinks: strip all URLs from the bot response content.
     if (_removeLinks) {
-      content = content.replaceAll(RegExp(r'https?://[^\s]+'), '');
+      content = content.contains('((')
+          ? '((bdfdremovelinks[$content]))'
+          : content.replaceAll(RegExp(r'https?://[^\s]+'), '');
     }
 
     final embeds = _embeds
@@ -300,17 +304,7 @@ class _PendingResponse {
         .map(_cloneMap)
         .toList(growable: false);
     final components = hasComponents
-        ? List<Map<String, dynamic>>.from(
-            _components
-                .where((c) {
-                  if (c['type']?.toString() == 'actionRow') {
-                    final children = c['components'] as List?;
-                    return children != null && children.isNotEmpty;
-                  }
-                  return true;
-                })
-                .map(_cloneMap),
-          )
+        ? List<Map<String, dynamic>>.from(_components.map(_cloneMap))
         : <Map<String, dynamic>>[];
     final ephemeral = _ephemeral;
     final tts = _tts;
@@ -320,6 +314,7 @@ class _PendingResponse {
     final allowedRoles = _allowedRoles;
     final replyMessageId = _replyMessageId;
     final replyChannelId = _replyChannelId;
+    final dmUserIds = _dmUserIds;
     _content.clear();
     _embeds.clear();
     _components.clear();
@@ -332,6 +327,7 @@ class _PendingResponse {
     _allowedRoles = null;
     _replyMessageId = null;
     _replyChannelId = null;
+    _dmUserIds = null;
 
     final allowedMentionsPayload = <String, dynamic>{};
     if (allowMentions) {
@@ -358,10 +354,24 @@ class _PendingResponse {
       'separator',
       'textDisplay',
       'mediaGallery',
+      'file',
     };
     final hasRichV2 = components.any(
       (c) => richV2Types.contains(c['type']?.toString()),
     );
+
+    if (dmUserIds != null) {
+      return Action(
+        type: BotCreatorActionType.sendDm,
+        payload: <String, dynamic>{
+          'userIds': dmUserIds,
+          'content': content,
+          'embeds': embeds,
+          if (components.isNotEmpty) 'components': {'items': components},
+          'allowedMentions': allowedMentionsPayload,
+        },
+      );
+    }
 
     if (hasRichV2) {
       return Action(
@@ -629,32 +639,30 @@ bool _parseBooleanLike(String raw) {
       normalized == 'on';
 }
 
-const int _maxSupportedLoopIterations = 100;
+const int _maxCompileTimeLoopIterations = 100;
 
 const Map<String, String> _inlineRuntimeVariables = <String, String>{
   // ── User / author info ── (resolved via generateKeyValues / _messageContentExtra / buildInteractionCreateEventContext)
   'user': '<@((user.id))>',
   'userid': '((user.id))',
   'username': '((user.username))',
-  'usertag': '((user.tag))',
+  'usertag': '((bdfdusertag[((user.username));((user.tag))]))',
   'useravatar': '((user.avatar))',
   'userbanner': '((user.banner))',
   'authorid': '((author.id))',
   'authorofmessage': '((target.message.author.id|author.id))',
   'authorusername': '((author.username))',
-  'authortag': '((author.tag))',
+  'authortag': '((bdfdusertag[((author.username));((author.tag))]))',
   'authoravatar': '((author.avatar))',
   'authorbanner': '((author.banner))',
   'discriminator': '((author.tag))',
   'displayname': '((member.nick|author.displayName|author.username))',
-  'isadmin': '((member.isAdmin))',
   'isbot': '((author.isBot))',
   'nickname':
       '((member.nick|member.displayName|author.displayName|author.username))',
   'memberid': '((member.id))',
   'membernick':
       '((member.nick|member.displayName|author.displayName|author.username))',
-  'userperms': '((member.permissions))',
   'authorperms': '((member.permissions))',
   'memberperms': '((member.permissions))',
   'userserveravatar': '((member.avatar))',
@@ -676,7 +684,7 @@ const Map<String, String> _inlineRuntimeVariables = <String, String>{
   'guildid': '((guild.id))',
   'guildname': '((guild.name))',
   'guildicon': '((guildIcon))',
-  'guildcount': '((guild.count))',
+  'guildcount': '((bot.guildCount))',
   'membercount': '((guild.memberCount))',
   'allmemberscount': '((guild.memberCount))',
   'memberscount': '((guild.memberCount))',
@@ -704,7 +712,6 @@ const Map<String, String> _inlineRuntimeVariables = <String, String>{
   'guildexists': '((guild.exists))',
   'serverexists': '((guild.exists))',
   'onlinemembers': '((guild.onlineMembers))',
-  'serveremojis': '((guild.emojis))',
   'serverinfo': '((guild.info))',
   'serverregion': '((guild.region))',
   // ── Channel info ── (resolved via generateKeyValues + extractChannelRuntimeDetails)
@@ -746,6 +753,7 @@ const Map<String, String> _inlineRuntimeVariables = <String, String>{
   'uptime': '((bot.uptime))',
   'shardid': '((bot.shardId))',
   'getbotinvite': '((bot.invite))',
+  'getserverinvite': '((guild.invite))',
   'scriptlanguage': 'BDFD',
   // ── Bot info — resolved via _injectGatewayBotVariables ──
   'botownerid': '((bot.ownerId))',
@@ -762,7 +770,7 @@ const Map<String, String> _inlineRuntimeVariables = <String, String>{
   'slashid': '((interaction.id))',
   // ── Command — not yet resolved ──
   'commandfolder': '((command.folder))',
-  'input': '((interaction.input))',
+  'input': '((message.content))',
   // ── Message info ── (resolved via _messageContentExtra)
   'messageid': '((message.id))',
   'messagetype': '((message.type))',
@@ -772,20 +780,12 @@ const Map<String, String> _inlineRuntimeVariables = <String, String>{
   'repliedmessageid': '((message.referencedMessage.id))',
   'ismessageedited': '((message.isEdited))',
   'messageeditedtimestamp': '((message.editedTimestamp))',
-  'getattachments': '((message.attachments))',
   'url': '((message.url))',
   'mentionedroles': '((message.roleMentions))',
   // ── Message info — not yet resolved (need runtime support) ──
-  'ismentioned': '((message.isMentioned))',
   'nomentionmessage': '((message.cleanContent))',
-  'getembeddata': '((message.embeds))',
   // ── Role info ── (resolved via extractMemberRuntimeDetails + extractGuildRuntimeDetails)
-  'userroles': '((member.roles))',
   // ── Role info — not yet resolved (need runtime support) ──
-  'highestrole': '((member.highestRole))',
-  'lowestrole': '((member.lowestRole))',
-  'highestrolewithperms': '((member.highestRoleWithPerms))',
-  'lowestrolewithperms': '((member.lowestRoleWithPerms))',
   // ── Thread info — not yet resolved ──
   'threadmessagecount': '((thread.messageCount))',
   'threadusercount': '((thread.memberCount))',
@@ -803,7 +803,6 @@ const Map<String, String> _inlineRuntimeVariables = <String, String>{
   // ── Misc ──
   'argcount': '((args.count))',
   'isslash': '((interaction.isSlash))',
-  'variablescount': '((variables.count))',
   // ── Select menu interaction results ──
   'getmentionableselectusercount':
       '((interaction.mentionableSelect.userCount))',

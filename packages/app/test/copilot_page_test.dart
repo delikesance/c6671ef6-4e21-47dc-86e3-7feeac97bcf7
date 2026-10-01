@@ -10,8 +10,11 @@ import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  final sendButton = find.byWidgetPredicate(
+    (widget) => widget is IconButton && widget.tooltip == 'Send',
+  );
   testWidgets(
-    'context summary asks before charging and retries the draft in place',
+    'context summary retries automatically and keeps draft on summary failure',
     (tester) async {
       tester.view.physicalSize = const Size(900, 1000);
       tester.view.devicePixelRatio = 1;
@@ -37,30 +40,35 @@ void main() {
         accessToken: 'test',
         httpClient: MockClient((request) async {
           final path = request.url.path;
-          if (path == '/gateway/ai/copilot/tools')
+          if (path == '/gateway/ai/copilot/tools') {
             return http.Response('{"tools":[]}', 200);
-          if (path == '/gateway/ai/wallet')
+          }
+          if (path == '/gateway/ai/wallet') {
             return http.Response(
               '{"balance":10000,"reserved":0,"available":10000}',
               200,
             );
-          if (path == '/gateway/ai/conversations')
+          }
+          if (path == '/gateway/ai/conversations') {
             return http.Response(
               request.method == 'POST'
                   ? jsonEncode(chat)
                   : '{"conversations":[]}',
               200,
             );
-          if (path == '/gateway/ai/conversations/c')
+          }
+          if (path == '/gateway/ai/conversations/c') {
             return http.Response(jsonEncode(chat), 200);
+          }
           if (path == '/gateway/ai/conversations/c/turns') {
             turns++;
             expect(
               (jsonDecode(request.body) as Map)['prompt'],
               turns <= 2 ? 'Keep this draft' : 'Second draft',
             );
-            if (turns == 1 || turns == 3)
+            if (turns == 1 || turns == 3) {
               return http.Response('{"code":"ai_context_limit"}', 400);
+            }
             (chat['messages'] as List).addAll([
               {'role': 'user', 'content': 'Keep this draft'},
               {'role': 'assistant', 'content': 'Done'},
@@ -76,7 +84,7 @@ void main() {
             if (summaries == 1) chat['context_summary'] = 'Earlier turns';
             return http.Response(jsonEncode({'request_key': summaryKey}), 202);
           }
-          if (path.endsWith('/events'))
+          if (path.endsWith('/events')) {
             return http.Response(
               summaries == 2 && path.contains(summaryKey!)
                   ? 'id: 1\nevent: error\ndata: {"code":"ai_provider_failure"}\n\n'
@@ -84,6 +92,7 @@ void main() {
               200,
               headers: {'content-type': 'text/event-stream'},
             );
+          }
           throw StateError('Unexpected $path');
         }),
       );
@@ -110,38 +119,19 @@ void main() {
       );
       await tester.enterText(find.byType(TextField).first, 'Keep this draft');
       await tester.pump();
-      expect(
-        tester
-            .widget<IconButton>(find.widgetWithIcon(IconButton, Icons.send))
-            .onPressed,
-        isNotNull,
-      );
-      await tester.tap(find.byIcon(Icons.send));
+      expect(tester.widget<IconButton>(sendButton).onPressed, isNotNull);
+      await tester.tap(sendButton);
       await settle(tester);
-      expect(
-        find.text('Summarize this conversation?'),
-        findsOneWidget,
-        reason:
-            'turns=$turns; UI=${tester.widgetList<Text>(find.byType(Text)).map((t) => t.data).join(' | ')}',
-      );
-      expect(summaries, 0);
-      expect(
-        tester.widget<TextField>(find.byType(TextField).first).controller!.text,
-        'Keep this draft',
-      );
-      await tester.tap(find.text('Summarize and send'));
-      await settle(tester);
+      expect(find.byType(AlertDialog), findsNothing);
       expect(summaries, 1);
       expect(turns, 2);
       expect(chat['context_summary'], 'Earlier turns');
       expect(find.text('Done'), findsOneWidget);
       await tester.enterText(find.byType(TextField).first, 'Second draft');
       await tester.pump();
-      await tester.tap(find.byIcon(Icons.send));
+      await tester.tap(sendButton);
       await settle(tester);
-      expect(find.text('Summarize this conversation?'), findsOneWidget);
-      await tester.tap(find.text('Summarize and send'));
-      await settle(tester);
+      expect(find.byType(AlertDialog), findsNothing);
       expect(summaries, 2);
       expect(turns, 3);
       expect(chat['context_summary'], 'Earlier turns');
@@ -312,21 +302,11 @@ void main() {
               .map((t) => t.data)
               .join(' | '),
         );
-        expect(
-          tester
-              .widget<IconButton>(find.widgetWithIcon(IconButton, Icons.send))
-              .onPressed,
-          isNull,
-        );
+        expect(tester.widget<IconButton>(sendButton).onPressed, isNull);
         await tester.enterText(find.byType(TextField).first, 'Stop the bot');
         await tester.pump();
-        expect(
-          tester
-              .widget<IconButton>(find.widgetWithIcon(IconButton, Icons.send))
-              .onPressed,
-          isNotNull,
-        );
-        await tester.tap(find.byIcon(Icons.send));
+        expect(tester.widget<IconButton>(sendButton).onPressed, isNotNull);
+        await tester.tap(sendButton);
         await settle(tester);
         expect(
           find.text('Validation requise'),

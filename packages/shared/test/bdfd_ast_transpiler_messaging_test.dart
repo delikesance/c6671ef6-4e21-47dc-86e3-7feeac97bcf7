@@ -186,8 +186,11 @@ void main() {
       expect(content, contains('((author.avatar))'));
       expect(content, contains('((author.id))'));
       expect(content, contains('((target.message.author.id|author.id))'));
-      expect(content, contains('((member.nick|author.displayName|author.username))'));
-      expect(content, contains('((userperms[;-1;, ]))'));
+      expect(
+        content,
+        contains('((member.nick|author.displayName|author.username))'),
+      );
+      expect(content, contains('((member[((author.id))].permissions))'));
       expect(content, contains('((member.avatar))'));
       expect(content, contains('((user.id))'));
     });
@@ -217,7 +220,9 @@ void main() {
       expect(result.actions, hasLength(2));
       expect(result.actions[0].type, BotCreatorActionType.updateSelfUser);
       expect(result.actions[0].payload['username'], 'NewName');
-      expect(result.actions[1].type, BotCreatorActionType.ifBlock);
+      expect(result.actions[1].type, BotCreatorActionType.updateSelfUser);
+      expect(result.actions[1].payload['targetUserId'], '1234567890');
+      expect(result.actions[1].payload['username'], 'AnotherName');
     });
 
     test('supports inline mentionedChannels lookup', () {
@@ -250,7 +255,7 @@ void main() {
       expect(result.actions.single.payload['targetType'], 'reply');
       expect(
         result.actions.single.payload['content'],
-        'Mention=((message.mentions[0])), Fallback=((message.mentions[0]|channel.id))',
+        'Mention=((message.channelMentions[0])), Fallback=((message.channelMentions[0]|channel.id))',
       );
     });
   });

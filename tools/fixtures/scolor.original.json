@@ -1,0 +1,221 @@
+{
+  "name": "scolor",
+  "description": "Enviar seletor de Cores.",
+  "type": "chatInput",
+  "id": "1781143853554466",
+  "updatedAt": "2026-10-01T02:38:02.814140",
+  "data": {
+    "version": 1,
+    "commandType": "chatInput",
+    "editorMode": "advanced",
+    "executionMode": "workflow",
+    "bdfdScriptContent": "",
+    "jsScriptContent": "",
+    "legacyModeEnabled": true,
+    "legacyLocalOnly": true,
+    "legacyPrefixOverride": "",
+    "legacyResponseTarget": "reply",
+    "legacyAliases": [],
+    "simpleConfig": {},
+    "defaultMemberPermissions": "",
+    "response": {
+      "mode": "message",
+      "text": "",
+      "type": "normal",
+      "embeds": [],
+      "components": {},
+      "workflow": {
+        "autoDeferIfActions": true,
+        "visibility": "public",
+        "onError": "edit_error",
+        "conditional": {
+          "enabled": false,
+          "variable": "",
+          "whenTrueType": "message",
+          "whenFalseType": "message",
+          "whenTrueText": "",
+          "whenFalseText": "",
+          "whenTrueEmbeds": [],
+          "whenFalseEmbeds": [],
+          "whenTrueNormalComponents": {},
+          "whenFalseNormalComponents": {},
+          "whenTrueComponents": {},
+          "whenFalseComponents": {},
+          "whenTrueModal": {},
+          "whenFalseModal": {}
+        }
+      },
+      "_migrated": true
+    },
+    "actions": [
+      {
+        "depend_on": [],
+        "enabled": true,
+        "error": {
+          "mode": "stop"
+        },
+        "id": "action_1780531503409362",
+        "key": "deleta a mensagem de comando",
+        "payload": {},
+        "runtimeId": "action_1780531503409362",
+        "type": "deleteTrigger"
+      },
+      {
+        "depend_on": [],
+        "enabled": true,
+        "error": {
+          "mode": "stop"
+        },
+        "id": "action_1780466070146565",
+        "key": "enviar o seletor de cor",
+        "payload": {
+          "channelId": "",
+          "componentV2": null,
+          "components": {
+            "content": "",
+            "components": [
+              {
+                "type": "actionRow",
+                "components": [
+                  {
+                    "type": "stringSelect",
+                    "customId": "select_colors",
+                    "placeholder": "Selecionar uma Cor",
+                    "options": [
+                      {
+                        "label": "Cor Branca",
+                        "value": "cor branca",
+                        "description": "Seu nome será exibido na cor branca.",
+                        "emoji": "⚪",
+                        "isDefault": false
+                      },
+                      {
+                        "label": "Cor Preta",
+                        "value": "cor preta",
+                        "description": "Seu nome será exibido na cor preta.",
+                        "emoji": "⚫",
+                        "isDefault": false
+                      }
+                    ],
+                    "minValues": 1,
+                    "maxValues": 1,
+                    "disabled": "",
+                    "actions": [
+                      {
+                        "id": "action_0",
+                        "type": "ifBlock",
+                        "enabled": true,
+                        "key": "action_0",
+                        "depend_on": [],
+                        "error": {
+                          "mode": "continue"
+                        },
+                        "payload": {
+                          "_actionId": "action_1789794015994993_0",
+                          "condition.operator": "equals",
+                          "condition.value": "cor preta",
+                          "condition.variable": "((interaction.select_colors.value))",
+                          "elseActions": [],
+                          "elseIfConditions": [],
+                          "thenActions": [
+                            {
+                              "id": "action_5",
+                              "type": "debugProfile",
+                              "enabled": true,
+                              "key": "action_5",
+                              "depend_on": [],
+                              "error": {
+                                "mode": "stop"
+                              },
+                              "payload": {
+                                "_actionId": "action_1790832654340525_0"
+                              },
+                              "runtimeId": "action_1790832654340525_0"
+                            },
+                            {
+                              "id": "action_0",
+                              "type": "addRole",
+                              "enabled": true,
+                              "key": "action_0",
+                              "depend_on": [],
+                              "error": {
+                                "mode": "continue"
+                              },
+                              "payload": {
+                                "_actionId": "action_1789794114451565_1",
+                                "reason": "idk",
+                                "roleId": "1550734454602080256",
+                                "userId": "((author.id))"
+                              },
+                              "runtimeId": "action_1789794114451565_1"
+                            },
+                            {
+                              "id": "action_2",
+                              "type": "respondWithMessage",
+                              "enabled": true,
+                              "key": "action_2",
+                              "depend_on": [],
+                              "error": {
+                                "mode": "continue"
+                              },
+                              "payload": {
+                                "content": "nada",
+                                "embeds": [],
+                                "components": {},
+                                "ephemeral": true,
+                                "replyToMessage": false,
+                                "_actionId": "action_1790712281335114_0"
+                              },
+                              "runtimeId": "action_1790712281335114_0"
+                            }
+                          ]
+                        },
+                        "runtimeId": "action_1789794015994993_0"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "ephemeral": false
+          },
+          "content": "",
+          "embeds": [
+            {
+              "author": {
+                "icon_url": "",
+                "name": "",
+                "url": ""
+              },
+              "color": "#673AB7",
+              "description": "# 🎨 Seletor de Cores\nSelecione uma cor para seu nome na comunidade.",
+              "fields": [],
+              "fieldsTemplate": "",
+              "footer": {
+                "icon_url": "",
+                "text": ""
+              },
+              "image": {
+                "url": ""
+              },
+              "thumbnail": {
+                "url": "https://cdn.discordapp.com/attachments/1132425690164248640/1305179280367681677/paleta-de-cores.png"
+              },
+              "timestamp": "",
+              "title": "",
+              "type": "rich",
+              "url": ""
+            }
+          ],
+          "mentions": [],
+          "messageMode": "message",
+          "targetType": "channel",
+          "tts": false,
+          "userId": ""
+        },
+        "runtimeId": "action_1780466070146565",
+        "type": "sendMessage"
+      }
+    ]
+  }
+}

@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 class ActionsCard extends StatelessWidget {
   final List<Map<String, dynamic>> actions;
   final ValueChanged<List<Map<String, dynamic>>> onActionsChanged;
@@ -32,10 +34,9 @@ class ActionsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final routeColor =
-        activeRouteIsGrouped
-            ? Theme.of(context).colorScheme.secondary
-            : Theme.of(context).colorScheme.primary;
+    final routeColor = activeRouteIsGrouped
+        ? Theme.of(context).colorScheme.secondary
+        : Theme.of(context).colorScheme.primary;
 
     return Card(
       child: Padding(
@@ -88,14 +89,13 @@ class ActionsCard extends StatelessWidget {
                     await Navigator.push<List<Map<String, dynamic>>>(
                       context,
                       MaterialPageRoute(
-                        builder:
-                            (context) => ActionsBuilderPage(
-                              initialActions: actions,
-                              variableSuggestions:
-                                  actionVariableSuggestions as dynamic,
-                              emojiSuggestions: emojiSuggestions,
-                              botIdForConfig: botIdForConfig,
-                            ),
+                        builder: (context) => ActionsBuilderPage(
+                          initialActions: actions,
+                          variableSuggestions:
+                              actionVariableSuggestions as dynamic,
+                          emojiSuggestions: emojiSuggestions,
+                          botIdForConfig: botIdForConfig,
+                        ),
                       ),
                     );
 
@@ -112,47 +112,43 @@ class ActionsCard extends StatelessWidget {
               children: [
                 if (showWorkflowLink)
                   OutlinedButton.icon(
-                    onPressed:
-                        botIdForConfig == null || actions.isEmpty
-                            ? null
-                            : () async {
+                    onPressed: botIdForConfig == null || actions.isEmpty
+                        ? null
+                        : () async {
                             final controller = TextEditingController();
                             final workflowName = await showDialog<String>(
                               context: context,
-                              builder:
-                                  (dialogContext) => AlertDialog(
-                                    title: Text(
-                                      context.tr.actions_save_workflow_title,
-                                    ),
-                                    content: TextField(
-                                      controller: controller,
-                                      decoration: InputDecoration(
-                                        labelText:
-                                            context
-                                                .tr
-                                                .actions_workflow_name_label,
-                                        border: const OutlineInputBorder(),
-                                      ),
-                                      autofocus: true,
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed:
-                                            () => Navigator.pop(dialogContext),
-                                        child: Text(context.tr.common_cancel),
-                                      ),
-                                      FilledButton(
-                                        onPressed: () {
-                                          final name = controller.text.trim();
-                                          if (name.isEmpty) {
-                                            return;
-                                          }
-                                          Navigator.pop(dialogContext, name);
-                                        },
-                                        child: Text(context.tr.common_save),
-                                      ),
-                                    ],
+                              builder: (dialogContext) => AlertDialog(
+                                title: Text(
+                                  context.tr.actions_save_workflow_title,
+                                ),
+                                content: TextField(
+                                  controller: controller,
+                                  decoration: InputDecoration(
+                                    labelText:
+                                        context.tr.actions_workflow_name_label,
+                                    border: const OutlineInputBorder(),
                                   ),
+                                  autofocus: true,
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(dialogContext),
+                                    child: Text(context.tr.common_cancel),
+                                  ),
+                                  FilledButton(
+                                    onPressed: () {
+                                      final name = controller.text.trim();
+                                      if (name.isEmpty) {
+                                        return;
+                                      }
+                                      Navigator.pop(dialogContext, name);
+                                    },
+                                    child: Text(context.tr.common_save),
+                                  ),
+                                ],
+                              ),
                             );
 
                             if (workflowName == null ||
@@ -163,13 +159,11 @@ class ActionsCard extends StatelessWidget {
                             await appManager.saveWorkflow(
                               botIdForConfig!,
                               name: workflowName.trim(),
-                              actions:
-                                  actions
-                                      .map(
-                                        (item) =>
-                                            Map<String, dynamic>.from(item),
-                                      )
-                                      .toList(),
+                              actions: actions
+                                  .map(
+                                    (item) => Map<String, dynamic>.from(item),
+                                  )
+                                  .toList(),
                             );
 
                             if (!context.mounted) {
@@ -187,43 +181,38 @@ class ActionsCard extends StatelessWidget {
                               ),
                             );
                           },
-                  icon: const Icon(Icons.save_as),
-                  label: Text(context.tr.actions_save_workflow_title),
-                ),
+                    icon: const AppIcon.fromMaterial(Icons.save_as),
+                    label: Text(context.tr.actions_save_workflow_title),
+                  ),
                 OutlinedButton.icon(
-                  onPressed:
-                      botIdForConfig == null
-                          ? null
-                          : () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (context) => GlobalVariablesPage(
-                                      botId: botIdForConfig!,
-                                    ),
-                              ),
-                            );
-                          },
-                  icon: const Icon(Icons.key),
+                  onPressed: botIdForConfig == null
+                      ? null
+                      : () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  GlobalVariablesPage(botId: botIdForConfig!),
+                            ),
+                          );
+                        },
+                  icon: const AppIcon.fromMaterial(Icons.key),
                   label: Text(context.tr.actions_global_variables),
                 ),
                 if (showWorkflowLink)
                   OutlinedButton.icon(
-                    onPressed:
-                        botIdForConfig == null
-                            ? null
-                            : () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) =>
-                                          WorkflowsPage(botId: botIdForConfig!),
-                                ),
-                              );
-                            },
-                    icon: const Icon(Icons.account_tree),
+                    onPressed: botIdForConfig == null
+                        ? null
+                        : () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    WorkflowsPage(botId: botIdForConfig!),
+                              ),
+                            );
+                          },
+                    icon: const AppIcon.fromMaterial(Icons.account_tree),
                     label: Text(context.tr.actions_workflows),
                   ),
               ],

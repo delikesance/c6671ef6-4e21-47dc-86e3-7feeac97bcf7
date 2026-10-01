@@ -2,6 +2,8 @@ import 'package:bot_creator/core/code_editor/script_editor_language.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Barre de diagnostics sous la zone d'édition.
 ///
 /// Trois états : document vide ou aucun problème détecté (vert), avertissement
@@ -73,7 +75,11 @@ class ScriptEditorDiagnosticsBar extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(Icons.check_circle_outline, size: 16, color: accent),
+          AppIcon.fromMaterial(
+            Icons.check_circle_outline,
+            size: 16,
+            color: accent,
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(label, style: TextStyle(fontSize: 12, color: accent)),
@@ -100,7 +106,7 @@ class ScriptEditorDiagnosticsBar extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
+          AppIcon.fromMaterial(
             isError ? Icons.error_outline : Icons.warning_amber_rounded,
             size: 14,
             color: accent,

@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 
 import 'package:bot_creator/main.dart' show appManager;
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 class BotConfigVersionsPage extends StatefulWidget {
   final String botId;
   final String botToken;
@@ -119,6 +121,7 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
       currentCommandCount = localCommands.length;
     } catch (_) {}
 
+    if (!mounted) return;
     final willReplace = versionCommandCount != currentCommandCount;
 
     final confirmed = await showDialog<bool>(
@@ -126,6 +129,7 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
       builder: (dialogContext) => AlertDialog(
         shape: AppTheme.dialogShape,
         title: Text(context.tr.bot_config_versions_restore),
+        scrollable: true,
         content: SizedBox(
           width: 350,
           child: Column(
@@ -153,10 +157,19 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        const Icon(Icons.code, size: 14, color: AppTheme.grey),
+                        const AppIcon.fromMaterial(
+                          Icons.code,
+                          size: 14,
+                          color: AppTheme.grey,
+                        ),
                         const SizedBox(width: 6),
-                        Text(context.tr.bot_config_version_commands(versionCommandCount),
-                          style: const TextStyle(fontSize: 13),
+                        Expanded(
+                          child: Text(
+                            context.tr.bot_config_version_commands(
+                              versionCommandCount,
+                            ),
+                            style: const TextStyle(fontSize: 13),
+                          ),
                         ),
                       ],
                     ),
@@ -164,16 +177,21 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          const Icon(
+                          const AppIcon.fromMaterial(
                             Icons.swap_horiz,
                             size: 14,
                             color: AppTheme.warning,
                           ),
                           const SizedBox(width: 6),
-                          Text(context.tr.bot_config_version_replace_warning(currentCommandCount),
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: AppTheme.warning,
+                          Expanded(
+                            child: Text(
+                              context.tr.bot_config_version_replace_warning(
+                                currentCommandCount,
+                              ),
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: AppTheme.warning,
+                              ),
                             ),
                           ),
                         ],
@@ -186,7 +204,8 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
               // Command list preview (max 8)
               if (versionCommandNames.isNotEmpty) ...[
                 const SizedBox(height: 12),
-                Text(context.tr.bot_config_version_commands_title,
+                Text(
+                  context.tr.bot_config_version_commands_title,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -208,7 +227,10 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
                 if (versionCommandNames.length > 8)
                   Padding(
                     padding: const EdgeInsets.only(left: 8, top: 2),
-                    child: Text(context.tr.bot_config_version_more_count(versionCommandNames.length - 8),
+                    child: Text(
+                      context.tr.bot_config_version_more_count(
+                        versionCommandNames.length - 8,
+                      ),
                       style: TextStyle(
                         fontSize: 12,
                         color: AppTheme.discordText.withValues(alpha: 0.5),
@@ -436,7 +458,7 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
         title: Text(context.tr.bot_config_versions_title),
         actions: [
           IconButton(
-            icon: const Icon(Icons.close),
+            icon: const AppIcon.fromMaterial(Icons.close),
             onPressed: () => Navigator.pop(context),
           ),
         ],
@@ -453,7 +475,7 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
+                  const AppIcon.fromMaterial(
                     Icons.error_outline,
                     size: 48,
                     color: AppTheme.grey,
@@ -467,7 +489,10 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
                     ),
                   ),
                   const SizedBox(height: AppTheme.spacingMd),
-                  OutlinedButton(onPressed: _retry, child: Text(context.tr.common_retry)),
+                  OutlinedButton(
+                    onPressed: _retry,
+                    child: Text(context.tr.common_retry),
+                  ),
                 ],
               ),
             );
@@ -480,7 +505,11 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.history, size: 48, color: AppTheme.grey),
+                  const AppIcon.fromMaterial(
+                    Icons.history,
+                    size: 48,
+                    color: AppTheme.grey,
+                  ),
                   const SizedBox(height: AppTheme.spacingMd),
                   Text(
                     context.tr.bot_config_versions_empty,
@@ -517,33 +546,31 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
                   borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                   border: Border.all(color: AppTheme.discordBorder, width: 1),
                 ),
-                child: Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            _formatVersionDate(key),
-                            style: const TextStyle(
-                              color: AppTheme.discordText,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _formatVersionDate(key),
+                          style: const TextStyle(
+                            color: AppTheme.discordText,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
                           ),
-                          const SizedBox(height: 2),
-                          Text(
-                            _formatSize(size),
-                            style: TextStyle(
-                              color: AppTheme.discordText.withValues(
-                                alpha: 0.6,
-                              ),
-                              fontSize: 12,
-                            ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          _formatSize(size),
+                          style: TextStyle(
+                            color: AppTheme.discordText.withValues(alpha: 0.6),
+                            fontSize: 12,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
+                    const SizedBox(height: AppTheme.spacingSm),
                     if (_isRestoring || _isLoadingDiff)
                       const SizedBox(
                         width: 24,
