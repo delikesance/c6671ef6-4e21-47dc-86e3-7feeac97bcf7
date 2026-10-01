@@ -1,6 +1,8 @@
 import 'package:nyxx/nyxx.dart';
 import '../engine/discord_entity_fetcher.dart';
 
+num? _asNum(dynamic v) => v is num ? v : num.tryParse(v?.toString() ?? '');
+
 /// Read-only Discord fixtures routed through the production entity fetcher.
 /// Every unimplemented operation fails locally; no client is connected.
 class EntityFixtureGateway implements NyxxGateway {
@@ -244,7 +246,7 @@ class _Channels implements ChannelManager {
           name: row['name'].toString(),
           parentId: parent,
           permissionOverwrites: const [],
-          position: (row['position'] as num? ?? 0).toInt(),
+          position: (_asNum(row['position']) ?? 0).toInt(),
         );
       }
       if (type != 'text') {
@@ -257,10 +259,10 @@ class _Channels implements ChannelManager {
         name: row['name'].toString(),
         topic: row['topic']?.toString(),
         parentId: parent,
-        position: (row['position'] as num? ?? 0).toInt(),
+        position: (_asNum(row['position']) ?? 0).toInt(),
         isNsfw: row['nsfw'] == true,
         rateLimitPerUser: Duration(
-          seconds: (row['slowmode'] as num? ?? 0).toInt(),
+          seconds: (_asNum(row['slowmode']) ?? 0).toInt(),
         ),
         defaultAutoArchiveDuration: const Duration(days: 1),
         defaultThreadRateLimitPerUser: null,
@@ -270,7 +272,7 @@ class _Channels implements ChannelManager {
         lastPinTimestamp: row['last_pin_timestamp'] == null
             ? null
             : DateTime.fromMillisecondsSinceEpoch(
-                (row['last_pin_timestamp'] as num).toInt(),
+                (_asNum(row['last_pin_timestamp']) ?? 0).toInt(),
                 isUtc: true,
               ),
         permissionOverwrites: const [],
@@ -348,7 +350,7 @@ class _FixtureMessages implements MessageManager {
       (raw['reactions'] as List? ?? const []).map((rawReaction) {
         final row = Map<String, dynamic>.from(rawReaction as Map);
         return _FixtureReaction(
-          (row['count'] as num? ?? 0).toInt(),
+          (_asNum(row['count']) ?? 0).toInt(),
           _FixtureEmoji(
             Snowflake(int.tryParse(row['id']?.toString() ?? '') ?? 0),
             row['emoji']?.toString() ?? '',
@@ -617,7 +619,7 @@ class _Roles implements RoleManager {
     }
     return (guild['roles'] as List).map((raw) {
       final row = Map<String, dynamic>.from(raw as Map);
-      final color = DiscordColor((row['color'] as num? ?? 0).toInt());
+      final color = DiscordColor((_asNum(row['color']) ?? 0).toInt());
       return Role(
         id: Snowflake.parse(row['id'].toString()),
         manager: this,
@@ -627,7 +629,7 @@ class _Roles implements RoleManager {
         isHoisted: row['hoist'] == true,
         iconHash: null,
         unicodeEmoji: null,
-        position: (row['position'] as num? ?? 0).toInt(),
+        position: (_asNum(row['position']) ?? 0).toInt(),
         permissions: Permissions(
           int.parse((row['permissions'] ?? '0').toString()),
         ),

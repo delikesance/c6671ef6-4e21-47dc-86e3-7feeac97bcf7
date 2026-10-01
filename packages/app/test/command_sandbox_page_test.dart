@@ -170,4 +170,35 @@ void main() {
     expect(find.byType(Image), findsOneWidget);
     expect((await pending)!['images']['card']['pixels']['0,0'], '#ff0000ff');
   });
+
+  testWidgets(
+    'supports block-based commands with string option types without cast error',
+    (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: CommandSandboxPage(
+            script: null,
+            actions: const [
+              {
+                'type': 'sendMessage',
+                'payload': {'text': 'Hello from blocks!'},
+              },
+            ],
+            options: const [
+              {'name': 'query', 'type': 'string', 'required': true},
+              {'name': 'count', 'type': 'integer'},
+            ],
+            runner: (request) async => {'success': true, 'responses': []},
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('Block-based command'), findsOneWidget);
+      expect(find.text('1 configured action(s)'), findsOneWidget);
+      expect(find.text('query'), findsOneWidget);
+      expect(find.text('count'), findsOneWidget);
+    },
+  );
 }
