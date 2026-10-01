@@ -73,8 +73,18 @@ class _DiscordUser implements User {
 }
 
 class _DiscordCommand implements ApplicationCommand {
+  _DiscordCommand({
+    this.commandId = '1450824555119382678',
+    this.name = 'hello',
+    this.type = ApplicationCommandType.chatInput,
+  });
+  final String commandId;
   @override
-  Snowflake get id => Snowflake.parse('1450824555119382678');
+  final String name;
+  @override
+  final ApplicationCommandType type;
+  @override
+  Snowflake get id => Snowflake.parse(commandId);
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
@@ -82,6 +92,15 @@ class _DiscordCommand implements ApplicationCommand {
 class _DiscordCommands implements GlobalApplicationCommandManager {
   final requests = <Map<String, dynamic>>[];
   final ids = <Snowflake>[];
+  List<ApplicationCommand> available = [];
+  HttpResponseError? updateError;
+  var lists = 0;
+  @override
+  Future<List<ApplicationCommand>> list({bool? withLocalizations}) async {
+    lists++;
+    return available;
+  }
+
   @override
   Future<ApplicationCommand> update(
     Snowflake id,
@@ -89,11 +108,24 @@ class _DiscordCommands implements GlobalApplicationCommandManager {
   ) async {
     ids.add(id);
     requests.add(builder.build());
-    return _DiscordCommand();
+    final error = updateError;
+    updateError = null;
+    if (error != null) throw error;
+    return _DiscordCommand(commandId: id.toString());
   }
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _DiscordCommandError extends Fake implements HttpResponseError {
+  _DiscordCommandError(this.errorCode);
+  @override
+  final int errorCode;
+  @override
+  int get statusCode => errorCode == 10063 ? 404 : 403;
+  @override
+  String toString({bool short = false}) => 'Simulated Discord command failure';
 }
 
 class _DiscordUsers implements UserManager {
@@ -199,6 +231,7 @@ void main() {
       expect(result['discord_updated'], true);
       expect(result['runner_synced'], true);
       expect(discord.commands.ids.last.toString(), '1450824555119382678');
+      expect(discord.commands.lists, 0);
       expect(discord.commands.requests.last.keys, ['options']);
       expect(
         discord.commands.requests.last['options'].single['name'],
@@ -359,6 +392,296 @@ void main() {
       expect((await file.stat()).modified, modified);
     },
   );
+
+  for (final tool in [
+    'local_update_command_settings',
+    'local_update_command_options',
+  ]) {
+    test(
+      '$tool recovers a restored UUID by exact Discord name and type',
+      () async {
+        const localID = '05df995a-7478-4eb0-9a9c-e7f828db7d1d';
+        const discordID = '1550824555119382678';
+        await AppManager().saveAppCommand(botId, localID, {
+          'id': localID,
+          'type': 'chatInput',
+          'name': 'eval',
+          'description': 'Evaluate',
+          'data': {
+            'executionMode': 'javascript',
+            'jsScriptContent': 'return 1;',
+            'actions': [],
+          },
+        });
+        discord.commands.available = [
+          _DiscordCommand(name: 'eval', type: ApplicationCommandType.user),
+          _DiscordCommand(name: 'eval', commandId: discordID),
+        ];
+        addTearDown(() => discord.commands.available = []);
+        final before = await call('local_get_command', {'command_id': localID});
+        final patches = discord.commands.requests.length;
+        final lists = discord.commands.lists;
+        final result = await call(tool, {
+          'command_id': localID,
+          'expected_revision': before['revision'],
+          if (tool == 'local_update_command_settings') 'description': 'Updated',
+          if (tool == 'local_update_command_options') ...{
+            'operation': 'add',
+            'option_name': 'source',
+            'option': {
+              'name': 'source',
+              'description': 'Source',
+              'type': 'string',
+            },
+          },
+        });
+        expect(discord.commands.requests.length, patches + 1);
+        expect(discord.commands.lists, lists + 1);
+        expect(discord.commands.ids.last.toString(), discordID);
+        expect(result['saved'], true);
+        expect(result['discord_updated'], true);
+        final saved = await AppManager().getAppCommand(botId, localID);
+        expect(saved['id'], localID);
+        expect(saved['discordId'], discordID);
+        expect(saved['data']['jsScriptContent'], 'return 1;');
+        expect(result['after']['discordId'], discordID);
+        expect(api.commands.last['discordId'], discordID);
+        // A stale revision must fail before Discord lookup or update.
+        await expectLater(
+          call(tool, {
+            'command_id': localID,
+            'expected_revision': before['revision'],
+            if (tool == 'local_update_command_settings') 'description': 'Again',
+            if (tool == 'local_update_command_options') ...{
+              'operation': 'remove',
+              'option_name': 'source',
+            },
+          }),
+          throwsStateError,
+        );
+        expect(discord.commands.requests.length, patches + 1);
+        expect(discord.commands.lists, lists + 1);
+      },
+    );
+  }
+
+  for (final ambiguous in [false, true]) {
+    test(
+      'restored Discord identity ${ambiguous ? 'ambiguity' : 'absence'} refuses without writes',
+      () async {
+        final localID = 'unresolved-${ambiguous ? 'ambiguous' : 'missing'}';
+        await AppManager().saveAppCommand(botId, localID, {
+          'id': localID,
+          'discordId': 'invalid-restored-id',
+          'type': 'chatInput',
+          'name': 'unresolved',
+          'description': 'Before',
+          'data': {'executionMode': 'workflow', 'actions': []},
+        });
+        discord.commands.available = ambiguous
+            ? [
+                _DiscordCommand(name: 'unresolved'),
+                _DiscordCommand(
+                  name: 'unresolved',
+                  commandId: '1550824555119382678',
+                ),
+              ]
+            : [
+                _DiscordCommand(
+                  name: 'unresolved',
+                  type: ApplicationCommandType.user,
+                ),
+              ];
+        addTearDown(() => discord.commands.available = []);
+        final before = await call('local_get_command', {'command_id': localID});
+        final source = await File(
+          '${storage.path}/apps/$botId/$localID.json',
+        ).readAsString();
+        final patches = discord.commands.requests.length;
+        final cloud = api.commands.length;
+        await expectLater(
+          call('local_update_command_settings', {
+            'command_id': localID,
+            'expected_revision': before['revision'],
+            'description': 'After',
+          }),
+          throwsA(
+            isA<StateError>().having(
+              (e) => e.message,
+              'identity failure',
+              ambiguous
+                  ? 'Discord command identity is ambiguous'
+                  : 'Discord command identity not found',
+            ),
+          ),
+        );
+        expect(discord.commands.requests.length, patches);
+        expect(api.commands.length, cloud);
+        expect(
+          await File(
+            '${storage.path}/apps/$botId/$localID.json',
+          ).readAsString(),
+          source,
+        );
+      },
+    );
+  }
+
+  for (final errorCode in [10063, 50013]) {
+    test(
+      'stored Discord ID ${errorCode == 10063 ? 'missing' : 'forbidden'} ${errorCode == 10063 ? 'recovers by identity' : 'does not retry'}',
+      () async {
+        final localID = 'stored-id-$errorCode';
+        const staleID = '1450824555119382678';
+        const recoveredID = '1550824555119382678';
+        await AppManager().saveAppCommand(botId, localID, {
+          'id': localID,
+          'discordId': staleID,
+          'type': 'chatInput',
+          'name': 'stored',
+          'description': 'Before',
+          'data': {'executionMode': 'workflow', 'actions': []},
+        });
+        discord.commands.available = [
+          _DiscordCommand(name: 'stored', commandId: recoveredID),
+        ];
+        discord.commands.updateError = _DiscordCommandError(errorCode);
+        addTearDown(() {
+          discord.commands.available = [];
+          discord.commands.updateError = null;
+        });
+        final before = await call('local_get_command', {'command_id': localID});
+        final lists = discord.commands.lists;
+        final patches = discord.commands.requests.length;
+        final cloud = api.commands.length;
+        final request = call('local_update_command_settings', {
+          'command_id': localID,
+          'expected_revision': before['revision'],
+          'description': 'After',
+        });
+        if (errorCode == 10063) {
+          final result = await request;
+          expect(result['discord_updated'], true);
+          expect(discord.commands.lists, lists + 1);
+          expect(
+            discord.commands.ids.skip(patches).map((id) => id.toString()),
+            [staleID, recoveredID],
+          );
+          expect(
+            (await AppManager().getAppCommand(botId, localID))['discordId'],
+            recoveredID,
+          );
+        } else {
+          await expectLater(request, throwsA(isA<HttpResponseError>()));
+          expect(discord.commands.lists, lists);
+          expect(discord.commands.requests.length, patches + 1);
+          expect(api.commands.length, cloud);
+          expect(
+            await AppManager().getAppCommand(botId, localID),
+            before['command'],
+          );
+        }
+      },
+    );
+  }
+
+  for (final invocation in <String, Map<String, dynamic>>{
+    'prefix': {'triggerType': 'prefix'},
+    'restored-prefix': {'legacyModeEnabled': true},
+    'none': {'triggerType': 'none'},
+    'restored-local': {'localOnly': true},
+  }.entries) {
+    for (final tool in [
+      'local_update_command_settings',
+      'local_update_command_options',
+    ]) {
+      test(
+        '${invocation.key} $tool remains local without Discord registration',
+        () async {
+          final localID = 'local-${invocation.key}-$tool';
+          await AppManager().saveAppCommand(botId, localID, {
+            'id': localID,
+            'type': 'chatInput',
+            'name': localID,
+            'description': 'Before',
+            'data': {
+              ...invocation.value,
+              'executionMode': 'workflow',
+              'actions': [],
+            },
+          });
+          final before = await call('local_get_command', {
+            'command_id': localID,
+          });
+          final patches = discord.commands.requests.length;
+          final lists = discord.commands.lists;
+          final cloud = api.commands.length;
+          var connections = 0;
+          final localBridge = CopilotMcp(
+            api,
+            botId: botId,
+            approve: (_, _) async => true,
+            discordConnect: (_) async {
+              connections++;
+              throw StateError(
+                'A local invocation must not connect to Discord',
+              );
+            },
+          );
+          await localBridge.initialize();
+          addTearDown(localBridge.close);
+          final envelope = await localBridge.call(tool, {
+            'bot_id': botId,
+            'command_id': localID,
+            'expected_revision': before['revision'],
+            if (tool == 'local_update_command_settings') 'description': 'After',
+            if (tool == 'local_update_command_options') ...{
+              'operation': 'add',
+              'option_name': 'source',
+              'option': {
+                'name': 'source',
+                'description': 'Source',
+                'type': 'string',
+              },
+            },
+          }, callID: localID);
+          final result =
+              jsonDecode((envelope['content'] as List).single['text'] as String)
+                  as Map;
+          expect(result['saved'], true);
+          expect(result['discord_updated'], false);
+          expect(result['runner_synced'], true);
+          expect(connections, 0);
+          expect(discord.commands.requests.length, patches);
+          expect(discord.commands.lists, lists);
+          expect(api.commands.length, cloud + 1);
+          final saved = await AppManager().getAppCommand(botId, localID);
+          if (tool == 'local_update_command_settings') {
+            expect(saved['description'], 'After');
+          } else {
+            expect(saved['data']['options'].single['name'], 'source');
+          }
+          for (final key in [
+            'triggerType',
+            'legacyModeEnabled',
+            'legacyLocalOnly',
+          ]) {
+            expect(saved['data'][key], before['command']['data'][key]);
+            expect(
+              api.commands.last['data'][key],
+              before['command']['data'][key],
+            );
+          }
+          expect(
+            saved['data']['triggerType'],
+            invocation.key.contains('prefix') ? 'prefix' : 'none',
+          );
+          expect(saved['data']['executionMode'], 'workflow');
+          expect(saved.containsKey('discordId'), false);
+        },
+      );
+    }
+  }
 
   test(
     'create edit and reload a real workflow with revisions and cloud payload',

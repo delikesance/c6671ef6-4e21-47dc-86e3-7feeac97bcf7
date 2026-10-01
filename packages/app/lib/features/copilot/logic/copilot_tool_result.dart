@@ -24,6 +24,14 @@ Map<String, dynamic> copilotToolFailure(Object error) {
             'command_not_found',
             'This command ID no longer exists on this device. List the current commands before proposing another update.',
           ),
+          'Discord command identity not found' => (
+            'discord_command_not_found',
+            'This slash command has no matching registration on Discord. Inspect its invocation mode and synchronize its configuration before retrying.',
+          ),
+          'Discord command identity is ambiguous' => (
+            'discord_command_ambiguous',
+            'More than one Discord registration matches this command. Inspect its current identity before proposing another update.',
+          ),
           'Command changed; read its latest revision before editing' ||
           'Configuration changed; read its latest revision before editing' => (
             'command_revision_conflict',
