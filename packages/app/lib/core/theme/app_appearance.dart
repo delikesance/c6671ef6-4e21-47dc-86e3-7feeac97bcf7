@@ -234,12 +234,16 @@ class AppAppearanceConfig {
   final Color seedColor;
 
   /// App adjustment applied on top of the device's accessibility text scale.
-  final double textScale;
+  // Objects retained by hot reload can predate this field. Keep their absent
+  // adjustment equivalent to the default instead of failing during a build.
+  final double? textScale;
   static const minTextScale = 0.75;
   static const maxTextScale = 1.25;
 
-  static double normalizeTextScale(double value) =>
-      value.isFinite ? value.clamp(minTextScale, maxTextScale).toDouble() : 1.0;
+  static double normalizeTextScale(double? value) =>
+      value != null && value.isFinite
+      ? value.clamp(minTextScale, maxTextScale).toDouble()
+      : 1.0;
 
   /// Valeurs d'usine : rendu historique (graphite, mode sombre, accent violet
   /// de marque). Elles doivent rester identiques à
@@ -289,9 +293,7 @@ class AppAppearanceConfig {
       presetId: presetId ?? this.presetId,
       accentColor: accentColor ?? this.accentColor,
       seedColor: seedColor ?? this.seedColor,
-      textScale: textScale == null
-          ? this.textScale
-          : normalizeTextScale(textScale),
+      textScale: normalizeTextScale(textScale ?? this.textScale),
     );
   }
 
@@ -304,7 +306,7 @@ class AppAppearanceConfig {
     'presetId': presetId,
     'accentColor': accentColor.toARGB32(),
     'seedColor': seedColor.toARGB32(),
-    'textScale': textScale,
+    'textScale': normalizeTextScale(textScale),
   };
 
   /// Sérialise la config pour `SharedPreferences`.
@@ -369,11 +371,16 @@ class AppAppearanceConfig {
       other.presetId == presetId &&
       other.accentColor == accentColor &&
       other.seedColor == seedColor &&
-      other.textScale == textScale;
+      normalizeTextScale(other.textScale) == normalizeTextScale(textScale);
 
   @override
-  int get hashCode =>
-      Object.hash(mode, presetId, accentColor, seedColor, textScale);
+  int get hashCode => Object.hash(
+    mode,
+    presetId,
+    accentColor,
+    seedColor,
+    normalizeTextScale(textScale),
+  );
 
   @override
   String toString() =>

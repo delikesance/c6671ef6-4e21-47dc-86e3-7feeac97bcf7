@@ -67,6 +67,33 @@ Widget _harness(
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
+  testWidgets('appearance without an initialized scale still builds at 100%', (
+    tester,
+  ) async {
+    final defaults = AppAppearanceConfig.defaults;
+    final retained = AppAppearanceConfig(
+      mode: defaults.mode,
+      presetId: defaults.presetId,
+      accentColor: defaults.accentColor,
+      seedColor: defaults.seedColor,
+      textScale: null,
+    );
+    await tester.pumpWidget(
+      MaterialApp(
+        builder: (context, child) =>
+            AppTextScale(factor: retained.textScale, child: child!),
+        home: const Text('Retained appearance'),
+      ),
+    );
+    expect(tester.takeException(), isNull);
+    final context = tester.element(find.text('Retained appearance'));
+    expect(MediaQuery.textScalerOf(context).scale(16), 16);
+    expect(retained.toJson()['textScale'], 1.0);
+    expect(retained.copyWith(mode: ThemeMode.light).textScale, 1.0);
+    expect(retained, defaults);
+    expect(retained.hashCode, defaults.hashCode);
+  });
+
   test('text scale migrates old appearance and rejects malformed values', () {
     final old = AppAppearanceConfig.defaults.toJson()..remove('textScale');
     expect(AppAppearanceConfig.fromJson(old).textScale, 1.0);

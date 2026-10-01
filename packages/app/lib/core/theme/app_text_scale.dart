@@ -6,7 +6,7 @@ import 'app_appearance.dart';
 class AppTextScale extends StatelessWidget {
   const AppTextScale({super.key, required this.factor, required this.child});
 
-  final double factor;
+  final double? factor;
   final Widget child;
 
   @override

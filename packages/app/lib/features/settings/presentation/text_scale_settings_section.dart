@@ -16,7 +16,9 @@ class TextScaleSettingsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ThemeProvider>();
-    final factor = provider.appearance.textScale;
+    final factor = AppAppearanceConfig.normalizeTextScale(
+      provider.appearance.textScale,
+    );
     final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
