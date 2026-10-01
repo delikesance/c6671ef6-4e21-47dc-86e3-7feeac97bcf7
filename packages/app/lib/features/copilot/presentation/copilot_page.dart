@@ -44,6 +44,7 @@ class _CopilotPageState extends State<CopilotPage> {
   bool _pendingRejected = false;
   List<Map<String, dynamic>> _history = [];
   final Map<String, String> _botNames = {};
+  final Map<String, bool> _toolMutations = {};
   Future<void> _draftQueue = Future.value();
   bool _busy = false, _ready = false, _archives = false, _loading = true;
   bool _historyMore = false, _hasPrompt = false;
@@ -77,12 +78,15 @@ class _CopilotPageState extends State<CopilotPage> {
     for (var messageIndex = 0; messageIndex < messages.length; messageIndex++) {
       final message = messages[messageIndex];
       if (message['role'] != 'user' && message['role'] != 'assistant') continue;
-      items.add(
-        KeyedSubtree(
-          key: ValueKey('message-$messageIndex'),
-          child: _messageBubble(message),
-        ),
-      );
+      if (message['role'] == 'user' ||
+          (message['content'] ?? '').toString().trim().isNotEmpty) {
+        items.add(
+          KeyedSubtree(
+            key: ValueKey('message-$messageIndex'),
+            child: _messageBubble(message),
+          ),
+        );
+      }
       if (message['role'] != 'assistant') continue;
       final calls = (message['tool_calls'] as List? ?? const []);
       for (final call in calls) {
@@ -90,6 +94,7 @@ class _CopilotPageState extends State<CopilotPage> {
         final id = call['id']?.toString();
         for (final action in actions) {
           if (id != null && action['call_id'] == id && placed.add(id)) {
+            if (!_mutating(action)) continue;
             items.add(
               KeyedSubtree(
                 key: ValueKey('action-$id'),
@@ -109,20 +114,9 @@ class _CopilotPageState extends State<CopilotPage> {
       );
     }
     final orphans = actions
-        .where((a) => !placed.contains(a['call_id']))
+        .where((a) => !placed.contains(a['call_id']) && _mutating(a))
         .toList();
     if (orphans.isNotEmpty) {
-      items.add(
-        Padding(
-          padding: const EdgeInsets.only(top: 12),
-          child: Text(
-            _copy(
-              'Actions sans message associé',
-              'Actions without a matching message',
-            ),
-          ),
-        ),
-      );
       items.addAll(orphans.map(_actionCard));
     }
     return items;
@@ -261,6 +255,9 @@ class _CopilotPageState extends State<CopilotPage> {
       await bridge.close();
       return;
     }
+    for (final tool in bridge.tools) {
+      _toolMutations[tool['name'] as String] = tool['mutating'] != false;
+    }
     if (bot?.startsWith('container:') == true) {
       bridge.tools.removeWhere(
         (t) => (t['name'] as String).startsWith('local_'),
@@ -394,6 +391,9 @@ class _CopilotPageState extends State<CopilotPage> {
       _scrollTail(force: true);
       if (_requestKey != null) {
         await _follow();
+      } else if (c['archived'] != true &&
+          _actions.any((a) => a['state'] == 'pending' && !_mutating(a))) {
+        await _readActions();
       }
     } catch (e) {
       if (mounted && epoch == _viewEpoch) {
@@ -474,6 +474,12 @@ class _CopilotPageState extends State<CopilotPage> {
       _wallet = await _api!.getAIWallet();
       await _refreshCloudStatus();
       await _loadHistory();
+      if (mounted &&
+          !_busy &&
+          _chat?['archived'] != true &&
+          _actions.any((a) => a['state'] == 'pending' && !_mutating(a))) {
+        await _readActions();
+      }
       if (mounted) {
         setState(() {});
       }
@@ -773,7 +779,10 @@ class _CopilotPageState extends State<CopilotPage> {
 
   bool _mutating(Map<String, dynamic> a) {
     final name = (a['call'] as Map)['function']['name'];
-    return _mcp!.tools.any((t) => t['name'] == name && t['mutating'] == true);
+    for (final tool in _mcp?.tools ?? const <Map<String, dynamic>>[]) {
+      if (tool['name'] == name) return tool['mutating'] != false;
+    }
+    return _toolMutations[name] != false;
   }
 
   Future<void> _readActions() async {
@@ -885,16 +894,6 @@ class _CopilotPageState extends State<CopilotPage> {
                   if (args['activities'] is List)
                     for (final activity in args['activities'] as List)
                       Text((activity as Map)['name'] as String),
-                  if (args['script'] != null)
-                    SelectableText(args['script'] as String),
-                  ExpansionTile(
-                    title: Text(context.tr.copilot_action_details_title),
-                    children: [
-                      SelectableText(
-                        const JsonEncoder.withIndent('  ').convert(args),
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),
@@ -1767,185 +1766,172 @@ class _CopilotPageState extends State<CopilotPage> {
     final state = a['state'];
     final colors = Theme.of(context).colorScheme;
     final cloudPending = _pendingCloudCommand(a);
-    return Card(
-      elevation: 0,
-      color: colors.surfaceContainerLow,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: state == 'pending'
-              ? colors.primary.withValues(alpha: .35)
-              : colors.outlineVariant.withValues(alpha: .5),
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  _mutating(a) ? Icons.tune_rounded : Icons.search_rounded,
-                  size: 18,
-                  color: colors.primary,
-                ),
-                const SizedBox(width: 9),
-                Expanded(
-                  child: Text(
-                    _label(fn['name'] as String),
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+    final failed = state == 'failed' || state == 'uncertain';
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              if (state == 'executing')
+                SizedBox(
+                  width: 14,
+                  height: 14,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 1.5,
+                    color: colors.onSurfaceVariant,
                   ),
+                )
+              else
+                Icon(
+                  state == 'succeeded'
+                      ? Icons.check_rounded
+                      : failed
+                      ? Icons.error_outline_rounded
+                      : Icons.tune_rounded,
+                  size: 14,
+                  color: failed ? colors.error : colors.onSurfaceVariant,
                 ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(switch (state) {
-              'pending' =>
-                _mutating(a)
-                    ? context.tr.copilot_status_approval_required
-                    : context.tr.copilot_status_ready_to_inspect,
-              'executing' => context.tr.copilot_status_executing,
-              'succeeded' => context.tr.copilot_status_succeeded,
-              'declined' => context.tr.copilot_status_declined,
-              'uncertain' => context.tr.copilot_status_unconfirmed,
-              _ => context.tr.copilot_status_failed,
-            }),
-            if (cloudPending != null &&
-                !_cloudRetried.contains(a['call_id'])) ...[
-              Text(
-                cloudPending['created'] == true
-                    ? _copy(
-                        'Créée sur Discord, pas encore active sur le bot',
-                        'Created on Discord, not yet active on the bot',
-                      )
-                    : _copy(
-                        'Enregistrée, pas encore active sur le bot cloud',
-                        'Saved, not yet active on the cloud bot',
-                      ),
-              ),
-              TextButton(
-                onPressed: _busy
-                    ? null
-                    : () async {
-                        setState(() => _busy = true);
-                        final synced = cloudPending['command_id'] is String
-                            ? await _mcp!.syncCloudCommand(
-                                cloudPending['bot_id'] as String,
-                                cloudPending['command_id'] as String,
-                              )
-                            : await _mcp!.retryCloudConfiguration(
-                                cloudPending['bot_id'] as String,
-                              );
-                        if (!mounted) return;
-                        setState(() {
-                          _busy = false;
-                          if (synced) {
-                            _cloudRetried.add(a['call_id'] as String);
-                          } else {
-                            _error = _copy(
-                              'Commande toujours inactive sur le bot cloud',
-                              'Command is still inactive on the cloud bot',
-                            );
-                          }
-                        });
-                      },
+              const SizedBox(width: 7),
+              Expanded(
                 child: Text(
-                  _copy(
-                    'Réessayer la synchronisation',
-                    'Retry synchronization',
+                  _label(fn['name'] as String),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: colors.onSurfaceVariant,
                   ),
                 ),
               ),
             ],
-            ExpansionTile(
-              tilePadding: EdgeInsets.zero,
-              dense: true,
-              title: Text(
-                context.tr.copilot_technical_details,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
-              ),
-              children: [
-                SelectableText(
-                  '${fn['name']}\n${fn['arguments']}\n${a['result'] ?? ''}',
+          ),
+          if (state != 'succeeded')
+            Padding(
+              padding: const EdgeInsets.only(left: 21, top: 2),
+              child: Text(
+                switch (state) {
+                  'pending' =>
+                    _mutating(a)
+                        ? context.tr.copilot_status_approval_required
+                        : context.tr.copilot_status_ready_to_inspect,
+                  'executing' => context.tr.copilot_status_executing,
+                  'succeeded' => context.tr.copilot_status_succeeded,
+                  'declined' => context.tr.copilot_status_declined,
+                  'uncertain' => context.tr.copilot_status_unconfirmed,
+                  _ => context.tr.copilot_status_failed,
+                },
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: failed ? colors.error : colors.onSurfaceVariant,
                 ),
-              ],
+              ),
             ),
-            if (state == 'pending')
-              Wrap(
-                children: [
-                  FilledButton(
+          if (cloudPending != null &&
+              !_cloudRetried.contains(a['call_id'])) ...[
+            Text(
+              cloudPending['created'] == true
+                  ? _copy(
+                      'Créée sur Discord, pas encore active sur le bot',
+                      'Created on Discord, not yet active on the bot',
+                    )
+                  : _copy(
+                      'Enregistrée, pas encore active sur le bot cloud',
+                      'Saved, not yet active on the cloud bot',
+                    ),
+            ),
+            TextButton(
+              onPressed: _busy
+                  ? null
+                  : () async {
+                      setState(() => _busy = true);
+                      final synced = cloudPending['command_id'] is String
+                          ? await _mcp!.syncCloudCommand(
+                              cloudPending['bot_id'] as String,
+                              cloudPending['command_id'] as String,
+                            )
+                          : await _mcp!.retryCloudConfiguration(
+                              cloudPending['bot_id'] as String,
+                            );
+                      if (!mounted) return;
+                      setState(() {
+                        _busy = false;
+                        if (synced) {
+                          _cloudRetried.add(a['call_id'] as String);
+                        } else {
+                          _error = _copy(
+                            'Commande toujours inactive sur le bot cloud',
+                            'Command is still inactive on the cloud bot',
+                          );
+                        }
+                      });
+                    },
+              child: Text(
+                _copy('Réessayer la synchronisation', 'Retry synchronization'),
+              ),
+            ),
+          ],
+          if (state == 'pending')
+            Wrap(
+              children: [
+                FilledButton(
+                  onPressed: _busy || _chat?['archived'] == true
+                      ? null
+                      : () => _action(a, true),
+                  child: Text(context.tr.copilot_approve),
+                ),
+                if (_mutating(a))
+                  TextButton(
                     onPressed: _busy || _chat?['archived'] == true
                         ? null
-                        : () => _action(a, true),
-                    child: Text(
-                      _mutating(a)
-                          ? context.tr.copilot_approve
-                          : context.tr.copilot_inspect,
-                    ),
+                        : () => _action(a, false),
+                    child: Text(context.tr.copilot_decline),
                   ),
-                  if (_mutating(a))
-                    TextButton(
-                      onPressed: _busy || _chat?['archived'] == true
-                          ? null
-                          : () => _action(a, false),
-                      child: Text(context.tr.copilot_decline),
-                    ),
-                ],
-              ),
-            if (state == 'uncertain')
-              TextButton(
-                onPressed: _busy
-                    ? null
-                    : () async {
-                        final confirmed = await showDialog<bool>(
-                          context: context,
-                          builder: (ctx) => AlertDialog(
-                            title: Text(
-                              context.tr.copilot_close_without_replay,
-                            ),
-                            content: Text(
-                              context.tr.copilot_close_unconfirmed_warning,
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(ctx, false),
-                                child: Text(context.tr.copilot_cancel),
-                              ),
-                              FilledButton(
-                                onPressed: () => Navigator.pop(ctx, true),
-                                child: Text(context.tr.copilot_close_action),
-                              ),
-                            ],
+              ],
+            ),
+          if (state == 'uncertain')
+            TextButton(
+              onPressed: _busy
+                  ? null
+                  : () async {
+                      final confirmed = await showDialog<bool>(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: Text(context.tr.copilot_close_without_replay),
+                          content: Text(
+                            context.tr.copilot_close_unconfirmed_warning,
                           ),
-                        );
-                        if (confirmed != true) {
-                          return;
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(ctx, false),
+                              child: Text(context.tr.copilot_cancel),
+                            ),
+                            FilledButton(
+                              onPressed: () => Navigator.pop(ctx, true),
+                              child: Text(context.tr.copilot_close_action),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (confirmed != true) {
+                        return;
+                      }
+                      try {
+                        await _api!.aiAction(_id, a['call_id'] as String, {
+                          'state': 'failed',
+                          'result': {
+                            'isError': true,
+                            'message':
+                                'Execution outcome unconfirmed; user acknowledged after inspection. No replay authorized.',
+                          },
+                        });
+                        await _refresh();
+                      } catch (e) {
+                        if (mounted) {
+                          setState(() => _error = _describe(e));
                         }
-                        try {
-                          await _api!.aiAction(_id, a['call_id'] as String, {
-                            'state': 'failed',
-                            'result': {
-                              'isError': true,
-                              'message':
-                                  'Execution outcome unconfirmed; user acknowledged after inspection. No replay authorized.',
-                            },
-                          });
-                          await _refresh();
-                        } catch (e) {
-                          if (mounted) {
-                            setState(() => _error = _describe(e));
-                          }
-                        }
-                      },
-                child: Text(context.tr.copilot_close_without_replay),
-              ),
-          ],
-        ),
+                      }
+                    },
+              child: Text(context.tr.copilot_close_without_replay),
+            ),
+        ],
       ),
     );
   }
