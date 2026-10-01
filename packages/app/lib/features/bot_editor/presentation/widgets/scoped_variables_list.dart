@@ -254,7 +254,14 @@ class _ScopedVariableTile extends StatelessWidget {
         legacyRefKey: legacyRefKey,
         hasLegacy: hasLegacy,
         storedValueCount:
-            (definition[kScopedVariableStoredCountKey] as num?)?.toInt() ?? 0,
+            (definition[kScopedVariableStoredCountKey] is num
+                    ? definition[kScopedVariableStoredCountKey] as num
+                    : num.tryParse(
+                        definition[kScopedVariableStoredCountKey]?.toString() ??
+                            '',
+                      ))
+                ?.toInt() ??
+            0,
         onExplore: () => onExplore(key, scope),
         onDeclare: () => onDeclare(definition),
       );

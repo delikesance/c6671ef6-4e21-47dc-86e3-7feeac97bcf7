@@ -81,6 +81,40 @@ class _CommandSandboxPageState extends State<CommandSandboxPage> {
     );
   }
 
+  int _resolveOptionType(dynamic raw) {
+    if (raw is num) return raw.toInt();
+    if (raw is String) {
+      final lower = raw.trim().toLowerCase();
+      switch (lower) {
+        case 'subcommand':
+          return 1;
+        case 'subcommandgroup':
+          return 2;
+        case 'string':
+          return 3;
+        case 'integer':
+          return 4;
+        case 'boolean':
+          return 5;
+        case 'user':
+          return 6;
+        case 'channel':
+          return 7;
+        case 'role':
+          return 8;
+        case 'mentionable':
+          return 9;
+        case 'number':
+          return 10;
+        case 'attachment':
+          return 11;
+        default:
+          return int.tryParse(lower) ?? 3;
+      }
+    }
+    return 3;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -89,7 +123,7 @@ class _CommandSandboxPageState extends State<CommandSandboxPage> {
       '  ',
     ).convert(widget.initialScenario);
     for (final option in widget.options) {
-      if ((option['type'] as num? ?? 3) >= 3) {
+      if (_resolveOptionType(option['type']) >= 3) {
         inputs[option['name'].toString()] = TextEditingController();
       }
     }
@@ -129,8 +163,8 @@ class _CommandSandboxPageState extends State<CommandSandboxPage> {
           }
           continue;
         }
-        final type = option['type'];
-        options[key] = switch (type) {
+        final typeNum = _resolveOptionType(option['type']);
+        options[key] = switch (typeNum) {
           4 => int.parse(text),
           10 => num.parse(text),
           5 => switch (text.toLowerCase()) {
@@ -238,11 +272,31 @@ class _CommandSandboxPageState extends State<CommandSandboxPage> {
                 ),
               ),
               const SizedBox(height: 16),
-              if (widget.editableScript)
+              if (widget.editableScript && widget.script != null)
                 field(
                   source,
                   label("Script à tester", "Test script"),
                   lines: 5,
+                ),
+              if (widget.actions != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Card(
+                    child: ListTile(
+                      leading: const AppIcon.fromMaterial(
+                        Icons.extension_outlined,
+                      ),
+                      title: Text(
+                        label('Commande en blocs', 'Block-based command'),
+                      ),
+                      subtitle: Text(
+                        label(
+                          '${widget.actions!.length} action(s) configurée(s)',
+                          '${widget.actions!.length} configured action(s)',
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               if (widget.expectedResponse != null)
                 Text(

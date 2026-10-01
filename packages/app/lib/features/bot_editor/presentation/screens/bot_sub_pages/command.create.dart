@@ -700,13 +700,21 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   }
 
   CommandOptionBuilder _buildOptionFromApplicationOption(dynamic source) {
+    final rawMin = source.minValue;
+    final rawMax = source.maxValue;
+    final num? minValue = rawMin is num
+        ? rawMin
+        : num.tryParse(rawMin?.toString() ?? '');
+    final num? maxValue = rawMax is num
+        ? rawMax
+        : num.tryParse(rawMax?.toString() ?? '');
     final option = CommandOptionBuilder(
       type: source.type as CommandOptionType,
       name: source.name.toString(),
       description: source.description?.toString() ?? '',
       isRequired: source.isRequired == true,
-      minValue: source.minValue as num?,
-      maxValue: source.maxValue as num?,
+      minValue: minValue,
+      maxValue: maxValue,
       nameLocalizations: source.nameLocalizations as Map<Locale, String>?,
       descriptionLocalizations:
           source.descriptionLocalizations as Map<Locale, String>?,

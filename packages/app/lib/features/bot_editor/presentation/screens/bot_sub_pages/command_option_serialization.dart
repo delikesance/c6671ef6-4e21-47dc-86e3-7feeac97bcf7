@@ -133,17 +133,40 @@ List<Map<String, dynamic>> serializeCommandOptions(
 }
 
 CommandOptionBuilder deserializeCommandOption(Map<String, dynamic> raw) {
+  final rawMin = raw['minValue'];
+  final rawMax = raw['maxValue'];
+  final rawMinLen = raw['minLength'];
+  final rawMaxLen = raw['maxLength'];
+  final num? minValue = rawMin is num
+      ? rawMin
+      : num.tryParse(rawMin?.toString() ?? '');
+  final num? maxValue = rawMax is num
+      ? rawMax
+      : num.tryParse(rawMax?.toString() ?? '');
+  final int? minLength = rawMinLen is int
+      ? rawMinLen
+      : int.tryParse(rawMinLen?.toString() ?? '');
+  final int? maxLength = rawMaxLen is int
+      ? rawMaxLen
+      : int.tryParse(rawMaxLen?.toString() ?? '');
+
   final option = CommandOptionBuilder(
     type: commandOptionTypeFromText((raw['type'] ?? '').toString()),
     name: (raw['name'] ?? '').toString(),
     description: (raw['description'] ?? '').toString(),
     isRequired: raw['required'] == true,
-    minValue: raw['minValue'] as num?,
-    maxValue: raw['maxValue'] as num?,
-    minLength: raw['minLength'] as int?,
-    maxLength: raw['maxLength'] as int?,
+    minValue: minValue,
+    maxValue: maxValue,
+    minLength: minLength,
+    maxLength: maxLength,
     channelTypes: (raw['channelTypes'] as List?)
-        ?.map((type) => ChannelType(type as int))
+        ?.map((type) {
+          final intVal = type is int
+              ? type
+              : int.tryParse(type?.toString() ?? '');
+          return intVal != null ? ChannelType(intVal) : null;
+        })
+        .whereType<ChannelType>()
         .toList(),
   );
 
