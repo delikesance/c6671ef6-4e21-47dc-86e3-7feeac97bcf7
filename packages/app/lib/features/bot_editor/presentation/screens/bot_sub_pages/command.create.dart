@@ -2323,7 +2323,11 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                   tooltip: Localizations.localeOf(context).languageCode == 'fr'
                       ? 'Tester dans le sandbox'
                       : 'Test in sandbox',
-                  icon: const AppIcon.fromMaterial(Icons.science_outlined),
+                  icon: const AppIcon.fromMaterial(
+                    Icons.science_outlined,
+                    size: 20,
+                  ),
+                  visualDensity: VisualDensity.compact,
                   onPressed: () async {
                     final definitions = _botIdForConfig == null
                         ? <Map<String, dynamic>>[]
@@ -2350,7 +2354,8 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
               IconButton(
                 tooltip: context.tr.edit_shell_command_settings,
                 onPressed: _openCommandSettings,
-                icon: const AppIcon.fromMaterial(Icons.tune_rounded),
+                icon: const AppIcon.fromMaterial(Icons.tune_rounded, size: 20),
+                visualDensity: VisualDensity.compact,
               ),
               if (!_isEditingExistingCommand)
                 IconButton(
@@ -2358,13 +2363,19 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                   onPressed: _importCommandPayload,
                   icon: const AppIcon.fromMaterial(
                     Icons.content_paste_go_outlined,
+                    size: 20,
                   ),
+                  visualDensity: VisualDensity.compact,
                 ),
               PopupMenuButton<String>(
                 tooltip: Localizations.localeOf(context).languageCode == 'fr'
                     ? 'Plus d\'options'
                     : 'More options',
-                icon: const AppIcon.fromMaterial(Icons.more_vert_rounded),
+                icon: const AppIcon.fromMaterial(
+                  Icons.more_vert_rounded,
+                  size: 20,
+                ),
+                iconSize: 20,
                 onSelected: (value) async {
                   switch (value) {
                     case 'history':

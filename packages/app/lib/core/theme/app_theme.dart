@@ -289,6 +289,8 @@ abstract final class AppTheme {
         foregroundColor: colorScheme.onSurface,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
+        actionsIconTheme: const IconThemeData(size: 20),
+        iconTheme: const IconThemeData(size: 20),
       ),
       cardTheme: CardThemeData(
         color: colorScheme.surfaceContainer,
@@ -485,6 +487,8 @@ abstract final class AppTheme {
         foregroundColor: colorScheme.onSurface,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
+        actionsIconTheme: const IconThemeData(size: 20),
+        iconTheme: const IconThemeData(size: 20),
       ),
       // ── Cards ──
       cardTheme: CardThemeData(

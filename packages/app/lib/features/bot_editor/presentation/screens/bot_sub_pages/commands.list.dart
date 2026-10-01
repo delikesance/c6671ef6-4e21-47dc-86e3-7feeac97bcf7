@@ -1950,14 +1950,16 @@ class _AppCommandsPageState extends State<AppCommandsPage>
               ),
         leading: _isSelectMode
             ? IconButton(
-                icon: const AppIcon.fromMaterial(Icons.close),
+                icon: const AppIcon.fromMaterial(Icons.close, size: 20),
                 tooltip: context.tr.cancel,
+                visualDensity: VisualDensity.compact,
                 onPressed: _cancelSelectMode,
               )
             : _isReorderMode
             ? IconButton(
-                icon: const AppIcon.fromMaterial(Icons.close),
+                icon: const AppIcon.fromMaterial(Icons.close, size: 20),
                 tooltip: context.tr.cancel,
+                visualDensity: VisualDensity.compact,
                 onPressed: _cancelReorderMode,
               )
             : editorSubPageLeading(context),
@@ -1969,7 +1971,9 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                             _commands.isNotEmpty
                         ? Icons.deselect_rounded
                         : Icons.select_all_rounded,
+                    size: 20,
                   ),
+                  visualDensity: VisualDensity.compact,
                   tooltip:
                       _selectedCommandIds.length == _commands.length &&
                           _commands.isNotEmpty
@@ -1992,7 +1996,9 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                 IconButton(
                   icon: const AppIcon.fromMaterial(
                     Icons.drive_file_move_outlined,
+                    size: 20,
                   ),
+                  visualDensity: VisualDensity.compact,
                   tooltip: context.tr.commands_move_to_folder,
                   onPressed: _selectedCommandIds.isNotEmpty
                       ? _batchMoveSelected
@@ -2001,7 +2007,9 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                 IconButton(
                   icon: const AppIcon.fromMaterial(
                     Icons.delete_outline_rounded,
+                    size: 20,
                   ),
+                  visualDensity: VisualDensity.compact,
                   tooltip: context.tr.delete,
                   onPressed: _selectedCommandIds.isNotEmpty
                       ? _batchDeleteSelected
@@ -2011,20 +2019,32 @@ class _AppCommandsPageState extends State<AppCommandsPage>
             : _isReorderMode
             ? [
                 IconButton(
-                  icon: const AppIcon.fromMaterial(Icons.check_rounded),
+                  icon: const AppIcon.fromMaterial(
+                    Icons.check_rounded,
+                    size: 20,
+                  ),
+                  visualDensity: VisualDensity.compact,
                   tooltip: context.tr.save,
                   onPressed: _saveReorderMode,
                 ),
               ]
             : [
                 IconButton(
-                  icon: const AppIcon.fromMaterial(Icons.auto_awesome_rounded),
+                  icon: const AppIcon.fromMaterial(
+                    Icons.auto_awesome_rounded,
+                    size: 20,
+                  ),
+                  visualDensity: VisualDensity.compact,
                   tooltip: context.tr.marketplace_title,
                   color: AppTheme.brandSecondary,
                   onPressed: _openMarketplace,
                 ),
                 PopupMenuButton<String>(
-                  icon: const AppIcon.fromMaterial(Icons.more_vert_rounded),
+                  icon: const AppIcon.fromMaterial(
+                    Icons.more_vert_rounded,
+                    size: 20,
+                  ),
+                  iconSize: 20,
                   tooltip: context.tr.more_options_title,
                   onSelected: (value) async {
                     switch (value) {

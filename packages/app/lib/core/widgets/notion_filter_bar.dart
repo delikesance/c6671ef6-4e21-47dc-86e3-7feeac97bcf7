@@ -168,21 +168,15 @@ class _NotionFilterBarState extends State<NotionFilterBar> {
         .toList(growable: false);
     final hasActiveFilters =
         activeFilters.isNotEmpty || activeToggles.isNotEmpty;
-    final inactiveFilters = widget.filters
-        .where((f) => !f.isActive)
-        .toList(growable: false);
-    final inactiveToggles = widget.toggleFilters
-        .where((t) => !t.enabled)
-        .toList(growable: false);
-    final hasInactiveFilters =
-        inactiveFilters.isNotEmpty || inactiveToggles.isNotEmpty;
+    final hasAnyFilters =
+        widget.filters.isNotEmpty || widget.toggleFilters.isNotEmpty;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // ── Search field + optional trailing action ──
+          // ── Search field + filter icon button + optional trailing action ──
           Row(
             children: [
               Expanded(
@@ -223,6 +217,10 @@ class _NotionFilterBarState extends State<NotionFilterBar> {
                   ),
                 ),
               ),
+              if (hasAnyFilters) ...[
+                const SizedBox(width: 8),
+                _buildFilterIconButton(context, hasActive: hasActiveFilters),
+              ],
               if (widget.trailingAction != null) ...[
                 const SizedBox(width: 8),
                 widget.trailingAction!,
@@ -230,8 +228,8 @@ class _NotionFilterBarState extends State<NotionFilterBar> {
             ],
           ),
 
-          // ── Active filter chips + add filter button ──
-          if (hasActiveFilters || hasInactiveFilters) ...[
+          // ── Active filter chips ──
+          if (hasActiveFilters) ...[
             const SizedBox(height: 8),
             Wrap(
               spacing: 6,
@@ -267,28 +265,6 @@ class _NotionFilterBarState extends State<NotionFilterBar> {
                     ),
                     visualDensity: VisualDensity.compact,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-
-                // "+ Filter" button
-                if (hasInactiveFilters)
-                  ActionChip(
-                    label: Text(
-                      '+ ${widget.addFilterLabel}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: colorScheme.primary,
-                      ),
-                    ),
-                    visualDensity: VisualDensity.compact,
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    side: BorderSide(
-                      color: colorScheme.primary.withValues(alpha: 0.3),
-                    ),
-                    onPressed: () => _showAddFilterMenu(
-                      context,
-                      inactiveFilters,
-                      inactiveToggles,
-                    ),
                   ),
               ],
             ),
@@ -393,11 +369,74 @@ class _NotionFilterBarState extends State<NotionFilterBar> {
     );
   }
 
-  void _showAddFilterMenu(
-    BuildContext context,
-    List<NotionFilter> availableFilters,
-    List<NotionToggleFilter> availableToggles,
-  ) {
+  Widget _buildFilterIconButton(
+    BuildContext context, {
+    required bool hasActive,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Tooltip(
+      message: widget.addFilterLabel,
+      child: Material(
+        color: hasActive
+            ? colorScheme.primaryContainer
+            : colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
+        shape: CircleBorder(
+          side: BorderSide(
+            color: hasActive
+                ? colorScheme.primary.withValues(alpha: 0.5)
+                : colorScheme.outlineVariant.withValues(alpha: 0.4),
+            width: 1,
+          ),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          onTap: () => _showFilterMenu(context),
+          child: SizedBox(
+            width: 40,
+            height: 40,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                AppIcon.fromMaterial(
+                  Icons.filter_list,
+                  size: 20,
+                  color: hasActive
+                      ? colorScheme.onPrimaryContainer
+                      : colorScheme.onSurfaceVariant,
+                ),
+                if (hasActive)
+                  Positioned(
+                    top: 7,
+                    right: 7,
+                    child: Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: colorScheme.primary,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: colorScheme.surface,
+                          width: 1.5,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showFilterMenu(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final hasActive =
+        widget.filters.any((f) => f.isActive) ||
+        widget.toggleFilters.any((t) => t.enabled);
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -410,38 +449,76 @@ class _NotionFilterBarState extends State<NotionFilterBar> {
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: Text(
-                  widget.addFilterLabel,
-                  style: Theme.of(
-                    sheetContext,
-                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        widget.addFilterLabel,
+                        style: Theme.of(sheetContext).textTheme.titleSmall
+                            ?.copyWith(fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                    if (hasActive)
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(sheetContext);
+                          for (final f in widget.filters) {
+                            if (f.isActive) {
+                              widget.onFilterChanged?.call(f.id, '');
+                            }
+                          }
+                          for (final t in widget.toggleFilters) {
+                            if (t.enabled) {
+                              widget.onToggleFilterChanged?.call(t.id, false);
+                            }
+                          }
+                        },
+                        child: Text(sheetContext.tr.action_clear_all),
+                      ),
+                  ],
                 ),
               ),
               const Divider(height: 1),
-              for (final filter in availableFilters)
+              for (final filter in widget.filters)
                 ListTile(
                   dense: true,
                   leading: AppIcon.fromMaterial(filter.icon, size: 20),
                   title: Text(filter.label),
                   subtitle: Text(
-                    context.tr.marketplace_command_preview_options(
-                      filter.options.length,
+                    filter.isActive
+                        ? (filter.options[filter.selectedValue] ??
+                              filter.selectedValue)
+                        : sheetContext.tr.marketplace_command_preview_options(
+                            filter.options.length,
+                          ),
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: filter.isActive
+                          ? colorScheme.primary
+                          : colorScheme.onSurfaceVariant,
+                      fontWeight: filter.isActive
+                          ? FontWeight.w600
+                          : FontWeight.normal,
                     ),
-                    style: const TextStyle(fontSize: 11),
+                  ),
+                  trailing: const AppIcon.fromMaterial(
+                    Icons.chevron_right_rounded,
+                    size: 18,
                   ),
                   onTap: () {
                     Navigator.pop(sheetContext);
                     _showFilterOptions(context, filter);
                   },
                 ),
-              for (final toggle in availableToggles)
-                ListTile(
+              for (final toggle in widget.toggleFilters)
+                SwitchListTile(
                   dense: true,
-                  leading: AppIcon.fromMaterial(toggle.icon, size: 20),
+                  secondary: AppIcon.fromMaterial(toggle.icon, size: 20),
                   title: Text(toggle.label),
-                  onTap: () {
+                  value: toggle.enabled,
+                  onChanged: (val) {
                     Navigator.pop(sheetContext);
-                    widget.onToggleFilterChanged?.call(toggle.id, true);
+                    widget.onToggleFilterChanged?.call(toggle.id, val);
                   },
                 ),
               const SizedBox(height: 8),

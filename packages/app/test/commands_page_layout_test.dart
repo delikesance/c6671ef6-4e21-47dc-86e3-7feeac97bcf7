@@ -64,5 +64,55 @@ void main() {
         expect(createTapped, isTrue);
       },
     );
+
+    testWidgets(
+      'renders circular filter button to the left of trailingAction',
+      (tester) async {
+        tester.view.physicalSize = const Size(360, 640);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.reset);
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: NotionFilterBar(
+                searchQuery: '',
+                onSearchChanged: (_) {},
+                searchHint: 'Rechercher...',
+                filters: const [
+                  NotionFilter(
+                    id: 'type',
+                    label: 'Type',
+                    icon: Icons.category,
+                    options: {'': 'All', 'slash': 'Slash'},
+                  ),
+                ],
+                trailingAction: const SizedBox(
+                  key: ValueKey('trailing_action'),
+                  width: 80,
+                  height: 40,
+                ),
+              ),
+            ),
+          ),
+        );
+
+        expect(tester.takeException(), isNull);
+        expect(find.byKey(const ValueKey('trailing_action')), findsOneWidget);
+
+        // Find tooltip or Material with CircleBorder
+        final materialFinder = find.byWidgetPredicate(
+          (w) => w is Material && w.shape is CircleBorder,
+        );
+        expect(materialFinder, findsOneWidget);
+
+        // Verify the filter button sits to the left of the trailing action
+        final filterButtonTopLeft = tester.getTopLeft(materialFinder);
+        final trailingTopLeft = tester.getTopLeft(
+          find.byKey(const ValueKey('trailing_action')),
+        );
+        expect(filterButtonTopLeft.dx, lessThan(trailingTopLeft.dx));
+      },
+    );
   });
 }
