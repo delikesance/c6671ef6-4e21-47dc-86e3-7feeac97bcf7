@@ -114,20 +114,79 @@ Future<Map<String, dynamic>> _run(Map<String, dynamic> input) async {
     }
     actions = compiled.actions;
   }
+  final scopedDefinitions = <Map<String, dynamic>>[];
+  final rawDefinitions = input['definitions'];
+  if (rawDefinitions is List) {
+    for (final d in rawDefinitions.whereType<Map>()) {
+      scopedDefinitions.add({
+        'key': (d['key'] ?? d['name'] ?? '').toString(),
+        'scope': (d['scope'] ?? 'guildMember').toString(),
+        'defaultValue': d['defaultValue'] ?? d['default'] ?? d['value'] ?? '',
+        if (d['value_type'] != null) 'value_type': d['value_type'],
+      });
+    }
+  } else if (rawDefinitions is Map) {
+    for (final entry in rawDefinitions.entries) {
+      final key = entry.key.toString();
+      final val = entry.value;
+      if (val is Map) {
+        scopedDefinitions.add({
+          'key': (val['key'] ?? val['name'] ?? key).toString(),
+          'scope': (val['scope'] ?? 'guildMember').toString(),
+          'defaultValue':
+              val['defaultValue'] ?? val['default'] ?? val['value'] ?? '',
+          if (val['value_type'] != null) 'value_type': val['value_type'],
+        });
+      } else {
+        scopedDefinitions.add({
+          'key': key,
+          'scope': 'guildMember',
+          'defaultValue': val?.toString() ?? '',
+        });
+      }
+    }
+  }
+
+  final scopedVariables = <String, Map<String, Map<String, dynamic>>>{};
+  final rawScoped = input['scoped'];
+  if (rawScoped is Map) {
+    for (final scopeEntry in rawScoped.entries) {
+      final scope = scopeEntry.key.toString();
+      final scopeMap = scopedVariables.putIfAbsent(scope, () => {});
+      if (scopeEntry.value is Map) {
+        for (final contextEntry in (scopeEntry.value as Map).entries) {
+          final ctxId = contextEntry.key.toString();
+          if (contextEntry.value is Map) {
+            scopeMap[ctxId] = Map<String, dynamic>.from(
+              contextEntry.value as Map,
+            );
+          } else {
+            scopeMap.putIfAbsent('10:20', () => {})[ctxId] = contextEntry.value;
+          }
+        }
+      }
+    }
+  } else if (rawScoped is List) {
+    for (final item in rawScoped.whereType<Map>()) {
+      final scope = (item['scope'] ?? 'guildMember').toString();
+      final context =
+          (item['context'] ?? item['id'] ?? item['contextId'] ?? '10:20')
+              .toString();
+      final key = (item['key'] ?? item['name'] ?? '').toString();
+      final value = item['value'] ?? item['defaultValue'] ?? '';
+      if (key.isNotEmpty) {
+        scopedVariables
+                .putIfAbsent(scope, () => {})
+                .putIfAbsent(context, () => {})[key] =
+            value;
+      }
+    }
+  }
+
   final store = SandboxStore(
     globalVariables: Map<String, dynamic>.from(input['global'] as Map? ?? {}),
-    scopedDefinitions: (input['definitions'] as List? ?? [])
-        .map((d) => Map<String, dynamic>.from(d as Map))
-        .toList(),
-    scopedVariables: (input['scoped'] as Map? ?? {}).map(
-      (scope, contexts) => MapEntry(
-        scope.toString(),
-        (contexts as Map).map(
-          (id, values) =>
-              MapEntry(id.toString(), Map<String, dynamic>.from(values as Map)),
-        ),
-      ),
-    ),
+    scopedDefinitions: scopedDefinitions,
+    scopedVariables: scopedVariables,
     workflows: (input['workflows'] as List? ?? [])
         .map((workflow) => Map<String, dynamic>.from(workflow as Map))
         .toList(),
@@ -157,10 +216,100 @@ Future<Map<String, dynamic>> _run(Map<String, dynamic> input) async {
           .where((word) => word.isNotEmpty)
           .toList(),
     ),
-    ...(input['variables'] as Map? ?? {}).map(
-      (k, v) => MapEntry(k.toString(), v.toString()),
-    ),
   };
+
+  void applyContext(Map ctx) {
+    for (final entry in ctx.entries) {
+      final k = entry.key.toString();
+      final v = entry.value;
+      if (v is Map) {
+        for (final sub in v.entries) {
+          variables['$k.${sub.key}'] = sub.value?.toString() ?? '';
+        }
+        if (v['id'] != null) {
+          variables['$k.id'] = v['id'].toString();
+        }
+      } else if (v is List) {
+        if (k == 'permissions' || k == 'member.permissions') {
+          variables['member.permissions'] = v
+              .map((p) => p.toString().toLowerCase())
+              .join(',');
+        } else {
+          variables[k] = jsonEncode(v);
+        }
+      } else {
+        variables[k] = v?.toString() ?? '';
+        if (k == 'guild_id' || k == 'guildId') {
+          variables['guild.id'] = v.toString();
+        }
+        if (k == 'channel_id' || k == 'channelId') {
+          variables['channel.id'] = v.toString();
+        }
+        if (k == 'user_id' ||
+            k == 'userId' ||
+            k == 'author_id' ||
+            k == 'authorId') {
+          final idStr = v.toString();
+          variables['author.id'] = idStr;
+          variables['user.id'] = idStr;
+          variables['member.id'] = idStr;
+        }
+        if (k == 'username' || k == 'author_username') {
+          variables['author.username'] = v.toString();
+          variables['user.username'] = v.toString();
+        }
+        if (k == 'permissions' || k == 'permission') {
+          variables['member.permissions'] = v.toString().toLowerCase();
+        }
+        if (k == 'isAdmin' || k == 'admin') {
+          variables['member.isAdmin'] = (v == true || v == 'true').toString();
+        }
+        if (k == 'isSlash' || k == 'slash') {
+          variables['interaction.isSlash'] = (v == true || v == 'true')
+              .toString();
+        }
+      }
+    }
+  }
+
+  if (input['context'] is Map) {
+    applyContext(input['context'] as Map);
+  }
+  if (input['permissions'] != null) {
+    final p = input['permissions'];
+    variables['member.permissions'] = p is List
+        ? p.map((e) => e.toString().toLowerCase()).join(',')
+        : p.toString().toLowerCase();
+  }
+  if (variables['member.isAdmin'] == 'true') {
+    final cur = variables['member.permissions'] ?? '';
+    if (!cur.contains('administrator')) {
+      variables['member.permissions'] = cur.isEmpty
+          ? 'administrator'
+          : '$cur,administrator';
+    }
+    variables['isAdmin.byId.${variables['author.id']}'] = 'true';
+  }
+  if ((variables['member.permissions'] ?? '').isNotEmpty) {
+    variables['permissions.byId.${variables['author.id']}'] =
+        variables['member.permissions']!;
+  }
+
+  if (input['temp'] is Map) {
+    for (final entry in (input['temp'] as Map).entries) {
+      variables['temp.${entry.key}'] = entry.value?.toString() ?? '';
+    }
+  }
+
+  for (final entry in (input['variables'] as Map? ?? {}).entries) {
+    final k = entry.key.toString();
+    final v = entry.value?.toString() ?? '';
+    variables[k] = v;
+    if (!k.contains('.')) {
+      variables['temp.$k'] = v;
+    }
+  }
+
   // Options use the same flattened namespace as production interaction events.
   void option(String key, dynamic value) {
     variables[key] = value is Map || value is List
@@ -169,6 +318,22 @@ Future<Map<String, dynamic>> _run(Map<String, dynamic> input) async {
     if (value is Map) {
       for (final entry in value.entries) {
         option('$key.${entry.key}', entry.value);
+      }
+      if (value['id'] != null) {
+        variables[key] = value['id'].toString();
+      }
+    } else if (value is String || value is num) {
+      final valStr = value.toString();
+      final optName = key.startsWith('opts.') ? key.substring(5) : key;
+      if ([
+        'user',
+        'membre',
+        'member',
+        'target',
+        'channel',
+        'role',
+      ].contains(optName)) {
+        variables.putIfAbsent('$key.id', () => valStr);
       }
     }
   }
