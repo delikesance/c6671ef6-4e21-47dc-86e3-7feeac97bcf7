@@ -6,6 +6,8 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pag
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder/action_types.dart';
 import 'blueprint_models.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Right-hand drawer inspector panel to edit action parameters directly in Blueprint mode.
 class BlueprintInspectorPanel extends StatelessWidget {
   final BlueprintNodeData node;
@@ -78,7 +80,7 @@ class BlueprintInspectorPanel extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(node.icon, color: node.headerColor),
+                AppIcon.fromMaterial(node.icon, color: node.headerColor),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -90,7 +92,7 @@ class BlueprintInspectorPanel extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close),
+                  icon: const AppIcon.fromMaterial(Icons.close),
                   tooltip: context.tr.blueprint_close_inspector,
                   onPressed: onClose,
                 ),
@@ -125,7 +127,8 @@ class BlueprintInspectorPanel extends StatelessWidget {
                 : Center(
                     child: Padding(
                       padding: const EdgeInsets.all(24.0),
-                      child: Text(context.tr.blueprint_entry_point_hint,
+                      child: Text(
+                        context.tr.blueprint_entry_point_hint,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,

@@ -146,7 +146,7 @@ void main() {
       expect(result.actions.single.payload['targetType'], 'reply');
       expect(
         result.actions.single.payload['content'],
-        '((message.mentions[0]))|((message.mentions[0]|channel.id))',
+        '((message.channelMentions[0]))|((message.channelMentions[0]|channel.id))',
       );
     });
 
@@ -161,7 +161,7 @@ void main() {
           result.actions.single.payload['content']?.toString() ?? '';
       expect(content, contains('((author.avatar))'));
       expect(content, contains('((author.id))'));
-      expect(content, contains('((userperms[;-1;, ]))'));
+      expect(content, contains('((member[((author.id))].permissions))'));
       expect(content, contains('((user.id))'));
     });
 
@@ -175,7 +175,9 @@ void main() {
       expect(result.actions, hasLength(2));
       expect(result.actions[0].type, BotCreatorActionType.updateSelfUser);
       expect(result.actions[0].payload['username'], 'NewName');
-      expect(result.actions[1].type, BotCreatorActionType.ifBlock);
+      expect(result.actions[1].type, BotCreatorActionType.updateSelfUser);
+      expect(result.actions[1].payload['targetUserId'], '1234567890');
+      expect(result.actions[1].payload['username'], 'AnotherName');
     });
 
     test('surfaces unsupported functions as compile errors', () {

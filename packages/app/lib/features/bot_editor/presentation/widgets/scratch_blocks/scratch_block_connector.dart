@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Visual connector line drawn between two adjacent [ScratchBlock] widgets.
 class ScratchBlockConnector extends StatelessWidget {
   const ScratchBlockConnector({
@@ -40,7 +42,11 @@ class ScratchBlockConnector extends StatelessWidget {
                 children: [
                   Expanded(child: Container(width: 2, color: effectiveColor)),
                   if (showArrow)
-                    Icon(Icons.arrow_drop_down, size: 14, color: effectiveColor),
+                    AppIcon.fromMaterial(
+                      Icons.arrow_drop_down,
+                      size: 14,
+                      color: effectiveColor,
+                    ),
                 ],
               ),
             ),
@@ -59,7 +65,7 @@ class ScratchBlockConnector extends StatelessWidget {
                     border: Border.all(color: effectiveColor, width: 1.5),
                   ),
                   alignment: Alignment.center,
-                  child: Icon(
+                  child: AppIcon.fromMaterial(
                     Icons.add,
                     size: 13,
                     color: primaryColor,
@@ -80,7 +86,11 @@ class ScratchBlockConnector extends StatelessWidget {
           children: [
             Expanded(child: Container(width: 2, color: effectiveColor)),
             if (showArrow)
-              Icon(Icons.arrow_drop_down, size: 14, color: effectiveColor),
+              AppIcon.fromMaterial(
+                Icons.arrow_drop_down,
+                size: 14,
+                color: effectiveColor,
+              ),
           ],
         ),
       ),

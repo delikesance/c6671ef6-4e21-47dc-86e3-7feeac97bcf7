@@ -35,6 +35,10 @@ extension _BdfdAstTranspilationScopeInlineRuntime
       if (stringVar != null) return stringVar;
     }
     switch (node.normalizedName) {
+      case 'webhookcreate':
+        final action = _buildWebhookCreateAction(node);
+        _deferredInlineActions.add(action);
+        return '((${action.key}))';
       case 'addemoji':
         final action = _buildAddEmojiAction(node);
         if (action != null) {
@@ -46,6 +50,17 @@ extension _BdfdAstTranspilationScopeInlineRuntime
           return '((${action.key}.tag))';
         }
         return '';
+      case 'createchannel':
+        final action = _buildCreateChannelAction(node);
+        if (action != null) {
+          _deferredInlineActions.add(action);
+          return '((${action.key}))';
+        }
+        return '';
+      case 'newticket':
+        final action = _buildNewTicketAction(node);
+        _deferredInlineActions.add(action);
+        return '((${action.key}))';
       case 'startthread':
         final action = _buildStartThreadAction(node);
         if (action != null) {
@@ -76,6 +91,11 @@ extension _BdfdAstTranspilationScopeInlineRuntime
         return _inlineCheckUserPerms(node);
       case 'message':
         return _inlineMessageArgument(node);
+      case 'authorofmessage':
+        final messageId = _stringifyArgument(node, 0).trim();
+        return messageId.isEmpty
+            ? '((target.message.author.id|author.id))'
+            : '((message[$messageId].authorId))';
       case 'args':
         return _inlineArgsArgument(node);
       case 'i':
@@ -175,7 +195,7 @@ extension _BdfdAstTranspilationScopeInlineRuntime
             return '((member[$userId].highestRole))';
           }
         }
-        return _inlineRuntimeVariables['highestrole'];
+        return '((roleBoundary[((guild.id));highest]))';
       case 'lowestrole':
         if (node.arguments.isNotEmpty) {
           final userId = _stringifyArgument(node, 0).trim();
@@ -183,23 +203,21 @@ extension _BdfdAstTranspilationScopeInlineRuntime
             return '((member[$userId].lowestRole))';
           }
         }
-        return _inlineRuntimeVariables['lowestrole'];
+        return '((roleBoundary[((guild.id));lowest]))';
       case 'highestrolewithperms':
-        if (node.arguments.isNotEmpty) {
-          final userId = _stringifyArgument(node, 0).trim();
-          if (userId.isNotEmpty) {
-            return '((member[$userId].highestRoleWithPerms))';
-          }
-        }
-        return _inlineRuntimeVariables['highestrolewithperms'];
+        final highestPermissions = [
+          for (var i = 0; i < node.arguments.length; i++)
+            _stringifyArgument(node, i).trim(),
+        ].where((value) => value.isNotEmpty).join(';');
+        if (highestPermissions.isEmpty) return '';
+        return '((roleBoundaryWithPerms[((guild.id));highest;$highestPermissions]))';
       case 'lowestrolewithperms':
-        if (node.arguments.isNotEmpty) {
-          final userId = _stringifyArgument(node, 0).trim();
-          if (userId.isNotEmpty) {
-            return '((member[$userId].lowestRoleWithPerms))';
-          }
-        }
-        return _inlineRuntimeVariables['lowestrolewithperms'];
+        final lowestPermissions = [
+          for (var i = 0; i < node.arguments.length; i++)
+            _stringifyArgument(node, i).trim(),
+        ].where((value) => value.isNotEmpty).join(';');
+        if (lowestPermissions.isEmpty) return '';
+        return '((roleBoundaryWithPerms[((guild.id));lowest;$lowestPermissions]))';
       case 'userexists':
         if (node.arguments.isNotEmpty) {
           final userId = _stringifyArgument(node, 0).trim();
@@ -208,8 +226,11 @@ extension _BdfdAstTranspilationScopeInlineRuntime
           }
         }
         return _inlineRuntimeVariables['userexists'];
+      case 'finduser':
+        final query = _stringifyArgument(node, 0).trim();
+        final fallback = _stringifyArgument(node, 1).trim().toLowerCase();
+        return '((userFind[$query;${fallback == 'no' ? 'no' : 'yes'}].id))';
       case 'channelexists':
-      case 'serverchannelexists':
         if (node.arguments.isNotEmpty) {
           final channelId = _stringifyArgument(node, 0).trim();
           if (channelId.isNotEmpty) {
@@ -217,6 +238,15 @@ extension _BdfdAstTranspilationScopeInlineRuntime
           }
         }
         return _inlineRuntimeVariables[node.normalizedName] ?? 'false';
+      case 'serverchannelexists':
+        if (node.arguments.isNotEmpty) {
+          final name = _stringifyArgument(node, 0).trim();
+          final guildId = _stringifyArgument(node, 1).trim();
+          if (name.isNotEmpty) {
+            return '((channelSearch[$guildId;$name].exists))';
+          }
+        }
+        return 'false';
       case 'guildexists':
       case 'serverexists':
         if (node.arguments.isNotEmpty) {
@@ -239,7 +269,7 @@ extension _BdfdAstTranspilationScopeInlineRuntime
         if (node.arguments.isNotEmpty) {
           final amount = _stringifyArgument(node, 0).trim();
           final separator = node.arguments.length > 1
-              ? _stringifyArgument(node, 1).trim()
+              ? _stringifyArgument(node, 1)
               : ', ';
           return '((servernames[$amount;$separator]))';
         }
@@ -254,6 +284,71 @@ extension _BdfdAstTranspilationScopeInlineRuntime
           }
         }
         return _inlineRuntimeVariables['channelid'];
+      case 'findchannel':
+        if (node.arguments.isNotEmpty) {
+          final query = _stringifyArgument(node, 0).trim();
+          if (query.isNotEmpty) return '((channelFind[$query].id))';
+        }
+        return '';
+      case 'getslowmode':
+        // An explicit channel must not fall back to the triggering channel.
+        if (node.arguments.isNotEmpty) {
+          final channelId = _stringifyArgument(node, 0).trim();
+          if (channelId.isNotEmpty) {
+            return '((channel[$channelId].rateLimitPerUser))';
+          }
+        }
+        return _inlineRuntimeVariables['getslowmode'];
+      case 'channelname':
+      case 'channeltype':
+      case 'channeltopic':
+      case 'channelposition':
+      case 'parentid':
+      case 'categoryid':
+      case 'channelcategoryid':
+      case 'channelnsfw':
+      case 'isnsfw':
+      case 'lastmessageid':
+      case 'lastpintimestamp':
+        final channelId = _stringifyArgument(node, 0).trim();
+        if (channelId.isNotEmpty) {
+          final field = switch (node.normalizedName) {
+            'channelname' => 'name',
+            'channeltype' => 'type',
+            'channeltopic' => 'topic',
+            'channelposition' => 'position',
+            'parentid' || 'categoryid' || 'channelcategoryid' => 'parentId',
+            'channelnsfw' || 'isnsfw' => 'nsfw',
+            'lastmessageid' => 'lastMessageId',
+            'lastpintimestamp' => 'lastPinTimestamp',
+            _ => 'name',
+          };
+          return '((channel[$channelId].$field))';
+        }
+        return _inlineRuntimeVariables[node.normalizedName];
+      case 'channelnames':
+        final separator = node.arguments.isNotEmpty
+            ? _stringifyArgument(node, 0)
+            : '__default__';
+        final guildId = node.arguments.length > 1
+            ? _stringifyArgument(node, 1).trim()
+            : '';
+        return '((channelList[all;$separator;$guildId].names))';
+      case 'channelcount':
+        final categoryId = _stringifyArgument(node, 0).trim();
+        if (categoryId.isEmpty) {
+          return '((guild.channelCount|channelList[all;__default__;].count))';
+        }
+        return '((channelList[$categoryId;__default__;].count))';
+      case 'categorycount':
+        return '((guild.categoryCount|channelList[all;__default__;].categoryCount))';
+      case 'categorychannels':
+        final categoryId = _stringifyArgument(node, 0).trim();
+        if (categoryId.isEmpty) return '';
+        final separator = node.arguments.length > 1
+            ? _stringifyArgument(node, 1)
+            : '__default__';
+        return '((channelList[$categoryId;$separator;].names))';
       case 'guildid':
       case 'serverid':
         if (node.arguments.isNotEmpty) {
@@ -344,11 +439,12 @@ extension _BdfdAstTranspilationScopeInlineRuntime
       case 'getrole':
         final userId = node.arguments.isNotEmpty
             ? _stringifyArgument(node, 0).trim()
-            : '';
+            : '((author.id))';
         final index = node.arguments.length > 1
             ? _stringifyArgument(node, 1).trim()
             : '1';
-        return '((getrole[$userId;$index]))';
+        final guildId = _stringifyArgument(node, 2).trim();
+        return '((memberRoleAt[$userId;$index;$guildId].id))';
       case 'ishoisted':
         final roleId = _stringifyArgument(node, 0).trim();
         if (roleId.isNotEmpty) {
@@ -370,19 +466,20 @@ extension _BdfdAstTranspilationScopeInlineRuntime
       case 'hasrole':
         final userId = _stringifyArgument(node, 0).trim();
         final roleId = _stringifyArgument(node, 1).trim();
-        if (roleId.isNotEmpty) {
-          return '((member[$userId].hasRole[$roleId]))';
-        }
-        if (userId.isNotEmpty) {
-          return '((member.hasRole[$userId]))';
-        }
-        return 'false';
+        if (userId.isEmpty || roleId.isEmpty) return 'false';
+        return '((bdfdHasRole[((member[$userId].roles));$roleId]))';
+      case 'userroles':
+        final rolesUserId = _stringifyArgument(node, 0).trim();
+        if (rolesUserId.isEmpty) return '';
+        return '((bdfdUserRoles[((member[$rolesUserId].roleNamesJson))]))';
       case 'userswithrole':
         final uwrRoleId = _stringifyArgument(node, 0).trim();
         if (uwrRoleId.isNotEmpty) {
-          return '((role[$uwrRoleId].memberCount))';
+          final separator = _stringifyArgument(node, 1);
+          final guildId = _stringifyArgument(node, 2).trim();
+          return '((roleMembers[$uwrRoleId;${separator.isEmpty ? '__default__' : separator};$guildId].list))';
         }
-        return '0';
+        return '';
       // Parametric user info lookups
       case 'useravatar':
         if (node.arguments.isNotEmpty) {
@@ -400,6 +497,33 @@ extension _BdfdAstTranspilationScopeInlineRuntime
           }
         }
         return _inlineRuntimeVariables['userbanner'];
+      case 'getuserstatus':
+      case 'getcustomstatus':
+      case 'isuserdmenabled':
+      case 'userbadges':
+      case 'hypesquad':
+      case 'dmchannelid':
+        final requestedUserId = _stringifyArgument(node, 0).trim();
+        final targetUserId = requestedUserId.isEmpty
+            ? '((author.id))'
+            : requestedUserId;
+        final property = switch (node.normalizedName) {
+          'getuserstatus' => 'status',
+          'getcustomstatus' => 'customStatus',
+          'isuserdmenabled' => 'dmEnabled',
+          'userbadges' => 'badges',
+          'hypesquad' => 'hypesquad',
+          _ => 'dmChannelId',
+        };
+        return '((user[$targetUserId].$property))';
+      case 'userinfo':
+        final requestedUserId = _stringifyArgument(node, 0).trim();
+        final targetUserId = requestedUserId.isEmpty
+            ? '((author.id))'
+            : requestedUserId;
+        final property = _stringifyArgument(node, 1).trim();
+        if (property.isEmpty) return '((user[$targetUserId].info))';
+        return '((user[$targetUserId].info_$property))';
       case 'userperms':
       case 'authorperms':
       case 'memberperms':
@@ -412,7 +536,8 @@ extension _BdfdAstTranspilationScopeInlineRuntime
         final separator = node.arguments.length > 2
             ? _stringifyArgument(node, 2).trim()
             : ', ';
-        return '((userperms[$userId;$returnAmount;$separator]))';
+        final targetUserId = userId.isEmpty ? '((author.id))' : userId;
+        return '((userperms[$targetUserId;$returnAmount;$separator;((member[$targetUserId].permissions))]))';
       case 'isbot':
         if (node.arguments.isNotEmpty) {
           final userId = _stringifyArgument(node, 0).trim();
@@ -423,6 +548,15 @@ extension _BdfdAstTranspilationScopeInlineRuntime
         return _inlineRuntimeVariables['isbot'];
       // Mentioned helper with index
       case 'mentioned':
+        final requestedIndex = _stringifyArgument(node, 0).trim();
+        final requestedFallback = _stringifyArgument(node, 1).trim();
+        if (_containsRuntimePlaceholder(requestedIndex) ||
+            _containsRuntimePlaceholder(requestedFallback)) {
+          return _buildRuntimeBracketExpression('bdfdmentionedusers', [
+            requestedIndex,
+            requestedFallback,
+          ]);
+        }
         var returnSelf = false;
         var index = 1;
         if (node.arguments.length >= 2) {
@@ -454,15 +588,34 @@ extension _BdfdAstTranspilationScopeInlineRuntime
         return '((message.mentions))';
       // Reactions
       case 'getreactions':
-        final emoji = _stringifyArgument(node, 0).trim();
-        if (emoji.isNotEmpty) {
-          return '((message.reactions[$emoji]))';
-        }
-        return '((message.reactions))';
+        final channelId = _stringifyArgument(node, 0).trim();
+        final messageId = _stringifyArgument(node, 1).trim();
+        final emoji = _stringifyArgument(node, 2).trim();
+        return '((getReactions[$channelId;$messageId;$emoji]))';
       case 'userreacted':
-        final userId = _stringifyArgument(node, 0).trim();
-        final emoji = _stringifyArgument(node, 1).trim();
-        return '((message.reactions[$emoji].includes[$userId]))';
+        if (node.arguments.length >= 4) {
+          final channelId = _stringifyArgument(node, 0).trim();
+          final messageId = _stringifyArgument(node, 1).trim();
+          final userId = _stringifyArgument(node, 2).trim();
+          final emoji = _stringifyArgument(node, 3).trim();
+          final targetUser = userId.isEmpty ? '((author.id))' : userId;
+          return '((userReacted[$channelId;$messageId;$targetUser;$emoji]))';
+        }
+        if (node.arguments.length == 3) {
+          final arg0 = _stringifyArgument(node, 0).trim();
+          final arg1 = _stringifyArgument(node, 1).trim();
+          final arg2 = _stringifyArgument(node, 2).trim();
+          return '((userReacted[$arg0;$arg1;((author.id));$arg2]))';
+        }
+        if (node.arguments.length == 2) {
+          final messageId = _stringifyArgument(node, 0).trim();
+          final emoji = _stringifyArgument(node, 1).trim();
+          return '((userReacted[((channel.id));$messageId;((author.id));$emoji]))';
+        }
+        final emoji = node.arguments.isNotEmpty
+            ? _stringifyArgument(node, 0).trim()
+            : '';
+        return '((userReacted[((channel.id));((message.id));((author.id));$emoji]))';
       // Emoji info
       case 'customemoji':
         final emojiName = _stringifyArgument(node, 0).trim();
@@ -472,13 +625,15 @@ extension _BdfdAstTranspilationScopeInlineRuntime
         return '';
       case 'emotecount':
       case 'emojicount':
-        if (node.arguments.isNotEmpty) {
-          final guildId = _stringifyArgument(node, 0).trim();
-          if (guildId.isNotEmpty) {
-            return '((guild[$guildId].emojiCount))';
-          }
-        }
-        return _inlineRuntimeVariables['emojicount'];
+        final emojiGuildId = node.arguments.isNotEmpty
+            ? _stringifyArgument(node, 0).trim()
+            : '';
+        return '((emojiCount[${emojiGuildId.isEmpty ? '((guild.id))' : emojiGuildId}]))';
+      case 'serveremojis':
+        final serverEmojiGuildId = _stringifyArgument(node, 0).trim();
+        final serverEmojiSeparator = _stringifyArgument(node, 1);
+        if (serverEmojiGuildId.isEmpty) return '';
+        return '((serverEmojis[$serverEmojiGuildId;$serverEmojiSeparator]))';
       case 'stickercount':
         if (node.arguments.isNotEmpty) {
           final guildId = _stringifyArgument(node, 0).trim();
@@ -706,14 +861,37 @@ extension _BdfdAstTranspilationScopeInlineRuntime
       case 'varexists':
         final key = _stringifyArgument(node, 0).trim();
         if (key.isNotEmpty) {
-          return '((variables.exists[$key]))';
+          return _buildRuntimeBracketExpression('varExists', [key]);
         }
         return 'false';
       case 'varexisterror':
         return '';
       case 'getleaderboardposition':
+        if (node.arguments.isNotEmpty) {
+          final varName = _stringifyArgument(node, 0).trim();
+          final userId = node.arguments.length > 1
+              ? _stringifyArgument(node, 1).trim()
+              : '';
+          final sort = node.arguments.length > 2
+              ? _stringifyArgument(node, 2).trim()
+              : '';
+          final targetUser = userId.isEmpty ? '((author.id))' : userId;
+          final targetSort = sort.isEmpty ? 'desc' : sort;
+          return '((leaderboardPosition[$varName;$targetUser;$targetSort]))';
+        }
         return '((leaderboard.position))';
       case 'getleaderboardvalue':
+        if (node.arguments.isNotEmpty) {
+          final varName = _stringifyArgument(node, 0).trim();
+          final pos = node.arguments.length > 1
+              ? _stringifyArgument(node, 1).trim()
+              : '1';
+          final sort = node.arguments.length > 2
+              ? _stringifyArgument(node, 2).trim()
+              : '';
+          final targetSort = sort.isEmpty ? 'desc' : sort;
+          return '((leaderboardValue[$varName;$pos;$targetSort]))';
+        }
         return '((leaderboard.value))';
       case 'globaluserleaderboard':
         final guVarName = _stringifyArgument(node, 0).trim();
@@ -831,7 +1009,7 @@ extension _BdfdAstTranspilationScopeInlineRuntime
       case 'gettextsplitindex':
         return _inlineGetTextSplitIndex(node);
       case 'gettextsplitlength':
-        return _textSplitParts.length.toString();
+        return _inlineTextSplitRead(node, 'length');
       case 'joinsplittext':
         return _inlineJoinSplitText(node);
       case 'removesplittextelement':
@@ -922,16 +1100,6 @@ extension _BdfdAstTranspilationScopeInlineRuntime
       case 'lavalinkislooping':
         return '((lavalink.isLooping))';
       // Misc inline
-      case 'getserverinvite':
-        if (node.arguments.isNotEmpty) {
-          final guildId = _stringifyArgument(node, 0).trim();
-          if (guildId.isNotEmpty) {
-            return '((guild[$guildId].invite))';
-          }
-        }
-        return _inlineRuntimeVariables['getserverinvite'];
-      case 'getinviteinfo':
-        return '((invite.info))';
       case 'hostingexpiretime':
         return '((hosting.expireTime))';
       case 'premiumexpiretime':
@@ -976,15 +1144,6 @@ extension _BdfdAstTranspilationScopeInlineRuntime
           return '((member[$itUserId].isTimedOut))';
         }
         return _inlineRuntimeVariables['istimedout'];
-      case 'getslowmode':
-        // BDFD wiki: $getSlowmode[(Channel ID)]
-        if (node.arguments.isNotEmpty) {
-          final smChannelId = _stringifyArgument(node, 0).trim();
-          if (smChannelId.isNotEmpty) {
-            return '((channel[$smChannelId].rateLimitPerUser))';
-          }
-        }
-        return _inlineRuntimeVariables['getslowmode'];
       case 'isnsfw':
         // BDFD wiki: $isNSFW[Channel ID]
         final nsfwChannelId = _stringifyArgument(node, 0).trim();
@@ -993,12 +1152,11 @@ extension _BdfdAstTranspilationScopeInlineRuntime
         }
         return _inlineRuntimeVariables['isnsfw'];
       case 'ismentioned':
-        // BDFD wiki: $isMentioned[User ID]
         final imUserId = _stringifyArgument(node, 0).trim();
         if (imUserId.isNotEmpty) {
-          return '((message.isMentioned[$imUserId]))';
+          return '((bdfdIsMentioned[$imUserId]))';
         }
-        return _inlineRuntimeVariables['ismentioned'];
+        return 'false';
       case 'ismessageedited':
         // BDFD wiki: $isMessageEdited[Channel ID;Message ID]
         final meChannelId = _stringifyArgument(node, 0).trim();
@@ -1008,22 +1166,23 @@ extension _BdfdAstTranspilationScopeInlineRuntime
         }
         return _inlineRuntimeVariables['ismessageedited'];
       case 'getattachments':
-        // BDFD wiki: $getAttachments[Index]
-        final attIndex = _stringifyArgument(node, 0).trim();
-        if (attIndex.isNotEmpty) {
-          return '((message.attachments[$attIndex]))';
+        final messageId = _stringifyArgument(node, 0).trim();
+        if (messageId.isNotEmpty) {
+          return '((message[$messageId].attachments))';
         }
-        return _inlineRuntimeVariables['getattachments'];
+        return '((message.attachments))';
       case 'getembeddata':
-        // BDFD wiki: $getEmbedData[Channel ID;Message ID;Embed index;Embed property]
         final edChannelId = _stringifyArgument(node, 0).trim();
         final edMessageId = _stringifyArgument(node, 1).trim();
         final edIndex = _stringifyArgument(node, 2).trim();
-        final edProperty = _stringifyArgument(node, 3).trim();
-        if (edChannelId.isNotEmpty && edMessageId.isNotEmpty) {
-          return '((message[$edChannelId;$edMessageId].embeds[${edIndex.isEmpty ? '0' : edIndex}]${edProperty.isNotEmpty ? '.$edProperty' : ''}))';
+        final edProperty = _stringifyArgument(node, 3).trim().toLowerCase();
+        if (edChannelId.isNotEmpty &&
+            edMessageId.isNotEmpty &&
+            edIndex.isNotEmpty &&
+            edProperty.isNotEmpty) {
+          return '((getEmbedData[$edChannelId;$edMessageId;$edIndex;$edProperty]))';
         }
-        return _inlineRuntimeVariables['getembeddata'];
+        return '';
       case 'and':
         final andArgs = <String>[];
         for (var i = 0; i < node.arguments.length; i++) {
@@ -1039,8 +1198,10 @@ extension _BdfdAstTranspilationScopeInlineRuntime
       case 'listvar':
         final listvarSep = node.arguments.isNotEmpty
             ? _stringifyArgument(node, 0)
-            : ',';
-        return _buildRuntimeBracketExpression('listvar', <String>[listvarSep]);
+            : ', ';
+        return _buildRuntimeBracketExpression('listvar', <String>[
+          listvarSep.contains('((') ? listvarSep : jsonEncode(listvarSep),
+        ]);
       case 'variablescount':
         final vcType = node.arguments.isNotEmpty
             ? _stringifyArgument(node, 0)
@@ -1145,6 +1306,55 @@ extension _BdfdAstTranspilationScopeInlineRuntime
   }
 
   String? _inlineRuntimePlaceholder(BdfdFunctionCallAst node) {
+    switch (node.normalizedName) {
+      case 'isbanned':
+        if (node.arguments.isNotEmpty) {
+          return '((member[${_stringifyArgument(node, 0).trim()}].isBanned))';
+        }
+      case 'istimedout':
+        if (node.arguments.isNotEmpty) {
+          return '((member[${_stringifyArgument(node, 0).trim()}].isTimedOut))';
+        }
+      case 'getbanreason':
+        if (node.arguments.isNotEmpty) {
+          final userId = _stringifyArgument(node, 0).trim();
+          final guildId = node.arguments.length > 1
+              ? _stringifyArgument(node, 1).trim()
+              : '';
+          return '((ban.reason[$userId${guildId.isEmpty ? '' : ';$guildId'}]))';
+        }
+      case 'getserverinvite':
+        if (node.arguments.isNotEmpty) {
+          final guildId = _stringifyArgument(node, 0).trim();
+          if (guildId.isNotEmpty) {
+            return '((guild[$guildId].invite))';
+          }
+        }
+        return '((guild.invite))';
+      case 'getinviteinfo':
+        final inviteCode = _stringifyArgument(node, 0).trim();
+        final inviteProp = _stringifyArgument(node, 1).trim();
+        if (inviteCode.isNotEmpty) {
+          if (inviteProp.isNotEmpty) {
+            return '((invite[$inviteCode].$inviteProp))';
+          }
+          return '((invite[$inviteCode].info))';
+        }
+        return '((invite.info))';
+      case 'serverinfo':
+        final arg0 = _stringifyArgument(node, 0).trim();
+        final arg1 = _stringifyArgument(node, 1).trim();
+        if (arg1.isNotEmpty) {
+          return '((guild[$arg0].info_$arg1))';
+        }
+        if (arg0.isNotEmpty) {
+          if (int.tryParse(arg0) != null) {
+            return '((guild[$arg0].info))';
+          }
+          return '((guild.info_$arg0))';
+        }
+        return '((guild.info))';
+    }
     return _inlineRuntimeVariables[node.normalizedName];
   }
 
@@ -1181,6 +1391,9 @@ extension _BdfdAstTranspilationScopeInlineRuntime
       case 'jsonarraypop':
       case 'jsonarrayshift':
       case 'addemoji':
+      case 'createchannel':
+      case 'newticket':
+      case 'webhookcreate':
       case 'startthread':
       case 'editthread':
       case 'threadaddmember':

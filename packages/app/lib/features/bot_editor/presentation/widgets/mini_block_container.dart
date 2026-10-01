@@ -1,6 +1,8 @@
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Shared visual container for a "mini-block" section.
 /// Renders a compact header (icon + label + optional close button) above the content.
 class MiniBlockContainer extends StatelessWidget {
@@ -39,7 +41,11 @@ class MiniBlockContainer extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(icon, size: 16, color: theme.colorScheme.primary),
+                AppIcon.fromMaterial(
+                  icon,
+                  size: 16,
+                  color: theme.colorScheme.primary,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -56,7 +62,7 @@ class MiniBlockContainer extends StatelessWidget {
                     onTap: onRemove,
                     child: Padding(
                       padding: EdgeInsets.all(AppTheme.spacingXs),
-                      child: Icon(
+                      child: AppIcon.fromMaterial(
                         Icons.close,
                         size: 16,
                         color: Theme.of(context).colorScheme.outlineVariant,
@@ -68,10 +74,7 @@ class MiniBlockContainer extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.all(AppTheme.spacingSm),
-            child: Material(
-              type: MaterialType.transparency,
-              child: child,
-            ),
+            child: Material(type: MaterialType.transparency, child: child),
           ),
         ],
       ),
@@ -98,27 +101,20 @@ class AddSectionMenu extends StatelessWidget {
     final theme = Theme.of(context);
     return PopupMenuButton<String>(
       onSelected: onSelected,
-      itemBuilder:
-          (_) =>
-              sections
-                  .map(
-                    (s) => PopupMenuItem(
-                      value: s.$1,
-                      child: Row(
-                        children: [
-                          Icon(s.$2, size: 18),
-                          const SizedBox(width: 8),
-                          Flexible(
-                            child: Text(
-                              s.$3,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                  .toList(),
+      itemBuilder: (_) => sections
+          .map(
+            (s) => PopupMenuItem(
+              value: s.$1,
+              child: Row(
+                children: [
+                  AppIcon.fromMaterial(s.$2, size: 18),
+                  const SizedBox(width: 8),
+                  Flexible(child: Text(s.$3, overflow: TextOverflow.ellipsis)),
+                ],
+              ),
+            ),
+          )
+          .toList(),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
         decoration: BoxDecoration(
@@ -130,7 +126,11 @@ class AddSectionMenu extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.add, size: 18, color: theme.colorScheme.primary),
+            AppIcon.fromMaterial(
+              Icons.add,
+              size: 18,
+              color: theme.colorScheme.primary,
+            ),
             const SizedBox(width: 6),
             Text(
               buttonLabel,

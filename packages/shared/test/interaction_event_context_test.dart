@@ -1,6 +1,7 @@
 import 'package:bot_creator_shared/events/event_contexts.dart';
 import 'package:bot_creator_shared/utils/global.dart';
 import 'package:bot_creator_shared/utils/template_resolver.dart';
+import 'package:bot_creator_shared/sandbox/command_sandbox.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:test/test.dart';
 
@@ -178,6 +179,39 @@ class _FakeMessage implements Message {
 }
 
 void main() {
+  for (final entry in const [
+    ('userSelect', r'$getUserSelectUserID[2]|$getUserSelectUserIDs[/]'),
+    ('roleSelect', r'$getRoleSelectRoleID[2]|$getRoleSelectRoleIDs[/]'),
+    (
+      'channelSelect',
+      r'$getChannelSelectChannelID[2]|$getChannelSelectChannelIDs[/]',
+    ),
+    (
+      'mentionableSelect',
+      r'$getMentionableSelectUserID[2]|$getMentionableSelectUserIDs[/]',
+    ),
+    ('stringSelect', r'$getStringSelectValue[2]|$getStringSelectValues[/]'),
+  ]) {
+    test('real ${entry.$1} event fields execute through the sandbox', () async {
+      final variables = buildInteractionRuntimeVariables(
+        _FakeInteraction(
+          data: _FakeComponentData(
+            customId: 'select',
+            type: entry.$1,
+            values: ['111', '222'],
+          ),
+          type: InteractionType.messageComponent,
+        ),
+      );
+      final result = await testCommandInSandbox({
+        'script': entry.$2,
+        'variables': variables,
+      });
+      expect(result['success'], true, reason: '$result');
+      expect(result['responses'][0]['payload']['content'], '222|111/222');
+    });
+  }
+
   group('buildInteractionRuntimeVariables', () {
     test('extracts button/select routing fields', () {
       final variables = buildInteractionRuntimeVariables(
@@ -189,7 +223,8 @@ void main() {
               user: _FakeUser('42'),
               channelId: Snowflake(100),
               guildId: Snowflake(200),
-              message: _FakeMessage('300'), type: InteractionType.messageComponent,
+              message: _FakeMessage('300'),
+              type: InteractionType.messageComponent,
             )
             as Interaction<dynamic>,
       );
@@ -203,60 +238,69 @@ void main() {
       expect(variables['interaction.messageId'], '300');
     });
 
-    test('resolves interaction.<customId>.value(s) and .option for select menus', () {
-      final variables = buildInteractionRuntimeVariables(
-        _FakeInteraction(
-              data: _FakeComponentData(
-                customId: 'color',
-                values: ['red', 'blue'],
-              ),
-              user: _FakeUser('42'),
-              type: InteractionType.messageComponent,
-            )
-            as Interaction<dynamic>,
-      );
+    test(
+      'resolves interaction.<customId>.value(s) and .option for select menus',
+      () {
+        final variables = buildInteractionRuntimeVariables(
+          _FakeInteraction(
+                data: _FakeComponentData(
+                  customId: 'color',
+                  values: ['red', 'blue'],
+                ),
+                user: _FakeUser('42'),
+                type: InteractionType.messageComponent,
+              )
+              as Interaction<dynamic>,
+        );
 
-      expect(variables['interaction.color.customId'], 'color');
-      expect(variables['interaction.color.value'], 'red');
-      expect(variables['interaction.color.values'], 'red,blue');
-      expect(variables['interaction.color.option'], 'red');
-    });
+        expect(variables['interaction.color.customId'], 'color');
+        expect(variables['interaction.color.value'], 'red');
+        expect(variables['interaction.color.values'], 'red,blue');
+        expect(variables['interaction.color.option'], 'red');
+      },
+    );
 
-    test('resolves interaction.<customId>.value for buttons (customId is value)', () {
-      final variables = buildInteractionRuntimeVariables(
-        _FakeInteraction(
-              data: _FakeComponentData(
-                customId: 'confirm',
-                values: const <String>[],
-              ),
-              user: _FakeUser('42'),
-              type: InteractionType.messageComponent,
-            )
-            as Interaction<dynamic>,
-      );
+    test(
+      'resolves interaction.<customId>.value for buttons (customId is value)',
+      () {
+        final variables = buildInteractionRuntimeVariables(
+          _FakeInteraction(
+                data: _FakeComponentData(
+                  customId: 'confirm',
+                  values: const <String>[],
+                ),
+                user: _FakeUser('42'),
+                type: InteractionType.messageComponent,
+              )
+              as Interaction<dynamic>,
+        );
 
-      expect(variables['interaction.confirm.customId'], 'confirm');
-      expect(variables['interaction.confirm.value'], 'confirm');
-      expect(variables['interaction.confirm.option'], 'confirm');
-    });
+        expect(variables['interaction.confirm.customId'], 'confirm');
+        expect(variables['interaction.confirm.value'], 'confirm');
+        expect(variables['interaction.confirm.option'], 'confirm');
+      },
+    );
 
-    test('does not pollute the map with interaction..* when customId is empty', () {
-      final variables = buildInteractionRuntimeVariables(
-        _FakeInteraction(
-              data: _FakeComponentData(
-                customId: '',
-                values: const <String>[],
-              ),
-              user: _FakeUser('42'),
-              type: InteractionType.messageComponent,
-            )
-            as Interaction<dynamic>,
-      );
+    test(
+      'does not pollute the map with interaction..* when customId is empty',
+      () {
+        final variables = buildInteractionRuntimeVariables(
+          _FakeInteraction(
+                data: _FakeComponentData(
+                  customId: '',
+                  values: const <String>[],
+                ),
+                user: _FakeUser('42'),
+                type: InteractionType.messageComponent,
+              )
+              as Interaction<dynamic>,
+        );
 
-      expect(variables.containsKey('interaction..value'), isFalse);
-      expect(variables.containsKey('interaction..customId'), isFalse);
-      expect(variables.containsKey('interaction..option'), isFalse);
-    });
+        expect(variables.containsKey('interaction..value'), isFalse);
+        expect(variables.containsKey('interaction..customId'), isFalse);
+        expect(variables.containsKey('interaction..option'), isFalse);
+      },
+    );
 
     test('handles customId containing dots', () {
       final variables = buildInteractionRuntimeVariables(
@@ -285,7 +329,7 @@ void main() {
                 type: 'stringSelect',
                 values: ['alpha', 'beta', 'gamma'],
               ),
-            type: InteractionType.messageComponent,
+              type: InteractionType.messageComponent,
             )
             as Interaction<dynamic>,
       );
@@ -324,7 +368,7 @@ void main() {
                 type: 'channelSelect',
                 values: ['10', '20'],
               ),
-            type: InteractionType.messageComponent,
+              type: InteractionType.messageComponent,
             )
             as Interaction<dynamic>,
       );
@@ -425,9 +469,7 @@ void main() {
         user: _FakeUser('77'),
       );
 
-      final keyValues = await generateKeyValues(
-        fakeInteraction,
-      );
+      final keyValues = await generateKeyValues(fakeInteraction);
 
       // Verify that all options are present with all three prefixes
       expect(keyValues['opts.target'], '555');
@@ -441,7 +483,8 @@ void main() {
   });
 }
 
-class _FakeApplicationCommandInteraction implements Interaction<ApplicationCommandInteractionData> {
+class _FakeApplicationCommandInteraction
+    implements Interaction<ApplicationCommandInteractionData> {
   _FakeApplicationCommandInteraction({
     required this.data,
     this.user,
@@ -480,7 +523,8 @@ class _FakeApplicationCommandInteraction implements Interaction<ApplicationComma
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-class _FakeApplicationCommandInteractionData implements ApplicationCommandInteractionData {
+class _FakeApplicationCommandInteractionData
+    implements ApplicationCommandInteractionData {
   _FakeApplicationCommandInteractionData({
     required this.name,
     required this.id,

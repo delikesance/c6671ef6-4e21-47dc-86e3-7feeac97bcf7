@@ -30,6 +30,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/editor_sub_page_ui.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 class WorkflowsPage extends StatefulWidget {
   const WorkflowsPage({
     super.key,
@@ -490,7 +492,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: const Icon(Icons.data_object_outlined),
+                leading: const AppIcon.fromMaterial(Icons.data_object_outlined),
                 title: Text(context.tr.workflows_export_json),
                 subtitle: Text(context.tr.workflows_export_json_desc),
                 onTap: () async {
@@ -499,7 +501,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.key_outlined),
+                leading: const AppIcon.fromMaterial(Icons.key_outlined),
                 title: Text(context.tr.workflows_export_base64),
                 subtitle: Text(context.tr.workflows_export_base64_desc),
                 onTap: () async {
@@ -532,13 +534,13 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                 ),
               ),
               ListTile(
-                leading: const Icon(Icons.data_object_outlined),
+                leading: const AppIcon.fromMaterial(Icons.data_object_outlined),
                 title: Text(context.tr.workflows_export_json),
                 subtitle: Text(context.tr.workflows_export_json_desc),
                 onTap: () => Navigator.pop(ctx, 'json'),
               ),
               ListTile(
-                leading: const Icon(Icons.key_outlined),
+                leading: const AppIcon.fromMaterial(Icons.key_outlined),
                 title: Text(context.tr.workflows_export_base64),
                 subtitle: Text(context.tr.workflows_export_base64_desc),
                 onTap: () => Navigator.pop(ctx, 'base64'),
@@ -857,7 +859,8 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(context.tr.workflow_import_review_count(previewEntries.length),
+          Text(
+            context.tr.workflow_import_review_count(previewEntries.length),
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 8),
@@ -881,7 +884,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                     padding: const EdgeInsets.all(10),
                     child: Row(
                       children: [
-                        Icon(
+                        AppIcon.fromMaterial(
                           wfType == workflowTypeEvent
                               ? Icons.notifications_active_outlined
                               : Icons.account_tree_outlined,
@@ -899,7 +902,11 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                                   fontSize: 13,
                                 ),
                               ),
-                              Text(context.tr.workflows_preview_summary(typeLabel, actionCount),
+                              Text(
+                                context.tr.workflows_preview_summary(
+                                  typeLabel,
+                                  actionCount,
+                                ),
                                 style: TextStyle(
                                   fontSize: 11,
                                   color: Theme.of(
@@ -922,7 +929,8 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                               ).colorScheme.tertiaryContainer,
                               borderRadius: BorderRadius.circular(4),
                             ),
-                            child: Text(context.tr.common_exists,
+                            child: Text(
+                              context.tr.common_exists,
                               style: TextStyle(
                                 fontSize: 10,
                                 color: Theme.of(
@@ -992,7 +1000,8 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Text(context.tr.workflows_import_preview_title,
+                        Text(
+                          context.tr.workflows_import_preview_title,
                           style: Theme.of(ctx).textTheme.titleMedium,
                         ),
                         const SizedBox(height: 10),
@@ -1415,7 +1424,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.close, size: 20),
+                        icon: const AppIcon.fromMaterial(Icons.close, size: 20),
                         tooltip: context.tr.cancel,
                         onPressed: () => Navigator.pop(context),
                       ),
@@ -1424,13 +1433,17 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                 ),
                 const Divider(height: 1),
                 ListTile(
-                  leading: const Icon(Icons.account_tree_outlined),
+                  leading: const AppIcon.fromMaterial(
+                    Icons.account_tree_outlined,
+                  ),
                   title: Text(context.tr.workflows_type_general),
                   subtitle: Text(context.tr.workflows_type_general_desc),
                   onTap: () => Navigator.pop(context, workflowTypeGeneral),
                 ),
                 ListTile(
-                  leading: const Icon(Icons.notifications_active_outlined),
+                  leading: const AppIcon.fromMaterial(
+                    Icons.notifications_active_outlined,
+                  ),
                   title: Text(context.tr.workflows_type_event),
                   subtitle: Text(context.tr.workflows_type_event_desc),
                   onTap: () => Navigator.pop(context, workflowTypeEvent),
@@ -1640,7 +1653,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                     padding: const EdgeInsets.fromLTRB(4, 12, 4, 6),
                     child: Row(
                       children: [
-                        Icon(
+                        AppIcon.fromMaterial(
                           Icons.folder_outlined,
                           size: 18,
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -1769,12 +1782,12 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
               tooltip: context.tr.workflows_create_event,
               onPressed: () =>
                   _createOrEditWorkflow(initialWorkflowType: workflowTypeEvent),
-              icon: const Icon(Icons.add_rounded),
+              icon: const AppIcon.fromMaterial(Icons.add_rounded),
             )
           else
             PopupMenuButton<String>(
               tooltip: context.tr.workflows_create,
-              icon: const Icon(Icons.add_rounded),
+              icon: const AppIcon.fromMaterial(Icons.add_rounded),
               onSelected: (type) =>
                   _createOrEditWorkflow(initialWorkflowType: type),
               itemBuilder: (context) => [
@@ -1782,7 +1795,10 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                   value: workflowTypeGeneral,
                   child: Row(
                     children: [
-                      const Icon(Icons.account_tree_outlined, size: 20),
+                      const AppIcon.fromMaterial(
+                        Icons.account_tree_outlined,
+                        size: 20,
+                      ),
                       const SizedBox(width: 10),
                       Text(context.tr.workflows_type_general),
                     ],
@@ -1792,7 +1808,10 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                   value: workflowTypeEvent,
                   child: Row(
                     children: [
-                      const Icon(Icons.notifications_active_outlined, size: 20),
+                      const AppIcon.fromMaterial(
+                        Icons.notifications_active_outlined,
+                        size: 20,
+                      ),
                       const SizedBox(width: 10),
                       Text(context.tr.workflows_type_event),
                     ],
@@ -1803,19 +1822,19 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
           IconButton(
             tooltip: context.tr.workflows_import_tooltip,
             onPressed: _importWorkflows,
-            icon: const Icon(Icons.content_paste_go_outlined),
+            icon: const AppIcon.fromMaterial(Icons.content_paste_go_outlined),
           ),
           IconButton(
             tooltip: context.tr.workflows_export_tooltip,
             onPressed: _showWorkflowExportOptions,
-            icon: const Icon(Icons.copy_all_outlined),
+            icon: const AppIcon.fromMaterial(Icons.copy_all_outlined),
           ),
           IconButton(
             tooltip: context.tr.workflows_docs_tooltip,
             onPressed: () {
               openDocumentationHubForBot(context, botId: widget.botId);
             },
-            icon: const Icon(Icons.menu_book_outlined),
+            icon: const AppIcon.fromMaterial(Icons.menu_book_outlined),
           ),
         ],
       ),
@@ -1912,7 +1931,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                     .withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(AppTheme.radiusMd),
           ),
-          child: Icon(
+          child: AppIcon.fromMaterial(
             isEvent
                 ? Icons.notifications_active_outlined
                 : Icons.account_tree_outlined,
@@ -1979,7 +1998,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
+                    AppIcon.fromMaterial(
                       Icons.auto_awesome,
                       size: 12,
                       color: Theme.of(context).colorScheme.onTertiaryContainer,
@@ -2031,7 +2050,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                     height: 48,
                     child: Row(
                       children: [
-                        const Icon(Icons.edit_outlined),
+                        const AppIcon.fromMaterial(Icons.edit_outlined),
                         const SizedBox(width: 8),
                         Text(context.tr.common_edit),
                       ],
@@ -2042,7 +2061,9 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                     height: 48,
                     child: Row(
                       children: [
-                        const Icon(Icons.drive_file_move_outlined),
+                        const AppIcon.fromMaterial(
+                          Icons.drive_file_move_outlined,
+                        ),
                         const SizedBox(width: 8),
                         Text(context.tr.commands_move_to_folder),
                       ],
@@ -2053,7 +2074,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                     height: 48,
                     child: Row(
                       children: [
-                        const Icon(Icons.ios_share_outlined),
+                        const AppIcon.fromMaterial(Icons.ios_share_outlined),
                         const SizedBox(width: 8),
                         Text(context.tr.common_export),
                       ],
@@ -2064,12 +2085,13 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                     height: 48,
                     child: Row(
                       children: [
-                        Icon(
+                        AppIcon.fromMaterial(
                           Icons.delete_outline,
                           color: Theme.of(context).colorScheme.error,
                         ),
                         const SizedBox(width: 8),
-                        Text(context.tr.common_delete,
+                        Text(
+                          context.tr.common_delete,
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.error,
                           ),
@@ -2085,23 +2107,32 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                   IconButton(
                     onPressed: () => _showWorkflowMoveToFolderDialog(workflow),
                     tooltip: context.tr.commands_move_to_folder,
-                    icon: const Icon(Icons.drive_file_move_outlined, size: 20),
+                    icon: const AppIcon.fromMaterial(
+                      Icons.drive_file_move_outlined,
+                      size: 20,
+                    ),
                   ),
                   IconButton(
                     onPressed: () => _exportSingleWorkflow(workflow),
                     tooltip: context.tr.common_export,
-                    icon: const Icon(Icons.ios_share_outlined, size: 20),
+                    icon: const AppIcon.fromMaterial(
+                      Icons.ios_share_outlined,
+                      size: 20,
+                    ),
                   ),
                   IconButton(
                     onPressed: () => _deleteWorkflow(name),
                     tooltip: context.tr.delete,
-                    icon: Icon(
+                    icon: AppIcon.fromMaterial(
                       Icons.delete_outline,
                       size: 20,
                       color: Theme.of(context).colorScheme.error,
                     ),
                   ),
-                  const Icon(Icons.arrow_forward_ios_outlined, size: 16),
+                  const AppIcon.fromMaterial(
+                    Icons.arrow_forward_ios_outlined,
+                    size: 16,
+                  ),
                 ],
               ),
         onTap: () => _createOrEditWorkflow(initial: workflow),
@@ -2130,7 +2161,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
+            AppIcon.fromMaterial(
               isEvent
                   ? Icons.notifications_active_outlined
                   : Icons.account_tree_outlined,
@@ -2227,7 +2258,7 @@ class _WorkflowFolderHeader extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(4, 12, 4, 6),
         child: Row(
           children: [
-            Icon(
+            AppIcon.fromMaterial(
               icon ?? Icons.folder_outlined,
               size: 18,
               color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -2265,7 +2296,7 @@ class _WorkflowFolderHeader extends StatelessWidget {
             AnimatedRotation(
               turns: isExpanded ? 0.25 : 0,
               duration: const Duration(milliseconds: 200),
-              child: Icon(
+              child: AppIcon.fromMaterial(
                 Icons.chevron_right,
                 size: 20,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -2282,7 +2313,7 @@ class _WorkflowFolderHeader extends StatelessWidget {
                 ),
               ),
             ],
-            Icon(
+            AppIcon.fromMaterial(
               isExpanded ? Icons.folder_open : Icons.folder,
               size: 18,
               color: Theme.of(context).colorScheme.primary,
@@ -2315,7 +2346,7 @@ class _WorkflowFolderHeader extends StatelessWidget {
               ),
             ),
             PopupMenuButton<String>(
-              icon: Icon(
+              icon: AppIcon.fromMaterial(
                 Icons.more_vert,
                 size: 18,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -2327,7 +2358,10 @@ class _WorkflowFolderHeader extends StatelessWidget {
                     value: 'add_workflow',
                     child: Row(
                       children: [
-                        const Icon(Icons.add_circle_outline, size: 18),
+                        const AppIcon.fromMaterial(
+                          Icons.add_circle_outline,
+                          size: 18,
+                        ),
                         const SizedBox(width: 8),
                         Text(context.tr.workflows_create),
                       ],
@@ -2338,7 +2372,10 @@ class _WorkflowFolderHeader extends StatelessWidget {
                     value: 'add_subfolder',
                     child: Row(
                       children: [
-                        const Icon(Icons.create_new_folder_outlined, size: 18),
+                        const AppIcon.fromMaterial(
+                          Icons.create_new_folder_outlined,
+                          size: 18,
+                        ),
                         const SizedBox(width: 8),
                         Text(context.tr.commands_create_folder),
                       ],
@@ -2349,7 +2386,7 @@ class _WorkflowFolderHeader extends StatelessWidget {
                     value: 'rename',
                     child: Row(
                       children: [
-                        const Icon(Icons.edit, size: 18),
+                        const AppIcon.fromMaterial(Icons.edit, size: 18),
                         const SizedBox(width: 8),
                         Text(context.tr.commands_rename_folder),
                       ],
@@ -2360,7 +2397,10 @@ class _WorkflowFolderHeader extends StatelessWidget {
                     value: 'delete',
                     child: Row(
                       children: [
-                        const Icon(Icons.delete_outline, size: 18),
+                        const AppIcon.fromMaterial(
+                          Icons.delete_outline,
+                          size: 18,
+                        ),
                         const SizedBox(width: 8),
                         Text(context.tr.commands_delete_folder),
                       ],
@@ -2460,7 +2500,7 @@ class CreateWorkflowCard extends StatelessWidget {
                       color: avatarFill,
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(
+                    child: AppIcon.fromMaterial(
                       Icons.add_rounded,
                       size: 26,
                       color: avatarIconColor,
@@ -2492,7 +2532,7 @@ class CreateWorkflowCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Icon(
+                  AppIcon.fromMaterial(
                     Icons.chevron_right_rounded,
                     size: 18,
                     color: isDark

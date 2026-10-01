@@ -7,6 +7,7 @@ import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/features/bot_editor/logic/workflow_call.dart';
 import 'package:bot_creator_shared/utils/legacy_command_triggers.dart';
 import 'package:flutter/foundation.dart';
+import 'package:bot_creator_shared/utils/command_trigger_type.dart';
 
 Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
   final appData = await AppManager().getApp(botId);
@@ -30,6 +31,24 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
   }
 
   final commandsRaw = await AppManager().listAppCommands(botId);
+  final workflows = await AppManager().getWorkflows(botId);
+  String linkedScript(Map map) {
+    final direct = (map['jsScriptContent'] ?? map['script'] ?? '').toString();
+    if (direct.trim().isNotEmpty) return direct;
+    final name = (map['workflowName'] ?? '').toString();
+    final matches = workflows.where((w) => w['name'] == name);
+    if (matches.isEmpty) return '';
+    final workflow = matches.first;
+    final source = normalizeWorkflowJsScriptContent(
+      workflow['jsScriptContent'],
+    );
+    if (source.trim().isNotEmpty) return source;
+    return synthesizeJsFromWorkflowActions(
+          (workflow['actions'] as List?) ?? const [],
+        ) ??
+        '';
+  }
+
   final commands = <Map<String, dynamic>>[];
   final usedNames = <String>{};
 
@@ -38,6 +57,7 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
     final data = Map<String, dynamic>.from(
       (normalized['data'] as Map?)?.cast<String, dynamic>() ?? const {},
     );
+    final triggerType = commandTriggerType(normalized);
     final executionMode = (data['executionMode'] ?? 'workflow')
         .toString()
         .trim()
@@ -48,6 +68,7 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
         script =
             synthesizeJsFromWorkflowActions(
               (data['actions'] as List?) ?? const [],
+              preferMessage: triggerType == 'prefix',
             ) ??
             '';
       }
@@ -68,8 +89,23 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
     commands.add({
       'id': (normalized['id'] ?? '').toString(),
       'type': 'command',
+      'triggerType': triggerType,
+      'prefixName': cleanLegacyCommandTriggerName(
+        (data['legacyPrefixOverride'] ?? '').toString().trim().isEmpty
+            ? rawName
+            : data['legacyPrefixOverride'].toString(),
+      ),
+      'data': {
+        ...data,
+        'executionMode': 'javascript',
+        'jsScriptContent': script,
+      },
+      if (normalized['folder'] != null) 'folder': normalized['folder'],
+      if (normalized['discordId'] != null) 'discordId': normalized['discordId'],
       'name': uniqueName,
-      'description': (data['description'] ?? uniqueName).toString(),
+      'description':
+          (normalized['description'] ?? data['description'] ?? uniqueName)
+              .toString(),
       'discordType': resolveDiscordCommandType(data['commandType']),
       'aliases': normalizeLegacyCommandAliases(data['legacyAliases'])
           .map(cleanLegacyCommandTriggerName)
@@ -77,19 +113,32 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
           .toSet()
           .toList(),
       'options': data['options'] ?? const [],
+      if (data['defaultMemberPermissions'] != null)
+        'defaultMemberPermissions': data['defaultMemberPermissions'],
+      if (data['contexts'] is List) 'contexts': data['contexts'],
+      if (data['integrationTypes'] is List)
+        'integrationTypes': data['integrationTypes'],
       'enabled': normalized['enabled'] != false,
       'script': script,
     });
   }
 
   final inboundWebhooks = <Map<String, dynamic>>[];
-  final endpoints = (appData['inboundWebhookEndpoints'] as List?) ?? const [];
+  // Legacy settings store an enable/disable bool in inboundWebhooks. Only
+  // actual lists contain endpoints; do not migrate or overwrite stored data.
+  final endpoints = [
+    for (final raw in [
+      appData['inboundWebhooks'],
+      appData['inboundWebhookEndpoints'],
+    ])
+      if (raw is List) ...raw,
+  ];
   for (final endpoint in endpoints) {
     if (endpoint is! Map) {
       continue;
     }
     final map = Map<String, dynamic>.from(endpoint);
-    final script = (map['jsScriptContent'] ?? map['script'] ?? '').toString();
+    final script = linkedScript(map);
     if (script.trim().isEmpty) {
       continue;
     }
@@ -110,7 +159,7 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
       continue;
     }
     final map = Map<String, dynamic>.from(trigger);
-    final script = (map['jsScriptContent'] ?? map['script'] ?? '').toString();
+    final script = linkedScript(map);
     if (script.trim().isEmpty) {
       continue;
     }
@@ -130,7 +179,6 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
   }
 
   final events = <Map<String, dynamic>>[];
-  final workflows = await AppManager().getWorkflows(botId);
   for (final rawWorkflow in workflows) {
     final wf = normalizeStoredWorkflowDefinition(
       Map<String, dynamic>.from(rawWorkflow),
@@ -172,8 +220,7 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
   }
 
   final prefixRaw = (appData['prefix'] ?? '').toString().trim();
-  final includePrefix =
-      prefixRaw.isNotEmpty && commands.isNotEmpty;
+  final includePrefix = prefixRaw.isNotEmpty;
 
   final presenceStatusRaw = (appData['presenceStatus'] ?? 'online')
       .toString()

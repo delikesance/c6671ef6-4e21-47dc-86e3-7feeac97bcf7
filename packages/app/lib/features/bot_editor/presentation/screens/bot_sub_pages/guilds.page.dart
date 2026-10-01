@@ -9,6 +9,8 @@ import 'package:bot_creator/features/home/presentation/home_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:nyxx/nyxx.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Page « Serveurs » d'un bot.
 ///
 /// La liste vient de [GuildDirectory] : c'est la *même* entrée de session que
@@ -134,7 +136,7 @@ class _GuildsPageState extends State<GuildsPage> {
                 ),
               const SizedBox(width: 8),
               IconButton(
-                icon: const Icon(Icons.refresh, size: 20),
+                icon: const AppIcon.fromMaterial(Icons.refresh, size: 20),
                 tooltip: context.tr.common_refresh,
                 onPressed: state.isLoading ? null : () => unawaited(_refresh()),
               ),
@@ -191,7 +193,10 @@ class _GuildsPageState extends State<GuildsPage> {
                         height: 18,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Icon(Icons.exit_to_app, color: Colors.red),
+                    : const AppIcon.fromMaterial(
+                        Icons.exit_to_app,
+                        color: Colors.red,
+                      ),
                 tooltip: context.tr.guilds_leave_tooltip,
                 onPressed: isLeaving ? null : () => _leaveGuild(guild),
               ),
@@ -211,7 +216,11 @@ class _GuildsPageState extends State<GuildsPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline, size: 48, color: cs.error),
+            AppIcon.fromMaterial(
+              Icons.error_outline,
+              size: 48,
+              color: cs.error,
+            ),
             const SizedBox(height: 12),
             Text(
               context.tr.error_with_details(state.errorMessage ?? ''),
@@ -230,7 +239,11 @@ class _GuildsPageState extends State<GuildsPage> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.dns_outlined, size: 48, color: cs.onSurfaceVariant),
+          AppIcon.fromMaterial(
+            Icons.dns_outlined,
+            size: 48,
+            color: cs.onSurfaceVariant,
+          ),
           const SizedBox(height: 12),
           Text(
             context.tr.guilds_empty_state,

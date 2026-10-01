@@ -21,6 +21,8 @@ import 'package:bot_creator/features/containers/presentation/container_deploy_pa
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 class AppCreatePage extends StatefulWidget {
   const AppCreatePage({super.key});
 
@@ -81,7 +83,10 @@ class _AppCreatePageState extends State<AppCreatePage> {
     final dialog = AlertDialog(
       title: Row(
         children: [
-          const Icon(Icons.vpn_key_off_rounded, color: Colors.orange),
+          const AppIcon.fromMaterial(
+            Icons.vpn_key_off_rounded,
+            color: Colors.orange,
+          ),
           const SizedBox(width: 10),
           Expanded(child: Text(context.tr.app_token_invalid_title)),
         ],
@@ -233,7 +238,7 @@ class _AppCreatePageState extends State<AppCreatePage> {
       builder: (ctx) => AlertDialog(
         title: Row(
           children: [
-            Icon(
+            AppIcon.fromMaterial(
               Icons.smart_toy_rounded,
               color: Theme.of(ctx).colorScheme.primary,
             ),
@@ -249,7 +254,10 @@ class _AppCreatePageState extends State<AppCreatePage> {
           ),
           FilledButton.icon(
             onPressed: () => Navigator.pop(ctx, true),
-            icon: const Icon(Icons.add_circle_outline_rounded, size: 18),
+            icon: const AppIcon.fromMaterial(
+              Icons.add_circle_outline_rounded,
+              size: 18,
+            ),
             label: Text(context.tr.app_create_sample_confirm),
           ),
         ],
@@ -471,7 +479,7 @@ class _AppCreatePageState extends State<AppCreatePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(
+              AppIcon.fromMaterial(
                 Icons.smart_toy_rounded,
                 size: isMobile ? 40 : 48,
                 color: colorScheme.onPrimaryContainer,
@@ -571,7 +579,7 @@ class _AppCreatePageState extends State<AppCreatePage> {
                     hintText: context.tr.app_enter_token,
                     helperText: context.tr.app_token_field_helper,
                     isDense: isMobile,
-                    prefixIcon: const Icon(Icons.key_rounded),
+                    prefixIcon: const AppIcon.fromMaterial(Icons.key_rounded),
                     suffixIcon: IconButton(
                       tooltip: _obscureToken
                           ? context.tr.app_show_token
@@ -579,7 +587,7 @@ class _AppCreatePageState extends State<AppCreatePage> {
                       onPressed: () {
                         setState(() => _obscureToken = !_obscureToken);
                       },
-                      icon: Icon(
+                      icon: AppIcon.fromMaterial(
                         _obscureToken
                             ? Icons.visibility_rounded
                             : Icons.visibility_off_rounded,
@@ -607,7 +615,7 @@ class _AppCreatePageState extends State<AppCreatePage> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(
+                      AppIcon.fromMaterial(
                         Icons.lock_outline_rounded,
                         color: colorScheme.primary,
                       ),
@@ -637,7 +645,9 @@ class _AppCreatePageState extends State<AppCreatePage> {
                               color: Colors.white,
                             ),
                           )
-                        : const Icon(Icons.check_circle_outline_rounded),
+                        : const AppIcon.fromMaterial(
+                            Icons.check_circle_outline_rounded,
+                          ),
                     label: Text(context.tr.app_save_bot),
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -676,7 +686,7 @@ class _AppCreatePageState extends State<AppCreatePage> {
         appBar: AppBar(
           title: Text(context.tr.app_create_page_title),
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_rounded),
+            icon: const AppIcon.fromMaterial(Icons.arrow_back_rounded),
             onPressed: () {
               if (_selectedType != null) {
                 setState(() {
@@ -756,7 +766,10 @@ class _ExternalActionCard extends StatelessWidget {
                   color: colorScheme.primaryContainer,
                   borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                 ),
-                child: Icon(icon, color: colorScheme.onPrimaryContainer),
+                child: AppIcon.fromMaterial(
+                  icon,
+                  color: colorScheme.onPrimaryContainer,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -802,7 +815,7 @@ class _ExternalActionCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Icon(trailingIcon, color: colorScheme.primary),
+              AppIcon.fromMaterial(trailingIcon, color: colorScheme.primary),
             ],
           ),
         ),
@@ -865,7 +878,11 @@ class _TypeSelectionCard extends StatelessWidget {
                         color: iconBackgroundColor,
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      child: Icon(icon, size: 32, color: iconColor),
+                      child: AppIcon.fromMaterial(
+                        icon,
+                        size: 32,
+                        color: iconColor,
+                      ),
                     ),
                     const SizedBox(height: 24),
                     Text(

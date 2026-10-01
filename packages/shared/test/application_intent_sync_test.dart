@@ -21,11 +21,7 @@ void main() {
         _membersLimited | (1 << 13) | (1 << 19),
       );
 
-      expect(enabled, {
-        'Guild Members',
-        'Guild Presence',
-        'Message Content',
-      });
+      expect(enabled, {'Guild Members', 'Guild Presence', 'Message Content'});
     });
   });
 
@@ -64,24 +60,24 @@ void main() {
       expect(result.didAutoEnable, isFalse);
     });
 
-    test('throws DiscordTokenUnauthorizedException on unauthorized application fetch',
-        () async {
-      final client = MockClient((request) async {
-        return http.Response('unauthorized', 401);
-      });
+    test(
+      'throws DiscordTokenUnauthorizedException on unauthorized application fetch',
+      () async {
+        final client = MockClient((request) async {
+          return http.Response('unauthorized', 401);
+        });
 
-      expect(
-        () => fetchPortalEnabledPrivilegedIntents('token', client: client),
-        throwsA(isA<DiscordTokenUnauthorizedException>()),
-      );
-    });
+        expect(
+          () => fetchPortalEnabledPrivilegedIntents('token', client: client),
+          throwsA(isA<DiscordTokenUnauthorizedException>()),
+        );
+      },
+    );
   });
 
   group('buildEffectiveIntentsMap', () {
     test('enables all non-privileged intents by default', () {
-      final config = BotConfig.fromJson({
-        'builtInLegacyHelpEnabled': false,
-      });
+      final config = BotConfig.fromJson({'builtInLegacyHelpEnabled': false});
       final effective = buildEffectiveIntentsMap(
         config: config,
         portalEnabledPrivileged: const {},
@@ -96,6 +92,30 @@ void main() {
       expect(effective['Guild Presence'], isFalse);
     });
   });
+
+  test(
+    'restored hybrid retains Message Content requirement without legacy flag',
+    () {
+      final config = BotConfig.fromJson({
+        'builtInLegacyHelpEnabled': false,
+        'commands': [
+          {
+            'name': 'mixed',
+            'type': 'chatInput',
+            'data': {'triggerType': 'hybrid', 'legacyModeEnabled': false},
+          },
+        ],
+      });
+      expect(botConfigHasLegacyCommands(config), isTrue);
+      expect(
+        buildEffectiveIntentsMap(
+          config: config,
+          portalEnabledPrivileged: {'Message Content'},
+        )['Message Content'],
+        isTrue,
+      );
+    },
+  );
 
   group('buildGatewayIntents', () {
     test('builds bitmask from effective map instead of allUnprivileged', () {

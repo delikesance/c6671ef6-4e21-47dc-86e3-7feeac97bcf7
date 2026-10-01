@@ -8,13 +8,28 @@ Les conversations appartiennent au compte qui les crée. Elles sont enregistrée
 
 Chaque outil a une carte indiquant consultation, validation, exécution, réussite, refus ou état non confirmé. La validation concerne une action précise. Les outils d’une discussion de bot ne peuvent pas cibler un autre bot. Les bots clé en main ont aussi leur entrée Copilote ; leur contexte utilise `container:<id>` et leurs contrôles réutilisent les règles normales de couverture, TTL et temps d’hébergement. Les outils distants sont exécutés par le Manager après contrôle d’accès ; les outils locaux passent par la passerelle de l’application et vérifient aussi le bot du contexte.
 
-Une action revendiquée ne sera pas exécutée une seconde fois. Si l’application ou le Manager s’arrête pendant une action, son résultat peut rester non confirmé ; inspecter le bot avant de clore cette étape, sans autoriser de rejeu. La réouverture d’une discussion ne relance jamais automatiquement une mutation. Huit générations maximum sont autorisées par instruction utilisateur pour éviter une boucle d’outils sans fin.
+Une action revendiquée ne sera pas exécutée une seconde fois. Si l’application ou le Manager s’arrête pendant une action, son résultat peut rester non confirmé ; inspecter le bot avant de clore cette étape, sans autoriser de rejeu. La réouverture d’une discussion ne relance jamais automatiquement une mutation. Il n’y a pas de plafond fixe de générations par instruction : les lectures et modifications peuvent continuer tant qu’elles apportent de nouvelles informations. Trois séries consécutives avec exactement les mêmes appels et résultats arrêtent une boucle sans progrès. Le résumé automatique du contexte conserve cette garde et ne rejoue aucune action.
 
-Une conversation trop longue propose une nouvelle discussion avec résumé, après confirmation du débit potentiel. Le résumé conserve le début et les échanges récents dans un budget de contexte borné et signale les échanges intermédiaires omis. L’original est conservé.
+Une conversation trop longue propose un résumé dans la discussion actuelle, après confirmation du débit potentiel. L’historique visible et le brouillon sont conservés ; les prochains appels utilisent le résumé et les échanges récents. Un résumé échoué ne remplace pas le contexte existant.
 
 ## Comptabilité
 
-**1 crédit IA = 1 token traité**, y compris les tokens d’entrée servis depuis le cache. Le Manager réserve un budget prudent avant de contacter le fournisseur et libère l’excédent après validation de son usage. `balance` inclut les réservations ; `available = balance - reserved`.
+**1 Crédit IA affiché dans l’application = 100 000 tokens traités**, y compris les tokens d’entrée servis depuis le cache. Le Manager conserve ses unités internes en tokens : la conversion est effectuée par l’application. Le coût dépend de l’usage réel ; aucun coût fixe par commande n’est annoncé. Le solde n’est pas affiché pendant le traitement. Le Manager réserve un budget prudent avant de contacter le fournisseur et libère l’excédent après validation de son usage. `balance` inclut les réservations ; `available = balance - reserved`.
+
+## Outils de configuration
+
+`local_runtime_reference` expose le dialecte BDFD réellement implémenté, les signatures des variables `guildMember` et un exemple d’XP par serveur/membre avec workflow `messageCreate` et `/level`. Les scripts exacts restent soumis à `local_validate_bdfd` avant une proposition. Les tests de développement exécutent l’exemple avec le moteur partagé ; ils ne constituent pas une installation ou un test sur Discord. Les écritures de variables dépendantes utilisent la révision renvoyée par la précédente sauvegarde. Les nouvelles valeurs de portée restent négociées avec les versions du catalogue prises en charge par l’application.
+
+Les catalogues mobile et Manager déclarent les mêmes schémas. Les deux validateurs contrôlent les objets et listes imbriqués, les champs requis, les champs inconnus, les types, les énumérations et les bornes. La profondeur maximale de validation est de douze niveaux.
+
+- `local_create_command` accepte les options dès la création.
+- `local_update_command_options` ajoute, modifie ou retire un argument, y compris dans une sous-commande. L’outil exige la révision de `local_get_command`, conserve le code et les permissions, et met à jour le même identifiant Discord. Un argument utilisé dans l’exécution ne peut pas être supprimé ou renommé sans traiter ses références.
+- `local_update_command_settings` modifie description, permissions par défaut et contextes Discord.
+- `local_list_workflows`, `local_get_workflow`, `local_create_workflow` et `local_update_workflow` gèrent les automatisations autonomes. JavaScript exige le moteur JavaScript ; les blocs et le BDFD compilé exigent le moteur Dart. `local_list_events` expose les déclencheurs disponibles.
+- `local_get_bot_configuration` expose configuration et révisions par section, sans secrets. `local_get_bot_presence` et `local_update_bot_presence` gèrent statut et activités ; `local_update_bot_profile` modifie le nom global Discord.
+- `local_set_variable`, `local_update_scheduled_trigger` et `local_update_inbound_webhook` gèrent variables, planifications et déclencheurs externes. Les identifiants secrets des webhooks sont générés dans l’application et restent dans les paramètres du bot.
+
+Chaque mutation nécessite une validation. Le résultat distingue sauvegarde locale, modification Discord et synchronisation du bot hébergé. Une réponse HTTP réussie sans confirmation du runtime actif ne confirme pas une mise à jour de commande ou de workflow. Un rechargement échoué retourne également une synchronisation non confirmée. La carte propose une nouvelle tentative lorsque l’application a sauvegardé la modification mais que son activation reste en attente.
 
 Le débit, la réponse définitive et l’événement de fin sont enregistrés dans la même transaction. Une coupure de l’interface n’annule pas le travail serveur et ne déclenche aucun second appel fournisseur. Une requête interrompue sans réponse complète et usage valide est marquée en échec, libère sa réservation et n’expose aucune action exécutable. Les réservations expirent après deux minutes ; les requêtes abandonnées sont réconciliées à la consultation de l’espace IA.
 
@@ -54,7 +69,7 @@ AI_OUTPUT_USD_PER_MILLION=<tarif sortie>
 
 Les modèles du laboratoire utilisent `AI_PROVIDER_MODEL` par défaut. Sans bots autorisés, le laboratoire reste utilisable pour les prompts et la documentation. Le plafond administratif est cumulé par administrateur ; augmenter la configuration permet d’augmenter le budget, sans remettre la consommation à zéro. Sans tarifs, l’interface indique qu’ils ne sont pas configurés ; les appels historiques sans tarif sont signalés dans les estimations. La rubrique IA du Manager propose un choix français/anglais.
 
-L’adaptateur utilise Chat Completions avec `stream: true`, `stream_options.include_usage: true`, thinking désactivé, 2 048 tokens de sortie par défaut et un délai fournisseur de 70 secondes. Le contrat fournisseur est décrit dans la [documentation DeepSeek Chat Completions](https://api-docs.deepseek.com/api/create-chat-completion/). Il conserve `prompt_cache_hit_tokens` et `prompt_cache_miss_tokens`. Le préfixe des instructions et l’ordre du catalogue sont stables. Le cache fournisseur est temporaire et n’est pas garanti ; l’historique applicatif reste la source de vérité.
+L’adaptateur utilise Chat Completions avec `stream: true`, `stream_options.include_usage: true`, thinking désactivé, 4 096 tokens de sortie par défaut et un délai fournisseur de 70 secondes. Le contrat fournisseur est décrit dans la [documentation DeepSeek Chat Completions](https://api-docs.deepseek.com/api/create-chat-completion/). Il conserve `prompt_cache_hit_tokens` et `prompt_cache_miss_tokens`. Le préfixe des instructions et l’ordre du catalogue sont stables. Le cache fournisseur est temporaire et n’est pas garanti ; l’historique applicatif reste la source de vérité.
 
 ## Contrats API
 

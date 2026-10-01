@@ -44,7 +44,7 @@ Future<bool> executeWebhooksAction({
       if (result['error'] != null) {
         throw Exception(result['error']);
       }
-      results[resultKey] = result['webhookId'] ?? '';
+      results[resultKey] = result['url'] ?? result['webhookId'] ?? '';
       return true;
 
     case BotCreatorActionType.listWebhooks:

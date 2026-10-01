@@ -44,6 +44,7 @@ class _SelectMenuOptionBuilderWithEmojiFix extends SelectMenuOptionBuilder {
     required super.value,
     super.description,
     super.emoji,
+    super.isDefault,
   });
 
   @override
@@ -127,7 +128,10 @@ Emoji? _parseEmoji(dynamic emojiData, String Function(String) resolve) {
 /// Non-empty truthy values → true (disabled).
 bool? _resolveDisabled(String raw, String Function(String) resolve) {
   final resolved = resolve(raw).trim().toLowerCase();
-  if (resolved.isEmpty || resolved == 'false' || resolved == 'no' || resolved == '0') {
+  if (resolved.isEmpty ||
+      resolved == 'false' ||
+      resolved == 'no' ||
+      resolved == '0') {
     return null;
   }
   return true;
@@ -190,6 +194,7 @@ ComponentBuilder buildComponentNode(
           minValues: node.minValues,
           maxValues: node.maxValues,
           isDisabled: _resolveDisabled(node.disabled, resolve),
+          isRequired: inLabel ? node.isRequired : null,
         );
       case ComponentV2Type.roleSelect:
         return SelectMenuBuilder.roleSelect(
@@ -198,6 +203,7 @@ ComponentBuilder buildComponentNode(
           minValues: node.minValues,
           maxValues: node.maxValues,
           isDisabled: _resolveDisabled(node.disabled, resolve),
+          isRequired: inLabel ? node.isRequired : null,
         );
       case ComponentV2Type.mentionableSelect:
         return SelectMenuBuilder.mentionableSelect(
@@ -206,6 +212,7 @@ ComponentBuilder buildComponentNode(
           minValues: node.minValues,
           maxValues: node.maxValues,
           isDisabled: _resolveDisabled(node.disabled, resolve),
+          isRequired: inLabel ? node.isRequired : null,
         );
       case ComponentV2Type.channelSelect:
         return SelectMenuBuilder.channelSelect(
@@ -214,6 +221,7 @@ ComponentBuilder buildComponentNode(
           minValues: node.minValues,
           maxValues: node.maxValues,
           isDisabled: _resolveDisabled(node.disabled, resolve),
+          isRequired: inLabel ? node.isRequired : null,
         );
       case ComponentV2Type.categorySelect:
         return SelectMenuBuilder.channelSelect(
@@ -222,6 +230,7 @@ ComponentBuilder buildComponentNode(
           minValues: node.minValues,
           maxValues: node.maxValues,
           isDisabled: _resolveDisabled(node.disabled, resolve),
+          isRequired: inLabel ? node.isRequired : null,
         )..channelTypes = [ChannelType.guildCategory];
       case ComponentV2Type.voiceSelect:
         return SelectMenuBuilder.channelSelect(
@@ -230,6 +239,7 @@ ComponentBuilder buildComponentNode(
           minValues: node.minValues,
           maxValues: node.maxValues,
           isDisabled: _resolveDisabled(node.disabled, resolve),
+          isRequired: inLabel ? node.isRequired : null,
         )..channelTypes = [ChannelType.guildVoice];
       case ComponentV2Type.stringSelect:
       default:
@@ -240,6 +250,7 @@ ComponentBuilder buildComponentNode(
             value: resolve(opt.value),
             description: desc.isNotEmpty ? desc : null,
             emoji: _parseEmoji(opt.emoji, resolve),
+            isDefault: opt.isDefault,
           );
         }).toList();
         return SelectMenuBuilder.stringSelect(
@@ -256,6 +267,7 @@ ComponentBuilder buildComponentNode(
           minValues: node.minValues,
           maxValues: node.maxValues,
           isDisabled: _resolveDisabled(node.disabled, resolve),
+          isRequired: inLabel ? node.isRequired : null,
         );
     }
   } else if (node is SectionNode) {
@@ -298,7 +310,7 @@ ComponentBuilder buildComponentNode(
     );
   } else if (node is SeparatorNode) {
     return SeparatorComponentBuilder(
-      isDivider: node.isDivider ? true : null,
+      isDivider: node.isDivider,
       spacing: node.spacing == 2
           ? SeparatorSpacingSize.large
           : SeparatorSpacingSize.small,
@@ -343,7 +355,7 @@ ComponentBuilder buildComponentNode(
             ? resolve(node.placeholder)
             : null,
         value: node.value.isNotEmpty ? resolve(node.value) : null,
-        isRequired: node.required ? true : null,
+        isRequired: node.required,
         minLength: node.minLength,
         maxLength: node.maxLength,
       );
@@ -358,7 +370,7 @@ ComponentBuilder buildComponentNode(
           ? resolve(node.placeholder)
           : null,
       value: node.value.isNotEmpty ? resolve(node.value) : null,
-      isRequired: node.required ? true : null,
+      isRequired: node.required,
       minLength: node.minLength,
       maxLength: node.maxLength,
     );
@@ -367,7 +379,7 @@ ComponentBuilder buildComponentNode(
       customId: resolve(node.customId),
       minValues: node.minValues,
       maxValues: node.maxValues,
-      isRequired: node.isRequired ? true : null,
+      isRequired: node.isRequired,
     );
   } else if (node is RadioGroupNode) {
     return RadioGroupComponentBuilder(
@@ -384,7 +396,7 @@ ComponentBuilder buildComponentNode(
             ),
           )
           .toList(),
-      isRequired: node.isRequired ? true : null,
+      isRequired: node.isRequired,
     );
   } else if (node is CheckboxGroupNode) {
     return CheckboxGroupComponentBuilder(
@@ -403,7 +415,7 @@ ComponentBuilder buildComponentNode(
           .toList(),
       minValues: node.minValues,
       maxValues: node.maxValues,
-      isRequired: node.isRequired ? true : null,
+      isRequired: node.isRequired,
     );
   } else if (node is CheckboxNode) {
     return CheckboxComponentBuilder(
@@ -628,10 +640,7 @@ Future<Map<String, dynamic>> respondWithComponentV2Action(
               messageId: messageId,
             );
           }
-          return {
-            'messageId': messageId,
-            'status': 'responded',
-          };
+          return {'messageId': messageId, 'status': 'responded'};
         }
       } catch (e) {
         return {'error': 'Failed to send interaction response: $e'};

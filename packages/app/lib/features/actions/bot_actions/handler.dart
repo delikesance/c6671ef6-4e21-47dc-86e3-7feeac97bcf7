@@ -26,7 +26,7 @@ import 'package:bot_creator/features/actions/bot_actions/edit_component_v2.dart'
 import 'package:bot_creator/features/actions/bot_actions/respond_modal.dart';
 import 'package:bot_creator/features/actions/bot_actions/edit_interaction_response.dart';
 import 'package:bot_creator/features/actions/bot_actions/respond_with_message.dart';
-import 'package:bot_creator/features/actions/bot_actions/send_webhook.dart';
+import 'package:bot_creator_shared/actions/send_webhook.dart' as shared_webhook;
 import 'package:bot_creator/features/actions/bot_actions/edit_webhook.dart';
 import 'package:bot_creator/features/actions/bot_actions/delete_webhook.dart';
 import 'package:bot_creator/features/actions/bot_actions/list_webhooks.dart';
@@ -73,8 +73,9 @@ String? _resolveListenerMessageId({
   required String Function(String input) resolveValue,
   Interaction? interaction,
 }) {
-  final explicitMessageId =
-      resolveValue((payload['messageId'] ?? '').toString()).trim();
+  final explicitMessageId = resolveValue(
+    (payload['messageId'] ?? '').toString(),
+  ).trim();
   if (explicitMessageId.isNotEmpty) {
     return explicitMessageId;
   }
@@ -88,8 +89,8 @@ String? _resolveListenerMessageId({
   }
 
   final dynamic dynInteraction = interaction;
-  final interactionMessageId =
-      (dynInteraction?.message?.id as Snowflake?)?.toString();
+  final interactionMessageId = (dynInteraction?.message?.id as Snowflake?)
+      ?.toString();
   if (interactionMessageId != null && interactionMessageId.isNotEmpty) {
     return interactionMessageId;
   }
@@ -101,8 +102,9 @@ String? _resolveExplicitListenerMessageId(
   Map<String, dynamic> payload,
   String Function(String input) resolveValue,
 ) {
-  final messageId =
-      resolveValue((payload['messageId'] ?? '').toString()).trim();
+  final messageId = resolveValue(
+    (payload['messageId'] ?? '').toString(),
+  ).trim();
   return messageId.isEmpty ? null : messageId;
 }
 
@@ -247,13 +249,13 @@ dynamic _resolveVariableValuePayload(
   Map<String, dynamic> payload,
   String Function(String) resolveValue,
 ) {
-  final valueType =
-      resolveValue(
-        (payload['valueType'] ?? 'string').toString(),
-      ).trim().toLowerCase();
+  final valueType = resolveValue(
+    (payload['valueType'] ?? 'string').toString(),
+  ).trim().toLowerCase();
   if (valueType == 'number') {
-    final numberRaw =
-        resolveValue((payload['numberValue'] ?? '').toString()).trim();
+    final numberRaw = resolveValue(
+      (payload['numberValue'] ?? '').toString(),
+    ).trim();
     final parsed = num.tryParse(numberRaw);
     if (parsed != null) {
       return parsed;
@@ -261,10 +263,9 @@ dynamic _resolveVariableValuePayload(
   }
 
   if (valueType == 'boolean' || valueType == 'bool') {
-    final rawBool =
-        resolveValue(
-          (payload['boolValue'] ?? '').toString(),
-        ).trim().toLowerCase();
+    final rawBool = resolveValue(
+      (payload['boolValue'] ?? '').toString(),
+    ).trim().toLowerCase();
     if (rawBool == 'true') {
       return true;
     }
@@ -277,8 +278,9 @@ dynamic _resolveVariableValuePayload(
   }
 
   if (valueType == 'json') {
-    final rawJson =
-        resolveValue((payload['jsonValue'] ?? '').toString()).trim();
+    final rawJson = resolveValue(
+      (payload['jsonValue'] ?? '').toString(),
+    ).trim();
     if (rawJson.isEmpty) {
       throw Exception('jsonValue is required when valueType=json');
     }
@@ -289,8 +291,9 @@ dynamic _resolveVariableValuePayload(
     }
   }
 
-  final rawValue =
-      payload.containsKey('value') ? payload['value'] : payload['element'];
+  final rawValue = payload.containsKey('value')
+      ? payload['value']
+      : payload['element'];
   return resolveValue((rawValue ?? '').toString());
 }
 
@@ -432,9 +435,8 @@ Future<Map<String, String>> handleActions(
             resolveValue: resolveValue,
             onLog: onLog,
             activeWorkflowStack: activeWorkflowStack,
-            getWorkflowByName:
-                (workflowName) =>
-                    manager.getWorkflowByName(botId, workflowName),
+            getWorkflowByName: (workflowName) =>
+                manager.getWorkflowByName(botId, workflowName),
             getScopedVariableTtl: (scope, key) async {
               final contextId = _resolveScopeContextId(
                 scope: scope,
@@ -452,13 +454,9 @@ Future<Map<String, String>> handleActions(
               );
             },
             executeActions: (nestedSharedActions) async {
-              final nestedAppActions =
-                  nestedSharedActions
-                      .map(
-                        (sharedAction) =>
-                            Action.fromJson(sharedAction.toJson()),
-                      )
-                      .toList();
+              final nestedAppActions = nestedSharedActions
+                  .map((sharedAction) => Action.fromJson(sharedAction.toJson()))
+                  .toList();
               return handleActions(
                 client,
                 interaction,
@@ -492,8 +490,8 @@ Future<Map<String, String>> handleActions(
         variables: variables,
         resolveValue: resolveValue,
         onLog: onLog,
-        setGlobalVariable:
-            (key, value) => manager.setGlobalVariable(botId, key, value),
+        setGlobalVariable: (key, value) =>
+            manager.setGlobalVariable(botId, key, value),
       );
     }
     if (handledByHttpExecutor) continue;
@@ -537,10 +535,9 @@ Future<Map<String, String>> handleActions(
           final rawCount = action.payload['messageCount'];
           final resolvedCountRaw = resolveValue((rawCount ?? '').toString());
           double? parsedCount = double.tryParse(resolvedCountRaw);
-          final count =
-              parsedCount != null
-                  ? parsedCount.round()
-                  : (rawCount is num ? rawCount.toInt() : 0);
+          final count = parsedCount != null
+              ? parsedCount.round()
+              : (rawCount is num ? rawCount.toInt() : 0);
 
           final onlyUserId = resolveValue(
             (action.payload['onlyUserId'] ?? '').toString(),
@@ -557,10 +554,9 @@ Future<Map<String, String>> handleActions(
           // supplied, since otherwise we have nothing to delete.
 
           // optional flag to delete the command message itself
-          final deleteItselfRaw =
-              resolveValue(
-                (action.payload['deleteItself'] ?? '').toString(),
-              ).toLowerCase();
+          final deleteItselfRaw = resolveValue(
+            (action.payload['deleteItself'] ?? '').toString(),
+          ).toLowerCase();
           bool deleteItself = false;
           if (deleteItselfRaw.isNotEmpty) {
             if (deleteItselfRaw == 'true' ||
@@ -603,11 +599,11 @@ Future<Map<String, String>> handleActions(
           // propagate flag for external handling (e.g. deleting bot response)
           if (deleteItself) {
             // propagate both legacy flag and explicit response-deletion flag
-            variables['action.$resultKey.deleteItself'] =
-                deleteItself.toString();
+            variables['action.$resultKey.deleteItself'] = deleteItself
+                .toString();
             variables['$resultKey.deleteItself'] = deleteItself.toString();
-            variables['action.$resultKey.deleteResponse'] =
-                deleteItself.toString();
+            variables['action.$resultKey.deleteResponse'] = deleteItself
+                .toString();
             variables['$resultKey.deleteResponse'] = deleteItself.toString();
           }
           break;
@@ -938,15 +934,13 @@ Future<Map<String, String>> handleActions(
           results[resultKey] = customId;
 
           // Auto-register listener if onSubmitWorkflow is provided
-          final onSubmitWorkflow =
-              resolveValue(
-                (modalResult['onSubmitWorkflow'] ?? '').toString(),
-              ).trim();
+          final onSubmitWorkflow = resolveValue(
+            (modalResult['onSubmitWorkflow'] ?? '').toString(),
+          ).trim();
           if (onSubmitWorkflow.isNotEmpty) {
-            final onSubmitEntryPoint =
-                resolveValue(
-                  (modalResult['onSubmitEntryPoint'] ?? '').toString(),
-                ).trim();
+            final onSubmitEntryPoint = resolveValue(
+              (modalResult['onSubmitEntryPoint'] ?? '').toString(),
+            ).trim();
             final onSubmitArguments = resolveWorkflowCallArguments(
               modalResult['onSubmitArguments'],
               resolveValue,
@@ -1004,17 +998,17 @@ Future<Map<String, String>> handleActions(
             throw Exception('workflowName is required for ${action.type.name}');
           }
           final ttlRaw = action.payload['ttlMinutes'];
-          final ttlMinutes = (ttlRaw is num
-                  ? ttlRaw.toInt()
-                  : int.tryParse(ttlRaw?.toString() ?? '') ?? 60)
-              .clamp(1, 60);
+          final ttlMinutes =
+              (ttlRaw is num
+                      ? ttlRaw.toInt()
+                      : int.tryParse(ttlRaw?.toString() ?? '') ?? 60)
+                  .clamp(1, 60);
           // Modals are always one-shot; buttons/selects repeat on every click until TTL.
           final oneShot =
               action.type == BotCreatorActionType.listenForModalSubmit;
-          final workflowEntryPoint =
-              resolveValue(
-                (action.payload['entryPoint'] ?? '').toString(),
-              ).trim();
+          final workflowEntryPoint = resolveValue(
+            (action.payload['entryPoint'] ?? '').toString(),
+          ).trim();
           final workflowArguments = resolveWorkflowCallArguments(
             action.payload['arguments'],
             resolveValue,
@@ -1028,27 +1022,26 @@ Future<Map<String, String>> handleActions(
               workflowEntryPoint: workflowEntryPoint,
               workflowArguments: workflowArguments,
               expiresAt: DateTime.now().add(Duration(minutes: ttlMinutes)),
-              type:
-                  action.type == BotCreatorActionType.listenForButtonClick
-                      ? 'button'
-                      : action.type == BotCreatorActionType.listenForSelectMenu
-                      ? 'select'
-                      : 'modal',
+              type: action.type == BotCreatorActionType.listenForButtonClick
+                  ? 'button'
+                  : action.type == BotCreatorActionType.listenForSelectMenu
+                  ? 'select'
+                  : 'modal',
               oneShot: oneShot,
               guildId: guildId?.toString(),
               channelId: resolvedFallbackChannelId?.toString(),
               messageId:
                   action.type == BotCreatorActionType.listenForModalSubmit
-                      ? _resolveExplicitListenerMessageId(
-                        action.payload,
-                        resolveValue,
-                      )
-                      : _resolveListenerMessageId(
-                        payload: action.payload,
-                        variables: variables,
-                        resolveValue: resolveValue,
-                        interaction: interaction,
-                      ),
+                  ? _resolveExplicitListenerMessageId(
+                      action.payload,
+                      resolveValue,
+                    )
+                  : _resolveListenerMessageId(
+                      payload: action.payload,
+                      variables: variables,
+                      resolveValue: resolveValue,
+                      interaction: interaction,
+                    ),
             ),
           );
           results[resultKey] = 'listening:$customId';
@@ -1065,7 +1058,9 @@ Future<Map<String, String>> handleActions(
           if (rawActions is List) {
             for (final item in rawActions) {
               if (item is Map) {
-                inlineActions.add(Action.fromJson(Map<String, dynamic>.from(item)));
+                inlineActions.add(
+                  Action.fromJson(Map<String, dynamic>.from(item)),
+                );
               }
             }
           }
@@ -1073,20 +1068,20 @@ Future<Map<String, String>> handleActions(
           final workflowName = resolveValue(
             (action.payload['workflowName'] ?? '').toString(),
           );
-          final workflowEntryPoint =
-              resolveValue(
-                (action.payload['entryPoint'] ?? '').toString(),
-              ).trim();
+          final workflowEntryPoint = resolveValue(
+            (action.payload['entryPoint'] ?? '').toString(),
+          ).trim();
           final workflowArguments = resolveWorkflowCallArguments(
             action.payload['arguments'],
             resolveValue,
           );
 
           final ttlRaw = action.payload['ttlMinutes'];
-          final ttlMinutes = (ttlRaw is num
-                  ? ttlRaw.toInt()
-                  : int.tryParse(ttlRaw?.toString() ?? '') ?? 60)
-              .clamp(1, 60);
+          final ttlMinutes =
+              (ttlRaw is num
+                      ? ttlRaw.toInt()
+                      : int.tryParse(ttlRaw?.toString() ?? '') ?? 60)
+                  .clamp(1, 60);
 
           // Button
           InteractionListenerRegistry.instance.register(
@@ -1095,7 +1090,9 @@ Future<Map<String, String>> handleActions(
               botId: botId,
               inlineActions: inlineActions.isNotEmpty ? inlineActions : null,
               workflowName: workflowName,
-              workflowEntryPoint: workflowEntryPoint.isNotEmpty ? workflowEntryPoint : 'main',
+              workflowEntryPoint: workflowEntryPoint.isNotEmpty
+                  ? workflowEntryPoint
+                  : 'main',
               workflowArguments: workflowArguments,
               expiresAt: DateTime.now().add(Duration(minutes: ttlMinutes)),
               type: 'button',
@@ -1118,7 +1115,9 @@ Future<Map<String, String>> handleActions(
               botId: botId,
               inlineActions: inlineActions.isNotEmpty ? inlineActions : null,
               workflowName: workflowName,
-              workflowEntryPoint: workflowEntryPoint.isNotEmpty ? workflowEntryPoint : 'main',
+              workflowEntryPoint: workflowEntryPoint.isNotEmpty
+                  ? workflowEntryPoint
+                  : 'main',
               workflowArguments: workflowArguments,
               expiresAt: DateTime.now().add(Duration(minutes: ttlMinutes)),
               type: 'select',
@@ -1141,7 +1140,9 @@ Future<Map<String, String>> handleActions(
               botId: botId,
               inlineActions: inlineActions.isNotEmpty ? inlineActions : null,
               workflowName: workflowName,
-              workflowEntryPoint: workflowEntryPoint.isNotEmpty ? workflowEntryPoint : 'main',
+              workflowEntryPoint: workflowEntryPoint.isNotEmpty
+                  ? workflowEntryPoint
+                  : 'main',
               workflowArguments: workflowArguments,
               expiresAt: DateTime.now().add(Duration(minutes: ttlMinutes)),
               type: 'modal',
@@ -1161,11 +1162,12 @@ Future<Map<String, String>> handleActions(
         case BotCreatorActionType.editWebhook:
         case BotCreatorActionType.deleteWebhook:
           final result = await switch (action.type) {
-            BotCreatorActionType.sendWebhook => sendWebhookAction(
-              client,
-              payload: action.payload,
-              resolve: resolveValue,
-            ),
+            BotCreatorActionType.sendWebhook =>
+              shared_webhook.sendWebhookAction(
+                client,
+                payload: action.payload,
+                resolve: resolveValue,
+              ),
             BotCreatorActionType.editWebhook => editWebhookAction(
               client,
               payload: action.payload,
@@ -1179,7 +1181,9 @@ Future<Map<String, String>> handleActions(
           if (result.hasError) {
             throw Exception(result.error);
           }
-          results[resultKey] = result.getOrEmpty('webhookId');
+          results[resultKey] = result.getOrEmpty('url').isNotEmpty
+              ? result.getOrEmpty('url')
+              : result.getOrEmpty('webhookId');
           break;
         case BotCreatorActionType.listWebhooks:
           final result = await listWebhooksAction(
@@ -1204,16 +1208,18 @@ Future<Map<String, String>> handleActions(
           results[resultKey] = result['webhook'] ?? '';
           break;
         case BotCreatorActionType.setScopedVariable:
-          final scope =
-              resolveValue((action.payload['scope'] ?? '').toString()).trim();
+          final scope = resolveValue(
+            (action.payload['scope'] ?? '').toString(),
+          ).trim();
           if (!_supportedVariableScopes.contains(scope)) {
             throw Exception(
               'scope is required for setScopedVariable and must be one of ${_supportedVariableScopes.join(', ')}',
             );
           }
 
-          final rawKey =
-              resolveValue((action.payload['key'] ?? '').toString()).trim();
+          final rawKey = resolveValue(
+            (action.payload['key'] ?? '').toString(),
+          ).trim();
           final storageKey = _scopedStorageKey(rawKey);
           final referenceKey = _scopedReferenceKey(rawKey);
 
@@ -1261,16 +1267,18 @@ Future<Map<String, String>> handleActions(
           results[resultKey] = 'OK';
           break;
         case BotCreatorActionType.getScopedVariable:
-          final scope =
-              resolveValue((action.payload['scope'] ?? '').toString()).trim();
+          final scope = resolveValue(
+            (action.payload['scope'] ?? '').toString(),
+          ).trim();
           if (!_supportedVariableScopes.contains(scope)) {
             throw Exception(
               'scope is required for getScopedVariable and must be one of ${_supportedVariableScopes.join(', ')}',
             );
           }
 
-          final rawKey =
-              resolveValue((action.payload['key'] ?? '').toString()).trim();
+          final rawKey = resolveValue(
+            (action.payload['key'] ?? '').toString(),
+          ).trim();
           final storageKey = _scopedStorageKey(rawKey);
           final referenceKey = _scopedReferenceKey(rawKey);
 
@@ -1310,17 +1318,15 @@ Future<Map<String, String>> handleActions(
           if (valueIsEffectivelyEmpty) {
             dynamic defaultValue;
             try {
-              final definitions =
-                  await manager.getScopedVariableDefinitions(botId);
-              final def = definitions.firstWhere(
-                (entry) {
-                  final entryScope = (entry['scope'] ?? '').toString().trim();
-                  final entryKeyRaw = (entry['key'] ?? '').toString().trim();
-                  return entryScope == scope &&
-                      _scopedStorageKey(entryKeyRaw) == storageKey;
-                },
-                orElse: () => const <String, dynamic>{},
+              final definitions = await manager.getScopedVariableDefinitions(
+                botId,
               );
+              final def = definitions.firstWhere((entry) {
+                final entryScope = (entry['scope'] ?? '').toString().trim();
+                final entryKeyRaw = (entry['key'] ?? '').toString().trim();
+                return entryScope == scope &&
+                    _scopedStorageKey(entryKeyRaw) == storageKey;
+              }, orElse: () => const <String, dynamic>{});
               if (def.containsKey('defaultValue')) {
                 defaultValue = def['defaultValue'];
               }
@@ -1330,7 +1336,8 @@ Future<Map<String, String>> handleActions(
             // meaningful (non-empty-string) default.  If no definition exists
             // or the default is itself an empty string, keep the original
             // behaviour of using an empty string.
-            final bool defaultIsMeaningful = defaultValue != null &&
+            final bool defaultIsMeaningful =
+                defaultValue != null &&
                 !(defaultValue is String && defaultValue.trim().isEmpty);
             value = defaultIsMeaningful
                 ? defaultValue
@@ -1345,11 +1352,9 @@ Future<Map<String, String>> handleActions(
             );
           }
           final runtimeValue = _stringifyRuntimeValue(value);
-          final storeAs =
-              resolveValue(
-                (action.payload['storeAs'] ?? '$scope.$referenceKey')
-                    .toString(),
-              ).trim();
+          final storeAs = resolveValue(
+            (action.payload['storeAs'] ?? '$scope.$referenceKey').toString(),
+          ).trim();
           if (storeAs.isNotEmpty) {
             variables[storeAs] = runtimeValue;
           }
@@ -1360,16 +1365,18 @@ Future<Map<String, String>> handleActions(
           results[resultKey] = runtimeValue;
           break;
         case BotCreatorActionType.removeScopedVariable:
-          final scope =
-              resolveValue((action.payload['scope'] ?? '').toString()).trim();
+          final scope = resolveValue(
+            (action.payload['scope'] ?? '').toString(),
+          ).trim();
           if (!_supportedVariableScopes.contains(scope)) {
             throw Exception(
               'scope is required for removeScopedVariable and must be one of ${_supportedVariableScopes.join(', ')}',
             );
           }
 
-          final rawKey =
-              resolveValue((action.payload['key'] ?? '').toString()).trim();
+          final rawKey = resolveValue(
+            (action.payload['key'] ?? '').toString(),
+          ).trim();
           final storageKey = _scopedStorageKey(rawKey);
           final referenceKey = _scopedReferenceKey(rawKey);
 
@@ -1405,18 +1412,21 @@ Future<Map<String, String>> handleActions(
           results[resultKey] = 'REMOVED';
           break;
         case BotCreatorActionType.renameScopedVariable:
-          final scope =
-              resolveValue((action.payload['scope'] ?? '').toString()).trim();
+          final scope = resolveValue(
+            (action.payload['scope'] ?? '').toString(),
+          ).trim();
           if (!_supportedVariableScopes.contains(scope)) {
             throw Exception(
               'scope is required for renameScopedVariable and must be one of ${_supportedVariableScopes.join(', ')}',
             );
           }
 
-          final oldRawKey =
-              resolveValue((action.payload['oldKey'] ?? '').toString()).trim();
-          final newRawKey =
-              resolveValue((action.payload['newKey'] ?? '').toString()).trim();
+          final oldRawKey = resolveValue(
+            (action.payload['oldKey'] ?? '').toString(),
+          ).trim();
+          final newRawKey = resolveValue(
+            (action.payload['newKey'] ?? '').toString(),
+          ).trim();
           final oldStorageKey = _scopedStorageKey(oldRawKey);
           final newStorageKey = _scopedStorageKey(newRawKey);
           final oldReferenceKey = _scopedReferenceKey(oldRawKey);
@@ -1480,16 +1490,18 @@ Future<Map<String, String>> handleActions(
           results[resultKey] = 'RENAMED';
           break;
         case BotCreatorActionType.listScopedVariableIndex:
-          final scope =
-              resolveValue((action.payload['scope'] ?? '').toString()).trim();
+          final scope = resolveValue(
+            (action.payload['scope'] ?? '').toString(),
+          ).trim();
           if (!_supportedVariableScopes.contains(scope)) {
             throw Exception(
               'scope is required for listScopedVariableIndex and must be one of ${_supportedVariableScopes.join(', ')}',
             );
           }
 
-          final rawKey =
-              resolveValue((action.payload['key'] ?? '').toString()).trim();
+          final rawKey = resolveValue(
+            (action.payload['key'] ?? '').toString(),
+          ).trim();
           final storageKey = _scopedStorageKey(rawKey);
           final offset =
               int.tryParse(
@@ -1507,10 +1519,9 @@ Future<Map<String, String>> handleActions(
               25;
           final safeOffset = offset < 0 ? 0 : offset;
           final safeLimit = limit < 1 ? 1 : (limit > 25 ? 25 : limit);
-          final order =
-              resolveValue(
-                (action.payload['order'] ?? 'desc').toString(),
-              ).trim().toLowerCase();
+          final order = resolveValue(
+            (action.payload['order'] ?? 'desc').toString(),
+          ).trim().toLowerCase();
           final page = await manager.queryScopedVariableIndex(
             botId,
             scope,
@@ -1536,8 +1547,9 @@ Future<Map<String, String>> handleActions(
           variables['action.$resultKey.total'] = total;
           variables['$resultKey.total'] = total;
 
-          final storeAs =
-              resolveValue((action.payload['storeAs'] ?? '').toString()).trim();
+          final storeAs = resolveValue(
+            (action.payload['storeAs'] ?? '').toString(),
+          ).trim();
           if (storeAs.isNotEmpty) {
             variables[storeAs] = itemsJson;
           }
@@ -1563,8 +1575,9 @@ Future<Map<String, String>> handleActions(
             'Action ${action.type.name} should have been handled by an executor before switch dispatch.',
           );
         case BotCreatorActionType.setGlobalVariable:
-          final key =
-              resolveValue((action.payload['key'] ?? '').toString()).trim();
+          final key = resolveValue(
+            (action.payload['key'] ?? '').toString(),
+          ).trim();
           if (key.isEmpty) {
             throw Exception('key is required for setGlobalVariable');
           }
@@ -1577,17 +1590,17 @@ Future<Map<String, String>> handleActions(
           results[resultKey] = 'OK';
           break;
         case BotCreatorActionType.getGlobalVariable:
-          final key =
-              resolveValue((action.payload['key'] ?? '').toString()).trim();
+          final key = resolveValue(
+            (action.payload['key'] ?? '').toString(),
+          ).trim();
           if (key.isEmpty) {
             throw Exception('key is required for getGlobalVariable');
           }
           final value = await manager.getGlobalVariable(botId, key) ?? '';
           final valueAsString = _stringifyRuntimeValue(value);
-          final storeAs =
-              resolveValue(
-                (action.payload['storeAs'] ?? 'global.$key').toString(),
-              ).trim();
+          final storeAs = resolveValue(
+            (action.payload['storeAs'] ?? 'global.$key').toString(),
+          ).trim();
           if (storeAs.isNotEmpty) {
             variables[storeAs] = valueAsString;
           }
@@ -1595,8 +1608,9 @@ Future<Map<String, String>> handleActions(
           results[resultKey] = valueAsString;
           break;
         case BotCreatorActionType.removeGlobalVariable:
-          final key =
-              resolveValue((action.payload['key'] ?? '').toString()).trim();
+          final key = resolveValue(
+            (action.payload['key'] ?? '').toString(),
+          ).trim();
           if (key.isEmpty) {
             throw Exception('key is required for removeGlobalVariable');
           }

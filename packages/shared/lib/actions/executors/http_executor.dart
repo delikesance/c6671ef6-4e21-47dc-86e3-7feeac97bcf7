@@ -76,8 +76,9 @@ String _normalizeMethod(
   dynamic rawMethod,
   String Function(String) resolveValue,
 ) {
-  final method =
-      resolveValue(rawMethod?.toString() ?? 'GET').trim().toUpperCase();
+  final method = resolveValue(
+    rawMethod?.toString() ?? 'GET',
+  ).trim().toUpperCase();
   const supported = {'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'};
   if (!supported.contains(method)) return 'GET';
   return method;
@@ -122,6 +123,7 @@ Future<bool> executeHttpAction({
   required String Function(String input) resolveValue,
   required void Function(String message)? onLog,
   required Future<void> Function(String key, String value) setGlobalVariable,
+  http.Client? httpClient,
 }) async {
   if (type != BotCreatorActionType.httpRequest) return false;
 
@@ -131,8 +133,9 @@ Future<bool> executeHttpAction({
   }
 
   final method = _normalizeMethod(payload['method'], resolveValue);
-  final bodyMode =
-      resolveValue((payload['bodyMode'] ?? 'json').toString()).toLowerCase();
+  final bodyMode = resolveValue(
+    (payload['bodyMode'] ?? 'json').toString(),
+  ).toLowerCase();
 
   // Safely extract raw headers as Map<String, String> (before resolving)
   final rawHeadersMap = <String, String>{};
@@ -141,14 +144,18 @@ Future<bool> executeHttpAction({
       rawHeadersMap[key.toString()] = value?.toString() ?? '';
     });
   }
-  onLog?.call('HTTP raw headers count: ${rawHeadersMap.length}, keys: ${rawHeadersMap.keys.toList()}');
+  onLog?.call(
+    'HTTP raw headers count: ${rawHeadersMap.length}, keys: ${rawHeadersMap.keys.toList()}',
+  );
   final headers = <String, String>{};
   for (final entry in rawHeadersMap.entries) {
     final key = resolveValue(entry.key).trim();
     if (key.isEmpty) continue;
     headers[key] = resolveValue(entry.value);
   }
-  onLog?.call('HTTP resolved headers count: ${headers.length}, keys: ${headers.keys.toList()}');
+  onLog?.call(
+    'HTTP resolved headers count: ${headers.length}, keys: ${headers.keys.toList()}',
+  );
 
   Object? requestBody;
   if (_supportsBody(method)) {
@@ -190,7 +197,7 @@ Future<bool> executeHttpAction({
     onLog?.call('HTTP Payload sent: ${request.body}');
   }
 
-  final client = http.Client();
+  final client = httpClient ?? http.Client();
   try {
     final streamed = await client.send(request);
     final responseBody = await streamed.stream.bytesToString();
@@ -212,21 +219,23 @@ Future<bool> executeHttpAction({
     variables['$resultKey.status'] = '$status';
     variables['$resultKey.body'] = responseBody;
 
-    final saveBodyTo =
-        resolveValue((payload['saveBodyToGlobalVar'] ?? '').toString()).trim();
+    final saveBodyTo = resolveValue(
+      (payload['saveBodyToGlobalVar'] ?? '').toString(),
+    ).trim();
     if (saveBodyTo.isNotEmpty) {
       await setGlobalVariable(saveBodyTo, responseBody);
     }
 
-    final saveStatusTo =
-        resolveValue((payload['saveStatusToGlobalVar'] ?? '').toString())
-            .trim();
+    final saveStatusTo = resolveValue(
+      (payload['saveStatusToGlobalVar'] ?? '').toString(),
+    ).trim();
     if (saveStatusTo.isNotEmpty) {
       await setGlobalVariable(saveStatusTo, '$status');
     }
 
-    final extractPath =
-        resolveValue((payload['extractJsonPath'] ?? '').toString()).trim();
+    final extractPath = resolveValue(
+      (payload['extractJsonPath'] ?? '').toString(),
+    ).trim();
     if (extractPath.isNotEmpty) {
       dynamic decoded;
       try {
@@ -237,13 +246,15 @@ Future<bool> executeHttpAction({
 
       if (decoded != null) {
         final extracted = _extractByJsonPath(decoded, extractPath);
-        onLog?.call('HTTP extractJsonPath: $extractPath → ${extracted != null ? "found (${extracted.toString().length} chars)" : "null"}');
+        onLog?.call(
+          'HTTP extractJsonPath: $extractPath → ${extracted != null ? "found (${extracted.toString().length} chars)" : "null"}',
+        );
         if (extracted != null) {
           final extractedAsString = extracted is String
               ? extracted
               : (extracted is num || extracted is bool)
-                  ? extracted.toString()
-                  : jsonEncode(extracted);
+              ? extracted.toString()
+              : jsonEncode(extracted);
           // Update the primary result to the extracted value so
           // ((action.<key>)) resolves to the useful text, not the raw body.
           results[resultKey] = extractedAsString;
@@ -252,7 +263,9 @@ Future<bool> executeHttpAction({
           variables['http.jsonPath'] = extractedAsString;
           variables['action.$resultKey.jsonPath'] = extractedAsString;
           variables['$resultKey.jsonPath'] = extractedAsString;
-          onLog?.call('HTTP jsonPath stored as action.$resultKey.jsonPath = $extractedAsString');
+          onLog?.call(
+            'HTTP jsonPath stored as action.$resultKey.jsonPath = $extractedAsString',
+          );
           // Note: saveJsonPathToGlobalVar removed — use {{resultKey.jsonPath}}
         }
       }
@@ -260,6 +273,6 @@ Future<bool> executeHttpAction({
 
     return true;
   } finally {
-    client.close();
+    if (httpClient == null) client.close();
   }
 }

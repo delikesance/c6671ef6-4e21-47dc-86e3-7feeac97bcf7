@@ -30,7 +30,11 @@ extension _CommandCreateJavascript on _CommandCreatePageState {
           children: [
             Row(
               children: [
-                const Icon(Icons.edit, size: 14, color: AppTheme.grey),
+                const AppIcon.fromMaterial(
+                  Icons.edit,
+                  size: 14,
+                  color: AppTheme.grey,
+                ),
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(

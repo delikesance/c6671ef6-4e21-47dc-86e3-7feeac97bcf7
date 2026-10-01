@@ -3,13 +3,16 @@ import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:flutter/material.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 class RegistryCredentialsPage extends StatefulWidget {
   final MainApiClient? client;
 
   const RegistryCredentialsPage({super.key, this.client});
 
   @override
-  State<RegistryCredentialsPage> createState() => _RegistryCredentialsPageState();
+  State<RegistryCredentialsPage> createState() =>
+      _RegistryCredentialsPageState();
 }
 
 class _RegistryCredentialsPageState extends State<RegistryCredentialsPage> {
@@ -79,10 +82,8 @@ class _RegistryCredentialsPageState extends State<RegistryCredentialsPage> {
     final saved = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
-      builder: (ctx) => _RegistryCredentialEditorSheet(
-        client: _client!,
-        existing: existing,
-      ),
+      builder: (ctx) =>
+          _RegistryCredentialEditorSheet(client: _client!, existing: existing),
     );
     if (saved == true) {
       await _load();
@@ -120,7 +121,9 @@ class _RegistryCredentialsPageState extends State<RegistryCredentialsPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(context.tr.registry_credentials_delete_failed(e.toString())),
+            content: Text(
+              context.tr.registry_credentials_delete_failed(e.toString()),
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -131,91 +134,84 @@ class _RegistryCredentialsPageState extends State<RegistryCredentialsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(context.tr.registry_credentials_title),
-      ),
+      appBar: AppBar(title: Text(context.tr.registry_credentials_title)),
       floatingActionButton: _client == null
           ? null
           : FloatingActionButton.extended(
               onPressed: () => _openEditor(),
-              icon: const Icon(Icons.add),
+              icon: const AppIcon.fromMaterial(Icons.add),
               label: Text(context.tr.registry_credentials_add),
             ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(_error!, textAlign: TextAlign.center),
-                        const SizedBox(height: 16),
-                        FilledButton.tonalIcon(
-                          onPressed: _load,
-                          icon: const Icon(Icons.refresh),
-                          label: Text(context.tr.container_list_retry),
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(_error!, textAlign: TextAlign.center),
+                    const SizedBox(height: 16),
+                    FilledButton.tonalIcon(
+                      onPressed: _load,
+                      icon: const AppIcon.fromMaterial(Icons.refresh),
+                      label: Text(context.tr.container_list_retry),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          : _credentials.isEmpty
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Text(
+                  context.tr.registry_credentials_empty,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            )
+          : ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemCount: _credentials.length,
+              separatorBuilder: (_, _) => const SizedBox(height: 8),
+              itemBuilder: (context, index) {
+                final cred = _credentials[index];
+                return Card(
+                  child: ListTile(
+                    leading: const AppIcon.fromMaterial(Icons.vpn_key_outlined),
+                    title: Text(cred.label),
+                    subtitle: Text('${cred.registryHost} · ${cred.username}'),
+                    trailing: PopupMenuButton<String>(
+                      onSelected: (value) {
+                        if (value == 'edit') {
+                          _openEditor(existing: cred);
+                        } else if (value == 'delete') {
+                          _delete(cred);
+                        }
+                      },
+                      itemBuilder: (ctx) => [
+                        PopupMenuItem(
+                          value: 'edit',
+                          child: Text(context.tr.registry_credentials_edit),
+                        ),
+                        PopupMenuItem(
+                          value: 'delete',
+                          child: Text(context.tr.delete),
                         ),
                       ],
                     ),
                   ),
-                )
-              : _credentials.isEmpty
-                  ? Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(24),
-                        child: Text(
-                          context.tr.registry_credentials_empty,
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    )
-                  : ListView.separated(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: _credentials.length,
-                      separatorBuilder: (_, _) => const SizedBox(height: 8),
-                      itemBuilder: (context, index) {
-                        final cred = _credentials[index];
-                        return Card(
-                          child: ListTile(
-                            leading: const Icon(Icons.vpn_key_outlined),
-                            title: Text(cred.label),
-                            subtitle: Text(
-                              '${cred.registryHost} · ${cred.username}',
-                            ),
-                            trailing: PopupMenuButton<String>(
-                              onSelected: (value) {
-                                if (value == 'edit') {
-                                  _openEditor(existing: cred);
-                                } else if (value == 'delete') {
-                                  _delete(cred);
-                                }
-                              },
-                              itemBuilder: (ctx) => [
-                                PopupMenuItem(
-                                  value: 'edit',
-                                  child: Text(context.tr.registry_credentials_edit),
-                                ),
-                                PopupMenuItem(
-                                  value: 'delete',
-                                  child: Text(context.tr.delete),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+                );
+              },
+            ),
     );
   }
 }
 
 class _RegistryCredentialEditorSheet extends StatefulWidget {
-  const _RegistryCredentialEditorSheet({
-    required this.client,
-    this.existing,
-  });
+  const _RegistryCredentialEditorSheet({required this.client, this.existing});
 
   final MainApiClient client;
   final RegistryCredential? existing;
@@ -280,7 +276,9 @@ class _RegistryCredentialEditorSheetState
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(context.tr.registry_credentials_save_failed(e.toString())),
+            content: Text(
+              context.tr.registry_credentials_save_failed(e.toString()),
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -348,7 +346,7 @@ class _RegistryCredentialEditorSheetState
                     ? context.tr.registry_credentials_password_hint
                     : context.tr.registry_credentials_password_edit_hint,
                 suffixIcon: IconButton(
-                  icon: Icon(
+                  icon: AppIcon.fromMaterial(
                     _obscurePassword ? Icons.visibility : Icons.visibility_off,
                   ),
                   onPressed: () =>

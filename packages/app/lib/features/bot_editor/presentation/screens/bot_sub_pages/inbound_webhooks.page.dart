@@ -14,6 +14,8 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pag
 import 'package:bot_creator/features/bot_editor/logic/workflow_call.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 class InboundWebhooksPage extends StatefulWidget {
   const InboundWebhooksPage({super.key, required this.botId});
 
@@ -148,7 +150,9 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                           border: const OutlineInputBorder(),
                           suffixIcon: IconButton(
                             tooltip: context.tr.webhooks_generate,
-                            icon: const Icon(Icons.casino_outlined),
+                            icon: const AppIcon.fromMaterial(
+                              Icons.casino_outlined,
+                            ),
                             onPressed: () {
                               setInnerState(() {
                                 secretCtrl.text = _generateSecret();
@@ -324,7 +328,7 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
           children: [
             Row(
               children: [
-                Icon(
+                AppIcon.fromMaterial(
                   Icons.workspace_premium_rounded,
                   color: AppTheme.premiumGold,
                 ),
@@ -349,7 +353,9 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                   }
                   await _load();
                 },
-                icon: const Icon(Icons.workspace_premium_rounded),
+                icon: const AppIcon.fromMaterial(
+                  Icons.workspace_premium_rounded,
+                ),
                 label: Text(context.tr.premium_card_button),
               )
             else
@@ -378,7 +384,7 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
           IconButton(
             tooltip: context.tr.common_refresh,
             onPressed: _load,
-            icon: const Icon(Icons.refresh),
+            icon: const AppIcon.fromMaterial(Icons.refresh),
           ),
         ],
       ),
@@ -386,7 +392,7 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
           ? FloatingActionButton.extended(
               heroTag: null,
               onPressed: () => _showEditor(),
-              icon: const Icon(Icons.add),
+              icon: const AppIcon.fromMaterial(Icons.add),
               label: Text(context.tr.webhooks_add_action),
             )
           : null,
@@ -464,7 +470,7 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            const Icon(
+                                            const AppIcon.fromMaterial(
                                               Icons.content_copy_outlined,
                                               size: 18,
                                             ),
@@ -480,7 +486,7 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            const Icon(
+                                            const AppIcon.fromMaterial(
                                               Icons.link_outlined,
                                               size: 18,
                                             ),
@@ -511,7 +517,7 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            const Icon(
+                                            const AppIcon.fromMaterial(
                                               Icons.key_outlined,
                                               size: 18,
                                             ),
@@ -547,7 +553,7 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                                           child: Row(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
-                                              const Icon(
+                                              const AppIcon.fromMaterial(
                                                 Icons.edit_outlined,
                                                 size: 18,
                                               ),
@@ -563,13 +569,14 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                                           child: Row(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
-                                              const Icon(
+                                              const AppIcon.fromMaterial(
                                                 Icons.delete_outline,
                                                 size: 18,
                                                 color: AppTheme.error,
                                               ),
                                               const SizedBox(width: 12),
-                                              Text(context.tr.common_delete,
+                                              Text(
+                                                context.tr.common_delete,
                                                 style: TextStyle(
                                                   color: AppTheme.error,
                                                 ),
@@ -581,7 +588,9 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                                       ],
                                     ],
                                     child: IconButton(
-                                      icon: const Icon(Icons.more_vert),
+                                      icon: const AppIcon.fromMaterial(
+                                        Icons.more_vert,
+                                      ),
                                       tooltip: context.tr.webhooks_actions,
                                       onPressed: null,
                                     ),

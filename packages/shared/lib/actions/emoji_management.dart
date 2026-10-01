@@ -240,10 +240,8 @@ Future<Map<String, String>> deleteEmojiAction(
       return {'error': permError};
     }
 
-    final emojiId = _toSnowflake(
-      resolve((payload['emojiId'] ?? '').toString()),
-    );
-    if (emojiId == null) {
+    final identifier = resolve((payload['emojiId'] ?? '').toString()).trim();
+    if (identifier.isEmpty) {
       return {'error': 'emojiId is required for deleteEmoji'};
     }
 
@@ -251,6 +249,13 @@ Future<Map<String, String>> deleteEmojiAction(
 
     final guild = await fetchGuildCached(client, guildId);
     if (guild == null) return {'error': 'Guild not found'};
+    final emojiId =
+        _toSnowflake(identifier) ??
+        guild.emojiList
+            .where((emoji) => emoji.name == identifier)
+            .map((emoji) => emoji.id)
+            .firstOrNull;
+    if (emojiId == null) return {'error': 'Emoji not found: $identifier'};
     await guild.emojis.delete(
       emojiId,
       auditLogReason: reason.isNotEmpty ? reason : null,

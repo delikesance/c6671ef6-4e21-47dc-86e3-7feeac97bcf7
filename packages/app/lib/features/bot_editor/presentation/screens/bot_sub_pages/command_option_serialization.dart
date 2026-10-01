@@ -38,7 +38,6 @@ CommandOptionType commandOptionTypeFromText(String text) {
   }
 }
 
-
 Map<String, dynamic>? normalizeCommandOptionAutocompleteConfig(dynamic raw) {
   // Delegate to shared for canonical normalization
   final result = normalizeSerializedAutocompleteConfig(raw);
@@ -95,8 +94,9 @@ void setCommandOptionAutocompleteConfig(
   Map<String, dynamic>? rawConfig,
 ) {
   final normalized = normalizeCommandOptionAutocompleteConfig(rawConfig);
-  _autocompleteConfigExpando[option] =
-      normalized == null ? null : cloneJsonMap(normalized);
+  _autocompleteConfigExpando[option] = normalized == null
+      ? null
+      : cloneJsonMap(normalized);
   option.hasAutocomplete = normalized?['enabled'] == true;
   if (option.hasAutocomplete == true) {
     option.choices = null;
@@ -112,6 +112,10 @@ Map<String, dynamic> serializeCommandOption(CommandOptionBuilder option) {
     'required': option.isRequired,
     if (option.minValue != null) 'minValue': option.minValue,
     if (option.maxValue != null) 'maxValue': option.maxValue,
+    if (option.minLength != null) 'minLength': option.minLength,
+    if (option.maxLength != null) 'maxLength': option.maxLength,
+    if (option.channelTypes != null)
+      'channelTypes': option.channelTypes!.map((type) => type.value).toList(),
     'autocomplete': ?autocomplete,
     if (autocomplete == null && option.choices?.isNotEmpty == true)
       'choices': option.choices!
@@ -129,13 +133,41 @@ List<Map<String, dynamic>> serializeCommandOptions(
 }
 
 CommandOptionBuilder deserializeCommandOption(Map<String, dynamic> raw) {
+  final rawMin = raw['minValue'];
+  final rawMax = raw['maxValue'];
+  final rawMinLen = raw['minLength'];
+  final rawMaxLen = raw['maxLength'];
+  final num? minValue = rawMin is num
+      ? rawMin
+      : num.tryParse(rawMin?.toString() ?? '');
+  final num? maxValue = rawMax is num
+      ? rawMax
+      : num.tryParse(rawMax?.toString() ?? '');
+  final int? minLength = rawMinLen is int
+      ? rawMinLen
+      : int.tryParse(rawMinLen?.toString() ?? '');
+  final int? maxLength = rawMaxLen is int
+      ? rawMaxLen
+      : int.tryParse(rawMaxLen?.toString() ?? '');
+
   final option = CommandOptionBuilder(
     type: commandOptionTypeFromText((raw['type'] ?? '').toString()),
     name: (raw['name'] ?? '').toString(),
     description: (raw['description'] ?? '').toString(),
     isRequired: raw['required'] == true,
-    minValue: raw['minValue'] as num?,
-    maxValue: raw['maxValue'] as num?,
+    minValue: minValue,
+    maxValue: maxValue,
+    minLength: minLength,
+    maxLength: maxLength,
+    channelTypes: (raw['channelTypes'] as List?)
+        ?.map((type) {
+          final intVal = type is int
+              ? type
+              : int.tryParse(type?.toString() ?? '');
+          return intVal != null ? ChannelType(intVal) : null;
+        })
+        .whereType<ChannelType>()
+        .toList(),
   );
 
   final autocompleteConfig = normalizeCommandOptionAutocompleteConfig(

@@ -61,6 +61,8 @@ import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Nombre de versions montrées : le journal en conserve cinq par entité, donc
 /// en demander plus serait demander ce qui n'existe pas.
 const int commandHistoryVersionLimit = 5;
@@ -455,7 +457,7 @@ class _CommandHistorySheetState extends State<CommandHistorySheet> {
           children: <Widget>[
             Row(
               children: <Widget>[
-                Icon(
+                AppIcon.fromMaterial(
                   Icons.history_rounded,
                   color: Theme.of(context).colorScheme.primary,
                 ),
@@ -472,7 +474,7 @@ class _CommandHistorySheetState extends State<CommandHistorySheet> {
                 IconButton(
                   tooltip: tr.common_close,
                   onPressed: () => Navigator.of(context).maybePop(),
-                  icon: const Icon(Icons.close_rounded),
+                  icon: const AppIcon.fromMaterial(Icons.close_rounded),
                 ),
               ],
             ),
@@ -536,7 +538,7 @@ class _CommandHistorySheetState extends State<CommandHistorySheet> {
             const SizedBox(height: 8),
             FilledButton.icon(
               onPressed: _busy ? null : _restoreForced,
-              icon: const Icon(Icons.restore_page_rounded),
+              icon: const AppIcon.fromMaterial(Icons.restore_page_rounded),
               label: Text(tr.bot_config_versions_force_restore_confirm),
             ),
           ],
@@ -569,7 +571,7 @@ class _CommandHistorySheetState extends State<CommandHistorySheet> {
     final localeName = Localizations.localeOf(context).toString();
     return ListTile(
       contentPadding: EdgeInsets.zero,
-      leading: const Icon(Icons.commit_rounded),
+      leading: const AppIcon.fromMaterial(Icons.commit_rounded),
       title: Text(
         tr.command_history_version_meta(
           _authorLabel(version.authorOwnerId),
@@ -611,7 +613,7 @@ class _Notice extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 24),
       child: Column(
         children: <Widget>[
-          Icon(icon, size: 32, color: scheme.onSurfaceVariant),
+          AppIcon.fromMaterial(icon, size: 32, color: scheme.onSurfaceVariant),
           const SizedBox(height: 12),
           Text(message, textAlign: TextAlign.center),
         ],
@@ -648,7 +650,10 @@ class _ConflictPanel extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Icon(Icons.sync_problem_rounded, color: scheme.onErrorContainer),
+              AppIcon.fromMaterial(
+                Icons.sync_problem_rounded,
+                color: scheme.onErrorContainer,
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(

@@ -7,16 +7,14 @@ import 'package:bot_creator/features/marketplace/presentation/marketplace_detail
 import 'package:bot_creator_shared/bot/marketplace_template.dart';
 import 'package:flutter/material.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Browse and search the marketplace for templates.
 class MarketplacePage extends StatefulWidget {
   final String botId;
   final MainApiClient? apiClient;
 
-  const MarketplacePage({
-    super.key,
-    required this.botId,
-    this.apiClient,
-  });
+  const MarketplacePage({super.key, required this.botId, this.apiClient});
 
   @override
   State<MarketplacePage> createState() => _MarketplacePageState();
@@ -93,14 +91,10 @@ class _MarketplacePageState extends State<MarketplacePage> {
       }).toList();
     }
     if (_categoryFilter != null) {
-      list = list
-          .where((t) => t.category == _categoryFilter)
-          .toList();
+      list = list.where((t) => t.category == _categoryFilter).toList();
     }
     if (_showMyTemplatesOnly && _currentUserId != null) {
-      list = list
-          .where((t) => t.authorId == _currentUserId)
-          .toList();
+      list = list.where((t) => t.authorId == _currentUserId).toList();
     }
     return list;
   }
@@ -122,14 +116,14 @@ class _MarketplacePageState extends State<MarketplacePage> {
               label: Text(context.tr.marketplace_my_templates),
               selected: _showMyTemplatesOnly,
               onSelected: (v) => setState(() => _showMyTemplatesOnly = v),
-              avatar: Icon(
+              avatar: AppIcon.fromMaterial(
                 _showMyTemplatesOnly ? Icons.person : Icons.person_outline,
                 size: 18,
               ),
             ),
           const SizedBox(width: 8),
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const AppIcon.fromMaterial(Icons.refresh),
             onPressed: _loading ? null : _fetch,
           ),
         ],
@@ -138,10 +132,10 @@ class _MarketplacePageState extends State<MarketplacePage> {
         child: _loading
             ? const Center(child: CircularProgressIndicator())
             : _needsLogin
-                ? _buildLoginPrompt(colorScheme)
-                : _error != null
-                    ? _buildError(colorScheme)
-                    : _buildContent(colorScheme),
+            ? _buildLoginPrompt(colorScheme)
+            : _error != null
+            ? _buildError(colorScheme)
+            : _buildContent(colorScheme),
       ),
     );
   }
@@ -153,7 +147,7 @@ class _MarketplacePageState extends State<MarketplacePage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.cloud_off, size: 48, color: cs.error),
+            AppIcon.fromMaterial(Icons.cloud_off, size: 48, color: cs.error),
             const SizedBox(height: 16),
             Text(
               _error!,
@@ -163,7 +157,7 @@ class _MarketplacePageState extends State<MarketplacePage> {
             const SizedBox(height: 16),
             FilledButton.icon(
               onPressed: _fetch,
-              icon: const Icon(Icons.refresh),
+              icon: const AppIcon.fromMaterial(Icons.refresh),
               label: Text(context.tr.marketplace_retry),
             ),
           ],
@@ -179,7 +173,11 @@ class _MarketplacePageState extends State<MarketplacePage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.account_circle, size: 64, color: cs.primary),
+            AppIcon.fromMaterial(
+              Icons.account_circle,
+              size: 64,
+              color: cs.primary,
+            ),
             const SizedBox(height: 16),
             Text(
               context.tr.marketplace_login_required,
@@ -195,7 +193,7 @@ class _MarketplacePageState extends State<MarketplacePage> {
             const SizedBox(height: 24),
             FilledButton.icon(
               onPressed: _startDiscordLogin,
-              icon: const Icon(Icons.login),
+              icon: const AppIcon.fromMaterial(Icons.login),
               label: Text(context.tr.marketplace_connect_discord),
             ),
           ],
@@ -217,7 +215,9 @@ class _MarketplacePageState extends State<MarketplacePage> {
 
     try {
       final client = MainApiClient(baseUrl: config.baseUrl);
-      final session = await MainApiAuthService.connectWithDiscord(client: client);
+      final session = await MainApiAuthService.connectWithDiscord(
+        client: client,
+      );
       await MainApiSettingsStore.saveSession(
         session.copyWith(authMethod: MainApiAuthMethod.discordOauth),
       );
@@ -233,7 +233,9 @@ class _MarketplacePageState extends State<MarketplacePage> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${context.tr.marketplace_connect_manager}: $e')),
+          SnackBar(
+            content: Text('${context.tr.marketplace_connect_manager}: $e'),
+          ),
         );
       }
     }
@@ -251,11 +253,24 @@ class _MarketplacePageState extends State<MarketplacePage> {
           child: TextField(
             decoration: InputDecoration(
               hintText: context.tr.marketplace_search_hint,
-              prefixIcon: const Icon(Icons.search),
+              prefixIconConstraints: const BoxConstraints(
+                minWidth: 36,
+                minHeight: 36,
+              ),
+              prefixIcon: const Padding(
+                padding: EdgeInsets.only(left: 10, right: 8),
+                child: AppIcon.fromMaterial(Icons.search, size: 18),
+              ),
+              isDense: true,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 10,
+              ),
               suffixIcon: _search.isNotEmpty
                   ? IconButton(
-                      icon: const Icon(Icons.clear),
+                      icon: const AppIcon.fromMaterial(Icons.clear, size: 18),
                       onPressed: () => setState(() => _search = ''),
+                      visualDensity: VisualDensity.compact,
                     )
                   : null,
               border: OutlineInputBorder(
@@ -301,9 +316,9 @@ class _MarketplacePageState extends State<MarketplacePage> {
             children: [
               Text(
                 context.tr.marketplace_count(filtered.length),
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: cs.onSurfaceVariant,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
               ),
             ],
           ),
@@ -390,8 +405,9 @@ class _TemplateCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final requiredVars =
-        template.globalVariables.where((v) => v.required).length;
+    final requiredVars = template.globalVariables
+        .where((v) => v.required)
+        .length;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -427,8 +443,8 @@ class _TemplateCard extends StatelessWidget {
                     Text(
                       template.name,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -436,8 +452,8 @@ class _TemplateCard extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: cs.onSurfaceVariant,
-                          ),
+                        color: cs.onSurfaceVariant,
+                      ),
                     ),
                     const SizedBox(height: 8),
 
@@ -461,7 +477,9 @@ class _TemplateCard extends StatelessWidget {
                         if (requiredVars > 0)
                           _MetaChip(
                             icon: Icons.tune,
-                            label: context.tr.marketplace_required_config_count(requiredVars),
+                            label: context.tr.marketplace_required_config_count(
+                              requiredVars,
+                            ),
                           ),
                         _MetaChip(
                           icon: Icons.playlist_play,
@@ -475,7 +493,10 @@ class _TemplateCard extends StatelessWidget {
               ),
 
               // Arrow
-              Icon(Icons.chevron_right, color: cs.onSurfaceVariant),
+              AppIcon.fromMaterial(
+                Icons.chevron_right,
+                color: cs.onSurfaceVariant,
+              ),
             ],
           ),
         ),
@@ -495,13 +516,17 @@ class _MetaChip extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
+        AppIcon.fromMaterial(
+          icon,
+          size: 14,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
         const SizedBox(width: 3),
         Text(
           label,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
       ],
     );

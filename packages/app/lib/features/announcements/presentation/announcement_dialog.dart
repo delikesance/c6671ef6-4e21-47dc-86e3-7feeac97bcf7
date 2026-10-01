@@ -15,6 +15,8 @@ import 'package:bot_creator/features/announcements/logic/announcement.dart';
 import 'package:bot_creator/features/announcements/logic/announcement_policy.dart';
 import 'package:bot_creator/features/announcements/presentation/announcement_style.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Affiche le dialogue et rend la main quand il est fermé.
 /// Renvoie `true` si l'utilisateur a cliqué sur acquitter (« Compris » / « Got it »).
 Future<bool?> showAnnouncementDialog(
@@ -39,7 +41,7 @@ Future<bool?> showAnnouncementDialog(
         // il reste actif pour une annonce refermable.
         canPop: deferAllowed,
         child: AlertDialog(
-          icon: Icon(palette.icon, color: palette.onContainer),
+          icon: AppIcon.fromMaterial(palette.icon, color: palette.onContainer),
           title: Text(announcement.title),
           content: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

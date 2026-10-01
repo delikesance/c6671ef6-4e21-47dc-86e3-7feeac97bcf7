@@ -14,6 +14,8 @@ import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/features/documentation/documentation_urls.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Full-screen page (or bottom-sheet) for purchasing a premium subscription.
 class SubscriptionPage extends StatefulWidget {
   const SubscriptionPage({super.key});
@@ -149,7 +151,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                     padding: const EdgeInsets.only(top: 8),
                     child: Row(
                       children: [
-                        const Icon(Icons.check, size: 18),
+                        const AppIcon.fromMaterial(Icons.check, size: 18),
                         const SizedBox(width: 8),
                         Expanded(child: Text(benefit)),
                       ],
@@ -291,7 +293,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                   color: AppTheme.premiumGold.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: const AppIcon.fromMaterial(
                   Icons.workspace_premium_rounded,
                   size: 48,
                   color: AppTheme.premiumGold,
@@ -477,7 +479,7 @@ class _BenefitRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 22, color: AppTheme.premiumGold),
+        AppIcon.fromMaterial(icon, size: 22, color: AppTheme.premiumGold),
         const SizedBox(width: 12),
         Expanded(
           child: Column(

@@ -630,7 +630,8 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             key: 'targetType',
             type: ParameterType.multiSelect,
             defaultValue: 'channel',
-            hint: 'Send to a channel, reply to a message, or directly to a user (DM)',
+            hint:
+                'Send to a channel, reply to a message, or directly to a user (DM)',
             options: ['channel', 'user', 'reply'],
           ),
           ParameterDefinition(
@@ -2025,7 +2026,8 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             key: 'replyToMessage',
             type: ParameterType.boolean,
             defaultValue: false,
-            hint: 'Reply to the triggering message (prefix commands: uses message reference)',
+            hint:
+                'Reply to the triggering message (prefix commands: uses message reference)',
           ),
         ];
       case BotCreatorActionType.respondWithComponentV2:
@@ -2407,7 +2409,8 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             key: 'mode',
             type: ParameterType.multiSelect,
             defaultValue: 'simple',
-            hint: 'Loop mode: simple (iterations based) or cstyle (condition based)',
+            hint:
+                'Loop mode: simple or cstyle. The entire command has a 15 minute execution deadline.',
             options: ['simple', 'cstyle'],
             required: true,
           ),
@@ -2419,13 +2422,6 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             visibleWhen: <String, List<String>>{
               'mode': <String>['simple'],
             },
-          ),
-          ParameterDefinition(
-            key: 'maxIterations',
-            type: ParameterType.number,
-            defaultValue: 100,
-            hint: 'Safety limit for maximum iterations allowed',
-            minValue: 1,
           ),
           ParameterDefinition(
             key: 'init',
@@ -2467,7 +2463,8 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             key: 'source',
             type: ParameterType.string,
             defaultValue: '',
-            hint: 'JSON string source (can be empty if preceding runtimeJsonBlock provides it)',
+            hint:
+                'JSON string source (can be empty if preceding runtimeJsonBlock provides it)',
           ),
           ParameterDefinition(
             key: 'path',
@@ -2476,17 +2473,11 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             hint: 'Optional JSON path navigation segments',
           ),
           ParameterDefinition(
-            key: 'maxIterations',
-            type: ParameterType.number,
-            defaultValue: 100,
-            hint: 'Safety limit for maximum loop iterations',
-            minValue: 1,
-          ),
-          ParameterDefinition(
             key: 'bodyActions',
             type: ParameterType.nestedActions,
             defaultValue: <Map<String, dynamic>>[],
-            hint: 'Actions to execute on each key-value pair of the JSON object',
+            hint:
+                'Actions to execute on each key-value pair of the JSON object',
           ),
         ];
 
@@ -3140,7 +3131,9 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             defaultValue: '',
             hint: 'User or Role ID to set overwrite for',
             required: true,
-            visibleWhen: {'targetType': ['member', 'role']},
+            visibleWhen: {
+              'targetType': ['member', 'role'],
+            },
           ),
           ParameterDefinition(
             key: 'targetType',
@@ -3191,7 +3184,9 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             type: ParameterType.string,
             defaultValue: '',
             hint: 'User or Role ID whose overwrite to delete',
-            visibleWhen: {'targetType': ['member', 'role']},
+            visibleWhen: {
+              'targetType': ['member', 'role'],
+            },
           ),
           ParameterDefinition(
             key: 'reason',
@@ -3340,13 +3335,15 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             key: 'imageName',
             type: ParameterType.string,
             defaultValue: '',
-            hint: 'Name to reference this image (used with Attach Image action)',
+            hint:
+                'Name to reference this image (used with Attach Image action)',
           ),
           ParameterDefinition(
             key: 'operations',
             type: ParameterType.nestedActions,
             defaultValue: <Map<String, dynamic>>[],
-            hint: 'Canvas operations (Create, Load Image, Draw Text, Shapes...)',
+            hint:
+                'Canvas operations (Create, Load Image, Draw Text, Shapes...)',
           ),
         ];
 

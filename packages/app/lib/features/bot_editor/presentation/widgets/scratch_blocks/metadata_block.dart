@@ -13,6 +13,8 @@ import 'package:bot_creator/features/bot_editor/presentation/widgets/option_widg
 import 'scratch_block.dart';
 import 'scratch_block_palette.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 class _MaxTwoCommaSeparatedFormatter extends TextInputFormatter {
   const _MaxTwoCommaSeparatedFormatter();
 
@@ -251,7 +253,7 @@ class _MetadataBlockState extends State<MetadataBlock> {
             decoration: InputDecoration(
               labelText: context.tr.command_name_label,
               hintText: context.tr.scratch_meta_name_hint,
-              prefixIcon: const Icon(Icons.tag),
+              prefixIcon: const AppIcon.fromMaterial(Icons.tag),
               border: const OutlineInputBorder(),
             ),
             onChanged: widget.onNameChanged,
@@ -268,7 +270,10 @@ class _MetadataBlockState extends State<MetadataBlock> {
                 labelText: context.tr.command_alias_label,
                 hintText: 'p, ping',
                 helperText: context.tr.command_alias_limit(2),
-                prefixIcon: const Icon(Icons.alternate_email, size: 20),
+                prefixIcon: const AppIcon.fromMaterial(
+                  Icons.alternate_email,
+                  size: 20,
+                ),
                 border: const OutlineInputBorder(),
               ),
               validator: (val) {
@@ -306,7 +311,7 @@ class _MetadataBlockState extends State<MetadataBlock> {
               decoration: InputDecoration(
                 labelText: context.tr.common_description,
                 hintText: context.tr.scratch_meta_desc_hint,
-                prefixIcon: const Icon(Icons.short_text),
+                prefixIcon: const AppIcon.fromMaterial(Icons.short_text),
                 border: const OutlineInputBorder(),
               ),
               onChanged: widget.onDescriptionChanged,
@@ -331,7 +336,10 @@ class _MetadataBlockState extends State<MetadataBlock> {
                       label: compact
                           ? const SizedBox.shrink()
                           : Text(context.tr.scratch_meta_type_slash),
-                      icon: const Icon(Icons.terminal, size: 18),
+                      icon: const AppIcon.fromMaterial(
+                        Icons.terminal,
+                        size: 18,
+                      ),
                       tooltip: compact
                           ? context.tr.scratch_meta_type_slash
                           : null,
@@ -341,7 +349,10 @@ class _MetadataBlockState extends State<MetadataBlock> {
                       label: compact
                           ? const SizedBox.shrink()
                           : Text(context.tr.scratch_meta_type_prefix),
-                      icon: const Icon(Icons.textsms_outlined, size: 18),
+                      icon: const AppIcon.fromMaterial(
+                        Icons.textsms_outlined,
+                        size: 18,
+                      ),
                       tooltip: compact
                           ? context.tr.scratch_meta_type_prefix
                           : null,
@@ -351,7 +362,10 @@ class _MetadataBlockState extends State<MetadataBlock> {
                       label: compact
                           ? const SizedBox.shrink()
                           : Text(context.tr.scratch_meta_type_user),
-                      icon: const Icon(Icons.person_outline, size: 18),
+                      icon: const AppIcon.fromMaterial(
+                        Icons.person_outline,
+                        size: 18,
+                      ),
                       tooltip: compact
                           ? context.tr.scratch_meta_type_user
                           : null,
@@ -361,7 +375,10 @@ class _MetadataBlockState extends State<MetadataBlock> {
                       label: compact
                           ? const SizedBox.shrink()
                           : Text(context.tr.scratch_meta_type_message),
-                      icon: const Icon(Icons.message_outlined, size: 18),
+                      icon: const AppIcon.fromMaterial(
+                        Icons.message_outlined,
+                        size: 18,
+                      ),
                       tooltip: compact
                           ? context.tr.scratch_meta_type_message
                           : null,
@@ -458,7 +475,7 @@ class _MetadataBlockState extends State<MetadataBlock> {
                                   ),
                                   child: Row(
                                     children: [
-                                      Icon(
+                                      AppIcon.fromMaterial(
                                         Icons.folder_outlined,
                                         size: 18,
                                         color: Theme.of(
@@ -502,11 +519,16 @@ class _MetadataBlockState extends State<MetadataBlock> {
                       decoration: InputDecoration(
                         labelText: context.tr.commands_folder_label,
                         hintText: context.tr.commands_folder_hint,
-                        prefixIcon: const Icon(Icons.folder_outlined),
+                        prefixIcon: const AppIcon.fromMaterial(
+                          Icons.folder_outlined,
+                        ),
                         suffixIcon: _existingFolders.isNotEmpty
                             ? PopupMenuButton<String>(
-                                icon: const Icon(Icons.folder_open),
-                                tooltip: context.tr.command_create_existing_folders,
+                                icon: const AppIcon.fromMaterial(
+                                  Icons.folder_open,
+                                ),
+                                tooltip:
+                                    context.tr.command_create_existing_folders,
                                 onSelected: (String selection) {
                                   setState(() {
                                     controller.text = selection;
@@ -585,13 +607,17 @@ class _MetadataBlockState extends State<MetadataBlock> {
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Row(
               children: [
-                Icon(
+                AppIcon.fromMaterial(
                   _advancedExpanded ? Icons.expand_less : Icons.expand_more,
                   size: 20,
                   color: colorScheme.onSurfaceVariant,
                 ),
                 const SizedBox(width: 4),
-                Icon(Icons.tune, size: 16, color: colorScheme.onSurfaceVariant),
+                AppIcon.fromMaterial(
+                  Icons.tune,
+                  size: 16,
+                  color: colorScheme.onSurfaceVariant,
+                ),
                 const SizedBox(width: 6),
                 Text(
                   context.tr.scratch_meta_advanced,
@@ -662,7 +688,7 @@ class _MetadataBlockState extends State<MetadataBlock> {
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Row(
               children: [
-                Icon(
+                AppIcon.fromMaterial(
                   _optionsExpanded ? Icons.expand_less : Icons.expand_more,
                   size: 20,
                   color: Theme.of(context).colorScheme.onSurfaceVariant,

@@ -7,6 +7,8 @@ import 'package:bot_creator/core/network/main_api_settings.dart';
 
 import 'package:flutter/material.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 class MobileEmailLoginForm extends StatefulWidget {
   const MobileEmailLoginForm({
     super.key,
@@ -161,7 +163,7 @@ class _MobileEmailLoginFormState extends State<MobileEmailLoginForm> {
               onPressed: isBusy
                   ? null
                   : () => setState(() => _obscurePassword = !_obscurePassword),
-              icon: Icon(
+              icon: AppIcon.fromMaterial(
                 _obscurePassword ? Icons.visibility : Icons.visibility_off,
               ),
             ),

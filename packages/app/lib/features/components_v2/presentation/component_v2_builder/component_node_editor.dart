@@ -14,6 +14,8 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pag
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Depth-based accent colours for nesting levels (0 = root).
 ///
 /// Le niveau 4 utilisait `AppTheme.brandPrimary` (violet #6A0FA2) : dernier
@@ -146,7 +148,7 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
               children: [
                 Row(
                   children: [
-                    Icon(
+                    AppIcon.fromMaterial(
                       _getIconForType(node.type),
                       size: 16,
                       color: accentColor,
@@ -190,7 +192,10 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                         width: 28,
                         height: 28,
                         child: IconButton(
-                          icon: const Icon(Icons.arrow_upward, size: 14),
+                          icon: const AppIcon.fromMaterial(
+                            Icons.arrow_upward,
+                            size: 14,
+                          ),
                           tooltip: context.tr.common_move_up,
                           onPressed: onMoveUp,
                           padding: EdgeInsets.zero,
@@ -202,7 +207,10 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                         width: 28,
                         height: 28,
                         child: IconButton(
-                          icon: const Icon(Icons.arrow_downward, size: 14),
+                          icon: const AppIcon.fromMaterial(
+                            Icons.arrow_downward,
+                            size: 14,
+                          ),
                           tooltip: context.tr.common_move_down,
                           onPressed: onMoveDown,
                           padding: EdgeInsets.zero,
@@ -213,7 +221,7 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                       width: 28,
                       height: 28,
                       child: IconButton(
-                        icon: Icon(
+                        icon: AppIcon.fromMaterial(
                           Icons.delete_outline,
                           size: 16,
                           color: AppTheme.errorLight,
@@ -652,7 +660,10 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                       onChanged(btn);
                     }
                   },
-                  icon: const Icon(Icons.account_tree, size: 18),
+                  icon: const AppIcon.fromMaterial(
+                    Icons.account_tree,
+                    size: 18,
+                  ),
                   label: Text(
                     btn.actions.isEmpty
                         ? (context.tr.actions_build_button(0).length > 40
@@ -767,7 +778,10 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                       onChanged(menu);
                     }
                   },
-                  icon: const Icon(Icons.account_tree, size: 18),
+                  icon: const AppIcon.fromMaterial(
+                    Icons.account_tree,
+                    size: 18,
+                  ),
                   label: Text(
                     menu.actions.isEmpty
                         ? (context.tr.actions_build_button(0).length > 40
@@ -885,7 +899,7 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                                 ),
                               ),
                               IconButton(
-                                icon: const Icon(
+                                icon: const AppIcon.fromMaterial(
                                   Icons.remove_circle,
                                   size: 16,
                                   color: AppTheme.error,
@@ -957,7 +971,7 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                     );
                     onChanged(menu);
                   },
-                  icon: const Icon(Icons.add, size: 14),
+                  icon: const AppIcon.fromMaterial(Icons.add, size: 14),
                   label: Text(
                     context.tr.common_add_option,
                     style: const TextStyle(fontSize: 12),
@@ -1114,7 +1128,7 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                   node.components = [...node.components, TextDisplayNode()];
                   onChanged(node);
                 },
-                icon: const Icon(Icons.add, size: 14),
+                icon: const AppIcon.fromMaterial(Icons.add, size: 14),
                 label: Text(
                   context.tr.component_add_text_display,
                   style: const TextStyle(fontSize: 12),
@@ -1214,7 +1228,10 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                 ),
                 const SizedBox(width: 8),
                 IconButton(
-                  icon: const Icon(Icons.color_lens, color: AppTheme.info),
+                  icon: const AppIcon.fromMaterial(
+                    Icons.color_lens,
+                    color: AppTheme.info,
+                  ),
                   tooltip: context.tr.component_choose_color,
                   onPressed: () {
                     Color currentColor = AppTheme.grey;
@@ -1661,7 +1678,7 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(
+                  icon: const AppIcon.fromMaterial(
                     Icons.remove_circle,
                     size: 16,
                     color: AppTheme.error,
@@ -1685,7 +1702,7 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
             );
             onChanged(node);
           },
-          icon: const Icon(Icons.add, size: 14),
+          icon: const AppIcon.fromMaterial(Icons.add, size: 14),
           label: Text(
             context.tr.component_add_radio_option,
             style: const TextStyle(fontSize: 12),
@@ -1792,7 +1809,7 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(
+                  icon: const AppIcon.fromMaterial(
                     Icons.remove_circle,
                     size: 16,
                     color: AppTheme.error,
@@ -1816,7 +1833,7 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
             );
             onChanged(node);
           },
-          icon: const Icon(Icons.add, size: 14),
+          icon: const AppIcon.fromMaterial(Icons.add, size: 14),
           label: Text(
             context.tr.component_add_checkbox_option,
             style: const TextStyle(fontSize: 12),
@@ -1899,7 +1916,7 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(
+                  icon: const AppIcon.fromMaterial(
                     Icons.remove_circle,
                     size: 16,
                     color: AppTheme.error,
@@ -1918,7 +1935,7 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
             node.items.add(MediaGalleryItemNode());
             onChanged(node);
           },
-          icon: const Icon(Icons.add, size: 14),
+          icon: const AppIcon.fromMaterial(Icons.add, size: 14),
           label: Text(
             context.tr.component_add_media_item,
             style: const TextStyle(fontSize: 12),
@@ -1962,9 +1979,14 @@ class _ComponentNodeEditorState extends State<ComponentNodeEditor> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.add, size: 16, color: AppTheme.grey),
+                  AppIcon.fromMaterial(
+                    Icons.add,
+                    size: 16,
+                    color: AppTheme.grey,
+                  ),
                   SizedBox(width: 8),
-                  Text(context.tr.component_add_child,
+                  Text(
+                    context.tr.component_add_child,
                     style: TextStyle(
                       color: AppTheme.grey,
                       fontWeight: FontWeight.bold,
@@ -2132,7 +2154,7 @@ class _WorkflowSelectorFieldState extends State<_WorkflowSelectorField> {
       builder: (dialogContext) {
         return AlertDialog(
           shape: AppTheme.dialogShape,
-          icon: Icon(
+          icon: AppIcon.fromMaterial(
             Icons.data_object,
             color: Theme.of(context).colorScheme.onSurfaceVariant,
             size: 32,
@@ -2355,7 +2377,7 @@ class _WorkflowSelectorFieldState extends State<_WorkflowSelectorField> {
                     onPressed: _loadingWorkflows
                         ? null
                         : _loadAvailableWorkflows,
-                    icon: const Icon(Icons.refresh),
+                    icon: const AppIcon.fromMaterial(Icons.refresh),
                   );
 
                   if (constraints.maxWidth < 440) {
@@ -2433,7 +2455,7 @@ class _WorkflowSelectorFieldState extends State<_WorkflowSelectorField> {
                     );
                     await _loadAvailableWorkflows();
                   },
-            icon: const Icon(Icons.account_tree),
+            icon: const AppIcon.fromMaterial(Icons.account_tree),
             label: Text(context.tr.common_manage_workflows),
           ),
         ],
@@ -2452,7 +2474,7 @@ class _WorkflowSelectorFieldState extends State<_WorkflowSelectorField> {
           const SizedBox(height: 8),
           OutlinedButton.icon(
             onPressed: _editWorkflowArguments,
-            icon: const Icon(Icons.data_object),
+            icon: const AppIcon.fromMaterial(Icons.data_object),
             label: Text(
               _workflowArguments.isEmpty
                   ? context.tr.workflow_set_call_args
@@ -2471,14 +2493,22 @@ class _WorkflowSelectorFieldState extends State<_WorkflowSelectorField> {
             ),
             child: Row(
               children: [
-                Icon(
+                AppIcon.fromMaterial(
                   Icons.check_circle_outline,
                   color: AppTheme.success,
                   size: 16,
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text(context.tr.component_node_child_run_hint(widget.successMessage, _selectedWorkflow, _entryPointCtrl.text.trim().isEmpty ? 'default' : _entryPointCtrl.text.trim(), '${_workflowArguments.length}'),
+                  child: Text(
+                    context.tr.component_node_child_run_hint(
+                      widget.successMessage,
+                      _selectedWorkflow,
+                      _entryPointCtrl.text.trim().isEmpty
+                          ? 'default'
+                          : _entryPointCtrl.text.trim(),
+                      '${_workflowArguments.length}',
+                    ),
                     style: TextStyle(
                       fontSize: 12,
                       color: AppTheme.success,

@@ -6,6 +6,8 @@ import 'package:nyxx/nyxx.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/features/bot_editor/logic/discord_command_validation_messages.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 class BasicInfoCard extends StatefulWidget {
   final String commandName;
   final String commandDescription;
@@ -446,7 +448,7 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                 child: OutlinedButton.icon(
                   key: const ValueKey('awaited-preset-enable'),
                   onPressed: _enableAwaitedPreset,
-                  icon: const Icon(Icons.hourglass_top_rounded),
+                  icon: const AppIcon.fromMaterial(Icons.hourglass_top_rounded),
                   label: Text(context.tr.command_awaited_preset_button),
                 ),
               ),
@@ -490,12 +492,12 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                 ButtonSegment<bool>(
                   value: false,
                   label: Text(context.tr.command_awaited_success),
-                  icon: const Icon(Icons.check_circle_outline),
+                  icon: const AppIcon.fromMaterial(Icons.check_circle_outline),
                 ),
                 ButtonSegment<bool>(
                   value: true,
                   label: Text(context.tr.command_awaited_error),
-                  icon: const Icon(Icons.error_outline),
+                  icon: const AppIcon.fromMaterial(Icons.error_outline),
                 ),
               ],
               selected: <bool>{_awaitedIsErrorTrigger},
@@ -689,7 +691,10 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                     labelText: context.tr.command_alias_label,
                     hintText: 'p, ping',
                     helperText: context.tr.command_alias_limit(2),
-                    prefixIcon: const Icon(Icons.alternate_email, size: 20),
+                    prefixIcon: const AppIcon.fromMaterial(
+                      Icons.alternate_email,
+                      size: 20,
+                    ),
                     border: const OutlineInputBorder(),
                   ),
                   validator: (val) {
@@ -984,7 +989,7 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                             children: [
                               OutlinedButton.icon(
                                 onPressed: _clearPermissions,
-                                icon: const Icon(Icons.clear),
+                                icon: const AppIcon.fromMaterial(Icons.clear),
                                 label: Text(context.tr.common_clear),
                               ),
                             ],

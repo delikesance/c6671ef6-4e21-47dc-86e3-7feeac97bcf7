@@ -10,6 +10,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Gesture recognizers forwarded to the documentation WebView platform view.
 ///
 /// Required when the WebView lives inside scrollable parents (e.g. TabBarView)
@@ -20,9 +22,7 @@ documentationWebViewGestureRecognizers =
       Factory<VerticalDragGestureRecognizer>(
         () => VerticalDragGestureRecognizer(),
       ),
-      Factory<PanGestureRecognizer>(
-        () => PanGestureRecognizer(),
-      ),
+      Factory<PanGestureRecognizer>(() => PanGestureRecognizer()),
     };
 
 /// Builds the documentation [WebViewWidget] with scroll-friendly layout.
@@ -184,7 +184,7 @@ class _WebDocumentationViewState extends State<WebDocumentationView> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
+            AppIcon.fromMaterial(
               Icons.menu_book_outlined,
               size: 48,
               color: Theme.of(context).colorScheme.primary,
@@ -198,7 +198,7 @@ class _WebDocumentationViewState extends State<WebDocumentationView> {
             const SizedBox(height: 16),
             FilledButton.icon(
               onPressed: _openExternally,
-              icon: const Icon(Icons.open_in_browser),
+              icon: const AppIcon.fromMaterial(Icons.open_in_browser),
               label: Text(context.tr.docs_open_in_browser),
             ),
           ],
@@ -226,7 +226,7 @@ class _WebDocumentationViewState extends State<WebDocumentationView> {
                   IconButton(
                     tooltip: context.tr.docs_open_in_browser,
                     onPressed: _openExternally,
-                    icon: const Icon(Icons.open_in_browser),
+                    icon: const AppIcon.fromMaterial(Icons.open_in_browser),
                   ),
                 ],
               ),
@@ -241,9 +241,7 @@ class _WebDocumentationViewState extends State<WebDocumentationView> {
     final content = Stack(
       fit: StackFit.expand,
       children: [
-        Positioned.fill(
-          child: buildDocumentationWebViewWidget(controller),
-        ),
+        Positioned.fill(child: buildDocumentationWebViewWidget(controller)),
         if (_loading) const Center(child: CircularProgressIndicator()),
         if (_error != null && !_loading)
           Center(
@@ -252,7 +250,7 @@ class _WebDocumentationViewState extends State<WebDocumentationView> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
+                  AppIcon.fromMaterial(
                     Icons.cloud_off_outlined,
                     size: 48,
                     color: Theme.of(context).colorScheme.error,
@@ -279,12 +277,12 @@ class _WebDocumentationViewState extends State<WebDocumentationView> {
                     children: [
                       FilledButton.icon(
                         onPressed: _reload,
-                        icon: const Icon(Icons.refresh),
+                        icon: const AppIcon.fromMaterial(Icons.refresh),
                         label: Text(context.tr.docs_reload),
                       ),
                       OutlinedButton.icon(
                         onPressed: _openExternally,
-                        icon: const Icon(Icons.open_in_browser),
+                        icon: const AppIcon.fromMaterial(Icons.open_in_browser),
                         label: Text(context.tr.docs_open_in_browser),
                       ),
                     ],
@@ -311,18 +309,18 @@ class _WebDocumentationViewState extends State<WebDocumentationView> {
                 IconButton(
                   tooltip: MaterialLocalizations.of(context).backButtonTooltip,
                   onPressed: _canGoBack ? _goBack : null,
-                  icon: const Icon(Icons.arrow_back),
+                  icon: const AppIcon.fromMaterial(Icons.arrow_back),
                 ),
                 IconButton(
                   tooltip: context.tr.docs_reload,
                   onPressed: _reload,
-                  icon: const Icon(Icons.refresh),
+                  icon: const AppIcon.fromMaterial(Icons.refresh),
                 ),
                 const Spacer(),
                 IconButton(
                   tooltip: context.tr.docs_open_in_browser,
                   onPressed: _openExternally,
-                  icon: const Icon(Icons.open_in_browser),
+                  icon: const AppIcon.fromMaterial(Icons.open_in_browser),
                 ),
               ],
             ),

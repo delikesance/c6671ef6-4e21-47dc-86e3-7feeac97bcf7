@@ -53,6 +53,7 @@ import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nyxx/nyxx.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
 part 'home.logic.part.dart';
 part 'home.sync.part.dart';
 part 'home.ads.part.dart';

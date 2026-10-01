@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'app_appearance.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
 // ═══════════════════════════════════════════════════════════════════════════════
 // Bot Creator — Design System & Charte Graphique
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -288,6 +289,8 @@ abstract final class AppTheme {
         foregroundColor: colorScheme.onSurface,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
+        actionsIconTheme: const IconThemeData(size: 20),
+        iconTheme: const IconThemeData(size: 20),
       ),
       cardTheme: CardThemeData(
         color: colorScheme.surfaceContainer,
@@ -366,6 +369,7 @@ abstract final class AppTheme {
           borderRadius: BorderRadius.circular(radiusMd),
           borderSide: BorderSide(color: tokens.accentRing, width: 2),
         ),
+        prefixIconColor: colorScheme.onSurfaceVariant,
         isDense: false,
       ),
       // ── Accent d'action (le violet, et seulement là) ──────────────────────
@@ -484,6 +488,8 @@ abstract final class AppTheme {
         foregroundColor: colorScheme.onSurface,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
+        actionsIconTheme: const IconThemeData(size: 20),
+        iconTheme: const IconThemeData(size: 20),
       ),
       // ── Cards ──
       cardTheme: CardThemeData(
@@ -564,6 +570,7 @@ abstract final class AppTheme {
           borderRadius: BorderRadius.circular(radiusMd),
           borderSide: BorderSide(color: tokens.accentRing, width: 2),
         ),
+        prefixIconColor: colorScheme.onSurfaceVariant,
         isDense: false,
       ),
       // ── Accent d'action (le violet, et seulement là) ──────────────────────
@@ -678,7 +685,7 @@ abstract final class AppTheme {
       context: context,
       builder: (dialogContext) => AlertDialog(
         shape: dialogShape,
-        icon: Icon(
+        icon: AppIcon.fromMaterial(
           icon ??
               (isDestructive
                   ? Icons.warning_amber_rounded

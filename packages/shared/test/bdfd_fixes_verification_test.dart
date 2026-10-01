@@ -168,9 +168,12 @@ void main() {
         expect(result.hasErrors, isFalse);
         expect(result.actions, hasLength(2));
 
-        // addReactions is a side-effect action — no longer flushes pending
-        // content, so the reaction action appears before the response.
-        final reactAction = result.actions.first;
+        // The response must exist before its reactions are added.
+        expect(
+          result.actions.first.type,
+          BotCreatorActionType.respondWithMessage,
+        );
+        final reactAction = result.actions.last;
         expect(reactAction.type, BotCreatorActionType.addReaction);
         expect(reactAction.payload['messageId'], '((lastSentMessageId))');
         expect(reactAction.payload['emojis'], ['🔥', '✨', '🌟']);
@@ -432,7 +435,7 @@ void main() {
           );
           expect(result.hasErrors, isFalse);
           final content = result.actions.first.payload['content'] as String;
-          expect(content, contains('((userperms[;-1;, ]))'));
+          expect(content, contains('((member[((author.id))].permissions))'));
 
           final resolved = resolveTemplatePlaceholders(content, {
             'author.id': '123',
@@ -450,11 +453,11 @@ void main() {
           final result = BdfdCompiler().compile(r'Role: $getRole[$authorID;1]');
           expect(result.hasErrors, isFalse);
           final content = result.actions.first.payload['content'] as String;
-          expect(content, contains('((getrole[((author.id));1]))'));
+          expect(content, contains('((memberRoleAt[((author.id));1;].id))'));
 
           final resolved = resolveTemplatePlaceholders(content, {
             'author.id': 'user_1',
-            'member[user_1].roles': 'role_admin,role_mod,role_member',
+            'memberRoleAt[user_1;1;].id': 'role_admin',
           });
           expect(resolved, 'Role: role_admin');
 
@@ -464,10 +467,7 @@ void main() {
           );
           final resolved2 = resolveTemplatePlaceholders(
             result2.actions.first.payload['content'] as String,
-            {
-              'author.id': 'user_1',
-              'member[user_1].roles': 'role_admin,role_mod,role_member',
-            },
+            {'author.id': 'user_1', 'memberRoleAt[user_1;2;].id': 'role_mod'},
           );
           expect(resolved2, 'Role: role_mod');
         });

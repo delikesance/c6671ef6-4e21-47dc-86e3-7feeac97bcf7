@@ -15,6 +15,8 @@ import 'package:bot_creator/features/subscriptions/logic/subscription_service.da
 import 'package:bot_creator/features/subscriptions/presentation/subscriptions_hub_page.dart';
 import 'package:flutter/material.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Reason the Deploy button is currently disabled, derived from the latest
 /// [HostedAppEligibility] snapshot. Drives which banner/snackbar copy is shown.
 enum _DeployBlockReason {
@@ -95,9 +97,9 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
 
   /// Clés du token Discord DÉCLARÉES par le template : c'est le champ token
   /// dédié qui les alimente, quel que soit le nom exact déclaré.
-  List<String> get _tokenEnvKeys => turnkeyTokenEnvFields(_selectedTemplate)
-      .map((field) => field.key.trim())
-      .toList(growable: false);
+  List<String> get _tokenEnvKeys => turnkeyTokenEnvFields(
+    _selectedTemplate,
+  ).map((field) => field.key.trim()).toList(growable: false);
 
   /// (Re)construit les contrôleurs du formulaire d'environnement quand le modèle
   /// sélectionné change : chaque variable est pré-remplie avec la valeur par
@@ -260,7 +262,9 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
     // La formule du compte est servie par le serveur (elle prime sur
     // l'abonnement store) : si elle n'inclut pas le clé en main, inutile
     // d'aller plus loin, le déploiement sera refusé.
-    if (!elig.allowTurnkey) return _explicationHonnete(_DeployBlockReason.planLimit);
+    if (!elig.allowTurnkey) {
+      return _explicationHonnete(_DeployBlockReason.planLimit);
+    }
     // Le VERDICT DU SERVEUR prime : c'est lui qui applique le quota au démarrage.
     // Les heuristiques ci-dessous ne servent que de repli pour un serveur qui ne
     // renverrait pas ces champs.
@@ -486,7 +490,10 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
         color: Colors.amber.withValues(alpha: 0.08),
         margin: const EdgeInsets.only(bottom: 16),
         child: ListTile(
-          leading: const Icon(Icons.workspace_premium, color: Colors.amber),
+          leading: const AppIcon.fromMaterial(
+            Icons.workspace_premium,
+            color: Colors.amber,
+          ),
           title: Text(
             context.tr.container_deploy_premium_account,
             style: const TextStyle(fontWeight: FontWeight.bold),
@@ -640,7 +647,7 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
                                   ),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: Icon(
+                                child: AppIcon.fromMaterial(
                                   template.icon,
                                   color: colorScheme.primary,
                                   size: 24,
@@ -677,7 +684,7 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
                                 ),
                               ),
                               if (isSelected)
-                                Icon(
+                                AppIcon.fromMaterial(
                                   Icons.check_circle_rounded,
                                   color: colorScheme.primary,
                                 ),
@@ -717,7 +724,9 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
                   initialValue: _selectedBotId,
                   decoration: InputDecoration(
                     labelText: context.tr.container_deploy_pick_bot,
-                    prefixIcon: const Icon(Icons.smart_toy_outlined),
+                    prefixIcon: const AppIcon.fromMaterial(
+                      Icons.smart_toy_outlined,
+                    ),
                   ),
                   items: [
                     DropdownMenuItem<String?>(
@@ -742,9 +751,9 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
                 decoration: InputDecoration(
                   labelText: context.tr.app_bot_token,
                   hintText: context.tr.container_deploy_paste_token_hint,
-                  prefixIcon: const Icon(Icons.key_outlined),
+                  prefixIcon: const AppIcon.fromMaterial(Icons.key_outlined),
                   suffixIcon: IconButton(
-                    icon: Icon(
+                    icon: AppIcon.fromMaterial(
                       _obscureBotToken
                           ? Icons.visibility
                           : Icons.visibility_off,
@@ -798,7 +807,7 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
                     children: [
                       Row(
                         children: [
-                          Icon(
+                          AppIcon.fromMaterial(
                             Icons.lightbulb_outline_rounded,
                             size: 18,
                             color: colorScheme.primary,
@@ -862,7 +871,7 @@ class _ContainerDeployPageState extends State<ContainerDeployPage> {
                           color: Colors.white,
                         ),
                       )
-                    : const Icon(Icons.rocket_launch_rounded),
+                    : const AppIcon.fromMaterial(Icons.rocket_launch_rounded),
                 label: Text(
                   _deploying
                       ? context.tr.container_deploy_submitting
@@ -904,7 +913,7 @@ class _DeployNoticeCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, color: color),
+            AppIcon.fromMaterial(icon, color: color),
             const SizedBox(width: 12),
             Expanded(
               child: Column(

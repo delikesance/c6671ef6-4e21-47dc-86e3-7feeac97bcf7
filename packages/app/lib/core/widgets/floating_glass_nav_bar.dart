@@ -1,6 +1,8 @@
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Variante de rendu de [FloatingGlassNavBar] : mêmes items, même fond « verre
 /// dépoli », même animation et mêmes dimensions d'item — seule la mise en page
 /// diffère.
@@ -294,7 +296,7 @@ class _FloatingGlassNavItemView extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
+                AppIcon.fromMaterial(
                   item.selected ? (item.selectedIcon ?? item.icon) : item.icon,
                   size: 18,
                   color: color,

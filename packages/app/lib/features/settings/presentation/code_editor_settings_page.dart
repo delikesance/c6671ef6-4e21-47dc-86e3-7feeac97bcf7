@@ -10,6 +10,8 @@ import 'package:provider/provider.dart';
 import 'package:re_highlight/languages/javascript.dart';
 import 'package:re_highlight/re_highlight.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Moteur de colorisation JavaScript partagé avec les éditeurs réels
 /// (`JsSyntaxController`) : le même `re_highlight` et surtout la **même source
 /// de vérité pour les couleurs**, le `hljsTheme` de
@@ -168,7 +170,7 @@ client.on('interactionCreate', async (interaction) => {
         actions: [
           IconButton(
             tooltip: tr.code_editor_settings_reset_tooltip,
-            icon: const Icon(Icons.restore),
+            icon: const AppIcon.fromMaterial(Icons.restore),
             onPressed: () => _confirmReset(provider),
           ),
         ],
@@ -199,7 +201,10 @@ client.on('interactionCreate', async (interaction) => {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.preview_outlined, size: 18),
+                        const AppIcon.fromMaterial(
+                          Icons.preview_outlined,
+                          size: 18,
+                        ),
                         const SizedBox(width: AppTheme.spacingSm),
                         Expanded(
                           child: Text(
@@ -411,7 +416,9 @@ client.on('interactionCreate', async (interaction) => {
                   SwitchListTile(
                     title: Text(tr.code_editor_settings_line_numbers),
                     subtitle: Text(tr.code_editor_settings_line_numbers_desc),
-                    secondary: const Icon(Icons.format_list_numbered),
+                    secondary: const AppIcon.fromMaterial(
+                      Icons.format_list_numbered,
+                    ),
                     value: settings.showLineNumbers,
                     onChanged: provider.toggleLineNumbers,
                   ),
@@ -419,7 +426,9 @@ client.on('interactionCreate', async (interaction) => {
                   SwitchListTile(
                     title: Text(tr.code_editor_settings_indent_guides),
                     subtitle: Text(tr.code_editor_settings_indent_guides_desc),
-                    secondary: const Icon(Icons.format_indent_increase),
+                    secondary: const AppIcon.fromMaterial(
+                      Icons.format_indent_increase,
+                    ),
                     value: settings.showIndentGuides,
                     onChanged: provider.toggleIndentGuides,
                   ),
@@ -427,7 +436,7 @@ client.on('interactionCreate', async (interaction) => {
                   SwitchListTile(
                     title: Text(tr.code_editor_settings_word_wrap),
                     subtitle: Text(tr.code_editor_settings_word_wrap_desc),
-                    secondary: const Icon(Icons.wrap_text),
+                    secondary: const AppIcon.fromMaterial(Icons.wrap_text),
                     value: settings.wordWrap,
                     onChanged: provider.toggleWordWrap,
                   ),
@@ -435,7 +444,9 @@ client.on('interactionCreate', async (interaction) => {
                   SwitchListTile(
                     title: Text(tr.code_editor_settings_quick_chars),
                     subtitle: Text(tr.code_editor_settings_quick_chars_desc),
-                    secondary: const Icon(Icons.keyboard_outlined),
+                    secondary: const AppIcon.fromMaterial(
+                      Icons.keyboard_outlined,
+                    ),
                     value: settings.showQuickCharsBar,
                     onChanged: provider.toggleQuickCharsBar,
                   ),
@@ -461,13 +472,13 @@ client.on('interactionCreate', async (interaction) => {
                   SwitchListTile(
                     title: Text(tr.code_editor_settings_auto_close),
                     subtitle: Text(tr.code_editor_settings_auto_close_desc),
-                    secondary: const Icon(Icons.data_object),
+                    secondary: const AppIcon.fromMaterial(Icons.data_object),
                     value: settings.autoCloseBrackets,
                     onChanged: provider.toggleAutoCloseBrackets,
                   ),
                   const Divider(height: 1),
                   ListTile(
-                    leading: const Icon(Icons.space_bar),
+                    leading: const AppIcon.fromMaterial(Icons.space_bar),
                     title: Text(tr.code_editor_settings_tab_size),
                     subtitle: Text(tr.code_editor_settings_tab_size_desc),
                     trailing: SegmentedButton<int>(
@@ -534,7 +545,11 @@ client.on('interactionCreate', async (interaction) => {
       children: [
         Row(
           children: [
-            Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
+            AppIcon.fromMaterial(
+              icon,
+              size: 20,
+              color: Theme.of(context).colorScheme.primary,
+            ),
             const SizedBox(width: AppTheme.spacingSm),
             Expanded(
               child: Text(

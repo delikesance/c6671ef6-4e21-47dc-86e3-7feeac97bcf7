@@ -1,6 +1,10 @@
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:reicon_flutter/reicon_flutter.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
+
+import 'package:bot_creator/core/widgets/app_icon.dart';
 
 /// A filter definition for the Notion-like filter bar.
 ///
@@ -166,21 +170,15 @@ class _NotionFilterBarState extends State<NotionFilterBar> {
         .toList(growable: false);
     final hasActiveFilters =
         activeFilters.isNotEmpty || activeToggles.isNotEmpty;
-    final inactiveFilters = widget.filters
-        .where((f) => !f.isActive)
-        .toList(growable: false);
-    final inactiveToggles = widget.toggleFilters
-        .where((t) => !t.enabled)
-        .toList(growable: false);
-    final hasInactiveFilters =
-        inactiveFilters.isNotEmpty || inactiveToggles.isNotEmpty;
+    final hasAnyFilters =
+        widget.filters.isNotEmpty || widget.toggleFilters.isNotEmpty;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // ── Search field + optional trailing action ──
+          // ── Search field + filter icon button + optional trailing action ──
           Row(
             children: [
               Expanded(
@@ -189,7 +187,14 @@ class _NotionFilterBarState extends State<NotionFilterBar> {
                   onChanged: widget.onSearchChanged,
                   decoration: InputDecoration(
                     hintText: widget.searchHint,
-                    prefixIcon: const Icon(Icons.search, size: 20),
+                    prefixIconConstraints: const BoxConstraints(
+                      minWidth: 36,
+                      minHeight: 36,
+                    ),
+                    prefixIcon: const Padding(
+                      padding: EdgeInsets.only(left: 10, right: 8),
+                      child: AppIcon.fromMaterial(Icons.search, size: 18),
+                    ),
                     border: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
@@ -200,7 +205,10 @@ class _NotionFilterBarState extends State<NotionFilterBar> {
                     ),
                     suffixIcon: widget.searchQuery.isNotEmpty
                         ? IconButton(
-                            icon: const Icon(Icons.clear, size: 18),
+                            icon: const AppIcon.fromMaterial(
+                              Icons.clear,
+                              size: 18,
+                            ),
                             onPressed: () {
                               _searchController.clear();
                               widget.onSearchChanged('');
@@ -211,6 +219,10 @@ class _NotionFilterBarState extends State<NotionFilterBar> {
                   ),
                 ),
               ),
+              if (hasAnyFilters) ...[
+                const SizedBox(width: 8),
+                _buildFilterIconButton(context, hasActive: hasActiveFilters),
+              ],
               if (widget.trailingAction != null) ...[
                 const SizedBox(width: 8),
                 widget.trailingAction!,
@@ -218,8 +230,8 @@ class _NotionFilterBarState extends State<NotionFilterBar> {
             ],
           ),
 
-          // ── Active filter chips + add filter button ──
-          if (hasActiveFilters || hasInactiveFilters) ...[
+          // ── Active filter chips ──
+          if (hasActiveFilters) ...[
             const SizedBox(height: 8),
             Wrap(
               spacing: 6,
@@ -243,37 +255,18 @@ class _NotionFilterBarState extends State<NotionFilterBar> {
                       toggle.label,
                       style: const TextStyle(fontSize: 12),
                     ),
-                    avatar: Icon(toggle.icon, size: 16),
+                    avatar: AppIcon.fromMaterial(toggle.icon, size: 16),
                     selected: true,
                     selectedColor: colorScheme.primaryContainer,
                     onDeleted: () {
                       widget.onToggleFilterChanged?.call(toggle.id, false);
                     },
-                    deleteIcon: const Icon(Icons.close, size: 14),
-                    visualDensity: VisualDensity.compact,
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-
-                // "+ Filter" button
-                if (hasInactiveFilters)
-                  ActionChip(
-                    label: Text(
-                      '+ ${widget.addFilterLabel}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: colorScheme.primary,
-                      ),
+                    deleteIcon: const AppIcon.fromMaterial(
+                      Icons.close,
+                      size: 14,
                     ),
                     visualDensity: VisualDensity.compact,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    side: BorderSide(
-                      color: colorScheme.primary.withValues(alpha: 0.3),
-                    ),
-                    onPressed: () => _showAddFilterMenu(
-                      context,
-                      inactiveFilters,
-                      inactiveToggles,
-                    ),
                   ),
               ],
             ),
@@ -301,7 +294,7 @@ class _NotionFilterBarState extends State<NotionFilterBar> {
                 ),
                 child: Row(
                   children: [
-                    Icon(
+                    AppIcon.fromMaterial(
                       Icons.add_circle_outline,
                       size: 18,
                       color: colorScheme.primary,
@@ -355,12 +348,15 @@ class _NotionFilterBarState extends State<NotionFilterBar> {
                   dense: true,
                   title: Text(entry.value),
                   leading: isSelected
-                      ? Icon(
+                      ? AppIcon.fromMaterial(
                           Icons.check_circle,
                           color: colorScheme.primary,
                           size: 20,
                         )
-                      : const Icon(Icons.radio_button_unchecked, size: 20),
+                      : const AppIcon.fromMaterial(
+                          Icons.radio_button_unchecked,
+                          size: 20,
+                        ),
                   onTap: () {
                     Navigator.pop(sheetContext);
                     widget.onFilterChanged?.call(filter.id, entry.key);
@@ -375,11 +371,78 @@ class _NotionFilterBarState extends State<NotionFilterBar> {
     );
   }
 
-  void _showAddFilterMenu(
-    BuildContext context,
-    List<NotionFilter> availableFilters,
-    List<NotionToggleFilter> availableToggles,
-  ) {
+  Widget _buildFilterIconButton(
+    BuildContext context, {
+    required bool hasActive,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Tooltip(
+      message: widget.addFilterLabel,
+      child: Material(
+        color: hasActive
+            ? colorScheme.primaryContainer
+            : colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
+        shape: CircleBorder(
+          side: BorderSide(
+            color: hasActive
+                ? colorScheme.primary.withValues(alpha: 0.5)
+                : colorScheme.outlineVariant.withValues(alpha: 0.4),
+            width: 1,
+          ),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          onTap: () => _showFilterMenu(context),
+          child: SizedBox(
+            width: 40,
+            height: 40,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                SvgPicture.string(
+                  reiconSvg(Reicon.outline.filter),
+                  width: 24,
+                  height: 24,
+                  colorFilter: ColorFilter.mode(
+                    hasActive
+                        ? colorScheme.onPrimaryContainer
+                        : colorScheme.onSurfaceVariant,
+                    BlendMode.srcIn,
+                  ),
+                ),
+                if (hasActive)
+                  Positioned(
+                    top: 7,
+                    right: 7,
+                    child: Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: colorScheme.primary,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: colorScheme.surface,
+                          width: 1.5,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showFilterMenu(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final hasActive =
+        widget.filters.any((f) => f.isActive) ||
+        widget.toggleFilters.any((t) => t.enabled);
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -392,35 +455,76 @@ class _NotionFilterBarState extends State<NotionFilterBar> {
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: Text(
-                  widget.addFilterLabel,
-                  style: Theme.of(
-                    sheetContext,
-                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        widget.addFilterLabel,
+                        style: Theme.of(sheetContext).textTheme.titleSmall
+                            ?.copyWith(fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                    if (hasActive)
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(sheetContext);
+                          for (final f in widget.filters) {
+                            if (f.isActive) {
+                              widget.onFilterChanged?.call(f.id, '');
+                            }
+                          }
+                          for (final t in widget.toggleFilters) {
+                            if (t.enabled) {
+                              widget.onToggleFilterChanged?.call(t.id, false);
+                            }
+                          }
+                        },
+                        child: Text(sheetContext.tr.action_clear_all),
+                      ),
+                  ],
                 ),
               ),
               const Divider(height: 1),
-              for (final filter in availableFilters)
+              for (final filter in widget.filters)
                 ListTile(
                   dense: true,
-                  leading: Icon(filter.icon, size: 20),
+                  leading: AppIcon.fromMaterial(filter.icon, size: 20),
                   title: Text(filter.label),
-                  subtitle: Text(context.tr.marketplace_command_preview_options(filter.options.length),
-                    style: const TextStyle(fontSize: 11),
+                  subtitle: Text(
+                    filter.isActive
+                        ? (filter.options[filter.selectedValue] ??
+                              filter.selectedValue)
+                        : sheetContext.tr.marketplace_command_preview_options(
+                            filter.options.length,
+                          ),
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: filter.isActive
+                          ? colorScheme.primary
+                          : colorScheme.onSurfaceVariant,
+                      fontWeight: filter.isActive
+                          ? FontWeight.w600
+                          : FontWeight.normal,
+                    ),
+                  ),
+                  trailing: const AppIcon.fromMaterial(
+                    Icons.chevron_right_rounded,
+                    size: 18,
                   ),
                   onTap: () {
                     Navigator.pop(sheetContext);
                     _showFilterOptions(context, filter);
                   },
                 ),
-              for (final toggle in availableToggles)
-                ListTile(
+              for (final toggle in widget.toggleFilters)
+                SwitchListTile(
                   dense: true,
-                  leading: Icon(toggle.icon, size: 20),
+                  secondary: AppIcon.fromMaterial(toggle.icon, size: 20),
                   title: Text(toggle.label),
-                  onTap: () {
+                  value: toggle.enabled,
+                  onChanged: (val) {
                     Navigator.pop(sheetContext);
-                    widget.onToggleFilterChanged?.call(toggle.id, true);
+                    widget.onToggleFilterChanged?.call(toggle.id, val);
                   },
                 ),
               const SizedBox(height: 8),
@@ -455,11 +559,11 @@ class _ActiveFilterChip extends StatelessWidget {
         '${filter.label}: $displayValue',
         style: const TextStyle(fontSize: 12),
       ),
-      avatar: Icon(filter.icon, size: 16),
+      avatar: AppIcon.fromMaterial(filter.icon, size: 16),
       selected: true,
       selectedColor: colorScheme.primaryContainer,
       onDeleted: onRemove,
-      deleteIcon: const Icon(Icons.close, size: 14),
+      deleteIcon: const AppIcon.fromMaterial(Icons.close, size: 14),
       onPressed: onTap,
       visualDensity: VisualDensity.compact,
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,

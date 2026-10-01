@@ -31,13 +31,7 @@ class PermissionFlag {
 }
 
 /// Categories for grouping permission flags in the UI.
-enum PermissionCategory {
-  general,
-  membership,
-  text,
-  voice,
-  advanced,
-}
+enum PermissionCategory { general, membership, text, voice, advanced }
 
 /// All Discord permission flags in display order.
 const List<PermissionFlag> discordPermissionFlags = <PermissionFlag>[
@@ -356,7 +350,7 @@ String? normalizeBdfdPermissionToken(String raw) {
   return null;
 }
 
-/// Convert a list of BDFD permission tokens to a map of canonical key → 'allow'.
+/// Convert BDFD permission tokens to allow/deny overwrite states.
 ///
 /// This bridges BDFD imports (which produce a list of allowed permissions)
 /// to the new [permissionFlags] format (`Map<String, String>` with states).
@@ -364,9 +358,14 @@ String? normalizeBdfdPermissionToken(String raw) {
 Map<String, String> bdfdPermissionListToStates(List<String> tokens) {
   final result = <String, String>{};
   for (final token in tokens) {
-    final canonical = normalizeBdfdPermissionToken(token);
+    final trimmed = token.trim();
+    final canonical = normalizeBdfdPermissionToken(
+      trimmed.startsWith('+') || trimmed.startsWith('-')
+          ? trimmed.substring(1)
+          : trimmed,
+    );
     if (canonical != null) {
-      result[canonical] = 'allow';
+      result[canonical] = trimmed.startsWith('-') ? 'deny' : 'allow';
     }
   }
   return result;

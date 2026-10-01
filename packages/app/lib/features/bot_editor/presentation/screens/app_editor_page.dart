@@ -35,6 +35,8 @@ import 'package:flutter/services.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Repasse un libellé i18n en casse normale (« MODULES » → « Modules »).
 ///
 /// `bot_home_section_modules` est un titre de SECTION : sa valeur localisée est
@@ -1097,7 +1099,7 @@ class _OfflineTokenPageState extends State<_OfflineTokenPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            const AppIcon.fromMaterial(
               Icons.vpn_key_outlined,
               size: 48,
               color: AppTheme.warning,
@@ -1117,7 +1119,7 @@ class _OfflineTokenPageState extends State<_OfflineTokenPage> {
                 hintText: context.tr.bot_settings_token_hint,
                 border: const OutlineInputBorder(),
                 suffixIcon: IconButton(
-                  icon: Icon(
+                  icon: AppIcon.fromMaterial(
                     _obscure ? Icons.visibility : Icons.visibility_off,
                   ),
                   onPressed: () => setState(() => _obscure = !_obscure),
@@ -1136,13 +1138,16 @@ class _OfflineTokenPageState extends State<_OfflineTokenPage> {
                       height: 16,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Icon(Icons.save_outlined),
+                  : const AppIcon.fromMaterial(Icons.save_outlined),
               label: Text(context.tr.bot_settings_save_token_only_btn),
             ),
             const SizedBox(height: 24),
             OutlinedButton.icon(
               onPressed: _saving ? null : _deleteBot,
-              icon: const Icon(Icons.delete_outline, color: AppTheme.error),
+              icon: const AppIcon.fromMaterial(
+                Icons.delete_outline,
+                color: AppTheme.error,
+              ),
               label: Text(
                 context.tr.bot_home_delete,
                 style: const TextStyle(color: AppTheme.error),

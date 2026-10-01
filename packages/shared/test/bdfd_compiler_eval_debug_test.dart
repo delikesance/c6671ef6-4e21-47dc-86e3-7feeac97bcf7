@@ -37,7 +37,9 @@ void main() {
     });
 
     test('eval with complex BDFD content', () {
-      final result = BdfdCompiler().compile(r'$eval[$reply$c[]Hello $username]');
+      final result = BdfdCompiler().compile(
+        r'$eval[$reply$c[]Hello $username]',
+      );
       expect(result.hasErrors, isFalse);
       expect(result.actions, hasLength(1));
       expect(result.actions[0].type, BotCreatorActionType.runBdfdScript);
@@ -210,52 +212,50 @@ void main() {
       },
     );
 
-    test(
-      r'$deleteMessage and $deleteIn compile correctly',
-      () {
-        final compiler = BdfdCompiler();
-        final result = compiler.compile(r'$deleteMessage[123;456]');
-        expect(result.hasErrors, isFalse);
-        expect(result.actions, hasLength(1));
-        expect(result.actions[0].type, BotCreatorActionType.deleteMessages);
-        expect(result.actions[0].payload['channelId'], '123');
-        expect(result.actions[0].payload['messageId'], '456');
+    test(r'$deleteMessage and $deleteIn compile correctly', () {
+      final compiler = BdfdCompiler();
+      final result = compiler.compile(r'$deleteMessage[123;456]');
+      expect(result.hasErrors, isFalse);
+      expect(result.actions, hasLength(1));
+      expect(result.actions[0].type, BotCreatorActionType.deleteMessages);
+      expect(result.actions[0].payload['channelId'], '123');
+      expect(result.actions[0].payload['messageId'], '456');
 
-        final result2 = compiler.compile(r'$deleteIn[5s]Hello!');
-        expect(result2.hasErrors, isFalse);
-        expect(result2.actions, hasLength(1));
-        expect(result2.actions[0].type, BotCreatorActionType.respondWithMessage);
-        expect(result2.actions[0].payload['content'], 'Hello!');
-        expect(result2.actions[0].payload['deleteAfter'], '5s');
+      final result2 = compiler.compile(r'$deleteIn[5s]Hello!');
+      expect(result2.hasErrors, isFalse);
+      expect(result2.actions, hasLength(1));
+      expect(result2.actions[0].type, BotCreatorActionType.respondWithMessage);
+      expect(result2.actions[0].payload['content'], 'Hello!');
+      expect(result2.actions[0].payload['deleteAfter'], '5s');
 
-        final result3 = compiler.compile(r'$clear');
-        expect(result3.hasErrors, isFalse);
-        expect(result3.actions, hasLength(1));
-        expect(result3.actions[0].type, BotCreatorActionType.deleteMessages);
-        expect(result3.actions[0].payload['channelId'], '((channel.id))');
-        expect(result3.actions[0].payload['count'], '((message.args[0]))');
-        expect(result3.actions[0].payload.containsKey('onlyUserId'), isFalse);
-        expect(result3.actions[0].payload.containsKey('removePinned'), isFalse);
+      final result3 = compiler.compile(r'$clear');
+      expect(result3.hasErrors, isFalse);
+      expect(result3.actions, hasLength(1));
+      expect(result3.actions[0].type, BotCreatorActionType.deleteMessages);
+      expect(result3.actions[0].payload['channelId'], '((channel.id))');
+      expect(result3.actions[0].payload['count'], '((args.1))');
+      expect(result3.actions[0].payload['bdfdClear'], true);
+      expect(result3.actions[0].payload.containsKey('onlyUserId'), isFalse);
+      expect(result3.actions[0].payload.containsKey('removePinned'), isFalse);
 
-        final result4 = compiler.compile(r'$clear[50]');
-        expect(result4.hasErrors, isFalse);
-        expect(result4.actions, hasLength(1));
-        expect(result4.actions[0].type, BotCreatorActionType.deleteMessages);
-        expect(result4.actions[0].payload['channelId'], '((channel.id))');
-        expect(result4.actions[0].payload['count'], '50');
-        expect(result4.actions[0].payload.containsKey('onlyUserId'), isFalse);
-        expect(result4.actions[0].payload.containsKey('removePinned'), isFalse);
+      final result4 = compiler.compile(r'$clear[50]');
+      expect(result4.hasErrors, isFalse);
+      expect(result4.actions, hasLength(1));
+      expect(result4.actions[0].type, BotCreatorActionType.deleteMessages);
+      expect(result4.actions[0].payload['channelId'], '((channel.id))');
+      expect(result4.actions[0].payload['count'], '50');
+      expect(result4.actions[0].payload.containsKey('onlyUserId'), isFalse);
+      expect(result4.actions[0].payload.containsKey('removePinned'), isFalse);
 
-        final result5 = compiler.compile(r'$clear[50;77777;false]');
-        expect(result5.hasErrors, isFalse);
-        expect(result5.actions, hasLength(1));
-        expect(result5.actions[0].type, BotCreatorActionType.deleteMessages);
-        expect(result5.actions[0].payload['channelId'], '((channel.id))');
-        expect(result5.actions[0].payload['count'], '50');
-        expect(result5.actions[0].payload['onlyUserId'], '77777');
-        expect(result5.actions[0].payload['removePinned'], 'false');
-      },
-    );
+      final result5 = compiler.compile(r'$clear[50;77777;false]');
+      expect(result5.hasErrors, isFalse);
+      expect(result5.actions, hasLength(1));
+      expect(result5.actions[0].type, BotCreatorActionType.deleteMessages);
+      expect(result5.actions[0].payload['channelId'], '((channel.id))');
+      expect(result5.actions[0].payload['count'], '50');
+      expect(result5.actions[0].payload['onlyUserId'], '77777');
+      expect(result5.actions[0].payload['removePinned'], 'false');
+    });
 
     group('scoped variable operations', () {
       test('setUserVar with 2 or 3 arguments compiles to scope user', () {
@@ -302,7 +302,9 @@ void main() {
 
       test('setGuildMemberVar compiles to scope guildMember', () {
         final compiler = BdfdCompiler();
-        final result = compiler.compile(r'$setGuildMemberVar[money;100;12345;67890]');
+        final result = compiler.compile(
+          r'$setGuildMemberVar[money;100;12345;67890]',
+        );
         expect(result.hasErrors, isFalse);
         expect(result.actions, hasLength(1));
         expect(result.actions[0].type, BotCreatorActionType.setScopedVariable);
@@ -317,7 +319,10 @@ void main() {
         final result = compiler.compile(r'$resetUserVar[money;12345;67890]');
         expect(result.hasErrors, isFalse);
         expect(result.actions, hasLength(1));
-        expect(result.actions[0].type, BotCreatorActionType.removeScopedVariable);
+        expect(
+          result.actions[0].type,
+          BotCreatorActionType.removeScopedVariable,
+        );
         expect(result.actions[0].payload['scope'], 'guildMember');
         expect(result.actions[0].payload['key'], 'money');
         expect(result.actions[0].payload['contextId'], '67890:12345');

@@ -6,9 +6,12 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/features/copilot/presentation/copilot_page.dart';
+import 'package:bot_creator/features/subscriptions/logic/ai_credit_format.dart';
 import 'package:bot_creator/features/subscriptions/logic/ai_reward_ad.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
+
+import 'package:bot_creator/core/widgets/app_icon.dart';
 
 class AICreditsPage extends StatefulWidget {
   const AICreditsPage({super.key, this.api});
@@ -194,9 +197,9 @@ class _AICreditsPageState extends State<AICreditsPage> {
     }
   }
 
-  String _number(Object? value) => (value ?? 0).toString().replaceAllMapped(
-    RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-    (m) => '${m[1]}\u202f',
+  String _credits(Object? value) => formatAiCredits(
+    value,
+    locale: Localizations.localeOf(context).toString(),
   );
   Widget _balanceCard() {
     final colors = Theme.of(context).colorScheme;
@@ -219,7 +222,11 @@ class _AICreditsPageState extends State<AICreditsPage> {
         children: [
           Row(
             children: [
-              Icon(Icons.toll_outlined, size: 18, color: colors.primary),
+              AppIcon.fromMaterial(
+                Icons.toll_outlined,
+                size: 18,
+                color: colors.primary,
+              ),
               const SizedBox(width: 8),
               Text(
                 context.tr.ai_credits_wallet_card_title,
@@ -231,7 +238,7 @@ class _AICreditsPageState extends State<AICreditsPage> {
           ),
           const SizedBox(height: 20),
           Text(
-            _number(_wallet!['available'] ?? _wallet!['balance']),
+            _credits(_wallet!['available'] ?? _wallet!['balance']),
             style: Theme.of(context).textTheme.displaySmall?.copyWith(
               fontWeight: FontWeight.w600,
               letterSpacing: -1,
@@ -239,7 +246,7 @@ class _AICreditsPageState extends State<AICreditsPage> {
           ),
           const SizedBox(height: 4),
           Text(
-            context.tr.ai_credits_tokens_available,
+            context.tr.ai_credits_available,
             style: Theme.of(
               context,
             ).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
@@ -266,7 +273,7 @@ class _AICreditsPageState extends State<AICreditsPage> {
                       ),
                       const SizedBox(height: 5),
                       Text(
-                        _number(item.$2),
+                        _credits(item.$2),
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                     ],
@@ -278,7 +285,7 @@ class _AICreditsPageState extends State<AICreditsPage> {
             const SizedBox(height: 18),
             Row(
               children: [
-                Icon(
+                AppIcon.fromMaterial(
                   Icons.pause_circle_outline_rounded,
                   size: 17,
                   color: colors.error,
@@ -322,7 +329,7 @@ class _AICreditsPageState extends State<AICreditsPage> {
         actions: [
           IconButton(
             onPressed: _busy ? null : _load,
-            icon: const Icon(Icons.refresh),
+            icon: const AppIcon.fromMaterial(Icons.refresh),
           ),
         ],
       ),
@@ -356,7 +363,7 @@ class _AICreditsPageState extends State<AICreditsPage> {
                         context,
                       ).colorScheme.surfaceContainerLow,
                       label: Text(
-                        '${item.$1} · ${_number(item.$2)}',
+                        '${item.$1} · ${_credits(item.$2)}',
                         style: Theme.of(context).textTheme.labelSmall,
                       ),
                     ),
@@ -364,7 +371,7 @@ class _AICreditsPageState extends State<AICreditsPage> {
               ),
               const SizedBox(height: 12),
               if (mobile) Text(context.tr.ai_credits_spins_available(spins)),
-              Text(context.tr.ai_credits_token_ratio_hint),
+              Text(context.tr.ai_credits_usage_hint),
               if (mobile) Text(context.tr.ai_credits_daily_ad_limit_hint),
               const SizedBox(height: 24),
               if (prizes.isNotEmpty)
@@ -381,12 +388,18 @@ class _AICreditsPageState extends State<AICreditsPage> {
                           curve: Curves.easeOutCubic,
                           child: CustomPaint(
                             size: const Size(260, 260),
-                            painter: _RoulettePainter(prizes),
+                            painter: _RoulettePainter(
+                              prizes,
+                              Localizations.localeOf(context).toString(),
+                            ),
                           ),
                         ),
                         const Positioned(
                           top: 0,
-                          child: Icon(Icons.arrow_drop_down, size: 40),
+                          child: AppIcon.fromMaterial(
+                            Icons.arrow_drop_down,
+                            size: 40,
+                          ),
                         ),
                       ],
                     ),
@@ -399,7 +412,7 @@ class _AICreditsPageState extends State<AICreditsPage> {
                           (_result!['bonus_spins'] as num).toInt(),
                         )
                       : context.tr.ai_credits_result_credits(
-                          _number(_result!['credits']),
+                          _credits(_result!['credits']),
                         ),
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.titleLarge,
@@ -434,7 +447,7 @@ class _AICreditsPageState extends State<AICreditsPage> {
               for (final e in _ledger)
                 ExpansionTile(
                   title: Text(
-                    '${(e['delta'] as num) > 0 ? '+' : ''}${e['delta']} · ${_origin(context, e['source'] as String)}',
+                    '${(e['delta'] as num) > 0 ? '+' : ''}${_credits(e['delta'])} · ${_origin(context, e['source'] as String)}',
                   ),
                   subtitle: Text(e['created_at'].toString()),
                   children: [
@@ -496,8 +509,9 @@ class _AICreditsPageState extends State<AICreditsPage> {
 }
 
 class _RoulettePainter extends CustomPainter {
-  _RoulettePainter(this.prizes);
+  _RoulettePainter(this.prizes, this.locale);
   final List<Map<String, dynamic>> prizes;
+  final String locale;
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
@@ -515,7 +529,7 @@ class _RoulettePainter extends CustomPainter {
       final prize = prizes[i];
       final label = prize['kind'] == 'spins'
           ? '+${prize['bonus_spins']} ↻'
-          : '${prize['credits']}';
+          : formatAiCredits(prize['credits'], locale: locale);
       final text = TextPainter(
         text: TextSpan(
           text: label,
@@ -538,5 +552,5 @@ class _RoulettePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_RoulettePainter oldDelegate) =>
-      oldDelegate.prizes != prizes;
+      oldDelegate.prizes != prizes || oldDelegate.locale != locale;
 }

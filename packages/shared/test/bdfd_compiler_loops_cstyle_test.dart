@@ -1,3 +1,4 @@
+import 'package:bot_creator_shared/types/action.dart';
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 import 'package:test/test.dart';
 
@@ -53,14 +54,19 @@ void main() {
       expect(result.actions[4].payload['content'], '1');
     });
 
-    test('C-style for loop respects max iteration limit', () {
+    test('large C-style for loop is deferred to runtime', () {
       final result = BdfdCompiler().compile(
         r'$for[i = 0; i < 9999; i++]$reply$i$endfor',
       );
 
       expect(result.hasErrors, isFalse);
-      // Capped at 100
-      expect(result.actions, hasLength(100));
+      expect(result.actions, hasLength(1));
+      expect(result.actions.single.type, BotCreatorActionType.forLoop);
+      expect(result.actions.single.payload['condition'], 'i < 9999');
+      expect(
+        result.actions.single.payload.containsKey('maxIterations'),
+        isFalse,
+      );
     });
 
     test('C-style for loop inlines into embed response', () {

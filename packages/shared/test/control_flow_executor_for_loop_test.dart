@@ -24,24 +24,23 @@ void main() {
         activeWorkflowStack: <String>{},
         getWorkflowByName: (_) async => null,
         executeActions: (actions) async {
-          final resolvedActions =
-              actions.map((a) {
-                final resolvedPayload = a.payload.map((key, value) {
-                  if (value is String) {
-                    return MapEntry(
-                      key,
-                      resolveTemplatePlaceholders(value, variables),
-                    );
-                  }
-                  return MapEntry(key, value);
-                });
-                return Action(
-                  type: a.type,
-                  payload: resolvedPayload,
-                  key: a.key,
-                  enabled: a.enabled,
+          final resolvedActions = actions.map((a) {
+            final resolvedPayload = a.payload.map((key, value) {
+              if (value is String) {
+                return MapEntry(
+                  key,
+                  resolveTemplatePlaceholders(value, variables),
                 );
-              }).toList();
+              }
+              return MapEntry(key, value);
+            });
+            return Action(
+              type: a.type,
+              payload: resolvedPayload,
+              key: a.key,
+              enabled: a.enabled,
+            );
+          }).toList();
           executedBatches.add(resolvedActions);
           return <String, String>{'nested': 'ok'};
         },
@@ -132,30 +131,33 @@ void main() {
       },
     );
 
-    test('simple runtime loop caps at maxIterations', () async {
-      final results = <String, String>{};
-      final batches = <List<Action>>[];
+    test(
+      'simple runtime loop executes beyond the obsolete iteration cap',
+      () async {
+        final results = <String, String>{};
+        final batches = <List<Action>>[];
 
-      await runForLoop(
-        variables: <String, String>{},
-        payload: <String, dynamic>{
-          'mode': 'simple',
-          'iterations': '500',
-          'maxIterations': 5,
-          'bodyActions': <Map<String, dynamic>>[
-            <String, dynamic>{
-              'type': 'sendMessage',
-              'payload': <String, dynamic>{'content': 'x'},
-            },
-          ],
-        },
-        results: results,
-        executedBatches: batches,
-      );
+        await runForLoop(
+          variables: <String, String>{},
+          payload: <String, dynamic>{
+            'mode': 'simple',
+            'iterations': '500',
+            'maxIterations': 5,
+            'bodyActions': <Map<String, dynamic>>[
+              <String, dynamic>{
+                'type': 'sendMessage',
+                'payload': <String, dynamic>{'content': 'x'},
+              },
+            ],
+          },
+          results: results,
+          executedBatches: batches,
+        );
 
-      expect(batches, hasLength(5));
-      expect(results['loop'], 'LOOP_5');
-    });
+        expect(batches, hasLength(500));
+        expect(results['loop'], 'LOOP_500');
+      },
+    );
 
     test('simple runtime loop with 0 iterations produces LOOP_0', () async {
       final results = <String, String>{};

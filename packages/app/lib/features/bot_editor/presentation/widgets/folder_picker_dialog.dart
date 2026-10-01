@@ -3,6 +3,8 @@ import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/bot_editor/logic/command_folder_tree.dart';
 import 'package:flutter/material.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// A modern, responsive centered dialog for choosing or creating a destination folder.
 class FolderPickerDialog extends StatefulWidget {
   final String title;
@@ -66,7 +68,8 @@ class _FolderPickerDialogState extends State<FolderPickerDialog> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final flattened = widget.tree.flatten();
-    final allowed = widget.excludePrefix == null || widget.excludePrefix!.isEmpty
+    final allowed =
+        widget.excludePrefix == null || widget.excludePrefix!.isEmpty
         ? flattened
         : flattened.where((f) {
             final exc = widget.excludePrefix!;
@@ -104,7 +107,7 @@ class _FolderPickerDialogState extends State<FolderPickerDialog> {
                       borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                     ),
                     alignment: Alignment.center,
-                    child: Icon(
+                    child: AppIcon.fromMaterial(
                       Icons.drive_file_move_rounded,
                       size: 20,
                       color: theme.colorScheme.onPrimaryContainer,
@@ -121,7 +124,7 @@ class _FolderPickerDialogState extends State<FolderPickerDialog> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close, size: 20),
+                    icon: const AppIcon.fromMaterial(Icons.close, size: 20),
                     tooltip: context.tr.cancel,
                     onPressed: () => Navigator.of(context).pop(),
                   ),
@@ -138,10 +141,20 @@ class _FolderPickerDialogState extends State<FolderPickerDialog> {
                   controller: _searchController,
                   decoration: InputDecoration(
                     hintText: context.tr.common_search,
-                    prefixIcon: const Icon(Icons.search, size: 18),
+                    prefixIconConstraints: const BoxConstraints(
+                      minWidth: 36,
+                      minHeight: 36,
+                    ),
+                    prefixIcon: const Padding(
+                      padding: EdgeInsets.only(left: 10, right: 8),
+                      child: AppIcon.fromMaterial(Icons.search, size: 18),
+                    ),
                     suffixIcon: _searchFilter.isNotEmpty
                         ? IconButton(
-                            icon: const Icon(Icons.clear, size: 18),
+                            icon: const AppIcon.fromMaterial(
+                              Icons.clear,
+                              size: 18,
+                            ),
                             onPressed: () {
                               _searchController.clear();
                               setState(() => _searchFilter = '');
@@ -171,7 +184,7 @@ class _FolderPickerDialogState extends State<FolderPickerDialog> {
                 children: [
                   // Root / No folder option
                   ListTile(
-                    leading: Icon(
+                    leading: AppIcon.fromMaterial(
                       Icons.folder_off_outlined,
                       color: widget.currentFolder.isEmpty
                           ? theme.colorScheme.primary
@@ -187,14 +200,17 @@ class _FolderPickerDialogState extends State<FolderPickerDialog> {
                       ),
                     ),
                     trailing: widget.currentFolder.isEmpty
-                        ? Icon(Icons.check, color: theme.colorScheme.primary)
+                        ? AppIcon.fromMaterial(
+                            Icons.check,
+                            color: theme.colorScheme.primary,
+                          )
                         : null,
                     onTap: () => Navigator.of(context).pop(''),
                   ),
                   if (filtered.isNotEmpty) const Divider(height: 1),
                   for (final item in filtered)
                     ListTile(
-                      leading: Icon(
+                      leading: AppIcon.fromMaterial(
                         widget.currentFolder == item.fullPath
                             ? Icons.folder
                             : Icons.folder_outlined,
@@ -221,7 +237,10 @@ class _FolderPickerDialogState extends State<FolderPickerDialog> {
                             )
                           : null,
                       trailing: widget.currentFolder == item.fullPath
-                          ? Icon(Icons.check, color: theme.colorScheme.primary)
+                          ? AppIcon.fromMaterial(
+                              Icons.check,
+                              color: theme.colorScheme.primary,
+                            )
                           : null,
                       onTap: () => Navigator.of(context).pop(item.fullPath),
                     ),
@@ -241,7 +260,7 @@ class _FolderPickerDialogState extends State<FolderPickerDialog> {
                       controller: _newFolderController,
                       decoration: InputDecoration(
                         hintText: context.tr.commands_new_folder_hint,
-                        prefixIcon: const Icon(
+                        prefixIcon: const AppIcon.fromMaterial(
                           Icons.create_new_folder_outlined,
                           size: 20,
                         ),
@@ -262,7 +281,7 @@ class _FolderPickerDialogState extends State<FolderPickerDialog> {
                   const SizedBox(width: 8),
                   FilledButton.tonalIcon(
                     onPressed: _submitNewFolder,
-                    icon: const Icon(Icons.add, size: 18),
+                    icon: const AppIcon.fromMaterial(Icons.add, size: 18),
                     label: Text(context.tr.commands_create_folder),
                     style: FilledButton.styleFrom(
                       shape: RoundedRectangleBorder(

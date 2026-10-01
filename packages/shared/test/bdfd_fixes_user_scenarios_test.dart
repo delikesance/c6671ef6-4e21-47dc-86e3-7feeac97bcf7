@@ -1,3 +1,4 @@
+import 'package:bot_creator_shared/sandbox/command_sandbox.dart';
 import 'package:bot_creator_shared/types/action.dart';
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 import 'package:test/test.dart';
@@ -62,9 +63,7 @@ void main() {
     });
 
     test(r'$for with 2 args iterates over single value', () {
-      final result = BdfdCompiler().compile(
-        r'$for[only;hello]$only$endfor',
-      );
+      final result = BdfdCompiler().compile(r'$for[only;hello]$only$endfor');
 
       expect(result.hasErrors, isFalse);
       expect(result.actions, hasLength(1));
@@ -138,20 +137,21 @@ void main() {
   });
 
   group(r'User scenario: textSplit + JSON array workflow', () {
-    test('textSplit and jsonArray work together', () {
-      final result = BdfdCompiler().compile(
-        r'$textSplit[sword,shield,potion,bow;,]'
-        r'$json[]'
-        r'$jsonSet[items;sword,shield,potion,bow]'
-        r'$jsonArray[items;,]'
-        r'Total: $jsonArrayCount[items]'
-        r'First: $splitText[1]',
-      );
+    test('textSplit and jsonArray work together', () async {
+      const script =
+          r'$textSplit[sword,shield,potion,bow;,]'
+          r'$json[]'
+          r'$jsonSet[items;sword,shield,potion,bow]'
+          r'$jsonArray[items;,]'
+          r'Total: $jsonArrayCount[items]'
+          r'First: $splitText[1]';
+      final result = BdfdCompiler().compile(script);
 
       expect(result.hasErrors, isFalse);
-      final content = result.actions
-          .where((a) => a.payload['content'] != null)
-          .map((a) => a.payload['content'].toString())
+      final execution = await testCommandInSandbox({'script': script});
+      expect(execution['success'], true, reason: '$execution');
+      final content = (execution['responses'] as List)
+          .map((response) => response['payload']['content'].toString())
           .join();
       expect(content, contains('Total: 4'));
       expect(content, contains('First: sword'));

@@ -121,7 +121,7 @@ extension _AppHomePageUI on _AppHomePageState {
                     color: scheme.primary.withValues(alpha: 0.20),
                   ),
                 ),
-                child: Icon(
+                child: AppIcon.fromMaterial(
                   Icons.dashboard_rounded,
                   size: 18,
                   color: scheme.primary,
@@ -355,7 +355,7 @@ extension _AppHomePageUI on _AppHomePageState {
                                     ),
                                   ),
                                   const SizedBox(width: 4),
-                                  Icon(
+                                  AppIcon.fromMaterial(
                                     Icons.copy_rounded,
                                     size: 11,
                                     color: muted.withValues(alpha: 0.7),
@@ -759,7 +759,7 @@ class _WireframeTile extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
           child: Row(
             children: [
-              Icon(icon, size: 18, color: muted),
+              AppIcon.fromMaterial(icon, size: 18, color: muted),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
@@ -772,7 +772,11 @@ class _WireframeTile extends StatelessWidget {
                 ),
               ),
               trailing ??
-                  Icon(Icons.chevron_right_rounded, size: 18, color: muted),
+                  AppIcon.fromMaterial(
+                    Icons.chevron_right_rounded,
+                    size: 18,
+                    color: muted,
+                  ),
             ],
           ),
         ),
@@ -801,7 +805,7 @@ class _DashedDeleteTile extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
+                  const AppIcon.fromMaterial(
                     Icons.delete_outline_rounded,
                     color: AppTheme.danger,
                     size: 18,
@@ -1066,7 +1070,7 @@ class BotHomeLiveConsoleCard extends StatelessWidget {
                             color: Colors.white.withValues(alpha: 0.08),
                           ),
                         ),
-                        child: Icon(
+                        child: AppIcon.fromMaterial(
                           Icons.terminal_rounded,
                           size: 22,
                           color: Colors.white.withValues(alpha: 0.45),
@@ -1101,7 +1105,7 @@ class BotHomeLiveConsoleCard extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
+                  AppIcon.fromMaterial(
                     Icons.code_rounded,
                     size: 16,
                     color: Colors.white.withValues(alpha: 0.35),
@@ -1200,7 +1204,11 @@ class BotHomeLiveConsoleCard extends StatelessWidget {
         final compact = constraints.maxWidth < kBotHomeLogsHeaderCompactWidth;
         return Row(
           children: [
-            Icon(Icons.terminal_rounded, size: 18, color: scheme.primary),
+            AppIcon.fromMaterial(
+              Icons.terminal_rounded,
+              size: 18,
+              color: scheme.primary,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Row(
@@ -1268,12 +1276,15 @@ class BotHomeLiveConsoleCard extends StatelessWidget {
                 visualDensity: VisualDensity.compact,
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                 constraints: const BoxConstraints(minWidth: 34, minHeight: 34),
-                icon: const Icon(Icons.open_in_new_rounded),
+                icon: const AppIcon.fromMaterial(Icons.open_in_new_rounded),
               )
             else
               TextButton.icon(
                 onPressed: onOpenLogs,
-                icon: const Icon(Icons.open_in_new_rounded, size: 14),
+                icon: const AppIcon.fromMaterial(
+                  Icons.open_in_new_rounded,
+                  size: 14,
+                ),
                 label: Text(
                   context.tr.bot_home_view_logs,
                   maxLines: 1,

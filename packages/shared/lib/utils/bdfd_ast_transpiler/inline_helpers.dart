@@ -2,11 +2,33 @@ part of '../bdfd_ast_transpiler.dart';
 
 extension _BdfdAstTranspilationScopeInlineHelpers
     on _BdfdAstTranspilationScope {
+  Object _componentBoolean(String raw) =>
+      _containsRuntimePlaceholder(raw) ? raw : _parseBooleanLike(raw);
+
+  Object? _componentInteger(String raw, [int? fallback]) =>
+      _containsRuntimePlaceholder(raw) ? raw : (int.tryParse(raw) ?? fallback);
+
+  String _componentEnum(String raw) =>
+      _containsRuntimePlaceholder(raw) ? raw.trim() : raw.trim().toLowerCase();
+
   String _inlineReplaceText(BdfdFunctionCallAst node) {
     final text = _stringifyArgument(node, 0);
     final sample = _stringifyArgument(node, 1);
     final replacement = _stringifyArgument(node, 2);
     final amountRaw = _stringifyArgument(node, 3).trim();
+    if ([
+      text,
+      sample,
+      replacement,
+      amountRaw,
+    ].any(_containsRuntimePlaceholder)) {
+      return _buildRuntimeBracketExpression('replacetext', [
+        text,
+        sample,
+        replacement,
+        amountRaw,
+      ]);
+    }
     final amount = int.tryParse(amountRaw) ?? 1;
 
     if (sample.isEmpty) {
@@ -62,6 +84,9 @@ extension _BdfdAstTranspilationScopeInlineHelpers
   String _inlineRepeatMessage(BdfdFunctionCallAst node) {
     final text = _stringifyArgument(node, 0);
     final countRaw = _stringifyArgument(node, 1).trim();
+    if ([text, countRaw].any(_containsRuntimePlaceholder)) {
+      return _buildRuntimeBracketExpression('repeatmessage', [text, countRaw]);
+    }
     final count = int.tryParse(countRaw) ?? 1;
     if (count <= 0) {
       return '';
@@ -82,12 +107,16 @@ extension _BdfdAstTranspilationScopeInlineHelpers
   }
 
   String _inlineRemoveContains(BdfdFunctionCallAst node) {
-    var text = _stringifyArgument(node, 0);
-    for (var i = 1; i < node.arguments.length; i++) {
-      final target = _stringifyArgument(node, i);
-      if (target.isNotEmpty) {
-        text = text.replaceAll(target, '');
-      }
+    final args = List.generate(
+      node.arguments.length,
+      (i) => _stringifyArgument(node, i),
+    );
+    if (args.any(_containsRuntimePlaceholder)) {
+      return _buildRuntimeBracketExpression('removecontains', args);
+    }
+    var text = args.isEmpty ? '' : args.first;
+    for (final target in args.skip(1)) {
+      if (target.isNotEmpty) text = text.replaceAll(target, '');
     }
     return text;
   }
@@ -96,6 +125,12 @@ extension _BdfdAstTranspilationScopeInlineHelpers
     final numberRaw = _stringifyArgument(node, 0).trim();
     final separator = _stringifyArgument(node, 1);
     final sep = separator.isEmpty ? ',' : separator;
+    if ([numberRaw, separator].any(_containsRuntimePlaceholder)) {
+      return _buildRuntimeBracketExpression('numberseparator', [
+        numberRaw,
+        separator,
+      ]);
+    }
     final parts = numberRaw.split('.');
     final intPart = parts[0];
 
@@ -116,49 +151,54 @@ extension _BdfdAstTranspilationScopeInlineHelpers
     return result;
   }
 
-  void _textSplitState(BdfdFunctionCallAst node) {
-    final text = _stringifyArgument(node, 0);
-    final separator = _stringifyArgument(node, 1);
-    _textSplitParts = text.split(separator);
+  // State belongs to the running command. Capture every read at its action
+  // position so a later edit cannot retroactively change an earlier output.
+  Action _buildTextSplitStateAction(
+    BdfdFunctionCallAst node,
+    String operation, {
+    bool read = false,
+  }) {
+    final args = List.generate(
+      node.arguments.length,
+      (i) => _stringifyArgument(node, i),
+    );
+    final key = '_bdfd_split_${_textSplitActionCounter++}';
+    return Action(
+      type: BotCreatorActionType.setTemporaryVariable,
+      key: key,
+      payload: {
+        'key': read ? key : '_bdfd_textsplit',
+        'valueType': 'string',
+        'value': _buildRuntimeBracketExpression(
+          'bdfdtextsplit$operation',
+          args,
+        ),
+      },
+    );
   }
 
-  String _inlineSplitText(BdfdFunctionCallAst node) {
-    final indexRaw = _stringifyArgument(node, 0).trim();
-    final index = int.tryParse(indexRaw);
-    if (index == null || index < 1 || index > _textSplitParts.length) {
-      return '';
-    }
-    return _textSplitParts[index - 1];
+  String _inlineTextSplitRead(BdfdFunctionCallAst node, String operation) {
+    final action = _buildTextSplitStateAction(node, operation, read: true);
+    _deferredInlineActions.add(action);
+    return '((${action.key}.value))';
   }
+
+  String _inlineSplitText(BdfdFunctionCallAst node) =>
+      _inlineTextSplitRead(node, 'get');
 
   String _inlineEditSplitText(BdfdFunctionCallAst node) {
-    final indexRaw = _stringifyArgument(node, 0).trim();
-    final value = _stringifyArgument(node, 1);
-    final index = int.tryParse(indexRaw);
-    if (index == null || index < 1 || index > _textSplitParts.length) {
-      return '';
-    }
-    _textSplitParts[index - 1] = value;
+    _deferredInlineActions.add(_buildTextSplitStateAction(node, 'edit'));
     return '';
   }
 
-  String _inlineGetTextSplitIndex(BdfdFunctionCallAst node) {
-    final value = _stringifyArgument(node, 0);
-    final index = _textSplitParts.indexOf(value);
-    return index >= 0 ? (index + 1).toString() : '-1';
-  }
+  String _inlineGetTextSplitIndex(BdfdFunctionCallAst node) =>
+      _inlineTextSplitRead(node, 'index');
 
-  String _inlineJoinSplitText(BdfdFunctionCallAst node) {
-    final separator = _stringifyArgument(node, 0);
-    return _textSplitParts.join(separator);
-  }
+  String _inlineJoinSplitText(BdfdFunctionCallAst node) =>
+      _inlineTextSplitRead(node, 'join');
 
   String _inlineRemoveSplitTextElement(BdfdFunctionCallAst node) {
-    final indexRaw = _stringifyArgument(node, 0).trim();
-    final index = int.tryParse(indexRaw);
-    if (index != null && index >= 1 && index <= _textSplitParts.length) {
-      _textSplitParts.removeAt(index - 1);
-    }
+    _deferredInlineActions.add(_buildTextSplitStateAction(node, 'remove'));
     return '';
   }
 
@@ -287,6 +327,9 @@ extension _BdfdAstTranspilationScopeInlineHelpers
         values.add(raw);
       }
     }
+    if (values.any(_containsRuntimePlaceholder)) {
+      return _buildRuntimeBracketExpression('sort', values);
+    }
     final allNumeric = values.every((v) => num.tryParse(v) != null);
     if (allNumeric) {
       values.sort((a, b) => num.parse(a).compareTo(num.parse(b)));
@@ -299,23 +342,35 @@ extension _BdfdAstTranspilationScopeInlineHelpers
   // ── Boolean check helpers ──────────────────────────────────────
 
   String _inlineIsBoolean(BdfdFunctionCallAst node) {
-    final raw = _stringifyArgument(node, 0).trim().toLowerCase();
+    final raw = _stringifyArgument(node, 0).trim();
+    if (raw.contains('((')) {
+      return '((isBoolean[$raw]))';
+    }
     const booleans = {'true', 'false', 'yes', 'no', '1', '0', 'on', 'off'};
-    return booleans.contains(raw) ? 'true' : 'false';
+    return booleans.contains(raw.toLowerCase()) ? 'true' : 'false';
   }
 
   String _inlineIsInteger(BdfdFunctionCallAst node) {
     final raw = _stringifyArgument(node, 0).trim();
+    if (raw.contains('((')) {
+      return '((isInteger[$raw]))';
+    }
     return int.tryParse(raw) != null ? 'true' : 'false';
   }
 
   String _inlineIsNumber(BdfdFunctionCallAst node) {
     final raw = _stringifyArgument(node, 0).trim();
+    if (raw.contains('((')) {
+      return '((isNumber[$raw]))';
+    }
     return num.tryParse(raw) != null ? 'true' : 'false';
   }
 
   String _inlineIsValidHex(BdfdFunctionCallAst node) {
     final raw = _stringifyArgument(node, 0).trim();
+    if (raw.contains('((')) {
+      return '((isValidHex[$raw]))';
+    }
     final cleaned = raw.startsWith('#') ? raw.substring(1) : raw;
     return RegExp(r'^[0-9a-fA-F]+$').hasMatch(cleaned) ? 'true' : 'false';
   }
@@ -374,14 +429,15 @@ extension _BdfdAstTranspilationScopeInlineHelpers
   }
 
   String _inlineCheckContains(BdfdFunctionCallAst node) {
-    final text = _stringifyArgument(node, 0);
-    for (var i = 1; i < node.arguments.length; i++) {
-      final target = _stringifyArgument(node, i);
-      if (target.isNotEmpty && text.contains(target)) {
-        return 'true';
-      }
+    final args = List.generate(
+      node.arguments.length,
+      (i) => _stringifyArgument(node, i),
+    );
+    if (args.any(_containsRuntimePlaceholder)) {
+      return _buildRuntimeBracketExpression('checkcontains', args);
     }
-    return 'false';
+    final text = args.isEmpty ? '' : args.first;
+    return args.skip(1).any(text.contains) ? 'true' : 'false';
   }
 
   // ── Random helpers ──────────────────────────────────────────
@@ -397,17 +453,7 @@ extension _BdfdAstTranspilationScopeInlineHelpers
   String _inlineRandomString(BdfdFunctionCallAst node) {
     final lengthRaw = _stringifyArgument(node, 0).trim();
     final chars = _stringifyArgument(node, 1);
-    final length = int.tryParse(lengthRaw) ?? 10;
-    final effectiveLength = length.clamp(1, 1000);
-    const defaultChars =
-        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    final charSet = chars.isEmpty ? defaultChars : chars;
-    final random = math.Random();
-    final buffer = StringBuffer();
-    for (var i = 0; i < effectiveLength; i++) {
-      buffer.write(charSet[random.nextInt(charSet.length)]);
-    }
-    return buffer.toString();
+    return _buildRuntimeBracketExpression('randomstring', [lengthRaw, chars]);
   }
 
   String _inlineRandomText(BdfdFunctionCallAst node) {
