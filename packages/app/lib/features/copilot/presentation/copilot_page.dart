@@ -38,6 +38,7 @@ class CopilotPage extends StatefulWidget {
 }
 
 class _CopilotPageState extends State<CopilotPage> {
+  final _promptFocus = FocusNode(skipTraversal: true);
   final _prompt = TextEditingController(),
       _search = TextEditingController(),
       _botFilter = TextEditingController();
@@ -255,6 +256,7 @@ class _CopilotPageState extends State<CopilotPage> {
   @override
   void dispose() {
     _viewEpoch++;
+    _promptFocus.dispose();
     _prompt.removeListener(_promptChanged);
     _prompt.dispose();
     _scroll.dispose();
@@ -265,9 +267,9 @@ class _CopilotPageState extends State<CopilotPage> {
   }
 
   void _scrollTail({bool force = false}) {
-    if (!force && _scroll.hasClients && _scroll.position.extentAfter > 180) {
-      return;
-    }
+    if (!_scroll.hasClients) return;
+    final atBottom = force || _scroll.position.extentAfter <= 48;
+    if (!atBottom) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted && _scroll.hasClients) {
         _scroll.jumpTo(_scroll.position.maxScrollExtent);
@@ -659,6 +661,7 @@ class _CopilotPageState extends State<CopilotPage> {
     if (prompt.isEmpty && toolContinuation == null && _pending == null) {
       return;
     }
+    _promptFocus.unfocus();
     setState(() {
       _busy = true;
       _error = null;
@@ -1079,6 +1082,7 @@ class _CopilotPageState extends State<CopilotPage> {
     if (_busy) {
       return;
     }
+    FocusManager.instance.primaryFocus?.unfocus();
     final fn = (a['call'] as Map)['function'] as Map;
     final name = fn['name'] as String;
     final call = a['call_id'] as String;
@@ -1376,7 +1380,12 @@ class _CopilotPageState extends State<CopilotPage> {
             child: Column(
               children: [
                 _contextHeader(bot, location),
-                if (_loading || _busy) const LinearProgressIndicator(),
+                SizedBox(
+                  height: 4,
+                  child: (_loading || _busy)
+                      ? const LinearProgressIndicator()
+                      : const SizedBox.shrink(),
+                ),
                 Expanded(
                   child: ListView(
                     controller: _scroll,
@@ -1392,7 +1401,7 @@ class _CopilotPageState extends State<CopilotPage> {
                             ),
                           ),
                         ),
-                      if (_wallet != null && !_busy) _walletStrip(),
+                      if (_wallet != null) _walletStrip(),
                       if (_summarizing)
                         Padding(
                           padding: const EdgeInsets.all(12),
@@ -1507,18 +1516,20 @@ class _CopilotPageState extends State<CopilotPage> {
       child: Row(
         children: [
           Container(
-            width: 42,
-            height: 42,
+            width: 32,
+            height: 32,
             decoration: BoxDecoration(
               color: colors.primaryContainer.withValues(alpha: .55),
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(10),
             ),
-            child: AppIcon(
-              bot == null || bot.isEmpty
-                  ? Reicon.outline.magicStar
-                  : Reicon.outline.cpu,
-              color: colors.primary,
-              size: 22,
+            child: Center(
+              child: AppIcon(
+                bot == null || bot.isEmpty
+                    ? Reicon.outline.magicStar
+                    : Reicon.outline.cpu,
+                color: colors.primary,
+                size: 18,
+              ),
             ),
           ),
           const SizedBox(width: 12),
@@ -1876,18 +1887,19 @@ class _CopilotPageState extends State<CopilotPage> {
               ),
             ),
           Container(
-            padding: const EdgeInsets.fromLTRB(12, 3, 5, 3),
+            padding: const EdgeInsets.fromLTRB(14, 4, 6, 4),
             decoration: BoxDecoration(
               color: colors.surfaceContainerLow,
               border: Border.all(color: colors.outlineVariant),
               borderRadius: BorderRadius.circular(18),
             ),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Expanded(
                   child: TextField(
                     controller: _prompt,
+                    focusNode: _promptFocus,
                     minLines: 1,
                     maxLines: 5,
                     enabled: _ready,
@@ -1897,25 +1909,36 @@ class _CopilotPageState extends State<CopilotPage> {
                       enabledBorder: InputBorder.none,
                       focusedBorder: InputBorder.none,
                       filled: false,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                      isDense: true,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 10,
+                      ),
                     ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: IconButton.filled(
-                    tooltip: retryPending
-                        ? _copy(
-                            'Réessayer la demande en attente',
-                            'Retry pending request',
-                          )
-                        : context.tr.copilot_send,
-                    onPressed: canSend
-                        ? () => _send(null, true, retryPending)
-                        : null,
-                    icon: AppIcon.fromMaterial(
+                IconButton.filled(
+                  style: IconButton.styleFrom(
+                    minimumSize: const Size(40, 40),
+                    fixedSize: const Size(40, 40),
+                    padding: EdgeInsets.zero,
+                  ),
+                  tooltip: retryPending
+                      ? _copy(
+                          'Réessayer la demande en attente',
+                          'Retry pending request',
+                        )
+                      : context.tr.copilot_send,
+                  onPressed: canSend
+                      ? () => _send(null, true, retryPending)
+                      : null,
+                  icon: Transform.translate(
+                    offset: retryPending
+                        ? Offset.zero
+                        : const Offset(1.5, -0.5),
+                    child: AppIcon.fromMaterial(
                       retryPending ? Icons.replay_rounded : Icons.send,
-                      size: 19,
+                      size: 18,
                     ),
                   ),
                 ),
@@ -2040,14 +2063,20 @@ class _CopilotPageState extends State<CopilotPage> {
                 FilledButton(
                   onPressed: _busy || _chat?['archived'] == true
                       ? null
-                      : () => _action(a, true),
+                      : () {
+                          FocusScope.of(context).unfocus();
+                          _action(a, true);
+                        },
                   child: Text(context.tr.copilot_approve),
                 ),
                 if (_mutating(a))
                   TextButton(
                     onPressed: _busy || _chat?['archived'] == true
                         ? null
-                        : () => _action(a, false),
+                        : () {
+                            FocusScope.of(context).unfocus();
+                            _action(a, false);
+                          },
                     child: Text(context.tr.copilot_decline),
                   ),
               ],
