@@ -64,4 +64,16 @@ void main() {
       expect(negotiateCopilotTools([create], []), isEmpty);
     },
   );
+  test('tools remain compatible when only descriptions differ', () {
+    final testTool = tools.singleWhere(
+      (t) => t['name'] == 'local_test_command',
+    );
+    final remoteTool = copy(testTool);
+    remoteTool['inputSchema']['properties']['scenario']['description'] =
+        'Older server description without entities text';
+    expect(copilotToolCompatible(testTool, remoteTool), true);
+    final negotiated = negotiateCopilotTools([testTool], [remoteTool]);
+    expect(negotiated, hasLength(1));
+    expect(negotiated.single['name'], 'local_test_command');
+  });
 }

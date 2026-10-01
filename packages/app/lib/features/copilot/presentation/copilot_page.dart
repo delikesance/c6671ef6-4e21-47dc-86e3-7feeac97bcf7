@@ -399,11 +399,15 @@ class _CopilotPageState extends State<CopilotPage> {
         negotiated.length != bridge.tools.length ||
         negotiated.any(
           (t) =>
-              HashUtil.calculateHash(t['inputSchema']) !=
               HashUtil.calculateHash(
-                bridge.tools.singleWhere(
-                  (original) => original['name'] == t['name'],
-                )['inputSchema'],
+                stripSchemaDescriptions(t['inputSchema']),
+              ) !=
+              HashUtil.calculateHash(
+                stripSchemaDescriptions(
+                  bridge.tools.singleWhere(
+                    (original) => original['name'] == t['name'],
+                  )['inputSchema'],
+                ),
               ),
         );
     bridge.tools = negotiated;
