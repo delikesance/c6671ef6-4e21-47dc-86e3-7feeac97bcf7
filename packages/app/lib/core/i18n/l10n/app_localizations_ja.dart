@@ -10141,7 +10141,7 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get copilot_err_tool_round_limit =>
-      'AIの8ステップ制限に達しました。続行するには新しい指示を送信してください。';
+      'AIが新しい情報を得ずに同じ操作を繰り返しました。別の方法を試す指示を送信してください。';
 
   @override
   String get copilot_err_context_limit => 'コンテキストが長すぎます。要約を作成して新しい会話で続けてください。';

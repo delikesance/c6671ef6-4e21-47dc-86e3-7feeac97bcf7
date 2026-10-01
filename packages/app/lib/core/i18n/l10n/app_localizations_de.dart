@@ -10752,7 +10752,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get copilot_err_tool_round_limit =>
-      'Das Limit von acht KI-Schritten wurde erreicht. Senden Sie eine neue Anweisung, um fortzufahren.';
+      'Die KI hat dieselben Aktionen ohne neue Informationen wiederholt. Senden Sie eine Anweisung für einen anderen Ansatz.';
 
   @override
   String get copilot_err_context_limit =>

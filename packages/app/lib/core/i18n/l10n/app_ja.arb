@@ -10878,7 +10878,7 @@
   "ai_credits_next": "次へ",
   "copilot_title": "AIコパイロット",
   "copilot_compact_label": "AI",
-  "copilot_err_tool_round_limit": "AIの8ステップ制限に達しました。続行するには新しい指示を送信してください。",
+  "copilot_err_tool_round_limit": "AIが新しい情報を得ずに同じ操作を繰り返しました。別の方法を試す指示を送信してください。",
   "copilot_err_context_limit": "コンテキストが長すぎます。要約を作成して新しい会話で続けてください。",
   "copilot_err_spending_blocked": "このアカウントではAIの利用がブロックされています。",
   "copilot_err_revision_conflict": "別のデバイスで会話が変更されました。更新してください。",

@@ -21,6 +21,7 @@ import 'package:nyxx/nyxx.dart';
 import 'package:uuid/uuid.dart';
 import 'package:bot_creator_shared/types/action.dart';
 import 'package:bot_creator_shared/utils/bdfd_functions.dart';
+import 'package:bot_creator_shared/utils/bdfd_runtime_reference.dart';
 import 'package:bot_creator_shared/utils/event_catalog.dart';
 
 part 'copilot_mcp_configuration.dart';
@@ -210,6 +211,17 @@ class CopilotMcp {
             'type': 'respondWithMessage',
             'payload': {'content': 'Hello'},
           },
+        };
+      case 'local_runtime_reference':
+        await _localBot(botID!);
+        final runtime = await getBotRuntimeEngine(botID);
+        value = {
+          'runtime_engine': runtime,
+          if (runtime != runtimeEngineJavascript)
+            'reference': bdfdRuntimeReference()
+          else
+            'message':
+                'This bundled reference describes the BDFD runtime only. Use JavaScript documentation for this bot.',
         };
       case 'local_validate_bdfd':
         final validation = validateCopilotBdfd(script!);

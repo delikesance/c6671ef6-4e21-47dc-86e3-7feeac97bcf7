@@ -12707,7 +12707,7 @@
   "ai_credits_next": "Next",
   "copilot_title": "AI copilot",
   "copilot_compact_label": "AI",
-  "copilot_err_tool_round_limit": "The eight-step AI limit was reached. Send a new instruction to continue.",
+  "copilot_err_tool_round_limit": "The AI repeated the same actions without new information. Send an instruction to try another approach.",
   "copilot_err_context_limit": "Context too long. Continue in a new conversation with a summary.",
   "copilot_err_spending_blocked": "AI spending is blocked for this account.",
   "copilot_err_revision_conflict": "The conversation changed on another device. Refresh it.",
