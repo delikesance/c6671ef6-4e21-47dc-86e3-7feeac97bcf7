@@ -12,6 +12,22 @@ void main() {
   final create = tools.singleWhere((t) => t['name'] == 'local_create_command');
   Map<String, dynamic> copy(Map source) =>
       Map<String, dynamic>.from(jsonDecode(jsonEncode(source)) as Map);
+  test('scoped defaults remain available against an older server', () {
+    final variable = tools.singleWhere(
+      (t) => t['name'] == 'local_set_variable',
+    );
+    final old = copy(variable);
+    (old['inputSchema']['properties']['scope']['enum'] as List).remove(
+      'guildMember',
+    );
+    expect(negotiateCopilotTools([variable], [old]), hasLength(1));
+    expect(copilotToolCompatible(old, variable), false);
+    final unknown = copy(variable);
+    (unknown['inputSchema']['properties']['scope']['enum'] as List).add(
+      'unknown',
+    );
+    expect(copilotToolCompatible(variable, unknown), false);
+  });
   test(
     'older manager still exposes command creation without its newer optional options',
     () {

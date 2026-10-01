@@ -760,6 +760,42 @@ void main() {
     },
   );
 
+  test(
+    'runtime reference and approved guild-member defaults support BDFD XP',
+    () async {
+      api.synced = true;
+      final reference = await call('local_runtime_reference', {});
+      expect(reference['runtime_engine'], 'dart');
+      final example = reference['reference']['examples']['guild_xp'];
+      for (final variable in example['variables'] as List) {
+        final config = await call('local_get_bot_configuration', {});
+        final saved = await call('local_set_variable', {
+          ...Map<String, dynamic>.from(variable as Map),
+          'expected_revision': config['revisions']['variables'],
+        });
+        expect(saved['saved'], true);
+        expect(saved['runner_synced'], true);
+      }
+      final definitions = await AppManager().getScopedVariableDefinitions(
+        botId,
+      );
+      expect(
+        definitions.where((d) => d['scope'] == 'guildMember'),
+        hasLength(2),
+      );
+      for (final kind in ['workflow', 'command']) {
+        final source = example[kind]['script'] as String;
+        final validation = await bridge.call('local_validate_bdfd', {
+          'script': source,
+        }, callID: 'xp-validate-$kind');
+        final result =
+            jsonDecode(validation['content'].single['text'] as String) as Map;
+        expect(result['valid'], true, reason: '$result');
+        expect(result['runtime_tested'], false);
+      }
+    },
+  );
+
   test('presence persists with revision and cloud confirmation', () async {
     api.synced = true;
     final before = await call('local_get_bot_presence', {});

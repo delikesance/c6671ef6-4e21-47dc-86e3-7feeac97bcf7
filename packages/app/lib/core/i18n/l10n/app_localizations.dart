@@ -18268,7 +18268,7 @@ abstract class AppLocalizations {
   /// No description provided for @copilot_err_tool_round_limit.
   ///
   /// In en, this message translates to:
-  /// **'The eight-step AI limit was reached. Send a new instruction to continue.'**
+  /// **'The AI repeated the same actions without new information. Send an instruction to try another approach.'**
   String get copilot_err_tool_round_limit;
 
   /// No description provided for @copilot_err_context_limit.

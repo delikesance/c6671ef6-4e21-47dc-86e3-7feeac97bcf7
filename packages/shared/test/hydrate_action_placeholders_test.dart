@@ -1,21 +1,64 @@
 import 'package:bot_creator_shared/bot/bot_data_store.dart';
+import 'package:bot_creator_shared/types/action.dart';
 import 'package:bot_creator_shared/utils/runtime_variables.dart';
 import 'package:bot_creator_shared/utils/template_resolver.dart';
 import 'package:test/test.dart';
 
 void main() {
   group('hydrateActionPlaceholders', () {
+    test(
+      'previews lookup targets without applying temporary assignments',
+      () async {
+        final variables = <String, String>{
+          'temp.xp': '120',
+          'author.id': '123',
+        };
+        final fetched = <String>[];
+        await hydrateActionPlaceholders(
+          store: _FakeBotDataStore(
+            globalVariables: const {},
+            scopedVariables: const {},
+          ),
+          botId: 'bot-1',
+          variables: variables,
+          actions: [
+            Action(
+              type: BotCreatorActionType.setTemporaryVariable,
+              payload: {'key': 'xp', 'value': '((sub[((temp.xp));100]))'},
+            ),
+            Action(
+              type: BotCreatorActionType.setTemporaryVariable,
+              payload: {'key': 'target', 'value': '((author.id))'},
+            ),
+            Action(
+              type: BotCreatorActionType.respondWithMessage,
+              payload: {'content': '((user[((temp.target))].username))'},
+            ),
+          ],
+          discordFetcher: (scope, id, vars) async {
+            fetched.add('$scope:$id');
+            vars['user[$id].username'] = 'Fixture user';
+          },
+        );
+        expect(
+          variables['temp.xp'],
+          '120',
+          reason: 'the subtraction must run only in the executor',
+        );
+        expect(variables.containsKey('temp.target'), false);
+        expect(fetched, contains('user:123'));
+        expect(variables['user[123].username'], 'Fixture user');
+      },
+    );
     test('correctly identifies fallback and nested placeholders', () async {
       final variables = <String, String>{};
       final actions = [
         {
           'payload': {
             'content': '((member[123].displayName|user[123].displayName))',
-            'embed': {
-              'description': '((tolowercase(user[456].username)))'
-            }
-          }
-        }
+            'embed': {'description': '((tolowercase(user[456].username)))'},
+          },
+        },
       ];
 
       final hydrated = <String>[];
@@ -52,9 +95,9 @@ void main() {
       final actions = [
         {
           'payload': {
-            'content': '((member[123].displayName|user[123].displayName))'
-          }
-        }
+            'content': '((member[123].displayName|user[123].displayName))',
+          },
+        },
       ];
 
       final hydrated = <String>[];
@@ -96,57 +139,61 @@ void main() {
       expect(resolved, 'Resolved user');
     });
 
-    test('correctly identifies getMessage, getReactions, and emoji placeholders', () async {
-      final variables = <String, String>{};
-      final actions = [
-        {
-          'payload': {
-            'content': 'Msg: ((getMessage[111;222].content)) count: ((getReactions[111;222;👍])) emoji: ((emoji[smile]))'
+    test(
+      'correctly identifies getMessage, getReactions, and emoji placeholders',
+      () async {
+        final variables = <String, String>{};
+        final actions = [
+          {
+            'payload': {
+              'content':
+                  'Msg: ((getMessage[111;222].content)) count: ((getReactions[111;222;👍])) emoji: ((emoji[smile]))',
+            },
+          },
+        ];
+
+        final hydrated = <String>[];
+
+        Future<void> mockDiscordFetcher(
+          String scope,
+          String contextId,
+          Map<String, String> vars,
+        ) async {
+          hydrated.add('$scope[$contextId]');
+          if (scope == 'getMessage' || scope == 'getmessage') {
+            vars['getMessage[111;222].content'] = 'Hello World';
+          } else if (scope == 'getReactions' || scope == 'getreactions') {
+            vars['getReactions[111;222;👍]'] = '5';
+          } else if (scope == 'emoji') {
+            vars['emoji[smile]'] = '<:smile:777>';
           }
         }
-      ];
 
-      final hydrated = <String>[];
+        final store = _FakeBotDataStore(
+          globalVariables: const {},
+          scopedVariables: const {},
+        );
 
-      Future<void> mockDiscordFetcher(
-        String scope,
-        String contextId,
-        Map<String, String> vars,
-      ) async {
-        hydrated.add('$scope[$contextId]');
-        if (scope == 'getMessage' || scope == 'getmessage') {
-          vars['getMessage[111;222].content'] = 'Hello World';
-        } else if (scope == 'getReactions' || scope == 'getreactions') {
-          vars['getReactions[111;222;👍]'] = '5';
-        } else if (scope == 'emoji') {
-          vars['emoji[smile]'] = '<:smile:777>';
-        }
-      }
+        await hydrateActionPlaceholders(
+          store: store,
+          botId: 'bot-1',
+          actions: actions,
+          variables: variables,
+          discordFetcher: mockDiscordFetcher,
+        );
 
-      final store = _FakeBotDataStore(
-        globalVariables: const {},
-        scopedVariables: const {},
-      );
+        expect(hydrated, contains('getMessage[111;222]'));
+        expect(hydrated, contains('getReactions[111;222;👍]'));
+        expect(hydrated, contains('emoji[smile]'));
+        expect(hydrated.length, 3);
 
-      await hydrateActionPlaceholders(
-        store: store,
-        botId: 'bot-1',
-        actions: actions,
-        variables: variables,
-        discordFetcher: mockDiscordFetcher,
-      );
-
-      expect(hydrated, contains('getMessage[111;222]'));
-      expect(hydrated, contains('getReactions[111;222;👍]'));
-      expect(hydrated, contains('emoji[smile]'));
-      expect(hydrated.length, 3);
-
-      final resolved = resolveTemplatePlaceholders(
-        'Msg: ((getMessage[111;222].content)) count: ((getReactions[111;222;👍])) emoji: ((emoji[smile]))',
-        variables,
-      );
-      expect(resolved, 'Msg: Hello World count: 5 emoji: <:smile:777>');
-    });
+        final resolved = resolveTemplatePlaceholders(
+          'Msg: ((getMessage[111;222].content)) count: ((getReactions[111;222;👍])) emoji: ((emoji[smile]))',
+          variables,
+        );
+        expect(resolved, 'Msg: Hello World count: 5 emoji: <:smile:777>');
+      },
+    );
   });
 }
 
@@ -365,22 +412,33 @@ class _FakeBotDataStore implements BotDataStore {
   }
 
   @override
-  Future<Map<String, dynamic>> getApp(String botId) async => throw UnsupportedError('Not used');
+  Future<Map<String, dynamic>> getApp(String botId) async =>
+      throw UnsupportedError('Not used');
 
   @override
-  Future<List<Map<String, dynamic>>> getWorkflows(String botId) async => throw UnsupportedError('Not used');
+  Future<List<Map<String, dynamic>>> getWorkflows(String botId) async =>
+      throw UnsupportedError('Not used');
 
   @override
-  Future<List<Map<String, dynamic>>> listAppCommands(String botId, {bool forceRefresh = false}) async => throw UnsupportedError('Not used');
+  Future<List<Map<String, dynamic>>> listAppCommands(
+    String botId, {
+    bool forceRefresh = false,
+  }) async => throw UnsupportedError('Not used');
 
   @override
-  Future<void> saveAppCommand(String botId, String commandId, Map<String, dynamic> data) async => throw UnsupportedError('Not used');
+  Future<void> saveAppCommand(
+    String botId,
+    String commandId,
+    Map<String, dynamic> data,
+  ) async => throw UnsupportedError('Not used');
 
   @override
-  Future<void> updateGuildCount(String botId, int count) async => throw UnsupportedError('Not used');
+  Future<void> updateGuildCount(String botId, int count) async =>
+      throw UnsupportedError('Not used');
 
   @override
-  Future<void> recordCommandExecution(String botId, String commandName) async => throw UnsupportedError('Not used');
+  Future<void> recordCommandExecution(String botId, String commandName) async =>
+      throw UnsupportedError('Not used');
 
   @override
   Map<String, dynamic> normalizeCommandData(Map<String, dynamic> raw) => raw;

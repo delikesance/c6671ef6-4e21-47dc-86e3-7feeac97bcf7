@@ -10791,7 +10791,7 @@
   "ai_credits_next": "Weiter",
   "copilot_title": "KI-Copilot",
   "copilot_compact_label": "KI",
-  "copilot_err_tool_round_limit": "Das Limit von acht KI-Schritten wurde erreicht. Senden Sie eine neue Anweisung, um fortzufahren.",
+  "copilot_err_tool_round_limit": "Die KI hat dieselben Aktionen ohne neue Informationen wiederholt. Senden Sie eine Anweisung für einen anderen Ansatz.",
   "copilot_err_context_limit": "Kontext zu lang. Setzen Sie die Unterhaltung mit einer Zusammenfassung in einem neuen Chat fort.",
   "copilot_err_spending_blocked": "KI-Ausgaben sind für dieses Konto blockiert.",
   "copilot_err_revision_conflict": "Die Unterhaltung wurde auf einem anderen Gerät geändert. Aktualisieren Sie sie.",

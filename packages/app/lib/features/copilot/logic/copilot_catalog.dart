@@ -33,9 +33,31 @@ bool copilotToolCompatible(Map local, Map remote) {
   return serverProperties.entries.every(
     (e) =>
         clientProperties.containsKey(e.key) &&
-        HashUtil.calculateHash(e.value) ==
-            HashUtil.calculateHash(clientProperties[e.key]),
+        _propertyCompatible(clientProperties[e.key], e.value),
   );
+}
+
+bool _propertyCompatible(dynamic local, dynamic remote) {
+  if (HashUtil.calculateHash(local) == HashUtil.calculateHash(remote)) {
+    return true;
+  }
+  if (local is! Map || remote is! Map) return false;
+  final localChoices = local['enum'];
+  final remoteChoices = remote['enum'];
+  if (localChoices is! List || remoteChoices is! List) return false;
+  // An older server may offer fewer enum values. Every value it can supply
+  // must remain supported by this client; never accept the reverse widening.
+  final localRest = Map.of(local)..remove('enum');
+  final remoteRest = Map.of(remote)..remove('enum');
+  return HashUtil.calculateHash(localRest) ==
+          HashUtil.calculateHash(remoteRest) &&
+      remoteChoices.every(
+        (choice) => localChoices.any(
+          (supported) =>
+              HashUtil.calculateHash(choice) ==
+              HashUtil.calculateHash(supported),
+        ),
+      );
 }
 
 List<Map<String, dynamic>> negotiateCopilotTools(

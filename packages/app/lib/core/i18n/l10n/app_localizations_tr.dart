@@ -10661,7 +10661,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get copilot_err_tool_round_limit =>
-      'Sekiz adımlı yapay zeka sınırına ulaşıldı. Devam etmek için yeni bir talimat gönderin.';
+      'Yapay zeka yeni bilgi edinmeden aynı işlemleri tekrarladı. Başka bir yaklaşım denemek için talimat gönderin.';
 
   @override
   String get copilot_err_context_limit =>

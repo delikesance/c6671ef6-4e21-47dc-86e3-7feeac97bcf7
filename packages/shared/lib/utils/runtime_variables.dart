@@ -433,6 +433,9 @@ Future<void> hydrateActionPlaceholders({
   final scopedContextsToFetch = <(String scope, String contextId)>{};
   final discordContextsToFetch = <(String scope, String contextId)>{};
   final activeHydratedActions = hydratedActions ?? <dynamic>{};
+  // Resolve future lookup targets on a preview. Hydration must never apply a
+  // temporary-variable assignment: the executor will apply it exactly once.
+  final previewVariables = Map<String, String>.of(variables);
 
   void scan(dynamic obj) {
     if (obj == null) return;
@@ -465,7 +468,10 @@ Future<void> hydrateActionPlaceholders({
         // Resolve any remaining ((...)) in the contextId (e.g. when
         // the ID was a bare placeholder like user[(("author.id"))].username).
         if (contextId.contains('((')) {
-          contextId = resolveTemplatePlaceholders(contextId, variables).trim();
+          contextId = resolveTemplatePlaceholders(
+            contextId,
+            previewVariables,
+          ).trim();
           if (contextId.isEmpty) continue;
         }
         if (contextId.isNotEmpty &&
@@ -491,7 +497,10 @@ Future<void> hydrateActionPlaceholders({
         final scope = match.$1;
         var contextId = match.$2;
         if (contextId.contains('((')) {
-          contextId = resolveTemplatePlaceholders(contextId, variables).trim();
+          contextId = resolveTemplatePlaceholders(
+            contextId,
+            previewVariables,
+          ).trim();
           if (contextId.isEmpty) continue;
         }
         if (contextId.isNotEmpty) {
@@ -512,7 +521,7 @@ Future<void> hydrateActionPlaceholders({
                   : (raw.contains('Channel') ? 'channel' : 'message'));
         var contextId = match.group(1)!;
         if (contextId.contains('((')) {
-          contextId = resolveTemplatePlaceholders(contextId, variables);
+          contextId = resolveTemplatePlaceholders(contextId, previewVariables);
         }
         if (contextId.isNotEmpty &&
             contextId != 'unknown user' &&
@@ -540,26 +549,29 @@ Future<void> hydrateActionPlaceholders({
     }
   }
 
-  // Pre-populate temporary variables from setTemporaryVariable actions so
-  // downstream references like ((user[((temp.user))].username)) can be hydrated.
+  // Preview temporary variables so downstream references like
+  // ((user[((temp.user))].username)) can be hydrated without changing state.
   for (final action in actions) {
     if (action is Action &&
         action.type == BotCreatorActionType.setTemporaryVariable) {
       final rawKey = (action.payload['key'] ?? '').toString().trim();
       final storageKey = _normalizeScopedStorageKey(rawKey);
       final rawVal = (action.payload['value'] ?? '').toString();
-      final resolvedVal = resolveTemplatePlaceholders(rawVal, variables).trim();
+      final resolvedVal = resolveTemplatePlaceholders(
+        rawVal,
+        previewVariables,
+      ).trim();
       if (storageKey.isNotEmpty && resolvedVal.isNotEmpty) {
-        variables['temp.$storageKey'] = resolvedVal;
+        previewVariables['temp.$storageKey'] = resolvedVal;
         if (rawKey != storageKey) {
-          variables['temp.$rawKey'] = resolvedVal;
+          previewVariables['temp.$rawKey'] = resolvedVal;
         }
       }
     }
   }
 
   // Scan variables first (important for $eval[$message])
-  for (final value in variables.values) {
+  for (final value in previewVariables.values) {
     scan(value);
   }
 

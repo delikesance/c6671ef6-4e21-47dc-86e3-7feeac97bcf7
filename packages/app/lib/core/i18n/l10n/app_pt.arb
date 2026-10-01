@@ -10824,7 +10824,7 @@
   "ai_credits_next": "Próximo",
   "copilot_title": "Copiloto IA",
   "copilot_compact_label": "IA",
-  "copilot_err_tool_round_limit": "O limite de oito etapas da IA foi atingido. Envie uma nova instrução para continuar.",
+  "copilot_err_tool_round_limit": "A IA repetiu as mesmas ações sem novas informações. Envie uma instrução para tentar outra abordagem.",
   "copilot_err_context_limit": "Contexto muito longo. Continue em uma nova conversa com um resumo.",
   "copilot_err_spending_blocked": "Os gastos com IA estão bloqueados para esta conta.",
   "copilot_err_revision_conflict": "A conversa foi alterada em outro dispositivo. Atualize-a.",

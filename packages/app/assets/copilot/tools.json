@@ -11,7 +11,9 @@
           "maxLength": 12000
         }
       },
-      "required": ["script"],
+      "required": [
+        "script"
+      ],
       "additionalProperties": false
     },
     "mutating": false
@@ -220,6 +222,25 @@
       "type": "object",
       "properties": {},
       "required": [],
+      "additionalProperties": false
+    },
+    "mutating": false
+  },
+  {
+    "name": "local_runtime_reference",
+    "description": "Read the target runtime dialect, scoped variable signatures and executable BDFD examples including server/member XP with a messageCreate workflow and /level. Read before authoring BDFD storage/math workflows. Does not run scripts or modify the bot.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "bot_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      },
+      "required": [
+        "bot_id"
+      ],
       "additionalProperties": false
     },
     "mutating": false
@@ -2065,7 +2086,7 @@
   },
   {
     "name": "local_set_variable",
-    "description": "Set a global variable or a scoped default definition. Pass variables section revision. Requires approval.",
+    "description": "Set a global value or declare a scoped default definition (not a particular member value). guildMember isolates each server/member pair. Pass the latest variables section revision; dependent variable writes must use the revision returned by the previous write. Requires approval.",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -2090,7 +2111,8 @@
             "global",
             "user",
             "guild",
-            "channel"
+            "channel",
+            "guildMember"
           ]
         },
         "value": {},

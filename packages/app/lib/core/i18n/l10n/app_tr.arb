@@ -10791,7 +10791,7 @@
   "ai_credits_next": "Sonraki",
   "copilot_title": "Yapay Zeka Yardımcısı",
   "copilot_compact_label": "YZ",
-  "copilot_err_tool_round_limit": "Sekiz adımlı yapay zeka sınırına ulaşıldı. Devam etmek için yeni bir talimat gönderin.",
+  "copilot_err_tool_round_limit": "Yapay zeka yeni bilgi edinmeden aynı işlemleri tekrarladı. Başka bir yaklaşım denemek için talimat gönderin.",
   "copilot_err_context_limit": "Bağlam çok uzun. Bir özet ile yeni bir sohbette devam edin.",
   "copilot_err_spending_blocked": "Bu hesap için yapay zeka harcamaları engellendi.",
   "copilot_err_revision_conflict": "Sohbet başka bir cihazda değişti. Yenileyin.",

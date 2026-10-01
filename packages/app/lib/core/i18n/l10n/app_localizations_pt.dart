@@ -10733,7 +10733,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get copilot_err_tool_round_limit =>
-      'O limite de oito etapas da IA foi atingido. Envie uma nova instrução para continuar.';
+      'A IA repetiu as mesmas ações sem novas informações. Envie uma instrução para tentar outra abordagem.';
 
   @override
   String get copilot_err_context_limit =>
