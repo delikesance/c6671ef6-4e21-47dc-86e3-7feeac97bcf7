@@ -12,6 +12,8 @@ import 'blueprint_node_widget.dart';
 import 'blueprint_inspector_panel.dart';
 import 'blueprint_context_menu.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Full interactive 2D Blueprint Node Graph Canvas for Desktop Bot Creator.
 ///
 /// Features:
@@ -754,7 +756,7 @@ class _BlueprintGraphCanvasState extends State<BlueprintGraphCanvas> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                          icon: const Icon(
+                          icon: const AppIcon.fromMaterial(
                             Icons.zoom_in,
                             color: Colors.white70,
                             size: 20,
@@ -767,7 +769,7 @@ class _BlueprintGraphCanvasState extends State<BlueprintGraphCanvas> {
                           },
                         ),
                         IconButton(
-                          icon: const Icon(
+                          icon: const AppIcon.fromMaterial(
                             Icons.zoom_out,
                             color: Colors.white70,
                             size: 20,
@@ -788,12 +790,13 @@ class _BlueprintGraphCanvasState extends State<BlueprintGraphCanvas> {
                         ),
                         TextButton.icon(
                           onPressed: _centerCanvas,
-                          icon: const Icon(
+                          icon: const AppIcon.fromMaterial(
                             Icons.my_location,
                             color: Colors.cyanAccent,
                             size: 16,
                           ),
-                          label: Text(context.tr.blueprint_origin_label,
+                          label: Text(
+                            context.tr.blueprint_origin_label,
                             style: TextStyle(
                               fontSize: 11,
                               color: Colors.cyanAccent,
@@ -811,12 +814,13 @@ class _BlueprintGraphCanvasState extends State<BlueprintGraphCanvas> {
                           ),
                           TextButton.icon(
                             onPressed: _deleteSelectedConnection,
-                            icon: const Icon(
+                            icon: const AppIcon.fromMaterial(
                               Icons.link_off,
                               color: Colors.redAccent,
                               size: 16,
                             ),
-                            label: Text(context.tr.blueprint_cut_link,
+                            label: Text(
+                              context.tr.blueprint_cut_link,
                               style: TextStyle(
                                 fontSize: 11,
                                 color: Colors.redAccent,
@@ -858,13 +862,14 @@ class _BlueprintGraphCanvasState extends State<BlueprintGraphCanvas> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(
+                              AppIcon.fromMaterial(
                                 Icons.link_off,
                                 size: 14,
                                 color: Colors.white,
                               ),
                               SizedBox(width: 4),
-                              Text(context.tr.menu_cut,
+                              Text(
+                                context.tr.menu_cut,
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 11,

@@ -21,6 +21,8 @@ import 'package:nyxx/nyxx.dart';
 import 'package:uuid/uuid.dart';
 import 'package:bot_creator_shared/types/action.dart';
 import 'package:bot_creator_shared/utils/bdfd_functions.dart';
+import 'package:bot_creator_shared/sandbox/command_sandbox.dart';
+import 'package:bot_creator_shared/sandbox/function_suite.dart';
 import 'package:bot_creator_shared/utils/bdfd_runtime_reference.dart';
 import 'package:bot_creator_shared/utils/event_catalog.dart';
 
@@ -204,6 +206,7 @@ class CopilotMcp {
       case 'local_block_registry':
         value = {
           'functions': allBdfdFunctions.toList()..sort(),
+          'sandbox_functions': sandboxFunctionCatalog(),
           'action_types': BotCreatorActionType.values
               .map((t) => t.name)
               .toList(),
@@ -222,6 +225,31 @@ class CopilotMcp {
           else
             'message':
                 'This bundled reference describes the BDFD runtime only. Use JavaScript documentation for this bot.',
+        };
+      case 'local_test_command':
+        final result = await testCommandInSandbox({
+          ...Map<String, dynamic>.from(args['scenario'] as Map? ?? {}),
+          if (args['script'] != null) 'script': args['script'],
+          if (args['actions'] != null) 'actions': args['actions'],
+        });
+        if (args['expected_content'] != null ||
+            args['expected_values'] != null) {
+          final contract = evaluateSandboxContract(
+            result,
+            expectedContent: args['expected_content'] as String?,
+            expectedValues: Map<String, dynamic>.from(
+              args['expected_values'] as Map? ?? {},
+            ),
+          );
+          result['contract_passed'] = contract['passed'];
+          result['contract_checks'] = contract['checks'];
+        }
+        return {
+          'content': [
+            {'type': 'text', 'text': jsonEncode(result)},
+          ],
+          'isError':
+              result['success'] != true || result['contract_passed'] == false,
         };
       case 'local_validate_bdfd':
         final validation = validateCopilotBdfd(script!);

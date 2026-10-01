@@ -21,6 +21,8 @@ import 'package:bot_creator/features/bot_editor/logic/scoped_variable_orphans.da
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/editor_sub_page_ui.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/scoped_variables_list.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 enum _VariableMode { global, scoped }
 
 enum _VariablesSource { local, runner, manager }
@@ -443,7 +445,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
       builder: (ctx) => AlertDialog(
         title: Row(
           children: [
-            Icon(
+            AppIcon.fromMaterial(
               Icons.public,
               size: 22,
               color: Theme.of(ctx).colorScheme.primary,
@@ -477,7 +479,10 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                 decoration: InputDecoration(
                   labelText: context.tr.globals_key,
                   hintText: context.tr.globals_key_hint,
-                  prefixIcon: const Icon(Icons.vpn_key_outlined, size: 20),
+                  prefixIcon: const AppIcon.fromMaterial(
+                    Icons.vpn_key_outlined,
+                    size: 20,
+                  ),
                   border: const OutlineInputBorder(),
                 ),
               ),
@@ -564,7 +569,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
         builder: (ctx, setInner) => AlertDialog(
           title: Row(
             children: [
-              Icon(
+              AppIcon.fromMaterial(
                 Icons.account_tree_outlined,
                 size: 22,
                 color: Theme.of(ctx).colorScheme.primary,
@@ -605,7 +610,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                           value: s,
                           child: Row(
                             children: [
-                              Icon(
+                              AppIcon.fromMaterial(
                                 scopedVariableScopeIcon(s),
                                 size: 18,
                                 color: Theme.of(
@@ -630,7 +635,10 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                   decoration: InputDecoration(
                     labelText: context.tr.globals_key,
                     hintText: context.tr.globals_key_hint,
-                    prefixIcon: const Icon(Icons.vpn_key_outlined, size: 20),
+                    prefixIcon: const AppIcon.fromMaterial(
+                      Icons.vpn_key_outlined,
+                      size: 20,
+                    ),
                     border: const OutlineInputBorder(),
                   ),
                   onChanged: (_) => setInner(() {}),
@@ -879,7 +887,10 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                       trailing: values.isNotEmpty
                           ? IconButton(
                               tooltip: context.tr.scoped_runtime_copy_all,
-                              icon: const Icon(Icons.copy, size: 20),
+                              icon: const AppIcon.fromMaterial(
+                                Icons.copy,
+                                size: 20,
+                              ),
                               onPressed: () {
                                 Clipboard.setData(
                                   ClipboardData(
@@ -908,7 +919,10 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                         child: TextField(
                           decoration: InputDecoration(
                             hintText: context.tr.scoped_runtime_search,
-                            prefixIcon: const Icon(Icons.search, size: 20),
+                            prefixIcon: const AppIcon.fromMaterial(
+                              Icons.search,
+                              size: 20,
+                            ),
                             isDense: true,
                             border: const OutlineInputBorder(),
                           ),
@@ -1037,7 +1051,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
       child: TextField(
         decoration: InputDecoration(
           hintText: context.tr.globals_search,
-          prefixIcon: const Icon(Icons.search, size: 20),
+          prefixIcon: const AppIcon.fromMaterial(Icons.search, size: 20),
           isDense: true,
           border: const OutlineInputBorder(),
           contentPadding: const EdgeInsets.symmetric(
@@ -1046,7 +1060,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
           ),
           suffixIcon: _searchQuery.isNotEmpty
               ? IconButton(
-                  icon: const Icon(Icons.clear, size: 18),
+                  icon: const AppIcon.fromMaterial(Icons.clear, size: 18),
                   onPressed: () => setState(() => _searchQuery = ''),
                 )
               : null,
@@ -1071,12 +1085,15 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                     ButtonSegment<_VariableMode>(
                       value: _VariableMode.global,
                       label: Text(context.tr.globals_mode_global),
-                      icon: const Icon(Icons.public, size: 18),
+                      icon: const AppIcon.fromMaterial(Icons.public, size: 18),
                     ),
                     ButtonSegment<_VariableMode>(
                       value: _VariableMode.scoped,
                       label: Text(context.tr.globals_mode_scoped),
-                      icon: const Icon(Icons.account_tree_outlined, size: 18),
+                      icon: const AppIcon.fromMaterial(
+                        Icons.account_tree_outlined,
+                        size: 18,
+                      ),
                     ),
                   ],
                   selected: <_VariableMode>{_mode},
@@ -1096,7 +1113,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
           const SizedBox(height: 8),
           Row(
             children: [
-              Icon(
+              AppIcon.fromMaterial(
                 Icons.info_outline,
                 size: 14,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -1129,7 +1146,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
           padding: const EdgeInsets.all(12),
           child: Row(
             children: [
-              const Icon(Icons.error_outline, size: 20),
+              const AppIcon.fromMaterial(Icons.error_outline, size: 20),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -1200,7 +1217,10 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
               PopupMenuItem<String>(
                 value: 'edit',
                 child: ListTile(
-                  leading: const Icon(Icons.edit_outlined, size: 20),
+                  leading: const AppIcon.fromMaterial(
+                    Icons.edit_outlined,
+                    size: 20,
+                  ),
                   title: Text(context.tr.globals_edit),
                   dense: true,
                   contentPadding: EdgeInsets.zero,
@@ -1209,7 +1229,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
               PopupMenuItem<String>(
                 value: 'copy',
                 child: ListTile(
-                  leading: const Icon(Icons.copy, size: 20),
+                  leading: const AppIcon.fromMaterial(Icons.copy, size: 20),
                   title: Text(context.tr.globals_copy_value),
                   dense: true,
                   contentPadding: EdgeInsets.zero,
@@ -1218,7 +1238,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
               PopupMenuItem<String>(
                 value: 'delete',
                 child: ListTile(
-                  leading: Icon(
+                  leading: AppIcon.fromMaterial(
                     Icons.delete_outline,
                     size: 20,
                     color: Theme.of(ctx).colorScheme.error,
@@ -1323,7 +1343,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
             children: [
               Row(
                 children: [
-                  Icon(
+                  AppIcon.fromMaterial(
                     isGlobal ? Icons.public : Icons.account_tree_outlined,
                     size: 18,
                     color: Theme.of(context).colorScheme.primary,
@@ -1337,7 +1357,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                   ),
                   const Spacer(),
                   IconButton(
-                    icon: const Icon(Icons.add, size: 20),
+                    icon: const AppIcon.fromMaterial(Icons.add, size: 20),
                     tooltip: context.tr.globals_add,
                     onPressed: isGlobal
                         ? () => _editGlobalVariable()
@@ -1348,7 +1368,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
               const SizedBox(height: 4),
               Row(
                 children: [
-                  Icon(
+                  AppIcon.fromMaterial(
                     Icons.info_outline,
                     size: 13,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -1387,7 +1407,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
       if (hasManagerSource || _runners.isNotEmpty)
         PopupMenuButton<String>(
           tooltip: _sourceLabel,
-          icon: Icon(switch (_source) {
+          icon: AppIcon.fromMaterial(switch (_source) {
             _VariablesSource.local => Icons.storage_outlined,
             _VariablesSource.runner => Icons.cloud_outlined,
             _VariablesSource.manager => Icons.hub_outlined,
@@ -1396,7 +1416,10 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
             PopupMenuItem<String>(
               value: 'local',
               child: ListTile(
-                leading: const Icon(Icons.storage_outlined, size: 20),
+                leading: const AppIcon.fromMaterial(
+                  Icons.storage_outlined,
+                  size: 20,
+                ),
                 title: Text(context.tr.globals_source_local),
                 dense: true,
                 contentPadding: EdgeInsets.zero,
@@ -1408,7 +1431,10 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
               PopupMenuItem<String>(
                 value: 'manager',
                 child: ListTile(
-                  leading: const Icon(Icons.hub_outlined, size: 20),
+                  leading: const AppIcon.fromMaterial(
+                    Icons.hub_outlined,
+                    size: 20,
+                  ),
                   title: Text(context.tr.app_title),
                   subtitle: (_managerDetailLabel?.trim().isNotEmpty ?? false)
                       ? Text(
@@ -1429,7 +1455,10 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                 (runner) => PopupMenuItem<String>(
                   value: runner.id,
                   child: ListTile(
-                    leading: const Icon(Icons.cloud_outlined, size: 20),
+                    leading: const AppIcon.fromMaterial(
+                      Icons.cloud_outlined,
+                      size: 20,
+                    ),
                     title: Text(
                       context.tr.globals_source_runner(runner.name ?? '?'),
                     ),
@@ -1446,12 +1475,12 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
         tooltip: context.tr.globals_add,
         onPressed: () =>
             _isScopedMode ? _editScopedDefinition() : _editGlobalVariable(),
-        icon: const Icon(Icons.add_rounded),
+        icon: const AppIcon.fromMaterial(Icons.add_rounded),
       ),
       IconButton(
         tooltip: context.tr.globals_refresh,
         onPressed: _load,
-        icon: const Icon(Icons.refresh),
+        icon: const AppIcon.fromMaterial(Icons.refresh),
       ),
     ];
 

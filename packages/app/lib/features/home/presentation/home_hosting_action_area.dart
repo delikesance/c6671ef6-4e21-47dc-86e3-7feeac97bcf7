@@ -4,6 +4,8 @@ import 'package:bot_creator/features/home/logic/hosting_time_offer.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Bas de la carte « temps total » d'hébergement : ce que l'écran a le DROIT
 /// d'offrir à l'utilisateur.
 ///
@@ -42,10 +44,7 @@ class HomeHostingActionArea extends StatelessWidget {
       ),
       HostingTimeOffer.addTime => Padding(
         padding: const EdgeInsets.only(top: 16),
-        child: _AddTimeButton(
-          onAddTime: onAddTime,
-          isAddingTime: isAddingTime,
-        ),
+        child: _AddTimeButton(onAddTime: onAddTime, isAddingTime: isAddingTime),
       ),
     };
   }
@@ -70,7 +69,11 @@ class _MobileAdsExplanation extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(Icons.info_outline_rounded, size: 16, color: muted),
+        AppIcon.fromMaterial(
+          Icons.info_outline_rounded,
+          size: 16,
+          color: muted,
+        ),
         const SizedBox(width: 8),
         Expanded(
           child: Text(
@@ -107,7 +110,7 @@ class _AddTimeButton extends StatelessWidget {
                 height: 16,
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
-            : const Icon(Icons.add_rounded, size: 18),
+            : const AppIcon.fromMaterial(Icons.add_rounded, size: 18),
         label: Text(context.tr.home_add_time),
         style: FilledButton.styleFrom(
           minimumSize: const Size.fromHeight(48),

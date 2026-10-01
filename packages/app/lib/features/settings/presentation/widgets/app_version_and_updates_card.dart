@@ -5,6 +5,8 @@ import 'package:bot_creator/features/app_update/logic/app_update_service.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Version de l'APPLICATION et mises à jour.
 ///
 /// Pourquoi ces deux cartes ne vivent plus dans les réglages d'un bot : elles ne
@@ -146,17 +148,15 @@ class _AppVersionAndUpdatesCardState extends State<AppVersionAndUpdatesCard> {
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    const Icon(Icons.phone_android, size: 18),
+                    const AppIcon.fromMaterial(Icons.phone_android, size: 18),
                     const SizedBox(width: 8),
-                    Text(
-                      context.tr.settings_app_version_value(_appVersion),
-                    ),
+                    Text(context.tr.settings_app_version_value(_appVersion)),
                   ],
                 ),
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    const Icon(Icons.dns_outlined, size: 18),
+                    const AppIcon.fromMaterial(Icons.dns_outlined, size: 18),
                     const SizedBox(width: 8),
                     Text(
                       context.tr.settings_runner_version_value(
@@ -191,7 +191,10 @@ class _AppVersionAndUpdatesCardState extends State<AppVersionAndUpdatesCard> {
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    const Icon(Icons.system_update_alt, size: 18),
+                    const AppIcon.fromMaterial(
+                      Icons.system_update_alt,
+                      size: 18,
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -221,7 +224,7 @@ class _AppVersionAndUpdatesCardState extends State<AppVersionAndUpdatesCard> {
                             height: 18,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : const Icon(Icons.refresh),
+                        : const AppIcon.fromMaterial(Icons.refresh),
                     label: Text(
                       _isCheckingUpdate
                           ? context.tr.settings_app_update_checking
@@ -236,7 +239,9 @@ class _AppVersionAndUpdatesCardState extends State<AppVersionAndUpdatesCard> {
                       width: double.infinity,
                       child: FilledButton.icon(
                         onPressed: _launchAppUpdate,
-                        icon: const Icon(Icons.download_for_offline),
+                        icon: const AppIcon.fromMaterial(
+                          Icons.download_for_offline,
+                        ),
                         label: Text(context.tr.app_update_update_now),
                       ),
                     ),
@@ -250,7 +255,7 @@ class _AppVersionAndUpdatesCardState extends State<AppVersionAndUpdatesCard> {
                       width: double.infinity,
                       child: OutlinedButton.icon(
                         onPressed: _openStoreListing,
-                        icon: const Icon(Icons.open_in_new),
+                        icon: const AppIcon.fromMaterial(Icons.open_in_new),
                         label: Text(context.tr.settings_app_update_open_store),
                       ),
                     ),

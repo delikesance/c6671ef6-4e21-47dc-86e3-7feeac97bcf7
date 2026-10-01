@@ -4,6 +4,8 @@ import 'package:bot_creator_shared/types/action.dart' show BotCreatorActionType;
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder/action_type_extension.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/scratch_block_palette.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Context menu popup inspired by Unreal Engine's Blueprint "Spawn Action" search.
 class BlueprintContextMenu extends StatefulWidget {
   final Offset position;
@@ -86,13 +88,13 @@ class _BlueprintContextMenuState extends State<BlueprintContextMenu> {
                       color: Colors.white38,
                       fontSize: 12,
                     ),
-                    prefixIcon: const Icon(
+                    prefixIcon: const AppIcon.fromMaterial(
                       Icons.search,
                       color: Colors.cyanAccent,
                       size: 18,
                     ),
                     suffixIcon: IconButton(
-                      icon: const Icon(
+                      icon: const AppIcon.fromMaterial(
                         Icons.close,
                         color: Colors.white38,
                         size: 16,
@@ -138,7 +140,11 @@ class _BlueprintContextMenuState extends State<BlueprintContextMenu> {
                         ),
                         child: Row(
                           children: [
-                            Icon(type.icon, size: 16, color: color),
+                            AppIcon.fromMaterial(
+                              type.icon,
+                              size: 16,
+                              color: color,
+                            ),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(

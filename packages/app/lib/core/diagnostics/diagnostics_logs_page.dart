@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 class DiagnosticsLogsPage extends StatefulWidget {
   const DiagnosticsLogsPage({super.key});
 
@@ -118,24 +120,23 @@ class _DiagnosticsLogsPageState extends State<DiagnosticsLogsPage> {
                 children: [
                   OutlinedButton.icon(
                     onPressed: _loading ? null : _loadLogs,
-                    icon: const Icon(Icons.refresh),
+                    icon: const AppIcon.fromMaterial(Icons.refresh),
                     label: Text(context.tr.settings_diagnostics_refresh),
                   ),
                   OutlinedButton.icon(
                     onPressed: _copying ? null : _copyAll,
-                    icon:
-                        _copying
-                            ? const SizedBox(
-                              width: 14,
-                              height: 14,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                            : const Icon(Icons.copy_all),
+                    icon: _copying
+                        ? const SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const AppIcon.fromMaterial(Icons.copy_all),
                     label: Text(context.tr.settings_diagnostics_copy_all),
                   ),
                   OutlinedButton.icon(
                     onPressed: _loading ? null : _clearAndReload,
-                    icon: const Icon(Icons.delete_outline),
+                    icon: const AppIcon.fromMaterial(Icons.delete_outline),
                     label: Text(context.tr.settings_clear_logs),
                   ),
                 ],
@@ -149,18 +150,17 @@ class _DiagnosticsLogsPageState extends State<DiagnosticsLogsPage> {
                     ),
                     borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                   ),
-                  child:
-                      _loading
-                          ? const Center(child: CircularProgressIndicator())
-                          : SingleChildScrollView(
-                            padding: const EdgeInsets.all(12),
-                            child: SelectableText(
-                              _logs.trim().isEmpty
-                                  ? context.tr.settings_diagnostics_empty
-                                  : _logs,
-                              style: bodyStyle,
-                            ),
+                  child: _loading
+                      ? const Center(child: CircularProgressIndicator())
+                      : SingleChildScrollView(
+                          padding: const EdgeInsets.all(12),
+                          child: SelectableText(
+                            _logs.trim().isEmpty
+                                ? context.tr.settings_diagnostics_empty
+                                : _logs,
+                            style: bodyStyle,
                           ),
+                        ),
                 ),
               ),
             ],

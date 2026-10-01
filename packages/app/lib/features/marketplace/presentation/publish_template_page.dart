@@ -4,6 +4,8 @@ import 'package:bot_creator/main.dart';
 import 'package:bot_creator_shared/bot/marketplace_template.dart';
 import 'package:flutter/material.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Publish flow: select commands + workflows + variables, add metadata, publish.
 /// When [existingTemplate] is provided, the page operates in edit mode (pre-filled fields, PUT on publish).
 class PublishTemplatePage extends StatefulWidget {
@@ -214,7 +216,7 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
           if (commands.isNotEmpty) ...[
             Row(
               children: [
-                const Icon(Icons.arrow_forward, size: 20),
+                const AppIcon.fromMaterial(Icons.arrow_forward, size: 20),
                 const SizedBox(width: 8),
                 Text(
                   tr.marketplace_publish_commands(commands.length.toString()),
@@ -276,7 +278,7 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
           if (workflows.isNotEmpty) ...[
             Row(
               children: [
-                const Icon(Icons.account_tree, size: 20),
+                const AppIcon.fromMaterial(Icons.account_tree, size: 20),
                 const SizedBox(width: 8),
                 Text(
                   tr.marketplace_publish_workflows(workflows.length.toString()),
@@ -453,7 +455,7 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
           const SizedBox(height: 16),
           OutlinedButton.icon(
             onPressed: () => _showAddVariableDialog(),
-            icon: const Icon(Icons.add),
+            icon: const AppIcon.fromMaterial(Icons.add),
             label: Text(tr.marketplace_publish_add_variable),
           ),
         ],
@@ -710,7 +712,7 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
       padding: const EdgeInsets.only(bottom: 6),
       child: Row(
         children: [
-          Icon(icon, size: 16),
+          AppIcon.fromMaterial(icon, size: 16),
           const SizedBox(width: 8),
           Text(text, style: Theme.of(context).textTheme.bodyMedium),
         ],
@@ -750,7 +752,7 @@ class _PublishTemplatePageState extends State<PublishTemplatePage> {
                           color: Colors.white,
                         ),
                       )
-                    : const Icon(Icons.cloud_upload),
+                    : const AppIcon.fromMaterial(Icons.cloud_upload),
                 label: Text(
                   _publishing
                       ? tr.marketplace_publishing

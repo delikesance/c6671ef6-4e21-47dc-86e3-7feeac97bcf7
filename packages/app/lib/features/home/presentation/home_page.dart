@@ -74,6 +74,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:nyxx/nyxx.dart' hide Locale, Logger;
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Détecte si un nom de bot masque son identité réelle (vide, 'Unnamed Bot',
 /// 'Unknown App', égal à son identifiant snowflake, ou composé uniquement de chiffres).
 bool botNameHidesIdentity(String? name, String botId) {
@@ -3802,7 +3804,7 @@ class HomePageState extends State<HomePage>
       ),
       child: Row(
         children: [
-          Icon(icon, color: scheme.onSurfaceVariant),
+          AppIcon.fromMaterial(icon, color: scheme.onSurfaceVariant),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -4309,7 +4311,7 @@ class HomeBotCardState extends State<HomeBotCard> {
                         pulseController: widget.pulseController,
                       ),
                       const SizedBox(width: 10),
-                      Icon(
+                      AppIcon.fromMaterial(
                         _expanded
                             ? Icons.keyboard_arrow_up_rounded
                             : Icons.keyboard_arrow_down_rounded,
@@ -4356,7 +4358,11 @@ class _SharedBotBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.groups, size: 11, color: AppTheme.discord),
+          const AppIcon.fromMaterial(
+            Icons.groups,
+            size: 11,
+            color: AppTheme.discord,
+          ),
           const SizedBox(width: 4),
           Text(
             context.tr.team_tab_short,
@@ -4403,7 +4409,11 @@ class _InfoChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 13, color: badge ? tokens.dataAccent : tokens.muted),
+          AppIcon.fromMaterial(
+            icon,
+            size: 13,
+            color: badge ? tokens.dataAccent : tokens.muted,
+          ),
           const SizedBox(width: 5),
           Flexible(
             child: RichText(
@@ -4449,7 +4459,7 @@ class _EmptyStateWithSupport extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
+          AppIcon.fromMaterial(
             Icons.smart_toy_outlined,
             size: 64,
             color: scheme.onSurfaceVariant.withValues(alpha: 0.4),
@@ -4475,7 +4485,7 @@ class _EmptyStateWithSupport extends StatelessWidget {
           const SizedBox(height: 12),
           FilledButton.icon(
             onPressed: _openDiscord,
-            icon: const Icon(Icons.forum_rounded, size: 18),
+            icon: const AppIcon.fromMaterial(Icons.forum_rounded, size: 18),
             label: Text(context.tr.home_empty_support_btn),
             style: FilledButton.styleFrom(
               backgroundColor: _discordColor,
@@ -4527,7 +4537,7 @@ class CreateBotCard extends StatelessWidget {
                       color: avatarFill,
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(
+                    child: AppIcon.fromMaterial(
                       Icons.add_rounded,
                       size: 26,
                       color: avatarIconColor,
@@ -4559,7 +4569,7 @@ class CreateBotCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Icon(
+                  AppIcon.fromMaterial(
                     Icons.chevron_right_rounded,
                     size: 18,
                     color: isDark

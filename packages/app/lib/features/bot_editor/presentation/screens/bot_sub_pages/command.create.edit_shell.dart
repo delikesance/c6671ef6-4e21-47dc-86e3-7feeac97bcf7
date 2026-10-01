@@ -314,7 +314,7 @@ class _EditSummaryCard extends StatelessWidget {
 
             final saveButton = FilledButton.icon(
               onPressed: onSave,
-              icon: const Icon(Icons.save_outlined),
+              icon: const AppIcon.fromMaterial(Icons.save_outlined),
               label: Text(saveLabel),
             );
 
@@ -359,7 +359,7 @@ class _EditSummaryBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: colorScheme.primary),
+          AppIcon.fromMaterial(icon, size: 14, color: colorScheme.primary),
           const SizedBox(width: 6),
           Text(
             label,

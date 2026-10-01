@@ -6,8 +6,24 @@ import 'package:bot_creator_shared/utils/template_resolver.dart';
 import 'package:nyxx/nyxx.dart';
 
 import '../../types/action.dart';
+import '../../utils/runtime_access_checks.dart';
 import 'control_flow_executor.dart';
 import 'image_executor.dart';
+
+Set<String> _temporaryVariableNames(Map<String, String> variables) {
+  try {
+    return (jsonDecode(variables['__variables.tempNames'] ?? '[]') as List)
+        .map((name) => name.toString().toLowerCase())
+        .toSet();
+  } catch (_) {
+    return <String>{};
+  }
+}
+
+String _temporaryAliasName(String key) {
+  final name = key.substring(5).toLowerCase();
+  return name.startsWith('bc_') ? name.substring(3) : name;
+}
 
 const _supportedVariableScopes = <String>{
   'guild',
@@ -80,7 +96,8 @@ Future<void> _ensureScopedDefinitionExists({
       return false;
     }
     try {
-      return _scopedStorageKey(entryKeyRaw).toLowerCase() == storageKey.toLowerCase();
+      return _scopedStorageKey(entryKeyRaw).toLowerCase() ==
+          storageKey.toLowerCase();
     } catch (_) {
       return false;
     }
@@ -102,11 +119,14 @@ dynamic _resolveVariableValuePayload(
   Map<String, dynamic> payload,
   String Function(String input) resolveValue,
 ) {
-  final valueType =
-      (payload['valueType'] ?? '').toString().trim().toLowerCase();
+  final valueType = (payload['valueType'] ?? '')
+      .toString()
+      .trim()
+      .toLowerCase();
   if (valueType == 'number') {
-    final rawNumber =
-        resolveValue((payload['numberValue'] ?? '').toString()).trim();
+    final rawNumber = resolveValue(
+      (payload['numberValue'] ?? '').toString(),
+    ).trim();
     final number = num.tryParse(rawNumber);
     if (number == null) {
       throw Exception(
@@ -125,10 +145,9 @@ dynamic _resolveVariableValuePayload(
   }
 
   if (valueType == 'boolean' || valueType == 'bool') {
-    final rawBool =
-        resolveValue(
-          (payload['boolValue'] ?? '').toString(),
-        ).trim().toLowerCase();
+    final rawBool = resolveValue(
+      (payload['boolValue'] ?? '').toString(),
+    ).trim().toLowerCase();
     if (rawBool == 'true') {
       return true;
     }
@@ -141,8 +160,9 @@ dynamic _resolveVariableValuePayload(
   }
 
   if (valueType == 'json') {
-    final rawJson =
-        resolveValue((payload['jsonValue'] ?? '').toString()).trim();
+    final rawJson = resolveValue(
+      (payload['jsonValue'] ?? '').toString(),
+    ).trim();
     if (rawJson.isEmpty) {
       throw Exception('jsonValue is required when valueType=json');
     }
@@ -153,8 +173,9 @@ dynamic _resolveVariableValuePayload(
     }
   }
 
-  final rawValue =
-      payload.containsKey('value') ? payload['value'] : payload['element'];
+  final rawValue = payload.containsKey('value')
+      ? payload['value']
+      : payload['element'];
   return resolveValue((rawValue ?? '').toString());
 }
 
@@ -171,10 +192,9 @@ _resolveRuntimeVariableWriteValue({
   required Map<String, String> variables,
   required Map<String, String> results,
 }) {
-  final rawValueSource =
-      payload.containsKey('value')
-          ? (payload['value'] ?? '').toString()
-          : (payload['element'] ?? '').toString();
+  final rawValueSource = payload.containsKey('value')
+      ? (payload['value'] ?? '').toString()
+      : (payload['element'] ?? '').toString();
   dynamic value = _resolveVariableValuePayload(payload, resolveValue);
   final resolvedByResolver = value is String ? value : value.toString();
   var fallbackResolved = '';
@@ -290,7 +310,10 @@ String _lookupMergedContextValue(
 
   // Check if it's a dynamic dataUrl lookup
   if (requestedKeyLower.endsWith('.dataurl')) {
-    final baseKey = requestedKey.substring(0, requestedKey.length - '.dataurl'.length);
+    final baseKey = requestedKey.substring(
+      0,
+      requestedKey.length - '.dataurl'.length,
+    );
     final baseKeyLower = baseKey.toLowerCase();
     for (final entry in mergedContext.entries) {
       if (entry.key.toLowerCase() == baseKeyLower) {
@@ -319,14 +342,13 @@ String _lookupMergedContextValue(
   ).firstMatch(requestedKey);
   if (aliasMatch != null) {
     final suffix = aliasMatch.group(2) ?? '';
-    final actionKeyPattern =
-        suffix.isEmpty
-            ? RegExp(r'^action_\d+$', caseSensitive: false)
-            : RegExp(
-              '^action_\\d+${RegExp.escape(suffix)}'
-              r'$',
-              caseSensitive: false,
-            );
+    final actionKeyPattern = suffix.isEmpty
+        ? RegExp(r'^action_\d+$', caseSensitive: false)
+        : RegExp(
+            '^action_\\d+${RegExp.escape(suffix)}'
+            r'$',
+            caseSensitive: false,
+          );
     final matching = mergedContext.entries
         .where(
           (entry) =>
@@ -564,18 +586,18 @@ _resolveScopedBinding({
   final rawKey = resolveValue((payload['key'] ?? '').toString()).trim();
   final storageKey = _scopedStorageKey(rawKey);
   final referenceKey = _scopedReferenceKey(rawKey);
-  final explicitContextId =
-      resolveValue((payload['contextId'] ?? '').toString()).trim();
-  final contextId =
-      explicitContextId.isNotEmpty
-          ? explicitContextId
-          : resolveScopeContextId(
-            scope: scope,
-            variables: variables,
-            guildId: guildId,
-            channelId: fallbackChannelId,
-            interaction: interaction,
-          );
+  final explicitContextId = resolveValue(
+    (payload['contextId'] ?? '').toString(),
+  ).trim();
+  final contextId = explicitContextId.isNotEmpty
+      ? explicitContextId
+      : resolveScopeContextId(
+          scope: scope,
+          variables: variables,
+          guildId: guildId,
+          channelId: fallbackChannelId,
+          interaction: interaction,
+        );
   if (contextId == null || contextId.trim().isEmpty) {
     throw Exception('Unable to resolve context ID for scope "$scope"');
   }
@@ -674,8 +696,7 @@ Future<dynamic> _readPersistedVariable({
   Future<dynamic> lookupConfiguredDefault() async {
     final definitions = await store.getScopedVariableDefinitions(botId);
     for (final entry in definitions) {
-      final entryScope =
-          (entry['scope'] ?? '').toString().trim().toLowerCase();
+      final entryScope = (entry['scope'] ?? '').toString().trim().toLowerCase();
       if (entryScope != binding.scope.toLowerCase()) continue;
       final entryKeyRaw = (entry['key'] ?? '').toString().trim();
       if (entryKeyRaw.isEmpty) continue;
@@ -699,8 +720,7 @@ Future<dynamic> _readPersistedVariable({
     // strings). In both cases apply the configured default.
     final configuredDefault = await lookupConfiguredDefault();
     // Only heal if the definition actually has a non-empty default.
-    if (configuredDefault != null &&
-        configuredDefault.toString().isNotEmpty) {
+    if (configuredDefault != null && configuredDefault.toString().isNotEmpty) {
       value = configuredDefault;
       await store.setScopedVariable(
         botId,
@@ -856,8 +876,9 @@ bool _mutateJsonPathList(
         return false;
       }
       if (!current.containsKey(segment) || current[segment] == null) {
-        current[segment] =
-            nextSegment is int ? <dynamic>[] : <String, dynamic>{};
+        current[segment] = nextSegment is int
+            ? <dynamic>[]
+            : <String, dynamic>{};
       }
       current = current[segment];
       continue;
@@ -915,10 +936,9 @@ List<dynamic> _ensureUpdatedArray(dynamic root, String rawPath) {
 
 List<dynamic> _extractArrayFromJsonInput(String input, String rawPath) {
   final decoded = decodeJsonStringIfNeeded(input);
-  final target =
-      _normalizeJsonPath(rawPath) == r'$'
-          ? decoded
-          : extractJsonPathValue(decoded, rawPath);
+  final target = _normalizeJsonPath(rawPath) == r'$'
+      ? decoded
+      : extractJsonPathValue(decoded, rawPath);
   if (target is List) {
     return List<dynamic>.from(target);
   }
@@ -937,6 +957,14 @@ bool _matchesFilter({
   switch (op) {
     case 'contains':
       return leftLower.contains(rightLower);
+    case 'containsignorecase':
+      return leftLower.contains(rightLower);
+    case 'equalsignorecase':
+      return leftLower == rightLower;
+    case 'containsitem':
+      return runtimeContainsItem(candidate, expected);
+    case 'haspermission':
+      return runtimeHasPermission(candidate, expected);
     case 'equals':
       final leftNum = num.tryParse(candidate);
       final rightNum = num.tryParse(expected);
@@ -977,10 +1005,9 @@ bool _matchesFilter({
 int _compareSortValues(String left, String right, bool descending) {
   final leftNum = num.tryParse(left);
   final rightNum = num.tryParse(right);
-  final comparison =
-      leftNum != null && rightNum != null
-          ? leftNum.compareTo(rightNum)
-          : left.toLowerCase().compareTo(right.toLowerCase());
+  final comparison = leftNum != null && rightNum != null
+      ? leftNum.compareTo(rightNum)
+      : left.toLowerCase().compareTo(right.toLowerCase());
   return descending ? -comparison : comparison;
 }
 
@@ -1001,7 +1028,9 @@ Future<bool> executeVariablesAction({
   switch (type) {
     case BotCreatorActionType.setTemporaryVariable:
       final rawKey = resolveValue((payload['key'] ?? '').toString()).trim();
-      final storageKey = _scopedStorageKey(rawKey);
+      final storageKey = rawKey.toLowerCase().startsWith('bc_')
+          ? _scopedStorageKey(rawKey.substring(3))
+          : _scopedStorageKey(rawKey);
       final resolvedWrite = _resolveRuntimeVariableWriteValue(
         payload: payload,
         resolveValue: resolveValue,
@@ -1009,7 +1038,22 @@ Future<bool> executeVariablesAction({
         results: results,
       );
       final runtimeValue = _stringifyRuntimeValue(resolvedWrite.value);
+      final equivalentKeys = variables.keys
+          .where(
+            (key) =>
+                key.toLowerCase().startsWith('temp.') &&
+                _temporaryAliasName(key) == storageKey.toLowerCase(),
+          )
+          .toList();
+      for (final key in equivalentKeys) {
+        variables[key] = runtimeValue;
+      }
       variables['temp.$storageKey'] = runtimeValue;
+      if (payload['internal'] != true) {
+        final names = _temporaryVariableNames(variables);
+        names.add(storageKey.toLowerCase());
+        variables['__variables.tempNames'] = jsonEncode(names.toList());
+      }
       if (rawKey.isNotEmpty && rawKey != storageKey) {
         variables['temp.$rawKey'] = runtimeValue;
       }
@@ -1045,18 +1089,18 @@ Future<bool> executeVariablesAction({
       final rawKey = resolveValue((payload['key'] ?? '').toString()).trim();
       final storageKey = _scopedStorageKey(rawKey);
       final referenceKey = _scopedReferenceKey(rawKey);
-      final explicitContextId =
-          resolveValue((payload['contextId'] ?? '').toString()).trim();
-      final contextId =
-          explicitContextId.isNotEmpty
-              ? explicitContextId
-              : resolveScopeContextId(
-                scope: scope,
-                variables: variables,
-                guildId: guildId,
-                channelId: fallbackChannelId,
-                interaction: interaction,
-              );
+      final explicitContextId = resolveValue(
+        (payload['contextId'] ?? '').toString(),
+      ).trim();
+      final contextId = explicitContextId.isNotEmpty
+          ? explicitContextId
+          : resolveScopeContextId(
+              scope: scope,
+              variables: variables,
+              guildId: guildId,
+              channelId: fallbackChannelId,
+              interaction: interaction,
+            );
       if (contextId == null || contextId.trim().isEmpty) {
         throw Exception('Unable to resolve context ID for scope "$scope"');
       }
@@ -1158,7 +1202,11 @@ Future<bool> executeVariablesAction({
           'value: $runtimeValue',
         );
 
-        variables['temp.debug_last_var'] = 'Key: $specificKey, Value: $runtimeValue';
+        final temporaryNames = _temporaryVariableNames(variables);
+        if (!temporaryNames.contains('debug_last_var')) {
+          variables['temp.debug_last_var'] =
+              'Key: $specificKey, Value: $runtimeValue';
+        }
 
         variables['$resultKey.value'] = runtimeValue;
         variables['$resultKey.persisted'] = runtimeValue;
@@ -1183,15 +1231,18 @@ Future<bool> executeVariablesAction({
       final rawKey = resolveValue((payload['key'] ?? '').toString()).trim();
       final storageKey = _scopedStorageKey(rawKey);
       final referenceKey = _scopedReferenceKey(rawKey);
-      final explicitContextId =
-          resolveValue((payload['contextId'] ?? '').toString()).trim();
-      final contextId = explicitContextId.isNotEmpty ? explicitContextId : resolveScopeContextId(
-        scope: scope,
-        variables: variables,
-        guildId: guildId,
-        channelId: fallbackChannelId,
-        interaction: interaction,
-      );
+      final explicitContextId = resolveValue(
+        (payload['contextId'] ?? '').toString(),
+      ).trim();
+      final contextId = explicitContextId.isNotEmpty
+          ? explicitContextId
+          : resolveScopeContextId(
+              scope: scope,
+              variables: variables,
+              guildId: guildId,
+              channelId: fallbackChannelId,
+              interaction: interaction,
+            );
       if (contextId == null || contextId.trim().isEmpty) {
         throw Exception('Unable to resolve context ID for scope "$scope"');
       }
@@ -1275,15 +1326,19 @@ Future<bool> executeVariablesAction({
         var hasDef = false;
         try {
           final definitions = await store.getScopedVariableDefinitions(botId);
-          final def = definitions.firstWhere(
-            (entry) {
-              final entryScope = (entry['scope'] ?? '').toString().trim().toLowerCase();
-              final entryKeyRaw = (entry['key'] ?? '').toString().trim().toLowerCase();
-              return entryScope == scope.toLowerCase() &&
-                  _scopedStorageKey(entryKeyRaw).toLowerCase() == storageKey.toLowerCase();
-            },
-            orElse: () => const <String, dynamic>{},
-          );
+          final def = definitions.firstWhere((entry) {
+            final entryScope = (entry['scope'] ?? '')
+                .toString()
+                .trim()
+                .toLowerCase();
+            final entryKeyRaw = (entry['key'] ?? '')
+                .toString()
+                .trim()
+                .toLowerCase();
+            return entryScope == scope.toLowerCase() &&
+                _scopedStorageKey(entryKeyRaw).toLowerCase() ==
+                    storageKey.toLowerCase();
+          }, orElse: () => const <String, dynamic>{});
           if (def.containsKey('defaultValue')) {
             defaultValue = def['defaultValue'];
             hasDef = true;
@@ -1327,10 +1382,9 @@ Future<bool> executeVariablesAction({
         }
       }
       final runtimeValue = _stringifyRuntimeValue(value);
-      final storeAs =
-          resolveValue(
-            (payload['storeAs'] ?? '$scope.$referenceKey').toString(),
-          ).trim();
+      final storeAs = resolveValue(
+        (payload['storeAs'] ?? '$scope.$referenceKey').toString(),
+      ).trim();
       if (storeAs.isNotEmpty) {
         variables[storeAs] = runtimeValue;
       }
@@ -1378,8 +1432,9 @@ Future<bool> executeVariablesAction({
       final rawKey = resolveValue((payload['key'] ?? '').toString()).trim();
       final storageKey = _scopedStorageKey(rawKey);
       final referenceKey = _scopedReferenceKey(rawKey);
-      final explicitContextId =
-          resolveValue((payload['contextId'] ?? '').toString()).trim();
+      final explicitContextId = resolveValue(
+        (payload['contextId'] ?? '').toString(),
+      ).trim();
       final contextId = explicitContextId.isNotEmpty
           ? explicitContextId
           : resolveScopeContextId(
@@ -1394,8 +1449,39 @@ Future<bool> executeVariablesAction({
       }
 
       final isCooldown = storageKey.startsWith('cooldown_');
+      var hasDefault = false;
+      dynamic defaultValue;
+      if (!isCooldown && payload['resetToDefault'] == true) {
+        final definitions = await store.getScopedVariableDefinitions(botId);
+        for (final definition in definitions) {
+          final definitionKey = (definition['key'] ?? '').toString().trim();
+          final normalizedKey = definitionKey.startsWith('bc_')
+              ? definitionKey.substring(3)
+              : definitionKey;
+          if (definition['scope'] == scope && normalizedKey == storageKey) {
+            if (definition.containsKey('defaultValue')) {
+              defaultValue = definition['defaultValue'];
+              hasDefault = true;
+            } else if (definition.containsKey('default_value')) {
+              defaultValue = definition['default_value'];
+              hasDefault = true;
+            }
+            break;
+          }
+        }
+      }
       if (!isCooldown) {
-        await store.removeScopedVariable(botId, scope, contextId, storageKey);
+        if (hasDefault) {
+          await store.setScopedVariable(
+            botId,
+            scope,
+            contextId,
+            storageKey,
+            defaultValue,
+          );
+        } else {
+          await store.removeScopedVariable(botId, scope, contextId, storageKey);
+        }
         if (referenceKey != storageKey) {
           await store.removeScopedVariable(
             botId,
@@ -1404,6 +1490,34 @@ Future<bool> executeVariablesAction({
             referenceKey,
           );
         }
+        final defaultContextId = resolveScopeContextId(
+          scope: scope,
+          variables: variables,
+          guildId: guildId,
+          channelId: fallbackChannelId,
+          interaction: interaction,
+        );
+        final aliases = {
+          referenceKey,
+          storageKey,
+          if (rawKey.isNotEmpty) rawKey,
+        };
+        for (final alias in aliases) {
+          if (hasDefault) {
+            variables['$scope[$contextId].$alias'] = _stringifyRuntimeValue(
+              defaultValue,
+            );
+          } else {
+            variables.remove('$scope[$contextId].$alias');
+          }
+          if (contextId == defaultContextId) {
+            if (hasDefault) {
+              variables['$scope.$alias'] = _stringifyRuntimeValue(defaultValue);
+            } else {
+              variables.remove('$scope.$alias');
+            }
+          }
+        }
       } else {
         ControlFlowExecutor.removeRuntimeCooldown(
           variables['bot.id'] ?? botId,
@@ -1411,13 +1525,6 @@ Future<bool> executeVariablesAction({
           storageKey,
           variables,
         );
-      }
-
-      if (!isCooldown) {
-        variables.remove('$scope.$referenceKey');
-        if (rawKey.isNotEmpty && rawKey != referenceKey) {
-          variables.remove('$scope.$rawKey');
-        }
       }
 
       results[resultKey] = 'REMOVED';
@@ -1432,10 +1539,12 @@ Future<bool> executeVariablesAction({
         );
       }
 
-      final oldRawKey =
-          resolveValue((payload['oldKey'] ?? '').toString()).trim();
-      final newRawKey =
-          resolveValue((payload['newKey'] ?? '').toString()).trim();
+      final oldRawKey = resolveValue(
+        (payload['oldKey'] ?? '').toString(),
+      ).trim();
+      final newRawKey = resolveValue(
+        (payload['newKey'] ?? '').toString(),
+      ).trim();
       final oldStorageKey = _scopedStorageKey(oldRawKey);
       final newStorageKey = _scopedStorageKey(newRawKey);
       final oldReferenceKey = _scopedReferenceKey(oldRawKey);
@@ -1520,10 +1629,9 @@ Future<bool> executeVariablesAction({
           25;
       final safeOffset = offset < 0 ? 0 : offset;
       final safeLimit = limit < 1 ? 1 : (limit > 25 ? 25 : limit);
-      final order =
-          resolveValue(
-            (payload['order'] ?? 'desc').toString(),
-          ).trim().toLowerCase();
+      final order = resolveValue(
+        (payload['order'] ?? 'desc').toString(),
+      ).trim().toLowerCase();
 
       final page = await store.queryScopedVariableIndex(
         botId,
@@ -1546,8 +1654,9 @@ Future<bool> executeVariablesAction({
         total: (page['total'] ?? items.length) as int,
       );
 
-      final storeAs =
-          resolveValue((payload['storeAs'] ?? '').toString()).trim();
+      final storeAs = resolveValue(
+        (payload['storeAs'] ?? '').toString(),
+      ).trim();
       if (storeAs.isNotEmpty) {
         variables[storeAs] = jsonEncode(items);
       }
@@ -1571,14 +1680,14 @@ Future<bool> executeVariablesAction({
         fallbackChannelId: fallbackChannelId,
         interaction: interaction,
       );
-      final clonedRoot =
-          path == r'$'
-              ? <dynamic>[]
-              : (_deepCloneJsonValue(rootValue) ?? <String, dynamic>{});
+      final clonedRoot = path == r'$'
+          ? <dynamic>[]
+          : (_deepCloneJsonValue(rootValue) ?? <String, dynamic>{});
       final element = _resolveVariableValuePayload(payload, resolveValue);
       if (path == r'$') {
-        final list =
-            rootValue is List ? List<dynamic>.from(rootValue) : <dynamic>[];
+        final list = rootValue is List
+            ? List<dynamic>.from(rootValue)
+            : <dynamic>[];
         list.add(element);
         await _writePersistedVariable(
           store: store,
@@ -1652,8 +1761,9 @@ Future<bool> executeVariablesAction({
       );
       dynamic removed;
       if (path == r'$') {
-        final list =
-            rootValue is List ? List<dynamic>.from(rootValue) : <dynamic>[];
+        final list = rootValue is List
+            ? List<dynamic>.from(rootValue)
+            : <dynamic>[];
         if (index >= 0 && index < list.length) {
           removed = list.removeAt(index);
         }
@@ -1715,17 +1825,18 @@ Future<bool> executeVariablesAction({
         resolveValue((payload['path'] ?? r'$').toString()),
       );
       final items = _extractArrayFromJsonInput(input, path);
-      final filterTemplate =
-          (payload['filterTemplate'] ?? '{value}').toString();
-      final filterOperator =
-          resolveValue((payload['filterOperator'] ?? '').toString()).trim();
-      final filterValue =
-          resolveValue((payload['filterValue'] ?? '').toString()).trim();
+      final filterTemplate = (payload['filterTemplate'] ?? '{value}')
+          .toString();
+      final filterOperator = resolveValue(
+        (payload['filterOperator'] ?? '').toString(),
+      ).trim();
+      final filterValue = resolveValue(
+        (payload['filterValue'] ?? '').toString(),
+      ).trim();
       final sortTemplate = (payload['sortTemplate'] ?? '{value}').toString();
-      final order =
-          resolveValue(
-            (payload['order'] ?? 'asc').toString(),
-          ).trim().toLowerCase();
+      final order = resolveValue(
+        (payload['order'] ?? 'asc').toString(),
+      ).trim().toLowerCase();
       final offset =
           int.tryParse(
             resolveValue((payload['offset'] ?? '0').toString()).trim(),
@@ -1773,8 +1884,9 @@ Future<bool> executeVariablesAction({
         items: page,
         total: working.length,
       );
-      final storeAs =
-          resolveValue((payload['storeAs'] ?? '').toString()).trim();
+      final storeAs = resolveValue(
+        (payload['storeAs'] ?? '').toString(),
+      ).trim();
       if (storeAs.isNotEmpty) {
         variables[storeAs] = jsonEncode(page);
       }
@@ -1782,22 +1894,37 @@ Future<bool> executeVariablesAction({
       return true;
     case BotCreatorActionType.randomChoice:
       final rawChoices = resolveValue((payload['choices'] ?? '').toString());
-      final variableName = resolveValue((payload['variableName'] ?? 'random_choice').toString()).trim();
-      
+      final variableName = resolveValue(
+        (payload['variableName'] ?? 'random_choice').toString(),
+      ).trim();
+
       List<String> choices;
-      if (rawChoices.trim().startsWith('[') && rawChoices.trim().endsWith(']')) {
+      if (rawChoices.trim().startsWith('[') &&
+          rawChoices.trim().endsWith(']')) {
         try {
           final decoded = jsonDecode(rawChoices);
           if (decoded is List) {
             choices = decoded.map((e) => e.toString()).toList();
           } else {
-            choices = rawChoices.split(';').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+            choices = rawChoices
+                .split(';')
+                .map((e) => e.trim())
+                .where((e) => e.isNotEmpty)
+                .toList();
           }
         } catch (_) {
-          choices = rawChoices.split(';').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+          choices = rawChoices
+              .split(';')
+              .map((e) => e.trim())
+              .where((e) => e.isNotEmpty)
+              .toList();
         }
       } else {
-        choices = rawChoices.split(';').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+        choices = rawChoices
+            .split(';')
+            .map((e) => e.trim())
+            .where((e) => e.isNotEmpty)
+            .toList();
       }
 
       if (choices.isEmpty) {
@@ -1808,7 +1935,7 @@ Future<bool> executeVariablesAction({
 
       final random = (DateTime.now().millisecondsSinceEpoch % choices.length);
       final picked = choices[random];
-      
+
       variables[variableName] = picked;
       results[resultKey] = picked;
       return true;
@@ -1839,10 +1966,16 @@ Future<bool> executeVariablesAction({
         if (builders.length >= 25) {
           break;
         }
-        final label =
-            resolveItemTemplate(labelTemplate, item, variables).trim();
-        final rawValue =
-            resolveItemTemplate(valueTemplate, item, variables).trim();
+        final label = resolveItemTemplate(
+          labelTemplate,
+          item,
+          variables,
+        ).trim();
+        final rawValue = resolveItemTemplate(
+          valueTemplate,
+          item,
+          variables,
+        ).trim();
         if (label.isEmpty || rawValue.isEmpty) {
           continue;
         }
@@ -1879,10 +2012,9 @@ Future<bool> executeVariablesAction({
       if (key.isEmpty) {
         throw Exception('key is required for setGlobalVariable');
       }
-      final rawValueSource =
-          payload.containsKey('value')
-              ? (payload['value'] ?? '').toString()
-              : (payload['element'] ?? '').toString();
+      final rawValueSource = payload.containsKey('value')
+          ? (payload['value'] ?? '').toString()
+          : (payload['element'] ?? '').toString();
       dynamic value = _resolveVariableValuePayload(payload, resolveValue);
       final resolvedByResolver = value is String ? value : value.toString();
       String fallbackResolved = '';
@@ -1959,8 +2091,9 @@ Future<bool> executeVariablesAction({
         await store.setGlobalVariable(botId, key, value);
       }
       final valueAsString = _stringifyRuntimeValue(value);
-      final storeAs =
-          resolveValue((payload['storeAs'] ?? 'global.$key').toString()).trim();
+      final storeAs = resolveValue(
+        (payload['storeAs'] ?? 'global.$key').toString(),
+      ).trim();
       if (storeAs.isNotEmpty) {
         variables[storeAs] = valueAsString;
       }
@@ -2104,10 +2237,9 @@ void _executeRuntimeJsonBlock({
     if (rawOp is! Map) continue;
     final op = rawOp['op']?.toString() ?? '';
     final pathRaw = rawOp['path'];
-    final path =
-        (pathRaw is List)
-            ? pathRaw.map((e) => e.toString()).toList()
-            : const <String>[];
+    final path = (pathRaw is List)
+        ? pathRaw.map((e) => e.toString()).toList()
+        : const <String>[];
     final resolvedPath = path
         .map(resolveRuntimeJsonInput)
         .toList(growable: false);
@@ -2137,7 +2269,7 @@ void _executeRuntimeJsonBlock({
         break;
 
       case 'clear':
-        jsonCtx = null;
+        jsonCtx = <String, dynamic>{};
         break;
 
       case 'exists':
@@ -2165,12 +2297,11 @@ void _executeRuntimeJsonBlock({
         );
         final indent = int.tryParse(indentRaw);
         final spaces = (indent == null || indent < 0) ? 2 : indent;
-        final value =
-            jsonCtx != null
-                ? const JsonEncoder.withIndent(
-                  '  ',
-                ).convert(jsonCtx).replaceAll('  ', ' ' * spaces)
-                : '';
+        final value = jsonCtx != null
+            ? const JsonEncoder.withIndent(
+                '  ',
+              ).convert(jsonCtx).replaceAll('  ', ' ' * spaces)
+            : '';
         if (readIndex != null) {
           results['$resultKey.json_$readIndex'] = value;
           variables['$resultKey.json_$readIndex'] = value;
@@ -2180,7 +2311,9 @@ void _executeRuntimeJsonBlock({
       case 'initArray':
         // BDFD wiki: $jsonArray[key;separator?] splits the existing string
         // value by the separator and stores the resulting array.
-        final arraySeparator = (rawOp['separator'] ?? ',').toString();
+        final arraySeparator = resolveRuntimeJsonInput(
+          (rawOp['separator'] ?? ',').toString(),
+        );
         final existingVal = _rtJsonGetPath(jsonCtx, resolvedPath);
         if (existingVal is String && existingVal.isNotEmpty) {
           final parts = arraySeparator.isEmpty
@@ -2215,8 +2348,9 @@ void _executeRuntimeJsonBlock({
       case 'arrayPop':
         final readIndex = rawOp['readIndex'];
         final list = _rtJsonEnsureArray(jsonCtx, resolvedPath);
-        final removed =
-            list.isNotEmpty ? _rtJsonStringifyValue(list.removeLast()) : '';
+        final removed = list.isNotEmpty
+            ? _rtJsonStringifyValue(list.removeLast())
+            : '';
         if (readIndex != null) {
           results['$resultKey.json_$readIndex'] = removed;
           variables['$resultKey.json_$readIndex'] = removed;
@@ -2226,8 +2360,9 @@ void _executeRuntimeJsonBlock({
       case 'arrayShift':
         final readIndex = rawOp['readIndex'];
         final list = _rtJsonEnsureArray(jsonCtx, resolvedPath);
-        final removed =
-            list.isNotEmpty ? _rtJsonStringifyValue(list.removeAt(0)) : '';
+        final removed = list.isNotEmpty
+            ? _rtJsonStringifyValue(list.removeAt(0))
+            : '';
         if (readIndex != null) {
           results['$resultKey.json_$readIndex'] = removed;
           variables['$resultKey.json_$readIndex'] = removed;
@@ -2235,15 +2370,18 @@ void _executeRuntimeJsonBlock({
         break;
 
       case 'arraySort':
-        final sortDescending = rawOp['descending'] == true;
+        final sortDescending = rawOp.containsKey('order')
+            ? resolveRuntimeJsonInput(
+                    rawOp['order'].toString(),
+                  ).trim().toLowerCase() ==
+                  'desc'
+            : rawOp['descending'] == true;
         final sortList = _rtJsonEnsureArray(jsonCtx, resolvedPath);
         sortList.sort((a, b) {
           final aNum = a is num ? a : num.tryParse(a.toString());
           final bNum = b is num ? b : num.tryParse(b.toString());
           if (aNum != null && bNum != null) {
-            return sortDescending
-                ? bNum.compareTo(aNum)
-                : aNum.compareTo(bNum);
+            return sortDescending ? bNum.compareTo(aNum) : aNum.compareTo(bNum);
           }
           if (aNum != null) return sortDescending ? 1 : -1;
           if (bNum != null) return sortDescending ? -1 : 1;
@@ -2277,10 +2415,9 @@ void _executeRuntimeJsonBlock({
           resolveRuntimeJsonInput((rawOp['value'] ?? '').toString()),
         );
         final list = _rtJsonGetPath(jsonCtx, resolvedPath);
-        final index =
-            list is List
-                ? list.indexWhere((item) => item == expected).toString()
-                : '-1';
+        final index = list is List
+            ? list.indexWhere((item) => item == expected).toString()
+            : '-1';
         if (readIndex != null) {
           results['$resultKey.json_$readIndex'] = index;
           variables['$resultKey.json_$readIndex'] = index;
@@ -2293,10 +2430,9 @@ void _executeRuntimeJsonBlock({
           (rawOp['separator'] ?? '').toString(),
         );
         final value = _rtJsonGetPath(jsonCtx, resolvedPath);
-        final joined =
-            value is List
-                ? value.map(_rtJsonStringifyValue).join(separator)
-                : '';
+        final joined = value is List
+            ? value.map(_rtJsonStringifyValue).join(separator)
+            : '';
         if (readIndex != null) {
           results['$resultKey.json_$readIndex'] = joined;
           variables['$resultKey.json_$readIndex'] = joined;
@@ -2309,10 +2445,9 @@ void _executeRuntimeJsonBlock({
           (rawOp['separator'] ?? ',').toString(),
         );
         final value = _rtJsonGetPath(jsonCtx, resolvedPath);
-        final keys =
-            value is Map
-                ? value.keys.map((k) => k.toString()).join(separator)
-                : '';
+        final keys = value is Map
+            ? value.keys.map((k) => k.toString()).join(separator)
+            : '';
         if (readIndex != null) {
           results['$resultKey.json_$readIndex'] = keys;
           variables['$resultKey.json_$readIndex'] = keys;
@@ -2381,8 +2516,9 @@ dynamic _rtJsonSetPath(dynamic root, List<String> path, dynamic value) {
       current = current[index];
     } else if (current is Map) {
       if (!current.containsKey(segment) || current[segment] == null) {
-        current[segment] =
-            nextIndex != null ? <dynamic>[] : <String, dynamic>{};
+        current[segment] = nextIndex != null
+            ? <dynamic>[]
+            : <String, dynamic>{};
       }
       current = current[segment];
     } else {

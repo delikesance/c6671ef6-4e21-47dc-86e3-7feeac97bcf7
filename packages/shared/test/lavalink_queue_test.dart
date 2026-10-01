@@ -155,18 +155,23 @@ void main() {
       expect(session.currentTrack, c);
     });
 
-    test('file d\'un seul morceau en boucle : skip arrête proprement, ne rejoue pas', () async {
-      final a = _track('a');
-      await session.enqueue(a);
-      session.setLoop(true);
+    test(
+      'file d\'un seul morceau en boucle : skip arrête proprement, ne rejoue pas',
+      () async {
+        final a = _track('a');
+        await session.enqueue(a);
+        session.setLoop(true);
 
-      await session.skip();
+        await session.skip();
 
-      expect(output.played, <Track>[a], reason: 'le skip ne rejoue pas le morceau courant');
-      expect(output.stopCount, 1, reason: 'file épuisée => arrêt propre');
-      expect(session.isPlaying, isFalse);
-      expect(session.currentTrack, isNull);
-    });
+        expect(output.played, <Track>[
+          a,
+        ], reason: 'le skip ne rejoue pas le morceau courant');
+        expect(output.stopCount, 1, reason: 'file épuisée => arrêt propre');
+        expect(session.isPlaying, isFalse);
+        expect(session.currentTrack, isNull);
+      },
+    );
 
     test('file vide : skip est un arrêt propre sans erreur', () async {
       await session.skip();
@@ -176,26 +181,34 @@ void main() {
       expect(session.isPlaying, isFalse);
     });
 
-    test('en boucle, un skip sur le dernier morceau NE boucle PAS : la boucle ne s\'applique jamais à un skip', () async {
-      final a = _track('a');
-      final b = _track('b');
-      await session.enqueue(a);
-      await session.enqueue(b);
-      session.setLoop(true);
+    test(
+      'en boucle, un skip sur le dernier morceau NE boucle PAS : la boucle ne s\'applique jamais à un skip',
+      () async {
+        final a = _track('a');
+        final b = _track('b');
+        await session.enqueue(a);
+        await session.enqueue(b);
+        session.setLoop(true);
 
-      await session.skip(); // a -> b
-      await session.skip(); // fin de file : le skip s'arrête, il ne revient pas à a
+        await session.skip(); // a -> b
+        await session
+            .skip(); // fin de file : le skip s'arrête, il ne revient pas à a
 
-      expect(
-        output.played.map((t) => t.encoded).toList(),
-        <String>['encoded-a', 'encoded-b'],
-        reason: 'la boucle est réservée à l\'enchaînement automatique',
-      );
-      expect(output.stopCount, 1, reason: 'file épuisée => arrêt propre');
-      expect(session.currentTrack, isNull);
-      expect(session.isPlaying, isFalse);
-      expect(session.loop, isTrue, reason: 'la boucle reste active pour la suite');
-    });
+        expect(
+          output.played.map((t) => t.encoded).toList(),
+          <String>['encoded-a', 'encoded-b'],
+          reason: 'la boucle est réservée à l\'enchaînement automatique',
+        );
+        expect(output.stopCount, 1, reason: 'file épuisée => arrêt propre');
+        expect(session.currentTrack, isNull);
+        expect(session.isPlaying, isFalse);
+        expect(
+          session.loop,
+          isTrue,
+          reason: 'la boucle reste active pour la suite',
+        );
+      },
+    );
   });
 
   group('file d\'attente — un seul modèle, aucune croissance parasite', () {
@@ -214,7 +227,11 @@ void main() {
 
       expect(session.queueLength, 5, reason: 'N entrées, pas une de plus');
       expect(output.played, hasLength(1), reason: 'seul le premier démarre');
-      expect(session.queueSize, 4, reason: 'queueSize = morceaux encore à jouer');
+      expect(
+        session.queueSize,
+        4,
+        reason: 'queueSize = morceaux encore à jouer',
+      );
       expect(
         session.entries.map((t) => t.encoded).toSet(),
         hasLength(5),
@@ -222,49 +239,71 @@ void main() {
       );
     });
 
-    test('le rapport utilisateur : 30 morceaux demandés = 30 entrées, jamais 60', () async {
-      for (var i = 0; i < 30; i++) {
-        await session.enqueue(_track('t$i'));
-      }
+    test(
+      'le rapport utilisateur : 30 morceaux demandés = 30 entrées, jamais 60',
+      () async {
+        for (var i = 0; i < 30; i++) {
+          await session.enqueue(_track('t$i'));
+        }
 
-      expect(session.queueLength, 30);
-      expect(session.queueSize, 29, reason: 'file de 30 morceaux, 1 en cours');
-      expect(
-        session.entries.map((t) => t.encoded).toSet(),
-        hasLength(30),
-        reason: '« the queue it just adding a queue of 15 or 30 » : ici 30, pas de dérive',
-      );
-      expect(output.played, hasLength(1));
-    });
+        expect(session.queueLength, 30);
+        expect(
+          session.queueSize,
+          29,
+          reason: 'file de 30 morceaux, 1 en cours',
+        );
+        expect(
+          session.entries.map((t) => t.encoded).toSet(),
+          hasLength(30),
+          reason:
+              '« the queue it just adding a queue of 15 or 30 » : ici 30, pas de dérive',
+        );
+        expect(output.played, hasLength(1));
+      },
+    );
 
-    test('un ajout pendant la lecture ne rejoue pas et ne duplique rien', () async {
-      final a = _track('a');
-      final b = _track('b');
+    test(
+      'un ajout pendant la lecture ne rejoue pas et ne duplique rien',
+      () async {
+        final a = _track('a');
+        final b = _track('b');
 
-      await session.enqueue(a);
-      await session.enqueue(b);
+        await session.enqueue(a);
+        await session.enqueue(b);
 
-      expect(output.played, <Track>[a]);
-      expect(session.queueLength, 2);
-      expect(session.currentTrack, a, reason: 'le morceau courant ne change pas');
-    });
+        expect(output.played, <Track>[a]);
+        expect(session.queueLength, 2);
+        expect(
+          session.currentTrack,
+          a,
+          reason: 'le morceau courant ne change pas',
+        );
+      },
+    );
 
-    test('sans confirmation TrackStart, un second ajout ne remplace pas le premier', () async {
-      output = _FakeOutput(confirmPlay: false);
-      session = LavalinkSession(output: output);
+    test(
+      'sans confirmation TrackStart, un second ajout ne remplace pas le premier',
+      () async {
+        output = _FakeOutput(confirmPlay: false);
+        session = LavalinkSession(output: output);
 
-      final a = _track('a');
-      final b = _track('b');
-      await session.enqueue(a);
-      await session.enqueue(b);
+        final a = _track('a');
+        final b = _track('b');
+        await session.enqueue(a);
+        await session.enqueue(b);
 
-      expect(
-        output.played,
-        <Track>[a],
-        reason: 'sans confirmation, B attend son tour au lieu de remplacer A',
-      );
-      expect(session.isPlaying, isTrue, reason: 'le démarrage en cours compte comme lecture');
-    });
+        expect(
+          output.played,
+          <Track>[a],
+          reason: 'sans confirmation, B attend son tour au lieu de remplacer A',
+        );
+        expect(
+          session.isPlaying,
+          isTrue,
+          reason: 'le démarrage en cours compte comme lecture',
+        );
+      },
+    );
 
     test('la file ne compte jamais deux fois le morceau en cours', () async {
       final a = _track('a');
@@ -279,21 +318,24 @@ void main() {
   });
 
   group('fin de morceau — enchaînement automatique', () {
-    test('la fin d\'un morceau enchaîne sur le suivant sans intervention', () async {
-      final a = _track('a');
-      final b = _track('b');
-      await session.enqueue(a);
-      await session.enqueue(b);
+    test(
+      'la fin d\'un morceau enchaîne sur le suivant sans intervention',
+      () async {
+        final a = _track('a');
+        final b = _track('b');
+        await session.enqueue(a);
+        await session.enqueue(b);
 
-      await endAndAdvance('finished');
+        await endAndAdvance('finished');
 
-      expect(output.played.map((t) => t.encoded).toList(), <String>[
-        'encoded-a',
-        'encoded-b',
-      ]);
-      expect(session.currentTrack, b);
-      expect(session.isPlaying, isTrue);
-    });
+        expect(output.played.map((t) => t.encoded).toList(), <String>[
+          'encoded-a',
+          'encoded-b',
+        ]);
+        expect(session.currentTrack, b);
+        expect(session.isPlaying, isTrue);
+      },
+    );
 
     test('la fin du dernier morceau arrête la file, sans boucle', () async {
       final a = _track('a');
@@ -327,25 +369,59 @@ void main() {
       expect(session.loop, isTrue);
     });
 
-    test('`replaced` (remplacement volontaire) n\'avance pas deux fois', () async {
+    test('le mode track répète uniquement le morceau courant', () async {
       final a = _track('a');
       final b = _track('b');
-      final c = _track('c');
       await session.enqueue(a);
       await session.enqueue(b);
-      await session.enqueue(c);
+      session.setLoopMode('track');
 
-      // Un skip remplace le morceau : Lavalink signale l'ancien en `replaced`.
-      await session.skip();
-      await endAndAdvance('replaced');
+      await endAndAdvance('finished');
 
-      expect(
-        output.played.map((t) => t.encoded).toList(),
-        <String>['encoded-a', 'encoded-b'],
-        reason: 'pas de double avancement',
-      );
-      expect(session.currentTrack, b);
+      expect(output.played.map((t) => t.encoded).toList(), <String>[
+        'encoded-a',
+        'encoded-a',
+      ]);
+      expect(session.queueSize, 1);
+      expect(session.loopMode, 'track');
     });
+
+    test('le mode queue rejoue aussi une file d’un seul morceau', () async {
+      final a = _track('a');
+      await session.enqueue(a);
+      session.setLoopMode('queue');
+
+      await endAndAdvance('finished');
+
+      expect(output.played.map((t) => t.encoded).toList(), <String>[
+        'encoded-a',
+        'encoded-a',
+      ]);
+      expect(session.loopMode, 'queue');
+    });
+
+    test(
+      '`replaced` (remplacement volontaire) n\'avance pas deux fois',
+      () async {
+        final a = _track('a');
+        final b = _track('b');
+        final c = _track('c');
+        await session.enqueue(a);
+        await session.enqueue(b);
+        await session.enqueue(c);
+
+        // Un skip remplace le morceau : Lavalink signale l'ancien en `replaced`.
+        await session.skip();
+        await endAndAdvance('replaced');
+
+        expect(
+          output.played.map((t) => t.encoded).toList(),
+          <String>['encoded-a', 'encoded-b'],
+          reason: 'pas de double avancement',
+        );
+        expect(session.currentTrack, b);
+      },
+    );
 
     test('l\'arrêt (stopMusic) ne relance rien ensuite', () async {
       final a = _track('a');
@@ -370,7 +446,10 @@ void main() {
 
       final a = _track('a');
       final b = _track('b');
-      final local = LavalinkSession(output: output, trackEndReasons: events.stream);
+      final local = LavalinkSession(
+        output: output,
+        trackEndReasons: events.stream,
+      );
 
       await local.enqueue(a);
       await local.enqueue(b);
@@ -391,7 +470,10 @@ void main() {
 
       final a = _track('a');
       final b = _track('b');
-      final local = LavalinkSession(output: output, trackEndReasons: events.stream);
+      final local = LavalinkSession(
+        output: output,
+        trackEndReasons: events.stream,
+      );
 
       await local.enqueue(a);
       await local.enqueue(b);
@@ -430,7 +512,11 @@ void main() {
       final newOutput = _FakeOutput();
       session.rebind(output: newOutput);
 
-      expect(session.queueLength, 2, reason: 'la file est conservée, jamais recopiée');
+      expect(
+        session.queueLength,
+        2,
+        reason: 'la file est conservée, jamais recopiée',
+      );
       expect(newOutput.played, isEmpty, reason: 'aucun redémarrage');
     });
   });

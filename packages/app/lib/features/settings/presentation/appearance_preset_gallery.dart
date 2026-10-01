@@ -96,7 +96,11 @@ class _PresetTile extends StatelessWidget {
                 _Swatch(color: surface, square: true),
                 const Spacer(),
                 if (selected)
-                  Icon(Icons.check_circle, size: 18, color: indicator),
+                  AppIcon.fromMaterial(
+                    Icons.check_circle,
+                    size: 18,
+                    color: indicator,
+                  ),
               ],
             ),
             const SizedBox(height: 8),
@@ -206,7 +210,7 @@ class _ColorPickerTile extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(
+            AppIcon.fromMaterial(
               Icons.palette_outlined,
               size: 18,
               color: scheme.onSurfaceVariant,

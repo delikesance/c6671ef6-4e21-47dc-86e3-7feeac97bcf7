@@ -1,6 +1,8 @@
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:flutter/material.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Ligne affichée à la place de l'action d'achat quand une capacité PREMIUM manque
 /// à cause de la FORMULE DU COMPTE sur une plateforme sans boutique native.
 ///
@@ -25,7 +27,11 @@ class PremiumLockedHint extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(Icons.lock_outline_rounded, size: 16, color: scheme.onSurfaceVariant),
+        AppIcon.fromMaterial(
+          Icons.lock_outline_rounded,
+          size: 16,
+          color: scheme.onSurfaceVariant,
+        ),
         const SizedBox(width: 8),
         Expanded(
           child: Text(

@@ -99,22 +99,41 @@ Future<bool> executeChannelsAction({
         }
       }
 
-      // Resolve placeholders before converting to Snowflake
-      final resolvedChannelIdRaw = resolveValue(payload['channelId']?.toString() ?? '');
-      final channelId = _toSnowflake(resolvedChannelIdRaw);
-      if (channelId == null) {
-        throw Exception('Missing or invalid channelId for removeChannel');
+      final rawIds = payload['channelIds'];
+      final rawNames = payload['channelNames'];
+      final channelIds = <Snowflake>[];
+      if (rawNames is List) {
+        if (guildId == null) throw Exception('Channel names require a guild');
+        final guildChannels = await client.guilds[guildId].fetchChannels();
+        for (final rawName in rawNames) {
+          final name = resolveValue(rawName.toString());
+          channelIds.addAll(
+            guildChannels
+                .where((channel) => channel.name == name)
+                .map((c) => c.id),
+          );
+        }
+      } else {
+        final values = rawIds is List ? rawIds : [payload['channelId']];
+        for (final raw in values) {
+          final channelId = _toSnowflake(resolveValue(raw?.toString() ?? ''));
+          if (channelId == null) {
+            throw Exception('Missing or invalid channelId for removeChannel');
+          }
+          channelIds.add(channelId);
+        }
+      }
+      if (channelIds.isEmpty) {
+        throw Exception('No matching channels found for removeChannel');
+      }
+      for (final channelId in channelIds.toSet()) {
+        final removeResult = await removeChannel(client, channelId);
+        if (removeResult.containsKey('error')) {
+          throw Exception(removeResult['error'] ?? 'Failed to delete channel');
+        }
       }
 
-      final Map<String, String> removeResult = await removeChannel(client, channelId);
-
-      if ((removeResult['error'] ?? '').toString().isNotEmpty) {
-        throw Exception(removeResult['error']);
-      } else if (removeResult.containsKey('error')) {
-        throw Exception('Action failed with empty error message');
-      }
-
-      final channelIdValueRemove = removeResult['channelId'] ?? '';
+      final channelIdValueRemove = channelIds.last.toString();
       if (resultKey.isNotEmpty) {
         results[resultKey] = channelIdValueRemove;
       }

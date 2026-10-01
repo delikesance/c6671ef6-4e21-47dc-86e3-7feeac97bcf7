@@ -34,53 +34,53 @@ Future<bool> executeModerationRolesAction({
 
       final result = await switch (type) {
         BotCreatorActionType.banUser => banUserAction(
-            client,
-            guildId: guildId,
-            payload: payload,
-            resolve: resolveValue,
-          ),
+          client,
+          guildId: guildId,
+          payload: payload,
+          resolve: resolveValue,
+        ),
         BotCreatorActionType.unbanUser => unbanUserAction(
-            client,
-            guildId: guildId,
-            payload: payload,
-            resolve: resolveValue,
-          ),
+          client,
+          guildId: guildId,
+          payload: payload,
+          resolve: resolveValue,
+        ),
         BotCreatorActionType.kickUser => kickUserAction(
-            client,
-            guildId: guildId,
-            payload: payload,
-            resolve: resolveValue,
-          ),
+          client,
+          guildId: guildId,
+          payload: payload,
+          resolve: resolveValue,
+        ),
         BotCreatorActionType.muteUser => muteUserAction(
-            client,
-            guildId: guildId,
-            payload: payload,
-            resolve: resolveValue,
-          ),
+          client,
+          guildId: guildId,
+          payload: payload,
+          resolve: resolveValue,
+        ),
         BotCreatorActionType.unmuteUser => unmuteUserAction(
-            client,
-            guildId: guildId,
-            payload: payload,
-            resolve: resolveValue,
-          ),
+          client,
+          guildId: guildId,
+          payload: payload,
+          resolve: resolveValue,
+        ),
         BotCreatorActionType.addRole => addRoleAction(
-            client,
-            guildId: guildId,
-            payload: payload,
-            resolve: resolveValue,
-          ),
+          client,
+          guildId: guildId,
+          payload: payload,
+          resolve: resolveValue,
+        ),
         BotCreatorActionType.removeRole => removeRoleAction(
-            client,
-            guildId: guildId,
-            payload: payload,
-            resolve: resolveValue,
-          ),
+          client,
+          guildId: guildId,
+          payload: payload,
+          resolve: resolveValue,
+        ),
         BotCreatorActionType.setNickname => setNicknameAction(
-            client,
-            guildId: guildId,
-            payload: payload,
-            resolve: resolveValue,
-          ),
+          client,
+          guildId: guildId,
+          payload: payload,
+          resolve: resolveValue,
+        ),
         _ => throw Exception('Unexpected action type'),
       };
 
@@ -88,7 +88,7 @@ Future<bool> executeModerationRolesAction({
         throw Exception(result['error']);
       }
 
-      results[resultKey] = result['userId'] ?? '';
+      results[resultKey] = result['userId'] ?? result['roleId'] ?? '';
       return true;
 
     default:

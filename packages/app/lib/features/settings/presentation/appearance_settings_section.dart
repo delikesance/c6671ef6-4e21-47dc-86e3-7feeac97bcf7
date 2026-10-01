@@ -7,6 +7,7 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:provider/provider.dart';
 import 'text_scale_settings_section.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
 part 'appearance_preset_gallery.dart';
 
 /// Seuil WCAG 2.1 des textes (1.4.3). En dessous, le contraste est signalé —
@@ -158,7 +159,7 @@ class AppearanceSettingsSection extends StatelessWidget {
             // ── Ratio de contraste (informatif, non bloquant) ────────────────
             Row(
               children: <Widget>[
-                Icon(
+                AppIcon.fromMaterial(
                   ratioOk
                       ? Icons.check_circle_outline
                       : Icons.warning_amber_rounded,
@@ -195,7 +196,7 @@ class AppearanceSettingsSection extends StatelessWidget {
               child: OutlinedButton.icon(
                 key: resetButtonKey,
                 onPressed: () => provider.resetToDefaults(),
-                icon: const Icon(Icons.restart_alt),
+                icon: const AppIcon.fromMaterial(Icons.restart_alt),
                 label: Text(context.tr.settings_appearance_reset),
               ),
             ),

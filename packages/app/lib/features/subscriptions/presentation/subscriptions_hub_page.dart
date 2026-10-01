@@ -15,6 +15,8 @@ import 'package:bot_creator/features/subscriptions/presentation/ai_credits_page.
 import 'package:bot_creator/features/subscriptions/logic/commerce_catalog.dart';
 import 'package:flutter/material.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Central page listing bot premium and hosted-app subscriptions.
 class SubscriptionsHubPage extends StatefulWidget {
   const SubscriptionsHubPage({super.key});
@@ -276,7 +278,7 @@ class _SubscriptionsHubPageState extends State<SubscriptionsHubPage> {
         actions: [
           IconButton(
             onPressed: _loading || _busy ? null : _refresh,
-            icon: const Icon(Icons.refresh),
+            icon: const AppIcon.fromMaterial(Icons.refresh),
             tooltip: tr.common_refresh,
           ),
         ],
@@ -304,7 +306,7 @@ class _SubscriptionsHubPageState extends State<SubscriptionsHubPage> {
                       ) ==
                       true)
                     ListTile(
-                      leading: const Icon(Icons.auto_awesome),
+                      leading: const AppIcon.fromMaterial(Icons.auto_awesome),
                       title: Text(
                         Localizations.localeOf(context).languageCode == 'fr'
                             ? 'Crédits IA et roulette'
@@ -416,7 +418,7 @@ class _SubscriptionsHubPageState extends State<SubscriptionsHubPage> {
                   Center(
                     child: TextButton.icon(
                       onPressed: _busy ? null : _restoreAll,
-                      icon: const Icon(Icons.restore),
+                      icon: const AppIcon.fromMaterial(Icons.restore),
                       label: Text(tr.subscription_restore),
                     ),
                   ),
@@ -479,7 +481,7 @@ class _SubscriptionSectionCard extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(icon, color: iconColor, size: 28),
+                AppIcon.fromMaterial(icon, color: iconColor, size: 28),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(

@@ -47,11 +47,13 @@ extension _BdfdAstTranspilationScopeControlFlow on _BdfdAstTranspilationScope {
                 Action(
                   type: BotCreatorActionType.ifBlock,
                   payload: <String, dynamic>{
+                    'tryCatch': true,
                     'condition.variable': '((error.message))',
                     'condition.operator': 'isEmpty',
                     'condition.value': '',
-                    'thenActions':
-                        tryActions.map((action) => action.toJson()).toList(),
+                    'thenActions': tryActions
+                        .map((action) => action.toJson())
+                        .toList(),
                     'elseIfConditions': const <Map<String, dynamic>>[],
                     'elseActions': const <Map<String, dynamic>>[],
                   },
@@ -67,14 +69,17 @@ extension _BdfdAstTranspilationScopeControlFlow on _BdfdAstTranspilationScope {
             Action(
               type: BotCreatorActionType.ifBlock,
               payload: <String, dynamic>{
+                'tryCatch': true,
                 'condition.variable': '((error.message))',
                 'condition.operator': 'isEmpty',
                 'condition.value': '',
-                'thenActions':
-                    tryActions.map((action) => action.toJson()).toList(),
+                'thenActions': tryActions
+                    .map((action) => action.toJson())
+                    .toList(),
                 'elseIfConditions': const <Map<String, dynamic>>[],
-                'elseActions':
-                    catchActions.map((action) => action.toJson()).toList(),
+                'elseActions': catchActions
+                    .map((action) => action.toJson())
+                    .toList(),
               },
             ),
           ];
@@ -297,7 +302,13 @@ extension _BdfdAstTranspilationScopeControlFlow on _BdfdAstTranspilationScope {
     required int nextIndex,
   }) {
     // C-style for: $for[init; condition; update]
-    if (loopNode.arguments.length == 3) {
+    if (loopNode.arguments.length == 3 &&
+        (RegExp(
+              r'^\s*[a-zA-Z_]\w*\s*=',
+            ).hasMatch(_stringifyArgument(loopNode, 0)) ||
+            RegExp(
+              r'<=|>=|==|!=|<|>',
+            ).hasMatch(_stringifyArgument(loopNode, 1)))) {
       final initStr = _stringifyArgument(loopNode, 0);
       final condStr = _stringifyArgument(loopNode, 1).trim();
       final updateStr = _stringifyArgument(loopNode, 2);
@@ -306,7 +317,10 @@ extension _BdfdAstTranspilationScopeControlFlow on _BdfdAstTranspilationScope {
       final hasRuntimeInit = initStr.contains('((');
       final hasRuntimeCond = condStr.contains('((');
       final hasRuntimeUpdate = updateStr.contains('((');
-      if (hasRuntimeInit || hasRuntimeCond || hasRuntimeUpdate) {
+      if (hasRuntimeInit ||
+          hasRuntimeCond ||
+          hasRuntimeUpdate ||
+          _cStyleNeedsRuntime(initStr, condStr, updateStr, loopNode)) {
         // Extract declared variable names from init for body placeholder mapping.
         final varNames = <String>{};
         for (final part in initStr.split(',')) {
@@ -357,7 +371,8 @@ extension _BdfdAstTranspilationScopeControlFlow on _BdfdAstTranspilationScope {
     // Simple for: $for[n] (0-1 args, no var name)
     if (loopNode.arguments.length <= 1) {
       final rawIterations = _stringifyArgument(loopNode, 0).trim();
-      if (rawIterations.contains('((')) {
+      if (rawIterations.contains('((') ||
+          (int.tryParse(rawIterations) ?? 0) > _maxCompileTimeLoopIterations) {
         return _ConsumedLoopBlock(
           nextIndex: nextIndex,
           bodyNodes: bodyNodes,
@@ -408,7 +423,7 @@ extension _BdfdAstTranspilationScopeControlFlow on _BdfdAstTranspilationScope {
 
     // Check if any value contains runtime placeholders.
     final hasRuntime = values.any((v) => v.contains('(('));
-    if (hasRuntime) {
+    if (hasRuntime || values.length > _maxCompileTimeLoopIterations) {
       return _ConsumedLoopBlock(
         nextIndex: nextIndex,
         bodyNodes: bodyNodes,
@@ -427,6 +442,23 @@ extension _BdfdAstTranspilationScopeControlFlow on _BdfdAstTranspilationScope {
       listValues: values,
       isListIteration: true,
     );
+  }
+
+  bool _cStyleNeedsRuntime(
+    String init,
+    String condition,
+    String update,
+    BdfdFunctionCallAst node,
+  ) {
+    final vars = _parseCStyleLoopInit(init, node);
+    if (vars == null || !_validateCStyleCondition(condition, vars, node)) {
+      return false;
+    }
+    for (var i = 0; i <= _maxCompileTimeLoopIterations; i++) {
+      if (!_evaluateCStyleCondition(condition, vars)) return false;
+      _applyCStyleLoopUpdate(update, vars);
+    }
+    return true;
   }
 
   static final RegExp _cStyleConditionPattern = RegExp(
@@ -538,12 +570,16 @@ extension _BdfdAstTranspilationScopeControlFlow on _BdfdAstTranspilationScope {
       final trimmed = part.trim();
       if (trimmed.isEmpty) continue;
       if (trimmed.endsWith('++')) {
-        final name =
-            trimmed.substring(0, trimmed.length - 2).trim().toLowerCase();
+        final name = trimmed
+            .substring(0, trimmed.length - 2)
+            .trim()
+            .toLowerCase();
         vars[name] = (vars[name] ?? 0) + 1;
       } else if (trimmed.endsWith('--')) {
-        final name =
-            trimmed.substring(0, trimmed.length - 2).trim().toLowerCase();
+        final name = trimmed
+            .substring(0, trimmed.length - 2)
+            .trim()
+            .toLowerCase();
         vars[name] = (vars[name] ?? 0) - 1;
       } else if (trimmed.contains('+=')) {
         final sides = trimmed.split('+=');
@@ -581,7 +617,7 @@ extension _BdfdAstTranspilationScopeControlFlow on _BdfdAstTranspilationScope {
     var iterationCount = 0;
 
     while (_evaluateCStyleCondition(condition, _loopVariables) &&
-        iterationCount < _maxSupportedLoopIterations) {
+        iterationCount < _maxCompileTimeLoopIterations) {
       _loopIterationIndex = iterationCount;
       final iterActions = _transpileNodes(bodyNodes);
       for (final a in iterActions) {
@@ -617,7 +653,7 @@ extension _BdfdAstTranspilationScopeControlFlow on _BdfdAstTranspilationScope {
     var iterationCount = 0;
 
     while (_evaluateCStyleCondition(condition, _loopVariables) &&
-        iterationCount < _maxSupportedLoopIterations) {
+        iterationCount < _maxCompileTimeLoopIterations) {
       _loopIterationIndex = iterationCount;
       for (final node in bodyNodes) {
         if (node is BdfdTextAst) {
@@ -685,20 +721,6 @@ extension _BdfdAstTranspilationScopeControlFlow on _BdfdAstTranspilationScope {
         ),
       );
       return null;
-    }
-
-    if (parsed > _maxSupportedLoopIterations) {
-      _diagnostics.add(
-        BdfdTranspileDiagnostic(
-          message:
-              '${loopNode.name} iteration count $parsed exceeds limit $_maxSupportedLoopIterations and will be capped.',
-          severity: BdfdTranspileDiagnosticSeverity.warning,
-          start: loopNode.start,
-          end: loopNode.end,
-          functionName: loopNode.name,
-        ),
-      );
-      return _maxSupportedLoopIterations;
     }
 
     return parsed;
@@ -770,7 +792,6 @@ extension _BdfdAstTranspilationScopeControlFlow on _BdfdAstTranspilationScope {
 
     final payload = <String, dynamic>{
       'bodyActions': bodyActions.map((action) => action.toJson()).toList(),
-      'maxIterations': _maxSupportedLoopIterations,
     };
 
     if (consumed.isRuntimeCStyleLoop) {
@@ -825,7 +846,6 @@ extension _BdfdAstTranspilationScopeControlFlow on _BdfdAstTranspilationScope {
         'varName': varName,
         'values': values,
         'bodyActions': bodyActions.map((action) => action.toJson()).toList(),
-        'maxIterations': _maxSupportedLoopIterations,
       },
     );
   }
@@ -893,13 +913,11 @@ extension _BdfdAstTranspilationScopeControlFlow on _BdfdAstTranspilationScope {
         if (node is! BdfdFunctionCallAst) continue;
         // Loop string variables shadow BDFD functions — check first.
         if (_loopStringVariables.containsKey(node.normalizedName)) {
-          final isEffectivelyEmptyArgs = node.arguments.isEmpty ||
-              (node.arguments.length == 1 &&
-                  node.arguments.first.isEmpty);
+          final isEffectivelyEmptyArgs =
+              node.arguments.isEmpty ||
+              (node.arguments.length == 1 && node.arguments.first.isEmpty);
           if (isEffectivelyEmptyArgs) {
-            response.appendContent(
-              _loopStringVariables[node.normalizedName]!,
-            );
+            response.appendContent(_loopStringVariables[node.normalizedName]!);
             continue;
           }
         }
@@ -1021,7 +1039,6 @@ extension _BdfdAstTranspilationScopeControlFlow on _BdfdAstTranspilationScope {
     final payload = <String, dynamic>{
       'path': pathSegments,
       'bodyActions': bodyActions.map((a) => a.toJson()).toList(),
-      'maxIterations': _maxSupportedLoopIterations,
       if (_hasJsonContext && _jsonContext != null)
         'source': jsonEncode(_jsonContext),
     };

@@ -4,6 +4,8 @@ import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/utils/duration_formatter.dart';
 import 'package:flutter/material.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Body of the rewarded-ads grant history bottom sheet.
 ///
 /// Extracted from `home.dart` to keep the `_AppHomePageState` focused on the
@@ -32,7 +34,10 @@ class AdHistorySheet extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(Icons.history, color: colorScheme.onSurfaceVariant),
+                  AppIcon.fromMaterial(
+                    Icons.history,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                   const SizedBox(width: AppTheme.spacingSm),
                   Expanded(
                     child: Text(
@@ -43,7 +48,7 @@ class AdHistorySheet extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const AppIcon.fromMaterial(Icons.close),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ],
@@ -70,7 +75,7 @@ class AdHistorySheet extends StatelessWidget {
                   child: Center(
                     child: Column(
                       children: [
-                        Icon(
+                        AppIcon.fromMaterial(
                           Icons.tv_off_outlined,
                           size: 48,
                           color: colorScheme.outline,
@@ -117,7 +122,7 @@ class AdHistorySheet extends StatelessWidget {
                             color: AppTheme.success.withValues(alpha: 0.15),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(
+                          child: const AppIcon.fromMaterial(
                             Icons.check_circle_outline,
                             color: AppTheme.success,
                             size: 20,

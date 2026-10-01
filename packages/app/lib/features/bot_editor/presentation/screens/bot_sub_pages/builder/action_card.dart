@@ -39,6 +39,8 @@ import 'action_type_extension.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/scratch_block_palette.dart';
 import 'package:http/http.dart' as http;
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 enum _ActionCardMenuAction { moveUp, moveDown, remove }
 
 class ActionCard extends StatelessWidget {
@@ -132,7 +134,7 @@ class ActionCard extends StatelessWidget {
             if (showHeader) ...[
               Row(
                 children: [
-                  Icon(action.type.icon, color: AppTheme.info),
+                  AppIcon.fromMaterial(action.type.icon, color: AppTheme.info),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Column(
@@ -178,7 +180,7 @@ class ActionCard extends StatelessWidget {
                           enabled: onMoveUp != null,
                           child: Row(
                             children: [
-                              Icon(Icons.arrow_upward),
+                              AppIcon.fromMaterial(Icons.arrow_upward),
                               SizedBox(width: 8),
                               Text(context.tr.common_move_up),
                             ],
@@ -189,7 +191,7 @@ class ActionCard extends StatelessWidget {
                           enabled: onMoveDown != null,
                           child: Row(
                             children: [
-                              Icon(Icons.arrow_downward),
+                              AppIcon.fromMaterial(Icons.arrow_downward),
                               SizedBox(width: 8),
                               Text(context.tr.common_move_down),
                             ],
@@ -199,7 +201,7 @@ class ActionCard extends StatelessWidget {
                           value: _ActionCardMenuAction.remove,
                           child: Row(
                             children: [
-                              Icon(
+                              AppIcon.fromMaterial(
                                 Icons.delete_outline,
                                 color: Theme.of(context).colorScheme.error,
                               ),
@@ -219,17 +221,17 @@ class ActionCard extends StatelessWidget {
                     IconButton(
                       onPressed: onMoveUp,
                       tooltip: context.tr.common_move_up,
-                      icon: const Icon(Icons.arrow_upward),
+                      icon: const AppIcon.fromMaterial(Icons.arrow_upward),
                     ),
                     IconButton(
                       onPressed: onMoveDown,
                       tooltip: context.tr.common_move_down,
-                      icon: const Icon(Icons.arrow_downward),
+                      icon: const AppIcon.fromMaterial(Icons.arrow_downward),
                     ),
                     IconButton(
                       onPressed: () => _confirmAndRemoveAction(context),
                       tooltip: context.tr.action_remove_menu,
-                      icon: Icon(
+                      icon: AppIcon.fromMaterial(
                         Icons.delete_outline,
                         color: Theme.of(context).colorScheme.error,
                       ),
@@ -605,7 +607,10 @@ class ActionCard extends StatelessWidget {
                             ),
                           ),
                           IconButton(
-                            icon: const Icon(Icons.close, color: Colors.white),
+                            icon: const AppIcon.fromMaterial(
+                              Icons.close,
+                              color: Colors.white,
+                            ),
                             onPressed: () => Navigator.pop(sheetContext),
                           ),
                         ],
@@ -779,7 +784,7 @@ class ActionCard extends StatelessWidget {
           width: double.infinity,
           child: OutlinedButton.icon(
             onPressed: () => _openHttpRequestEditor(context),
-            icon: const Icon(Icons.http, size: 20),
+            icon: const AppIcon.fromMaterial(Icons.http, size: 20),
             label: Text(context.tr.action_edit_request),
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 14),
@@ -806,7 +811,7 @@ class ActionCard extends StatelessWidget {
           width: double.infinity,
           child: ElevatedButton.icon(
             onPressed: () => _showTestRequestModal(context),
-            icon: const Icon(Icons.send_rounded),
+            icon: const AppIcon.fromMaterial(Icons.send_rounded),
             label: Text(context.tr.action_http_test_button),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.info.withValues(alpha: 0.2),
@@ -980,7 +985,7 @@ class ActionCard extends StatelessWidget {
   ) {
     if (variableSuggestions.isEmpty) return null;
     return IconButton(
-      icon: const Icon(Icons.data_object, size: 18),
+      icon: const AppIcon.fromMaterial(Icons.data_object, size: 18),
       tooltip: context.tr.image_editor_insert_variable,
       visualDensity: VisualDensity.compact,
       onPressed: () =>
@@ -1081,7 +1086,7 @@ class ActionCard extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.edit, size: 20),
+                  icon: const AppIcon.fromMaterial(Icons.edit, size: 20),
                   onPressed: () =>
                       _showListEditor(context, paramDef, currentValue),
                 ),
@@ -1247,7 +1252,7 @@ class ActionCard extends StatelessWidget {
                 ),
                 ?_buildVariableIcon(context, paramDef.key, currentValue),
                 IconButton(
-                  icon: const Icon(Icons.edit, size: 20),
+                  icon: const AppIcon.fromMaterial(Icons.edit, size: 20),
                   onPressed: () =>
                       _showMapEditor(context, paramDef, currentValue),
                 ),
@@ -1511,7 +1516,7 @@ class ActionCard extends StatelessWidget {
                           isDense: true,
                           hintText: _localizeHint(paramDef.hint),
                           suffixIcon: stringPaths.isNotEmpty
-                              ? const Icon(
+                              ? const AppIcon.fromMaterial(
                                   Icons.arrow_drop_down,
                                   color: AppTheme.info,
                                 )
@@ -1589,7 +1594,7 @@ class ActionCard extends StatelessWidget {
                 ];
                 onParameterChanged(paramDef.key, updated);
               },
-              icon: const Icon(Icons.add, size: 16),
+              icon: const AppIcon.fromMaterial(Icons.add, size: 16),
               label: Text(context.tr.action_add_else_if),
             ),
           ],
@@ -1655,10 +1660,15 @@ class ActionCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.alt_route, color: blockColor, size: 18),
+              AppIcon.fromMaterial(
+                Icons.alt_route,
+                color: blockColor,
+                size: 18,
+              ),
               const SizedBox(width: 6),
               Expanded(
-                child: Text(context.tr.action_card_else_if(branchIndex + 1),
+                child: Text(
+                  context.tr.action_card_else_if(branchIndex + 1),
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: blockColor,
@@ -1672,7 +1682,7 @@ class ActionCard extends StatelessWidget {
                     ..removeAt(branchIndex);
                   onParameterChanged(paramKey, updated);
                 },
-                icon: const Icon(Icons.delete_outline),
+                icon: const AppIcon.fromMaterial(Icons.delete_outline),
               ),
             ],
           ),
@@ -1846,7 +1856,7 @@ class ActionCard extends StatelessWidget {
                     // Header row: Icon + Branch Label + Action count badge
                     Row(
                       children: [
-                        Icon(icon, color: blockColor, size: 18),
+                        AppIcon.fromMaterial(icon, color: blockColor, size: 18),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -1925,7 +1935,7 @@ class ActionCard extends StatelessWidget {
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 4,
                                   ),
-                                  child: Icon(
+                                  child: AppIcon.fromMaterial(
                                     Icons.arrow_forward_rounded,
                                     size: 13,
                                     color: colorScheme.outlineVariant,
@@ -1968,7 +1978,7 @@ class ActionCard extends StatelessWidget {
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Icon(
+                                        AppIcon.fromMaterial(
                                           actionIcon,
                                           size: 14,
                                           color: chipColor,
@@ -2000,7 +2010,7 @@ class ActionCard extends StatelessWidget {
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 4,
                                 ),
-                                child: Icon(
+                                child: AppIcon.fromMaterial(
                                   Icons.arrow_forward_rounded,
                                   size: 13,
                                   color: colorScheme.outlineVariant,
@@ -2037,7 +2047,10 @@ class ActionCard extends StatelessWidget {
                       width: double.infinity,
                       child: FilledButton.tonalIcon(
                         onPressed: onEditNestedActions == null ? null : onEdit,
-                        icon: const Icon(Icons.open_in_new_rounded, size: 14),
+                        icon: const AppIcon.fromMaterial(
+                          Icons.open_in_new_rounded,
+                          size: 14,
+                        ),
                         label: Text(
                           nestedList.isEmpty
                               ? context.tr.cmd_block_editor_add_action
@@ -2101,7 +2114,11 @@ class ActionCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.photo_library_outlined, color: color, size: 20),
+                    AppIcon.fromMaterial(
+                      Icons.photo_library_outlined,
+                      color: color,
+                      size: 20,
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -2119,7 +2136,10 @@ class ActionCard extends StatelessWidget {
                     ),
                     FilledButton.tonalIcon(
                       onPressed: onEdit,
-                      icon: Icon(hasOps ? Icons.edit : Icons.add, size: 16),
+                      icon: AppIcon.fromMaterial(
+                        hasOps ? Icons.edit : Icons.add,
+                        size: 16,
+                      ),
                       label: Text(
                         hasOps
                             ? context.tr.image_editor_open
@@ -2159,7 +2179,7 @@ class ActionCard extends StatelessWidget {
                                 padding: const EdgeInsets.only(bottom: 4),
                                 child: Row(
                                   children: [
-                                    const Icon(
+                                    const AppIcon.fromMaterial(
                                       Icons.arrow_right,
                                       size: 16,
                                       color: AppTheme.grey,
@@ -2399,7 +2419,11 @@ class ActionCard extends StatelessWidget {
       padding: const EdgeInsets.only(top: 8, bottom: 4, left: 4),
       child: Row(
         children: [
-          Icon(_categoryIconStatic(cat), size: 14, color: AppTheme.grey),
+          AppIcon.fromMaterial(
+            _categoryIconStatic(cat),
+            size: 14,
+            color: AppTheme.grey,
+          ),
           const SizedBox(width: 4),
           Text(
             _categoryLabel(tr, cat),
@@ -2465,7 +2489,11 @@ class ActionCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right, size: 16, color: AppTheme.grey),
+              const AppIcon.fromMaterial(
+                Icons.chevron_right,
+                size: 16,
+                color: AppTheme.grey,
+              ),
             ],
           ),
         ),
@@ -2683,7 +2711,7 @@ class ActionCard extends StatelessWidget {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.add),
+                      icon: const AppIcon.fromMaterial(Icons.add),
                       onPressed: () {
                         if (controller.text.trim().isNotEmpty) {
                           setDialogState(() {
@@ -2703,7 +2731,10 @@ class ActionCard extends StatelessWidget {
                       return ListTile(
                         title: Text(items[index]),
                         trailing: IconButton(
-                          icon: const Icon(Icons.delete, color: AppTheme.error),
+                          icon: const AppIcon.fromMaterial(
+                            Icons.delete,
+                            color: AppTheme.error,
+                          ),
                           onPressed: () =>
                               setDialogState(() => items.removeAt(index)),
                         ),
@@ -2792,7 +2823,9 @@ class ActionCard extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    icon: Icon(isPreviewMode ? Icons.code : Icons.visibility),
+                    icon: AppIcon.fromMaterial(
+                      isPreviewMode ? Icons.code : Icons.visibility,
+                    ),
                     tooltip: isPreviewMode
                         ? context.tr.action_edit_raw_json
                         : context.tr.action_preview_json,
@@ -2814,7 +2847,7 @@ class ActionCard extends StatelessWidget {
                     },
                   ),
                   IconButton(
-                    icon: const Icon(Icons.format_align_left),
+                    icon: const AppIcon.fromMaterial(Icons.format_align_left),
                     tooltip: context.tr.action_format_json,
                     onPressed: () {
                       try {
@@ -3075,7 +3108,7 @@ class ActionCard extends StatelessWidget {
                             ),
                             const SizedBox(width: 4),
                             IconButton(
-                              icon: const Icon(
+                              icon: const AppIcon.fromMaterial(
                                 Icons.delete,
                                 color: AppTheme.error,
                               ),
@@ -3106,7 +3139,7 @@ class ActionCard extends StatelessWidget {
                       });
                     });
                   },
-                  icon: const Icon(Icons.add),
+                  icon: const AppIcon.fromMaterial(Icons.add),
                   label: Text(context.tr.common_add_argument),
                 ),
               ],
@@ -3279,7 +3312,7 @@ class ActionCard extends StatelessWidget {
                             ),
                             const SizedBox(width: 4),
                             IconButton(
-                              icon: const Icon(
+                              icon: const AppIcon.fromMaterial(
                                 Icons.delete,
                                 color: AppTheme.error,
                               ),
@@ -3312,7 +3345,7 @@ class ActionCard extends StatelessWidget {
                           });
                         });
                       },
-                      icon: const Icon(Icons.add),
+                      icon: const AppIcon.fromMaterial(Icons.add),
                       label: Text(context.tr.action_add_header),
                     ),
                     const SizedBox(width: 8),
@@ -3677,7 +3710,7 @@ class ActionCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Icon(
+                    const AppIcon.fromMaterial(
                       Icons.dashboard_customize_rounded,
                       color: AppTheme.discord,
                       size: 18,
@@ -3704,7 +3737,8 @@ class ActionCard extends StatelessWidget {
                           AppTheme.radiusPill,
                         ),
                       ),
-                      child: Text(context.tr.embed_count(count),
+                      child: Text(
+                        context.tr.embed_count(count),
                         style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
@@ -3753,7 +3787,7 @@ class ActionCard extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 4,
                               ),
-                              child: Icon(
+                              child: AppIcon.fromMaterial(
                                 Icons.arrow_forward_rounded,
                                 size: 13,
                                 color: colorScheme.outlineVariant,
@@ -3789,7 +3823,7 @@ class ActionCard extends StatelessWidget {
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Icon(
+                                    const AppIcon.fromMaterial(
                                       Icons.style_outlined,
                                       size: 14,
                                       color: AppTheme.discord,
@@ -3825,7 +3859,8 @@ class ActionCard extends StatelessWidget {
                                             3,
                                           ),
                                         ),
-                                        child: Text(context.tr.field_count(fields),
+                                        child: Text(
+                                          context.tr.field_count(fields),
                                           style: const TextStyle(
                                             fontSize: 10,
                                             color: AppTheme.discord,
@@ -3852,7 +3887,10 @@ class ActionCard extends StatelessWidget {
                       paramDef: paramDef,
                       embeds: embeds,
                     ),
-                    icon: const Icon(Icons.open_in_new_rounded, size: 14),
+                    icon: const AppIcon.fromMaterial(
+                      Icons.open_in_new_rounded,
+                      size: 14,
+                    ),
                     label: Text(
                       count == 0
                           ? context.tr.embed_add_tooltip
@@ -3894,7 +3932,7 @@ class ActionCard extends StatelessWidget {
             title: Text(_formatParameterName(context.tr, paramDef.key)),
             actions: [
               IconButton(
-                icon: const Icon(Icons.check),
+                icon: const AppIcon.fromMaterial(Icons.check),
                 tooltip: ctx.tr.common_ok,
                 onPressed: () => Navigator.pop(ctx),
               ),
@@ -3956,7 +3994,7 @@ class ActionCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Icon(
+                    const AppIcon.fromMaterial(
                       Icons.widgets_rounded,
                       color: AppTheme.success,
                       size: 18,
@@ -3983,7 +4021,8 @@ class ActionCard extends StatelessWidget {
                           AppTheme.radiusPill,
                         ),
                       ),
-                      child: Text(context.tr.element_count(count),
+                      child: Text(
+                        context.tr.element_count(count),
                         style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
@@ -4032,7 +4071,7 @@ class ActionCard extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 4,
                               ),
-                              child: Icon(
+                              child: AppIcon.fromMaterial(
                                 Icons.arrow_forward_rounded,
                                 size: 13,
                                 color: colorScheme.outlineVariant,
@@ -4064,7 +4103,7 @@ class ActionCard extends StatelessWidget {
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Icon(
+                                    const AppIcon.fromMaterial(
                                       Icons.smart_button_outlined,
                                       size: 14,
                                       color: AppTheme.success,
@@ -4104,7 +4143,10 @@ class ActionCard extends StatelessWidget {
                       compDef: compDef,
                       isComponentV2: isComponentV2,
                     ),
-                    icon: const Icon(Icons.open_in_new_rounded, size: 14),
+                    icon: const AppIcon.fromMaterial(
+                      Icons.open_in_new_rounded,
+                      size: 14,
+                    ),
                     label: Text(
                       count == 0
                           ? context.tr.component_add_action_row
@@ -4147,7 +4189,7 @@ class ActionCard extends StatelessWidget {
             title: Text(_formatParameterName(context.tr, paramDef.key)),
             actions: [
               IconButton(
-                icon: const Icon(Icons.check),
+                icon: const AppIcon.fromMaterial(Icons.check),
                 tooltip: ctx.tr.common_ok,
                 onPressed: () => Navigator.pop(ctx),
               ),
@@ -4212,7 +4254,7 @@ class ActionCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Icon(
+                    const AppIcon.fromMaterial(
                       Icons.feed_outlined,
                       color: AppTheme.discord,
                       size: 18,
@@ -4241,7 +4283,8 @@ class ActionCard extends StatelessWidget {
                           AppTheme.radiusPill,
                         ),
                       ),
-                      child: Text(context.tr.field_count(count),
+                      child: Text(
+                        context.tr.field_count(count),
                         style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
@@ -4260,7 +4303,10 @@ class ActionCard extends StatelessWidget {
                       paramDef: paramDef,
                       modalDef: modalDef,
                     ),
-                    icon: const Icon(Icons.open_in_new_rounded, size: 14),
+                    icon: const AppIcon.fromMaterial(
+                      Icons.open_in_new_rounded,
+                      size: 14,
+                    ),
                     label: Text(
                       count == 0
                           ? _formatParameterName(context.tr, paramDef.key)
@@ -4306,7 +4352,7 @@ class ActionCard extends StatelessWidget {
             ),
             actions: [
               IconButton(
-                icon: const Icon(Icons.check),
+                icon: const AppIcon.fromMaterial(Icons.check),
                 tooltip: ctx.tr.common_ok,
                 onPressed: () => Navigator.pop(ctx),
               ),
@@ -4568,7 +4614,7 @@ class _VariableKeyParameterFieldState
             IconButton(
               tooltip: context.tr.action_refresh_keys,
               onPressed: _loading ? null : _loadKeys,
-              icon: const Icon(Icons.refresh),
+              icon: const AppIcon.fromMaterial(Icons.refresh),
             ),
           ],
         ),
@@ -4583,7 +4629,7 @@ class _VariableKeyParameterFieldState
             );
             await _loadKeys();
           },
-          icon: const Icon(Icons.storage),
+          icon: const AppIcon.fromMaterial(Icons.storage),
           label: Text(context.tr.action_manage_variable_keys),
         ),
       ],
@@ -4708,7 +4754,7 @@ class _WorkflowNameParameterFieldState
             IconButton(
               tooltip: context.tr.common_refresh_workflows,
               onPressed: _loading ? null : _loadWorkflows,
-              icon: const Icon(Icons.refresh),
+              icon: const AppIcon.fromMaterial(Icons.refresh),
             ),
           ],
         ),
@@ -4734,7 +4780,7 @@ class _WorkflowNameParameterFieldState
             );
             await _loadWorkflows();
           },
-          icon: const Icon(Icons.account_tree),
+          icon: const AppIcon.fromMaterial(Icons.account_tree),
           label: Text(context.tr.common_manage_workflows),
         ),
       ],
@@ -5332,7 +5378,11 @@ class _BdfdScriptParameterFieldState extends State<_BdfdScriptParameterField> {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.code, size: 16, color: Colors.white70),
+                    const AppIcon.fromMaterial(
+                      Icons.code,
+                      size: 16,
+                      color: Colors.white70,
+                    ),
                     const SizedBox(width: 8),
                     Text(
                       context.tr.bdfd_editor_tap_hint,
@@ -5342,7 +5392,11 @@ class _BdfdScriptParameterFieldState extends State<_BdfdScriptParameterField> {
                       ),
                     ),
                     const Spacer(),
-                    Icon(Icons.open_in_new, size: 14, color: AppTheme.grey),
+                    AppIcon.fromMaterial(
+                      Icons.open_in_new,
+                      size: 14,
+                      color: AppTheme.grey,
+                    ),
                   ],
                 ),
                 if (!isEmpty) ...[
@@ -5385,7 +5439,11 @@ class _BdfdScriptParameterFieldState extends State<_BdfdScriptParameterField> {
         ),
         child: Row(
           children: [
-            Icon(Icons.check_circle_outline, size: 18, color: AppTheme.success),
+            AppIcon.fromMaterial(
+              Icons.check_circle_outline,
+              size: 18,
+              color: AppTheme.success,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -5429,7 +5487,7 @@ class _BdfdScriptParameterFieldState extends State<_BdfdScriptParameterField> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(icon, size: 16, color: color),
+                  AppIcon.fromMaterial(icon, size: 16, color: color),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(

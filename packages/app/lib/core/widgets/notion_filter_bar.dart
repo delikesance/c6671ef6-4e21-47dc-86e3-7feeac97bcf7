@@ -2,6 +2,8 @@ import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// A filter definition for the Notion-like filter bar.
 ///
 /// Each filter has an [id], a display [label], and a list of [options].
@@ -189,7 +191,10 @@ class _NotionFilterBarState extends State<NotionFilterBar> {
                   onChanged: widget.onSearchChanged,
                   decoration: InputDecoration(
                     hintText: widget.searchHint,
-                    prefixIcon: const Icon(Icons.search, size: 20),
+                    prefixIcon: const AppIcon.fromMaterial(
+                      Icons.search,
+                      size: 20,
+                    ),
                     border: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
@@ -200,7 +205,10 @@ class _NotionFilterBarState extends State<NotionFilterBar> {
                     ),
                     suffixIcon: widget.searchQuery.isNotEmpty
                         ? IconButton(
-                            icon: const Icon(Icons.clear, size: 18),
+                            icon: const AppIcon.fromMaterial(
+                              Icons.clear,
+                              size: 18,
+                            ),
                             onPressed: () {
                               _searchController.clear();
                               widget.onSearchChanged('');
@@ -243,13 +251,16 @@ class _NotionFilterBarState extends State<NotionFilterBar> {
                       toggle.label,
                       style: const TextStyle(fontSize: 12),
                     ),
-                    avatar: Icon(toggle.icon, size: 16),
+                    avatar: AppIcon.fromMaterial(toggle.icon, size: 16),
                     selected: true,
                     selectedColor: colorScheme.primaryContainer,
                     onDeleted: () {
                       widget.onToggleFilterChanged?.call(toggle.id, false);
                     },
-                    deleteIcon: const Icon(Icons.close, size: 14),
+                    deleteIcon: const AppIcon.fromMaterial(
+                      Icons.close,
+                      size: 14,
+                    ),
                     visualDensity: VisualDensity.compact,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
@@ -301,7 +312,7 @@ class _NotionFilterBarState extends State<NotionFilterBar> {
                 ),
                 child: Row(
                   children: [
-                    Icon(
+                    AppIcon.fromMaterial(
                       Icons.add_circle_outline,
                       size: 18,
                       color: colorScheme.primary,
@@ -355,12 +366,15 @@ class _NotionFilterBarState extends State<NotionFilterBar> {
                   dense: true,
                   title: Text(entry.value),
                   leading: isSelected
-                      ? Icon(
+                      ? AppIcon.fromMaterial(
                           Icons.check_circle,
                           color: colorScheme.primary,
                           size: 20,
                         )
-                      : const Icon(Icons.radio_button_unchecked, size: 20),
+                      : const AppIcon.fromMaterial(
+                          Icons.radio_button_unchecked,
+                          size: 20,
+                        ),
                   onTap: () {
                     Navigator.pop(sheetContext);
                     widget.onFilterChanged?.call(filter.id, entry.key);
@@ -403,9 +417,12 @@ class _NotionFilterBarState extends State<NotionFilterBar> {
               for (final filter in availableFilters)
                 ListTile(
                   dense: true,
-                  leading: Icon(filter.icon, size: 20),
+                  leading: AppIcon.fromMaterial(filter.icon, size: 20),
                   title: Text(filter.label),
-                  subtitle: Text(context.tr.marketplace_command_preview_options(filter.options.length),
+                  subtitle: Text(
+                    context.tr.marketplace_command_preview_options(
+                      filter.options.length,
+                    ),
                     style: const TextStyle(fontSize: 11),
                   ),
                   onTap: () {
@@ -416,7 +433,7 @@ class _NotionFilterBarState extends State<NotionFilterBar> {
               for (final toggle in availableToggles)
                 ListTile(
                   dense: true,
-                  leading: Icon(toggle.icon, size: 20),
+                  leading: AppIcon.fromMaterial(toggle.icon, size: 20),
                   title: Text(toggle.label),
                   onTap: () {
                     Navigator.pop(sheetContext);
@@ -455,11 +472,11 @@ class _ActiveFilterChip extends StatelessWidget {
         '${filter.label}: $displayValue',
         style: const TextStyle(fontSize: 12),
       ),
-      avatar: Icon(filter.icon, size: 16),
+      avatar: AppIcon.fromMaterial(filter.icon, size: 16),
       selected: true,
       selectedColor: colorScheme.primaryContainer,
       onDeleted: onRemove,
-      deleteIcon: const Icon(Icons.close, size: 14),
+      deleteIcon: const AppIcon.fromMaterial(Icons.close, size: 14),
       onPressed: onTap,
       visualDensity: VisualDensity.compact,
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,

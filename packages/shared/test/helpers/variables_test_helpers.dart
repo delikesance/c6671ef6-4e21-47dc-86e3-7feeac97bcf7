@@ -77,6 +77,9 @@ Future<Map<String, String>> executeCompiledActions({
       },
     );
     if (handledControlFlow) {
+      if (localResults.containsKey('__stopped__')) {
+        return localResults;
+      }
       continue;
     }
 
@@ -344,26 +347,21 @@ class MemoryBotDataStore implements BotDataStore {
   Future<List<Map<String, dynamic>>> listAppCommands(
     String botId, {
     bool forceRefresh = false,
-  }) async =>
-      throw UnsupportedError('Not used');
+  }) async => throw UnsupportedError('Not used');
 
   @override
   Future<void> saveAppCommand(
     String botId,
     String commandId,
     Map<String, dynamic> data,
-  ) async =>
-      throw UnsupportedError('Not used');
+  ) async => throw UnsupportedError('Not used');
 
   @override
   Future<void> updateGuildCount(String botId, int count) async =>
       throw UnsupportedError('Not used');
 
   @override
-  Future<void> recordCommandExecution(
-    String botId,
-    String commandName,
-  ) async =>
+  Future<void> recordCommandExecution(String botId, String commandName) async =>
       throw UnsupportedError('Not used');
 
   @override

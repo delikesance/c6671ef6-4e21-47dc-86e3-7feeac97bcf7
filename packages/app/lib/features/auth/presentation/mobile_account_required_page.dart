@@ -8,6 +8,8 @@ import 'package:bot_creator/core/auth/mobile_account_session.dart';
 import 'package:bot_creator/features/auth/presentation/mobile_email_login_form.dart';
 import 'package:flutter/material.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 class MobileAccountRequiredPage extends StatefulWidget {
   const MobileAccountRequiredPage({
     super.key,
@@ -94,12 +96,12 @@ class _MobileAccountRequiredPageState extends State<MobileAccountRequiredPage> {
                     Align(
                       alignment: Alignment.topRight,
                       child: IconButton(
-                        icon: const Icon(Icons.close),
+                        icon: const AppIcon.fromMaterial(Icons.close),
                         tooltip: tr.common_close,
                         onPressed: widget.onDismiss,
                       ),
                     ),
-                  Icon(
+                  AppIcon.fromMaterial(
                     Icons.account_circle_outlined,
                     size: 56,
                     // Icône décorative : neutre du thème. Le violet reste
@@ -134,7 +136,7 @@ class _MobileAccountRequiredPageState extends State<MobileAccountRequiredPage> {
                               color: Colors.white,
                             ),
                           )
-                        : const Icon(Icons.login),
+                        : const AppIcon.fromMaterial(Icons.login),
                     label: Text(tr.settings_account_connect_label),
                     style: FilledButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.primary,
@@ -171,7 +173,10 @@ class _MobileAccountRequiredPageState extends State<MobileAccountRequiredPage> {
                     const SizedBox(height: 12),
                     TextButton.icon(
                       onPressed: widget.onDismiss,
-                      icon: const Icon(Icons.edit_note_outlined, size: 18),
+                      icon: const AppIcon.fromMaterial(
+                        Icons.edit_note_outlined,
+                        size: 18,
+                      ),
                       label: Text(tr.edit_shell_local_draft),
                     ),
                   ],

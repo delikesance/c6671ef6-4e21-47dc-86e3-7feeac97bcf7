@@ -70,13 +70,10 @@ Future<Map<String, String>> editChannelPermissionsAction(
       return {'error': 'channelId is required for editChannelPermissions'};
     }
 
-    final targetTypeRaw =
-        resolve(
-          (payload['targetType'] ?? 'member').toString(),
-        ).trim().toLowerCase();
+    final targetTypeRaw = resolve(
+      (payload['targetType'] ?? 'member').toString(),
+    ).trim().toLowerCase();
     final isEveryone = targetTypeRaw == 'everyone';
-    final isMember =
-        !isEveryone && (targetTypeRaw == 'member' || targetTypeRaw == 'user');
 
     // For @everyone, the target ID is the guild/server ID.
     // Otherwise use the value from the payload.
@@ -99,14 +96,19 @@ Future<Map<String, String>> editChannelPermissionsAction(
     if (channel is! GuildChannel) {
       return {'error': 'Channel is not a guild channel'};
     }
+    var isMember =
+        !isEveryone && (targetTypeRaw == 'member' || targetTypeRaw == 'user');
+    if (targetTypeRaw == 'auto') {
+      final roles = await client.guilds[channel.guildId].roles.list();
+      isMember = !roles.any((role) => role.id == targetId);
+    }
 
     await channel.updatePermissionOverwrite(
       PermissionOverwriteBuilder(
         id: targetId,
-        type:
-            isMember
-                ? PermissionOverwriteType.member
-                : PermissionOverwriteType.role,
+        type: isMember
+            ? PermissionOverwriteType.member
+            : PermissionOverwriteType.role,
         allow: allow,
         deny: deny,
       ),
@@ -145,10 +147,9 @@ Future<Map<String, String>> deleteChannelPermissionAction(
       return {'error': 'channelId is required for deleteChannelPermission'};
     }
 
-    final targetTypeRaw =
-        resolve(
-          (payload['targetType'] ?? 'member').toString(),
-        ).trim().toLowerCase();
+    final targetTypeRaw = resolve(
+      (payload['targetType'] ?? 'member').toString(),
+    ).trim().toLowerCase();
     final isEveryone = targetTypeRaw == 'everyone';
 
     final String resolvedTargetId;

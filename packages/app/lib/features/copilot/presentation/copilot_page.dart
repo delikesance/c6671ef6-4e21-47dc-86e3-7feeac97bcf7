@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:bot_creator/core/widgets/app_icon.dart';
+import 'package:bot_creator/features/copilot/presentation/copilot_activity.dart';
+import 'package:reicon_flutter/reicon_flutter.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
@@ -76,41 +79,134 @@ class _CopilotPageState extends State<CopilotPage> {
         ['pending', 'executing', 'uncertain'].contains(a['state']) &&
         !_mutating(a),
   );
+  CopilotActivityStep _activityStep(Map<String, dynamic> action) {
+    final fn = (action['call'] as Map)['function'] as Map;
+    final name = fn['name'] as String;
+    final state = action['state'];
+    final failed = state == 'failed' || state == 'uncertain';
+    return CopilotActivityStep(
+      label: switch (name) {
+        'docs_search' => _copy(
+          'Recherche dans la documentation',
+          'Searching documentation',
+        ),
+        'docs_get' => _copy(
+          'Lecture de la documentation',
+          'Reading documentation',
+        ),
+        'local_test_command' => _copy(
+          'Test dans le sandbox',
+          'Testing in the sandbox',
+        ),
+        _ => _label(name),
+      },
+      icon: switch (name) {
+        'docs_search' => Reicon.outline.search,
+        'docs_get' => Reicon.outline.bookOpen,
+        'local_test_command' => Reicon.outline.code,
+        'local_validate_bdfd' => Reicon.outline.taskSquare,
+        'local_runtime_reference' ||
+        'local_block_registry' => Reicon.outline.documentCode,
+        _ when name.contains('command') || name.contains('workflow') =>
+          Reicon.outline.code,
+        _ when name.contains('bot') => Reicon.outline.cpu,
+        _ => Reicon.outline.search,
+      },
+      running: state == 'pending' || state == 'executing',
+      failed: failed,
+      detail: failed
+          ? (state == 'failed'
+                ? context.tr.copilot_status_failed
+                : context.tr.copilot_status_unconfirmed)
+          : null,
+    );
+  }
+
   List<Widget> _conversationItems() {
     final actions = _actions;
     final placed = <String>{};
     final items = <Widget>[];
     final messages = _messages;
+    var steps = <CopilotActivityStep>[];
+    String? activityKey;
+    void flushActivity() {
+      if (steps.isEmpty) return;
+      final running = steps.any((step) => step.running);
+      items.add(
+        CopilotActivity(
+          key: ValueKey('activity-${_chat?['id']}-$activityKey'),
+          title: running
+              ? _copy(
+                  'Recherche et vérifications en cours',
+                  'Research and checks in progress',
+                )
+              : _copy('Recherche et vérifications', 'Research and checks'),
+          steps: List.of(steps),
+        ),
+      );
+      steps = [];
+      activityKey = null;
+    }
+
     for (var messageIndex = 0; messageIndex < messages.length; messageIndex++) {
       final message = messages[messageIndex];
-      if (message['role'] != 'user' && message['role'] != 'assistant') continue;
-      if (message['role'] == 'user' ||
-          (message['content'] ?? '').toString().trim().isNotEmpty) {
-        items.add(
-          KeyedSubtree(
-            key: ValueKey('message-$messageIndex'),
-            child: _messageBubble(message),
+      final role = message['role'];
+      if (role != 'user' && role != 'assistant') continue;
+      final content = (message['content'] ?? '').toString().trim();
+      final calls = (message['tool_calls'] as List? ?? const []);
+      if (role == 'user' || calls.isEmpty) {
+        flushActivity();
+        if (role == 'user' || content.isNotEmpty) {
+          items.add(
+            KeyedSubtree(
+              key: ValueKey('message-$messageIndex'),
+              child: _messageBubble(message),
+            ),
+          );
+        }
+      } else if (content.isNotEmpty) {
+        activityKey ??= '$messageIndex';
+        steps.add(
+          CopilotActivityStep(
+            label: _copy('Analyse', 'Analysis'),
+            detail: content,
+            icon: Reicon.outline.magicStar,
           ),
         );
       }
-      if (message['role'] != 'assistant') continue;
-      final calls = (message['tool_calls'] as List? ?? const []);
+      if (role != 'assistant') continue;
       for (final call in calls) {
         if (call is! Map) continue;
         final id = call['id']?.toString();
         for (final action in actions) {
-          if (id != null && action['call_id'] == id && placed.add(id)) {
-            if (!_mutating(action)) continue;
+          if (id == null || action['call_id'] != id || !placed.add(id)) {
+            continue;
+          }
+          if (_mutating(action)) {
+            flushActivity();
             items.add(
               KeyedSubtree(
                 key: ValueKey('action-$id'),
                 child: _actionCard(action),
               ),
             );
+          } else {
+            activityKey ??= '$messageIndex';
+            steps.add(_activityStep(action));
           }
         }
       }
     }
+    for (final action in actions.where((a) => !placed.contains(a['call_id']))) {
+      if (_mutating(action)) {
+        flushActivity();
+        items.add(_actionCard(action));
+      } else {
+        activityKey ??= 'orphan-${action['call_id']}';
+        steps.add(_activityStep(action));
+      }
+    }
+    flushActivity();
     if (_partial.isNotEmpty) {
       items.add(
         _messageBubble({
@@ -118,12 +214,31 @@ class _CopilotPageState extends State<CopilotPage> {
           'content': _partial,
         }, streaming: true),
       );
-    }
-    final orphans = actions
-        .where((a) => !placed.contains(a['call_id']) && _mutating(a))
-        .toList();
-    if (orphans.isNotEmpty) {
-      items.addAll(orphans.map(_actionCard));
+    } else if (_busy && !_summarizing && !_hasPendingReads) {
+      items.add(
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Row(
+            children: [
+              AppIcon(
+                Reicon.outline.magicStar,
+                size: 18,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  _copy(
+                    'Préparation de la réponse…',
+                    'Preparing the response…',
+                  ),
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
     }
     return items;
   }
@@ -1213,12 +1328,12 @@ class _CopilotPageState extends State<CopilotPage> {
         actions: [
           IconButton(
             tooltip: context.tr.copilot_history_tooltip,
-            icon: const Icon(Icons.history_rounded),
+            icon: AppIcon.fromMaterial(Icons.history_rounded, size: 21),
             onPressed: _busy ? null : _historySheet,
           ),
           IconButton(
             tooltip: context.tr.copilot_new_discussion,
-            icon: const Icon(Icons.edit_square),
+            icon: AppIcon.fromMaterial(Icons.edit_square, size: 21),
             onPressed: _busy ? null : _new,
           ),
           PopupMenuButton<String>(
@@ -1398,10 +1513,10 @@ class _CopilotPageState extends State<CopilotPage> {
               color: colors.primaryContainer.withValues(alpha: .55),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: Icon(
+            child: AppIcon(
               bot == null || bot.isEmpty
-                  ? Icons.auto_awesome_rounded
-                  : Icons.smart_toy_outlined,
+                  ? Reicon.outline.magicStar
+                  : Reicon.outline.cpu,
               color: colors.primary,
               size: 22,
             ),
@@ -1442,10 +1557,10 @@ class _CopilotPageState extends State<CopilotPage> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
+                  AppIcon(
                     location == 'local'
-                        ? Icons.devices_rounded
-                        : Icons.cloud_outlined,
+                        ? Reicon.outline.devices
+                        : Reicon.outline.cloud,
                     size: 12,
                     color: colors.onSurfaceVariant,
                   ),
@@ -1516,8 +1631,8 @@ class _CopilotPageState extends State<CopilotPage> {
               visualDensity: VisualDensity.compact,
               tooltip: context.tr.copilot_action_credits,
               onPressed: () => _handleMenu('wallet'),
-              icon: Icon(
-                Icons.arrow_forward_rounded,
+              icon: AppIcon(
+                Reicon.outline.arrowRight,
                 size: 18,
                 color: colors.onSurfaceVariant,
               ),
@@ -1553,17 +1668,17 @@ class _CopilotPageState extends State<CopilotPage> {
           const SizedBox(height: 22),
           for (final suggestion in [
             (
-              Icons.search_rounded,
+              Reicon.outline.search,
               context.tr.copilot_suggestion_check_title,
               context.tr.copilot_suggestion_check_prompt,
             ),
             (
-              Icons.code_rounded,
+              Reicon.outline.code,
               context.tr.copilot_suggestion_command_title,
               context.tr.copilot_suggestion_command_prompt,
             ),
             (
-              Icons.lightbulb_outline_rounded,
+              Reicon.outline.lightbulb,
               context.tr.copilot_suggestion_feature_title,
               context.tr.copilot_suggestion_feature_prompt,
             ),
@@ -1584,7 +1699,7 @@ class _CopilotPageState extends State<CopilotPage> {
                     padding: const EdgeInsets.all(15),
                     child: Row(
                       children: [
-                        Icon(suggestion.$1, size: 19, color: colors.primary),
+                        AppIcon(suggestion.$1, size: 19, color: colors.primary),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
@@ -1592,8 +1707,8 @@ class _CopilotPageState extends State<CopilotPage> {
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                         ),
-                        Icon(
-                          Icons.north_west_rounded,
+                        AppIcon(
+                          Reicon.outline.arrowUpRight,
                           size: 15,
                           color: colors.onSurfaceVariant,
                         ),
@@ -1616,8 +1731,8 @@ class _CopilotPageState extends State<CopilotPage> {
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 dense: true,
-                leading: Icon(
-                  Icons.chat_bubble_outline_rounded,
+                leading: AppIcon(
+                  Reicon.outline.chatRound,
                   size: 19,
                   color: colors.onSurfaceVariant,
                 ),
@@ -1626,7 +1741,7 @@ class _CopilotPageState extends State<CopilotPage> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                trailing: const Icon(Icons.chevron_right_rounded, size: 18),
+                trailing: AppIcon(Reicon.outline.arrowRight2, size: 18),
                 onTap: () => _open(c['id'] as String),
               ),
           ],
@@ -1648,20 +1763,20 @@ class _CopilotPageState extends State<CopilotPage> {
         constraints: BoxConstraints(
           maxWidth: user ? MediaQuery.sizeOf(context).width * .82 : 850,
         ),
-        margin: const EdgeInsets.only(bottom: 20),
-        padding: const EdgeInsets.all(16),
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: EdgeInsets.symmetric(
+          horizontal: user ? 12 : 2,
+          vertical: user ? 8 : 2,
+        ),
         decoration: BoxDecoration(
           color: user
               ? colors.primaryContainer.withValues(alpha: .32)
-              : colors.surfaceContainerLow,
+              : Colors.transparent,
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(18),
             topRight: const Radius.circular(18),
             bottomLeft: Radius.circular(user ? 18 : 5),
             bottomRight: Radius.circular(user ? 5 : 18),
-          ),
-          border: Border.all(
-            color: colors.outlineVariant.withValues(alpha: .4),
           ),
         ),
         child: Column(
@@ -1670,8 +1785,8 @@ class _CopilotPageState extends State<CopilotPage> {
             Row(
               children: [
                 if (!user) ...[
-                  Icon(
-                    Icons.auto_awesome_rounded,
+                  AppIcon(
+                    Reicon.outline.magicStar,
                     size: 14,
                     color: colors.primary,
                   ),
@@ -1699,13 +1814,13 @@ class _CopilotPageState extends State<CopilotPage> {
                   IconButton(
                     visualDensity: VisualDensity.compact,
                     constraints: const BoxConstraints(
-                      minWidth: 28,
-                      minHeight: 28,
+                      minWidth: 24,
+                      minHeight: 24,
                     ),
                     padding: EdgeInsets.zero,
                     tooltip: context.tr.copilot_copy_message,
-                    icon: Icon(
-                      Icons.copy_rounded,
+                    icon: AppIcon(
+                      Reicon.outline.copy,
                       size: 14,
                       color: colors.onSurfaceVariant,
                     ),
@@ -1714,7 +1829,7 @@ class _CopilotPageState extends State<CopilotPage> {
                   ),
               ],
             ),
-            const SizedBox(height: 9),
+            const SizedBox(height: 4),
             CopilotMarkdown(content: content),
           ],
         ),
@@ -1741,8 +1856,8 @@ class _CopilotPageState extends State<CopilotPage> {
               padding: const EdgeInsets.only(bottom: 9),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.toll_outlined,
+                  AppIcon(
+                    Reicon.outline.coin,
                     size: 12,
                     color: colors.onSurfaceVariant,
                   ),
@@ -1798,7 +1913,7 @@ class _CopilotPageState extends State<CopilotPage> {
                     onPressed: canSend
                         ? () => _send(null, true, retryPending)
                         : null,
-                    icon: Icon(
+                    icon: AppIcon.fromMaterial(
                       retryPending ? Icons.replay_rounded : Icons.send,
                       size: 19,
                     ),
@@ -1835,12 +1950,12 @@ class _CopilotPageState extends State<CopilotPage> {
                   ),
                 )
               else
-                Icon(
+                AppIcon(
                   state == 'succeeded'
-                      ? Icons.check_rounded
+                      ? Reicon.outline.tickCircle
                       : failed
-                      ? Icons.error_outline_rounded
-                      : Icons.tune_rounded,
+                      ? Reicon.outline.infoCircle
+                      : Reicon.outline.setting4,
                   size: 14,
                   color: failed ? colors.error : colors.onSurfaceVariant,
                 ),
@@ -2142,6 +2257,11 @@ class CopilotMarkdown extends StatelessWidget {
     child: MarkdownBody(
       data: content,
       selectable: false,
+      styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
+        blockSpacing: 7,
+        listIndent: 18,
+        p: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.4),
+      ),
       onTapLink: (text, href, title) {
         final uri = Uri.tryParse(href ?? '');
         if (uri != null && ['https', 'http'].contains(uri.scheme)) {
@@ -2172,7 +2292,7 @@ class _CodeBuilder extends MarkdownElementBuilder {
         ),
         IconButton(
           tooltip: copyTooltip,
-          icon: const Icon(Icons.copy, size: 18),
+          icon: AppIcon(Reicon.outline.copy, size: 18),
           onPressed: () => Clipboard.setData(ClipboardData(text: code)),
         ),
       ],

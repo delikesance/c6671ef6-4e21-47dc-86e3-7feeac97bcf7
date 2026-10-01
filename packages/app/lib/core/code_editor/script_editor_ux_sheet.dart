@@ -2,6 +2,8 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/features/settings/presentation/code_editor_settings_page.dart';
 import 'package:flutter/material.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Feuille « UX » du chrome d'éditeur : elle rappelle les fonctions de
 /// l'éditeur (puces déjà localisées par la page) et ouvre les réglages de la
 /// palette.
@@ -28,7 +30,7 @@ void showScriptEditorUxSheet(
           children: [
             Row(
               children: [
-                const Icon(Icons.tips_and_updates_outlined),
+                const AppIcon.fromMaterial(Icons.tips_and_updates_outlined),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -50,7 +52,10 @@ void showScriptEditorUxSheet(
                 Navigator.of(sheetContext).pop();
                 onOpenSettings();
               },
-              icon: const Icon(Icons.palette_outlined, size: 18),
+              icon: const AppIcon.fromMaterial(
+                Icons.palette_outlined,
+                size: 18,
+              ),
               label: Text(context.tr.code_editor_settings_title),
             ),
             const SizedBox(height: 8),

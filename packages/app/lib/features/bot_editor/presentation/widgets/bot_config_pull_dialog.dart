@@ -3,6 +3,8 @@ import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_config_merge.dart';
 import 'package:flutter/material.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 Future<bool> showBotConfigPullConfirmDialog({
   required BuildContext context,
   required BotConfigMergeDiff diff,
@@ -16,7 +18,10 @@ Future<bool> showBotConfigPullConfirmDialog({
     builder: (ctx) => AlertDialog(
       title: Row(
         children: [
-          Icon(Icons.cloud_download, color: colorScheme.primary),
+          AppIcon.fromMaterial(
+            Icons.cloud_download,
+            color: colorScheme.primary,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -94,7 +99,10 @@ Future<bool> showBotConfigPullConfirmDialog({
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Row(
                   children: [
-                    Icon(Icons.check_circle, color: AppTheme.successAccent),
+                    AppIcon.fromMaterial(
+                      Icons.check_circle,
+                      color: AppTheme.successAccent,
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -115,7 +123,7 @@ Future<bool> showBotConfigPullConfirmDialog({
                 ),
                 child: Row(
                   children: [
-                    Icon(
+                    AppIcon.fromMaterial(
                       Icons.info_outline,
                       size: 16,
                       color: colorScheme.secondary,
@@ -144,7 +152,7 @@ Future<bool> showBotConfigPullConfirmDialog({
         ),
         FilledButton.icon(
           onPressed: diff.hasChanges ? () => Navigator.of(ctx).pop(true) : null,
-          icon: const Icon(Icons.cloud_download, size: 18),
+          icon: const AppIcon.fromMaterial(Icons.cloud_download, size: 18),
           label: Text(
             diff.hasChanges
                 ? '${context.tr.bot_home_pull} (${diff.newCommands.length + diff.updatedCommands.length})'
@@ -164,7 +172,7 @@ Widget _buildTimestampRow({
 }) {
   return Row(
     children: [
-      Icon(icon, size: 18, color: color),
+      AppIcon.fromMaterial(icon, size: 18, color: color),
       const SizedBox(width: 8),
       Expanded(
         child: Column(
@@ -187,9 +195,11 @@ Widget _buildChangeRow(IconData icon, String label, Color color) {
     padding: const EdgeInsets.only(bottom: 4),
     child: Row(
       children: [
-        Icon(icon, size: 16, color: color),
+        AppIcon.fromMaterial(icon, size: 16, color: color),
         const SizedBox(width: 8),
-        Expanded(child: Text(label, style: TextStyle(fontSize: 13, color: color))),
+        Expanded(
+          child: Text(label, style: TextStyle(fontSize: 13, color: color)),
+        ),
       ],
     ),
   );

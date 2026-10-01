@@ -63,8 +63,9 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
         'name': ?name,
         'archived': ?archived,
         if (archiveDurationRaw != null)
-          'autoArchiveDuration':
-              _normalizeThreadArchiveDuration(archiveDurationRaw).toString(),
+          'autoArchiveDuration': _normalizeThreadArchiveDuration(
+            archiveDurationRaw,
+          ).toString(),
         'locked': ?locked,
         'slowmode': ?slowmode,
       },
@@ -90,10 +91,9 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
     }
 
     return Action(
-      type:
-          add
-              ? BotCreatorActionType.addThreadMember
-              : BotCreatorActionType.removeThreadMember,
+      type: add
+          ? BotCreatorActionType.addThreadMember
+          : BotCreatorActionType.removeThreadMember,
       payload: <String, dynamic>{'threadId': threadId, 'userId': userId},
     );
   }
@@ -193,13 +193,44 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
     return true;
   }
 
+  // A literal document still needs runtime operations when a path or value
+  // comes from command inputs. Preserve the current document as their source.
+  void _deferJsonForRuntimeArguments(BdfdFunctionCallAst node) {
+    if (!_hasJsonContext || _deferredJsonMode) return;
+    bool runtimePart(BdfdAstNode part) {
+      if (part is BdfdTextAst) return part.value.contains('((');
+      if (part is! BdfdFunctionCallAst) return false;
+      final name = part.normalizedName;
+      if ((_inlineRuntimeVariables[name]?.contains('((') ?? false) ||
+          name == 'var' ||
+          name.startsWith('get') && name.endsWith('var') ||
+          (_runtimeLoopVarNames?.contains(name) ?? false)) {
+        return true;
+      }
+      return part.arguments.any((argument) => argument.any(runtimePart));
+    }
+
+    final runtime = node.arguments.any((argument) => argument.any(runtimePart));
+    if (!runtime) return;
+    _deferredJsonMode = true;
+    _deferredJsonSource = jsonEncode(_jsonContext);
+    _deferredJsonOps.clear();
+    _deferredJsonReadCounter = 0;
+    _deferredJsonResultKeyPrefix = 'rtJson_${_deferredJsonBlockCounter++}';
+    _hasJsonContext = false;
+    _jsonContext = null;
+    _lastDeferredJsonResultKeyPrefix = null;
+  }
+
   String _jsonGet(BdfdFunctionCallAst node) {
+    _deferJsonForRuntimeArguments(node);
     // BDFD wiki: $json[value?] creates/initializes a JSON object.
     // - $json[] (empty) → initialize empty {} if no context exists
     // - $json[raw_json] where raw_json starts with { or [ and no context
     //   exists → parse and initialize (like $jsonParse)
     // - $json[path] (path doesn't look like raw JSON) → read from context
-    final hasEmptyBrackets = node.arguments.isEmpty ||
+    final hasEmptyBrackets =
+        node.arguments.isEmpty ||
         (node.arguments.length == 1 && node.arguments.first.isEmpty);
     if (hasEmptyBrackets && !_hasJsonContext && !_deferredJsonMode) {
       _jsonContext = <String, dynamic>{};
@@ -243,6 +274,7 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
   }
 
   void _jsonSet(BdfdFunctionCallAst node, {required bool forceString}) {
+    _deferJsonForRuntimeArguments(node);
     final pathLength = node.arguments.length - 1;
     if (pathLength < 1) {
       _diagnostics.add(
@@ -275,6 +307,7 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
   }
 
   void _jsonUnset(BdfdFunctionCallAst node) {
+    _deferJsonForRuntimeArguments(node);
     if (_deferredJsonMode || _resumeDeferredJsonFromLastRuntimeContext()) {
       final segments = _jsonPathSegmentsRaw(node);
       _deferredJsonOps.add(<String, dynamic>{
@@ -299,12 +332,13 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
       _deferredJsonOps.add(<String, dynamic>{'op': 'clear'});
       return;
     }
-    _jsonContext = null;
-    _hasJsonContext = false;
+    _jsonContext = <String, dynamic>{};
+    _hasJsonContext = true;
     _lastDeferredJsonResultKeyPrefix = null;
   }
 
   String _jsonExists(BdfdFunctionCallAst node) {
+    _deferJsonForRuntimeArguments(node);
     if (_deferredJsonMode || _resumeDeferredJsonFromLastRuntimeContext()) {
       final segments = _jsonPathSegmentsRaw(node);
       final readIndex = _deferredJsonReadCounter++;
@@ -338,6 +372,7 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
   }
 
   String _jsonPretty(BdfdFunctionCallAst node) {
+    _deferJsonForRuntimeArguments(node);
     if (_deferredJsonMode || _resumeDeferredJsonFromLastRuntimeContext()) {
       final indentRaw = _stringifyArgument(node, 0).trim();
       final readIndex = _deferredJsonReadCounter++;
@@ -358,6 +393,7 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
   }
 
   void _jsonArray(BdfdFunctionCallAst node) {
+    _deferJsonForRuntimeArguments(node);
     // BDFD wiki: $jsonArray[key;separator?] splits the existing string value
     // at the given key by the separator and stores the resulting array.
     // The separator is the LAST argument; the path is everything before it.
@@ -365,7 +401,9 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
     final separator = hasSeparator
         ? _stringifyArgument(node, node.arguments.length - 1)
         : ',';
-    final pathEnd = hasSeparator ? node.arguments.length - 1 : node.arguments.length;
+    final pathEnd = hasSeparator
+        ? node.arguments.length - 1
+        : node.arguments.length;
 
     if (_deferredJsonMode || _resumeDeferredJsonFromLastRuntimeContext()) {
       final segments = _jsonPathSegmentsRaw(node, endExclusive: pathEnd);
@@ -395,6 +433,7 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
   }
 
   String _jsonArrayCount(BdfdFunctionCallAst node) {
+    _deferJsonForRuntimeArguments(node);
     if (_deferredJsonMode || _resumeDeferredJsonFromLastRuntimeContext()) {
       final segments = _jsonPathSegmentsRaw(node);
       final readIndex = _deferredJsonReadCounter++;
@@ -416,6 +455,7 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
   }
 
   String _jsonArrayIndex(BdfdFunctionCallAst node) {
+    _deferJsonForRuntimeArguments(node);
     if (_deferredJsonMode || _resumeDeferredJsonFromLastRuntimeContext()) {
       if (node.arguments.length < 2) return '-1';
       final segments = _jsonPathSegmentsRaw(
@@ -456,6 +496,7 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
   }
 
   void _jsonArrayAppend(BdfdFunctionCallAst node) {
+    _deferJsonForRuntimeArguments(node);
     if (node.arguments.length < 2) {
       _diagnostics.add(
         BdfdTranspileDiagnostic(
@@ -493,6 +534,7 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
   }
 
   String _jsonArrayPop(BdfdFunctionCallAst node) {
+    _deferJsonForRuntimeArguments(node);
     if (_deferredJsonMode || _resumeDeferredJsonFromLastRuntimeContext()) {
       final segments = _jsonPathSegmentsRaw(node);
       final readIndex = _deferredJsonReadCounter++;
@@ -512,6 +554,7 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
   }
 
   String _jsonArrayShift(BdfdFunctionCallAst node) {
+    _deferJsonForRuntimeArguments(node);
     if (_deferredJsonMode || _resumeDeferredJsonFromLastRuntimeContext()) {
       final segments = _jsonPathSegmentsRaw(node);
       final readIndex = _deferredJsonReadCounter++;
@@ -531,6 +574,7 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
   }
 
   void _jsonArrayUnshift(BdfdFunctionCallAst node) {
+    _deferJsonForRuntimeArguments(node);
     if (node.arguments.length < 2) {
       _diagnostics.add(
         BdfdTranspileDiagnostic(
@@ -569,14 +613,17 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
   }
 
   void _jsonArraySort(BdfdFunctionCallAst node) {
+    _deferJsonForRuntimeArguments(node);
     // BDFD wiki: $jsonArraySort[key;order?] where order is "asc" or "desc".
     // The order is the LAST argument; the path is everything before it.
     final hasOrder = node.arguments.length >= 2;
     final orderRaw = hasOrder
-        ? _stringifyArgument(node, node.arguments.length - 1).trim().toLowerCase()
+        ? _stringifyArgument(node, node.arguments.length - 1).trim()
         : 'asc';
-    final descending = orderRaw == 'desc';
-    final pathEnd = hasOrder ? node.arguments.length - 1 : node.arguments.length;
+    final descending = orderRaw.toLowerCase() == 'desc';
+    final pathEnd = hasOrder
+        ? node.arguments.length - 1
+        : node.arguments.length;
 
     if (_deferredJsonMode || _resumeDeferredJsonFromLastRuntimeContext()) {
       final segments = _jsonPathSegmentsRaw(node, endExclusive: pathEnd);
@@ -584,6 +631,7 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
         'op': 'arraySort',
         'path': segments,
         'descending': descending,
+        'order': orderRaw,
       });
       return;
     }
@@ -611,6 +659,7 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
   }
 
   void _jsonArrayReverse(BdfdFunctionCallAst node) {
+    _deferJsonForRuntimeArguments(node);
     if (_deferredJsonMode || _resumeDeferredJsonFromLastRuntimeContext()) {
       final segments = _jsonPathSegmentsRaw(node);
       _deferredJsonOps.add(<String, dynamic>{
@@ -627,6 +676,7 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
   }
 
   String _jsonJoinArray(BdfdFunctionCallAst node) {
+    _deferJsonForRuntimeArguments(node);
     if (_deferredJsonMode || _resumeDeferredJsonFromLastRuntimeContext()) {
       if (node.arguments.isEmpty) return '';
       final separator = _stringifyArgument(node, node.arguments.length - 1);
@@ -663,12 +713,12 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
   }
 
   String _jsonKeys(BdfdFunctionCallAst node) {
+    _deferJsonForRuntimeArguments(node);
     final hasSeparatorArg = node.arguments.length >= 2;
     if (_deferredJsonMode || _resumeDeferredJsonFromLastRuntimeContext()) {
-      final separator =
-          hasSeparatorArg
-              ? _stringifyArgument(node, node.arguments.length - 1)
-              : ',';
+      final separator = hasSeparatorArg
+          ? _stringifyArgument(node, node.arguments.length - 1)
+          : ',';
       final segments = _jsonPathSegmentsRaw(
         node,
         endExclusive: hasSeparatorArg ? node.arguments.length - 1 : null,
@@ -686,10 +736,9 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
       return '';
     }
 
-    final separator =
-        hasSeparatorArg
-            ? _stringifyArgument(node, node.arguments.length - 1)
-            : ',';
+    final separator = hasSeparatorArg
+        ? _stringifyArgument(node, node.arguments.length - 1)
+        : ',';
     final path = _jsonPathSegments(
       node,
       endExclusive: hasSeparatorArg ? node.arguments.length - 1 : null,
@@ -1114,10 +1163,12 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
     var contextId = '';
 
     if (scope == 'user') {
-      final gvUserId =
-          node.arguments.length > 2 ? _stringifyArgument(node, 2).trim() : '';
-      final gvGuildId =
-          node.arguments.length > 3 ? _stringifyArgument(node, 3).trim() : '';
+      final gvUserId = node.arguments.length > 2
+          ? _stringifyArgument(node, 2).trim()
+          : '';
+      final gvGuildId = node.arguments.length > 3
+          ? _stringifyArgument(node, 3).trim()
+          : '';
 
       if (gvGuildId.isNotEmpty) {
         resolvedScope = 'guildMember';
@@ -1128,17 +1179,20 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
         contextId = gvUserId;
       }
     } else if (scope == 'guildMember') {
-      final gmvUserId =
-          node.arguments.length > 2 ? _stringifyArgument(node, 2).trim() : '';
-      final gmvGuildId =
-          node.arguments.length > 3 ? _stringifyArgument(node, 3).trim() : '';
+      final gmvUserId = node.arguments.length > 2
+          ? _stringifyArgument(node, 2).trim()
+          : '';
+      final gmvGuildId = node.arguments.length > 3
+          ? _stringifyArgument(node, 3).trim()
+          : '';
 
       final guildPart = gmvGuildId.isNotEmpty ? gmvGuildId : '((guild.id))';
       final userPart = gmvUserId.isNotEmpty ? gmvUserId : '((author.id))';
       contextId = '$guildPart:$userPart';
     } else {
-      contextId =
-          node.arguments.length > 2 ? _stringifyArgument(node, 2).trim() : '';
+      contextId = node.arguments.length > 2
+          ? _stringifyArgument(node, 2).trim()
+          : '';
     }
 
     if (key.isEmpty) {
@@ -1178,7 +1232,10 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
 
   Action _buildSetTemporaryVariableAction(BdfdFunctionCallAst node) {
     final key = _normalizeScopedVariableKey(_stringifyArgument(node, 0));
-    final value = _stringifyArgument(node, 1);
+    final value = [
+      for (var i = 1; i < node.arguments.length; i++)
+        _stringifyArgument(node, i),
+    ].join(';');
     if (key.isEmpty) {
       _diagnostics.add(
         BdfdTranspileDiagnostic(
@@ -1241,6 +1298,7 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
       type: BotCreatorActionType.setScopedVariable,
       payload: <String, dynamic>{
         'scope': 'user',
+        'contextId': userId.isEmpty ? '((author.id))' : userId,
         'key': 'await_$awaitName',
         'valueType': 'json',
         'jsonValue': jsonEncode(payloadMap),
@@ -1255,32 +1313,33 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
     }
 
     final key = 'check_user_perms_${_permissionCheckCounter++}';
+    Action answer(String value) => Action(
+      type: BotCreatorActionType.setTemporaryVariable,
+      payload: {'key': key, 'valueType': 'string', 'value': value},
+    );
     _deferredInlineActions.add(
       _buildGuardIfAction(
         condition: parsed.condition,
-        thenActions: <Action>[
-          _buildSetScopedVariableActionRaw(
-            scope: 'message',
-            key: key,
-            value: 'true',
-          ),
-        ],
-        elseActions: <Action>[
-          _buildSetScopedVariableActionRaw(
-            scope: 'message',
-            key: key,
-            value: 'false',
-          ),
-        ],
+        thenActions: <Action>[answer('true')],
+        elseActions: <Action>[answer('false')],
       ),
     );
 
-    return _scopedVariablePlaceholder('message', key);
+    return '((temp.$key))';
   }
 
   String _inlineMessageArgument(BdfdFunctionCallAst node) {
     final first = _stringifyArgument(node, 0).trim();
     final second = _stringifyArgument(node, 1).trim();
+
+    if (_containsRuntimePlaceholder(first) ||
+        _containsRuntimePlaceholder(second)) {
+      return _buildRuntimeBracketExpression('bdfdmessageargument', [
+        first,
+        second,
+        '${node.arguments.length >= 2}',
+      ]);
+    }
 
     if (first.isEmpty && second.isEmpty) {
       return '((message.content))';
@@ -1311,8 +1370,9 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
     }
 
     final messageExpression = _messageArgumentExpression(first);
-    final optionSource =
-        second.isNotEmpty ? second : (messageExpression == null ? first : '');
+    final optionSource = second.isNotEmpty
+        ? second
+        : (messageExpression == null ? first : '');
     final optionExpression = _optionExpression(optionSource);
 
     if (messageExpression != null && optionExpression != null) {
@@ -1361,8 +1421,9 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
     }
 
     final argsExpression = _argsArgumentExpression(first);
-    final optionSource =
-        second.isNotEmpty ? second : (argsExpression == null ? first : '');
+    final optionSource = second.isNotEmpty
+        ? second
+        : (argsExpression == null ? first : '');
     final optionExpression = _optionExpression(optionSource);
 
     if (argsExpression != null && optionExpression != null) {
@@ -1430,8 +1491,9 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
       return null;
     }
 
-    final normalized =
-        trimmed.startsWith('opts.') ? trimmed.substring(5) : trimmed;
+    final normalized = trimmed.startsWith('opts.')
+        ? trimmed.substring(5)
+        : trimmed;
     if (normalized.isEmpty) {
       return null;
     }
@@ -1441,6 +1503,14 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
 
   String _inlineMentionedChannels(BdfdFunctionCallAst node) {
     final mentionRaw = _stringifyArgument(node, 0).trim();
+    final returnCurrentRaw = _stringifyArgument(node, 1).trim();
+    if (_containsRuntimePlaceholder(mentionRaw) ||
+        _containsRuntimePlaceholder(returnCurrentRaw)) {
+      return _buildRuntimeBracketExpression('bdfdmentionedchannels', [
+        mentionRaw,
+        returnCurrentRaw,
+      ]);
+    }
     final mentionNumber = int.tryParse(mentionRaw);
     if (mentionNumber == null || mentionNumber <= 0) {
       _diagnostics.add(
@@ -1455,8 +1525,7 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
     }
 
     final zeroBasedIndex = mentionNumber - 1;
-    final mentionExpression = 'message.mentions[$zeroBasedIndex]';
-    final returnCurrentRaw = _stringifyArgument(node, 1).trim();
+    final mentionExpression = 'message.channelMentions[$zeroBasedIndex]';
     final returnCurrent =
         returnCurrentRaw.isNotEmpty && _parseBooleanLike(returnCurrentRaw);
 
@@ -1464,22 +1533,6 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
       return '(($mentionExpression|channel.id))';
     }
     return '(($mentionExpression))';
-  }
-
-  Action _buildSetScopedVariableActionRaw({
-    required String scope,
-    required String key,
-    required String value,
-  }) {
-    return Action(
-      type: BotCreatorActionType.setScopedVariable,
-      payload: <String, dynamic>{
-        'scope': scope,
-        'key': key,
-        'valueType': 'string',
-        'value': value,
-      },
-    );
   }
 
   String _normalizeAwaitName(String raw) {
@@ -1535,8 +1588,9 @@ extension _BdfdAstTranspilationScopeRuntimeBuilders
   }
 
   String _rebuildFunctionSource(BdfdFunctionCallAst node) {
-    final functionName =
-        node.name.startsWith(r'$') ? node.name : '${r'$'}${node.name}';
+    final functionName = node.name.startsWith(r'$')
+        ? node.name
+        : '${r'$'}${node.name}';
 
     if (node.arguments.isEmpty) {
       return functionName;

@@ -19,8 +19,9 @@ String? _resolveListenerMessageId({
   required String Function(String input) resolveValue,
   Interaction? interaction,
 }) {
-  final explicitMessageId =
-      resolveValue((payload['messageId'] ?? '').toString()).trim();
+  final explicitMessageId = resolveValue(
+    (payload['messageId'] ?? '').toString(),
+  ).trim();
   if (explicitMessageId.isNotEmpty) {
     return explicitMessageId;
   }
@@ -34,8 +35,8 @@ String? _resolveListenerMessageId({
   }
 
   final dynamic dynInteraction = interaction;
-  final interactionMessageId =
-      (dynInteraction?.message?.id as Snowflake?)?.toString();
+  final interactionMessageId = (dynInteraction?.message?.id as Snowflake?)
+      ?.toString();
   if (interactionMessageId != null && interactionMessageId.isNotEmpty) {
     return interactionMessageId;
   }
@@ -47,8 +48,9 @@ String? _resolveExplicitListenerMessageId(
   Map<String, dynamic> payload,
   String Function(String input) resolveValue,
 ) {
-  final messageId =
-      resolveValue((payload['messageId'] ?? '').toString()).trim();
+  final messageId = resolveValue(
+    (payload['messageId'] ?? '').toString(),
+  ).trim();
   return messageId.isEmpty ? null : messageId;
 }
 
@@ -133,6 +135,9 @@ Future<bool> executeComponentsInteractionsAction({
         throw Exception(messageResult['error']);
       }
       results[resultKey] = messageResult['messageId'] ?? 'responded';
+      if ((messageResult['messageId'] ?? '').isNotEmpty) {
+        variables['last.response.id'] = messageResult['messageId']!;
+      }
       return true;
 
     case BotCreatorActionType.respondWithModal:
@@ -154,13 +159,11 @@ Future<bool> executeComponentsInteractionsAction({
 
       // Support inline actions (new format) alongside legacy onSubmitWorkflow.
       final rawActions = modalResult['actions'];
-      final hasInlineActions =
-          rawActions is List && rawActions.isNotEmpty;
+      final hasInlineActions = rawActions is List && rawActions.isNotEmpty;
 
-      final onSubmitWorkflow =
-          resolveValue(
-            (modalResult['onSubmitWorkflow'] ?? '').toString(),
-          ).trim();
+      final onSubmitWorkflow = resolveValue(
+        (modalResult['onSubmitWorkflow'] ?? '').toString(),
+      ).trim();
 
       if (hasInlineActions || onSubmitWorkflow.isNotEmpty) {
         List<Action>? inlineActions;
@@ -171,12 +174,11 @@ Future<bool> executeComponentsInteractionsAction({
               .toList();
         }
 
-        final onSubmitEntryPoint =
-            onSubmitWorkflow.isNotEmpty
-                ? resolveValue(
-                    (modalResult['onSubmitEntryPoint'] ?? '').toString(),
-                  ).trim()
-                : '';
+        final onSubmitEntryPoint = onSubmitWorkflow.isNotEmpty
+            ? resolveValue(
+                (modalResult['onSubmitEntryPoint'] ?? '').toString(),
+              ).trim()
+            : '';
         final onSubmitArguments = resolveWorkflowCallArguments(
           modalResult['onSubmitArguments'],
           resolveValue,
@@ -243,14 +245,16 @@ Future<bool> executeComponentsInteractionsAction({
       // the given customId.
 
       final ttlRaw = payload['ttlMinutes'];
-      final ttlMinutes = (ttlRaw is num
-              ? ttlRaw.toInt()
-              : int.tryParse(ttlRaw?.toString() ?? '') ?? 60)
-          .clamp(1, 60);
+      final ttlMinutes =
+          (ttlRaw is num
+                  ? ttlRaw.toInt()
+                  : int.tryParse(ttlRaw?.toString() ?? '') ?? 60)
+              .clamp(1, 60);
       // Modals are always one-shot; buttons/selects repeat on every click until TTL.
       final oneShot = type == BotCreatorActionType.listenForModalSubmit;
-      final workflowEntryPoint =
-          resolveValue((payload['entryPoint'] ?? '').toString()).trim();
+      final workflowEntryPoint = resolveValue(
+        (payload['entryPoint'] ?? '').toString(),
+      ).trim();
       final workflowArguments = resolveWorkflowCallArguments(
         payload['arguments'],
         resolveValue,
@@ -264,31 +268,31 @@ Future<bool> executeComponentsInteractionsAction({
           workflowEntryPoint: workflowEntryPoint,
           workflowArguments: workflowArguments,
           expiresAt: DateTime.now().add(Duration(minutes: ttlMinutes)),
-          type:
-              type == BotCreatorActionType.listenForButtonClick
-                  ? 'button'
-                  : type == BotCreatorActionType.listenForSelectMenu
-                  ? 'select'
-                  : 'modal',
+          type: type == BotCreatorActionType.listenForButtonClick
+              ? 'button'
+              : type == BotCreatorActionType.listenForSelectMenu
+              ? 'select'
+              : 'modal',
           oneShot: oneShot,
           guildId: guildId?.toString(),
           channelId: fallbackChannelId?.toString(),
           initialContext: extractListenerContext(variables),
-          messageId:
-              type == BotCreatorActionType.listenForModalSubmit
-                  ? _resolveExplicitListenerMessageId(payload, resolveValue)
-                  : variables['workflow.type'] == workflowTypeEvent
-                  ? _resolveExplicitListenerMessageId(payload, resolveValue)
-                  : _resolveListenerMessageId(
-                    payload: payload,
-                    variables: variables,
-                    resolveValue: resolveValue,
-                    interaction: interaction,
-                  ),
+          messageId: type == BotCreatorActionType.listenForModalSubmit
+              ? _resolveExplicitListenerMessageId(payload, resolveValue)
+              : variables['workflow.type'] == workflowTypeEvent
+              ? _resolveExplicitListenerMessageId(payload, resolveValue)
+              : _resolveListenerMessageId(
+                  payload: payload,
+                  variables: variables,
+                  resolveValue: resolveValue,
+                  interaction: interaction,
+                ),
         ),
       );
 
-      final currentCustomId = (interaction is MessageComponentInteraction || interaction is ModalSubmitInteraction)
+      final currentCustomId =
+          (interaction is MessageComponentInteraction ||
+              interaction is ModalSubmitInteraction)
           ? (interaction as dynamic).data.customId.toString()
           : null;
       if (currentCustomId == customId && store != null && client != null) {
@@ -328,18 +332,20 @@ Future<bool> executeComponentsInteractionsAction({
       final workflowName = resolveValue(
         (payload['workflowName'] ?? '').toString(),
       );
-      final workflowEntryPoint =
-          resolveValue((payload['entryPoint'] ?? '').toString()).trim();
+      final workflowEntryPoint = resolveValue(
+        (payload['entryPoint'] ?? '').toString(),
+      ).trim();
       final workflowArguments = resolveWorkflowCallArguments(
         payload['arguments'],
         resolveValue,
       );
 
       final ttlRaw = payload['ttlMinutes'];
-      final ttlMinutes = (ttlRaw is num
-              ? ttlRaw.toInt()
-              : int.tryParse(ttlRaw?.toString() ?? '') ?? 60)
-          .clamp(1, 60);
+      final ttlMinutes =
+          (ttlRaw is num
+                  ? ttlRaw.toInt()
+                  : int.tryParse(ttlRaw?.toString() ?? '') ?? 60)
+              .clamp(1, 60);
 
       // Register for button
       InteractionListenerRegistry.instance.register(
@@ -348,7 +354,9 @@ Future<bool> executeComponentsInteractionsAction({
           botId: botId,
           inlineActions: inlineActions.isNotEmpty ? inlineActions : null,
           workflowName: workflowName,
-          workflowEntryPoint: workflowEntryPoint.isNotEmpty ? workflowEntryPoint : 'main',
+          workflowEntryPoint: workflowEntryPoint.isNotEmpty
+              ? workflowEntryPoint
+              : 'main',
           workflowArguments: workflowArguments,
           expiresAt: DateTime.now().add(Duration(minutes: ttlMinutes)),
           type: 'button',
@@ -374,7 +382,9 @@ Future<bool> executeComponentsInteractionsAction({
           botId: botId,
           inlineActions: inlineActions.isNotEmpty ? inlineActions : null,
           workflowName: workflowName,
-          workflowEntryPoint: workflowEntryPoint.isNotEmpty ? workflowEntryPoint : 'main',
+          workflowEntryPoint: workflowEntryPoint.isNotEmpty
+              ? workflowEntryPoint
+              : 'main',
           workflowArguments: workflowArguments,
           expiresAt: DateTime.now().add(Duration(minutes: ttlMinutes)),
           type: 'select',
@@ -400,7 +410,9 @@ Future<bool> executeComponentsInteractionsAction({
           botId: botId,
           inlineActions: inlineActions.isNotEmpty ? inlineActions : null,
           workflowName: workflowName,
-          workflowEntryPoint: workflowEntryPoint.isNotEmpty ? workflowEntryPoint : 'main',
+          workflowEntryPoint: workflowEntryPoint.isNotEmpty
+              ? workflowEntryPoint
+              : 'main',
           workflowArguments: workflowArguments,
           expiresAt: DateTime.now().add(Duration(minutes: ttlMinutes)),
           type: 'modal',
@@ -413,7 +425,9 @@ Future<bool> executeComponentsInteractionsAction({
       );
 
       // Immediate Execution Check!
-      final currentCustomId = (interaction is MessageComponentInteraction || interaction is ModalSubmitInteraction)
+      final currentCustomId =
+          (interaction is MessageComponentInteraction ||
+              interaction is ModalSubmitInteraction)
           ? (interaction as dynamic).data.customId.toString()
           : null;
       if (currentCustomId == customId && store != null && client != null) {

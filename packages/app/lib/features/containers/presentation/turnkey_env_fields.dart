@@ -3,6 +3,8 @@ import 'package:bot_creator/features/containers/logic/hosted_app_templates.dart'
 import 'package:bot_creator/features/containers/logic/turnkey_env_payload.dart';
 import 'package:flutter/material.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Un contrôleur par variable À SAISIR déclarée par le template, pré-rempli avec
 /// la valeur par défaut du template. Le token Discord n'en a pas : il garde le
 /// champ de saisie dédié de l'écran de déploiement (partagé avec le sélecteur de
@@ -39,7 +41,8 @@ class TurnkeyEnvFieldsSection extends StatefulWidget {
   final Map<String, TextEditingController>? controllers;
 
   @override
-  State<TurnkeyEnvFieldsSection> createState() => _TurnkeyEnvFieldsSectionState();
+  State<TurnkeyEnvFieldsSection> createState() =>
+      _TurnkeyEnvFieldsSectionState();
 }
 
 class _TurnkeyEnvFieldsSectionState extends State<TurnkeyEnvFieldsSection> {
@@ -100,11 +103,7 @@ class _TurnkeyEnvFieldsSectionState extends State<TurnkeyEnvFieldsSection> {
 /// avec sa valeur par défaut, masqué s'il est `secret`, en lecture seule s'il est
 /// verrouillé (valeur imposée par le serveur).
 class TurnkeyEnvFieldTile extends StatefulWidget {
-  const TurnkeyEnvFieldTile({
-    super.key,
-    required this.field,
-    this.controller,
-  });
+  const TurnkeyEnvFieldTile({super.key, required this.field, this.controller});
 
   final HostedAppEnvField field;
 
@@ -147,7 +146,7 @@ class _TurnkeyEnvFieldTileState extends State<TurnkeyEnvFieldTile> {
         obscureText: field.secret,
         decoration: InputDecoration(
           labelText: label,
-          prefixIcon: const Icon(Icons.lock_outline),
+          prefixIcon: const AppIcon.fromMaterial(Icons.lock_outline),
           helperText: tr.container_deploy_env_server_provided,
         ),
       );
@@ -158,10 +157,14 @@ class _TurnkeyEnvFieldTileState extends State<TurnkeyEnvFieldTile> {
       obscureText: _obscure,
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(field.secret ? Icons.key_outlined : Icons.tune),
+        prefixIcon: AppIcon.fromMaterial(
+          field.secret ? Icons.key_outlined : Icons.tune,
+        ),
         suffixIcon: field.secret
             ? IconButton(
-                icon: Icon(_obscure ? Icons.visibility : Icons.visibility_off),
+                icon: AppIcon.fromMaterial(
+                  _obscure ? Icons.visibility : Icons.visibility_off,
+                ),
                 onPressed: () => setState(() => _obscure = !_obscure),
               )
             : null,

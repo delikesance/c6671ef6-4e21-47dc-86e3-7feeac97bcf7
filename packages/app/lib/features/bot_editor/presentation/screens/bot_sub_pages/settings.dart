@@ -32,6 +32,8 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pag
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/lavalink_settings_section.dart';
 import 'dart:developer' as developer;
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 class AppSettingsPage extends StatefulWidget {
   final NyxxRest client;
   final VoidCallback? onRuntimeEngineChanged;
@@ -1002,7 +1004,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                         _isEditingToken = true;
                       });
                     },
-                    icon: const Icon(Icons.edit_outlined),
+                    icon: const AppIcon.fromMaterial(Icons.edit_outlined),
                     label: Text(context.tr.bot_settings_edit_token_btn),
                   ),
                 ),
@@ -1029,7 +1031,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                               _isEditingToken = false;
                             });
                           },
-                    icon: const Icon(Icons.close),
+                    icon: const AppIcon.fromMaterial(Icons.close),
                     label: Text(context.tr.bot_settings_cancel_token_edit_btn),
                   ),
                 ),
@@ -1074,7 +1076,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                             );
                           }
                         },
-                  icon: const Icon(Icons.vpn_key_outlined),
+                  icon: const AppIcon.fromMaterial(Icons.vpn_key_outlined),
                   label: Text(context.tr.bot_settings_save_token_only_btn),
                 ),
               ),
@@ -1084,7 +1086,8 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               const SizedBox(height: 12),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Text(context.tr.import_engine_title,
+                child: Text(
+                  context.tr.import_engine_title,
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -1163,7 +1166,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                           height: 18,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Icon(Icons.save_outlined),
+                      : const AppIcon.fromMaterial(Icons.save_outlined),
                   label: Text(context.tr.save),
                 ),
               ),
@@ -1259,16 +1262,19 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                               .toString(),
                                           fit: BoxFit.cover,
                                           errorBuilder:
-                                              (context, error, stackTrace) =>
-                                                  Container(
-                                                    color:
-                                                        AppTheme.discordBorder,
-                                                    child: const Icon(
+                                              (
+                                                context,
+                                                error,
+                                                stackTrace,
+                                              ) => Container(
+                                                color: AppTheme.discordBorder,
+                                                child:
+                                                    const AppIcon.fromMaterial(
                                                       Icons.person,
                                                       color: Colors.white,
                                                       size: 32,
                                                     ),
-                                                  ),
+                                              ),
                                         ),
                                 ),
                               ),
@@ -1282,7 +1288,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                       color: AppTheme.success,
                                       shape: BoxShape.circle,
                                     ),
-                                    child: const Icon(
+                                    child: const AppIcon.fromMaterial(
                                       Icons.check,
                                       color: Colors.white,
                                       size: 12,
@@ -1300,7 +1306,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                   children: [
                                     ElevatedButton.icon(
                                       onPressed: _pickAvatarFile,
-                                      icon: const Icon(
+                                      icon: const AppIcon.fromMaterial(
                                         Icons.photo_library_outlined,
                                         size: 16,
                                       ),
@@ -1332,7 +1338,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                             vertical: 8,
                                           ),
                                         ),
-                                        icon: const Icon(Icons.clear, size: 16),
+                                        icon: const AppIcon.fromMaterial(
+                                          Icons.clear,
+                                          size: 16,
+                                        ),
                                         label: Text(
                                           context
                                               .tr
@@ -1388,7 +1397,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                         ),
                         child: Row(
                           children: [
-                            const Icon(
+                            const AppIcon.fromMaterial(
                               Icons.info_outline,
                               color: AppTheme.discord,
                               size: 16,
@@ -1484,7 +1493,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                         _statusDrafts.add(_StatusDraft.empty());
                       });
                     },
-                    icon: const Icon(Icons.add),
+                    icon: const AppIcon.fromMaterial(Icons.add),
                     label: Text(context.tr.bot_settings_add_status),
                   ),
                 ),
@@ -1495,7 +1504,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     child: Center(
                       child: Column(
                         children: [
-                          Icon(
+                          AppIcon.fromMaterial(
                             Icons.info_outline,
                             color: AppTheme.grey.withValues(alpha: 0.5),
                             size: 48,
@@ -1555,7 +1564,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                     removed.dispose();
                                   });
                                 },
-                                icon: const Icon(Icons.delete_outline),
+                                icon: const AppIcon.fromMaterial(
+                                  Icons.delete_outline,
+                                ),
                               ),
                             ],
                           ),
@@ -1689,7 +1700,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                             );
                           }
                         },
-                  icon: const Icon(Icons.save_outlined),
+                  icon: const AppIcon.fromMaterial(Icons.save_outlined),
                   label: Text(context.tr.bot_settings_save_profile_status_btn),
                 ),
               ),
@@ -1751,7 +1762,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 child: Row(
                   children: [
-                    const Icon(Icons.storage, color: AppTheme.discord),
+                    const AppIcon.fromMaterial(
+                      Icons.storage,
+                      color: AppTheme.discord,
+                    ),
                     const SizedBox(width: 10),
                     Text(
                       context.tr.bot_settings_database_section_title,
@@ -1837,7 +1851,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(
+                      const AppIcon.fromMaterial(
                         Icons.info_outline,
                         color: AppTheme.discord,
                         size: 20,
@@ -1885,7 +1899,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                         _showAdvancedDbFields = !_showAdvancedDbFields;
                       });
                     },
-                    icon: Icon(
+                    icon: AppIcon.fromMaterial(
                       _showAdvancedDbFields
                           ? Icons.keyboard_arrow_up
                           : Icons.keyboard_arrow_down,
@@ -1988,7 +2002,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                               decoration: inputDecoration.copyWith(
                                 hintText: '••••••••',
                                 suffixIcon: IconButton(
-                                  icon: Icon(
+                                  icon: AppIcon.fromMaterial(
                                     _databasePasswordVisible
                                         ? Icons.visibility_off
                                         : Icons.visibility,
@@ -2026,7 +2040,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: _isSavingDatabase ? null : _saveDatabaseOnly,
-                  icon: const Icon(Icons.save),
+                  icon: const AppIcon.fromMaterial(Icons.save),
                   label: Text(context.tr.bot_settings_database_save_btn),
                 ),
               ),
@@ -2049,10 +2063,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               // Utility Cards
               Card(
                 child: ListTile(
-                  leading: const Icon(Icons.menu_book_outlined),
+                  leading: const AppIcon.fromMaterial(Icons.menu_book_outlined),
                   title: Text(context.tr.bot_settings_workflow_docs),
                   subtitle: Text(context.tr.bot_settings_workflow_docs_desc),
-                  trailing: const Icon(Icons.chevron_right),
+                  trailing: const AppIcon.fromMaterial(Icons.chevron_right),
                   onTap: () {
                     openDocumentationHub(
                       context,
@@ -2065,10 +2079,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               const SizedBox(height: 12),
               Card(
                 child: ListTile(
-                  leading: const Icon(Icons.import_export),
+                  leading: const AppIcon.fromMaterial(Icons.import_export),
                   title: Text(context.tr.bot_settings_export_import),
                   subtitle: Text(context.tr.bot_settings_export_import_desc),
-                  trailing: const Icon(Icons.chevron_right),
+                  trailing: const AppIcon.fromMaterial(Icons.chevron_right),
                   onTap: () {
                     Navigator.push(
                       context,
@@ -2130,7 +2144,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                     strokeWidth: 2,
                                   ),
                                 )
-                              : const Icon(Icons.sync),
+                              : const AppIcon.fromMaterial(Icons.sync),
                           label: Text(context.tr.settings_sync_force_button),
                         ),
                       ),
@@ -2200,7 +2214,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                     ),
                                   ),
                                 )
-                              : const Icon(Icons.delete_forever),
+                              : const AppIcon.fromMaterial(
+                                  Icons.delete_forever,
+                                ),
                           label: Text(context.tr.bot_settings_delete_bot_btn),
                         ),
                       ),
@@ -2240,7 +2256,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
           actions: [
             if (_capabilities.supportsCommandDashboard)
               IconButton(
-                icon: const Icon(Icons.bar_chart_rounded),
+                icon: const AppIcon.fromMaterial(Icons.bar_chart_rounded),
                 tooltip: context.tr.dashboard_title,
                 onPressed: () {
                   Navigator.of(context).push(
@@ -2399,7 +2415,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                 color: Colors.black.withValues(alpha: 0.5),
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(
+                              child: const AppIcon.fromMaterial(
                                 Icons.camera_alt_outlined,
                                 size: 16,
                                 color: Colors.white,
@@ -2427,7 +2443,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                     color: Colors.black.withValues(alpha: 0.5),
                                     shape: BoxShape.circle,
                                   ),
-                                  child: const Icon(
+                                  child: const AppIcon.fromMaterial(
                                     Icons.delete_outline,
                                     size: 16,
                                     color: Colors.white,
@@ -2476,7 +2492,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                           errorBuilder: (_, _, _) => Container(
                                             color:
                                                 scheme.surfaceContainerHighest,
-                                            child: const Icon(
+                                            child: const AppIcon.fromMaterial(
                                               Icons.person,
                                               color: Colors.white,
                                               size: 40,
@@ -2493,7 +2509,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Center(
-                                    child: Icon(
+                                    child: AppIcon.fromMaterial(
                                       Icons.camera_alt_outlined,
                                       color: Colors.white,
                                       size: 28,
@@ -2599,7 +2615,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      Icon(
+                      AppIcon.fromMaterial(
                         isStreaming
                             ? Icons.videocam_outlined
                             : Icons.videogame_asset_outlined,

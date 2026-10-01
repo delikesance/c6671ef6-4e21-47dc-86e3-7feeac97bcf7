@@ -7,6 +7,8 @@ import 'package:nyxx/nyxx.dart' hide Builder;
 import 'scratch_block.dart';
 import 'scratch_block_palette.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Describes what the command listens for.
 enum CommandEntryPointType {
   /// Slash command interaction (Discord Application Command).
@@ -342,7 +344,7 @@ class _EntryPointBlockState extends State<EntryPointBlock> {
           if (widget.onOpenSettings != null) ...[
             FilledButton.tonalIcon(
               onPressed: widget.onOpenSettings,
-              icon: const Icon(Icons.tune_rounded, size: 16),
+              icon: const AppIcon.fromMaterial(Icons.tune_rounded, size: 16),
               label: Text(
                 (cmdName != null && cmdName.isNotEmpty)
                     ? '${context.tr.edit_shell_command_settings} ($prefix$cmdName)'
@@ -372,7 +374,7 @@ class _EntryPointBlockState extends State<EntryPointBlock> {
                     label: compact
                         ? const SizedBox.shrink()
                         : Text(context.tr.scratch_meta_type_slash),
-                    icon: const Icon(Icons.terminal, size: 18),
+                    icon: const AppIcon.fromMaterial(Icons.terminal, size: 18),
                     tooltip: context.tr.scratch_meta_type_slash,
                   ),
                   ButtonSegment(
@@ -380,7 +382,10 @@ class _EntryPointBlockState extends State<EntryPointBlock> {
                     label: compact
                         ? const SizedBox.shrink()
                         : Text(context.tr.scratch_entry_message),
-                    icon: const Icon(Icons.textsms_outlined, size: 18),
+                    icon: const AppIcon.fromMaterial(
+                      Icons.textsms_outlined,
+                      size: 18,
+                    ),
                     tooltip: context.tr.scratch_meta_type_prefix,
                   ),
                   ButtonSegment(
@@ -388,7 +393,10 @@ class _EntryPointBlockState extends State<EntryPointBlock> {
                     label: compact
                         ? const SizedBox.shrink()
                         : Text(context.tr.scratch_meta_type_user),
-                    icon: const Icon(Icons.person_outline, size: 18),
+                    icon: const AppIcon.fromMaterial(
+                      Icons.person_outline,
+                      size: 18,
+                    ),
                     tooltip: context.tr.scratch_meta_type_user,
                   ),
                   ButtonSegment(
@@ -396,7 +404,10 @@ class _EntryPointBlockState extends State<EntryPointBlock> {
                     label: compact
                         ? const SizedBox.shrink()
                         : Text(context.tr.scratch_meta_type_message),
-                    icon: const Icon(Icons.message_outlined, size: 18),
+                    icon: const AppIcon.fromMaterial(
+                      Icons.message_outlined,
+                      size: 18,
+                    ),
                     tooltip: context.tr.scratch_meta_type_message,
                   ),
                 ],
@@ -435,7 +446,7 @@ class _EntryPointBlockState extends State<EntryPointBlock> {
                     ButtonSegment<String>(
                       value: 'workflow',
                       label: Text(context.tr.scratch_mode_blocks),
-                      icon: const Icon(Icons.view_agenda),
+                      icon: const AppIcon.fromMaterial(Icons.view_agenda),
                     ),
                   );
                 }
@@ -444,7 +455,7 @@ class _EntryPointBlockState extends State<EntryPointBlock> {
                     ButtonSegment<String>(
                       value: 'bdfd_script',
                       label: Text(context.tr.scratch_mode_bdfd),
-                      icon: const Icon(Icons.code),
+                      icon: const AppIcon.fromMaterial(Icons.code),
                     ),
                   );
                 }
@@ -453,7 +464,7 @@ class _EntryPointBlockState extends State<EntryPointBlock> {
                     ButtonSegment<String>(
                       value: 'javascript',
                       label: Text(context.tr.cmd_execution_mode_javascript),
-                      icon: const Icon(Icons.code),
+                      icon: const AppIcon.fromMaterial(Icons.code),
                     ),
                   );
                 }
@@ -498,7 +509,7 @@ class _EntryPointBlockState extends State<EntryPointBlock> {
             padding: const EdgeInsets.symmetric(vertical: 6),
             child: Row(
               children: [
-                Icon(
+                AppIcon.fromMaterial(
                   _legacyExpanded ? Icons.expand_less : Icons.expand_more,
                   size: 20,
                   color: colorScheme.onSurfaceVariant,
@@ -621,7 +632,10 @@ class _EntryPointBlockState extends State<EntryPointBlock> {
                       _aliasTriggerLabel(alias),
                       style: const TextStyle(fontSize: 12.5),
                     ),
-                    deleteIcon: const Icon(Icons.close, size: 16),
+                    deleteIcon: const AppIcon.fromMaterial(
+                      Icons.close,
+                      size: 16,
+                    ),
                     onDeleted: () => _removeAlias(alias),
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     visualDensity: VisualDensity.compact,
@@ -656,7 +670,7 @@ class _EntryPointBlockState extends State<EntryPointBlock> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(
+                const AppIcon.fromMaterial(
                   Icons.warning_amber_rounded,
                   size: 15,
                   color: AppTheme.warning,
@@ -859,12 +873,12 @@ class _WorkflowEntryPointBlockState extends State<WorkflowEntryPointBlock> {
               ButtonSegment<String>(
                 value: 'workflow',
                 label: Text(context.tr.scratch_mode_blocks),
-                icon: const Icon(Icons.view_agenda),
+                icon: const AppIcon.fromMaterial(Icons.view_agenda),
               ),
               ButtonSegment<String>(
                 value: 'javascript',
                 label: Text(context.tr.cmd_execution_mode_javascript),
-                icon: const Icon(Icons.code),
+                icon: const AppIcon.fromMaterial(Icons.code),
               ),
             ],
             selected: <String>{

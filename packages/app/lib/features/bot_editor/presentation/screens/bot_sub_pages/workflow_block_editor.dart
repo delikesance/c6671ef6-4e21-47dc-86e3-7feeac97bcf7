@@ -28,6 +28,8 @@ import 'package:bot_creator/features/bot_editor/presentation/widgets/blueprint/b
 import 'package:bot_creator/features/bot_editor/presentation/widgets/blueprint/blueprint_models.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/blueprint/blueprint_tree_ops.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Full-screen Scratch-like block editor for creating or editing a workflow.
 ///
 /// Replaces the previous two-step flow (metadata dialog → ActionsBuilderPage)
@@ -506,7 +508,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
             )
           else
             IconButton(
-              icon: const Icon(Icons.check),
+              icon: const AppIcon.fromMaterial(Icons.check),
               tooltip: context.tr.save,
               onPressed: _save,
             ),
@@ -894,7 +896,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
-                                        Icon(
+                                        AppIcon.fromMaterial(
                                           Icons.tune_outlined,
                                           color: _sidebarTab == 0
                                               ? Theme.of(
@@ -954,7 +956,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
-                                        Icon(
+                                        AppIcon.fromMaterial(
                                           Icons.add_box_outlined,
                                           color: _sidebarTab == 1
                                               ? Theme.of(
@@ -1075,18 +1077,23 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                                   segments: [
                                     ButtonSegment<String>(
                                       value: 'linear',
-                                      icon: Icon(
+                                      icon: AppIcon.fromMaterial(
                                         Icons.view_agenda_outlined,
                                         size: 16,
                                       ),
-                                      label: Text(context.tr.scratch_blocks_tab,
+                                      label: Text(
+                                        context.tr.scratch_blocks_tab,
                                         style: TextStyle(fontSize: 12),
                                       ),
                                     ),
                                     ButtonSegment<String>(
                                       value: 'blueprint',
-                                      icon: Icon(Icons.hub_outlined, size: 16),
-                                      label: Text(context.tr.blueprint_mode_label,
+                                      icon: AppIcon.fromMaterial(
+                                        Icons.hub_outlined,
+                                        size: 16,
+                                      ),
+                                      label: Text(
+                                        context.tr.blueprint_mode_label,
                                         style: TextStyle(fontSize: 12),
                                       ),
                                     ),
@@ -1253,7 +1260,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
         ),
         child: Row(
           children: [
-            Icon(
+            AppIcon.fromMaterial(
               icon,
               size: 16,
               color: isSelected
@@ -1313,10 +1320,10 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
           decoration: InputDecoration(
             labelText: context.tr.workflows_folder_label,
             hintText: context.tr.workflows_folder_hint,
-            prefixIcon: const Icon(Icons.folder_outlined),
+            prefixIcon: const AppIcon.fromMaterial(Icons.folder_outlined),
             suffixIcon: _existingFolders.isNotEmpty
                 ? PopupMenuButton<String>(
-                    icon: const Icon(Icons.folder_open),
+                    icon: const AppIcon.fromMaterial(Icons.folder_open),
                     tooltip: context.tr.command_create_existing_folders,
                     onSelected: (String selection) {
                       setState(() {
@@ -1524,10 +1531,10 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
             decoration: InputDecoration(
               labelText: context.tr.workflows_folder_label,
               hintText: context.tr.workflows_folder_hint,
-              prefixIcon: const Icon(Icons.folder_outlined),
+              prefixIcon: const AppIcon.fromMaterial(Icons.folder_outlined),
               suffixIcon: _existingFolders.isNotEmpty
                   ? PopupMenuButton<String>(
-                      icon: const Icon(Icons.folder_open),
+                      icon: const AppIcon.fromMaterial(Icons.folder_open),
                       tooltip: context.tr.command_create_existing_folders,
                       onSelected: (String selection) {
                         setState(() {
@@ -1561,12 +1568,14 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
               ButtonSegment(
                 value: workflowTypeGeneral,
                 label: Text(context.tr.scratch_workflow_type_general),
-                icon: const Icon(Icons.account_tree_outlined),
+                icon: const AppIcon.fromMaterial(Icons.account_tree_outlined),
               ),
               ButtonSegment(
                 value: workflowTypeEvent,
                 label: Text(context.tr.scratch_workflow_type_event),
-                icon: const Icon(Icons.notifications_active_outlined),
+                icon: const AppIcon.fromMaterial(
+                  Icons.notifications_active_outlined,
+                ),
               ),
             ],
             selected: {_workflowType},
@@ -1608,7 +1617,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
               ),
             ),
             IconButton(
-              icon: const Icon(Icons.add, size: 20),
+              icon: const AppIcon.fromMaterial(Icons.add, size: 20),
               tooltip: context.tr.scratch_workflow_add_argument,
               onPressed: () {
                 setState(() {
@@ -1634,7 +1643,10 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                       isDense: true,
                       suffixIcon: _arguments.length > 1
                           ? IconButton(
-                              icon: const Icon(Icons.close, size: 16),
+                              icon: const AppIcon.fromMaterial(
+                                Icons.close,
+                                size: 16,
+                              ),
                               onPressed: () {
                                 setState(() => _arguments.removeAt(i));
                                 _refreshVariableSuggestions();
@@ -1698,14 +1710,15 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                 AnimatedRotation(
                   turns: _eventVariablesExpanded ? 0.25 : 0.0, // down vs right
                   duration: const Duration(milliseconds: 200),
-                  child: const Icon(
+                  child: const AppIcon.fromMaterial(
                     Icons.chevron_right,
                     size: 20,
                     color: AppTheme.grey,
                   ),
                 ),
                 const SizedBox(width: 4),
-                Text(context.tr.workflow_event_variables_count(eventVars.length),
+                Text(
+                  context.tr.workflow_event_variables_count(eventVars.length),
                   style: const TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 13,
@@ -1717,7 +1730,8 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
         ),
         if (_eventVariablesExpanded) ...[
           const SizedBox(height: 4),
-          Text(context.tr.workflow_rename_variables_hint,
+          Text(
+            context.tr.workflow_rename_variables_hint,
             style: TextStyle(fontSize: 11, color: AppTheme.grey),
           ),
           const SizedBox(height: 8),
@@ -1751,7 +1765,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                     ),
                   ),
                   const SizedBox(width: 6),
-                  const Icon(
+                  const AppIcon.fromMaterial(
                     Icons.arrow_forward,
                     size: 14,
                     color: AppTheme.grey,
@@ -1819,7 +1833,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                 AnimatedRotation(
                   turns: _eventVariablesExpanded ? 0.25 : 0.0,
                   duration: const Duration(milliseconds: 200),
-                  child: const Icon(
+                  child: const AppIcon.fromMaterial(
                     Icons.chevron_right,
                     size: 20,
                     color: AppTheme.grey,
@@ -2005,7 +2019,11 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.edit, size: 14, color: AppTheme.grey),
+                    const AppIcon.fromMaterial(
+                      Icons.edit,
+                      size: 14,
+                      color: AppTheme.grey,
+                    ),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
@@ -2085,7 +2103,11 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.edit, size: 14, color: AppTheme.grey),
+                  const AppIcon.fromMaterial(
+                    Icons.edit,
+                    size: 14,
+                    color: AppTheme.grey,
+                  ),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
@@ -2344,7 +2366,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
             },
           );
         },
-        icon: const Icon(Icons.add),
+        icon: const AppIcon.fromMaterial(Icons.add),
         label: Text(context.tr.scratch_add_block),
         style: OutlinedButton.styleFrom(
           minimumSize: const Size(double.infinity, 48),
@@ -2395,7 +2417,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
+                        AppIcon.fromMaterial(
                           Icons.tune_outlined,
                           color: _mobileTab == 0
                               ? Theme.of(context).colorScheme.primary
@@ -2442,7 +2464,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
+                        AppIcon.fromMaterial(
                           scriptUi ? Icons.code : Icons.view_agenda_outlined,
                           color: _mobileTab == 1
                               ? Theme.of(context).colorScheme.primary
@@ -2598,7 +2620,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: () => setState(() => _wizardStep--),
-                      icon: const Icon(Icons.arrow_back),
+                      icon: const AppIcon.fromMaterial(Icons.arrow_back),
                       label: Text(context.tr.common_back),
                       style: OutlinedButton.styleFrom(
                         minimumSize: const Size(0, 48),
@@ -2611,7 +2633,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                 Expanded(
                   child: FilledButton.icon(
                     onPressed: _wizardStep == 3 ? _save : _advanceWizardStep,
-                    icon: Icon(
+                    icon: AppIcon.fromMaterial(
                       _wizardStep == 3 ? Icons.save : Icons.arrow_forward,
                     ),
                     label: Text(
@@ -2762,7 +2784,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(
+            AppIcon.fromMaterial(
               icon,
               size: 28,
               color: isSelected
@@ -2833,10 +2855,10 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
             decoration: InputDecoration(
               labelText: context.tr.scratch_wizard_folder_label,
               hintText: context.tr.scratch_wizard_folder_hint,
-              prefixIcon: const Icon(Icons.folder_outlined),
+              prefixIcon: const AppIcon.fromMaterial(Icons.folder_outlined),
               suffixIcon: _existingFolders.isNotEmpty
                   ? PopupMenuButton<String>(
-                      icon: const Icon(Icons.folder_open),
+                      icon: const AppIcon.fromMaterial(Icons.folder_open),
                       onSelected: (String selection) {
                         setState(() {
                           _folderController.text = selection;
@@ -2926,7 +2948,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
             padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
             child: Column(
               children: [
-                Icon(
+                AppIcon.fromMaterial(
                   Icons.view_agenda_outlined,
                   size: 48,
                   color: Theme.of(context).colorScheme.outline,
@@ -3001,7 +3023,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    Icon(
+                    AppIcon.fromMaterial(
                       Icons.flash_on,
                       size: 18,
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -3019,7 +3041,11 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                 if (_isJavascriptEventScriptUi)
                   Row(
                     children: [
-                      const Icon(Icons.code, size: 18, color: AppTheme.success),
+                      const AppIcon.fromMaterial(
+                        Icons.code,
+                        size: 18,
+                        color: AppTheme.success,
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
@@ -3034,7 +3060,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                 else
                   Row(
                     children: [
-                      const Icon(
+                      const AppIcon.fromMaterial(
                         Icons.view_agenda,
                         size: 18,
                         color: AppTheme.success,
@@ -3072,10 +3098,10 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
             decoration: InputDecoration(
               labelText: context.tr.scratch_wizard_folder_label,
               hintText: context.tr.scratch_wizard_folder_hint,
-              prefixIcon: const Icon(Icons.folder_outlined),
+              prefixIcon: const AppIcon.fromMaterial(Icons.folder_outlined),
               suffixIcon: _existingFolders.isNotEmpty
                   ? PopupMenuButton<String>(
-                      icon: const Icon(Icons.folder_open),
+                      icon: const AppIcon.fromMaterial(Icons.folder_open),
                       onSelected: (String selection) {
                         setState(() {
                           _folderController.text = selection;

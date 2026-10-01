@@ -2,6 +2,7 @@ import 'package:nyxx/nyxx.dart';
 import 'package:bot_creator_shared/utils/global.dart';
 import 'package:bot_creator_shared/actions/handler_utils.dart';
 import 'permission_checks.dart';
+import 'role_definition_actions.dart';
 
 Snowflake? _toSnowflake(dynamic value) {
   final parsed = int.tryParse(value?.toString() ?? '');
@@ -37,8 +38,17 @@ Future<Map<String, String>> removeRoleAction(
       return {'error': permError, 'userId': '', 'roleId': ''};
     }
 
+    if (isRoleDefinitionPayload(resolvedPayload)) {
+      return executeRoleDefinitionAction(
+        client,
+        guildId: guildId,
+        payload: resolvedPayload,
+      );
+    }
+
     final userId =
-        _toSnowflake(resolvedPayload['userId']) ?? _toSnowflake(resolvedPayload['memberId']);
+        _toSnowflake(resolvedPayload['userId']) ??
+        _toSnowflake(resolvedPayload['memberId']);
     if (userId == null) {
       return {
         'error': 'Missing or invalid userId/memberId',
@@ -59,10 +69,9 @@ Future<Map<String, String>> removeRoleAction(
     }
     await guild.members[userId].removeRole(
       roleId,
-      auditLogReason:
-          (reason != null && reason.isNotEmpty)
-              ? reason
-              : 'Remove role via BotCreator action',
+      auditLogReason: (reason != null && reason.isNotEmpty)
+          ? reason
+          : 'Remove role via BotCreator action',
     );
 
     return {

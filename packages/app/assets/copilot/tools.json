@@ -19,6 +19,39 @@
     "mutating": false
   },
   {
+    "name": "local_test_command",
+    "description": "Execute a BDFD draft or action blocks in the isolated local sandbox. No real Discord, network or production storage access. Returns simulated responses, execution trace and fixture storage before/after. Test valid and invalid inputs before saving; never present this as a live Discord test. Unsupported actions fail explicitly.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "script": {
+          "type": "string",
+          "maxLength": 100000
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "scenario": {
+          "type": "object",
+          "description": "Fixtures only: options, variables, global, scoped (scope/context/key), definitions, http, entities. Role entities use {guilds:{guildId:{roles:[{id,name,color,position,permissions,hoist,mentionable}]}}} and run through the production fetcher; all Discord writes remain denied. HTTP fixtures are consumed once and must match method and URL; each fixture accepts status, body, headers, error and optional expectedRequest (body/headers). Example: http=[{method:\"GET\",url:\"https://example.com/data\",status:200,body:{value:42}}]. No external requests are allowed."
+        },
+        "expected_content": {
+          "type": "string",
+          "description": "Optional exact expected response text; multiple responses are joined with a newline."
+        },
+        "expected_values": {
+          "type": "object",
+          "description": "Optional expected result values keyed by JSON pointer, e.g. {\"/responses/0/payload/embeds/0/title\":\"Score\"}. Missing fields and incorrect values fail the contract even when execution succeeds."
+        }
+      },
+      "additionalProperties": false
+    },
+    "mutating": false
+  },
+  {
     "name": "docs_search",
     "description": "Search official Bot Creator function documentation.",
     "inputSchema": {

@@ -1,0 +1,389 @@
+{
+  "name": "scolor",
+  "description": "Enviar seletor de Cores.",
+  "type": "chatInput",
+  "id": "1781143853554466",
+  "updatedAt": "2026-10-01T15:27:32.962896+00:00",
+  "data": {
+    "version": 1,
+    "commandType": "chatInput",
+    "editorMode": "advanced",
+    "executionMode": "workflow",
+    "bdfdScriptContent": "",
+    "jsScriptContent": "",
+    "legacyModeEnabled": true,
+    "legacyLocalOnly": true,
+    "legacyPrefixOverride": "",
+    "legacyResponseTarget": "reply",
+    "legacyAliases": [],
+    "simpleConfig": {},
+    "defaultMemberPermissions": "",
+    "response": {
+      "mode": "message",
+      "text": "",
+      "type": "normal",
+      "embeds": [],
+      "components": {},
+      "workflow": {
+        "autoDeferIfActions": true,
+        "visibility": "public",
+        "onError": "edit_error",
+        "conditional": {
+          "enabled": false,
+          "variable": "",
+          "whenTrueType": "message",
+          "whenFalseType": "message",
+          "whenTrueText": "",
+          "whenFalseText": "",
+          "whenTrueEmbeds": [],
+          "whenFalseEmbeds": [],
+          "whenTrueNormalComponents": {},
+          "whenFalseNormalComponents": {},
+          "whenTrueComponents": {},
+          "whenFalseComponents": {},
+          "whenTrueModal": {},
+          "whenFalseModal": {}
+        }
+      },
+      "_migrated": true
+    },
+    "actions": [
+      {
+        "depend_on": [],
+        "enabled": true,
+        "error": {
+          "mode": "continue"
+        },
+        "id": "action_1780531503409362",
+        "key": "deleta a mensagem de comando",
+        "payload": {},
+        "runtimeId": "action_1780531503409362",
+        "type": "deleteTrigger"
+      },
+      {
+        "depend_on": [],
+        "enabled": true,
+        "error": {
+          "mode": "stop"
+        },
+        "id": "action_1780466070146565",
+        "key": "enviar o seletor de cor",
+        "payload": {
+          "channelId": "",
+          "componentV2": null,
+          "components": {
+            "content": "",
+            "components": [
+              {
+                "type": "actionRow",
+                "components": [
+                  {
+                    "type": "stringSelect",
+                    "customId": "select_colors",
+                    "placeholder": "Selecionar uma Cor",
+                    "options": [
+                      {
+                        "label": "Cor Branca",
+                        "value": "cor branca",
+                        "description": "Seu nome será exibido na cor branca.",
+                        "emoji": "⚪",
+                        "isDefault": false
+                      },
+                      {
+                        "label": "Cor Preta",
+                        "value": "cor preta",
+                        "description": "Seu nome será exibido na cor preta.",
+                        "emoji": "⚫",
+                        "isDefault": false
+                      }
+                    ],
+                    "minValues": 1,
+                    "maxValues": 1,
+                    "disabled": "",
+                    "actions": [
+                      {
+                        "id": "scolor_ack",
+                        "runtimeId": "scolor_ack",
+                        "key": "scolor_ack",
+                        "type": "deferInteraction",
+                        "enabled": true,
+                        "depend_on": [],
+                        "error": {
+                          "mode": "stop"
+                        },
+                        "payload": {
+                          "ephemeral": true
+                        }
+                      },
+                      {
+                        "id": "scolor_choose",
+                        "runtimeId": "scolor_choose",
+                        "key": "scolor_choose",
+                        "type": "ifBlock",
+                        "enabled": true,
+                        "depend_on": [],
+                        "error": {
+                          "mode": "stop"
+                        },
+                        "payload": {
+                          "condition.variable": "((interaction.select_colors.value))",
+                          "condition.operator": "equals",
+                          "condition.value": "cor preta",
+                          "thenActions": [
+                            {
+                              "id": "scolor_resolve_preta",
+                              "runtimeId": "scolor_resolve_preta",
+                              "key": "scolor_resolve_preta",
+                              "type": "setTemporaryVariable",
+                              "enabled": true,
+                              "depend_on": [],
+                              "error": {
+                                "mode": "stop"
+                              },
+                              "payload": {
+                                "key": "scolor_role_id",
+                                "valueType": "string",
+                                "value": "((role[Cor Preta].id))"
+                              }
+                            },
+                            {
+                              "id": "scolor_apply_preta",
+                              "runtimeId": "scolor_apply_preta",
+                              "key": "scolor_apply_preta",
+                              "type": "ifBlock",
+                              "enabled": true,
+                              "depend_on": [],
+                              "error": {
+                                "mode": "stop"
+                              },
+                              "payload": {
+                                "condition.variable": "((temp.scolor_role_id))",
+                                "condition.operator": "equals",
+                                "condition.value": "",
+                                "thenActions": [
+                                  {
+                                    "id": "scolor_missing_preta",
+                                    "runtimeId": "scolor_missing_preta",
+                                    "key": "scolor_missing_preta",
+                                    "type": "respondWithMessage",
+                                    "enabled": true,
+                                    "depend_on": [],
+                                    "error": {
+                                      "mode": "stop"
+                                    },
+                                    "payload": {
+                                      "content": "Não foi possível encontrar um único cargo chamado \"Cor Preta\". Contate a equipe.",
+                                      "embeds": [],
+                                      "components": {},
+                                      "ephemeral": true,
+                                      "replyToMessage": false
+                                    }
+                                  }
+                                ],
+                                "elseActions": [
+                                  {
+                                    "id": "scolor_role_preta",
+                                    "runtimeId": "scolor_role_preta",
+                                    "key": "scolor_role_preta",
+                                    "type": "addRole",
+                                    "enabled": true,
+                                    "depend_on": [],
+                                    "error": {
+                                      "mode": "stop"
+                                    },
+                                    "payload": {
+                                      "userId": "((author.id))",
+                                      "roleId": "((temp.scolor_role_id))",
+                                      "reason": "Seleção de cor pelo membro"
+                                    }
+                                  },
+                                  {
+                                    "id": "scolor_done_preta",
+                                    "runtimeId": "scolor_done_preta",
+                                    "key": "scolor_done_preta",
+                                    "type": "respondWithMessage",
+                                    "enabled": true,
+                                    "depend_on": [],
+                                    "error": {
+                                      "mode": "stop"
+                                    },
+                                    "payload": {
+                                      "content": "Cor atualizada com sucesso.",
+                                      "embeds": [],
+                                      "components": {},
+                                      "ephemeral": true,
+                                      "replyToMessage": false
+                                    }
+                                  }
+                                ],
+                                "elseIfConditions": []
+                              }
+                            }
+                          ],
+                          "elseActions": [
+                            {
+                              "id": "scolor_invalid",
+                              "runtimeId": "scolor_invalid",
+                              "key": "scolor_invalid",
+                              "type": "respondWithMessage",
+                              "enabled": true,
+                              "depend_on": [],
+                              "error": {
+                                "mode": "stop"
+                              },
+                              "payload": {
+                                "content": "Seleção de cor inválida.",
+                                "embeds": [],
+                                "components": {},
+                                "ephemeral": true,
+                                "replyToMessage": false
+                              }
+                            }
+                          ],
+                          "elseIfConditions": [
+                            {
+                              "condition.variable": "((interaction.select_colors.value))",
+                              "condition.operator": "equals",
+                              "condition.value": "cor branca",
+                              "actions": [
+                                {
+                                  "id": "scolor_resolve_branca",
+                                  "runtimeId": "scolor_resolve_branca",
+                                  "key": "scolor_resolve_branca",
+                                  "type": "setTemporaryVariable",
+                                  "enabled": true,
+                                  "depend_on": [],
+                                  "error": {
+                                    "mode": "stop"
+                                  },
+                                  "payload": {
+                                    "key": "scolor_role_id",
+                                    "valueType": "string",
+                                    "value": "((role[Cor Branca].id))"
+                                  }
+                                },
+                                {
+                                  "id": "scolor_apply_branca",
+                                  "runtimeId": "scolor_apply_branca",
+                                  "key": "scolor_apply_branca",
+                                  "type": "ifBlock",
+                                  "enabled": true,
+                                  "depend_on": [],
+                                  "error": {
+                                    "mode": "stop"
+                                  },
+                                  "payload": {
+                                    "condition.variable": "((temp.scolor_role_id))",
+                                    "condition.operator": "equals",
+                                    "condition.value": "",
+                                    "thenActions": [
+                                      {
+                                        "id": "scolor_missing_branca",
+                                        "runtimeId": "scolor_missing_branca",
+                                        "key": "scolor_missing_branca",
+                                        "type": "respondWithMessage",
+                                        "enabled": true,
+                                        "depend_on": [],
+                                        "error": {
+                                          "mode": "stop"
+                                        },
+                                        "payload": {
+                                          "content": "Não foi possível encontrar um único cargo chamado \"Cor Branca\". Contate a equipe.",
+                                          "embeds": [],
+                                          "components": {},
+                                          "ephemeral": true,
+                                          "replyToMessage": false
+                                        }
+                                      }
+                                    ],
+                                    "elseActions": [
+                                      {
+                                        "id": "scolor_role_branca",
+                                        "runtimeId": "scolor_role_branca",
+                                        "key": "scolor_role_branca",
+                                        "type": "addRole",
+                                        "enabled": true,
+                                        "depend_on": [],
+                                        "error": {
+                                          "mode": "stop"
+                                        },
+                                        "payload": {
+                                          "userId": "((author.id))",
+                                          "roleId": "((temp.scolor_role_id))",
+                                          "reason": "Seleção de cor pelo membro"
+                                        }
+                                      },
+                                      {
+                                        "id": "scolor_done_branca",
+                                        "runtimeId": "scolor_done_branca",
+                                        "key": "scolor_done_branca",
+                                        "type": "respondWithMessage",
+                                        "enabled": true,
+                                        "depend_on": [],
+                                        "error": {
+                                          "mode": "stop"
+                                        },
+                                        "payload": {
+                                          "content": "Cor atualizada com sucesso.",
+                                          "embeds": [],
+                                          "components": {},
+                                          "ephemeral": true,
+                                          "replyToMessage": false
+                                        }
+                                      }
+                                    ],
+                                    "elseIfConditions": []
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "ephemeral": false
+          },
+          "content": "",
+          "embeds": [
+            {
+              "author": {
+                "icon_url": "",
+                "name": "",
+                "url": ""
+              },
+              "color": "#673AB7",
+              "description": "# 🎨 Seletor de Cores\nSelecione uma cor para seu nome na comunidade.",
+              "fields": [],
+              "fieldsTemplate": "",
+              "footer": {
+                "icon_url": "",
+                "text": ""
+              },
+              "image": {
+                "url": ""
+              },
+              "thumbnail": {
+                "url": "https://cdn.discordapp.com/attachments/1132425690164248640/1305179280367681677/paleta-de-cores.png"
+              },
+              "timestamp": "",
+              "title": "",
+              "type": "rich",
+              "url": ""
+            }
+          ],
+          "mentions": [],
+          "messageMode": "message",
+          "targetType": "channel",
+          "tts": false,
+          "userId": ""
+        },
+        "runtimeId": "action_1780466070146565",
+        "type": "sendMessage"
+      }
+    ]
+  }
+}

@@ -21,6 +21,8 @@ import 'package:bot_creator/features/subscriptions/logic/premium_feature_gate.da
 import 'package:bot_creator/features/subscriptions/presentation/subscription_page.dart';
 import 'package:flutter/material.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 class LavalinkSettingsSection extends StatefulWidget {
   const LavalinkSettingsSection({
     super.key,
@@ -85,9 +87,9 @@ class _LavalinkSettingsSectionState extends State<LavalinkSettingsSection> {
     _servers
       ..clear()
       ..addAll(
-        lavalinkCustomServersFromConfig(raw).map(
-          _FallbackServerDraft.fromConfig,
-        ),
+        lavalinkCustomServersFromConfig(
+          raw,
+        ).map(_FallbackServerDraft.fromConfig),
       );
   }
 
@@ -182,7 +184,7 @@ class _LavalinkSettingsSectionState extends State<LavalinkSettingsSection> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.lock, color: AppTheme.discord),
+                const AppIcon.fromMaterial(Icons.lock, color: AppTheme.discord),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -223,7 +225,7 @@ class _LavalinkSettingsSectionState extends State<LavalinkSettingsSection> {
         Card(
           child: SwitchListTile(
             key: const Key('lavalink_enabled_switch'),
-            secondary: Icon(
+            secondary: AppIcon.fromMaterial(
               isPremium ? Icons.music_note : Icons.lock,
               color: isPremium ? AppTheme.discord : AppTheme.grey,
             ),
@@ -250,7 +252,7 @@ class _LavalinkSettingsSectionState extends State<LavalinkSettingsSection> {
         // Volet 2 — les serveurs de repli personnels.
         Row(
           children: [
-            Icon(
+            AppIcon.fromMaterial(
               isPremium ? Icons.dns : Icons.lock,
               size: 18,
               color: isPremium ? AppTheme.discord : AppTheme.grey,
@@ -292,7 +294,7 @@ class _LavalinkSettingsSectionState extends State<LavalinkSettingsSection> {
           child: OutlinedButton.icon(
             key: const Key('lavalink_add_server_button'),
             onPressed: isPremium ? _addServer : null,
-            icon: const Icon(Icons.add),
+            icon: const AppIcon.fromMaterial(Icons.add),
             label: Text(tr.bot_settings_lavalink_add_fallback),
           ),
         ),
@@ -322,7 +324,7 @@ class _LavalinkSettingsSectionState extends State<LavalinkSettingsSection> {
                     height: 16,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Icon(Icons.save),
+                : const AppIcon.fromMaterial(Icons.save),
             label: Text(tr.bot_settings_lavalink_save_btn),
           ),
         ),
@@ -350,7 +352,11 @@ class _LavalinkSettingsSectionState extends State<LavalinkSettingsSection> {
                 if (!isPremium)
                   const Padding(
                     padding: EdgeInsets.only(right: 8),
-                    child: Icon(Icons.lock, size: 16, color: AppTheme.grey),
+                    child: AppIcon.fromMaterial(
+                      Icons.lock,
+                      size: 16,
+                      color: AppTheme.grey,
+                    ),
                   ),
                 Expanded(
                   child: Text(
@@ -361,7 +367,7 @@ class _LavalinkSettingsSectionState extends State<LavalinkSettingsSection> {
                 IconButton(
                   key: Key('lavalink_remove_server_$index'),
                   onPressed: isPremium ? () => _removeServer(index) : null,
-                  icon: const Icon(Icons.delete_outline),
+                  icon: const AppIcon.fromMaterial(Icons.delete_outline),
                   tooltip: tr.bot_settings_lavalink_remove_fallback,
                 ),
               ],
@@ -405,7 +411,7 @@ class _LavalinkSettingsSectionState extends State<LavalinkSettingsSection> {
                       server.passwordVisible = !server.passwordVisible;
                     });
                   },
-                  icon: Icon(
+                  icon: AppIcon.fromMaterial(
                     server.passwordVisible
                         ? Icons.visibility_off
                         : Icons.visibility,

@@ -14,6 +14,8 @@ import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 class EmojisPage extends StatefulWidget {
   final String botId;
 
@@ -92,7 +94,7 @@ class _EmojisPageState extends State<EmojisPage> {
                   ),
                   const SizedBox(height: 12),
                   OutlinedButton.icon(
-                    icon: const Icon(Icons.image_outlined),
+                    icon: const AppIcon.fromMaterial(Icons.image_outlined),
                     label: Text(
                       pickedFileName ?? context.tr.emojis_upload_pick_image,
                     ),
@@ -279,12 +281,12 @@ class _EmojisPageState extends State<EmojisPage> {
         title: Text(context.tr.emojis_title),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add_rounded),
+            icon: const AppIcon.fromMaterial(Icons.add_rounded),
             tooltip: context.tr.emojis_upload,
             onPressed: _showUploadDialog,
           ),
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const AppIcon.fromMaterial(Icons.refresh),
             tooltip: context.tr.common_refresh,
             onPressed: _loadEmojis,
           ),
@@ -305,7 +307,11 @@ class _EmojisPageState extends State<EmojisPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline, size: 48, color: AppTheme.error),
+            const AppIcon.fromMaterial(
+              Icons.error_outline,
+              size: 48,
+              color: AppTheme.error,
+            ),
             const SizedBox(height: 12),
             Text(_errorMessage!),
             const SizedBox(height: 12),
@@ -381,11 +387,12 @@ class _EmojiCard extends StatelessWidget {
               child: Image.network(
                 emoji.imageUrl,
                 fit: BoxFit.contain,
-                errorBuilder: (context, error, stackTrace) => const Icon(
-                  Icons.broken_image_outlined,
-                  size: 40,
-                  color: AppTheme.grey,
-                ),
+                errorBuilder: (context, error, stackTrace) =>
+                    const AppIcon.fromMaterial(
+                      Icons.broken_image_outlined,
+                      size: 40,
+                      color: AppTheme.grey,
+                    ),
               ),
             ),
           ),
@@ -402,7 +409,8 @@ class _EmojiCard extends StatelessWidget {
           if (emoji.animated)
             Padding(
               padding: const EdgeInsets.only(bottom: 2),
-              child: Text(context.tr.emojis_animated_label,
+              child: Text(
+                context.tr.emojis_animated_label,
                 style: TextStyle(fontSize: 10, color: AppTheme.info),
               ),
             ),
@@ -410,14 +418,14 @@ class _EmojiCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               IconButton(
-                icon: const Icon(Icons.edit, size: 18),
+                icon: const AppIcon.fromMaterial(Icons.edit, size: 18),
                 tooltip: context.tr.common_edit,
                 onPressed: onRename,
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
               ),
               IconButton(
-                icon: const Icon(
+                icon: const AppIcon.fromMaterial(
                   Icons.delete_outline,
                   size: 18,
                   color: AppTheme.error,

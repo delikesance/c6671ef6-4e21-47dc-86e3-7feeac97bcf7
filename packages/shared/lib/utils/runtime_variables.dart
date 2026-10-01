@@ -293,6 +293,9 @@ Future<void> hydrateRuntimeVariables({
       scopedDefinitions: scopedDefinitions,
     ),
   ]);
+  final marker = runtimeVariables['channel.__ticket'];
+  runtimeVariables['channel.isTicket'] = (marker == 'true' || marker == '1')
+      .toString();
 }
 
 Future<void> hydrateSpecificScopedVariables({
@@ -305,24 +308,21 @@ Future<void> hydrateSpecificScopedVariables({
   final normalizedContextId = _normalizeContextId(contextId);
   if (normalizedContextId == null) return;
 
-  final values = await store.getScopedVariables(
-    botId,
-    scope,
-    normalizedContextId,
+  // Reuse definition/default handling, but only publish explicit-context keys.
+  // Loading another member must not replace the current author's shorthand.
+  final loaded = <String, String>{};
+  await injectScopedRuntimeVariables(
+    store: store,
+    botId: botId,
+    scope: scope,
+    contextId: normalizedContextId,
+    runtimeVariables: loaded,
+    scopedDefinitions: await store.getScopedVariableDefinitions(botId),
   );
-  if (values.isEmpty) return;
-
-  for (final entry in values.entries) {
-    final rawKey = entry.key.toString().trim();
-    if (rawKey.isEmpty) {
-      continue;
+  for (final entry in loaded.entries) {
+    if (entry.key.startsWith('$scope[$normalizedContextId].')) {
+      runtimeVariables[entry.key] = entry.value;
     }
-
-    final canonicalKey = rawKey.startsWith('bc_') ? rawKey : 'bc_$rawKey';
-    final value = stringifyRuntimeVariableValue(entry.value);
-
-    runtimeVariables['$scope[$normalizedContextId].$canonicalKey'] = value;
-    runtimeVariables['$scope[$normalizedContextId].$rawKey'] = value;
   }
 }
 
@@ -336,7 +336,7 @@ void _collectScopedPlaceholders(
 ) {
   // Look for a known scope name followed by '['
   final scopeStartPattern = RegExp(
-    r'\b(member|user|guild|channel|role|emoji|message|webhook|temp|bot|getMessage|getmessage)\[',
+    r'\b(guildMember|member|memberRoleAt|user|userFind|guild|channel|channelFind|channelSearch|channelList|role|roleMembers|emoji|message|webhook|temp|bot|getMessage|getmessage)\[',
   );
   for (final match in scopeStartPattern.allMatches(input)) {
     final scope = match.group(1)!;
@@ -381,7 +381,9 @@ void _collectBracketPlaceholdersWithoutProperty(
   String input,
   List<(String, String)> out,
 ) {
-  final scopeStartPattern = RegExp(r'\b(getReactions|getreactions|emoji)\[');
+  final scopeStartPattern = RegExp(
+    r'\b(ban\.reason|getReactions|getreactions|userReacted|userreacted|getEmbedData|getembeddata|emojiCount|serverEmojis|roleBoundaryWithPerms|roleBoundary|emoji)\[',
+  );
   for (final match in scopeStartPattern.allMatches(input)) {
     final scope = match.group(1)!;
     final bracketStart = match.end - 1; // position of '['
@@ -460,6 +462,43 @@ Future<void> hydrateActionPlaceholders({
       final matches = <(String, String, String)>[];
       _collectScopedPlaceholders(obj, matches);
 
+      // Event payloads normally provide the current channel. In the sandbox
+      // (or a sparse event) hydrate a missing shorthand property through the
+      // same entity fetcher used for explicit channel[ID] lookups.
+      final currentChannelId = previewVariables['channel.id'];
+      if (currentChannelId != null && int.tryParse(currentChannelId) != null) {
+        for (final match in RegExp(
+          r'\bchannel\.(name|type|topic|position|parentId|nsfw|slowmode|lastMessageId|lastPinTimestamp)\b',
+        ).allMatches(obj)) {
+          if (!variables.containsKey('channel.${match.group(1)}')) {
+            discordContextsToFetch.add(('channel', currentChannelId));
+          }
+        }
+      }
+      final currentGuildId = previewVariables['guild.id'];
+      if (obj.contains('random.guildId') &&
+          !variables.containsKey('random.guildIds')) {
+        discordContextsToFetch.add(('randomGuild', 'all'));
+      }
+      if (currentGuildId != null && int.tryParse(currentGuildId) != null) {
+        if ((obj.contains('random.userId') ||
+                obj.contains('random.user') ||
+                obj.contains('random.mention')) &&
+            !variables.containsKey('random.userIds')) {
+          discordContextsToFetch.add(('randomUser', currentGuildId));
+        }
+        for (final kind in [
+          ('channelId', 'channelIds', 'randomChannel'),
+          ('categoryId', 'categoryIds', 'randomCategory'),
+          ('roleId', 'roleIds', 'randomRole'),
+        ]) {
+          if (obj.contains('random.${kind.$1}') &&
+              !variables.containsKey('random.${kind.$2}')) {
+            discordContextsToFetch.add((kind.$3, currentGuildId));
+          }
+        }
+      }
+
       for (final match in matches) {
         final scope = match.$1;
         var contextId = match.$2;
@@ -477,6 +516,10 @@ Future<void> hydrateActionPlaceholders({
         if (contextId.isNotEmpty &&
             contextId != 'unknown user' &&
             contextId != 'dm') {
+          if (scope == 'member' && property == 'isBanned') {
+            discordContextsToFetch.add(('banLookup', contextId));
+            continue;
+          }
           if (property.startsWith('bc_')) {
             final varKey = '$scope[$contextId].$property';
             if (!variables.containsKey(varKey)) {
@@ -485,7 +528,12 @@ Future<void> hydrateActionPlaceholders({
           } else {
             final varKey = '$scope[$contextId].$property';
             if (!variables.containsKey(varKey)) {
-              discordContextsToFetch.add((scope, contextId));
+              discordContextsToFetch.add((
+                scope == 'guild' && property == 'exists'
+                    ? 'guildExists'
+                    : scope,
+                contextId,
+              ));
             }
           }
         }
@@ -506,7 +554,10 @@ Future<void> hydrateActionPlaceholders({
         if (contextId.isNotEmpty) {
           final varKey = '$scope[$contextId]';
           if (!variables.containsKey(varKey)) {
-            discordContextsToFetch.add((scope, contextId));
+            discordContextsToFetch.add((
+              scope == 'ban.reason' ? 'banLookup' : scope,
+              contextId,
+            ));
           }
         }
       }

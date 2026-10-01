@@ -72,7 +72,10 @@ void main() {
       final embeds = List<Map<String, dynamic>>.from(
         result.actions.single.payload['embeds'] as List,
       );
-      expect(embeds.single['description'], '((member.nick|member.displayName|author.displayName|author.username))');
+      expect(
+        embeds.single['description'],
+        '((member.nick|member.displayName|author.displayName|author.username))',
+      );
     });
 
     test(r'$nickname[userID] resolves with fallback chains', () {
@@ -100,7 +103,10 @@ void main() {
       final embeds = List<Map<String, dynamic>>.from(
         result.actions.single.payload['embeds'] as List,
       );
-      expect(embeds.single['description'], '((member[789].nick|member[789].displayName|user[789].displayName|user[789].username))');
+      expect(
+        embeds.single['description'],
+        '((member[789].nick|member[789].displayName|user[789].displayName|user[789].username))',
+      );
     });
 
     test(r'$displayName without args resolves to fallback', () {
@@ -121,7 +127,10 @@ void main() {
       final embeds = List<Map<String, dynamic>>.from(
         result.actions.single.payload['embeds'] as List,
       );
-      expect(embeds.single['description'], '((member.nick|author.displayName|author.username))');
+      expect(
+        embeds.single['description'],
+        '((member.nick|author.displayName|author.username))',
+      );
     });
 
     test(r'$displayName[userID] resolves to targeted fallback', () {
@@ -197,7 +206,7 @@ void main() {
       expect(embeds.single['description'], '((author.id))');
     });
 
-    test(r'$findUser resolves to ((user.id))', () {
+    test(r'$findUser searches the guild with author fallback', () {
       final result = BdfdAstTranspiler().transpile(
         const BdfdScriptAst(
           nodes: [
@@ -215,7 +224,7 @@ void main() {
       final embeds = List<Map<String, dynamic>>.from(
         result.actions.single.payload['embeds'] as List,
       );
-      expect(embeds.single['description'], '((user.id))');
+      expect(embeds.single['description'], '((userFind[;yes].id))');
     });
 
     test(r'$mentions transpiles to ((message.mentions)) placeholder', () {
@@ -240,24 +249,30 @@ void main() {
       );
     });
 
-    test(r'$mentioned[1;yes] transpiles to targeted mentions with author fallback', () {
-      final result = BdfdAstTranspiler().transpile(
-        const BdfdScriptAst(
-          nodes: [
-            BdfdFunctionCallAst(
-              name: r'$mentioned',
-              arguments: [
-                <BdfdAstNode>[BdfdTextAst('1')],
-                <BdfdAstNode>[BdfdTextAst('yes')],
-              ],
-            ),
-          ],
-        ),
-      );
+    test(
+      r'$mentioned[1;yes] transpiles to targeted mentions with author fallback',
+      () {
+        final result = BdfdAstTranspiler().transpile(
+          const BdfdScriptAst(
+            nodes: [
+              BdfdFunctionCallAst(
+                name: r'$mentioned',
+                arguments: [
+                  <BdfdAstNode>[BdfdTextAst('1')],
+                  <BdfdAstNode>[BdfdTextAst('yes')],
+                ],
+              ),
+            ],
+          ),
+        );
 
-      expect(result.diagnostics, isEmpty);
-      expect(result.actions.single.payload['content'], '((message.mentions[0]|author.id))');
-    });
+        expect(result.diagnostics, isEmpty);
+        expect(
+          result.actions.single.payload['content'],
+          '((message.mentions[0]|author.id))',
+        );
+      },
+    );
 
     test(r'$isbot[userID] transpiles to user dynamic isBot check', () {
       final result = BdfdAstTranspiler().transpile(
@@ -274,18 +289,15 @@ void main() {
       );
 
       expect(result.diagnostics, isEmpty);
-      expect(result.actions.single.payload['content'], '((user[123456].isBot))');
+      expect(
+        result.actions.single.payload['content'],
+        '((user[123456].isBot))',
+      );
     });
 
     test(r'$isbot without args transpiles to author.isBot', () {
       final result = BdfdAstTranspiler().transpile(
-        const BdfdScriptAst(
-          nodes: [
-            BdfdFunctionCallAst(
-              name: r'$isbot',
-            ),
-          ],
-        ),
+        const BdfdScriptAst(nodes: [BdfdFunctionCallAst(name: r'$isbot')]),
       );
 
       expect(result.diagnostics, isEmpty);

@@ -10,6 +10,9 @@ import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  final sendButton = find.byWidgetPredicate(
+    (widget) => widget is IconButton && widget.tooltip == 'Send',
+  );
   testWidgets(
     'context summary retries automatically and keeps draft on summary failure',
     (tester) async {
@@ -116,13 +119,8 @@ void main() {
       );
       await tester.enterText(find.byType(TextField).first, 'Keep this draft');
       await tester.pump();
-      expect(
-        tester
-            .widget<IconButton>(find.widgetWithIcon(IconButton, Icons.send))
-            .onPressed,
-        isNotNull,
-      );
-      await tester.tap(find.byIcon(Icons.send));
+      expect(tester.widget<IconButton>(sendButton).onPressed, isNotNull);
+      await tester.tap(sendButton);
       await settle(tester);
       expect(find.byType(AlertDialog), findsNothing);
       expect(summaries, 1);
@@ -131,7 +129,7 @@ void main() {
       expect(find.text('Done'), findsOneWidget);
       await tester.enterText(find.byType(TextField).first, 'Second draft');
       await tester.pump();
-      await tester.tap(find.byIcon(Icons.send));
+      await tester.tap(sendButton);
       await settle(tester);
       expect(find.byType(AlertDialog), findsNothing);
       expect(summaries, 2);
@@ -304,21 +302,11 @@ void main() {
               .map((t) => t.data)
               .join(' | '),
         );
-        expect(
-          tester
-              .widget<IconButton>(find.widgetWithIcon(IconButton, Icons.send))
-              .onPressed,
-          isNull,
-        );
+        expect(tester.widget<IconButton>(sendButton).onPressed, isNull);
         await tester.enterText(find.byType(TextField).first, 'Stop the bot');
         await tester.pump();
-        expect(
-          tester
-              .widget<IconButton>(find.widgetWithIcon(IconButton, Icons.send))
-              .onPressed,
-          isNotNull,
-        );
-        await tester.tap(find.byIcon(Icons.send));
+        expect(tester.widget<IconButton>(sendButton).onPressed, isNotNull);
+        await tester.tap(sendButton);
         await settle(tester);
         expect(
           find.text('Validation requise'),

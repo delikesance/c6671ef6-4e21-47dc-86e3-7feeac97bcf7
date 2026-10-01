@@ -47,11 +47,13 @@ class _BdfdAstTranspilationScope {
 
   final List<BdfdTranspileDiagnostic> _diagnostics;
   final Map<String, String> _pendingHttpHeaders = <String, String>{};
+  final Map<String, dynamic> _pendingWebhook = <String, dynamic>{};
   int _httpRequestCounter = 0;
   int _threadActionCounter = 0;
   int _permissionCheckCounter = 0;
   int _callWorkflowCounter = 0;
   int _createEmojiCounter = 0;
+  int _createWebhookCounter = 0;
   int _createChannelCounter = 0;
   String? _lastHttpRequestKey;
   String? _lastCallWorkflowKey;
@@ -81,7 +83,7 @@ class _BdfdAstTranspilationScope {
   int _deferredImageBlockCounter = 0;
   String? _deferredImageResultKeyPrefix;
 
-  List<String> _textSplitParts = <String>[];
+  int _textSplitActionCounter = 0;
   String? _useChannelId;
   bool _suppressErrors = false;
   String? _suppressErrorsMessage;
@@ -140,6 +142,7 @@ class _BdfdAstTranspilationScope {
   List<Action> _transpileNodes(List<BdfdAstNode> nodes) {
     _conditionActionStack.add(<Action>[]);
     final actions = <Action>[];
+    final deferredResponseActions = <Action>[];
     final pendingResponse = _PendingResponse()
       .._ephemeral = _stickyEphemeral
       .._tts = _stickyTts
@@ -541,6 +544,45 @@ class _BdfdAstTranspilationScope {
           if (deferredJson != null) actions.add(deferredJson);
         }
 
+        // Collect contiguous modal fields before constructing the response.
+        // Fields preceding the header remain supported for legacy scripts.
+        if (node.normalizedName == 'newmodal') {
+          const fields = {
+            'addtextinput',
+            'addmodaltextinput',
+            'addmodalselect',
+            'addmodalfileupload',
+            'addmodalradiogroup',
+            'addmodalcheckboxgroup',
+            'addmodalcheckbox',
+            'addmodaltextdisplay',
+            'addradiogroupoption',
+            'addcheckboxgroupoption',
+            'addselectmenuoption',
+            'addstringselectoption',
+          };
+          var cursor = index + 1;
+          while (cursor < nodes.length) {
+            final candidate = nodes[cursor];
+            if (candidate is BdfdTextAst && candidate.value.trim().isEmpty) {
+              cursor++;
+              continue;
+            }
+            if (candidate is! BdfdFunctionCallAst ||
+                !fields.contains(candidate.normalizedName)) {
+              break;
+            }
+            if (!_applyResponseMutation(candidate, pendingResponse)) {
+              _transpileStandaloneFunction(
+                candidate,
+                pendingResponse: pendingResponse,
+              );
+            }
+            index = cursor;
+            cursor++;
+          }
+        }
+
         final emitted = _transpileStandaloneFunction(
           node,
           pendingResponse: pendingResponse,
@@ -567,7 +609,19 @@ class _BdfdAstTranspilationScope {
         }
 
         if (emitted != null) {
-          actions.add(emitted);
+          if (node.normalizedName == 'addreactions' ||
+              node.normalizedName == 'removeallcomponents' ||
+              (node.normalizedName == 'removebuttons' &&
+                  _stringifyArgument(node, 0).trim().isEmpty) ||
+              (node.normalizedName == 'removecomponent' &&
+                  _stringifyArgument(node, 1).trim().isEmpty) ||
+              (node.normalizedName == 'pinmessage' && node.arguments.isEmpty) ||
+              node.normalizedName == 'editin' ||
+              node.normalizedName == 'editembedin') {
+            deferredResponseActions.add(emitted);
+          } else {
+            actions.add(emitted);
+          }
         }
 
         index += 1;
@@ -597,6 +651,7 @@ class _BdfdAstTranspilationScope {
         actions.add(trailingResponse);
         _consumeStickyFlags();
       }
+      actions.addAll(deferredResponseActions);
 
       if (_suppressErrors && actions.isNotEmpty) {
         final splitIndex = _suppressErrorsActionCount ?? 0;

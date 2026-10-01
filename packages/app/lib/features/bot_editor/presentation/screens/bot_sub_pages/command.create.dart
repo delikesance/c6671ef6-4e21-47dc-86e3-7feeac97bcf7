@@ -1,4 +1,5 @@
 import 'dart:async';
+import '../command_sandbox_page.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
@@ -68,6 +69,7 @@ import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import 'dart:developer' as developer;
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
 part 'command.create.variable_suggestions.dart';
 part 'command.create.serialization.dart';
 part 'command.create.edit_shell.dart';
@@ -880,7 +882,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                           ),
                           child: Row(
                             children: [
-                              Icon(
+                              AppIcon.fromMaterial(
                                 Icons.folder_outlined,
                                 size: 18,
                                 color: Theme.of(
@@ -918,10 +920,10 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           decoration: InputDecoration(
             labelText: context.tr.commands_folder_label,
             hintText: context.tr.commands_folder_hint,
-            prefixIcon: const Icon(Icons.folder_outlined),
+            prefixIcon: const AppIcon.fromMaterial(Icons.folder_outlined),
             suffixIcon: _existingFolders.isNotEmpty
                 ? PopupMenuButton<String>(
-                    icon: const Icon(Icons.folder_open),
+                    icon: const AppIcon.fromMaterial(Icons.folder_open),
                     tooltip: context.tr.command_create_existing_folders,
                     onSelected: (String selection) {
                       setState(() {
@@ -1015,7 +1017,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(
+                    const AppIcon.fromMaterial(
                       Icons.warning_amber_rounded,
                       color: AppTheme.warning,
                     ),
@@ -1035,7 +1037,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
               const SizedBox(height: 16),
               Card(
                 child: ListTile(
-                  leading: const Icon(Icons.terminal),
+                  leading: const AppIcon.fromMaterial(Icons.terminal),
                   title: Text(
                     snap.commandName.isNotEmpty
                         ? snap.commandName
@@ -1046,7 +1048,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                       ? Text(snap.commandDescription)
                       : null,
                   trailing: IconButton(
-                    icon: const Icon(Icons.menu_book_outlined),
+                    icon: const AppIcon.fromMaterial(Icons.menu_book_outlined),
                     tooltip: context.tr.cmd_show_variables,
                     onPressed: _openDocumentationCenter,
                   ),
@@ -2258,10 +2260,39 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             actions: [
+              if (!_isJavascriptOnlyBot && !_isDataIncomplete)
+                IconButton(
+                  tooltip: Localizations.localeOf(context).languageCode == 'fr'
+                      ? 'Tester dans le sandbox'
+                      : 'Test in sandbox',
+                  icon: const AppIcon.fromMaterial(Icons.science_outlined),
+                  onPressed: () async {
+                    final definitions = _botIdForConfig == null
+                        ? <Map<String, dynamic>>[]
+                        : await AppManager().getScopedVariableDefinitions(
+                            _botIdForConfig!,
+                          );
+                    if (!mounted) return;
+                    await Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => CommandSandboxPage(
+                          script: _executionMode == _executionModeBdfdScript
+                              ? _bdfdScriptController.text
+                              : null,
+                          actions: _executionMode == _executionModeBdfdScript
+                              ? null
+                              : _cloneJsonListOfMaps(_actions),
+                          options: _serializeOptions(_effectiveOptions),
+                          definitions: definitions,
+                        ),
+                      ),
+                    );
+                  },
+                ),
               IconButton(
                 tooltip: context.tr.edit_shell_command_settings,
                 onPressed: _openCommandSettings,
-                icon: const Icon(Icons.tune_rounded),
+                icon: const AppIcon.fromMaterial(Icons.tune_rounded),
               ),
               // L'HISTORIQUE DES VERSIONS de CETTE commande : cinq versions,
               // leur date, leur auteur, et la restauration. Le bouton n'existe
@@ -2273,27 +2304,29 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                 IconButton(
                   tooltip: context.tr.command_history_title,
                   onPressed: _openCommandHistory,
-                  icon: const Icon(Icons.history_rounded),
+                  icon: const AppIcon.fromMaterial(Icons.history_rounded),
                 ),
               if (!_isEditingExistingCommand)
                 IconButton(
                   tooltip: context.tr.serialization_import_title,
                   onPressed: _importCommandPayload,
-                  icon: const Icon(Icons.content_paste_go_outlined),
+                  icon: const AppIcon.fromMaterial(
+                    Icons.content_paste_go_outlined,
+                  ),
                 ),
               IconButton(
                 tooltip: context.tr.serialization_export_json_title,
                 onPressed: _showCommandExportOptions,
-                icon: const Icon(Icons.copy_all_outlined),
+                icon: const AppIcon.fromMaterial(Icons.copy_all_outlined),
               ),
               IconButton(
                 onPressed: _openDocumentationCenter,
                 tooltip: context.tr.cmd_show_variables,
-                icon: const Icon(Icons.info_outline),
+                icon: const AppIcon.fromMaterial(Icons.info_outline),
               ),
               if (!_isEditingExistingCommand && !_isDataIncomplete)
                 IconButton(
-                  icon: const Icon(Icons.cancel),
+                  icon: const AppIcon.fromMaterial(Icons.cancel),
                   tooltip: context.tr.cancel,
                   onPressed: () async {
                     Navigator.pop(context);
@@ -2301,7 +2334,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                 ),
               if (_isEditingExistingCommand)
                 IconButton(
-                  icon: const Icon(Icons.delete),
+                  icon: const AppIcon.fromMaterial(Icons.delete),
                   tooltip: context.tr.cmd_delete_tooltip,
                   onPressed: () async {
                     final shouldDelete = await AppTheme.showConfirmDialog(
@@ -2385,7 +2418,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                             ? context.tr.edit_shell_save_changes
                             : context.tr.edit_shell_all_saved)
                       : context.tr.cmd_create_tooltip,
-                  child: Icon(
+                  child: AppIcon.fromMaterial(
                     _isEditingExistingCommand
                         ? (_isDirty ? Icons.save : Icons.check)
                         : Icons.add,
@@ -2616,7 +2649,10 @@ class _DeploymentProgressOverlayState
           SnackBar(
             content: Row(
               children: [
-                const Icon(Icons.check_circle, color: Colors.white),
+                const AppIcon.fromMaterial(
+                  Icons.check_circle,
+                  color: Colors.white,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -2691,7 +2727,11 @@ class _DeploymentProgressOverlayState
             shape: BoxShape.circle,
             color: AppTheme.success,
           ),
-          child: const Icon(Icons.check, color: Colors.white, size: 16),
+          child: const AppIcon.fromMaterial(
+            Icons.check,
+            color: Colors.white,
+            size: 16,
+          ),
         );
       case SyncStepState.error:
         return Container(
@@ -2701,7 +2741,11 @@ class _DeploymentProgressOverlayState
             shape: BoxShape.circle,
             color: AppTheme.error,
           ),
-          child: const Icon(Icons.close, color: Colors.white, size: 16),
+          child: const AppIcon.fromMaterial(
+            Icons.close,
+            color: Colors.white,
+            size: 16,
+          ),
         );
     }
   }
@@ -2808,7 +2852,7 @@ class _DeploymentProgressOverlayState
                                       ),
                                     ],
                                   ),
-                                  child: const Icon(
+                                  child: const AppIcon.fromMaterial(
                                     Icons.check,
                                     color: Colors.white,
                                     size: 40,
@@ -2832,7 +2876,7 @@ class _DeploymentProgressOverlayState
                                 ),
                               ],
                             ),
-                            child: const Icon(
+                            child: const AppIcon.fromMaterial(
                               Icons.close,
                               color: Colors.white,
                               size: 40,
@@ -2861,7 +2905,7 @@ class _DeploymentProgressOverlayState
                                     child: child,
                                   );
                                 },
-                                child: Icon(
+                                child: AppIcon.fromMaterial(
                                   Icons.sync,
                                   size: 32,
                                   color: Theme.of(context).colorScheme.primary,

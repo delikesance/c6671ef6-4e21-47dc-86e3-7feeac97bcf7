@@ -1,11 +1,70 @@
 part of '../bdfd_ast_transpiler.dart';
 
 extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
+  bool _appendModalSelectOption(String menuId, Map<String, dynamic> option) {
+    final target = menuId.isEmpty ? _pendingModalGroupId : menuId;
+    for (final wrapper in _pendingModalComponents.reversed) {
+      final child = wrapper['component'];
+      if (child is! Map || child['type'] != 'selectMenu') continue;
+      if (target != null && target.isNotEmpty && child['customId'] != target) {
+        continue;
+      }
+      final options = (child['options'] as List?) ?? <Map<String, dynamic>>[];
+      options.add(option);
+      child['options'] = options;
+      return true;
+    }
+    return false;
+  }
+
   bool _applyResponseMutation(
     BdfdFunctionCallAst node,
     _PendingResponse response,
   ) {
     switch (node.normalizedName) {
+      case 'webhookcontent':
+        _pendingWebhook['content'] = _stringifyArgument(node, 0);
+        return true;
+      case 'webhookusername':
+        _pendingWebhook['username'] = _stringifyArgument(node, 0);
+        return true;
+      case 'webhookavatarurl':
+        _pendingWebhook['avatarUrl'] = _stringifyArgument(node, 0);
+        return true;
+      case 'webhooktitle':
+      case 'webhookdescription':
+      case 'webhookcolor':
+      case 'webhookfooter':
+        final embed = Map<String, dynamic>.from(
+          _pendingWebhook['embed'] as Map? ?? const {},
+        );
+        final value = _stringifyArgument(node, 0);
+        switch (node.normalizedName) {
+          case 'webhooktitle':
+            embed['title'] = value;
+          case 'webhookdescription':
+            embed['description'] = value;
+          case 'webhookcolor':
+            embed['color'] = value;
+          case 'webhookfooter':
+            embed['footer'] = {'text': value};
+        }
+        _pendingWebhook['embed'] = embed;
+        return true;
+      case 'dm':
+        final targets = <String>[];
+        for (var i = 0; i < node.arguments.length; i++) {
+          final userId = _stringifyArgument(node, i).trim();
+          if (userId.isNotEmpty) targets.add(userId);
+        }
+        response._dmUserIds = targets.isEmpty
+            ? [
+                node.arguments.isEmpty
+                    ? '((author.id))'
+                    : '((message.mentions[0]|author.id))',
+              ]
+            : targets;
+        return true;
       case 'nomention':
         response._allowMentions = false;
         return true;
@@ -125,12 +184,12 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
       case 'addcontainer':
         final containerId = _stringifyArgument(node, 0);
         final containerColor = _stringifyArgument(node, 1);
-        final containerSpoiler = _parseBooleanLike(_stringifyArgument(node, 2));
+        final containerSpoiler = _componentBoolean(_stringifyArgument(node, 2));
         response.addComponent(<String, dynamic>{
           'type': 'container',
           if (containerId.isNotEmpty) 'id': containerId,
           if (containerColor.isNotEmpty) 'accentColor': containerColor,
-          if (containerSpoiler) 'spoiler': true,
+          if (containerSpoiler != false) 'spoiler': containerSpoiler,
         });
         return true;
       case 'addsection':
@@ -143,12 +202,12 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
       case 'addthumbnail':
         final thumbUrl = _stringifyArgument(node, 0);
         final thumbDesc = _stringifyArgument(node, 1);
-        final thumbSpoiler = _parseBooleanLike(_stringifyArgument(node, 2));
+        final thumbSpoiler = _componentBoolean(_stringifyArgument(node, 2));
         response.addComponent(<String, dynamic>{
           'type': 'thumbnail',
           'url': thumbUrl,
           if (thumbDesc.isNotEmpty) 'description': thumbDesc,
-          if (thumbSpoiler) 'spoiler': true,
+          if (thumbSpoiler != false) 'spoiler': thumbSpoiler,
         });
         return true;
       case 'addmediagallery':
@@ -162,12 +221,12 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
       case 'addmediagalleryitem':
         final itemUrl = _stringifyArgument(node, 0);
         final itemDesc = _stringifyArgument(node, 1);
-        final itemSpoiler = _parseBooleanLike(_stringifyArgument(node, 2));
+        final itemSpoiler = _componentBoolean(_stringifyArgument(node, 2));
         final galleryRef = _stringifyArgument(node, 3);
         final item = <String, dynamic>{
           'url': itemUrl,
           if (itemDesc.isNotEmpty) 'description': itemDesc,
-          if (itemSpoiler) 'spoiler': true,
+          if (itemSpoiler != false) 'spoiler': itemSpoiler,
         };
         if (response.lastComponentType == 'mediaGallery') {
           (response.lastComponent!['items'] as List).add(item);
@@ -189,8 +248,8 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
       case 'addbuttoncv2':
         final interactionIdOrUrl = _stringifyArgument(node, 0);
         final label = _stringifyArgument(node, 1);
-        final style = _stringifyArgument(node, 2).trim().toLowerCase();
-        final disabled = _parseBooleanLike(_stringifyArgument(node, 3));
+        final style = _componentEnum(_stringifyArgument(node, 2));
+        final disabled = _componentBoolean(_stringifyArgument(node, 3));
         final emoji = _stringifyArgument(node, 4);
         response.addButton(
           newRow: false,
@@ -206,15 +265,17 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         final placeholder = _stringifyArgument(node, 1);
         final minValues = _stringifyArgument(node, 2);
         final maxValues = _stringifyArgument(node, 3);
-        final disabled = _parseBooleanLike(_stringifyArgument(node, 4));
+        final disabled = _componentBoolean(_stringifyArgument(node, 4));
         response._currentSelectMenuId = customId;
         response.addComponent(<String, dynamic>{
           'type': 'selectMenu',
           'menuType': 'mentionable',
           'customId': customId,
           if (placeholder.isNotEmpty) 'placeholder': placeholder,
-          if (minValues.isNotEmpty) 'minValues': int.tryParse(minValues) ?? 1,
-          if (maxValues.isNotEmpty) 'maxValues': int.tryParse(maxValues) ?? 1,
+          if (minValues.isNotEmpty)
+            'minValues': _componentInteger(minValues, 1),
+          if (maxValues.isNotEmpty)
+            'maxValues': _componentInteger(maxValues, 1),
           'disabled': disabled,
         });
         return true;
@@ -223,15 +284,17 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         final placeholder = _stringifyArgument(node, 1);
         final minValues = _stringifyArgument(node, 2);
         final maxValues = _stringifyArgument(node, 3);
-        final disabled = _parseBooleanLike(_stringifyArgument(node, 4));
+        final disabled = _componentBoolean(_stringifyArgument(node, 4));
         response._currentSelectMenuId = customId;
         response.addComponent(<String, dynamic>{
           'type': 'selectMenu',
           'menuType': 'user',
           'customId': customId,
           if (placeholder.isNotEmpty) 'placeholder': placeholder,
-          if (minValues.isNotEmpty) 'minValues': int.tryParse(minValues) ?? 1,
-          if (maxValues.isNotEmpty) 'maxValues': int.tryParse(maxValues) ?? 1,
+          if (minValues.isNotEmpty)
+            'minValues': _componentInteger(minValues, 1),
+          if (maxValues.isNotEmpty)
+            'maxValues': _componentInteger(maxValues, 1),
           'disabled': disabled,
         });
         return true;
@@ -240,15 +303,17 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         final placeholder = _stringifyArgument(node, 1);
         final minValues = _stringifyArgument(node, 2);
         final maxValues = _stringifyArgument(node, 3);
-        final disabled = _parseBooleanLike(_stringifyArgument(node, 4));
+        final disabled = _componentBoolean(_stringifyArgument(node, 4));
         response._currentSelectMenuId = customId;
         response.addComponent(<String, dynamic>{
           'type': 'selectMenu',
           'menuType': 'role',
           'customId': customId,
           if (placeholder.isNotEmpty) 'placeholder': placeholder,
-          if (minValues.isNotEmpty) 'minValues': int.tryParse(minValues) ?? 1,
-          if (maxValues.isNotEmpty) 'maxValues': int.tryParse(maxValues) ?? 1,
+          if (minValues.isNotEmpty)
+            'minValues': _componentInteger(minValues, 1),
+          if (maxValues.isNotEmpty)
+            'maxValues': _componentInteger(maxValues, 1),
           'disabled': disabled,
         });
         return true;
@@ -257,7 +322,7 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         final placeholder = _stringifyArgument(node, 1);
         final minValues = _stringifyArgument(node, 2);
         final maxValues = _stringifyArgument(node, 3);
-        final disabled = _parseBooleanLike(_stringifyArgument(node, 4));
+        final disabled = _componentBoolean(_stringifyArgument(node, 4));
         final channelTypes = _stringifyArgument(node, 6);
         response._currentSelectMenuId = customId;
         response.addComponent(<String, dynamic>{
@@ -265,8 +330,10 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
           'menuType': 'channel',
           'customId': customId,
           if (placeholder.isNotEmpty) 'placeholder': placeholder,
-          if (minValues.isNotEmpty) 'minValues': int.tryParse(minValues) ?? 1,
-          if (maxValues.isNotEmpty) 'maxValues': int.tryParse(maxValues) ?? 1,
+          if (minValues.isNotEmpty)
+            'minValues': _componentInteger(minValues, 1),
+          if (maxValues.isNotEmpty)
+            'maxValues': _componentInteger(maxValues, 1),
           'disabled': disabled,
           if (channelTypes.isNotEmpty) 'channelTypes': channelTypes,
         });
@@ -276,15 +343,17 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         final placeholder = _stringifyArgument(node, 1);
         final minValues = _stringifyArgument(node, 2);
         final maxValues = _stringifyArgument(node, 3);
-        final disabled = _parseBooleanLike(_stringifyArgument(node, 4));
+        final disabled = _componentBoolean(_stringifyArgument(node, 4));
         response._currentSelectMenuId = customId;
         response.addComponent(<String, dynamic>{
           'type': 'selectMenu',
           'menuType': 'category',
           'customId': customId,
           if (placeholder.isNotEmpty) 'placeholder': placeholder,
-          if (minValues.isNotEmpty) 'minValues': int.tryParse(minValues) ?? 1,
-          if (maxValues.isNotEmpty) 'maxValues': int.tryParse(maxValues) ?? 1,
+          if (minValues.isNotEmpty)
+            'minValues': _componentInteger(minValues, 1),
+          if (maxValues.isNotEmpty)
+            'maxValues': _componentInteger(maxValues, 1),
           'disabled': disabled,
         });
         return true;
@@ -293,15 +362,17 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         final placeholder = _stringifyArgument(node, 1);
         final minValues = _stringifyArgument(node, 2);
         final maxValues = _stringifyArgument(node, 3);
-        final disabled = _parseBooleanLike(_stringifyArgument(node, 4));
+        final disabled = _componentBoolean(_stringifyArgument(node, 4));
         response._currentSelectMenuId = customId;
         response.addComponent(<String, dynamic>{
           'type': 'selectMenu',
           'menuType': 'voice',
           'customId': customId,
           if (placeholder.isNotEmpty) 'placeholder': placeholder,
-          if (minValues.isNotEmpty) 'minValues': int.tryParse(minValues) ?? 1,
-          if (maxValues.isNotEmpty) 'maxValues': int.tryParse(maxValues) ?? 1,
+          if (minValues.isNotEmpty)
+            'minValues': _componentInteger(minValues, 1),
+          if (maxValues.isNotEmpty)
+            'maxValues': _componentInteger(maxValues, 1),
           'disabled': disabled,
         });
         return true;
@@ -310,15 +381,17 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         final placeholder = _stringifyArgument(node, 1);
         final minValues = _stringifyArgument(node, 2);
         final maxValues = _stringifyArgument(node, 3);
-        final disabled = _parseBooleanLike(_stringifyArgument(node, 4));
+        final disabled = _componentBoolean(_stringifyArgument(node, 4));
         response._currentSelectMenuId = customId;
         response.addComponent(<String, dynamic>{
           'type': 'selectMenu',
           'menuType': 'string',
           'customId': customId,
           if (placeholder.isNotEmpty) 'placeholder': placeholder,
-          if (minValues.isNotEmpty) 'minValues': int.tryParse(minValues) ?? 1,
-          if (maxValues.isNotEmpty) 'maxValues': int.tryParse(maxValues) ?? 1,
+          if (minValues.isNotEmpty)
+            'minValues': _componentInteger(minValues, 1),
+          if (maxValues.isNotEmpty)
+            'maxValues': _componentInteger(maxValues, 1),
           'disabled': disabled,
         });
         return true;
@@ -327,26 +400,34 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         final soValue = _stringifyArgument(node, 1);
         final soDescription = _stringifyArgument(node, 2);
         final soEmoji = _stringifyArgument(node, 3);
-        final soDefault = _parseBooleanLike(_stringifyArgument(node, 4));
+        final soDefault = _componentBoolean(_stringifyArgument(node, 4));
         final soMenuId = _stringifyArgument(node, 5);
         final resolvedMenuId = soMenuId.isNotEmpty
             ? soMenuId
             : (response._currentSelectMenuId ?? '');
-        response.addSelectMenuOption(
-          menuId: resolvedMenuId,
-          label: soLabel,
-          value: soValue,
-          description: soDescription,
-          isDefault: soDefault,
-          emoji: soEmoji,
-        );
+        if (!_appendModalSelectOption(resolvedMenuId, {
+          'label': soLabel,
+          'value': soValue,
+          'description': soDescription,
+          'default': soDefault,
+          'emoji': soEmoji,
+        })) {
+          response.addSelectMenuOption(
+            menuId: resolvedMenuId,
+            label: soLabel,
+            value: soValue,
+            description: soDescription,
+            isDefault: soDefault,
+            emoji: soEmoji,
+          );
+        }
         return true;
       case 'addbutton':
-        final newRow = _parseBooleanLike(_stringifyArgument(node, 0));
+        final newRow = _componentBoolean(_stringifyArgument(node, 0));
         final interactionIdOrUrl = _stringifyArgument(node, 1);
         final label = _stringifyArgument(node, 2);
-        final style = _stringifyArgument(node, 3).trim().toLowerCase();
-        final disabled = _parseBooleanLike(_stringifyArgument(node, 4));
+        final style = _componentEnum(_stringifyArgument(node, 3));
+        final disabled = _componentBoolean(_stringifyArgument(node, 4));
         final emoji = _stringifyArgument(node, 5);
         final messageId = _stringifyArgument(node, 6);
         response.addButton(
@@ -367,16 +448,24 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         final label = _stringifyArgument(node, 1);
         final value = _stringifyArgument(node, 2);
         final description = _stringifyArgument(node, 3);
-        final isDefault = _parseBooleanLike(_stringifyArgument(node, 4));
+        final isDefault = _componentBoolean(_stringifyArgument(node, 4));
         final emoji = _stringifyArgument(node, 5);
-        response.addSelectMenuOption(
-          menuId: resolvedMenuId,
-          label: label,
-          value: value,
-          description: description,
-          isDefault: isDefault,
-          emoji: emoji,
-        );
+        if (!_appendModalSelectOption(resolvedMenuId, {
+          'label': label,
+          'value': value,
+          'description': description,
+          'default': isDefault,
+          'emoji': emoji,
+        })) {
+          response.addSelectMenuOption(
+            menuId: resolvedMenuId,
+            label: label,
+            value: value,
+            description: description,
+            isDefault: isDefault,
+            emoji: emoji,
+          );
+        }
         return true;
       case 'newselectmenu':
         final customId = _stringifyArgument(node, 0);
@@ -388,8 +477,10 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
           'type': 'selectMenu',
           'customId': customId,
           if (placeholder.isNotEmpty) 'placeholder': placeholder,
-          if (minValues.isNotEmpty) 'minValues': int.tryParse(minValues) ?? 1,
-          if (maxValues.isNotEmpty) 'maxValues': int.tryParse(maxValues) ?? 1,
+          if (minValues.isNotEmpty)
+            'minValues': _componentInteger(minValues, 1),
+          if (maxValues.isNotEmpty)
+            'maxValues': _componentInteger(maxValues, 1),
         });
         return true;
       case 'editselectmenu':
@@ -402,10 +493,10 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
           placeholder: editMenuPlaceholder.isEmpty ? null : editMenuPlaceholder,
           minValues: editMenuMinStr.isEmpty
               ? null
-              : int.tryParse(editMenuMinStr),
+              : _componentInteger(editMenuMinStr),
           maxValues: editMenuMaxStr.isEmpty
               ? null
-              : int.tryParse(editMenuMaxStr),
+              : _componentInteger(editMenuMaxStr),
         );
         return true;
       case 'editselectmenuoption':
@@ -423,14 +514,14 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
           description: editOptDesc,
           isDefault: editOptDefaultStr.isEmpty
               ? null
-              : _parseBooleanLike(editOptDefaultStr),
+              : _componentBoolean(editOptDefaultStr),
           emoji: editOptEmoji,
         );
         return true;
       case 'editbutton':
         final editBtnIdOrUrl = _stringifyArgument(node, 0);
         final editBtnLabel = _stringifyArgument(node, 1);
-        final editBtnStyle = _stringifyArgument(node, 2).trim().toLowerCase();
+        final editBtnStyle = _componentEnum(_stringifyArgument(node, 2));
         final editBtnDisabledStr = _stringifyArgument(node, 3);
         final editBtnEmoji = _stringifyArgument(node, 4);
         response.editButtonByIdOrUrl(
@@ -439,26 +530,16 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
           style: editBtnStyle.isEmpty ? null : editBtnStyle,
           disabled: editBtnDisabledStr.isEmpty
               ? null
-              : _parseBooleanLike(editBtnDisabledStr),
+              : _componentBoolean(editBtnDisabledStr),
           emoji: editBtnEmoji.isEmpty ? null : editBtnEmoji,
         );
-        return true;
-      case 'removeallcomponents':
-        response.clearComponents();
-        return true;
-      case 'removebuttons':
-        response.clearButtons();
-        return true;
-      case 'removecomponent':
-        final customId = _stringifyArgument(node, 0);
-        response.removeComponent(customId);
         return true;
       case 'addseparator':
         final sepDivider = _stringifyArgument(node, 0);
         final sepSpacing = _stringifyArgument(node, 1);
         response.addComponent(<String, dynamic>{
           'type': 'separator',
-          'divider': _parseBooleanLike(sepDivider.isEmpty ? 'yes' : sepDivider),
+          'divider': _componentBoolean(sepDivider.isEmpty ? 'yes' : sepDivider),
           if (sepSpacing.isNotEmpty) 'spacing': sepSpacing,
         });
         return true;
@@ -471,11 +552,11 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
       // ── New message component functions ────────────────────────
       case 'addfile':
         final fileUrl = _stringifyArgument(node, 0);
-        final fileSpoiler = _parseBooleanLike(_stringifyArgument(node, 1));
+        final fileSpoiler = _componentBoolean(_stringifyArgument(node, 1));
         response.addComponent(<String, dynamic>{
           'type': 'file',
           'url': fileUrl,
-          if (fileSpoiler) 'spoiler': true,
+          if (fileSpoiler != false) 'spoiler': fileSpoiler,
         });
         return true;
       case 'addradiogroupoption':
@@ -483,7 +564,7 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         final rgoLabel = _stringifyArgument(node, 1);
         final rgoValue = _stringifyArgument(node, 2);
         final rgoDesc = _stringifyArgument(node, 3);
-        final rgoDefault = _parseBooleanLike(_stringifyArgument(node, 4));
+        final rgoDefault = _componentBoolean(_stringifyArgument(node, 4));
         final resolvedGroupId = rgoMenuId.isNotEmpty
             ? rgoMenuId
             : (_pendingModalGroupId ?? '');
@@ -562,7 +643,7 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         final cgoLabel = _stringifyArgument(node, 1);
         final cgoValue = _stringifyArgument(node, 2);
         final cgoDesc = _stringifyArgument(node, 3);
-        final cgoDefault = _parseBooleanLike(_stringifyArgument(node, 4));
+        final cgoDefault = _componentBoolean(_stringifyArgument(node, 4));
         final resolvedGroupIdC = cgoMenuId.isNotEmpty
             ? cgoMenuId
             : (_pendingModalGroupId ?? '');
@@ -662,11 +743,13 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
           if (_stringifyArgument(node, 2).isNotEmpty)
             'color': _stringifyArgument(node, 2),
           if (_stringifyArgument(node, 3).isNotEmpty)
-            'author': _stringifyArgument(node, 3),
+            'author': {'name': _stringifyArgument(node, 3)},
           if (_stringifyArgument(node, 4).isNotEmpty)
-            'footer': _stringifyArgument(node, 4),
-          if (_stringifyArgument(node, 5).isNotEmpty)
-            'footerIcon': _stringifyArgument(node, 5),
+            'footer': {
+              'text': _stringifyArgument(node, 4),
+              if (_stringifyArgument(node, 5).isNotEmpty)
+                'icon_url': _stringifyArgument(node, 5),
+            },
         };
         return true;
       case 'enabledecimals':
@@ -678,6 +761,7 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
             type: BotCreatorActionType.setTemporaryVariable,
             payload: <String, dynamic>{
               'key': '_enableDecimals',
+              'internal': true,
               'valueType': 'string',
               'value': _enableDecimals ? 'yes' : 'no',
             },
@@ -738,23 +822,19 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         return _transpileJumpToAction(node);
       case 'sendmessage':
         final content = _stringifyArgument(node, 0);
+        if (pendingResponse != null) {
+          pendingResponse.appendContent(content);
+          final action = pendingResponse.buildAction(channelId: _useChannelId);
+          _consumeStickyFlags();
+          return action;
+        }
         // Consume pending response flags so that $ephemeral / $reply / $deleteIn
         // applied before $sendMessage are honored.
-        final ephemeral = pendingResponse?._ephemeral ?? _stickyEphemeral;
-        final replyMessageId =
-            pendingResponse?._replyMessageId ?? _stickyReplyMessageId;
-        final replyChannelId =
-            pendingResponse?._replyChannelId ?? _stickyReplyChannelId;
-        final tts = pendingResponse?._tts ?? _stickyTts;
-        final deleteAfter = pendingResponse?._deleteAfter ?? _stickyDeleteAfter;
-        // Reset the pending response fields directly
-        if (pendingResponse != null) {
-          pendingResponse._ephemeral = false;
-          pendingResponse._replyMessageId = null;
-          pendingResponse._replyChannelId = null;
-          pendingResponse._tts = false;
-          pendingResponse._deleteAfter = null;
-        }
+        final ephemeral = _stickyEphemeral;
+        final replyMessageId = _stickyReplyMessageId;
+        final replyChannelId = _stickyReplyChannelId;
+        final tts = _stickyTts;
+        final deleteAfter = _stickyDeleteAfter;
         _consumeStickyFlags();
 
         if (replyMessageId != null) {
@@ -946,6 +1026,10 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         return _buildDmAction(node);
       case 'editmessage':
         return _buildEditMessageAction(node);
+      case 'removeallcomponents':
+      case 'removebuttons':
+      case 'removecomponent':
+        return _buildRemoveMessageComponentsAction(node);
       case 'editin':
         return _buildEditInAction(node);
       case 'editembedin':
@@ -959,6 +1043,13 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
       case 'replyin':
         return _buildReplyInAction(node);
       case 'sendembedmessage':
+        if ({
+          'yes',
+          'true',
+          '1',
+        }.contains(_stringifyArgument(node, 13).trim().toLowerCase())) {
+          pendingResponse?.appendContent('((last.response.id))');
+        }
         return _buildSendEmbedMessageAction(node);
       case 'usechannel':
         return _buildUseChannelAction(node);
@@ -1014,10 +1105,10 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
           'style': _stringifyArgument(node, 1),
           'label': _stringifyArgument(node, 2),
           if (_stringifyArgument(node, 3).isNotEmpty)
-            'minLength': int.tryParse(_stringifyArgument(node, 3)) ?? 0,
+            'minLength': _componentInteger(_stringifyArgument(node, 3), 0),
           if (_stringifyArgument(node, 4).isNotEmpty)
-            'maxLength': int.tryParse(_stringifyArgument(node, 4)) ?? 4000,
-          'required': _parseBooleanLike(
+            'maxLength': _componentInteger(_stringifyArgument(node, 4), 4000),
+          'required': _componentBoolean(
             _stringifyArgument(node, 5).isEmpty
                 ? 'yes'
                 : _stringifyArgument(node, 5),
@@ -1030,17 +1121,9 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         return null;
       // ── New modal component functions (Label-wrapped) ─────────
       case 'addmodaltextdisplay':
-        final mtdLabel = _stringifyArgument(node, 0);
-        final mtdDesc = _stringifyArgument(node, 1);
-        final mtdContent = _stringifyArgument(node, 2);
         _pendingModalComponents.add(<String, dynamic>{
-          'type': 'label',
-          'label': mtdLabel,
-          if (mtdDesc.isNotEmpty) 'description': mtdDesc,
-          'component': <String, dynamic>{
-            'type': 'textDisplay',
-            'content': mtdContent,
-          },
+          'type': 'textDisplay',
+          'content': _stringifyArgument(node, 0),
         });
         return null;
       case 'addmodaltextinput':
@@ -1050,7 +1133,7 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         final mtiStyle = _stringifyArgument(node, 3);
         final mtiMinStr = _stringifyArgument(node, 4);
         final mtiMaxStr = _stringifyArgument(node, 5);
-        final mtiRequired = _parseBooleanLike(
+        final mtiRequired = _componentBoolean(
           _stringifyArgument(node, 6).isEmpty
               ? 'yes'
               : _stringifyArgument(node, 6),
@@ -1065,9 +1148,10 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
             'type': 'textInput',
             'customId': mtiCustomId,
             'style': mtiStyle.isNotEmpty ? mtiStyle : 'short',
-            if (mtiMinStr.isNotEmpty) 'minLength': int.tryParse(mtiMinStr) ?? 0,
+            if (mtiMinStr.isNotEmpty)
+              'minLength': _componentInteger(mtiMinStr, 0),
             if (mtiMaxStr.isNotEmpty)
-              'maxLength': int.tryParse(mtiMaxStr) ?? 4000,
+              'maxLength': _componentInteger(mtiMaxStr, 4000),
             'required': mtiRequired,
             if (mtiValue.isNotEmpty) 'value': mtiValue,
             if (mtiPlaceholder.isNotEmpty) 'placeholder': mtiPlaceholder,
@@ -1075,19 +1159,19 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         });
         return null;
       case 'addmodalselect':
-        final msType = _stringifyArgument(node, 0).trim().toLowerCase();
+        final msType = _componentEnum(_stringifyArgument(node, 0));
         final msLabel = _stringifyArgument(node, 1);
         final msDesc = _stringifyArgument(node, 2);
         final msCustomId = _stringifyArgument(node, 3);
         final msPlaceholder = _stringifyArgument(node, 4);
         final msMinStr = _stringifyArgument(node, 5);
         final msMaxStr = _stringifyArgument(node, 6);
-        final msRequired = _parseBooleanLike(
+        final msRequired = _componentBoolean(
           _stringifyArgument(node, 7).isEmpty
               ? 'yes'
               : _stringifyArgument(node, 7),
         );
-        final msDisabled = _parseBooleanLike(_stringifyArgument(node, 8));
+        final msDisabled = _componentBoolean(_stringifyArgument(node, 8));
         _pendingModalGroupId = msCustomId;
         _pendingModalComponents.add(<String, dynamic>{
           'type': 'label',
@@ -1098,8 +1182,10 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
             'menuType': msType.isNotEmpty ? msType : 'string',
             'customId': msCustomId,
             if (msPlaceholder.isNotEmpty) 'placeholder': msPlaceholder,
-            if (msMinStr.isNotEmpty) 'minValues': int.tryParse(msMinStr) ?? 1,
-            if (msMaxStr.isNotEmpty) 'maxValues': int.tryParse(msMaxStr) ?? 1,
+            if (msMinStr.isNotEmpty)
+              'minValues': _componentInteger(msMinStr, 1),
+            if (msMaxStr.isNotEmpty)
+              'maxValues': _componentInteger(msMaxStr, 1),
             'required': msRequired,
             'disabled': msDisabled,
           },
@@ -1111,7 +1197,7 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         final mfuCustomId = _stringifyArgument(node, 2);
         final mfuMinStr = _stringifyArgument(node, 3);
         final mfuMaxStr = _stringifyArgument(node, 4);
-        final mfuRequired = _parseBooleanLike(_stringifyArgument(node, 5));
+        final mfuRequired = _componentBoolean(_stringifyArgument(node, 5));
         _pendingModalComponents.add(<String, dynamic>{
           'type': 'label',
           'label': mfuLabel,
@@ -1119,8 +1205,10 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
           'component': <String, dynamic>{
             'type': 'fileUpload',
             'customId': mfuCustomId,
-            if (mfuMinStr.isNotEmpty) 'minValues': int.tryParse(mfuMinStr) ?? 1,
-            if (mfuMaxStr.isNotEmpty) 'maxValues': int.tryParse(mfuMaxStr) ?? 1,
+            if (mfuMinStr.isNotEmpty)
+              'minValues': _componentInteger(mfuMinStr, 1),
+            if (mfuMaxStr.isNotEmpty)
+              'maxValues': _componentInteger(mfuMaxStr, 1),
             'required': mfuRequired,
           },
         });
@@ -1129,7 +1217,7 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         final mrgLabel = _stringifyArgument(node, 0);
         final mrgDesc = _stringifyArgument(node, 1);
         final mrgCustomId = _stringifyArgument(node, 2);
-        final mrgRequired = _parseBooleanLike(_stringifyArgument(node, 3));
+        final mrgRequired = _componentBoolean(_stringifyArgument(node, 3));
         _pendingModalGroupId = mrgCustomId;
         _pendingModalComponents.add(<String, dynamic>{
           'type': 'label',
@@ -1148,7 +1236,7 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         final mcgCustomId = _stringifyArgument(node, 2);
         final mcgMinStr = _stringifyArgument(node, 3);
         final mcgMaxStr = _stringifyArgument(node, 4);
-        final mcgRequired = _parseBooleanLike(_stringifyArgument(node, 5));
+        final mcgRequired = _componentBoolean(_stringifyArgument(node, 5));
         _pendingModalGroupId = mcgCustomId;
         _pendingModalComponents.add(<String, dynamic>{
           'type': 'label',
@@ -1157,8 +1245,10 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
           'component': <String, dynamic>{
             'type': 'checkboxGroup',
             'customId': mcgCustomId,
-            if (mcgMinStr.isNotEmpty) 'minValues': int.tryParse(mcgMinStr) ?? 1,
-            if (mcgMaxStr.isNotEmpty) 'maxValues': int.tryParse(mcgMaxStr) ?? 1,
+            if (mcgMinStr.isNotEmpty)
+              'minValues': _componentInteger(mcgMinStr, 1),
+            if (mcgMaxStr.isNotEmpty)
+              'maxValues': _componentInteger(mcgMaxStr, 1),
             'required': mcgRequired,
           },
         });
@@ -1167,7 +1257,7 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         final mcLabel = _stringifyArgument(node, 0);
         final mcDesc = _stringifyArgument(node, 1);
         final mcCustomId = _stringifyArgument(node, 2);
-        final mcDefault = _parseBooleanLike(_stringifyArgument(node, 3));
+        final mcDefault = _componentBoolean(_stringifyArgument(node, 3));
         _pendingModalComponents.add(<String, dynamic>{
           'type': 'label',
           'label': mcLabel,
@@ -1182,11 +1272,9 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
       // Defer action
       case 'defer':
         return Action(
-          type: BotCreatorActionType.respondWithMessage,
-          payload: const <String, dynamic>{
-            'content': '',
-            'deferred': true,
-            'ephemeral': false,
+          type: BotCreatorActionType.deferInteraction,
+          payload: {
+            'ephemeral': _componentBoolean(_stringifyArgument(node, 0)),
           },
         );
       // Cooldown actions
@@ -1223,8 +1311,7 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         );
       // Text split state
       case 'textsplit':
-        _textSplitState(node);
-        return null;
+        return _buildTextSplitStateAction(node, 'init');
       // Blacklist guards
       case 'blacklistids':
         return _transpileBlacklistIds(node);
@@ -1256,15 +1343,12 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         );
       // Close/new ticket scaffolding
       case 'closeticket':
-        // BDFD wiki: $closeTicket[Error message] — error message is sent when
-        // the channel is not a ticket.
         final ctErrorMsg = _stringifyArgument(node, 0).trim();
         return Action(
-          type: BotCreatorActionType.updateChannel,
+          type: BotCreatorActionType.removeChannel,
           payload: <String, dynamic>{
             'channelId': '((channel.id))',
-            'archived': true,
-            'locked': true,
+            'ticketClose': true,
             if (ctErrorMsg.isNotEmpty) 'errorMessage': ctErrorMsg,
           },
         );
@@ -1338,6 +1422,8 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
             'query': _stringifyArgument(node, 0),
             if (node.arguments.length > 1)
               'channelId': _stringifyArgument(node, 1),
+            if (node.arguments.length > 2)
+              'userId': _stringifyArgument(node, 2),
           },
         );
       case 'pausemusic':
@@ -1373,7 +1459,10 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
       case 'seekmusic':
         return Action(
           type: BotCreatorActionType.seekMusic,
-          payload: <String, dynamic>{'position': _stringifyArgument(node, 0)},
+          payload: <String, dynamic>{
+            'position': _stringifyArgument(node, 0),
+            'positionUnit': 'seconds',
+          },
         );
       case 'joinvoice':
         return Action(
@@ -1503,10 +1592,8 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
           .map(
             (username) => _ParsedCondition(
               left: '((author.username))',
-              operator: 'matches',
-              right:
-                  '(?i)^${RegExp.escape(username)}'
-                  r'$',
+              operator: 'equalsIgnoreCase',
+              right: username,
             ),
           )
           .toList(growable: false),
@@ -1610,12 +1697,12 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
               conditions: <_ParsedCondition>[
                 _ParsedCondition(
                   left: '((member.roles))',
-                  operator: 'contains',
+                  operator: 'containsItem',
                   right: name,
                 ),
                 _ParsedCondition(
-                  left: '((member.roleNames))',
-                  operator: 'contains',
+                  left: '((member.roleNamesJson|member.roleNames))',
+                  operator: 'containsItem',
                   right: name,
                 ),
               ],
@@ -1651,7 +1738,7 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
           .map(
             (id) => _ParsedCondition(
               left: '((member.roles))',
-              operator: 'contains',
+              operator: 'containsItem',
               right: id,
             ),
           )
@@ -1793,7 +1880,7 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         ),
         _ParsedCondition(
           left: '((member.permissions))',
-          operator: 'contains',
+          operator: 'hasPermission',
           right: 'administrator',
         ),
         _ParsedCondition(
@@ -1834,7 +1921,7 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
           .map(
             (permission) => _ParsedCondition(
               left: source,
-              operator: 'contains',
+              operator: 'hasPermission',
               right: permission,
             ),
           )
@@ -1910,7 +1997,7 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
       extracted.permissions.map(
         (permission) => _ParsedCondition(
           left: '((bot.permissions))',
-          operator: 'contains',
+          operator: 'hasPermission',
           right: permission,
         ),
       ),
@@ -1981,7 +2068,7 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
         ...extracted.permissions.map(
           (permission) => _ParsedCondition(
             left: '((member.permissions))',
-            operator: 'contains',
+            operator: 'hasPermission',
             right: permission,
           ),
         ),
@@ -1993,8 +2080,8 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
       conditions: extracted.permissions
           .map(
             (permission) => _ParsedCondition(
-              left: 'permissions.byId.$userId',
-              operator: 'contains',
+              left: '((permissions.byId.$userId))',
+              operator: 'hasPermission',
               right: permission,
             ),
           )
@@ -2040,8 +2127,8 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
           .map(
             (word) => _ParsedCondition(
               left: parsed.message,
-              operator: 'matches',
-              right: '(?i).*${RegExp.escape(word)}.*',
+              operator: 'containsIgnoreCase',
+              right: word,
             ),
           )
           .toList(growable: false),

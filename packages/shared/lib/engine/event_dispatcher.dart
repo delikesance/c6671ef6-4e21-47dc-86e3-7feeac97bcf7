@@ -5,6 +5,7 @@ import 'package:bot_creator_shared/types/action.dart';
 import 'package:bot_creator_shared/utils/global.dart' as shared_global;
 import 'package:bot_creator_shared/utils/legacy_command_triggers.dart';
 import 'package:bot_creator_shared/utils/runtime_variables.dart';
+import 'package:bot_creator_shared/utils/message_runtime.dart';
 import 'package:bot_creator_shared/engine/bot_engine_callbacks.dart';
 import 'package:bot_creator_shared/engine/command_executor.dart';
 import 'package:bot_creator_shared/engine/workflow_executor.dart';
@@ -845,7 +846,6 @@ class EventDispatcher {
 
     // Prepare arguments ($1, $2, etc.)
     final args = parts.skip(1).toList();
-    final argsString = args.join(' ');
     callbacks.onDebugLog?.call('Command arguments: $args', botId: botId);
 
     for (var i = 0; i < args.length; i++) {
@@ -864,25 +864,15 @@ class EventDispatcher {
     final context = buildMessageCreateEventContext(event);
     runtimeVariables.addAll(context.variables);
 
-    // Override message content for legacy commands so $message returns only the arguments
-    runtimeVariables['message.content'] = argsString;
-    runtimeVariables['message.cleanContent'] = argsString;
-    callbacks.onDebugLog?.call(
-      'Overrode message.content with arguments: "$argsString"',
-      botId: botId,
-    );
-
-    // Re-hydrate word indexed variables so $message[1] accesses the first argument (and not the command name/prefix)
-    for (var idx = 0; idx < 10; idx++) {
-      runtimeVariables.remove('message.content[$idx]');
+    // Replace the event's words with command arguments and matching counts.
+    for (final key
+        in runtimeVariables.keys
+            .where((key) => key.startsWith('message.content['))
+            .toList()) {
+      runtimeVariables.remove(key);
     }
-    for (var idx = 0; idx < args.length && idx < 10; idx++) {
-      runtimeVariables['message.content[$idx]'] = args[idx];
-      callbacks.onDebugLog?.call(
-        'Re-hydrated message.content[$idx] with: ${args[idx]}',
-        botId: botId,
-      );
-    }
+    runtimeVariables.addAll(buildCommandArgumentRuntimeVariables(args));
+    runtimeVariables['interaction.isSlash'] = 'false';
 
     // Inject guild, channel and member variables for legacy command execution
     await _hydrateEventContext(gateway, context, runtimeVariables);
