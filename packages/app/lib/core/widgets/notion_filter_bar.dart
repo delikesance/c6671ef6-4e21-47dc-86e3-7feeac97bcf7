@@ -1,5 +1,7 @@
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:reicon_flutter/reicon_flutter.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
 import 'package:bot_creator/core/widgets/app_icon.dart';
@@ -399,12 +401,16 @@ class _NotionFilterBarState extends State<NotionFilterBar> {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                AppIcon.fromMaterial(
-                  Icons.filter_list,
-                  size: 20,
-                  color: hasActive
-                      ? colorScheme.onPrimaryContainer
-                      : colorScheme.onSurfaceVariant,
+                SvgPicture.string(
+                  reiconSvg(Reicon.outline.filter),
+                  width: 24,
+                  height: 24,
+                  colorFilter: ColorFilter.mode(
+                    hasActive
+                        ? colorScheme.onPrimaryContainer
+                        : colorScheme.onSurfaceVariant,
+                    BlendMode.srcIn,
+                  ),
                 ),
                 if (hasActive)
                   Positioned(
