@@ -141,9 +141,13 @@ class _FolderPickerDialogState extends State<FolderPickerDialog> {
                   controller: _searchController,
                   decoration: InputDecoration(
                     hintText: context.tr.common_search,
-                    prefixIcon: const AppIcon.fromMaterial(
-                      Icons.search,
-                      size: 18,
+                    prefixIconConstraints: const BoxConstraints(
+                      minWidth: 36,
+                      minHeight: 36,
+                    ),
+                    prefixIcon: const Padding(
+                      padding: EdgeInsets.only(left: 10, right: 8),
+                      child: AppIcon.fromMaterial(Icons.search, size: 18),
                     ),
                     suffixIcon: _searchFilter.isNotEmpty
                         ? IconButton(

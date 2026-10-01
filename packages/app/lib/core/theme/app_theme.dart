@@ -369,6 +369,7 @@ abstract final class AppTheme {
           borderRadius: BorderRadius.circular(radiusMd),
           borderSide: BorderSide(color: tokens.accentRing, width: 2),
         ),
+        prefixIconColor: colorScheme.onSurfaceVariant,
         isDense: false,
       ),
       // ── Accent d'action (le violet, et seulement là) ──────────────────────
@@ -569,6 +570,7 @@ abstract final class AppTheme {
           borderRadius: BorderRadius.circular(radiusMd),
           borderSide: BorderSide(color: tokens.accentRing, width: 2),
         ),
+        prefixIconColor: colorScheme.onSurfaceVariant,
         isDense: false,
       ),
       // ── Accent d'action (le violet, et seulement là) ──────────────────────

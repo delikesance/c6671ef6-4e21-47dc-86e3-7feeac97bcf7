@@ -253,11 +253,24 @@ class _MarketplacePageState extends State<MarketplacePage> {
           child: TextField(
             decoration: InputDecoration(
               hintText: context.tr.marketplace_search_hint,
-              prefixIcon: const AppIcon.fromMaterial(Icons.search),
+              prefixIconConstraints: const BoxConstraints(
+                minWidth: 36,
+                minHeight: 36,
+              ),
+              prefixIcon: const Padding(
+                padding: EdgeInsets.only(left: 10, right: 8),
+                child: AppIcon.fromMaterial(Icons.search, size: 18),
+              ),
+              isDense: true,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 10,
+              ),
               suffixIcon: _search.isNotEmpty
                   ? IconButton(
-                      icon: const AppIcon.fromMaterial(Icons.clear),
+                      icon: const AppIcon.fromMaterial(Icons.clear, size: 18),
                       onPressed: () => setState(() => _search = ''),
+                      visualDensity: VisualDensity.compact,
                     )
                   : null,
               border: OutlineInputBorder(

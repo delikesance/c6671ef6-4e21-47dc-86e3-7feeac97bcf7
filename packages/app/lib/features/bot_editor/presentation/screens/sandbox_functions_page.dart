@@ -90,7 +90,19 @@ class _SandboxFunctionsPageState extends State<SandboxFunctionsPage> {
                     'Rechercher une fonction',
                     'Search functions',
                   ),
-                  prefixIcon: const AppIcon.fromMaterial(Icons.search),
+                  prefixIconConstraints: const BoxConstraints(
+                    minWidth: 36,
+                    minHeight: 36,
+                  ),
+                  prefixIcon: const Padding(
+                    padding: EdgeInsets.only(left: 10, right: 8),
+                    child: AppIcon.fromMaterial(Icons.search, size: 18),
+                  ),
+                  isDense: true,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
                 ),
                 onChanged: (value) => setState(() {
                   search = value;
