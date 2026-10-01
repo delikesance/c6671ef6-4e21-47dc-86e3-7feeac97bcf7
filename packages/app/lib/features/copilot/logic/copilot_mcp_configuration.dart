@@ -1,6 +1,40 @@
 part of 'copilot_mcp.dart';
 
 extension CopilotConfigurationTools on CopilotMcp {
+  Future<ApplicationCommand> _patchDiscordCommand(
+    NyxxRest rest,
+    Map<String, dynamic> command,
+    ApplicationCommandUpdateBuilder update,
+  ) async {
+    // A restored local ID may be a UUID rather than a Discord snowflake.
+    final storedID = (command['discordId'] ?? command['id'])?.toString();
+    final numericID = storedID != null && RegExp(r'^\d+$').hasMatch(storedID)
+        ? int.tryParse(storedID)
+        : null;
+    if (numericID != null && numericID > 0) {
+      try {
+        return await rest.commands.update(Snowflake(numericID), update);
+      } on HttpResponseError catch (error) {
+        // Only a definitively missing command permits identity recovery.
+        if (error.errorCode != 10063) rethrow;
+      }
+    }
+    final type = switch (command['type'] ?? 'chatInput') {
+      'chatInput' || 'command' => ApplicationCommandType.chatInput,
+      'user' => ApplicationCommandType.user,
+      'message' => ApplicationCommandType.message,
+      _ => throw const FormatException('Unsupported Discord command type'),
+    };
+    final matches = (await rest.commands.list())
+        .where((c) => c.name == command['name'] && c.type == type)
+        .toList();
+    if (matches.isEmpty) throw StateError('Discord command identity not found');
+    if (matches.length != 1) {
+      throw StateError('Discord command identity is ambiguous');
+    }
+    return rest.commands.update(matches.single.id, update);
+  }
+
   Future<bool> retryCloudConfiguration(String botID) async {
     if (botId != null && botId != botID) {
       throw StateError('Tool targets another bot');
@@ -121,22 +155,21 @@ extension CopilotConfigurationTools on CopilotMcp {
             };
           }
         }
-        final rest = await _verifiedDiscord(botID, app);
-        try {
-          final discordID = (before['discordId'] ?? before['id']).toString();
-          final saved = await rest.commands.update(
-            Snowflake.parse(discordID),
-            update,
-          );
-          after['discordId'] = saved.id.toString();
-          await manager.saveAppCommand(botID, commandID, after);
-        } finally {
-          rest.close();
+        final usesDiscord = copilotCommandUsesDiscord(before);
+        if (usesDiscord) {
+          final rest = await _verifiedDiscord(botID, app);
+          try {
+            final saved = await _patchDiscordCommand(rest, before, update);
+            after['discordId'] = saved.id.toString();
+          } finally {
+            rest.close();
+          }
         }
+        await manager.saveAppCommand(botID, commandID, after);
         final synced = await syncCloudCommand(botID, commandID);
         return {
           'saved': true,
-          'discord_updated': true,
+          'discord_updated': usesDiscord,
           'bot_id': botID,
           'command_id': commandID,
           'runner_synced': synced,

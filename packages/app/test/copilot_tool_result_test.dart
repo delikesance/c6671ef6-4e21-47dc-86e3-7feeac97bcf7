@@ -46,6 +46,18 @@ void main() {
     );
     expect(
       copilotToolFailure(
+        StateError('Discord command identity not found'),
+      )['code'],
+      'discord_command_not_found',
+    );
+    expect(
+      copilotToolFailure(
+        StateError('Discord command identity is ambiguous'),
+      )['code'],
+      'discord_command_ambiguous',
+    );
+    expect(
+      copilotToolFailure(
         StateError('Execution mode does not match the bot runtime'),
       )['code'],
       'runtime_mismatch',

@@ -5,6 +5,10 @@ import 'package:bot_creator/features/copilot/logic/copilot_command.dart';
 import 'package:bot_creator_shared/bot/bot_config.dart';
 import 'package:bot_creator_shared/types/action.dart' as blocks;
 import 'package:bot_creator_shared/utils/event_catalog.dart';
+import 'package:bot_creator_shared/utils/command_trigger_type.dart';
+
+bool copilotCommandUsesDiscord(Map<String, dynamic> command) =>
+    {'slash', 'hybrid'}.contains(commandTriggerType(command));
 
 Map<String, dynamic> copyCopilotMap(Map source) =>
     Map<String, dynamic>.from(jsonDecode(jsonEncode(source)) as Map);
