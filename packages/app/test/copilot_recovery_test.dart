@@ -13,6 +13,99 @@ import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  testWidgets('GET actions stay invisible and resume automatically on reopen', (
+    tester,
+  ) async {
+    final read = {
+      'call_id': 'read',
+      'request_key': 'first',
+      'state': 'pending',
+      'call': {
+        'id': 'read',
+        'type': 'function',
+        'function': {'name': 'remote_list_bots', 'arguments': '{}'},
+      },
+    };
+    final mutation = {
+      'call_id': 'stop',
+      'request_key': 'second',
+      'state': 'pending',
+      'call': {
+        'id': 'stop',
+        'type': 'function',
+        'function': {
+          'name': 'remote_stop_bot',
+          'arguments': '{"bot_id":"123456789012345"}',
+        },
+      },
+    };
+    final chat = _chat()
+      ..['messages'] = [
+        {'role': 'user', 'content': 'Check the bot'},
+        {
+          'role': 'assistant',
+          'content': '',
+          'tool_calls': [read['call']],
+        },
+        {
+          'role': 'assistant',
+          'content': '',
+          'tool_calls': [mutation['call']],
+        },
+      ]
+      ..['actions'] = [read, mutation];
+    final accepted = Completer<http.Response>();
+    var reads = 0;
+    final api = _api(chat, (request) async {
+      if (request.url.path.endsWith('/actions/read')) {
+        reads++;
+        expect(jsonDecode(request.body), {'approve': true});
+        read['state'] = 'executing';
+        return accepted.future;
+      }
+      return null;
+    });
+    await _mount(
+      tester,
+      api,
+      initialConversationId: 'c',
+      size: const Size(320, 800),
+      textScale: 1.5,
+    );
+    expect(reads, 1);
+    expect(find.text('Inspect bot'), findsNothing);
+    expect(find.text('Technical details'), findsNothing);
+    expect(find.text('Copilot'), findsNothing);
+    expect(find.text('Stop bot'), findsOneWidget);
+    expect(find.text('Approval required'), findsOneWidget);
+
+    read['state'] = 'succeeded';
+    read['result'] = {
+      'content': [
+        {'text': 'private tool result'},
+      ],
+    };
+    accepted.complete(_json({'state': 'succeeded'}));
+    await _settle(tester);
+    await tester.scrollUntilVisible(
+      find.byKey(const ValueKey('action-stop')),
+      150,
+      scrollable: find
+          .descendant(
+            of: find.byType(ListView).first,
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+    expect(reads, 1);
+    expect(find.text('Inspect bot'), findsNothing);
+    expect(find.text('private tool result'), findsNothing);
+    expect(find.text('Technical details'), findsNothing);
+    expect(find.text('Approve'), findsOneWidget);
+    expect(find.text('Decline'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets(
     'wallet amounts remain complete on one line at 320px enlarged text',
     (tester) async {
