@@ -325,4 +325,43 @@ void main() {
     expect(result['error'], contains('between 0 and 6 hours'));
     expect(result['effects'], isEmpty);
   });
+  test(
+    'flexible scenario fixtures: definitions Map, context permissions, option id and temp variables',
+    () async {
+      final result = await testCommandInSandbox({
+        'script':
+            r'$onlyPerms[ManageMessages;Refusé]$var[target;((opts.user.id))]$var[count;$getGuildMemberVar[warns;$var[target]]]$setGuildMemberVar[warns;$sum[$var[count];1];$var[target]]Averti $var[target] count=$var[count]',
+        'options': {'user': '25'},
+        'context': {
+          'permissions': ['MANAGE_MESSAGES'],
+        },
+        'definitions': {
+          'warns': {'scope': 'guildMember', 'defaultValue': '0'},
+        },
+        'variables': {'initialCount': '0'},
+      });
+      expect(result['success'], true, reason: '$result');
+      expect(result['responses'][0]['payload']['content'], 'Averti 25 count=0');
+      expect(
+        result['storage_after']['scoped']['guildMember']['10:25']['warns'],
+        '1',
+      );
+    },
+  );
+  test('flexible scenario fixtures: scoped list format and temp map', () async {
+    final result = await testCommandInSandbox({
+      'script': r'$var[name] is at $getGuildMemberVar[warns;25]',
+      'temp': {'name': 'Alice'},
+      'scoped': [
+        {
+          'scope': 'guildMember',
+          'context': '10:25',
+          'key': 'warns',
+          'value': '3',
+        },
+      ],
+    });
+    expect(result['success'], true, reason: '$result');
+    expect(result['responses'][0]['payload']['content'], 'Alice is at 3');
+  });
 }
