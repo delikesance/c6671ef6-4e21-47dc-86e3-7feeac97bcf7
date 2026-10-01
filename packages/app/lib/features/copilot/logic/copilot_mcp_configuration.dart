@@ -109,7 +109,16 @@ extension CopilotConfigurationTools on CopilotMcp {
           }
           after['data'] = data;
           if (HashUtil.calculateHash(after) == HashUtil.calculateHash(before)) {
-            throw const FormatException('No command setting change');
+            return {
+              'unchanged': true,
+              'saved': false,
+              'discord_updated': false,
+              'bot_id': botID,
+              'command_id': commandID,
+              'before': before,
+              'after': before,
+              'revision': HashUtil.calculateHash(before),
+            };
           }
         }
         final rest = await _verifiedDiscord(botID, app);

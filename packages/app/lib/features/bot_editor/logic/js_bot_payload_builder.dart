@@ -7,6 +7,7 @@ import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/features/bot_editor/logic/workflow_call.dart';
 import 'package:bot_creator_shared/utils/legacy_command_triggers.dart';
 import 'package:flutter/foundation.dart';
+import 'package:bot_creator_shared/utils/command_trigger_type.dart';
 
 Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
   final appData = await AppManager().getApp(botId);
@@ -56,6 +57,7 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
     final data = Map<String, dynamic>.from(
       (normalized['data'] as Map?)?.cast<String, dynamic>() ?? const {},
     );
+    final triggerType = commandTriggerType(normalized);
     final executionMode = (data['executionMode'] ?? 'workflow')
         .toString()
         .trim()
@@ -66,6 +68,7 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
         script =
             synthesizeJsFromWorkflowActions(
               (data['actions'] as List?) ?? const [],
+              preferMessage: triggerType == 'prefix',
             ) ??
             '';
       }
@@ -86,6 +89,19 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
     commands.add({
       'id': (normalized['id'] ?? '').toString(),
       'type': 'command',
+      'triggerType': triggerType,
+      'prefixName': cleanLegacyCommandTriggerName(
+        (data['legacyPrefixOverride'] ?? '').toString().trim().isEmpty
+            ? rawName
+            : data['legacyPrefixOverride'].toString(),
+      ),
+      'data': {
+        ...data,
+        'executionMode': 'javascript',
+        'jsScriptContent': script,
+      },
+      if (normalized['folder'] != null) 'folder': normalized['folder'],
+      if (normalized['discordId'] != null) 'discordId': normalized['discordId'],
       'name': uniqueName,
       'description':
           (normalized['description'] ?? data['description'] ?? uniqueName)
@@ -204,7 +220,7 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
   }
 
   final prefixRaw = (appData['prefix'] ?? '').toString().trim();
-  final includePrefix = prefixRaw.isNotEmpty && commands.isNotEmpty;
+  final includePrefix = prefixRaw.isNotEmpty;
 
   final presenceStatusRaw = (appData['presenceStatus'] ?? 'online')
       .toString()

@@ -7,6 +7,7 @@ import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/utils/hash_util.dart';
 import 'package:bot_creator/features/copilot/logic/copilot_mcp.dart';
 import 'package:bot_creator/features/copilot/logic/copilot_catalog.dart';
+import 'package:bot_creator/features/copilot/logic/copilot_tool_result.dart';
 import 'package:bot_creator/features/subscriptions/presentation/ai_credits_page.dart';
 import 'package:bot_creator/features/subscriptions/logic/ai_credit_format.dart';
 import 'package:flutter/material.dart';
@@ -70,6 +71,11 @@ class _CopilotPageState extends State<CopilotPage> {
       (_chat?['messages'] as List? ?? [])
           .map((a) => Map<String, dynamic>.from(a as Map))
           .toList();
+  bool get _hasPendingReads => _actions.any(
+    (a) =>
+        ['pending', 'executing', 'uncertain'].contains(a['state']) &&
+        !_mutating(a),
+  );
   List<Widget> _conversationItems() {
     final actions = _actions;
     final placed = <String>{};
@@ -391,8 +397,7 @@ class _CopilotPageState extends State<CopilotPage> {
       _scrollTail(force: true);
       if (_requestKey != null) {
         await _follow();
-      } else if (c['archived'] != true &&
-          _actions.any((a) => a['state'] == 'pending' && !_mutating(a))) {
+      } else if (c['archived'] != true && _hasPendingReads) {
         await _readActions();
       }
     } catch (e) {
@@ -474,10 +479,7 @@ class _CopilotPageState extends State<CopilotPage> {
       _wallet = await _api!.getAIWallet();
       await _refreshCloudStatus();
       await _loadHistory();
-      if (mounted &&
-          !_busy &&
-          _chat?['archived'] != true &&
-          _actions.any((a) => a['state'] == 'pending' && !_mutating(a))) {
+      if (mounted && !_busy && _chat?['archived'] != true && _hasPendingReads) {
         await _readActions();
       }
       if (mounted) {
@@ -786,8 +788,12 @@ class _CopilotPageState extends State<CopilotPage> {
   }
 
   Future<void> _readActions() async {
+    if (_actions.any((a) => a['state'] == 'executing' && !_mutating(a))) {
+      await _waitForReads();
+      if (!mounted || _busy || _error != null) return;
+    }
     for (final a in _actions) {
-      if (a['state'] == 'pending' && !_mutating(a)) {
+      if (['pending', 'uncertain'].contains(a['state']) && !_mutating(a)) {
         await _action(a, true, continueAfter: false);
         if (_error != null) {
           return;
@@ -801,6 +807,44 @@ class _CopilotPageState extends State<CopilotPage> {
         _messages.isNotEmpty &&
         _messages.last['role'] == 'tool') {
       await _send('');
+    }
+  }
+
+  Future<void> _waitForReads() async {
+    if (!mounted || _busy || _chat == null) return;
+    final id = _id;
+    final epoch = _viewEpoch;
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      // Allow the original read to finish, or the server's two-minute recovery
+      // to mark it interrupted. Never replay an in-flight action blindly.
+      for (var attempt = 0; attempt < 65; attempt++) {
+        if (!mounted || epoch != _viewEpoch) return;
+        final latest = await _api!.getAIConversation(id);
+        if (!mounted || epoch != _viewEpoch) return;
+        setState(() => _chat = latest);
+        if (!_actions.any((a) => a['state'] == 'executing' && !_mutating(a))) {
+          return;
+        }
+        await Future<void>.delayed(const Duration(seconds: 2));
+      }
+      if (mounted && epoch == _viewEpoch) {
+        setState(
+          () => _error = _copy(
+            'La réponse n’est pas encore disponible. Réessayez l’actualisation.',
+            'The response is not available yet. Try refreshing again.',
+          ),
+        );
+      }
+    } catch (error) {
+      if (mounted && epoch == _viewEpoch) {
+        setState(() => _error = _describe(error));
+      }
+    } finally {
+      if (mounted && epoch == _viewEpoch) setState(() => _busy = false);
     }
   }
 
@@ -934,8 +978,18 @@ class _CopilotPageState extends State<CopilotPage> {
       _error = null;
     });
     try {
-      await _api!.aiAction(_id, call, {'approve': approve});
-      if (approve && !name.startsWith('remote_')) {
+      final interruptedRead = a['state'] == 'uncertain' && !_mutating(a);
+      if (interruptedRead) {
+        // A hidden read must not leave the conversation waiting for manual
+        // resolution. Record its interruption before the assistant continues.
+        await _api!.aiAction(_id, call, {
+          'state': 'failed',
+          'result': {'isError': true, 'message': 'Read interrupted.'},
+        });
+      } else {
+        await _api!.aiAction(_id, call, {'approve': approve});
+      }
+      if (approve && !interruptedRead && !name.startsWith('remote_')) {
         Map<String, dynamic> result;
         String state;
         try {
@@ -948,11 +1002,8 @@ class _CopilotPageState extends State<CopilotPage> {
             alreadyApproved: true,
           );
           state = result['isError'] == true ? 'failed' : 'succeeded';
-        } catch (_) {
-          result = {
-            'isError': true,
-            'message': 'Action failed; success not confirmed.',
-          };
+        } catch (error) {
+          result = copilotToolFailure(error);
           state = 'failed';
         }
         if (utf8.encode(jsonEncode(result)).length > 24000) {

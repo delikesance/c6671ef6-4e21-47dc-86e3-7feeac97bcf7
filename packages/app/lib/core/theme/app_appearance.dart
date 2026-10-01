@@ -212,6 +212,7 @@ class AppAppearanceConfig {
     required this.presetId,
     required this.accentColor,
     required this.seedColor,
+    this.textScale = 1.0,
   });
 
   /// Mode clair / sombre / système.
@@ -231,6 +232,14 @@ class AppAppearanceConfig {
 
   /// Graine effective des `ColorScheme` (teinte des surfaces).
   final Color seedColor;
+
+  /// App adjustment applied on top of the device's accessibility text scale.
+  final double textScale;
+  static const minTextScale = 0.75;
+  static const maxTextScale = 1.25;
+
+  static double normalizeTextScale(double value) =>
+      value.isFinite ? value.clamp(minTextScale, maxTextScale).toDouble() : 1.0;
 
   /// Valeurs d'usine : rendu historique (graphite, mode sombre, accent violet
   /// de marque). Elles doivent rester identiques à
@@ -273,12 +282,16 @@ class AppAppearanceConfig {
     String? presetId,
     Color? accentColor,
     Color? seedColor,
+    double? textScale,
   }) {
     return AppAppearanceConfig(
       mode: mode ?? this.mode,
       presetId: presetId ?? this.presetId,
       accentColor: accentColor ?? this.accentColor,
       seedColor: seedColor ?? this.seedColor,
+      textScale: textScale == null
+          ? this.textScale
+          : normalizeTextScale(textScale),
     );
   }
 
@@ -291,6 +304,7 @@ class AppAppearanceConfig {
     'presetId': presetId,
     'accentColor': accentColor.toARGB32(),
     'seedColor': seedColor.toARGB32(),
+    'textScale': textScale,
   };
 
   /// Sérialise la config pour `SharedPreferences`.
@@ -308,6 +322,10 @@ class AppAppearanceConfig {
       },
       accentColor: _colorFrom(json['accentColor']) ?? defaults.accentColor,
       seedColor: _colorFrom(json['seedColor']) ?? defaults.seedColor,
+      textScale: switch (json['textScale']) {
+        final num value => normalizeTextScale(value.toDouble()),
+        _ => defaults.textScale,
+      },
     );
   }
 
@@ -350,13 +368,15 @@ class AppAppearanceConfig {
       other.mode == mode &&
       other.presetId == presetId &&
       other.accentColor == accentColor &&
-      other.seedColor == seedColor;
+      other.seedColor == seedColor &&
+      other.textScale == textScale;
 
   @override
-  int get hashCode => Object.hash(mode, presetId, accentColor, seedColor);
+  int get hashCode =>
+      Object.hash(mode, presetId, accentColor, seedColor, textScale);
 
   @override
   String toString() =>
       'AppAppearanceConfig(mode: $mode, presetId: $presetId, '
-      'accentColor: $accentColor, seedColor: $seedColor)';
+      'accentColor: $accentColor, seedColor: $seedColor, textScale: $textScale)';
 }

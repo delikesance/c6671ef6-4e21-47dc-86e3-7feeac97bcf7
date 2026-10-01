@@ -10890,5 +10890,9 @@
   "copilot_tool_profile": "Bot-Namen ändern",
   "copilot_tool_variable": "Variable speichern",
   "copilot_tool_schedule": "Automatisierung planen",
-  "copilot_tool_webhook": "Externen Auslöser konfigurieren"
+  "copilot_tool_webhook": "Externen Auslöser konfigurieren",
+  "settings_text_size_title": "Textgröße",
+  "settings_text_size_description": "Passt die Textgröße der App relativ zur Texteinstellung deines Geräts an.",
+  "settings_text_size_preview": "Vorschau: deine Befehle, Workflows und Unterhaltungen.",
+  "settings_text_size_reset": "Textgröße zurücksetzen"
 }

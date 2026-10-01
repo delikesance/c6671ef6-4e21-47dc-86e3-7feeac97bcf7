@@ -11048,4 +11048,18 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get copilot_tool_webhook => 'Configurar um gatilho externo';
+
+  @override
+  String get settings_text_size_title => 'Tamanho do texto';
+
+  @override
+  String get settings_text_size_description =>
+      'Ajusta o tamanho do texto do app em relação à configuração do seu dispositivo.';
+
+  @override
+  String get settings_text_size_preview =>
+      'Prévia: seus comandos, fluxos de trabalho e conversas.';
+
+  @override
+  String get settings_text_size_reset => 'Redefinir tamanho';
 }

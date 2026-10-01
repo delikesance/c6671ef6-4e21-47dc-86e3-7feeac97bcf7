@@ -10939,5 +10939,9 @@
   "copilot_tool_profile": "Modifier le nom du bot",
   "copilot_tool_variable": "Enregistrer une variable",
   "copilot_tool_schedule": "Programmer une automatisation",
-  "copilot_tool_webhook": "Configurer un déclencheur externe"
+  "copilot_tool_webhook": "Configurer un déclencheur externe",
+  "settings_text_size_title": "Taille du texte",
+  "settings_text_size_description": "Ajuste la taille du texte de l’app par rapport au réglage de votre appareil.",
+  "settings_text_size_preview": "Aperçu : vos commandes, workflows et conversations.",
+  "settings_text_size_reset": "Réinitialiser la taille"
 }

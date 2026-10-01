@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'command_trigger_type.dart';
+
 import 'package:bot_creator_shared/bot/bot_config.dart';
 import 'package:bot_creator_shared/utils/discord_auth_errors.dart';
 import 'package:bot_creator_shared/utils/intent_resolver.dart';
@@ -38,8 +40,7 @@ class PortalIntentPatchFailedException implements Exception {
 
   @override
   String toString() =>
-      detail ??
-      'Failed to update application flags via PATCH ($statusCode)';
+      detail ?? 'Failed to update application flags via PATCH ($statusCode)';
 }
 
 /// Privileged intent keys enabled for the given application [flags] bitmask.
@@ -173,7 +174,8 @@ bool botConfigHasLegacyCommands(BotConfig config) {
     final data = command['data'];
     if (data is! Map) continue;
     final map = Map<String, dynamic>.from(data);
-    if (map['legacyModeEnabled'] != true) continue;
+    if (!const {'prefix', 'hybrid'}.contains(commandTriggerType(command)))
+      continue;
 
     final type = (command['type'] ?? map['commandType'] ?? '').toString();
     if (type == 'chatInput' || type.isEmpty) {
@@ -199,8 +201,7 @@ Map<String, bool> buildEffectiveIntentsMap({
   );
 
   final effective = <String, bool>{
-    for (final key in allIntentKeys)
-      key: !privilegedIntentKeys.contains(key),
+    for (final key in allIntentKeys) key: !privilegedIntentKeys.contains(key),
   };
 
   for (final key in requiredKeys) {

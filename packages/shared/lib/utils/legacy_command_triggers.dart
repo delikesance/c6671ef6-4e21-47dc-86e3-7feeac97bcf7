@@ -1,7 +1,7 @@
 /// Legacy ("Message Text") command trigger helpers.
 ///
 /// A legacy command is an app command whose `data` map enables legacy mode
-/// (`data.legacyModeEnabled == true`). It is triggered by typing the app prefix
+/// (`data.legacyModeEnabled == true`) or declares a hybrid trigger. It is triggered by typing the app prefix
 /// (`!` by default) followed by one of its trigger words:
 ///
 /// * the effective name — `data.legacyPrefixOverride` when non-empty, otherwise
@@ -12,6 +12,8 @@
 /// triggering message (immediately, or after the given delay). The modifier is
 /// ignored for matching but kept for delay extraction.
 library;
+
+import 'command_trigger_type.dart';
 
 /// Maximum number of aliases kept by [normalizeLegacyCommandAliases].
 const int kMaxLegacyCommandAliases = 10;
@@ -120,7 +122,7 @@ List<String> normalizeLegacyCommandAliases(
 /// effective name first, then the cleaned aliases, deduplicated with a stable
 /// order.
 ///
-/// Returns an empty list unless `data.legacyModeEnabled == true` — callers are
+/// Returns an empty list unless invocation mode is prefix or hybrid — callers are
 /// expected to also check the command type themselves (legacy commands are
 /// chat-input commands, i.e. `type` is `chatInput` or empty).
 List<String> legacyCommandTriggerNames(Map<String, dynamic> command) {
@@ -173,8 +175,7 @@ Duration? legacyCommandTimedTriggerDelay({
 
 /// Whether [command] enabled the legacy ("Message Text") mode.
 bool _isLegacyCommand(Map<String, dynamic> command) {
-  final data = command['data'];
-  return data is Map && data['legacyModeEnabled'] == true;
+  return const {'prefix', 'hybrid'}.contains(commandTriggerType(command));
 }
 
 /// Raw (unstripped) effective name of [command]: `data.legacyPrefixOverride`

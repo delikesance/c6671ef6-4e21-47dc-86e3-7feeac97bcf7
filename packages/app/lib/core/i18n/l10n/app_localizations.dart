@@ -18864,6 +18864,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Configure an external trigger'**
   String get copilot_tool_webhook;
+
+  /// No description provided for @settings_text_size_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Text size'**
+  String get settings_text_size_title;
+
+  /// No description provided for @settings_text_size_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust the app’s text size relative to your device’s text setting.'**
+  String get settings_text_size_description;
+
+  /// No description provided for @settings_text_size_preview.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview: your commands, workflows and conversations.'**
+  String get settings_text_size_preview;
+
+  /// No description provided for @settings_text_size_reset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset text size'**
+  String get settings_text_size_reset;
 }
 
 class _AppLocalizationsDelegate

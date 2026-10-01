@@ -7,51 +7,60 @@ const String workflowTypeEvent = 'event';
 
 void main() {
   group('DiscordRunner.reloadConfig Lavalink Reconnect Trigger', () {
-    test('reconnect is required when Lavalink config is added (null -> non-null)', () async {
-      final initial = BotConfig(token: 'token', intents: {'Guilds': true});
-      final runner = DiscordRunner('test-bot', initial);
+    test(
+      'reconnect is required when Lavalink config is added (null -> non-null)',
+      () async {
+        final initial = BotConfig(token: 'token', intents: {'Guilds': true});
+        final runner = DiscordRunner('test-bot', initial);
 
-      final nextConfig = BotConfig(
-        token: 'token',
-        intents: {'Guilds': true},
-        lavalinkConfig: const LavalinkConfig(host: 'localhost', port: 2333),
-      );
+        final nextConfig = BotConfig(
+          token: 'token',
+          intents: {'Guilds': true},
+          lavalinkConfig: const LavalinkConfig(host: 'localhost', port: 2333),
+        );
 
-      final requiresReconnect = await runner.reloadConfig(nextConfig);
-      expect(requiresReconnect, isTrue);
-    });
+        final requiresReconnect = await runner.reloadConfig(nextConfig);
+        expect(requiresReconnect, isTrue);
+      },
+    );
 
-    test('reconnect is required when Lavalink config is removed (non-null -> null)', () async {
-      final initial = BotConfig(
-        token: 'token',
-        intents: {'Guilds': true},
-        lavalinkConfig: const LavalinkConfig(host: 'localhost', port: 2333),
-      );
-      final runner = DiscordRunner('test-bot', initial);
+    test(
+      'reconnect is required when Lavalink config is removed (non-null -> null)',
+      () async {
+        final initial = BotConfig(
+          token: 'token',
+          intents: {'Guilds': true},
+          lavalinkConfig: const LavalinkConfig(host: 'localhost', port: 2333),
+        );
+        final runner = DiscordRunner('test-bot', initial);
 
-      final nextConfig = BotConfig(token: 'token', intents: {'Guilds': true});
+        final nextConfig = BotConfig(token: 'token', intents: {'Guilds': true});
 
-      final requiresReconnect = await runner.reloadConfig(nextConfig);
-      expect(requiresReconnect, isTrue);
-    });
+        final requiresReconnect = await runner.reloadConfig(nextConfig);
+        expect(requiresReconnect, isTrue);
+      },
+    );
 
-    test('reconnect is NOT required when Lavalink config details change without changing presence', () async {
-      final initial = BotConfig(
-        token: 'token',
-        intents: {'Guilds': true},
-        lavalinkConfig: const LavalinkConfig(host: 'localhost', port: 2333),
-      );
-      final runner = DiscordRunner('test-bot', initial);
+    test(
+      'reconnect is NOT required when Lavalink config details change without changing presence',
+      () async {
+        final initial = BotConfig(
+          token: 'token',
+          intents: {'Guilds': true},
+          lavalinkConfig: const LavalinkConfig(host: 'localhost', port: 2333),
+        );
+        final runner = DiscordRunner('test-bot', initial);
 
-      final nextConfig = BotConfig(
-        token: 'token',
-        intents: {'Guilds': true},
-        lavalinkConfig: const LavalinkConfig(host: 'other-host', port: 2334),
-      );
+        final nextConfig = BotConfig(
+          token: 'token',
+          intents: {'Guilds': true},
+          lavalinkConfig: const LavalinkConfig(host: 'other-host', port: 2334),
+        );
 
-      final requiresReconnect = await runner.reloadConfig(nextConfig);
-      expect(requiresReconnect, isFalse);
-    });
+        final requiresReconnect = await runner.reloadConfig(nextConfig);
+        expect(requiresReconnect, isFalse);
+      },
+    );
   });
   group('resolveEventWorkflowListenerMode', () {
     test('returns none when no event workflows and no legacy commands', () {
@@ -145,6 +154,23 @@ void main() {
       );
       expect(shouldRebindEventWorkflowListeners(previous, next), isTrue);
     });
+  });
+
+  test('restored hybrid binds message listener without legacy flag', () {
+    final entry = {
+      'name': 'mixed',
+      'type': 'chatInput',
+      'data': {'triggerType': 'hybrid', 'legacyModeEnabled': false},
+    };
+    expect(isLegacyCommandEnabledInConfigEntry(entry), isTrue);
+    expect(
+      resolveEventWorkflowListenerMode(_config(commands: [entry])),
+      EventWorkflowListenerMode.messageCreateOnly,
+    );
+    expect(
+      shouldRebindEventWorkflowListeners(_config(), _config(commands: [entry])),
+      isTrue,
+    );
   });
 
   group('isLegacyCommandEnabledInConfigEntry', () {

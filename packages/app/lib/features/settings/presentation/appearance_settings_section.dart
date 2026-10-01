@@ -5,6 +5,7 @@ import 'package:bot_creator/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:provider/provider.dart';
+import 'text_scale_settings_section.dart';
 
 part 'appearance_preset_gallery.dart';
 
@@ -96,6 +97,9 @@ class AppearanceSettingsSection extends StatelessWidget {
               onSelectionChanged: (selection) =>
                   provider.setMode(selection.first),
             ),
+            const SizedBox(height: 20),
+
+            const TextScaleSettingsSection(),
             const SizedBox(height: 20),
 
             // ── Galerie des thèmes prédéfinis ────────────────────────────────

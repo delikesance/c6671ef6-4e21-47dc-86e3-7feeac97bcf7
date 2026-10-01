@@ -257,7 +257,6 @@ extension _CommandBlockEditor on _CommandCreatePageState {
                   }
                 : null,
             onParameterChanged: (key, value) {
-              _hasUnsavedChanges = true;
               if (key == '__enabled__') {
                 _applyStateUpdate(() {
                   _actions[i]['enabled'] = value == true;
@@ -302,26 +301,32 @@ extension _CommandBlockEditor on _CommandCreatePageState {
                 return;
               }
               if (key == '__actionKey__') {
-                _actions[i]['key'] = value.toString();
-                _persistActiveSubcommandWorkflow();
+                _applyStateUpdate(() {
+                  _actions[i]['key'] = value.toString();
+                  _persistActiveSubcommandWorkflow();
+                });
                 return;
               }
               final payload = Map<String, dynamic>.from(
                 (_actions[i]['payload'] as Map?)?.cast<String, dynamic>() ??
                     const {},
               );
-              payload[key] = value;
-              _actions[i]['payload'] = payload;
-              _persistActiveSubcommandWorkflow();
+              _applyStateUpdate(() {
+                payload[key] = value;
+                _actions[i]['payload'] = payload;
+                _persistActiveSubcommandWorkflow();
+              });
             },
             onSuggestionSelected: (key, value) {
-              _hasUnsavedChanges = true;
               final payload = Map<String, dynamic>.from(
                 (_actions[i]['payload'] as Map?)?.cast<String, dynamic>() ??
                     const {},
               );
-              payload[key] = value;
-              _actions[i]['payload'] = payload;
+              _applyStateUpdate(() {
+                payload[key] = value;
+                _actions[i]['payload'] = payload;
+                _persistActiveSubcommandWorkflow();
+              });
             },
             fieldRefreshVersionOf: (_) => 0,
             onEditNestedActions:
@@ -537,7 +542,6 @@ extension _CommandBlockEditor on _CommandCreatePageState {
                     return result;
                   },
               onParameterChanged: (index, key, value) {
-                _hasUnsavedChanges = true;
                 if (key == '__enabled__') {
                   _applyStateUpdate(() {
                     _actions[index]['enabled'] = value == true;
@@ -561,8 +565,10 @@ extension _CommandBlockEditor on _CommandCreatePageState {
                   return;
                 }
                 if (key == '__actionKey__') {
-                  _actions[index]['key'] = value.toString();
-                  _persistActiveSubcommandWorkflow();
+                  _applyStateUpdate(() {
+                    _actions[index]['key'] = value.toString();
+                    _persistActiveSubcommandWorkflow();
+                  });
                   return;
                 }
                 final payload = Map<String, dynamic>.from(
@@ -570,19 +576,23 @@ extension _CommandBlockEditor on _CommandCreatePageState {
                           ?.cast<String, dynamic>() ??
                       const {},
                 );
-                payload[key] = value;
-                _actions[index]['payload'] = payload;
-                _persistActiveSubcommandWorkflow();
+                _applyStateUpdate(() {
+                  payload[key] = value;
+                  _actions[index]['payload'] = payload;
+                  _persistActiveSubcommandWorkflow();
+                });
               },
               onSuggestionSelected: (index, key, value) {
-                _hasUnsavedChanges = true;
                 final payload = Map<String, dynamic>.from(
                   (_actions[index]['payload'] as Map?)
                           ?.cast<String, dynamic>() ??
                       const {},
                 );
-                payload[key] = value;
-                _actions[index]['payload'] = payload;
+                _applyStateUpdate(() {
+                  payload[key] = value;
+                  _actions[index]['payload'] = payload;
+                  _persistActiveSubcommandWorkflow();
+                });
               },
               onRemoveAction: (nodeId, index) {
                 _applyStateUpdate(() {
@@ -760,14 +770,16 @@ extension _CommandBlockEditor on _CommandCreatePageState {
                           ButtonSegment<String>(
                             value: 'linear',
                             icon: Icon(Icons.view_agenda_outlined, size: 16),
-                            label: Text(context.tr.scratch_blocks_tab,
+                            label: Text(
+                              context.tr.scratch_blocks_tab,
                               style: TextStyle(fontSize: 12),
                             ),
                           ),
                           ButtonSegment<String>(
                             value: 'blueprint',
                             icon: Icon(Icons.hub_outlined, size: 16),
-                            label: Text(context.tr.blueprint_mode_label,
+                            label: Text(
+                              context.tr.blueprint_mode_label,
                               style: TextStyle(fontSize: 12),
                             ),
                           ),
