@@ -79,57 +79,64 @@ class _SandboxFunctionsPageState extends State<SandboxFunctionsPage> {
       appBar: AppBar(
         title: Text(label('Laboratoire de fonctions', 'Function laboratory')),
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: TextField(
-              decoration: InputDecoration(
-                labelText: label('Rechercher une fonction', 'Search functions'),
-                prefixIcon: const AppIcon.fromMaterial(Icons.search),
-              ),
-              onChanged: (value) => setState(() {
-                search = value;
-              }),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              label(
-                '$covered fonctions disposent de ${sandboxFunctionCases.length} scénarios de régression. Les autres restent à vérifier.',
-                '$covered functions have ${sandboxFunctionCases.length} regression scenarios. The others remain to be verified.',
-              ),
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: names.length,
-              itemBuilder: (context, index) {
-                final name = names[index];
-                final samples = sandboxFunctionCases
-                    .where((c) => c.function == name)
-                    .toList();
-                return ListTile(
-                  title: Text(String.fromCharCode(36) + name),
-                  subtitle: Text(
-                    samples.isEmpty
-                        ? label(
-                            'Cas à écrire · test manuel disponible',
-                            'Case needed · manual test available',
-                          )
-                        : label(
-                            'Cas de test disponible',
-                            'Test case available',
-                          ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: TextField(
+                decoration: InputDecoration(
+                  labelText: label(
+                    'Rechercher une fonction',
+                    'Search functions',
                   ),
-                  trailing: const AppIcon.fromMaterial(Icons.science_outlined),
-                  onTap: () => openFunction(name, samples),
-                );
-              },
+                  prefixIcon: const AppIcon.fromMaterial(Icons.search),
+                ),
+                onChanged: (value) => setState(() {
+                  search = value;
+                }),
+              ),
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                label(
+                  '$covered fonctions disposent de ${sandboxFunctionCases.length} scénarios de régression. Les autres restent à vérifier.',
+                  '$covered functions have ${sandboxFunctionCases.length} regression scenarios. The others remain to be verified.',
+                ),
+              ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: names.length,
+                itemBuilder: (context, index) {
+                  final name = names[index];
+                  final samples = sandboxFunctionCases
+                      .where((c) => c.function == name)
+                      .toList();
+                  return ListTile(
+                    title: Text(String.fromCharCode(36) + name),
+                    subtitle: Text(
+                      samples.isEmpty
+                          ? label(
+                              'Cas à écrire · test manuel disponible',
+                              'Case needed · manual test available',
+                            )
+                          : label(
+                              'Cas de test disponible',
+                              'Test case available',
+                            ),
+                    ),
+                    trailing: const AppIcon.fromMaterial(
+                      Icons.science_outlined,
+                    ),
+                    onTap: () => openFunction(name, samples),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

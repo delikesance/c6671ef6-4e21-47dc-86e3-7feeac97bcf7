@@ -55,6 +55,11 @@ void main() {
       final value = await pending;
       expect(value!['responses'][0]['payload']['embeds'][0]['title'], 'actual');
       expect(value['contract_checks'][0]['passed'], false);
+      await tester.scrollUntilVisible(
+        find.textContaining('"title": "actual"'),
+        100,
+        scrollable: find.byType(Scrollable).first,
+      );
       expect(find.textContaining('"title": "actual"'), findsOneWidget);
     },
   );

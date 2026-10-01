@@ -42,13 +42,8 @@ class AppIcon extends Icon {
       icon == null || iconPaths != null,
       'Missing Reicon mapping for $icon. Regenerate reicon_material_map.dart.',
     );
-    final iconPath =
-        path ??
-        (iconPaths == null
-            ? null
-            : (reiconFilledMaterialIcons.contains(icon)
-                  ? iconPaths.filled
-                  : iconPaths.outline));
+    // All icons render in outline / contour mode (no filled icons).
+    final iconPath = path ?? iconPaths?.outline;
     if (iconPath == null && icon == null) {
       return SizedBox(width: extent, height: extent);
     }
