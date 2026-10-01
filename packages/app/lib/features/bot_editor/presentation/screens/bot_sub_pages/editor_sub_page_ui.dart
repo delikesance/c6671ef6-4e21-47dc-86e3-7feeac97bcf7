@@ -72,7 +72,8 @@ class EditorDrawerButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      icon: const AppIcon.fromMaterial(Icons.menu_rounded),
+      icon: const AppIcon.fromMaterial(Icons.menu_rounded, size: 20),
+      visualDensity: VisualDensity.compact,
       // Framework-provided tooltip, already localized in every app locale.
       tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
       onPressed: () => context.openParentDrawer(),
