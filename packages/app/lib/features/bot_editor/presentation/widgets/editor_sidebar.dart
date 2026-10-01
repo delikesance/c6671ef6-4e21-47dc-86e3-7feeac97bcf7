@@ -4,6 +4,8 @@ import 'package:bot_creator/features/home/presentation/home_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Un item de navigation affiché dans l'[EditorSidebar].
 ///
 /// Les libellés sont déjà localisés par l'appelant : la sidebar n'est qu'une
@@ -226,12 +228,12 @@ class EditorSidebar extends StatelessWidget {
             ),
             if (showBackButton)
               IconButton(
-                icon: const Icon(Icons.arrow_back),
+                icon: const AppIcon.fromMaterial(Icons.arrow_back),
                 tooltip: tr.common_back,
                 onPressed: onBack,
               ),
             IconButton(
-              icon: const Icon(Icons.menu_rounded),
+              icon: const AppIcon.fromMaterial(Icons.menu_rounded),
               tooltip: tr.editor_sidebar_expand,
               onPressed: onToggleCollapsed,
             ),
@@ -246,7 +248,7 @@ class EditorSidebar extends StatelessWidget {
         children: [
           if (showBackButton) ...[
             IconButton(
-              icon: const Icon(Icons.arrow_back),
+              icon: const AppIcon.fromMaterial(Icons.arrow_back),
               tooltip: tr.common_back,
               onPressed: onBack,
             ),
@@ -277,7 +279,7 @@ class EditorSidebar extends StatelessWidget {
           ),
           if (!isDrawer)
             IconButton(
-              icon: const Icon(Icons.menu_open_rounded),
+              icon: const AppIcon.fromMaterial(Icons.menu_open_rounded),
               tooltip: tr.editor_sidebar_collapse,
               onPressed: onToggleCollapsed,
             ),
@@ -363,7 +365,7 @@ class EditorSidebar extends StatelessWidget {
       return Padding(
         padding: const EdgeInsets.all(12),
         child: IconButton(
-          icon: const Icon(Icons.school_rounded, size: 20),
+          icon: const AppIcon.fromMaterial(Icons.school_rounded, size: 20),
           tooltip: tr.beginner_mode_label,
           onPressed: () => onBeginnerModeChanged?.call(!beginnerMode),
           style: IconButton.styleFrom(
@@ -493,7 +495,7 @@ class _SidebarItemTile extends StatelessWidget {
               ? MainAxisAlignment.center
               : MainAxisAlignment.start,
           children: [
-            Icon(
+            AppIcon.fromMaterial(
               icon,
               size: 18,
               color: selected

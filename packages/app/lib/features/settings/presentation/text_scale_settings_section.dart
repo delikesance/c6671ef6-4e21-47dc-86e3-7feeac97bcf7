@@ -4,6 +4,8 @@ import 'package:bot_creator/main.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 class TextScaleSettingsSection extends StatelessWidget {
   const TextScaleSettingsSection({super.key});
 
@@ -73,7 +75,7 @@ class TextScaleSettingsSection extends StatelessWidget {
         TextButton.icon(
           key: resetKey,
           onPressed: factor == 1.0 ? null : () => provider.setTextScale(1.0),
-          icon: const Icon(Icons.restart_alt),
+          icon: const AppIcon.fromMaterial(Icons.restart_alt),
           label: Text(context.tr.settings_text_size_reset),
         ),
       ],

@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:bot_creator_shared/utils/global.dart';
+import 'package:bot_creator_shared/sandbox/command_sandbox.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:test/test.dart';
 
@@ -16,6 +19,8 @@ class _FakeChannel {
     this.isLocked,
     this.ownerId,
     this.autoArchiveDuration,
+    this.messageCount,
+    this.approximateMemberCount,
   });
 
   final String? id;
@@ -30,6 +35,8 @@ class _FakeChannel {
   final bool? isLocked;
   final String? ownerId;
   final int? autoArchiveDuration;
+  final int? messageCount;
+  final int? approximateMemberCount;
 }
 
 class _FakeGuild {
@@ -46,6 +53,7 @@ class _FakeGuild {
     this.premiumSubscriptionCount,
     this.features,
     this.memberCount,
+    this.approximatePresenceCount,
   });
 
   final String? id;
@@ -60,6 +68,7 @@ class _FakeGuild {
   final int? premiumSubscriptionCount;
   final List<String>? features;
   final int? memberCount;
+  final int? approximatePresenceCount;
 }
 
 class _FakeRolePermissions {
@@ -69,10 +78,15 @@ class _FakeRolePermissions {
 }
 
 class _FakeRole {
-  const _FakeRole({required this.id, required this.permissions});
+  const _FakeRole({
+    required this.id,
+    required this.permissions,
+    this.name = '',
+  });
 
   final dynamic id;
   final dynamic permissions;
+  final String name;
 }
 
 class _FakeGuildWithRoles {
@@ -111,6 +125,8 @@ void main() {
           isLocked: false,
           ownerId: '777',
           autoArchiveDuration: 1440,
+          messageCount: 17,
+          approximateMemberCount: 4,
         ),
       );
 
@@ -126,6 +142,8 @@ void main() {
       expect(details['channel.thread.locked'], 'false');
       expect(details['channel.thread.ownerId'], '777');
       expect(details['channel.thread.autoArchiveDuration'], '1440');
+      expect(details['thread.messageCount'], '17');
+      expect(details['thread.memberCount'], '4');
     });
   });
 
@@ -145,6 +163,7 @@ void main() {
           premiumSubscriptionCount: 14,
           features: const <String>['COMMUNITY', 'INVITES_DISABLED'],
           memberCount: 1200,
+          approximatePresenceCount: 321,
         ),
       );
 
@@ -161,10 +180,58 @@ void main() {
       expect(details['guild.features'], 'COMMUNITY,INVITES_DISABLED');
       expect(details['guild.features.count'], '2');
       expect(details['guild.memberCount'], '1200');
+      expect(details['guild.onlineMembers'], '321');
     });
   });
 
   group('extractMemberRuntimeDetails', () {
+    test(
+      'role names come from member roles and preserve commas for access guards',
+      () async {
+        final details = extractMemberRuntimeDetails(
+          member: const _FakeMemberWithRoles(roleIds: ['200']),
+          guild: const _FakeGuildWithRoles(
+            roleList: [
+              _FakeRole(
+                id: '100',
+                name: '@everyone',
+                permissions: _FakeRolePermissions(0),
+              ),
+              _FakeRole(
+                id: '200',
+                name: 'Moderator, Europe',
+                permissions: _FakeRolePermissions(0),
+              ),
+              _FakeRole(
+                id: '300',
+                name: 'Guest',
+                permissions: _FakeRolePermissions(0),
+              ),
+            ],
+          ),
+          guildId: '100',
+        );
+        expect(jsonDecode(details['member.roleNamesJson']!), [
+          '@everyone',
+          'Moderator, Europe',
+        ]);
+        for (final allowed in [true, false]) {
+          final result = await testCommandInSandbox({
+            'script': r'$onlyForRoles[Moderator, Europe;Access denied.]allowed',
+            'variables': {
+              ...details,
+              if (!allowed)
+                'member.roleNamesJson': '["Junior Moderator, Europe"]',
+            },
+          });
+          expect(result['success'], true, reason: '$result');
+          expect(
+            result['responses'][0]['payload']['content'],
+            allowed ? 'allowed' : 'Access denied.',
+          );
+        }
+      },
+    );
     test('extracts admin flag and permission tokens from role bitmask', () {
       final details = extractMemberRuntimeDetails(
         member: const _FakeMemberWithRoles(roleIds: <String>['200']),
@@ -357,31 +424,34 @@ void main() {
   });
 
   group('extractBotRuntimeDetails', () {
-    test('extracts bot details and tracks uptime via botStartTimes registry', () {
-      final client = _FakeNyxxRest();
-      final botId = '12345';
-      
-      // Default fallback when not registered
-      final initialDetails = extractBotRuntimeDetails(client);
-      expect(initialDetails['bot.uptime'], '0');
-      expect(initialDetails['bot.uptimeMs'], '0');
-      
-      // Register bot start time
-      final startTime = DateTime.now().subtract(const Duration(seconds: 10));
-      botStartTimes[botId] = startTime;
-      
-      final details = extractBotRuntimeDetails(client);
-      expect(details['bot.id'], botId);
-      expect(details['bot.uptime'], isNot('0'));
-      
-      final parsedUptime = int.parse(details['bot.uptime']!);
-      expect(parsedUptime, greaterThan(8000));
-      expect(parsedUptime, lessThan(12000));
-      expect(details['bot.uptimeMs'], details['bot.uptime']);
-      
-      // Cleanup
-      botStartTimes.remove(botId);
-    });
+    test(
+      'extracts bot details and tracks uptime via botStartTimes registry',
+      () {
+        final client = _FakeNyxxRest();
+        final botId = '12345';
+
+        // Default fallback when not registered
+        final initialDetails = extractBotRuntimeDetails(client);
+        expect(initialDetails['bot.uptime'], '0');
+        expect(initialDetails['bot.uptimeMs'], '0');
+
+        // Register bot start time
+        final startTime = DateTime.now().subtract(const Duration(seconds: 10));
+        botStartTimes[botId] = startTime;
+
+        final details = extractBotRuntimeDetails(client);
+        expect(details['bot.id'], botId);
+        expect(details['bot.uptime'], isNot('0'));
+
+        final parsedUptime = int.parse(details['bot.uptime']!);
+        expect(parsedUptime, greaterThan(8000));
+        expect(parsedUptime, lessThan(12000));
+        expect(details['bot.uptimeMs'], details['bot.uptime']);
+
+        // Cleanup
+        botStartTimes.remove(botId);
+      },
+    );
   });
 }
 
@@ -427,7 +497,7 @@ class _FakeNyxxRest implements NyxxRest {
   final guilds = _FakeGuildsManager();
   @override
   final users = _FakeUsersManager();
-  
+
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

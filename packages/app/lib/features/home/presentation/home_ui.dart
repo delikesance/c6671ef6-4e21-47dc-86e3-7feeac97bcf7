@@ -6,6 +6,8 @@ import 'package:bot_creator/features/home/presentation/home_hosting_action_area.
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Shared display text style used across the Home redesign.
 TextStyle homeDisplayStyle(
   double size, {
@@ -79,7 +81,7 @@ class HomeHeaderIconButton extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: border),
               ),
-              child: Icon(icon, size: iconSize, color: fg),
+              child: AppIcon.fromMaterial(icon, size: iconSize, color: fg),
             ),
           ),
         ),
@@ -210,7 +212,11 @@ class _HomeAvatarFallback extends StatelessWidget {
         ),
       );
     }
-    return Icon(icon, color: Colors.white, size: size * (26 / 48));
+    return AppIcon.fromMaterial(
+      icon,
+      color: Colors.white,
+      size: size * (26 / 48),
+    );
   }
 }
 
@@ -433,7 +439,7 @@ class HomeCardActionButton extends StatelessWidget {
                     ),
                   )
                 else
-                  Icon(icon, size: iconSize, color: fg),
+                  AppIcon.fromMaterial(icon, size: iconSize, color: fg),
                 const SizedBox(width: 8),
                 Flexible(
                   child: Text(
@@ -635,9 +641,14 @@ class _HostingTeamBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.groups, size: 12, color: AppTheme.discord),
+          const AppIcon.fromMaterial(
+            Icons.groups,
+            size: 12,
+            color: AppTheme.discord,
+          ),
           const SizedBox(width: 4),
-          Text(context.tr.team_tab,
+          Text(
+            context.tr.team_tab,
             style: GoogleFonts.inter(
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -663,10 +674,8 @@ class _HostingSegments extends StatelessWidget {
     final tokens = HomeTokens.of(context);
     final muted = isDark ? tokens.muted : scheme.onSurfaceVariant;
     final background = isDark ? tokens.clusterBg : scheme.surfaceContainerLow;
-    final separator =
-        (isDark ? tokens.clusterBorder : scheme.outlineVariant).withValues(
-          alpha: 0.6,
-        );
+    final separator = (isDark ? tokens.clusterBorder : scheme.outlineVariant)
+        .withValues(alpha: 0.6);
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),

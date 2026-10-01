@@ -92,45 +92,41 @@ extension _BdfdAstTranspilationScopeActionBuilders
       return null;
     }
 
-    final updateAction = Action(
+    return Action(
       type: BotCreatorActionType.updateSelfUser,
-      payload: <String, dynamic>{'username': username},
-    );
-
-    final condition = _ParsedCondition(
-      left: targetId,
-      operator: 'equals',
-      right: '((user.id))',
-    );
-
-    return _buildGuardIfAction(
-      condition: condition,
-      thenActions: <Action>[updateAction],
-      elseActions: const <Action>[],
+      payload: <String, dynamic>{
+        'username': username,
+        'targetUserId': targetId,
+      },
     );
   }
 
   // ── Moderation action builders ──────────────────────────────────────
 
   Action _buildBanAction(BdfdFunctionCallAst node) {
+    final reason = node.arguments.isEmpty ? '' : _stringifyArgument(node, 0);
     return Action(
       type: BotCreatorActionType.banUser,
       payload: <String, dynamic>{
-        'userId': '((message.mentions[0]|author.id))',
-        'reason': '',
+        'userId': '((message.mentions[0]))',
+        'reason': reason,
         'deleteMessageDays': 0,
       },
     );
   }
 
   Action _buildBanIdAction(BdfdFunctionCallAst node) {
-    // BDFD wiki: $banID takes no args — the user ID is extracted from the
-    // last word of the author's message at runtime.
+    // The simple form uses the final message argument; the complex form
+    // accepts a reason and an optional explicit user ID.
+    final reason = node.arguments.isEmpty ? '' : _stringifyArgument(node, 0);
+    final userId = node.arguments.length < 2
+        ? ''
+        : _stringifyArgument(node, 1).trim();
     return Action(
       type: BotCreatorActionType.banUser,
       payload: <String, dynamic>{
-        'userId': '((message.args.last))',
-        'reason': '',
+        'userId': userId.isEmpty ? '((message.args.last))' : userId,
+        'reason': reason,
         'deleteMessageDays': 0,
       },
     );
@@ -139,25 +135,34 @@ extension _BdfdAstTranspilationScopeActionBuilders
   Action _buildUnbanAction(BdfdFunctionCallAst node) {
     return Action(
       type: BotCreatorActionType.unbanUser,
-      payload: <String, dynamic>{'userId': '((message.mentions[0]|author.id))'},
+      payload: <String, dynamic>{'username': '((message.content))'},
     );
   }
 
   Action _buildUnbanIdAction(BdfdFunctionCallAst node) {
-    final userId = _stringifyArgument(node, 0).trim();
+    final userId = node.arguments.isEmpty
+        ? ''
+        : _stringifyArgument(node, 0).trim();
     return Action(
       type: BotCreatorActionType.unbanUser,
       payload: <String, dynamic>{
-        'userId': userId.isEmpty ? '((message.mentions[0]))' : userId,
+        'userId': userId.isEmpty ? '((message.args.last))' : userId,
       },
     );
   }
 
   Action _buildKickAction(BdfdFunctionCallAst node) {
-    // BDFD wiki: $kick always kicks the command author, not a mentioned user.
+    // The simple form kicks the author; $kick[User ID;(Reason)] targets a user.
+    final userId = node.arguments.isEmpty
+        ? ''
+        : _stringifyArgument(node, 0).trim();
+    final reason = node.arguments.length < 2 ? '' : _stringifyArgument(node, 1);
     return Action(
       type: BotCreatorActionType.kickUser,
-      payload: <String, dynamic>{'userId': '((author.id))', 'reason': ''},
+      payload: <String, dynamic>{
+        'userId': userId.isEmpty ? '((author.id))' : userId,
+        'reason': reason,
+      },
     );
   }
 
@@ -229,7 +234,7 @@ extension _BdfdAstTranspilationScopeActionBuilders
     final amountArg = node.arguments.isNotEmpty
         ? _stringifyArgument(node, 0).trim()
         : '';
-    final count = amountArg.isNotEmpty ? amountArg : '((message.args[0]))';
+    final count = amountArg.isNotEmpty ? amountArg : '((args.1))';
 
     final userIdArg = node.arguments.length > 1
         ? _stringifyArgument(node, 1).trim()
@@ -243,6 +248,7 @@ extension _BdfdAstTranspilationScopeActionBuilders
       payload: <String, dynamic>{
         'channelId': '((channel.id))',
         'count': count,
+        'bdfdClear': true,
         if (userIdArg.isNotEmpty) 'onlyUserId': userIdArg,
         if (removePinnedArg.isNotEmpty) 'removePinned': removePinnedArg,
       },
@@ -350,6 +356,17 @@ extension _BdfdAstTranspilationScopeActionBuilders
       return null;
     }
     final color = _stringifyArgument(node, 1);
+    if (color.trim().isEmpty) {
+      _diagnostics.add(
+        BdfdTranspileDiagnostic(
+          message: '${node.name} requires a role color.',
+          start: node.start,
+          end: node.end,
+          functionName: node.name,
+        ),
+      );
+      return null;
+    }
     final hoist = _parseBooleanLike(_stringifyArgument(node, 2));
     final mentionable = _parseBooleanLike(_stringifyArgument(node, 3));
     return Action(
@@ -384,12 +401,11 @@ extension _BdfdAstTranspilationScopeActionBuilders
   }
 
   Action? _buildColorRoleAction(BdfdFunctionCallAst node) {
-    final roleId = _stringifyArgument(node, 0).trim();
-    final color = _stringifyArgument(node, 1).trim();
-    if (roleId.isEmpty || color.isEmpty) {
+    final color = _stringifyArgument(node, 0).trim();
+    if (color.isEmpty) {
       _diagnostics.add(
         BdfdTranspileDiagnostic(
-          message: '${node.name} requires a role ID and color.',
+          message: '${node.name} requires a color.',
           start: node.start,
           end: node.end,
           functionName: node.name,
@@ -399,7 +415,10 @@ extension _BdfdAstTranspilationScopeActionBuilders
     }
     return Action(
       type: BotCreatorActionType.addRole,
-      payload: <String, dynamic>{'roleId': roleId, 'updateColor': color},
+      payload: <String, dynamic>{
+        'roleId': '((message.roleMentions[0]))',
+        'updateColor': color,
+      },
     );
   }
 
@@ -426,10 +445,11 @@ extension _BdfdAstTranspilationScopeActionBuilders
       payload: <String, dynamic>{
         'roleId': roleId,
         'modify': true,
-        if (name.isNotEmpty) 'name': name,
-        if (color.isNotEmpty) 'color': color,
-        if (hoist.isNotEmpty) 'hoist': _parseBooleanLike(hoist),
-        if (mentionable.isNotEmpty)
+        if (name.isNotEmpty && name != '!unchanged') 'name': name,
+        if (color.isNotEmpty && color != '!unchanged') 'color': color,
+        if (hoist.isNotEmpty && hoist != '!unchanged')
+          'hoist': _parseBooleanLike(hoist),
+        if (mentionable.isNotEmpty && mentionable != '!unchanged')
           'mentionable': _parseBooleanLike(mentionable),
         if (position.isNotEmpty) 'position': int.tryParse(position),
       },
@@ -518,16 +538,73 @@ extension _BdfdAstTranspilationScopeActionBuilders
     );
   }
 
+  Action? _buildRemoveMessageComponentsAction(BdfdFunctionCallAst node) {
+    final kind = node.normalizedName;
+    final customId = kind == 'removecomponent'
+        ? _stringifyArgument(node, 0).trim()
+        : '';
+    if (kind == 'removecomponent' && customId.isEmpty) {
+      _diagnostics.add(
+        BdfdTranspileDiagnostic(
+          message: '${node.name} requires a component custom ID.',
+          start: node.start,
+          end: node.end,
+          functionName: node.name,
+        ),
+      );
+      return null;
+    }
+    final explicitMessageId = kind == 'removebuttons'
+        ? _stringifyArgument(node, 0).trim()
+        : kind == 'removecomponent'
+        ? _stringifyArgument(node, 1).trim()
+        : '';
+    return Action(
+      type: BotCreatorActionType.editMessage,
+      payload: <String, dynamic>{
+        'channelId': '((channel.id))',
+        'messageId': explicitMessageId.isEmpty
+            ? '((interaction.messageId|last.response.id|message.id))'
+            : explicitMessageId,
+        if (kind == 'removeallcomponents') 'clearComponents': true,
+        if (kind != 'removeallcomponents')
+          'componentMutation': kind == 'removebuttons'
+              ? 'removeButtons'
+              : 'removeComponent',
+        if (customId.isNotEmpty) 'customId': customId,
+      },
+    );
+  }
+
   Action? _buildEditMessageAction(BdfdFunctionCallAst node) {
     final channelId = _stringifyArgument(node, 0).trim();
     final messageId = _stringifyArgument(node, 1).trim();
     final content = _stringifyArgument(node, 2);
+    final title = _stringifyArgument(node, 3);
+    final description = _stringifyArgument(node, 4);
+    final color = _stringifyArgument(node, 5);
+    final footer = _stringifyArgument(node, 6);
+    final hasEmbed = [
+      title,
+      description,
+      color,
+      footer,
+    ].any((value) => value.isNotEmpty);
     return Action(
       type: BotCreatorActionType.editMessage,
       payload: <String, dynamic>{
         'channelId': channelId.isEmpty ? '((channel.id))' : channelId,
         'messageId': messageId,
         'content': content,
+        if (hasEmbed)
+          'embeds': [
+            {
+              if (title.isNotEmpty) 'title': title,
+              if (description.isNotEmpty) 'description': description,
+              if (color.isNotEmpty) 'color': color,
+              if (footer.isNotEmpty) 'footer': {'text': footer},
+            },
+          ],
       },
     );
   }
@@ -539,28 +616,32 @@ extension _BdfdAstTranspilationScopeActionBuilders
       type: BotCreatorActionType.editMessage,
       payload: <String, dynamic>{
         'channelId': '((channel.id))',
-        'messageId': '((message.id))',
+        'messageId': '((last.response.id))',
         'content': content,
         'delay': delay,
+        'bdfdDelayedEdit': true,
       },
     );
   }
 
   Action? _buildEditEmbedInAction(BdfdFunctionCallAst node) {
-    final channelId = _stringifyArgument(node, 0).trim();
-    final messageId = _stringifyArgument(node, 1).trim();
-    final title = _stringifyArgument(node, 2);
-    final description = _stringifyArgument(node, 3);
+    final delay = _stringifyArgument(node, 0).trim();
+    final title = _stringifyArgument(node, 1);
+    final description = _stringifyArgument(node, 2);
+    final footer = _stringifyArgument(node, 3);
     final color = _stringifyArgument(node, 4);
     return Action(
       type: BotCreatorActionType.editMessage,
       payload: <String, dynamic>{
-        'channelId': channelId.isEmpty ? '((channel.id))' : channelId,
-        'messageId': messageId,
+        'channelId': '((channel.id))',
+        'messageId': '((last.response.id))',
+        'delay': delay,
+        'bdfdDelayedEdit': true,
         'embeds': <Map<String, dynamic>>[
           <String, dynamic>{
             if (title.isNotEmpty) 'title': title,
             if (description.isNotEmpty) 'description': description,
+            if (footer.isNotEmpty) 'footer': {'text': footer},
             if (color.isNotEmpty) 'color': color,
           },
         ],
@@ -575,7 +656,7 @@ extension _BdfdAstTranspilationScopeActionBuilders
       type: BotCreatorActionType.pinMessage,
       payload: <String, dynamic>{
         'channelId': channelId.isEmpty ? '((channel.id))' : channelId,
-        'messageId': messageId.isEmpty ? '((message.id))' : messageId,
+        'messageId': messageId.isEmpty ? '((last.response.id))' : messageId,
       },
     );
   }
@@ -622,20 +703,47 @@ extension _BdfdAstTranspilationScopeActionBuilders
 
   Action _buildSendEmbedMessageAction(BdfdFunctionCallAst node) {
     final channelId = _stringifyArgument(node, 0).trim();
-    final title = _stringifyArgument(node, 1);
-    final description = _stringifyArgument(node, 2);
-    final color = _stringifyArgument(node, 3);
+    final content = _stringifyArgument(node, 1);
+    final title = _stringifyArgument(node, 2);
+    final titleUrl = _stringifyArgument(node, 3);
+    final description = _stringifyArgument(node, 4);
+    final color = _stringifyArgument(node, 5).trim();
+    final author = _stringifyArgument(node, 6);
+    final authorIcon = _stringifyArgument(node, 7);
+    final footer = _stringifyArgument(node, 8);
+    final footerIcon = _stringifyArgument(node, 9);
+    final thumbnail = _stringifyArgument(node, 10);
+    final image = _stringifyArgument(node, 11);
+    final addTimestamp = _stringifyArgument(node, 12).trim().toLowerCase();
+    final hexColor = RegExp(r'^[0-9a-fA-F]{6}$').hasMatch(color)
+        ? '#$color'
+        : color;
     return Action(
       type: BotCreatorActionType.sendMessage,
       payload: <String, dynamic>{
         'targetType': 'channel',
         'channelId': channelId.isEmpty ? '((channel.id))' : channelId,
-        'content': '',
+        'content': content,
         'embeds': <Map<String, dynamic>>[
           <String, dynamic>{
             if (title.isNotEmpty) 'title': title,
+            if (titleUrl.isNotEmpty) 'url': titleUrl,
             if (description.isNotEmpty) 'description': description,
-            if (color.isNotEmpty) 'color': color,
+            if (color.isNotEmpty) 'color': hexColor,
+            if (author.isNotEmpty || authorIcon.isNotEmpty)
+              'author': {
+                if (author.isNotEmpty) 'name': author,
+                if (authorIcon.isNotEmpty) 'icon_url': authorIcon,
+              },
+            if (footer.isNotEmpty || footerIcon.isNotEmpty)
+              'footer': {
+                if (footer.isNotEmpty) 'text': footer,
+                if (footerIcon.isNotEmpty) 'icon_url': footerIcon,
+              },
+            if (thumbnail.isNotEmpty) 'thumbnail': {'url': thumbnail},
+            if (image.isNotEmpty) 'image': {'url': image},
+            if (addTimestamp == 'yes' || addTimestamp == 'true')
+              'timestamp': 'now',
           },
         ],
       },
@@ -676,7 +784,7 @@ extension _BdfdAstTranspilationScopeActionBuilders
       payload: <String, dynamic>{
         'name': name,
         'type': type.isEmpty ? 'text' : type,
-        if (categoryId.isNotEmpty) 'parentId': categoryId,
+        if (categoryId.isNotEmpty) 'categoryId': categoryId,
       },
     );
   }
@@ -707,10 +815,7 @@ extension _BdfdAstTranspilationScopeActionBuilders
     return Action(
       type: BotCreatorActionType.removeChannel,
       payload: <String, dynamic>{
-        if (isByName)
-          'channelNames': channelIds
-        else
-          'channelId': channelIds.first,
+        if (isByName) 'channelNames': channelIds else 'channelIds': channelIds,
       },
     );
   }
@@ -730,16 +835,21 @@ extension _BdfdAstTranspilationScopeActionBuilders
     }
     final name = _stringifyArgument(node, 1);
     final topic = _stringifyArgument(node, 2);
-    final position = _stringifyArgument(node, 3);
-    final nsfw = _stringifyArgument(node, 4);
+    final nsfw = _stringifyArgument(node, 3).trim();
+    final position = _stringifyArgument(node, 4).trim();
+    final categoryId = _stringifyArgument(node, 5).trim();
     return Action(
       type: BotCreatorActionType.updateChannel,
       payload: <String, dynamic>{
         'channelId': channelId,
-        if (name.isNotEmpty) 'name': name,
-        if (topic.isNotEmpty) 'topic': topic,
-        if (position.isNotEmpty) 'position': int.tryParse(position),
-        if (nsfw.isNotEmpty) 'nsfw': _parseBooleanLike(nsfw),
+        if (name.isNotEmpty && name != '!unchanged') 'name': name,
+        if (topic.isNotEmpty && topic != '!unchanged') 'topic': topic,
+        if (position.isNotEmpty && position != '!unchanged')
+          'position': int.tryParse(position),
+        if (nsfw.isNotEmpty && nsfw != '!unchanged')
+          'nsfw': _parseBooleanLike(nsfw),
+        if (categoryId.isNotEmpty && categoryId != '!unchanged')
+          'categoryId': categoryId,
       },
     );
   }
@@ -762,7 +872,7 @@ extension _BdfdAstTranspilationScopeActionBuilders
     for (var i = 2; i < node.arguments.length; i++) {
       final perm = _stringifyArgument(node, i).trim();
       if (perm.isNotEmpty) {
-        permissionsTokens.add(_normalizePermissionToken(perm));
+        permissionsTokens.add(perm);
       }
     }
     final permissionsMap = bdfdPermissionListToStates(permissionsTokens);
@@ -771,6 +881,7 @@ extension _BdfdAstTranspilationScopeActionBuilders
       payload: <String, dynamic>{
         'channelId': channelId,
         'targetId': roleOrUserId,
+        'targetType': 'auto',
         'permissions': permissionsMap,
       },
     );
@@ -799,7 +910,7 @@ extension _BdfdAstTranspilationScopeActionBuilders
       for (final token in permissionsRaw.split(';')) {
         final perm = token.trim();
         if (perm.isNotEmpty) {
-          permissionsTokens.add(_normalizePermissionToken(perm));
+          permissionsTokens.add(perm);
         }
       }
     }
@@ -807,7 +918,7 @@ extension _BdfdAstTranspilationScopeActionBuilders
     for (var i = 3; i < node.arguments.length; i++) {
       final perm = _stringifyArgument(node, i).trim();
       if (perm.isNotEmpty) {
-        permissionsTokens.add(_normalizePermissionToken(perm));
+        permissionsTokens.add(perm);
       }
     }
     final permissionsMap = bdfdPermissionListToStates(permissionsTokens);
@@ -816,6 +927,7 @@ extension _BdfdAstTranspilationScopeActionBuilders
       payload: <String, dynamic>{
         'channelId': channelId,
         'targetId': targetId,
+        'targetType': 'auto',
         'permissions': permissionsMap,
       },
     );
@@ -823,12 +935,12 @@ extension _BdfdAstTranspilationScopeActionBuilders
 
   Action _buildSlowmodeAction(BdfdFunctionCallAst node) {
     final channelId = _stringifyArgument(node, 0).trim();
-    final seconds = _stringifyArgument(node, 1).trim();
+    final duration = _stringifyArgument(node, 1).trim();
     return Action(
       type: BotCreatorActionType.slowmode,
       payload: <String, dynamic>{
         'channelId': channelId.isEmpty ? '((channel.id))' : channelId,
-        'duration': '${seconds.isEmpty ? '0' : seconds}s',
+        'duration': duration.isEmpty ? '0s' : duration,
       },
     );
   }
@@ -923,11 +1035,13 @@ extension _BdfdAstTranspilationScopeActionBuilders
   Action _buildClearReactionsAction(BdfdFunctionCallAst node) {
     final channelId = _stringifyArgument(node, 0).trim();
     final messageId = _stringifyArgument(node, 1).trim();
+    final emoji = _stringifyArgument(node, 2).trim();
     return Action(
       type: BotCreatorActionType.clearAllReactions,
       payload: <String, dynamic>{
         'channelId': channelId.isEmpty ? '((channel.id))' : channelId,
         'messageId': messageId.isEmpty ? '((message.id))' : messageId,
+        'emoji': emoji.isEmpty ? '!all' : emoji,
       },
     );
   }
@@ -1023,13 +1137,18 @@ extension _BdfdAstTranspilationScopeActionBuilders
     final content = _stringifyArgument(node, 1);
     final username = _stringifyArgument(node, 2);
     final avatarUrl = _stringifyArgument(node, 3);
+    final staged = Map<String, dynamic>.from(_pendingWebhook);
+    _pendingWebhook.clear();
     return Action(
       type: BotCreatorActionType.sendWebhook,
       payload: <String, dynamic>{
         'webhookUrl': webhookUrl,
-        'content': content,
-        if (username.isNotEmpty) 'username': username,
-        if (avatarUrl.isNotEmpty) 'avatarUrl': avatarUrl,
+        'content': content.isEmpty ? (staged['content'] ?? '') : content,
+        if (username.isNotEmpty || staged['username'] != null)
+          'username': username.isEmpty ? staged['username'] : username,
+        if (avatarUrl.isNotEmpty || staged['avatarUrl'] != null)
+          'avatarUrl': avatarUrl.isEmpty ? staged['avatarUrl'] : avatarUrl,
+        if (staged['embed'] is Map) 'embeds': [staged['embed']],
       },
     );
   }
@@ -1040,6 +1159,7 @@ extension _BdfdAstTranspilationScopeActionBuilders
     final avatarUrl = _stringifyArgument(node, 2);
     return Action(
       type: BotCreatorActionType.sendWebhook,
+      key: '_bdfd_webhookcreate_${_createWebhookCounter++}',
       payload: <String, dynamic>{
         'createWebhook': true,
         'channelId': channelId.isEmpty ? '((channel.id))' : channelId,
@@ -1050,10 +1170,17 @@ extension _BdfdAstTranspilationScopeActionBuilders
   }
 
   Action _buildWebhookDeleteAction(BdfdFunctionCallAst node) {
-    final webhookUrl = _stringifyArgument(node, 0).trim();
+    final idOrUrl = _stringifyArgument(node, 0).trim();
+    final token = _stringifyArgument(node, 1).trim();
     return Action(
       type: BotCreatorActionType.deleteWebhook,
-      payload: <String, dynamic>{'webhookUrl': webhookUrl},
+      payload: <String, dynamic>{
+        if (int.tryParse(idOrUrl) != null)
+          'webhookId': idOrUrl
+        else
+          'webhookUrl': idOrUrl,
+        if (token.isNotEmpty) 'token': token,
+      },
     );
   }
 
@@ -1068,11 +1195,10 @@ extension _BdfdAstTranspilationScopeActionBuilders
 
     // Convert raw items into modal component format.
     // Legacy text inputs (have 'style' key) get wrapped in Label nodes.
-    // New format items (have 'type' = 'label') pass through as-is.
+    // Labels and static text displays are already valid modal components.
     final modalComponents = <Map<String, dynamic>>[];
     for (final item in rawItems) {
-      if (item['type'] == 'label') {
-        // Already a label wrapper – use directly.
+      if (item['type'] == 'label' || item['type'] == 'textDisplay') {
         modalComponents.add(item);
       } else if (item.containsKey('style')) {
         // Legacy text input – wrap in a Label.
@@ -1087,7 +1213,7 @@ extension _BdfdAstTranspilationScopeActionBuilders
             if (inputLabel.isNotEmpty) 'label': inputLabel,
             if (item['minLength'] != null) 'minLength': item['minLength'],
             if (item['maxLength'] != null) 'maxLength': item['maxLength'],
-            'required': item['required'] == true,
+            'required': item['required'] ?? true,
             if (item['value'] != null && (item['value'] as String).isNotEmpty)
               'value': item['value'],
             if (item['placeholder'] != null &&
@@ -1130,7 +1256,7 @@ extension _BdfdAstTranspilationScopeActionBuilders
     return Action(
       type: BotCreatorActionType.cooldown,
       payload: <String, dynamic>{
-        'scope': scope == 'global' ? 'user' : scope,
+        'scope': scope,
         'duration': duration,
         'key': cooldownKey,
         'errorMessage': errorMessage,
@@ -1139,12 +1265,14 @@ extension _BdfdAstTranspilationScopeActionBuilders
   }
 
   Action? _buildChangeCooldownTimeAction(BdfdFunctionCallAst node) {
-    final cooldownType = _stringifyArgument(node, 0).trim();
-    final duration = _stringifyArgument(node, 1).trim();
-    if (cooldownType.isEmpty || duration.isEmpty) {
+    final duration = _stringifyArgument(
+      node,
+      node.arguments.length > 1 ? 1 : 0,
+    ).trim();
+    if (duration.isEmpty) {
       _diagnostics.add(
         BdfdTranspileDiagnostic(
-          message: '${node.name} requires a cooldown type and new duration.',
+          message: '${node.name} requires a new duration.',
           start: node.start,
           end: node.end,
           functionName: node.name,
@@ -1153,13 +1281,12 @@ extension _BdfdAstTranspilationScopeActionBuilders
       return null;
     }
     return Action(
-      type: BotCreatorActionType.setScopedVariable,
-      payload: <String, dynamic>{
-        'scope': 'user',
-        'key': 'cooldown_$cooldownType',
-        'valueType': 'string',
-        'value': duration,
-        'ttl': duration,
+      type: BotCreatorActionType.cooldown,
+      payload: {
+        'operation': 'change',
+        'duration': duration,
+        if (node.arguments.length > 1)
+          'scope': _stringifyArgument(node, 0).trim(),
       },
     );
   }
@@ -1212,6 +1339,7 @@ extension _BdfdAstTranspilationScopeActionBuilders
       type: BotCreatorActionType.removeScopedVariable,
       payload: <String, dynamic>{
         'scope': resolvedScope,
+        'resetToDefault': true,
         'key': key,
         if (contextId.isNotEmpty) 'contextId': contextId,
       },
@@ -1254,8 +1382,8 @@ extension _BdfdAstTranspilationScopeActionBuilders
       conditions: guard.values
           .map(
             (name) => _ParsedCondition(
-              left: '((member.roleNames))',
-              operator: 'contains',
+              left: '((member.roleNamesJson|member.roleNames))',
+              operator: 'containsItem',
               right: name,
             ),
           )
@@ -1279,7 +1407,7 @@ extension _BdfdAstTranspilationScopeActionBuilders
           .map(
             (id) => _ParsedCondition(
               left: '((member.roles))',
-              operator: 'contains',
+              operator: 'containsItem',
               right: id,
             ),
           )
@@ -1327,10 +1455,8 @@ extension _BdfdAstTranspilationScopeActionBuilders
           .map(
             (username) => _ParsedCondition(
               left: '((author.username))',
-              operator: 'matches',
-              right:
-                  '(?i)^${RegExp.escape(username)}'
-                  r'$',
+              operator: 'equalsIgnoreCase',
+              right: username,
             ),
           )
           .toList(growable: false),
@@ -1345,14 +1471,18 @@ extension _BdfdAstTranspilationScopeActionBuilders
   // ── Ticket builder ──────────────────────────────────────────
 
   Action _buildNewTicketAction(BdfdFunctionCallAst node) {
-    final name = _stringifyArgument(node, 0).trim();
-    final categoryId = _stringifyArgument(node, 1).trim();
+    final categoryId = _stringifyArgument(node, 0).trim();
+    final name = _stringifyArgument(node, 1).trim();
+    final welcomeMessage = _stringifyArgument(node, 2);
     return Action(
       type: BotCreatorActionType.createChannel,
+      key: '_bdfd_ticket_${_createChannelCounter++}',
       payload: <String, dynamic>{
         'name': name.isEmpty ? 'ticket-((user.username))' : name,
         'type': 'text',
-        if (categoryId.isNotEmpty) 'parentId': categoryId,
+        'categoryId': categoryId,
+        'ownerId': '((author.id))',
+        if (welcomeMessage.isNotEmpty) 'welcomeMessage': welcomeMessage,
         'isTicket': true,
       },
     );
@@ -1503,48 +1633,18 @@ extension _BdfdAstTranspilationScopeActionBuilders
   // ── Inline computation helpers ──────────────────────────────────
 
   Action? _buildRegisterGuildCommandsAction(BdfdFunctionCallAst node) {
-    if (node.arguments.isEmpty) {
-      return Action(
-        type: BotCreatorActionType.registerGuildCommands,
-        payload: <String, dynamic>{},
-      );
-    }
-
-    final commandNamesRaw = _stringifyArgument(node, 0);
-    final commandNames = commandNamesRaw
-        .split(';')
-        .map((e) => e.trim())
-        .where((e) => e.isNotEmpty)
-        .toList();
-
+    final guildId = _stringifyArgument(node, 0).trim();
     return Action(
       type: BotCreatorActionType.registerGuildCommands,
-      payload: <String, dynamic>{
-        if (commandNames.isNotEmpty) 'commandNames': commandNames,
-      },
+      payload: <String, dynamic>{if (guildId.isNotEmpty) 'guildId': guildId},
     );
   }
 
   Action? _buildUnregisterGuildCommandsAction(BdfdFunctionCallAst node) {
-    if (node.arguments.isEmpty) {
-      return Action(
-        type: BotCreatorActionType.unregisterGuildCommands,
-        payload: <String, dynamic>{},
-      );
-    }
-
-    final commandNamesRaw = _stringifyArgument(node, 0);
-    final commandNames = commandNamesRaw
-        .split(';')
-        .map((e) => e.trim())
-        .where((e) => e.isNotEmpty)
-        .toList();
-
+    final guildId = _stringifyArgument(node, 0).trim();
     return Action(
       type: BotCreatorActionType.unregisterGuildCommands,
-      payload: <String, dynamic>{
-        if (commandNames.isNotEmpty) 'commandNames': commandNames,
-      },
+      payload: <String, dynamic>{if (guildId.isNotEmpty) 'guildId': guildId},
     );
   }
 }

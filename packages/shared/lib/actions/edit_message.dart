@@ -16,6 +16,92 @@ Snowflake? _toSnowflake(dynamic value) {
   return Snowflake(parsed);
 }
 
+ComponentBuilder _copyMessageComponent(Component component) {
+  if (component is ActionRowComponent) {
+    return ActionRowBuilder(
+      components: component.components.map(_copyMessageComponent).toList(),
+    )..id = component.id;
+  }
+  if (component is ButtonComponent) {
+    return ButtonBuilder(
+      style: component.style,
+      label: component.label,
+      emoji: component.emoji,
+      customId: component.customId,
+      skuId: component.skuId,
+      url: component.url,
+      isDisabled: component.isDisabled,
+      id: component.id,
+    );
+  }
+  if (component is SelectMenuComponent) {
+    return SelectMenuBuilder(
+      type: component.type,
+      customId: component.customId,
+      options: component.options
+          ?.map(
+            (option) => SelectMenuOptionBuilder(
+              label: option.label,
+              value: option.value,
+              description: option.description,
+              emoji: option.emoji,
+              isDefault: option.isDefault,
+            ),
+          )
+          .toList(),
+      channelTypes: component.channelTypes,
+      defaultValues: component.defaultValues
+          ?.map(
+            (value) => DefaultValue<User>(id: value.id, type: value.type.value),
+          )
+          .toList(),
+      placeholder: component.placeholder,
+      minValues: component.minValues,
+      maxValues: component.maxValues,
+      isDisabled: component.isDisabled,
+      id: component.id,
+    )..isRequired = component.isRequired;
+  }
+  throw UnsupportedError(
+    'Cannot selectively edit ${component.type.value} components',
+  );
+}
+
+/// Rebuilds a message's action rows while preserving unaffected controls.
+List<ComponentBuilder> buildMessageComponentsAfterRemoval(
+  List<Component> components,
+  String mutation,
+  String customId,
+) {
+  final remaining = <ComponentBuilder>[];
+  for (final row in components) {
+    if (row is! ActionRowComponent) {
+      throw UnsupportedError(
+        'Selective removal requires action-row components',
+      );
+    }
+    final retained = row.components.where((component) {
+      if (mutation == 'removeButtons') return component is! ButtonComponent;
+      if (component is ButtonComponent) {
+        return component.customId != customId &&
+            component.url?.toString() != customId;
+      }
+      if (component is SelectMenuComponent) {
+        return component.customId != customId;
+      }
+      return true;
+    }).toList();
+    if (retained.isNotEmpty) {
+      remaining.add(
+        ActionRowBuilder(
+          components: retained.map(_copyMessageComponent).toList(),
+        )..id = row.id,
+      );
+    }
+  }
+  return remaining;
+}
+
 Future<Map<String, String>> editMessageAction(
   NyxxGateway client, {
   required Map<String, dynamic> payload,
@@ -39,16 +125,15 @@ Future<Map<String, String>> editMessageAction(
 
     final message = await channel.messages.fetch(messageId);
     final clearEmbeds = payload['clearEmbeds'] == true;
-    final embedsRaw =
-        (payload['embeds'] is List)
-            ? List<Map<String, dynamic>>.from(
-              (payload['embeds'] as List).whereType<Map>().map(
-                (embed) => Map<String, dynamic>.from(
-                  embed.map((key, value) => MapEntry(key.toString(), value)),
-                ),
+    final embedsRaw = (payload['embeds'] is List)
+        ? List<Map<String, dynamic>>.from(
+            (payload['embeds'] as List).whereType<Map>().map(
+              (embed) => Map<String, dynamic>.from(
+                embed.map((key, value) => MapEntry(key.toString(), value)),
               ),
-            )
-            : <Map<String, dynamic>>[];
+            ),
+          )
+        : <Map<String, dynamic>>[];
 
     final shouldUpdateEmbeds = clearEmbeds || payload['embeds'] is List;
     final embeds = <EmbedBuilder>[];
@@ -131,7 +216,9 @@ Future<Map<String, String>> editMessageAction(
             ) ??
             (authorJson['author_icon_url'] ?? authorJson['icon_url'] ?? '')
                 .toString();
-        if (authorName.isNotEmpty || authorUrl.isNotEmpty || authorIcon.isNotEmpty) {
+        if (authorName.isNotEmpty ||
+            authorUrl.isNotEmpty ||
+            authorIcon.isNotEmpty) {
           embed.author = EmbedAuthorBuilder(
             name: authorName.isEmpty ? '\u200B' : authorName,
             url: authorUrl.isNotEmpty ? Uri.tryParse(authorUrl) : null,
@@ -172,11 +259,24 @@ Future<Map<String, String>> editMessageAction(
     }
 
     final clearComponents = payload['clearComponents'] == true;
+    final componentMutation = payload['componentMutation']?.toString() ?? '';
     List<ComponentBuilder>? components;
     ComponentV2Definition? definition;
     final componentsDef = payload['components'] ?? payload['componentV2'];
     if (clearComponents) {
       components = [];
+    } else if (componentMutation.isNotEmpty) {
+      if (!{'removeButtons', 'removeComponent'}.contains(componentMutation)) {
+        return {'error': 'Unknown component mutation', 'messageId': ''};
+      }
+      final customId =
+          resolve?.call((payload['customId'] ?? '').toString()) ??
+          (payload['customId'] ?? '').toString();
+      components = buildMessageComponentsAfterRemoval(
+        message.components ?? const [],
+        componentMutation,
+        customId,
+      );
     } else if (componentsDef is Map && componentsDef.isNotEmpty) {
       try {
         final def = ComponentV2Definition.fromJson(
@@ -204,7 +304,9 @@ Future<Map<String, String>> editMessageAction(
     if (shouldUpdateEmbeds) {
       builder.embeds = embeds;
     }
-    if (clearComponents || (componentsDef is Map && componentsDef.isNotEmpty)) {
+    if (clearComponents ||
+        componentMutation.isNotEmpty ||
+        (componentsDef is Map && componentsDef.isNotEmpty)) {
       builder.components = components;
     }
 

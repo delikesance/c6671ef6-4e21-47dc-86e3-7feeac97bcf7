@@ -4,6 +4,8 @@ import 'package:bot_creator/core/code_editor/script_editor_language.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Panneau d'autocomplete ancré au caret.
 ///
 /// La position est calculée comme dans l'éditeur BDFD (une ligne = 20 px, un
@@ -122,7 +124,7 @@ class ScriptAutocompleteOverlay extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(
+            AppIcon.fromMaterial(
               _iconFor(entry.kind),
               size: 14,
               color: isSelected ? colors.text : colors.bracket,

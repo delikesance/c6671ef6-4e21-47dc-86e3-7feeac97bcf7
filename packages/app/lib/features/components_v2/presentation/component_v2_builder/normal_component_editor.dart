@@ -7,6 +7,8 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 
 import 'package:bot_creator/core/theme/app_theme.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Visual editor for traditional "normal" message components (only ActionRows containing Buttons/Selects).
 /// Manages a [ComponentV2Definition] but strictly limits available types.
 class NormalComponentEditorWidget extends StatefulWidget {
@@ -48,20 +50,20 @@ class _NormalComponentEditorWidgetState
 
   void _initFromWidget() {
     // Deep copy components via json serialization round-trip
-    _components =
-        widget.definition.components
-            .map((c) => ComponentNode.fromJson(c.toJson()))
-            // Ensure we strictly keep only ActionRows at root level
-            .whereType<ActionRowNode>()
-            .toList();
+    _components = widget.definition.components
+        .map((c) => ComponentNode.fromJson(c.toJson()))
+        // Ensure we strictly keep only ActionRows at root level
+        .whereType<ActionRowNode>()
+        .toList();
   }
 
   void _emit() {
     widget.onChanged(
       ComponentV2Definition(
         content: widget.definition.content,
-        components:
-            _components.map((c) => ComponentNode.fromJson(c.toJson())).toList(),
+        components: _components
+            .map((c) => ComponentNode.fromJson(c.toJson()))
+            .toList(),
         ephemeral: widget.definition.ephemeral,
       ),
     );
@@ -105,11 +107,13 @@ class _NormalComponentEditorWidgetState
   // It only allows Button and Select Menus inside the rows.
   Widget _buildNormalActionRowEditor(ActionRowNode row, int index) {
     final rowKey = row.components.isNotEmpty
-        ? row.components.map((c) {
-            if (c is ButtonNode) return c.customId;
-            if (c is SelectMenuNode) return c.customId;
-            return '';
-          }).join('-')
+        ? row.components
+              .map((c) {
+                if (c is ButtonNode) return c.customId;
+                if (c is SelectMenuNode) return c.customId;
+                return '';
+              })
+              .join('-')
         : 'row_$index';
     return Card(
       key: ValueKey(rowKey),
@@ -125,7 +129,11 @@ class _NormalComponentEditorWidgetState
           children: [
             Row(
               children: [
-                const Icon(Icons.view_stream, size: 16, color: AppTheme.grey),
+                const AppIcon.fromMaterial(
+                  Icons.view_stream,
+                  size: 16,
+                  color: AppTheme.grey,
+                ),
                 const SizedBox(width: 8),
                 Text(
                   context.tr.component_action_row,
@@ -136,7 +144,7 @@ class _NormalComponentEditorWidgetState
                 ),
                 const Spacer(),
                 IconButton(
-                  icon: const Icon(
+                  icon: const AppIcon.fromMaterial(
                     Icons.delete,
                     size: 16,
                     color: AppTheme.error,
@@ -187,8 +195,9 @@ class _NormalComponentEditorWidgetState
                 Builder(
                   builder: (context) {
                     final components = row.components;
-                    final buttonCount =
-                        components.whereType<ButtonNode>().length;
+                    final buttonCount = components
+                        .whereType<ButtonNode>()
+                        .length;
                     final hasSelect = components.any(
                       (c) => c is SelectMenuNode,
                     );
@@ -247,7 +256,8 @@ class _NormalComponentEditorWidgetState
           ComponentV2Type.categorySelect,
           ComponentV2Type.voiceSelect,
         ];
-    final isOnlyButton = types.length == 1 && types.first == ComponentV2Type.button;
+    final isOnlyButton =
+        types.length == 1 && types.first == ComponentV2Type.button;
     final dropdownLabel = isOnlyButton
         ? context.tr.component_add_button
         : context.tr.component_add_button_or_select;
@@ -284,7 +294,11 @@ class _NormalComponentEditorWidgetState
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.add_circle_outline, size: 16, color: AppTheme.grey),
+            const AppIcon.fromMaterial(
+              Icons.add_circle_outline,
+              size: 16,
+              color: AppTheme.grey,
+            ),
             const SizedBox(width: 8),
             Text(
               dropdownLabel,
@@ -316,7 +330,7 @@ class _NormalComponentEditorWidgetState
           ),
           child: Row(
             children: [
-              const Icon(
+              const AppIcon.fromMaterial(
                 Icons.dashboard_customize,
                 size: 18,
                 color: Colors.white,
@@ -382,7 +396,11 @@ class _NormalComponentEditorWidgetState
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.add, size: 16, color: AppTheme.grey),
+                        const AppIcon.fromMaterial(
+                          Icons.add,
+                          size: 16,
+                          color: AppTheme.grey,
+                        ),
                         const SizedBox(width: 8),
                         Text(
                           context.tr.component_add_action_row,

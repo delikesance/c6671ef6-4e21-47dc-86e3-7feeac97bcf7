@@ -80,6 +80,9 @@ Future<bool> executeMessagingAction({
       final count = parsedCount != null
           ? parsedCount.round()
           : (rawCount is num ? rawCount.toInt() : (messageId != null ? 1 : 0));
+      if (payload['bdfdClear'] == true && (count < 1 || count > 100)) {
+        throw Exception(r'$clear amount must be between 1 and 100');
+      }
 
       final onlyUserId = resolveValue((payload['onlyUserId'] ?? '').toString());
       final reason = resolveValue((payload['reason'] ?? '').toString()).trim();
@@ -232,6 +235,32 @@ Future<bool> executeMessagingAction({
           _toSnowflake(resolveValue((payload['channelId'] ?? '').toString())) ??
           fallbackChannelId;
 
+      if (targetType == 'crosspost') {
+        final messageId = _toSnowflake(
+          resolveValue((payload['messageId'] ?? '').toString()),
+        );
+        if (channelId == null || messageId == null) {
+          throw Exception('Crosspost requires channelId and messageId');
+        }
+        if (guildId != null) {
+          final permError = await checkBotGuildPermission(
+            client,
+            guildId: guildId,
+            requiredPermissions: [Permissions.manageMessages],
+            actionLabel: 'publish a message',
+            cache: permissionCache,
+          );
+          if (permError != null) throw Exception(permError);
+        }
+        final channel = await fetchChannelCached(client, channelId);
+        if (channel is! TextChannel) {
+          throw Exception('Crosspost requires a text channel');
+        }
+        await channel.messages[messageId].crosspost();
+        results[resultKey] = messageId.toString();
+        return true;
+      }
+
       if (targetType != 'user' && guildId != null) {
         final permError = await checkBotGuildPermission(
           client,
@@ -309,6 +338,9 @@ Future<bool> executeMessagingAction({
       }
       results[resultKey] = result['messageId'] ?? '';
       variables['$resultKey.messageId'] = result['messageId'] ?? '';
+      if ((result['messageId'] ?? '').isNotEmpty) {
+        variables['last.response.id'] = result['messageId']!;
+      }
       return true;
 
     case BotCreatorActionType.editMessage:
@@ -321,6 +353,50 @@ Future<bool> executeMessagingAction({
       resolvedPayload['channelId'] = resolveValue(
         (payload['channelId'] ?? '').toString(),
       );
+      if (payload['bdfdDelayedEdit'] == true) {
+        final duration = parseBdfdDuration(
+          resolveValue((payload['delay'] ?? '').toString()),
+        );
+        if (duration == null ||
+            duration <= Duration.zero ||
+            duration > const Duration(minutes: 120)) {
+          throw Exception('Delayed edit duration must be between 1ms and 120m');
+        }
+        if (_toSnowflake(resolvedPayload['messageId']) == null ||
+            _toSnowflake(resolvedPayload['channelId']) == null) {
+          throw Exception('Delayed edit requires a bot response message ID');
+        }
+        dynamic freeze(dynamic value) {
+          if (value is String) return resolveValue(value);
+          if (value is List) return value.map(freeze).toList();
+          if (value is Map) {
+            return value.map((key, entry) => MapEntry(key, freeze(entry)));
+          }
+          return value;
+        }
+
+        final frozenPayload = Map<String, dynamic>.from(
+          freeze(resolvedPayload) as Map,
+        );
+        Timer(duration, () async {
+          try {
+            await editMessageAction(
+              client,
+              payload: frozenPayload,
+              fallbackChannelId: fallbackChannelId,
+              content: content,
+              resolve: (value) => value,
+              botId: botId,
+              guildId: guildId?.toString(),
+            );
+          } catch (_) {
+            // A delayed edit cannot interrupt an already completed command.
+          }
+        });
+        results[resultKey] = 'scheduled';
+        variables['action.$resultKey.status'] = 'scheduled';
+        return true;
+      }
       final result = await editMessageAction(
         client,
         payload: resolvedPayload,
@@ -393,31 +469,38 @@ Future<bool> executeMessagingAction({
       }
       return true;
     case BotCreatorActionType.sendDm:
-      final userId = resolveValue((payload['userId'] ?? '').toString());
       final content = resolveValue((payload['content'] ?? '').toString());
-      if (userId.isEmpty) {
-        throw Exception('Missing userId for sendDm');
+      final rawIds = payload['userIds'];
+      final ids = rawIds is List ? rawIds : [payload['userId']];
+      String lastMessageId = '';
+      for (final rawId in ids) {
+        final userId = resolveValue(rawId?.toString() ?? '').trim();
+        if (_toSnowflake(userId) == null) {
+          throw Exception('Missing or invalid userId for sendDm');
+        }
+        final dmPayload = Map<String, dynamic>.from(payload)
+          ..['targetType'] = 'user'
+          ..['userId'] = userId
+          ..['content'] = content;
+        final result = await sendMessageToChannel(
+          client,
+          null,
+          content: content,
+          payload: dmPayload,
+          resolve: resolveValue,
+          botId: botId,
+          guildId: guildId?.toString(),
+        );
+        if (result['error'] != null) {
+          throw Exception(result['error']);
+        }
+        lastMessageId = result['messageId'] ?? '';
       }
-
-      final dmPayload = Map<String, dynamic>.from(payload)
-        ..['targetType'] = 'user'
-        ..['userId'] = userId
-        ..['content'] = content;
-
-      final result = await sendMessageToChannel(
-        client,
-        null,
-        content: content,
-        payload: dmPayload,
-        resolve: resolveValue,
-        botId: botId,
-        guildId: guildId?.toString(),
-      );
-      if (result['error'] != null) {
-        throw Exception(result['error']);
+      results[resultKey] = lastMessageId;
+      variables['$resultKey.messageId'] = lastMessageId;
+      if (lastMessageId.isNotEmpty) {
+        variables['last.response.id'] = lastMessageId;
       }
-      results[resultKey] = result['messageId'] ?? '';
-      variables['$resultKey.messageId'] = result['messageId'] ?? '';
       return true;
 
     case BotCreatorActionType.deferInteraction:
@@ -426,7 +509,10 @@ Future<bool> executeMessagingAction({
         results[resultKey] = 'skipped';
         return true;
       }
-      final ephemeralRaw = payload['ephemeral'];
+      final rawEphemeral = payload['ephemeral'];
+      final ephemeralRaw = rawEphemeral is String
+          ? resolveValue(rawEphemeral)
+          : rawEphemeral;
       final deferEphemeral =
           ephemeralRaw == true ||
           ephemeralRaw?.toString().toLowerCase() == 'true';

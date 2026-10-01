@@ -100,7 +100,7 @@ $deleteChannels[$channelID]
       final removeAction = result.actions.firstWhere(
         (a) => a.type == BotCreatorActionType.removeChannel,
       );
-      expect(removeAction.payload['channelId'], '((channel.id))');
+      expect(removeAction.payload['channelIds'], ['((channel.id))']);
     });
   });
 }

@@ -9,6 +9,8 @@ import 'package:bot_creator/features/subscriptions/logic/hosted_app_subscription
 import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
 import 'package:flutter/material.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Bottom sheet for hosted Docker container subscriptions (host_one_app / host_two_app).
 class HostedAppSubscriptionPage extends StatefulWidget {
   const HostedAppSubscriptionPage({super.key});
@@ -152,7 +154,7 @@ class _HostedAppSubscriptionPageState extends State<HostedAppSubscriptionPage> {
                   color: Colors.teal.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: const AppIcon.fromMaterial(
                   Icons.smart_toy_outlined,
                   size: 48,
                   color: Colors.teal,
@@ -242,7 +244,7 @@ class _BenefitRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 22, color: Colors.teal),
+        AppIcon.fromMaterial(icon, size: 22, color: Colors.teal),
         const SizedBox(width: 12),
         Expanded(
           child: Text(

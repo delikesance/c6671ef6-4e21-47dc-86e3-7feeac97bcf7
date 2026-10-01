@@ -3,6 +3,8 @@ import 'package:bot_creator/core/models/types/variable_suggestion.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// A sleek accessory bar rendered above the mobile virtual keyboard.
 /// Provides instant access to Discord/BDFD syntax characters (`$`, `[`, `]`, `{`, `}`)
 /// and common dynamic variable chips.
@@ -35,8 +37,8 @@ class MobileKeyboardAccessoryBar extends StatelessWidget {
     if (context == null) return;
 
     // Locate the nearest EditableTextState in the focused element tree
-    final editableTextState =
-        context.findAncestorStateOfType<EditableTextState>();
+    final editableTextState = context
+        .findAncestorStateOfType<EditableTextState>();
 
     if (editableTextState != null) {
       final value = editableTextState.textEditingValue;
@@ -96,14 +98,15 @@ class MobileKeyboardAccessoryBar extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.data_object, size: 20),
+                    const AppIcon.fromMaterial(Icons.data_object, size: 20),
                     const SizedBox(width: 8),
-                    Text(context.tr.image_editor_insert_variable,
+                    Text(
+                      context.tr.image_editor_insert_variable,
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     const Spacer(),
                     IconButton(
-                      icon: const Icon(Icons.close, size: 20),
+                      icon: const AppIcon.fromMaterial(Icons.close, size: 20),
                       onPressed: () => Navigator.pop(sheetContext),
                     ),
                   ],
@@ -117,7 +120,7 @@ class MobileKeyboardAccessoryBar extends StatelessWidget {
                     final suggestion = variableSuggestions[index];
                     return ListTile(
                       dense: true,
-                      leading: const Icon(Icons.code, size: 18),
+                      leading: const AppIcon.fromMaterial(Icons.code, size: 18),
                       title: Text(
                         suggestion.name,
                         style: const TextStyle(
@@ -126,7 +129,8 @@ class MobileKeyboardAccessoryBar extends StatelessWidget {
                           fontSize: 13,
                         ),
                       ),
-                      subtitle: (suggestion.description != null &&
+                      subtitle:
+                          (suggestion.description != null &&
                               suggestion.description!.isNotEmpty)
                           ? Text(
                               suggestion.description!,
@@ -181,8 +185,9 @@ class MobileKeyboardAccessoryBar extends StatelessWidget {
                 visualDensity: VisualDensity.compact,
               ),
               onPressed: () => _showVariablesSheet(context),
-              icon: const Icon(Icons.data_object, size: 16),
-              label: Text(context.tr.globals_tab_short,
+              icon: const AppIcon.fromMaterial(Icons.data_object, size: 16),
+              label: Text(
+                context.tr.globals_tab_short,
                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
               ),
             ),

@@ -47,6 +47,8 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 class SettingPage extends StatefulWidget {
   const SettingPage({super.key, this.embedded = false});
 
@@ -1150,7 +1152,7 @@ class _SettingPageState extends State<SettingPage> {
 
     return SwitchListTile(
       contentPadding: EdgeInsets.zero,
-      secondary: Icon(
+      secondary: AppIcon.fromMaterial(
         _notificationTopicIcon(topic),
         size: 20,
         color: enabled ? Theme.of(context).colorScheme.primary : AppTheme.grey,
@@ -1209,7 +1211,7 @@ class _SettingPageState extends State<SettingPage> {
             _mainApiSectionExpanded = expanded;
           });
         },
-        leading: Icon(
+        leading: AppIcon.fromMaterial(
           _isManagedMobilePlatform ? Icons.person_outline : Icons.hub_outlined,
           size: 18,
         ),
@@ -1258,7 +1260,7 @@ class _SettingPageState extends State<SettingPage> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
+                AppIcon.fromMaterial(
                   accountConnected ? Icons.verified_user : Icons.info_outline,
                   size: 18,
                   color: accountConnected
@@ -1279,7 +1281,11 @@ class _SettingPageState extends State<SettingPage> {
             const SizedBox(height: 10),
             Row(
               children: [
-                Icon(Icons.verified_user, size: 18, color: AppTheme.success),
+                AppIcon.fromMaterial(
+                  Icons.verified_user,
+                  size: 18,
+                  color: AppTheme.success,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -1307,7 +1313,7 @@ class _SettingPageState extends State<SettingPage> {
                         height: 14,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Icon(Icons.login, size: 18),
+                    : const AppIcon.fromMaterial(Icons.login, size: 18),
                 label: Text(connectButtonLabel),
               ),
               OutlinedButton.icon(
@@ -1320,7 +1326,7 @@ class _SettingPageState extends State<SettingPage> {
                         height: 14,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Icon(Icons.logout, size: 18),
+                    : const AppIcon.fromMaterial(Icons.logout, size: 18),
                 label: Text(disconnectButtonLabel),
               ),
             ],
@@ -1486,7 +1492,7 @@ class _SettingPageState extends State<SettingPage> {
           children: [
             Row(
               children: [
-                const Icon(Icons.phone_android, size: 18),
+                const AppIcon.fromMaterial(Icons.phone_android, size: 18),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -1525,7 +1531,7 @@ class _SettingPageState extends State<SettingPage> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(
+                    const AppIcon.fromMaterial(
                       Icons.warning_amber_rounded,
                       color: AppTheme.warning,
                       size: 18,
@@ -1566,7 +1572,7 @@ class _SettingPageState extends State<SettingPage> {
           children: [
             Row(
               children: [
-                const Icon(Icons.developer_mode, size: 18),
+                const AppIcon.fromMaterial(Icons.developer_mode, size: 18),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -1612,7 +1618,7 @@ class _SettingPageState extends State<SettingPage> {
           children: [
             Row(
               children: [
-                Icon(
+                AppIcon.fromMaterial(
                   service.isDownloading
                       ? Icons.download_outlined
                       : service.isRunning
@@ -1704,18 +1710,20 @@ class _SettingPageState extends State<SettingPage> {
               children: [
                 OutlinedButton.icon(
                   onPressed: _isBusy ? null : _restartEmbeddedRunner,
-                  icon: const Icon(Icons.refresh),
+                  icon: const AppIcon.fromMaterial(Icons.refresh),
                   label: Text(context.tr.settings_embedded_runner_restart),
                 ),
                 OutlinedButton.icon(
                   onPressed: _isBusy ? null : _redownloadEmbeddedRunner,
-                  icon: const Icon(Icons.download_outlined),
+                  icon: const AppIcon.fromMaterial(Icons.download_outlined),
                   label: Text(context.tr.settings_embedded_runner_redownload),
                 ),
                 if (logPath != null && logPath.isNotEmpty)
                   TextButton.icon(
                     onPressed: _isBusy ? null : _openEmbeddedRunnerLog,
-                    icon: const Icon(Icons.description_outlined),
+                    icon: const AppIcon.fromMaterial(
+                      Icons.description_outlined,
+                    ),
                     label: Text(context.tr.settings_embedded_runner_open_log),
                   ),
               ],
@@ -1931,7 +1939,7 @@ class _SettingPageState extends State<SettingPage> {
                     Navigator.of(sheetContext).pop();
                     await _restoreSnapshot(snapshot);
                   },
-                  icon: const Icon(Icons.restore),
+                  icon: const AppIcon.fromMaterial(Icons.restore),
                   label: Text(context.tr.settings_restore_snapshot),
                 ),
                 const SizedBox(height: 8),
@@ -2004,7 +2012,7 @@ class _SettingPageState extends State<SettingPage> {
                 Navigator.of(dialogContext).pop();
                 await _restoreSnapshot(snapshot);
               },
-              icon: const Icon(Icons.restore),
+              icon: const AppIcon.fromMaterial(Icons.restore),
               label: Text(context.tr.settings_restore_snapshot),
             ),
           ],
@@ -2102,7 +2110,9 @@ class _SettingPageState extends State<SettingPage> {
                       contentPadding: EdgeInsets.zero,
                       title: Text(snapshot.label),
                       subtitle: Text(_snapshotListEntryLabel(snapshot)),
-                      trailing: const Icon(Icons.delete_outline),
+                      trailing: const AppIcon.fromMaterial(
+                        Icons.delete_outline,
+                      ),
                       onTap: () => Navigator.of(sheetContext).pop(snapshot),
                     );
                   },
@@ -2300,13 +2310,13 @@ class _SettingPageState extends State<SettingPage> {
                 // ── Code editor customization card ──────────────────
                 Card(
                   child: ListTile(
-                    leading: Icon(
+                    leading: AppIcon.fromMaterial(
                       Icons.code_outlined,
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                     title: Text(context.tr.code_editor_settings_title),
                     subtitle: Text(context.tr.code_editor_settings_subtitle),
-                    trailing: const Icon(Icons.chevron_right),
+                    trailing: const AppIcon.fromMaterial(Icons.chevron_right),
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute<void>(
                         builder: (_) => const CodeEditorSettingsPage(),
@@ -2372,7 +2382,9 @@ class _SettingPageState extends State<SettingPage> {
                               onPressed: _isBusy
                                   ? null
                                   : () => _resetLocalPreferences(),
-                              icon: const Icon(Icons.restart_alt),
+                              icon: const AppIcon.fromMaterial(
+                                Icons.restart_alt,
+                              ),
                               label: Text(
                                 context.tr.settings_reset_preferences,
                               ),
@@ -2390,7 +2402,9 @@ class _SettingPageState extends State<SettingPage> {
                               onPressed: _isBusy
                                   ? null
                                   : () => _replayOnboarding(),
-                              icon: const Icon(Icons.rocket_launch_outlined),
+                              icon: const AppIcon.fromMaterial(
+                                Icons.rocket_launch_outlined,
+                              ),
                               label: Text(
                                 context.tr.settings_replay_onboarding,
                               ),
@@ -2399,7 +2413,7 @@ class _SettingPageState extends State<SettingPage> {
                           const SizedBox(height: 16),
                           SwitchListTile(
                             contentPadding: EdgeInsets.zero,
-                            secondary: const Icon(
+                            secondary: const AppIcon.fromMaterial(
                               Icons.workspace_premium_rounded,
                             ),
                             title: Text(
@@ -2426,12 +2440,14 @@ class _SettingPageState extends State<SettingPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(context.tr.settings_ads_debug_title,
+                          Text(
+                            context.tr.settings_ads_debug_title,
                             style: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 8),
-                          Text(context.tr.settings_ads_debug_desc,
+                          Text(
+                            context.tr.settings_ads_debug_desc,
                             style: Theme.of(context).textTheme.bodySmall
                                 ?.copyWith(color: AppTheme.grey),
                           ),
@@ -2442,14 +2458,18 @@ class _SettingPageState extends State<SettingPage> {
                             children: [
                               FilledButton.tonalIcon(
                                 onPressed: _runMediationDiagnostics,
-                                icon: const Icon(Icons.analytics_outlined),
+                                icon: const AppIcon.fromMaterial(
+                                  Icons.analytics_outlined,
+                                ),
                                 label: Text(
                                   context.tr.settings_run_diagnostics,
                                 ),
                               ),
                               FilledButton.tonalIcon(
                                 onPressed: _openAdInspector,
-                                icon: const Icon(Icons.bug_report_outlined),
+                                icon: const AppIcon.fromMaterial(
+                                  Icons.bug_report_outlined,
+                                ),
                                 label: Text(
                                   context.tr.settings_open_ad_inspector,
                                 ),
@@ -2534,7 +2554,7 @@ class _SettingPageState extends State<SettingPage> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(Icons.g_mobiledata),
+                                const AppIcon.fromMaterial(Icons.g_mobiledata),
                                 const SizedBox(width: 8),
                                 Flexible(
                                   child: Text(
@@ -2550,7 +2570,7 @@ class _SettingPageState extends State<SettingPage> {
                       ] else ...[
                         Row(
                           children: [
-                            Icon(
+                            AppIcon.fromMaterial(
                               Icons.check_circle,
                               color: AppTheme.successLight,
                               size: 20,
@@ -2601,7 +2621,7 @@ class _SettingPageState extends State<SettingPage> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(Icons.logout),
+                                const AppIcon.fromMaterial(Icons.logout),
                                 const SizedBox(width: 8),
                                 Flexible(
                                   child: Text(
@@ -2650,7 +2670,10 @@ class _SettingPageState extends State<SettingPage> {
                           _developerSectionExpanded = expanded;
                         });
                       },
-                      leading: const Icon(Icons.developer_mode, size: 18),
+                      leading: const AppIcon.fromMaterial(
+                        Icons.developer_mode,
+                        size: 18,
+                      ),
                       title: Text(
                         context.tr.settings_runner_title,
                         style: Theme.of(context).textTheme.titleMedium
@@ -2707,24 +2730,25 @@ class _SettingPageState extends State<SettingPage> {
                           const SizedBox(height: 8),
                           SegmentedButton<RunnerKind>(
                             segments: [
-
                               const ButtonSegment(
                                 value: RunnerKind.dart,
                                 label: Text('Dart'),
-                                icon: Icon(Icons.memory),
-                                ),
+                                icon: AppIcon.fromMaterial(Icons.memory),
+                              ),
 
                               const ButtonSegment(
                                 value: RunnerKind.javascript,
                                 label: Text('JS'),
-                                icon: Icon(Icons.code),
-                                ),
+                                icon: AppIcon.fromMaterial(Icons.code),
+                              ),
 
                               ButtonSegment(
                                 value: RunnerKind.auto,
                                 label: Text(context.tr.common_auto),
-                                icon: const Icon(Icons.auto_awesome),
+                                icon: const AppIcon.fromMaterial(
+                                  Icons.auto_awesome,
                                 ),
+                              ),
                             ],
                             selected: {_runnerKind},
                             onSelectionChanged: _runnerTemporarilyDisabled
@@ -2780,7 +2804,7 @@ class _SettingPageState extends State<SettingPage> {
                                     )
                                   : (_runnerStatusKey == null
                                         ? null
-                                        : Icon(
+                                        : AppIcon.fromMaterial(
                                             _runnerStatusKey ==
                                                     'settings_runner_connected'
                                                 ? Icons.check_circle
@@ -2811,7 +2835,7 @@ class _SettingPageState extends State<SettingPage> {
                                         !_runnerTokenObscured;
                                   });
                                 },
-                                icon: Icon(
+                                icon: AppIcon.fromMaterial(
                                   _runnerTokenObscured
                                       ? Icons.visibility_off
                                       : Icons.visibility,
@@ -2833,7 +2857,10 @@ class _SettingPageState extends State<SettingPage> {
                                         _runnerTemporarilyDisabled
                                     ? null
                                     : _saveRunnerSettings,
-                                icon: const Icon(Icons.save_outlined, size: 18),
+                                icon: const AppIcon.fromMaterial(
+                                  Icons.save_outlined,
+                                  size: 18,
+                                ),
                                 label: Text(context.tr.settings_runner_save),
                               ),
                             ),
@@ -2854,7 +2881,10 @@ class _SettingPageState extends State<SettingPage> {
                                           strokeWidth: 2,
                                         ),
                                       )
-                                    : const Icon(Icons.wifi_find, size: 18),
+                                    : const AppIcon.fromMaterial(
+                                        Icons.wifi_find,
+                                        size: 18,
+                                      ),
                                 label: Text(context.tr.settings_runner_check),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Theme.of(
@@ -2874,7 +2904,10 @@ class _SettingPageState extends State<SettingPage> {
                                         _runnerApiTokenController.clear();
                                         _saveRunnerSettings();
                                       },
-                                icon: const Icon(Icons.clear, size: 18),
+                                icon: const AppIcon.fromMaterial(
+                                  Icons.clear,
+                                  size: 18,
+                                ),
                                 label: Text(context.tr.settings_runner_clear),
                               ),
                             ),
@@ -2889,7 +2922,7 @@ class _SettingPageState extends State<SettingPage> {
                                             _runnerTemporarilyDisabled
                                         ? null
                                         : _saveRunnerSettings,
-                                    icon: const Icon(
+                                    icon: const AppIcon.fromMaterial(
                                       Icons.save_outlined,
                                       size: 18,
                                     ),
@@ -2913,7 +2946,10 @@ class _SettingPageState extends State<SettingPage> {
                                             strokeWidth: 2,
                                           ),
                                         )
-                                      : const Icon(Icons.wifi_find, size: 18),
+                                      : const AppIcon.fromMaterial(
+                                          Icons.wifi_find,
+                                          size: 18,
+                                        ),
                                   label: Text(context.tr.settings_runner_check),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Theme.of(
@@ -2930,7 +2966,10 @@ class _SettingPageState extends State<SettingPage> {
                                           _runnerApiTokenController.clear();
                                           _saveRunnerSettings();
                                         },
-                                  icon: const Icon(Icons.clear, size: 18),
+                                  icon: const AppIcon.fromMaterial(
+                                    Icons.clear,
+                                    size: 18,
+                                  ),
                                   tooltip: context.tr.settings_runner_clear,
                                 ),
                               ],
@@ -3219,7 +3258,7 @@ class _SettingPageState extends State<SettingPage> {
                                         },
                                       );
                                     },
-                              icon: const Icon(Icons.backup),
+                              icon: const AppIcon.fromMaterial(Icons.backup),
                               label: Text(context.tr.settings_backup_now),
                             ),
                             OutlinedButton.icon(
@@ -3241,7 +3280,9 @@ class _SettingPageState extends State<SettingPage> {
                                         },
                                       );
                                     },
-                              icon: const Icon(Icons.schedule_send),
+                              icon: const AppIcon.fromMaterial(
+                                Icons.schedule_send,
+                              ),
                               label: Text(
                                 context.tr.settings_run_auto_backup_now,
                               ),
@@ -3280,7 +3321,9 @@ class _SettingPageState extends State<SettingPage> {
                                       _snapshots.isEmpty
                                   ? null
                                   : _showSnapshotQuickDeletePicker,
-                              icon: const Icon(Icons.remove_circle_outline),
+                              icon: const AppIcon.fromMaterial(
+                                Icons.remove_circle_outline,
+                              ),
                             ),
                             IconButton(
                               tooltip: context.tr.settings_snapshots_delete_all,
@@ -3290,7 +3333,9 @@ class _SettingPageState extends State<SettingPage> {
                                       _snapshots.isEmpty
                                   ? null
                                   : _deleteAllSnapshots,
-                              icon: const Icon(Icons.delete_sweep_outlined),
+                              icon: const AppIcon.fromMaterial(
+                                Icons.delete_sweep_outlined,
+                              ),
                             ),
                             IconButton(
                               tooltip: context.tr.settings_snapshots_refresh,
@@ -3307,7 +3352,7 @@ class _SettingPageState extends State<SettingPage> {
                                         },
                                       );
                                     },
-                              icon: const Icon(Icons.refresh),
+                              icon: const AppIcon.fromMaterial(Icons.refresh),
                             ),
                           ],
                         ),
@@ -3330,7 +3375,9 @@ class _SettingPageState extends State<SettingPage> {
                               contentPadding: EdgeInsets.zero,
                               title: Text(snapshot.label),
                               subtitle: Text(_snapshotListEntryLabel(snapshot)),
-                              trailing: const Icon(Icons.chevron_right),
+                              trailing: const AppIcon.fromMaterial(
+                                Icons.chevron_right,
+                              ),
                               onTap: () => _showSnapshotPreview(snapshot),
                             );
                           }),
@@ -3436,7 +3483,7 @@ class _SettingPageState extends State<SettingPage> {
     final isMobile = MediaQuery.of(context).size.width < 600;
     return ElevatedButton.icon(
       onPressed: onPressed,
-      icon: Icon(icon),
+      icon: AppIcon.fromMaterial(icon),
       label: Text(label),
       style: ElevatedButton.styleFrom(
         padding: EdgeInsets.symmetric(
@@ -3527,7 +3574,7 @@ class _PrivacyPolicyCard extends StatelessWidget {
               width: double.infinity,
               child: OutlinedButton.icon(
                 onPressed: () => _open(context),
-                icon: const Icon(Icons.privacy_tip_outlined),
+                icon: const AppIcon.fromMaterial(Icons.privacy_tip_outlined),
                 label: Text(context.tr.settings_privacy_policy),
               ),
             ),
@@ -3542,7 +3589,7 @@ class _PrivacyPolicyCard extends StatelessWidget {
                         height: 16,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Icon(Icons.shield_outlined),
+                    : const AppIcon.fromMaterial(Icons.shield_outlined),
                 label: Text(
                   checkingAdPrivacy
                       ? context.tr.settings_ads_privacy_loading
@@ -3565,7 +3612,7 @@ class _PrivacyPolicyCard extends StatelessWidget {
                       applicationVersion: info.version,
                       applicationIcon: Padding(
                         padding: const EdgeInsets.all(12),
-                        child: Icon(
+                        child: AppIcon.fromMaterial(
                           Icons.smart_toy_outlined,
                           size: 48,
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -3574,7 +3621,7 @@ class _PrivacyPolicyCard extends StatelessWidget {
                     );
                   }
                 },
-                icon: const Icon(Icons.description_outlined),
+                icon: const AppIcon.fromMaterial(Icons.description_outlined),
                 label: Text(context.tr.settings_oss_licenses),
               ),
             ),
@@ -3594,13 +3641,13 @@ class _DocumentationCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: ListTile(
-        leading: Icon(
+        leading: AppIcon.fromMaterial(
           Icons.menu_book_outlined,
           color: Theme.of(context).colorScheme.onSurfaceVariant,
         ),
         title: Text(context.tr.docs_hub_title),
         subtitle: Text(context.tr.bot_settings_workflow_docs_desc),
-        trailing: const Icon(Icons.chevron_right),
+        trailing: const AppIcon.fromMaterial(Icons.chevron_right),
         onTap: () => openDocumentationHub(context, showDiscordJsTab: true),
       ),
     );
@@ -3652,7 +3699,7 @@ class _SupportDiscordCard extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
+                    const AppIcon.fromMaterial(
                       Icons.verified_rounded,
                       size: 13,
                       color: Colors.white,
@@ -3676,7 +3723,7 @@ class _SupportDiscordCard extends StatelessWidget {
               const SizedBox(height: 14),
               Row(
                 children: [
-                  const Icon(
+                  const AppIcon.fromMaterial(
                     Icons.forum_rounded,
                     color: Colors.white,
                     size: 22,
@@ -3710,7 +3757,7 @@ class _SupportDiscordCard extends StatelessWidget {
                 width: double.infinity,
                 child: FilledButton.icon(
                   onPressed: _open,
-                  icon: const Icon(Icons.open_in_new, size: 16),
+                  icon: const AppIcon.fromMaterial(Icons.open_in_new, size: 16),
                   label: Text(context.tr.support_join_discord),
                   style: FilledButton.styleFrom(
                     backgroundColor: Colors.white,
@@ -3790,7 +3837,10 @@ class _SubscriptionsSettingsCardState
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              const Icon(Icons.subscriptions_outlined, size: 28),
+              const AppIcon.fromMaterial(
+                Icons.subscriptions_outlined,
+                size: 28,
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -3812,7 +3862,7 @@ class _SubscriptionsSettingsCardState
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right),
+              const AppIcon.fromMaterial(Icons.chevron_right),
             ],
           ),
         ),

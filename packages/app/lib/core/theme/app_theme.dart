@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'app_appearance.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
 // ═══════════════════════════════════════════════════════════════════════════════
 // Bot Creator — Design System & Charte Graphique
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -678,7 +679,7 @@ abstract final class AppTheme {
       context: context,
       builder: (dialogContext) => AlertDialog(
         shape: dialogShape,
-        icon: Icon(
+        icon: AppIcon.fromMaterial(
           icon ??
               (isDestructive
                   ? Icons.warning_amber_rounded

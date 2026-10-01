@@ -8,6 +8,8 @@ import 'package:bot_creator/core/models/types/variable_suggestion.dart';
 import 'scratch_block.dart';
 import 'scratch_block_palette.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 String _localString(String val) => val;
 
 /// A user-added action block in the Scratch-like canvas.
@@ -79,7 +81,7 @@ class _ActionBlockState extends State<ActionBlock> {
     final colorScheme = Theme.of(context).colorScheme;
 
     final trailingWidget = PopupMenuButton<String>(
-      icon: Icon(
+      icon: AppIcon.fromMaterial(
         Icons.more_vert,
         color: colorScheme.onSurfaceVariant,
         size: 20,
@@ -143,7 +145,7 @@ class _ActionBlockState extends State<ActionBlock> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.arrow_upward, size: 18),
+                const AppIcon.fromMaterial(Icons.arrow_upward, size: 18),
                 const SizedBox(width: 12),
                 Text(_localString('Move up')),
               ],
@@ -155,7 +157,7 @@ class _ActionBlockState extends State<ActionBlock> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.arrow_downward, size: 18),
+                const AppIcon.fromMaterial(Icons.arrow_downward, size: 18),
                 const SizedBox(width: 12),
                 Text(_localString('Move down')),
               ],
@@ -166,7 +168,7 @@ class _ActionBlockState extends State<ActionBlock> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.copy, size: 18),
+              const AppIcon.fromMaterial(Icons.copy, size: 18),
               const SizedBox(width: 12),
               Text(_localString('Copy action')),
             ],
@@ -177,7 +179,7 @@ class _ActionBlockState extends State<ActionBlock> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.copy_all, size: 18),
+              const AppIcon.fromMaterial(Icons.copy_all, size: 18),
               const SizedBox(width: 12),
               Text(_localString('Duplicate')),
             ],
@@ -190,7 +192,10 @@ class _ActionBlockState extends State<ActionBlock> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.help_outline_rounded, size: 18),
+                const AppIcon.fromMaterial(
+                  Icons.help_outline_rounded,
+                  size: 18,
+                ),
                 const SizedBox(width: 12),
                 Text(_localString('Documentation & guides')),
               ],
@@ -203,7 +208,7 @@ class _ActionBlockState extends State<ActionBlock> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.vertical_align_top, size: 18),
+              const AppIcon.fromMaterial(Icons.vertical_align_top, size: 18),
               const SizedBox(width: 12),
               Text(_localString('Paste Above')),
             ],
@@ -214,7 +219,7 @@ class _ActionBlockState extends State<ActionBlock> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.vertical_align_bottom, size: 18),
+              const AppIcon.fromMaterial(Icons.vertical_align_bottom, size: 18),
               const SizedBox(width: 12),
               Text(_localString('Paste Below')),
             ],

@@ -7,6 +7,8 @@ import 'package:bot_creator/core/models/types/variable_suggestion.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/widgets/variable_text_field.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Full-screen modal page for editing HTTP request details:
 /// URL, method, headers (key-value pairs), body mode, and JSON/text body.
 ///
@@ -199,13 +201,13 @@ class _HttpRequestEditorPageState extends State<HttpRequestEditorPage> {
       appBar: AppBar(
         title: Text(context.tr.action_name_httpRequest),
         leading: IconButton(
-          icon: const Icon(Icons.close),
+          icon: const AppIcon.fromMaterial(Icons.close),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
           FilledButton.icon(
             onPressed: _save,
-            icon: const Icon(Icons.check, size: 18),
+            icon: const AppIcon.fromMaterial(Icons.check, size: 18),
             label: Text(context.tr.common_save),
           ),
           const SizedBox(width: 8),
@@ -334,7 +336,7 @@ class _HttpRequestEditorPageState extends State<HttpRequestEditorPage> {
                     ),
                     const SizedBox(width: 4),
                     IconButton(
-                      icon: const Icon(
+                      icon: const AppIcon.fromMaterial(
                         Icons.remove_circle_outline,
                         color: AppTheme.error,
                         size: 20,
@@ -358,7 +360,7 @@ class _HttpRequestEditorPageState extends State<HttpRequestEditorPage> {
             OutlinedButton.icon(
               onPressed: () =>
                   setState(() => _headers.add(_HeaderEntry.empty())),
-              icon: const Icon(Icons.add, size: 18),
+              icon: const AppIcon.fromMaterial(Icons.add, size: 18),
               label: Text(context.tr.action_add_header),
             ),
 
@@ -381,7 +383,10 @@ class _HttpRequestEditorPageState extends State<HttpRequestEditorPage> {
                   children: [
                     const Spacer(),
                     IconButton(
-                      icon: const Icon(Icons.format_align_left, size: 20),
+                      icon: const AppIcon.fromMaterial(
+                        Icons.format_align_left,
+                        size: 20,
+                      ),
                       tooltip: context.tr.action_format_json,
                       onPressed: _formatJsonField,
                     ),

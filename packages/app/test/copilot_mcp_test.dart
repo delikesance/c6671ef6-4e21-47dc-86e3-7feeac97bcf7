@@ -19,6 +19,135 @@ void main() {
   HttpOverrides.global = null;
   setUp(() => SharedPreferences.setMockInitialValues({}));
   test(
+    'Copilot executes sandbox drafts without approval or external requests',
+    () async {
+      final bridge = CopilotMcp(
+        MainApiClient(
+          baseUrl: 'https://manager.example',
+          httpClient: MockClient(
+            (_) async => throw StateError('No network allowed'),
+          ),
+        ),
+        approve: (_, _) async => throw StateError('No approval needed'),
+      );
+      await bridge.initialize();
+      final result = await bridge.call('local_test_command', {
+        'script': r'$var[gain;$isNumber[((opts.amount))]]$reply$c[]$var[gain]',
+        'scenario': {
+          'options': {'amount': 100},
+        },
+      }, callID: 'sandbox');
+      expect(result['isError'], false);
+      final value = jsonDecode(result['content'][0]['text'] as String);
+      expect(value['responses'][0]['payload']['content'], 'true');
+      expect(value['discord_verified'], false);
+      final simulatedHttp = await bridge.call('local_test_command', {
+        'script':
+            r'$httpGet[https://example.com/data]$httpStatus|$httpResult[value]',
+        'scenario': {
+          'http': [
+            {
+              'method': 'GET',
+              'url': 'https://example.com/data',
+              'status': 201,
+              'body': {'value': 'simulated'},
+            },
+          ],
+        },
+      }, callID: 'simulated-http');
+      expect(simulatedHttp['isError'], false);
+      final httpValue = jsonDecode(
+        simulatedHttp['content'][0]['text'] as String,
+      );
+      expect(httpValue['responses'][0]['payload']['content'], '201|simulated');
+      expect(httpValue['effects'].single['simulated'], true);
+      expect(httpValue['unused_http_fixtures'], 0);
+      final role = await bridge.call('local_test_command', {
+        'script': r'$roleID[((opts.color))]',
+        'scenario': {
+          'options': {'color': 'Cor Branca'},
+          'entities': {
+            'guilds': {
+              '10': {
+                'roles': [
+                  {'id': '60', 'name': 'Cor Branca'},
+                ],
+              },
+            },
+          },
+        },
+        'expected_content': '60',
+        'expected_values': {'/entity_requests/0/operation': 'roles.list'},
+      }, callID: 'role-fixture');
+      expect(role['isError'], false);
+      final roleValue = jsonDecode(role['content'][0]['text'] as String);
+      expect(roleValue['contract_passed'], true);
+      expect(roleValue['discord_verified'], false);
+      final blocked = await bridge.call('local_test_command', {
+        'script': r'$httpGet[https://example.com]',
+      }, callID: 'blocked-sandbox');
+      expect(blocked['isError'], true);
+    },
+  );
+  test(
+    'Copilot checks embed contracts and reports incorrect output as an error',
+    () async {
+      final bridge = CopilotMcp(
+        MainApiClient(
+          baseUrl: 'https://manager.example',
+          httpClient: MockClient(
+            (_) async => throw StateError('No network allowed'),
+          ),
+        ),
+        approve: (_, _) async => throw StateError('No approval needed'),
+      );
+      await bridge.initialize();
+      for (final expected in ['Score', 'Wrong title']) {
+        final response = await bridge.call('local_test_command', {
+          'script': r'$title[((opts.title))]',
+          'scenario': {
+            'options': {'title': 'Score'},
+          },
+          'expected_content': '',
+          'expected_values': {'/responses/0/payload/embeds/0/title': expected},
+        }, callID: 'embed-$expected');
+        final value = jsonDecode(response['content'][0]['text'] as String);
+        expect(value['success'], true);
+        expect(value['contract_passed'], expected == 'Score');
+        expect(response['isError'], expected != 'Score');
+        expect(value['contract_checks'][1]['actual'], 'Score');
+      }
+    },
+  );
+  test(
+    'Copilot validates generated components without accessing Discord',
+    () async {
+      final bridge = CopilotMcp(
+        MainApiClient(
+          baseUrl: 'https://manager.example',
+          httpClient: MockClient(
+            (_) async => throw StateError('No network allowed'),
+          ),
+        ),
+        approve: (_, _) async => throw StateError('No approval needed'),
+      );
+      await bridge.initialize();
+      final response = await bridge.call('local_test_command', {
+        'script':
+            r'$newModal[form;Profile]$addModalTextInput[Name;;name;short;2;20;false]',
+        'expected_content': '',
+        'expected_values': {
+          '/responses/0/api_modal/title': 'Profile',
+          '/responses/0/api_modal/components/0/component/required': false,
+        },
+      }, callID: 'modal-contract');
+      expect(response['isError'], false);
+      final value = jsonDecode(response['content'][0]['text'] as String);
+      expect(value['contract_passed'], true);
+      expect(value['discord_verified'], false);
+    },
+  );
+  test(
     'BDFD preflight rejects the reported ticket script without approval',
     () async {
       var approvals = 0;

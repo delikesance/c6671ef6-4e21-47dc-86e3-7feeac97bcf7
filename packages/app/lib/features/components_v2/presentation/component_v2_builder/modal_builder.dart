@@ -12,6 +12,8 @@ import 'package:bot_creator/core/widgets/variable_text_field.dart';
 import 'package:bot_creator/features/components_v2/presentation/component_v2_builder/component_node_editor.dart';
 import 'package:bot_creator/features/components_v2/presentation/component_v2_builder/component_node_factory.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Widget for editing a full Modal definition (title, customId, text inputs, inline actions).
 class ModalBuilderWidget extends StatefulWidget {
   final ModalDefinition modal;
@@ -348,7 +350,7 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                   children: [
                     Row(
                       children: [
-                        Icon(
+                        AppIcon.fromMaterial(
                           Icons.dynamic_form,
                           color: scheme.onSurface,
                           size: 18,
@@ -379,7 +381,11 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
               }
               return Row(
                 children: [
-                  Icon(Icons.dynamic_form, color: scheme.onSurface, size: 18),
+                  AppIcon.fromMaterial(
+                    Icons.dynamic_form,
+                    color: scheme.onSurface,
+                    size: 18,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -501,7 +507,7 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                               value: t,
                               child: Row(
                                 children: [
-                                  Icon(
+                                  AppIcon.fromMaterial(
                                     _getIconForType(t),
                                     size: 16,
                                     color: Theme.of(
@@ -538,7 +544,7 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(
+                              AppIcon.fromMaterial(
                                 Icons.add_circle_outline,
                                 size: 18,
                                 color: Theme.of(context).colorScheme.primary,
@@ -583,7 +589,10 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
                     ],
                     FilledButton.icon(
                       onPressed: _editActions,
-                      icon: const Icon(Icons.edit_note, size: 18),
+                      icon: const AppIcon.fromMaterial(
+                        Icons.edit_note,
+                        size: 18,
+                      ),
                       label: Text(
                         _modalActions.isEmpty
                             ? context.tr.modal_builder_configure_submit_actions
@@ -629,7 +638,7 @@ class _ModalBuilderWidgetState extends State<ModalBuilderWidget> {
             ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
             child: Row(
               children: [
-                Icon(
+                AppIcon.fromMaterial(
                   icon,
                   size: 16,
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -784,7 +793,7 @@ class _InputEditorState extends State<_InputEditor> {
                 onTap: widget.onRemove,
                 child: Padding(
                   padding: const EdgeInsets.all(4),
-                  child: Icon(
+                  child: AppIcon.fromMaterial(
                     Icons.close,
                     size: 16,
                     color: Theme.of(context).colorScheme.error,

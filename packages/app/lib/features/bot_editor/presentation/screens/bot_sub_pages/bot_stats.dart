@@ -13,6 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 class BotStatsPage extends StatefulWidget {
   const BotStatsPage({super.key, this.botId});
 
@@ -439,7 +441,9 @@ class _BotStatsPageState extends State<BotStatsPage>
                           initialValue: _selectedBotId,
                           decoration: InputDecoration(
                             labelText: context.tr.common_bot,
-                            prefixIcon: const Icon(Icons.smart_toy_outlined),
+                            prefixIcon: const AppIcon.fromMaterial(
+                              Icons.smart_toy_outlined,
+                            ),
                             filled: true,
                             fillColor: Theme.of(
                               context,
@@ -554,7 +558,7 @@ class _BotStatsPageState extends State<BotStatsPage>
                       ),
                       child: Row(
                         children: [
-                          Icon(
+                          AppIcon.fromMaterial(
                             _usingRemoteMetrics
                                 ? Icons.dns_outlined
                                 : Icons.lan,
@@ -612,7 +616,7 @@ class _BotStatsPageState extends State<BotStatsPage>
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Icon(
+                            const AppIcon.fromMaterial(
                               Icons.warning_amber_rounded,
                               color: AppTheme.warning,
                               size: 20,
@@ -745,7 +749,7 @@ class _BotStatsPageState extends State<BotStatsPage>
           IconButton.filledTonal(
             // Tonal button: the icon takes the container's on-colour from the
             // theme instead of forcing the brand accent.
-            icon: const Icon(Icons.refresh),
+            icon: const AppIcon.fromMaterial(Icons.refresh),
             onPressed: _syncInFlight ? null : _refreshNow,
             tooltip: context.tr.bot_stats_refresh_now,
           ),
@@ -931,7 +935,7 @@ class _MetricCard extends StatelessWidget {
                   color: color.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                 ),
-                child: Icon(icon, color: color, size: 20),
+                child: AppIcon.fromMaterial(icon, color: color, size: 20),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -1007,7 +1011,11 @@ class _MetricCard extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.trending_flat, size: 10, color: Colors.grey),
+            const AppIcon.fromMaterial(
+              Icons.trending_flat,
+              size: 10,
+              color: Colors.grey,
+            ),
             const SizedBox(width: 2),
             Text(
               '0.0%',
@@ -1042,7 +1050,7 @@ class _MetricCard extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 10, color: color),
+          AppIcon.fromMaterial(icon, size: 10, color: color),
           const SizedBox(width: 2),
           Text(
             '$sign${change.toStringAsFixed(1)}%',

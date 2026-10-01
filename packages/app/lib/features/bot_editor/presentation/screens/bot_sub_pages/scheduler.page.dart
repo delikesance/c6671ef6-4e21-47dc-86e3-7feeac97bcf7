@@ -12,6 +12,8 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pag
 import 'package:bot_creator/features/bot_editor/logic/workflow_call.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 class SchedulerPage extends StatefulWidget {
   const SchedulerPage({super.key, required this.botId});
 
@@ -269,7 +271,7 @@ class _SchedulerPageState extends State<SchedulerPage> {
           children: [
             Row(
               children: [
-                Icon(
+                AppIcon.fromMaterial(
                   Icons.workspace_premium_rounded,
                   color: AppTheme.premiumGold,
                 ),
@@ -294,7 +296,9 @@ class _SchedulerPageState extends State<SchedulerPage> {
                   }
                   await _load();
                 },
-                icon: const Icon(Icons.workspace_premium_rounded),
+                icon: const AppIcon.fromMaterial(
+                  Icons.workspace_premium_rounded,
+                ),
                 label: Text(context.tr.premium_card_button),
               )
             else
@@ -323,7 +327,7 @@ class _SchedulerPageState extends State<SchedulerPage> {
           IconButton(
             tooltip: context.tr.common_refresh,
             onPressed: _load,
-            icon: const Icon(Icons.refresh),
+            icon: const AppIcon.fromMaterial(Icons.refresh),
           ),
         ],
       ),
@@ -331,7 +335,7 @@ class _SchedulerPageState extends State<SchedulerPage> {
           ? FloatingActionButton.extended(
               heroTag: null,
               onPressed: () => _showEditor(),
-              icon: const Icon(Icons.add),
+              icon: const AppIcon.fromMaterial(Icons.add),
               label: Text(context.tr.scheduler_add_trigger),
             )
           : null,
@@ -432,14 +436,18 @@ class _SchedulerPageState extends State<SchedulerPage> {
                                             ? () =>
                                                   _showEditor(initial: trigger)
                                             : null,
-                                        icon: const Icon(Icons.edit_outlined),
+                                        icon: const AppIcon.fromMaterial(
+                                          Icons.edit_outlined,
+                                        ),
                                       ),
                                       IconButton(
                                         tooltip: context.tr.delete,
                                         onPressed: _hasSchedulerCapability
                                             ? () => _deleteTrigger(trigger)
                                             : null,
-                                        icon: const Icon(Icons.delete_outline),
+                                        icon: const AppIcon.fromMaterial(
+                                          Icons.delete_outline,
+                                        ),
                                       ),
                                     ],
                                   ),

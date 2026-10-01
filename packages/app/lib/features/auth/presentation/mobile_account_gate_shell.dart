@@ -8,6 +8,8 @@ import 'package:bot_creator/core/network/main_api_auth_service.dart';
 import 'package:bot_creator/features/auth/presentation/mobile_account_required_page.dart';
 import 'package:flutter/material.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Wraps the main app on mobile and blocks access until Discord OAuth succeeds.
 class MobileAccountGateShell extends StatefulWidget {
   const MobileAccountGateShell({super.key, required this.child});
@@ -113,7 +115,7 @@ class _MobileAccountGateShellState extends State<MobileAccountGateShell>
                   ),
                   child: Row(
                     children: [
-                      Icon(
+                      AppIcon.fromMaterial(
                         Icons.warning_amber_rounded,
                         color: scheme.onErrorContainer,
                         size: 20,

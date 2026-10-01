@@ -1,4 +1,4 @@
-﻿import 'package:nyxx/nyxx.dart';
+import 'package:nyxx/nyxx.dart';
 import 'package:bot_creator_shared/utils/global.dart';
 import 'package:bot_creator_shared/actions/handler_utils.dart';
 import 'permission_checks.dart';
@@ -37,9 +37,32 @@ Future<Map<String, String>> unbanUserAction(
       return {'error': permError, 'userId': ''};
     }
 
-    final userId = _toSnowflake(resolvedPayload['userId']);
+    var userId = _toSnowflake(resolvedPayload['userId']);
     if (userId == null) {
-      return {'error': 'Missing or invalid userId', 'userId': ''};
+      final username = resolvedPayload['username']?.toString().trim() ?? '';
+      if (username.isNotEmpty) {
+        Snowflake? cursor;
+        while (true) {
+          final page = await client.guilds.listBans(
+            guildId,
+            limit: 1000,
+            after: cursor,
+          );
+          for (final ban in page) {
+            if (ban.user.username.toLowerCase() == username.toLowerCase()) {
+              userId = ban.user.id;
+              break;
+            }
+          }
+          if (userId != null || page.length < 1000) break;
+          final next = page.last.user.id;
+          if (next == cursor) break;
+          cursor = next;
+        }
+      }
+    }
+    if (userId == null) {
+      return {'error': 'Banned user not found', 'userId': ''};
     }
 
     final reason = resolvedPayload['reason']?.toString().trim();
@@ -47,10 +70,9 @@ Future<Map<String, String>> unbanUserAction(
     if (guild == null) return {'error': 'Guild not found', 'userId': ''};
     await guild.deleteBan(
       userId,
-      auditLogReason:
-          (reason != null && reason.isNotEmpty)
-              ? reason
-              : 'Unban via BotCreator action',
+      auditLogReason: (reason != null && reason.isNotEmpty)
+          ? reason
+          : 'Unban via BotCreator action',
     );
 
     return {'userId': userId.toString()};

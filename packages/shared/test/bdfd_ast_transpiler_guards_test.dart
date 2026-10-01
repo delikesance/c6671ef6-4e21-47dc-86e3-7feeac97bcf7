@@ -145,8 +145,8 @@ void main() {
       );
       expect(onlyForUsersConditions, hasLength(2));
       expect(onlyForUsersConditions[0]['variable'], '((author.username))');
-      expect(onlyForUsersConditions[0]['operator'], 'matches');
-      expect(onlyForUsersConditions[1]['value'], '(?i)^Jeremy\$');
+      expect(onlyForUsersConditions[0]['operator'], 'equalsIgnoreCase');
+      expect(onlyForUsersConditions[1]['value'], 'Jeremy');
 
       final onlyForChannelsPayload = result.actions[2].payload;
       final onlyForChannelConditions = List<Map<String, dynamic>>.from(
@@ -247,7 +247,7 @@ void main() {
       expect(selfBranchConditions.first['value'], '1234567890');
       expect(
         checkUserPermsConditions[1]['conditions'][0]['variable'],
-        'permissions.byId.1234567890',
+        '((permissions.byId.1234567890))',
       );
       expect(
         checkUserPermsConditions[1]['conditions'][0]['value'],
@@ -266,7 +266,10 @@ void main() {
         onlyForRolesConditions.single['conditions'] as List,
       );
       expect(roleBranchConditions[0]['variable'], '((member.roles))');
-      expect(roleBranchConditions[1]['variable'], '((member.roleNames))');
+      expect(
+        roleBranchConditions[1]['variable'],
+        '((member.roleNamesJson|member.roleNames))',
+      );
     });
 
     test('transpiles wave 3 guard helpers', () {
@@ -368,9 +371,9 @@ void main() {
       );
       expect(containsConditions, hasLength(2));
       expect(containsConditions[0]['variable'], '((message.content))');
-      expect(containsConditions[0]['operator'], 'matches');
-      expect(containsConditions[0]['value'], '(?i).*Hello.*');
-      expect(containsConditions[1]['value'], '(?i).*Hi.*');
+      expect(containsConditions[0]['operator'], 'containsIgnoreCase');
+      expect(containsConditions[0]['value'], 'Hello');
+      expect(containsConditions[1]['value'], 'Hi');
     });
 
     test('normalizes BDFD wiki permission aliases', () {
@@ -431,7 +434,7 @@ void main() {
 
       final content = result.actions[1].payload['content']?.toString() ?? '';
       expect(content, startsWith('Admin perms?: '));
-      expect(content, contains('((message.bc_check_user_perms_0))'));
+      expect(content, contains('((temp.check_user_perms_0))'));
     });
   });
 }

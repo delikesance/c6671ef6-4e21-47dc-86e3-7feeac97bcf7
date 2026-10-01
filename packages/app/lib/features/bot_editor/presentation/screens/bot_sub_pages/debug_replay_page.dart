@@ -14,6 +14,7 @@ import 'package:bot_creator/features/subscriptions/presentation/subscription_pag
 import 'package:bot_creator/features/subscriptions/presentation/widgets/premium_locked_hint.dart';
 import 'package:flutter/material.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
 // ─── List page ───────────────────────────────────────────────────────────────
 
 class DebugReplayPage extends StatefulWidget {
@@ -194,7 +195,7 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
               tooltip: _capturing
                   ? context.tr.debug_replay_stop_capture
                   : context.tr.debug_replay_start_capture,
-              icon: Icon(
+              icon: AppIcon.fromMaterial(
                 _capturing
                     ? Icons.fiber_manual_record
                     : Icons.fiber_manual_record_outlined,
@@ -209,7 +210,7 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
             if (_replays.isNotEmpty)
               IconButton(
                 tooltip: context.tr.debug_replay_clear,
-                icon: const Icon(Icons.delete_sweep_outlined),
+                icon: const AppIcon.fromMaterial(Icons.delete_sweep_outlined),
                 onPressed: () async {
                   final confirmed = await AppTheme.showConfirmDialog(
                     context,
@@ -273,7 +274,7 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
           children: [
             Row(
               children: [
-                Icon(
+                AppIcon.fromMaterial(
                   Icons.play_circle_outline,
                   color: Theme.of(
                     context,
@@ -299,7 +300,9 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
               const SizedBox(height: 12),
               FilledButton.icon(
                 onPressed: () => SubscriptionPage.show(context),
-                icon: const Icon(Icons.workspace_premium_rounded),
+                icon: const AppIcon.fromMaterial(
+                  Icons.workspace_premium_rounded,
+                ),
                 label: Text(context.tr.premium_card_button),
               ),
             ] else ...[
@@ -326,7 +329,7 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
+              AppIcon.fromMaterial(
                 Icons.manage_search,
                 size: 56,
                 color: Theme.of(
@@ -352,7 +355,7 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
                     setState(() => _capturing = true);
                     unawaited(_setCaptureEnabled(true));
                   },
-                  icon: const Icon(Icons.fiber_manual_record),
+                  icon: const AppIcon.fromMaterial(Icons.fiber_manual_record),
                   label: Text(context.tr.debug_replay_start_capture),
                 ),
               ],
@@ -411,11 +414,7 @@ class _DebugReplayPageState extends State<DebugReplayPage> {
 /// Signature de ce que l'écran affiche, réduite à ce qui change visiblement (état de
 /// capture, nombre d'entrées, entrée la plus récente) : l'égalité structurelle du
 /// « record » suffit à détecter un changement sans requête supplémentaire.
-typedef _ReplaysSnapshot = ({
-  bool capturing,
-  int count,
-  String last,
-});
+typedef _ReplaysSnapshot = ({bool capturing, int count, String last});
 
 class _ReplayListTile extends StatelessWidget {
   const _ReplayListTile({required this.replay, required this.onTap});
@@ -433,7 +432,7 @@ class _ReplayListTile extends StatelessWidget {
       onTap: onTap,
       leading: CircleAvatar(
         backgroundColor: statusColor.withValues(alpha: 0.15),
-        child: Icon(
+        child: AppIcon.fromMaterial(
           replay.hasError ? Icons.error_outline : Icons.check_circle_outline,
           color: statusColor,
           size: 20,
@@ -451,7 +450,7 @@ class _ReplayListTile extends StatelessWidget {
         style: Theme.of(context).textTheme.bodySmall,
       ),
       trailing: onTap != null
-          ? const Icon(Icons.chevron_right, size: 18)
+          ? const AppIcon.fromMaterial(Icons.chevron_right, size: 18)
           : null,
     );
   }
@@ -554,7 +553,7 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
         actions: [
           IconButton(
             tooltip: context.tr.debug_replay_overview,
-            icon: const Icon(Icons.bar_chart_outlined),
+            icon: const AppIcon.fromMaterial(Icons.bar_chart_outlined),
             onPressed: () => _goToStep(-1),
           ),
         ],
@@ -604,7 +603,7 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         children: [
-          Icon(
+          AppIcon.fromMaterial(
             replay.hasError ? Icons.error_outline : Icons.check_circle_outline,
             color: statusColor,
             size: 20,
@@ -681,7 +680,7 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
         children: [
           IconButton(
             tooltip: context.tr.debug_replay_step_first,
-            icon: const Icon(Icons.skip_previous),
+            icon: const AppIcon.fromMaterial(Icons.skip_previous),
             onPressed: frames.isEmpty
                 ? null
                 : () {
@@ -691,7 +690,7 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
           ),
           IconButton(
             tooltip: context.tr.debug_replay_step_back,
-            icon: const Icon(Icons.chevron_left),
+            icon: const AppIcon.fromMaterial(Icons.chevron_left),
             onPressed: canBack
                 ? () {
                     _stopPlayback();
@@ -706,7 +705,9 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
                 : _isPlaying
                 ? _stopPlayback
                 : _startPlayback,
-            icon: Icon(_isPlaying ? Icons.pause : Icons.play_arrow),
+            icon: AppIcon.fromMaterial(
+              _isPlaying ? Icons.pause : Icons.play_arrow,
+            ),
             label: Text(
               _isPlaying
                   ? context.tr.debug_replay_pause
@@ -716,7 +717,7 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
           const SizedBox(width: 4),
           IconButton(
             tooltip: context.tr.debug_replay_step_forward,
-            icon: const Icon(Icons.chevron_right),
+            icon: const AppIcon.fromMaterial(Icons.chevron_right),
             onPressed: canForward
                 ? () {
                     _stopPlayback();
@@ -726,7 +727,7 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
           ),
           IconButton(
             tooltip: context.tr.debug_replay_step_last,
-            icon: const Icon(Icons.skip_next),
+            icon: const AppIcon.fromMaterial(Icons.skip_next),
             onPressed: frames.isEmpty
                 ? null
                 : () {
@@ -1059,7 +1060,7 @@ class _VariablesDiffSectionState extends State<_VariablesDiffSection> {
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: Row(
               children: [
-                Icon(
+                AppIcon.fromMaterial(
                   _expanded ? Icons.expand_less : Icons.expand_more,
                   size: 18,
                   color: cs.onSurface.withValues(alpha: 0.55),
@@ -1108,7 +1109,8 @@ class _VariablesDiffSectionState extends State<_VariablesDiffSection> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (highlightedKeys.isNotEmpty) ...[
-                  Text(context.tr.debug_persistence_title,
+                  Text(
+                    context.tr.debug_persistence_title,
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: cs.primary,
                       fontWeight: FontWeight.w700,

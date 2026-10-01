@@ -4,6 +4,8 @@ import 'package:bot_creator_shared/utils/permission_flags.dart'
     show PermissionFlag, PermissionCategory, discordPermissionFlags;
 import 'package:bot_creator/core/i18n/i18n.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// A tri-state toggle picker for Discord permission overwrites.
 ///
 /// Each permission can be toggled through three states:
@@ -129,13 +131,15 @@ class _PermissionFlagsFieldState extends State<PermissionFlagsField> {
 
   String _permissionDisplayName(String key) {
     // Convert camelCase to Title Case with spaces
-    return key.replaceAllMapped(
-      RegExp(r'[A-Z]'),
-      (match) => ' ${match.group(0)}',
-    ).trim().split(' ').map((w) {
-      if (w.isEmpty) return w;
-      return w[0].toUpperCase() + w.substring(1);
-    }).join(' ');
+    return key
+        .replaceAllMapped(RegExp(r'[A-Z]'), (match) => ' ${match.group(0)}')
+        .trim()
+        .split(' ')
+        .map((w) {
+          if (w.isEmpty) return w;
+          return w[0].toUpperCase() + w.substring(1);
+        })
+        .join(' ');
   }
 
   int _countByCategory(PermissionCategory cat, String state) {
@@ -203,7 +207,8 @@ class _PermissionFlagsFieldState extends State<PermissionFlagsField> {
           const SizedBox(width: 12),
           _legendChip('Unset', Icons.radio_button_unchecked, AppTheme.grey),
           const Spacer(),
-          Text(context.tr.permission_tap_to_cycle,
+          Text(
+            context.tr.permission_tap_to_cycle,
             style: TextStyle(color: AppTheme.grey, fontSize: 11),
           ),
         ],
@@ -215,7 +220,7 @@ class _PermissionFlagsFieldState extends State<PermissionFlagsField> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 14, color: color),
+        AppIcon.fromMaterial(icon, size: 14, color: color),
         const SizedBox(width: 4),
         Text(label, style: TextStyle(fontSize: 11, color: color)),
       ],
@@ -247,27 +252,21 @@ class _PermissionFlagsFieldState extends State<PermissionFlagsField> {
     );
   }
 
-  Widget _quickActionButton(
-    String label,
-    Color color,
-    VoidCallback onPressed,
-  ) {
+  Widget _quickActionButton(String label, Color color, VoidCallback onPressed) {
     return InkWell(
       onTap: onPressed,
       borderRadius: BorderRadius.circular(4),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-        child: Text(
-          label,
-          style: TextStyle(fontSize: 11, color: color),
-        ),
+        child: Text(label, style: TextStyle(fontSize: 11, color: color)),
       ),
     );
   }
 
   Widget _buildCategorySection(PermissionCategory category) {
-    final flags =
-        discordPermissionFlags.where((f) => f.category == category).toList();
+    final flags = discordPermissionFlags
+        .where((f) => f.category == category)
+        .toList();
     if (flags.isEmpty) return const SizedBox.shrink();
 
     final isExpanded = _expandedCategories.contains(category);
@@ -283,7 +282,7 @@ class _PermissionFlagsFieldState extends State<PermissionFlagsField> {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Row(
               children: [
-                Icon(
+                AppIcon.fromMaterial(
                   isExpanded ? Icons.expand_less : Icons.expand_more,
                   size: 18,
                   color: AppTheme.grey,
@@ -312,8 +311,7 @@ class _PermissionFlagsFieldState extends State<PermissionFlagsField> {
             ),
           ),
         ),
-        if (isExpanded)
-          ...flags.map(_buildPermissionRow),
+        if (isExpanded) ...flags.map(_buildPermissionRow),
         const Divider(height: 1),
       ],
     );
@@ -328,7 +326,11 @@ class _PermissionFlagsFieldState extends State<PermissionFlagsField> {
       ),
       child: Text(
         text,
-        style: TextStyle(fontSize: 10, color: color, fontWeight: FontWeight.w600),
+        style: TextStyle(
+          fontSize: 10,
+          color: color,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
@@ -344,7 +346,7 @@ class _PermissionFlagsFieldState extends State<PermissionFlagsField> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         child: Row(
           children: [
-            Icon(icon, size: 16, color: color),
+            AppIcon.fromMaterial(icon, size: 16, color: color),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
@@ -358,7 +360,11 @@ class _PermissionFlagsFieldState extends State<PermissionFlagsField> {
             if (flag.voiceOnly)
               Padding(
                 padding: const EdgeInsets.only(right: 8),
-                child: Icon(Icons.mic, size: 12, color: AppTheme.grey),
+                child: AppIcon.fromMaterial(
+                  Icons.mic,
+                  size: 12,
+                  color: AppTheme.grey,
+                ),
               ),
           ],
         ),

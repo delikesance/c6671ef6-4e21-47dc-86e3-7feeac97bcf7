@@ -11,6 +11,8 @@ import 'package:bot_creator/features/announcements/logic/announcement.dart';
 import 'package:bot_creator/features/announcements/logic/announcement_policy.dart';
 import 'package:bot_creator/features/announcements/presentation/announcement_style.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 class AnnouncementBanner extends StatelessWidget {
   const AnnouncementBanner({
     super.key,
@@ -44,7 +46,11 @@ class AnnouncementBanner extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          Icon(palette.icon, color: palette.iconColor, size: 20),
+          AppIcon.fromMaterial(
+            palette.icon,
+            color: palette.iconColor,
+            size: 20,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(

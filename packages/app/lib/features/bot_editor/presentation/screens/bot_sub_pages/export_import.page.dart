@@ -10,6 +10,8 @@ import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 class BotExportImportPage extends StatefulWidget {
   final String botId;
   const BotExportImportPage({super.key, required this.botId});
@@ -334,7 +336,7 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
                   height: 16,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Icon(Icons.upload_file),
+              : const AppIcon.fromMaterial(Icons.upload_file),
           label: Text(context.tr.export_button),
         ),
       ],
@@ -489,7 +491,7 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
         if (_importPreview == null) ...[
           OutlinedButton.icon(
             onPressed: _pickAndParseZip,
-            icon: const Icon(Icons.folder_open),
+            icon: const AppIcon.fromMaterial(Icons.folder_open),
             label: Text(context.tr.import_pick_file),
           ),
         ] else ...[
@@ -513,7 +515,7 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
                           height: 16,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Icon(Icons.download),
+                      : const AppIcon.fromMaterial(Icons.download),
                   label: Text(context.tr.import_button),
                 ),
               ),
@@ -597,7 +599,11 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
         children: [
           Row(
             children: [
-              Icon(Icons.memory, size: 18, color: theme.colorScheme.primary),
+              AppIcon.fromMaterial(
+                Icons.memory,
+                size: 18,
+                color: theme.colorScheme.primary,
+              ),
               const SizedBox(width: 8),
               Text(tr.import_engine_title, style: theme.textTheme.titleSmall),
             ],
@@ -632,7 +638,7 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
+                AppIcon.fromMaterial(
                   Icons.warning_amber_rounded,
                   size: 16,
                   color: theme.colorScheme.error,
@@ -675,7 +681,11 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
           padding: const EdgeInsets.only(left: 32, bottom: 4),
           child: Row(
             children: [
-              Icon(Icons.warning_amber, size: 16, color: AppTheme.warning),
+              AppIcon.fromMaterial(
+                Icons.warning_amber,
+                size: 16,
+                color: AppTheme.warning,
+              ),
               const SizedBox(width: 8),
               Expanded(child: Text(name, style: const TextStyle(fontSize: 13))),
               SegmentedButton<ConflictResolution>(
@@ -720,7 +730,11 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
           padding: const EdgeInsets.only(left: 32, bottom: 4),
           child: Row(
             children: [
-              Icon(Icons.warning_amber, size: 16, color: AppTheme.warning),
+              AppIcon.fromMaterial(
+                Icons.warning_amber,
+                size: 16,
+                color: AppTheme.warning,
+              ),
               const SizedBox(width: 8),
               Expanded(child: Text(name, style: const TextStyle(fontSize: 13))),
               SegmentedButton<ConflictResolution>(

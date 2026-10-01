@@ -281,7 +281,7 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: const Icon(Icons.data_object_outlined),
+                leading: const AppIcon.fromMaterial(Icons.data_object_outlined),
                 title: Text(context.tr.serialization_export_json_title),
                 subtitle: Text(context.tr.serialization_export_json_subtitle),
                 onTap: () async {
@@ -290,7 +290,7 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.key_outlined),
+                leading: const AppIcon.fromMaterial(Icons.key_outlined),
                 title: Text(context.tr.serialization_export_base64_title),
                 subtitle: Text(context.tr.serialization_copy_base64),
                 onTap: () async {

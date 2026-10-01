@@ -174,8 +174,9 @@ bool botConfigHasLegacyCommands(BotConfig config) {
     final data = command['data'];
     if (data is! Map) continue;
     final map = Map<String, dynamic>.from(data);
-    if (!const {'prefix', 'hybrid'}.contains(commandTriggerType(command)))
+    if (!const {'prefix', 'hybrid'}.contains(commandTriggerType(command))) {
       continue;
+    }
 
     final type = (command['type'] ?? map['commandType'] ?? '').toString();
     if (type == 'chatInput' || type.isEmpty) {

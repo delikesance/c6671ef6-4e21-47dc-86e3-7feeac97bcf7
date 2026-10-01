@@ -11,6 +11,8 @@ import 'package:bot_creator/features/subscriptions/logic/ai_reward_ad.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 class AICreditsPage extends StatefulWidget {
   const AICreditsPage({super.key, this.api});
   final MainApiClient? api;
@@ -220,7 +222,11 @@ class _AICreditsPageState extends State<AICreditsPage> {
         children: [
           Row(
             children: [
-              Icon(Icons.toll_outlined, size: 18, color: colors.primary),
+              AppIcon.fromMaterial(
+                Icons.toll_outlined,
+                size: 18,
+                color: colors.primary,
+              ),
               const SizedBox(width: 8),
               Text(
                 context.tr.ai_credits_wallet_card_title,
@@ -279,7 +285,7 @@ class _AICreditsPageState extends State<AICreditsPage> {
             const SizedBox(height: 18),
             Row(
               children: [
-                Icon(
+                AppIcon.fromMaterial(
                   Icons.pause_circle_outline_rounded,
                   size: 17,
                   color: colors.error,
@@ -323,7 +329,7 @@ class _AICreditsPageState extends State<AICreditsPage> {
         actions: [
           IconButton(
             onPressed: _busy ? null : _load,
-            icon: const Icon(Icons.refresh),
+            icon: const AppIcon.fromMaterial(Icons.refresh),
           ),
         ],
       ),
@@ -390,7 +396,10 @@ class _AICreditsPageState extends State<AICreditsPage> {
                         ),
                         const Positioned(
                           top: 0,
-                          child: Icon(Icons.arrow_drop_down, size: 40),
+                          child: AppIcon.fromMaterial(
+                            Icons.arrow_drop_down,
+                            size: 40,
+                          ),
                         ),
                       ],
                     ),

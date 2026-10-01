@@ -17,6 +17,8 @@ import 'package:bot_creator/features/team/logic/team_models.dart';
 import 'package:bot_creator/main.dart';
 import 'package:flutter/material.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Onglet « Équipe et tchat » d'un bot : QUI travaille sur ce bot, et ce que
 /// l'équipe se dit.
 ///
@@ -761,7 +763,7 @@ class _TeamChatPageState extends State<TeamChatPage> {
         title: Text(context.tr.team_chat_title),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const AppIcon.fromMaterial(Icons.refresh),
             tooltip: context.tr.common_refresh,
             onPressed: _client == null ? null : () => _load(),
           ),
@@ -782,7 +784,11 @@ class _TeamChatPageState extends State<TeamChatPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline, size: 48, color: AppTheme.error),
+            const AppIcon.fromMaterial(
+              Icons.error_outline,
+              size: 48,
+              color: AppTheme.error,
+            ),
             const SizedBox(height: AppTheme.spacingMd),
             Text(error, textAlign: TextAlign.center),
             const SizedBox(height: AppTheme.spacingMd),
@@ -818,7 +824,7 @@ class _TeamChatPageState extends State<TeamChatPage> {
                   padding: const EdgeInsets.only(bottom: AppTheme.spacingMd),
                   child: Row(
                     children: [
-                      const Icon(
+                      const AppIcon.fromMaterial(
                         Icons.chat_bubble_outline_rounded,
                         size: 16,
                         color: AppTheme.discord,
@@ -842,7 +848,7 @@ class _TeamChatPageState extends State<TeamChatPage> {
                     ),
                     child: Column(
                       children: [
-                        Icon(
+                        AppIcon.fromMaterial(
                           Icons.forum_outlined,
                           size: 44,
                           color: scheme.outline.withValues(alpha: 0.35),
@@ -912,7 +918,7 @@ class _TeamChatPageState extends State<TeamChatPage> {
                 final isCompact = constraints.maxWidth < 460;
                 final titleRow = Row(
                   children: [
-                    const Icon(
+                    const AppIcon.fromMaterial(
                       Icons.group_outlined,
                       color: AppTheme.discord,
                       size: 20,
@@ -951,7 +957,7 @@ class _TeamChatPageState extends State<TeamChatPage> {
                           onPressed: _client == null
                               ? null
                               : _showAddCollaboratorDialog,
-                          icon: const Icon(
+                          icon: const AppIcon.fromMaterial(
                             Icons.person_add_alt_1_outlined,
                             size: 18,
                           ),
@@ -973,7 +979,7 @@ class _TeamChatPageState extends State<TeamChatPage> {
                         onPressed: _client == null
                             ? null
                             : _showAddCollaboratorDialog,
-                        icon: const Icon(
+                        icon: const AppIcon.fromMaterial(
                           Icons.person_add_alt_1_outlined,
                           size: 18,
                         ),
@@ -998,7 +1004,7 @@ class _TeamChatPageState extends State<TeamChatPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
+                  AppIcon.fromMaterial(
                     Icons.people_outline_rounded,
                     size: 36,
                     color: AppTheme.discord.withValues(alpha: 0.4),
@@ -1104,7 +1110,7 @@ class _TeamChatPageState extends State<TeamChatPage> {
                       color: Colors.white,
                     ),
                   )
-                : const Icon(Icons.send_rounded, size: 20),
+                : const AppIcon.fromMaterial(Icons.send_rounded, size: 20),
             tooltip: context.tr.team_chat_send,
             onPressed: _sending ? null : _sendMessage,
           ),
@@ -1150,7 +1156,7 @@ class _TeamChatPageState extends State<TeamChatPage> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
-            leading: Icon(
+            leading: AppIcon.fromMaterial(
               hasTeam ? Icons.groups_outlined : Icons.person_outline,
               color: AppTheme.discord,
             ),
@@ -1199,7 +1205,7 @@ class _TeamChatPageState extends State<TeamChatPage> {
                   ),
                 ),
                 const SizedBox(width: 4),
-                const Icon(Icons.expand_more, size: 20),
+                const AppIcon.fromMaterial(Icons.expand_more, size: 20),
               ],
             ),
             children: [
@@ -1275,7 +1281,7 @@ class _TeamChatPageState extends State<TeamChatPage> {
                         ),
                         child: Row(
                           children: [
-                            const Icon(
+                            const AppIcon.fromMaterial(
                               Icons.stars,
                               color: Colors.amber,
                               size: 20,
@@ -1429,7 +1435,11 @@ class _PortalTeamMemberTile extends StatelessWidget {
                     makeAvatarUrl(member['id'].toString(), avatarId: avatarId),
                   ),
             child: avatarId.isEmpty
-                ? const Icon(Icons.person, size: 14, color: Colors.white)
+                ? const AppIcon.fromMaterial(
+                    Icons.person,
+                    size: 14,
+                    color: Colors.white,
+                  )
                 : null,
           ),
           const SizedBox(width: 10),
@@ -1525,7 +1535,7 @@ class _CollaboratorTile extends StatelessWidget {
                         color: AppTheme.discord,
                       ),
                     )
-                  : const Icon(Icons.person_outline, size: 18))
+                  : const AppIcon.fromMaterial(Icons.person_outline, size: 18))
             : null,
       ),
       title: Text(
@@ -1550,7 +1560,10 @@ class _CollaboratorTile extends StatelessWidget {
             ),
           if (onRemove != null)
             IconButton(
-              icon: const Icon(Icons.person_remove_outlined, size: 18),
+              icon: const AppIcon.fromMaterial(
+                Icons.person_remove_outlined,
+                size: 18,
+              ),
               tooltip: context.tr.team_remove,
               onPressed: onRemove,
             ),
@@ -1705,7 +1718,11 @@ class _PortalTeamWarningBanner extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.info_outline, size: 18, color: AppTheme.warning),
+          const AppIcon.fromMaterial(
+            Icons.info_outline,
+            size: 18,
+            color: AppTheme.warning,
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -1795,7 +1812,7 @@ class _PendingChatMessageTile extends StatelessWidget {
           CircleAvatar(
             radius: 16,
             backgroundColor: isFailed ? AppTheme.error : AppTheme.discord,
-            child: Icon(
+            child: AppIcon.fromMaterial(
               isFailed ? Icons.error_outline : Icons.person,
               size: 18,
               color: Colors.white,
@@ -1876,7 +1893,10 @@ class _PendingChatMessageTile extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 8),
                           foregroundColor: AppTheme.discord,
                         ),
-                        icon: const Icon(Icons.refresh, size: 14),
+                        icon: const AppIcon.fromMaterial(
+                          Icons.refresh,
+                          size: 14,
+                        ),
                         label: Text(
                           context.tr.common_retry,
                           style: const TextStyle(fontSize: 12),
@@ -1890,7 +1910,7 @@ class _PendingChatMessageTile extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 8),
                           foregroundColor: AppTheme.grey,
                         ),
-                        icon: const Icon(Icons.close, size: 14),
+                        icon: const AppIcon.fromMaterial(Icons.close, size: 14),
                         label: Text(
                           context.tr.common_cancel,
                           style: const TextStyle(fontSize: 12),

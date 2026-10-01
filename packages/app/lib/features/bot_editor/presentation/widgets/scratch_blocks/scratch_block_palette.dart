@@ -7,6 +7,8 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pag
 
 import 'package:bot_creator/core/theme/app_theme.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Category metadata used by the palette.
 class BlockCategory {
   const BlockCategory({
@@ -526,10 +528,10 @@ class _ScratchBlockPaletteState extends State<ScratchBlockPalette> {
           child: TextField(
             decoration: InputDecoration(
               hintText: context.tr.actions_search_hint,
-              prefixIcon: const Icon(Icons.search),
+              prefixIcon: const AppIcon.fromMaterial(Icons.search),
               suffixIcon: _searchQuery.isNotEmpty
                   ? IconButton(
-                      icon: const Icon(Icons.clear, size: 18),
+                      icon: const AppIcon.fromMaterial(Icons.clear, size: 18),
                       onPressed: () => setState(() => _searchQuery = ''),
                     )
                   : null,
@@ -560,7 +562,11 @@ class _ScratchBlockPaletteState extends State<ScratchBlockPalette> {
                   final cat = getCategoryForAction(type);
                   final color = getCategoryColor(cat);
                   return ActionChip(
-                    avatar: Icon(type.icon, size: 16, color: color),
+                    avatar: AppIcon.fromMaterial(
+                      type.icon,
+                      size: 16,
+                      color: color,
+                    ),
                     label: Text(
                       type.displayName(context),
                       style: const TextStyle(fontSize: 12),
@@ -605,7 +611,11 @@ class _ScratchBlockPaletteState extends State<ScratchBlockPalette> {
                       margin: const EdgeInsets.symmetric(vertical: 3),
                       child: ListTile(
                         dense: true,
-                        leading: Icon(type.icon, size: 20, color: color),
+                        leading: AppIcon.fromMaterial(
+                          type.icon,
+                          size: 20,
+                          color: color,
+                        ),
                         title: Text(
                           type.displayName(context),
                           style: const TextStyle(fontSize: 13),
@@ -696,7 +706,7 @@ class _CategorySection extends StatelessWidget {
           padding: const EdgeInsets.only(top: 12, bottom: 6),
           child: Row(
             children: [
-              Icon(icon, size: 16, color: color),
+              AppIcon.fromMaterial(icon, size: 16, color: color),
               const SizedBox(width: 6),
               Text(
                 localizeCategory(context, category),
@@ -714,7 +724,7 @@ class _CategorySection extends StatelessWidget {
             margin: const EdgeInsets.symmetric(vertical: 2),
             child: ListTile(
               dense: true,
-              leading: Icon(type.icon, size: 20, color: color),
+              leading: AppIcon.fromMaterial(type.icon, size: 20, color: color),
               title: Text(
                 type.displayName(context),
                 style: const TextStyle(fontSize: 13),

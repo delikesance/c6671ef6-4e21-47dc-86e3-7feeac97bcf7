@@ -3,23 +3,21 @@ import 'dart:convert';
 import 'package:bot_creator_shared/utils/bdfd_duration_parser.dart';
 
 import '../../types/action.dart';
+import '../execution_budget.dart';
 import '../../utils/bdfd_compiler.dart';
 import '../../utils/workflow_call.dart';
+import '../../utils/math_parser.dart';
+import '../../utils/runtime_access_checks.dart';
+import '../../utils/runtime_cooldowns.dart';
 
 class ControlFlowExecutor {
-  static final Map<String, int> _runtimeCooldowns = {};
-
+  static final _runtimeCooldowns = RuntimeCooldowns.expirations;
   static String _getCooldownKey(
     String botId,
     String scope,
     String varKey,
     Map<String, String> variables,
-  ) {
-    final effectiveBotId = botId.isNotEmpty ? botId : (variables['bot.id'] ?? variables['botId'] ?? '');
-    final userId = variables['user.id'] ?? variables['author.id'] ?? variables['userId'] ?? '';
-    final guildId = variables['guild.id'] ?? variables['guildId'] ?? '';
-    return '$effectiveBotId:$scope:$varKey:$userId:$guildId';
-  }
+  ) => RuntimeCooldowns.key(botId, scope, varKey, variables);
 
   static void setRuntimeCooldown(
     String botId,
@@ -32,7 +30,8 @@ class ControlFlowExecutor {
     if (duration == null) return;
 
     final key = _getCooldownKey(botId, scope, varKey, variables);
-    _runtimeCooldowns[key] = DateTime.now().millisecondsSinceEpoch + duration.inMilliseconds;
+    _runtimeCooldowns[key] =
+        DateTime.now().millisecondsSinceEpoch + duration.inMilliseconds;
   }
 
   static void removeRuntimeCooldown(
@@ -61,6 +60,14 @@ bool _evaluateCondition({
       return leftValue != rightValue;
     case 'contains':
       return leftValue.contains(rightValue);
+    case 'containsignorecase':
+      return leftValue.toLowerCase().contains(rightValue.toLowerCase());
+    case 'equalsignorecase':
+      return leftValue.toLowerCase() == rightValue.toLowerCase();
+    case 'containsitem':
+      return runtimeContainsItem(leftValue, rightValue);
+    case 'haspermission':
+      return runtimeHasPermission(leftValue, rightValue);
     case 'notcontains':
       return !leftValue.contains(rightValue);
     case 'startswith':
@@ -109,8 +116,9 @@ Future<bool> _evaluateConditionFromPayload({
   required Future<int?> Function(String scope, String key)?
   getScopedVariableTtl,
 }) async {
-  final rawGroup =
-      (payload['condition.group'] ?? payload['group'] ?? '').toString().trim();
+  final rawGroup = (payload['condition.group'] ?? payload['group'] ?? '')
+      .toString()
+      .trim();
   if (rawGroup.isNotEmpty) {
     final group = rawGroup.toLowerCase();
     final rawConditions =
@@ -147,11 +155,10 @@ Future<bool> _evaluateConditionFromPayload({
 
   final rawConditionVariable =
       (payload['condition.variable'] ?? payload['variable'] ?? '').toString();
-  final conditionOperator =
-      resolveValue(
-        (payload['condition.operator'] ?? payload['operator'] ?? 'equals')
-            .toString(),
-      ).trim();
+  final conditionOperator = resolveValue(
+    (payload['condition.operator'] ?? payload['operator'] ?? 'equals')
+        .toString(),
+  ).trim();
   final conditionValue = resolveValue(
     (payload['condition.value'] ?? payload['value'] ?? '').toString(),
   );
@@ -197,7 +204,6 @@ Future<bool> _evaluateConditionFromPayload({
             final unixTimestampSeconds = (expiresAt / 1000).floor();
             final discordTimestamp = '<t:$unixTimestampSeconds:R>';
             variables['cooldown.time'] = discordTimestamp;
-            variables['time'] = discordTimestamp;
           } else {
             // Expired, clean up
             ControlFlowExecutor._runtimeCooldowns.remove(mapKey);
@@ -297,6 +303,9 @@ Future<bool> executeControlFlowAction({
   getWorkflowByName,
   required Future<Map<String, String>> Function(List<Action> actions)
   executeActions,
+  void Function()? checkExecutionBudget,
+  Future<Map<String, String>> Function(List<Action> actions)?
+  executeProtectedActions,
 
   /// When provided, applied to compiled/resolved actions before they are
   /// passed to [executeActions] in [runBdfdScript] and [runWorkflow]. Used by
@@ -306,6 +315,7 @@ Future<bool> executeControlFlowAction({
   /// Optional provider for variable TTLs, used for cooldown resolution.
   Future<int?> Function(String scope, String key)? getScopedVariableTtl,
 }) async {
+  final checkBudget = checkExecutionBudget ?? CommandExecutionBudget().check;
   switch (type) {
     case BotCreatorActionType.runBdfdScript:
       final bdfdSource = resolveValue(
@@ -330,8 +340,9 @@ Future<bool> executeControlFlowAction({
             r'\$suppresserrors\[([^\]]*)\]',
             caseSensitive: false,
           ).firstMatch(bdfdSource);
-          final suppressMessage =
-              resolveValue(suppressMsgMatch?.group(1) ?? '');
+          final suppressMessage = resolveValue(
+            suppressMsgMatch?.group(1) ?? '',
+          );
 
           if (suppressMessage.isNotEmpty) {
             await executeActions([
@@ -349,10 +360,9 @@ Future<bool> executeControlFlowAction({
             .where((d) => d.severity == BdfdCompileDiagnosticSeverity.error)
             .take(5)
             .map((d) {
-              final loc =
-                  d.line != null
-                      ? 'L${d.line}${d.column != null ? ':${d.column}' : ''}'
-                      : '';
+              final loc = d.line != null
+                  ? 'L${d.line}${d.column != null ? ':${d.column}' : ''}'
+                  : '';
               return loc.isNotEmpty ? '$loc: ${d.message}' : d.message;
             })
             .join('; ');
@@ -378,8 +388,9 @@ Future<bool> executeControlFlowAction({
       return true;
 
     case BotCreatorActionType.runWorkflow:
-      final workflowName =
-          resolveValue((payload['workflowName'] ?? '').toString()).trim();
+      final workflowName = resolveValue(
+        (payload['workflowName'] ?? '').toString(),
+      ).trim();
       if (workflowName.isEmpty) {
         throw Exception('workflowName is required for runWorkflow');
       }
@@ -389,8 +400,9 @@ Future<bool> executeControlFlowAction({
         throw Exception('Workflow not found: $workflowName');
       }
 
-      final requestedEntryPoint =
-          resolveValue((payload['entryPoint'] ?? '').toString()).trim();
+      final requestedEntryPoint = resolveValue(
+        (payload['entryPoint'] ?? '').toString(),
+      ).trim();
       final workflowEntryPoint = normalizeWorkflowEntryPoint(
         requestedEntryPoint,
         fallback: normalizeWorkflowEntryPoint(workflow['entryPoint']),
@@ -457,6 +469,41 @@ Future<bool> executeControlFlowAction({
       return true;
 
     case BotCreatorActionType.ifBlock:
+      if (payload['tryCatch'] == true) {
+        final previousError = {
+          for (final entry in variables.entries)
+            if (entry.key.startsWith('error.')) entry.key: entry.value,
+        };
+        variables.removeWhere((key, _) => key.startsWith('error.'));
+        var handled = false;
+        Map<String, String> nestedResults;
+        try {
+          try {
+            nestedResults = await (executeProtectedActions ?? executeActions)(
+              _decodeActionList(payload['thenActions']),
+            );
+            results[resultKey] = 'TRY_OK';
+          } catch (_) {
+            results[resultKey] = 'TRY_CAUGHT';
+            nestedResults = await (executeProtectedActions ?? executeActions)(
+              _decodeActionList(payload['elseActions']),
+            );
+          }
+          for (final entry in nestedResults.entries) {
+            results['$resultKey.${entry.key}'] = entry.value;
+          }
+          if (nestedResults.containsKey('__stopped__')) {
+            results['__stopped__'] = 'true';
+          }
+          handled = true;
+        } finally {
+          if (handled) {
+            variables.removeWhere((key, _) => key.startsWith('error.'));
+            variables.addAll(previousError);
+          }
+        }
+        return true;
+      }
       final conditionPassed = await _evaluateConditionFromPayload(
         payload: payload,
         variables: variables,
@@ -511,15 +558,17 @@ Future<bool> executeControlFlowAction({
       Map<String, String> branchResults;
       if (suppressErrors) {
         try {
-          branchResults = await executeActions(branchActions);
+          branchResults = await (executeProtectedActions ?? executeActions)(
+            branchActions,
+          );
         } catch (_) {
           // Error suppressed — clear error.message so nested try/catch
           // don't see a stale error from within this suppressErrors block.
-          variables.remove('error.message');
+          variables.removeWhere((key, _) => key.startsWith('error.'));
 
           // Send the custom error message/embed as the response.
-          final suppressMessage =
-              (payload['suppressErrorsMessage'] ?? '').toString();
+          final suppressMessage = (payload['suppressErrorsMessage'] ?? '')
+              .toString();
           final suppressEmbed =
               payload['suppressErrorsEmbed'] as Map<String, dynamic>?;
           if (suppressMessage.isNotEmpty || suppressEmbed != null) {
@@ -527,8 +576,8 @@ Future<bool> executeControlFlowAction({
               Action(
                 type: BotCreatorActionType.respondWithMessage,
                 payload: <String, dynamic>{
-                  if (suppressMessage.isNotEmpty) 'text': suppressMessage,
-                  'embed': ?suppressEmbed,
+                  if (suppressMessage.isNotEmpty) 'content': suppressMessage,
+                  if (suppressEmbed != null) 'embeds': [suppressEmbed],
                 },
               ),
             ]);
@@ -549,7 +598,6 @@ Future<bool> executeControlFlowAction({
 
     case BotCreatorActionType.forLoop:
       final mode = (payload['mode'] ?? 'simple').toString();
-      final maxIterations = (payload['maxIterations'] as int?) ?? 100;
 
       if (mode == 'cstyle') {
         return _executeCStyleForLoop(
@@ -559,7 +607,7 @@ Future<bool> executeControlFlowAction({
           variables: variables,
           resolveValue: resolveValue,
           executeActions: executeActions,
-          maxIterations: maxIterations,
+          checkBudget: checkBudget,
         );
       }
 
@@ -571,15 +619,16 @@ Future<bool> executeControlFlowAction({
           variables: variables,
           resolveValue: resolveValue,
           executeActions: executeActions,
-          maxIterations: maxIterations,
+          checkBudget: checkBudget,
         );
       }
 
       // Simple runtime loop: iterations is a template string.
-      final rawIterations =
-          resolveValue((payload['iterations'] ?? '0').toString()).trim();
+      final rawIterations = resolveValue(
+        (payload['iterations'] ?? '0').toString(),
+      ).trim();
       final iterations = int.tryParse(rawIterations) ?? 0;
-      final capped = iterations > maxIterations ? maxIterations : iterations;
+      final capped = iterations;
       final bodyActionsRaw = payload['bodyActions'];
       final templateActions = _decodeActionList(bodyActionsRaw);
 
@@ -589,6 +638,8 @@ Future<bool> executeControlFlowAction({
       }
 
       for (var i = 0; i < capped; i++) {
+        checkBudget();
+        if (i % 32 == 0) await Future<void>.delayed(Duration.zero);
         variables['_loop.index'] = i.toString();
         variables['_loop.count'] = (i + 1).toString();
 
@@ -607,12 +658,10 @@ Future<bool> executeControlFlowAction({
       return true;
 
     case BotCreatorActionType.jsonForEachLoop:
-      final maxIterations = (payload['maxIterations'] as int?) ?? 100;
       final pathRaw = payload['path'];
-      final pathSegments =
-          (pathRaw is List)
-              ? pathRaw.map((e) => resolveValue(e.toString())).toList()
-              : const <String>[];
+      final pathSegments = (pathRaw is List)
+          ? pathRaw.map((e) => resolveValue(e.toString())).toList()
+          : const <String>[];
       final bodyActionsRaw = payload['bodyActions'];
       final templateActions = _decodeActionList(bodyActionsRaw);
 
@@ -678,9 +727,11 @@ Future<bool> executeControlFlowAction({
       } else {
         itemCount = jsonCtx.length;
       }
-      final capped2 = itemCount > maxIterations ? maxIterations : itemCount;
+      final capped2 = itemCount;
 
       for (var i = 0; i < capped2; i++) {
+        checkBudget();
+        if (i % 32 == 0) await Future<void>.delayed(Duration.zero);
         String key;
         String value;
         if (isObject) {
@@ -718,59 +769,82 @@ Future<bool> executeControlFlowAction({
       return true;
 
     case BotCreatorActionType.cooldown:
-      final scope = resolveValue((payload['scope'] ?? 'user').toString()).trim();
-      final durationStr =
-          resolveValue((payload['duration'] ?? '0s').toString()).trim();
-      final varKey =
-          resolveValue((payload['key'] ?? 'default').toString()).trim();
-      final errorMessage =
-          resolveValue((payload['errorMessage'] ?? '').toString());
-
-      final key = ControlFlowExecutor._getCooldownKey(botId, scope, varKey, variables);
-      final expiresAt = ControlFlowExecutor._runtimeCooldowns[key];
+      final change = payload['operation'] == 'change';
+      final scope = RuntimeCooldowns.normalizeScope(
+        resolveValue(
+          (payload['scope'] ??
+                  (change ? variables['cooldown.type'] ?? 'user' : 'user'))
+              .toString(),
+        ).trim(),
+      );
+      final durationStr = resolveValue(
+        (payload['duration'] ?? '0s').toString(),
+      ).trim();
+      final duration = parseBdfdDuration(durationStr);
+      if (duration == null) {
+        throw FormatException('Invalid cooldown duration: $durationStr');
+      }
+      final varKey = resolveValue(
+        (payload['key'] ??
+                (change
+                    ? variables['cooldown.key.$scope'] ??
+                          RuntimeCooldowns.defaultVariable(scope)
+                    : 'default'))
+            .toString(),
+      ).trim();
+      final key = ControlFlowExecutor._getCooldownKey(
+        botId,
+        scope,
+        varKey,
+        variables,
+      );
       final now = DateTime.now().millisecondsSinceEpoch;
-
+      RuntimeCooldowns.select(variables, scope, varKey, botId: botId);
+      if (change) {
+        if (RuntimeCooldowns.remainingMs(key) > 0) {
+          if (duration == Duration.zero) {
+            RuntimeCooldowns.expirations.remove(key);
+          } else {
+            RuntimeCooldowns.expirations[key] = now + duration.inMilliseconds;
+          }
+        }
+        results[resultKey] = 'CHANGED';
+        return true;
+      }
+      final expiresAt = RuntimeCooldowns.expirations[key];
       if (expiresAt != null && expiresAt > now) {
-        // Cooldown is active
         results[resultKey] = 'ACTIVE';
         results['__stopped__'] = 'true';
-
+        final discordTimestamp = '<t:${expiresAt ~/ 1000}:R>';
+        variables['cooldown.time'] = discordTimestamp;
+        final errorMessage = resolveValue(
+          (payload['errorMessage'] ?? '').toString(),
+        ).replaceAll('%time%', discordTimestamp);
         if (errorMessage.isNotEmpty) {
-          final unixTimestampSeconds = (expiresAt / 1000).floor();
-          final discordTimestamp = '<t:$unixTimestampSeconds:R>';
-
-          variables['cooldown.time'] = discordTimestamp;
-          variables['time'] = discordTimestamp;
-
-          final resolvedMessage = errorMessage.replaceAll(
-            '%time%',
-            discordTimestamp,
-          );
-          results['cooldown.error'] = resolvedMessage;
-
-          // Send the message automatically using the shared executeActions logic.
+          results['cooldown.error'] = errorMessage;
           await executeActions([
             Action(
               type: BotCreatorActionType.sendMessage,
-              payload: <String, dynamic>{'content': resolvedMessage},
+              payload: {'content': errorMessage},
             ),
           ]);
         }
         return true;
       }
-
-      // No active cooldown, set a new one
-      final duration = parseBdfdDuration(durationStr);
-      if (duration != null && duration.inMilliseconds > 0) {
-        ControlFlowExecutor._runtimeCooldowns[key] = now + duration.inMilliseconds;
+      if (duration > Duration.zero) {
+        RuntimeCooldowns.expirations[key] = now + duration.inMilliseconds;
       }
-
       results[resultKey] = 'SET';
       return true;
     case BotCreatorActionType.wait:
-      final durationStr = resolveValue((payload['duration'] ?? '0s').toString()).trim();
+      final durationStr = resolveValue(
+        (payload['duration'] ?? '0s').toString(),
+      ).trim();
       final duration = parseBdfdDuration(durationStr);
-      if (duration != null && duration.inMilliseconds > 0) {
+      if (duration == null) {
+        throw FormatException('Invalid wait duration: $durationStr');
+      }
+      if (duration.inMilliseconds > 0) {
         await Future.delayed(duration);
       }
       results[resultKey] = 'WAITED';
@@ -808,7 +882,7 @@ Future<bool> _executeCStyleForLoop({
   required String Function(String input) resolveValue,
   required Future<Map<String, String>> Function(List<Action> actions)
   executeActions,
-  required int maxIterations,
+  required void Function() checkBudget,
 }) async {
   final initRaw = resolveValue((payload['init'] ?? '').toString());
   final conditionTemplate = (payload['condition'] ?? '').toString();
@@ -834,11 +908,15 @@ Future<bool> _executeCStyleForLoop({
 
   var iterationCount = 0;
 
-  while (iterationCount < maxIterations) {
+  while (true) {
+    checkBudget();
+    if (iterationCount % 32 == 0) await Future<void>.delayed(Duration.zero);
+    checkBudget();
     final resolvedCondition = _resolveLoopExpression(
       conditionTemplate,
       loopVars,
       resolveValue,
+      replaceIdentifiers: true,
     );
     if (!_evaluateSimpleCondition(resolvedCondition)) break;
 
@@ -849,6 +927,7 @@ Future<bool> _executeCStyleForLoop({
     variables['_loop.count'] = (iterationCount + 1).toString();
 
     final iterResults = await executeActions(templateActions);
+    checkBudget();
     for (final entry in iterResults.entries) {
       results['$resultKey.iter$iterationCount.${entry.key}'] = entry.value;
     }
@@ -873,8 +952,9 @@ Future<bool> _executeCStyleForLoop({
 String _resolveLoopExpression(
   String template,
   Map<String, int> loopVars,
-  String Function(String input) resolveValue,
-) {
+  String Function(String input) resolveValue, {
+  bool replaceIdentifiers = false,
+}) {
   var result = template;
   for (final entry in loopVars.entries) {
     result = result.replaceAll(
@@ -882,7 +962,16 @@ String _resolveLoopExpression(
       entry.value.toString(),
     );
   }
-  return resolveValue(result);
+  result = resolveValue(result);
+  if (replaceIdentifiers) {
+    for (final entry in loopVars.entries) {
+      result = result.replaceAll(
+        RegExp('\\b${RegExp.escape(entry.key)}\\b', caseSensitive: false),
+        entry.value.toString(),
+      );
+    }
+  }
+  return result;
 }
 
 /// Executes a list-iteration runtime for loop ($for[varName;val1;val2;...]).
@@ -893,11 +982,10 @@ Future<bool> _executeListForLoop({
   required Map<String, String> variables,
   required String Function(String input) resolveValue,
   required Future<Map<String, String>> Function(List<Action> actions)
-      executeActions,
-  required int maxIterations,
+  executeActions,
+  required void Function() checkBudget,
 }) async {
-  final varName =
-      (payload['varName'] ?? 'item').toString().toLowerCase();
+  final varName = (payload['varName'] ?? 'item').toString().toLowerCase();
   final rawValues = payload['values'];
   final bodyActionsRaw = payload['bodyActions'];
   final templateActions = _decodeActionList(bodyActionsRaw);
@@ -915,9 +1003,11 @@ Future<bool> _executeListForLoop({
     }
   }
 
-  final capped = values.length > maxIterations ? maxIterations : values.length;
+  final capped = values.length;
 
   for (var i = 0; i < capped; i++) {
+    checkBudget();
+    if (i % 32 == 0) await Future<void>.delayed(Duration.zero);
     variables['_loop.var.$varName'] = values[i];
     variables['_loop.index'] = i.toString();
     variables['_loop.count'] = (i + 1).toString();
@@ -973,28 +1063,53 @@ void _applyRuntimeCStyleUpdate(
     if (trimmed.isEmpty) continue;
     final resolved = _resolveLoopExpression(trimmed, vars, resolveValue);
     if (resolved.endsWith('++')) {
-      final name =
-          resolved.substring(0, resolved.length - 2).trim().toLowerCase();
+      final name = resolved
+          .substring(0, resolved.length - 2)
+          .trim()
+          .toLowerCase();
       vars[name] = (vars[name] ?? 0) + 1;
     } else if (resolved.endsWith('--')) {
-      final name =
-          resolved.substring(0, resolved.length - 2).trim().toLowerCase();
+      final name = resolved
+          .substring(0, resolved.length - 2)
+          .trim()
+          .toLowerCase();
       vars[name] = (vars[name] ?? 0) - 1;
-    } else if (resolved.contains('+=')) {
-      final sides = resolved.split('+=');
-      final name = sides[0].trim().toLowerCase();
-      final value = int.tryParse(sides[1].trim()) ?? 0;
-      vars[name] = (vars[name] ?? 0) + value;
-    } else if (resolved.contains('-=')) {
-      final sides = resolved.split('-=');
-      final name = sides[0].trim().toLowerCase();
-      final value = int.tryParse(sides[1].trim()) ?? 0;
-      vars[name] = (vars[name] ?? 0) - value;
-    } else if (resolved.contains('*=')) {
-      final sides = resolved.split('*=');
-      final name = sides[0].trim().toLowerCase();
-      final value = int.tryParse(sides[1].trim()) ?? 1;
-      vars[name] = (vars[name] ?? 0) * value;
+    } else {
+      final assignment = RegExp(
+        r'^([a-zA-Z_]\w*)\s*(\+=|-=|\*=|/=|=)\s*(.+)$',
+      ).firstMatch(resolved);
+      if (assignment == null) {
+        throw FormatException('Invalid loop update: $resolved');
+      }
+      final name = assignment.group(1)!.toLowerCase();
+      final expression = _resolveLoopExpression(
+        assignment.group(3)!,
+        vars,
+        resolveValue,
+        replaceIdentifiers: true,
+      );
+      final value = MathExpressionParser(
+        expression.replaceAll(RegExp(r'\s+'), ''),
+      ).parse();
+      if (value == null || !value.isFinite) {
+        throw FormatException('Invalid loop update expression: $expression');
+      }
+      final current = vars[name] ?? 0;
+      switch (assignment.group(2)) {
+        case '=':
+          vars[name] = value.toInt();
+        case '+=':
+          vars[name] = current + value.toInt();
+        case '-=':
+          vars[name] = current - value.toInt();
+        case '*=':
+          vars[name] = (current * value).toInt();
+        case '/=':
+          if (value == 0) {
+            throw FormatException('Loop update cannot divide by zero');
+          }
+          vars[name] = (current / value).toInt();
+      }
     }
   }
 }

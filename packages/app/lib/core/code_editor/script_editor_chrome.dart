@@ -4,6 +4,8 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Une bascule d'affichage de l'éditeur, présentée en icône ou en menu.
 class _Toggle {
   const _Toggle({
@@ -167,7 +169,7 @@ class ScriptEditorAppBar extends StatelessWidget
   ) {
     return IconButton(
       tooltip: tooltip,
-      icon: Icon(icon, color: color),
+      icon: AppIcon.fromMaterial(icon, color: color),
       onPressed: onPressed,
     );
   }
@@ -175,7 +177,10 @@ class ScriptEditorAppBar extends StatelessWidget
   Widget _overflowMenu(BuildContext context) {
     return PopupMenuButton<VoidCallback>(
       tooltip: context.tr.more_options_title,
-      icon: Icon(Icons.more_vert, color: colors.text.withValues(alpha: 0.7)),
+      icon: AppIcon.fromMaterial(
+        Icons.more_vert,
+        color: colors.text.withValues(alpha: 0.7),
+      ),
       onSelected: (action) => action(),
       itemBuilder: (menuContext) => [
         for (final toggle in _toggles(menuContext))

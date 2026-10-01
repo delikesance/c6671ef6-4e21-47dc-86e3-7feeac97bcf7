@@ -1,4 +1,4 @@
-﻿import 'package:nyxx/nyxx.dart';
+import 'package:nyxx/nyxx.dart';
 import 'package:bot_creator_shared/utils/global.dart';
 
 Snowflake? _toSnowflake(dynamic value) {
@@ -99,6 +99,12 @@ Future<Map<String, String>> updateChannelAction(
     final name = resolve((payload['name'] ?? '').toString()).trim();
     final topic = resolve((payload['topic'] ?? '').toString());
     final nsfw = _toBool(resolve((payload['nsfw'] ?? '').toString()));
+    final position = int.tryParse(
+      resolve((payload['position'] ?? '').toString()),
+    );
+    final categoryId = _toSnowflake(
+      resolve((payload['categoryId'] ?? '').toString()),
+    );
     final slowmode = _parseDuration(
       resolve((payload['slowmode'] ?? '').toString()),
     );
@@ -113,8 +119,9 @@ Future<Map<String, String>> updateChannelAction(
         name: name.isNotEmpty ? name : null,
         isArchived: archived,
         isLocked: locked,
-        autoArchiveDuration:
-            archiveMinutes == null ? null : Duration(minutes: archiveMinutes),
+        autoArchiveDuration: archiveMinutes == null
+            ? null
+            : Duration(minutes: archiveMinutes),
       );
       if (slowmode != null) {
         builder.rateLimitPerUser = slowmode;
@@ -124,8 +131,10 @@ Future<Map<String, String>> updateChannelAction(
       await channel.update(
         GuildTextChannelUpdateBuilder(
           name: name.isNotEmpty ? name : null,
+          position: position,
           topic: topic.isNotEmpty ? topic : null,
           isNsfw: nsfw,
+          parentId: categoryId,
           rateLimitPerUser: slowmode,
         ),
       );
@@ -133,16 +142,20 @@ Future<Map<String, String>> updateChannelAction(
       await channel.update(
         GuildAnnouncementChannelUpdateBuilder(
           name: name.isNotEmpty ? name : null,
+          position: position,
           topic: topic.isNotEmpty ? topic : null,
           isNsfw: nsfw,
+          parentId: categoryId,
         ),
       );
     } else if (channel is ForumChannel) {
       await channel.update(
         ForumChannelUpdateBuilder(
           name: name.isNotEmpty ? name : null,
+          position: position,
           topic: topic.isNotEmpty ? topic : null,
           isNsfw: nsfw,
+          parentId: categoryId,
           rateLimitPerUser: slowmode,
         ),
       );
@@ -150,24 +163,32 @@ Future<Map<String, String>> updateChannelAction(
       await channel.update(
         GuildVoiceChannelUpdateBuilder(
           name: name.isNotEmpty ? name : null,
+          position: position,
           isNsfw: nsfw,
+          parentId: categoryId,
         ),
       );
     } else if (channel is GuildStageChannel) {
       await channel.update(
         GuildStageChannelUpdateBuilder(
           name: name.isNotEmpty ? name : null,
+          position: position,
           isNsfw: nsfw,
+          parentId: categoryId,
         ),
       );
     } else if (channel is GuildCategory) {
       await channel.update(
-        GuildCategoryUpdateBuilder(name: name.isNotEmpty ? name : null),
+        GuildCategoryUpdateBuilder(
+          name: name.isNotEmpty ? name : null,
+          position: position,
+        ),
       );
     } else if (channel is GuildChannel) {
       await channel.update(
         GuildChannelUpdateBuilder<GuildChannel>(
           name: name.isNotEmpty ? name : null,
+          position: position,
         ),
       );
     } else {

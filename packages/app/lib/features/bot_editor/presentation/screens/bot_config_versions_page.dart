@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 
 import 'package:bot_creator/main.dart' show appManager;
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 class BotConfigVersionsPage extends StatefulWidget {
   final String botId;
   final String botToken;
@@ -155,7 +157,11 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        const Icon(Icons.code, size: 14, color: AppTheme.grey),
+                        const AppIcon.fromMaterial(
+                          Icons.code,
+                          size: 14,
+                          color: AppTheme.grey,
+                        ),
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
@@ -171,7 +177,7 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          const Icon(
+                          const AppIcon.fromMaterial(
                             Icons.swap_horiz,
                             size: 14,
                             color: AppTheme.warning,
@@ -452,7 +458,7 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
         title: Text(context.tr.bot_config_versions_title),
         actions: [
           IconButton(
-            icon: const Icon(Icons.close),
+            icon: const AppIcon.fromMaterial(Icons.close),
             onPressed: () => Navigator.pop(context),
           ),
         ],
@@ -469,7 +475,7 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
+                  const AppIcon.fromMaterial(
                     Icons.error_outline,
                     size: 48,
                     color: AppTheme.grey,
@@ -499,7 +505,11 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.history, size: 48, color: AppTheme.grey),
+                  const AppIcon.fromMaterial(
+                    Icons.history,
+                    size: 48,
+                    color: AppTheme.grey,
+                  ),
                   const SizedBox(height: AppTheme.spacingMd),
                   Text(
                     context.tr.bot_config_versions_empty,

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:nyxx/nyxx.dart';
@@ -5,6 +6,20 @@ import 'package:nyxx/nyxx.dart';
 import 'command_autocomplete.dart';
 
 const String discordUrl = "https://discord.com/api/v10";
+
+String discordChannelTypeName(ChannelType type) => switch (type.value) {
+  0 => 'text',
+  1 => 'dm',
+  2 => 'voice',
+  3 => 'group_dm',
+  4 => 'category',
+  5 => 'news',
+  10 || 11 || 12 => 'thread',
+  13 => 'stage',
+  15 => 'forum',
+  16 => 'media',
+  _ => 'unknown',
+};
 
 final Map<String, DateTime> botStartTimes = {};
 final Map<Snowflake, int> guildMemberCounts = {};
@@ -122,6 +137,9 @@ Map<String, String> extractBotRuntimeDetails(NyxxRest client) {
     'bot.id': botUserId.toString(),
     'bot.guildCount': guildCache.length.toString(),
     'bot.guildNames': guildCache.values.map((g) => g.name).join(', '),
+    'bot.guildNamesJson': jsonEncode(
+      guildCache.values.map((g) => g.name).toList(),
+    ),
     'bot.invite':
         'https://discord.com/oauth2/authorize?client_id=$botUserId&scope=bot+applications.commands',
   };
@@ -198,6 +216,7 @@ Map<String, String> extractMemberRuntimeDetails({
   }
 
   final roleIds = <String>{};
+  final roleNames = <String>{};
   // Track the highest role position and ID (declared here to survive the try-catch)
   int highestRolePosition = -1;
   String? highestRoleId;
@@ -242,11 +261,18 @@ Map<String, String> extractMemberRuntimeDetails({
     final dynamic roleListRaw = guild.roleList;
     if (roleListRaw is Iterable) {
       for (final role in roleListRaw) {
-        final roleIdValue =
-            (_asSnowflake((role as dynamic).id) ?? role.id).toString().trim();
+        final roleIdValue = (_asSnowflake((role as dynamic).id) ?? role.id)
+            .toString()
+            .trim();
         if (!roleIds.contains(roleIdValue) && roleIdValue != guildId.trim()) {
           continue;
         }
+        try {
+          final dynamic name = role.name;
+          if (name is String && name.isNotEmpty) {
+            roleNames.add(name);
+          }
+        } catch (_) {}
 
         // Track highest role by position (only if role has a position field)
         try {
@@ -283,10 +309,12 @@ Map<String, String> extractMemberRuntimeDetails({
 
   // Guild owners implicitly have all permissions in Discord.
   try {
-    final memberIdStr =
-        (_asSnowflake(member.id) ?? member.id).toString().trim();
-    final ownerIdStr =
-        (_asSnowflake(guild.ownerId) ?? guild.ownerId).toString().trim();
+    final memberIdStr = (_asSnowflake(member.id) ?? member.id)
+        .toString()
+        .trim();
+    final ownerIdStr = (_asSnowflake(guild.ownerId) ?? guild.ownerId)
+        .toString()
+        .trim();
     if (memberIdStr.isNotEmpty && memberIdStr == ownerIdStr) {
       for (final entry in _permissionTokenFlags) {
         mask |= entry.key.value;
@@ -295,14 +323,17 @@ Map<String, String> extractMemberRuntimeDetails({
   } catch (_) {}
 
   final permissions = Permissions(mask);
-  final tokens = _permissionTokensFromPermissions(permissions);
+  final tokens = permissionTokensFromPermissions(permissions);
   final details = <String, String>{
     'member.isAdmin': permissions.isAdministrator ? 'true' : 'false',
     'member.permissions': tokens.join(','),
-    'interaction.member.isAdmin':
-        permissions.isAdministrator ? 'true' : 'false',
+    'interaction.member.isAdmin': permissions.isAdministrator
+        ? 'true'
+        : 'false',
     'interaction.member.permissions': tokens.join(','),
     'member.roles': roleIds.join(','),
+    'member.roleNames': roleNames.join(','),
+    'member.roleNamesJson': jsonEncode(roleNames.toList()),
   };
 
   // Add member.highestRole if found
@@ -330,15 +361,15 @@ Map<String, String> extractMemberRuntimeDetails({
     final dynamic communicationDisabledUntil =
         member.communicationDisabledUntil;
     if (communicationDisabledUntil is DateTime) {
-      details['member.communicationDisabledUntil'] =
-          communicationDisabledUntil.toIso8601String();
+      details['member.communicationDisabledUntil'] = communicationDisabledUntil
+          .toIso8601String();
     }
   } catch (_) {}
 
   return details;
 }
 
-List<String> _permissionTokensFromPermissions(Permissions permissions) {
+List<String> permissionTokensFromPermissions(Permissions permissions) {
   final tokens = <String>[];
   final isAdmin = permissions.has(Permissions.administrator);
   for (final entry in _permissionTokenFlags) {
@@ -347,6 +378,43 @@ List<String> _permissionTokensFromPermissions(Permissions permissions) {
     }
   }
   return tokens;
+}
+
+/// Parses the permission names accepted by BDFD role-selection functions.
+/// An unknown name never silently broadens the role selection.
+List<Flag<Permissions>>? bdfdPermissionFlags(Iterable<String> names) {
+  const aliases = <String, String>{
+    'admin': 'administrator',
+    'ban': 'banmembers',
+    'kick': 'kickmembers',
+    'changenicknames': 'changenickname',
+    'externalemojis': 'useexternalemojis',
+    'externalstickers': 'useexternalstickers',
+    'manageemojis': 'manageguildexpressions',
+    'manageserver': 'manageguild',
+    'readmessages': 'viewchannel',
+    'slashcommands': 'useapplicationcommands',
+    'tts': 'sendttsmessages',
+    'usevad': 'usevoiceactivity',
+    'voicedeafen': 'deafenmembers',
+    'voicemute': 'mutemembers',
+  };
+  final parsed = <Flag<Permissions>>[];
+  for (final name in names) {
+    final normalized = name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '');
+    if (normalized.isEmpty) return null;
+    final token = aliases[normalized] ?? normalized;
+    Flag<Permissions>? match;
+    for (final entry in _permissionTokenFlags) {
+      if (entry.value == token) {
+        match = entry.key;
+        break;
+      }
+    }
+    if (match == null) return null;
+    parsed.add(match);
+  }
+  return parsed.isEmpty ? null : parsed;
 }
 
 Map<String, String> extractPermissionsByIdRuntimeDetails({
@@ -497,7 +565,15 @@ Map<String, String> extractChannelRuntimeDetails(dynamic channel) {
   trySet('channel.parentId', () => _asSnowflake(channel.parentId));
   trySet('channel.position', () => channel.position);
   trySet('channel.nsfw', () => ((channel.isNsfw ?? false) == true).toString());
-  trySet('channel.slowmode', () => channel.rateLimitPerUser);
+  trySet('channel.slowmode', () {
+    final value = channel.rateLimitPerUser;
+    return value is Duration ? value.inSeconds : value;
+  });
+  trySet('channel.lastMessageId', () => channel.lastMessageId);
+  trySet(
+    'channel.lastPinTimestamp',
+    () => channel.lastPinTimestamp?.millisecondsSinceEpoch,
+  );
   trySet('channel.bitrate', () => channel.bitrate);
   trySet('channel.userLimit', () => channel.userLimit);
   trySet('channel.categoryId', () => _asSnowflake(channel.parentId));
@@ -510,6 +586,8 @@ Map<String, String> extractChannelRuntimeDetails(dynamic channel) {
     () => ((channel.isLocked ?? false) == true).toString(),
   );
   trySet('channel.thread.ownerId', () => _asSnowflake(channel.ownerId));
+  trySet('thread.messageCount', () => channel.messageCount);
+  trySet('thread.memberCount', () => channel.approximateMemberCount);
   trySet(
     'channel.thread.autoArchiveDuration',
     () => channel.autoArchiveDuration,
@@ -582,6 +660,9 @@ Future<Map<String, String>> extractGuildRuntimeDetails(
   );
   details['guild.memberCount'] = count.toString();
   details['guild.count'] = count.toString();
+  // Discord only includes this count on guilds fetched with `withCounts`.
+  // Leave it absent otherwise so callers can distinguish unavailable data.
+  trySet('guild.onlineMembers', () => guild.approximatePresenceCount);
 
   trySet('guild.systemChannelId', () => _asSnowflake(guild.systemChannelId));
   trySet('guild.rulesChannelId', () => _asSnowflake(guild.rulesChannelId));
@@ -671,18 +752,21 @@ Future<Map<String, String>> generateKeyValues(
   );
 
   String channelName = getChannelName(channel ?? interaction.channel);
-  String channelType = "0";
+  String channelType = 'text';
   try {
     if (channel != null) {
-      channelType = (channel as dynamic).type.value.toString();
+      channelType = discordChannelTypeName(
+        (channel as dynamic).type as ChannelType,
+      );
     } else if (interaction.channel != null) {
-      channelType = (interaction.channel as dynamic).type.value.toString();
+      channelType = discordChannelTypeName(
+        (interaction.channel as dynamic).type as ChannelType,
+      );
     }
   } catch (_) {}
-  String channelMention =
-      (channel ?? interaction.channel) != null
-          ? "<#${(channel ?? interaction.channel)!.id}>"
-          : "";
+  String channelMention = (channel ?? interaction.channel) != null
+      ? "<#${(channel ?? interaction.channel)!.id}>"
+      : "";
 
   String userAvatarUrl = "https://cdn.discordapp.com/embed/avatars/0.png";
   String userBannerUrl = '';
@@ -825,12 +909,11 @@ Future<Map<String, String>> generateKeyValues(
   listOfArgs["commandName"] = command.name;
   listOfArgs["commandId"] = command.id.toString();
   final commandType = command.type;
-  final commandTypeName =
-      commandType == ApplicationCommandType.user
-          ? 'user'
-          : commandType == ApplicationCommandType.message
-          ? 'message'
-          : 'chatInput';
+  final commandTypeName = commandType == ApplicationCommandType.user
+      ? 'user'
+      : commandType == ApplicationCommandType.message
+      ? 'message'
+      : 'chatInput';
   listOfArgs["commandType"] = commandTypeName;
   listOfArgs["commandTypeValue"] = commandType.value.toString();
   listOfArgs["command.type"] = commandTypeName;
@@ -840,7 +923,8 @@ Future<Map<String, String>> generateKeyValues(
   final interactionLocale = interaction.locale;
   final interactionGuildLocale = interaction.guildLocale;
   listOfArgs["interaction.locale"] = interactionLocale?.identifier ?? '';
-  listOfArgs["interaction.guild_locale"] = interactionGuildLocale?.identifier ?? '';
+  listOfArgs["interaction.guild_locale"] =
+      interactionGuildLocale?.identifier ?? '';
   listOfArgs["target.locale"] = interactionLocale?.identifier ?? '';
 
   final targetId = command.targetId;
@@ -902,14 +986,14 @@ Future<Map<String, String>> generateKeyValues(
     final resolvedMessage = command.resolved?.messages?[targetId];
     if (resolvedMessage != null) {
       listOfArgs["target.message.id"] = resolvedMessage.id.toString();
-      listOfArgs["target.message.channelId"] =
-          resolvedMessage.channelId.toString();
+      listOfArgs["target.message.channelId"] = resolvedMessage.channelId
+          .toString();
       listOfArgs["target.messageId"] = resolvedMessage.id.toString();
 
       if (resolvedMessage is Message) {
         listOfArgs["target.message.content"] = resolvedMessage.content;
-        listOfArgs["target.message.author.id"] =
-            resolvedMessage.author.id.toString();
+        listOfArgs["target.message.author.id"] = resolvedMessage.author.id
+            .toString();
         listOfArgs["target.messageContent"] = resolvedMessage.content;
       } else {
         // nyxx stores resolved messages as PartialMessage, which lacks content/author.
@@ -917,8 +1001,8 @@ Future<Map<String, String>> generateKeyValues(
         try {
           final fullMessage = await resolvedMessage.get();
           listOfArgs["target.message.content"] = fullMessage.content;
-          listOfArgs["target.message.author.id"] =
-              fullMessage.author.id.toString();
+          listOfArgs["target.message.author.id"] = fullMessage.author.id
+              .toString();
           listOfArgs["target.messageContent"] = fullMessage.content;
         } catch (_) {
           // If fetch fails, leave content empty — the target.id is still available.
@@ -964,7 +1048,8 @@ Future<Map<String, String>> generateKeyValues(
             // with other keys
             for (final entry in subKeyValues.entries) {
               // Group-qualified key (e.g. opts.ticket.new.channel)
-              listOfArgs["opts.${option.name}.${subCommandOption.name}.${entry.key}"] = entry.value;
+              listOfArgs["opts.${option.name}.${subCommandOption.name}.${entry.key}"] =
+                  entry.value;
               // Flat key for backward compatibility
               listOfArgs["opts.${entry.key}"] = entry.value;
               listOfArgs["arg.${entry.key}"] = entry.value;
@@ -1182,16 +1267,15 @@ Future<Map<String, String>> generateInteractionContextKeyValues(
   final userIdText = userId?.toString() ?? '';
   final username = user?.username ?? member?.user?.username ?? '';
   final tag = user?.discriminator ?? member?.user?.discriminator ?? '';
-  final userAvatarUrl =
-      user == null
-          ? ''
-          : makeAvatarUrl(
-            user.id.toString(),
-            avatarId: user.avatar.hash,
-            isAnimated: user.avatar.isAnimated,
-            legacyFormat: 'webp',
-            discriminator: user.discriminator,
-          );
+  final userAvatarUrl = user == null
+      ? ''
+      : makeAvatarUrl(
+          user.id.toString(),
+          avatarId: user.avatar.hash,
+          isAnimated: user.avatar.isAnimated,
+          legacyFormat: 'webp',
+          discriminator: user.discriminator,
+        );
   String userBannerUrl = '';
   try {
     if (user != null) {
@@ -1220,7 +1304,9 @@ Future<Map<String, String>> generateInteractionContextKeyValues(
     }
   } catch (_) {}
 
-  final displayName = (member?.nick?.isNotEmpty == true) ? member!.nick! : username;
+  final displayName = (member?.nick?.isNotEmpty == true)
+      ? member!.nick!
+      : username;
 
   final guildName = guild?.name ?? 'DM';
   final guildIcon = makeGuildIcon(
@@ -1228,7 +1314,9 @@ Future<Map<String, String>> generateInteractionContextKeyValues(
     guild?.icon?.hash,
   );
   final channelName = getChannelName(channel);
-  final channelType = channel?.type.value.toString() ?? '0';
+  final channelType = channel == null
+      ? 'text'
+      : discordChannelTypeName(channel.type);
   final channelMention = channel != null ? '<#${channel.id}>' : '';
 
   // Additional user properties
@@ -1237,42 +1325,37 @@ Future<Map<String, String>> generateInteractionContextKeyValues(
   String bannerColor = '';
   final accentColorRaw = user?.accentColor ?? member?.user?.accentColor;
   if (accentColorRaw != null) {
-    bannerColor =
-        '#${accentColorRaw.value.toRadixString(16).padLeft(6, '0')}';
+    bannerColor = '#${accentColorRaw.value.toRadixString(16).padLeft(6, '0')}';
   }
   final accentColor = accentColorRaw?.value.toString() ?? '';
-  final flags = user?.flags?.value.toString() ??
+  final flags =
+      user?.flags?.value.toString() ??
       member?.user?.flags?.value.toString() ??
       '';
-  final publicFlags = user?.publicFlags?.value.toString() ??
+  final publicFlags =
+      user?.publicFlags?.value.toString() ??
       member?.user?.publicFlags?.value.toString() ??
       '';
   final avatarDecorationUrl =
-      (user?.avatarDecoration ?? member?.user?.avatarDecoration)
-          ?.url
+      (user?.avatarDecoration ?? member?.user?.avatarDecoration)?.url
           .toString() ??
       '';
   final avatarDecorationHash =
-      user?.avatarDecorationHash ??
-          member?.user?.avatarDecorationHash ??
-          '';
+      user?.avatarDecorationHash ?? member?.user?.avatarDecorationHash ?? '';
   final avatarDecorationDataSkuId =
-      (user?.avatarDecorationData ?? member?.user?.avatarDecorationData)
-              ?.skuId
-              .toString() ??
-          '';
+      (user?.avatarDecorationData ?? member?.user?.avatarDecorationData)?.skuId
+          .toString() ??
+      '';
   final avatarDecorationDataAsset =
       (user?.avatarDecorationData ?? member?.user?.avatarDecorationData)
           ?.asset ??
-          '';
-  final primaryGuildIdentityGuildId = (user?.primaryGuild ??
-              member?.user?.primaryGuild)
-          ?.identityGuildId
+      '';
+  final primaryGuildIdentityGuildId =
+      (user?.primaryGuild ?? member?.user?.primaryGuild)?.identityGuildId
           ?.toString() ??
       '';
-  final primaryGuildIdentityEnabled = (user?.primaryGuild ??
-              member?.user?.primaryGuild)
-          ?.isIdentityEnabled
+  final primaryGuildIdentityEnabled =
+      (user?.primaryGuild ?? member?.user?.primaryGuild)?.isIdentityEnabled
           ?.toString() ??
       'false';
   final primaryGuildTag =
@@ -1280,10 +1363,11 @@ Future<Map<String, String>> generateInteractionContextKeyValues(
   final primaryGuildBadge =
       ((user?.primaryGuild ?? member?.user?.primaryGuild)?.badge ?? '')
           .toString();
-  final verified = (user?.flags?.has(UserFlags.verifiedBot) ??
-          member?.user?.flags?.has(UserFlags.verifiedBot) ??
-          false)
-      .toString();
+  final verified =
+      (user?.flags?.has(UserFlags.verifiedBot) ??
+              member?.user?.flags?.has(UserFlags.verifiedBot) ??
+              false)
+          .toString();
 
   return <String, String>{
     'interaction.guildId': guildId?.toString() ?? '',
@@ -1365,14 +1449,12 @@ Future<Map<String, String>> generateInteractionContextKeyValues(
     'channel.id': channelId?.toString() ?? '',
     'channel.type': channelType,
     'channel.mention': channelMention,
-    'user.mention':
-        user != null
-            ? '<@${user.id}>'
-            : (member?.user != null ? '<@${member!.user!.id}>' : ''),
-    'author.mention':
-        user != null
-            ? '<@${user.id}>'
-            : (member?.user != null ? '<@${member!.user!.id}>' : ''),
+    'user.mention': user != null
+        ? '<@${user.id}>'
+        : (member?.user != null ? '<@${member!.user!.id}>' : ''),
+    'author.mention': user != null
+        ? '<@${user.id}>'
+        : (member?.user != null ? '<@${member!.user!.id}>' : ''),
     'member.mention': member != null ? '<@${member.id}>' : '',
     'interaction.channel.name': channelName,
     'interaction.channel.id': channelId?.toString() ?? '',
@@ -1393,6 +1475,8 @@ InteractionOption? findFocusedOption(List<InteractionOption>? options) {
 
 String getChannelName(PartialChannel? channel) {
   if (channel is GuildTextChannel) {
+    return channel.name;
+  } else if (channel is GuildCategory) {
     return channel.name;
   } else if (channel is GuildVoiceChannel) {
     return channel.name;

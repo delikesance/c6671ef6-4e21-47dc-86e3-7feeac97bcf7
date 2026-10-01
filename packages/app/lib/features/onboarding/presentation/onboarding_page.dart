@@ -15,6 +15,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 const double _onboardingContentMaxWidth = 560;
 
 class _OnboardingScrollableSection extends StatelessWidget {
@@ -342,7 +344,7 @@ class _WelcomeStep extends StatelessWidget {
                   color: scheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                 ),
-                child: Icon(
+                child: AppIcon.fromMaterial(
                   Icons.smart_toy_rounded,
                   size: 60,
                   color: scheme.onSurfaceVariant,
@@ -449,7 +451,7 @@ class _CreateBotStep extends StatelessWidget {
                   color: AppTheme.info.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                 ),
-                child: const Icon(
+                child: const AppIcon.fromMaterial(
                   Icons.key_rounded,
                   size: 50,
                   color: AppTheme.info,
@@ -487,7 +489,7 @@ class _CreateBotStep extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  icon: const Icon(Icons.menu_book_outlined),
+                  icon: const AppIcon.fromMaterial(Icons.menu_book_outlined),
                   label: Text(context.tr.onboarding_create_tutorial),
                   onPressed: () => openDocumentationArticle(
                     context,
@@ -505,7 +507,7 @@ class _CreateBotStep extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     backgroundColor: AppTheme.success,
                   ),
-                  icon: const Icon(Icons.add_circle_outline),
+                  icon: const AppIcon.fromMaterial(Icons.add_circle_outline),
                   label: Text(
                     context.tr.onboarding_create_now,
                     style: const TextStyle(
@@ -520,7 +522,7 @@ class _CreateBotStep extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
-                  icon: const Icon(Icons.open_in_browser),
+                  icon: const AppIcon.fromMaterial(Icons.open_in_browser),
                   label: Text(context.tr.onboarding_create_open_portal),
                   onPressed: () async {
                     await launchUrl(
@@ -603,7 +605,7 @@ class _AddCommandStep extends StatelessWidget {
                   color: AppTheme.success.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                 ),
-                child: const Icon(
+                child: const AppIcon.fromMaterial(
                   Icons.terminal_rounded,
                   size: 50,
                   color: AppTheme.success,
@@ -632,7 +634,8 @@ class _AddCommandStep extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(context.tr.onb_example_label,
+                    Text(
+                      context.tr.onb_example_label,
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
@@ -652,7 +655,7 @@ class _AddCommandStep extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     backgroundColor: AppTheme.success,
                   ),
-                  icon: const Icon(Icons.terminal),
+                  icon: const AppIcon.fromMaterial(Icons.terminal),
                   label: Text(
                     context.tr.onboarding_command_now,
                     style: const TextStyle(
@@ -734,7 +737,7 @@ class _StartBotStep extends StatelessWidget {
                   color: AppTheme.warning.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                 ),
-                child: const Icon(
+                child: const AppIcon.fromMaterial(
                   Icons.play_circle_outline_rounded,
                   size: 50,
                   color: AppTheme.warning,
@@ -827,7 +830,7 @@ class _SuccessStep extends StatelessWidget {
                   color: AppTheme.success.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(AppTheme.radiusLg),
                 ),
-                child: const Icon(
+                child: const AppIcon.fromMaterial(
                   Icons.check_circle_rounded,
                   size: 70,
                   color: AppTheme.success,
@@ -912,7 +915,7 @@ class _TipRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         children: [
-          Icon(
+          AppIcon.fromMaterial(
             icon,
             color: Theme.of(context).colorScheme.onSurfaceVariant,
             size: 24,

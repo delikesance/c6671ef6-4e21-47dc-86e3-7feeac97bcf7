@@ -11,6 +11,8 @@ import 'package:flutter/material.dart';
 
 import 'package:bot_creator/core/i18n/i18n.dart';
 
+import 'package:bot_creator/core/widgets/app_icon.dart';
+
 /// Affiche le dialogue et rend `true` si l'utilisateur demande la mise à jour.
 Future<bool> showAppUpdateDialog(
   BuildContext context, {
@@ -25,10 +27,13 @@ Future<bool> showAppUpdateDialog(
     builder: (dialogContext) {
       final dialogTr = dialogContext.tr;
       return AlertDialog(
-        icon: const Icon(Icons.system_update_alt_outlined),
+        icon: const AppIcon.fromMaterial(Icons.system_update_alt_outlined),
         title: Text(dialogTr.app_update_dialog_title),
         content: Text(
-          dialogTr.app_update_dialog_message(availableVersion, installedVersion),
+          dialogTr.app_update_dialog_message(
+            availableVersion,
+            installedVersion,
+          ),
         ),
         actions: <Widget>[
           TextButton(

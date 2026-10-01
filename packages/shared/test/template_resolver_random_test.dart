@@ -112,34 +112,48 @@ void main() {
       expect(results.difference({'Yes', 'No', 'Maybe'}), isEmpty);
     });
 
-    test('random property fallbacks return non-empty values', () {
+    test('random entity IDs come from hydrated candidate lists', () {
       final updates = {
         'author.id': '123456789',
         'author.username': 'Jeremy',
         'channel.id': '987654321',
         'guild.id': '555555555',
         'member.roles': '111,222,333',
+        'random.channelIds': '["31","32"]',
+        'random.categoryIds': '["40"]',
+        'random.roleIds': '["80","81"]',
+        'random.guildIds': '["555555555","666666666"]',
+        'random.userIds': '["444444444"]',
+        'random.userNames': '{"444444444":"Visitor"}',
       };
 
       expect(
         resolveTemplatePlaceholders('((random.userId))', updates),
-        '123456789',
+        '444444444',
       );
-      expect(resolveTemplatePlaceholders('((random.user))', updates), 'Jeremy');
+      expect(
+        resolveTemplatePlaceholders('((random.user))', updates),
+        'Visitor',
+      );
       expect(
         resolveTemplatePlaceholders('((random.mention))', updates),
-        '<@123456789>',
+        '<@444444444>',
       );
       expect(
-        resolveTemplatePlaceholders('((random.channelId))', updates),
-        '987654321',
+        {'31', '32'},
+        contains(resolveTemplatePlaceholders('((random.channelId))', updates)),
       );
       expect(
-        resolveTemplatePlaceholders('((random.guildId))', updates),
+        resolveTemplatePlaceholders('((random.categoryId))', updates),
+        '40',
+      );
+      expect({
         '555555555',
-      );
+        '666666666',
+      }, contains(resolveTemplatePlaceholders('((random.guildId))', updates)));
       final role = resolveTemplatePlaceholders('((random.roleId))', updates);
-      expect(['111', '222', '333'], contains(role));
+      expect(['80', '81'], contains(role));
+      expect(resolveTemplatePlaceholders('((random.roleId))', {}), '');
     });
   });
 }
