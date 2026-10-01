@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:bot_creator_shared/utils/command_trigger_type.dart';
 
 import 'package:bot_creator/features/bot_editor/logic/embed_normalization.dart';
 import 'package:bot_creator_shared/utils/command_migration.dart' as migration;
@@ -9,6 +10,9 @@ import 'package:bot_creator_shared/utils/legacy_command_triggers.dart';
 const List<String> _rootMetadataKeys = [
   'id',
   'discordId',
+  'enabled',
+  'discordType',
+  'triggerType',
   'name',
   'description',
   'type',
@@ -19,6 +23,7 @@ const List<String> _rootMetadataKeys = [
 
 Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {
   var normalized = Map<String, dynamic>.from(command);
+  final triggerType = commandTriggerType(command);
 
   // Auto-heal a file corrupted by a buggy migration: no root 'data' sub-map but
   // legacy root keys present. Nest them under 'data' while keeping metadata.
@@ -49,7 +54,11 @@ Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {
     (normalized['data'] as Map?)?.cast<String, dynamic>() ?? const {},
   );
   final rawCommandType =
-      (rawData['commandType'] ?? normalized['type'] ?? 'chatInput')
+      (rawData['commandType'] ??
+              rawData['discordType'] ??
+              normalized['discordType'] ??
+              normalized['type'] ??
+              'chatInput')
           .toString()
           .trim()
           .toLowerCase();
@@ -142,11 +151,12 @@ Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {
       (rawData.containsKey('script') || rawData['type'] == 'command')) {
     executionMode = 'javascript';
   }
-  final legacyModeEnabled = rawData['legacyModeEnabled'] == true;
-  final legacyLocalOnly = rawData['legacyLocalOnly'] == true;
-  final legacyPrefixOverride = (rawData['legacyPrefixOverride'] ?? '')
-      .toString()
-      .trim();
+  final legacyModeEnabled = triggerType == 'prefix';
+  final legacyLocalOnly = triggerType == 'prefix' || triggerType == 'none';
+  final legacyPrefixOverride =
+      (rawData['legacyPrefixOverride'] ?? rawData['prefixName'] ?? '')
+          .toString()
+          .trim();
   final rawLegacyResponseTarget = (rawData['legacyResponseTarget'] ?? 'reply')
       .toString()
       .trim();
@@ -155,7 +165,9 @@ Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {
       : 'reply';
   // Plusieurs mots déclencheurs possibles pour une commande message : les alias
   // sont normalisés (casse, préfixe `!`, doublons, limites) côté shared.
-  final legacyAliases = normalizeLegacyCommandAliases(rawData['legacyAliases']);
+  final legacyAliases = normalizeLegacyCommandAliases(
+    rawData['legacyAliases'] ?? rawData['aliases'],
+  );
 
   final simpleConfig = <String, dynamic>{};
 
@@ -228,6 +240,7 @@ Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {
   normalized['data'] = {
     'version': 1,
     'commandType': commandType,
+    'triggerType': triggerType,
     'editorMode': editorMode,
     'executionMode': executionMode,
     'bdfdScriptContent': bdfdScriptContent,

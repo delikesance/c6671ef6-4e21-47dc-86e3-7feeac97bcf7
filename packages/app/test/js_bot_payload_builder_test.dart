@@ -198,10 +198,10 @@ void main() {
     final event = (payload['events'] as List).first as Map<String, dynamic>;
     expect(event['name'], 'messageCreate');
     expect(event['script'], 'await message.reply("hello");');
-    expect(payload.containsKey('prefix'), isFalse);
+    expect(payload['prefix'], '!');
   });
 
-  test('omits prefix when no legacy commands exist', () async {
+  test('preserves configured prefix even without commands', () async {
     await appManager.saveWorkflow(
       botId,
       name: 'on-message',
@@ -213,7 +213,7 @@ void main() {
     );
 
     final payload = await buildJsBotPayload(botId);
-    expect(payload.containsKey('prefix'), isFalse);
+    expect(payload['prefix'], '!');
   });
 
   test(

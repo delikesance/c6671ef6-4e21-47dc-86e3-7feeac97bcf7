@@ -686,8 +686,7 @@ class EventDispatcher {
 
           final legacyCommands = allCommands.where((c) {
             final type = (c['type'] ?? '').toString().toLowerCase();
-            final data = c['data'] as Map?;
-            final legacyMode = data?['legacyModeEnabled'] == true;
+            final legacyMode = legacyCommandTriggerNames(c).isNotEmpty;
             return (type == 'chatinput' || type.isEmpty) && legacyMode;
           }).toList();
 

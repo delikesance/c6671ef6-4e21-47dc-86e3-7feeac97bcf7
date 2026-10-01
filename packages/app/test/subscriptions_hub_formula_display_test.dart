@@ -55,55 +55,54 @@ void main() {
     }
   }
 
-  testWidgets(
-    'une formule d\'hébergement affiche son nom en bas, pas sous Bot Premium',
-    (tester) async {
-      // Compte premium dont la formule serveur est « Host One App » : bots illimités et
-      // une application hébergée.
-      SubscriptionService.debugSetLocalSubscriptionForTests(active: true);
-      SubscriptionService.debugSetPlanIdentityForTests(
-        displayName: 'Host One App',
-        tierCode: 'HOST_ONE_APP',
-        provider: 'admin_remote',
-      );
-      SubscriptionService.debugSetPlanQuotasForTests(
-        maxBots: 0,
-        maxTurnkeyBots: 1,
-      );
-      HostedAppSubscriptionService.debugSetServerGrantForTests(
-        granted: true,
-        maxContainers: 1,
-        planTierCode: 'HOST_ONE_APP',
-      );
+  testWidgets('une formule d\'hébergement affiche son nom en bas, pas sous Bot Premium', (
+    tester,
+  ) async {
+    // Compte premium dont la formule serveur est « Host One App » : bots illimités et
+    // une application hébergée.
+    SubscriptionService.debugSetLocalSubscriptionForTests(active: true);
+    SubscriptionService.debugSetPlanIdentityForTests(
+      displayName: 'Host One App',
+      tierCode: 'HOST_ONE_APP',
+      provider: 'admin_remote',
+    );
+    SubscriptionService.debugSetPlanQuotasForTests(
+      maxBots: 0,
+      maxTurnkeyBots: 1,
+    );
+    HostedAppSubscriptionService.debugSetServerGrantForTests(
+      granted: true,
+      maxContainers: 1,
+      planTierCode: 'HOST_ONE_APP',
+    );
 
-      await pumpHub(tester);
+    await pumpHub(tester);
 
-      // La carte du bas porte le nom de la formule et son plafond.
-      expect(
-        find.textContaining('Host One App'),
-        findsOneWidget,
-        reason:
-            'le nom de la formule d\'hébergement doit apparaître (sur la carte du bas)',
-      );
-      expect(
-        find.textContaining('1 bot hébergé'),
-        findsOneWidget,
-        reason: 'la capacité d\'hébergement vient de la formule serveur',
-      );
+    // La carte du bas porte le nom de la formule et son plafond.
+    expect(
+      find.textContaining('Host One App'),
+      findsOneWidget,
+      reason:
+          'le nom de la formule d\'hébergement doit apparaître (sur la carte du bas)',
+    );
+    expect(
+      find.textContaining('1 bot hébergé'),
+      findsOneWidget,
+      reason: 'la capacité d\'hébergement vient de la formule serveur',
+    );
 
-      // La carte du haut n'annonce que la capacité bot, plus le nom de la formule.
-      expect(
-        find.textContaining('Bots illimités'),
-        findsOneWidget,
-        reason:
-            'la carte Bot Premium parle de bots ; le nom d\'une offre d\'hébergement n\'y a '
-            'pas sa place',
-      );
+    // La carte du haut n'annonce que la capacité bot, plus le nom de la formule.
+    expect(
+      find.textContaining('Bots illimités'),
+      findsOneWidget,
+      reason:
+          'la carte Bot Premium parle de bots ; le nom d\'une offre d\'hébergement n\'y a '
+          'pas sa place',
+    );
 
-      // Les deux cartes sont actives, et signalent que c'est le serveur qui gère.
-      expect(find.text('Géré par le serveur'), findsNWidgets(2));
-    },
-  );
+    // Les deux cartes sont actives, et signalent que c'est le serveur qui gère.
+    expect(find.text('Géré par le serveur'), findsNWidgets(2));
+  });
 
   testWidgets('un formulaire de bots garde son nom sur la carte du haut', (
     tester,
@@ -134,21 +133,22 @@ void main() {
     );
   });
 
-  testWidgets('sans droit serveur ni reçu, la carte d\'hébergement est inactive', (
-    tester,
-  ) async {
-    SubscriptionService.debugSetLocalSubscriptionForTests(active: true);
-    SubscriptionService.debugSetPlanIdentityForTests(displayName: 'Pro');
-    SubscriptionService.debugSetPlanQuotasForTests(maxBots: 5);
-    HostedAppSubscriptionService.debugSetServerGrantForTests(granted: false);
+  testWidgets(
+    'sans droit serveur ni reçu, la carte d\'hébergement est inactive',
+    (tester) async {
+      SubscriptionService.debugSetLocalSubscriptionForTests(active: true);
+      SubscriptionService.debugSetPlanIdentityForTests(displayName: 'Pro');
+      SubscriptionService.debugSetPlanQuotasForTests(maxBots: 5);
+      HostedAppSubscriptionService.debugSetServerGrantForTests(granted: false);
 
-    await pumpHub(tester);
+      await pumpHub(tester);
 
-    // Une seule mention « Géré par le serveur » : celle de Bot Premium.
-    expect(find.text('Géré par le serveur'), findsOneWidget);
-    // Et la carte d'hébergement propose d'ailleurs de s'abonner.
-    expect(find.textContaining('S\'abonner'), findsWidgets);
-  });
+      // Une seule mention « Géré par le serveur » : celle de Bot Premium.
+      expect(find.text('Géré par le serveur'), findsOneWidget);
+      // Et la carte d'hébergement propose d'ailleurs de s'abonner.
+      expect(find.textContaining('S\'abonner'), findsWidgets);
+    },
+  );
 
   testWidgets('une couverture serveur datée affiche son échéance, pas « permanent »', (
     tester,
@@ -158,16 +158,18 @@ void main() {
     SubscriptionService.debugSetLocalSubscriptionForTests(
       active: true,
       productId: 'bot_creator_premium_monthly',
-      expiresAt: DateTime.utc(2026, 10, 1),
+      expiresAt: DateTime.now().toUtc().add(const Duration(days: 30)),
     );
-    SubscriptionService.debugSetPlanIdentityForTests(displayName: 'Host One App');
+    SubscriptionService.debugSetPlanIdentityForTests(
+      displayName: 'Host One App',
+    );
     SubscriptionService.debugSetPlanQuotasForTests(maxBots: 0);
-    // Octroi administrateur qui EXPIRE (le cas réel : échéance 2026-12-20).
+    // Octroi administrateur qui expire après le reçu local.
     HostedAppSubscriptionService.debugSetServerGrantForTests(
       granted: true,
       maxContainers: 1,
       planTierCode: 'HOST_ONE_APP',
-      hostingExpiresAt: DateTime.utc(2026, 12, 20),
+      hostingExpiresAt: DateTime.now().toUtc().add(const Duration(days: 90)),
     );
 
     await pumpHub(tester);
@@ -175,12 +177,14 @@ void main() {
     expect(
       find.text('Permanent (sans expiration)'),
       findsNothing,
-      reason: 'la couverture expire : annoncer « permanent » était le mensonge à corriger',
+      reason:
+          'la couverture expire : annoncer « permanent » était le mensonge à corriger',
     );
     expect(
       find.textContaining("Renouvelé jusqu'au"),
       findsNWidgets(2),
-      reason: 'une échéance sur chaque carte, celle de l\'hébergement venant du serveur',
+      reason:
+          'une échéance sur chaque carte, celle de l\'hébergement venant du serveur',
     );
   });
 
@@ -189,9 +193,11 @@ void main() {
   ) async {
     SubscriptionService.debugSetLocalSubscriptionForTests(
       active: true,
-      expiresAt: DateTime.utc(2026, 10, 1),
+      expiresAt: DateTime.now().toUtc().add(const Duration(days: 30)),
     );
-    SubscriptionService.debugSetPlanIdentityForTests(displayName: 'Host One App');
+    SubscriptionService.debugSetPlanIdentityForTests(
+      displayName: 'Host One App',
+    );
     SubscriptionService.debugSetPlanQuotasForTests(maxBots: 0);
     // Couverture accordée, mais le serveur ne dit rien de sa durée (ancien serveur).
     HostedAppSubscriptionService.debugSetServerGrantForTests(

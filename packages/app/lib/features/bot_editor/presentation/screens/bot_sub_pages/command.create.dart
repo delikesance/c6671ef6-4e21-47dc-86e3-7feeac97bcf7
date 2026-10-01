@@ -185,6 +185,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   final BdfdCompiler _bdfdCompiler = BdfdCompiler();
   BdfdCompileResult? _bdfdCompileResult;
   bool _legacyModeEnabled = false;
+  bool _restoredHybridTrigger = false;
   bool _localOnlyCommand = false;
   String _folder = '';
   final TextEditingController _folderController = TextEditingController();
@@ -1290,7 +1291,8 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
       // Fast-path: Delta sync individual command (< 100ms, avoids full 1.5MB rebuild and team overwrite drift)
       if (effectiveCommandId != null && effectiveCommandId.isNotEmpty) {
         try {
-          final singleCommand = commandData ??
+          final singleCommand =
+              commandData ??
               await appManager.getAppCommand(botId, effectiveCommandId);
           if (singleCommand.isNotEmpty) {
             // ── ÉCRITURE GRANULAIRE : SEULEMENT SI LA SONDE A ARMÉ /api/v2 ────
@@ -1416,10 +1418,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
         action: SnackBarAction(
           label: context.tr.command_cloud_sync_retry,
           onPressed: () {
-            unawaited(_syncCommandChangesToCloud(
-              botId: botId,
-              commandId: commandId,
-            ));
+            unawaited(
+              _syncCommandChangesToCloud(botId: botId, commandId: commandId),
+            );
           },
         ),
       ),
@@ -1450,11 +1451,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
     if (botId == null || commandId == null) {
       return;
     }
-    await showCommandHistorySheet(
-      context,
-      botId: botId,
-      commandId: commandId,
-    );
+    await showCommandHistorySheet(context, botId: botId, commandId: commandId);
   }
 
   Widget _buildCommandOptionsCard() {
@@ -1619,6 +1616,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
               .toString();
           _jsScriptController.text = _jsScriptContent;
           _bdfdCompileResult = _bdfdCompiler.compile(_bdfdScriptContent);
+          _restoredHybridTrigger = normalizedData['triggerType'] == 'hybrid';
           _legacyModeEnabled = normalizedData['legacyModeEnabled'] == true;
           _localOnlyCommand =
               normalizedData['legacyLocalOnly'] == true ||
@@ -1736,6 +1734,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                 .toString();
             _jsScriptController.text = _jsScriptContent;
             _bdfdCompileResult = _bdfdCompiler.compile(_bdfdScriptContent);
+            _restoredHybridTrigger = normalizedData['triggerType'] == 'hybrid';
             _legacyModeEnabled = normalizedData['legacyModeEnabled'] == true;
             _localOnlyCommand =
                 normalizedData['legacyLocalOnly'] == true ||
@@ -2342,7 +2341,10 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                           }
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text(context.tr.command_delete_discord_failed_local('$e'),
+                              content: Text(
+                                context.tr.command_delete_discord_failed_local(
+                                  '$e',
+                                ),
                               ),
                             ),
                           );

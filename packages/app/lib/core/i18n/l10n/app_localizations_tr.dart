@@ -10978,4 +10978,18 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get copilot_tool_webhook => 'Harici tetikleyici yapılandır';
+
+  @override
+  String get settings_text_size_title => 'Metin boyutu';
+
+  @override
+  String get settings_text_size_description =>
+      'Uygulamanın metin boyutunu cihazınızın metin ayarına göre değiştirir.';
+
+  @override
+  String get settings_text_size_preview =>
+      'Önizleme: komutlarınız, iş akışlarınız ve konuşmalarınız.';
+
+  @override
+  String get settings_text_size_reset => 'Metin boyutunu sıfırla';
 }

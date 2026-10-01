@@ -1,4 +1,5 @@
 import 'package:bot_creator/core/storage/database.dart';
+import 'package:bot_creator_shared/utils/command_trigger_type.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_config_refresh.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 
@@ -22,9 +23,14 @@ String localCommandTypeFromRemote(
   Map<String, dynamic> cmd,
   Map<String, dynamic> cmdData,
 ) {
-  final raw = (cmdData['commandType'] ?? cmd['type'] ?? 'chatInput')
-      .toString()
-      .trim();
+  final raw =
+      (cmdData['commandType'] ??
+              cmdData['discordType'] ??
+              cmd['discordType'] ??
+              cmd['type'] ??
+              'chatInput')
+          .toString()
+          .trim();
   switch (raw.toLowerCase()) {
     case 'command':
     case 'chatinput':
@@ -60,6 +66,10 @@ Future<void> applyManagerConfigToLocal({
       final merged = Map<String, dynamic>.from(existingApp)
         ..addAll(remoteConfig);
 
+      if (remoteConfig['prefix'] == null && existingApp.containsKey('prefix')) {
+        merged['prefix'] = existingApp['prefix'];
+      }
+
       // Guard runtime engine against unintended mutation or null erasure
       final remoteEngine = (remoteConfig['runtimeEngine'] ?? '')
           .toString()
@@ -90,6 +100,34 @@ Future<void> applyManagerConfigToLocal({
 
       final localCmd = await appManager.getAppCommand(botId, cmdId);
       final cmdData = Map<String, dynamic>.from(cmd['data'] ?? cmd);
+      for (final key in [
+        'triggerType',
+        'prefixName',
+        'aliases',
+        'legacyModeEnabled',
+        'legacyLocalOnly',
+        'legacyPrefixOverride',
+        'legacyAliases',
+        'discordType',
+        'options',
+        'defaultMemberPermissions',
+        'contexts',
+        'integrationTypes',
+      ]) {
+        if (!cmdData.containsKey(key) && cmd.containsKey(key)) {
+          cmdData[key] = cmd[key];
+        }
+      }
+      // Infer before nesting flattened handlers: absent legacy JS modes remain
+      // hybrid, while any historical prefix/local-only flags remain authoritative.
+      cmdData['triggerType'] = commandTriggerType({
+        ...cmd,
+        if (cmd['data'] is Map) 'data': cmdData,
+      });
+      if (cmd['type'] == 'command' && cmd['script'] is String) {
+        cmdData['executionMode'] = 'javascript';
+        cmdData['jsScriptContent'] = cmd['script'];
+      }
       if (cmdData['response'] is Map &&
           (cmdData['response'] as Map).containsKey('_migrated')) {
         cmdData.remove('response');
@@ -107,6 +145,8 @@ Future<void> applyManagerConfigToLocal({
         'description': (cmd['description'] ?? '').toString(),
         'type': localCommandTypeFromRemote(cmd, cmdData),
         'id': cmdId,
+        if (cmd['enabled'] != null) 'enabled': cmd['enabled'],
+        if (cmd['discordId'] != null) 'discordId': cmd['discordId'],
         'data': cmdData,
         if (rawFolder.isNotEmpty) 'folder': rawFolder,
         'createdAt': (localCmd['createdAt'] ?? DateTime.now().toIso8601String())

@@ -12841,5 +12841,9 @@
   "copilot_tool_profile": "Change bot name",
   "copilot_tool_variable": "Save a variable",
   "copilot_tool_schedule": "Schedule an automation",
-  "copilot_tool_webhook": "Configure an external trigger"
+  "copilot_tool_webhook": "Configure an external trigger",
+  "settings_text_size_title": "Text size",
+  "settings_text_size_description": "Adjust the app’s text size relative to your device’s text setting.",
+  "settings_text_size_preview": "Preview: your commands, workflows and conversations.",
+  "settings_text_size_reset": "Reset text size"
 }

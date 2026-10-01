@@ -269,6 +269,98 @@ void main() {
   );
 
   test(
+    'unchanged command settings preserve storage and never contact Discord',
+    () async {
+      const commandId = 'noop-ping';
+      await AppManager().saveAppCommand(botId, commandId, {
+        'id': commandId,
+        'discordId': '1450824555119382678',
+        'name': 'ping',
+        'description': 'ping',
+        'data': {
+          'executionMode': 'bdfd_script',
+          'bdfdScriptContent': 'Pong!',
+          'actions': [],
+          'defaultMemberPermissions': '8',
+          'contexts': [0],
+          'integrationTypes': [0],
+        },
+      });
+      final before = await call('local_get_command', {'command_id': commandId});
+      final file = File('${storage.path}/apps/$botId/$commandId.json');
+      final source = await file.readAsString();
+      await file.setLastModified(DateTime.utc(2025, 1, 1));
+      final modified = (await file.stat()).modified;
+      final cloudCalls = api.commands.length;
+      var connections = 0;
+      final noopBridge = CopilotMcp(
+        api,
+        botId: botId,
+        approve: (_, _) async => true,
+        discordConnect: (_) async {
+          connections++;
+          throw StateError('No-op must not connect to Discord');
+        },
+      );
+      await noopBridge.initialize();
+      addTearDown(noopBridge.close);
+      final args = <String, dynamic>{
+        'bot_id': botId,
+        'command_id': commandId,
+        'expected_revision': before['revision'],
+        'description': 'ping',
+        'default_member_permissions': '8',
+        'contexts': [0],
+        'integration_types': [0],
+      };
+      final envelope = await noopBridge.call('local_update_command_settings', {
+        'bot_id': botId,
+        'command_id': commandId,
+        'expected_revision': before['revision'],
+        'description': 'ping',
+      }, callID: 'noop-description');
+      expect(
+        await noopBridge.call(
+          'local_update_command_settings',
+          args,
+          callID: 'noop-settings',
+        ),
+        envelope,
+      );
+      expect(envelope['isError'], isNot(true));
+      final result =
+          jsonDecode((envelope['content'] as List).single['text'] as String)
+              as Map;
+      expect(result['unchanged'], true);
+      expect(result['saved'], false);
+      expect(result['discord_updated'], false);
+      expect(result.containsKey('runner_synced'), false);
+      expect(result['revision'], before['revision']);
+      expect(result['before'], before['command']);
+      expect(result['after'], result['before']);
+      expect(
+        await noopBridge.call(
+          'local_update_command_settings',
+          args,
+          callID: 'noop-settings',
+        ),
+        envelope,
+      );
+      await expectLater(
+        noopBridge.call('local_update_command_settings', {
+          ...args,
+          'expected_revision': 'stale-revision',
+        }, callID: 'noop-stale'),
+        throwsStateError,
+      );
+      expect(connections, 0);
+      expect(api.commands.length, cloudCalls);
+      expect(await file.readAsString(), source);
+      expect((await file.stat()).modified, modified);
+    },
+  );
+
+  test(
     'create edit and reload a real workflow with revisions and cloud payload',
     () async {
       final created = await call('local_create_workflow', {
@@ -368,7 +460,7 @@ void main() {
   });
 
   test(
-    'JS command sync sends the runtime handler rather than editor data',
+    'JS command sync sends the runtime handler and metadata for restoration',
     () async {
       final app = await AppManager().getApp(botId);
       final previousEngine = app['runtimeEngine'];
@@ -389,7 +481,8 @@ void main() {
         expect(api.commands.last['script'], 'return 1;');
         expect(api.commands.last['defaultMemberPermissions'], '8');
         expect(api.commands.last['contexts'], [0]);
-        expect(api.commands.last.containsKey('data'), false);
+        expect(api.commands.last['data']['jsScriptContent'], 'return 1;');
+        expect(api.commands.last['data']['executionMode'], 'javascript');
         final standalone = await call('local_create_workflow', {
           'name': 'js-template',
           'execution_mode': 'javascript',

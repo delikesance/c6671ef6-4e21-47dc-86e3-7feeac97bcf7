@@ -10916,4 +10916,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get copilot_tool_webhook => 'Configure an external trigger';
+
+  @override
+  String get settings_text_size_title => 'Text size';
+
+  @override
+  String get settings_text_size_description =>
+      'Adjust the app’s text size relative to your device’s text setting.';
+
+  @override
+  String get settings_text_size_preview =>
+      'Preview: your commands, workflows and conversations.';
+
+  @override
+  String get settings_text_size_reset => 'Reset text size';
 }

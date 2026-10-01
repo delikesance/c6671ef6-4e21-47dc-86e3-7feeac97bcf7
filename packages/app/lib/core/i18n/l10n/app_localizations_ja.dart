@@ -10448,4 +10448,17 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get copilot_tool_webhook => '外部トリガーを設定';
+
+  @override
+  String get settings_text_size_title => '文字サイズ';
+
+  @override
+  String get settings_text_size_description =>
+      '端末の文字サイズ設定を基準に、アプリの文字サイズを調整します。';
+
+  @override
+  String get settings_text_size_preview => 'プレビュー：コマンド、ワークフロー、会話。';
+
+  @override
+  String get settings_text_size_reset => '文字サイズをリセット';
 }

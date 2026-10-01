@@ -11069,4 +11069,18 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get copilot_tool_webhook => 'Externen Auslöser konfigurieren';
+
+  @override
+  String get settings_text_size_title => 'Textgröße';
+
+  @override
+  String get settings_text_size_description =>
+      'Passt die Textgröße der App relativ zur Texteinstellung deines Geräts an.';
+
+  @override
+  String get settings_text_size_preview =>
+      'Vorschau: deine Befehle, Workflows und Unterhaltungen.';
+
+  @override
+  String get settings_text_size_reset => 'Textgröße zurücksetzen';
 }

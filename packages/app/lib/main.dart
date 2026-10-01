@@ -47,6 +47,7 @@ import 'package:bot_creator/features/onboarding/logic/onboarding_manager.dart';
 import 'package:bot_creator/core/code_editor/code_editor_settings_provider.dart';
 import 'package:bot_creator/core/theme/app_appearance.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/core/theme/app_text_scale.dart';
 import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/utils/responsive.dart';
 import 'package:bot_creator/core/widgets/desktop_title_bar.dart';
@@ -713,10 +714,12 @@ class _MyAppState extends State<MyApp> {
       navigatorObservers: [PosthogObserver(), DesktopTitleBarNotifier.instance],
       builder: (context, child) {
         final content = child ?? const SizedBox.shrink();
-        if (!ResponsiveHelper.isDesktopPlatform()) {
-          return content;
-        }
-        return DesktopAppShell(child: content);
+        return AppTextScale(
+          factor: themeProvider.appearance.textScale,
+          child: ResponsiveHelper.isDesktopPlatform()
+              ? DesktopAppShell(child: content)
+              : content,
+        );
       },
       onGenerateTitle: (context) => context.tr.app_title,
       onGenerateRoute: (settings) {
@@ -1002,6 +1005,9 @@ class ThemeProvider extends ChangeNotifier {
   /// Personnalisation de la graine (teinte des surfaces du thème).
   Future<void> setSeed(Color seedColor) =>
       _update(_appearance.copyWith(seedColor: seedColor));
+
+  Future<void> setTextScale(double factor) =>
+      _update(_appearance.copyWith(textScale: factor));
 
   /// Bascule clair ↔ sombre (bouton de la page Paramètres).
   Future<void> toggleTheme() => setMode(

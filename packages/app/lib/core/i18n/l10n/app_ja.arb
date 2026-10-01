@@ -10977,5 +10977,9 @@
   "copilot_tool_profile": "ボット名を変更",
   "copilot_tool_variable": "変数を保存",
   "copilot_tool_schedule": "自動処理を予約",
-  "copilot_tool_webhook": "外部トリガーを設定"
+  "copilot_tool_webhook": "外部トリガーを設定",
+  "settings_text_size_title": "文字サイズ",
+  "settings_text_size_description": "端末の文字サイズ設定を基準に、アプリの文字サイズを調整します。",
+  "settings_text_size_preview": "プレビュー：コマンド、ワークフロー、会話。",
+  "settings_text_size_reset": "文字サイズをリセット"
 }
