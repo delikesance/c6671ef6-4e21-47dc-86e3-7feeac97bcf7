@@ -1,6 +1,8 @@
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/core/widgets/app_icon.dart';
 import 'package:bot_creator/core/widgets/notion_filter_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -114,5 +116,48 @@ void main() {
         expect(filterButtonTopLeft.dx, lessThan(trailingTopLeft.dx));
       },
     );
+  });
+
+  group('AppIcon sizing and search constraints', () {
+    testWidgets(
+      'AppIcon does not expand to fill large parent constraints (stays clamped)',
+      (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: ConstrainedBox(
+                constraints: const BoxConstraints.tightFor(
+                  width: 48,
+                  height: 48,
+                ),
+                child: const AppIcon.fromMaterial(Icons.search, size: 18),
+              ),
+            ),
+          ),
+        );
+
+        final svgFinder = find.byType(SvgPicture);
+        expect(svgFinder, findsOneWidget);
+        final svgSize = tester.getSize(svgFinder);
+        expect(svgSize.width, 18.0);
+        expect(svgSize.height, 18.0);
+      },
+    );
+
+    testWidgets('AppIcon defaults Icons.search to 18.0 when size is omitted', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(body: AppIcon.fromMaterial(Icons.search)),
+        ),
+      );
+
+      final svgFinder = find.byType(SvgPicture);
+      expect(svgFinder, findsOneWidget);
+      final svgSize = tester.getSize(svgFinder);
+      expect(svgSize.width, 18.0);
+      expect(svgSize.height, 18.0);
+    });
   });
 }

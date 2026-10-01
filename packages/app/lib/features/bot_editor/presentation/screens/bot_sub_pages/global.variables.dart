@@ -919,12 +919,23 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                         child: TextField(
                           decoration: InputDecoration(
                             hintText: context.tr.scoped_runtime_search,
-                            prefixIcon: const AppIcon.fromMaterial(
-                              Icons.search,
-                              size: 20,
+                            prefixIconConstraints: const BoxConstraints(
+                              minWidth: 36,
+                              minHeight: 36,
+                            ),
+                            prefixIcon: const Padding(
+                              padding: EdgeInsets.only(left: 10, right: 8),
+                              child: AppIcon.fromMaterial(
+                                Icons.search,
+                                size: 18,
+                              ),
                             ),
                             isDense: true,
                             border: const OutlineInputBorder(),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 10,
+                            ),
                           ),
                           onChanged: (v) {
                             setLocalState(() {
@@ -1051,7 +1062,14 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
       child: TextField(
         decoration: InputDecoration(
           hintText: context.tr.globals_search,
-          prefixIcon: const AppIcon.fromMaterial(Icons.search, size: 20),
+          prefixIconConstraints: const BoxConstraints(
+            minWidth: 36,
+            minHeight: 36,
+          ),
+          prefixIcon: const Padding(
+            padding: EdgeInsets.only(left: 10, right: 8),
+            child: AppIcon.fromMaterial(Icons.search, size: 18),
+          ),
           isDense: true,
           border: const OutlineInputBorder(),
           contentPadding: const EdgeInsets.symmetric(
@@ -1062,6 +1080,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
               ? IconButton(
                   icon: const AppIcon.fromMaterial(Icons.clear, size: 18),
                   onPressed: () => setState(() => _searchQuery = ''),
+                  visualDensity: VisualDensity.compact,
                 )
               : null,
         ),

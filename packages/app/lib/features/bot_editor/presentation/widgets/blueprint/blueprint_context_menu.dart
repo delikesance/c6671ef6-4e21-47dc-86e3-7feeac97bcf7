@@ -88,10 +88,17 @@ class _BlueprintContextMenuState extends State<BlueprintContextMenu> {
                       color: Colors.white38,
                       fontSize: 12,
                     ),
-                    prefixIcon: const AppIcon.fromMaterial(
-                      Icons.search,
-                      color: Colors.cyanAccent,
-                      size: 18,
+                    prefixIconConstraints: const BoxConstraints(
+                      minWidth: 32,
+                      minHeight: 32,
+                    ),
+                    prefixIcon: const Padding(
+                      padding: EdgeInsets.only(left: 8, right: 6),
+                      child: AppIcon.fromMaterial(
+                        Icons.search,
+                        color: Colors.cyanAccent,
+                        size: 16,
+                      ),
                     ),
                     suffixIcon: IconButton(
                       icon: const AppIcon.fromMaterial(

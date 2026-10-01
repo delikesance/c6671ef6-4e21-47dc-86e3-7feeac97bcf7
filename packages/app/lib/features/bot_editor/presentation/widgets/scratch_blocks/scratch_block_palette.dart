@@ -528,15 +528,27 @@ class _ScratchBlockPaletteState extends State<ScratchBlockPalette> {
           child: TextField(
             decoration: InputDecoration(
               hintText: context.tr.actions_search_hint,
-              prefixIcon: const AppIcon.fromMaterial(Icons.search),
+              prefixIconConstraints: const BoxConstraints(
+                minWidth: 36,
+                minHeight: 36,
+              ),
+              prefixIcon: const Padding(
+                padding: EdgeInsets.only(left: 10, right: 8),
+                child: AppIcon.fromMaterial(Icons.search, size: 18),
+              ),
               suffixIcon: _searchQuery.isNotEmpty
                   ? IconButton(
                       icon: const AppIcon.fromMaterial(Icons.clear, size: 18),
                       onPressed: () => setState(() => _searchQuery = ''),
+                      visualDensity: VisualDensity.compact,
                     )
                   : null,
               border: const OutlineInputBorder(),
               isDense: true,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 10,
+              ),
             ),
             onChanged: (value) {
               setState(() {

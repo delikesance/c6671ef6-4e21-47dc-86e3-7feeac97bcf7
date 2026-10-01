@@ -33,10 +33,10 @@ class AppIcon extends Icon {
   @override
   Widget build(BuildContext context) {
     final theme = IconTheme.of(context);
-    final extent = size ?? theme.size ?? 24;
+    final icon = this.icon;
+    final extent = size ?? (icon == Icons.search ? 18.0 : (theme.size ?? 24.0));
     final tint =
         color ?? theme.color ?? Theme.of(context).colorScheme.onSurface;
-    final icon = this.icon;
     final iconPaths = icon == null ? null : reiconMaterialPaths[icon];
     assert(
       icon == null || iconPaths != null,
@@ -62,8 +62,15 @@ class AppIcon extends Icon {
         direction == TextDirection.rtl && icon?.matchTextDirection == true
         ? Transform.flip(flipX: true, child: rendered)
         : rendered;
+    final sized = SizedBox(
+      width: extent,
+      height: extent,
+      child: Center(
+        child: SizedBox(width: extent, height: extent, child: directed),
+      ),
+    );
     return semanticLabel == null
-        ? ExcludeSemantics(child: directed)
-        : Semantics(label: semanticLabel, child: directed);
+        ? ExcludeSemantics(child: sized)
+        : Semantics(label: semanticLabel, child: sized);
   }
 }
