@@ -9,6 +9,24 @@ class AppLocalizationsPt extends AppLocalizations {
   AppLocalizationsPt([String locale = 'pt']) : super(locale);
 
   @override
+  String get docs_search => 'Pesquisar documentação';
+
+  @override
+  String get docs_category => 'Categoria';
+
+  @override
+  String get docs_mode => 'Modo';
+
+  @override
+  String get docs_no_results => 'Nenhum artigo correspondente';
+
+  @override
+  String get docs_cached_offline => 'Versão em cache: rede indisponível';
+
+  @override
+  String get docs_contents => 'Sumário';
+
+  @override
   String get variables_migration_title => 'Migração de variáveis BDFD';
 
   @override

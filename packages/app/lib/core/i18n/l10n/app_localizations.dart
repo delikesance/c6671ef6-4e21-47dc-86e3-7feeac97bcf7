@@ -106,6 +106,42 @@ abstract class AppLocalizations {
     Locale('tr'),
   ];
 
+  /// No description provided for @docs_search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search documentation'**
+  String get docs_search;
+
+  /// No description provided for @docs_category.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get docs_category;
+
+  /// No description provided for @docs_mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Mode'**
+  String get docs_mode;
+
+  /// No description provided for @docs_no_results.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching articles'**
+  String get docs_no_results;
+
+  /// No description provided for @docs_cached_offline.
+  ///
+  /// In en, this message translates to:
+  /// **'Cached version: network unavailable'**
+  String get docs_cached_offline;
+
+  /// No description provided for @docs_contents.
+  ///
+  /// In en, this message translates to:
+  /// **'Contents'**
+  String get docs_contents;
+
   /// No description provided for @variables_migration_title.
   ///
   /// In en, this message translates to:

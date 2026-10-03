@@ -9,6 +9,24 @@ class AppLocalizationsJa extends AppLocalizations {
   AppLocalizationsJa([String locale = 'ja']) : super(locale);
 
   @override
+  String get docs_search => 'ドキュメントを検索';
+
+  @override
+  String get docs_category => 'カテゴリ';
+
+  @override
+  String get docs_mode => 'モード';
+
+  @override
+  String get docs_no_results => '該当する記事がありません';
+
+  @override
+  String get docs_cached_offline => 'キャッシュ版：ネットワークを利用できません';
+
+  @override
+  String get docs_contents => '目次';
+
+  @override
   String get variables_migration_title => 'BDFD変数の移行';
 
   @override

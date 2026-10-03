@@ -9,6 +9,24 @@ class AppLocalizationsTr extends AppLocalizations {
   AppLocalizationsTr([String locale = 'tr']) : super(locale);
 
   @override
+  String get docs_search => 'Dokümantasyonda ara';
+
+  @override
+  String get docs_category => 'Kategori';
+
+  @override
+  String get docs_mode => 'Mod';
+
+  @override
+  String get docs_no_results => 'Eşleşen makale yok';
+
+  @override
+  String get docs_cached_offline => 'Önbellekteki sürüm: ağ kullanılamıyor';
+
+  @override
+  String get docs_contents => 'İçindekiler';
+
+  @override
   String get variables_migration_title => 'BDFD değişken geçişi';
 
   @override

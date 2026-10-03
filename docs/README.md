@@ -14,6 +14,7 @@ Vue d'ensemble de la documentation technique interne du projet.
 | [bdfd-supported-functions.md](./bdfd-supported-functions.md) | Etat de support des fonctions BDFD dans Bot Creator |
 | [runner-docker.md](./runner-docker.md) | Exécution du Runner Docker en mode API only (sync/start/stop bots) |
 | [attach-image.md](./attach-image.md) | Action "Attach Image" — attacher une image à la réponse Discord |
+| [native-documentation.md](./native-documentation.md) | API publique, lecteur natif des guides/fonctions et cache hors ligne |
 
 ---
 
