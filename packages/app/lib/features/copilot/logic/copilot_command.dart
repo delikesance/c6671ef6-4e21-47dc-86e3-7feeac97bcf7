@@ -5,9 +5,32 @@ import 'package:bot_creator_shared/utils/bdfd_functions.dart';
 import 'package:bot_creator_shared/utils/bdfd_lexer.dart';
 import 'package:bot_creator_shared/types/action.dart' as blocks;
 
+/// Settings edits do not need to transmit scripts or compiled action trees.
+/// Revisions must always be calculated from the original, complete command.
+Map<String, dynamic> copilotCommandSettings(Map<String, dynamic> command) {
+  final data = command['data'] as Map? ?? const {};
+  return {
+    for (final key in ['id', 'discordId', 'name', 'description', 'type'])
+      if (command.containsKey(key)) key: command[key],
+    'data': {
+      for (final key in [
+        'executionMode',
+        'options',
+        'defaultMemberPermissions',
+        'contexts',
+        'integrationTypes',
+      ])
+        if (data.containsKey(key)) key: data[key],
+    },
+  };
+}
+
 /// The editor compiler constructs all action types and payloads. Unknown
 /// functions supplied by AI never enter a saved command.
-List<Map<String, dynamic>> compileCopilotCommand(String script) {
+List<Map<String, dynamic>> compileCopilotCommand(
+  String script, {
+  bool legacyUserVariables = false,
+}) {
   if (script.trim().isEmpty || script.length > 12000) {
     throw const FormatException('Invalid script length');
   }
@@ -20,7 +43,9 @@ List<Map<String, dynamic>> compileCopilotCommand(String script) {
       );
     }
   }
-  final result = BdfdCompiler().compile(script);
+  final result = BdfdCompiler(
+    legacyUserVariables: legacyUserVariables,
+  ).compile(script);
   if (result.hasErrors || result.actions.isEmpty) {
     throw FormatException(result.diagnostics.map((d) => d.message).join('\n'));
   }
@@ -32,12 +57,21 @@ Map<String, dynamic> copilotExecutionData(String script) =>
 
 /// Compile without saving or performing Discord operations. This is a syntax
 /// and supported-function check, not evidence of successful runtime execution.
-Map<String, dynamic> validateCopilotBdfd(String script) {
+Map<String, dynamic> validateCopilotBdfd(
+  String script, {
+  bool legacyUserVariables = false,
+}) {
   try {
-    final actions = compileCopilotCommand(script);
-    final result = BdfdCompiler().compile(script);
+    final actions = compileCopilotCommand(
+      script,
+      legacyUserVariables: legacyUserVariables,
+    );
+    final result = BdfdCompiler(
+      legacyUserVariables: legacyUserVariables,
+    ).compile(script);
     return {
       'valid': true,
+      'bdfdUserVariableSemantics': legacyUserVariables ? 1 : 2,
       'validation_kind': 'compilation',
       'runtime_tested': false,
       'script_revision': HashUtil.calculateHash(script),
@@ -59,6 +93,7 @@ Map<String, dynamic> validateCopilotBdfd(String script) {
   } on FormatException catch (error) {
     return {
       'valid': false,
+      'bdfdUserVariableSemantics': legacyUserVariables ? 1 : 2,
       'validation_kind': 'compilation',
       'runtime_tested': false,
       'script_revision': HashUtil.calculateHash(script),
@@ -73,6 +108,7 @@ Map<String, dynamic> copilotExecutionDataForMode(
   String executionMode, {
   String? script,
   String? actionsJson,
+  bool legacyUserVariables = false,
 }) {
   if (!const {
     'bdfd_script',
@@ -84,7 +120,7 @@ Map<String, dynamic> copilotExecutionDataForMode(
   final source = script ?? '';
   var actions = <Map<String, dynamic>>[];
   if (executionMode == 'bdfd_script') {
-    compileCopilotCommand(source);
+    compileCopilotCommand(source, legacyUserVariables: legacyUserVariables);
   } else if (executionMode == 'javascript') {
     if (source.trim().isEmpty || source.length > 12000) {
       throw const FormatException('Invalid JavaScript length');
@@ -125,6 +161,7 @@ Map<String, dynamic> replaceCopilotExecution(
   String? route,
   String executionMode = 'bdfd_script',
   String? actionsJson,
+  bool legacyUserVariables = false,
 }) {
   if (command.isEmpty || HashUtil.calculateHash(command) != expectedRevision) {
     throw StateError(
@@ -151,6 +188,7 @@ Map<String, dynamic> replaceCopilotExecution(
         executionMode,
         script: script,
         actionsJson: actionsJson,
+        legacyUserVariables: legacyUserVariables,
       ),
     };
     data['subcommandWorkflows'] = workflows;
@@ -160,6 +198,7 @@ Map<String, dynamic> replaceCopilotExecution(
         executionMode,
         script: script,
         actionsJson: actionsJson,
+        legacyUserVariables: legacyUserVariables,
       ),
     );
   }

@@ -9,6 +9,22 @@ class AppLocalizationsFr extends AppLocalizations {
   AppLocalizationsFr([String locale = 'fr']) : super(locale);
 
   @override
+  String get variables_migration_title => 'Migration des variables BDFD';
+
+  @override
+  String get variables_migration_confirmation =>
+      'Conserver les valeurs utilisateur communes à tous les serveurs. Archiver et adapter les anciens scripts BDFD, puis activer les fonctions utilisateur officielles par serveur. Aucune valeur ni expiration n\'est déplacée.';
+
+  @override
+  String get variables_migration_stop_bot =>
+      'Arrête le bot avant de migrer les variables.';
+
+  @override
+  String variables_migration_result(int commands, int workflows, int calls) {
+    return '$commands commandes, $workflows groupes de workflows, $calls appels adaptés';
+  }
+
+  @override
   String get app_update_dialog_title => 'Nouvelle version disponible';
 
   @override
@@ -4403,13 +4419,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get globals_scope_guild => 'serveur';
 
   @override
-  String get globals_scope_guildMember => 'membre';
+  String get globals_scope_guildMember => 'Membre du serveur';
 
   @override
   String get globals_scope_message => 'message';
 
   @override
-  String get globals_scope_user => 'utilisateur';
+  String get globals_scope_user => 'Utilisateur global';
 
   @override
   String get globals_search => 'Rechercher des variables...';

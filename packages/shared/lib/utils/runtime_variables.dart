@@ -85,6 +85,20 @@ Future<void> injectGlobalRuntimeVariables({
   runtimeVariables['variables.count'] = globalVars.length.toString();
 }
 
+Future<void> injectBdfdUserVariableSemantics({
+  required BotDataStore store,
+  required String botId,
+  required Map<String, String> runtimeVariables,
+}) async {
+  try {
+    final config = await store.getApp(botId);
+    runtimeVariables['bdfd.userVariableSemantics'] =
+        config['bdfdUserVariableSemantics'] == 2 ? '2' : '1';
+  } on UnsupportedError {
+    runtimeVariables['bdfd.userVariableSemantics'] = '2';
+  }
+}
+
 Future<void> injectScopedRuntimeVariables({
   required BotDataStore store,
   required String botId,
@@ -222,6 +236,11 @@ Future<void> hydrateRuntimeVariables({
     guildCount: guildCount,
     uptimeMs: uptimeMs,
     pingMs: pingMs,
+  );
+  await injectBdfdUserVariableSemantics(
+    store: store,
+    botId: botId,
+    runtimeVariables: runtimeVariables,
   );
   List<Map<String, dynamic>> scopedDefinitions = const <Map<String, dynamic>>[];
   try {
@@ -565,7 +584,7 @@ Future<void> hydrateActionPlaceholders({
       // 2. Scan for BDFD functions $getUserVar[name;ID]
       for (final match in bdfdFunctionPattern.allMatches(obj)) {
         final raw = match.group(0)!;
-        final scope = raw.contains('User')
+        var scope = raw.contains('User')
             ? 'user'
             : (raw.contains('Guild')
                   ? 'guild'
@@ -573,6 +592,12 @@ Future<void> hydrateActionPlaceholders({
         var contextId = match.group(1)!;
         if (contextId.contains('((')) {
           contextId = resolveTemplatePlaceholders(contextId, previewVariables);
+        }
+        if (scope == 'user' && variables['bdfd.userVariableSemantics'] == '2') {
+          final guild = _normalizeContextId(previewVariables['guild.id']);
+          if (guild == null) continue;
+          scope = 'guildMember';
+          contextId = '$guild:$contextId';
         }
         if (contextId.isNotEmpty &&
             contextId != 'unknown user' &&

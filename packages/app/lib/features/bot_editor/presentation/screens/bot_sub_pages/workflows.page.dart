@@ -433,7 +433,15 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
     }
 
     await appManager.deleteWorkflow(widget.botId, name);
-    await _load();
+    if (!mounted) return;
+    setState(() {
+      _workflows = _workflows
+          .where(
+            (entry) =>
+                entry['name'].toString().toLowerCase() != name.toLowerCase(),
+          )
+          .toList();
+    });
   }
 
   Map<String, dynamic> _buildWorkflowSharePayload() {

@@ -1,4 +1,9 @@
 {
+  "variables_migration_title": "BDFD variable migration",
+  "variables_migration_confirmation": "Keep user values shared across all servers. Archive and adapt legacy BDFD scripts, then activate official per-server user functions. No variable values or expirations are moved.",
+  "variables_migration_stop_bot": "Stop the bot before migrating variables.",
+  "variables_migration_result": "{commands} commands, {workflows} workflow groups, {calls} calls adapted",
+  "@variables_migration_result": {"placeholders": {"commands": {"type": "int"}, "workflows": {"type": "int"}, "calls": {"type": "int"}}},
   "@@locale": "en",
   "@app_update_dialog_title": {
     "description": "New version available"
@@ -9713,9 +9718,9 @@
   "globals_retry": "Retry",
   "globals_scope_channel": "channel",
   "globals_scope_guild": "guild",
-  "globals_scope_guildMember": "guildMember",
+  "globals_scope_guildMember": "Server member",
   "globals_scope_message": "message",
-  "globals_scope_user": "user",
+  "globals_scope_user": "Global user",
   "globals_search": "Search variables…",
   "globals_source_local": "Local",
   "globals_source_runner": "Runner: {name}",

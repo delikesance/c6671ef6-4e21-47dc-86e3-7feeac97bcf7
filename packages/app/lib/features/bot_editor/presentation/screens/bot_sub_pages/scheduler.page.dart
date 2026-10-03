@@ -245,7 +245,12 @@ class _SchedulerPageState extends State<SchedulerPage> {
       widget.botId,
       (trigger['id'] ?? '').toString(),
     );
-    await _load();
+    if (!mounted) return;
+    setState(() {
+      _triggers = _triggers
+          .where((entry) => entry['id'] != trigger['id'])
+          .toList();
+    });
   }
 
   Future<void> _toggleTrigger(Map<String, dynamic> trigger, bool value) async {

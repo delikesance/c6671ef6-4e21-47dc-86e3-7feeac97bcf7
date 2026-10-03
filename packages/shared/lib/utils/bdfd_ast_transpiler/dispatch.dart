@@ -892,7 +892,10 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
       case 'httppatch':
         return _buildHttpRequestAction(method: 'PATCH', node: node);
       case 'setuservar':
-        return _buildSetScopedVariableAction(scope: 'user', node: node);
+        return _buildSetScopedVariableAction(
+          scope: legacyUserVariables ? 'user' : 'guildMember',
+          node: node,
+        );
       case 'setservervar':
       case 'setguildvar':
         return _buildSetScopedVariableAction(scope: 'guild', node: node);
@@ -1297,6 +1300,23 @@ extension _BdfdAstTranspilationScopeDispatch on _BdfdAstTranspilationScope {
           node: node,
         );
       case 'resetuservar':
+        if (legacyUserVariables) {
+          return _buildResetScopedVariableAction(scope: 'user', node: node);
+        }
+        return Action(
+          type: BotCreatorActionType.removeScopedVariable,
+          payload: {
+            'scope': 'guildMember',
+            'key': _normalizeScopedVariableKey(_stringifyArgument(node, 0)),
+            'resetToDefault': true,
+            'resetAllContexts': true,
+            if (node.arguments.length > 1)
+              'resetUserId': _stringifyArgument(node, 1),
+            if (node.arguments.length > 2)
+              'resetGuildId': _stringifyArgument(node, 2),
+          },
+        );
+      case 'resetglobaluservar':
         return _buildResetScopedVariableAction(scope: 'user', node: node);
       case 'resetservervar':
       case 'resetguildvar':

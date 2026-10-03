@@ -55,12 +55,14 @@ void main() {
         // Now test template resolution at runtime with author variables
         final variables = <String, String>{
           'author.id': '123456789',
+          'guild.id': '987654321',
           'author.username': 'Garder500',
           'user.id': '123456789',
           'user.username': 'Garder500',
           'user.bc_xp': '19',
           'user[123456789].username': 'Garder500',
           'user[123456789].bc_xp': '19',
+          'guildMember[987654321:123456789].bc_xp': '19',
         };
 
         // 1. Resolve temp variable write

@@ -35,6 +35,13 @@ IconData scopedVariableScopeIcon(String scope) {
   }
 }
 
+String scopedVariableScopeLabel(BuildContext context, String scope) =>
+    switch (scope) {
+      'user' => context.tr.globals_scope_user,
+      'guildMember' => context.tr.globals_scope_guildMember,
+      _ => scope,
+    };
+
 /// État vide partagé (aucune variable) — il ne s'affiche que lorsque la liste
 /// est réellement vide, jamais parce que les définitions déclarées manquent.
 class VariablesEmptyState extends StatelessWidget {
@@ -191,7 +198,7 @@ class _ScopeHeader extends StatelessWidget {
       child: Row(
         children: [
           Text(
-            scope.toUpperCase(),
+            scopedVariableScopeLabel(context, scope).toUpperCase(),
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
               color: Theme.of(context).colorScheme.primary,
               fontWeight: FontWeight.w700,

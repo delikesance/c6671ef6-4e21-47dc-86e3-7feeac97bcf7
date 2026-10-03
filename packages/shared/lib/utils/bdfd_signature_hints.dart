@@ -204,6 +204,7 @@ const Map<String, List<String>> bdfdSignatureHints = <String, List<String>>{
   'setuservar': ['name', 'value', 'userID (opt)', 'guildID (opt)'],
   'setvar': ['name', 'value'],
   'resetuservar': ['name', 'userID (opt)', 'guildID (opt)'],
+  'resetglobaluservar': ['name', 'userID (opt)'],
   'resetchannelvar': ['name', 'channelID (opt)'],
   'resetguildmembervar': ['name', 'userID (opt)', 'guildID (opt)'],
   'resetguildvar': ['name', 'guildID (opt)'],

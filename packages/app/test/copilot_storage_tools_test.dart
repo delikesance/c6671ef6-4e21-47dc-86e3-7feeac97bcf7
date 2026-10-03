@@ -5,6 +5,7 @@ import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
 import 'package:bot_creator/features/copilot/logic/copilot_mcp.dart';
+import 'package:bot_creator/features/copilot/logic/copilot_command.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nyxx/nyxx.dart';
@@ -200,6 +201,101 @@ void main() {
   }
 
   test(
+    'MCP reference, validation and sandbox follow the saved bot version without stale cache',
+    () async {
+      final original = await AppManager().getApp(botId);
+      addTearDown(() => AppManager().saveApp(botId, original));
+      for (final version in [1, 2, 1]) {
+        await AppManager().saveApp(botId, {
+          ...original,
+          'bdfdUserVariableSemantics': version,
+        });
+        final reference = await call('local_runtime_reference', {});
+        expect(reference['bdfdUserVariableSemantics'], version);
+        expect(reference['reference']['examples'], isNull);
+        final validation = await call('local_validate_bdfd', {
+          'script': r'$setUserVar[coins;7]$getUserVar[coins]',
+        });
+        expect(validation['bdfdUserVariableSemantics'], version);
+        final result = await call('local_test_command', {
+          'script': r'$setUserVar[coins;7]$getUserVar[coins]',
+          'trace_limit': 0,
+          'scenario': {'bdfdUserVariableSemantics': version == 1 ? 2 : 1},
+          'expected_content': '7',
+        });
+        expect(result['bdfdUserVariableSemantics'], version);
+        expect(result['contract_passed'], true);
+        expect(result['trace'], isEmpty);
+        expect(result['trace_truncated'], true);
+        expect(result['trace_total'], greaterThan(0));
+        final scoped = result['storage_after']['scoped'];
+        expect(
+          scoped[version == 1 ? 'user' : 'guildMember'][version == 1
+              ? '20'
+              : '10:20']['coins'],
+          '7',
+        );
+      }
+      await expectLater(
+        bridge.call('local_test_command', {
+          'bot_id': '999999999999999',
+          'script': 'test',
+        }, callID: 'cross-bot-sandbox'),
+        throwsStateError,
+      );
+    },
+  );
+
+  test(
+    'command discovery is compact and settings reads retain full revisions',
+    () async {
+      await AppManager().saveAppCommand(botId, 'compact', {
+        'id': 'compact',
+        'name': 'compact',
+        'description': 'Description',
+        'data': {
+          'executionMode': 'bdfd_script',
+          'bdfdScriptContent': 'Private implementation',
+          'actions': [],
+          'defaultMemberPermissions': '8',
+        },
+      });
+      final full = await call('local_get_command', {'command_id': 'compact'});
+      final settings = await call('local_get_command', {
+        'command_id': 'compact',
+        'view': 'settings',
+      });
+      expect(settings['revision'], full['revision']);
+      expect(
+        settings['command']['data'].containsKey('bdfdScriptContent'),
+        false,
+      );
+      expect(
+        full['command']['data']['bdfdScriptContent'],
+        'Private implementation',
+      );
+      Future<List> list(Map<String, dynamic> args) async {
+        final result = await bridge.call('local_list_commands', {
+          'bot_id': botId,
+          ...args,
+        }, callID: 'list-${++calls}');
+        return jsonDecode((result['content'] as List).single['text'] as String)
+            as List;
+      }
+
+      final summary = (await list({'name': 'compact'})).single;
+      expect(summary['revision'], full['revision']);
+      expect(summary['data'].containsKey('bdfdScriptContent'), false);
+      final execution = (await list({
+        'name': 'compact',
+        'include_execution': true,
+      })).single;
+      expect(execution['data']['bdfdScriptContent'], 'Private implementation');
+      expect(await list({'name': 'missing'}), isEmpty);
+    },
+  );
+
+  test(
     'argument edits patch the same Discord ID and retain saved BDFD execution',
     () async {
       api.synced = true;
@@ -277,7 +373,10 @@ void main() {
   test(
     'command settings survive Discord patch and normalized storage',
     () async {
-      final before = await call('local_get_command', {'command_id': 'hello'});
+      final before = await call('local_get_command', {
+        'command_id': 'hello',
+        'view': 'settings',
+      });
       final result = await call('local_update_command_settings', {
         'command_id': 'hello',
         'expected_revision': before['revision'],
@@ -287,6 +386,8 @@ void main() {
         'integration_types': [0],
       });
       expect(result['discord_updated'], true);
+      expect(result['before']['data'].containsKey('bdfdScriptContent'), false);
+      expect(result['after']['data'].containsKey('bdfdScriptContent'), false);
       final request = discord.commands.requests.last;
       expect(request['description'], 'New description');
       expect(request['default_member_permissions'], '16');
@@ -369,7 +470,12 @@ void main() {
       expect(result['discord_updated'], false);
       expect(result.containsKey('runner_synced'), false);
       expect(result['revision'], before['revision']);
-      expect(result['before'], before['command']);
+      expect(
+        result['before'],
+        copilotCommandSettings(
+          Map<String, dynamic>.from(before['command'] as Map),
+        ),
+      );
       expect(result['after'], result['before']);
       expect(
         await noopBridge.call(
@@ -764,7 +870,9 @@ void main() {
     'runtime reference and approved guild-member defaults support BDFD XP',
     () async {
       api.synced = true;
-      final reference = await call('local_runtime_reference', {});
+      final reference = await call('local_runtime_reference', {
+        'include_examples': true,
+      });
       expect(reference['runtime_engine'], 'dart');
       final example = reference['reference']['examples']['guild_xp'];
       for (final variable in example['variables'] as List) {

@@ -1,4 +1,8 @@
 {
+  "variables_migration_title": "Migração de variáveis BDFD",
+  "variables_migration_confirmation": "Manter os valores do utilizador comuns a todos os servidores. Arquivar e adaptar os scripts BDFD antigos e ativar as funções oficiais por servidor. Os valores e os prazos de validade não são movidos.",
+  "variables_migration_stop_bot": "Para o bot antes de migrar as variáveis.",
+  "variables_migration_result": "{commands} comandos, {workflows} grupos de workflows, {calls} chamadas adaptadas",
   "@@locale": "pt",
   "@app_update_dialog_title": {
     "description": "New version available"
@@ -8214,9 +8218,9 @@
   "globals_retry": "Tentar novamente",
   "globals_scope_channel": "canal",
   "globals_scope_guild": "servidor",
-  "globals_scope_guildMember": "membro_servidor",
+  "globals_scope_guildMember": "Membro do servidor",
   "globals_scope_message": "mensagem",
-  "globals_scope_user": "utilizador",
+  "globals_scope_user": "Utilizador global",
   "globals_search": "Procurar variáveis…",
   "globals_source_local": "Local",
   "globals_source_runner": "Executor: {name}",

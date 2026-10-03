@@ -87,6 +87,38 @@ L’adaptateur utilise Chat Completions avec `stream: true`, `stream_options.inc
 
 Le bouton MCP ouvre un serveur Streamable HTTP sur `127.0.0.1`, port disponible et bearer aléatoire. Il conserve les contrôles de catalogue, validation des arguments et confirmation explicite de chaque mutation. Il est disponible tant que la page reste ouverte. Il ne donne aucun accès général au terminal ou au filesystem. La documentation officielle est consultée sur `https://bot-creator.fr/api/mcp`, sans identifiants Manager ni clé fournisseur.
 
+### Lectures ciblées
+
+Les catalogues d'outils sont définis dans le Manager
+(`manager/internal/services/copilot_tools.json`). Le miroir embarqué dans
+l'app est généré par `node manager/scripts/sync-copilot-tools.mjs --write`
+depuis le workspace ; `--check` refuse toute divergence de schéma, description
+ou caractère mutateur. Les gates `make check` des deux repos exécutent ce
+contrôle. La négociation existante masque aussi les outils dont le schéma
+du Manager n'est pas compatible avec le client installé.
+
+`local_validate_bdfd` et `local_test_command` acceptent `bot_id` et utilisent
+sinon le bot de la conversation. Leur compilateur, les `$eval`/scripts imbriqués
+du sandbox et `local_runtime_reference` suivent la même
+`bdfdUserVariableSemantics` sauvegardée. La version et la source sont renvoyées ;
+sans cible, la version officielle 2 est utilisée. Les fixtures ne peuvent pas
+changer la version de la cible. Il s'agit de sa configuration sauvegardée,
+pas d'une attestation du runtime déployé : Discord reste non vérifié.
+
+La référence est compacte par défaut (`include_examples=true` pour les
+exemples complets). Le sandbox renvoie au plus 40 frames par défaut, réglables
+avec `trace_limit` de 0 à 500 ; le total et la troncature sont indiqués. Les
+contrats sont évalués avant troncature sur le résultat complet. Le Manager
+met uniquement les documents publics en cache pendant cinq minutes, au plus
+64 entrées, et fusionne les requêtes identiques simultanées. Les échecs, états
+de bots, tests sandbox et mutations ne sont jamais mis en cache.
+
+`local_list_commands` renvoie les paramètres et la révision des commandes sans leur code. Le filtre `name` cherche un nom exact ; `include_execution=true` inclut le code si nécessaire. `local_get_command` conserve sa lecture complète par défaut et accepte `view=settings` pour les modifications de description, permissions et contextes. Les révisions restent calculées sur la commande complète. Les résultats de `local_update_command_settings` omettent également le code dans les états avant/après.
+
+`local_block_registry` fournit les fonctions prises en charge et leur couverture sandbox sans exporter tous les scénarios. Pour consulter les contrats de fonctions précises, passer `functions` (au plus huit noms) et `include_examples=true`. Les diagnostics de validation du transport externe sont conservés et expurgés des secrets. Une modification de paramètres ne nécessite ni compilation, ni sandbox, ni exploration du registre ; les tests d'exécution restent nécessaires quand le code change.
+
+Les suppressions des variables, commandes, workflows, planifications et webhooks entrants mettent à jour la liste affichée après la sauvegarde, sans réinitialiser l'écran. Le basculement entre variables globales et scopées utilise les données déjà chargées ; le rafraîchissement explicite permet de les relire.
+
 ## Vérification et déploiement
 
 Tests Go : parsing des flux, usage, coupure sans débit, scoping des outils, confidentialité, révisions, Markdown assaini et routes administratives. Les tests PostgreSQL (`BCM_TEST_POSTGRES_DSN`, base jetable uniquement) couvrent transactions, concurrence, blocage, provenance, budget administratif sans tenant, suppression et conservation des écritures comptables. Les tests Flutter couvrent validation/refus et rendu Markdown sur écran étroit.

@@ -1,4 +1,8 @@
 {
+  "variables_migration_title": "BDFD変数の移行",
+  "variables_migration_confirmation": "ユーザー値を全サーバー共通のまま保持します。旧BDFDスクリプトを保存・変更してから、公式のサーバー別ユーザー関数を有効にします。値と有効期限は移動しません。",
+  "variables_migration_stop_bot": "変数を移行する前にボットを停止してください。",
+  "variables_migration_result": "コマンド {commands} 件、ワークフローグループ {workflows} 件、呼び出し {calls} 件を変更",
   "@@locale": "ja",
   "@app_update_dialog_title": {
     "description": "New version available"
@@ -8270,7 +8274,7 @@
   "globals_scope_guild": "サーバー",
   "globals_scope_guildMember": "サーバーメンバー",
   "globals_scope_message": "メッセージ",
-  "globals_scope_user": "ユーザー",
+  "globals_scope_user": "グローバルユーザー",
   "globals_search": "変数を検索…",
   "globals_source_local": "ローカル",
   "globals_source_runner": "ランナー: {name}",

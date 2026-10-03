@@ -1105,6 +1105,21 @@ Future<bool> executeVariablesAction({
         throw Exception('Unable to resolve context ID for scope "$scope"');
       }
 
+      if (scope == 'guildMember') {
+        final parts = contextId.split(':');
+        if (parts.length != 2 ||
+            parts.any(
+              (part) =>
+                  part.trim().isEmpty ||
+                  part.trim().toLowerCase() == 'dm' ||
+                  part.trim().toLowerCase() == 'unknown user',
+            )) {
+          throw Exception(
+            'A server and user are required for guildMember variables',
+          );
+        }
+      }
+
       final resolvedWrite = _resolveRuntimeVariableWriteValue(
         payload: payload,
         resolveValue: resolveValue,
@@ -1432,6 +1447,62 @@ Future<bool> executeVariablesAction({
       final rawKey = resolveValue((payload['key'] ?? '').toString()).trim();
       final storageKey = _scopedStorageKey(rawKey);
       final referenceKey = _scopedReferenceKey(rawKey);
+      if (payload['resetAllContexts'] == true) {
+        if (scope != 'guildMember' ||
+            payload['resetToDefault'] != true ||
+            storageKey.isEmpty) {
+          throw Exception('Invalid user variable reset');
+        }
+        final contexts = <String>{};
+        // Gather before resetting: writes may reorder a value-sorted index.
+        for (var offset = 0; ; offset += 100) {
+          final page = await store.queryScopedVariableIndex(
+            botId,
+            scope,
+            storageKey,
+            offset: offset,
+            limit: 100,
+          );
+          final items = page['items'] as List? ?? const [];
+          contexts.addAll(
+            items.map((entry) => (entry['contextId'] ?? '').toString()),
+          );
+          if (items.length < 100) break;
+        }
+        final user = resolveValue(
+          (payload['resetUserId'] ?? '').toString(),
+        ).trim();
+        final guild = resolveValue(
+          (payload['resetGuildId'] ?? '').toString(),
+        ).trim();
+        for (final context in contexts) {
+          final parts = context.split(':');
+          if (parts.length != 2 ||
+              (user.isNotEmpty && parts[1] != user) ||
+              (guild.isNotEmpty && parts[0] != guild)) {
+            continue;
+          }
+          final target = Map<String, dynamic>.from(payload)
+            ..remove('resetAllContexts')
+            ..['contextId'] = context;
+          await executeVariablesAction(
+            type: type,
+            store: store,
+            botId: botId,
+            payload: target,
+            resultKey: resultKey,
+            results: results,
+            variables: variables,
+            resolveValue: resolveValue,
+            guildId: guildId,
+            fallbackChannelId: fallbackChannelId,
+            interaction: interaction,
+            onLog: onLog,
+          );
+        }
+        results[resultKey] = 'RESET';
+        return true;
+      }
       final explicitContextId = resolveValue(
         (payload['contextId'] ?? '').toString(),
       ).trim();

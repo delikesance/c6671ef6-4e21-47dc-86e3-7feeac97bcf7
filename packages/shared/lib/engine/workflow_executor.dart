@@ -8,6 +8,7 @@ import 'package:bot_creator_shared/services/lavalink_service.dart';
 import 'package:bot_creator_shared/types/action.dart';
 import 'package:bot_creator_shared/utils/template_resolver.dart';
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
+import 'package:bot_creator_shared/utils/runtime_variables.dart';
 import 'package:bot_creator_shared/engine/bot_engine_callbacks.dart';
 import 'package:bot_creator_shared/utils/interaction_ack_state.dart';
 
@@ -46,6 +47,7 @@ class WorkflowExecutor {
     }
 
     try {
+      await _ensureVariableSemantics(botId, runtimeVariables);
       final isCapturing =
           callbacks.isDebugReplayCapturing?.call(botId) ?? false;
 
@@ -113,6 +115,7 @@ class WorkflowExecutor {
     required Map<String, String> runtimeVariables,
   }) async {
     callbacks.onDebugLog?.call('executeVisualWorkflow started', botId: botId);
+    await _ensureVariableSemantics(botId, runtimeVariables);
 
     // Fix 1: Safe cast for response (avoid TypeError if not a Map)
     final rawResponse = workflowData["response"];
@@ -158,7 +161,7 @@ class WorkflowExecutor {
     }
 
     var actions = actionsJson.map(Action.fromJson).toList();
-    actions = _transpileVisualActions(actions);
+    actions = _transpileVisualActions(actions, runtimeVariables);
     callbacks.onDebugLog?.call(
       'Parsed ${actions.length} actions for visual workflow',
       botId: botId,
@@ -273,6 +276,7 @@ class WorkflowExecutor {
     String? replayLabel,
   }) async {
     callbacks.onDebugLog?.call('executeGeneralWorkflow started', botId: botId);
+    await _ensureVariableSemantics(botId, runtimeVariables);
 
     // Fix 5: Safe cast for actions list
     final rawActions = workflowData["actions"];
@@ -293,7 +297,7 @@ class WorkflowExecutor {
     }
 
     var actions = actionsJson.map(Action.fromJson).toList();
-    actions = _transpileVisualActions(actions);
+    actions = _transpileVisualActions(actions, runtimeVariables);
 
     callbacks.onDebugLog?.call(
       'Executing ${actions.length} actions in general workflow',
@@ -315,13 +319,32 @@ class WorkflowExecutor {
     );
   }
 
+  Future<void> _ensureVariableSemantics(
+    String botId,
+    Map<String, String> runtimeVariables,
+  ) async {
+    if (!runtimeVariables.containsKey('bdfd.userVariableSemantics')) {
+      await injectBdfdUserVariableSemantics(
+        store: store,
+        botId: botId,
+        runtimeVariables: runtimeVariables,
+      );
+    }
+  }
+
   /// Helper to transpile any inline BDFD syntax found in visual workflow action payloads.
-  List<Action> _transpileVisualActions(List<Action> actions) {
+  List<Action> _transpileVisualActions(
+    List<Action> actions,
+    Map<String, String> runtimeVariables,
+  ) {
     dynamic processValue(dynamic value) {
       if (value is String) {
         if (value.contains(r'$')) {
           // It might contain BDFD inline functions
-          final compileResult = BdfdCompiler().compile(value);
+          final compileResult = BdfdCompiler(
+            legacyUserVariables:
+                runtimeVariables['bdfd.userVariableSemantics'] == '1',
+          ).compile(value);
           // If the compilation produced a single action that is just appending text,
           // we can replace the value with the transpiled text (which now has placeholders).
           // Action type 'sendMessage' with 'content' is the default for raw text in our compiler.
