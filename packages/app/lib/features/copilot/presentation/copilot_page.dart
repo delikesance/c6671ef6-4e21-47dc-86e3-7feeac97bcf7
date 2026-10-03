@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:bot_creator/features/documentation/documentation_navigation.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:bot_creator/core/widgets/app_icon.dart';
@@ -18,7 +19,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 
 class CopilotPage extends StatefulWidget {
@@ -2298,7 +2298,7 @@ class CopilotMarkdown extends StatelessWidget {
       onTapLink: (text, href, title) {
         final uri = Uri.tryParse(href ?? '');
         if (uri != null && ['https', 'http'].contains(uri.scheme)) {
-          unawaited(launchUrl(uri, mode: LaunchMode.externalApplication));
+          unawaited(openAppLink(context, uri));
         }
       },
       builders: {'pre': _CodeBuilder(context.tr.copilot_copy_code)},

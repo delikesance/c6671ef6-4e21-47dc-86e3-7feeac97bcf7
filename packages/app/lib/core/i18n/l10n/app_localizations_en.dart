@@ -12,6 +12,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get docs_search => 'Search documentation';
 
   @override
+  String get docs_reset_filters => 'Reset filters';
+
+  @override
+  String docs_result_count(int count) {
+    return '$count articles';
+  }
+
+  @override
   String get docs_category => 'Category';
 
   @override

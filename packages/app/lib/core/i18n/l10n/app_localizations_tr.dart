@@ -12,6 +12,14 @@ class AppLocalizationsTr extends AppLocalizations {
   String get docs_search => 'Dokümantasyonda ara';
 
   @override
+  String get docs_reset_filters => 'Filtreleri sıfırla';
+
+  @override
+  String docs_result_count(int count) {
+    return '$count makale';
+  }
+
+  @override
   String get docs_category => 'Kategori';
 
   @override

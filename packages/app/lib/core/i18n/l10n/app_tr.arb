@@ -1,5 +1,7 @@
 {
   "docs_search": "Dokümantasyonda ara",
+  "docs_reset_filters": "Filtreleri sıfırla",
+  "docs_result_count": "{count} makale",
   "docs_category": "Kategori",
   "docs_mode": "Mod",
   "docs_no_results": "Eşleşen makale yok",

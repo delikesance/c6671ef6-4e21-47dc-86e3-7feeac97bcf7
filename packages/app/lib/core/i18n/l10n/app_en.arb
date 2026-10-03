@@ -1,5 +1,8 @@
 {
   "docs_search": "Search documentation",
+  "docs_reset_filters": "Reset filters",
+  "docs_result_count": "{count} articles",
+  "@docs_result_count": {"placeholders": {"count": {"type": "int"}}},
   "docs_category": "Category",
   "docs_mode": "Mode",
   "docs_no_results": "No matching articles",

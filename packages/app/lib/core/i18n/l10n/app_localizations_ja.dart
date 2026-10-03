@@ -12,6 +12,14 @@ class AppLocalizationsJa extends AppLocalizations {
   String get docs_search => 'ドキュメントを検索';
 
   @override
+  String get docs_reset_filters => 'フィルターをリセット';
+
+  @override
+  String docs_result_count(int count) {
+    return '$count 件の記事';
+  }
+
+  @override
   String get docs_category => 'カテゴリ';
 
   @override

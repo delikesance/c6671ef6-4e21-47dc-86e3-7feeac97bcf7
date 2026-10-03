@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 
 import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
-import 'package:bot_creator/core/utils/external_link.dart';
+import 'package:bot_creator/features/documentation/documentation_navigation.dart';
 import 'package:bot_creator/features/announcements/logic/announcement.dart';
 
 /// Ouvre un lien externe. Injectable pour que les tests n'appellent jamais le
@@ -105,7 +105,7 @@ Future<void> openAnnouncementLink(
   Uri uri, {
   AnnouncementLinkOpener? openLink,
 }) async {
-  final opened = await (openLink?.call(uri) ?? openExternalUrl(uri));
+  final opened = await (openLink?.call(uri) ?? openAppLink(context, uri));
   if (opened || !context.mounted) return;
   final messenger = ScaffoldMessenger.maybeOf(context);
   final message = context.tr.announcement_link_open_failed;

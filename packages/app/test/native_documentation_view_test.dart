@@ -3,10 +3,12 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:bot_creator/core/i18n/l10n/app_localizations.dart';
+import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/documentation/documentation_article_page.dart';
 import 'package:bot_creator/features/documentation/documentation_hub_page.dart';
 import 'package:bot_creator/features/documentation/documentation_repository.dart';
 import 'package:bot_creator/features/documentation/documentation_urls.dart';
+import 'package:bot_creator/features/documentation/documentation_navigation.dart';
 import 'package:bot_creator/features/documentation/native_documentation_view.dart';
 import 'package:bot_creator/features/documentation/web_documentation_view.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +22,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'documentation_repository_test.dart' show documentationFixture;
 
 Widget app(Widget home) => MaterialApp(
+  theme: AppTheme.lightTheme(),
+  darkTheme: AppTheme.darkTheme(),
+  themeMode: Platform.environment['DOCS_SCREENSHOT_DARK'] == '1'
+      ? ThemeMode.dark
+      : ThemeMode.light,
   locale: const Locale('fr'),
   localizationsDelegates: AppLocalizations.localizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,
@@ -43,6 +50,17 @@ Future<void> screenshot(WidgetTester tester, String name) async {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  setUpAll(() async {
+    if (Platform.environment['DOCS_SCREENSHOT_DIR'] == null) return;
+    for (final font in {
+      'Inter': 'inter/Inter-Regular.ttf',
+      'JetBrainsMono': 'jetbrainsmono/JetBrainsMono-Regular.ttf',
+    }.entries) {
+      final loader = FontLoader(font.key)
+        ..addFont(rootBundle.load('assets/fonts/${font.value}'));
+      await loader.load();
+    }
+  });
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
   testWidgets('cached index remains readable when network is unavailable', (
@@ -230,5 +248,133 @@ void main() {
     await tester.tap(find.byTooltip('Recharger'));
     await tester.pumpAndSettle();
     expect(find.text('\$getVar'), findsOneWidget);
+  });
+
+  testWidgets('filters align, apply and reset without erasing the query', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(320, 780));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    final repository = DocumentationRepository(
+      client: MockClient(
+        (_) async => http.Response(
+          jsonEncode([
+            documentationFixture(),
+            {
+              ...documentationFixture(id: 'blocks'),
+              'name': 'Blocks',
+              'category': 'Workflows',
+              'api_type': 'blocks',
+            },
+          ]),
+          200,
+        ),
+      ),
+    );
+    await tester.pumpWidget(
+      app(
+        DocumentationHubPage(
+          repository: repository,
+          initialSection: DocumentationSection.botCreatorDocs,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byType(DropdownButtonFormField<String>), findsNothing);
+    final category = find.byTooltip('Catégorie');
+    final mode = find.byTooltip('Mode');
+    expect(tester.getTopLeft(category).dy, tester.getTopLeft(mode).dy);
+    await tester.tap(category);
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.widgetWithText(CheckedPopupMenuItem<String>, 'Workflows'),
+    );
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pumpAndSettle();
+    expect(find.text('Blocks'), findsOneWidget);
+    expect(find.text('\$getVar'), findsNothing);
+    await tester.tap(find.byIcon(Icons.restart_alt));
+    await tester.pumpAndSettle();
+    expect(find.text('\$getVar'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await screenshot(tester, 'docs-filters-320');
+  });
+
+  testWidgets(
+    'website anchors scroll and code has syntax colors inside safe area',
+    (tester) async {
+      await tester.binding.setSurfaceSize(const Size(390, 844));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      final content =
+          '# Example {#example}\n\n[Jump](#original-id)\n\n```bdfd\n\$setVar[xp;1]\n```\n\n'
+          '${List.filled(35, 'A paragraph.\n\n').join()}## Different title {#original-id}\n\nTarget.';
+      final fixture = documentationFixture(content: content);
+      final repository = DocumentationRepository(
+        client: MockClient((_) async => http.Response(content, 200)),
+      );
+      await tester.pumpWidget(
+        app(
+          MediaQuery(
+            data: const MediaQueryData(
+              size: Size(390, 844),
+              padding: EdgeInsets.only(bottom: 34),
+              viewPadding: EdgeInsets.only(bottom: 34),
+            ),
+            child: DocumentationArticlePage(
+              url: fixture['url'] as String,
+              title: 'Example',
+              entry: DocumentationEntry.fromJson(fixture),
+              repository: repository,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Example {#example}'), findsNothing);
+      expect(
+        tester.getBottomLeft(find.byType(SingleChildScrollView).first).dy,
+        lessThanOrEqualTo(810),
+      );
+      final code = tester
+          .widgetList<RichText>(find.byType(RichText))
+          .firstWhere(
+            (text) => text.text.toPlainText().contains('\$setVar[xp;1]'),
+          );
+      final colors = <Color>{};
+      void collect(InlineSpan span) {
+        if (span.style?.color != null) colors.add(span.style!.color!);
+        if (span is TextSpan) {
+          for (final child in span.children ?? <InlineSpan>[]) {
+            collect(child);
+          }
+        }
+      }
+
+      collect(code.text);
+      expect(colors.length, greaterThan(1));
+      await screenshot(tester, 'docs-safe-area-code-390');
+      await tester.tap(find.text('Jump'));
+      await tester.pumpAndSettle();
+      expect(find.text('Target.').hitTestable(), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  test('app link routing keeps docs native, not privacy or other hosts', () {
+    expect(
+      isDocumentationArticleUrl(
+        Uri.parse('$botCreatorDocsBaseUrl/getvar/#usage'),
+      ),
+      isTrue,
+    );
+    expect(
+      isDocumentationArticleUrl(Uri.parse('$botTokenTutorialUrl.html')),
+      isTrue,
+    );
+    expect(isDocumentationArticleUrl(Uri.parse(privacyPolicyUrl)), isFalse);
+    expect(
+      isDocumentationArticleUrl(Uri.parse('https://discord.com/developers')),
+      isFalse,
+    );
   });
 }

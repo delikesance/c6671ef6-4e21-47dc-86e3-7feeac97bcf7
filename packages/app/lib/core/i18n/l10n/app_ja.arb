@@ -1,5 +1,7 @@
 {
   "docs_search": "ドキュメントを検索",
+  "docs_reset_filters": "フィルターをリセット",
+  "docs_result_count": "{count} 件の記事",
   "docs_category": "カテゴリ",
   "docs_mode": "モード",
   "docs_no_results": "該当する記事がありません",
