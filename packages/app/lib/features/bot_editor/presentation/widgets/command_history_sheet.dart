@@ -646,7 +646,7 @@ class _CommandHistorySheetState extends State<CommandHistorySheet> {
                     style: const TextStyle(fontSize: 13),
                   ),
                 ),
-                HistoryVersionMenu(
+                HistoryVersionDeleteButton(
                   onDelete: _busy ? null : () => _delete(version),
                 ),
               ],

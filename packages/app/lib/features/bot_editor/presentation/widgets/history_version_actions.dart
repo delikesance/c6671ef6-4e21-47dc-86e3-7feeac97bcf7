@@ -2,35 +2,16 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/widgets/app_icon.dart';
 import 'package:flutter/material.dart';
 
-class HistoryVersionMenu extends StatelessWidget {
-  const HistoryVersionMenu({super.key, required this.onDelete});
+class HistoryVersionDeleteButton extends StatelessWidget {
+  const HistoryVersionDeleteButton({super.key, required this.onDelete});
   final VoidCallback? onDelete;
 
   @override
-  Widget build(BuildContext context) => PopupMenuButton<String>(
-    enabled: onDelete != null,
-    tooltip: context.tr.more_options_title,
-    icon: const AppIcon.fromMaterial(Icons.more_vert),
-    onSelected: (_) => onDelete?.call(),
-    itemBuilder: (_) => [
-      PopupMenuItem(
-        value: 'delete',
-        child: Row(
-          children: [
-            AppIcon.fromMaterial(
-              Icons.delete_outline,
-              color: Theme.of(context).colorScheme.error,
-              size: 20,
-            ),
-            const SizedBox(width: 12),
-            Text(
-              context.tr.common_delete,
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-            ),
-          ],
-        ),
-      ),
-    ],
+  Widget build(BuildContext context) => IconButton(
+    tooltip: context.tr.common_delete,
+    onPressed: onDelete,
+    color: Theme.of(context).colorScheme.error,
+    icon: const AppIcon.fromMaterial(Icons.delete_outline, size: 20),
   );
 }
 
