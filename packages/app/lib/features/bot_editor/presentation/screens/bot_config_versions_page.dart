@@ -32,6 +32,7 @@ class BotConfigVersionsPage extends StatefulWidget {
 
 class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
   late Future<List<Map<String, dynamic>>> _versionsFuture;
+  final Set<String> _deletedVersionKeys = {};
   bool _isRestoring = false;
   bool _isLoadingDiff = false;
 
@@ -508,7 +509,9 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
       final client = await widget.resolveClient(widget.botId, widget.botToken);
       if (client == null) throw Exception('API client unavailable');
       await client.deleteBotConfigVersion(widget.botId, key);
-      if (mounted) _retry();
+      if (mounted) {
+        setState(() => _deletedVersionKeys.add(key));
+      }
     } catch (_) {
       if (mounted) _showRestoreFailure(context.tr.history_action_failed);
     } finally {
@@ -570,7 +573,11 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
               );
             }
 
-            final versions = snapshot.data ?? [];
+            final versions = (snapshot.data ?? [])
+                .where(
+                  (version) => !_deletedVersionKeys.contains(version['key']),
+                )
+                .toList(growable: false);
 
             if (versions.isEmpty) {
               return Center(
@@ -665,6 +672,7 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
                     final key = (version['key'] ?? '').toString();
                     final size = int.tryParse('${version['size']}') ?? 0;
                     return Card(
+                      key: ValueKey(key),
                       margin: EdgeInsets.zero,
                       child: Padding(
                         padding: const EdgeInsets.all(AppTheme.spacingLg),
