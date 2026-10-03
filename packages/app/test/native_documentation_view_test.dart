@@ -255,6 +255,40 @@ void main() {
     expect(find.text('\$getVar'), findsOneWidget);
   });
 
+  testWidgets('article reload refreshes its index revision before its body', (
+    tester,
+  ) async {
+    var content = '# Before update';
+    final fixture = documentationFixture(content: content);
+    final repository = DocumentationRepository(
+      client: MockClient(
+        (request) async => http.Response(
+          request.url.path.contains('index.json')
+              ? jsonEncode([documentationFixture(content: content)])
+              : content,
+          200,
+        ),
+      ),
+    );
+    await tester.pumpWidget(
+      app(
+        DocumentationArticlePage(
+          url: fixture['url'] as String,
+          title: 'Article',
+          entry: DocumentationEntry.fromJson(fixture),
+          repository: repository,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Before update'), findsOneWidget);
+    content = '# After update';
+    await tester.tap(find.byTooltip('Recharger'));
+    await tester.pumpAndSettle();
+    expect(find.text('After update'), findsOneWidget);
+    expect(find.byType(DocumentationLoadError), findsNothing);
+  });
+
   testWidgets('filters align, apply and reset without erasing the query', (
     tester,
   ) async {
