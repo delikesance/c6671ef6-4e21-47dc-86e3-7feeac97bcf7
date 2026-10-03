@@ -98,21 +98,24 @@ class _DocumentationHubPageState extends State<DocumentationHubPage>
       ),
       // Largeur et marges communes à toutes les pages de l'app (contrat
       // AppPageLayout) : le hub n'est plus en plein-cadre.
-      body: PageContent(
-        child: IndexedStack(
-          index: _tabController.index,
-          children: [
-            for (var index = 0; index < _sections.length; index++)
-              if (!_visited.contains(index))
-                const SizedBox.shrink()
-              else if (_sections[index] == DocumentationSection.discordJs)
-                WebDocumentationView(initialUrl: discordJsBaseUrl)
-              else
-                NativeDocumentationView(
-                  section: _sections[index],
-                  repository: widget.repository,
-                ),
-          ],
+      body: SafeArea(
+        top: false,
+        child: PageContent(
+          child: IndexedStack(
+            index: _tabController.index,
+            children: [
+              for (var index = 0; index < _sections.length; index++)
+                if (!_visited.contains(index))
+                  const SizedBox.shrink()
+                else if (_sections[index] == DocumentationSection.discordJs)
+                  WebDocumentationView(initialUrl: discordJsBaseUrl)
+                else
+                  NativeDocumentationView(
+                    section: _sections[index],
+                    repository: widget.repository,
+                  ),
+            ],
+          ),
         ),
       ),
     );

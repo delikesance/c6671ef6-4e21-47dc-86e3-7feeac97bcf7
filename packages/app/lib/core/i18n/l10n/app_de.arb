@@ -1,5 +1,7 @@
 {
   "docs_search": "Dokumentation durchsuchen",
+  "docs_reset_filters": "Filter zurücksetzen",
+  "docs_result_count": "{count} Artikel",
   "docs_category": "Kategorie",
   "docs_mode": "Modus",
   "docs_no_results": "Keine passenden Artikel",

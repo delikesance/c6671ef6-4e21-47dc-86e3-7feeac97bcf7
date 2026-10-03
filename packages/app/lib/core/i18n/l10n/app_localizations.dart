@@ -112,6 +112,18 @@ abstract class AppLocalizations {
   /// **'Search documentation'**
   String get docs_search;
 
+  /// No description provided for @docs_reset_filters.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset filters'**
+  String get docs_reset_filters;
+
+  /// No description provided for @docs_result_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} articles'**
+  String docs_result_count(int count);
+
   /// No description provided for @docs_category.
   ///
   /// In en, this message translates to:

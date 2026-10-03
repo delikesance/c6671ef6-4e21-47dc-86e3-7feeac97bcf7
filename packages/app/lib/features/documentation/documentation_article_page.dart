@@ -1,5 +1,9 @@
 import 'dart:async';
 
+import 'package:bot_creator/core/bdfd_editor/bdfd_syntax_controller.dart';
+import 'package:bot_creator/core/code_editor/code_editor_settings.dart';
+import 'package:bot_creator/core/code_editor/code_editor_theme_data.dart';
+import 'package:bot_creator/core/js_editor/js_syntax_controller.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/utils/external_link.dart';
 import 'package:bot_creator/core/widgets/app_icon.dart';
@@ -11,6 +15,7 @@ import 'package:bot_creator/features/documentation/web_documentation_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
+import 'package:flutter_highlight/flutter_highlight.dart';
 import 'package:markdown/markdown.dart' as md;
 
 class DocumentationArticlePage extends StatefulWidget {
@@ -78,33 +83,36 @@ class _DocumentationArticlePageState extends State<DocumentationArticlePage> {
         ),
       ],
     ),
-    body: !_native
-        ? WebDocumentationView(initialUrl: widget.url)
-        : FutureBuilder(
-            future: _article,
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                return DocumentationLoadError(
-                  url: Uri.parse(widget.url),
-                  onRetry: () => setState(() {
-                    _article = _load(refresh: true);
-                  }),
+    body: SafeArea(
+      top: false,
+      child: !_native
+          ? WebDocumentationView(initialUrl: widget.url)
+          : FutureBuilder(
+              future: _article,
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return DocumentationLoadError(
+                    url: Uri.parse(widget.url),
+                    onRetry: () => setState(() {
+                      _article = _load(refresh: true);
+                    }),
+                  );
+                }
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                final (entry, result) = snapshot.data!;
+                return NativeDocumentationArticle(
+                  key: ValueKey('${entry!.id}@${entry.revision}'),
+                  entry: entry,
+                  content: result!.value,
+                  offline: result.offline,
+                  initialFragment: Uri.parse(widget.url).fragment,
+                  repository: _repository,
                 );
-              }
-              if (!snapshot.hasData) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              final (entry, result) = snapshot.data!;
-              return NativeDocumentationArticle(
-                key: ValueKey('${entry!.id}@${entry.revision}'),
-                entry: entry,
-                content: result!.value,
-                offline: result.offline,
-                initialFragment: Uri.parse(widget.url).fragment,
-                repository: _repository,
-              );
-            },
-          ),
+              },
+            ),
+    ),
   );
 }
 
@@ -136,6 +144,7 @@ class _NativeDocumentationArticleState
     super.initState();
     final nodes = md.Document(
       extensionSet: md.ExtensionSet.gitHubFlavored,
+      blockSyntaxes: const [_DocumentationHeadingSyntax()],
     ).parseLines(widget.content.split('\n'));
     final used = <String, int>{};
     void collect(md.Node node) {
@@ -153,7 +162,9 @@ class _NativeDocumentationArticleState
         );
         _headings.add((
           title: node.textContent,
-          anchor: occurrence == 0 ? base : '$base-$occurrence',
+          anchor:
+              node.attributes['id'] ??
+              (occurrence == 0 ? base : '$base-$occurrence'),
           key: GlobalKey(),
         ));
       }
@@ -286,6 +297,7 @@ class _NativeDocumentationArticleState
                 child: MarkdownBody(
                   data: widget.content,
                   extensionSet: md.ExtensionSet.gitHubFlavored,
+                  blockSyntaxes: const [_DocumentationHeadingSyntax()],
                   styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context))
                       .copyWith(
                         h1: Theme.of(context).textTheme.headlineSmall,
@@ -344,6 +356,25 @@ class _HeadingBuilder extends MarkdownElementBuilder {
   );
 }
 
+// Preserve the original website anchors exported as Markdown heading IDs.
+class _DocumentationHeadingSyntax extends md.HeaderSyntax {
+  const _DocumentationHeadingSyntax();
+  @override
+  md.Node parse(md.BlockParser parser) {
+    final element = super.parse(parser) as md.Element;
+    final children = element.children!;
+    if (children.isNotEmpty && children.first is md.UnparsedContent) {
+      final text = children.first.textContent;
+      final id = RegExp(r'\s+\{#([^}\s]+)\}$').firstMatch(text);
+      if (id != null) {
+        element.attributes['id'] = id.group(1)!;
+        children[0] = md.UnparsedContent(text.substring(0, id.start));
+      }
+    }
+    return element;
+  }
+}
+
 class _DocumentationCodeBuilder extends MarkdownElementBuilder {
   _DocumentationCodeBuilder(this.tooltip);
   final String tooltip;
@@ -355,36 +386,92 @@ class _DocumentationCodeBuilder extends MarkdownElementBuilder {
     md.Element element,
     TextStyle? preferredStyle,
     TextStyle? parentStyle,
-  ) => Container(
-    width: double.infinity,
-    padding: const EdgeInsets.all(12),
-    decoration: BoxDecoration(
-      color: Theme.of(context).colorScheme.surfaceContainer,
-      borderRadius: BorderRadius.circular(4),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Align(
-          alignment: Alignment.centerRight,
-          child: IconButton(
-            tooltip: tooltip,
-            icon: const AppIcon.fromMaterial(Icons.copy, size: 18),
-            onPressed: () =>
-                Clipboard.setData(ClipboardData(text: element.textContent)),
-          ),
+  ) {
+    final code = element.textContent;
+    final codeElement = element.children?.whereType<md.Element>().firstOrNull;
+    final language = (codeElement?.attributes['class'] ?? '')
+        .replaceFirst('language-', '')
+        .toLowerCase();
+    final theme = Theme.of(context);
+    final dark = theme.brightness == Brightness.dark;
+    final palette = CodeEditorThemeColors.forTheme(
+      dark ? CodeEditorTheme.githubDark : CodeEditorTheme.githubLight,
+    );
+    final style = theme.textTheme.bodySmall?.copyWith(
+      fontFamily: 'JetBrainsMono',
+      height: 1.5,
+      color: palette.text,
+    );
+    final isBdfd =
+        [
+          'bdfd',
+          'bdscript',
+          'bdscript2',
+          'bds',
+          'bdfdscript',
+        ].contains(language) ||
+        (['', 'text', 'plaintext'].contains(language) &&
+            RegExp(r'\$\w+').hasMatch(code));
+    Widget highlighted;
+    if (isBdfd || ['js', 'javascript'].contains(language)) {
+      final controller = isBdfd
+          ? BdfdSyntaxController(text: code, themeColors: palette)
+          : JsSyntaxController(text: code, themeColors: palette);
+      highlighted = Text.rich(
+        controller.buildTextSpan(
+          context: context,
+          style: style,
+          withComposing: false,
         ),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Text(
-            element.textContent,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              fontFamily: 'monospace',
-              height: 1.5,
-            ),
+      );
+      controller.dispose();
+    } else if ([
+      'json',
+      'yaml',
+      'dart',
+      'typescript',
+      'bash',
+      'shell',
+      'html',
+      'css',
+      'python',
+    ].contains(language)) {
+      highlighted = HighlightView(
+        code,
+        language: language == 'shell' ? 'bash' : language,
+        theme: palette.hljsTheme,
+        textStyle: style,
+      );
+    } else {
+      highlighted = Text(code, style: style);
+    }
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: palette.background,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(child: Text(isBdfd ? 'BDFD' : language, style: style)),
+              IconButton(
+                tooltip: tooltip,
+                icon: const AppIcon.fromMaterial(Icons.copy, size: 18),
+                onPressed: () =>
+                    Clipboard.setData(ClipboardData(text: element.textContent)),
+              ),
+            ],
           ),
-        ),
-      ],
-    ),
-  );
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: highlighted,
+          ),
+        ],
+      ),
+    );
+  }
 }
