@@ -59,6 +59,7 @@ import 'package:bot_creator/core/network/remote_runtime.dart';
 import 'package:bot_creator/core/storage/granular_data_layer.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/history_version_preview.dart';
 import 'package:intl/intl.dart';
 
 import 'package:bot_creator/core/widgets/app_icon.dart';
@@ -82,6 +83,7 @@ Future<void> showCommandHistorySheet(
   return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
+    useSafeArea: true,
     showDragHandle: true,
     builder: (_) => CommandHistorySheet(
       botId: botId,
@@ -443,49 +445,109 @@ class _CommandHistorySheetState extends State<CommandHistorySheet> {
     await _restore(historyId);
   }
 
+  Future<void> _preview(CommandVersionInfo version) async {
+    if (_busy || widget.repository == null) return;
+    setState(() => _busy = true);
+    try {
+      await showHistoryVersionPreview(
+        context,
+        load: () => widget.repository!.previewCommandVersion(
+          widget.botId,
+          widget.commandId,
+          version.historyId,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _delete(CommandVersionInfo version) async {
+    if (_busy || widget.repository == null) return;
+    setState(() => _busy = true);
+    try {
+      final confirmed = await AppTheme.showConfirmDialog(
+        context,
+        title: context.tr.common_delete,
+        content: context.tr.history_delete_confirm,
+        confirmLabel: context.tr.common_delete,
+        cancelLabel: context.tr.common_cancel,
+        isDestructive: true,
+      );
+      if (!confirmed || !mounted) return;
+      await widget.repository!.deleteCommandVersion(
+        widget.botId,
+        widget.commandId,
+        version.historyId,
+      );
+      if (mounted) await _load();
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.tr.history_action_failed)),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
   // ─── Rendu ───────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
     final tr = context.tr;
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Row(
-              children: <Widget>[
-                AppIcon.fromMaterial(
-                  Icons.history_rounded,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    tr.command_history_title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.sizeOf(context).height * .85,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Row(
+                children: <Widget>[
+                  AppIcon.fromMaterial(
+                    Icons.history_rounded,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      tr.command_history_title,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
-                ),
-                IconButton(
-                  tooltip: tr.common_close,
-                  onPressed: () => Navigator.of(context).maybePop(),
-                  icon: const AppIcon.fromMaterial(Icons.close_rounded),
-                ),
-              ],
-            ),
-            if (_busy)
-              const Padding(
-                padding: EdgeInsets.only(top: 4),
-                child: LinearProgressIndicator(),
+                  IconButton(
+                    tooltip: tr.common_close,
+                    onPressed: () => Navigator.of(context).maybePop(),
+                    icon: const AppIcon.fromMaterial(Icons.close_rounded),
+                  ),
+                ],
               ),
-            const SizedBox(height: 8),
-            ..._buildBody(tr),
-          ],
+              if (_busy)
+                const Padding(
+                  padding: EdgeInsets.only(top: 4),
+                  child: LinearProgressIndicator(),
+                ),
+              const SizedBox(height: 8),
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: _buildBody(tr),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -550,13 +612,7 @@ class _CommandHistorySheetState extends State<CommandHistorySheet> {
               message: tr.command_history_empty,
             )
           else
-            Flexible(
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: _versions.length,
-                itemBuilder: (context, index) => _versionTile(_versions[index]),
-              ),
-            ),
+            ..._versions.map(_versionTile),
         ];
     }
   }
@@ -569,20 +625,40 @@ class _CommandHistorySheetState extends State<CommandHistorySheet> {
   Widget _versionTile(CommandVersionInfo version) {
     final tr = context.tr;
     final localeName = Localizations.localeOf(context).toString();
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      leading: const AppIcon.fromMaterial(Icons.commit_rounded),
-      title: Text(
-        tr.command_history_version_meta(
-          _authorLabel(version.authorOwnerId),
-          _timestampLabel(version.createdAt, localeName),
-          version.sizeBytes,
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              tr.command_history_version_meta(
+                _authorLabel(version.authorOwnerId),
+                _timestampLabel(version.createdAt, localeName),
+                version.sizeBytes,
+              ),
+              style: const TextStyle(fontSize: 13),
+            ),
+            Wrap(
+              alignment: WrapAlignment.end,
+              spacing: 8,
+              children: [
+                TextButton(
+                  onPressed: _busy ? null : () => _preview(version),
+                  child: Text(tr.history_preview),
+                ),
+                TextButton(
+                  onPressed: _busy ? null : () => _delete(version),
+                  child: Text(tr.common_delete),
+                ),
+                TextButton(
+                  onPressed: _busy ? null : () => _confirmAndRestore(version),
+                  child: Text(tr.command_history_restore),
+                ),
+              ],
+            ),
+          ],
         ),
-        style: const TextStyle(fontSize: 13),
-      ),
-      trailing: TextButton(
-        onPressed: _busy ? null : () => _confirmAndRestore(version),
-        child: Text(tr.command_history_restore),
       ),
     );
   }

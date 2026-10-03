@@ -176,6 +176,18 @@ class BotDataRepository {
   /// route v2 est appelée même sans sonde, pour que la réponse du serveur (et
   /// son code, `bot_command_history_unavailable` par exemple) soit la vérité
   /// plutôt qu'une erreur inventée côté client.
+  Future<Map<String, dynamic>> previewCommandVersion(
+    String botId,
+    String commandId,
+    String historyId,
+  ) => client.previewCommandVersionV2(botId, commandId, historyId);
+
+  Future<void> deleteCommandVersion(
+    String botId,
+    String commandId,
+    String historyId,
+  ) => client.deleteCommandVersionV2(botId, commandId, historyId);
+
   Future<List<CommandVersionInfo>> listCommandHistory(
     String botId,
     String commandId, {

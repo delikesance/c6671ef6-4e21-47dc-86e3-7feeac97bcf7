@@ -10942,5 +10942,8 @@
   "settings_text_size_reset": "Redefinir tamanho",
   "bot_config_versions_cloud_checkpoints": "Pontos de salvamento na nuvem",
   "bot_config_versions_checkpoint_hint": "Uma versão completa da nuvem é salva ao enviar ou baixar. A restauração também mantém uma cópia de segurança.",
-  "bot_config_versions_remote_authority": "A versão da nuvem substitui a configuração local. Comandos e workflows ausentes na nuvem são removidos localmente."
+  "bot_config_versions_remote_authority": "A versão da nuvem substitui a configuração local. Comandos e workflows ausentes na nuvem são removidos localmente.",
+  "history_preview": "Ver conteúdo",
+  "history_delete_confirm": "Excluir permanentemente esta versão salva? A configuração atual permanece inalterada.",
+  "history_action_failed": "Não foi possível concluir esta ação no histórico. Tente novamente."
 }

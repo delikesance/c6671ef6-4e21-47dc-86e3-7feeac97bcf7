@@ -12862,5 +12862,8 @@
   "settings_text_size_reset": "Reset text size",
   "bot_config_versions_cloud_checkpoints": "Cloud checkpoints",
   "bot_config_versions_checkpoint_hint": "A full cloud version is saved when you push or pull. Restoring a version also keeps a safety copy.",
-  "bot_config_versions_remote_authority": "The cloud version replaces the local configuration. Commands and workflows absent from the cloud are removed locally."
+  "bot_config_versions_remote_authority": "The cloud version replaces the local configuration. Commands and workflows absent from the cloud are removed locally.",
+  "history_preview": "Preview content",
+  "history_delete_confirm": "Delete this saved version permanently? The current configuration will stay unchanged.",
+  "history_action_failed": "Unable to complete this history action. Please try again."
 }
