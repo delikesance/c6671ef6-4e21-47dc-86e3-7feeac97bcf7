@@ -8,6 +8,7 @@ import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/utils/external_link.dart';
 import 'package:bot_creator/core/widgets/app_icon.dart';
 import 'package:bot_creator/features/documentation/documentation_repository.dart';
+import 'package:bot_creator/features/documentation/documentation_preview.dart';
 import 'package:bot_creator/features/documentation/documentation_hub_page.dart';
 import 'package:bot_creator/features/documentation/documentation_urls.dart';
 import 'package:bot_creator/features/documentation/native_documentation_view.dart';
@@ -300,6 +301,8 @@ class _NativeDocumentationArticleState
                   blockSyntaxes: const [_DocumentationHeadingSyntax()],
                   styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context))
                       .copyWith(
+                        codeblockPadding: EdgeInsets.zero,
+                        codeblockDecoration: const BoxDecoration(),
                         h1: Theme.of(context).textTheme.headlineSmall,
                         h2: Theme.of(context).textTheme.titleLarge,
                         h3: Theme.of(context).textTheme.titleMedium,
@@ -323,6 +326,7 @@ class _NativeDocumentationArticleState
                   builders: {
                     'pre': _DocumentationCodeBuilder(
                       context.tr.copilot_copy_code,
+                      onLink: _link,
                     ),
                     for (var level = 1; level <= 6; level++)
                       'h$level': headingBuilder,
@@ -376,8 +380,9 @@ class _DocumentationHeadingSyntax extends md.HeaderSyntax {
 }
 
 class _DocumentationCodeBuilder extends MarkdownElementBuilder {
-  _DocumentationCodeBuilder(this.tooltip);
+  _DocumentationCodeBuilder(this.tooltip, {this.onLink});
   final String tooltip;
+  final Future<void> Function(String)? onLink;
   @override
   bool isBlockElement() => true;
   @override
@@ -392,6 +397,30 @@ class _DocumentationCodeBuilder extends MarkdownElementBuilder {
     final language = (codeElement?.attributes['class'] ?? '')
         .replaceFirst('language-', '')
         .toLowerCase();
+    final preview = DocumentationPreview.decode(language, code);
+    if (preview != null) {
+      return DocumentationPreview(
+        kind: language,
+        data: preview,
+        markdown: (content) => Builder(
+          builder: (context) => MarkdownBody(
+            data: content,
+            extensionSet: md.ExtensionSet.gitHubFlavored,
+            styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context))
+                .copyWith(
+                  codeblockPadding: EdgeInsets.zero,
+                  codeblockDecoration: const BoxDecoration(),
+                ),
+            onTapLink: (_, href, _) {
+              if (href != null && onLink != null) unawaited(onLink!(href));
+            },
+            builders: {
+              'pre': _DocumentationCodeBuilder(tooltip, onLink: onLink),
+            },
+          ),
+        ),
+      );
+    }
     final theme = Theme.of(context);
     final dark = theme.brightness == Brightness.dark;
     final palette = CodeEditorThemeColors.forTheme(

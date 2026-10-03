@@ -9,6 +9,7 @@ import 'package:bot_creator/features/documentation/documentation_hub_page.dart';
 import 'package:bot_creator/features/documentation/documentation_repository.dart';
 import 'package:bot_creator/features/documentation/documentation_urls.dart';
 import 'package:bot_creator/features/documentation/documentation_navigation.dart';
+import 'package:bot_creator/features/documentation/documentation_preview.dart';
 import 'package:bot_creator/features/documentation/native_documentation_view.dart';
 import 'package:bot_creator/features/documentation/web_documentation_view.dart';
 import 'package:flutter/material.dart';
@@ -22,8 +23,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'documentation_repository_test.dart' show documentationFixture;
 
 Widget app(Widget home) => MaterialApp(
-  theme: AppTheme.lightTheme(),
-  darkTheme: AppTheme.darkTheme(),
+  theme: AppTheme.lightTheme().copyWith(
+    textTheme: AppTheme.lightTheme().textTheme.apply(fontFamily: 'Inter'),
+  ),
+  darkTheme: AppTheme.darkTheme().copyWith(
+    textTheme: AppTheme.darkTheme().textTheme.apply(fontFamily: 'Inter'),
+  ),
   themeMode: Platform.environment['DOCS_SCREENSHOT_DARK'] == '1'
       ? ThemeMode.dark
       : ThemeMode.light,
@@ -377,4 +382,135 @@ void main() {
       isFalse,
     );
   });
+
+  test(
+    'structured preview decoder rejects malformed and unsupported payloads',
+    () {
+      expect(DocumentationPreview.decode('bc-dual-view', '{'), isNull);
+      expect(
+        DocumentationPreview.decode(
+          'bc-dual-view',
+          '{"version":2,"panels":[]}',
+        ),
+        isNull,
+      );
+      expect(
+        DocumentationPreview.decode(
+          'bc-block-flow',
+          '{"version":1,"blocks":["bad"]}',
+        ),
+        isNull,
+      );
+      expect(
+        DocumentationPreview.decode(
+          'javascript',
+          '{"version":1,"panels":[{}]}',
+        ),
+        isNull,
+      );
+    },
+  );
+
+  for (final size in [const Size(320, 780), const Size(1200, 850)]) {
+    testWidgets(
+      'block script switch and Discord embeds render natively at $size',
+      (tester) async {
+        await tester.binding.setSurfaceSize(size);
+        addTearDown(() => tester.binding.setSurfaceSize(null));
+        final flow = jsonEncode({
+          'version': 1,
+          'blocks': [
+            {
+              'title': 'SLASH COMMAND: /ping',
+              'badge': 'Trigger',
+              'category': 'entrypoint',
+              'description': 'Measures bot latency.',
+              'fields': [],
+              'toggles': [],
+            },
+            {
+              'title': 'RESPOND TO INTERACTION',
+              'badge': 'Terminal',
+              'category': 'interactions',
+              'description': '',
+              'fields': [
+                {'label': 'Embed Title', 'value': 'Pong!'},
+              ],
+              'toggles': [
+                {'label': 'Ephemeral Reply', 'enabled': true},
+              ],
+            },
+          ],
+        });
+        final dual = jsonEncode({
+          'version': 1,
+          'panels': [
+            {'label': 'Blocks', 'markdown': '```bc-block-flow\n$flow\n```'},
+            {'label': 'Script', 'markdown': '```bdfd\n\$title[Pong!]\n```'},
+          ],
+        });
+        final discord = jsonEncode({
+          'version': 1,
+          'messages': [
+            {
+              'avatar': 'B',
+              'username': 'Bot Creator Assistant',
+              'botTag': 'BOT',
+              'timestamp': 'Today at 3:00 PM',
+              'content': 'Welcome **Jeremy**!',
+              'embeds': [
+                {
+                  'color': '#5865F2',
+                  'title': 'Pong!',
+                  'description': 'Latency: **24 ms**',
+                  'footer': 'Example',
+                },
+              ],
+              'buttons': [
+                {'label': 'Close Ticket', 'style': 'danger'},
+              ],
+              'ephemeral': 'Only you can see this',
+            },
+          ],
+        });
+        final content =
+            '# Example\n\n```bc-dual-view\n$dual\n```\n\n```bc-discord-preview\n$discord\n```';
+        final fixture = documentationFixture(content: content);
+        final repository = DocumentationRepository(
+          client: MockClient((_) async => http.Response(content, 200)),
+        );
+        await tester.pumpWidget(
+          app(
+            DocumentationArticlePage(
+              url: fixture['url'] as String,
+              title: 'Example',
+              entry: DocumentationEntry.fromJson(fixture),
+              repository: repository,
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.text('SLASH COMMAND: /ping'), findsOneWidget);
+        expect(find.text('RESPOND TO INTERACTION'), findsOneWidget);
+        expect(find.byType(Switch), findsOneWidget);
+        await screenshot(tester, 'docs-previews-blocks-${size.width.toInt()}');
+        await tester.tap(find.text('Script'));
+        await tester.pumpAndSettle();
+        expect(find.text('SLASH COMMAND: /ping'), findsNothing);
+        expect(find.byTooltip('Copier le code'), findsOneWidget);
+        await tester.tap(find.byTooltip('Copier le code'));
+        await tester.pump();
+        await tester.scrollUntilVisible(
+          find.text('Close Ticket'),
+          150,
+          scrollable: find.byType(Scrollable).first,
+        );
+        expect(find.text('Bot Creator Assistant'), findsOneWidget);
+        expect(find.text('Pong!'), findsOneWidget);
+        expect(find.text('Only you can see this'), findsOneWidget);
+        expect(tester.takeException(), isNull);
+        await screenshot(tester, 'docs-previews-discord-${size.width.toInt()}');
+      },
+    );
+  }
 }
