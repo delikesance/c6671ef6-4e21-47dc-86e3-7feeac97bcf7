@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'copilot_schema.dart';
+import 'copilot_sandbox_result.dart';
 
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
@@ -309,7 +310,7 @@ class CopilotMcp {
           result['contract_checks'] = contract['checks'];
         }
         final trace = result['trace'];
-        final traceLimit = args['trace_limit'] as int? ?? 40;
+        final traceLimit = args['trace_limit'] as int? ?? 0;
         if (trace is List && trace.length > traceLimit) {
           result['trace_total'] = trace.length;
           result['trace_truncated'] = true;
@@ -317,7 +318,15 @@ class CopilotMcp {
         }
         return {
           'content': [
-            {'type': 'text', 'text': jsonEncode(result)},
+            {
+              'type': 'text',
+              'text': jsonEncode(
+                copilotSandboxResult(
+                  result,
+                  detailed: args['result_view'] == 'detailed',
+                ),
+              ),
+            },
           ],
           'isError':
               result['success'] != true || result['contract_passed'] == false,

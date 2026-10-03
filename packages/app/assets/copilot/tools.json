@@ -26,7 +26,7 @@
   },
   {
     "name": "local_test_command",
-    "description": "Execute a BDFD draft or action blocks in the isolated local sandbox. No real Discord, network or production storage access. Returns simulated responses, execution trace and fixture storage before/after. Test valid and invalid inputs before saving; never present this as a live Discord test. Unsupported actions fail explicitly.",
+    "description": "Execute a BDFD draft or action blocks in the isolated local sandbox. No real Discord, network or production storage access. Returns compact simulated responses, errors, assertions and bounded fixture storage. No trace by default. Use detailed output or a short trace only to diagnose a specific failure. Never present simulation as live Discord verification. Unsupported actions fail explicitly.",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -62,7 +62,15 @@
           "type": "integer",
           "minimum": 0,
           "maximum": 500,
-          "description": "Maximum returned execution frames (default 40); omitted frames are explicitly counted. Contract checks still inspect the complete result."
+          "description": "Maximum returned execution frames (default 0); omitted frames are explicitly counted. Contract checks still inspect the complete result."
+        },
+        "result_view": {
+          "type": "string",
+          "enum": [
+            "compact",
+            "detailed"
+          ],
+          "description": "Defaults to compact. Detailed includes intermediate results and logs for a concrete failure. Both views bound output size and explicitly report omissions; assertions always inspect the full result."
         }
       },
       "additionalProperties": false
