@@ -146,9 +146,78 @@ void main() {
     await tester.pumpAndSettle();
     expect(deleted, isTrue);
     expect(requests.where((r) => r.method == 'DELETE'), hasLength(1));
+    expect(
+      requests.where(
+        (r) => r.method == 'GET' && r.url.path.endsWith('/versions'),
+      ),
+      hasLength(1),
+    );
     expect(find.text(fr.history_preview), findsNothing);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets(
+    'deleting a scrolled version keeps the list and scroll position',
+    (tester) async {
+      final fr = await AppLocalizations.delegate.load(const Locale('fr'));
+      var reads = 0;
+      String? deletedKey;
+      final versions = List.generate(
+        20,
+        (index) => {
+          'key': 'configs/layout-bot/versions/version-$index.json',
+          'size': 500,
+        },
+      );
+      final client = MainApiClient(
+        baseUrl: 'https://history-scroll.example',
+        accessToken: 'test-token',
+        httpClient: MockClient((request) async {
+          if (request.method == 'DELETE') {
+            deletedKey = request.url.queryParameters['key'];
+            return http.Response('{"ok":true}', 200);
+          }
+          reads++;
+          return http.Response(jsonEncode({'data': versions}), 200);
+        }),
+      );
+      await tester.pumpWidget(
+        MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: BotConfigVersionsPage(
+            botId: 'layout-bot',
+            botToken: 'test-token',
+            resolveClient: (_, _) async => client,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final list = find.byType(Scrollable).first;
+      const key = 'configs/layout-bot/versions/version-8.json';
+      final card = find.byKey(const ValueKey(key));
+      await tester.scrollUntilVisible(card, 250, scrollable: list);
+      await tester.ensureVisible(card);
+      await tester.pumpAndSettle();
+      final position = tester.state<ScrollableState>(list).position;
+      final before = position.pixels;
+      expect(before, greaterThan(0));
+      await tester.tap(
+        find.descendant(of: card, matching: find.byTooltip(fr.common_delete)),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, fr.common_delete));
+      await tester.pumpAndSettle();
+      expect(deletedKey, key);
+      expect(card, findsNothing);
+      expect(reads, 1);
+      expect(tester.state<ScrollableState>(list).position, same(position));
+      expect(position.pixels, closeTo(before, .1));
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   for (final language in ['en', 'fr', 'de', 'ja', 'pt', 'tr']) {
     testWidgets('restore preview fits a narrow screen in $language', (

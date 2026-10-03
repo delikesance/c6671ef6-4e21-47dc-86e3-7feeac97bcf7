@@ -483,7 +483,13 @@ class _CommandHistorySheetState extends State<CommandHistorySheet> {
         widget.commandId,
         version.historyId,
       );
-      if (mounted) await _load();
+      if (mounted) {
+        setState(() {
+          _versions = _versions
+              .where((entry) => entry.historyId != version.historyId)
+              .toList(growable: false);
+        });
+      }
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

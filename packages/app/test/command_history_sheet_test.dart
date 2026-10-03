@@ -334,6 +334,11 @@ void main() {
       );
       expect(find.text(fr.command_history_empty), findsOneWidget);
       expect(manager.rollbackCalls, isEmpty);
+      expect(
+        manager.historyCalls,
+        1,
+        reason: 'deletion must not reload the list',
+      );
     },
   );
 
