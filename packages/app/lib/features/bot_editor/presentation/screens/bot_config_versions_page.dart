@@ -701,7 +701,7 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
                                     ],
                                   ),
                                 ),
-                                HistoryVersionMenu(
+                                HistoryVersionDeleteButton(
                                   onDelete: busy
                                       ? null
                                       : () => _deleteVersion(key),
