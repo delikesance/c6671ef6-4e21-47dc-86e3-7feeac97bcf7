@@ -10955,5 +10955,8 @@
   "settings_text_size_title": "Taille du texte",
   "settings_text_size_description": "Ajuste la taille du texte de l’app par rapport au réglage de votre appareil.",
   "settings_text_size_preview": "Aperçu : vos commandes, workflows et conversations.",
-  "settings_text_size_reset": "Réinitialiser la taille"
+  "settings_text_size_reset": "Réinitialiser la taille",
+  "bot_config_versions_cloud_checkpoints": "Points de sauvegarde cloud",
+  "bot_config_versions_checkpoint_hint": "Une version complète du cloud est sauvegardée lors d’un push ou d’un pull. Une restauration conserve aussi une copie de sécurité.",
+  "bot_config_versions_remote_authority": "La version cloud remplace la configuration locale. Les commandes et workflows absents du cloud sont supprimés localement."
 }

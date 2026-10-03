@@ -10993,5 +10993,8 @@
   "settings_text_size_title": "文字サイズ",
   "settings_text_size_description": "端末の文字サイズ設定を基準に、アプリの文字サイズを調整します。",
   "settings_text_size_preview": "プレビュー：コマンド、ワークフロー、会話。",
-  "settings_text_size_reset": "文字サイズをリセット"
+  "settings_text_size_reset": "文字サイズをリセット",
+  "bot_config_versions_cloud_checkpoints": "クラウドの保存ポイント",
+  "bot_config_versions_checkpoint_hint": "プッシュまたはプル時にクラウドの完全なバージョンが保存されます。復元時にも安全のためコピーを保存します。",
+  "bot_config_versions_remote_authority": "クラウドのバージョンでローカル設定を置き換えます。クラウドにないコマンドとワークフローはローカルから削除されます。"
 }

@@ -304,7 +304,7 @@ void main() {
   );
 
   test(
-    'syncManagedBotsAfterDiscordLogin fetches R2 config and preserves local commands',
+    'syncManagedBotsAfterDiscordLogin fetches R2 config and replaces local commands',
     () async {
       // 1. Setup local command
       await appManager
@@ -392,8 +392,8 @@ void main() {
       );
       final commandIds = commandsAfter.map((c) => c['id']).toList();
 
-      // Verify both preexisting local command and cloud command exist!
-      expect(commandIds, contains('my_preexisting_cmd'));
+      // The authoritative remote document removes local-only commands.
+      expect(commandIds, isNot(contains('my_preexisting_cmd')));
       expect(commandIds, contains('cloud_cmd_1'));
     },
   );

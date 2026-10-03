@@ -83,11 +83,11 @@ Future<int> syncManagedBotsAfterDiscordLogin({
           'Failed to fetch full remote config for $botId: $e',
           name: 'MainApiAccountBootstrap',
         );
+        continue;
       }
     }
 
     // Rehydrate commands and workflows from remote config if available
-    final remoteCommands = extractCommandListFromConfig(config['commands']);
     try {
       await applyManagerRuntimeMetadataToLocal(
         appManager: appManager,
@@ -101,57 +101,17 @@ Future<int> syncManagedBotsAfterDiscordLogin({
       );
       continue;
     }
-    final remoteWorkflows = config['workflows'];
-    final hasRemoteData =
-        remoteCommands.isNotEmpty ||
-        (remoteWorkflows is List && remoteWorkflows.isNotEmpty) ||
-        (remoteWorkflows is Map && remoteWorkflows.isNotEmpty);
-
-    final localCommands = await appManager.listAppCommands(
-      botId,
-      forceRefresh: true,
-    );
-
-    if (hasRemoteData) {
-      try {
-        if (localCommands.isEmpty) {
-          // Fresh install or no local commands: restore all remote commands
-          await applyManagerConfigToLocal(
-            appManager: appManager,
-            botId: botId,
-            remoteConfig: config,
-            saveAppMetadata: false,
-            deleteMissingLocalCommands: false,
-          );
-        } else {
-          // Both local and remote exist: smartMerge to retain local commands!
-          await BotReconciliationService.smartMerge(
-            pushToCloud: false,
-            botId: botId,
-            remoteConfig: config,
-            client: client,
-            appManager: appManager,
-            botName: botName,
-          );
-        }
-      } catch (e) {
-        developer.log(
-          'Failed to restore commands/workflows during login sync for $botId: $e',
-          name: 'MainApiAccountBootstrap',
-        );
-      }
-    } else if (localCommands.isNotEmpty) {
-      // Remote had no commands but local has commands: push local to remote!
-      try {
-        await BotReconciliationService.keepLocalAndPushToCloud(
-          botId: botId,
-          client: client,
-          botName: botName,
-          appManager: appManager,
-        );
-      } catch (e) {
-        developer.log('Failed to push local commands to remote for $botId: $e');
-      }
+    try {
+      await BotReconciliationService.applyCloudToLocal(
+        botId: botId,
+        remoteConfig: config,
+        appManager: appManager,
+      );
+    } catch (e) {
+      developer.log(
+        'Failed to apply remote configuration for $botId: $e',
+        name: 'MainApiAccountBootstrap',
+      );
     }
 
     synced++;

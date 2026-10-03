@@ -11034,4 +11034,15 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get settings_text_size_reset => 'Metin boyutunu sıfırla';
+
+  @override
+  String get bot_config_versions_cloud_checkpoints => 'Bulut kayıt noktaları';
+
+  @override
+  String get bot_config_versions_checkpoint_hint =>
+      'Gönderme veya çekme sırasında tam bir bulut sürümü kaydedilir. Geri yükleme de bir güvenlik kopyası saklar.';
+
+  @override
+  String get bot_config_versions_remote_authority =>
+      'Bulut sürümü yerel yapılandırmanın yerini alır. Bulutta bulunmayan komutlar ve iş akışları yerelden kaldırılır.';
 }

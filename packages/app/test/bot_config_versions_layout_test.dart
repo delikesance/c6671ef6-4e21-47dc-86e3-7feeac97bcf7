@@ -85,8 +85,10 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byType(TextButton).last);
+      await tester.pumpAndSettle();
       await tester.runAsync(() async {
-        await tester.tap(find.byType(OutlinedButton).last);
+        await tester.tap(find.byType(TextButton).last);
         await Future<void>.delayed(const Duration(milliseconds: 150));
       });
       await tester.pumpAndSettle();

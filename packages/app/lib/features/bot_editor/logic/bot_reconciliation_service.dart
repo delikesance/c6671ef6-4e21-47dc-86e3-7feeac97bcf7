@@ -6,6 +6,7 @@ import 'package:bot_creator/features/bot_editor/logic/bot_config_import.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_config_merge.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
 import 'package:nyxx/nyxx.dart' hide Builder;
+import 'package:bot_creator/features/bot_editor/logic/normalize_command_data.dart';
 
 enum BotSyncStatus {
   /// Both local and cloud configurations are identical.
@@ -81,47 +82,8 @@ class BotReconciliationService {
     final localApp = await mgr.getApp(botId);
 
     final diff = computeBotConfigMergeDiff(localCommands, remoteCommands);
-    final localHasNewerCmds = botConfigLocalHasNewerEdits(
-      localCommands,
-      remoteCommands,
-    );
-
-    // Timestamps
     final remoteTs = _getRemoteMaxTimestamp(remoteConfig, remoteCommands);
     final localTs = _getLocalMaxTimestamp(localApp, localCommands);
-
-    // Workflows check
-    final remoteWorkflows =
-        (remoteConfig['workflows'] as List?)?.whereType<Map>().toList() ?? [];
-    final localWorkflows =
-        (localApp['workflows'] as List?)?.whereType<Map>().toList() ?? [];
-
-    final remoteWfNames = remoteWorkflows
-        .map((w) => (w['name'] ?? '').toString())
-        .where((n) => n.isNotEmpty)
-        .toSet();
-    final localWfNames = localWorkflows
-        .map((w) => (w['name'] ?? '').toString())
-        .where((n) => n.isNotEmpty)
-        .toSet();
-
-    final hasNewRemoteWorkflows = remoteWfNames
-        .difference(localWfNames)
-        .isNotEmpty;
-    final hasLocalOnlyWorkflows = localWfNames
-        .difference(remoteWfNames)
-        .isNotEmpty;
-
-    // Check if remote has changes
-    final cloudHasCommandChanges =
-        diff.newCommands.isNotEmpty || diff.updatedCommands.isNotEmpty;
-    final cloudHasWorkflowChanges = hasNewRemoteWorkflows;
-    final cloudHasChanges = cloudHasCommandChanges || cloudHasWorkflowChanges;
-
-    // Check if local has changes
-    final localHasCommandChanges = localHasNewerCmds || diff.localOnlyCount > 0;
-    final localHasWorkflowChanges = hasLocalOnlyWorkflows;
-    final localHasChanges = localHasCommandChanges || localHasWorkflowChanges;
 
     // Hashes comparison for exact identity
     final remoteHash = HashUtil.calculateHash(
@@ -141,57 +103,7 @@ class BotReconciliationService {
       );
     }
 
-    if (cloudHasChanges && !localHasChanges) {
-      return BotReconciliationCheckResult(
-        status: BotSyncStatus.cloudNewer,
-        remoteConfig: remoteConfig,
-        diff: diff,
-        remoteTimestamp: remoteTs,
-        localTimestamp: localTs,
-      );
-    }
-
-    if (localHasChanges && !cloudHasChanges) {
-      return BotReconciliationCheckResult(
-        status: BotSyncStatus.localNewer,
-        remoteConfig: remoteConfig,
-        diff: diff,
-        remoteTimestamp: remoteTs,
-        localTimestamp: localTs,
-      );
-    }
-
-    if (cloudHasChanges && localHasChanges) {
-      return BotReconciliationCheckResult(
-        status: BotSyncStatus.conflict,
-        remoteConfig: remoteConfig,
-        diff: diff,
-        remoteTimestamp: remoteTs,
-        localTimestamp: localTs,
-      );
-    }
-
-    // Fallback based on timestamps if diffs didn't flag explicit additions
-    if (remoteTs != null && localTs != null) {
-      if (remoteTs.isAfter(localTs)) {
-        return BotReconciliationCheckResult(
-          status: BotSyncStatus.cloudNewer,
-          remoteConfig: remoteConfig,
-          diff: diff,
-          remoteTimestamp: remoteTs,
-          localTimestamp: localTs,
-        );
-      } else if (localTs.isAfter(remoteTs)) {
-        return BotReconciliationCheckResult(
-          status: BotSyncStatus.localNewer,
-          remoteConfig: remoteConfig,
-          diff: diff,
-          remoteTimestamp: remoteTs,
-          localTimestamp: localTs,
-        );
-      }
-    }
-
+    // The remote document is authoritative regardless of local timestamps.
     return BotReconciliationCheckResult(
       status: BotSyncStatus.cloudNewer,
       remoteConfig: remoteConfig,
@@ -312,6 +224,7 @@ class BotReconciliationService {
         botId: botId,
         saveAppMetadata: false,
         remoteConfig: {'commands': commandsToImport},
+        deleteMissingLocalCommands: false,
       );
 
       // 2. Merge workflows:
@@ -441,54 +354,43 @@ class BotReconciliationService {
   static Map<String, dynamic> _canonicalizeForHash(
     Map<String, dynamic> config,
   ) {
-    final commands = extractCommandListFromConfig(config['commands']);
+    final commands = extractCommandListFromConfig(
+      config['commands'],
+    ).map(normalizeCommandData).toList();
     final workflows =
         (config['workflows'] as List?)?.whereType<Map>().toList() ?? [];
-    final globals =
-        (config['globalVariables'] as Map?)?.cast<String, dynamic>() ?? {};
-
-    return <String, dynamic>{
+    return {
       'commands':
           commands
-              .map((c) => '${c['id'] ?? c['name']}:${c['updatedAt'] ?? ''}')
+              .map(
+                (command) => HashUtil.calculateHash({
+                  'id': command['id'] ?? command['commandId'],
+                  'name': command['name'],
+                  'description': command['description'] ?? '',
+                  'updatedAt': command['updatedAt'],
+                  'enabled': command['enabled'] ?? true,
+                  'data': command['data'] ?? {},
+                }),
+              )
               .toList()
             ..sort(),
       'workflows':
           workflows
               .map(
-                (w) => '${w['name']}:${(w['actions'] as List?)?.length ?? 0}',
+                (workflow) => HashUtil.calculateHash({
+                  for (final entry in workflow.entries)
+                    if (entry.key != 'createdAt' && entry.key != 'updatedAt')
+                      entry.key: entry.value,
+                }),
               )
               .toList()
             ..sort(),
-      'globals': globals.entries.map((e) => '${e.key}:${e.value}').toList()
-        ..sort(),
+      'globals': config['globalVariables'] ?? {},
     };
   }
 
   static Map<String, dynamic> _canonicalizeLocal(
     Map<String, dynamic> app,
     List<Map<String, dynamic>> commands,
-  ) {
-    final workflows =
-        (app['workflows'] as List?)?.whereType<Map>().toList() ?? [];
-    final globals =
-        (app['globalVariables'] as Map?)?.cast<String, dynamic>() ?? {};
-
-    return <String, dynamic>{
-      'commands':
-          commands
-              .map((c) => '${c['id'] ?? c['name']}:${c['updatedAt'] ?? ''}')
-              .toList()
-            ..sort(),
-      'workflows':
-          workflows
-              .map(
-                (w) => '${w['name']}:${(w['actions'] as List?)?.length ?? 0}',
-              )
-              .toList()
-            ..sort(),
-      'globals': globals.entries.map((e) => '${e.key}:${e.value}').toList()
-        ..sort(),
-    };
-  }
+  ) => _canonicalizeForHash({...app, 'commands': commands});
 }

@@ -156,76 +156,62 @@ void main() {
     },
   );
 
-  test(
-    'checkSyncStatus detects localNewer when local has un-pushed edits',
-    () async {
-      await appManager.saveAppCommand(botId, 'cmd_ping', {
-        'id': 'cmd_ping',
-        'name': 'ping',
-        'updatedAt': '2026-09-05T10:00:00.000Z',
-      });
+  test('checkSyncStatus favors cloud despite newer local edits', () async {
+    await appManager.saveAppCommand(botId, 'cmd_ping', {
+      'id': 'cmd_ping',
+      'name': 'ping',
+      'updatedAt': '2026-09-05T10:00:00.000Z',
+    });
 
-      final remoteConfig = {
-        'commands': [
-          {
-            'id': 'cmd_ping',
-            'name': 'ping',
-            'updatedAt': '2026-09-04T12:00:00.000Z',
-          },
-        ],
-        'workflows': [],
-        'globalVariables': {},
-      };
+    final remoteConfig = {
+      'commands': [
+        {
+          'id': 'cmd_ping',
+          'name': 'ping',
+          'updatedAt': '2026-09-04T12:00:00.000Z',
+        },
+      ],
+      'workflows': [],
+      'globalVariables': {},
+    };
 
-      final client = createMockClientWithConfig(remoteConfig);
-      final result = await BotReconciliationService.checkSyncStatus(
-        botId: botId,
-        client: client,
-        appManager: appManager,
-      );
+    final client = createMockClientWithConfig(remoteConfig);
+    final result = await BotReconciliationService.checkSyncStatus(
+      botId: botId,
+      client: client,
+      appManager: appManager,
+    );
 
-      expect(result.status, BotSyncStatus.localNewer);
-    },
-  );
+    expect(result.status, BotSyncStatus.cloudNewer);
+  });
 
-  test(
-    'checkSyncStatus detects conflict when both sides have divergent changes',
-    () async {
-      // Local updated cmd1
-      await appManager.saveAppCommand(botId, 'cmd1', {
-        'id': 'cmd1',
-        'name': 'cmd1',
-        'updatedAt': '2026-09-05T10:00:00.000Z',
-      });
+  test('checkSyncStatus favors cloud when both sides differ', () async {
+    // Local updated cmd1
+    await appManager.saveAppCommand(botId, 'cmd1', {
+      'id': 'cmd1',
+      'name': 'cmd1',
+      'updatedAt': '2026-09-05T10:00:00.000Z',
+    });
 
-      // Remote updated cmd2 (or added cmd2 with newer timestamp)
-      final remoteConfig = {
-        'commands': [
-          {
-            'id': 'cmd1',
-            'name': 'cmd1',
-            'updatedAt': '2026-09-01T10:00:00.000Z',
-          },
-          {
-            'id': 'cmd2',
-            'name': 'cmd2',
-            'updatedAt': '2026-09-04T12:00:00.000Z',
-          },
-        ],
-        'workflows': [],
-        'globalVariables': {},
-      };
+    // Remote updated cmd2 (or added cmd2 with newer timestamp)
+    final remoteConfig = {
+      'commands': [
+        {'id': 'cmd1', 'name': 'cmd1', 'updatedAt': '2026-09-01T10:00:00.000Z'},
+        {'id': 'cmd2', 'name': 'cmd2', 'updatedAt': '2026-09-04T12:00:00.000Z'},
+      ],
+      'workflows': [],
+      'globalVariables': {},
+    };
 
-      final client = createMockClientWithConfig(remoteConfig);
-      final result = await BotReconciliationService.checkSyncStatus(
-        botId: botId,
-        client: client,
-        appManager: appManager,
-      );
+    final client = createMockClientWithConfig(remoteConfig);
+    final result = await BotReconciliationService.checkSyncStatus(
+      botId: botId,
+      client: client,
+      appManager: appManager,
+    );
 
-      expect(result.status, BotSyncStatus.conflict);
-    },
-  );
+    expect(result.status, BotSyncStatus.cloudNewer);
+  });
 
   test(
     'applyCloudToLocal overwrites local commands and preserves token',
@@ -269,6 +255,95 @@ void main() {
 
       final updatedApp = await appManager.getApp(botId);
       expect(updatedApp['token'], 'secret_local_token');
+    },
+  );
+
+  test(
+    'remote content wins with equal timestamps and workflow lengths',
+    () async {
+      final stamp = '2026-09-04T12:00:00.000Z';
+      await appManager.saveAppCommand(botId, 'same', {
+        'id': 'same',
+        'name': 'ping',
+        'updatedAt': stamp,
+        'data': {
+          'response': {'text': 'local'},
+        },
+      });
+      await appManager.saveApp(botId, {
+        'id': botId,
+        'name': 'TestBot',
+        'token': 'test_token',
+        'workflows': [
+          {
+            'name': 'flow',
+            'actions': [
+              {'type': 'local'},
+            ],
+          },
+        ],
+      });
+      final remote = <String, dynamic>{
+        'commands': [
+          {
+            'id': 'same',
+            'name': 'ping',
+            'updatedAt': stamp,
+            'data': {
+              'response': {'text': 'remote'},
+            },
+          },
+        ],
+        'workflows': [
+          {
+            'name': 'flow',
+            'actions': [
+              {'type': 'remote'},
+            ],
+          },
+        ],
+      };
+      final status = await BotReconciliationService.checkSyncStatus(
+        botId: botId,
+        client: createMockClientWithConfig(remote),
+        appManager: appManager,
+      );
+      expect(status.status, BotSyncStatus.cloudNewer);
+      await BotReconciliationService.applyCloudToLocal(
+        botId: botId,
+        remoteConfig: remote,
+        appManager: appManager,
+      );
+      final command = await appManager.getAppCommand(botId, 'same');
+      expect(command['data']['response']['text'], 'remote');
+      final app = await appManager.getApp(botId);
+      expect(app['workflows'][0]['actions'][0]['type'], 'remote');
+    },
+  );
+
+  test(
+    'empty cloud removes local duplicate and workflow without pushing',
+    () async {
+      await appManager.saveAppCommand(botId, 'old-id', {
+        'id': 'old-id',
+        'name': 'eval',
+      });
+      await appManager.saveAppCommand(botId, 'new-id', {
+        'id': 'new-id',
+        'name': 'eval',
+      });
+      await appManager.saveWorkflow(botId, name: 'local-flow', actions: []);
+      await BotReconciliationService.applyCloudToLocal(
+        botId: botId,
+        remoteConfig: {'commands': [], 'workflows': [], 'globalVariables': {}},
+        appManager: appManager,
+      );
+      expect(
+        await appManager.listAppCommands(botId, forceRefresh: true),
+        isEmpty,
+      );
+      expect(await appManager.getWorkflows(botId), isEmpty);
+      expect((await appManager.getApp(botId))['token'], 'test_token');
     },
   );
 
