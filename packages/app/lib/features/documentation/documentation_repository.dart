@@ -209,13 +209,13 @@ class DocumentationRepository {
     },
   );
 
-  Future<DocumentationEntry?> resolve(Uri url) async {
+  Future<DocumentationEntry?> resolve(Uri url, {bool refresh = false}) async {
     if (url.scheme != 'https' || url.host != 'bot-creator.fr') return null;
     final sections = url.path.startsWith('/docs/')
         ? [DocumentationSection.botCreatorDocs]
         : [DocumentationSection.guide, DocumentationSection.botCreatorDocs];
     for (final section in sections) {
-      final entries = (await index(section)).value;
+      final entries = (await index(section, refresh: refresh)).value;
       for (final entry in entries) {
         if (_path(entry.url) == _path(url)) return entry;
       }
