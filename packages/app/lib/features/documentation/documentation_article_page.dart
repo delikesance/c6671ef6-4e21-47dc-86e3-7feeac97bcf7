@@ -58,11 +58,11 @@ class _DocumentationArticlePageState extends State<DocumentationArticlePage> {
     bool refresh = false,
   }) async {
     if (!_native) return (null, null);
-    final entry = !refresh && widget.entry != null
-        ? widget.entry
-        : await _repository.resolve(Uri.parse(widget.url), refresh: refresh);
-    if (entry == null) throw StateError('Article not indexed');
-    return (entry, await _repository.article(entry, refresh: refresh));
+    return _repository.loadArticle(
+      Uri.parse(widget.url),
+      entry: widget.entry,
+      refresh: refresh,
+    );
   }
 
   @override
