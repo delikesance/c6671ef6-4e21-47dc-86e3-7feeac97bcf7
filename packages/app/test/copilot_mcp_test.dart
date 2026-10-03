@@ -87,6 +87,9 @@ void main() {
       final value = jsonDecode(result['content'][0]['text'] as String);
       expect(value['responses'][0]['payload']['content'], 'true');
       expect(value['discord_verified'], false);
+      expect(value['trace'], isEmpty);
+      expect(value['trace_total'], greaterThan(0));
+      expect(value['result_view'], 'compact');
       final simulatedHttp = await bridge.call('local_test_command', {
         'script':
             r'$httpGet[https://example.com/data]$httpStatus|$httpResult[value]',
