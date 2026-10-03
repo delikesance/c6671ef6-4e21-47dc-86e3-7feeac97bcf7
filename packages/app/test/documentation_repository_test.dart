@@ -31,6 +31,159 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
+  test('opening an article recovers a stale index after deployment', () async {
+    var deployed = false;
+    var indexCalls = 0;
+    var articleCalls = 0;
+    final repository = DocumentationRepository(
+      client: MockClient((request) async {
+        if (request.url.path.endsWith('.json')) {
+          indexCalls++;
+          if (deployed) expect(request.headers['Cache-Control'], 'no-cache');
+          return http.Response(
+            jsonEncode([
+              documentationFixture(content: deployed ? '# New' : '# Old'),
+            ]),
+            200,
+          );
+        }
+        articleCalls++;
+        return http.Response('# New', 200);
+      }),
+    );
+    final entry = (await repository.index(
+      DocumentationSection.botCreatorDocs,
+    )).value.single;
+    deployed = true;
+    final (latest, result) = await repository.loadArticle(
+      entry.url,
+      entry: entry,
+    );
+    expect(latest.revision, isNot(entry.revision));
+    expect(result.value, '# New');
+    expect(result.offline, isFalse);
+    expect(indexCalls, 2);
+    expect(articleCalls, 2);
+  });
+
+  test(
+    'inconsistent deployment recovery is bounded and remains strict',
+    () async {
+      var indexCalls = 0;
+      var articleCalls = 0;
+      final entry = DocumentationEntry.fromJson(documentationFixture());
+      final repository = DocumentationRepository(
+        client: MockClient((request) async {
+          if (request.url.path.endsWith('.json')) {
+            indexCalls++;
+            return http.Response(jsonEncode([documentationFixture()]), 200);
+          }
+          articleCalls++;
+          return http.Response('# Wrong', 200);
+        }),
+      );
+      await expectLater(
+        repository.loadArticle(entry.url, entry: entry),
+        throwsA(isA<DocumentationRevisionMismatch>()),
+      );
+      expect(indexCalls, 1);
+      expect(articleCalls, 2);
+    },
+  );
+
+  test('a missing article in a cached index refreshes once', () async {
+    var deployed = false;
+    var indexCalls = 0;
+    final fixture = documentationFixture();
+    final repository = DocumentationRepository(
+      client: MockClient((request) async {
+        if (request.url.path.endsWith('.json')) {
+          indexCalls++;
+          return http.Response(jsonEncode(deployed ? [fixture] : []), 200);
+        }
+        return http.Response('# Value', 200);
+      }),
+    );
+    await repository.index(DocumentationSection.botCreatorDocs);
+    deployed = true;
+    final (_, result) = await repository.loadArticle(
+      Uri.parse(fixture['url'] as String),
+    );
+    expect(result.value, '# Value');
+    expect(indexCalls, 2);
+  });
+
+  test('transport errors do not trigger revision recovery', () async {
+    var calls = 0;
+    final entry = DocumentationEntry.fromJson(documentationFixture());
+    final repository = DocumentationRepository(
+      client: MockClient((_) async {
+        calls++;
+        return http.Response('Unavailable', 503);
+      }),
+    );
+    await expectLater(
+      repository.loadArticle(entry.url, entry: entry),
+      throwsA(isA<DocumentationHttpException>()),
+    );
+    expect(calls, 1);
+  });
+
+  test('a moved Markdown endpoint is resolved again on 404', () async {
+    final fixture = documentationFixture();
+    final entry = DocumentationEntry.fromJson(fixture);
+    final repository = DocumentationRepository(
+      client: MockClient((request) async {
+        if (request.url.path.endsWith('.json')) {
+          return http.Response(
+            jsonEncode([
+              {
+                ...fixture,
+                'markdown_url':
+                    'https://bot-creator.fr/api/native/docs/moved.md',
+              },
+            ]),
+            200,
+          );
+        }
+        return request.url.path.endsWith('/moved.md')
+            ? http.Response('# Value', 200)
+            : http.Response('Not found', 404);
+      }),
+    );
+    final (latest, result) = await repository.loadArticle(
+      entry.url,
+      entry: entry,
+    );
+    expect(latest.markdownUrl.path, endsWith('/moved.md'));
+    expect(result.value, '# Value');
+  });
+
+  test(
+    'recovery preserves valid offline content without fetching the index',
+    () async {
+      var offline = false;
+      var calls = 0;
+      var now = DateTime(2026);
+      final entry = DocumentationEntry.fromJson(documentationFixture());
+      final repository = DocumentationRepository(
+        now: () => now,
+        client: MockClient((_) async {
+          calls++;
+          if (offline) throw http.ClientException('offline');
+          return http.Response('# Value', 200);
+        }),
+      );
+      await repository.article(entry);
+      offline = true;
+      now = now.add(const Duration(days: 2));
+      final (_, result) = await repository.loadArticle(entry.url, entry: entry);
+      expect(result.value, '# Value');
+      expect(result.offline, isTrue);
+      expect(calls, 2);
+    },
+  );
+
   test('a mismatched build revision cannot be displayed or cached', () async {
     final repository = DocumentationRepository(
       client: MockClient((_) async => http.Response('# Old', 200)),

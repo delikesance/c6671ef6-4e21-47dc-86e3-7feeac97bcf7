@@ -255,6 +255,36 @@ void main() {
     expect(find.text('\$getVar'), findsOneWidget);
   });
 
+  testWidgets('opening an outdated entry recovers without pressing reload', (
+    tester,
+  ) async {
+    final fixture = documentationFixture(content: '# Before update');
+    final repository = DocumentationRepository(
+      client: MockClient(
+        (request) async => http.Response(
+          request.url.path.contains('index.json')
+              ? jsonEncode([documentationFixture(content: '# After update')])
+              : '# After update',
+          200,
+        ),
+      ),
+    );
+    await tester.pumpWidget(
+      app(
+        DocumentationArticlePage(
+          url: fixture['url'] as String,
+          title: 'Article',
+          entry: DocumentationEntry.fromJson(fixture),
+          repository: repository,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('After update'), findsOneWidget);
+    expect(find.byType(DocumentationLoadError), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('article reload refreshes its index revision before its body', (
     tester,
   ) async {

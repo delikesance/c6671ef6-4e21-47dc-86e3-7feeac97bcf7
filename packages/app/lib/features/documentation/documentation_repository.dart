@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
 import 'package:bot_creator/features/documentation/documentation_urls.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -46,6 +47,16 @@ class DocumentationResult<T> {
   final bool offline;
 }
 
+class DocumentationRevisionMismatch extends FormatException {
+  const DocumentationRevisionMismatch()
+    : super('Documentation revision mismatch');
+}
+
+class DocumentationHttpException implements Exception {
+  const DocumentationHttpException(this.statusCode);
+  final int statusCode;
+}
+
 /// Public content only. Cache identity includes the build's content revision,
 /// so a refreshed index cannot silently reuse an older article body.
 class DocumentationRepository {
@@ -87,9 +98,10 @@ class DocumentationRepository {
     required void Function(String) validate,
   }) {
     final key = '$uri@$identity';
-    return _pending[key] ??= _readUnshared(uri, key, ttl, refresh, validate)
-        .whenComplete(() {
-          _pending.remove(key);
+    final pendingKey = '$key@$refresh';
+    return _pending[pendingKey] ??=
+        _readUnshared(uri, key, ttl, refresh, validate).whenComplete(() {
+          _pending.remove(pendingKey);
         });
   }
 
@@ -120,10 +132,11 @@ class DocumentationRepository {
     }
     try {
       final request = http.Request('GET', uri)..followRedirects = false;
+      if (refresh) request.headers['Cache-Control'] = 'no-cache';
       final response = await (() async {
         final streamed = await _client.send(request);
         if (streamed.statusCode != 200) {
-          throw StateError('Documentation HTTP ${streamed.statusCode}');
+          throw DocumentationHttpException(streamed.statusCode);
         }
         final bytes = <int>[];
         await for (final chunk in streamed.stream) {
@@ -151,7 +164,17 @@ class DocumentationRepository {
         await prefs.setString(_cacheKey, jsonEncode(_cache));
       } catch (_) {}
       return DocumentationResult(response);
-    } catch (_) {
+    } catch (error) {
+      final reason = switch (error) {
+        DocumentationRevisionMismatch() => 'revision_mismatch',
+        DocumentationHttpException(:final statusCode) => 'http_$statusCode',
+        FormatException() => 'invalid_content',
+        _ => 'transport_or_storage',
+      };
+      debugPrint(
+        '[Documentation] load rejected path=${uri.path} reason=$reason '
+        'cached=${cached != null}',
+      );
       if (cached != null) return DocumentationResult(cached, offline: true);
       rethrow;
     }
@@ -199,7 +222,7 @@ class DocumentationRepository {
     refresh: refresh,
     validate: (body) {
       if (sha256.convert(utf8.encode(body)).toString() != entry.revision) {
-        throw const FormatException('Documentation revision mismatch');
+        throw const DocumentationRevisionMismatch();
       }
       if (body.trim().isEmpty ||
           body.trimLeft().toLowerCase().startsWith('<!doctype html') ||
@@ -208,6 +231,29 @@ class DocumentationRepository {
       }
     },
   );
+
+  Future<(DocumentationEntry, DocumentationResult<String>)> loadArticle(
+    Uri url, {
+    DocumentationEntry? entry,
+    bool refresh = false,
+  }) async {
+    final current = !refresh && entry != null
+        ? entry
+        : await resolve(url, refresh: refresh);
+    if (current != null) {
+      try {
+        return (current, await article(current, refresh: refresh));
+      } on DocumentationRevisionMismatch {
+        // A deployment can replace Markdown while the index is still cached.
+      } on DocumentationHttpException catch (error) {
+        if (error.statusCode != 404) rethrow;
+      }
+    }
+    // One recovery only: keep hash validation even if deployment is incomplete.
+    final latest = await resolve(url, refresh: true);
+    if (latest == null) throw StateError('Article not indexed');
+    return (latest, await article(latest, refresh: true));
+  }
 
   Future<DocumentationEntry?> resolve(Uri url, {bool refresh = false}) async {
     if (url.scheme != 'https' || url.host != 'bot-creator.fr') return null;
