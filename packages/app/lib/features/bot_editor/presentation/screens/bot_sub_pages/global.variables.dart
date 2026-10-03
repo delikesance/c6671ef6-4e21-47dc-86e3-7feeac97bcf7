@@ -18,6 +18,7 @@ import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/features/bot_editor/logic/scoped_variable_orphans.dart';
+import 'package:bot_creator/features/bot_editor/logic/legacy_user_variable_migration.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/editor_sub_page_ui.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/scoped_variables_list.dart';
 
@@ -66,6 +67,66 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
   String? _error;
   bool _loading = true;
   String _searchQuery = '';
+  bool _migrating = false;
+
+  Future<void> _migrateLegacyUsers() async {
+    if (_source != _VariablesSource.local || _migrating) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(context.tr.variables_migration_title),
+        content: Text(context.tr.variables_migration_confirmation),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(context.tr.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(context.tr.confirm),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    if (isDesktopBotRunningId(widget.botId) ||
+        isMobileBotRunning(widget.botId)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.tr.variables_migration_stop_bot)),
+      );
+      return;
+    }
+    setState(() => _migrating = true);
+    try {
+      final result = await migrateLocalLegacyUserVariables(
+        store: appManager,
+        botId: widget.botId,
+        isBotRunning: () =>
+            isDesktopBotRunningId(widget.botId) ||
+            isMobileBotRunning(widget.botId),
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            context.tr.variables_migration_result(
+              result.commands,
+              result.workflows,
+              result.calls,
+            ),
+          ),
+        ),
+      );
+      await _load();
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(error.toString())));
+    } finally {
+      if (mounted) setState(() => _migrating = false);
+    }
+  }
 
   @override
   void initState() {
@@ -544,8 +605,21 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
       return;
     }
 
-    await _removeSourceGlobalVariable(key);
-    await _load();
+    final source = _source;
+    final runnerId = _activeRunnerId;
+    try {
+      await _removeSourceGlobalVariable(key);
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.tr.variables_sync_failed(error.toString())),
+        ),
+      );
+      return;
+    }
+    if (!mounted || source != _source || runnerId != _activeRunnerId) return;
+    setState(() => _globalVariables.remove(key));
   }
 
   // ─── Scoped variable definition add / edit ────────────────────────────────
@@ -618,7 +692,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                                 ).colorScheme.onSurfaceVariant,
                               ),
                               const SizedBox(width: 10),
-                              Text(s),
+                              Text(scopedVariableScopeLabel(context, s)),
                             ],
                           ),
                         ),
@@ -748,12 +822,30 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
               (entry?['scope'] ?? '').toString() == scope,
           orElse: () => null,
         );
-    await _removeSourceScopedDefinition(
-      key,
-      scope: existing?['scope']?.toString() ?? scope,
-      purgeStoredValues: true,
-    );
-    await _load();
+    final source = _source;
+    final runnerId = _activeRunnerId;
+    try {
+      await _removeSourceScopedDefinition(
+        key,
+        scope: existing?['scope']?.toString() ?? scope,
+        purgeStoredValues: true,
+      );
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.tr.variables_sync_failed(error.toString())),
+        ),
+      );
+      return;
+    }
+    if (!mounted || source != _source || runnerId != _activeRunnerId) return;
+    setState(() {
+      bool matches(Map<String, dynamic> entry) =>
+          entry['key'] == key && entry['scope'] == scope;
+      _scopedDefinitions.removeWhere(matches);
+      _detectedDefinitions.removeWhere(matches);
+    });
   }
 
   // ─── Explorer: shows SQLite runtime data for a given scoped key ───────────
@@ -1123,10 +1215,17 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                       _mode = next;
                       _searchQuery = '';
                     });
-                    await _load();
                   },
                 ),
               ),
+              if (_source == _VariablesSource.local && _isScopedMode)
+                IconButton(
+                  tooltip: context.tr.variables_migration_title,
+                  onPressed: _migrating ? null : _migrateLegacyUsers,
+                  icon: const AppIcon.fromMaterial(
+                    Icons.drive_file_move_outlined,
+                  ),
+                ),
             ],
           ),
           const SizedBox(height: 8),
@@ -1216,6 +1315,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
       itemBuilder: (ctx, i) {
         final entry = entries[i];
         return ListTile(
+          key: ValueKey(entry.key),
           title: Text(
             entry.key,
             style: const TextStyle(

@@ -797,17 +797,16 @@ extension _BdfdAstTranspilationScopeInlineRuntime
             ? _stringifyArgument(node, 2).trim()
             : '';
 
-        if (gvGuildId.isNotEmpty) {
-          final contextId = gvUserId.isEmpty
-              ? '$gvGuildId:((author.id))'
-              : '$gvGuildId:$gvUserId';
-          return _scopedVariablePlaceholder(
-            'guildMember',
-            gvVarName,
-            contextId,
-          );
+        if (legacyUserVariables && gvGuildId.isEmpty) {
+          return _scopedVariablePlaceholder('user', gvVarName, gvUserId);
         }
-        return _scopedVariablePlaceholder('user', gvVarName, gvUserId);
+        final guild = gvGuildId.isEmpty ? '((guild.id))' : gvGuildId;
+        final user = gvUserId.isEmpty ? '((author.id))' : gvUserId;
+        return _scopedVariablePlaceholder(
+          'guildMember',
+          gvVarName,
+          '$guild:$user',
+        );
       case 'getservervar':
       case 'getguildvar':
         final gsvVarName = _stringifyArgument(node, 0);

@@ -9,6 +9,48 @@ class AppLocalizationsTr extends AppLocalizations {
   AppLocalizationsTr([String locale = 'tr']) : super(locale);
 
   @override
+  String get docs_search => 'Dokümantasyonda ara';
+
+  @override
+  String get docs_reset_filters => 'Filtreleri sıfırla';
+
+  @override
+  String docs_result_count(int count) {
+    return '$count makale';
+  }
+
+  @override
+  String get docs_category => 'Kategori';
+
+  @override
+  String get docs_mode => 'Mod';
+
+  @override
+  String get docs_no_results => 'Eşleşen makale yok';
+
+  @override
+  String get docs_cached_offline => 'Önbellekteki sürüm: ağ kullanılamıyor';
+
+  @override
+  String get docs_contents => 'İçindekiler';
+
+  @override
+  String get variables_migration_title => 'BDFD değişken geçişi';
+
+  @override
+  String get variables_migration_confirmation =>
+      'Kullanıcı değerlerini tüm sunucularda ortak tutun. Eski BDFD betiklerini arşivleyip uyarlayın, ardından resmi sunucuya özel kullanıcı işlevlerini etkinleştirin. Değerler ve sona erme süreleri taşınmaz.';
+
+  @override
+  String get variables_migration_stop_bot =>
+      'Değişkenleri taşımadan önce botu durdur.';
+
+  @override
+  String variables_migration_result(int commands, int workflows, int calls) {
+    return '$commands komut, $workflows iş akışı grubu, $calls çağrı uyarlandı';
+  }
+
+  @override
   String get app_update_dialog_title => 'Yeni sürüm mevcut';
 
   @override
@@ -4346,13 +4388,13 @@ class AppLocalizationsTr extends AppLocalizations {
   String get globals_scope_guild => 'sunucu';
 
   @override
-  String get globals_scope_guildMember => 'sunucuÜyesi';
+  String get globals_scope_guildMember => 'Sunucu üyesi';
 
   @override
   String get globals_scope_message => 'mesaj';
 
   @override
-  String get globals_scope_user => 'kullanıcı';
+  String get globals_scope_user => 'Global kullanıcı';
 
   @override
   String get globals_search => 'Değişkenlerde ara…';

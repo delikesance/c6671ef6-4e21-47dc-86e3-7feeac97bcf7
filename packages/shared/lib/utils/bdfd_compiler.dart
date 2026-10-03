@@ -68,18 +68,23 @@ class BdfdCompileResult {
 }
 
 class BdfdCompiler {
+  BdfdCompiler({this.legacyUserVariables = false});
+  final bool legacyUserVariables;
   static final Map<String, BdfdCompileResult> _cache = {};
 
   static void clearCache() => _cache.clear();
 
   BdfdCompileResult compile(String source) {
-    if (_cache.containsKey(source)) {
-      return _cache[source]!;
+    final cacheKey = '${legacyUserVariables ? 1 : 2}:$source';
+    if (_cache.containsKey(cacheKey)) {
+      return _cache[cacheKey]!;
     }
     final compileStopwatch = Stopwatch()..start();
     final lexerResult = BdfdLexer().tokenize(source);
     final parserResult = BdfdParser().parseTokens(lexerResult.tokens);
-    final transpileResult = BdfdAstTranspiler().transpile(parserResult.ast);
+    final transpileResult = BdfdAstTranspiler(
+      legacyUserVariables: legacyUserVariables,
+    ).transpile(parserResult.ast);
     compileStopwatch.stop();
 
     // Inject compilation timing into any debugProfile action.
@@ -119,8 +124,8 @@ class BdfdCompiler {
           message: diagnostic.message,
           severity:
               diagnostic.severity == BdfdTranspileDiagnosticSeverity.warning
-                  ? BdfdCompileDiagnosticSeverity.warning
-                  : BdfdCompileDiagnosticSeverity.error,
+              ? BdfdCompileDiagnosticSeverity.warning
+              : BdfdCompileDiagnosticSeverity.error,
           stage: BdfdCompileDiagnosticStage.transpiler,
           start: diagnostic.start,
           end: diagnostic.end,
@@ -144,7 +149,7 @@ class BdfdCompiler {
     if (_cache.length > 500) {
       _cache.clear();
     }
-    _cache[source] = result.toLightweight();
+    _cache[cacheKey] = result.toLightweight();
     return result;
   }
 }

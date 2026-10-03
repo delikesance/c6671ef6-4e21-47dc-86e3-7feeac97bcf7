@@ -59,9 +59,24 @@ $setGuildMemberVar[level;$var[level];$var[target]]
 $reply$c[]✅ $var[gain] XP ajoutés à <@$var[target]> — niveau $var[oldLevel] ➜ $var[level] ($var[xp] XP restants).
 """;
 
-Map<String, dynamic> bdfdRuntimeReference() => {
+Map<String, dynamic> bdfdRuntimeReference({
+  bool legacyUserVariables = false,
+  bool includeExamples = true,
+}) => {
   'execution_mode': 'bdfd_script',
+  'bdfdUserVariableSemantics': legacyUserVariables ? 1 : 2,
+  'user_functions': legacyUserVariables
+      ? r'Legacy bot: $getUserVar/$setUserVar without an explicit guild use global-user storage. Do not assume current-server isolation. Use $getGuildMemberVar/$setGuildMemberVar for explicit server/member isolation.'
+      : r'Official semantics: $getUserVar/$setUserVar use the current guild and author by default; $resetUserVar resets all members unless a user is given.',
   'storage': {
+    'user': {
+      'meaning':
+          'Global-user values shared by a user across all servers. Existing user data remains here after migration.',
+      'get': r'$getVar[key;userID]',
+      'set': r'$setVar[key;value;userID]',
+      'reset':
+          r'$resetGlobalUserVar[key;optionalUserID] is a Bot Creator extension. It resets only that user (author by default), not all users.',
+    },
     'guildMember': {
       'meaning': 'A separate value for each server/member pair.',
       'get': r'$getGuildMemberVar[key;optionalUserID;optionalGuildID]',
@@ -98,50 +113,51 @@ Map<String, dynamic> bdfdRuntimeReference() => {
     'requirements':
         'Guild message events and Message Content intent must be enabled in the bot configuration and Discord Developer Portal to inspect normal message text.',
   },
-  'examples': {
-    'guild_xp': {
-      'variables': [
-        {
-          'key': 'xp',
-          'scope': 'guildMember',
-          'value': 0,
-          'value_type': 'number',
-        },
-        {
-          'key': 'level',
-          'scope': 'guildMember',
-          'value': 0,
-          'value_type': 'number',
-        },
-      ],
-      'workflow': {
-        'name': 'message_xp',
-        'workflow_type': 'event',
-        'event_trigger': {'category': 'messages', 'event': 'messageCreate'},
-        'execution_mode': 'bdfd_script',
-        'script': bdfdXpMessageWorkflow,
-      },
-      'command': {
-        'name': 'level',
-        'description': 'Affiche ton niveau et ta progression sur ce serveur',
-        'execution_mode': 'bdfd_script',
-        'script': bdfdXpLevelCommand,
-      },
-      'admin_command': {
-        'name': 'addxp',
-        'description': "Ajoute de l'XP à un membre du serveur",
-        'default_member_permissions': '8',
-        'options': [
-          {'name': 'membre', 'type': 6, 'required': true},
-          {'name': 'montant', 'type': 4, 'required': true, 'min_value': 1},
+  if (includeExamples)
+    'examples': {
+      'guild_xp': {
+        'variables': [
+          {
+            'key': 'xp',
+            'scope': 'guildMember',
+            'value': 0,
+            'value_type': 'number',
+          },
+          {
+            'key': 'level',
+            'scope': 'guildMember',
+            'value': 0,
+            'value_type': 'number',
+          },
         ],
-        'execution_mode': 'bdfd_script',
-        'script': bdfdXpAddCommand,
+        'workflow': {
+          'name': 'message_xp',
+          'workflow_type': 'event',
+          'event_trigger': {'category': 'messages', 'event': 'messageCreate'},
+          'execution_mode': 'bdfd_script',
+          'script': bdfdXpMessageWorkflow,
+        },
+        'command': {
+          'name': 'level',
+          'description': 'Affiche ton niveau et ta progression sur ce serveur',
+          'execution_mode': 'bdfd_script',
+          'script': bdfdXpLevelCommand,
+        },
+        'admin_command': {
+          'name': 'addxp',
+          'description': "Ajoute de l'XP à un membre du serveur",
+          'default_member_permissions': '8',
+          'options': [
+            {'name': 'membre', 'type': 6, 'required': true},
+            {'name': 'montant', 'type': 4, 'required': true, 'min_value': 1},
+          ],
+          'execution_mode': 'bdfd_script',
+          'script': bdfdXpAddCommand,
+        },
+        'rules':
+            'Starts at level 0. Trimmed message length earns ceil(length/10) XP, capped at 30; blank/bot/DM messages are ignored. Cooldown 15 seconds per server/member. Remaining XP carries over; the next level costs ceil(100*1.5^level). An award of at most 30 cannot cross more than one level because the minimum cost is 100.',
+        'validation':
+            'Development regression tests execute these examples with the shared runtime. Still call local_validate_bdfd on the exact proposed source. No live Discord test or installation is implied.',
       },
-      'rules':
-          'Starts at level 0. Trimmed message length earns ceil(length/10) XP, capped at 30; blank/bot/DM messages are ignored. Cooldown 15 seconds per server/member. Remaining XP carries over; the next level costs ceil(100*1.5^level). An award of at most 30 cannot cross more than one level because the minimum cost is 100.',
-      'validation':
-          'Development regression tests execute these examples with the shared runtime. Still call local_validate_bdfd on the exact proposed source. No live Discord test or installation is implied.',
     },
-  },
 };

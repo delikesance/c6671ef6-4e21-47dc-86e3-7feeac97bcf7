@@ -9,6 +9,49 @@ class AppLocalizationsDe extends AppLocalizations {
   AppLocalizationsDe([String locale = 'de']) : super(locale);
 
   @override
+  String get docs_search => 'Dokumentation durchsuchen';
+
+  @override
+  String get docs_reset_filters => 'Filter zurücksetzen';
+
+  @override
+  String docs_result_count(int count) {
+    return '$count Artikel';
+  }
+
+  @override
+  String get docs_category => 'Kategorie';
+
+  @override
+  String get docs_mode => 'Modus';
+
+  @override
+  String get docs_no_results => 'Keine passenden Artikel';
+
+  @override
+  String get docs_cached_offline =>
+      'Zwischengespeicherte Version: Netzwerk nicht verfügbar';
+
+  @override
+  String get docs_contents => 'Inhalt';
+
+  @override
+  String get variables_migration_title => 'BDFD-Variablenmigration';
+
+  @override
+  String get variables_migration_confirmation =>
+      'Benutzerwerte bleiben serverübergreifend. Alte BDFD-Skripte werden archiviert und angepasst, dann werden die offiziellen serverbezogenen Benutzerfunktionen aktiviert. Werte und Ablaufzeiten bleiben unverändert.';
+
+  @override
+  String get variables_migration_stop_bot =>
+      'Stoppe den Bot vor der Variablenmigration.';
+
+  @override
+  String variables_migration_result(int commands, int workflows, int calls) {
+    return '$commands Befehle, $workflows Workflow-Gruppen, $calls Aufrufe angepasst';
+  }
+
+  @override
   String get app_update_dialog_title => 'Neue Version verfügbar';
 
   @override
@@ -4395,13 +4438,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get globals_scope_guild => 'Gilde';
 
   @override
-  String get globals_scope_guildMember => 'Gildenmitglied';
+  String get globals_scope_guildMember => 'Servermitglied';
 
   @override
   String get globals_scope_message => 'Nachricht';
 
   @override
-  String get globals_scope_user => 'Benutzer';
+  String get globals_scope_user => 'Globaler Benutzer';
 
   @override
   String get globals_search => 'Variablen suchen…';

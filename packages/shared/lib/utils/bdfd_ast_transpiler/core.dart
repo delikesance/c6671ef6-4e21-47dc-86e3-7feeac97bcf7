@@ -31,9 +31,14 @@ class BdfdTranspileResult {
 }
 
 class BdfdAstTranspiler {
+  BdfdAstTranspiler({this.legacyUserVariables = false});
+  final bool legacyUserVariables;
   BdfdTranspileResult transpile(BdfdScriptAst script) {
     final diagnostics = <BdfdTranspileDiagnostic>[];
-    final transpiler = _BdfdAstTranspilationScope(diagnostics: diagnostics);
+    final transpiler = _BdfdAstTranspilationScope(
+      diagnostics: diagnostics,
+      legacyUserVariables: legacyUserVariables,
+    );
     final actions = transpiler.transpileScript(script);
     return BdfdTranspileResult(
       actions: List<Action>.unmodifiable(actions),
@@ -43,7 +48,11 @@ class BdfdAstTranspiler {
 }
 
 class _BdfdAstTranspilationScope {
-  _BdfdAstTranspilationScope({required this._diagnostics});
+  _BdfdAstTranspilationScope({
+    required this._diagnostics,
+    required this.legacyUserVariables,
+  });
+  final bool legacyUserVariables;
 
   final List<BdfdTranspileDiagnostic> _diagnostics;
   final Map<String, String> _pendingHttpHeaders = <String, String>{};
@@ -52,6 +61,7 @@ class _BdfdAstTranspilationScope {
   int _threadActionCounter = 0;
   int _permissionCheckCounter = 0;
   int _callWorkflowCounter = 0;
+  int _conditionalFieldCounter = 0;
   int _createEmojiCounter = 0;
   int _createWebhookCounter = 0;
   int _createChannelCounter = 0;
@@ -180,7 +190,8 @@ class _BdfdAstTranspilationScope {
             actions.add(deferredJson);
           }
 
-          if (pendingResponse.hasPendingContent) {
+          final conditionalFields = _isConditionalFieldBlock(nodes, index);
+          if (!conditionalFields && pendingResponse.hasPendingContent) {
             final flushed = pendingResponse.buildAction(
               channelId: _useChannelId,
             );
@@ -198,6 +209,9 @@ class _BdfdAstTranspilationScope {
 
           actions.addAll(_drainPendingConditionActions());
           actions.addAll(_drainDeferredInlineActions());
+          if (conditionalFields) {
+            _deferConditionalFields(consumed.action, pendingResponse, actions);
+          }
           actions.add(consumed.action);
           index = consumed.nextIndex;
           continue;
@@ -534,6 +548,14 @@ class _BdfdAstTranspilationScope {
             actions.add(flushed);
             _consumeStickyFlags();
           }
+        }
+
+        // Legacy no-argument shorthand sends the pending response, not a new
+        // empty embed. The official argument form remains a separate send.
+        if (node.normalizedName == 'sendembedmessage' &&
+            node.arguments.isEmpty) {
+          index += 1;
+          continue;
         }
 
         final shouldFlushDeferredBeforeCurrentAction =

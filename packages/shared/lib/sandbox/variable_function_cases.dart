@@ -2,7 +2,7 @@ import 'function_suite.dart';
 
 final sandboxVariableFunctionCases = [
   for (final item in [
-    ('resetuservar', 'getUserVar', 'user', '20', '21', ';21'),
+    ('resetuservar', 'getUserVar', 'guildMember', '10:20', '10:21', ';21'),
     ('resetservervar', 'getServerVar', 'guild', '10', '11', ';11'),
     ('resetguildvar', 'getGuildVar', 'guild', '10', '11', ';11'),
     ('resetchannelvar', 'getChannelVar', 'channel', '30', '31', ';31'),
@@ -48,7 +48,10 @@ final sandboxVariableFunctionCases = [
           '/storage_after/scoped/${item.$3}/${item.$4}': hasDefault
               ? {'score': 7}
               : {},
-          '/storage_after/scoped/${item.$3}/${item.$5}/score': 80,
+          '/storage_after/scoped/${item.$3}/${item.$5}':
+              item.$1 == 'resetuservar'
+              ? (hasDefault ? {'score': 7} : {})
+              : {'score': 80},
         },
       ),
     SandboxFunctionCase(
@@ -83,15 +86,15 @@ final sandboxVariableFunctionCases = [
     scenario: {
       'options': {'key': 'score'},
       'scoped': {
-        'user': {
-          '20': {'score': 9},
+        'guildMember': {
+          '10:20': {'score': 9},
         },
       },
       'definitions': [
-        {'scope': 'user', 'key': 'score', 'defaultValue': 0},
+        {'scope': 'guildMember', 'key': 'score', 'defaultValue': 0},
       ],
     },
-    expectedValues: {'/storage_after/scoped/user/20/score': 0},
+    expectedValues: {'/storage_after/scoped/guildMember/10:20/score': 0},
   ),
   SandboxFunctionCase(
     'var',
@@ -197,14 +200,14 @@ final sandboxVariableFunctionCases = [
   ),
   SandboxFunctionCase(
     'variablescount',
-    r'$resetUserVar[score]$variablesCount[user]',
+    r'$resetUserVar[score]$variablesCount[guildMember]',
     0,
     '0',
     label: 'removed aliases are no longer active',
     scenario: {
       'scoped': {
-        'user': {
-          '20': {'score': 9},
+        'guildMember': {
+          '10:20': {'score': 9},
         },
       },
     },
@@ -217,15 +220,15 @@ final sandboxVariableFunctionCases = [
     label: 'foreign removal preserves author cache',
     scenario: {
       'scoped': {
-        'user': {
-          '20': {'score': 9},
-          '21': {'score': 80},
+        'guildMember': {
+          '10:20': {'score': 9},
+          '10:21': {'score': 80},
         },
       },
     },
     expectedValues: {
-      '/storage_after/scoped/user/21': {},
-      '/storage_after/scoped/user/20/score': 9,
+      '/storage_after/scoped/guildMember/10:21': {},
+      '/storage_after/scoped/guildMember/10:20/score': 9,
     },
   ),
   SandboxFunctionCase(

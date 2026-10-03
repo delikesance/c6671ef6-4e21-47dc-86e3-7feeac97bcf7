@@ -7,6 +7,7 @@ class SandboxStore implements BotDataStore {
     Map<String, Map<String, Map<String, dynamic>>>? scopedVariables,
     List<Map<String, dynamic>>? scopedDefinitions,
     List<Map<String, dynamic>>? workflows,
+    this.bdfdUserVariableSemantics = 2,
   }) : globalVariables = globalVariables ?? <String, dynamic>{},
        scopedVariables =
            scopedVariables ?? <String, Map<String, Map<String, dynamic>>>{},
@@ -17,6 +18,7 @@ class SandboxStore implements BotDataStore {
   final Map<String, Map<String, Map<String, dynamic>>> scopedVariables;
   final List<Map<String, dynamic>> scopedDefinitions;
   final List<Map<String, dynamic>> workflows;
+  final int bdfdUserVariableSemantics;
 
   List<dynamic> _array(String scope, String context, String key) {
     final bucket = scopedVariables
@@ -177,9 +179,28 @@ class SandboxStore implements BotDataStore {
     int limit = 25,
     bool descending = true,
   }) async {
-    throw UnsupportedError(
-      'Scoped index queries need a sandbox implementation',
-    );
+    final canonical = key.startsWith('bc_') ? key.substring(3) : key;
+    final items =
+        <Map<String, dynamic>>[
+          for (final entry in (scopedVariables[scope] ?? {}).entries)
+            if (entry.value.containsKey(canonical) ||
+                entry.value.containsKey('bc_$canonical'))
+              {
+                'contextId': entry.key,
+                'key': canonical,
+                'value': entry.value.containsKey(canonical)
+                    ? entry.value[canonical]
+                    : entry.value['bc_$canonical'],
+              },
+        ]..sort(
+          (a, b) =>
+              a['contextId'].toString().compareTo(b['contextId'].toString()),
+        );
+    final ordered = descending ? items.reversed.toList() : items;
+    return {
+      'items': ordered.skip(offset).take(limit).toList(),
+      'total': items.length,
+    };
   }
 
   @override
@@ -265,8 +286,9 @@ class SandboxStore implements BotDataStore {
       .firstOrNull;
 
   @override
-  Future<Map<String, dynamic>> getApp(String botId) async =>
-      throw UnsupportedError('Not used');
+  Future<Map<String, dynamic>> getApp(String botId) async => {
+    'bdfdUserVariableSemantics': bdfdUserVariableSemantics,
+  };
 
   @override
   Future<List<Map<String, dynamic>>> getWorkflows(String botId) async =>

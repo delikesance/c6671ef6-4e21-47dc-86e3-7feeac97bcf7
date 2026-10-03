@@ -51,6 +51,29 @@ String localCommandTypeFromRemote(
   }
 }
 
+/// Imports runtime identity without triggering an outbound synchronization.
+Future<void> applyManagerRuntimeMetadataToLocal({
+  required AppManager appManager,
+  required String botId,
+  required Map<String, dynamic> remoteConfig,
+}) async {
+  final engine = runtimeEngineFromConfiguration(remoteConfig);
+  final app = Map<String, dynamic>.from(await appManager.getApp(botId));
+  var changed = false;
+  if (engine != null && app['runtimeEngine'] != engine) {
+    app['runtimeEngine'] = engine;
+    changed = true;
+  }
+  if (remoteConfig.containsKey('bdfdUserVariableSemantics') &&
+      app['bdfdUserVariableSemantics'] !=
+          remoteConfig['bdfdUserVariableSemantics']) {
+    app['bdfdUserVariableSemantics'] =
+        remoteConfig['bdfdUserVariableSemantics'];
+    changed = true;
+  }
+  if (changed) await appManager.saveApp(botId, app, notifyRuntime: false);
+}
+
 /// Overwrites local commands and workflows from a Manager config payload.
 Future<void> applyManagerConfigToLocal({
   required AppManager appManager,
@@ -59,7 +82,8 @@ Future<void> applyManagerConfigToLocal({
   bool saveAppMetadata = true,
   bool deleteMissingLocalCommands = false,
 }) async {
-  AppManager.isSyncingFromRemote = true;
+  final importedEngine = runtimeEngineFromConfiguration(remoteConfig);
+  final endRemoteSync = AppManager.beginRemoteSync();
   try {
     if (saveAppMetadata) {
       final existingApp = await appManager.getApp(botId);
@@ -71,9 +95,7 @@ Future<void> applyManagerConfigToLocal({
       }
 
       // Guard runtime engine against unintended mutation or null erasure
-      final remoteEngine = (remoteConfig['runtimeEngine'] ?? '')
-          .toString()
-          .trim();
+      final remoteEngine = importedEngine ?? '';
       final localEngine = (existingApp['runtimeEngine'] ?? '')
           .toString()
           .trim();
@@ -83,7 +105,13 @@ Future<void> applyManagerConfigToLocal({
         merged['runtimeEngine'] = normalizeRuntimeEngine(localEngine);
       }
 
-      await appManager.saveApp(botId, merged);
+      await appManager.saveApp(botId, merged, notifyRuntime: false);
+    } else {
+      await applyManagerRuntimeMetadataToLocal(
+        appManager: appManager,
+        botId: botId,
+        remoteConfig: remoteConfig,
+      );
     }
 
     final remoteCommands = extractCommandListFromConfig(
@@ -173,7 +201,7 @@ Future<void> applyManagerConfigToLocal({
       deleteMissingLocalWorkflows: deleteMissingLocalCommands,
     );
   } finally {
-    AppManager.isSyncingFromRemote = false;
+    endRemoteSync();
   }
 
   // Le remplacement est TERMINÉ : on prévient les écrans qui affichent une copie

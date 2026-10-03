@@ -393,6 +393,7 @@ Map<String, dynamic> buildCopilotWorkflow(
   Map<String, dynamic> args, {
   Map? existing,
   required bool javascriptRuntime,
+  bool legacyUserVariables = false,
 }) {
   final copy = copyCopilotMap(existing ?? {});
   final mode =
@@ -411,7 +412,10 @@ Map<String, dynamic> buildCopilotWorkflow(
     copy['jsScriptContent'] = script;
     actions = [];
   } else if (mode == 'bdfd_script') {
-    actions = compileCopilotCommand(args['script'] as String? ?? '');
+    actions = compileCopilotCommand(
+      args['script'] as String? ?? '',
+      legacyUserVariables: legacyUserVariables,
+    );
   } else if (mode == 'workflow') {
     final raw = args['actions'] ?? copy['actions'];
     if (raw is! List || raw.isEmpty || raw.length > 80) {

@@ -81,6 +81,8 @@ dry-run-clean-merged-branches:
 
 # Full local gate: analyze + every package's tests (delegates to the shared pre-push hook)
 check:
+	node ../manager/scripts/sync-copilot-tools.mjs --check
+	node --test ../manager/scripts/sync-copilot-tools.test.mjs
 	@if [ ! -f "$(PRE_PUSH_SCRIPT)" ]; then \
 		echo "❌ $(PRE_PUSH_SCRIPT) introuvable : ce clone n'a pas les scripts partagés du workspace."; \
 		echo "   Lance le gate à la main depuis $(CURDIR) :"; \
@@ -96,6 +98,7 @@ check:
 
 # Fast local gate: format + analyze (delegates to the shared pre-commit hook)
 check-fast:
+	node ../manager/scripts/sync-copilot-tools.mjs --check
 	@if [ ! -f "$(PRE_COMMIT_SCRIPT)" ]; then \
 		echo "❌ $(PRE_COMMIT_SCRIPT) introuvable : ce clone n'a pas les scripts partagés du workspace."; \
 		echo "   Lance à la main : cd packages/app && flutter analyze --no-fatal-warnings ."; \

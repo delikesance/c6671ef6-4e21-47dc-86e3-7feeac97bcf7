@@ -409,6 +409,7 @@ const Set<String> allBdfdFunctions = <String>{
   'resetmembervar',
   'resetservervar',
   'resetuservar',
+  'resetglobaluservar',
   'rolecount',
   'roleexists',
   'rolegrant',
