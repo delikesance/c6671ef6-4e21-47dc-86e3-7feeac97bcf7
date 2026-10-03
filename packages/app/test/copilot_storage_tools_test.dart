@@ -508,6 +508,7 @@ void main() {
       () async {
         const localID = '05df995a-7478-4eb0-9a9c-e7f828db7d1d';
         const discordID = '1550824555119382678';
+        addTearDown(() => AppManager().deleteAppCommand(botId, localID));
         await AppManager().saveAppCommand(botId, localID, {
           'id': localID,
           'type': 'chatInput',
@@ -959,6 +960,7 @@ void main() {
         expect(standalone['activation_requires_trigger'], true);
         expect(standalone['runner_synced'], false);
       } finally {
+        await AppManager().deleteAppCommand(botId, 'js-test');
         app['runtimeEngine'] = previousEngine;
         await AppManager().saveApp(botId, app);
       }
