@@ -586,7 +586,21 @@ class _SandboxPolicy implements ActionExecutionPolicy {
     }
     dynamic resolve(dynamic data) {
       if (data is String) return resolveValue(data);
-      if (data is Map) return data.map((k, v) => MapEntry(k, resolve(v)));
+      if (data is Map) {
+        final resolved = data.map((k, v) => MapEntry(k, resolve(v)));
+        final fields = resolved['fields'];
+        if (fields is List) {
+          resolved['fields'] = fields
+              .where(
+                (field) =>
+                    field is! Map ||
+                    !field.containsKey('includeIf') ||
+                    field['includeIf'].toString() == 'true',
+              )
+              .toList();
+        }
+        return resolved;
+      }
       if (data is List) return data.map(resolve).toList();
       return data;
     }

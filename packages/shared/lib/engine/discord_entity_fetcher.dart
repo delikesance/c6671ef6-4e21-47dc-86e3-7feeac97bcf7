@@ -952,7 +952,7 @@ class DiscordEntityFetcher {
         guild.approximateMemberCount?.toString() ?? '0';
     variables[_key('guild', contextId, 'premiumSubscriptionCount')] =
         guild.premiumSubscriptionCount?.toString() ?? '0';
-    variables[_key('guild', contextId, 'premiumTier')] = guild.premiumTier
+    variables[_key('guild', contextId, 'premiumTier')] = guild.premiumTier.value
         .toString();
     variables[_key('guild', contextId, 'emojiCount')] = guild
         .emojis

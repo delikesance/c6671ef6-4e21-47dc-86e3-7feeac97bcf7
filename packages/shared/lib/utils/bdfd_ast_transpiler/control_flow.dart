@@ -237,6 +237,66 @@ extension _BdfdAstTranspilationScopeControlFlow on _BdfdAstTranspilationScope {
     );
   }
 
+  bool _isConditionalFieldBlock(List<BdfdAstNode> nodes, int start) {
+    for (var i = start + 1; i < nodes.length; i++) {
+      final node = nodes[i];
+      if (node is BdfdTextAst && node.value.trim().isEmpty) continue;
+      if (node is! BdfdFunctionCallAst) return false;
+      if (node.normalizedName == 'endif') return true;
+      if (!{'addfield', 'elseif', 'else'}.contains(node.normalizedName)) {
+        return false;
+      }
+    }
+    return false;
+  }
+
+  void _deferConditionalFields(
+    Action conditional,
+    _PendingResponse response,
+    List<Action> actions,
+  ) {
+    void defer(List<dynamic> branch) {
+      final replacement = <Map<String, dynamic>>[];
+      for (final raw in branch) {
+        final action = Map<String, dynamic>.from(raw as Map);
+        final payload = action['payload'] as Map;
+        final embeds = payload['embeds'] as List? ?? [];
+        for (var index = 0; index < embeds.length; index++) {
+          final fields = (embeds[index] as Map)['fields'] as List? ?? [];
+          if (fields.isEmpty) continue;
+          final key = '__bdfdConditionalField${_conditionalFieldCounter++}';
+          Action marker(String value) => Action(
+            type: BotCreatorActionType.setTemporaryVariable,
+            payload: {'key': key, 'valueType': 'string', 'value': value},
+          );
+          actions.add(marker('false'));
+          replacement.add(marker('true').toJson());
+          response
+              .ensureEmbedFields(index)
+              .addAll(
+                fields.map(
+                  (field) => {
+                    ...Map<String, dynamic>.from(field as Map),
+                    'includeIf': '((temp.$key))',
+                  },
+                ),
+              );
+        }
+      }
+      branch
+        ..clear()
+        ..addAll(replacement);
+    }
+
+    // Freeze branch selection at the original IF, while sending fields with
+    // the surrounding embed only once. No exponential branch duplication.
+    defer(conditional.payload['thenActions'] as List);
+    defer(conditional.payload['elseActions'] as List);
+    for (final branch in conditional.payload['elseIfConditions'] as List) {
+      defer((branch as Map)['actions'] as List);
+    }
+  }
+
   _ConsumedLoopBlock? _consumeLoopBlock({
     required List<BdfdAstNode> nodes,
     required int startIndex,

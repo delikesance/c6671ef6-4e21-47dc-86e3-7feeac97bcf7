@@ -61,6 +61,7 @@ class _BdfdAstTranspilationScope {
   int _threadActionCounter = 0;
   int _permissionCheckCounter = 0;
   int _callWorkflowCounter = 0;
+  int _conditionalFieldCounter = 0;
   int _createEmojiCounter = 0;
   int _createWebhookCounter = 0;
   int _createChannelCounter = 0;
@@ -189,7 +190,8 @@ class _BdfdAstTranspilationScope {
             actions.add(deferredJson);
           }
 
-          if (pendingResponse.hasPendingContent) {
+          final conditionalFields = _isConditionalFieldBlock(nodes, index);
+          if (!conditionalFields && pendingResponse.hasPendingContent) {
             final flushed = pendingResponse.buildAction(
               channelId: _useChannelId,
             );
@@ -207,6 +209,9 @@ class _BdfdAstTranspilationScope {
 
           actions.addAll(_drainPendingConditionActions());
           actions.addAll(_drainDeferredInlineActions());
+          if (conditionalFields) {
+            _deferConditionalFields(consumed.action, pendingResponse, actions);
+          }
           actions.add(consumed.action);
           index = consumed.nextIndex;
           continue;
@@ -543,6 +548,14 @@ class _BdfdAstTranspilationScope {
             actions.add(flushed);
             _consumeStickyFlags();
           }
+        }
+
+        // Legacy no-argument shorthand sends the pending response, not a new
+        // empty embed. The official argument form remains a separate send.
+        if (node.normalizedName == 'sendembedmessage' &&
+            node.arguments.isEmpty) {
+          index += 1;
+          continue;
         }
 
         final shouldFlushDeferredBeforeCurrentAction =

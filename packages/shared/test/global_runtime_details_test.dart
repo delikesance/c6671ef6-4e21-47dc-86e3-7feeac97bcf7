@@ -64,7 +64,7 @@ class _FakeGuild {
   final String? verificationLevel;
   final String? mfaLevel;
   final String? nsfwLevel;
-  final int? premiumTier;
+  final PremiumTier? premiumTier;
   final int? premiumSubscriptionCount;
   final List<String>? features;
   final int? memberCount;
@@ -159,7 +159,7 @@ void main() {
           verificationLevel: 'high',
           mfaLevel: 'elevated',
           nsfwLevel: 'default',
-          premiumTier: 2,
+          premiumTier: PremiumTier.two,
           premiumSubscriptionCount: 14,
           features: const <String>['COMMUNITY', 'INVITES_DISABLED'],
           memberCount: 1200,
