@@ -317,12 +317,16 @@ void main() {
       expect(manager.requests.where((r) => r.method != 'GET'), isEmpty);
       await tester.tap(find.byTooltip(fr.common_close).last);
       await _pumpFrames(tester);
-      await tester.tap(find.widgetWithText(TextButton, fr.common_delete));
+      await tester.tap(find.byTooltip(fr.more_options_title));
+      await _pumpFrames(tester);
+      await tester.tap(find.text(fr.common_delete));
       await _pumpFrames(tester);
       await tester.tap(find.widgetWithText(OutlinedButton, fr.common_cancel));
       await _pumpFrames(tester);
       expect(manager.requests.where((r) => r.method == 'DELETE'), isEmpty);
-      await tester.tap(find.widgetWithText(TextButton, fr.common_delete));
+      await tester.tap(find.byTooltip(fr.more_options_title));
+      await _pumpFrames(tester);
+      await tester.tap(find.text(fr.common_delete));
       await _pumpFrames(tester);
       await tester.tap(find.widgetWithText(FilledButton, fr.common_delete));
       await _pumpFrames(tester);
