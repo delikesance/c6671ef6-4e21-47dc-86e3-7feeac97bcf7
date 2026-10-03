@@ -126,11 +126,12 @@ void main() {
         expect(result.actions, hasLength(1));
         expect(result.actions.single.type, BotCreatorActionType.ifBlock);
 
-        final thenActions = List<Map<String, dynamic>>.from(
-              result.actions.single.payload['thenActions'] as List,
-            )
-            .map((json) => Action.fromJson(Map<String, dynamic>.from(json)))
-            .toList(growable: false);
+        final thenActions =
+            List<Map<String, dynamic>>.from(
+                  result.actions.single.payload['thenActions'] as List,
+                )
+                .map((json) => Action.fromJson(Map<String, dynamic>.from(json)))
+                .toList(growable: false);
         expect(thenActions.map((action) => action.type), <BotCreatorActionType>[
           BotCreatorActionType.setTemporaryVariable,
           BotCreatorActionType.setTemporaryVariable,
@@ -181,7 +182,9 @@ void main() {
         );
         expect(resolvedXp, '2');
 
-        runtimeVariables['user.bc_xp'] = resolvedXp;
+        runtimeVariables['guild.id'] = 'guild-1';
+        runtimeVariables['author.id'] = 'user-1';
+        runtimeVariables['guildMember[guild-1:user-1].bc_xp'] = resolvedXp;
         final newXpContent = thenActions[6].payload['content'] as String;
         expect(
           resolveTemplatePlaceholders(newXpContent, runtimeVariables),
@@ -193,9 +196,7 @@ void main() {
     test(
       'runtime uppercase keeps placeholder keys intact until resolution',
       () {
-        final result = BdfdCompiler().compile(
-          r'$reply$toUpperCase[$username]',
-        );
+        final result = BdfdCompiler().compile(r'$reply$toUpperCase[$username]');
 
         expect(result.hasErrors, isFalse);
         expect(result.actions, hasLength(1));

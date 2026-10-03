@@ -19,7 +19,22 @@ import 'package:bot_creator_shared/bot/bot_data_store.dart';
 import 'package:nyxx/nyxx.dart';
 
 class AppManager implements BotDataStore {
-  static bool isSyncingFromRemote = false;
+  static bool _legacyRemoteSync = false;
+  static int _remoteSyncDepth = 0;
+  static bool get isSyncingFromRemote =>
+      _legacyRemoteSync || _remoteSyncDepth > 0;
+  static set isSyncingFromRemote(bool value) => _legacyRemoteSync = value;
+
+  /// Nested and concurrent imports must not reactivate outbound hooks early.
+  static VoidCallback beginRemoteSync() {
+    _remoteSyncDepth++;
+    var released = false;
+    return () {
+      if (released) return;
+      released = true;
+      _remoteSyncDepth--;
+    };
+  }
 
   static final AppManager _instance = AppManager._internal();
   factory AppManager() => _instance;
@@ -41,7 +56,11 @@ class AppManager implements BotDataStore {
   onAfterCommandSave;
 
   /// Optional hook called after a single command delete.
-  static Future<void> Function(String botId, String commandId, {String? discordId})?
+  static Future<void> Function(
+    String botId,
+    String commandId, {
+    String? discordId,
+  })?
   onAfterCommandDelete;
 
   /// Optional hook called after a workflow save.
@@ -190,6 +209,7 @@ class AppManager implements BotDataStore {
     Map<String, bool>? intents,
     String? prefix,
     int? approximateGuildCount,
+    bool notifyRuntime = true,
   }) async {
     final botId = id.toString();
     return await _enqueueAppWrite(botId, () async {
@@ -244,6 +264,9 @@ class AppManager implements BotDataStore {
       }
 
       final data = Map<String, dynamic>.from(existingData)
+        ..['bdfdUserVariableSemantics'] = existingData.isEmpty
+            ? 2
+            : (existingData['bdfdUserVariableSemantics'] ?? 1)
         ..['name'] = username.sanitizedUtf16
         ..['id'] = botId
         ..['avatar'] = avatarUri
@@ -330,7 +353,9 @@ class AppManager implements BotDataStore {
       _apps = appsList;
       _appsStreamController.add(appsList);
       await invalidatePayloadCache(botId);
-      unawaited((onAfterSave ?? (_) async {}).call(botId));
+      if (notifyRuntime) {
+        unawaited((onAfterSave ?? (_) async {}).call(botId));
+      }
       return file;
     });
   }
@@ -622,8 +647,10 @@ class AppManager implements BotDataStore {
     if (secureToken.isNotEmpty) {
       // Ce que le FICHIER portait, avant de le remplacer par la valeur du coffre :
       // c'est ça qui détermine s'il reste une copie en clair à retirer.
-      final fichierPortaitLeJeton =
-          (result['token'] ?? '').toString().trim().isNotEmpty;
+      final fichierPortaitLeJeton = (result['token'] ?? '')
+          .toString()
+          .trim()
+          .isNotEmpty;
       result['token'] = secureToken;
       if (fichierPortaitLeJeton) {
         // Une copie en clair traîne encore dans le fichier : on la retire.
@@ -650,7 +677,9 @@ class AppManager implements BotDataStore {
       if (raw.isEmpty) return;
       Map<String, dynamic> data;
       try {
-        data = Map<String, dynamic>.from(jsonDecode(raw) as Map<String, dynamic>);
+        data = Map<String, dynamic>.from(
+          jsonDecode(raw) as Map<String, dynamic>,
+        );
       } catch (_) {
         return;
       }
@@ -722,14 +751,20 @@ class AppManager implements BotDataStore {
     }
   }
 
-  Future<void> saveApp(String id, Map<String, dynamic> data) async {
+  Future<void> saveApp(
+    String id,
+    Map<String, dynamic> data, {
+    bool notifyRuntime = true,
+  }) async {
     // Le coffre n'est plus écrit ici : `_writeAppToDisk` s'en charge AVANT le
     // fichier (et sait quoi faire quand le coffre refuse).
     await _enqueueAppWrite(id, () async {
       await _writeAppToDisk(id, data);
     });
     await invalidatePayloadCache(id);
-    unawaited((onAfterSave ?? (_) async {}).call(id));
+    if (notifyRuntime) {
+      unawaited((onAfterSave ?? (_) async {}).call(id));
+    }
   }
 
   /// Écrit le document de l'application sur le disque — SANS le jeton.
@@ -2740,7 +2775,8 @@ class AppManager implements BotDataStore {
 
       if (!await file.exists()) await file.create(recursive: true);
       final stored = normalizeCommandData(<String, dynamic>{
-        ...data, 'id': commandId,
+        ...data,
+        'id': commandId,
       });
       await file.writeAsString(jsonEncode(stored));
       await invalidatePayloadCache(id);

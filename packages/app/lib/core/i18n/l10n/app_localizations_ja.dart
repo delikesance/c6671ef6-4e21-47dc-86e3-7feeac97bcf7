@@ -9,6 +9,47 @@ class AppLocalizationsJa extends AppLocalizations {
   AppLocalizationsJa([String locale = 'ja']) : super(locale);
 
   @override
+  String get docs_search => 'ドキュメントを検索';
+
+  @override
+  String get docs_reset_filters => 'フィルターをリセット';
+
+  @override
+  String docs_result_count(int count) {
+    return '$count 件の記事';
+  }
+
+  @override
+  String get docs_category => 'カテゴリ';
+
+  @override
+  String get docs_mode => 'モード';
+
+  @override
+  String get docs_no_results => '該当する記事がありません';
+
+  @override
+  String get docs_cached_offline => 'キャッシュ版：ネットワークを利用できません';
+
+  @override
+  String get docs_contents => '目次';
+
+  @override
+  String get variables_migration_title => 'BDFD変数の移行';
+
+  @override
+  String get variables_migration_confirmation =>
+      'ユーザー値を全サーバー共通のまま保持します。旧BDFDスクリプトを保存・変更してから、公式のサーバー別ユーザー関数を有効にします。値と有効期限は移動しません。';
+
+  @override
+  String get variables_migration_stop_bot => '変数を移行する前にボットを停止してください。';
+
+  @override
+  String variables_migration_result(int commands, int workflows, int calls) {
+    return 'コマンド $commands 件、ワークフローグループ $workflows 件、呼び出し $calls 件を変更';
+  }
+
+  @override
   String get app_update_dialog_title => '新しいバージョンがあります';
 
   @override
@@ -4142,7 +4183,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get globals_scope_message => 'メッセージ';
 
   @override
-  String get globals_scope_user => 'ユーザー';
+  String get globals_scope_user => 'グローバルユーザー';
 
   @override
   String get globals_search => '変数を検索…';

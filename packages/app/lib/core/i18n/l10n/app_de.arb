@@ -1,4 +1,16 @@
 {
+  "docs_search": "Dokumentation durchsuchen",
+  "docs_reset_filters": "Filter zurücksetzen",
+  "docs_result_count": "{count} Artikel",
+  "docs_category": "Kategorie",
+  "docs_mode": "Modus",
+  "docs_no_results": "Keine passenden Artikel",
+  "docs_cached_offline": "Zwischengespeicherte Version: Netzwerk nicht verfügbar",
+  "docs_contents": "Inhalt",
+  "variables_migration_title": "BDFD-Variablenmigration",
+  "variables_migration_confirmation": "Benutzerwerte bleiben serverübergreifend. Alte BDFD-Skripte werden archiviert und angepasst, dann werden die offiziellen serverbezogenen Benutzerfunktionen aktiviert. Werte und Ablaufzeiten bleiben unverändert.",
+  "variables_migration_stop_bot": "Stoppe den Bot vor der Variablenmigration.",
+  "variables_migration_result": "{commands} Befehle, {workflows} Workflow-Gruppen, {calls} Aufrufe angepasst",
   "@@locale": "de",
   "@app_update_dialog_title": {
     "description": "New version available"
@@ -8180,9 +8192,9 @@
   "globals_retry": "Wiederholen",
   "globals_scope_channel": "Kanal",
   "globals_scope_guild": "Gilde",
-  "globals_scope_guildMember": "Gildenmitglied",
+  "globals_scope_guildMember": "Servermitglied",
   "globals_scope_message": "Nachricht",
-  "globals_scope_user": "Benutzer",
+  "globals_scope_user": "Globaler Benutzer",
   "globals_search": "Variablen suchen…",
   "globals_source_local": "Lokal",
   "globals_source_runner": "Runner: {name}",

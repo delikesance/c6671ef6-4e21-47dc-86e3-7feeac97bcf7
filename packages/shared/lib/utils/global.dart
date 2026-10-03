@@ -645,7 +645,7 @@ Future<Map<String, String>> extractGuildRuntimeDetails(
   trySet('guild.verificationLevel', () => guild.verificationLevel);
   trySet('guild.mfaLevel', () => guild.mfaLevel);
   trySet('guild.nsfwLevel', () => guild.nsfwLevel);
-  trySet('guild.premiumTier', () => guild.premiumTier);
+  trySet('guild.premiumTier', () => guild.premiumTier.value);
   trySet(
     'guild.premiumSubscriptionCount',
     () => guild.premiumSubscriptionCount,

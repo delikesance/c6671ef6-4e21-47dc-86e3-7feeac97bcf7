@@ -62,6 +62,7 @@ Future<int> syncManagedBotsAfterDiscordLogin({
     await appManager.createOrUpdateApp(
       id: Snowflake.parse(botId),
       username: botName,
+      notifyRuntime: false,
       avatarHash: avatarHash,
       discriminator: discriminator,
       token: token,
@@ -87,6 +88,19 @@ Future<int> syncManagedBotsAfterDiscordLogin({
 
     // Rehydrate commands and workflows from remote config if available
     final remoteCommands = extractCommandListFromConfig(config['commands']);
+    try {
+      await applyManagerRuntimeMetadataToLocal(
+        appManager: appManager,
+        botId: botId,
+        remoteConfig: config,
+      );
+    } catch (e) {
+      developer.log(
+        'Refused inconsistent remote runtime for $botId: $e',
+        name: 'MainApiAccountBootstrap',
+      );
+      continue;
+    }
     final remoteWorkflows = config['workflows'];
     final hasRemoteData =
         remoteCommands.isNotEmpty ||
@@ -112,6 +126,7 @@ Future<int> syncManagedBotsAfterDiscordLogin({
         } else {
           // Both local and remote exist: smartMerge to retain local commands!
           await BotReconciliationService.smartMerge(
+            pushToCloud: false,
             botId: botId,
             remoteConfig: config,
             client: client,

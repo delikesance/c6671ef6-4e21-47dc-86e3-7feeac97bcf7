@@ -4,12 +4,15 @@ import 'dart:io';
 import 'package:bot_creator/core/auth/main_api_account_bootstrap.dart';
 import 'package:bot_creator/core/storage/database.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_config_import.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
+import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:nyxx/nyxx.dart' show Snowflake;
 
 const MethodChannel _pathProviderChannel = MethodChannel(
   'plugins.flutter.io/path_provider',
@@ -47,6 +50,8 @@ void main() {
   });
 
   setUp(() async {
+    AppManager.isSyncingFromRemote = false;
+    AppManager.onAfterSave = null;
     await appManager.saveApp(botId, <String, dynamic>{
       'id': botId,
       'name': 'TestBot',
@@ -66,6 +71,127 @@ void main() {
       }
     }
   });
+
+  tearDown(() {
+    AppManager.onAfterSave = null;
+    AppManager.isSyncingFromRemote = false;
+  });
+
+  test('overlapping imports release only their own suppression guard', () {
+    final first = AppManager.beginRemoteSync();
+    final second = AppManager.beginRemoteSync();
+    first();
+    expect(AppManager.isSyncingFromRemote, isTrue);
+    first();
+    expect(AppManager.isSyncingFromRemote, isTrue);
+    second();
+    expect(AppManager.isSyncingFromRemote, isFalse);
+  });
+
+  test(
+    'passive metadata writes preserve JavaScript and do not reload',
+    () async {
+      await appManager.saveApp(botId, {
+        ...await appManager.getApp(botId),
+        'runtimeEngine': 'javascript',
+      });
+      var notifications = 0;
+      AppManager.onAfterSave = (_) async {
+        notifications++;
+      };
+      await appManager.createOrUpdateApp(
+        id: Snowflake.parse(botId),
+        username: 'Refreshed identity',
+        token: 'test_token',
+        notifyRuntime: false,
+      );
+      expect(notifications, 0);
+      expect((await appManager.getApp(botId))['runtimeEngine'], 'javascript');
+      await appManager.saveApp(botId, await appManager.getApp(botId));
+      expect(notifications, 1);
+    },
+  );
+
+  test(
+    'incoming JS config restores engine and preserves nested suppression',
+    () async {
+      AppManager.isSyncingFromRemote = true;
+      await applyManagerConfigToLocal(
+        appManager: appManager,
+        botId: botId,
+        saveAppMetadata: false,
+        remoteConfig: {
+          'runtimeEngine': 'javascript',
+          'commands': [
+            {
+              'id': 'js',
+              'name': 'js',
+              'type': 'command',
+              'script': 'return 42;',
+            },
+          ],
+        },
+      );
+      expect(AppManager.isSyncingFromRemote, isTrue);
+      expect((await appManager.getApp(botId))['runtimeEngine'], 'javascript');
+      expect(
+        (await appManager.getAppCommand(
+          botId,
+          'js',
+        ))['data']['jsScriptContent'],
+        'return 42;',
+      );
+    },
+  );
+
+  test(
+    'inconsistent imports and outgoing Dart snapshots are refused',
+    () async {
+      expect(
+        runtimeEngineFromConfiguration({
+          'commands': [
+            {'type': 'command', 'script': 'return 42;'},
+          ],
+        }),
+        'javascript',
+      );
+      for (final config in [
+        {'runtimeEngine': 'unsupported'},
+        {
+          'runtimeEngine': 'dart',
+          'commands': [
+            {'type': 'command', 'script': 'return 42;'},
+          ],
+        },
+      ]) {
+        await expectLater(
+          applyManagerConfigToLocal(
+            appManager: appManager,
+            botId: botId,
+            remoteConfig: config,
+          ),
+          throwsStateError,
+        );
+        expect(AppManager.isSyncingFromRemote, isFalse);
+      }
+      await appManager.saveAppCommand(botId, 'js', {
+        'id': 'js',
+        'name': 'js',
+        'data': {
+          'executionMode': 'javascript',
+          'jsScriptContent': 'return 42;',
+        },
+      });
+      await expectLater(buildRemotePayload(botId), throwsStateError);
+      expect(
+        (await appManager.getAppCommand(
+          botId,
+          'js',
+        ))['data']['jsScriptContent'],
+        'return 42;',
+      );
+    },
+  );
 
   test(
     'applyManagerConfigToLocal does NOT delete local-only commands by default',
@@ -192,6 +318,11 @@ void main() {
 
       // 2. Mock HTTP client simulating manager listBots (R2 wrapper) + getBotConfig + R2 download
       final mockHttpClient = MockClient((request) async {
+        expect(
+          request.method,
+          'GET',
+          reason: 'Login must never upload or reload a hosted bot',
+        );
         final uri = request.url;
         if (uri.path == '/gateway/bots') {
           return http.Response(

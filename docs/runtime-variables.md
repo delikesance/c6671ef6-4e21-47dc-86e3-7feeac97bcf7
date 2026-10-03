@@ -16,6 +16,69 @@ Cette V1 ajoute deux points importants:
 
 ---
 
+## Migration des variables utilisateur BDFD
+
+La configuration `bdfdUserVariableSemantics` distingue deux comportements :
+
+- `1` (ou champ absent) : comportement historique, `$getUserVar` et
+  `$setUserVar` sans serveur explicite lisent et écrivent dans `user`.
+- `2` : comportement BDFD officiel, dans `guildMember` avec le contexte
+  `serveur:utilisateur`. Les nouveaux bots utilisent cette version.
+
+`$getVar[nom;utilisateur]` et `$setVar[nom;valeur;utilisateur]` restent dans
+`user`, partagés entre serveurs. `$resetUserVar[nom]` réinitialise tous les
+membres ; un utilisateur explicite limite la réinitialisation à cet utilisateur.
+
+Pour un ancien bot, ouvrir la source locale dans Variables > Scoped, arrêter
+son exécution locale, puis utiliser l'action de migration. Les valeurs
+utilisateur restent dans `user`, partagé entre serveurs : aucune copie de
+valeurs, de définitions ou d'expirations n'est nécessaire, y compris pour le
+stockage hébergé. L'interface nomme cette portée **Utilisateur global** et
+`guildMember` **Membre du serveur**.
+
+La migration analyse l'AST des scripts et adapte les appels historiquement
+globaux : `$getUserVar[nom]` devient `$getVar[nom;$authorID]`, et
+`$setUserVar[nom;valeur]` devient `$setVar[nom;valeur;$authorID]`.
+Un utilisateur explicite est conservé. Les get/set avec serveur explicite
+restent inchangés. Les textes échappés, commentaires et champs JavaScript
+ne sont pas réécrits. Les sous-commandes et scripts BDFD imbriqués dans les
+actions de workflows sont inclus.
+
+`$resetGlobalUserVar[nom;(utilisateur)]` est une extension Bot Creator,
+pas une fonction officielle BDFD. Elle conserve l'ancien reset ciblé sur un
+utilisateur (l'auteur par défaut). Un ancien reset avec serveur explicite
+devient `$resetGuildMemberVar` pour ne pas élargir sa portée involontairement.
+Les scripts utilisant `$eval` nécessitent une revue manuelle : la migration
+refuse d'activer la nouvelle version si le comportement ne peut être garanti.
+
+Avant toute écriture, les commandes et workflows sont archivés dans
+`apps/<botId>/migrations/bdfd-global-user-scripts-v1.json`, sans jeton du bot.
+Les scripts adaptés restent compatibles avec la version historique. Une
+interruption laisse donc le bot en version 1 ; la reprise accepte seulement
+les originaux inchangés ou les résultats déjà adaptés. Une commande éditée,
+ajoutée ou supprimée après archivage bloque la reprise, sans écraser l'édition.
+La version 2 est activée en dernier, après réussite complète. Une seule
+synchronisation complète est demandée, jamais une par commande migrée.
+
+Mettre à jour ensemble l'app, le runtime Dart et le Manager avant d'appliquer
+la migration. La configuration hébergée reçoit les scripts adaptés et la
+version ensemble par la synchronisation normale ; les valeurs distantes
+ne sont pas déplacées par cette migration. Une sauvegarde locale réussie
+ne prouve pas la réussite de la synchronisation distante ou d'un déploiement.
+L'ancienne copie vers un serveur destinataire n'est plus proposée.
+
+Pour revenir au comportement historique, arrêter le bot et remettre la
+version 1 : les scripts adaptés et les données globales restent utilisables.
+L'archive permet également une restauration explicite des anciens scripts,
+à réaliser bot arrêté et sans écraser des modifications postérieures.
+
+Références officielles :
+[getUserVar](https://wiki.botdesignerdiscord.com/bdscript/getUserVar.html),
+[setUserVar](https://wiki.botdesignerdiscord.com/bdscript/setUserVar.html),
+[resetUserVar](https://wiki.botdesignerdiscord.com/bdscript/resetUserVar.html).
+
+---
+
 ## 1. Variables globales toujours disponibles
 
 | Variable | Valeur |

@@ -9,6 +9,12 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 12000
+        },
+        "bot_id": {
+          "type": "string",
+          "minLength": 15,
+          "maxLength": 22,
+          "description": "Target bot configuration; defaults to the conversation bot. Without a target, uses official semantics (version 2)."
         }
       },
       "required": [
@@ -20,7 +26,7 @@
   },
   {
     "name": "local_test_command",
-    "description": "Execute a BDFD draft or action blocks in the isolated local sandbox. No real Discord, network or production storage access. Returns simulated responses, execution trace and fixture storage before/after. Test valid and invalid inputs before saving; never present this as a live Discord test. Unsupported actions fail explicitly.",
+    "description": "Execute a BDFD draft or action blocks in the isolated local sandbox. No real Discord, network or production storage access. Returns compact simulated responses, errors, assertions and bounded fixture storage. No trace by default. Use detailed output or a short trace only to diagnose a specific failure. Never present simulation as live Discord verification. Unsupported actions fail explicitly.",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -45,6 +51,26 @@
         "expected_values": {
           "type": "object",
           "description": "Optional expected result values keyed by JSON pointer, e.g. {\"/responses/0/payload/embeds/0/title\":\"Score\"}. Missing fields and incorrect values fail the contract even when execution succeeds."
+        },
+        "bot_id": {
+          "type": "string",
+          "minLength": 15,
+          "maxLength": 22,
+          "description": "Target bot configuration; defaults to the conversation bot. Without a target, uses official semantics (version 2)."
+        },
+        "trace_limit": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 500,
+          "description": "Maximum returned execution frames (default 0); omitted frames are explicitly counted. Contract checks still inspect the complete result."
+        },
+        "result_view": {
+          "type": "string",
+          "enum": [
+            "compact",
+            "detailed"
+          ],
+          "description": "Defaults to compact. Detailed includes intermediate results and logs for a concrete failure. Both views bound output size and explicitly report omissions; assertions always inspect the full result."
         }
       },
       "additionalProperties": false
@@ -231,7 +257,7 @@
   },
   {
     "name": "local_list_commands",
-    "description": "Read command definitions saved locally for a bot.",
+    "description": "List command settings and revisions without execution code. Filter by exact name to find a target. Use local_get_command for execution, or include_execution only when needed.",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -239,6 +265,14 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 200
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "include_execution": {
+          "type": "boolean"
         }
       },
       "required": [
@@ -250,10 +284,24 @@
   },
   {
     "name": "local_block_registry",
-    "description": "List supported BDFD functions and visual block types. For workflow mode, actions_json is a JSON array of blocks with type and payload; inspect existing commands for payload examples.",
+    "description": "List supported BDFD functions and visual block types without test fixtures. Filter functions (up to 8 names) and set include_examples=true for their sandbox contracts. For workflow mode, actions_json is an array of blocks with type and payload.",
     "inputSchema": {
       "type": "object",
-      "properties": {},
+      "properties": {
+        "functions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "include_examples": {
+          "type": "boolean"
+        }
+      },
       "required": [],
       "additionalProperties": false
     },
@@ -269,6 +317,10 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 200
+        },
+        "include_examples": {
+          "type": "boolean",
+          "description": "Include executable XP workflow/command examples. Default false for a compact dialect/storage reference."
         }
       },
       "required": [
@@ -280,7 +332,7 @@
   },
   {
     "name": "local_get_command",
-    "description": "Read a local command and its revision before editing it.",
+    "description": "Read a command and its revision. Use view=settings for description/permissions edits to omit execution code. Default view=full includes execution.",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -293,6 +345,13 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 200
+        },
+        "view": {
+          "type": "string",
+          "enum": [
+            "full",
+            "settings"
+          ]
         }
       },
       "required": [

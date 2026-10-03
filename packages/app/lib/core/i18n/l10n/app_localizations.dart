@@ -106,6 +106,78 @@ abstract class AppLocalizations {
     Locale('tr'),
   ];
 
+  /// No description provided for @docs_search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search documentation'**
+  String get docs_search;
+
+  /// No description provided for @docs_reset_filters.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset filters'**
+  String get docs_reset_filters;
+
+  /// No description provided for @docs_result_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} articles'**
+  String docs_result_count(int count);
+
+  /// No description provided for @docs_category.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get docs_category;
+
+  /// No description provided for @docs_mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Mode'**
+  String get docs_mode;
+
+  /// No description provided for @docs_no_results.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching articles'**
+  String get docs_no_results;
+
+  /// No description provided for @docs_cached_offline.
+  ///
+  /// In en, this message translates to:
+  /// **'Cached version: network unavailable'**
+  String get docs_cached_offline;
+
+  /// No description provided for @docs_contents.
+  ///
+  /// In en, this message translates to:
+  /// **'Contents'**
+  String get docs_contents;
+
+  /// No description provided for @variables_migration_title.
+  ///
+  /// In en, this message translates to:
+  /// **'BDFD variable migration'**
+  String get variables_migration_title;
+
+  /// No description provided for @variables_migration_confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep user values shared across all servers. Archive and adapt legacy BDFD scripts, then activate official per-server user functions. No variable values or expirations are moved.'**
+  String get variables_migration_confirmation;
+
+  /// No description provided for @variables_migration_stop_bot.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop the bot before migrating variables.'**
+  String get variables_migration_stop_bot;
+
+  /// No description provided for @variables_migration_result.
+  ///
+  /// In en, this message translates to:
+  /// **'{commands} commands, {workflows} workflow groups, {calls} calls adapted'**
+  String variables_migration_result(int commands, int workflows, int calls);
+
   /// New version available
   ///
   /// In en, this message translates to:
@@ -7760,7 +7832,7 @@ abstract class AppLocalizations {
   /// guildMember
   ///
   /// In en, this message translates to:
-  /// **'guildMember'**
+  /// **'Server member'**
   String get globals_scope_guildMember;
 
   /// message
@@ -7772,7 +7844,7 @@ abstract class AppLocalizations {
   /// user
   ///
   /// In en, this message translates to:
-  /// **'user'**
+  /// **'Global user'**
   String get globals_scope_user;
 
   /// Search variables…

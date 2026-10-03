@@ -1,6 +1,10 @@
 import 'package:bot_creator/core/i18n/l10n/app_localizations.dart';
 import 'package:bot_creator/features/documentation/documentation_hub_page.dart';
 import 'package:bot_creator/features/documentation/documentation_urls.dart';
+import 'package:bot_creator/features/documentation/documentation_repository.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bot_creator/features/documentation/web_documentation_view.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -9,6 +13,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  setUp(() => SharedPreferences.setMockInitialValues({}));
 
   group('documentation URLs', () {
     test('urlForDocumentationSection returns expected base URLs', () {
@@ -65,24 +70,18 @@ void main() {
 
   group('visibleDocumentationSections', () {
     test('returns two tabs when discord.js is hidden', () {
-      expect(
-        visibleDocumentationSections(showDiscordJsTab: false),
-        [
-          DocumentationSection.guide,
-          DocumentationSection.botCreatorDocs,
-        ],
-      );
+      expect(visibleDocumentationSections(showDiscordJsTab: false), [
+        DocumentationSection.guide,
+        DocumentationSection.botCreatorDocs,
+      ]);
     });
 
     test('returns three tabs when discord.js is enabled', () {
-      expect(
-        visibleDocumentationSections(showDiscordJsTab: true),
-        [
-          DocumentationSection.guide,
-          DocumentationSection.botCreatorDocs,
-          DocumentationSection.discordJs,
-        ],
-      );
+      expect(visibleDocumentationSections(showDiscordJsTab: true), [
+        DocumentationSection.guide,
+        DocumentationSection.botCreatorDocs,
+        DocumentationSection.discordJs,
+      ]);
     });
 
     test('selects initial docs tab index', () {
@@ -112,10 +111,9 @@ void main() {
 
   group('documentationWebViewGestureRecognizers', () {
     test('includes vertical drag and pan recognizers', () {
-      final types =
-          documentationWebViewGestureRecognizers
-              .map((factory) => factory.constructor().runtimeType)
-              .toSet();
+      final types = documentationWebViewGestureRecognizers
+          .map((factory) => factory.constructor().runtimeType)
+          .toSet();
 
       expect(types, contains(VerticalDragGestureRecognizer));
       expect(types, contains(PanGestureRecognizer));
@@ -130,7 +128,11 @@ void main() {
           MaterialApp(
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
-            home: const DocumentationHubPage(),
+            home: DocumentationHubPage(
+              repository: DocumentationRepository(
+                client: MockClient((_) async => http.Response('[]', 200)),
+              ),
+            ),
           ),
         );
         await tester.pump();

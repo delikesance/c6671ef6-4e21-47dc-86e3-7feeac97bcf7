@@ -944,7 +944,10 @@ class EventDispatcher {
       botId: botId,
     );
 
-    final compileResult = BdfdCompiler().compile(scriptSource);
+    final compileResult = BdfdCompiler(
+      legacyUserVariables:
+          runtimeVariables['bdfd.userVariableSemantics'] == '1',
+    ).compile(scriptSource);
 
     if (compileResult.hasErrors) {
       callbacks.onLog?.call(

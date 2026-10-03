@@ -18,6 +18,10 @@ List<EmbedFieldBuilder> buildResolvedEmbedFields({
     final field = Map<String, dynamic>.from(
       rawField.map((key, value) => MapEntry(key.toString(), value)),
     );
+    if (field.containsKey('includeIf') &&
+        resolve(field['includeIf'].toString()).trim() != 'true') {
+      return;
+    }
     final name = resolve((field['name'] ?? '').toString()).trim();
     final value = resolve((field['value'] ?? '').toString()).trim();
     if (name.isEmpty || value.isEmpty) {
@@ -30,19 +34,14 @@ List<EmbedFieldBuilder> buildResolvedEmbedFields({
       isInline = inlineRaw;
     } else if (inlineRaw != null) {
       final resolvedInline = resolve(inlineRaw.toString()).trim().toLowerCase();
-      isInline = resolvedInline == 'yes' ||
+      isInline =
+          resolvedInline == 'yes' ||
           resolvedInline == 'true' ||
           resolvedInline == '1' ||
           resolvedInline == 'on';
     }
 
-    fields.add(
-      EmbedFieldBuilder(
-        name: name,
-        value: value,
-        isInline: isInline,
-      ),
-    );
+    fields.add(EmbedFieldBuilder(name: name, value: value, isInline: isInline));
   }
 
   final staticFields =

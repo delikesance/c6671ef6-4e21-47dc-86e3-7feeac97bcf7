@@ -88,13 +88,19 @@ Future<Map<String, dynamic>> _run(Map<String, dynamic> input) async {
   final script = (input['script'] ?? '').toString();
   if (script.length > 100000) throw StateError('Script size limit exceeded');
   final diagnostics = <Map<String, dynamic>>[];
+  final semantics = input['bdfdUserVariableSemantics'] ?? 2;
+  if (semantics != 1 && semantics != 2) {
+    throw ArgumentError('Unsupported BDFD user variable semantics');
+  }
   final List<Action> actions;
   if (input['actions'] is List) {
     actions = (input['actions'] as List)
         .map((a) => Action.fromJson(Map<String, dynamic>.from(a as Map)))
         .toList();
   } else {
-    final compiled = BdfdCompiler().compile(script);
+    final compiled = BdfdCompiler(
+      legacyUserVariables: semantics == 1,
+    ).compile(script);
     diagnostics.addAll(
       compiled.diagnostics.map(
         (d) => {
@@ -184,6 +190,7 @@ Future<Map<String, dynamic>> _run(Map<String, dynamic> input) async {
   }
 
   final store = SandboxStore(
+    bdfdUserVariableSemantics: semantics as int,
     globalVariables: Map<String, dynamic>.from(input['global'] as Map? ?? {}),
     scopedDefinitions: scopedDefinitions,
     scopedVariables: scopedVariables,
@@ -459,6 +466,7 @@ Future<Map<String, dynamic>> _run(Map<String, dynamic> input) async {
   }
   return {
     'success': error == null,
+    'bdfdUserVariableSemantics': semantics,
     'error': error,
     'diagnostics': diagnostics,
     'responses': policy.responses,
@@ -578,7 +586,21 @@ class _SandboxPolicy implements ActionExecutionPolicy {
     }
     dynamic resolve(dynamic data) {
       if (data is String) return resolveValue(data);
-      if (data is Map) return data.map((k, v) => MapEntry(k, resolve(v)));
+      if (data is Map) {
+        final resolved = data.map((k, v) => MapEntry(k, resolve(v)));
+        final fields = resolved['fields'];
+        if (fields is List) {
+          resolved['fields'] = fields
+              .where(
+                (field) =>
+                    field is! Map ||
+                    !field.containsKey('includeIf') ||
+                    field['includeIf'].toString() == 'true',
+              )
+              .toList();
+        }
+        return resolved;
+      }
       if (data is List) return data.map(resolve).toList();
       return data;
     }

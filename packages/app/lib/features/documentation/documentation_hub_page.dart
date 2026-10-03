@@ -1,6 +1,8 @@
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/features/documentation/documentation_urls.dart';
+import 'package:bot_creator/features/documentation/documentation_repository.dart';
+import 'package:bot_creator/features/documentation/native_documentation_view.dart';
 import 'package:bot_creator/features/documentation/web_documentation_view.dart';
 import 'package:flutter/material.dart';
 
@@ -11,10 +13,12 @@ class DocumentationHubPage extends StatefulWidget {
     this.initialSection = DocumentationSection.guide,
     this.showDiscordJsTab = false,
     this.embedded = false,
+    this.repository,
   });
 
   final DocumentationSection initialSection;
   final bool showDiscordJsTab;
+  final DocumentationRepository? repository;
 
   /// When true, hide the back button (used inside the compact bottom-nav shell).
   final bool embedded;
@@ -27,6 +31,7 @@ class _DocumentationHubPageState extends State<DocumentationHubPage>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
   late final List<DocumentationSection> _sections;
+  final Set<int> _visited = {};
 
   @override
   void initState() {
@@ -41,6 +46,7 @@ class _DocumentationHubPageState extends State<DocumentationHubPage>
       vsync: this,
       initialIndex: initialIndex,
     );
+    _visited.add(initialIndex);
     _tabController.addListener(_onTabChanged);
   }
 
@@ -48,7 +54,7 @@ class _DocumentationHubPageState extends State<DocumentationHubPage>
     if (_tabController.indexIsChanging) {
       return;
     }
-    setState(() {});
+    setState(() => _visited.add(_tabController.index));
   }
 
   List<DocumentationSection> _buildSections() {
@@ -92,15 +98,24 @@ class _DocumentationHubPageState extends State<DocumentationHubPage>
       ),
       // Largeur et marges communes à toutes les pages de l'app (contrat
       // AppPageLayout) : le hub n'est plus en plein-cadre.
-      body: PageContent(
-        child: IndexedStack(
-          index: _tabController.index,
-          children: [
-            for (final section in _sections)
-              WebDocumentationView(
-                initialUrl: urlForDocumentationSection(section),
-              ),
-          ],
+      body: SafeArea(
+        top: false,
+        child: PageContent(
+          child: IndexedStack(
+            index: _tabController.index,
+            children: [
+              for (var index = 0; index < _sections.length; index++)
+                if (!_visited.contains(index))
+                  const SizedBox.shrink()
+                else if (_sections[index] == DocumentationSection.discordJs)
+                  WebDocumentationView(initialUrl: discordJsBaseUrl)
+                else
+                  NativeDocumentationView(
+                    section: _sections[index],
+                    repository: widget.repository,
+                  ),
+            ],
+          ),
         ),
       ),
     );

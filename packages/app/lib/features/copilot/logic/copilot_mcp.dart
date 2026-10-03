@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'copilot_schema.dart';
+import 'copilot_sandbox_result.dart';
 
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
@@ -113,6 +114,19 @@ class CopilotMcp {
     final commandMutation =
         name == 'local_create_command' ||
         name == 'local_update_command_execution';
+    final semanticTarget = botID ?? botId;
+    final versionSensitive =
+        commandMutation ||
+        const {
+          'local_validate_bdfd',
+          'local_test_command',
+          'local_runtime_reference',
+        }.contains(name);
+    final semantics = versionSensitive && semanticTarget != null
+        ? ((await _localBot(semanticTarget))['bdfdUserVariableSemantics'] == 2
+              ? 2
+              : 1)
+        : 2;
     final javascriptRuntime =
         commandMutation &&
         botID != null &&
@@ -140,6 +154,7 @@ class CopilotMcp {
         executionMode,
         script: script,
         actionsJson: args['actions_json'] as String?,
+        legacyUserVariables: semantics == 1,
       );
     }
     if (tool['mutating'] == true &&
@@ -202,11 +217,49 @@ class CopilotMcp {
         value = await _localStatus(botID);
       case 'local_list_commands':
         await _localBot(botID!);
-        value = await AppManager().listAppCommands(botID);
+        final commands = await AppManager().listAppCommands(botID);
+        value = commands
+            .where((c) => args['name'] == null || c['name'] == args['name'])
+            .map(
+              (c) => {
+                ...copilotCommandSettings(c),
+                if (args['include_execution'] == true) 'data': c['data'],
+                'revision': HashUtil.calculateHash(c),
+              },
+            )
+            .toList();
       case 'local_block_registry':
+        final requested = (args['functions'] as List?)
+            ?.map(
+              (f) =>
+                  f.toString().replaceFirst(RegExp(r'^\$'), '').toLowerCase(),
+            )
+            .toSet();
+        if (args['include_examples'] == true &&
+            (requested == null || requested.isEmpty)) {
+          throw const FormatException(
+            'Select up to 8 functions before requesting sandbox examples.',
+          );
+        }
+        final functions =
+            allBdfdFunctions
+                .where((f) => requested == null || requested.contains(f))
+                .toList()
+              ..sort();
+        final covered = sandboxFunctionCases.map((c) => c.function).toSet();
         value = {
-          'functions': allBdfdFunctions.toList()..sort(),
-          'sandbox_functions': sandboxFunctionCatalog(),
+          'functions': functions,
+          'sandbox_functions': args['include_examples'] == true
+              ? sandboxFunctionCatalog()
+                    .where((entry) => requested!.contains(entry['function']))
+                    .toList()
+              : [
+                  for (final f in functions)
+                    {'function': f, 'covered': covered.contains(f)},
+                ],
+          if (requested != null)
+            'unknown_functions': requested.difference(allBdfdFunctions).toList()
+              ..sort(),
           'action_types': BotCreatorActionType.values
               .map((t) => t.name)
               .toList(),
@@ -216,12 +269,19 @@ class CopilotMcp {
           },
         };
       case 'local_runtime_reference':
-        await _localBot(botID!);
-        final runtime = await getBotRuntimeEngine(botID);
+        final runtime = await getBotRuntimeEngine(botID!);
         value = {
           'runtime_engine': runtime,
+          'bdfdUserVariableSemantics': semantics,
           if (runtime != runtimeEngineJavascript)
-            'reference': bdfdRuntimeReference()
+            'reference': bdfdRuntimeReference(
+              legacyUserVariables: semantics == 1,
+              includeExamples:
+                  args['include_examples'] == true ||
+                  !(tool['inputSchema']['properties'] as Map).containsKey(
+                    'include_examples',
+                  ),
+            )
           else
             'message':
                 'This bundled reference describes the BDFD runtime only. Use JavaScript documentation for this bot.',
@@ -231,7 +291,12 @@ class CopilotMcp {
           ...Map<String, dynamic>.from(args['scenario'] as Map? ?? {}),
           if (args['script'] != null) 'script': args['script'],
           if (args['actions'] != null) 'actions': args['actions'],
+          'bdfdUserVariableSemantics': semantics,
         });
+        result['bot_id'] = semanticTarget;
+        result['configuration_source'] = semanticTarget == null
+            ? 'standalone_official'
+            : 'saved_bot_configuration';
         if (args['expected_content'] != null ||
             args['expected_values'] != null) {
           final contract = evaluateSandboxContract(
@@ -244,15 +309,37 @@ class CopilotMcp {
           result['contract_passed'] = contract['passed'];
           result['contract_checks'] = contract['checks'];
         }
+        final trace = result['trace'];
+        final traceLimit = args['trace_limit'] as int? ?? 0;
+        if (trace is List && trace.length > traceLimit) {
+          result['trace_total'] = trace.length;
+          result['trace_truncated'] = true;
+          result['trace'] = trace.take(traceLimit).toList();
+        }
         return {
           'content': [
-            {'type': 'text', 'text': jsonEncode(result)},
+            {
+              'type': 'text',
+              'text': jsonEncode(
+                copilotSandboxResult(
+                  result,
+                  detailed: args['result_view'] == 'detailed',
+                ),
+              ),
+            },
           ],
           'isError':
               result['success'] != true || result['contract_passed'] == false,
         };
       case 'local_validate_bdfd':
-        final validation = validateCopilotBdfd(script!);
+        final validation = validateCopilotBdfd(
+          script!,
+          legacyUserVariables: semantics == 1,
+        );
+        validation['bot_id'] = semanticTarget;
+        validation['configuration_source'] = semanticTarget == null
+            ? 'standalone_official'
+            : 'saved_bot_configuration';
         return {
           'content': [
             {'type': 'text', 'text': jsonEncode(validation)},
@@ -265,7 +352,9 @@ class CopilotMcp {
         final command = await AppManager().getAppCommand(botID, commandID);
         if (command.isEmpty) throw StateError('Command not found');
         value = {
-          'command': command,
+          'command': args['view'] == 'settings'
+              ? copilotCommandSettings(command)
+              : command,
           'revision': HashUtil.calculateHash(command),
         };
       case 'local_update_command_options':
@@ -294,6 +383,7 @@ class CopilotMcp {
           route: args['route'] as String?,
           executionMode: executionMode,
           actionsJson: args['actions_json'] as String?,
+          legacyUserVariables: semantics == 1,
         );
         await AppManager().saveAppCommand(botID, commandID, updated);
         final synced = await syncCloudCommand(botID, commandID);
@@ -351,6 +441,7 @@ class CopilotMcp {
                         executionMode,
                         script: script,
                         actionsJson: args['actions_json'] as String?,
+                        legacyUserVariables: semantics == 1,
                       ),
                     }, options)['data']
                     as Map<String, dynamic>,
@@ -457,12 +548,11 @@ class CopilotMcp {
   }
 
   Future<Map<String, dynamic>> _localBot(String id) async {
-    if (!(await AppManager().getAllApps()).whereType<Map>().any(
-      (a) => a['id'].toString() == id,
-    )) {
+    final app = await AppManager().getApp(id);
+    if (app.isEmpty) {
       throw StateError('Bot is not present on this device');
     }
-    return AppManager().getApp(id);
+    return app;
   }
 
   String _commandID(Map<String, dynamic> args) {
@@ -683,6 +773,15 @@ class CopilotMcp {
             'tools': {'listChanged': false},
           },
           'serverInfo': {'name': 'bot-creator-studio-bridge', 'version': '1.0'},
+          'instructions':
+              'Use focused reads and reuse facts already obtained. For command '
+              'description/permissions edits, use local_list_commands filtered by '
+              'name or local_get_command with view=settings, then '
+              'local_update_command_settings with the returned revision. '
+              'Execution tests and function docs are needed for execution changes. '
+              'local_block_registry omits fixtures by default; request up to 8 '
+              'functions with include_examples=true for their sandbox contracts. '
+              'After confirmed success, report the result without redundant reads.',
         };
       case 'ping':
         result = {};
@@ -712,14 +811,19 @@ class CopilotMcp {
             Map<String, dynamic>.from(params['arguments'] as Map? ?? {}),
             callID: 'mcp:${++_rpcID}:${jsonEncode(id)}',
           );
-        } catch (_) {
+        } catch (error) {
           result = {
             'isError': true,
             'content': [
               {
                 'type': 'text',
-                'text':
-                    'Tool failed. Check the target, permissions and runtime in the application.',
+                'text': redact(
+                  error is FormatException
+                      ? error.message.toString()
+                      : error is StateError
+                      ? error.message.toString()
+                      : 'Tool failed. Check the target, permissions and runtime in the application.',
+                ),
               },
             ],
           };

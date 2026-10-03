@@ -1478,6 +1478,7 @@ class HomePageState extends State<HomePage>
             await appManager.createOrUpdateApp(
               id: Snowflake.parse(botId),
               username: botName,
+              notifyRuntime: false,
               avatarHash: avatarHash,
               discriminator: discriminator,
               token: token,
@@ -1767,7 +1768,7 @@ class HomePageState extends State<HomePage>
 
       final syncResults = await Future.wait(botSyncTasks);
 
-      AppManager.isSyncingFromRemote = true;
+      final endRemoteSync = AppManager.beginRemoteSync();
       try {
         for (final result in syncResults) {
           if (result == null) continue;
@@ -1775,6 +1776,7 @@ class HomePageState extends State<HomePage>
             await appManager.createOrUpdateApp(
               id: Snowflake.parse(result.botId),
               username: result.botName,
+              notifyRuntime: false,
               avatarHash: result.avatarHash,
               discriminator: result.discriminator,
               token: result.token,
@@ -1797,6 +1799,11 @@ class HomePageState extends State<HomePage>
             }
             final remoteCommands = extractCommandListFromConfig(
               remoteConfig['commands'],
+            );
+            await applyManagerRuntimeMetadataToLocal(
+              appManager: appManager,
+              botId: result.botId,
+              remoteConfig: remoteConfig,
             );
             final localCommands = await appManager.listAppCommands(
               result.botId,
@@ -1853,7 +1860,7 @@ class HomePageState extends State<HomePage>
           }
         }
       } finally {
-        AppManager.isSyncingFromRemote = false;
+        endRemoteSync();
       }
 
       if (mounted) {
