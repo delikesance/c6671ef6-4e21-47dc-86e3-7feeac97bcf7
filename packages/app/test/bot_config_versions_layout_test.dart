@@ -61,8 +61,22 @@ void main() {
                 ? {
                     'content': {
                       'commands': [
-                        {'id': 'saved-value'},
+                        {
+                          'id': 'cmd-1',
+                          'name': 'saved-value',
+                          'actions': [
+                            {'content': 'private-script'},
+                          ],
+                        },
                       ],
+                      'workflows': {
+                        'wf-1': {
+                          'name': 'Saved workflow',
+                          'steps': [
+                            {'secret': 'private-workflow'},
+                          ],
+                        },
+                      },
                     },
                   }
                 : {
@@ -108,7 +122,13 @@ void main() {
     expect(tester.getRect(preview).right, lessThanOrEqualTo(302));
     await tester.tap(preview);
     await tester.pumpAndSettle();
-    expect(find.textContaining('saved-value'), findsOneWidget);
+    expect(find.text('saved-value'), findsOneWidget);
+    expect(find.text('Saved workflow'), findsOneWidget);
+    expect(find.text('${fr.commands_title} (1)'), findsOneWidget);
+    expect(find.text('${fr.workflows_title} (1)'), findsOneWidget);
+    expect(find.textContaining('private-script'), findsNothing);
+    expect(find.textContaining('private-workflow'), findsNothing);
+    expect(find.byType(SelectableText), findsNothing);
     expect(requests.where((r) => r.method != 'GET'), isEmpty);
     expect(tester.takeException(), isNull);
     await tester.tap(find.byTooltip(fr.common_close).last);

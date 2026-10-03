@@ -453,6 +453,7 @@ class _CommandHistorySheetState extends State<CommandHistorySheet> {
     try {
       await showHistoryVersionPreview(
         context,
+        singleCommand: true,
         load: () => widget.repository!.previewCommandVersion(
           widget.botId,
           widget.commandId,
