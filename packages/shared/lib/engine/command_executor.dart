@@ -50,7 +50,10 @@ class CommandExecutor {
     final interaction = event.interaction;
 
     if (interaction is ApplicationCommandAutocompleteInteraction) {
-      callbacks.onDebugLog?.call('Autocomplete interaction for ${interaction.data.name}', botId: botId);
+      callbacks.onDebugLog?.call(
+        'Autocomplete interaction for ${interaction.data.name}',
+        botId: botId,
+      );
       await _handleAutocomplete(
         interaction,
         botId: botId,
@@ -65,7 +68,10 @@ class CommandExecutor {
         startedAt: startedAt,
       );
     } else if (interaction is MessageComponentInteraction) {
-      callbacks.onDebugLog?.call('Component interaction: ${interaction.data.customId}', botId: botId);
+      callbacks.onDebugLog?.call(
+        'Component interaction: ${interaction.data.customId}',
+        botId: botId,
+      );
       await handleComponentInteraction(
         gateway,
         interaction,
@@ -74,7 +80,10 @@ class CommandExecutor {
         lavalinkService: _workflowExecutor.lavalinkService,
       );
     } else if (interaction is ModalSubmitInteraction) {
-      callbacks.onDebugLog?.call('Modal submit: ${interaction.data.customId}', botId: botId);
+      callbacks.onDebugLog?.call(
+        'Modal submit: ${interaction.data.customId}',
+        botId: botId,
+      );
       await handleModalSubmitInteraction(
         gateway,
         interaction,
@@ -107,19 +116,24 @@ class CommandExecutor {
     final allCommands = results[0] as List<Map<String, dynamic>>;
     final listOfArgs = results[1] as Map<String, String>;
 
-    final action = findApplicationCommand(
-      allCommands,
-      discordId: commandData.id.toString(),
-      name: commandData.name,
-      type: commandData.type == ApplicationCommandType.user
-          ? 'user'
-          : commandData.type == ApplicationCommandType.message
-          ? 'message'
-          : 'chatInput',
-    ) ?? <String, dynamic>{};
+    final action =
+        findApplicationCommand(
+          allCommands,
+          discordId: commandData.id.toString(),
+          name: commandData.name,
+          type: commandData.type == ApplicationCommandType.user
+              ? 'user'
+              : commandData.type == ApplicationCommandType.message
+              ? 'message'
+              : 'chatInput',
+        ) ??
+        <String, dynamic>{};
 
     if (action.isEmpty) {
-      callbacks.onLog?.call('Command not found: ${commandData.name}', botId: botId);
+      callbacks.onLog?.call(
+        'Command not found: ${commandData.name}',
+        botId: botId,
+      );
       final builder = MessageBuilder(content: 'Command not found.');
       await interaction.respond(builder);
       return;
@@ -132,11 +146,7 @@ class CommandExecutor {
 
     // Inject bot variables
     runtimeVariables.addAll(shared_global.extractBotRuntimeDetails(gateway));
-    _injectBaseVariables(
-      runtimeVariables,
-      botId: botId,
-      startedAt: startedAt,
-    );
+    _injectBaseVariables(runtimeVariables, botId: botId, startedAt: startedAt);
     sessionVariableInjector?.call(runtimeVariables);
 
     runtimeVariables['interaction.isSlash'] = 'true';
@@ -153,7 +163,9 @@ class CommandExecutor {
       messageContextId: contextIds.messageId,
     );
 
-    final normalized = store.normalizeCommandData(Map<String, dynamic>.from(action));
+    final normalized = store.normalizeCommandData(
+      Map<String, dynamic>.from(action),
+    );
     final value = Map<String, dynamic>.from(
       (normalized["data"] as Map?)?.cast<String, dynamic>() ?? const {},
     );
@@ -167,17 +179,19 @@ class CommandExecutor {
     final executionValue = routePayload ?? value;
 
     final executionMode =
-        (executionValue['executionMode'] ?? value['executionMode'] ?? 'workflow')
+        (executionValue['executionMode'] ??
+                value['executionMode'] ??
+                'workflow')
             .toString()
             .trim()
             .toLowerCase();
 
-    final scriptSource = (executionValue['bdfdScriptContent'] ??
-            executionValue['scriptContent'] ??
-            executionValue['bdfdScript'] ??
-            '')
-        .toString();
-
+    final scriptSource =
+        (executionValue['bdfdScriptContent'] ??
+                executionValue['scriptContent'] ??
+                executionValue['bdfdScript'] ??
+                '')
+            .toString();
 
     final shouldCompileFromBdfdSource =
         executionMode == 'bdfd_script' || scriptSource.trim().isNotEmpty;
@@ -208,7 +222,10 @@ class CommandExecutor {
     required String botId,
     required Map<String, String> runtimeVariables,
   }) async {
-    final compileResult = BdfdCompiler().compile(scriptSource);
+    final compileResult = BdfdCompiler(
+      legacyUserVariables:
+          runtimeVariables['bdfd.userVariableSemantics'] == '1',
+    ).compile(scriptSource);
 
     if (compileResult.hasErrors) {
       final text = _formatBdfdRuntimeDiagnostics(compileResult.diagnostics);
@@ -217,7 +234,12 @@ class CommandExecutor {
     }
 
     if (compileResult.actions.isEmpty) {
-      await _sendErrorResponse(interaction, 'BDFD script compiled but no actions were generated.', botId, runtimeVariables);
+      await _sendErrorResponse(
+        interaction,
+        'BDFD script compiled but no actions were generated.',
+        botId,
+        runtimeVariables,
+      );
       return;
     }
 
@@ -238,7 +260,7 @@ class CommandExecutor {
         markInteractionAcknowledged(interaction);
       }
     }
-    
+
     try {
       await _workflowExecutor.executeActions(
         actions: actions,
@@ -265,7 +287,12 @@ class CommandExecutor {
           // Best-effort — if follow-up fails, we can't do anything more.
         }
       } else {
-        await _sendErrorResponse(interaction, _formatCommandError(e), botId, runtimeVariables);
+        await _sendErrorResponse(
+          interaction,
+          _formatCommandError(e),
+          botId,
+          runtimeVariables,
+        );
       }
     }
 
@@ -281,19 +308,23 @@ class CommandExecutor {
   }) async {
     try {
       final allCommands = await store.listAppCommands(botId);
-      final action = findApplicationCommand(
-        allCommands,
-        discordId: interaction.data.id.toString(),
-        name: interaction.data.name,
-        type: 'chatInput',
-      ) ?? <String, dynamic>{};
+      final action =
+          findApplicationCommand(
+            allCommands,
+            discordId: interaction.data.id.toString(),
+            name: interaction.data.name,
+            type: 'chatInput',
+          ) ??
+          <String, dynamic>{};
 
       if (action.isEmpty) {
         await interaction.respond(const []);
         return;
       }
 
-      final normalized = store.normalizeCommandData(Map<String, dynamic>.from(action));
+      final normalized = store.normalizeCommandData(
+        Map<String, dynamic>.from(action),
+      );
       final normalizedData = Map<String, dynamic>.from(
         (normalized['data'] as Map?)?.cast<String, dynamic>() ?? const {},
       );
@@ -310,8 +341,12 @@ class CommandExecutor {
 
       // Static mode
       if ((autocompleteConfig['mode'] ?? 'workflow').toString() == 'static') {
-        final focusedOption = shared_global.findFocusedOption(interaction.data.options);
-        final query = (focusedOption?.value?.toString() ?? '').toLowerCase().trim();
+        final focusedOption = shared_global.findFocusedOption(
+          interaction.data.options,
+        );
+        final query = (focusedOption?.value?.toString() ?? '')
+            .toLowerCase()
+            .trim();
         final rawChoices = autocompleteConfig['staticChoices'];
         final choices = <CommandOptionChoiceBuilder<dynamic>>[];
         if (rawChoices is List) {
@@ -319,12 +354,15 @@ class CommandExecutor {
             if (raw is! Map) continue;
             final name = (raw['name'] ?? '').toString().trim();
             if (name.isEmpty) continue;
-            if (query.isNotEmpty && !name.toLowerCase().contains(query)) continue;
+            if (query.isNotEmpty && !name.toLowerCase().contains(query))
+              continue;
             final value = raw['value'];
-            choices.add(CommandOptionChoiceBuilder<dynamic>(
-              name: name,
-              value: value is num ? value : (value?.toString() ?? name),
-            ));
+            choices.add(
+              CommandOptionChoiceBuilder<dynamic>(
+                name: name,
+                value: value is num ? value : (value?.toString() ?? name),
+              ),
+            );
             if (choices.length >= 25) break;
           }
         }
@@ -340,7 +378,9 @@ class CommandExecutor {
           return;
         }
 
-        final focusedOption = shared_global.findFocusedOption(interaction.data.options);
+        final focusedOption = shared_global.findFocusedOption(
+          interaction.data.options,
+        );
         final runtimeVariables = <String, String>{
           ...await shared_global.generateKeyValues(interaction),
           'bot.id': botId,
@@ -349,11 +389,19 @@ class CommandExecutor {
           'interaction.command.id': interaction.data.id.toString(),
           'autocomplete.query': focusedOption?.value?.toString() ?? '',
           'autocomplete.optionName': focusedOption?.name ?? '',
-          'autocomplete.optionType': focusedOption == null ? 'string' : commandOptionTypeToText(focusedOption.type),
+          'autocomplete.optionType': focusedOption == null
+              ? 'string'
+              : commandOptionTypeToText(focusedOption.type),
         };
 
-        runtimeVariables.addAll(shared_global.extractBotRuntimeDetails(gateway));
-        _injectBaseVariables(runtimeVariables, botId: botId, startedAt: startedAt);
+        runtimeVariables.addAll(
+          shared_global.extractBotRuntimeDetails(gateway),
+        );
+        _injectBaseVariables(
+          runtimeVariables,
+          botId: botId,
+          startedAt: startedAt,
+        );
         sessionVariableInjector?.call(runtimeVariables);
         final contextIds = _resolveContextIds(interaction, runtimeVariables);
 
@@ -370,17 +418,32 @@ class CommandExecutor {
         // Inject guild fallback from gateway cache
         final interactionGuild = interaction.guild;
         if (interactionGuild != null) {
-          runtimeVariables.putIfAbsent('guildId', () => interactionGuild.id.toString());
-          runtimeVariables.putIfAbsent('guild.id', () => interactionGuild.id.toString());
-          runtimeVariables.putIfAbsent('interaction.guild.id', () => interactionGuild.id.toString());
+          runtimeVariables.putIfAbsent(
+            'guildId',
+            () => interactionGuild.id.toString(),
+          );
+          runtimeVariables.putIfAbsent(
+            'guild.id',
+            () => interactionGuild.id.toString(),
+          );
+          runtimeVariables.putIfAbsent(
+            'interaction.guild.id',
+            () => interactionGuild.id.toString(),
+          );
           final cachedGuild = gateway.guilds.cache[interactionGuild.id];
           if (cachedGuild != null) {
             runtimeVariables.putIfAbsent('guildName', () => cachedGuild.name);
             runtimeVariables.putIfAbsent('guild.name', () => cachedGuild.name);
-            runtimeVariables.putIfAbsent('interaction.guild.name', () => cachedGuild.name);
+            runtimeVariables.putIfAbsent(
+              'interaction.guild.name',
+              () => cachedGuild.name,
+            );
             final mc = (cachedGuild as dynamic).memberCount;
             if (mc != null && mc > 0) {
-              runtimeVariables.putIfAbsent('guild.memberCount', () => mc.toString());
+              runtimeVariables.putIfAbsent(
+                'guild.memberCount',
+                () => mc.toString(),
+              );
               runtimeVariables.putIfAbsent('guild.count', () => mc.toString());
             }
           }
@@ -404,7 +467,9 @@ class CommandExecutor {
       }
 
       // Workflow mode
-      final workflowName = (autocompleteConfig['workflow'] ?? '').toString().trim();
+      final workflowName = (autocompleteConfig['workflow'] ?? '')
+          .toString()
+          .trim();
       if (workflowName.isEmpty) {
         await interaction.respond(const []);
         return;
@@ -416,7 +481,9 @@ class CommandExecutor {
         return;
       }
 
-      final focusedOption = shared_global.findFocusedOption(interaction.data.options);
+      final focusedOption = shared_global.findFocusedOption(
+        interaction.data.options,
+      );
       final runtimeVariables = <String, String>{
         ...await shared_global.generateKeyValues(interaction),
         'bot.id': botId,
@@ -425,11 +492,17 @@ class CommandExecutor {
         'interaction.command.id': interaction.data.id.toString(),
         'autocomplete.query': focusedOption?.value?.toString() ?? '',
         'autocomplete.optionName': focusedOption?.name ?? '',
-        'autocomplete.optionType': focusedOption == null ? 'string' : commandOptionTypeToText(focusedOption.type),
+        'autocomplete.optionType': focusedOption == null
+            ? 'string'
+            : commandOptionTypeToText(focusedOption.type),
       };
 
       runtimeVariables.addAll(shared_global.extractBotRuntimeDetails(gateway));
-      _injectBaseVariables(runtimeVariables, botId: botId, startedAt: startedAt);
+      _injectBaseVariables(
+        runtimeVariables,
+        botId: botId,
+        startedAt: startedAt,
+      );
       sessionVariableInjector?.call(runtimeVariables);
       final contextIds = _resolveContextIds(interaction, runtimeVariables);
 
@@ -446,17 +519,32 @@ class CommandExecutor {
       // Inject guild fallback from gateway cache
       final interactionGuild = interaction.guild;
       if (interactionGuild != null) {
-        runtimeVariables.putIfAbsent('guildId', () => interactionGuild.id.toString());
-        runtimeVariables.putIfAbsent('guild.id', () => interactionGuild.id.toString());
-        runtimeVariables.putIfAbsent('interaction.guild.id', () => interactionGuild.id.toString());
+        runtimeVariables.putIfAbsent(
+          'guildId',
+          () => interactionGuild.id.toString(),
+        );
+        runtimeVariables.putIfAbsent(
+          'guild.id',
+          () => interactionGuild.id.toString(),
+        );
+        runtimeVariables.putIfAbsent(
+          'interaction.guild.id',
+          () => interactionGuild.id.toString(),
+        );
         final cachedGuild = gateway.guilds.cache[interactionGuild.id];
         if (cachedGuild != null) {
           runtimeVariables.putIfAbsent('guildName', () => cachedGuild.name);
           runtimeVariables.putIfAbsent('guild.name', () => cachedGuild.name);
-          runtimeVariables.putIfAbsent('interaction.guild.name', () => cachedGuild.name);
+          runtimeVariables.putIfAbsent(
+            'interaction.guild.name',
+            () => cachedGuild.name,
+          );
           final mc = (cachedGuild as dynamic).memberCount;
           if (mc != null && mc > 0) {
-            runtimeVariables.putIfAbsent('guild.memberCount', () => mc.toString());
+            runtimeVariables.putIfAbsent(
+              'guild.memberCount',
+              () => mc.toString(),
+            );
             runtimeVariables.putIfAbsent('guild.count', () => mc.toString());
           }
         }
@@ -464,13 +552,18 @@ class CommandExecutor {
 
       final providedArguments = resolveWorkflowCallArguments(
         autocompleteConfig['arguments'],
-        (value) => resolveTemplatePlaceholders(value, Map<String, String>.from(runtimeVariables)),
+        (value) => resolveTemplatePlaceholders(
+          value,
+          Map<String, String>.from(runtimeVariables),
+        ),
       );
 
       applyWorkflowInvocationContext(
         variables: runtimeVariables,
         workflowName: workflowName,
-        entryPoint: normalizeWorkflowEntryPoint(autocompleteConfig['entryPoint'] ?? workflow['entryPoint']),
+        entryPoint: normalizeWorkflowEntryPoint(
+          autocompleteConfig['entryPoint'] ?? workflow['entryPoint'],
+        ),
         definitions: parseWorkflowArgumentDefinitions(workflow['arguments']),
         providedArguments: providedArguments,
         enforceRequired: false,
@@ -493,7 +586,8 @@ class CommandExecutor {
       }
     } catch (e) {
       final errorStr = e.toString();
-      if (errorStr.contains('10062') || errorStr.toLowerCase().contains('unknown interaction')) {
+      if (errorStr.contains('10062') ||
+          errorStr.toLowerCase().contains('unknown interaction')) {
         callbacks.onDebugLog?.call(
           'Autocomplete interaction (ID: ${interaction.id}) was superseded or timed out gracefully (10062).',
           botId: botId,
@@ -504,7 +598,11 @@ class CommandExecutor {
     }
   }
 
-  void _injectBaseVariables(Map<String, String> variables, {required String botId, required DateTime? startedAt}) {
+  void _injectBaseVariables(
+    Map<String, String> variables, {
+    required String botId,
+    required DateTime? startedAt,
+  }) {
     if (startedAt != null) {
       final uptimeMs = DateTime.now().difference(startedAt).inMilliseconds;
       variables['bot.uptime'] = uptimeMs.toString();
@@ -512,32 +610,61 @@ class CommandExecutor {
     }
   }
 
-  _InteractionContextIds _resolveContextIds(Interaction interaction, Map<String, String> variables) {
+  _InteractionContextIds _resolveContextIds(
+    Interaction interaction,
+    Map<String, String> variables,
+  ) {
     String? normalize(String? v) {
       final trimmed = (v ?? '').trim();
-      if (trimmed.isEmpty || trimmed.toLowerCase() == 'unknown user' || trimmed.toLowerCase() == 'dm') return null;
+      if (trimmed.isEmpty ||
+          trimmed.toLowerCase() == 'unknown user' ||
+          trimmed.toLowerCase() == 'dm')
+        return null;
       return trimmed;
     }
 
     final dynamic raw = interaction;
     return _InteractionContextIds(
-      guildId: normalize(variables['guildId']) ?? normalize(variables['guild.id']) ?? normalize(raw.guildId?.toString()),
-      channelId: normalize(variables['channelId']) ?? normalize(variables['channel.id']) ?? normalize(raw.channelId?.toString()),
-      userId: normalize(variables['userId']) ?? normalize(variables['user.id']) ?? normalize(raw.user?.id?.toString()) ?? normalize(raw.member?.user?.id?.toString()),
-      messageId: normalize(variables['messageId']) ?? normalize(variables['message.id']) ?? normalize(raw.message?.id?.toString()) ?? normalize(raw.id?.toString()),
+      guildId:
+          normalize(variables['guildId']) ??
+          normalize(variables['guild.id']) ??
+          normalize(raw.guildId?.toString()),
+      channelId:
+          normalize(variables['channelId']) ??
+          normalize(variables['channel.id']) ??
+          normalize(raw.channelId?.toString()),
+      userId:
+          normalize(variables['userId']) ??
+          normalize(variables['user.id']) ??
+          normalize(raw.user?.id?.toString()) ??
+          normalize(raw.member?.user?.id?.toString()),
+      messageId:
+          normalize(variables['messageId']) ??
+          normalize(variables['message.id']) ??
+          normalize(raw.message?.id?.toString()) ??
+          normalize(raw.id?.toString()),
     );
   }
 
-  String _formatBdfdRuntimeDiagnostics(List<BdfdCompileDiagnostic> diagnostics) {
+  String _formatBdfdRuntimeDiagnostics(
+    List<BdfdCompileDiagnostic> diagnostics,
+  ) {
     if (diagnostics.isEmpty) return 'Unknown compilation error.';
-    return diagnostics.map((d) {
-      final severity = d.severity.name.toUpperCase();
-      final message = d.message;
-      return '[$severity] $message';
-    }).join('\n');
+    return diagnostics
+        .map((d) {
+          final severity = d.severity.name.toUpperCase();
+          final message = d.message;
+          return '[$severity] $message';
+        })
+        .join('\n');
   }
 
-  Future<void> _sendErrorResponse(ApplicationCommandInteraction interaction, String text, String botId, Map<String, String> variables) async {
+  Future<void> _sendErrorResponse(
+    ApplicationCommandInteraction interaction,
+    String text,
+    String botId,
+    Map<String, String> variables,
+  ) async {
     await sendWorkflowResponse(
       interaction: interaction,
       response: {
@@ -548,7 +675,8 @@ class CommandExecutor {
       runtimeVariables: variables,
       botId: botId,
       isEphemeral: true,
-      onLog: (msg, {required botId}) async => callbacks.onLog?.call(msg, botId: botId),
+      onLog: (msg, {required botId}) async =>
+          callbacks.onLog?.call(msg, botId: botId),
     );
   }
 
@@ -593,7 +721,12 @@ class CommandExecutor {
 }
 
 class _InteractionContextIds {
-  const _InteractionContextIds({this.guildId, this.channelId, this.userId, this.messageId});
+  const _InteractionContextIds({
+    this.guildId,
+    this.channelId,
+    this.userId,
+    this.messageId,
+  });
   final String? guildId;
   final String? channelId;
   final String? userId;

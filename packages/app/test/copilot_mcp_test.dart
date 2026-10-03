@@ -7,6 +7,7 @@ import 'package:bot_creator/features/copilot/logic/copilot_command.dart';
 import 'package:bot_creator/features/copilot/logic/copilot_mcp.dart';
 import 'package:bot_creator/features/bot_editor/logic/normalize_command_data.dart';
 import 'package:bot_creator_shared/types/action.dart';
+import 'package:bot_creator_shared/sandbox/function_suite.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -18,6 +19,51 @@ void main() {
   // the public documentation smoke test requires the explicit LIVE_MCP flag.
   HttpOverrides.global = null;
   setUp(() => SharedPreferences.setMockInitialValues({}));
+  test(
+    'registry omits bulk fixtures and supports targeted function contracts',
+    () async {
+      final bridge = CopilotMcp(
+        MainApiClient(baseUrl: 'https://manager.example'),
+        approve: (_, _) async => false,
+      );
+      await bridge.initialize();
+      addTearDown(bridge.close);
+      final response = await bridge.call(
+        'local_block_registry',
+        {},
+        callID: 'light-registry',
+      );
+      final raw = (response['content'] as List).single['text'] as String;
+      final value = jsonDecode(raw) as Map;
+      expect(
+        (value['sandbox_functions'] as List).every(
+          (entry) => !entry.containsKey('cases'),
+        ),
+        true,
+      );
+      expect(
+        raw.length,
+        lessThan(jsonEncode(sandboxFunctionCatalog()).length ~/ 5),
+      );
+      final targeted = await bridge.call('local_block_registry', {
+        'functions': [r'$getVar', 'setuservar', 'unknown'],
+        'include_examples': true,
+      }, callID: 'targeted-registry');
+      final details =
+          jsonDecode((targeted['content'] as List).single['text'] as String)
+              as Map;
+      expect(details['functions'], ['getvar', 'setuservar']);
+      expect(details['unknown_functions'], ['unknown']);
+      expect(details['sandbox_functions'], hasLength(2));
+      expect(details['sandbox_functions'][0]['cases'], isNotEmpty);
+      await expectLater(
+        bridge.call('local_block_registry', {
+          'include_examples': true,
+        }, callID: 'unbounded-examples'),
+        throwsFormatException,
+      );
+    },
+  );
   test(
     'Copilot executes sandbox drafts without approval or external requests',
     () async {
@@ -580,6 +626,22 @@ $closeTicket''';
         (jsonDecode(valid.body) as Map)['result']['serverInfo']['name'],
         'bot-creator-studio-bridge',
       );
+      final rejected = await http.post(
+        uri,
+        headers: {'Authorization': 'Bearer ${mcp.bearer}'},
+        body: jsonEncode({
+          'jsonrpc': '2.0',
+          'id': 2,
+          'method': 'tools/call',
+          'params': {
+            'name': 'remote_stop_bot',
+            'arguments': {'bot_id': 'invalid'},
+          },
+        }),
+      );
+      final diagnostic = (jsonDecode(rejected.body) as Map)['result'];
+      expect(diagnostic['isError'], true);
+      expect(diagnostic['content'][0]['text'], 'Invalid bot ID');
       await mcp.close();
     },
   );

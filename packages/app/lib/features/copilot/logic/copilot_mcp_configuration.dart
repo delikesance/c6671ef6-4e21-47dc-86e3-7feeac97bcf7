@@ -63,6 +63,9 @@ extension CopilotConfigurationTools on CopilotMcp {
           e.key: HashUtil.calculateHash(e.value),
       },
       'runtime_engine': await getBotRuntimeEngine(botID),
+      'bdfdUserVariableSemantics': app['bdfdUserVariableSemantics'] == 2
+          ? 2
+          : 1,
     };
   }
 
@@ -149,8 +152,8 @@ extension CopilotConfigurationTools on CopilotMcp {
               'discord_updated': false,
               'bot_id': botID,
               'command_id': commandID,
-              'before': before,
-              'after': before,
+              'before': copilotCommandSettings(before),
+              'after': copilotCommandSettings(before),
               'revision': HashUtil.calculateHash(before),
             };
           }
@@ -173,8 +176,12 @@ extension CopilotConfigurationTools on CopilotMcp {
           'bot_id': botID,
           'command_id': commandID,
           'runner_synced': synced,
-          'before': before,
-          'after': after,
+          'before': name == 'local_update_command_settings'
+              ? copilotCommandSettings(before)
+              : before,
+          'after': name == 'local_update_command_settings'
+              ? copilotCommandSettings(after)
+              : after,
           'revision': HashUtil.calculateHash(
             await manager.getAppCommand(botID, commandID),
           ),
@@ -208,6 +215,8 @@ extension CopilotConfigurationTools on CopilotMcp {
         }
         final next = buildCopilotWorkflow(
           args,
+          legacyUserVariables:
+              (await _localBot(botID))['bdfdUserVariableSemantics'] != 2,
           existing: existing,
           javascriptRuntime:
               await getBotRuntimeEngine(botID) == runtimeEngineJavascript,

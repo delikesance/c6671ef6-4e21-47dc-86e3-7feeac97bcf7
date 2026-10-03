@@ -41,7 +41,11 @@ class AppManager implements BotDataStore {
   onAfterCommandSave;
 
   /// Optional hook called after a single command delete.
-  static Future<void> Function(String botId, String commandId, {String? discordId})?
+  static Future<void> Function(
+    String botId,
+    String commandId, {
+    String? discordId,
+  })?
   onAfterCommandDelete;
 
   /// Optional hook called after a workflow save.
@@ -244,6 +248,9 @@ class AppManager implements BotDataStore {
       }
 
       final data = Map<String, dynamic>.from(existingData)
+        ..['bdfdUserVariableSemantics'] = existingData.isEmpty
+            ? 2
+            : (existingData['bdfdUserVariableSemantics'] ?? 1)
         ..['name'] = username.sanitizedUtf16
         ..['id'] = botId
         ..['avatar'] = avatarUri
@@ -622,8 +629,10 @@ class AppManager implements BotDataStore {
     if (secureToken.isNotEmpty) {
       // Ce que le FICHIER portait, avant de le remplacer par la valeur du coffre :
       // c'est ça qui détermine s'il reste une copie en clair à retirer.
-      final fichierPortaitLeJeton =
-          (result['token'] ?? '').toString().trim().isNotEmpty;
+      final fichierPortaitLeJeton = (result['token'] ?? '')
+          .toString()
+          .trim()
+          .isNotEmpty;
       result['token'] = secureToken;
       if (fichierPortaitLeJeton) {
         // Une copie en clair traîne encore dans le fichier : on la retire.
@@ -650,7 +659,9 @@ class AppManager implements BotDataStore {
       if (raw.isEmpty) return;
       Map<String, dynamic> data;
       try {
-        data = Map<String, dynamic>.from(jsonDecode(raw) as Map<String, dynamic>);
+        data = Map<String, dynamic>.from(
+          jsonDecode(raw) as Map<String, dynamic>,
+        );
       } catch (_) {
         return;
       }
@@ -2740,7 +2751,8 @@ class AppManager implements BotDataStore {
 
       if (!await file.exists()) await file.create(recursive: true);
       final stored = normalizeCommandData(<String, dynamic>{
-        ...data, 'id': commandId,
+        ...data,
+        'id': commandId,
       });
       await file.writeAsString(jsonEncode(stored));
       await invalidatePayloadCache(id);

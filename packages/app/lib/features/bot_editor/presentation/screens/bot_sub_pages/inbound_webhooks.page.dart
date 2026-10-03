@@ -253,7 +253,12 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
       widget.botId,
       (webhook['id'] ?? '').toString(),
     );
-    await _load();
+    if (!mounted) return;
+    setState(() {
+      _webhooks = _webhooks
+          .where((entry) => entry['id'] != webhook['id'])
+          .toList();
+    });
   }
 
   Future<void> _copyFullWebhookUrl(Map<String, dynamic> webhook) async {

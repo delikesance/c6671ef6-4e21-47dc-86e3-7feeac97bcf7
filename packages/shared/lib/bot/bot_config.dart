@@ -218,7 +218,8 @@ class LavalinkConfig {
       host: primary?.host ?? (hasLegacyHost ? legacyHost : 'localhost'),
       port: primary?.port ?? _parsePort(json['port']),
       password:
-          primary?.password ?? (json['password'] ?? 'youshallnotpass').toString(),
+          primary?.password ??
+          (json['password'] ?? 'youshallnotpass').toString(),
       useSsl: primary?.secure ?? false,
     );
   }
@@ -302,6 +303,7 @@ int _parsePort(dynamic raw, {int fallback = 2333}) {
 /// This is the single source of truth for the runner.
 class BotConfig {
   final String token;
+  final int bdfdUserVariableSemantics;
   final String prefix;
   final bool builtInLegacyHelpEnabled;
   final bool inboundWebhooks;
@@ -334,6 +336,7 @@ class BotConfig {
 
   const BotConfig({
     required this.token,
+    this.bdfdUserVariableSemantics = 2,
     this.prefix = '!',
     this.builtInLegacyHelpEnabled = true,
     this.inboundWebhooks = false,
@@ -355,6 +358,7 @@ class BotConfig {
   });
 
   BotConfig copyWith({
+    int? bdfdUserVariableSemantics,
     String? token,
     String? prefix,
     bool? builtInLegacyHelpEnabled,
@@ -376,6 +380,8 @@ class BotConfig {
     LavalinkConfig? lavalinkConfig,
   }) {
     return BotConfig(
+      bdfdUserVariableSemantics:
+          bdfdUserVariableSemantics ?? this.bdfdUserVariableSemantics,
       token: token ?? this.token,
       prefix: prefix ?? this.prefix,
       builtInLegacyHelpEnabled:
@@ -403,6 +409,7 @@ class BotConfig {
 
   factory BotConfig.fromJson(Map<String, dynamic> json) {
     return BotConfig(
+      bdfdUserVariableSemantics: json['bdfdUserVariableSemantics'] == 2 ? 2 : 1,
       token: (json['token'] ?? '').toString(),
       prefix: (json['prefix'] ?? '!').toString().trim().isEmpty
           ? '!'
@@ -478,6 +485,7 @@ class BotConfig {
     'globalVariables': globalVariables,
     'scopedVariables': scopedVariables,
     'scopedVariableDefinitions': scopedVariableDefinitions,
+    'bdfdUserVariableSemantics': bdfdUserVariableSemantics,
     'workflows': workflows,
     'scheduledTriggers': scheduledTriggers,
     'inboundWebhookEndpoints': inboundWebhookEndpoints,

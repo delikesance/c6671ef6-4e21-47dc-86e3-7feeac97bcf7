@@ -326,7 +326,9 @@ Future<bool> executeControlFlowAction({
         return true;
       }
 
-      final compileResult = BdfdCompiler().compile(bdfdSource);
+      final compileResult = BdfdCompiler(
+        legacyUserVariables: variables['bdfd.userVariableSemantics'] == '1',
+      ).compile(bdfdSource);
       if (compileResult.hasErrors) {
         // If $suppressErrors is present in the source, suppress compile errors
         // and optionally send the custom error message/embed.

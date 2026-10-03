@@ -1,4 +1,8 @@
 {
+  "variables_migration_title": "BDFD değişken geçişi",
+  "variables_migration_confirmation": "Kullanıcı değerlerini tüm sunucularda ortak tutun. Eski BDFD betiklerini arşivleyip uyarlayın, ardından resmi sunucuya özel kullanıcı işlevlerini etkinleştirin. Değerler ve sona erme süreleri taşınmaz.",
+  "variables_migration_stop_bot": "Değişkenleri taşımadan önce botu durdur.",
+  "variables_migration_result": "{commands} komut, {workflows} iş akışı grubu, {calls} çağrı uyarlandı",
   "@@locale": "tr",
   "@app_update_dialog_title": {
     "description": "New version available"
@@ -8181,9 +8185,9 @@
   "globals_retry": "Tekrar Dene",
   "globals_scope_channel": "kanal",
   "globals_scope_guild": "sunucu",
-  "globals_scope_guildMember": "sunucuÜyesi",
+  "globals_scope_guildMember": "Sunucu üyesi",
   "globals_scope_message": "mesaj",
-  "globals_scope_user": "kullanıcı",
+  "globals_scope_user": "Global kullanıcı",
   "globals_search": "Değişkenlerde ara…",
   "globals_source_local": "Yerel",
   "globals_source_runner": "Çalıştırıcı: {name}",

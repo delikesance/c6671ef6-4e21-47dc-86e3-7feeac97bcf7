@@ -105,11 +105,12 @@ void main() {
       final cles = detectees
           .map((entree) => '${entree['scope']}.${entree['key']}')
           .toList();
-      expect(
-        cles,
-        <String>['guild.items_db', 'guild.prefix', 'guild.test', 'user.xp'],
-        reason: 'chaque clé stockée doit apparaitre, triée',
-      );
+      expect(cles, <String>[
+        'guild.items_db',
+        'guild.prefix',
+        'guild.test',
+        'user.xp',
+      ], reason: 'chaque clé stockée doit apparaitre, triée');
 
       final affichees = mergeScopedDefinitions(
         declaredDefinitions: const <Map<String, dynamic>>[],
@@ -118,7 +119,8 @@ void main() {
       expect(
         affichees,
         isNotEmpty,
-        reason: 'la liste affichée ne doit JAMAIS rester vide face à des données',
+        reason:
+            'la liste affichée ne doit JAMAIS rester vide face à des données',
       );
 
       for (final entree in detectees) {
@@ -167,9 +169,7 @@ void main() {
         declaredDefinitions: const <Map<String, dynamic>>[],
         scopedValues: const <String, Map<String, Map<String, dynamic>>>{
           'guild': <String, Map<String, dynamic>>{},
-          'channel': <String, Map<String, dynamic>>{
-            '123': <String, dynamic>{},
-          },
+          'channel': <String, Map<String, dynamic>>{'123': <String, dynamic>{}},
         },
       );
 
@@ -240,6 +240,7 @@ void main() {
       );
       expect(find.text('items_db'), findsOneWidget);
       expect(find.text('xp'), findsOneWidget);
+      expect(find.text(tr.globals_scope_user.toUpperCase()), findsOneWidget);
       expect(
         find.text(tr.scoped_detected_badge),
         findsNWidgets(4),

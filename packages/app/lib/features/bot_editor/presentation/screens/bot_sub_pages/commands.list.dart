@@ -464,20 +464,27 @@ class _AppCommandsPageState extends State<AppCommandsPage>
     );
     if (!confirmed || !mounted) return;
     await appManager.deleteAppCommand(widget.botId, commandId);
-    unawaited(refreshBotRuntime(widget.botId));
-    await _load();
+    var remaining = await appManager.listAppCommands(widget.botId);
 
     // Fallback: old buggy commands may have a different filename than internal id.
     // If the command still appears, scan the directory for files with matching name.
-    if (mounted && _commands.any((c) => (c['id'] ?? '') == commandId)) {
+    if (remaining.any((c) => (c['id'] ?? '') == commandId)) {
       await _forceDeleteCommandByScan(name);
+      remaining = await appManager.listAppCommands(
+        widget.botId,
+        forceRefresh: true,
+      );
     }
 
+    unawaited(refreshBotRuntime(widget.botId));
     if (!mounted) return;
+    setState(() {
+      _commands = remaining;
+      _selectedCommandIds.remove(commandId);
+    });
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(context.tr.cmd_delete_success(name))),
     );
-    await _load();
   }
 
   /// Fallback for buggy commands whose filename doesn't match their internal id.
@@ -1470,6 +1477,12 @@ class _AppCommandsPageState extends State<AppCommandsPage>
     if (!confirmed || !mounted) return;
     for (final id in _selectedCommandIds.toList()) {
       await appManager.deleteAppCommand(widget.botId, id);
+      if (mounted) {
+        setState(() {
+          _commands = _commands.where((entry) => entry['id'] != id).toList();
+          _selectedCommandIds.remove(id);
+        });
+      }
     }
     unawaited(refreshBotRuntime(widget.botId));
     if (!mounted) return;
@@ -1480,7 +1493,6 @@ class _AppCommandsPageState extends State<AppCommandsPage>
       _isSelectMode = false;
       _selectedCommandIds.clear();
     });
-    await _load();
   }
 
   Future<void> _batchMoveSelected() async {

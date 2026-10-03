@@ -31,9 +31,14 @@ class BdfdTranspileResult {
 }
 
 class BdfdAstTranspiler {
+  BdfdAstTranspiler({this.legacyUserVariables = false});
+  final bool legacyUserVariables;
   BdfdTranspileResult transpile(BdfdScriptAst script) {
     final diagnostics = <BdfdTranspileDiagnostic>[];
-    final transpiler = _BdfdAstTranspilationScope(diagnostics: diagnostics);
+    final transpiler = _BdfdAstTranspilationScope(
+      diagnostics: diagnostics,
+      legacyUserVariables: legacyUserVariables,
+    );
     final actions = transpiler.transpileScript(script);
     return BdfdTranspileResult(
       actions: List<Action>.unmodifiable(actions),
@@ -43,7 +48,11 @@ class BdfdAstTranspiler {
 }
 
 class _BdfdAstTranspilationScope {
-  _BdfdAstTranspilationScope({required this._diagnostics});
+  _BdfdAstTranspilationScope({
+    required this._diagnostics,
+    required this.legacyUserVariables,
+  });
+  final bool legacyUserVariables;
 
   final List<BdfdTranspileDiagnostic> _diagnostics;
   final Map<String, String> _pendingHttpHeaders = <String, String>{};

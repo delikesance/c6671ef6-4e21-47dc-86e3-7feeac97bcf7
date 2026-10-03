@@ -15,13 +15,13 @@ void main() {
       // before and after the variable set is merged into one respondWithMessage.
       expect(result.actions, hasLength(2));
       expect(result.actions.first.type, BotCreatorActionType.setScopedVariable);
-      expect(result.actions.first.payload['scope'], 'user');
+      expect(result.actions.first.payload['scope'], 'guildMember');
       expect(result.actions.first.payload['key'], 'lastAuthor');
       expect(result.actions.first.payload['value'], '((author.id))');
       expect(result.actions.last.type, BotCreatorActionType.respondWithMessage);
       expect(
         result.actions.last.payload['content'],
-        'Hello ((user.username))((user.bc_lastAuthor))',
+        'Hello ((user.username))((guildMember[((guild.id)):((author.id))].bc_lastAuthor))',
       );
     });
 

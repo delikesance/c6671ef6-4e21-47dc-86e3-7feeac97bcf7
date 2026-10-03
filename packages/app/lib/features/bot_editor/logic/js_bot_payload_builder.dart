@@ -260,6 +260,9 @@ Future<Map<String, dynamic>> buildJsBotPayload(String botId) async {
 
   final payload = <String, dynamic>{
     'runtimeEngine': runtimeEngineJavascript,
+    'bdfdUserVariableSemantics': appData['bdfdUserVariableSemantics'] == 2
+        ? 2
+        : 1,
     'token': token,
     if (includePrefix) 'prefix': prefixRaw,
     'autoRestart': appData['autoRestart'] == true,
