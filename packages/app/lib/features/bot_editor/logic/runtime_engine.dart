@@ -13,6 +13,43 @@ import 'package:bot_creator/features/bot_editor/logic/js_bot_payload_builder.dar
 const runtimeEngineDart = 'dart';
 const runtimeEngineJavascript = 'javascript';
 
+bool configurationContainsJavascript(Map<String, dynamic> config) {
+  Iterable<dynamic> entries(dynamic raw) => raw is List
+      ? raw
+      : raw is Map
+      ? raw.values
+      : const [];
+  return [
+    ...entries(config['commands']),
+    ...entries(config['workflows']),
+  ].whereType<Map>().any((entry) {
+    final data = entry['data'] is Map ? entry['data'] as Map : entry;
+    return data['executionMode'] == 'javascript' ||
+        (entry['type'] == 'command' && entry['script'] is String);
+  });
+}
+
+/// Missing markers in old JS exports must not silently select the Dart runner.
+String? runtimeEngineFromConfiguration(Map<String, dynamic> config) {
+  final raw = (config['runtimeEngine'] ?? '').toString().trim().toLowerCase();
+  if (raw.isNotEmpty &&
+      raw != runtimeEngineDart &&
+      raw != runtimeEngineJavascript) {
+    throw StateError('Unknown runtime engine in imported configuration.');
+  }
+  final hasJavascript = configurationContainsJavascript(config);
+  if (raw == runtimeEngineDart && hasJavascript) {
+    throw StateError(
+      'Dart configuration contains JavaScript commands or workflows.',
+    );
+  }
+  return raw.isNotEmpty
+      ? raw
+      : hasJavascript
+      ? runtimeEngineJavascript
+      : null;
+}
+
 Future<String> getBotRuntimeEngine(String botId) async {
   final app = await AppManager().getApp(botId);
   final raw = (app['runtimeEngine'] ?? runtimeEngineDart)

@@ -23,7 +23,11 @@ class _Store implements AppManager {
   @override
   Future<Map<String, dynamic>> getApp(String id) async => Map.of(config);
   @override
-  Future<void> saveApp(String id, Map<String, dynamic> value) async {
+  Future<void> saveApp(
+    String id,
+    Map<String, dynamic> value, {
+    bool notifyRuntime = true,
+  }) async {
     final backup = File(
       '${directory.path}/apps/$bot/migrations/bdfd-global-user-scripts-v1.json',
     );
