@@ -10502,4 +10502,15 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get settings_text_size_reset => '文字サイズをリセット';
+
+  @override
+  String get bot_config_versions_cloud_checkpoints => 'クラウドの保存ポイント';
+
+  @override
+  String get bot_config_versions_checkpoint_hint =>
+      'プッシュまたはプル時にクラウドの完全なバージョンが保存されます。復元時にも安全のためコピーを保存します。';
+
+  @override
+  String get bot_config_versions_remote_authority =>
+      'クラウドのバージョンでローカル設定を置き換えます。クラウドにないコマンドとワークフローはローカルから削除されます。';
 }

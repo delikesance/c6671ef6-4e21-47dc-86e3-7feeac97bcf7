@@ -18960,6 +18960,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reset text size'**
   String get settings_text_size_reset;
+
+  /// No description provided for @bot_config_versions_cloud_checkpoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud checkpoints'**
+  String get bot_config_versions_cloud_checkpoints;
+
+  /// No description provided for @bot_config_versions_checkpoint_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'A full cloud version is saved when you push or pull. Restoring a version also keeps a safety copy.'**
+  String get bot_config_versions_checkpoint_hint;
+
+  /// No description provided for @bot_config_versions_remote_authority.
+  ///
+  /// In en, this message translates to:
+  /// **'The cloud version replaces the local configuration. Commands and workflows absent from the cloud are removed locally.'**
+  String get bot_config_versions_remote_authority;
 }
 
 class _AppLocalizationsDelegate

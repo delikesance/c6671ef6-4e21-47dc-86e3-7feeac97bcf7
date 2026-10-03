@@ -10972,4 +10972,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settings_text_size_reset => 'Reset text size';
+
+  @override
+  String get bot_config_versions_cloud_checkpoints => 'Cloud checkpoints';
+
+  @override
+  String get bot_config_versions_checkpoint_hint =>
+      'A full cloud version is saved when you push or pull. Restoring a version also keeps a safety copy.';
+
+  @override
+  String get bot_config_versions_remote_authority =>
+      'The cloud version replaces the local configuration. Commands and workflows absent from the cloud are removed locally.';
 }

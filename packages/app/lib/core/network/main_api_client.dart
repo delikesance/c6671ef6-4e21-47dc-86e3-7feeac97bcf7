@@ -1802,9 +1802,18 @@ class MainApiClient implements RemoteRuntimeClient {
       throw const MainApiClientException('No config URL returned');
     }
 
-    // Download the config JSON from the public R2 URL (no auth needed)
+    // Bypass intermediary caches so a post-push read sees the current document.
+    final configUri = Uri.parse(configUrl);
     final response = await _http
-        .get(Uri.parse(configUrl))
+        .get(
+          configUri.replace(
+            queryParameters: {
+              ...configUri.queryParameters,
+              '_fresh': DateTime.now().microsecondsSinceEpoch.toString(),
+            },
+          ),
+          headers: {'Cache-Control': 'no-cache'},
+        )
         .timeout(const Duration(seconds: 15));
     if (response.statusCode != 200) {
       throw MainApiClientException(
@@ -1816,6 +1825,17 @@ class MainApiClient implements RemoteRuntimeClient {
       throw const MainApiClientException('Invalid config format');
     }
     return Map<String, dynamic>.from(decoded);
+  }
+
+  /// Archive and return the authoritative remote config for a manual cloud action.
+  Future<Map<String, dynamic>> checkpointBotConfig(String botId) async {
+    final encodedBotId = Uri.encodeComponent(botId.trim());
+    final result = await _post(
+      '/gateway/bots/$encodedBotId/versions/checkpoint',
+      const <String, dynamic>{},
+      retryOnFailure: false,
+    );
+    return Map<String, dynamic>.from(result['config'] as Map);
   }
 
   /// Lists available config versions for a bot from R2 storage.

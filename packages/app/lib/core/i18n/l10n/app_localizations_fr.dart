@@ -11150,4 +11150,16 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settings_text_size_reset => 'Réinitialiser la taille';
+
+  @override
+  String get bot_config_versions_cloud_checkpoints =>
+      'Points de sauvegarde cloud';
+
+  @override
+  String get bot_config_versions_checkpoint_hint =>
+      'Une version complète du cloud est sauvegardée lors d’un push ou d’un pull. Une restauration conserve aussi une copie de sécurité.';
+
+  @override
+  String get bot_config_versions_remote_authority =>
+      'La version cloud remplace la configuration locale. Les commandes et workflows absents du cloud sont supprimés localement.';
 }

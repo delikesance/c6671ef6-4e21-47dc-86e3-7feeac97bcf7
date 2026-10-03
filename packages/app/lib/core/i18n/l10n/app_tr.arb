@@ -10906,5 +10906,8 @@
   "settings_text_size_title": "Metin boyutu",
   "settings_text_size_description": "Uygulamanın metin boyutunu cihazınızın metin ayarına göre değiştirir.",
   "settings_text_size_preview": "Önizleme: komutlarınız, iş akışlarınız ve konuşmalarınız.",
-  "settings_text_size_reset": "Metin boyutunu sıfırla"
+  "settings_text_size_reset": "Metin boyutunu sıfırla",
+  "bot_config_versions_cloud_checkpoints": "Bulut kayıt noktaları",
+  "bot_config_versions_checkpoint_hint": "Gönderme veya çekme sırasında tam bir bulut sürümü kaydedilir. Geri yükleme de bir güvenlik kopyası saklar.",
+  "bot_config_versions_remote_authority": "Bulut sürümü yerel yapılandırmanın yerini alır. Bulutta bulunmayan komutlar ve iş akışları yerelden kaldırılır."
 }

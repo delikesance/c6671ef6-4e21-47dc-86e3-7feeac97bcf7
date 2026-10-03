@@ -5,6 +5,7 @@ import 'package:bot_creator/core/network/remote_runtime.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_config_import.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import 'package:bot_creator/main.dart' show appManager;
 
@@ -52,10 +53,21 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
     return client.getBotConfigVersions(widget.botId);
   }
 
-  String _formatVersionDate(String key) {
+  String _formatVersionDate(String key, [dynamic timestamp]) {
     final filename = key.split('/').last.replaceAll('.json', '');
-    final cleaned = filename.replaceAll('T', ' ').replaceAll('h', ':');
-    return cleaned;
+    final match = RegExp(
+      r'^(\d{4}-\d{2}-\d{2})T(\d{2})h(\d{2})(?:m|h)(\d{2})(?:s)?',
+    ).firstMatch(filename);
+    final date =
+        DateTime.tryParse(timestamp?.toString() ?? '') ??
+        (match == null
+            ? null
+            : DateTime.tryParse(
+                '${match[1]}T${match[2]}:${match[3]}:${match[4]}Z',
+              ));
+    if (date == null) return filename;
+    final locale = Localizations.localeOf(context).toString();
+    return DateFormat.yMMMd(locale).add_Hms().format(date.toLocal());
   }
 
   String _formatSize(int bytes) {
@@ -140,9 +152,11 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppTheme.discordDarkerBg,
+                  color: Theme.of(context).colorScheme.surfaceContainerLow,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppTheme.discordBorder),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                  ),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -157,10 +171,10 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        const AppIcon.fromMaterial(
+                        AppIcon.fromMaterial(
                           Icons.code,
                           size: 14,
-                          color: AppTheme.grey,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                         const SizedBox(width: 6),
                         Expanded(
@@ -177,7 +191,7 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          const AppIcon.fromMaterial(
+                          AppIcon.fromMaterial(
                             Icons.swap_horiz,
                             size: 14,
                             color: AppTheme.warning,
@@ -209,7 +223,9 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: AppTheme.discordText.withValues(alpha: 0.7),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -233,7 +249,9 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
                       ),
                       style: TextStyle(
                         fontSize: 12,
-                        color: AppTheme.discordText.withValues(alpha: 0.5),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.5),
                       ),
                     ),
                   ),
@@ -244,7 +262,9 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
                 context.tr.bot_config_versions_restore_confirm,
                 style: TextStyle(
                   fontSize: 12,
-                  color: AppTheme.discordText.withValues(alpha: 0.7),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
               ),
             ],
@@ -453,13 +473,14 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.discordDarkBg,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(context.tr.bot_config_versions_title),
         actions: [
           IconButton(
-            icon: const AppIcon.fromMaterial(Icons.close),
-            onPressed: () => Navigator.pop(context),
+            icon: AppIcon.fromMaterial(Icons.refresh_rounded),
+            tooltip: context.tr.common_retry,
+            onPressed: _isRestoring || _isLoadingDiff ? null : _retry,
           ),
         ],
       ),
@@ -475,16 +496,16 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const AppIcon.fromMaterial(
+                  AppIcon.fromMaterial(
                     Icons.error_outline,
                     size: 48,
-                    color: AppTheme.grey,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                   const SizedBox(height: AppTheme.spacingMd),
                   Text(
                     context.tr.bot_config_versions_error,
-                    style: const TextStyle(
-                      color: AppTheme.discordText,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 16,
                     ),
                   ),
@@ -505,17 +526,30 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const AppIcon.fromMaterial(
+                  AppIcon.fromMaterial(
                     Icons.history,
                     size: 48,
-                    color: AppTheme.grey,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                   const SizedBox(height: AppTheme.spacingMd),
                   Text(
                     context.tr.bot_config_versions_empty,
-                    style: const TextStyle(
-                      color: AppTheme.discordText,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: AppTheme.spacingSm),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppTheme.spacingXxl,
+                    ),
+                    child: Text(
+                      context.tr.bot_config_versions_checkpoint_hint,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ),
                 ],
@@ -523,80 +557,99 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
             );
           }
 
-          return ListView.separated(
-            padding: const EdgeInsets.all(AppTheme.spacingLg),
-            itemCount: versions.length,
-            separatorBuilder: (_, _) =>
-                const SizedBox(height: AppTheme.spacingSm),
-            itemBuilder: (context, index) {
-              final version = versions[index];
-              final key = (version['key'] ?? '').toString();
-              final sizeRaw = version['size'];
-              final size = sizeRaw is int
-                  ? sizeRaw
-                  : int.tryParse(sizeRaw?.toString() ?? '') ?? 0;
-
-              return Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppTheme.spacingLg,
-                  vertical: AppTheme.spacingMd,
-                ),
-                decoration: BoxDecoration(
-                  color: AppTheme.discordDarkerBg,
-                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                  border: Border.all(color: AppTheme.discordBorder, width: 1),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _formatVersionDate(key),
-                          style: const TextStyle(
-                            color: AppTheme.discordText,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          _formatSize(size),
-                          style: TextStyle(
-                            color: AppTheme.discordText.withValues(alpha: 0.6),
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
+          final colors = Theme.of(context).colorScheme;
+          final busy = _isRestoring || _isLoadingDiff;
+          return Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 720),
+              child: ListView.separated(
+                padding: const EdgeInsets.all(AppTheme.spacingLg),
+                itemCount: versions.length + 1,
+                separatorBuilder: (_, _) =>
                     const SizedBox(height: AppTheme.spacingSm),
-                    if (_isRestoring || _isLoadingDiff)
-                      const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    else
-                      OutlinedButton(
-                        onPressed: () => _restoreVersion(key),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppTheme.discordText,
-                          side: const BorderSide(color: AppTheme.discordBorder),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppTheme.spacingMd,
-                            vertical: AppTheme.spacingSm,
-                          ),
-                        ),
-                        child: Text(
-                          context.tr.bot_config_versions_restore,
-                          style: const TextStyle(fontSize: 13),
-                        ),
+                itemBuilder: (context, index) {
+                  if (index == 0) {
+                    return Padding(
+                      padding: const EdgeInsets.only(
+                        bottom: AppTheme.spacingLg,
                       ),
-                  ],
-                ),
-              );
-            },
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              AppIcon.fromMaterial(
+                                Icons.cloud_done_rounded,
+                                color: colors.primary,
+                              ),
+                              const SizedBox(width: AppTheme.spacingSm),
+                              Expanded(
+                                child: Text(
+                                  context
+                                      .tr
+                                      .bot_config_versions_cloud_checkpoints,
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.titleMedium,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: AppTheme.spacingSm),
+                          Text(
+                            context.tr.bot_config_versions_checkpoint_hint,
+                            style: TextStyle(color: colors.onSurfaceVariant),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                  final version = versions[index - 1];
+                  final key = (version['key'] ?? '').toString();
+                  final size = int.tryParse('${version['size']}') ?? 0;
+                  return Card(
+                    margin: EdgeInsets.zero,
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppTheme.spacingLg),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _formatVersionDate(key, version['time']),
+                            style: Theme.of(context).textTheme.titleSmall,
+                          ),
+                          const SizedBox(height: AppTheme.spacingXs),
+                          Text(
+                            _formatSize(size),
+                            style: TextStyle(
+                              color: colors.onSurfaceVariant,
+                              fontSize: 12,
+                            ),
+                          ),
+                          const SizedBox(height: AppTheme.spacingSm),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton.icon(
+                              onPressed: busy
+                                  ? null
+                                  : () => _restoreVersion(key),
+                              icon: AppIcon.fromMaterial(
+                                Icons.restore,
+                                size: 18,
+                              ),
+                              label: Text(
+                                context.tr.bot_config_versions_restore,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
           );
         },
       ),

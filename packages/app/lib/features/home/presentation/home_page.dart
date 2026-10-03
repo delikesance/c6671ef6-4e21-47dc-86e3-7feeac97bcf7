@@ -30,15 +30,13 @@ import 'package:bot_creator/features/announcements/logic/announcement.dart';
 import 'package:bot_creator/features/announcements/logic/announcement_presenter.dart';
 import 'package:bot_creator/features/announcements/presentation/announcement_banner.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
-import 'package:bot_creator/features/bot_editor/logic/bot_config_import.dart';
-import 'package:bot_creator/features/bot_editor/logic/bot_config_merge.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_reconciliation_service.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_token_auto_recovery.dart';
 import 'package:bot_creator/features/bot_editor/logic/js_bot_payload_builder.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/app_editor_page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/bot_logs.dart';
-import 'package:bot_creator/features/bot_editor/presentation/widgets/bot_config_pull_dialog.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/bot_config_overshrink_dialog.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_identity_scan.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_identity_sync.dart';
@@ -1797,61 +1795,11 @@ class HomePageState extends State<HomePage>
                 }
               } catch (_) {}
             }
-            final remoteCommands = extractCommandListFromConfig(
-              remoteConfig['commands'],
-            );
-            await applyManagerRuntimeMetadataToLocal(
-              appManager: appManager,
+            await BotReconciliationService.applyCloudToLocal(
               botId: result.botId,
               remoteConfig: remoteConfig,
+              appManager: appManager,
             );
-            final localCommands = await appManager.listAppCommands(
-              result.botId,
-              forceRefresh: true,
-            );
-            final localWorkflows = await appManager.getWorkflows(result.botId);
-            final remoteWorkflows = remoteConfig['workflows'];
-
-            final hasRemoteData =
-                remoteCommands.isNotEmpty ||
-                (remoteWorkflows is List && remoteWorkflows.isNotEmpty) ||
-                (remoteWorkflows is Map && remoteWorkflows.isNotEmpty);
-
-            if (hasRemoteData) {
-              if (localCommands.isEmpty && localWorkflows.isEmpty) {
-                // Fresh device / newly synced bot: restore all commands and workflows
-                await applyManagerConfigToLocal(
-                  appManager: appManager,
-                  botId: result.botId,
-                  remoteConfig: remoteConfig,
-                  saveAppMetadata: false,
-                );
-                appendBotDebugLog(
-                  '[syncAllBotsFromManager] Restored ${remoteCommands.length} commands for bot ${result.botId} to local DB.',
-                );
-              } else {
-                // Check if remote has newer edits
-                final localNewer = botConfigLocalHasNewerEdits(
-                  localCommands,
-                  remoteCommands,
-                );
-                final diff = computeBotConfigMergeDiff(
-                  localCommands,
-                  remoteCommands,
-                );
-                if (!localNewer && diff.hasChanges) {
-                  await applyManagerConfigToLocal(
-                    appManager: appManager,
-                    botId: result.botId,
-                    remoteConfig: remoteConfig,
-                    saveAppMetadata: false,
-                  );
-                  appendBotDebugLog(
-                    '[syncAllBotsFromManager] Auto-merged updated commands/workflows from remote for bot ${result.botId}.',
-                  );
-                }
-              }
-            }
           } catch (e) {
             developer.log('Failed to sync bot ${result.botId}: $e');
             appendBotDebugLog(
@@ -2349,64 +2297,11 @@ class HomePageState extends State<HomePage>
                   .trim();
               remoteConfig['token'] = existingToken;
 
-              final localCommands = await appManager.listAppCommands(
-                botId,
-                forceRefresh: true,
+              await BotReconciliationService.applyCloudToLocal(
+                botId: botId,
+                remoteConfig: remoteConfig,
+                appManager: appManager,
               );
-              final remoteCommands = extractCommandListFromConfig(
-                remoteConfig['commands'],
-              );
-              final diff = computeBotConfigMergeDiff(
-                localCommands,
-                remoteCommands,
-              );
-              final localNewer = botConfigLocalHasNewerEdits(
-                localCommands,
-                remoteCommands,
-              );
-
-              if (!diff.hasChanges) {
-                appendBotDebugLog(
-                  '[_toggleBot] Pre-launch pull skipped: no remote updates'
-                  '${diff.localOnlyCount > 0 ? ' (local-only commands preserved)' : ''}'
-                  '${localNewer ? ' (local edits are newer)' : ''}',
-                );
-              } else if (localCommands.isEmpty ||
-                  (!localNewer && diff.localOnlyCount == 0)) {
-                await applyManagerConfigToLocal(
-                  appManager: appManager,
-                  botId: botId,
-                  remoteConfig: remoteConfig,
-                );
-                appendBotDebugLog(
-                  '[_toggleBot] Pre-launch config sync auto-applied for $botId',
-                );
-              } else {
-                if (!mounted) return;
-                final confirmed = await showBotConfigPullConfirmDialog(
-                  context: context,
-                  diff: diff,
-                  remoteTimestamp: formatBotConfigTimestamp(remoteConfig),
-                  localTimestamp: await formatLocalBotConfigTimestamp(
-                    appManager,
-                    botId,
-                  ),
-                );
-                if (confirmed) {
-                  await applyManagerConfigToLocal(
-                    appManager: appManager,
-                    botId: botId,
-                    remoteConfig: remoteConfig,
-                  );
-                  appendBotDebugLog(
-                    '[_toggleBot] Pre-launch config sync confirmed and applied for $botId',
-                  );
-                } else {
-                  appendBotDebugLog(
-                    '[_toggleBot] Pre-launch pull declined for $botId',
-                  );
-                }
-              }
             }
           }
         } catch (e) {

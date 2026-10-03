@@ -11104,4 +11104,16 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get settings_text_size_reset => 'Redefinir tamanho';
+
+  @override
+  String get bot_config_versions_cloud_checkpoints =>
+      'Pontos de salvamento na nuvem';
+
+  @override
+  String get bot_config_versions_checkpoint_hint =>
+      'Uma versão completa da nuvem é salva ao enviar ou baixar. A restauração também mantém uma cópia de segurança.';
+
+  @override
+  String get bot_config_versions_remote_authority =>
+      'A versão da nuvem substitui a configuração local. Comandos e workflows ausentes na nuvem são removidos localmente.';
 }

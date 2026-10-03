@@ -10939,5 +10939,8 @@
   "settings_text_size_title": "Tamanho do texto",
   "settings_text_size_description": "Ajusta o tamanho do texto do app em relação à configuração do seu dispositivo.",
   "settings_text_size_preview": "Prévia: seus comandos, fluxos de trabalho e conversas.",
-  "settings_text_size_reset": "Redefinir tamanho"
+  "settings_text_size_reset": "Redefinir tamanho",
+  "bot_config_versions_cloud_checkpoints": "Pontos de salvamento na nuvem",
+  "bot_config_versions_checkpoint_hint": "Uma versão completa da nuvem é salva ao enviar ou baixar. A restauração também mantém uma cópia de segurança.",
+  "bot_config_versions_remote_authority": "A versão da nuvem substitui a configuração local. Comandos e workflows ausentes na nuvem são removidos localmente."
 }
