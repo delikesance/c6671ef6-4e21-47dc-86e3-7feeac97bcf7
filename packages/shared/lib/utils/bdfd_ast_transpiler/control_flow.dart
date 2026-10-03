@@ -243,6 +243,7 @@ extension _BdfdAstTranspilationScopeControlFlow on _BdfdAstTranspilationScope {
       if (node is BdfdTextAst && node.value.trim().isEmpty) continue;
       if (node is! BdfdFunctionCallAst) return false;
       if (node.normalizedName == 'endif') return true;
+      if (node.normalizedName == 'var' && node.arguments.length >= 2) continue;
       if (!{'addfield', 'elseif', 'else'}.contains(node.normalizedName)) {
         return false;
       }
@@ -259,6 +260,10 @@ extension _BdfdAstTranspilationScopeControlFlow on _BdfdAstTranspilationScope {
       final replacement = <Map<String, dynamic>>[];
       for (final raw in branch) {
         final action = Map<String, dynamic>.from(raw as Map);
+        if (!{'respondWithMessage', 'sendMessage'}.contains(action['type'])) {
+          replacement.add(action);
+          continue;
+        }
         final payload = action['payload'] as Map;
         final embeds = payload['embeds'] as List? ?? [];
         for (var index = 0; index < embeds.length; index++) {

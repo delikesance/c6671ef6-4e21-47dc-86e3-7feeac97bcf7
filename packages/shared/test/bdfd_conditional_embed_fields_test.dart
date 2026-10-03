@@ -93,4 +93,21 @@ void main() {
     expect(fields.first.name, 'Visible');
     expect(fields.last.name, 'Ordinary');
   });
+
+  test(
+    'conditional fields retain calculations and deferred inline actions',
+    () async {
+      final result = await testCommandInSandbox({
+        'script':
+            r'$textSplit[a,b;,]$title[Test]$if[1==1]$var[n;7]$addField[Number;$var[n]]$addField[Part;$splitText[2]]$endif',
+      });
+      expect(result['success'], true, reason: '${result['error']}');
+      final responses = result['responses'] as List;
+      expect(responses, hasLength(1));
+      final fields = responses.single['payload']['embeds'][0]['fields'] as List;
+      expect(fields, hasLength(2));
+      expect(fields[0]['value'], '7');
+      expect(fields[1]['value'], 'b');
+    },
+  );
 }
