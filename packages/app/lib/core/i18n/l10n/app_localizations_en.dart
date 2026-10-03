@@ -9,6 +9,24 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get docs_search => 'Search documentation';
+
+  @override
+  String get docs_category => 'Category';
+
+  @override
+  String get docs_mode => 'Mode';
+
+  @override
+  String get docs_no_results => 'No matching articles';
+
+  @override
+  String get docs_cached_offline => 'Cached version: network unavailable';
+
+  @override
+  String get docs_contents => 'Contents';
+
+  @override
   String get variables_migration_title => 'BDFD variable migration';
 
   @override

@@ -9,6 +9,24 @@ class AppLocalizationsFr extends AppLocalizations {
   AppLocalizationsFr([String locale = 'fr']) : super(locale);
 
   @override
+  String get docs_search => 'Rechercher dans la documentation';
+
+  @override
+  String get docs_category => 'Catégorie';
+
+  @override
+  String get docs_mode => 'Mode';
+
+  @override
+  String get docs_no_results => 'Aucun article correspondant';
+
+  @override
+  String get docs_cached_offline => 'Version en cache : réseau indisponible';
+
+  @override
+  String get docs_contents => 'Sommaire';
+
+  @override
   String get variables_migration_title => 'Migration des variables BDFD';
 
   @override

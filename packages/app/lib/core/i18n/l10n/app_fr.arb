@@ -1,4 +1,10 @@
 {
+  "docs_search": "Rechercher dans la documentation",
+  "docs_category": "Catégorie",
+  "docs_mode": "Mode",
+  "docs_no_results": "Aucun article correspondant",
+  "docs_cached_offline": "Version en cache : réseau indisponible",
+  "docs_contents": "Sommaire",
   "variables_migration_title": "Migration des variables BDFD",
   "variables_migration_confirmation": "Conserver les valeurs utilisateur communes à tous les serveurs. Archiver et adapter les anciens scripts BDFD, puis activer les fonctions utilisateur officielles par serveur. Aucune valeur ni expiration n'est déplacée.",
   "variables_migration_stop_bot": "Arrête le bot avant de migrer les variables.",

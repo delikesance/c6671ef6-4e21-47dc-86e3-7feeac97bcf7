@@ -1,4 +1,10 @@
 {
+  "docs_search": "Dokumentation durchsuchen",
+  "docs_category": "Kategorie",
+  "docs_mode": "Modus",
+  "docs_no_results": "Keine passenden Artikel",
+  "docs_cached_offline": "Zwischengespeicherte Version: Netzwerk nicht verfügbar",
+  "docs_contents": "Inhalt",
   "variables_migration_title": "BDFD-Variablenmigration",
   "variables_migration_confirmation": "Benutzerwerte bleiben serverübergreifend. Alte BDFD-Skripte werden archiviert und angepasst, dann werden die offiziellen serverbezogenen Benutzerfunktionen aktiviert. Werte und Ablaufzeiten bleiben unverändert.",
   "variables_migration_stop_bot": "Stoppe den Bot vor der Variablenmigration.",

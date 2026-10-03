@@ -1,4 +1,10 @@
 {
+  "docs_search": "Dokümantasyonda ara",
+  "docs_category": "Kategori",
+  "docs_mode": "Mod",
+  "docs_no_results": "Eşleşen makale yok",
+  "docs_cached_offline": "Önbellekteki sürüm: ağ kullanılamıyor",
+  "docs_contents": "İçindekiler",
   "variables_migration_title": "BDFD değişken geçişi",
   "variables_migration_confirmation": "Kullanıcı değerlerini tüm sunucularda ortak tutun. Eski BDFD betiklerini arşivleyip uyarlayın, ardından resmi sunucuya özel kullanıcı işlevlerini etkinleştirin. Değerler ve sona erme süreleri taşınmaz.",
   "variables_migration_stop_bot": "Değişkenleri taşımadan önce botu durdur.",

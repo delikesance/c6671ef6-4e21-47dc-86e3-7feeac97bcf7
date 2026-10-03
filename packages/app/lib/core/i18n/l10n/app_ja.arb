@@ -1,4 +1,10 @@
 {
+  "docs_search": "ドキュメントを検索",
+  "docs_category": "カテゴリ",
+  "docs_mode": "モード",
+  "docs_no_results": "該当する記事がありません",
+  "docs_cached_offline": "キャッシュ版：ネットワークを利用できません",
+  "docs_contents": "目次",
   "variables_migration_title": "BDFD変数の移行",
   "variables_migration_confirmation": "ユーザー値を全サーバー共通のまま保持します。旧BDFDスクリプトを保存・変更してから、公式のサーバー別ユーザー関数を有効にします。値と有効期限は移動しません。",
   "variables_migration_stop_bot": "変数を移行する前にボットを停止してください。",
