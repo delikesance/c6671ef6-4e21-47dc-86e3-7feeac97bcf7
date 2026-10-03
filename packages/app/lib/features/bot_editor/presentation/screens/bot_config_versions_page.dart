@@ -1,3 +1,4 @@
+import 'package:bot_creator/features/bot_editor/presentation/widgets/history_version_actions.dart';
 import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
@@ -670,56 +671,53 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              _formatVersionDate(key, version['time']),
-                              style: Theme.of(context).textTheme.titleSmall,
-                            ),
-                            const SizedBox(height: AppTheme.spacingXs),
-                            Text(
-                              _formatSize(size),
-                              style: TextStyle(
-                                color: colors.onSurfaceVariant,
-                                fontSize: 12,
-                              ),
-                            ),
-                            const SizedBox(height: AppTheme.spacingSm),
-                            Wrap(
-                              spacing: 8,
-                              alignment: WrapAlignment.end,
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                TextButton.icon(
-                                  onPressed: busy
-                                      ? null
-                                      : () => _previewVersion(key),
-                                  icon: const AppIcon.fromMaterial(
-                                    Icons.visibility_outlined,
-                                    size: 18,
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        _formatVersionDate(
+                                          key,
+                                          version['time'],
+                                        ),
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.titleSmall,
+                                      ),
+                                      const SizedBox(
+                                        height: AppTheme.spacingXs,
+                                      ),
+                                      Text(
+                                        _formatSize(size),
+                                        style: TextStyle(
+                                          color: colors.onSurfaceVariant,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  label: Text(context.tr.history_preview),
                                 ),
-                                TextButton.icon(
-                                  onPressed: busy
+                                HistoryVersionMenu(
+                                  onDelete: busy
                                       ? null
                                       : () => _deleteVersion(key),
-                                  icon: const AppIcon.fromMaterial(
-                                    Icons.delete_outline,
-                                    size: 18,
-                                  ),
-                                  label: Text(context.tr.common_delete),
-                                ),
-                                TextButton.icon(
-                                  onPressed: busy
-                                      ? null
-                                      : () => _restoreVersion(key),
-                                  icon: const AppIcon.fromMaterial(
-                                    Icons.restore,
-                                    size: 18,
-                                  ),
-                                  label: Text(
-                                    context.tr.bot_config_versions_restore,
-                                  ),
                                 ),
                               ],
+                            ),
+                            const SizedBox(height: AppTheme.spacingSm),
+                            HistoryVersionActions(
+                              onPreview: busy
+                                  ? null
+                                  : () => _previewVersion(key),
+                              onRestore: busy
+                                  ? null
+                                  : () => _restoreVersion(key),
+                              restoreLabel:
+                                  context.tr.bot_config_versions_restore,
                             ),
                           ],
                         ),

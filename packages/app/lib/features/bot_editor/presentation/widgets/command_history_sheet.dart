@@ -48,6 +48,8 @@
 // rafraîchissement de l'éditeur est un lot à part.
 library;
 
+import 'package:bot_creator/features/bot_editor/presentation/widgets/history_version_actions.dart';
+
 import 'dart:async';
 
 import 'package:bot_creator/core/diagnostics/app_diagnostics.dart';
@@ -631,31 +633,29 @@ class _CommandHistorySheetState extends State<CommandHistorySheet> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              tr.command_history_version_meta(
-                _authorLabel(version.authorOwnerId),
-                _timestampLabel(version.createdAt, localeName),
-                version.sizeBytes,
-              ),
-              style: const TextStyle(fontSize: 13),
-            ),
-            Wrap(
-              alignment: WrapAlignment.end,
-              spacing: 8,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextButton(
-                  onPressed: _busy ? null : () => _preview(version),
-                  child: Text(tr.history_preview),
+                Expanded(
+                  child: Text(
+                    tr.command_history_version_meta(
+                      _authorLabel(version.authorOwnerId),
+                      _timestampLabel(version.createdAt, localeName),
+                      version.sizeBytes,
+                    ),
+                    style: const TextStyle(fontSize: 13),
+                  ),
                 ),
-                TextButton(
-                  onPressed: _busy ? null : () => _delete(version),
-                  child: Text(tr.common_delete),
-                ),
-                TextButton(
-                  onPressed: _busy ? null : () => _confirmAndRestore(version),
-                  child: Text(tr.command_history_restore),
+                HistoryVersionMenu(
+                  onDelete: _busy ? null : () => _delete(version),
                 ),
               ],
+            ),
+            const SizedBox(height: 8),
+            HistoryVersionActions(
+              onPreview: _busy ? null : () => _preview(version),
+              onRestore: _busy ? null : () => _confirmAndRestore(version),
+              restoreLabel: tr.command_history_restore,
             ),
           ],
         ),
