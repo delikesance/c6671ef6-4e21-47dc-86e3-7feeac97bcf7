@@ -148,7 +148,7 @@ class _FakeManager {
         return http.Response('{"ok":true}', 200);
       }
       return http.Response(
-        '{"content":{"id":"cmd-1","reply":"saved-value"}}',
+        '{"content":{"id":"cmd-1","name":"saved-value","reply":"private-command-content"}}',
         200,
       );
     }
@@ -313,7 +313,9 @@ void main() {
       await _pumpFrames(tester);
       await tester.tap(find.widgetWithText(TextButton, fr.history_preview));
       await _pumpFrames(tester);
-      expect(find.textContaining('saved-value'), findsOneWidget);
+      expect(find.text('saved-value'), findsOneWidget);
+      expect(find.textContaining('private-command-content'), findsNothing);
+      expect(find.byType(SelectableText), findsNothing);
       expect(manager.requests.where((r) => r.method != 'GET'), isEmpty);
       await tester.tap(find.byTooltip(fr.common_close).last);
       await _pumpFrames(tester);
