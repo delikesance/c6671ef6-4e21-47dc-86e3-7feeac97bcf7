@@ -10513,4 +10513,13 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get bot_config_versions_remote_authority =>
       'クラウドのバージョンでローカル設定を置き換えます。クラウドにないコマンドとワークフローはローカルから削除されます。';
+
+  @override
+  String get history_preview => '内容を表示';
+
+  @override
+  String get history_delete_confirm => 'この保存済みバージョンを完全に削除しますか？現在の設定は変更されません。';
+
+  @override
+  String get history_action_failed => '履歴の操作を完了できませんでした。もう一度お試しください。';
 }

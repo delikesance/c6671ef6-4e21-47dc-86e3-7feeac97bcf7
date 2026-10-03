@@ -5,6 +5,7 @@ import 'package:bot_creator/core/network/remote_runtime.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_config_import.dart';
 import 'package:flutter/material.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/history_version_preview.dart';
 import 'package:intl/intl.dart';
 
 import 'package:bot_creator/main.dart' show appManager;
@@ -470,6 +471,50 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
   /// c'est lui qui permet de nommer la cause, pas la phrase du serveur.
   String _describeFailure(Object error) => describeApiFailure(error);
 
+  Future<void> _previewVersion(String key) async {
+    if (_isLoadingDiff || _isRestoring) return;
+    setState(() => _isLoadingDiff = true);
+    try {
+      await showHistoryVersionPreview(
+        context,
+        load: () async {
+          final client = await widget.resolveClient(
+            widget.botId,
+            widget.botToken,
+          );
+          if (client == null) throw Exception('API client unavailable');
+          return client.previewBotConfigVersion(widget.botId, key);
+        },
+      );
+    } finally {
+      if (mounted) setState(() => _isLoadingDiff = false);
+    }
+  }
+
+  Future<void> _deleteVersion(String key) async {
+    if (_isLoadingDiff || _isRestoring) return;
+    setState(() => _isLoadingDiff = true);
+    try {
+      final confirmed = await AppTheme.showConfirmDialog(
+        context,
+        title: context.tr.common_delete,
+        content: context.tr.history_delete_confirm,
+        confirmLabel: context.tr.common_delete,
+        cancelLabel: context.tr.common_cancel,
+        isDestructive: true,
+      );
+      if (!confirmed || !mounted) return;
+      final client = await widget.resolveClient(widget.botId, widget.botToken);
+      if (client == null) throw Exception('API client unavailable');
+      await client.deleteBotConfigVersion(widget.botId, key);
+      if (mounted) _retry();
+    } catch (_) {
+      if (mounted) _showRestoreFailure(context.tr.history_action_failed);
+    } finally {
+      if (mounted) setState(() => _isLoadingDiff = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -484,174 +529,208 @@ class _BotConfigVersionsPageState extends State<BotConfigVersionsPage> {
           ),
         ],
       ),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: _versionsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: SafeArea(
+        top: false,
+        child: FutureBuilder<List<Map<String, dynamic>>>(
+          future: _versionsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          if (snapshot.hasError) {
-            return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  AppIcon.fromMaterial(
-                    Icons.error_outline,
-                    size: 48,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                  const SizedBox(height: AppTheme.spacingMd),
-                  Text(
-                    context.tr.bot_config_versions_error,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontSize: 16,
-                    ),
-                  ),
-                  const SizedBox(height: AppTheme.spacingMd),
-                  OutlinedButton(
-                    onPressed: _retry,
-                    child: Text(context.tr.common_retry),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          final versions = snapshot.data ?? [];
-
-          if (versions.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  AppIcon.fromMaterial(
-                    Icons.history,
-                    size: 48,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                  const SizedBox(height: AppTheme.spacingMd),
-                  Text(
-                    context.tr.bot_config_versions_empty,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontSize: 16,
-                    ),
-                  ),
-                  const SizedBox(height: AppTheme.spacingSm),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppTheme.spacingXxl,
-                    ),
-                    child: Text(
-                      context.tr.bot_config_versions_checkpoint_hint,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
+            if (snapshot.hasError) {
+              return Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(AppTheme.spacingLg),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      AppIcon.fromMaterial(
+                        Icons.error_outline,
+                        size: 48,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          final colors = Theme.of(context).colorScheme;
-          final busy = _isRestoring || _isLoadingDiff;
-          return Align(
-            alignment: Alignment.topCenter,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 720),
-              child: ListView.separated(
-                padding: const EdgeInsets.all(AppTheme.spacingLg),
-                itemCount: versions.length + 1,
-                separatorBuilder: (_, _) =>
-                    const SizedBox(height: AppTheme.spacingSm),
-                itemBuilder: (context, index) {
-                  if (index == 0) {
-                    return Padding(
-                      padding: const EdgeInsets.only(
-                        bottom: AppTheme.spacingLg,
+                      const SizedBox(height: AppTheme.spacingMd),
+                      Text(
+                        context.tr.bot_config_versions_error,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 16,
+                        ),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              AppIcon.fromMaterial(
-                                Icons.cloud_done_rounded,
-                                color: colors.primary,
-                              ),
-                              const SizedBox(width: AppTheme.spacingSm),
-                              Expanded(
-                                child: Text(
-                                  context
-                                      .tr
-                                      .bot_config_versions_cloud_checkpoints,
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.titleMedium,
+                      const SizedBox(height: AppTheme.spacingMd),
+                      OutlinedButton(
+                        onPressed: _retry,
+                        child: Text(context.tr.common_retry),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+
+            final versions = snapshot.data ?? [];
+
+            if (versions.isEmpty) {
+              return Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(AppTheme.spacingLg),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      AppIcon.fromMaterial(
+                        Icons.history,
+                        size: 48,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(height: AppTheme.spacingMd),
+                      Text(
+                        context.tr.bot_config_versions_empty,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: AppTheme.spacingSm),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppTheme.spacingXxl,
+                        ),
+                        child: Text(
+                          context.tr.bot_config_versions_checkpoint_hint,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+
+            final colors = Theme.of(context).colorScheme;
+            final busy = _isRestoring || _isLoadingDiff;
+            return Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 720),
+                child: ListView.separated(
+                  padding: const EdgeInsets.all(AppTheme.spacingLg),
+                  itemCount: versions.length + 1,
+                  separatorBuilder: (_, _) =>
+                      const SizedBox(height: AppTheme.spacingSm),
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      return Padding(
+                        padding: const EdgeInsets.only(
+                          bottom: AppTheme.spacingLg,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                AppIcon.fromMaterial(
+                                  Icons.cloud_done_rounded,
+                                  color: colors.primary,
                                 ),
+                                const SizedBox(width: AppTheme.spacingSm),
+                                Expanded(
+                                  child: Text(
+                                    context
+                                        .tr
+                                        .bot_config_versions_cloud_checkpoints,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleMedium,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: AppTheme.spacingSm),
+                            Text(
+                              context.tr.bot_config_versions_checkpoint_hint,
+                              style: TextStyle(color: colors.onSurfaceVariant),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    final version = versions[index - 1];
+                    final key = (version['key'] ?? '').toString();
+                    final size = int.tryParse('${version['size']}') ?? 0;
+                    return Card(
+                      margin: EdgeInsets.zero,
+                      child: Padding(
+                        padding: const EdgeInsets.all(AppTheme.spacingLg),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _formatVersionDate(key, version['time']),
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
+                            const SizedBox(height: AppTheme.spacingXs),
+                            Text(
+                              _formatSize(size),
+                              style: TextStyle(
+                                color: colors.onSurfaceVariant,
+                                fontSize: 12,
                               ),
-                            ],
-                          ),
-                          const SizedBox(height: AppTheme.spacingSm),
-                          Text(
-                            context.tr.bot_config_versions_checkpoint_hint,
-                            style: TextStyle(color: colors.onSurfaceVariant),
-                          ),
-                        ],
+                            ),
+                            const SizedBox(height: AppTheme.spacingSm),
+                            Wrap(
+                              spacing: 8,
+                              alignment: WrapAlignment.end,
+                              children: [
+                                TextButton.icon(
+                                  onPressed: busy
+                                      ? null
+                                      : () => _previewVersion(key),
+                                  icon: const AppIcon.fromMaterial(
+                                    Icons.visibility_outlined,
+                                    size: 18,
+                                  ),
+                                  label: Text(context.tr.history_preview),
+                                ),
+                                TextButton.icon(
+                                  onPressed: busy
+                                      ? null
+                                      : () => _deleteVersion(key),
+                                  icon: const AppIcon.fromMaterial(
+                                    Icons.delete_outline,
+                                    size: 18,
+                                  ),
+                                  label: Text(context.tr.common_delete),
+                                ),
+                                TextButton.icon(
+                                  onPressed: busy
+                                      ? null
+                                      : () => _restoreVersion(key),
+                                  icon: const AppIcon.fromMaterial(
+                                    Icons.restore,
+                                    size: 18,
+                                  ),
+                                  label: Text(
+                                    context.tr.bot_config_versions_restore,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     );
-                  }
-                  final version = versions[index - 1];
-                  final key = (version['key'] ?? '').toString();
-                  final size = int.tryParse('${version['size']}') ?? 0;
-                  return Card(
-                    margin: EdgeInsets.zero,
-                    child: Padding(
-                      padding: const EdgeInsets.all(AppTheme.spacingLg),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            _formatVersionDate(key, version['time']),
-                            style: Theme.of(context).textTheme.titleSmall,
-                          ),
-                          const SizedBox(height: AppTheme.spacingXs),
-                          Text(
-                            _formatSize(size),
-                            style: TextStyle(
-                              color: colors.onSurfaceVariant,
-                              fontSize: 12,
-                            ),
-                          ),
-                          const SizedBox(height: AppTheme.spacingSm),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: TextButton.icon(
-                              onPressed: busy
-                                  ? null
-                                  : () => _restoreVersion(key),
-                              icon: AppIcon.fromMaterial(
-                                Icons.restore,
-                                size: 18,
-                              ),
-                              label: Text(
-                                context.tr.bot_config_versions_restore,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+                  },
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

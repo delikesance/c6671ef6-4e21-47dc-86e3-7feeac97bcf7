@@ -11045,4 +11045,15 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get bot_config_versions_remote_authority =>
       'Bulut sürümü yerel yapılandırmanın yerini alır. Bulutta bulunmayan komutlar ve iş akışları yerelden kaldırılır.';
+
+  @override
+  String get history_preview => 'İçeriği görüntüle';
+
+  @override
+  String get history_delete_confirm =>
+      'Bu kayıtlı sürüm kalıcı olarak silinsin mi? Geçerli yapılandırma değişmeden kalır.';
+
+  @override
+  String get history_action_failed =>
+      'Bu geçmiş işlemi tamamlanamadı. Lütfen tekrar deneyin.';
 }

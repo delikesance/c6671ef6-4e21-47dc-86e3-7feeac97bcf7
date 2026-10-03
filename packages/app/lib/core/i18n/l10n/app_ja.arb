@@ -10996,5 +10996,8 @@
   "settings_text_size_reset": "文字サイズをリセット",
   "bot_config_versions_cloud_checkpoints": "クラウドの保存ポイント",
   "bot_config_versions_checkpoint_hint": "プッシュまたはプル時にクラウドの完全なバージョンが保存されます。復元時にも安全のためコピーを保存します。",
-  "bot_config_versions_remote_authority": "クラウドのバージョンでローカル設定を置き換えます。クラウドにないコマンドとワークフローはローカルから削除されます。"
+  "bot_config_versions_remote_authority": "クラウドのバージョンでローカル設定を置き換えます。クラウドにないコマンドとワークフローはローカルから削除されます。",
+  "history_preview": "内容を表示",
+  "history_delete_confirm": "この保存済みバージョンを完全に削除しますか？現在の設定は変更されません。",
+  "history_action_failed": "履歴の操作を完了できませんでした。もう一度お試しください。"
 }

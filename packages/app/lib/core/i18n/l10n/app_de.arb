@@ -10909,5 +10909,8 @@
   "settings_text_size_reset": "Textgröße zurücksetzen",
   "bot_config_versions_cloud_checkpoints": "Cloud-Sicherungspunkte",
   "bot_config_versions_checkpoint_hint": "Beim Push oder Pull wird eine vollständige Cloud-Version gespeichert. Eine Wiederherstellung bewahrt auch eine Sicherheitskopie.",
-  "bot_config_versions_remote_authority": "Die Cloud-Version ersetzt die lokale Konfiguration. Befehle und Workflows, die in der Cloud fehlen, werden lokal entfernt."
+  "bot_config_versions_remote_authority": "Die Cloud-Version ersetzt die lokale Konfiguration. Befehle und Workflows, die in der Cloud fehlen, werden lokal entfernt.",
+  "history_preview": "Inhalt anzeigen",
+  "history_delete_confirm": "Diese gespeicherte Version dauerhaft löschen? Die aktuelle Konfiguration bleibt unverändert.",
+  "history_action_failed": "Diese Verlaufsaktion konnte nicht ausgeführt werden. Bitte erneut versuchen."
 }

@@ -1838,6 +1838,45 @@ class MainApiClient implements RemoteRuntimeClient {
     return Map<String, dynamic>.from(result['config'] as Map);
   }
 
+  Future<Map<String, dynamic>> previewBotConfigVersion(
+    String botId,
+    String key,
+  ) async {
+    final result = await _get(
+      '/gateway/bots/${Uri.encodeComponent(botId)}/versions/content',
+      query: {'key': key},
+    );
+    return Map<String, dynamic>.from(result['content'] as Map);
+  }
+
+  Future<void> deleteBotConfigVersion(String botId, String key) async {
+    await _delete(
+      '/gateway/bots/${Uri.encodeComponent(botId)}/versions',
+      query: {'key': key},
+    );
+  }
+
+  Future<Map<String, dynamic>> previewCommandVersionV2(
+    String botId,
+    String commandId,
+    String historyId,
+  ) async {
+    final result = await _get(
+      '/api/v2/bots/${Uri.encodeComponent(botId)}/commands/${Uri.encodeComponent(commandId)}/history/${Uri.encodeComponent(historyId)}',
+    );
+    return Map<String, dynamic>.from(result['content'] as Map);
+  }
+
+  Future<void> deleteCommandVersionV2(
+    String botId,
+    String commandId,
+    String historyId,
+  ) async {
+    await _delete(
+      '/api/v2/bots/${Uri.encodeComponent(botId)}/commands/${Uri.encodeComponent(commandId)}/history/${Uri.encodeComponent(historyId)}',
+    );
+  }
+
   /// Lists available config versions for a bot from R2 storage.
   Future<List<Map<String, dynamic>>> getBotConfigVersions(String botId) async {
     final encodedBotId = Uri.encodeComponent(botId.trim());

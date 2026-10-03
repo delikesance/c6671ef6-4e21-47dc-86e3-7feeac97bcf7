@@ -10909,5 +10909,8 @@
   "settings_text_size_reset": "Metin boyutunu sıfırla",
   "bot_config_versions_cloud_checkpoints": "Bulut kayıt noktaları",
   "bot_config_versions_checkpoint_hint": "Gönderme veya çekme sırasında tam bir bulut sürümü kaydedilir. Geri yükleme de bir güvenlik kopyası saklar.",
-  "bot_config_versions_remote_authority": "Bulut sürümü yerel yapılandırmanın yerini alır. Bulutta bulunmayan komutlar ve iş akışları yerelden kaldırılır."
+  "bot_config_versions_remote_authority": "Bulut sürümü yerel yapılandırmanın yerini alır. Bulutta bulunmayan komutlar ve iş akışları yerelden kaldırılır.",
+  "history_preview": "İçeriği görüntüle",
+  "history_delete_confirm": "Bu kayıtlı sürüm kalıcı olarak silinsin mi? Geçerli yapılandırma değişmeden kalır.",
+  "history_action_failed": "Bu geçmiş işlemi tamamlanamadı. Lütfen tekrar deneyin."
 }

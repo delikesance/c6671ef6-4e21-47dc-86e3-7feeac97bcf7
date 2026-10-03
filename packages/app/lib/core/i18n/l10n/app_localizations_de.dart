@@ -11137,4 +11137,15 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get bot_config_versions_remote_authority =>
       'Die Cloud-Version ersetzt die lokale Konfiguration. Befehle und Workflows, die in der Cloud fehlen, werden lokal entfernt.';
+
+  @override
+  String get history_preview => 'Inhalt anzeigen';
+
+  @override
+  String get history_delete_confirm =>
+      'Diese gespeicherte Version dauerhaft löschen? Die aktuelle Konfiguration bleibt unverändert.';
+
+  @override
+  String get history_action_failed =>
+      'Diese Verlaufsaktion konnte nicht ausgeführt werden. Bitte erneut versuchen.';
 }

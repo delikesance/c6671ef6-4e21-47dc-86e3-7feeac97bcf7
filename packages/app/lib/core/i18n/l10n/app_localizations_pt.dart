@@ -11116,4 +11116,15 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get bot_config_versions_remote_authority =>
       'A versão da nuvem substitui a configuração local. Comandos e workflows ausentes na nuvem são removidos localmente.';
+
+  @override
+  String get history_preview => 'Ver conteúdo';
+
+  @override
+  String get history_delete_confirm =>
+      'Excluir permanentemente esta versão salva? A configuração atual permanece inalterada.';
+
+  @override
+  String get history_action_failed =>
+      'Não foi possível concluir esta ação no histórico. Tente novamente.';
 }

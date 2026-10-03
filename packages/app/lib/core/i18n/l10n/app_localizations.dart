@@ -18978,6 +18978,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The cloud version replaces the local configuration. Commands and workflows absent from the cloud are removed locally.'**
   String get bot_config_versions_remote_authority;
+
+  /// No description provided for @history_preview.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview content'**
+  String get history_preview;
+
+  /// No description provided for @history_delete_confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this saved version permanently? The current configuration will stay unchanged.'**
+  String get history_delete_confirm;
+
+  /// No description provided for @history_action_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to complete this history action. Please try again.'**
+  String get history_action_failed;
 }
 
 class _AppLocalizationsDelegate
