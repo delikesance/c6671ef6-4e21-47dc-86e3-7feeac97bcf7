@@ -245,6 +245,7 @@ class BotReconciliationService {
         username: username,
         token: effectiveToken,
         avatarHash: avatar.isNotEmpty ? avatar : null,
+        notifyRuntime: false,
       );
     }
 
@@ -254,6 +255,7 @@ class BotReconciliationService {
   /// Intelligently merges remote and local configurations without deleting items,
   /// resolves command conflicts by newest edit, and pushes the merged result to Cloud.
   static Future<void> smartMerge({
+    bool pushToCloud = true,
     required String botId,
     required Map<String, dynamic> remoteConfig,
     required MainApiClient client,
@@ -261,99 +263,125 @@ class BotReconciliationService {
     String? botName,
   }) async {
     final mgr = appManager ?? AppManager();
-    final localCommands = await mgr.listAppCommands(botId, forceRefresh: true);
-    final remoteCommands = extractCommandListFromConfig(
-      remoteConfig['commands'],
-    );
+    final endRemoteSync = AppManager.beginRemoteSync();
+    try {
+      await applyManagerRuntimeMetadataToLocal(
+        appManager: mgr,
+        botId: botId,
+        remoteConfig: remoteConfig,
+      );
+      final localCommands = await mgr.listAppCommands(
+        botId,
+        forceRefresh: true,
+      );
+      final remoteCommands = extractCommandListFromConfig(
+        remoteConfig['commands'],
+      );
 
-    final localCmdsById = <String, Map<String, dynamic>>{
-      for (final cmd in localCommands)
-        (cmd['id'] ?? cmd['name'] ?? '').toString(): cmd,
-    };
+      final localCmdsById = <String, Map<String, dynamic>>{
+        for (final cmd in localCommands)
+          (cmd['id'] ?? cmd['name'] ?? '').toString(): cmd,
+      };
 
-    // 1. Merge commands:
-    for (final remoteCmd in remoteCommands) {
-      final id = (remoteCmd['id'] ?? remoteCmd['name'] ?? '').toString();
-      if (id.isEmpty) continue;
+      // 1. Merge commands:
+      final commandsToImport = <Map<String, dynamic>>[];
+      for (final remoteCmd in remoteCommands) {
+        final id = (remoteCmd['id'] ?? remoteCmd['name'] ?? '').toString();
+        if (id.isEmpty) continue;
 
-      final localCmd = localCmdsById[id];
-      if (localCmd == null) {
-        // Cloud-only command: save locally
-        await mgr.saveAppCommand(botId, id, remoteCmd);
-      } else {
-        // Exists on both: compare timestamps
-        final remoteUpdated = parseBotConfigTimestamp(remoteCmd['updatedAt']);
-        final localUpdated = parseBotConfigTimestamp(localCmd['updatedAt']);
+        final localCmd = localCmdsById[id];
+        if (localCmd == null) {
+          // Cloud-only command: save locally
+          commandsToImport.add(remoteCmd);
+        } else {
+          // Exists on both: compare timestamps
+          final remoteUpdated = parseBotConfigTimestamp(remoteCmd['updatedAt']);
+          final localUpdated = parseBotConfigTimestamp(localCmd['updatedAt']);
 
-        if (remoteUpdated != null &&
-            localUpdated != null &&
-            remoteUpdated.isAfter(localUpdated)) {
-          await mgr.saveAppCommand(botId, id, remoteCmd);
+          if (remoteUpdated != null &&
+              localUpdated != null &&
+              remoteUpdated.isAfter(localUpdated)) {
+            commandsToImport.add(remoteCmd);
+          }
+          // If local is newer or identical, local is kept
         }
-        // If local is newer or identical, local is kept
       }
-    }
 
-    // 2. Merge workflows:
-    final remoteWorkflows =
-        (remoteConfig['workflows'] as List?)?.whereType<Map>().toList() ?? [];
-    final localApp = await mgr.getApp(botId);
-    final localWorkflows =
-        (localApp['workflows'] as List?)?.whereType<Map>().toList() ?? [];
+      await applyManagerConfigToLocal(
+        appManager: mgr,
+        botId: botId,
+        saveAppMetadata: false,
+        remoteConfig: {'commands': commandsToImport},
+      );
 
-    final localWfByName = <String, Map<String, dynamic>>{
-      for (final wf in localWorkflows)
-        (wf['name'] ?? '').toString(): Map<String, dynamic>.from(wf),
-    };
+      // 2. Merge workflows:
+      final remoteWorkflows =
+          (remoteConfig['workflows'] as List?)?.whereType<Map>().toList() ?? [];
+      final localApp = await mgr.getApp(botId);
+      final localWorkflows =
+          (localApp['workflows'] as List?)?.whereType<Map>().toList() ?? [];
 
-    for (final rWf in remoteWorkflows) {
-      final name = (rWf['name'] ?? '').toString();
-      if (name.isEmpty) continue;
+      final localWfByName = <String, Map<String, dynamic>>{
+        for (final wf in localWorkflows)
+          (wf['name'] ?? '').toString(): Map<String, dynamic>.from(wf),
+      };
 
-      if (!localWfByName.containsKey(name)) {
-        await mgr.saveWorkflow(
-          botId,
-          name: name,
-          actions: ((rWf['actions'] as List?) ?? [])
-              .map((e) => Map<String, dynamic>.from(e as Map))
-              .toList(),
-          entryPoint: rWf['entryPoint']?.toString(),
-          arguments: ((rWf['arguments'] as List?) ?? [])
-              .map((e) => Map<String, dynamic>.from(e as Map))
-              .toList(),
-          workflowType: rWf['workflowType']?.toString(),
-          eventTrigger: rWf['eventTrigger'] != null
-              ? Map<String, dynamic>.from(rWf['eventTrigger'] as Map)
-              : null,
-          folder: rWf['folder']?.toString(),
-        );
+      for (final rWf in remoteWorkflows) {
+        final name = (rWf['name'] ?? '').toString();
+        if (name.isEmpty) continue;
+
+        if (!localWfByName.containsKey(name)) {
+          await mgr.saveWorkflow(
+            botId,
+            name: name,
+            actions: ((rWf['actions'] as List?) ?? [])
+                .map((e) => Map<String, dynamic>.from(e as Map))
+                .toList(),
+            entryPoint: rWf['entryPoint']?.toString(),
+            arguments: ((rWf['arguments'] as List?) ?? [])
+                .map((e) => Map<String, dynamic>.from(e as Map))
+                .toList(),
+            workflowType: rWf['workflowType']?.toString(),
+            eventTrigger: rWf['eventTrigger'] != null
+                ? Map<String, dynamic>.from(rWf['eventTrigger'] as Map)
+                : null,
+            folder: rWf['folder']?.toString(),
+            executionMode: rWf['executionMode']?.toString(),
+            jsScriptContent: rWf['jsScriptContent']?.toString(),
+            eventVariableAliases: (rWf['eventVariableAliases'] as Map?)
+                ?.cast<String, String>(),
+          );
+        }
       }
-    }
 
-    // 3. Merge global variables:
-    final remoteGlobals =
-        (remoteConfig['globalVariables'] as Map?)?.cast<String, dynamic>() ??
-        {};
-    for (final entry in remoteGlobals.entries) {
-      final localVal = await mgr.getGlobalVariable(botId, entry.key);
-      if (localVal == null) {
-        await mgr.setGlobalVariable(botId, entry.key, entry.value);
+      // 3. Merge global variables:
+      final remoteGlobals =
+          (remoteConfig['globalVariables'] as Map?)?.cast<String, dynamic>() ??
+          {};
+      for (final entry in remoteGlobals.entries) {
+        final localVal = await mgr.getGlobalVariable(botId, entry.key);
+        if (localVal == null) {
+          await mgr.setGlobalVariable(botId, entry.key, entry.value);
+        }
       }
+
+      await mgr.invalidatePayloadCache(botId);
+      if (!pushToCloud) return;
+
+      // 4. Push the unified merged payload back to Cloud
+      final mergedPayload = await buildRemotePayload(botId);
+      final effectiveName =
+          botName ??
+          (localApp['username'] ??
+                  localApp['name'] ??
+                  remoteConfig['username'] ??
+                  'Bot')
+              .toString();
+
+      await client.syncBot(botId, effectiveName, mergedPayload, force: true);
+    } finally {
+      endRemoteSync();
     }
-
-    await mgr.invalidatePayloadCache(botId);
-
-    // 4. Push the unified merged payload back to Cloud
-    final mergedPayload = await buildRemotePayload(botId);
-    final effectiveName =
-        botName ??
-        (localApp['username'] ??
-                localApp['name'] ??
-                remoteConfig['username'] ??
-                'Bot')
-            .toString();
-
-    await client.syncBot(botId, effectiveName, mergedPayload, force: true);
   }
 
   /// Keeps local configuration and overwrites Cloud with local data.

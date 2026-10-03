@@ -545,6 +545,13 @@ Future<Map<String, dynamic>> buildRemotePayload(String botId) async {
   if (engine == runtimeEngineJavascript) {
     return buildJsBotPayload(botId);
   }
+  final app = await _appManager.getApp(botId);
+  final commands = await _appManager.listAppCommands(botId);
+  if (configurationContainsJavascript({...app, 'commands': commands})) {
+    throw StateError(
+      'Refusing to synchronize JavaScript commands with the Dart runtime. Restore the bot runtime engine explicitly.',
+    );
+  }
   return buildBotPayload(botId);
 }
 

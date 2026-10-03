@@ -170,12 +170,18 @@ Future<DiscordBotIdentity?> fetchDiscordBotIdentity({
           : null,
     );
   } on TimeoutException {
-    developer.log('Discord identity request timed out.', name: 'BotIdentitySync');
+    developer.log(
+      'Discord identity request timed out.',
+      name: 'BotIdentitySync',
+    );
     return null;
   } catch (error) {
     // Jamais `error.toString()` seul : il peut recopier l'URL, donc rien de la credential,
     // mais on reste sobre — le détail sert au diagnostic, pas la valeur du jeton.
-    developer.log('Discord identity request failed: $error', name: 'BotIdentitySync');
+    developer.log(
+      'Discord identity request failed: $error',
+      name: 'BotIdentitySync',
+    );
     return null;
   } finally {
     if (ownsClient) client.close();
@@ -248,6 +254,7 @@ Future<BotIdentitySyncOutcome> refreshBotIdentityFromDiscord({
     await manager.createOrUpdateApp(
       id: Snowflake.parse(trimmedBotId),
       username: identity.username,
+      notifyRuntime: false,
       // Sans avatar chez Discord, on laisse les deux champs nuls : `createOrUpdateApp`
       // conserve alors l'avatar déjà connu au lieu de le remplacer par un avatar par défaut.
       avatarHash: hasAvatar ? avatarHash : null,

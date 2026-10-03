@@ -98,7 +98,9 @@ class BotTokenImporter {
     required bool serverAnnouncesTokenValid,
     required bool hasLocalToken,
   }) {
-    if (hasLocalToken) return Future.value(BotTokenImportOutcome.alreadyPresent);
+    if (hasLocalToken) {
+      return Future.value(BotTokenImportOutcome.alreadyPresent);
+    }
     if (!serverAnnouncesTokenValid) {
       return Future.value(BotTokenImportOutcome.serverAnnouncesInvalid);
     }
@@ -114,9 +116,7 @@ class BotTokenImporter {
   /// Reprise demandée par l'utilisateur (bouton « Importer le jeton depuis mon
   /// compte ») : il a le droit d'essayer autant de fois qu'il le souhaite, aucun
   /// quota de tentatives ne s'applique ici.
-  Future<BotTokenImportOutcome> importFromUserAction({
-    required String botId,
-  }) {
+  Future<BotTokenImportOutcome> importFromUserAction({required String botId}) {
     return _export(botId, source: 'manual');
   }
 
@@ -187,6 +187,7 @@ Future<void> persistImportedBotToken(String botId, String token) async {
   await manager.createOrUpdateApp(
     id: Snowflake.parse(botId),
     username: (existing['name'] ?? '').toString(),
+    notifyRuntime: false,
     token: token,
     prefix: existing['prefix']?.toString(),
     intents: (existing['intents'] as Map?)?.cast<String, bool>(),
