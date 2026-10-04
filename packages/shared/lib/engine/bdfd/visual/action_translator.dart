@@ -13,6 +13,7 @@ import 'control_flow_actions.dart';
 import 'control_flow_state.dart';
 import 'emoji_actions.dart';
 import 'guild_actions.dart';
+import 'image_actions.dart';
 import 'invite_actions.dart';
 import 'listener_actions.dart';
 import 'member_actions.dart';
@@ -118,6 +119,7 @@ class ActionTranslator {
     ...memberLeafPredicates,
     ...inviteLeafPredicates,
     ...musicLeafPredicates,
+    ...imageLeafPredicates,
   };
 
   /// Whether [action] runs on the native engine. A leaf needs a handler (and a
