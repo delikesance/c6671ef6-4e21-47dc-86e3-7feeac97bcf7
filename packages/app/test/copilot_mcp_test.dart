@@ -77,8 +77,9 @@ void main() {
       );
       await bridge.initialize();
       final result = await bridge.call('local_test_command', {
-        'script': r'$var[gain;$isNumber[((opts.amount))]]$reply$c[]$var[gain]',
+        'script': r'$var[gain;$isNumber[$message[amount]]]$reply$c[]$var[gain]',
         'scenario': {
+          'variables': {'interaction.isSlash': 'true'},
           'options': {'amount': 100},
         },
       }, callID: 'sandbox');
@@ -111,8 +112,9 @@ void main() {
       expect(httpValue['effects'].single['simulated'], true);
       expect(httpValue['unused_http_fixtures'], 0);
       final role = await bridge.call('local_test_command', {
-        'script': r'$roleID[((opts.color))]',
+        'script': r'$roleID[$message[color]]',
         'scenario': {
+          'variables': {'interaction.isSlash': 'true'},
           'options': {'color': 'Cor Branca'},
           'entities': {
             'guilds': {
@@ -152,8 +154,9 @@ void main() {
       await bridge.initialize();
       for (final expected in ['Score', 'Wrong title']) {
         final response = await bridge.call('local_test_command', {
-          'script': r'$title[((opts.title))]',
+          'script': r'$title[$message[title]]',
           'scenario': {
+            'variables': {'interaction.isSlash': 'true'},
             'options': {'title': 'Score'},
           },
           'expected_content': '',
@@ -182,7 +185,10 @@ void main() {
       await bridge.initialize();
       final response = await bridge.call('local_test_command', {
         'script':
-            r'$newModal[form;Profile]$addModalTextInput[Name;;name;short;2;20;false]',
+            r'$newModal[form;Profile]$addModalTextInput[Name;;name;short;2;20;false;;]',
+        'scenario': {
+          'variables': {'interaction.type': '2'},
+        },
         'expected_content': '',
         'expected_values': {
           '/responses/0/api_modal/title': 'Profile',

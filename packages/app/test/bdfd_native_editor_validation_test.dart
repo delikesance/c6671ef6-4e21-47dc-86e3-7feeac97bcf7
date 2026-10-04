@@ -77,19 +77,19 @@ void main() {
     );
   }
 
-  test('notifier revalidates the same source when switching engines', () {
+  test('notifier revalidates native-v1 diagnostics on each source change', () {
     final notifier = CommandEditorNotifier();
     addTearDown(notifier.dispose);
+    expect(notifier.state.bdfdBackend, 'native-v1');
     notifier.updateBdfdScriptContent(r'$kickMention');
-    expect(notifier.state.hasBdfdCompileErrors, false);
-    notifier.updateBdfdBackend('native-v1');
     expect(notifier.state.bdfdCompileResult, isNull);
     expect(notifier.state.hasBdfdCompileErrors, true);
     notifier.updateBdfdScriptContent(r'$unknown[$kickMention]');
     expect(notifier.state.hasBdfdCompileErrors, false);
-    notifier.updateBdfdBackend('legacy-v1');
-    expect(notifier.state.bdfdBackend, 'legacy-v1');
-    expect(notifier.state.bdfdCompileResult, isNotNull);
+    notifier.updateBdfdScriptContent(r'$kickMention');
+    expect(notifier.state.hasBdfdCompileErrors, true);
+    notifier.updateBdfdScriptContent(r'$sendMessage[x;yes]');
+    expect(notifier.state.hasBdfdCompileErrors, false);
   });
   testWidgets(
     'sandbox uses the editor backend and protects it from advanced fixtures',
