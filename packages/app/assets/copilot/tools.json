@@ -120,6 +120,37 @@
     "mutating": false
   },
   {
+    "name": "docs_plan",
+    "description": "Start here for any command request: returns the best functions with signatures, applicable gotchas and a ready skeleton in one call. Cheaper than searching.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "intent": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "bdfd",
+            "blocks"
+          ]
+        },
+        "budget": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20
+        }
+      },
+      "required": [
+        "intent"
+      ],
+      "additionalProperties": false
+    },
+    "mutating": false
+  },
+  {
     "name": "docs_manifest",
     "description": "Read the typed Blocks schema: mode 'blocks' lists action parameters (filter with category), mode 'types' lists the nested types (Embed, Component, Condition, Action…). Use before writing blocks JSON.",
     "inputSchema": {

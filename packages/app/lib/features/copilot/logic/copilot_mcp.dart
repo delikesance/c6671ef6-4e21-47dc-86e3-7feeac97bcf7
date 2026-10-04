@@ -176,6 +176,8 @@ class CopilotMcp {
         return _documentation('search_docs', args);
       case 'docs_get':
         return _documentation('get_doc', args);
+      case 'docs_plan':
+        return _documentation('plan_solution', args);
       case 'docs_manifest':
         return _documentation('get_schema_manifest', args);
       case 'docs_actions':
