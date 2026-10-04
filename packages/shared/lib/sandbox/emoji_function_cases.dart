@@ -64,11 +64,12 @@ const sandboxEmojiFunctionCases = [
   ),
   SandboxFunctionCase(
     'customemoji',
-    r'$customEmoji[((opts.name))]',
+    r'$customEmoji[$message[name]]',
     0,
     '<a:Dance:71>',
     label: 'dynamic name finds an animated emoji',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'name': 'Dance'},
       'entities': _emojiGuilds,
     },
@@ -107,11 +108,12 @@ const sandboxEmojiFunctionCases = [
   ),
   SandboxFunctionCase(
     'emojiname',
-    r'$emojiName[((opts.id))]',
+    r'$emojiName[$message[id]]',
     0,
     'Dance',
     label: 'dynamic emoji ID',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'id': '71'},
       'entities': _emojiGuilds,
     },
@@ -167,11 +169,12 @@ const sandboxEmojiFunctionCases = [
   ),
   SandboxFunctionCase(
     'emojicount',
-    r'$emojiCount[((opts.guild))]',
+    r'$emojiCount[$message[guild]]',
     0,
     '1',
     label: 'dynamic guild ID',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'guild': '11'},
       'entities': _emojiGuilds,
     },
@@ -194,11 +197,12 @@ const sandboxEmojiFunctionCases = [
   ),
   SandboxFunctionCase(
     'serveremojis',
-    r'$serverEmojis[((opts.guild));|]',
+    r'$serverEmojis[$message[guild];|]',
     0,
     '<:Other:72>',
     label: 'dynamic guild ID',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'guild': '11'},
       'entities': _emojiGuilds,
     },

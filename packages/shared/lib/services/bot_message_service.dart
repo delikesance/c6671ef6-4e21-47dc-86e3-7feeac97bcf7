@@ -4,6 +4,8 @@ import 'package:nyxx/nyxx.dart';
 
 import '../engine/execution_budget.dart';
 import '../utils/interaction_ack_state.dart';
+import '../actions/send_component_v2.dart';
+import '../types/component.dart';
 import 'respond_with_message.dart';
 import 'send_message.dart';
 
@@ -78,7 +80,25 @@ class DiscordBotMessageService implements BotMessageService {
     required Map<String, String> variables,
   }) => budget.run(() async {
     final Map<String, dynamic> result;
-    if (request.destination == BotMessageDestination.response) {
+    final componentJson = request.payload['components'];
+    final rich =
+        componentJson is Map &&
+        ComponentV2Definition.fromJson(
+          Map<String, dynamic>.from(componentJson),
+        ).isRichV2;
+    if (rich && request.destination == BotMessageDestination.response) {
+      // Components V2 messages cannot carry content or embeds.
+      result = await respondWithComponentV2Action(
+        interaction,
+        payload: request.payload,
+        resolve: (value) => value,
+        botId: botId,
+        client: client,
+        fallbackChannelId: channelId,
+        guildId: guildId,
+        variables: variables,
+      );
+    } else if (request.destination == BotMessageDestination.response) {
       result = await respondWithMessage(
         interaction,
         payload: request.payload,
@@ -93,6 +113,10 @@ class DiscordBotMessageService implements BotMessageService {
       if (client == null) throw StateError('A Discord client is required.');
       final target = request.payload['channelId']?.toString();
       final payload = Map<String, dynamic>.from(request.payload);
+      if (rich) {
+        payload['messageMode'] = 'componentV2';
+        payload['componentV2'] = componentJson;
+      }
       if (request.destination == BotMessageDestination.user) {
         payload['targetType'] = 'user';
       }

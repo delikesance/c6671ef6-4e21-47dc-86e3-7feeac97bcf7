@@ -8,11 +8,12 @@ const _failure = {
 final sandboxErrorFunctionCases = [
   SandboxFunctionCase(
     'log',
-    r'$log[((opts.message));info]done',
+    r'$log[$message[message];info]done',
     0,
     'done',
     label: 'captures the resolved log without Discord',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'message': 'Sandbox diagnostic'},
     },
     expectedValues: {

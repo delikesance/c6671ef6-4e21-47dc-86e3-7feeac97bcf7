@@ -65,11 +65,12 @@ final sandboxFlowFunctionCases = [
   ),
   SandboxFunctionCase(
     'wait',
-    r'$wait[((opts.delay))]done',
+    r'$wait[$message[delay]]done',
     0,
     'done',
     label: 'runtime duration',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'delay': '10ms'},
     },
   ),
@@ -84,11 +85,12 @@ final sandboxFlowFunctionCases = [
   ),
   SandboxFunctionCase(
     'skipactions',
-    r'$skipActions[((opts.count))]$setVar[skipped;bad]$setVar[kept;yes]done',
+    r'$skipActions[$message[count]]$setVar[skipped;bad]$setVar[kept;yes]done',
     0,
     'done',
     label: 'runtime count',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'count': 1},
     },
     expectedValues: {
