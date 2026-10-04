@@ -152,7 +152,7 @@ void main() {
             'i',
             then: [_role('a')],
             otherwise: [
-              Action(type: BotCreatorActionType.respondWithMessage, payload: {}),
+              Action(type: BotCreatorActionType.createPoll, payload: {}),
             ],
           ),
         ),
@@ -210,7 +210,7 @@ void main() {
             'i',
             extra: {'tryCatch': true},
             otherwise: [
-              Action(type: BotCreatorActionType.respondWithMessage, payload: {}),
+              Action(type: BotCreatorActionType.createPoll, payload: {}),
             ],
           ),
         ),
