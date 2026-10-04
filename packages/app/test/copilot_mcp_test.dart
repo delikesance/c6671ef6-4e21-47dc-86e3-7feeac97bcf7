@@ -6,7 +6,6 @@ import 'package:bot_creator/core/utils/hash_util.dart';
 import 'package:bot_creator/features/copilot/logic/copilot_command.dart';
 import 'package:bot_creator/features/copilot/logic/copilot_mcp.dart';
 import 'package:bot_creator/features/bot_editor/logic/normalize_command_data.dart';
-import 'package:bot_creator_shared/types/action.dart';
 import 'package:bot_creator_shared/sandbox/function_suite.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -263,19 +262,16 @@ $closeTicket''';
       expect(() => copilotExecutionData(invalid), throwsFormatException);
     },
   );
-  test('closed compiler creates real blocks and refuses unknown functions', () {
-    final actions = compileCopilotCommand('Hello world');
-    final types = BotCreatorActionType.values.map((t) => t.name).toSet();
-    expect(actions, isNotEmpty);
-    expect(actions.every((a) => types.contains(a['type'])), isTrue);
+  test('BDFD check refuses unknown functions and keeps native source', () {
+    expect(checkCopilotBdfd('Hello world').hasErrors, isFalse);
     expect(
-      () => compileCopilotCommand(r'$totallyInventedFunction[foo]'),
+      () => checkCopilotBdfd(r'$totallyInventedFunction[foo]'),
       throwsFormatException,
     );
-    expect(
-      () => compileCopilotCommand(r'$sendMessage['),
-      throwsFormatException,
-    );
+    expect(() => checkCopilotBdfd(r'$sendMessage['), throwsFormatException);
+    final data = copilotExecutionData('Hello');
+    expect(data['bdfdBackend'], 'native-v1');
+    expect(data['actions'], isEmpty);
   });
   test('saved BDFD stays source-only after command normalization', () {
     final command = normalizeCommandData({

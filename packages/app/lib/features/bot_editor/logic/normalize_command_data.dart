@@ -244,6 +244,7 @@ Map<String, dynamic> normalizeCommandData(Map<String, dynamic> command) {
     'editorMode': editorMode,
     'executionMode': executionMode,
     'bdfdScriptContent': bdfdScriptContent,
+    'bdfdBackend': 'native-v1',
     'jsScriptContent': jsScriptContent,
     'legacyModeEnabled': legacyModeEnabled,
     'legacyLocalOnly': legacyLocalOnly,

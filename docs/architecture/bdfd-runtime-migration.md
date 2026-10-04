@@ -6,12 +6,15 @@ des bibliothèques métier et des points d’entrée reste à terminer.
 
 ## Moteur dédié unique
 
-Le backend historique `BdfdCompiler` transforme le code en `List<Action>` avec
-`BdfdAstTranspiler`, puis utilise les exécuteurs de blocs. Il reste le défaut
-pendant la migration. Les commandes slash, commandes préfixées et événements
-peuvent maintenant sélectionner explicitement `native-v1`. Les blocs
-`runBdfdScript` et la sandbox peuvent également sélectionner le backend natif. Renommer ce compilateur ou ajouter un
-wrapper seul ne rendrait pas le BDFD indépendant.
+`native-v1` (`packages/shared/lib/engine/bdfd/`) est désormais le seul moteur
+BDFD. Le backend historique (`legacy-v1`), `BdfdAstTranspiler` et la compilation
+du code BDFD en `List<Action>` ont été supprimés. `BdfdCompiler` ne retourne plus
+que des diagnostics (lexer, parser, avertissements) pour l'éditeur et la
+validation. `data.bdfdBackend` vaut `native-v1` ; une valeur absente équivaut à
+`native-v1`, et les éditeurs l'écrivent toujours à l'enregistrement. Il n'existe
+aucune option `legacy-v1`. Les passages ci-dessous qui mentionnent le backend
+historique ou le transpiler décrivent l'état de la migration à l'époque et sont
+conservés comme journal.
 
 La cible est un interpréteur AST BDFD, avec une seule API d'exécution utilisée par
 ces points d'entrée. L'AST, les valeurs et le contrôle de flux ne doivent pas
