@@ -1,7 +1,7 @@
-import '../../../actions/executors/components_interactions_executor.dart';
+import 'component_logic.dart' show runComponentsBlock;
 import '../../../types/action.dart';
 import 'action_environment.dart';
-import 'variable_actions.dart' show variableAction;
+import 'autocomplete_logic.dart' show runAutocompleteBlock;
 
 /// Component V2, modal and autocomplete blocks on the native engine:
 /// respondWithComponentV2, sendComponentV2, editComponentV2, respondWithModal
@@ -11,7 +11,7 @@ import 'variable_actions.dart' show variableAction;
 /// (`ComponentV2Definition` / `buildComponentNodes` / `buildModalResponse`), the
 /// interaction responses, the acknowledgement bookkeeping and the registration
 /// of the modal-submit listener are the very implementations the historical loop
-/// runs (`executeComponentsInteractionsAction`, `executeVariablesAction`), over
+/// runs (`runComponentsBlock`, `runAutocompleteBlock`), over
 /// the shared services and the native result list, so effects, `results` keys,
 /// variables and error text are identical by construction.
 ///
@@ -43,7 +43,7 @@ const componentActionHandlers = <BotCreatorActionType, ActionHandler>{
 /// state. Shared with the listener family (`listener_actions.dart`).
 Future<String?> componentsInteractionsAction(ActionCall call) async {
   final env = call.env;
-  final handled = await executeComponentsInteractionsAction(
+  final handled = await runComponentsBlock(
     type: call.type,
     client: env.client,
     interaction: env.interaction,
@@ -67,7 +67,14 @@ Future<String?> componentsInteractionsAction(ActionCall call) async {
 /// `respondWithAutocomplete`: answers the autocomplete interaction and stops the
 /// list. The result list keeps `__stopped__ = AUTOCOMPLETE` (see `_markStopped`).
 Future<String?> autocompleteAction(ActionCall call) async {
-  await variableAction(call);
+  await runAutocompleteBlock(
+    interaction: call.env.interaction,
+    payload: call.payload,
+    resultKey: call.key,
+    results: call.sink.scope(call.path),
+    variables: call.env.variables,
+    resolveValue: call.resolve,
+  );
   if (call.sink.scope(call.path).containsKey('__stopped__')) {
     call.requestStop();
   }

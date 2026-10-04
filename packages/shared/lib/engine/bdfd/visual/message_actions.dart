@@ -1,10 +1,8 @@
 import 'package:nyxx/nyxx.dart' show NyxxGateway, Snowflake;
 
-import '../../../actions/executors/messaging_executor.dart'
-    show executeMessagingAction;
-import '../../../actions/executors/reactions_executor.dart'
-    show executeReactionsAction;
-import '../../../actions/message_block_actions.dart';
+import 'message_logic.dart' show runMessagingBlock;
+import 'reaction_logic.dart' show runReactionsBlock;
+import 'message_block_logic.dart';
 import '../../../types/action.dart';
 import '../../../utils/component_runtime.dart'
     show resolveComponentRuntimeFields;
@@ -17,8 +15,8 @@ import 'action_environment.dart';
 /// addReaction, removeReaction and clearAllReactions.
 ///
 /// Parity with the historical loop: the effect of every block is the very same
-/// function the historical executors call (`executeMessagingAction`,
-/// `executeReactionsAction`, [pinMessageBlock], [respondWithMessageBlock]...),
+/// function the historical executors delegate to (`runMessagingBlock`,
+/// `runReactionsBlock`, [pinMessageBlock], [respondWithMessageBlock]...),
 /// fed the same resolved values, so Discord calls, `results[key]`, the
 /// `variables` mirrors (`<key>.messageId`, `last.response.id`, `<key>.count`),
 /// canvas attachments, embeds/components payloads, allowed mentions and error
@@ -39,8 +37,7 @@ import 'action_environment.dart';
 /// `executeVisualWorkflow`, fed by `BdfdActionProgram.hasDefer`/`hasModal`/
 /// `ephemeralHint`.
 final Map<BotCreatorActionType, ActionHandler> messageActionHandlers = {
-  for (final type in _messagingTypes)
-    type: (call) => _messaging(call, type),
+  for (final type in _messagingTypes) type: (call) => _messaging(call, type),
   for (final type in _reactionTypes) type: (call) => _reaction(call, type),
   BotCreatorActionType.pinMessage: _pin,
   BotCreatorActionType.unpinMessage: _unpin,
@@ -132,7 +129,7 @@ Map<String, dynamic> visualMessagePayload(ActionCall call) {
 
 Future<String?> _messaging(ActionCall call, BotCreatorActionType type) async {
   final env = call.env;
-  final handled = await executeMessagingAction(
+  final handled = await runMessagingBlock(
     type: type,
     client: visualClient(call),
     interaction: env.interaction,
@@ -154,7 +151,7 @@ Future<String?> _messaging(ActionCall call, BotCreatorActionType type) async {
 
 Future<String?> _reaction(ActionCall call, BotCreatorActionType type) async {
   final env = call.env;
-  final handled = await executeReactionsAction(
+  final handled = await runReactionsBlock(
     type: type,
     client: visualClient(call),
     payload: visualMessagePayload(call),
