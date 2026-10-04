@@ -35,8 +35,8 @@ $reply$c[]Niveau $var[level] — $var[xp] / $var[required] XP
 const bdfdXpAddCommand = r"""
 $onlyIf[$guildID!=;Utilise cette commande dans un serveur.]
 $onlyAdmin[Cette commande est réservée aux administrateurs.]
-$var[target;((opts.membre.id))]
-$var[gain;((opts.montant))]
+$var[target;$message[membre]]
+$var[gain;$message[montant]]
 $onlyIf[$isInteger[$var[gain]]==true;Indique un montant d'XP entier valide.]
 $onlyIf[$var[gain]>=1;Indique un montant d'XP positif.]
 $var[level;$getGuildMemberVar[level;$var[target]]]
@@ -94,7 +94,7 @@ Map<String, dynamic> bdfdRuntimeReference({
   },
   'slash_commands': {
     'options':
-        r'Use ((opts.montant)) for a numeric option and ((opts.membre.id)) for a member ID. $args[index;optionName] also falls back to a named option; positional $args alone is empty in a slash invocation.',
+        r'In a slash invocation read options by name with $message[optionName], e.g. $message[montant] for a numeric option and $message[membre] for a member ID. Positional $args alone is empty in a slash invocation.',
     'response':
         r'$reply$c[] responds to the interaction. $var values and explicit scoped getters can be used directly in the response or when constructing another temporary variable, including inside parentheses.',
     'permissions':
