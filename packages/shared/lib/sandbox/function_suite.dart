@@ -100,9 +100,13 @@ Map<String, dynamic> evaluateSandboxContract(
     });
   }
   for (final entry in expectedValues.entries) {
+    // A JSON pointer starts with '/'. Models often drop it: accept both instead of failing silently.
+    final path = entry.key.startsWith('/') ? entry.key : '/${entry.key}';
     dynamic value = result;
-    var found = entry.key.startsWith('/');
-    for (final token in entry.key.split('/').skip(1)) {
+    var found = true;
+    String? hint;
+    final walked = StringBuffer();
+    for (final token in path.split('/').skip(1)) {
       final key = token.replaceAll('~1', '/').replaceAll('~0', '~');
       if (value is Map && value.containsKey(key)) {
         value = value[key];
@@ -110,20 +114,30 @@ Map<String, dynamic> evaluateSandboxContract(
         final index = int.tryParse(key);
         if (index == null || index < 0 || index >= value.length) {
           found = false;
+          hint =
+              "'$key' is not an index of the list at "
+              "${walked.isEmpty ? '/' : walked} (length ${value.length})";
           break;
         }
         value = value[index];
       } else {
         found = false;
+        hint = value is Map
+            ? "no '$key' under ${walked.isEmpty ? '/' : walked}; "
+                  'available: ${_availableKeys(value)}'
+            : "'$key' cannot be read: ${walked.isEmpty ? '/' : walked} "
+                  'is not an object or a list';
         break;
       }
+      walked.write('/$token');
     }
     checks.add({
-      'path': entry.key,
+      'path': path,
       'expected': entry.value,
       'actual': found ? value : null,
       'found': found,
       'passed': found && _sameJsonValue(value, entry.value),
+      'hint': ?hint,
     });
   }
   return {
@@ -136,6 +150,13 @@ Map<String, dynamic> evaluateSandboxContract(
         checks.isNotEmpty &&
         checks.every((check) => check['passed'] == true),
   };
+}
+
+String _availableKeys(Map value) {
+  final keys = value.keys.map((key) => key.toString()).toList()..sort();
+  return keys.length <= 12
+      ? keys.join(', ')
+      : '${keys.take(12).join(', ')}, … (${keys.length} keys)';
 }
 
 bool _sameJsonValue(dynamic left, dynamic right) {

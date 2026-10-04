@@ -50,7 +50,7 @@
         },
         "expected_values": {
           "type": "object",
-          "description": "Optional expected result values keyed by JSON pointer, e.g. {\"/responses/0/payload/embeds/0/title\":\"Score\"}. Missing fields and incorrect values fail the contract even when execution succeeds."
+          "description": "Optional expected result values keyed by JSON pointer into the returned result, e.g. {\"/responses/0/payload/embeds/0/title\":\"Score\"} (embeds is a list; the leading slash is optional). Missing fields and incorrect values fail the contract even when execution succeeds; a missing path comes back with a hint listing the keys that exist."
         },
         "bot_id": {
           "type": "string",

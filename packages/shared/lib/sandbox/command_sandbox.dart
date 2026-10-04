@@ -246,6 +246,17 @@ Future<Map<String, dynamic>> _run(Map<String, dynamic> input) async {
         if (v['id'] != null) {
           variables['$k.id'] = v['id'].toString();
         }
+        // `context.author` must mean the same as `context.userId`: the invoking user, whatever
+        // the script reads ($authorID, $userID or the member).
+        if (k == 'author') {
+          if (v['id'] != null) {
+            variables['user.id'] = v['id'].toString();
+            variables['member.id'] = v['id'].toString();
+          }
+          if (v['username'] != null) {
+            variables['user.username'] = v['username'].toString();
+          }
+        }
       } else if (v is List) {
         if (k == 'permissions' || k == 'member.permissions') {
           variables['member.permissions'] = v
