@@ -1,13 +1,10 @@
 import 'package:nyxx/nyxx.dart';
 
-import '../actions/channel_permissions.dart' show deleteChannelPermissionAction;
-import '../actions/register_guild_commands.dart';
-import '../actions/thread_management.dart';
-import '../actions/unregister_guild_commands.dart';
-import '../actions/update_guild.dart' show updateGuildAction;
-import '../actions/update_self_user.dart';
 import '../bot/bot_data_store.dart';
+import 'bot_block_discord_actions.dart';
+import 'bot_guild_admin_service.dart';
 import 'permission_checks.dart';
+import 'send_message.dart' show sendMessageToChannel;
 
 /// Operations of visual blocks whose payload is wider than any BDFD function
 /// (thread type/slowmode/reason, a command-name filter, the avatar of the bot,
@@ -60,6 +57,20 @@ abstract interface class BotBlockActionService {
     Snowflake? fallbackChannelId,
     required String Function(String) resolve,
   });
+
+  /// Creates the private ticket channel (`{'channelId','ownerId'}` or
+  /// `{'error'}`); the store marker and welcome message are the caller's.
+  Future<Map<String, String>> createTicketChannel(
+    Snowflake guildId,
+    Map<String, dynamic> payload, {
+    required String Function(String) resolve,
+  });
+
+  /// Sends the ticket welcome message to the new channel (`{'error'}` on failure).
+  Future<Map<String, String>> sendTicketWelcome(
+    Snowflake channelId,
+    String content,
+  );
 }
 
 /// Discord adapter. The effects are the historical action functions, so the
@@ -119,8 +130,7 @@ class DiscordBotBlockActionService implements BotBlockActionService {
   Future<Map<String, String>> leaveGuild(
     Snowflake? guildId, {
     required String Function(String) resolve,
-  }) => updateGuildAction(
-    client,
+  }) => DiscordBotGuildAdminService(client).updateGuild(
     guildId: guildId,
     payload: const <String, dynamic>{'leave': true},
     resolve: resolve,
@@ -167,4 +177,22 @@ class DiscordBotBlockActionService implements BotBlockActionService {
     fallbackChannelId: fallbackChannelId,
     resolve: resolve,
   );
+
+  @override
+  Future<Map<String, String>> createTicketChannel(
+    Snowflake guildId,
+    Map<String, dynamic> payload, {
+    required String Function(String) resolve,
+  }) => createTicketChannelAction(
+    client,
+    guildId: guildId,
+    payload: payload,
+    resolve: resolve,
+  );
+
+  @override
+  Future<Map<String, String>> sendTicketWelcome(
+    Snowflake channelId,
+    String content,
+  ) => sendMessageToChannel(client, channelId, content: content);
 }

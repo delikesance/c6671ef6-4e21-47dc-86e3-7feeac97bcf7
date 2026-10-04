@@ -4,7 +4,7 @@ import 'package:bot_creator_shared/engine/bdfd/runtime.dart';
 import 'package:bot_creator_shared/engine/execution_budget.dart';
 import 'package:bot_creator_shared/services/bot_channel_permission_service.dart';
 import 'package:bot_creator_shared/services/bot_moderation_service.dart';
-import 'package:bot_creator_shared/actions/channel_permissions.dart';
+import 'package:bot_creator_shared/services/bot_channel_blocks.dart';
 import 'package:bot_creator_shared/sandbox/entity_fixture_gateway.dart';
 import 'package:bot_creator_shared/sandbox/command_sandbox.dart';
 import 'package:nyxx/nyxx.dart';

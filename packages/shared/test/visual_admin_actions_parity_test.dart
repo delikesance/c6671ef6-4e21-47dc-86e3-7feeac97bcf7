@@ -4,6 +4,7 @@ import 'package:nyxx/nyxx.dart';
 import 'package:test/test.dart';
 
 import 'helpers/visual_admin_gateway.dart';
+import 'helpers/visual_golden.dart';
 import 'helpers/visual_parity_harness.dart';
 
 /// Parity of the poll / voice moderation / AutoMod / guild settings /
@@ -23,15 +24,20 @@ Future<_Out> _parity(
   Map<String, String>? variables,
   bool guild = true,
   Snowflake? fallbackChannelId,
-}) => visualParity<AdminGateway>(
-  actions,
-  makeGateway: () => AdminGateway(permissions: permissions),
-  effects: (g) => g.writes,
-  setup: setup,
-  variables: variables,
-  guild: guild,
-  fallbackChannelId: fallbackChannelId,
-);
+}) async {
+  final outcome = await visualParity<AdminGateway>(
+    actions,
+    makeGateway: () => AdminGateway(permissions: permissions),
+    effects: (g) => g.writes,
+    setup: setup,
+    variables: variables,
+    guild: guild,
+    fallbackChannelId: fallbackChannelId,
+    compareHistorical: parityWithHistorical,
+  );
+  _golden.expectOutcome(outcome);
+  return outcome;
+}
 
 Action _a(
   BotCreatorActionType type,
@@ -81,6 +87,8 @@ Future<void> _commonBehaviour(
   // Switch-handled historically: no "last message" bookkeeping.
   expect(outcome.variables.containsKey('lastSentMessageId'), isFalse);
 }
+
+final _golden = GoldenFile('visual_admin_actions');
 
 void main() {
   group('createPoll parity', () {

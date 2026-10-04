@@ -1,5 +1,4 @@
-import 'package:bot_creator_shared/actions/add_role.dart';
-import 'package:bot_creator_shared/actions/remove_role.dart';
+import 'package:bot_creator_shared/services/bot_moderation_blocks.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:test/test.dart';
 

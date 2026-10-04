@@ -1,16 +1,19 @@
 import 'package:nyxx/nyxx.dart' show Permissions, Snowflake;
 
-import '../../../actions/channel_permissions.dart'
-    show editChannelPermissionsActionWith;
-import '../../../actions/create_channel.dart' show createChannelActionWith;
-import '../../../actions/remove_channel.dart' show removeChannelWith;
-import '../../../actions/slowmode.dart' show slowmodeActionWith;
-import '../../../actions/update_channel.dart' show updateChannelActionWith;
+import '../../../services/bot_channel_blocks.dart'
+    show
+        createChannelActionWith,
+        editChannelPermissionsActionWith,
+        removeChannelWith,
+        slowmodeActionWith,
+        updateChannelActionWith;
+import '../../../bot/bot_data_store.dart';
 import '../../../services/bot_channel_mutation_service.dart';
 import '../../../services/bot_channel_permission_service.dart';
 import '../../../services/bot_channel_query_service.dart';
 import '../../../types/action.dart';
 import 'action_environment.dart';
+import 'message_actions.dart' show visualRespondWithMessage;
 
 /// Channel blocks on the native engine: createChannel, updateChannel,
 /// removeChannel, slowmode, editChannelPermissions and deleteChannelPermission.
@@ -21,10 +24,9 @@ import 'action_environment.dart';
 /// topic, nsfw, slowmode, reason, archive options... reach the service exactly
 /// as before, without changing any BDFD function signature.
 ///
-/// Not handled here (they stay on the historical executor): `createChannel`
-/// with `isTicket` (creates the ticket marker in the store and sends the
-/// welcome message) and `removeChannel` with `ticketClose` (ownership check and
-/// marker removal).
+/// Tickets are `createChannel` with `isTicket` (private channel, store markers
+/// `__ticket` / `__ticket_owner`, optional welcome message) and `removeChannel`
+/// with `ticketClose` (marker and creator-or-staff check, then marker removal).
 final Map<BotCreatorActionType, ActionHandler> channelActionHandlers = {
   BotCreatorActionType.createChannel: _createChannel,
   BotCreatorActionType.updateChannel: _updateChannel,
@@ -35,13 +37,11 @@ final Map<BotCreatorActionType, ActionHandler> channelActionHandlers = {
 };
 
 bool _always(Action action) => true;
-bool _notTicket(Action action) => action.payload['isTicket'] != true;
-bool _notTicketClose(Action action) => action.payload['ticketClose'] != true;
 
 const Map<BotCreatorActionType, bool Function(Action)> channelLeafPredicates = {
-  BotCreatorActionType.createChannel: _notTicket,
+  BotCreatorActionType.createChannel: _always,
   BotCreatorActionType.updateChannel: _always,
-  BotCreatorActionType.removeChannel: _notTicketClose,
+  BotCreatorActionType.removeChannel: _always,
   BotCreatorActionType.slowmode: _always,
   BotCreatorActionType.editChannelPermissions: _always,
   BotCreatorActionType.deleteChannelPermission: _always,
@@ -74,6 +74,7 @@ Snowflake? _toSnowflake(String value) {
 }
 
 Future<String?> _createChannel(ActionCall call) async {
+  if (call.payload['isTicket'] == true) return _createTicket(call);
   final guild = call.env.guildSnowflake;
   if (guild == null) throw Exception('This action requires a guild context');
   final result = await createChannelActionWith(
@@ -113,6 +114,116 @@ Future<String?> _slowmode(ActionCall call) async {
 }
 
 Future<String?> _removeChannel(ActionCall call) async {
+  if (call.payload['ticketClose'] != true) return _removeChannelCore(call);
+  return _closeTicket(call);
+}
+
+BotDataStore _ticketStore(ActionCall call) {
+  final store = call.env.store;
+  if (store == null) {
+    throw StateError('A data store is required for tickets.');
+  }
+  return store;
+}
+
+Future<String?> _createTicket(ActionCall call) async {
+  final guild = call.env.guildSnowflake;
+  if (guild == null) throw StateError('Tickets require a server');
+  final blocks = call.env.blockActions;
+  if (blocks == null) {
+    throw StateError('A block action service is required for tickets.');
+  }
+  final ticket = await blocks.createTicketChannel(
+    guild,
+    call.payload,
+    resolve: call.resolve,
+  );
+  if (ticket['error'] != null) throw StateError(ticket['error']!);
+  final ticketId = ticket['channelId']!;
+  final store = _ticketStore(call);
+  await store.setScopedVariable(
+    call.env.botId,
+    'channel',
+    ticketId,
+    '__ticket',
+    true,
+  );
+  await store.setScopedVariable(
+    call.env.botId,
+    'channel',
+    ticketId,
+    '__ticket_owner',
+    ticket['ownerId'],
+  );
+  final welcome = call.resolve(
+    (call.payload['welcomeMessage'] ?? '').toString(),
+  );
+  if (welcome.isNotEmpty) {
+    final sent = await blocks.sendTicketWelcome(
+      Snowflake.parse(ticketId),
+      welcome,
+    );
+    if (sent['error'] != null) {
+      call.env.onLog?.call('Ticket welcome: ${sent['error']}');
+    }
+  }
+  return ticketId;
+}
+
+Future<String?> _closeTicket(ActionCall call) async {
+  final env = call.env;
+  final store = _ticketStore(call);
+  final ticketId = call.resolve((call.payload['channelId'] ?? '').toString());
+  final marker = await store.getScopedVariable(
+    env.botId,
+    'channel',
+    ticketId,
+    '__ticket',
+  );
+  if (marker != true && marker?.toString() != 'true') {
+    final message = call.resolve(
+      (call.payload['errorMessage'] ?? '').toString(),
+    );
+    if (message.isNotEmpty) {
+      await visualRespondWithMessage(
+        env,
+        call.context,
+        path: call.path,
+        payload: {'content': message},
+      );
+      return '';
+    }
+    throw StateError('This channel is not a ticket');
+  }
+  final owner = await store.getScopedVariable(
+    env.botId,
+    'channel',
+    ticketId,
+    '__ticket_owner',
+  );
+  final variables = env.variables;
+  final actorId = variables['author.id'] ?? variables['user.id'] ?? '';
+  final perms = (variables['member.permissions'] ?? '').toLowerCase();
+  if (actorId != owner?.toString() &&
+      actorId != variables['guild.ownerId'] &&
+      variables['member.isAdmin'] != 'true' &&
+      !perms.contains('managechannels') &&
+      !perms.contains('administrator')) {
+    throw StateError('Only the ticket creator or staff can close it');
+  }
+  final result = await _removeChannelCore(call);
+  await store.removeScopedVariable(env.botId, 'channel', ticketId, '__ticket');
+  await store.removeScopedVariable(
+    env.botId,
+    'channel',
+    ticketId,
+    '__ticket_owner',
+  );
+  variables['channel.isTicket'] = 'false';
+  return result;
+}
+
+Future<String?> _removeChannelCore(ActionCall call) async {
   final mutations = _service<BotChannelMutationService>(call);
   final rawIds = call.payload['channelIds'];
   final rawNames = call.payload['channelNames'];

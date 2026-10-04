@@ -10,9 +10,11 @@ import 'bot_channel_query_service.dart';
 import 'package:nyxx/nyxx.dart';
 
 import '../actions/delete_message.dart';
-import '../actions/register_guild_commands.dart';
-import '../actions/set_nickname.dart';
-import '../actions/unregister_guild_commands.dart';
+import 'bot_block_discord_actions.dart'
+    show
+        registerGuildCommandsAction,
+        setNicknameAction,
+        unregisterGuildCommandsAction;
 import '../bot/bot_data_store.dart';
 
 import '../engine/execution_budget.dart';

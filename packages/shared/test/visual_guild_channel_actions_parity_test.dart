@@ -3,6 +3,8 @@ import 'package:nyxx/nyxx.dart';
 import 'package:test/test.dart';
 
 import 'helpers/visual_discord_gateway.dart';
+import 'helpers/variables_test_helpers.dart' show MemoryBotDataStore;
+import 'helpers/visual_golden.dart';
 import 'helpers/visual_parity_harness.dart';
 
 /// Parity of the thread / guild / bot-profile / channel blocks between the
@@ -41,30 +43,76 @@ Future<_Out> _parity(
   Snowflake? fallbackChannelId,
   bool expectNative = true,
   int? nativePrograms,
-}) => visualParity<VisualGateway>(
-  actions,
-  makeGateway: () =>
-      VisualGateway(data: visualFixtures(permissions: permissions)),
-  effects: (g) => g.writes,
-  setup: (g) {
-    g.channelManager.threads[Snowflake(80)] = VisualThread(
-      Snowflake(80),
-      'old',
-      gateway: g,
-    );
-    g.commandRows.addAll([VisualCommand(Snowflake(1), 'alpha')]);
-    g.commandRows.add(VisualCommand(Snowflake(2), 'beta'));
-    setup?.call(g);
-  },
-  variables: variables,
-  guild: guild,
-  throwOnError: throwOnError,
-  limit: limit,
-  fallbackChannelId: fallbackChannelId,
-  makeStore: () => CommandStore(_commands),
-  expectNative: expectNative,
-  nativePrograms: nativePrograms,
-);
+}) async {
+  final outcome = await visualParity<VisualGateway>(
+    actions,
+    makeGateway: () =>
+        VisualGateway(data: visualFixtures(permissions: permissions)),
+    effects: (g) => g.writes,
+    setup: (g) {
+      g.channelManager.threads[Snowflake(80)] = VisualThread(
+        Snowflake(80),
+        'old',
+        gateway: g,
+      );
+      g.commandRows.addAll([VisualCommand(Snowflake(1), 'alpha')]);
+      g.commandRows.add(VisualCommand(Snowflake(2), 'beta'));
+      setup?.call(g);
+    },
+    variables: variables,
+    guild: guild,
+    throwOnError: throwOnError,
+    limit: limit,
+    fallbackChannelId: fallbackChannelId,
+    makeStore: () => CommandStore(_commands),
+    expectNative: expectNative,
+    nativePrograms: nativePrograms,
+    compareHistorical: parityWithHistorical,
+  );
+  _golden.expectOutcome(outcome);
+  return outcome;
+}
+
+/// A store whose channel `30` is (or is not) a ticket of owner `20`.
+class _TicketStore extends MemoryBotDataStore {
+  _TicketStore({bool ticket = false})
+    : super(
+        scopedVariables: {
+          'channel': {
+            if (ticket) '30': {'__ticket': true, '__ticket_owner': '20'},
+          },
+        },
+      );
+}
+
+/// Parity over fresh [_TicketStore]s; [stores] collects them (the first is the
+/// native run's).
+Future<_Out> _parityWithStore(
+  List<Action> actions, {
+  bool ticket = false,
+  Map<String, String>? variables,
+  List<_TicketStore>? stores,
+  bool createsOnGuild = false,
+  Snowflake? fallbackChannelId,
+}) async {
+  final outcome = await visualParity<VisualGateway>(
+    actions,
+    makeGateway: () =>
+        VisualGateway(data: visualFixtures())
+          ..createChannelOnGuild = createsOnGuild,
+    fallbackChannelId: fallbackChannelId,
+    effects: (g) => g.writes,
+    variables: variables,
+    makeStore: () {
+      final store = _TicketStore(ticket: ticket);
+      stores?.add(store);
+      return store;
+    },
+    compareHistorical: parityWithHistorical,
+  );
+  _golden.expectOutcome(outcome);
+  return outcome;
+}
 
 Action _a(
   BotCreatorActionType type,
@@ -79,6 +127,8 @@ Action _a(
   error: error,
   enabled: enabled,
 );
+
+final _golden = GoldenFile('visual_guild_channel_actions');
 
 void main() {
   group('createThread parity', () {
@@ -498,10 +548,61 @@ void main() {
       expect(outcome.error.toString(), contains('refused'));
     });
 
-    test('a ticket channel stays on the historical executor', () async {
-      await _parity([
-        _a(type, {'name': 'ticket', 'isTicket': true}),
-      ], expectNative: false);
+    group('ticket', () {
+      final payload = {
+        'name': ' ticket-1 ',
+        'isTicket': true,
+        'categoryId': '31',
+        'ownerId': '20',
+      };
+
+      test('creates a private channel and marks it in the store', () async {
+        final stores = <_TicketStore>[];
+        final outcome = await _parityWithStore(
+          [_a(type, payload, key: 'tk')],
+          stores: stores,
+          createsOnGuild: true,
+        );
+        final store = stores.first;
+        expect(outcome.error, isNull);
+        expect(outcome.results, {'tk': '800'});
+        final write = outcome.gateway.writes.single;
+        expect(write['operation'], 'createChannel');
+        final overwrites = (write['payload'] as Map)['permission_overwrites'];
+        expect(overwrites, hasLength(2));
+        expect(
+          await store.getScopedVariable('bot', 'channel', '800', '__ticket'),
+          true,
+        );
+        expect(
+          await store.getScopedVariable(
+            'bot',
+            'channel',
+            '800',
+            '__ticket_owner',
+          ),
+          '20',
+        );
+      });
+
+      test('reports its failures', () async {
+        var outcome = await _parity([_a(type, payload)], guild: false);
+        expect(outcome.error.toString(), contains('Tickets require a server'));
+        outcome = await _parity([
+          _a(type, {'name': 'x', 'isTicket': true}),
+        ]);
+        expect(
+          outcome.error.toString(),
+          contains('Ticket requires category ID, creator ID and name'),
+        );
+        outcome = await _parity([
+          _a(type, {...payload, 'categoryId': '30'}),
+        ]);
+        expect(
+          outcome.error.toString(),
+          contains('Ticket category not found in this server'),
+        );
+      });
     });
   });
 
@@ -654,10 +755,77 @@ void main() {
       expect(outcome.error, isA<Exception>());
     });
 
-    test('a ticket close stays on the historical executor', () async {
-      await _parity([
-        _a(type, {'channelId': '30', 'ticketClose': true}),
-      ], expectNative: false);
+    group('ticket close', () {
+      test('the creator closes it and the markers go away', () async {
+        final stores = <_TicketStore>[];
+        final outcome = await _parityWithStore(
+          [
+            _a(type, {'channelId': '30', 'ticketClose': true}, key: 'c'),
+          ],
+          ticket: true,
+          stores: stores,
+          variables: {'author.id': '20', 'channel.isTicket': 'true'},
+        );
+        final store = stores.first;
+        expect(outcome.error, isNull);
+        expect(outcome.results, {'c': '30'});
+        expect(outcome.gateway.writes.single['operation'], 'deleteChannel');
+        expect(outcome.variables['channel.isTicket'], 'false');
+        expect(
+          await store.getScopedVariable('bot', 'channel', '30', '__ticket'),
+          isNull,
+        );
+      });
+
+      test('a stranger cannot close it', () async {
+        final outcome = await _parityWithStore(
+          [
+            _a(type, {'channelId': '30', 'ticketClose': true}),
+          ],
+          ticket: true,
+          variables: {'author.id': '77'},
+        );
+        expect(
+          outcome.error.toString(),
+          'Bad state: Only the ticket creator or staff can close it',
+        );
+        expect(outcome.gateway.writes, isEmpty);
+      });
+
+      test('staff can close it', () async {
+        final outcome = await _parityWithStore(
+          [
+            _a(type, {'channelId': '30', 'ticketClose': true}),
+          ],
+          ticket: true,
+          variables: {
+            'author.id': '77',
+            'member.permissions': 'ManageChannels',
+          },
+        );
+        expect(outcome.error, isNull);
+      });
+
+      test('a channel that is not a ticket fails or answers', () async {
+        var outcome = await _parityWithStore([
+          _a(type, {'channelId': '30', 'ticketClose': true}),
+        ]);
+        expect(
+          outcome.error.toString(),
+          'Bad state: This channel is not a ticket',
+        );
+        outcome = await _parityWithStore([
+          _a(type, {
+            'channelId': '30',
+            'ticketClose': true,
+            'errorMessage': 'Not a ticket',
+          }, key: 'c'),
+        ], fallbackChannelId: Snowflake(30));
+        // The answer is attempted (this gateway cannot send messages) and the
+        // channel is not deleted.
+        expect(outcome.error.toString(), contains('Failed to send message'));
+        expect(outcome.gateway.writes, isEmpty);
+      });
     });
   });
 
@@ -922,7 +1090,9 @@ void main() {
         makeGateway: () => VisualGateway(),
         effects: (g) => g.writes,
         policy: NoHydrationPolicy(),
+        compareHistorical: parityWithHistorical,
       );
+      _golden.expectOutcome(outcome);
       expect(outcome.error, isNull);
     });
   });

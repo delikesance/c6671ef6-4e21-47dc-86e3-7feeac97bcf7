@@ -3,6 +3,7 @@ import 'package:nyxx/nyxx.dart';
 import 'package:test/test.dart';
 
 import 'helpers/fake_role_gateway.dart';
+import 'helpers/visual_golden.dart';
 import 'helpers/visual_parity_harness.dart';
 
 /// Role definitions (`createNew`, `modify`, `updateColor`, `modifyPermissions`,
@@ -22,20 +23,27 @@ Future<Outcome<FakeGateway>> _parity(
   void Function(FakeGateway gateway)? setup,
   bool guild = true,
   Map<String, String>? variables,
-}) => visualParity<FakeGateway>(
-  actions,
-  makeGateway: _gateway,
-  effects: _effects,
-  setup: setup,
-  guild: guild,
-  variables: variables,
-);
+}) async {
+  final outcome = await visualParity<FakeGateway>(
+    actions,
+    makeGateway: _gateway,
+    effects: _effects,
+    setup: setup,
+    guild: guild,
+    variables: variables,
+    compareHistorical: parityWithHistorical,
+  );
+  _golden.expectOutcome(outcome);
+  return outcome;
+}
 
 Action _def(
   BotCreatorActionType type,
   Map<String, dynamic> payload, {
   String? key,
 }) => visualAction(type, key: key, payload: payload);
+
+final _golden = GoldenFile('visual_role_definition');
 
 void main() {
   const add = BotCreatorActionType.addRole;
