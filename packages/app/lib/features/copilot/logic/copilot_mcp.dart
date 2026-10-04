@@ -176,6 +176,12 @@ class CopilotMcp {
         return _documentation('search_docs', args);
       case 'docs_get':
         return _documentation('get_doc', args);
+      case 'docs_manifest':
+        return _documentation('get_schema_manifest', args);
+      case 'docs_actions':
+        return _documentation('list_actions', args);
+      case 'docs_validate_actions':
+        return _documentation('validate_actions', args);
       case 'remote_list_bots':
         value = (await api.listBots())
             .where((b) => botId == null || b['bot_id'] == botId)

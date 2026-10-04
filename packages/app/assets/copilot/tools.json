@@ -120,6 +120,79 @@
     "mutating": false
   },
   {
+    "name": "docs_manifest",
+    "description": "Read the typed Blocks schema: mode 'blocks' lists action parameters (filter with category), mode 'types' lists the nested types (Embed, Component, Condition, Action…). Use before writing blocks JSON.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "blocks",
+            "types",
+            "bdfd",
+            "javascript"
+          ]
+        },
+        "category": {
+          "type": "string",
+          "maxLength": 100
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "mutating": false
+  },
+  {
+    "name": "docs_actions",
+    "description": "List the native block action names with their category and a one-line description.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string",
+          "maxLength": 100
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "mutating": false
+  },
+  {
+    "name": "docs_validate_actions",
+    "description": "Validate a blocks action list against the official schema. Call it on generated blocks and fix every reported error before proposing them.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "actions": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "payload": {
+                "type": "object"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          }
+        }
+      },
+      "required": [
+        "actions"
+      ],
+      "additionalProperties": false
+    },
+    "mutating": false
+  },
+  {
     "name": "remote_list_bots",
     "description": "List the account's cloud bots.",
     "inputSchema": {
