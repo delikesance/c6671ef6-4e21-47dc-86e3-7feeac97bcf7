@@ -13,6 +13,7 @@ import 'component_actions.dart';
 import 'control_flow_actions.dart';
 import 'emoji_actions.dart';
 import 'guild_actions.dart';
+import 'image_actions.dart';
 import 'invite_actions.dart';
 import 'listener_actions.dart';
 import 'member_actions.dart';
@@ -53,6 +54,7 @@ final Map<BotCreatorActionType, ActionHandler> bdfdVisualActionHandlers =
       ...memberActionHandlers,
       ...inviteActionHandlers,
       ...musicActionHandlers,
+      ...imageActionHandlers,
     });
 
 /// Native types whose historical counterpart records its trace only while a
