@@ -44,4 +44,38 @@ void main() {
     await tester.tap(find.byTooltip("Ouvrir dans l'éditeur"));
     expect(opened, 1);
   });
+
+  test(
+    'creation and execution updates preview their script, workflows do not',
+    () {
+      expect(
+        copilotActionHasCode('local_create_command', r'$ping', 'bdfd_script'),
+        isTrue,
+      );
+      expect(
+        copilotActionHasCode(
+          'local_update_command_execution',
+          'x',
+          'javascript',
+        ),
+        isTrue,
+      );
+      expect(
+        copilotActionHasCode('local_create_command', '', 'bdfd_script'),
+        isFalse,
+      );
+      expect(
+        copilotActionHasCode('local_create_command', r'$ping', 'workflow'),
+        isFalse,
+      );
+      expect(
+        copilotActionHasCode(
+          'local_update_command_settings',
+          'x',
+          'bdfd_script',
+        ),
+        isFalse,
+      );
+    },
+  );
 }

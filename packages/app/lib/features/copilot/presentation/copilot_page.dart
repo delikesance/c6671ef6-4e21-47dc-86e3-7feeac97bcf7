@@ -1425,12 +1425,16 @@ class _CopilotPageState extends State<CopilotPage> {
                           if (_wallet != null && !_wide) _walletStrip(),
                           if (_summarizing)
                             Padding(
-                              padding: const EdgeInsets.all(12),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
                               child: Text(
                                 _copy(
-                                  'Résumé automatique du contexte… Les messages restent disponibles.',
-                                  'Automatically summarizing context… Messages stay available.',
+                                  'Optimisation du contexte…',
+                                  'Optimizing context…',
                                 ),
+                                style: Theme.of(context).textTheme.bodySmall,
                               ),
                             ),
                           if (_error != null)
@@ -1485,18 +1489,6 @@ class _CopilotPageState extends State<CopilotPage> {
                               ),
                             ),
                           if (_chat == null) _welcome(),
-                          if ((_chat?['context_summary'] as String? ?? '')
-                              .isNotEmpty)
-                            ExpansionTile(
-                              title: Text(
-                                _copy('Contexte résumé', 'Summarized context'),
-                              ),
-                              children: [
-                                SelectableText(
-                                  _chat!['context_summary'] as String,
-                                ),
-                              ],
-                            ),
                           ..._conversationItems(),
                         ],
                       ),
@@ -2282,11 +2274,7 @@ class _CopilotPageState extends State<CopilotPage> {
     final args = _callArgs(a);
     final mode = args?['execution_mode'] as String? ?? 'bdfd_script';
     final script = args?['script'];
-    final hasCode =
-        name == 'local_update_command_execution' &&
-        script is String &&
-        script.isNotEmpty &&
-        mode != 'workflow';
+    final hasCode = copilotActionHasCode(name, script, mode);
     if (hasCode) _loadBefore(a, args!);
     final commandName = args?['name'] ?? args?['command_name'];
     final waiting = state == 'pending' && _mutating(a);
