@@ -1,0 +1,1152 @@
+{
+ "editMessage parity delayed edit is scheduled #0": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "e": "scheduled"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "action.e.status": "scheduled"
+  },
+  "error": null
+ },
+ "editMessage parity edits content, embeds and components #0": {
+  "writes": [
+   {
+    "operation": "edit",
+    "channel": "30",
+    "message": "41",
+    "payload": {
+     "content": "edited Ana"
+    }
+   },
+   {
+    "operation": "edit",
+    "channel": "30",
+    "message": "41",
+    "payload": {
+     "embeds": [
+      {
+       "title": "Hello Ana",
+       "description": "Body",
+       "color": 16711680,
+       "footer": {
+        "text": "foot"
+       },
+       "fields": [
+        {
+         "name": "a",
+         "value": "Ana",
+         "inline": true
+        }
+       ]
+      }
+     ],
+     "components": [
+      {
+       "type": 1,
+       "id": null,
+       "components": [
+        {
+         "type": 2,
+         "id": null,
+         "style": 1,
+         "label": "Go",
+         "custom_id": "go"
+        }
+       ]
+      }
+     ],
+     "flags": 32768
+    }
+   },
+   {
+    "operation": "edit",
+    "channel": "30",
+    "message": "41",
+    "payload": {
+     "embeds": [],
+     "components": []
+    }
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "a": "41",
+   "b": "41",
+   "c": "41"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "name": "Ana",
+   "lastSentMessageId": "41",
+   "lastMessageId": "41"
+  },
+  "error": null
+ },
+ "editMessage parity errors #0": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Missing channelId/messageId",
+   "error.command": "editMessage",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing channelId/messageId"
+ },
+ "editMessage parity errors #1": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Channel is not a text channel",
+   "error.command": "editMessage",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Channel is not a text channel"
+ },
+ "editMessage parity errors #2": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to edit message: Bad state: Unknown message 999",
+   "error.command": "editMessage",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to edit message: Bad state: Unknown message 999"
+ },
+ "editMessage parity errors #3": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Delayed edit duration must be between 1ms and 120m",
+   "error.command": "editMessage",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Delayed edit duration must be between 1ms and 120m"
+ },
+ "editMessage parity errors #4": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Delayed edit requires a bot response message ID",
+   "error.command": "editMessage",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Delayed edit requires a bot response message ID"
+ },
+ "editMessage parity message id from an earlier result #0": {
+  "writes": [
+   {
+    "operation": "send",
+    "channel": "30",
+    "payload": {
+     "content": "one"
+    },
+    "attachments": []
+   },
+   {
+    "operation": "edit",
+    "channel": "30",
+    "message": "40",
+    "payload": {
+     "content": "x 9000"
+    }
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "first": "9000",
+   "e": "40"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "first.messageId": "9000",
+   "last.response.id": "9000",
+   "lastSentMessageId": "40",
+   "lastMessageId": "40"
+  },
+  "error": null
+ },
+ "sendDm parity embed and canvas attachment #0": {
+  "writes": [
+   {
+    "operation": "createDm",
+    "user": "20"
+   },
+   {
+    "operation": "send",
+    "channel": "7020",
+    "payload": {
+     "embeds": [
+      {
+       "title": "Hello Ana",
+       "description": "Body",
+       "color": 16711680,
+       "footer": {
+        "text": "foot"
+       },
+       "fields": [
+        {
+         "name": "a",
+         "value": "Ana",
+         "inline": true
+        }
+       ]
+      }
+     ]
+    },
+    "attachments": []
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "e": "9000"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "name": "Ana",
+   "temp._canvasAttachment_x": "CQ==",
+   "e.messageId": "9000",
+   "last.response.id": "9000",
+   "lastSentMessageId": "9000",
+   "lastMessageId": "9000"
+  },
+  "error": null
+ },
+ "sendDm parity errors #0": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Missing or invalid userId for sendDm",
+   "error.command": "sendDm",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing or invalid userId for sendDm"
+ },
+ "sendDm parity errors #1": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Missing or invalid userId for sendDm",
+   "error.command": "sendDm",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing or invalid userId for sendDm"
+ },
+ "sendDm parity errors #2": {
+  "writes": [
+   {
+    "operation": "createDm",
+    "user": "20"
+   },
+   {
+    "operation": "send",
+    "channel": "7020",
+    "payload": {
+     "content": "x"
+    },
+    "attachments": []
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Missing or invalid userId for sendDm",
+   "error.command": "sendDm",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing or invalid userId for sendDm"
+ },
+ "sendDm parity errors #3": {
+  "writes": [
+   {
+    "operation": "createDm",
+    "user": "20"
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: sendMessage needs at least content, embeds, components, or attachments",
+   "error.command": "sendDm",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: sendMessage needs at least content, embeds, components, or attachments"
+ },
+ "sendDm parity one recipient, a list, mirrors #0": {
+  "writes": [
+   {
+    "operation": "createDm",
+    "user": "20"
+   },
+   {
+    "operation": "send",
+    "channel": "7020",
+    "payload": {
+     "content": "hi Ana"
+    },
+    "attachments": []
+   },
+   {
+    "operation": "createDm",
+    "user": "20"
+   },
+   {
+    "operation": "send",
+    "channel": "7020",
+    "payload": {
+     "content": "all"
+    },
+    "attachments": []
+   },
+   {
+    "operation": "createDm",
+    "user": "222"
+   },
+   {
+    "operation": "send",
+    "channel": "7222",
+    "payload": {
+     "content": "all"
+    },
+    "attachments": []
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "one": "9000",
+   "many": "9002"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "n": "Ana",
+   "u": "222",
+   "one.messageId": "9000",
+   "last.response.id": "9002",
+   "lastSentMessageId": "9002",
+   "lastMessageId": "9002",
+   "many.messageId": "9002"
+  },
+  "error": null
+ },
+ "sendMessage parity a Discord failure surfaces its message #0": {
+  "writes": [
+   {
+    "operation": "send",
+    "channel": "30",
+    "payload": {
+     "content": "x"
+    },
+    "attachments": []
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to send message: Bad state: 50013 Missing Access",
+   "error.command": "sendMessage",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to send message: Bad state: 50013 Missing Access"
+ },
+ "sendMessage parity canvas attachments are consumed by the send #0": {
+  "writes": [
+   {
+    "operation": "send",
+    "channel": "30",
+    "payload": {
+     "attachments": [
+      {
+       "filename": "card.png"
+      }
+     ]
+    },
+    "attachments": [
+     "card.png:3"
+    ]
+   },
+   {
+    "operation": "send",
+    "channel": "30",
+    "payload": {
+     "content": "again"
+    },
+    "attachments": []
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "s": "9000",
+   "again": "9001"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "s.messageId": "9000",
+   "last.response.id": "9001",
+   "lastSentMessageId": "9001",
+   "lastMessageId": "9001",
+   "again.messageId": "9001"
+  },
+  "error": null
+ },
+ "sendMessage parity direct message target #0": {
+  "writes": [
+   {
+    "operation": "createDm",
+    "user": "20"
+   },
+   {
+    "operation": "send",
+    "channel": "7020",
+    "payload": {
+     "content": "psst"
+    },
+    "attachments": []
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "d": "9000"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "u": "20",
+   "d.messageId": "9000",
+   "last.response.id": "9000",
+   "lastSentMessageId": "9000",
+   "lastMessageId": "9000"
+  },
+  "error": null
+ },
+ "sendMessage parity embeds, components and allowed mentions payloads #0": {
+  "writes": [
+   {
+    "operation": "send",
+    "channel": "30",
+    "payload": {
+     "content": "x",
+     "embeds": [
+      {
+       "title": "Hello Ana",
+       "description": "Body",
+       "color": 16711680,
+       "footer": {
+        "text": "foot"
+       },
+       "fields": [
+        {
+         "name": "a",
+         "value": "Ana",
+         "inline": true
+        }
+       ]
+      },
+      {
+       "title": "Hello Ana",
+       "description": "Body",
+       "color": 16711680,
+       "footer": {
+        "text": "foot"
+       },
+       "fields": [
+        {
+         "name": "a",
+         "value": "Ana",
+         "inline": true
+        }
+       ]
+      }
+     ],
+     "allowed_mentions": {
+      "parse": []
+     },
+     "components": [
+      {
+       "type": 1,
+       "id": null,
+       "components": [
+        {
+         "type": 2,
+         "id": null,
+         "style": 1,
+         "label": "Go",
+         "custom_id": "go"
+        }
+       ]
+      }
+     ]
+    },
+    "attachments": []
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "s": "9000"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "name": "Ana",
+   "s.messageId": "9000",
+   "last.response.id": "9000",
+   "lastSentMessageId": "9000",
+   "lastMessageId": "9000"
+  },
+  "error": null
+ },
+ "sendMessage parity empty content is skipped silently, with and without blanks #0": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "a": "",
+   "b": ""
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "sendMessage parity error modes and results used by later actions #0": {
+  "writes": [
+   {
+    "operation": "send",
+    "channel": "30",
+    "payload": {
+     "content": "first"
+    },
+    "attachments": []
+   },
+   {
+    "operation": "send",
+    "channel": "30",
+    "payload": {
+     "content": "to 9000",
+     "message_reference": {
+      "type": 0,
+      "message_id": "9000"
+     }
+    },
+    "attachments": []
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "action_0": "Error: Exception: Channel is not a text channel",
+   "first": "9000",
+   "second": "9001"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Channel is not a text channel",
+   "error.command": "sendMessage",
+   "error.source": "",
+   "error.row": "",
+   "error.column": "",
+   "first.messageId": "9000",
+   "last.response.id": "9001",
+   "lastSentMessageId": "9001",
+   "lastMessageId": "9001",
+   "second.messageId": "9001"
+  },
+  "error": null
+ },
+ "sendMessage parity errors #0": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Missing or invalid channelId for sendMessage",
+   "error.command": "sendMessage",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing or invalid channelId for sendMessage"
+ },
+ "sendMessage parity errors #1": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Channel is not a text channel",
+   "error.command": "sendMessage",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Channel is not a text channel"
+ },
+ "sendMessage parity errors #2": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Channel is not a text channel",
+   "error.command": "sendMessage",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Channel is not a text channel"
+ },
+ "sendMessage parity errors #3": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: userId is required when targetType is \"user\"",
+   "error.command": "sendMessage",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: userId is required when targetType is \"user\""
+ },
+ "sendMessage parity errors #4": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Crosspost requires channelId and messageId",
+   "error.command": "sendMessage",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Crosspost requires channelId and messageId"
+ },
+ "sendMessage parity errors #5": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Crosspost requires a text channel",
+   "error.command": "sendMessage",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Crosspost requires a text channel"
+ },
+ "sendMessage parity fallback channel when none is given #0": {
+  "writes": [
+   {
+    "operation": "send",
+    "channel": "35",
+    "payload": {
+     "content": "fallback"
+    },
+    "attachments": []
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "s": "9000"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "s.messageId": "9000",
+   "last.response.id": "9000",
+   "lastSentMessageId": "9000",
+   "lastMessageId": "9000"
+  },
+  "error": null
+ },
+ "sendMessage parity inside ifBlock, loop and try/catch #0": {
+  "writes": [
+   {
+    "operation": "send",
+    "channel": "30",
+    "payload": {
+     "content": "n=0"
+    },
+    "attachments": []
+   },
+   {
+    "operation": "send",
+    "channel": "30",
+    "payload": {
+     "content": "n=1"
+    },
+    "attachments": []
+   },
+   {
+    "operation": "send",
+    "channel": "30",
+    "payload": {
+     "content": "caught Exception: Channel is not a text channel"
+    },
+    "attachments": []
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "loop.iter0.m": "9000",
+   "loop.iter1.m": "9001",
+   "loop": "LOOP_2",
+   "try": "TRY_CAUGHT",
+   "try.ok": "9002"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "m.messageId": "9001",
+   "last.response.id": "9002",
+   "lastSentMessageId": "9002",
+   "lastMessageId": "9002",
+   "ok.messageId": "9002"
+  },
+  "error": null
+ },
+ "sendMessage parity permission pre-check, but not for direct messages #0": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: I do not have permission to send messages. Missing: Send Messages.",
+   "error.command": "sendMessage",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: I do not have permission to send messages. Missing: Send Messages."
+ },
+ "sendMessage parity permission pre-check, but not for direct messages #1": {
+  "writes": [
+   {
+    "operation": "createDm",
+    "user": "20"
+   },
+   {
+    "operation": "send",
+    "channel": "7020",
+    "payload": {
+     "content": "x"
+    },
+    "attachments": []
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "action_0": "9000"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "action_0.messageId": "9000",
+   "last.response.id": "9000",
+   "lastSentMessageId": "9000",
+   "lastMessageId": "9000"
+  },
+  "error": null
+ },
+ "sendMessage parity reply, crosspost and typing target types #0": {
+  "writes": [
+   {
+    "operation": "send",
+    "channel": "30",
+    "payload": {
+     "content": "reply",
+     "message_reference": {
+      "type": 0,
+      "message_id": "41"
+     }
+    },
+    "attachments": []
+   },
+   {
+    "operation": "crosspost",
+    "channel": "30",
+    "message": "40"
+   },
+   {
+    "operation": "typing",
+    "channel": "30"
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "r": "9000",
+   "c": "40",
+   "t": ""
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "m": "41",
+   "r.messageId": "9000",
+   "last.response.id": "9000",
+   "lastSentMessageId": "40",
+   "lastMessageId": "40",
+   "t.messageId": ""
+  },
+  "error": null
+ },
+ "sendMessage parity rich component V2 mode #0": {
+  "writes": [
+   {
+    "operation": "send",
+    "channel": "30",
+    "payload": {
+     "components": [
+      {
+       "type": 10,
+       "id": null,
+       "content": "V2 text"
+      }
+     ],
+     "flags": 32768
+    },
+    "attachments": []
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "s": "9000"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "s.messageId": "9000",
+   "last.response.id": "9000",
+   "lastSentMessageId": "9000",
+   "lastMessageId": "9000"
+  },
+  "error": null
+ },
+ "sendMessage parity sends content and records the message id everywhere #0": {
+  "writes": [
+   {
+    "operation": "send",
+    "channel": "30",
+    "payload": {
+     "content": "Hi Ana"
+    },
+    "attachments": []
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "s": "9000"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "name": "Ana",
+   "s.messageId": "9000",
+   "last.response.id": "9000",
+   "lastSentMessageId": "9000",
+   "lastMessageId": "9000"
+  },
+  "error": null
+ },
+ "sendMessage parity suppressErrors sends its message and embed natively and immediately #0": {
+  "writes": [
+   {
+    "operation": "send",
+    "channel": "30",
+    "payload": {
+     "content": "after"
+    },
+    "attachments": []
+   }
+  ],
+  "interaction": [
+   {
+    "op": "respond",
+    "payload": {
+     "content": "Oops Ana",
+     "embeds": [
+      {
+       "title": "Failed",
+       "description": "d"
+      }
+     ]
+    }
+   },
+   {
+    "op": "fetchOriginal"
+   }
+  ],
+  "host": [
+   true,
+   true
+  ],
+  "results": {
+   "cond": "IF_TRUE",
+   "after": "9000"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "x": "1",
+   "name": "Ana",
+   "last.response.id": "9000",
+   "lastSentMessageId": "9000",
+   "lastMessageId": "9000",
+   "after.messageId": "9000"
+  },
+  "error": null
+ },
+ "sendMessage parity suppressErrors sends its message and embed natively and immediately #1": {
+  "writes": [
+   {
+    "operation": "send",
+    "channel": "30",
+    "payload": {
+     "content": "Oops Ana",
+     "embeds": [
+      {
+       "title": "Failed",
+       "description": "d"
+      }
+     ]
+    },
+    "attachments": []
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "cond": "IF_TRUE"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "x": "1",
+   "name": "Ana",
+   "last.response.id": "9000",
+   "lastSentMessageId": "9000",
+   "lastMessageId": "9000"
+  },
+  "error": null
+ },
+ "sendMessage parity suppressErrors sends its message and embed natively and immediately #2": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "x": "1",
+   "name": "Ana",
+   "error.message": "Exception: No channelId available for respondWithMessage fallback",
+   "error.command": "ifBlock",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: No channelId available for respondWithMessage fallback"
+ }
+}

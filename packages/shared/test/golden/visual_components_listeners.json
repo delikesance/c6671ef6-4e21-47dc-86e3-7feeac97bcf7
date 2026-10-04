@@ -1,0 +1,2115 @@
+{
+ "listener parity a click on another customId only registers #0": {
+  "effects": [
+   [],
+   {
+    "go/button/null": {
+     "workflow": "missing",
+     "entryPoint": "",
+     "arguments": {},
+     "inline": null,
+     "ttlMinutes": 59,
+     "oneShot": false,
+     "guildId": "10",
+     "channelId": null,
+     "messageId": null,
+     "context": {
+      "guild.id": "10"
+     }
+    }
+   },
+   []
+  ],
+  "results": {
+   "action_0": "listening:go"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "listener parity customId and workflowName are required #0": {
+  "effects": [
+   [],
+   {}
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: customId is required for listenForButtonClick",
+   "error.command": "listenForButtonClick",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: customId is required for listenForButtonClick"
+ },
+ "listener parity customId and workflowName are required #1": {
+  "effects": [
+   [],
+   {}
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: workflowName is required for listenForButtonClick",
+   "error.command": "listenForButtonClick",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: workflowName is required for listenForButtonClick"
+ },
+ "listener parity customId and workflowName are required #2": {
+  "effects": [
+   [],
+   {}
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: customId is required for listenForSelectMenu",
+   "error.command": "listenForSelectMenu",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: customId is required for listenForSelectMenu"
+ },
+ "listener parity customId and workflowName are required #3": {
+  "effects": [
+   [],
+   {}
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: workflowName is required for listenForSelectMenu",
+   "error.command": "listenForSelectMenu",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: workflowName is required for listenForSelectMenu"
+ },
+ "listener parity customId and workflowName are required #4": {
+  "effects": [
+   [],
+   {}
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: customId is required for listenForModalSubmit",
+   "error.command": "listenForModalSubmit",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: customId is required for listenForModalSubmit"
+ },
+ "listener parity customId and workflowName are required #5": {
+  "effects": [
+   [],
+   {}
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: workflowName is required for listenForModalSubmit",
+   "error.command": "listenForModalSubmit",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: workflowName is required for listenForModalSubmit"
+ },
+ "listener parity customId and workflowName are required #6": {
+  "effects": [
+   [],
+   {}
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: customId is required for listenAndExecute",
+   "error.command": "listenAndExecute",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: customId is required for listenAndExecute"
+ },
+ "listener parity error mode skip applies to a failing listener #0": {
+  "effects": [
+   [],
+   {}
+  ],
+  "results": {
+   "l": "Error: Exception: customId is required for listenForButtonClick",
+   "action_1": "OK"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: customId is required for listenForButtonClick",
+   "error.command": "listenForButtonClick",
+   "error.source": "",
+   "error.row": "",
+   "error.column": "",
+   "temp.k": "v",
+   "__variables.tempNames": "[\"k\"]",
+   "action_1.value": "v",
+   "action_1.sourceRaw": "v",
+   "action_1.resolved": "v",
+   "action_1.fallback": "",
+   "action_1.directFallback": "",
+   "action_1.scope": "temp",
+   "action_1.key": "k"
+  },
+  "error": null
+ },
+ "listener parity listenAndExecute registers button, select and modal entries #0": {
+  "effects": [
+   [],
+   {
+    "multi/button/55": {
+     "workflow": "",
+     "entryPoint": "main",
+     "arguments": {},
+     "inline": [
+      {
+       "type": "log",
+       "key": null,
+       "enabled": true,
+       "depend_on": [],
+       "error": {},
+       "payload": {
+        "message": "clicked"
+       }
+      }
+     ],
+     "ttlMinutes": 9,
+     "oneShot": false,
+     "guildId": "10",
+     "channelId": "30",
+     "messageId": "55",
+     "context": {
+      "guild.id": "10"
+     }
+    },
+    "multi/select/55": {
+     "workflow": "",
+     "entryPoint": "main",
+     "arguments": {},
+     "inline": [
+      {
+       "type": "log",
+       "key": null,
+       "enabled": true,
+       "depend_on": [],
+       "error": {},
+       "payload": {
+        "message": "clicked"
+       }
+      }
+     ],
+     "ttlMinutes": 9,
+     "oneShot": false,
+     "guildId": "10",
+     "channelId": "30",
+     "messageId": "55",
+     "context": {
+      "guild.id": "10"
+     }
+    },
+    "multi/modal/55": {
+     "workflow": "",
+     "entryPoint": "main",
+     "arguments": {},
+     "inline": [
+      {
+       "type": "log",
+       "key": null,
+       "enabled": true,
+       "depend_on": [],
+       "error": {},
+       "payload": {
+        "message": "clicked"
+       }
+      }
+     ],
+     "ttlMinutes": 9,
+     "oneShot": true,
+     "guildId": "10",
+     "channelId": "30",
+     "messageId": "55",
+     "context": {
+      "guild.id": "10"
+     }
+    }
+   }
+  ],
+  "results": {
+   "l": "listening:multi"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "listener parity listenAndExecute runs inline actions immediately for the current click #0": {
+  "effects": [
+   [],
+   {
+    "multi/button/null": {
+     "workflow": "",
+     "entryPoint": "main",
+     "arguments": {},
+     "inline": [
+      {
+       "type": "log",
+       "key": null,
+       "enabled": true,
+       "depend_on": [],
+       "error": {},
+       "payload": {
+        "message": "clicked"
+       }
+      }
+     ],
+     "ttlMinutes": 59,
+     "oneShot": false,
+     "guildId": "10",
+     "channelId": null,
+     "messageId": null,
+     "context": {
+      "guild.id": "10"
+     }
+    },
+    "multi/select/null": {
+     "workflow": "",
+     "entryPoint": "main",
+     "arguments": {},
+     "inline": [
+      {
+       "type": "log",
+       "key": null,
+       "enabled": true,
+       "depend_on": [],
+       "error": {},
+       "payload": {
+        "message": "clicked"
+       }
+      }
+     ],
+     "ttlMinutes": 59,
+     "oneShot": false,
+     "guildId": "10",
+     "channelId": null,
+     "messageId": null,
+     "context": {
+      "guild.id": "10"
+     }
+    },
+    "multi/modal/null": {
+     "workflow": "",
+     "entryPoint": "main",
+     "arguments": {},
+     "inline": [
+      {
+       "type": "log",
+       "key": null,
+       "enabled": true,
+       "depend_on": [],
+       "error": {},
+       "payload": {
+        "message": "clicked"
+       }
+      }
+     ],
+     "ttlMinutes": 59,
+     "oneShot": true,
+     "guildId": "10",
+     "channelId": null,
+     "messageId": null,
+     "context": {
+      "guild.id": "10"
+     }
+    }
+   },
+   [
+    {
+     "respond": {
+      "content": "An internal error prevented this interaction from completing.",
+      "flags": 64
+     }
+    }
+   ]
+  ],
+  "results": {
+   "action_0": "listening:multi"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "listener parity listenAndExecute with a workflow, entry point default and immediate run #0": {
+  "effects": [
+   [],
+   {
+    "multi/button/null": {
+     "workflow": "missing",
+     "entryPoint": "main",
+     "arguments": {
+      "a": "1"
+     },
+     "inline": null,
+     "ttlMinutes": 59,
+     "oneShot": false,
+     "guildId": "10",
+     "channelId": null,
+     "messageId": null,
+     "context": {
+      "guild.id": "10"
+     }
+    },
+    "multi/select/null": {
+     "workflow": "missing",
+     "entryPoint": "main",
+     "arguments": {
+      "a": "1"
+     },
+     "inline": null,
+     "ttlMinutes": 59,
+     "oneShot": false,
+     "guildId": "10",
+     "channelId": null,
+     "messageId": null,
+     "context": {
+      "guild.id": "10"
+     }
+    },
+    "multi/modal/null": {
+     "workflow": "missing",
+     "entryPoint": "main",
+     "arguments": {
+      "a": "1"
+     },
+     "inline": null,
+     "ttlMinutes": 59,
+     "oneShot": true,
+     "guildId": "10",
+     "channelId": null,
+     "messageId": null,
+     "context": {
+      "guild.id": "10"
+     }
+    }
+   },
+   [
+    {
+     "respond": {
+      "content": "Workflow not found for this interaction. Please try again later.",
+      "flags": 64
+     }
+    }
+   ]
+  ],
+  "results": {
+   "action_0": "listening:multi"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "listener parity listenForButtonClick registers the listener #0": {
+  "effects": [
+   [],
+   {
+    "c-1/button/55": {
+     "workflow": "wf",
+     "entryPoint": "start",
+     "arguments": {
+      "who": "1"
+     },
+     "inline": null,
+     "ttlMinutes": 29,
+     "oneShot": false,
+     "guildId": "10",
+     "channelId": "30",
+     "messageId": "55",
+     "context": {
+      "guild.id": "10",
+      "target.message.id": "3"
+     }
+    }
+   }
+  ],
+  "results": {
+   "l": "listening:c-1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "n": "1",
+   "target.message.id": "3"
+  },
+  "error": null
+ },
+ "listener parity listenForModalSubmit registers the listener #0": {
+  "effects": [
+   [],
+   {
+    "c-1/modal/55": {
+     "workflow": "wf",
+     "entryPoint": "start",
+     "arguments": {
+      "who": "1"
+     },
+     "inline": null,
+     "ttlMinutes": 29,
+     "oneShot": true,
+     "guildId": "10",
+     "channelId": "30",
+     "messageId": "55",
+     "context": {
+      "guild.id": "10",
+      "target.message.id": "3"
+     }
+    }
+   }
+  ],
+  "results": {
+   "l": "listening:c-1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "n": "1",
+   "target.message.id": "3"
+  },
+  "error": null
+ },
+ "listener parity listenForSelectMenu registers the listener #0": {
+  "effects": [
+   [],
+   {
+    "c-1/select/55": {
+     "workflow": "wf",
+     "entryPoint": "start",
+     "arguments": {
+      "who": "1"
+     },
+     "inline": null,
+     "ttlMinutes": 29,
+     "oneShot": false,
+     "guildId": "10",
+     "channelId": "30",
+     "messageId": "55",
+     "context": {
+      "guild.id": "10",
+      "target.message.id": "3"
+     }
+    }
+   }
+  ],
+  "results": {
+   "l": "listening:c-1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "n": "1",
+   "target.message.id": "3"
+  },
+  "error": null
+ },
+ "listener parity message id comes from the runtime context unless in an event workflow #0": {
+  "effects": [
+   [],
+   {
+    "c/select/66": {
+     "workflow": "wf",
+     "entryPoint": "",
+     "arguments": {},
+     "inline": null,
+     "ttlMinutes": 59,
+     "oneShot": false,
+     "guildId": "10",
+     "channelId": null,
+     "messageId": "66",
+     "context": {
+      "guild.id": "10",
+      "interaction.messageId": "66"
+     }
+    }
+   }
+  ],
+  "results": {
+   "action_0": "listening:c"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "interaction.messageId": "66"
+  },
+  "error": null
+ },
+ "listener parity message id comes from the runtime context unless in an event workflow #1": {
+  "effects": [
+   [],
+   {
+    "c/select/66": {
+     "workflow": "wf",
+     "entryPoint": "",
+     "arguments": {},
+     "inline": null,
+     "ttlMinutes": 59,
+     "oneShot": false,
+     "guildId": "10",
+     "channelId": null,
+     "messageId": "66",
+     "context": {
+      "guild.id": "10",
+      "messageId": "66"
+     }
+    }
+   }
+  ],
+  "results": {
+   "action_0": "listening:c"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "messageId": "66"
+  },
+  "error": null
+ },
+ "listener parity message id comes from the runtime context unless in an event workflow #2": {
+  "effects": [
+   [],
+   {
+    "c/select/66": {
+     "workflow": "wf",
+     "entryPoint": "",
+     "arguments": {},
+     "inline": null,
+     "ttlMinutes": 59,
+     "oneShot": false,
+     "guildId": "10",
+     "channelId": null,
+     "messageId": "66",
+     "context": {
+      "guild.id": "10",
+      "message.id": "66"
+     }
+    }
+   }
+  ],
+  "results": {
+   "action_0": "listening:c"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "message.id": "66"
+  },
+  "error": null
+ },
+ "listener parity message id comes from the runtime context unless in an event workflow #3": {
+  "effects": [
+   [],
+   {
+    "c/select/null": {
+     "workflow": "wf",
+     "entryPoint": "",
+     "arguments": {},
+     "inline": null,
+     "ttlMinutes": 59,
+     "oneShot": false,
+     "guildId": "10",
+     "channelId": null,
+     "messageId": null,
+     "context": {
+      "guild.id": "10",
+      "message.id": "66"
+     }
+    }
+   }
+  ],
+  "results": {
+   "action_0": "listening:c"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "workflow.type": "event",
+   "message.id": "66"
+  },
+  "error": null
+ },
+ "listener parity the current click already starts the handler workflow #0": {
+  "effects": [
+   [],
+   {
+    "go/button/null": {
+     "workflow": "missing",
+     "entryPoint": "",
+     "arguments": {},
+     "inline": null,
+     "ttlMinutes": 59,
+     "oneShot": false,
+     "guildId": "10",
+     "channelId": null,
+     "messageId": null,
+     "context": {
+      "guild.id": "10"
+     }
+    }
+   },
+   [
+    {
+     "respond": {
+      "content": "Workflow not found for this interaction. Please try again later.",
+      "flags": 64
+     }
+    }
+   ]
+  ],
+  "results": {
+   "l": "listening:go"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "listener parity ttl is clamped to 1..60 minutes and defaults to 60 #0": {
+  "effects": [
+   [],
+   {
+    "c/button/null": {
+     "workflow": "wf",
+     "entryPoint": "",
+     "arguments": {},
+     "inline": null,
+     "ttlMinutes": 0,
+     "oneShot": false,
+     "guildId": "10",
+     "channelId": null,
+     "messageId": null,
+     "context": {
+      "guild.id": "10"
+     }
+    }
+   }
+  ],
+  "results": {
+   "action_0": "listening:c"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "listener parity ttl is clamped to 1..60 minutes and defaults to 60 #1": {
+  "effects": [
+   [],
+   {
+    "c/button/null": {
+     "workflow": "wf",
+     "entryPoint": "",
+     "arguments": {},
+     "inline": null,
+     "ttlMinutes": 59,
+     "oneShot": false,
+     "guildId": "10",
+     "channelId": null,
+     "messageId": null,
+     "context": {
+      "guild.id": "10"
+     }
+    }
+   }
+  ],
+  "results": {
+   "action_0": "listening:c"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "listener parity ttl is clamped to 1..60 minutes and defaults to 60 #2": {
+  "effects": [
+   [],
+   {
+    "c/button/null": {
+     "workflow": "wf",
+     "entryPoint": "",
+     "arguments": {},
+     "inline": null,
+     "ttlMinutes": 59,
+     "oneShot": false,
+     "guildId": "10",
+     "channelId": null,
+     "messageId": null,
+     "context": {
+      "guild.id": "10"
+     }
+    }
+   }
+  ],
+  "results": {
+   "action_0": "listening:c"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "listener parity ttl is clamped to 1..60 minutes and defaults to 60 #3": {
+  "effects": [
+   [],
+   {
+    "c/button/null": {
+     "workflow": "wf",
+     "entryPoint": "",
+     "arguments": {},
+     "inline": null,
+     "ttlMinutes": 59,
+     "oneShot": false,
+     "guildId": "10",
+     "channelId": null,
+     "messageId": null,
+     "context": {
+      "guild.id": "10"
+     }
+    }
+   }
+  ],
+  "results": {
+   "action_0": "listening:c"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "respondWithAutocomplete parity answers the choices and stops the list #0": {
+  "effects": [
+   [],
+   {},
+   [
+    {
+     "respond": [
+      {
+       "name": "One",
+       "value": 1
+      },
+      {
+       "name": "Two",
+       "value": 2
+      }
+     ]
+    }
+   ]
+  ],
+  "results": {
+   "ac": "RESPONDED",
+   "__stopped__": "AUTOCOMPLETE"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "autocomplete.optionType": "integer"
+  },
+  "error": null
+ },
+ "respondWithAutocomplete parity caps the answer at 25 choices and honours the JSON path #0": {
+  "effects": [
+   [],
+   {},
+   [
+    {
+     "respond": [
+      {
+       "name": "v0",
+       "value": "v0"
+      },
+      {
+       "name": "v1",
+       "value": "v1"
+      },
+      {
+       "name": "v2",
+       "value": "v2"
+      },
+      {
+       "name": "v3",
+       "value": "v3"
+      },
+      {
+       "name": "v4",
+       "value": "v4"
+      },
+      {
+       "name": "v5",
+       "value": "v5"
+      },
+      {
+       "name": "v6",
+       "value": "v6"
+      },
+      {
+       "name": "v7",
+       "value": "v7"
+      },
+      {
+       "name": "v8",
+       "value": "v8"
+      },
+      {
+       "name": "v9",
+       "value": "v9"
+      },
+      {
+       "name": "v10",
+       "value": "v10"
+      },
+      {
+       "name": "v11",
+       "value": "v11"
+      },
+      {
+       "name": "v12",
+       "value": "v12"
+      },
+      {
+       "name": "v13",
+       "value": "v13"
+      },
+      {
+       "name": "v14",
+       "value": "v14"
+      },
+      {
+       "name": "v15",
+       "value": "v15"
+      },
+      {
+       "name": "v16",
+       "value": "v16"
+      },
+      {
+       "name": "v17",
+       "value": "v17"
+      },
+      {
+       "name": "v18",
+       "value": "v18"
+      },
+      {
+       "name": "v19",
+       "value": "v19"
+      },
+      {
+       "name": "v20",
+       "value": "v20"
+      },
+      {
+       "name": "v21",
+       "value": "v21"
+      },
+      {
+       "name": "v22",
+       "value": "v22"
+      },
+      {
+       "name": "v23",
+       "value": "v23"
+      },
+      {
+       "name": "v24",
+       "value": "v24"
+      }
+     ]
+    }
+   ]
+  ],
+  "results": {
+   "action_0": "RESPONDED",
+   "__stopped__": "AUTOCOMPLETE"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "autocomplete.optionType": "string"
+  },
+  "error": null
+ },
+ "respondWithAutocomplete parity nested in a block the enclosing lists report a plain stop #0": {
+  "effects": [
+   [],
+   {},
+   [
+    {
+     "respond": [
+      {
+       "name": "a",
+       "value": "a"
+      }
+     ]
+    }
+   ]
+  ],
+  "results": {
+   "blk": "IF_TRUE",
+   "blk.ac": "RESPONDED",
+   "blk.__stopped__": "AUTOCOMPLETE",
+   "__stopped__": "true"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "flag": "yes",
+   "autocomplete.optionType": "string"
+  },
+  "error": null
+ },
+ "respondWithAutocomplete parity requires an autocomplete interaction #0": {
+  "effects": [
+   [],
+   {}
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: respondWithAutocomplete requires an autocomplete interaction context",
+   "error.command": "respondWithAutocomplete",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: respondWithAutocomplete requires an autocomplete interaction context"
+ },
+ "respondWithAutocomplete parity requires an autocomplete interaction #1": {
+  "effects": [
+   [],
+   {},
+   []
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: respondWithAutocomplete requires an autocomplete interaction context",
+   "error.command": "respondWithAutocomplete",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: respondWithAutocomplete requires an autocomplete interaction context"
+ },
+ "respondWithAutocomplete parity string and number focused options, default templates #0": {
+  "effects": [
+   [],
+   {},
+   [
+    {
+     "respond": [
+      {
+       "name": "a",
+       "value": "a"
+      },
+      {
+       "name": "b",
+       "value": "b"
+      }
+     ]
+    }
+   ]
+  ],
+  "results": {
+   "action_0": "RESPONDED",
+   "__stopped__": "AUTOCOMPLETE"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "autocomplete.optionType": "string"
+  },
+  "error": null
+ },
+ "respondWithAutocomplete parity string and number focused options, default templates #1": {
+  "effects": [
+   [],
+   {},
+   [
+    {
+     "respond": []
+    }
+   ]
+  ],
+  "results": {
+   "action_0": "RESPONDED",
+   "__stopped__": "AUTOCOMPLETE"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "autocomplete.optionType": "number"
+  },
+  "error": null
+ },
+ "respondWithComponentV2 / sendComponentV2 / editComponentV2 parity an acknowledged interaction updates the original response #0": {
+  "effects": [
+   [],
+   {},
+   [
+    {
+     "respond": {
+      "components": [
+       {
+        "type": 1,
+        "id": null,
+        "components": [
+         {
+          "type": 2,
+          "id": null,
+          "style": 1,
+          "label": "Go",
+          "custom_id": "go"
+         }
+        ]
+       }
+      ],
+      "flags": 32768
+     }
+    }
+   ]
+  ],
+  "results": {
+   "r": "900"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "900",
+   "lastMessageId": "900"
+  },
+  "error": null
+ },
+ "respondWithComponentV2 / sendComponentV2 / editComponentV2 parity componentV2 alias and ephemeral flag #0": {
+  "effects": [
+   [],
+   {},
+   [
+    {
+     "respond": {
+      "components": [
+       {
+        "type": 10,
+        "id": null,
+        "content": "Hello there"
+       }
+      ],
+      "flags": 32832
+     }
+    }
+   ]
+  ],
+  "results": {
+   "action_0": "900"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "who": "there",
+   "lastSentMessageId": "900",
+   "lastMessageId": "900"
+  },
+  "error": null
+ },
+ "respondWithComponentV2 / sendComponentV2 / editComponentV2 parity editComponentV2 edits a message and registers bindings #0": {
+  "effects": [
+   [
+    {
+     "edit": "4242",
+     "payload": {
+      "components": [
+       {
+        "type": 1,
+        "id": null,
+        "components": [
+         {
+          "type": 2,
+          "id": null,
+          "style": 1,
+          "label": "Go",
+          "custom_id": "go"
+         }
+        ]
+       }
+      ],
+      "flags": 32768
+     }
+    }
+   ],
+   {
+    "go/button/4242": {
+     "workflow": "",
+     "entryPoint": "main",
+     "arguments": {},
+     "inline": [
+      {
+       "type": "log",
+       "key": null,
+       "enabled": true,
+       "depend_on": [],
+       "error": {},
+       "payload": {
+        "message": "clicked"
+       }
+      }
+     ],
+     "ttlMinutes": 1439,
+     "oneShot": false,
+     "guildId": "10",
+     "channelId": "30",
+     "messageId": "4242",
+     "context": {}
+    }
+   }
+  ],
+  "results": {
+   "e": "4242"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "4242",
+   "lastMessageId": "4242"
+  },
+  "error": null
+ },
+ "respondWithComponentV2 / sendComponentV2 / editComponentV2 parity editComponentV2 failures and error mode #0": {
+  "effects": [
+   [],
+   {}
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Missing channelId/messageId",
+   "error.command": "editComponentV2",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing channelId/messageId"
+ },
+ "respondWithComponentV2 / sendComponentV2 / editComponentV2 parity editComponentV2 failures and error mode #1": {
+  "effects": [
+   [],
+   {}
+  ],
+  "results": {
+   "e": "Error: Exception: Channel is not a text channel",
+   "action_1": "OK"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Channel is not a text channel",
+   "error.command": "editComponentV2",
+   "error.source": "",
+   "error.row": "",
+   "error.column": "",
+   "temp.k": "v",
+   "__variables.tempNames": "[\"k\"]",
+   "action_1.value": "v",
+   "action_1.sourceRaw": "v",
+   "action_1.resolved": "v",
+   "action_1.fallback": "",
+   "action_1.directFallback": "",
+   "action_1.scope": "temp",
+   "action_1.key": "k"
+  },
+  "error": null
+ },
+ "respondWithComponentV2 / sendComponentV2 / editComponentV2 parity errors: no channel, not a text channel, bad interaction #0": {
+  "effects": [
+   [],
+   {}
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: No channelId available for sendComponentV2",
+   "error.command": "sendComponentV2",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: No channelId available for sendComponentV2"
+ },
+ "respondWithComponentV2 / sendComponentV2 / editComponentV2 parity errors: no channel, not a text channel, bad interaction #1": {
+  "effects": [
+   [],
+   {}
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Channel is not a text channel",
+   "error.command": "sendComponentV2",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Channel is not a text channel"
+ },
+ "respondWithComponentV2 / sendComponentV2 / editComponentV2 parity errors: no channel, not a text channel, bad interaction #2": {
+  "effects": [
+   [],
+   {},
+   []
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Interaction does not support message responses",
+   "error.command": "respondWithComponentV2",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Interaction does not support message responses"
+ },
+ "respondWithComponentV2 / sendComponentV2 / editComponentV2 parity responds to an interaction and registers inline button actions #0": {
+  "effects": [
+   [],
+   {
+    "go/button/900": {
+     "workflow": "",
+     "entryPoint": "main",
+     "arguments": {},
+     "inline": [
+      {
+       "type": "log",
+       "key": null,
+       "enabled": true,
+       "depend_on": [],
+       "error": {},
+       "payload": {
+        "message": "clicked"
+       }
+      }
+     ],
+     "ttlMinutes": 1439,
+     "oneShot": false,
+     "guildId": "10",
+     "channelId": "30",
+     "messageId": "900",
+     "context": {}
+    }
+   },
+   [
+    {
+     "respond": {
+      "components": [
+       {
+        "type": 1,
+        "id": null,
+        "components": [
+         {
+          "type": 2,
+          "id": null,
+          "style": 1,
+          "label": "Go",
+          "custom_id": "go"
+         }
+        ]
+       }
+      ],
+      "flags": 32768
+     }
+    }
+   ]
+  ],
+  "results": {
+   "r": "900"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "900",
+   "lastMessageId": "900"
+  },
+  "error": null
+ },
+ "respondWithComponentV2 / sendComponentV2 / editComponentV2 parity sendComponentV2 targets an explicit channel #0": {
+  "effects": [
+   [
+    {
+     "send": "30",
+     "payload": {
+      "components": [
+       {
+        "type": 1,
+        "id": null,
+        "components": [
+         {
+          "type": 2,
+          "id": null,
+          "style": 1,
+          "label": "Go",
+          "custom_id": "go"
+         }
+        ]
+       }
+      ],
+      "flags": 32768
+     }
+    }
+   ],
+   {
+    "go/button/777": {
+     "workflow": "",
+     "entryPoint": "main",
+     "arguments": {},
+     "inline": [
+      {
+       "type": "log",
+       "key": null,
+       "enabled": true,
+       "depend_on": [],
+       "error": {},
+       "payload": {
+        "message": "clicked"
+       }
+      }
+     ],
+     "ttlMinutes": 1439,
+     "oneShot": false,
+     "guildId": "10",
+     "channelId": "30",
+     "messageId": "777",
+     "context": {}
+    }
+   }
+  ],
+  "results": {
+   "s": "777"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "777",
+   "lastMessageId": "777"
+  },
+  "error": null
+ },
+ "respondWithComponentV2 / sendComponentV2 / editComponentV2 parity without an interaction it sends to the fallback channel #0": {
+  "effects": [
+   [
+    {
+     "send": "30",
+     "payload": {
+      "components": [
+       {
+        "type": 1,
+        "id": null,
+        "components": [
+         {
+          "type": 2,
+          "id": null,
+          "style": 1,
+          "label": "Go",
+          "custom_id": "go"
+         }
+        ]
+       }
+      ],
+      "flags": 32768
+     }
+    }
+   ],
+   {}
+  ],
+  "results": {
+   "r": "777"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "777",
+   "lastMessageId": "777"
+  },
+  "error": null
+ },
+ "respondWithModal parity accepts the top-level payload and resolves placeholders #0": {
+  "effects": [
+   [],
+   {},
+   [
+    {
+     "respondModal": {
+      "custom_id": "m-x",
+      "title": "Hi you",
+      "components": [
+       {
+        "type": 1,
+        "id": null,
+        "components": [
+         {
+          "type": 4,
+          "id": null,
+          "custom_id": "name",
+          "style": 1,
+          "label": "Name",
+          "required": true
+         }
+        ]
+       }
+      ]
+     }
+    }
+   ]
+  ],
+  "results": {
+   "action_0": "m-x"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "suffix": "x",
+   "who": "you"
+  },
+  "error": null
+ },
+ "respondWithModal parity actions take precedence over the legacy shorthand #0": {
+  "effects": [
+   [],
+   {
+    "wf4/modal/null": {
+     "workflow": "",
+     "entryPoint": "",
+     "arguments": {},
+     "inline": [
+      {
+       "type": "log",
+       "key": null,
+       "enabled": true,
+       "depend_on": [],
+       "error": {},
+       "payload": {
+        "message": "clicked"
+       }
+      }
+     ],
+     "ttlMinutes": 59,
+     "oneShot": true,
+     "guildId": "10",
+     "channelId": null,
+     "messageId": null,
+     "context": {
+      "guild.id": "10"
+     }
+    }
+   },
+   [
+    {
+     "respondModal": {
+      "custom_id": "wf4",
+      "title": "Title",
+      "components": [
+       {
+        "type": 1,
+        "id": null,
+        "components": [
+         {
+          "type": 4,
+          "id": null,
+          "custom_id": "name",
+          "style": 1,
+          "label": "Name",
+          "required": true
+         }
+        ]
+       }
+      ]
+     }
+    }
+   ]
+  ],
+  "results": {
+   "action_0": "wf4"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "respondWithModal parity component-label format #0": {
+  "effects": [
+   [],
+   {},
+   [
+    {
+     "respondModal": {
+      "custom_id": "lab",
+      "title": "T",
+      "components": [
+       {
+        "type": 10,
+        "id": null,
+        "content": "Read me"
+       },
+       {
+        "type": 18,
+        "id": null,
+        "label": "Why",
+        "component": {
+         "type": 4,
+         "id": null,
+         "custom_id": "why",
+         "style": 2,
+         "required": false
+        }
+       }
+      ]
+     }
+    }
+   ]
+  ],
+  "results": {
+   "m": "lab"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "respondWithModal parity error modes keep applying #0": {
+  "effects": [
+   [],
+   {},
+   []
+  ],
+  "results": {
+   "bad": "Error: Exception: Bad state: Modal title is required",
+   "action_1": "OK"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Bad state: Modal title is required",
+   "error.command": "respondWithModal",
+   "error.source": "",
+   "error.row": "",
+   "error.column": "",
+   "temp.k": "v",
+   "__variables.tempNames": "[\"k\"]",
+   "action_1.value": "v",
+   "action_1.sourceRaw": "v",
+   "action_1.resolved": "v",
+   "action_1.fallback": "",
+   "action_1.directFallback": "",
+   "action_1.scope": "temp",
+   "action_1.key": "k"
+  },
+  "error": null
+ },
+ "respondWithModal parity inline actions register a one-shot submit listener #0": {
+  "effects": [
+   [],
+   {
+    "inline/modal/null": {
+     "workflow": "",
+     "entryPoint": "",
+     "arguments": {},
+     "inline": [
+      {
+       "type": "log",
+       "key": null,
+       "enabled": true,
+       "depend_on": [],
+       "error": {},
+       "payload": {
+        "message": "clicked"
+       }
+      }
+     ],
+     "ttlMinutes": 59,
+     "oneShot": true,
+     "guildId": "10",
+     "channelId": "30",
+     "messageId": null,
+     "context": {
+      "guild.id": "10",
+      "target.user.id": "9"
+     }
+    }
+   },
+   [
+    {
+     "respondModal": {
+      "custom_id": "inline",
+      "title": "Title",
+      "components": [
+       {
+        "type": 1,
+        "id": null,
+        "components": [
+         {
+          "type": 4,
+          "id": null,
+          "custom_id": "name",
+          "style": 1,
+          "label": "Name",
+          "required": true
+         }
+        ]
+       }
+      ]
+     }
+    }
+   ]
+  ],
+  "results": {
+   "m": "inline"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "target.user.id": "9",
+   "ignored": "x"
+  },
+  "error": null
+ },
+ "respondWithModal parity legacy onSubmitWorkflow becomes a submit listener #0": {
+  "effects": [
+   [],
+   {
+    "wf/modal/null": {
+     "workflow": "",
+     "entryPoint": "",
+     "arguments": {},
+     "inline": [
+      {
+       "type": "runWorkflow",
+       "key": null,
+       "enabled": true,
+       "depend_on": [],
+       "error": {},
+       "payload": {
+        "workflowName": "handle",
+        "entryPoint": "start",
+        "arguments": {
+         "a": "((v))"
+        }
+       }
+      }
+     ],
+     "ttlMinutes": 59,
+     "oneShot": true,
+     "guildId": "10",
+     "channelId": null,
+     "messageId": null,
+     "context": {
+      "guild.id": "10"
+     }
+    }
+   },
+   [
+    {
+     "respondModal": {
+      "custom_id": "wf",
+      "title": "Title",
+      "components": [
+       {
+        "type": 1,
+        "id": null,
+        "components": [
+         {
+          "type": 4,
+          "id": null,
+          "custom_id": "name",
+          "style": 1,
+          "label": "Name",
+          "required": true
+         }
+        ]
+       }
+      ]
+     }
+    }
+   ]
+  ],
+  "results": {
+   "action_0": "wf"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "v": "1"
+  },
+  "error": null
+ },
+ "respondWithModal parity modal submit runs the named workflow with its arguments #0": {
+  "effects": [
+   [],
+   {
+    "wf2/modal/null": {
+     "workflow": "",
+     "entryPoint": "",
+     "arguments": {},
+     "inline": [
+      {
+       "type": "runWorkflow",
+       "key": null,
+       "enabled": true,
+       "depend_on": [],
+       "error": {},
+       "payload": {
+        "workflowName": "handle",
+        "entryPoint": "",
+        "arguments": {
+         "a": "((v))"
+        }
+       }
+      }
+     ],
+     "ttlMinutes": 59,
+     "oneShot": true,
+     "guildId": "10",
+     "channelId": null,
+     "messageId": null,
+     "context": {
+      "guild.id": "10"
+     }
+    }
+   },
+   [
+    {
+     "respondModal": {
+      "custom_id": "wf2",
+      "title": "Title",
+      "components": [
+       {
+        "type": 1,
+        "id": null,
+        "components": [
+         {
+          "type": 4,
+          "id": null,
+          "custom_id": "name",
+          "style": 1,
+          "label": "Name",
+          "required": true
+         }
+        ]
+       }
+      ]
+     }
+    }
+   ]
+  ],
+  "results": {
+   "action_0": "wf2"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "v": "42"
+  },
+  "error": null
+ },
+ "respondWithModal parity modal submit runs the named workflow with its arguments #1": {
+  "effects": [
+   [],
+   {}
+  ],
+  "results": {
+   "action_0.w1": "OK",
+   "action_0": "WORKFLOW_OK:main"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "v": "42",
+   "workflow.name": "handle",
+   "workflow.entryPoint": "main",
+   "workflow.args": "{\"a\":\"42\"}",
+   "arg.a": "42",
+   "workflow.arg.a": "42",
+   "opts.a": "42",
+   "temp.got": "arg=42",
+   "__variables.tempNames": "[\"got\"]",
+   "w1.value": "arg=42",
+   "w1.sourceRaw": "arg=((arg.a))",
+   "w1.resolved": "arg=42",
+   "w1.fallback": "",
+   "w1.directFallback": "",
+   "w1.scope": "temp",
+   "w1.key": "got",
+   "workflow.response.w1": "OK",
+   "workflow.response": "WORKFLOW_OK:main"
+  },
+  "error": null
+ },
+ "respondWithModal parity modal submit with a missing workflow fails like runWorkflow #0": {
+  "effects": [
+   [],
+   {
+    "wf3/modal/null": {
+     "workflow": "",
+     "entryPoint": "",
+     "arguments": {},
+     "inline": [
+      {
+       "type": "runWorkflow",
+       "key": null,
+       "enabled": true,
+       "depend_on": [],
+       "error": {},
+       "payload": {
+        "workflowName": "ghost",
+        "entryPoint": "",
+        "arguments": {}
+       }
+      }
+     ],
+     "ttlMinutes": 59,
+     "oneShot": true,
+     "guildId": "10",
+     "channelId": null,
+     "messageId": null,
+     "context": {
+      "guild.id": "10"
+     }
+    }
+   },
+   [
+    {
+     "respondModal": {
+      "custom_id": "wf3",
+      "title": "Title",
+      "components": [
+       {
+        "type": 1,
+        "id": null,
+        "components": [
+         {
+          "type": 4,
+          "id": null,
+          "custom_id": "name",
+          "style": 1,
+          "label": "Name",
+          "required": true
+         }
+        ]
+       }
+      ]
+     }
+    }
+   ]
+  ],
+  "results": {
+   "action_0": "wf3"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "respondWithModal parity modal submit with a missing workflow fails like runWorkflow #1": {
+  "effects": [
+   [],
+   {}
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Workflow not found: ghost",
+   "error.command": "runWorkflow",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Workflow not found: ghost"
+ },
+ "respondWithModal parity opens a legacy input modal and returns its customId #0": {
+  "effects": [
+   [],
+   {},
+   [
+    {
+     "respondModal": {
+      "custom_id": "m1",
+      "title": "Title",
+      "components": [
+       {
+        "type": 1,
+        "id": null,
+        "components": [
+         {
+          "type": 4,
+          "id": null,
+          "custom_id": "name",
+          "style": 1,
+          "label": "Name",
+          "required": true
+         }
+        ]
+       }
+      ]
+     }
+    }
+   ]
+  ],
+  "results": {
+   "m": "m1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "respondWithModal parity unsupported interaction, invalid and missing modal fail alike #0": {
+  "effects": [
+   [],
+   {},
+   []
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Bad state: Modal title is required",
+   "error.command": "respondWithModal",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Bad state: Modal title is required"
+ },
+ "respondWithModal parity unsupported interaction, invalid and missing modal fail alike #1": {
+  "effects": [
+   [],
+   {},
+   []
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Bad state: Modal customId is required",
+   "error.command": "respondWithModal",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Bad state: Modal customId is required"
+ },
+ "respondWithModal parity unsupported interaction, invalid and missing modal fail alike #2": {
+  "effects": [
+   [],
+   {},
+   []
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: modal definition is required",
+   "error.command": "respondWithModal",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: modal definition is required"
+ },
+ "respondWithModal parity unsupported interaction, invalid and missing modal fail alike #3": {
+  "effects": [
+   [],
+   {},
+   []
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Bad state: Modal must have at least one component (text input, select, file upload, radio group, checkbox group, checkbox, or text display).",
+   "error.command": "respondWithModal",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Bad state: Modal must have at least one component (text input, select, file upload, radio group, checkbox group, checkbox, or text display)."
+ },
+ "respondWithModal parity unsupported interaction, invalid and missing modal fail alike #4": {
+  "effects": [
+   [],
+   {},
+   []
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: This interaction type does not support modals",
+   "error.command": "respondWithModal",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: This interaction type does not support modals"
+ },
+ "respondWithModal parity without an interaction the result carries the error text #0": {
+  "effects": [
+   [],
+   {}
+  ],
+  "results": {
+   "m": "Error: respondWithModal requires an active interaction context"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ }
+}

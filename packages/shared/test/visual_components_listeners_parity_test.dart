@@ -8,6 +8,7 @@ import 'package:test/test.dart';
 
 import 'helpers/visual_discord_gateway.dart';
 import 'helpers/variables_test_helpers.dart';
+import 'helpers/visual_golden.dart';
 import 'helpers/visual_parity_harness.dart';
 
 /// Parity of the component / modal / listener / autocomplete blocks between the
@@ -215,6 +216,8 @@ Object? _registry() {
   return snapshot;
 }
 
+final _golden = GoldenFile('visual_components_listeners');
+
 Future<_Out> _parity(
   List<Action> actions, {
   Object? Function()? interaction,
@@ -225,9 +228,9 @@ Future<_Out> _parity(
   bool expectNative = true,
   int? nativePrograms,
   Duration? settle,
-}) {
+}) async {
   Object? current;
-  return visualParity<_Gateway>(
+  final outcome = await visualParity<_Gateway>(
     actions,
     makeGateway: _Gateway.new,
     makeStore: _Store.new,
@@ -247,7 +250,10 @@ Future<_Out> _parity(
     expectNative: expectNative,
     nativePrograms: nativePrograms,
     settle: settle,
+    compareHistorical: parityWithHistorical,
   );
+  _golden.expectOutcome(outcome);
+  return outcome;
 }
 
 Action _a(
