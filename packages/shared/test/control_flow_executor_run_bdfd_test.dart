@@ -1,11 +1,13 @@
-import 'package:bot_creator_shared/actions/executors/control_flow_executor.dart';
+import 'package:bot_creator_shared/engine/bdfd/visual/control_flow_logic.dart';
+import 'package:bot_creator_shared/engine/execution_budget.dart';
 import 'package:bot_creator_shared/types/action.dart';
 import 'package:test/test.dart';
 
 /// runBdfdScript delegates the whole script to the native-v1 engine through
-/// `executeNativeBdfdScript`; it never compiles the source into actions.
+/// `executeNativeBdfdScript`; it never compiles the source into actions. The
+/// logic lives in `runBdfdScriptBlock` (the native `bc_runBdfdScript` calls it).
 void main() {
-  group('executeControlFlowAction runBdfdScript', () {
+  group('runBdfdScriptBlock', () {
     Future<bool> runBdfdScript({
       required Map<String, dynamic> payload,
       required Map<String, String> results,
@@ -13,23 +15,13 @@ void main() {
       List<Action>? nestedActions,
       String Function(String input)? resolveValue,
     }) {
-      return executeControlFlowAction(
-        type: BotCreatorActionType.runBdfdScript,
+      return runBdfdScriptBlock(
         payload: payload,
         resultKey: 'bdfd',
         results: results,
-        variables: <String, String>{},
-        botId: 'test_bot',
-        resolveValue: resolveValue ?? (input) => input,
-        onLog: null,
-        activeWorkflowStack: <String>{},
-        getWorkflowByName: (_) async => null,
-        executeActions: (actions) async {
-          nestedActions?.addAll(actions);
-          return <String, String>{};
-        },
         executeNativeBdfdScript: native,
-      );
+        checkBudget: CommandExecutionBudget().check,
+      ).then((_) => true);
     }
 
     test('hands the stored source to the native engine unchanged', () async {

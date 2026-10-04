@@ -1,5 +1,4 @@
-import 'package:bot_creator_shared/actions/executors/control_flow_executor.dart';
-import 'package:bot_creator_shared/types/action.dart';
+import 'package:bot_creator_shared/engine/bdfd/visual/control_flow_logic.dart';
 import 'package:bot_creator_shared/utils/runtime_cooldowns.dart';
 import 'package:bot_creator_shared/utils/template_resolver.dart';
 import 'package:test/test.dart';
@@ -19,8 +18,7 @@ Future<Map<String, String>> run(
   List<String>? messages,
 }) async {
   final results = <String, String>{};
-  await executeControlFlowAction(
-    type: BotCreatorActionType.cooldown,
+  await cooldownBlock(
     payload: {
       'scope': scope,
       'duration': duration,
@@ -33,9 +31,6 @@ Future<Map<String, String>> run(
     variables: vars,
     botId: bot,
     resolveValue: (input) => resolveTemplatePlaceholders(input, vars),
-    onLog: null,
-    activeWorkflowStack: {},
-    getWorkflowByName: (_) async => null,
     executeActions: (actions) async {
       messages?.addAll(
         actions.map((action) => action.payload['content'] as String),

@@ -15,9 +15,11 @@ import '../../../services/lavalink_service.dart';
 import '../../execution_budget.dart';
 import '../../../types/action.dart';
 import '../program.dart';
+import '../replay.dart' show snapshotReplayVariables;
 import '../runtime.dart';
 import 'action_execution.dart';
 import 'action_functions.dart';
+import 'action_observer.dart' show flushAllBlocks;
 import 'action_translator.dart';
 import 'control_flow_actions.dart' show visualBlockTypes;
 import 'control_flow_state.dart' show visualProgramDepth;
@@ -196,6 +198,12 @@ class BdfdActionRunner {
         context.stopped = wasStopped;
         program = translator.translateFrom(actions, restart);
       }
+    } on CommandExecutionTimeout catch (error) {
+      final root = env.flow.rootAction;
+      if (root != null) {
+        env.sink.recordError(root.type, root.key, const [], error);
+      }
+      rethrow;
     } on BdfdNativeError catch (error) {
       final cause = error.cause ?? error;
       // Like the historical enclosing handlers: the failure ends up on the
@@ -211,6 +219,14 @@ class BdfdActionRunner {
                 orElse: () => ref,
               );
         env.sink.recordError(top.action.type.name, top.key, const [], cause);
+        // The historical loop's enclosing handler records the failure once
+        // more for the policy.
+        env.policy?.record({
+          'actionType': top.action.type.name,
+          'result': 'Error: $cause',
+          'variablesBefore': env.flow.rootBefore,
+          'variablesAfter': snapshotReplayVariables(env.variables),
+        });
       }
       throw cause;
     }
@@ -262,8 +278,13 @@ class BdfdActionRunner {
     visualProgramDepth[context] = (visualProgramDepth[context] ?? 0) + 1;
     try {
       await runtime.executeProgram(program.program, context: context);
+      flushAllBlocks(env);
       env.sink.commit();
-    } catch (_) {
+    } catch (error) {
+      flushAllBlocks(
+        env,
+        error: error is BdfdNativeError ? (error.cause ?? error) : error,
+      );
       // Whatever the failing blocks had not published is lost, but a top-level
       // loop keeps the iterations it had finished (the historical loop wrote
       // them into the results as it went).

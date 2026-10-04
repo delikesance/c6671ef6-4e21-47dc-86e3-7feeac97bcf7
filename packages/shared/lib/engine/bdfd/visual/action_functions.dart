@@ -134,6 +134,8 @@ Map<String, BdfdNativeFunction> bdfdVisualFunctions(
     ActionCall? done;
     VisualActionObservation? observation;
     try {
+      // The blocks that finished before this action are recorded first.
+      flushBlocksBefore(env, path);
       // A historical loop owns the budget check and `execution.time` of the
       // root action it routed here; nothing else does.
       if (path.isNotEmpty || !routed) {
@@ -148,6 +150,7 @@ Map<String, BdfdNativeFunction> bdfdVisualFunctions(
       observation = VisualActionObservation.begin(
         env,
         type,
+        key,
         path,
         payload,
         withPolicy: !routed,
@@ -183,8 +186,10 @@ Map<String, BdfdNativeFunction> bdfdVisualFunctions(
       }
       observation.finish(env.sink.scope(path)[key]);
       done = action;
-    } on CommandExecutionTimeout {
-      // Never an action error: it ends the whole execution, like today.
+    } on CommandExecutionTimeout catch (error) {
+      // Never an action error: it ends the whole execution, like today (the
+      // historical handler still leaves the `error.*` variables).
+      env.sink.recordError(type.name, key, path, error);
       rethrow;
     } catch (error) {
       env.sink.recordError(type.name, key, path, error);
@@ -241,6 +246,9 @@ Map<String, BdfdNativeFunction> bdfdVisualFunctions(
         final condition = _object(await call.argument(2));
         final path = env.flow.resolvePath(_path(await call.argument(3)));
         try {
+          if (index == 0) {
+            beginBlock(env, path, key, 'ifBlock', withPolicy: !env.flow.routed);
+          }
           if (index == 0 && path.isNotEmpty) {
             env.flow.refreshExecutionTime?.call();
           }
@@ -294,6 +302,7 @@ Map<String, BdfdNativeFunction> bdfdVisualFunctions(
           path,
           env.sink.lastError ?? 'Unknown error',
         );
+        failBlock(env, path, key, env.sink.lastError ?? 'Unknown error');
         switch (options['mode']) {
           case 'skip':
             call.context.requestSkip(

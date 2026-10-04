@@ -114,6 +114,30 @@ class VisualListProfile {
   final List<VisualProfileEntry> entries = [];
 }
 
+/// A native block (`ifBlock`, `forLoop`, `jsonForEachLoop`) that started and is
+/// not yet recorded for the policy frames / `debugProfile` trace of its list:
+/// a block is no `bc_*` call, so it is recorded lazily, once the execution has
+/// left it (see `action_observer.dart`).
+class VisualPendingBlock {
+  VisualPendingBlock({
+    required this.path,
+    required this.key,
+    required this.type,
+    this.startMs,
+    this.before,
+  });
+
+  /// The list that contains the block (resolved path).
+  final List<String> path;
+  final String key;
+  final String type;
+  final int? startMs;
+  final Map<String, String>? before;
+
+  /// Set when the block failed and the failure was handled by its error mode.
+  String? error;
+}
+
 /// Mutable bookkeeping of the control-flow blocks of one visual execution.
 class VisualFlowState {
   VisualControlAdapter? adapter;
@@ -139,6 +163,15 @@ class VisualFlowState {
   /// index the runner restarts the root list from (consumed by the runner).
   int? restartAt;
 
+  final List<VisualPendingBlock> pendingBlocks = [];
+
+  /// The ROOT action (leaf or block) that is running: where a failure that
+  /// carries no location (a budget timeout) is recorded.
+  ({String key, String type})? rootAction;
+
+  /// Variables before the ROOT action that is running (policy error frames).
+  Map<String, String>? rootBefore;
+
   final Map<String, VisualLoopState> loops = {};
   final Map<String, int> iterations = {};
   final Map<String, Map<String, String>> savedErrors = {};
@@ -151,6 +184,7 @@ class VisualFlowState {
     loops.clear();
     iterations.clear();
     profiles.clear();
+    pendingBlocks.clear();
     savedErrors.clear();
   }
 

@@ -39,6 +39,11 @@ class ResultSink {
     return _scopes.putIfAbsent(id, () => <String, String>{});
   }
 
+  /// The value at [key] of the list at [path], without creating or publishing
+  /// anything.
+  String? peek(List<String> path, String key) =>
+      path.isEmpty ? results[key] : _scopes[_id(path)]?[key];
+
   /// `results[key] = value` in the list at [path].
   void set(List<String> path, String key, String value) {
     scope(path)[key] = value;
