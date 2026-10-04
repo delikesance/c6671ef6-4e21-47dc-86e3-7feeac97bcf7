@@ -45,8 +45,25 @@ abstract interface class BotMusicService {
   });
 }
 
+/// Block-style music operations: the payload is the raw (resolved) block
+/// payload and the outcome is the result map of the shared Lavalink actions
+/// (`title`, `author`, ... on success, an `error` key on failure), never a
+/// thrown error. This is what the visual `playMusic`, `pauseMusic`, ...,
+/// `getMusicInfo`, `joinVoice` and `leaveVoice` blocks expose as
+/// `((action.key.title))` and friends. [BotMusicService.perform] keeps its own
+/// throwing contract for BDFD.
+abstract interface class BotMusicBlockService {
+  Future<Map<String, String>> execute(
+    BotMusicOperation operation,
+    Map<String, dynamic> payload,
+  );
+
+  /// Playback state of the current track (`isPlaying`, `title`, ...).
+  Future<Map<String, String>> info(Map<String, dynamic> payload);
+}
+
 /// Production adapter over the shared Lavalink actions.
-class DiscordBotMusicService implements BotMusicService {
+class DiscordBotMusicService implements BotMusicService, BotMusicBlockService {
   const DiscordBotMusicService({
     required this.client,
     required this.guildId,
@@ -104,4 +121,46 @@ class DiscordBotMusicService implements BotMusicService {
     budget.check();
     if (result['error'] != null) throw StateError(result['error']!);
   });
+
+  @override
+  Future<Map<String, String>> execute(
+    BotMusicOperation operation,
+    Map<String, dynamic> payload,
+  ) {
+    final guild = guildId;
+    if (guild == null) {
+      // The historical loop dereferences the guild unconditionally.
+      throw StateError('Music requires a server.');
+    }
+    final action = switch (operation) {
+      BotMusicOperation.join => joinVoiceAction,
+      BotMusicOperation.leave => leaveVoiceAction,
+      BotMusicOperation.play => playMusicAction,
+      BotMusicOperation.pause => pauseMusicAction,
+      BotMusicOperation.resume => resumeMusicAction,
+      BotMusicOperation.skip => skipMusicAction,
+      BotMusicOperation.stop => stopMusicAction,
+      BotMusicOperation.volume => setMusicVolumeAction,
+      BotMusicOperation.loop => setMusicLoopAction,
+      BotMusicOperation.seek => seekMusicAction,
+    };
+    return action(
+      client: client,
+      guildId: guild,
+      payload: payload,
+      lavalinkService: lavalink,
+    );
+  }
+
+  @override
+  Future<Map<String, String>> info(Map<String, dynamic> payload) {
+    final guild = guildId;
+    if (guild == null) throw StateError('Music requires a server.');
+    return getMusicInfoAction(
+      client: client,
+      guildId: guild,
+      payload: payload,
+      lavalinkService: lavalink,
+    );
+  }
 }
