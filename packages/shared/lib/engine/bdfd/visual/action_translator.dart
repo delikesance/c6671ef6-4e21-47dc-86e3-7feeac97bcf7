@@ -3,9 +3,12 @@ import 'dart:convert';
 import '../../../services/action_condition.dart' show parseActionBooleanFlag;
 import '../../../types/action.dart';
 import '../../../utils/bdfd_ast.dart';
+import '../loop_syntax.dart';
 import '../program.dart';
 import 'action_functions.dart';
 import 'channel_actions.dart';
+import 'control_flow_actions.dart';
+import 'control_flow_state.dart';
 import 'guild_actions.dart';
 import 'moderation_actions.dart';
 import 'role_actions.dart';
@@ -89,44 +92,33 @@ class ActionTranslator {
 
   final bool _enabled;
 
-  static const _leafPredicates = <BotCreatorActionType, bool Function(Action)>{
+  static final _leafPredicates = <BotCreatorActionType, bool Function(Action)>{
     BotCreatorActionType.addRole: supportsRoleAction,
     BotCreatorActionType.removeRole: supportsRoleAction,
     ...variableLeafPredicates,
     ...moderationLeafPredicates,
     ...guildLeafPredicates,
     ...channelLeafPredicates,
+    ...controlLeafPredicates,
   };
 
   /// Whether [action] runs on the native engine. A leaf needs a handler (and a
-  /// payload variant the handler covers). An `ifBlock` is native only when every
-  /// action of every branch is: otherwise the whole block stays historical.
+  /// payload variant the handler covers). A block (`ifBlock`, `forLoop`,
+  /// `jsonForEachLoop`) is native only when every action of every list it owns
+  /// is: otherwise the whole block stays historical.
   bool supports(Action action) {
     if (!_enabled) return false;
-    if (action.type == BotCreatorActionType.ifBlock) return _supportsIf(action);
+    if (visualBlockTypes.contains(action.type)) return _supportsBlock(action);
     final predicate = _leafPredicates[action.type];
     return predicate != null &&
         bdfdVisualActionHandlers.containsKey(action.type) &&
         predicate(action);
   }
 
-  bool _supportsIf(Action action) {
-    final payload = action.payload;
-    // try/catch and suppressErrors blocks keep the historical error handling.
-    if (payload['tryCatch'] == true ||
-        parseActionBooleanFlag(payload['suppressErrors'])) {
-      return false;
-    }
-    // jump/skip on a block would need a flow request made from its catch body,
-    // which the interpreter would consume inside that body.
-    final mode = action.onErrorMode;
-    if (mode != ActionOnErrorMode.stop &&
-        mode != ActionOnErrorMode.continueMode) {
-      return false;
-    }
+  bool _supportsBlock(Action action) {
     try {
-      for (final branch in _branches(payload)) {
-        for (final child in branch.actions) {
+      for (final list in _childLists(action)) {
+        for (final child in list.actions) {
           if (!supports(child)) return false;
         }
       }
@@ -134,6 +126,39 @@ class ActionTranslator {
       return false; // Invalid nested action: the historical path reports it.
     }
     return true;
+  }
+
+  static bool _isTryCatch(Action action) =>
+      action.type == BotCreatorActionType.ifBlock &&
+      action.payload['tryCatch'] == true;
+
+  static bool _suppresses(Action action) =>
+      action.type == BotCreatorActionType.ifBlock &&
+      !_isTryCatch(action) &&
+      parseActionBooleanFlag(action.payload['suppressErrors']);
+
+  static List<Action> _decode(dynamic raw) => [
+    if (raw is List)
+      for (final item in raw)
+        if (item is Map) Action.fromJson(Map<String, dynamic>.from(item)),
+  ];
+
+  /// The lists of actions a block owns (their children's own support decides).
+  List<_Branch> _childLists(Action action) {
+    switch (action.type) {
+      case BotCreatorActionType.ifBlock:
+        if (_isTryCatch(action)) {
+          return [
+            _Branch(0, action.payload, _decode(action.payload['thenActions'])),
+            _Branch(-1, const {}, _decode(action.payload['elseActions'])),
+          ];
+        }
+        return _branches(action.payload);
+      default:
+        return [
+          _Branch(0, action.payload, _decode(action.payload['bodyActions'])),
+        ];
+    }
   }
 
   List<_Branch> _branches(Map<String, dynamic> payload) {
@@ -178,6 +203,7 @@ class ActionTranslator {
       0,
       firstIndex,
       topLevelErrorModes,
+      false,
       source,
       refs,
       topLevel,
@@ -215,12 +241,16 @@ class ActionTranslator {
     'value',
   ];
 
+  /// [errorModes]: apply the per-action error modes of this list. [protected]:
+  /// the list runs inside a try/catch or suppressErrors block, whose actions
+  /// (and everything nested in them) always fail outright, ignoring modes.
   List<BdfdStatement> _list(
     List<Action> actions,
     List<String> path,
     int depth,
     int firstIndex,
     bool errorModes,
+    bool protected,
     _Source source,
     Map<int, ActionRef> refs,
     List<ActionRef> topLevel,
@@ -264,36 +294,45 @@ class ActionTranslator {
           'Action type ${action.type.name} has no native translation.',
         );
       }
-      final modes = depth > 0 || errorModes;
-      if (action.type == BotCreatorActionType.ifBlock) {
-        final block = _ifBlock(
+      final modes = !protected && (depth > 0 || errorModes);
+      if (visualBlockTypes.contains(action.type)) {
+        final block = _block(
           action,
           key,
           path,
           depth,
+          protected,
           call,
           source,
           refs,
           topLevel,
         );
-        if (modes && action.onErrorMode == ActionOnErrorMode.continueMode) {
+        final options = _options(action, actions, index, path, modes);
+        final mode = options['mode'];
+        if (mode != null) {
+          // The block's own error mode: its failure is caught here and the
+          // mode applied to this list (a request made from the catch body).
+          if (action.type != BotCreatorActionType.ifBlock) {
+            options['loop'] = block.loopId;
+          }
           statements.add(
             BdfdTry(
-              block.node,
-              [block],
+              block.statement.node,
+              [block.statement],
               [
                 BdfdExpression(
                   call(bdfdVisualBlockErrorFunction, [
                     key,
                     action.type.name,
                     jsonEncode(path),
+                    jsonEncode(options),
                   ]),
                 ),
               ],
             ),
           );
         } else {
-          statements.add(block);
+          statements.add(block.statement);
         }
         continue;
       }
@@ -310,31 +349,80 @@ class ActionTranslator {
     return statements;
   }
 
-  BdfdConditional _ifBlock(
+  _Block _block(
     Action action,
     String key,
     List<String> path,
     int depth,
+    bool protected,
     BdfdFunctionCallAst Function(String, List<String>) call,
     _Source source,
     Map<int, ActionRef> refs,
     List<ActionRef> topLevel,
   ) {
+    List<BdfdStatement> children(
+      List<Action> list,
+      List<String> childPath,
+      bool childrenProtected,
+    ) => _list(
+      list,
+      childPath,
+      depth + 1,
+      0,
+      true,
+      childrenProtected,
+      source,
+      refs,
+      topLevel,
+    );
+
+    if (action.type != BotCreatorActionType.ifBlock) {
+      return _loop(action, key, path, protected, call, children, source);
+    }
+    final childPath = [...path, key];
     final node = call('bc_ifBlock', const []);
+    if (_isTryCatch(action)) {
+      final id = source.nextId();
+      final args = [id, key, jsonEncode(path)];
+      return _Block(
+        BdfdTry(
+          node,
+          children(_decode(action.payload['thenActions']), childPath, true),
+          children(_decode(action.payload['elseActions']), childPath, true),
+          enter: call(bdfdVisualTryEnterFunction, args),
+          onCatch: call(bdfdVisualTryCatchFunction, [key, jsonEncode(path)]),
+          exit: call(bdfdVisualTryExitFunction, [id]),
+        ),
+      );
+    }
+    final suppress = _suppresses(action);
     final branches = <BdfdBranch>[];
     for (final branch in _branches(action.payload)) {
-      final children = _list(
-        branch.actions,
-        [...path, key],
-        depth + 1,
-        0,
-        true,
-        source,
-        refs,
-        topLevel,
-      );
+      var body = children(branch.actions, childPath, protected || suppress);
+      if (suppress && body.isNotEmpty) {
+        // Only the selected branch is protected; an empty one has nothing to
+        // fail. The failure is swallowed (and reported) by `bc_suppress`.
+        body = [
+          BdfdTry(node, body, [
+            BdfdExpression(
+              call(bdfdVisualSuppressFunction, [
+                key,
+                jsonEncode({
+                  for (final name in const [
+                    'suppressErrorsMessage',
+                    'suppressErrorsEmbed',
+                  ])
+                    if (action.payload.containsKey(name))
+                      name: action.payload[name],
+                }),
+                jsonEncode(path),
+              ]),
+            ),
+          ]),
+        ];
+      }
       if (branch.index < 0) {
-        branches.add(BdfdBranch(null, children));
+        branches.add(BdfdBranch(null, body));
         continue;
       }
       branches.add(
@@ -349,13 +437,70 @@ class ActionTranslator {
             }),
             jsonEncode(path),
           ]),
-        ], children),
+        ], body),
       );
     }
-    return BdfdConditional(node, branches);
+    return _Block(BdfdConditional(node, branches));
+  }
+
+  /// `forLoop` / `jsonForEachLoop`: a native `$while` whose condition,
+  /// `bc_loopnext`, publishes the `_loop.*` variables and counts the iterations.
+  /// Each iteration's results live under `<key>.iter<N>` (see
+  /// [visualIterationMarker]).
+  _Block _loop(
+    Action action,
+    String key,
+    List<String> path,
+    bool protected,
+    BdfdFunctionCallAst Function(String, List<String>) call,
+    List<BdfdStatement> Function(List<Action>, List<String>, bool) children,
+    _Source source,
+  ) {
+    final id = source.nextId();
+    final body = _decode(action.payload['bodyActions']);
+    final descriptor = <String, dynamic>{
+      for (final entry in action.payload.entries)
+        if (entry.key != 'bodyActions') entry.key: entry.value,
+      'empty': body.isEmpty,
+      if (action.type == BotCreatorActionType.jsonForEachLoop)
+        'loopType': 'json',
+    };
+    final next = call(bdfdVisualLoopFunction, [
+      id,
+      key,
+      jsonEncode(descriptor),
+      jsonEncode(path),
+    ]);
+    final syntax = BdfdLoopSyntax.parse(
+      BdfdFunctionCallAst(
+        name: 'while',
+        arguments: [
+          [next],
+        ],
+        start: next.start,
+        end: next.end,
+      ),
+    );
+    final node = BdfdFunctionCallAst(
+      name: 'bc_${action.type.name}',
+      arguments: [
+        [next],
+      ],
+      start: next.start,
+      end: next.end,
+    );
+    return _Block(
+      BdfdLoop(
+        node,
+        children(body, [...path, key, '$visualIterationMarker$id'], protected),
+        syntax,
+      ),
+      loopId: id,
+    );
   }
 
   /// Call options: where the action's results live and what a failure does.
+  /// Returns a mutable map.
   Map<String, dynamic> _options(
     Action action,
     List<Action> siblings,
@@ -364,6 +509,9 @@ class ActionTranslator {
     bool modes,
   ) {
     final options = <String, dynamic>{'path': path};
+    if (action.type == BotCreatorActionType.jumpToAction) {
+      _jumpTable(options, action, siblings, index);
+    }
     if (!modes) return options;
     switch (action.onErrorMode) {
       case ActionOnErrorMode.stop:
@@ -396,6 +544,36 @@ class ActionTranslator {
     }
     return options;
   }
+
+  /// What `jumpToAction` needs to turn its target into an ordinal of its own
+  /// list: every sibling's key and `_actionId` (first match wins, as in the
+  /// historical lookup), its own position and the list length (a target may be
+  /// a 1-based position).
+  void _jumpTable(
+    Map<String, dynamic> options,
+    Action action,
+    List<Action> siblings,
+    int index,
+  ) {
+    final targets = <String, int>{};
+    for (var i = 0; i < siblings.length; i++) {
+      final sibling = siblings[i];
+      final names = [sibling.key, sibling.payload['_actionId']?.toString()];
+      for (final name in names) {
+        if (name != null) targets.putIfAbsent(name, () => i + 1);
+      }
+    }
+    options
+      ..['own'] = index + 1
+      ..['count'] = siblings.length
+      ..['targets'] = targets;
+  }
+}
+
+class _Block {
+  _Block(this.statement, {this.loopId});
+  final BdfdStatement statement;
+  final String? loopId;
 }
 
 class _Branch {
@@ -413,7 +591,11 @@ class _Branch {
 class _Source {
   final _buffer = StringBuffer();
   int lines = 0;
+  int _ids = 0;
   String get text => _buffer.toString();
+
+  /// A name unique within the program, for block state at run time.
+  String nextId() => 't${_ids++}';
 
   (int, int) add(String line) {
     final start = _buffer.length;

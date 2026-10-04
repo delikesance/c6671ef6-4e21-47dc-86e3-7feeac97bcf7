@@ -90,13 +90,16 @@ class ResultSink {
 
   /// Publish every finished nested list into its parent, deepest first.
   void commit() {
-    if (_scopes.isEmpty) return;
-    final ids = _scopes.keys.toList()
-      ..sort((a, b) => _paths[b]!.length.compareTo(_paths[a]!.length));
-    for (final id in ids) {
-      final path = _paths[id]!;
+    // A list's parent may only exist because of it (a block whose own list
+    // wrote nothing, a loop's `<key>` namespace): pick the deepest list until
+    // none is left, so parents created on the way are published too.
+    while (_scopes.isNotEmpty) {
+      var id = _scopes.keys.first;
+      for (final candidate in _scopes.keys) {
+        if (_paths[candidate]!.length > _paths[id]!.length) id = candidate;
+      }
+      final path = _paths.remove(id)!;
       final child = _scopes.remove(id)!;
-      _paths.remove(id);
       final parentPath = path.sublist(0, path.length - 1);
       final parent = parentPath.isEmpty
           ? results
@@ -112,10 +115,22 @@ class ResultSink {
 
   /// Forget the nested lists of an aborted block (everything at or below
   /// [prefix]), or all of them when omitted.
-  void discard([List<String> prefix = const []]) {
+  ///
+  /// Lists at or under one of [keep] survive: the finished iterations of a loop
+  /// the historical code had already published when the loop failed.
+  void discard([
+    List<String> prefix = const [],
+    List<List<String>> keep = const [],
+  ]) {
+    bool under(List<String> path, List<String> base) =>
+        path.length >= base.length &&
+        [
+          for (var i = 0; i < base.length; i++) path[i] == base[i],
+        ].every((e) => e);
     final doomed = [
       for (final entry in _paths.entries)
-        if (entry.value.length >= prefix.length &&
+        if (!keep.any((base) => under(entry.value, base)) &&
+            entry.value.length >= prefix.length &&
             [
               for (var i = 0; i < prefix.length; i++)
                 entry.value[i] == prefix[i],

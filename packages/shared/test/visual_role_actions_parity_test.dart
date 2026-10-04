@@ -778,7 +778,8 @@ void main() {
       },
     );
 
-    test('tryCatch, suppressErrors and jump modes stay historical', () async {
+    test('tryCatch, suppressErrors and jump modes run natively', () async {
+      // Wave 1: see visual_control_flow_parity_test.dart for the full parity.
       for (final block in [
         ifBlock(key: 'g', then: [add('a')], extra: {'tryCatch': true}),
         ifBlock(key: 'g', then: [add('a')], extra: {'suppressErrors': true}),

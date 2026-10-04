@@ -8,6 +8,7 @@ import '../program.dart' show BdfdNativeError;
 import '../runtime.dart';
 import 'action_environment.dart';
 import 'channel_actions.dart';
+import 'control_flow_actions.dart';
 import 'guild_actions.dart';
 import 'moderation_actions.dart';
 import 'role_actions.dart';
@@ -33,6 +34,7 @@ final Map<BotCreatorActionType, ActionHandler> bdfdVisualActionHandlers =
       ...moderationActionHandlers,
       ...guildActionHandlers,
       ...channelActionHandlers,
+      ...controlActionHandlers,
     });
 
 /// Native types whose historical counterpart records its trace only while a
@@ -54,6 +56,7 @@ Set<String> bdfdVisualFunctionNames([Iterable<BotCreatorActionType>? types]) =>
         bdfdVisualTemplateFunction,
         bdfdVisualConditionFunction,
         bdfdVisualBlockErrorFunction,
+        ...bdfdVisualControlFunctionNames,
       ])
         normalizeBdfdFunctionName(name),
       for (final type in types ?? bdfdVisualActionHandlers.keys)
@@ -94,24 +97,30 @@ Map<String, BdfdNativeFunction> bdfdVisualFunctions(
     final key = await call.argument(0);
     final payload = _object(await call.argument(1));
     final options = _object(await call.argument(2));
-    final path = _pathOf(options['path']);
+    final rawPath = _pathOf(options['path']);
+    final path = env.flow.resolvePath(rawPath);
+    ActionCall? done;
     try {
+      // The historical loop refreshes `execution.time` before each action; the
+      // loop already did for the action it routed here.
+      if (path.isNotEmpty) env.flow.refreshExecutionTime?.call();
       await env.prepare?.call(type, key, payload, path);
-      final result = await handler(
-        ActionCall(
-          invocation: call,
-          env: env,
-          type: type,
-          key: key,
-          path: path,
-          payload: payload,
-        ),
+      final action = ActionCall(
+        invocation: call,
+        env: env,
+        type: type,
+        key: key,
+        path: path,
+        payload: payload,
+        rawPath: rawPath,
+        options: options,
       );
+      final result = await handler(action);
       if (result != null) env.sink.set(path, key, result);
       if (!bdfdVisualProfilingOnlyTraceTypes.contains(type)) {
         env.sink.noteNumeric(path, key);
       }
-      return '';
+      done = action;
     } on CommandExecutionTimeout {
       // Never an action error: it ends the whole execution, like today.
       rethrow;
@@ -133,6 +142,9 @@ Map<String, BdfdNativeFunction> bdfdVisualFunctions(
           throw wrap(call, error);
       }
     }
+    // Outside the try: a stop is an interpreter control signal, not a failure.
+    applyFlowRequests(done);
+    return '';
   }
 
   return {
@@ -143,7 +155,7 @@ Map<String, BdfdNativeFunction> bdfdVisualFunctions(
       handler: (call) async {
         final template = await call.argument(0);
         final path = call.argumentCount > 1
-            ? _path(await call.argument(1))
+            ? env.flow.resolvePath(_path(await call.argument(1)))
             : const <String>[];
         try {
           return env.resolverFor(path)(template);
@@ -164,8 +176,11 @@ Map<String, BdfdNativeFunction> bdfdVisualFunctions(
         final key = await call.argument(0);
         final index = int.parse(await call.argument(1));
         final condition = _object(await call.argument(2));
-        final path = _path(await call.argument(3));
+        final path = env.flow.resolvePath(_path(await call.argument(3)));
         try {
+          if (index == 0 && path.isNotEmpty) {
+            env.flow.refreshExecutionTime?.call();
+          }
           final passed = await evaluateActionCondition(
             payload: condition,
             variables: env.variables,
@@ -181,30 +196,57 @@ Map<String, BdfdNativeFunction> bdfdVisualFunctions(
         } on CommandExecutionTimeout {
           rethrow;
         } catch (error) {
+          env.sink.lastError = error;
           throw wrap(call, error);
         }
       },
     ),
-    // `bc_blockerr[key;type;path]`: catch body of a block whose own error mode
-    // is `continue`. The failing child already recorded the error; the block
-    // records its own result and forgets the branch results it never published.
+    // `bc_blockerr[key;type;path;options?]`: catch body of a block that has its
+    // own error mode (`continue`, `skip`, `jump`). The failing child already
+    // recorded the error; the block records its own result, forgets the branch
+    // results it never published (a loop keeps its finished iterations) and
+    // applies the mode to the list that contains the block: the request is made
+    // `outer`, so the interpreter hands it over once this catch body is done.
     bdfdVisualBlockErrorFunction: BdfdNativeFunction(
       minArguments: 3,
-      maxArguments: 3,
+      maxArguments: 4,
       handler: (call) async {
         final key = await call.argument(0);
         final type = await call.argument(1);
-        final path = _path(await call.argument(2));
-        env.sink.discard([...path, key]);
+        final path = env.flow.resolvePath(_path(await call.argument(2)));
+        final options = call.argumentCount > 3
+            ? _object(await call.argument(3))
+            : const <String, dynamic>{};
+        final loopId = options['loop']?.toString();
+        final loop = loopId == null ? null : env.flow.loops.remove(loopId);
+        if (loop != null) {
+          env.sink.discard([...path, key, 'iter${loop.entered - 1}']);
+        } else {
+          env.sink.discard([...path, key]);
+        }
+        env.flow.dropLoopsUnder([...path, key]);
         env.sink.recordError(
           type,
           key,
           path,
           env.sink.lastError ?? 'Unknown error',
         );
+        switch (options['mode']) {
+          case 'skip':
+            call.context.requestSkip(
+              (options['count'] as num).toInt(),
+              outer: true,
+            );
+          case 'jump':
+            call.context.requestJump(
+              (options['ordinal'] as num).toInt(),
+              outer: true,
+            );
+        }
         return '';
       },
     ),
+    ...bdfdVisualControlFunctions(env),
     for (final entry in (handlers ?? bdfdVisualActionHandlers).entries)
       bdfdVisualFunctionFor(entry.key): BdfdNativeFunction(
         minArguments: 3,
