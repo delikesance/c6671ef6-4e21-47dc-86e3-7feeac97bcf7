@@ -4,6 +4,7 @@ import '../../../actions/send_message.dart' show sendMessageToChannel;
 import '../../../types/action.dart';
 import '../runtime.dart';
 import 'action_environment.dart';
+import 'action_observer.dart' show flushBlocksOf;
 import 'control_flow_state.dart';
 import 'message_actions.dart' show visualResolvedFallbackChannel;
 
@@ -106,6 +107,7 @@ Map<String, BdfdNativeFunction> bdfdVisualProfileFunctions(
       final path = env.flow.resolvePath([
         if (raw is List) ...raw.map((e) => e.toString()),
       ]);
+      flushBlocksOf(env, path); // The blocks of this list are over.
       final profile = env.flow.profiles.remove(
         VisualFlowState.profileKey(path),
       );

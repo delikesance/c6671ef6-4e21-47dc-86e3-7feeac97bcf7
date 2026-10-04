@@ -7,6 +7,7 @@ import '../../execution_budget.dart';
 import '../program.dart' show BdfdNativeError;
 import '../runtime.dart';
 import 'action_environment.dart';
+import 'action_observer.dart' show beginBlock;
 import 'control_flow_logic.dart';
 import 'control_flow_state.dart';
 import 'message_actions.dart' show visualRespondWithMessage;
@@ -374,6 +375,13 @@ Future<VisualLoopState?> _startLoop(
   final payload = _object(await call.argument(2));
   final rawPath = _path(await call.argument(3));
   final path = env.flow.resolvePath(rawPath);
+  beginBlock(
+    env,
+    path,
+    key,
+    payload['loopType'] == 'json' ? 'jsonForEachLoop' : 'forLoop',
+    withPolicy: !env.flow.routed,
+  );
   if (path.isNotEmpty) env.flow.refreshExecutionTime?.call();
   final resolve = env.resolverFor(path);
   final empty = payload['empty'] == true;
@@ -507,6 +515,7 @@ Map<String, BdfdNativeFunction> bdfdVisualControlFunctions(
         final id = await call.argument(0);
         final key = await call.argument(1);
         final path = env.flow.resolvePath(_path(await call.argument(2)));
+        beginBlock(env, path, key, 'ifBlock', withPolicy: !env.flow.routed);
         if (path.isNotEmpty) env.flow.refreshExecutionTime?.call();
         env.flow.savedErrors[id] = {
           for (final entry in env.variables.entries)

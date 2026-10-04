@@ -58,15 +58,20 @@ class VisualActionObservation {
   factory VisualActionObservation.begin(
     ActionRunEnvironment env,
     BotCreatorActionType type,
+    String key,
     List<String> path,
     Map<String, dynamic> payload, {
     required bool withPolicy,
   }) {
     // `debugProfile` itself is never part of its own trace.
+    if (path.isEmpty) env.flow.rootAction = (key: key, type: type.name);
     final profile = type == BotCreatorActionType.debugProfile
         ? null
         : env.flow.profiles[VisualFlowState.profileKey(path)];
     final policy = withPolicy ? env.policy : null;
+    if (policy != null && path.isEmpty) {
+      env.flow.rootBefore = snapshotReplayVariables(env.variables);
+    }
     return VisualActionObservation._(
       env,
       type,
@@ -107,4 +112,111 @@ class VisualActionObservation {
   /// though its historical counterpart only traced under profiling.
   bool get profiling =>
       profile != null || (path.isEmpty && env.replayCapturing);
+}
+
+// ---------------------------------------------------------------------------
+// Blocks
+// ---------------------------------------------------------------------------
+
+bool _under(List<String> path, List<String> base) {
+  if (path.length < base.length) return false;
+  for (var i = 0; i < base.length; i++) {
+    if (path[i] != base[i]) return false;
+  }
+  return true;
+}
+
+/// A block of the list at [path] starts. Records the blocks that are over.
+void beginBlock(
+  ActionRunEnvironment env,
+  List<String> path,
+  String key,
+  String type, {
+  required bool withPolicy,
+}) {
+  flushBlocksBefore(env, path);
+  if (path.isEmpty) env.flow.rootAction = (key: key, type: type);
+  final profile = env.flow.profiles[VisualFlowState.profileKey(path)];
+  final policy = withPolicy ? env.policy : null;
+  if (policy != null && path.isEmpty) {
+    env.flow.rootBefore = snapshotReplayVariables(env.variables);
+  }
+  if (profile == null && policy == null) return;
+  env.flow.pendingBlocks.add(
+    VisualPendingBlock(
+      path: path,
+      key: key,
+      type: type,
+      startMs: profile?.elapsedMs(),
+      before: policy == null ? null : snapshotReplayVariables(env.variables),
+    ),
+  );
+}
+
+/// An action or block of the list at [path] is about to run: every pending
+/// block that does not contain it is over.
+void flushBlocksBefore(ActionRunEnvironment env, List<String> path) {
+  final pending = env.flow.pendingBlocks;
+  for (var i = pending.length - 1; i >= 0; i--) {
+    final block = pending[i];
+    if (!_under(path, [...block.path, block.key])) _record(env, i);
+  }
+}
+
+/// The list at [path] ends: every pending block of it (or below) is over.
+void flushBlocksOf(ActionRunEnvironment env, List<String> path) {
+  final pending = env.flow.pendingBlocks;
+  for (var i = pending.length - 1; i >= 0; i--) {
+    if (_under(pending[i].path, path)) _record(env, i);
+  }
+}
+
+/// The program ended (or failed with [error]): every pending block is over.
+void flushAllBlocks(ActionRunEnvironment env, {Object? error}) {
+  final pending = env.flow.pendingBlocks;
+  for (var i = pending.length - 1; i >= 0; i--) {
+    if (error != null) pending[i].error ??= 'Error: $error';
+    _record(env, i);
+  }
+}
+
+/// The block [key] of the list at [path] failed and its error mode took over.
+void failBlock(
+  ActionRunEnvironment env,
+  List<String> path,
+  String key,
+  Object error,
+) {
+  for (final block in env.flow.pendingBlocks) {
+    if (block.key == key && _pathEquals(block.path, path)) {
+      block.error = 'Error: $error';
+    }
+  }
+}
+
+bool _pathEquals(List<String> a, List<String> b) =>
+    a.length == b.length && _under(a, b);
+
+void _record(ActionRunEnvironment env, int index) {
+  final block = env.flow.pendingBlocks.removeAt(index);
+  final result = block.error ?? env.sink.peek(block.path, block.key);
+  if (block.before != null) {
+    env.policy?.record({
+      'actionType': block.type,
+      'result': result,
+      'variablesBefore': block.before,
+      'variablesAfter': snapshotReplayVariables(env.variables),
+    });
+  }
+  final profile = env.flow.profiles[VisualFlowState.profileKey(block.path)];
+  if (profile != null && block.startMs != null) {
+    profile.entries.add(
+      VisualProfileEntry(
+        actionType: block.type,
+        startMs: block.startMs!,
+        endMs: profile.elapsedMs(),
+        result: result,
+      ),
+    );
+  }
 }

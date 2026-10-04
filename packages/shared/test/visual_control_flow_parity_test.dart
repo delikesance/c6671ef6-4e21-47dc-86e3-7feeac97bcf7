@@ -10,6 +10,7 @@ import 'package:test/test.dart';
 
 import 'helpers/fake_role_gateway.dart';
 import 'helpers/variables_test_helpers.dart';
+import 'helpers/visual_golden.dart';
 
 /// Parity of the control-flow family (ifBlock with tryCatch / suppressErrors /
 /// every error mode, forLoop, jsonForEachLoop, stopUnless, stop, skipActions,
@@ -17,6 +18,12 @@ import 'helpers/variables_test_helpers.dart';
 /// executors (`ActionTranslator.none()`) and the native engine. Effects are
 /// observed through role changes (addRole / removeRole are native since wave 0),
 /// script messages and log lines.
+///
+/// The native side runs through `BdfdActionRunner.runList` (the entry point
+/// `handleActions` forwards to once the historical loop is deleted). Every
+/// parity call also checks the explicit expectations stored in
+/// `test/golden/visual_control_flow.json`, so the tests keep their meaning
+/// when the historical path (`parityWithHistorical`) is gone.
 
 class _Spy extends ActionTranslator {
   _Spy() : super();
@@ -111,6 +118,7 @@ Future<_Outcome> _execute(
   final frames = <Map<String, dynamic>>[];
   Map<String, String>? results;
   Object? error;
+  handleActionsForwardsToRunList = native;
   try {
     results = await handleActions(
       gateway,
@@ -131,6 +139,8 @@ Future<_Outcome> _execute(
     );
   } catch (e) {
     error = e;
+  } finally {
+    handleActionsForwardsToRunList = false;
   }
   values.remove('execution.time');
   return _Outcome(
@@ -151,7 +161,6 @@ Future<_Outcome> _parity(
   Map<String, Map<String, dynamic>> workflows = const {},
   bool throwOnError = false,
   ActionExecutionPolicy? policy,
-  bool expectNative = true,
 }) async {
   Future<_Outcome> run(bool native) => _execute(
     actions.map((a) => Action.fromJson(a.toJson())).toList(),
@@ -161,20 +170,25 @@ Future<_Outcome> _parity(
     throwOnError: throwOnError,
     policy: policy,
   );
-  final historical = await run(false);
   final native = await run(true);
+  expect(native.native, greaterThan(0), reason: 'must run natively');
+  _golden.expectSnapshot({
+    'effects': native.effects,
+    'results': native.results,
+    'variables': native.variables,
+    'error': native.errorText,
+  });
+  if (!parityWithHistorical) return native;
+  final historical = await run(false);
   expect(historical.native, 0);
-  if (expectNative) {
-    expect(native.native, greaterThan(0), reason: 'must run natively');
-  } else {
-    expect(native.native, 0, reason: 'must stay historical');
-  }
   expect(native.effects, historical.effects, reason: 'effects');
   expect(native.results, historical.results, reason: 'results');
   expect(native.variables, historical.variables, reason: 'variables');
   expect(native.errorText, historical.errorText, reason: 'error');
   return native;
 }
+
+final _golden = GoldenFile('visual_control_flow');
 
 // -- builders ---------------------------------------------------------------
 
@@ -1135,7 +1149,7 @@ void main() {
   });
 
   group('routing', () {
-    test('a policy keeps blocks historical but runs leaves natively', () async {
+    test('a policy no longer keeps blocks historical', () async {
       final outcome = await _parity([
         _simpleLoop('loop', '2', [_add('a', user: '((_loop.count))')]),
         _stop('halt'),
@@ -1144,7 +1158,7 @@ void main() {
       expect(outcome.results!['loop'], 'LOOP_2');
     });
 
-    test('a block with an unsupported child stays historical', () async {
+    test('a block holding a debugProfile runs natively', () async {
       final outcome = await _parity([
         _simpleLoop('loop', '1', [
           _act(
@@ -1153,8 +1167,8 @@ void main() {
             payload: {'question': 'x'},
           ),
         ]),
-      ], expectNative: false);
-      expect(outcome.native, 0);
+      ]);
+      expect(outcome.results!['loop'], 'LOOP_1');
     });
 
     test('protected executions ignore error modes (throwOnError)', () async {
@@ -1238,10 +1252,10 @@ void main() {
         expect(frames.single['actionType'], 'bc_addRole');
         expect(frames.single['variablesBefore'], isA<Map>());
         expect(frames.single['variablesAfter'], isA<Map>());
-        // The loop's own per-action frame is the only one of the routed action.
+        // The block itself is a native `$if`: no per-action frame of its own.
         expect(
           outcome.frames.where((f) => f['actionType'] == 'ifBlock'),
-          isNotEmpty,
+          isEmpty,
         );
       },
     );
