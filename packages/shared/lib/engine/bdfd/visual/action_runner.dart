@@ -1,8 +1,22 @@
 import 'dart:math' as math;
 
+import 'package:nyxx/nyxx.dart' show Interaction, NyxxGateway, Snowflake;
+
+import '../../../actions/execution_policy.dart';
+import '../../../bot/bot_data_store.dart';
+import '../../../services/bot_command_query_service.dart';
+import '../../../services/bot_component_service.dart';
+import '../../../services/bot_cooldown_service.dart';
+import '../../../services/bot_message_service.dart';
+import '../../../services/bot_moderation_service.dart';
+import '../../../services/bot_timing_service.dart';
+import '../../../services/http_service.dart';
+import '../../../services/lavalink_service.dart';
+import '../../execution_budget.dart';
 import '../../../types/action.dart';
 import '../program.dart';
 import '../runtime.dart';
+import 'action_execution.dart';
 import 'action_functions.dart';
 import 'action_translator.dart';
 import 'control_flow_actions.dart' show visualBlockTypes;
@@ -79,6 +93,80 @@ class BdfdActionRunner {
     }
   }
 
+  /// Run a whole action list natively with everything around it: the services
+  /// of the execution, entity hydration of every action, nested lists (blocks,
+  /// workflows, scripts), the per-list `debugProfile` trace, replay capture,
+  /// the execution policy and the interaction acknowledgement. There is no
+  /// action loop behind it: `handleActions` can forward here unchanged (same
+  /// named parameters; `hydratedActions` is unused). Returns the list's
+  /// `results`; a failure is rethrown as the original exception once its
+  /// results and `error.*` variables are recorded.
+  Future<Map<String, String>> runList(
+    NyxxGateway client,
+    Interaction? interaction, {
+    required List<Action> actions,
+    required BotDataStore store,
+    required String botId,
+    required Map<String, String> variables,
+    required String Function(String input) resolveTemplate,
+    Snowflake? fallbackChannelId,
+    Snowflake? fallbackGuildId,
+    Set<String>? workflowStack,
+    void Function(String message)? onLog,
+    void Function(List<Map<String, dynamic>> frames, int totalMs)?
+    onReplayCaptured,
+    List<Action> Function(List<Action>)? nestedActionsPreprocessor,
+    Map<String, dynamic>? entityCache,
+    LavalinkService? lavalinkService,
+    ActionExecutionPolicy? executionPolicy,
+    BdfdContext? bdfdContext,
+    BotMessageService? bdfdMessages,
+    BotModerationService? bdfdModeration,
+    BotCommandQueryService? bdfdCommandQueries,
+    BotComponentService? bdfdComponents,
+    BotTimingService? bdfdTiming,
+    BotDelayService bdfdDelays = const RuntimeBotDelayService(),
+    HttpService? bdfdHttp,
+    bool throwOnError = false,
+    CommandExecutionBudget? executionBudget,
+
+    /// Acknowledgement of the interaction by the root list (see
+    /// [VisualAcknowledgement]); nested lists never take part.
+    VisualAcknowledgement? acknowledgement,
+
+    /// Deterministic stopwatch of `debugProfile` lists (tests).
+    int Function() Function()? startProfileClock,
+  }) => BdfdActionExecution(
+    runner: this,
+    client: client,
+    interaction: interaction,
+    store: store,
+    botId: botId,
+    variables: variables,
+    resolveTemplate: resolveTemplate,
+    fallbackChannelId: fallbackChannelId,
+    fallbackGuildId: fallbackGuildId,
+    workflowStack: workflowStack,
+    onLog: onLog,
+    onReplayCaptured: onReplayCaptured,
+    nestedActionsPreprocessor: nestedActionsPreprocessor,
+    entityCache: entityCache,
+    lavalinkService: lavalinkService,
+    executionPolicy: executionPolicy,
+    bdfdContext: bdfdContext,
+    bdfdMessages: bdfdMessages,
+    bdfdModeration: bdfdModeration,
+    bdfdCommandQueries: bdfdCommandQueries,
+    bdfdComponents: bdfdComponents,
+    bdfdTiming: bdfdTiming,
+    bdfdDelays: bdfdDelays,
+    bdfdHttp: bdfdHttp,
+    throwOnError: throwOnError,
+    executionBudget: executionBudget,
+    acknowledgement: acknowledgement,
+    startProfileClock: startProfileClock,
+  ).run(actions);
+
   /// Run a whole action list natively: one program, error modes included.
   /// [acknowledge] is called first when the list does not acknowledge the
   /// interaction itself (see [BdfdActionProgram.shouldAutoDefer]).
@@ -90,13 +178,24 @@ class BdfdActionRunner {
     required BdfdContext context,
     Future<void> Function({required bool ephemeral})? acknowledge,
   }) async {
-    final program = translator.translate(actions);
+    var program = translator.translate(actions);
     env.flow.routed = false;
     if (acknowledge != null && program.shouldAutoDefer) {
       await acknowledge(ephemeral: program.ephemeralHint);
     }
     try {
-      await _execute(program, env, context);
+      while (true) {
+        final wasStopped = context.stopped;
+        await _execute(program, env, context);
+        final restart = env.flow.restartAt;
+        if (restart == null) break;
+        // A root `jumpToAction` to a position that is not after it: the
+        // historical loop really jumps back (a runaway one ends with the
+        // budget). The program is restarted from there.
+        env.flow.restartAt = null;
+        context.stopped = wasStopped;
+        program = translator.translateFrom(actions, restart);
+      }
     } on BdfdNativeError catch (error) {
       final cause = error.cause ?? error;
       // Like the historical enclosing handlers: the failure ends up on the

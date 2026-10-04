@@ -38,6 +38,16 @@ Action _if(
   },
 );
 
+/// A translator that leaves `debugProfile` out: the block "all or nothing" and
+/// "unsupported action" rules need a type the translator does not support.
+class _WithoutProfile extends ActionTranslator {
+  const _WithoutProfile();
+  @override
+  bool supports(Action action) =>
+      action.type != BotCreatorActionType.debugProfile &&
+      super.supports(action);
+}
+
 String _name(BdfdStatement statement) =>
     (statement.node as BdfdFunctionCallAst).name;
 
@@ -136,18 +146,26 @@ void main() {
         translator.supports(_role('a', payload: {'modify': true})),
         isTrue,
       );
+      // debugProfile is native too (a per-list trace on the runner).
       expect(
         translator.supports(
           Action(type: BotCreatorActionType.debugProfile, payload: {}),
         ),
-        isFalse,
+        isTrue,
+      );
+      expect(
+        translator.supports(
+          Action(type: BotCreatorActionType.cooldown, payload: {}),
+        ),
+        isTrue,
       );
     });
 
     test('an ifBlock is native only when all its children are', () {
-      expect(translator.supports(_if('i', then: [_role('a')])), isTrue);
+      const partial = _WithoutProfile();
+      expect(partial.supports(_if('i', then: [_role('a')])), isTrue);
       expect(
-        translator.supports(
+        partial.supports(
           _if(
             'i',
             then: [_role('a')],
@@ -159,7 +177,7 @@ void main() {
         isFalse,
       );
       expect(
-        translator.supports(
+        partial.supports(
           _if(
             'i',
             elseIf: [
@@ -205,7 +223,7 @@ void main() {
       }
       // Still all-or-nothing: an unsupported child keeps the block historical.
       expect(
-        translator.supports(
+        const _WithoutProfile().supports(
           _if(
             'i',
             extra: {'tryCatch': true},
@@ -371,7 +389,7 @@ void main() {
 
     test('an unsupported action cannot be translated', () {
       expect(
-        () => translator.translate([
+        () => const _WithoutProfile().translate([
           Action(type: BotCreatorActionType.debugProfile, payload: {}),
         ]),
         throwsArgumentError,

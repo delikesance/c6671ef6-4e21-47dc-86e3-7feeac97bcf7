@@ -11,6 +11,7 @@ import 'channel_actions.dart';
 import 'component_actions.dart';
 import 'control_flow_actions.dart';
 import 'control_flow_state.dart';
+import 'debug_profile_actions.dart';
 import 'emoji_actions.dart';
 import 'guild_actions.dart';
 import 'image_actions.dart';
@@ -110,6 +111,7 @@ class ActionTranslator {
     ...guildLeafPredicates,
     ...channelLeafPredicates,
     ...controlLeafPredicates,
+    ...debugProfileLeafPredicates,
     ...messageLeafPredicates,
     ...componentLeafPredicates,
     ...listenerLeafPredicates,
@@ -213,6 +215,23 @@ class ActionTranslator {
     List<Action> actions, {
     int firstIndex = 0,
     bool topLevelErrorModes = true,
+  }) => _translate(
+    actions,
+    firstIndex: firstIndex,
+    topLevelErrorModes: topLevelErrorModes,
+  );
+
+  /// [translate] of a root list restarted at the 0-based action [startAt]: the
+  /// actions before it become no-ops that keep their ordinals (a root
+  /// `jumpToAction` to a position that is not after it).
+  BdfdActionProgram translateFrom(List<Action> actions, int startAt) =>
+      _translate(actions, startAt: startAt);
+
+  BdfdActionProgram _translate(
+    List<Action> actions, {
+    int firstIndex = 0,
+    bool topLevelErrorModes = true,
+    int startAt = 0,
   }) {
     final source = _Source();
     final refs = <int, ActionRef>{};
@@ -227,6 +246,7 @@ class ActionTranslator {
       source,
       refs,
       topLevel,
+      startAt,
     );
     return BdfdActionProgram(
       program: BdfdProgram.fromStatements(source.text, statements),
@@ -273,8 +293,9 @@ class ActionTranslator {
     bool protected,
     _Source source,
     Map<int, ActionRef> refs,
-    List<ActionRef> topLevel,
-  ) {
+    List<ActionRef> topLevel, [
+    int startAt = 0,
+  ]) {
     final statements = <BdfdStatement>[];
     for (var index = 0; index < actions.length; index++) {
       final action = actions[index];
@@ -304,6 +325,12 @@ class ActionTranslator {
             end: range.$2,
           );
 
+      if (index < startAt) {
+        // Restarted list (a root jump backwards): what precedes the restart
+        // point keeps its ordinal as a no-op.
+        statements.add(BdfdExpression(call('c', ['done'])));
+        continue;
+      }
       if (!action.enabled) {
         // A no-op that still occupies its ordinal.
         statements.add(BdfdExpression(call('c', ['disabled'])));
@@ -363,6 +390,25 @@ class ActionTranslator {
             jsonEncode(action.payload),
             jsonEncode(_options(action, actions, index, path, modes)),
           ]),
+        ),
+      );
+    }
+    if (actions.any(
+      (a) => a.enabled && a.type == BotCreatorActionType.debugProfile,
+    )) {
+      // The list owns a profile: its embed is sent when the list ends (never
+      // when it stops or fails before). Not an action: no ordinal, no source.
+      final end = source.add('${'  ' * depth}#end profile');
+      statements.add(
+        BdfdExpression(
+          BdfdFunctionCallAst(
+            name: bdfdVisualProfileEndFunction,
+            arguments: [
+              [BdfdTextAst(jsonEncode(path), start: end.$1, end: end.$2)],
+            ],
+            start: end.$1,
+            end: end.$2,
+          ),
         ),
       );
     }
