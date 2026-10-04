@@ -1,7 +1,11 @@
 import 'dart:async';
 
+import 'package:nyxx/nyxx.dart' show Interaction, Snowflake;
+
 import '../../../actions/handler_utils.dart' show resolvePayloadValues;
+import '../../../bot/bot_data_store.dart';
 import '../../../services/bot_moderation_service.dart';
+import '../../../services/http_service.dart';
 import '../../../types/action.dart';
 import '../../execution_budget.dart';
 import '../runtime.dart';
@@ -54,6 +58,13 @@ class ActionRunEnvironment {
     this.throwOnError = false,
     this.prepare,
     this.getScopedVariableTtl,
+    this.store,
+    this.botId = '',
+    this.interaction,
+    this.guildSnowflake,
+    this.fallbackChannelId,
+    this.http,
+    this.onLog,
   });
 
   final Map<String, String> variables;
@@ -68,6 +79,18 @@ class ActionRunEnvironment {
   final bool throwOnError;
   final ActionPrepare? prepare;
   final Future<int?> Function(String scope, String key)? getScopedVariableTtl;
+
+  /// Persistence and context of the variable / HTTP actions (the same values
+  /// the historical `executeVariablesAction` receives).
+  final BotDataStore? store;
+  final String botId;
+  final Interaction? interaction;
+  final Snowflake? guildSnowflake;
+  final Snowflake? fallbackChannelId;
+
+  /// Transport of `httpRequest`; null builds a plain [HttpService].
+  final HttpService? http;
+  final void Function(String message)? onLog;
 
   /// Owned by the runner: the interpreter registered with these functions.
   BdfdRuntime? runtime;

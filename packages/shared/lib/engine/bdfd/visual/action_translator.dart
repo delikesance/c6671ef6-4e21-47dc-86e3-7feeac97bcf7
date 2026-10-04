@@ -6,6 +6,7 @@ import '../../../utils/bdfd_ast.dart';
 import '../program.dart';
 import 'action_functions.dart';
 import 'role_actions.dart';
+import 'variable_actions.dart';
 
 /// Where a statement of a translated program comes from, for diagnostics and
 /// error bookkeeping.
@@ -88,6 +89,7 @@ class ActionTranslator {
   static const _leafPredicates = <BotCreatorActionType, bool Function(Action)>{
     BotCreatorActionType.addRole: supportsRoleAction,
     BotCreatorActionType.removeRole: supportsRoleAction,
+    ...variableLeafPredicates,
   };
 
   /// Whether [action] runs on the native engine. A leaf needs a handler (and a

@@ -60,6 +60,7 @@ Future<bool> executeHttpAction({
   required void Function(String message)? onLog,
   required Future<void> Function(String key, String value) setGlobalVariable,
   http.Client? httpClient,
+  HttpService? httpService,
   CommandExecutionBudget? executionBudget,
 }) async {
   if (type != BotCreatorActionType.httpRequest) return false;
@@ -112,7 +113,9 @@ Future<bool> executeHttpAction({
     }
   }
 
-  final response = await HttpService(client: httpClient, onLog: onLog).request(
+  final transport =
+      httpService ?? HttpService(client: httpClient, onLog: onLog);
+  final response = await transport.request(
     method: method,
     url: resolvedUrl,
     headers: headers,

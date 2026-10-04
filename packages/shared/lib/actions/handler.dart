@@ -320,6 +320,13 @@ Future<Map<String, String>> _handleActions(
         guildId: guildId?.toString(),
         throwOnError: throwOnError,
         getScopedVariableTtl: scopedVariableTtl,
+        store: store,
+        botId: botId,
+        interaction: interaction,
+        guildSnowflake: guildId,
+        fallbackChannelId: fallbackChannelId,
+        http: bdfdHttp,
+        onLog: onLog,
         // The loop below already hydrated the routed top-level action.
         prepare: (type, key, payload, path) async {
           if (path.isEmpty) return;
