@@ -60,8 +60,9 @@ String _digest(String value) {
 }
 
 Object? _normalize(Object? value) {
-  if (value is String)
+  if (value is String) {
     return value.length > 160 ? 'digest:${_digest(value)}' : value;
+  }
   if (value is Map) {
     return {for (final e in value.entries) '${e.key}': _normalize(e.value)};
   }
