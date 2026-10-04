@@ -10,6 +10,7 @@ import 'channel_actions.dart';
 import 'control_flow_actions.dart';
 import 'control_flow_state.dart';
 import 'guild_actions.dart';
+import 'message_actions.dart';
 import 'moderation_actions.dart';
 import 'role_actions.dart';
 import 'variable_actions.dart';
@@ -100,6 +101,7 @@ class ActionTranslator {
     ...guildLeafPredicates,
     ...channelLeafPredicates,
     ...controlLeafPredicates,
+    ...messageLeafPredicates,
   };
 
   /// Whether [action] runs on the native engine. A leaf needs a handler (and a

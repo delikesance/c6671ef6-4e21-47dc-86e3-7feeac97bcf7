@@ -8,9 +8,8 @@ import '../../utils/workflow_call.dart';
 import '../../bot/bot_data_store.dart';
 import '../../services/lavalink_service.dart';
 import '../edit_component_v2.dart';
-import '../edit_interaction_response.dart';
+import '../message_block_actions.dart';
 import '../respond_modal.dart';
-import '../respond_with_message.dart';
 import '../send_component_v2.dart';
 import '../handle_component_interaction.dart';
 
@@ -123,28 +122,19 @@ Future<bool> executeComponentsInteractionsAction({
       return true;
 
     case BotCreatorActionType.respondWithMessage:
-      final messageResult = await respondWithMessageAction(
-        interaction,
-        payload: payload,
-        resolve: resolveValue,
-        botId: botId,
+      await respondWithMessageBlock(
+        interaction: interaction,
         client: client,
+        payload: payload,
+        resultKey: resultKey,
+        results: results,
+        variables: variables,
+        botId: botId,
         fallbackChannelId: fallbackChannelId,
         fallbackMessageId: fallbackMessageId,
-        variables: variables,
+        resolveValue: resolveValue,
+        responseState: responseState,
       );
-      if (messageResult['error'] != null) {
-        throw Exception(messageResult['error']);
-      }
-      if (messageResult['originalResponseCompleted'] == true &&
-          responseState != null) {
-        responseState.originalResponseCompleted = true;
-        responseState.acknowledged = true;
-      }
-      results[resultKey] = messageResult['messageId'] ?? 'responded';
-      if ((messageResult['messageId'] ?? '').isNotEmpty) {
-        variables['last.response.id'] = messageResult['messageId']!;
-      }
       return true;
 
     case BotCreatorActionType.respondWithModal:
@@ -214,21 +204,14 @@ Future<bool> executeComponentsInteractionsAction({
       return true;
 
     case BotCreatorActionType.editInteractionMessage:
-      if (interaction == null) {
-        results[resultKey] =
-            'Error: editInteractionMessage requires an interaction context';
-        return true;
-      }
-      final editResult = await editInteractionMessageAction(
-        interaction,
+      await editInteractionMessageBlock(
+        interaction: interaction,
         payload: payload,
-        resolve: resolveValue,
+        resultKey: resultKey,
+        results: results,
         botId: botId,
+        resolveValue: resolveValue,
       );
-      if (editResult['error'] != null) {
-        throw Exception(editResult['error']);
-      }
-      results[resultKey] = editResult['messageId'] ?? '';
       return true;
 
     case BotCreatorActionType.listenForButtonClick:

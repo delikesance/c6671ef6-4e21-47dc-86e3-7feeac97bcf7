@@ -19,12 +19,11 @@ import '../services/http_service.dart';
 import '../services/runtime_temporary_variables.dart';
 import 'dart:convert';
 
-import 'package:bot_creator_shared/actions/pin_message.dart';
+import 'package:bot_creator_shared/actions/message_block_actions.dart';
 import 'package:bot_creator_shared/actions/update_automod.dart';
 import 'package:bot_creator_shared/actions/update_guild.dart';
 import 'package:bot_creator_shared/actions/list_members.dart';
 import 'package:bot_creator_shared/actions/get_member.dart';
-import 'package:bot_creator_shared/actions/unpin_message.dart';
 import 'package:bot_creator_shared/actions/poll_management.dart';
 import 'package:bot_creator_shared/actions/invite_management.dart';
 import 'package:bot_creator_shared/actions/voice_management.dart';
@@ -440,9 +439,13 @@ Future<Map<String, String>> _handleActions(
           botId: botId,
         ),
         permissionCache: permCache,
+        client: client,
+        lavalinkService: lavalinkService,
         // The loop below already hydrated the routed top-level action.
         prepare: (type, key, payload, path) async {
           if (path.isEmpty) return;
+          // A defer must acknowledge before any entity fetch can delay it.
+          if (type == BotCreatorActionType.deferInteraction) return;
           await hydrateActionPlaceholders(
             store: store,
             botId: botId,
@@ -1119,38 +1122,16 @@ Future<Map<String, String>> _handleActions(
               'Action ${action.type.name} should have been handled by an executor before switch dispatch.',
             );
           case BotCreatorActionType.pinMessage:
-            if (guildId != null) {
-              final permError = await checkBotGuildPermission(
-                client,
-                guildId: guildId,
-                requiredPermissions: [Permissions.manageMessages],
-                actionLabel: 'pin messages',
-                cache: permCache,
-              );
-              if (permError != null) throw Exception(permError);
-            }
-            final resolvedPinPayload = Map<String, dynamic>.from(
-              action.payload,
-            );
-            if (action.payload.containsKey('messageId')) {
-              resolvedPinPayload['messageId'] = resolveValue(
-                action.payload['messageId'].toString(),
-              );
-            }
-            if (action.payload.containsKey('channelId')) {
-              resolvedPinPayload['channelId'] = resolveValue(
-                action.payload['channelId'].toString(),
-              );
-            }
-            final result = await pinMessageAction(
-              client,
-              payload: resolvedPinPayload,
+            await pinMessageBlock(
+              client: client,
+              guildId: guildId,
+              payload: action.payload,
+              resultKey: resultKey,
+              results: results,
               fallbackChannelId: fallbackChannelId,
+              resolveValue: resolveValue,
+              permissionCache: permCache,
             );
-            if (result['error'] != null) {
-              throw Exception(result['error']);
-            }
-            results[resultKey] = result['messageId'] ?? '';
             break;
           case BotCreatorActionType.updateAutoMod:
             final resolvedPayload = Map<String, dynamic>.from(action.payload);
@@ -1246,38 +1227,16 @@ Future<Map<String, String>> _handleActions(
             results[resultKey] = result['member'] ?? '';
             break;
           case BotCreatorActionType.unpinMessage:
-            if (guildId != null) {
-              final permError = await checkBotGuildPermission(
-                client,
-                guildId: guildId,
-                requiredPermissions: [Permissions.manageMessages],
-                actionLabel: 'unpin messages',
-                cache: permCache,
-              );
-              if (permError != null) throw Exception(permError);
-            }
-            final resolvedUnpinPayload = Map<String, dynamic>.from(
-              action.payload,
-            );
-            if (action.payload.containsKey('messageId')) {
-              resolvedUnpinPayload['messageId'] = resolveValue(
-                action.payload['messageId'].toString(),
-              );
-            }
-            if (action.payload.containsKey('channelId')) {
-              resolvedUnpinPayload['channelId'] = resolveValue(
-                action.payload['channelId'].toString(),
-              );
-            }
-            final unpinResult = await unpinMessageAction(
-              client,
-              payload: resolvedUnpinPayload,
+            await unpinMessageBlock(
+              client: client,
+              guildId: guildId,
+              payload: action.payload,
+              resultKey: resultKey,
+              results: results,
               fallbackChannelId: resolvedFallbackChannelId,
+              resolveValue: resolveValue,
+              permissionCache: permCache,
             );
-            if (unpinResult['error'] != null) {
-              throw Exception(unpinResult['error']);
-            }
-            results[resultKey] = unpinResult['status'] ?? 'unpinned';
             break;
 
           // ─── Polls ────────────────────────────────────────────────────────
