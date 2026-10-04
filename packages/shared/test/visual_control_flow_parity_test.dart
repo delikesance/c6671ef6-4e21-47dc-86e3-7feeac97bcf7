@@ -1148,9 +1148,9 @@ void main() {
       final outcome = await _parity([
         _simpleLoop('loop', '1', [
           _act(
-            BotCreatorActionType.respondWithMessage,
+            BotCreatorActionType.createPoll,
             key: 'r',
-            payload: {'content': 'x'},
+            payload: {'question': 'x'},
           ),
         ]),
       ], expectNative: false);
