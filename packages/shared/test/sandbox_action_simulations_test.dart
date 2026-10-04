@@ -53,6 +53,7 @@ Map<String, dynamic> _a(
 ]) => {'type': type, 'key': key, 'payload': payload};
 
 void main() {
+  _guildMemberContext();
   test(
     'reads: getMessage, getMember and listMembers use the fixtures',
     () async {
@@ -395,6 +396,28 @@ void main() {
         }
       }
       expect(generic, isEmpty, reason: 'no fixture hint for: $generic');
+    },
+  );
+}
+
+void _guildMemberContext() {
+  test(
+    'a guildMember variable needs guildId:userId, with a message that says so',
+    () async {
+      Future<Map<String, dynamic>> read(String contextId) => _run([
+        _a('getScopedVariable', {
+          'scope': 'guildMember',
+          'key': 'warns',
+          'contextId': contextId,
+        }),
+      ]);
+      final bare = await read('100');
+      expect(bare['success'], false);
+      expect(
+        bare['error'],
+        allOf(contains('<guildId>:<userId>'), contains('((guild.id)):')),
+      );
+      expect((await read('10:100'))['success'], true);
     },
   );
 }

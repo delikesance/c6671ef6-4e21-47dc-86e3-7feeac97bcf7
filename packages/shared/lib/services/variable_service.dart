@@ -260,6 +260,7 @@ class VariableService {
     required String contextId,
     required String key,
   }) async {
+    requireGuildMemberContext(scope, contextId);
     final storageKey = scopedStorageKey(key);
     final referenceKey = scopedReferenceKey(key);
     var value = await store.getScopedVariable(
@@ -430,5 +431,19 @@ class VariableService {
   Future<void> writeGlobal(String key, dynamic value) async {
     if (key.trim().isEmpty) throw ArgumentError('A variable key is required.');
     await store.setGlobalVariable(botId, key, value);
+  }
+}
+
+/// A guildMember variable is stored per server AND user: the context is "<guildId>:<userId>".
+/// A bare user ID used to reach the server and come back as an opaque HTTP 400.
+void requireGuildMemberContext(String scope, String contextId) {
+  if (scope != 'guildMember') return;
+  final parts = contextId.split(':');
+  if (parts.length != 2 || parts.any((part) => part.trim().isEmpty)) {
+    throw Exception(
+      'A guildMember variable needs the context "<guildId>:<userId>", got "$contextId". '
+      'Use contextId "((guild.id)):<userId>" (e.g. ((guild.id)):((opts.membre))) '
+      'or omit contextId for the current member.',
+    );
   }
 }
