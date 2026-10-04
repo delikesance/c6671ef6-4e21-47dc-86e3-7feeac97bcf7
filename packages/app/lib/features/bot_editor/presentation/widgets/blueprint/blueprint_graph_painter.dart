@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'blueprint_models.dart';
 
@@ -13,6 +14,9 @@ class BlueprintGraphPainter extends CustomPainter {
   final String? selectedConnectionId;
   final Offset canvasOrigin;
 
+  /// Theme action accent (selection, draft cable).
+  final Color accentColor;
+
   BlueprintGraphPainter({
     required this.nodes,
     required this.connections,
@@ -22,6 +26,7 @@ class BlueprintGraphPainter extends CustomPainter {
     this.selectedNodeId,
     this.selectedConnectionId,
     this.canvasOrigin = Offset.zero,
+    this.accentColor = AppTheme.brandPurpleSoft,
   });
 
   @override
@@ -67,7 +72,7 @@ class BlueprintGraphPainter extends CustomPainter {
           canvas: canvas,
           start: startPos,
           end: activeDraftTarget!,
-          color: const Color(0xFFA78BFA),
+          color: accentColor,
           isDraft: true,
         );
       }
@@ -97,8 +102,8 @@ class BlueprintGraphPainter extends CustomPainter {
     if (isHighlighted || isSelectedCable) {
       final glowPaint = Paint()
         ..color = isSelectedCable
-            ? const Color(0xFFA78BFA).withValues(alpha: 0.6)
-            : const Color(0xFFA78BFA).withValues(alpha: 0.35)
+            ? accentColor.withValues(alpha: 0.6)
+            : accentColor.withValues(alpha: 0.35)
         ..style = PaintingStyle.stroke
         ..strokeWidth = isSelectedCable ? 8.0 : 6.0
         ..strokeCap = StrokeCap.round;
@@ -108,9 +113,9 @@ class BlueprintGraphPainter extends CustomPainter {
     // Main cable stroke
     final cablePaint = Paint()
       ..color = isDraft
-          ? const Color(0xFFA78BFA)
+          ? accentColor
           : (isSelectedCable
-                ? const Color(0xFFA78BFA)
+                ? accentColor
                 : (isHighlighted
                       ? Colors.white
                       : color.withValues(alpha: 0.85)))
@@ -193,9 +198,13 @@ class BlueprintInfiniteGridPainter extends CustomPainter {
   final Matrix4 transform;
   final Offset canvasOrigin;
 
+  /// Theme action accent used for the origin marker.
+  final Color accentColor;
+
   BlueprintInfiniteGridPainter({
     required this.transform,
     required this.canvasOrigin,
+    this.accentColor = AppTheme.brandPurpleSoft,
   });
 
   @override
@@ -318,7 +327,7 @@ class BlueprintInfiniteGridPainter extends CustomPainter {
         originScreenPos.dy >= -20 &&
         originScreenPos.dy <= size.height + 20) {
       final originCenterPaint = Paint()
-        ..color = const Color(0xFFA78BFA).withValues(alpha: 0.85)
+        ..color = accentColor.withValues(alpha: 0.85)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2.0;
       canvas.drawCircle(originScreenPos, 4.5, originCenterPaint);
@@ -329,6 +338,7 @@ class BlueprintInfiniteGridPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant BlueprintInfiniteGridPainter oldDelegate) {
     return oldDelegate.transform != transform ||
-        oldDelegate.canvasOrigin != canvasOrigin;
+        oldDelegate.canvasOrigin != canvasOrigin ||
+        oldDelegate.accentColor != accentColor;
   }
 }

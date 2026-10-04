@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:bot_creator_shared/types/action.dart' show BotCreatorActionType;
 import 'package:bot_creator/core/models/types/variable_suggestion.dart';
@@ -540,6 +541,9 @@ class _BlueprintGraphCanvasState extends State<BlueprintGraphCanvas> {
                                 painter: BlueprintInfiniteGridPainter(
                                   transform: matrix,
                                   canvasOrigin: _canvasOrigin,
+                                  accentColor: HomeTokens.of(
+                                    context,
+                                  ).accentRing,
                                 ),
                               );
                             },
@@ -567,6 +571,9 @@ class _BlueprintGraphCanvasState extends State<BlueprintGraphCanvas> {
                                       selectedConnectionId:
                                           _selectedConnectionId,
                                       canvasOrigin: _canvasOrigin,
+                                      accentColor: HomeTokens.of(
+                                        context,
+                                      ).accentRing,
                                       activeDraftConnection:
                                           _draggingPin != null &&
                                               _draggingFromNodeId != null
