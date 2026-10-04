@@ -885,6 +885,8 @@ extension _CommandBlockEditor on _CommandCreatePageState {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          _buildBdfdBackendSelector(),
+          const SizedBox(height: 12),
           // ── Preview / tap-to-edit ──
           GestureDetector(
             behavior: HitTestBehavior.opaque,
@@ -896,6 +898,7 @@ extension _CommandBlockEditor on _CommandCreatePageState {
                     initialCode: _bdfdScriptController.text,
                     title: context.tr.workflow_bdfd_editor_title,
                     appEmojis: _appEmojis,
+                    bdfdBackend: _bdfdBackend,
                   ),
                 ),
               );

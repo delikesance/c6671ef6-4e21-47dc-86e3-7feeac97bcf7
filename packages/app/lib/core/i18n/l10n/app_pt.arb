@@ -10945,5 +10945,14 @@
   "bot_config_versions_remote_authority": "A versão da nuvem substitui a configuração local. Comandos e workflows ausentes na nuvem são removidos localmente.",
   "history_preview": "Ver conteúdo",
   "history_delete_confirm": "Excluir permanentemente esta versão salva? A configuração atual permanece inalterada.",
-  "history_action_failed": "Não foi possível concluir esta ação no histórico. Tente novamente."
+  "history_action_failed": "Não foi possível concluir esta ação no histórico. Tente novamente.",
+  "bot_create_title": "Criar um bot",
+  "bot_create_description": "Conecte seu bot do Discord e escolha como criá-lo.",
+  "bot_create_visual_title": "Blocos & BDFD",
+  "bot_create_visual_description": "Crie com ações visuais ou scripts BDFD.",
+  "bot_create_javascript_description": "Programe seu bot em JavaScript com Discord.js.",
+  "editor_section_creation": "Criação",
+  "editor_section_automation": "Automação",
+  "editor_section_management": "Gestão",
+  "bot_create_mode": "Modo de criação"
 }

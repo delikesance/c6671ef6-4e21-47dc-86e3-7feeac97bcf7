@@ -11056,4 +11056,34 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get history_action_failed =>
       'Bu geçmiş işlemi tamamlanamadı. Lütfen tekrar deneyin.';
+
+  @override
+  String get bot_create_title => 'Bot oluştur';
+
+  @override
+  String get bot_create_description =>
+      'Discord botunu bağla ve nasıl oluşturacağını seç.';
+
+  @override
+  String get bot_create_visual_title => 'Bloklar & BDFD';
+
+  @override
+  String get bot_create_visual_description =>
+      'Görsel eylemler veya BDFD betikleriyle oluştur.';
+
+  @override
+  String get bot_create_javascript_description =>
+      'Botunu Discord.js ile JavaScript kullanarak programla.';
+
+  @override
+  String get editor_section_creation => 'Oluşturma';
+
+  @override
+  String get editor_section_automation => 'Otomasyon';
+
+  @override
+  String get editor_section_management => 'Yönetim';
+
+  @override
+  String get bot_create_mode => 'Oluşturma modu';
 }

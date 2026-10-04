@@ -1,3 +1,4 @@
+import 'bdfd_validation.dart';
 import 'package:bot_creator/core/code_editor/script_editor_language.dart';
 import 'package:bot_creator/core/models/types/app_emoji.dart';
 import 'package:bot_creator_shared/utils/bdfd_autocomplete.dart';
@@ -21,10 +22,14 @@ typedef _Trigger = ({int start, _AutocompleteMode mode});
 /// diagnostics du compilateur BDFD. Tout est synchrone et sans effet de bord,
 /// puisque le chrome interroge ces méthodes à chaque frappe.
 class BdfdScriptLanguage implements ScriptEditorLanguage {
-  BdfdScriptLanguage({this.appEmojis = const <AppEmoji>[]});
+  BdfdScriptLanguage({
+    this.appEmojis = const <AppEmoji>[],
+    this.backend = 'legacy-v1',
+  });
 
   /// Emojis du serveur courant, proposés sur le déclencheur `<:` / `<a:`.
   final List<AppEmoji> appEmojis;
+  final String backend;
 
   final BdfdLexer _lexer = BdfdLexer();
   final BdfdCompiler _compiler = BdfdCompiler();
@@ -83,7 +88,11 @@ class BdfdScriptLanguage implements ScriptEditorLanguage {
 
   @override
   List<ScriptDiagnostic> diagnosticsFor(String text) => <ScriptDiagnostic>[
-    for (final diagnostic in _compiler.compile(text).diagnostics)
+    for (final diagnostic in bdfdDiagnosticsFor(
+      text,
+      backend: backend,
+      legacyCompiler: _compiler,
+    ))
       ScriptDiagnostic(
         // Le compilateur BDFD rédige lui-même le texte affiché : le code n'est
         // lu par l'UI que faute de [ScriptDiagnostic.message].

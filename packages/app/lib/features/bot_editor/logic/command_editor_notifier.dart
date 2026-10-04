@@ -1,3 +1,4 @@
+import 'package:bot_creator/core/bdfd_editor/bdfd_validation.dart';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -160,12 +161,12 @@ class CommandEditorNotifier extends ChangeNotifier {
   }
 
   void updateBdfdScriptContent(String content) {
-    final result = _bdfdCompiler.compile(content);
-    _state = _state.copyWith(
-      bdfdScriptContent: content,
-      bdfdCompileResult: result,
-    );
-    notifyListeners();
+    refreshBdfdCompileResult(content);
+  }
+
+  void updateBdfdBackend(String backend) {
+    _state = _state.copyWith(bdfdBackend: backend);
+    refreshBdfdCompileResult(_state.bdfdScriptContent);
   }
 
   void setJsScriptContent(String content) {
@@ -174,10 +175,17 @@ class CommandEditorNotifier extends ChangeNotifier {
   }
 
   void refreshBdfdCompileResult(String source) {
-    final result = _bdfdCompiler.compile(source);
+    final result = _state.bdfdBackend == 'legacy-v1'
+        ? _bdfdCompiler.compile(source)
+        : null;
+    final diagnostics = result == null
+        ? bdfdDiagnosticsFor(source, backend: _state.bdfdBackend)
+        : const <BdfdCompileDiagnostic>[];
     _state = _state.copyWith(
       bdfdScriptContent: source,
       bdfdCompileResult: result,
+      clearBdfdCompileResult: result == null,
+      bdfdNativeDiagnostics: diagnostics,
     );
     notifyListeners();
   }
@@ -306,6 +314,9 @@ class CommandEditorNotifier extends ChangeNotifier {
       'description': s.effectiveCommandDescription,
       'commandType': _commandTypeToText(s.commandType),
       'folder': s.folder.trim(),
+      'executionMode': s.executionMode,
+      'bdfdBackend': s.bdfdBackend,
+      'bdfdScriptContent': s.bdfdScriptContent,
       'integrationTypes': integrationTypes,
       'contexts': contexts,
     };

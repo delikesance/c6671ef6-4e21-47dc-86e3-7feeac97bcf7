@@ -82,7 +82,7 @@ extension _AppHomePageUI on _AppHomePageState {
     required String displayName,
   }) {
     return BotHomeDesktopOverview(
-      header: _buildWideHeader(context, botId: botId, displayName: displayName),
+      header: _buildWideHeader(context),
       leftBuilder: (context, fillViewport) =>
           _buildWideLeftColumn(context, botId: botId, displayName: displayName),
       rightBuilder: (context, fillViewport) => _buildWideRightColumn(
@@ -93,11 +93,7 @@ extension _AppHomePageUI on _AppHomePageState {
     );
   }
 
-  Widget _buildWideHeader(
-    BuildContext context, {
-    required String botId,
-    required String displayName,
-  }) {
+  Widget _buildWideHeader(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final tokens = HomeTokens.of(context);
@@ -153,32 +149,11 @@ extension _AppHomePageUI on _AppHomePageState {
               ),
             ],
           ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              HomeHeaderIconButton(
-                icon: Icons.auto_awesome_outlined,
-                iconSize: 14,
-                tooltip: context.tr.copilot_title,
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => CopilotPage(
-                      botId: botId,
-                      botName: displayName,
-                      location: 'local',
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              HomeHeaderIconButton(
-                icon: Icons.sync_rounded,
-                iconSize: 14,
-                tooltip: context.tr.common_refresh,
-                onTap: _isReconciling ? null : _refreshOverview,
-              ),
-            ],
+          HomeHeaderIconButton(
+            icon: Icons.sync_rounded,
+            iconSize: 14,
+            tooltip: context.tr.common_refresh,
+            onTap: _isReconciling ? null : _refreshOverview,
           ),
         ],
       ),
@@ -261,6 +236,9 @@ extension _AppHomePageUI on _AppHomePageState {
     required String botId,
     required String displayName,
   }) {
+    final showCopilot =
+        !ResponsiveHelper.isDesktopPlatform() &&
+        MediaQuery.sizeOf(context).width < AppTheme.desktopBreakpoint;
     final scheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final tokens = HomeTokens.of(context);
@@ -422,25 +400,27 @@ extension _AppHomePageUI on _AppHomePageState {
                   loading: false,
                 ),
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: HomeCardActionButton(
-                  icon: Icons.auto_awesome_outlined,
-                  iconSize: 14,
-                  label: context.tr.copilot_title,
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => CopilotPage(
-                        botId: botId,
-                        botName: displayName,
-                        location: 'local',
+              if (showCopilot) ...[
+                const SizedBox(width: 8),
+                Expanded(
+                  child: HomeCardActionButton(
+                    icon: Icons.auto_awesome_outlined,
+                    iconSize: 14,
+                    label: context.tr.copilot_title,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => CopilotPage(
+                          botId: botId,
+                          botName: displayName,
+                          location: 'local',
+                        ),
                       ),
                     ),
+                    loading: false,
                   ),
-                  loading: false,
                 ),
-              ),
+              ],
             ],
           ),
         ],
@@ -577,7 +557,7 @@ extension _AppHomePageUI on _AppHomePageState {
   }
 
   /// Carte « temps total » de l'hébergement : en-tête (libellé de section +
-  /// historique des pubs + refresh) puis la carte qui détaille la réserve.
+  /// historique des pubs) puis la carte qui détaille la réserve.
   Widget _buildHostingCard(BuildContext context) {
     final balance = _displayFreeMinutesBalance();
     final parts = splitHostingDuration(balance);
@@ -638,13 +618,6 @@ extension _AppHomePageUI on _AppHomePageState {
               iconSize: 14,
               tooltip: context.tr.home_hosting_ad_history,
               onTap: _showAdHistoryDialog,
-            ),
-            const SizedBox(width: 8),
-            HomeHeaderIconButton(
-              icon: Icons.refresh_rounded,
-              iconSize: 14,
-              tooltip: context.tr.common_refresh,
-              onTap: _isReconciling ? null : _refreshOverview,
             ),
           ],
         ),
@@ -937,7 +910,12 @@ class BotHomeDesktopOverview extends StatelessWidget {
             // la hauteur de la fenêtre (aucun débordement possible).
             Expanded(
               flex: 5,
-              child: SingleChildScrollView(primary: false, child: left),
+              child: ScrollConfiguration(
+                behavior: ScrollConfiguration.of(
+                  context,
+                ).copyWith(scrollbars: false),
+                child: SingleChildScrollView(primary: false, child: left),
+              ),
             ),
             const SizedBox(width: 24),
             Expanded(flex: 6, child: right),

@@ -3343,11 +3343,7 @@ class HomePageState extends State<HomePage>
                     MaterialPageRoute(builder: (_) => const SettingPage()),
                   );
                 },
-                // Compact: create lives in the dashed CTA. Wide keeps a
-                // header shortcut plus docs/settings (no bottom tabs).
-                showCreate: isWide,
                 showShellActions: isWide,
-                onCreate: openCreate,
               ),
               const SizedBox(height: 16),
               ValueListenableBuilder<Announcement?>(
@@ -3744,16 +3740,14 @@ class _HomeHeader extends StatelessWidget {
     required this.onRefresh,
     required this.onDocs,
     required this.onSettings,
-    required this.onCreate,
-    this.showCreate = true,
+
     this.showShellActions = true,
   });
 
   final VoidCallback onRefresh;
   final VoidCallback onDocs;
   final VoidCallback onSettings;
-  final VoidCallback onCreate;
-  final bool showCreate;
+
   final bool showShellActions;
 
   @override
@@ -3789,15 +3783,7 @@ class _HomeHeader extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
-        if (showCreate) ...[
-          HomeHeaderIconButton(
-            icon: Icons.add_rounded,
-            iconSize: 16,
-            tooltip: context.tr.app_create_button,
-            onTap: onCreate,
-          ),
-          const SizedBox(width: 10),
-        ],
+
         HomeHeaderIconButton(
           icon: Icons.sync_rounded,
           iconSize: 13,

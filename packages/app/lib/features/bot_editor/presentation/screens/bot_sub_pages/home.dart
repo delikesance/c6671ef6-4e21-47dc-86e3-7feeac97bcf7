@@ -495,32 +495,11 @@ class _AppHomePageState extends State<AppHomePage>
                             }
                           },
                         ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            HomeHeaderIconButton(
-                              icon: Icons.auto_awesome_outlined,
-                              iconSize: 16,
-                              tooltip: context.tr.copilot_title,
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => CopilotPage(
-                                    botId: botId,
-                                    botName: displayName,
-                                    location: 'local',
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            HomeHeaderIconButton(
-                              icon: Icons.sync_rounded,
-                              iconSize: 13,
-                              tooltip: context.tr.common_refresh,
-                              onTap: _isReconciling ? null : _refreshOverview,
-                            ),
-                          ],
+                        HomeHeaderIconButton(
+                          icon: Icons.sync_rounded,
+                          iconSize: 13,
+                          tooltip: context.tr.common_refresh,
+                          onTap: _isReconciling ? null : _refreshOverview,
                         ),
                       ],
                     ),

@@ -60,4 +60,47 @@ void main() {
       expect(find.byIcon(Icons.add_box_outlined), findsOneWidget);
     },
   );
+  testWidgets(
+    'native workflow editor opens the saved source with native validation',
+    (tester) async {
+      tester.view.physicalSize = const Size(1280, 900);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: WorkflowBlockEditor(
+              botId: 'test_bot',
+              eventCatalog: const [],
+              eventCategories: const ['core'],
+              eventsForCategory: (_) => const [],
+              eventCategoryLabel: (_) => 'Core',
+              buildVariableSuggestions:
+                  ({
+                    required String workflowType,
+                    required List argumentDefinitions,
+                    required Map<String, dynamic> eventTrigger,
+                  }) async => const [],
+              initial: {
+                'name': 'native',
+                'executionMode': 'bdfd_script',
+                'bdfdBackend': 'native-v1',
+                'bdfdScriptContent': r'$kickMention',
+                'actions': [],
+              },
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Native BDFD (migration in progress)'), findsWidgets);
+      expect(
+        find.textContaining(r'Invalid argument count for $kickMention'),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
 }

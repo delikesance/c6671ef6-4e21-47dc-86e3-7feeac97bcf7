@@ -24,11 +24,13 @@ class BdfdEditorPage extends StatefulWidget {
     super.key,
     required this.initialCode,
     this.title,
+    this.bdfdBackend = 'legacy-v1',
     this.appEmojis = const [],
   });
 
   final String initialCode;
   final String? title;
+  final String bdfdBackend;
   final List<AppEmoji> appEmojis;
 
   @override
@@ -61,7 +63,10 @@ class _BdfdEditorPageState extends State<BdfdEditorPage> {
 
   @override
   Widget build(BuildContext context) {
-    final language = BdfdScriptLanguage(appEmojis: widget.appEmojis);
+    final language = BdfdScriptLanguage(
+      appEmojis: widget.appEmojis,
+      backend: widget.bdfdBackend,
+    );
 
     return ScriptEditorScaffold(
       title: widget.title ?? context.tr.bdfd_editor_title,

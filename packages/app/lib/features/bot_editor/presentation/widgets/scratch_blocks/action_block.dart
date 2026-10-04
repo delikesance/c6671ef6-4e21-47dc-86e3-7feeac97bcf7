@@ -38,6 +38,7 @@ class ActionBlock extends StatefulWidget {
     this.onDuplicate,
     this.onOpenDocs,
     this.dragHandle,
+    this.readOnly = false,
   });
 
   final ActionItem action;
@@ -65,6 +66,9 @@ class ActionBlock extends StatefulWidget {
   final VoidCallback? onDuplicate;
   final VoidCallback? onOpenDocs;
   final Widget? dragHandle;
+
+  /// Displays the real editor block without editing or management controls.
+  final bool readOnly;
 
   @override
   State<ActionBlock> createState() => _ActionBlockState();
@@ -235,30 +239,36 @@ class _ActionBlockState extends State<ActionBlock> {
       isFinal: finalBlock,
       collapsed: _collapsed,
       onToggleCollapse: () => setState(() => _collapsed = !_collapsed),
-      onDelete: widget.onRemove,
+      onDelete: widget.readOnly ? null : widget.onRemove,
       badge: ScratchBlockBadge(label: category, color: color),
-      trailing: trailingWidget,
-      dragHandle: widget.dragHandle,
-      child: ActionCard(
-        action: widget.action,
-        index: widget.index,
-        totalCount: widget.totalCount,
-        actionKey: widget.action.actionKey,
-        onRemove: widget.onRemove,
-        onMoveUp: widget.onMoveUp,
-        onMoveDown: widget.onMoveDown,
-        onParameterChanged: widget.onParameterChanged,
-        onSuggestionSelected: widget.onSuggestionSelected,
-        fieldRefreshVersionOf: widget.fieldRefreshVersionOf,
-        variableSuggestions: widget.variableSuggestions,
-        emojiSuggestions: widget.emojiSuggestions,
-        botIdForConfig: widget.botIdForConfig,
-        onEditNestedActions: widget.onEditNestedActions,
-        // Hide ActionCard's own header/controls since ScratchBlock provides them.
-        showHeader: false,
-        showPositionLabel: false,
-        showManagementControls: false,
-        allActions: widget.allActions,
+      trailing: widget.readOnly ? null : trailingWidget,
+      dragHandle: widget.readOnly ? null : widget.dragHandle,
+      child: ExcludeFocus(
+        excluding: widget.readOnly,
+        child: IgnorePointer(
+          ignoring: widget.readOnly,
+          child: ActionCard(
+            action: widget.action,
+            index: widget.index,
+            totalCount: widget.totalCount,
+            actionKey: widget.action.actionKey,
+            onRemove: widget.onRemove,
+            onMoveUp: widget.onMoveUp,
+            onMoveDown: widget.onMoveDown,
+            onParameterChanged: widget.onParameterChanged,
+            onSuggestionSelected: widget.onSuggestionSelected,
+            fieldRefreshVersionOf: widget.fieldRefreshVersionOf,
+            variableSuggestions: widget.variableSuggestions,
+            emojiSuggestions: widget.emojiSuggestions,
+            botIdForConfig: widget.botIdForConfig,
+            onEditNestedActions: widget.onEditNestedActions,
+            // Hide ActionCard's own header/controls since ScratchBlock provides them.
+            showHeader: false,
+            showPositionLabel: false,
+            showManagementControls: false,
+            allActions: widget.allActions,
+          ),
+        ),
       ),
     );
   }

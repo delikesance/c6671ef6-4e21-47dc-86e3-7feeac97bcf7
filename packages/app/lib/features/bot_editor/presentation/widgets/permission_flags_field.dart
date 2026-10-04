@@ -199,14 +199,14 @@ class _PermissionFlagsFieldState extends State<PermissionFlagsField> {
   Widget _buildLegend() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: Row(
+      child: Wrap(
+        spacing: 12,
+        runSpacing: 8,
+        crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           _legendChip('Allow', Icons.check_circle, Colors.green),
-          const SizedBox(width: 12),
           _legendChip('Deny', Icons.cancel, Colors.red.shade400),
-          const SizedBox(width: 12),
           _legendChip('Unset', Icons.radio_button_unchecked, AppTheme.grey),
-          const Spacer(),
           Text(
             context.tr.permission_tap_to_cycle,
             style: TextStyle(color: AppTheme.grey, fontSize: 11),
