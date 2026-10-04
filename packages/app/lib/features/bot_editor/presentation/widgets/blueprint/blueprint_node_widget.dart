@@ -52,9 +52,7 @@ class BlueprintNodeWidget extends StatelessWidget {
           color: const Color(0xFF1E2128), // Node dark container
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: isSelected
-                ? accent
-                : Colors.white.withValues(alpha: 0.12),
+            color: isSelected ? accent : Colors.white.withValues(alpha: 0.12),
             width: isSelected ? 1.5 : 1.0,
           ),
           boxShadow: [

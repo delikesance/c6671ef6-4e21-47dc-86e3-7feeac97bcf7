@@ -7,8 +7,8 @@ class ScratchBlockConnector extends StatelessWidget {
   const ScratchBlockConnector({
     super.key,
     this.color,
-    this.height = 24,
-    this.showArrow = true,
+    this.height = 20,
+    this.showArrow = false,
     this.onInsert,
   });
 
@@ -28,11 +28,11 @@ class ScratchBlockConnector extends StatelessWidget {
   Widget build(BuildContext context) {
     final effectiveColor =
         color ?? Theme.of(context).colorScheme.outlineVariant;
-    final primaryColor = Theme.of(context).colorScheme.primary;
+    final primaryColor = Theme.of(context).colorScheme.onSurfaceVariant;
 
     if (onInsert != null) {
       return SizedBox(
-        height: height < 32 ? 32 : height,
+        height: height < 36 ? 36 : height,
         child: Stack(
           alignment: Alignment.center,
           children: [
@@ -40,7 +40,7 @@ class ScratchBlockConnector extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Expanded(child: Container(width: 2, color: effectiveColor)),
+                  Expanded(child: _line(effectiveColor)),
                   if (showArrow)
                     AppIcon.fromMaterial(
                       Icons.arrow_drop_down,
@@ -58,8 +58,8 @@ class ScratchBlockConnector extends StatelessWidget {
                 onTap: onInsert,
                 customBorder: const CircleBorder(),
                 child: Container(
-                  width: 20,
-                  height: 20,
+                  width: 28,
+                  height: 28,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(color: effectiveColor, width: 1.5),
@@ -67,7 +67,7 @@ class ScratchBlockConnector extends StatelessWidget {
                   alignment: Alignment.center,
                   child: AppIcon.fromMaterial(
                     Icons.add,
-                    size: 13,
+                    size: 16,
                     color: primaryColor,
                   ),
                 ),
@@ -84,7 +84,7 @@ class ScratchBlockConnector extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Expanded(child: Container(width: 2, color: effectiveColor)),
+            Expanded(child: _line(effectiveColor)),
             if (showArrow)
               AppIcon.fromMaterial(
                 Icons.arrow_drop_down,
@@ -96,4 +96,12 @@ class ScratchBlockConnector extends StatelessWidget {
       ),
     );
   }
+
+  Widget _line(Color color) => Container(
+    width: 2,
+    decoration: BoxDecoration(
+      color: color,
+      borderRadius: BorderRadius.circular(1),
+    ),
+  );
 }

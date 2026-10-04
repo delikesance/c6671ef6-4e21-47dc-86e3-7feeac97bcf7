@@ -9,6 +9,7 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pag
 import 'blueprint_models.dart';
 import 'blueprint_layout_engine.dart';
 import 'blueprint_graph_painter.dart';
+import 'blueprint_minimap.dart';
 import 'blueprint_node_widget.dart';
 import 'blueprint_inspector_panel.dart';
 import 'blueprint_context_menu.dart';
@@ -154,6 +155,25 @@ class _BlueprintGraphCanvasState extends State<BlueprintGraphCanvas> {
     _transformController.value = Matrix4.identity()
       ..translateByDouble(targetX, targetY, 0.0, 1.0)
       ..scaleByDouble(1.0, 1.0, 1.0, 1.0);
+  }
+
+  Size _viewportSize() {
+    final renderBox = context.findRenderObject() as RenderBox?;
+    return renderBox?.hasSize == true ? renderBox!.size : const Size(800, 600);
+  }
+
+  /// Moves the view so [canvasPoint] sits at the center, keeping the zoom.
+  void _centerOn(Offset canvasPoint, Size viewport) {
+    final scale = _transformController.value.getMaxScaleOnAxis();
+    final global = canvasPoint + _canvasOrigin;
+    _transformController.value = Matrix4.identity()
+      ..translateByDouble(
+        viewport.width / 2 - global.dx * scale,
+        viewport.height / 2 - global.dy * scale,
+        0.0,
+        1.0,
+      )
+      ..scaleByDouble(scale, scale, 1.0, 1.0);
   }
 
   Offset _screenToCanvas(Offset screenOffset) {
@@ -319,6 +339,8 @@ class _BlueprintGraphCanvasState extends State<BlueprintGraphCanvas> {
 
   @override
   Widget build(BuildContext context) {
+    final accent = HomeTokens.of(context).accentRing;
+
     // Sync external custom positions and severed connections if provided
     if (widget.customNodePositions != null) {
       for (final entry in widget.customNodePositions!.entries) {
@@ -541,9 +563,7 @@ class _BlueprintGraphCanvasState extends State<BlueprintGraphCanvas> {
                                 painter: BlueprintInfiniteGridPainter(
                                   transform: matrix,
                                   canvasOrigin: _canvasOrigin,
-                                  accentColor: HomeTokens.of(
-                                    context,
-                                  ).accentRing,
+                                  accentColor: accent,
                                 ),
                               );
                             },
@@ -571,9 +591,7 @@ class _BlueprintGraphCanvasState extends State<BlueprintGraphCanvas> {
                                       selectedConnectionId:
                                           _selectedConnectionId,
                                       canvasOrigin: _canvasOrigin,
-                                      accentColor: HomeTokens.of(
-                                        context,
-                                      ).accentRing,
+                                      accentColor: accent,
                                       activeDraftConnection:
                                           _draggingPin != null &&
                                               _draggingFromNodeId != null
@@ -749,8 +767,8 @@ class _BlueprintGraphCanvasState extends State<BlueprintGraphCanvas> {
                       vertical: 2,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1E2128),
-                      borderRadius: BorderRadius.circular(8),
+                      color: const Color(0xFF16181E),
+                      borderRadius: BorderRadius.circular(14),
                       border: Border.all(color: Colors.white12),
                       boxShadow: [
                         BoxShadow(
@@ -788,6 +806,21 @@ class _BlueprintGraphCanvasState extends State<BlueprintGraphCanvas> {
                             _transformController.value = matrix;
                           },
                         ),
+                        ValueListenableBuilder<Matrix4>(
+                          valueListenable: _transformController,
+                          builder: (context, matrix, _) => Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 6),
+                            child: Text(
+                              '${(matrix.getMaxScaleOnAxis() * 100).round()} %',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white70,
+                                fontFeatures: [FontFeature.tabularFigures()],
+                              ),
+                            ),
+                          ),
+                        ),
                         const SizedBox(
                           height: 20,
                           child: VerticalDivider(
@@ -795,20 +828,13 @@ class _BlueprintGraphCanvasState extends State<BlueprintGraphCanvas> {
                             width: 8,
                           ),
                         ),
-                        TextButton.icon(
+                        IconButton(
                           onPressed: _centerCanvas,
-                          icon: const AppIcon.fromMaterial(
+                          tooltip: context.tr.blueprint_origin_label,
+                          icon: AppIcon.fromMaterial(
                             Icons.my_location,
-                            color: Colors.cyanAccent,
-                            size: 16,
-                          ),
-                          label: Text(
-                            context.tr.blueprint_origin_label,
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: Colors.cyanAccent,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            color: accent,
+                            size: 18,
                           ),
                         ),
                         if (_selectedConnectionId != null) ...[
@@ -839,6 +865,27 @@ class _BlueprintGraphCanvasState extends State<BlueprintGraphCanvas> {
                     ),
                   ),
                 ),
+
+                // ── Minimap ──
+                if (baseGraph.nodes.isNotEmpty)
+                  Positioned(
+                    right: 20,
+                    bottom: 20,
+                    child: ValueListenableBuilder<Matrix4>(
+                      valueListenable: _transformController,
+                      builder: (context, matrix, _) {
+                        final viewport = _viewportSize();
+                        return BlueprintMinimap(
+                          nodes: baseGraph.nodes,
+                          transform: matrix,
+                          viewportSize: viewport,
+                          canvasOrigin: _canvasOrigin,
+                          accentColor: accent,
+                          onNavigate: (point) => _centerOn(point, viewport),
+                        );
+                      },
+                    ),
+                  ),
 
                 // ── Floating Action: Cut Selected Wire at Midpoint ──
                 if (selectedConn != null && selectedConnMidScreen != null)
