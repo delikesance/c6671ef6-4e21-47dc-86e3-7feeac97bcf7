@@ -173,6 +173,7 @@ class VariableService {
     required String scope,
     required String key,
     String? userId,
+    String? guildId,
     void Function()? checkBudget,
   }) async {
     final normalized = scopedStorageKey(key).toLowerCase();
@@ -217,10 +218,13 @@ class VariableService {
           final contextId = (item['contextId'] ?? '').toString();
           if (contextId.isEmpty) throw StateError('Missing variable context.');
           final matches =
-              userId == null ||
-              (scope == 'guildMember'
-                  ? contextId.split(':').last == userId
-                  : contextId == userId);
+              (userId == null ||
+                  (scope == 'guildMember'
+                      ? contextId.split(':').last == userId
+                      : contextId == userId)) &&
+              (guildId == null ||
+                  scope != 'guildMember' ||
+                  contextId.split(':').first == guildId);
           if (matches) {
             targets
                 .putIfAbsent(contextId, () => <String>{storageKey})
