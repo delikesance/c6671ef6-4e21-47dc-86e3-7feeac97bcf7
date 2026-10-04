@@ -140,6 +140,8 @@ class _ActionBlockState extends State<ActionBlock> {
           }
         } else if (value == 'docs') {
           widget.onOpenDocs?.call();
+        } else if (value == 'delete') {
+          widget.onRemove();
         }
       },
       itemBuilder: (context) => [
@@ -229,6 +231,25 @@ class _ActionBlockState extends State<ActionBlock> {
             ],
           ),
         ),
+        const PopupMenuDivider(),
+        PopupMenuItem(
+          value: 'delete',
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AppIcon.fromMaterial(
+                Icons.delete_outline,
+                size: 18,
+                color: colorScheme.error,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                _localString('Delete'),
+                style: TextStyle(color: colorScheme.error),
+              ),
+            ],
+          ),
+        ),
       ],
     );
 
@@ -239,8 +260,7 @@ class _ActionBlockState extends State<ActionBlock> {
       isFinal: finalBlock,
       collapsed: _collapsed,
       onToggleCollapse: () => setState(() => _collapsed = !_collapsed),
-      onDelete: widget.readOnly ? null : widget.onRemove,
-      badge: ScratchBlockBadge(label: category, color: color),
+      overline: category,
       trailing: widget.readOnly ? null : trailingWidget,
       dragHandle: widget.readOnly ? null : widget.dragHandle,
       child: ExcludeFocus(

@@ -67,7 +67,7 @@ class BlueprintGraphPainter extends CustomPainter {
           canvas: canvas,
           start: startPos,
           end: activeDraftTarget!,
-          color: Colors.cyanAccent,
+          color: const Color(0xFFA78BFA),
           isDraft: true,
         );
       }
@@ -97,8 +97,8 @@ class BlueprintGraphPainter extends CustomPainter {
     if (isHighlighted || isSelectedCable) {
       final glowPaint = Paint()
         ..color = isSelectedCable
-            ? Colors.cyanAccent.withValues(alpha: 0.6)
-            : Colors.cyanAccent.withValues(alpha: 0.35)
+            ? const Color(0xFFA78BFA).withValues(alpha: 0.6)
+            : const Color(0xFFA78BFA).withValues(alpha: 0.35)
         ..style = PaintingStyle.stroke
         ..strokeWidth = isSelectedCable ? 8.0 : 6.0
         ..strokeCap = StrokeCap.round;
@@ -108,9 +108,9 @@ class BlueprintGraphPainter extends CustomPainter {
     // Main cable stroke
     final cablePaint = Paint()
       ..color = isDraft
-          ? Colors.cyanAccent
+          ? const Color(0xFFA78BFA)
           : (isSelectedCable
-                ? Colors.cyanAccent
+                ? const Color(0xFFA78BFA)
                 : (isHighlighted
                       ? Colors.white
                       : color.withValues(alpha: 0.85)))
@@ -206,7 +206,7 @@ class BlueprintInfiniteGridPainter extends CustomPainter {
     canvas.clipRect(Rect.fromLTWH(0, 0, size.width, size.height));
 
     // 1. Fill visible viewport with Unreal Engine dark slate color
-    final bgPaint = Paint()..color = const Color(0xFF14161A);
+    final bgPaint = Paint()..color = const Color(0xFF0E0F13);
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), bgPaint);
 
     // 2. Compute visible canvas bounds using inverse transform
@@ -235,15 +235,15 @@ class BlueprintInfiniteGridPainter extends CustomPainter {
     final subAlpha = ((scale - 0.35) / 0.25).clamp(0.0, 1.0);
 
     final smallGridPaint = Paint()
-      ..color = const Color(0xFF1F2228).withValues(alpha: subAlpha)
+      ..color = const Color(0xFF161820).withValues(alpha: subAlpha)
       ..strokeWidth = 1.0;
 
     final majorGridPaint = Paint()
-      ..color = const Color(0xFF282C34)
+      ..color = const Color(0xFF1D2029)
       ..strokeWidth = 1.2;
 
     final originAxisPaint = Paint()
-      ..color = const Color(0xFF3F4654)
+      ..color = const Color(0xFF2C303C)
       ..strokeWidth = 1.5;
 
     // Draw vertical lines
@@ -318,7 +318,7 @@ class BlueprintInfiniteGridPainter extends CustomPainter {
         originScreenPos.dy >= -20 &&
         originScreenPos.dy <= size.height + 20) {
       final originCenterPaint = Paint()
-        ..color = Colors.cyanAccent.withValues(alpha: 0.85)
+        ..color = const Color(0xFFA78BFA).withValues(alpha: 0.85)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2.0;
       canvas.drawCircle(originScreenPos, 4.5, originCenterPaint);
