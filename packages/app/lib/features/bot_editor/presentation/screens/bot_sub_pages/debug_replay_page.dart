@@ -650,6 +650,13 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
             final width = box.size.width;
             final tapX = details.localPosition.dx;
             final ratio = (tapX / width).clamp(0.0, 1.0);
+            if (frames.any((frame) => frame.isNative)) {
+              _stopPlayback();
+              _goToStep(
+                (ratio * frames.length).floor().clamp(0, frames.length - 1),
+              );
+              return;
+            }
             int cumMs = 0;
             for (var i = 0; i < frames.length; i++) {
               cumMs += frames[i].durationMs;
@@ -775,7 +782,7 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
-                          _humanizeActionType(frame.actionType),
+                          frame.displayName,
                           style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
                       ),
@@ -855,7 +862,7 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  _humanizeActionType(frame.actionType),
+                  frame.displayName,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
@@ -864,6 +871,16 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
             ],
           ),
           const SizedBox(height: 20),
+          if (frame.isNative) ...[
+            Text(
+              _nativeDetails(frame),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                fontFamily: 'monospace',
+                color: statusColor,
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
           // ── Duration bar ──
           Text(
             context.tr.debug_replay_duration_label,
@@ -981,12 +998,35 @@ class _DebugReplayDetailPageState extends State<DebugReplayDetailPage>
     return '$h:$m:$s';
   }
 
-  String _humanizeActionType(String raw) {
-    // Insert space before uppercase letters: sendMessage → Send Message
-    return raw
-        .replaceAllMapped(RegExp(r'([A-Z])'), (m) => ' ${m.group(0)}')
-        .trimLeft()
-        .replaceFirstMapped(RegExp(r'^.'), (m) => m.group(0)!.toUpperCase());
+  String _nativeDetails(DebugActionFrame frame) {
+    final meta = frame.nativeMetadata!;
+    final french = Localizations.localeOf(context).languageCode == 'fr';
+    final status = switch (meta['nativeStatus']) {
+      'start' => french ? 'Appel' : 'Call',
+      'returned' => french ? 'Retour' : 'Returned',
+      'literal' => french ? 'Conservée telle quelle' : 'Preserved literally',
+      'selected' => french ? 'Branche choisie' : 'Selected branch',
+      'none' => french ? 'Aucune branche' : 'No branch',
+      'handled' => french ? 'Erreur interceptée' : 'Error caught',
+      'error' => french ? 'Erreur' : 'Error',
+      'timeout' => french ? 'Délai dépassé' : 'Timed out',
+      'stop' => french ? 'Arrêt' : 'Stopped',
+      'truncated' => french ? 'Trace abrégée' : 'Trace truncated',
+      _ => meta['nativeStatus']?.toString() ?? '',
+    };
+    return [
+      'BDFD',
+      status,
+      if (meta['line'] != null) 'L${meta['line']}:${meta['column'] ?? 1}',
+      if (meta['branch'] is int)
+        '${french ? 'Branche' : 'Branch'} ${(meta['branch'] as int) + 1}',
+      if (meta['scriptDepth'] != null)
+        '${french ? 'Profondeur du script' : 'Script depth'} ${meta['scriptDepth']}',
+      if (meta['eventsDropped'] != null)
+        '${meta['eventsDropped']} ${french ? 'événements omis' : 'events omitted'}',
+      if (meta['valueTruncated'] == true)
+        french ? 'Valeur abrégée' : 'Value truncated',
+    ].join(' · ');
   }
 }
 
@@ -1250,6 +1290,29 @@ class _TimelinePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    if (frames.any((frame) => frame.isNative)) {
+      // Native observations are events, with nested durations that overlap.
+      // Give each event a position rather than adding inclusive call durations.
+      final stepWidth = size.width / frames.length;
+      final gap = stepWidth > 4 ? 2.0 : 0.0;
+      for (var i = 0; i < frames.length; i++) {
+        final color = i == activeIndex
+            ? activeColor
+            : frames[i].isError
+            ? errorColor
+            : successColor;
+        canvas.drawRect(
+          Rect.fromLTWH(
+            i * stepWidth,
+            size.height * 0.2,
+            stepWidth - gap,
+            size.height * 0.6,
+          ),
+          Paint()..color = color,
+        );
+      }
+      return;
+    }
     const gapPx = 2.0;
     final totalGaps = (frames.length - 1) * gapPx;
     final availableWidth = size.width - totalGaps;

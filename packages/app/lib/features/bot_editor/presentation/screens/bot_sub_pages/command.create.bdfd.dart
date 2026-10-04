@@ -46,9 +46,7 @@ extension _CommandCreateBdfd on _CommandCreatePageState {
                 if (next == null) return;
                 _applyStateUpdate(() {
                   _executionMode = next;
-                  _bdfdCompileResult = _bdfdCompiler.compile(
-                    _bdfdScriptController.text,
-                  );
+                  _refreshBdfdCompileResult(notify: false);
                 });
               },
               child: Column(
@@ -101,6 +99,8 @@ extension _CommandCreateBdfd on _CommandCreatePageState {
             ),
             if (includeInlineEditor && _isBdfdScriptMode) ...[
               const SizedBox(height: 12),
+              _buildBdfdBackendSelector(),
+              const SizedBox(height: 12),
               _buildBdfdEditorTile(),
               const SizedBox(height: 12),
               _buildBdfdDiagnosticsPanel(),
@@ -114,6 +114,37 @@ extension _CommandCreateBdfd on _CommandCreatePageState {
       ),
     );
   }
+
+  Widget _buildBdfdBackendSelector() => DropdownButtonFormField<String>(
+    key: ValueKey(_bdfdBackend),
+    initialValue: _bdfdBackend,
+    decoration: InputDecoration(
+      labelText: Localizations.localeOf(context).languageCode == 'fr'
+          ? 'Moteur BDFD'
+          : 'BDFD engine',
+    ),
+    items: [
+      const DropdownMenuItem(value: 'legacy-v1', child: Text('BDFD legacy')),
+      DropdownMenuItem(
+        value: 'native-v1',
+        child: Text(
+          Localizations.localeOf(context).languageCode == 'fr'
+              ? 'BDFD natif (en migration)'
+              : 'Native BDFD (migration in progress)',
+        ),
+      ),
+      if (!['legacy-v1', 'native-v1'].contains(_bdfdBackend))
+        DropdownMenuItem(value: _bdfdBackend, child: Text(_bdfdBackend)),
+    ],
+    onChanged: (value) {
+      if (value != null) {
+        _applyStateUpdate(() {
+          _bdfdBackend = value;
+          _refreshBdfdCompileResult(notify: false);
+        });
+      }
+    },
+  );
 
   Widget _buildBdfdEditorTile() {
     final code = _bdfdScriptController.text;
@@ -134,6 +165,7 @@ extension _CommandCreateBdfd on _CommandCreatePageState {
               initialCode: _bdfdScriptController.text,
               title: context.tr.workflow_bdfd_editor_title,
               appEmojis: _appEmojis,
+              bdfdBackend: _bdfdBackend,
             ),
           ),
         );

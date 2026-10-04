@@ -10994,4 +10994,34 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get history_action_failed =>
       'Unable to complete this history action. Please try again.';
+
+  @override
+  String get bot_create_title => 'Create a bot';
+
+  @override
+  String get bot_create_description =>
+      'Connect your Discord bot and choose how to build it.';
+
+  @override
+  String get bot_create_visual_title => 'Blocs & BDFD';
+
+  @override
+  String get bot_create_visual_description =>
+      'Build with visual actions or BDFD scripts.';
+
+  @override
+  String get bot_create_javascript_description =>
+      'Write your bot in JavaScript with Discord.js.';
+
+  @override
+  String get editor_section_creation => 'Creation';
+
+  @override
+  String get editor_section_automation => 'Automation';
+
+  @override
+  String get editor_section_management => 'Management';
+
+  @override
+  String get bot_create_mode => 'Build mode';
 }

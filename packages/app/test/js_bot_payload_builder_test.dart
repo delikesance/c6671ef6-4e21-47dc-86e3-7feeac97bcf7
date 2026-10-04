@@ -181,6 +181,31 @@ void main() {
     });
   }
 
+  test(
+    'workflow storage preserves native BDFD metadata on a partial update',
+    () async {
+      await appManager.saveWorkflow(
+        botId,
+        name: 'native',
+        actions: [],
+        executionMode: workflowExecutionModeBdfd,
+        bdfdBackend: 'native-v1',
+        bdfdScriptContent: r'$sendMessage[stored;yes]',
+      );
+      await appManager.saveWorkflow(
+        botId,
+        name: 'native',
+        actions: [],
+        folder: 'moved',
+      );
+      final workflow = await appManager.getWorkflowByName(botId, 'native');
+      expect(workflow!['executionMode'], workflowExecutionModeBdfd);
+      expect(workflow['bdfdBackend'], 'native-v1');
+      expect(workflow['bdfdScriptContent'], r'$sendMessage[stored;yes]');
+      expect(workflow['folder'], 'moved');
+    },
+  );
+
   test('includes javascript event workflows in payload events array', () async {
     await appManager.saveWorkflow(
       botId,

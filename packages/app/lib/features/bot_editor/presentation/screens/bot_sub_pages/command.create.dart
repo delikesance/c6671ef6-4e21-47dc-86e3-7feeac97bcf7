@@ -1,3 +1,4 @@
+import 'package:bot_creator/core/bdfd_editor/bdfd_validation.dart';
 import 'dart:async';
 import '../command_sandbox_page.dart';
 import 'dart:convert';
@@ -185,7 +186,8 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   final TextEditingController _jsScriptController = TextEditingController();
   String _botRuntimeEngine = runtimeEngineDart;
   final BdfdCompiler _bdfdCompiler = BdfdCompiler();
-  BdfdCompileResult? _bdfdCompileResult;
+  String _bdfdBackend = 'legacy-v1';
+  List<BdfdCompileDiagnostic> _bdfdDiagnosticsValue = const [];
   bool _legacyModeEnabled = false;
   bool _restoredHybridTrigger = false;
   bool _localOnlyCommand = false;
@@ -227,8 +229,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
 
   bool get _isJavascriptOnlyBot => _botRuntimeEngine == runtimeEngineJavascript;
 
-  List<BdfdCompileDiagnostic> get _bdfdDiagnostics =>
-      _bdfdCompileResult?.diagnostics ?? const <BdfdCompileDiagnostic>[];
+  List<BdfdCompileDiagnostic> get _bdfdDiagnostics => _bdfdDiagnosticsValue;
 
   bool get _hasBdfdCompileErrors => _bdfdDiagnostics.any(
     (diagnostic) => diagnostic.severity == BdfdCompileDiagnosticSeverity.error,
@@ -271,16 +272,20 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
 
   void _refreshBdfdCompileResult({bool notify = true}) {
     final source = _bdfdScriptController.text;
-    final nextResult = _bdfdCompiler.compile(source);
+    final nextResult = bdfdDiagnosticsFor(
+      source,
+      backend: _bdfdBackend,
+      legacyCompiler: _bdfdCompiler,
+    );
     if (!notify || !mounted) {
       _bdfdScriptContent = source;
-      _bdfdCompileResult = nextResult;
+      _bdfdDiagnosticsValue = nextResult;
       return;
     }
 
     _applyStateUpdate(() {
       _bdfdScriptContent = source;
-      _bdfdCompileResult = nextResult;
+      _bdfdDiagnosticsValue = nextResult;
     });
   }
 
@@ -1625,7 +1630,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           _jsScriptContent = (normalizedData['jsScriptContent'] ?? '')
               .toString();
           _jsScriptController.text = _jsScriptContent;
-          _bdfdCompileResult = _bdfdCompiler.compile(_bdfdScriptContent);
+          _bdfdBackend = (normalizedData['bdfdBackend'] ?? 'legacy-v1')
+              .toString();
+          _refreshBdfdCompileResult(notify: false);
           _restoredHybridTrigger = normalizedData['triggerType'] == 'hybrid';
           _legacyModeEnabled = normalizedData['legacyModeEnabled'] == true;
           _localOnlyCommand =
@@ -1743,7 +1750,9 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
             _jsScriptContent = (normalizedData['jsScriptContent'] ?? '')
                 .toString();
             _jsScriptController.text = _jsScriptContent;
-            _bdfdCompileResult = _bdfdCompiler.compile(_bdfdScriptContent);
+            _bdfdBackend = (normalizedData['bdfdBackend'] ?? 'legacy-v1')
+                .toString();
+            _refreshBdfdCompileResult(notify: false);
             _restoredHybridTrigger = normalizedData['triggerType'] == 'hybrid';
             _legacyModeEnabled = normalizedData['legacyModeEnabled'] == true;
             _localOnlyCommand =
@@ -2346,6 +2355,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
                               : _cloneJsonListOfMaps(_actions),
                           options: _serializeOptions(_effectiveOptions),
                           definitions: definitions,
+                          bdfdBackend: _bdfdBackend,
                         ),
                       ),
                     );

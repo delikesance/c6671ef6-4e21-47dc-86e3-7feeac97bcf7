@@ -18996,6 +18996,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unable to complete this history action. Please try again.'**
   String get history_action_failed;
+
+  /// No description provided for @bot_create_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a bot'**
+  String get bot_create_title;
+
+  /// No description provided for @bot_create_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect your Discord bot and choose how to build it.'**
+  String get bot_create_description;
+
+  /// No description provided for @bot_create_visual_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocs & BDFD'**
+  String get bot_create_visual_title;
+
+  /// No description provided for @bot_create_visual_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Build with visual actions or BDFD scripts.'**
+  String get bot_create_visual_description;
+
+  /// No description provided for @bot_create_javascript_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Write your bot in JavaScript with Discord.js.'**
+  String get bot_create_javascript_description;
+
+  /// No description provided for @editor_section_creation.
+  ///
+  /// In en, this message translates to:
+  /// **'Creation'**
+  String get editor_section_creation;
+
+  /// No description provided for @editor_section_automation.
+  ///
+  /// In en, this message translates to:
+  /// **'Automation'**
+  String get editor_section_automation;
+
+  /// No description provided for @editor_section_management.
+  ///
+  /// In en, this message translates to:
+  /// **'Management'**
+  String get editor_section_management;
+
+  /// No description provided for @bot_create_mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Build mode'**
+  String get bot_create_mode;
 }
 
 class _AppLocalizationsDelegate

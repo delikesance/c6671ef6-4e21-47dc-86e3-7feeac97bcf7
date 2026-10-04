@@ -12,6 +12,7 @@ class CommandSandboxPage extends StatefulWidget {
   const CommandSandboxPage({
     super.key,
     this.script,
+    this.bdfdBackend = 'legacy-v1',
     this.runner,
     this.editableScript = false,
     this.initialScenario = const {},
@@ -22,6 +23,7 @@ class CommandSandboxPage extends StatefulWidget {
     this.definitions = const [],
   });
   final String? script;
+  final String bdfdBackend;
   final Future<Map<String, dynamic>> Function(Map<String, dynamic>)? runner;
   final bool editableScript;
   final Map<String, dynamic> initialScenario;
@@ -183,9 +185,10 @@ class _CommandSandboxPageState extends State<CommandSandboxPage> {
       // Advanced fixtures cannot replace the source displayed in the editor.
       seed.remove('script');
       seed.remove('actions');
+      seed.remove('bdfdBackend');
       final value = await (widget.runner ?? testCommandInSandbox)({
         if (widget.script != null) 'script': source.text,
-        if (widget.script != null) 'bdfdBackend': 'native-v1',
+        'bdfdBackend': widget.bdfdBackend,
         if (widget.actions != null) 'actions': widget.actions,
         'options': options,
         'variables': {

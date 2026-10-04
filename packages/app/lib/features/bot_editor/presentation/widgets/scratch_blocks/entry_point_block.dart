@@ -314,6 +314,16 @@ class _EntryPointBlockState extends State<EntryPointBlock> {
     final typeVal = _commandTypeSegmentValue();
     final isLegacy = typeVal == 'legacy';
     final colorScheme = Theme.of(context).colorScheme;
+    final selectorStyle = SegmentedButton.styleFrom(
+      backgroundColor: Colors.transparent,
+      foregroundColor: colorScheme.onSurfaceVariant,
+      selectedBackgroundColor: Color.alphaBlend(
+        colorScheme.primary.withValues(alpha: 0.12),
+        colorScheme.surfaceContainerLow,
+      ),
+      selectedForegroundColor: colorScheme.onSurface,
+      side: BorderSide(color: colorScheme.outlineVariant),
+    );
     final cmdName = widget.commandName?.trim();
     final prefix = typeVal == 'slash' ? '/' : (typeVal == 'legacy' ? '!' : '');
     // Le titre résume les mots déclencheurs : `!nom, !alias1, !alias2…`.
@@ -354,7 +364,11 @@ class _EntryPointBlockState extends State<EntryPointBlock> {
                   fontSize: 12.5,
                 ),
               ),
-              style: FilledButton.styleFrom(minimumSize: const Size(0, 38)),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size(0, 38),
+                backgroundColor: colorScheme.surfaceContainerHighest,
+                foregroundColor: colorScheme.onSurface,
+              ),
             ),
             const SizedBox(height: 12),
           ],
@@ -368,6 +382,7 @@ class _EntryPointBlockState extends State<EntryPointBlock> {
             builder: (context, constraints) {
               final compact = constraints.maxWidth < 460;
               return SegmentedButton<String>(
+                style: selectorStyle,
                 segments: [
                   ButtonSegment(
                     value: 'slash',
@@ -478,6 +493,7 @@ class _EntryPointBlockState extends State<EntryPointBlock> {
                     ? widget.executionMode
                     : segments.first.value;
                 return SegmentedButton<String>(
+                  style: selectorStyle,
                   segments: segments,
                   selected: <String>{selectedValue},
                   onSelectionChanged: (selection) {
@@ -824,6 +840,7 @@ class _WorkflowEntryPointBlockState extends State<WorkflowEntryPointBlock> {
 
         // ── Event dropdown ──
         DropdownButtonFormField<String>(
+          isExpanded: true,
           initialValue: widget.selectedEvent.isNotEmpty
               ? widget.selectedEvent
               : null,
@@ -836,7 +853,7 @@ class _WorkflowEntryPointBlockState extends State<WorkflowEntryPointBlock> {
               .map((def) {
                 return DropdownMenuItem(
                   value: def.event,
-                  child: Text(def.label),
+                  child: Text(def.label, overflow: TextOverflow.ellipsis),
                 );
               })
               .toList(growable: false),
