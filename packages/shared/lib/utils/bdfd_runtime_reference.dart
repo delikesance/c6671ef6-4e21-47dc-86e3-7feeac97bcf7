@@ -6,7 +6,7 @@ $if[$guildID!=]
 $if[$isBot==false]
 $var[length;$charCount[$trimSpace[$message]]]
 $if[$var[length]>0]
-$cooldown[15s]
+$cooldown[15s;]
 $var[gain;$min[30;$max[1;$ceil[$divide[$var[length];10]]]]]
 $var[level;$getGuildMemberVar[level]]
 $var[xp;$sum[$getGuildMemberVar[xp];$var[gain]]]
@@ -109,7 +109,7 @@ Map<String, dynamic> bdfdRuntimeReference({
     'author': r'$authorID',
     'guild': r'$guildID',
     'cooldown':
-        r'$cooldown[15s] stops silently and is isolated by bot, member and server. Place it before writes. This cooldown is kept in memory and resets on runtime restart.',
+        r'$cooldown[15s;] with an empty message stops silently and is isolated by bot, member and server. Place it before writes. This cooldown is kept in memory and resets on runtime restart.',
     'requirements':
         'Guild message events and Message Content intent must be enabled in the bot configuration and Discord Developer Portal to inspect normal message text.',
   },
