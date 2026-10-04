@@ -1,57 +1,9 @@
-import 'dart:convert';
 import 'package:nyxx/nyxx.dart';
-import 'package:bot_creator_shared/utils/global.dart';
-import 'permission_checks.dart';
 
-Snowflake? _toSnowflake(dynamic value) {
-  final parsed = int.tryParse(value?.toString() ?? '');
-  if (parsed == null) return null;
-  return Snowflake(parsed);
-}
+import '../services/bot_automod_service.dart';
 
-List<Snowflake> _toSnowflakeList(dynamic value) {
-  if (value == null) return [];
-  List<String> raw;
-  if (value is List) {
-    raw = value.map((e) => e.toString().trim()).toList();
-  } else {
-    final s = value.toString().trim();
-    if (s.isEmpty) return [];
-    try {
-      final decoded = jsonDecode(s);
-      if (decoded is List) {
-        raw = decoded.map((e) => e.toString().trim()).toList();
-      } else {
-        raw = s.split(',').map((e) => e.trim()).toList();
-      }
-    } catch (_) {
-      raw = s.split(',').map((e) => e.trim()).toList();
-    }
-  }
-  return raw.map(_toSnowflake).whereType<Snowflake>().toList();
-}
-
-List<String> _toStringList(dynamic value) {
-  if (value == null) return [];
-  if (value is List) {
-    return value
-        .map((e) => e.toString().trim())
-        .where((s) => s.isNotEmpty)
-        .toList();
-  }
-  final s = value.toString().trim();
-  if (s.isEmpty) return [];
-  try {
-    final decoded = jsonDecode(s);
-    if (decoded is List) {
-      return decoded
-          .map((e) => e.toString().trim())
-          .where((v) => v.isNotEmpty)
-          .toList();
-    }
-  } catch (_) {}
-  return s.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
-}
+// The Discord logic lives in [BotAutoModService]; these functions are the historical entry
+// points of the blocks and delegate to it.
 
 /// Creates a new AutoMod rule.
 ///
@@ -78,168 +30,9 @@ Future<Map<String, String>> createAutoModRuleAction(
   required Snowflake? guildId,
   required Map<String, dynamic> payload,
   required String Function(String) resolve,
-}) async {
-  try {
-    if (guildId == null) {
-      return {'error': 'createAutoModRule requires a guild context'};
-    }
-
-    final permError = await checkBotGuildPermission(
-      client,
-      guildId: guildId,
-      requiredPermissions: [Permissions.manageGuild],
-      actionLabel: 'manage automod rules',
-    );
-    if (permError != null) {
-      return {'error': permError};
-    }
-
-    final name = resolve((payload['name'] ?? '').toString()).trim();
-    if (name.isEmpty) {
-      return {'error': 'name is required for createAutoModRule'};
-    }
-
-    final triggerTypeRaw =
-        resolve(
-          (payload['triggerType'] ?? 'keyword').toString(),
-        ).trim().toLowerCase();
-
-    TriggerType triggerType;
-    switch (triggerTypeRaw) {
-      case 'spam':
-        triggerType = TriggerType.spam;
-        break;
-      case 'keywordpreset':
-      case 'keyword_preset':
-        triggerType = TriggerType.keywordPreset;
-        break;
-      case 'mentionspam':
-      case 'mention_spam':
-        triggerType = TriggerType.mentionSpam;
-        break;
-      default:
-        triggerType = TriggerType.keyword;
-        break;
-    }
-
-    final keywords = _toStringList(payload['keywords']);
-    final regexPatterns = _toStringList(payload['regexPatterns']);
-    final allowedWords = _toStringList(payload['allowedWords']);
-    final exemptRoles = _toSnowflakeList(payload['exemptRoles']);
-    final exemptChannels = _toSnowflakeList(payload['exemptChannels']);
-
-    final mentionTotalLimit =
-        int.tryParse(
-          resolve((payload['mentionTotalLimit'] ?? '5').toString()),
-        ) ??
-        5;
-
-    final enabledRaw =
-        resolve((payload['enabled'] ?? 'true').toString()).toLowerCase();
-    final enabled = enabledRaw != 'false' && enabledRaw != '0';
-
-    final reason = resolve((payload['reason'] ?? '').toString()).trim();
-
-    // Build action
-    final actionTypeRaw =
-        resolve(
-          (payload['actionType'] ?? 'block_message').toString(),
-        ).trim().toLowerCase();
-
-    final List<AutoModerationActionBuilder> actions = [];
-    switch (actionTypeRaw) {
-      case 'send_alert_message':
-      case 'sendalertmessage':
-        final alertChannelId = _toSnowflake(
-          resolve((payload['alertChannelId'] ?? '').toString()),
-        );
-        if (alertChannelId != null) {
-          actions.add(
-            AutoModerationActionBuilder.sendAlertMessage(
-              channelId: alertChannelId,
-            ),
-          );
-        }
-        break;
-      case 'timeout':
-        final timeoutDuration =
-            int.tryParse(
-              resolve((payload['timeoutDuration'] ?? '60').toString()),
-            ) ??
-            60;
-        actions.add(
-          AutoModerationActionBuilder.timeout(
-            duration: Duration(seconds: timeoutDuration),
-          ),
-        );
-        break;
-      default:
-        actions.add(AutoModerationActionBuilder.blockMessage());
-        break;
-    }
-
-    // Build trigger metadata
-    TriggerMetadataBuilder? triggerMetadata;
-    if (triggerType == TriggerType.keyword) {
-      triggerMetadata = TriggerMetadataBuilder(
-        keywordFilter: keywords,
-        regexPatterns: regexPatterns,
-        allowList: allowedWords,
-      );
-    } else if (triggerType == TriggerType.keywordPreset) {
-      final presetRaw = _toStringList(payload['keywordPresets']);
-      final presets = <KeywordPresetType>[];
-      for (final p in presetRaw) {
-        switch (p.toLowerCase()) {
-          case 'profanity':
-            presets.add(KeywordPresetType.profanity);
-            break;
-          case 'sexualcontent':
-          case 'sexual_content':
-            presets.add(KeywordPresetType.sexualContent);
-            break;
-          case 'slurs':
-            presets.add(KeywordPresetType.slurs);
-            break;
-          default:
-            break;
-        }
-      }
-      triggerMetadata = TriggerMetadataBuilder(
-        presets: presets,
-        allowList: allowedWords,
-      );
-    } else if (triggerType == TriggerType.mentionSpam) {
-      triggerMetadata = TriggerMetadataBuilder(
-        mentionTotalLimit: mentionTotalLimit,
-      );
-    }
-
-    final guild = await fetchGuildCached(client, guildId);
-    if (guild == null) return {'error': 'Guild not found'};
-    final rule = await guild.autoModerationRules.create(
-      AutoModerationRuleBuilder(
-        name: name,
-        eventType: AutoModerationEventType.messageSend,
-        triggerType: triggerType,
-        metadata: triggerMetadata,
-        actions: actions,
-        isEnabled: enabled,
-        exemptRoleIds: exemptRoles,
-        exemptChannelIds: exemptChannels,
-      ),
-      auditLogReason: reason.isNotEmpty ? reason : null,
-    );
-
-    return {
-      'ruleId': rule.id.toString(),
-      'name': rule.name,
-      'status': 'created',
-    };
-  } catch (e) {
-    return {'error': 'Failed to create AutoMod rule: $e'};
-  }
-}
+}) => DiscordBotAutoModService(
+  client,
+).createAutoModRule(guildId: guildId, payload: payload, resolve: resolve);
 
 /// Deletes an AutoMod rule.
 ///
@@ -253,41 +46,9 @@ Future<Map<String, String>> deleteAutoModRuleAction(
   required Snowflake? guildId,
   required Map<String, dynamic> payload,
   required String Function(String) resolve,
-}) async {
-  try {
-    if (guildId == null) {
-      return {'error': 'deleteAutoModRule requires a guild context'};
-    }
-
-    final permError = await checkBotGuildPermission(
-      client,
-      guildId: guildId,
-      requiredPermissions: [Permissions.manageGuild],
-      actionLabel: 'delete automod rules',
-    );
-    if (permError != null) {
-      return {'error': permError};
-    }
-
-    final ruleId = _toSnowflake(resolve((payload['ruleId'] ?? '').toString()));
-    if (ruleId == null) {
-      return {'error': 'ruleId is required for deleteAutoModRule'};
-    }
-
-    final reason = resolve((payload['reason'] ?? '').toString()).trim();
-
-    final guild = await fetchGuildCached(client, guildId);
-    if (guild == null) return {'error': 'Guild not found'};
-    await guild.autoModerationRules.delete(
-      ruleId,
-      auditLogReason: reason.isNotEmpty ? reason : null,
-    );
-
-    return {'ruleId': ruleId.toString(), 'status': 'deleted'};
-  } catch (e) {
-    return {'error': 'Failed to delete AutoMod rule: $e'};
-  }
-}
+}) => DiscordBotAutoModService(
+  client,
+).deleteAutoModRule(guildId: guildId, payload: payload, resolve: resolve);
 
 /// Lists all AutoMod rules in a guild.
 ///
@@ -295,41 +56,4 @@ Future<Map<String, String>> deleteAutoModRuleAction(
 Future<Map<String, String>> listAutoModRulesAction(
   NyxxGateway client, {
   required Snowflake? guildId,
-}) async {
-  try {
-    if (guildId == null) {
-      return {'error': 'listAutoModRules requires a guild context'};
-    }
-
-    final permError = await checkBotGuildPermission(
-      client,
-      guildId: guildId,
-      requiredPermissions: [Permissions.manageGuild],
-      actionLabel: 'list automod rules',
-    );
-    if (permError != null) {
-      return {'error': permError};
-    }
-
-    final guild = await fetchGuildCached(client, guildId);
-    if (guild == null) return {'error': 'Guild not found'};
-    final rules = await guild.autoModerationRules.list();
-
-    final rulesJson = jsonEncode(
-      rules
-          .map(
-            (r) => {
-              'id': r.id.toString(),
-              'name': r.name,
-              'enabled': r.isEnabled,
-              'triggerType': r.triggerType.value,
-            },
-          )
-          .toList(),
-    );
-
-    return {'rulesJson': rulesJson, 'count': rules.length.toString()};
-  } catch (e) {
-    return {'error': 'Failed to list AutoMod rules: $e'};
-  }
-}
+}) => DiscordBotAutoModService(client).listAutoModRules(guildId: guildId);

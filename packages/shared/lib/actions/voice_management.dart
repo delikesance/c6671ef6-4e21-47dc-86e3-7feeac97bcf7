@@ -1,19 +1,9 @@
 import 'package:nyxx/nyxx.dart';
-import 'package:bot_creator_shared/utils/global.dart';
-import 'permission_checks.dart';
 
-Snowflake? _toSnowflake(dynamic value) {
-  final parsed = int.tryParse(value?.toString() ?? '');
-  if (parsed == null) return null;
-  return Snowflake(parsed);
-}
+import '../services/bot_voice_service.dart';
 
-bool _parseBool(dynamic value, {bool defaultValue = false}) {
-  final raw = value?.toString().toLowerCase().trim() ?? '';
-  if (raw == 'true' || raw == '1' || raw == 'yes') return true;
-  if (raw == 'false' || raw == '0' || raw == 'no') return false;
-  return defaultValue;
-}
+// The Discord logic lives in [BotVoiceService]; these functions are the historical entry
+// points of the blocks and delegate to it.
 
 /// Moves a member to a voice channel.
 ///
@@ -28,51 +18,9 @@ Future<Map<String, String>> moveToVoiceChannelAction(
   required Snowflake? guildId,
   required Map<String, dynamic> payload,
   required String Function(String) resolve,
-}) async {
-  try {
-    if (guildId == null) {
-      return {'error': 'moveToVoiceChannel requires a guild context'};
-    }
-
-    final permError = await checkBotGuildPermission(
-      client,
-      guildId: guildId,
-      requiredPermissions: [Permissions.moveMembers],
-      actionLabel: 'move members in voice channels',
-    );
-    if (permError != null) {
-      return {'error': permError};
-    }
-
-    final userId = _toSnowflake(resolve((payload['userId'] ?? '').toString()));
-    if (userId == null) {
-      return {'error': 'userId is required for moveToVoiceChannel'};
-    }
-    final targetChannelId = _toSnowflake(
-      resolve((payload['targetChannelId'] ?? '').toString()),
-    );
-    if (targetChannelId == null) {
-      return {'error': 'targetChannelId is required for moveToVoiceChannel'};
-    }
-    final reason = resolve((payload['reason'] ?? '').toString()).trim();
-
-    final guild = await fetchGuildCached(client, guildId);
-    if (guild == null) return {'error': 'Guild not found'};
-    await guild.members.update(
-      userId,
-      MemberUpdateBuilder(voiceChannelId: targetChannelId),
-      auditLogReason: reason.isNotEmpty ? reason : null,
-    );
-
-    return {
-      'userId': userId.toString(),
-      'channelId': targetChannelId.toString(),
-      'status': 'moved',
-    };
-  } catch (e) {
-    return {'error': 'Failed to move member to voice channel: $e'};
-  }
-}
+}) => DiscordBotVoiceService(
+  client,
+).moveToVoiceChannel(guildId: guildId, payload: payload, resolve: resolve);
 
 /// Disconnects a member from their current voice channel.
 ///
@@ -86,41 +34,9 @@ Future<Map<String, String>> disconnectFromVoiceAction(
   required Snowflake? guildId,
   required Map<String, dynamic> payload,
   required String Function(String) resolve,
-}) async {
-  try {
-    if (guildId == null) {
-      return {'error': 'disconnectFromVoice requires a guild context'};
-    }
-
-    final permError = await checkBotGuildPermission(
-      client,
-      guildId: guildId,
-      requiredPermissions: [Permissions.moveMembers],
-      actionLabel: 'disconnect members from voice',
-    );
-    if (permError != null) {
-      return {'error': permError};
-    }
-
-    final userId = _toSnowflake(resolve((payload['userId'] ?? '').toString()));
-    if (userId == null) {
-      return {'error': 'userId is required for disconnectFromVoice'};
-    }
-    final reason = resolve((payload['reason'] ?? '').toString()).trim();
-
-    final guild = await fetchGuildCached(client, guildId);
-    if (guild == null) return {'error': 'Guild not found'};
-    await guild.members.update(
-      userId,
-      MemberUpdateBuilder(voiceChannelId: Snowflake.zero),
-      auditLogReason: reason.isNotEmpty ? reason : null,
-    );
-
-    return {'userId': userId.toString(), 'status': 'disconnected'};
-  } catch (e) {
-    return {'error': 'Failed to disconnect member from voice: $e'};
-  }
-}
+}) => DiscordBotVoiceService(
+  client,
+).disconnectFromVoice(guildId: guildId, payload: payload, resolve: resolve);
 
 /// Server-mutes or unmutes a guild member.
 ///
@@ -135,42 +51,9 @@ Future<Map<String, String>> serverMuteMemberAction(
   required Snowflake? guildId,
   required Map<String, dynamic> payload,
   required String Function(String) resolve,
-}) async {
-  try {
-    if (guildId == null) {
-      return {'error': 'serverMuteMember requires a guild context'};
-    }
-
-    final permError = await checkBotGuildPermission(
-      client,
-      guildId: guildId,
-      requiredPermissions: [Permissions.muteMembers],
-      actionLabel: 'server-mute members',
-    );
-    if (permError != null) {
-      return {'error': permError};
-    }
-
-    final userId = _toSnowflake(resolve((payload['userId'] ?? '').toString()));
-    if (userId == null) {
-      return {'error': 'userId is required for serverMuteMember'};
-    }
-    final mute = _parseBool(resolve((payload['mute'] ?? 'true').toString()));
-    final reason = resolve((payload['reason'] ?? '').toString()).trim();
-
-    final guild = await fetchGuildCached(client, guildId);
-    if (guild == null) return {'error': 'Guild not found'};
-    await guild.members.update(
-      userId,
-      MemberUpdateBuilder(isMute: mute),
-      auditLogReason: reason.isNotEmpty ? reason : null,
-    );
-
-    return {'userId': userId.toString(), 'status': mute ? 'muted' : 'unmuted'};
-  } catch (e) {
-    return {'error': 'Failed to server-mute member: $e'};
-  }
-}
+}) => DiscordBotVoiceService(
+  client,
+).serverMuteMember(guildId: guildId, payload: payload, resolve: resolve);
 
 /// Server-deafens or undeafens a guild member.
 ///
@@ -185,42 +68,6 @@ Future<Map<String, String>> serverDeafenMemberAction(
   required Snowflake? guildId,
   required Map<String, dynamic> payload,
   required String Function(String) resolve,
-}) async {
-  try {
-    if (guildId == null) {
-      return {'error': 'serverDeafenMember requires a guild context'};
-    }
-
-    final permError = await checkBotGuildPermission(
-      client,
-      guildId: guildId,
-      requiredPermissions: [Permissions.deafenMembers],
-      actionLabel: 'server-deafen members',
-    );
-    if (permError != null) {
-      return {'error': permError};
-    }
-
-    final userId = _toSnowflake(resolve((payload['userId'] ?? '').toString()));
-    if (userId == null) {
-      return {'error': 'userId is required for serverDeafenMember'};
-    }
-    final deaf = _parseBool(resolve((payload['deaf'] ?? 'true').toString()));
-    final reason = resolve((payload['reason'] ?? '').toString()).trim();
-
-    final guild = await fetchGuildCached(client, guildId);
-    if (guild == null) return {'error': 'Guild not found'};
-    await guild.members.update(
-      userId,
-      MemberUpdateBuilder(isDeaf: deaf),
-      auditLogReason: reason.isNotEmpty ? reason : null,
-    );
-
-    return {
-      'userId': userId.toString(),
-      'status': deaf ? 'deafened' : 'undeafened',
-    };
-  } catch (e) {
-    return {'error': 'Failed to server-deafen member: $e'};
-  }
-}
+}) => DiscordBotVoiceService(
+  client,
+).serverDeafenMember(guildId: guildId, payload: payload, resolve: resolve);

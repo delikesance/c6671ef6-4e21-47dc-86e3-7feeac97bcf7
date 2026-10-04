@@ -6,6 +6,7 @@ import '../../../utils/bdfd_ast.dart';
 import '../loop_syntax.dart';
 import '../program.dart';
 import 'action_functions.dart';
+import 'admin_actions.dart';
 import 'channel_actions.dart';
 import 'component_actions.dart';
 import 'control_flow_actions.dart';
@@ -111,6 +112,7 @@ class ActionTranslator {
     ...messageLeafPredicates,
     ...componentLeafPredicates,
     ...listenerLeafPredicates,
+    ...adminLeafPredicates,
     ...webhookLeafPredicates,
     ...emojiLeafPredicates,
     ...memberLeafPredicates,

@@ -4,7 +4,11 @@ import 'package:nyxx/nyxx.dart' show Interaction, NyxxGateway, Snowflake;
 
 import '../../../actions/handler_utils.dart' show resolvePayloadValues;
 import '../../../bot/bot_data_store.dart';
+import '../../../services/bot_automod_service.dart';
 import '../../../services/bot_block_action_service.dart';
+import '../../../services/bot_guild_admin_service.dart';
+import '../../../services/bot_poll_service.dart';
+import '../../../services/bot_voice_service.dart';
 import '../../../services/bot_moderation_service.dart';
 import '../../../services/permission_checks.dart' show BotPermissionCache;
 import '../../../services/http_service.dart';
@@ -73,6 +77,10 @@ class ActionRunEnvironment {
     this.permissionCache,
     this.client,
     this.lavalinkService,
+    this.pollService,
+    this.voiceService,
+    this.autoModService,
+    this.guildAdminService,
   });
 
   final Map<String, String> variables;
@@ -109,6 +117,13 @@ class ActionRunEnvironment {
   /// listener blocks (the same values the historical loop hands them).
   final NyxxGateway? client;
   final LavalinkService? lavalinkService;
+
+  /// Poll / voice / AutoMod / guild-admin blocks; null builds the Discord
+  /// adapter over [client] (see admin_actions.dart).
+  final BotPollService? pollService;
+  final BotVoiceService? voiceService;
+  final BotAutoModService? autoModService;
+  final BotGuildAdminService? guildAdminService;
 
   /// Owned by the runner: the interpreter registered with these functions.
   BdfdRuntime? runtime;
