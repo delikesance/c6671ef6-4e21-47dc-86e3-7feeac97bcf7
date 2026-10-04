@@ -17,6 +17,29 @@ const _moderation = {
   },
 };
 
+const _kickMentionModeration = {
+  'guilds': {
+    '10': {
+      'owner_id': '99',
+      'roles': [
+        {'id': '10', 'name': '@everyone', 'position': 0, 'permissions': '0'},
+        {'id': '61', 'name': 'Moderator', 'position': 1, 'permissions': '2'},
+        {'id': '62', 'name': 'Bot', 'position': 10, 'permissions': '2'},
+      ],
+      'members': {
+        '20': {
+          'roles': ['61'],
+        },
+        '21': {'roles': <String>[]},
+        '50': {
+          'roles': ['62'],
+        },
+      },
+      'bans': <String, String>{},
+    },
+  },
+};
+
 const _messages = {
   'guilds': {
     '10': {
@@ -304,8 +327,8 @@ const sandboxModerationFunctionCases = [
     0,
     '',
     scenario: {
-      'entities': _moderation,
-      'variables': {'message.mentions[0]': '21'},
+      'entities': _kickMentionModeration,
+      'variables': {'message.mentions[0]': '21', 'bot.id': '50'},
     },
     expectedValues: {
       '/effects/0/type': 'kickUser',

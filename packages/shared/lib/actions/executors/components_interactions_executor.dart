@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:nyxx/nyxx.dart';
 
 import '../../types/action.dart';
+import '../../engine/bdfd/runtime.dart' show BdfdResponseState;
 import '../../utils/interaction_listener_registry.dart';
 import '../../utils/workflow_call.dart';
 import '../../bot/bot_data_store.dart';
@@ -69,6 +70,7 @@ Future<bool> executeComponentsInteractionsAction({
   required String Function(String input) resolveValue,
   BotDataStore? store,
   LavalinkService? lavalinkService,
+  BdfdResponseState? responseState,
 }) async {
   switch (type) {
     case BotCreatorActionType.sendComponentV2:
@@ -133,6 +135,11 @@ Future<bool> executeComponentsInteractionsAction({
       );
       if (messageResult['error'] != null) {
         throw Exception(messageResult['error']);
+      }
+      if (messageResult['originalResponseCompleted'] == true &&
+          responseState != null) {
+        responseState.originalResponseCompleted = true;
+        responseState.acknowledged = true;
       }
       results[resultKey] = messageResult['messageId'] ?? 'responded';
       if ((messageResult['messageId'] ?? '').isNotEmpty) {

@@ -31,28 +31,7 @@ extension _BdfdAstTranspilationScopeInlineHelpers
     }
     final amount = int.tryParse(amountRaw) ?? 1;
 
-    if (sample.isEmpty) {
-      return text;
-    }
-
-    if (amount == -1) {
-      return text.replaceAll(sample, replacement);
-    }
-
-    var result = text;
-    var count = 0;
-    while (count < amount) {
-      final index = result.indexOf(sample);
-      if (index < 0) {
-        break;
-      }
-      result =
-          result.substring(0, index) +
-          replacement +
-          result.substring(index + sample.length);
-      count++;
-    }
-    return result;
+    return replaceTextOccurrences(text, sample, replacement, amount: amount);
   }
 
   String _inlineTitleCase(String text) {

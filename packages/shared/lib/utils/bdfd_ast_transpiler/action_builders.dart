@@ -160,7 +160,9 @@ extension _BdfdAstTranspilationScopeActionBuilders
     return Action(
       type: BotCreatorActionType.kickUser,
       payload: <String, dynamic>{
-        'userId': userId.isEmpty ? '((author.id))' : userId,
+        // Only the argument-free form targets the author. An explicitly
+        // empty target must fail validation, never silently change the target.
+        'userId': node.arguments.isEmpty ? '((author.id))' : userId,
         'reason': reason,
       },
     );
@@ -174,6 +176,7 @@ extension _BdfdAstTranspilationScopeActionBuilders
       payload: <String, dynamic>{
         'userId': '((message.mentions[0]))',
         'reason': reason,
+        'kickPermissionActorId': '((author.id))',
       },
     );
   }

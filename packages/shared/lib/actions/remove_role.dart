@@ -1,22 +1,15 @@
 import 'package:nyxx/nyxx.dart';
-import 'package:bot_creator_shared/utils/global.dart';
 import 'package:bot_creator_shared/actions/handler_utils.dart';
-import 'permission_checks.dart';
 import 'role_definition_actions.dart';
-
-Snowflake? _toSnowflake(dynamic value) {
-  final parsed = int.tryParse(value?.toString() ?? '');
-  if (parsed == null) {
-    return null;
-  }
-  return Snowflake(parsed);
-}
+import '../services/bot_moderation_service.dart';
+import '../engine/execution_budget.dart';
 
 Future<Map<String, String>> removeRoleAction(
   NyxxGateway client, {
   required Snowflake? guildId,
   required Map<String, dynamic> payload,
   String Function(String)? resolve,
+  CommandExecutionBudget? budget,
 }) async {
   // Résoudre les variables dans le payload si une fonction resolve est fournie
   final resolvedPayload = resolve != null
@@ -28,57 +21,35 @@ Future<Map<String, String>> removeRoleAction(
       return {'error': 'Missing guildId', 'userId': '', 'roleId': ''};
     }
 
-    final permError = await checkBotGuildPermission(
-      client,
-      guildId: guildId,
-      requiredPermissions: [Permissions.manageRoles],
-      actionLabel: 'remove roles',
-    );
-    if (permError != null) {
-      return {'error': permError, 'userId': '', 'roleId': ''};
-    }
-
-    if (isRoleDefinitionPayload(resolvedPayload)) {
-      return executeRoleDefinitionAction(
+    budget?.check();
+    if (!isRoleDefinitionPayload(resolvedPayload)) {
+      final result = await executeDiscordModeration(
         client,
         guildId: guildId,
-        payload: resolvedPayload,
+        budget: budget,
+        request: BotModerationRequest(
+          operation: BotModerationOperation.removeRole,
+          userId:
+              (int.tryParse(resolvedPayload['userId']?.toString() ?? '') ??
+                      int.tryParse(
+                        resolvedPayload['memberId']?.toString() ?? '',
+                      ) ??
+                      '')
+                  .toString(),
+          roleId: (resolvedPayload['roleId'] ?? '').toString(),
+          reason: (resolvedPayload['reason'] ?? '').toString(),
+        ),
       );
+      return {...result, 'roleId': result['roleId'] ?? ''};
     }
-
-    final userId =
-        _toSnowflake(resolvedPayload['userId']) ??
-        _toSnowflake(resolvedPayload['memberId']);
-    if (userId == null) {
-      return {
-        'error': 'Missing or invalid userId/memberId',
-        'userId': '',
-        'roleId': '',
-      };
-    }
-
-    final roleId = _toSnowflake(resolvedPayload['roleId']);
-    if (roleId == null) {
-      return {'error': 'Missing or invalid roleId', 'userId': '', 'roleId': ''};
-    }
-
-    final reason = resolvedPayload['reason']?.toString().trim();
-    final guild = await fetchGuildCached(client, guildId);
-    if (guild == null) {
-      return {'error': 'Guild not found', 'userId': '', 'roleId': ''};
-    }
-    await guild.members[userId].removeRole(
-      roleId,
-      auditLogReason: (reason != null && reason.isNotEmpty)
-          ? reason
-          : 'Remove role via BotCreator action',
+    return executeRoleDefinitionAction(
+      client,
+      guildId: guildId,
+      payload: resolvedPayload,
+      budget: budget,
     );
-
-    return {
-      'userId': userId.toString(),
-      'roleId': roleId.toString(),
-      'status': 'removed',
-    };
+  } on CommandExecutionTimeout {
+    rethrow;
   } catch (error) {
     return {
       'error': 'Failed to remove role: $error',

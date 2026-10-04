@@ -1,4 +1,10 @@
+import '../services/bot_component_service.dart';
 import 'dart:async';
+import '../services/bot_command_query_service.dart';
+import '../utils/command_invocation_metadata.dart';
+import '../services/bot_moderation_service.dart';
+import 'bdfd/execution.dart';
+import '../services/bot_message_service.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:bot_creator_shared/bot/bot_data_store.dart';
 import 'package:bot_creator_shared/types/action.dart';
@@ -523,6 +529,7 @@ class EventDispatcher {
       if (shouldCompileFromBdfdSource) {
         await _executeBdfdScriptInEvent(
           scriptSource,
+          backend: executionValue['bdfdBackend'],
           context: context,
           gateway: gateway,
           botId: botId,
@@ -593,6 +600,7 @@ class EventDispatcher {
         );
         await _tryHandleLegacyCommand(
           commandBody,
+          prefix: prefix,
           event: event,
           botId: botId,
           gateway: gateway,
@@ -632,6 +640,7 @@ class EventDispatcher {
     required String botId,
     required NyxxGateway gateway,
     required Map<String, String> runtimeVariables,
+    required String prefix,
   }) async {
     callbacks.onDebugLog?.call(
       '_tryHandleLegacyCommand started with commandBody: $commandBody',
@@ -894,6 +903,13 @@ class EventDispatcher {
       (normalized['data'] as Map?)?.cast<String, dynamic>() ?? const {},
     );
 
+    runtimeVariables.addAll(
+      buildCommandInvocationMetadata(
+        normalized,
+        trigger: '$prefix${parts.first}',
+      ),
+    );
+
     final executionMode = (executionValue['executionMode'] ?? 'workflow')
         .toString()
         .trim()
@@ -912,6 +928,7 @@ class EventDispatcher {
     if (shouldCompileFromBdfdSource) {
       await _executeBdfdScriptInEvent(
         scriptSource,
+        backend: executionValue['bdfdBackend'],
         context: context,
         gateway: gateway,
         botId: botId,
@@ -934,6 +951,7 @@ class EventDispatcher {
 
   Future<void> _executeBdfdScriptInEvent(
     String scriptSource, {
+    Object? backend,
     required EventExecutionContext context,
     required NyxxGateway gateway,
     required String botId,
@@ -944,6 +962,80 @@ class EventDispatcher {
       botId: botId,
     );
 
+    final execution = BdfdScriptExecution(
+      onReplayCaptured: (callbacks.isDebugReplayCapturing?.call(botId) ?? false)
+          ? (frames, totalMs) => callbacks.onReplayCaptured?.call(
+              botId,
+              runtimeVariables['0'] == null
+                  ? context.eventName
+                  : '!${runtimeVariables['0']}',
+              frames,
+              totalMs,
+            )
+          : null,
+      store: store,
+      botId: botId,
+      variables: runtimeVariables,
+      components: DiscordBotComponentService(
+        client: gateway,
+        channelId: context.channelId,
+        interaction: context.interaction,
+      ),
+      commandQueries: DiscordBotCommandQueryService(
+        client: gateway,
+        store: store,
+        botId: botId,
+        guildId: context.guildId,
+      ),
+      runVisualWorkflow: (workflow, nativeContext) =>
+          _workflowExecutor.executeActions(
+            actions: ((workflow['actions'] as List?) ?? [])
+                .whereType<Map>()
+                .map((json) => Action.fromJson(Map<String, dynamic>.from(json)))
+                .toList(),
+            context: context.interaction,
+            gateway: gateway,
+            botId: botId,
+            runtimeVariables: runtimeVariables,
+            bdfdContext: nativeContext,
+            fallbackChannelId: context.channelId,
+            fallbackGuildId: context.guildId,
+          ),
+      moderation: DiscordBotModerationService(
+        client: gateway,
+        guildId: context.guildId,
+      ),
+      messages: DiscordBotMessageService(
+        botId: botId,
+        client: gateway,
+        interaction: context.interaction,
+        channelId: context.channelId,
+        messageId: int.tryParse(runtimeVariables['message.id'] ?? '') == null
+            ? null
+            : Snowflake.parse(runtimeVariables['message.id']!),
+        guildId: context.guildId?.toString(),
+      ),
+    );
+    await execution.execute(
+      scriptSource,
+      backend: backend,
+      executeLegacy: (source) => _executeLegacyBdfdScriptInEvent(
+        source,
+        context: context,
+        gateway: gateway,
+        botId: botId,
+        runtimeVariables: runtimeVariables,
+      ),
+    );
+  }
+
+  Future<void> _executeLegacyBdfdScriptInEvent(
+    String scriptSource, {
+    required EventExecutionContext context,
+    required NyxxGateway gateway,
+    required String botId,
+    required Map<String, String> runtimeVariables,
+  }) async {
     final compileResult = BdfdCompiler(
       legacyUserVariables:
           runtimeVariables['bdfd.userVariableSemantics'] == '1',

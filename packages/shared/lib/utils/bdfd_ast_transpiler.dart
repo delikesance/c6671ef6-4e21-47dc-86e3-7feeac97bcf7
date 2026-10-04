@@ -7,6 +7,7 @@ import 'package:bot_creator_shared/utils/permission_flags.dart'
 
 import 'bdfd_ast.dart';
 import 'math_parser.dart';
+import '../services/text_operations.dart';
 
 part 'bdfd_ast_transpiler/core.dart';
 part 'bdfd_ast_transpiler/control_flow.dart';

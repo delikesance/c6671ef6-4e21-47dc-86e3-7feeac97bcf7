@@ -1,18 +1,22 @@
-﻿import 'package:nyxx/nyxx.dart';
-import 'package:bot_creator_shared/utils/global.dart';
+import 'package:nyxx/nyxx.dart';
+import '../engine/execution_budget.dart';
+import '../services/bot_channel_mutation_service.dart';
 
 Future<Map<String, String>> removeChannel(
   NyxxGateway client,
-  Snowflake channelId,
-) async {
+  Snowflake channelId, {
+  CommandExecutionBudget? budget,
+  String? reason,
+}) async {
   try {
-    final channel = await fetchChannelCached(client, channelId);
-    if (channel == null) return {'error': 'Channel not found', 'channelId': ''};
-
-    await channel.delete();
-
-    return {"channelId": channel.id.toString()};
-  } catch (e) {
-    return {"error": "Failed to delete channel: $e", "channelId": ""};
+    await DiscordBotChannelMutationService(client).deleteChannel(
+      ChannelDeletion(channelId: '$channelId', reason: reason),
+      budget: budget ?? CommandExecutionBudget(),
+    );
+    return {'channelId': '$channelId'};
+  } on CommandExecutionTimeout {
+    rethrow;
+  } catch (error) {
+    return {'error': 'Failed to delete channel: $error', 'channelId': ''};
   }
 }

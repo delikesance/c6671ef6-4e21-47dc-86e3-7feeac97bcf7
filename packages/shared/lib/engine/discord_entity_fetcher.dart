@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:nyxx/nyxx.dart';
 import '../utils/global.dart';
+import '../services/bot_role_query_service.dart';
+import '../services/bot_channel_query_service.dart';
 
 /// Raised by local fixture gateways when an entity is genuinely absent.
 class DiscordEntityNotFound implements Exception {
@@ -268,9 +270,10 @@ class DiscordEntityFetcher {
               // Missing IDs resolve to false/empty, like missing role IDs.
             }
           } else if (guildId != null) {
-            final matches = (await gateway.guilds[guildId].fetchChannels())
-                .where((item) => item.name == contextId)
-                .toList();
+            final matches = (await readDiscordChannels(
+              gateway,
+              guildId,
+            )).where((item) => item.name == contextId).toList();
             if (matches.isNotEmpty) channel = matches.first as Channel;
           }
           fetchedEntity = channel;
@@ -283,7 +286,7 @@ class DiscordEntityFetcher {
           final guildId = _resolveGuildId(variables);
           variables[_key(scope, contextId, 'id')] = '';
           if (guildId != null && contextId.isNotEmpty) {
-            final matches = (await gateway.guilds[guildId].fetchChannels())
+            final matches = (await readDiscordChannels(gateway, guildId))
                 .where(
                   (item) =>
                       item.name.toLowerCase().contains(contextId.toLowerCase()),
@@ -308,8 +311,10 @@ class DiscordEntityFetcher {
             final wildcard = RegExp(
               '^${RegExp.escape(pattern).replaceAll(r'\*', '.*')}\$',
             );
-            final matches = (await gateway.guilds[guildId].fetchChannels())
-                .where((item) => wildcard.hasMatch(item.name));
+            final matches = (await readDiscordChannels(
+              gateway,
+              guildId,
+            )).where((item) => wildcard.hasMatch(item.name));
             variables[_key(scope, contextId, 'exists')] = matches.isNotEmpty
                 .toString();
           }
@@ -324,7 +329,7 @@ class DiscordEntityFetcher {
               ? _resolveGuildId(variables)
               : _parseSnowflake(parts[2]);
           if (guildId == null) break;
-          final all = await gateway.guilds[guildId].fetchChannels();
+          final all = await readDiscordChannels(gateway, guildId);
           final categories = all.whereType<GuildCategory>().toList();
           final channels = all.where((item) => item is! GuildCategory).toList();
           final selected = categoryId == 'all'
@@ -349,7 +354,7 @@ class DiscordEntityFetcher {
         case 'randomCategory':
           final guildId = _parseSnowflake(contextId);
           if (guildId == null) break;
-          final channels = await gateway.guilds[guildId].fetchChannels();
+          final channels = await readDiscordChannels(gateway, guildId);
           final Iterable<GuildChannel> candidates = scope == 'randomCategory'
               ? channels.whereType<GuildCategory>()
               : channels;
@@ -440,9 +445,10 @@ class DiscordEntityFetcher {
             if (id != null) {
               role = await manager.fetch(id);
             } else {
-              final matches = (await manager.list())
-                  .where((role) => role.name == contextId)
-                  .toList();
+              final matches = (await readDiscordRoles(
+                gateway,
+                guildId,
+              )).where((role) => role.name == contextId).toList();
               // A duplicate name is ambiguous; never grant an arbitrary role.
               if (matches.length == 1) role = matches.single;
             }
@@ -618,11 +624,13 @@ class DiscordEntityFetcher {
             final guildId = _parseSnowflake(parts[0]);
             if (guildId != null) {
               try {
-                final roles = await gateway.guilds[guildId].roles.list();
+                final roles = orderedDiscordRoles(
+                  await readDiscordRoles(gateway, guildId),
+                  guildId,
+                );
                 if (roles.isNotEmpty) {
-                  roles.sort((a, b) => a.position.compareTo(b.position));
                   variables['roleBoundary[$contextId]'] =
-                      (parts[1] == 'highest' ? roles.last : roles.first).id
+                      (parts[1] == 'highest' ? roles.first : roles.last).id
                           .toString();
                 }
               } catch (_) {
@@ -640,20 +648,21 @@ class DiscordEntityFetcher {
             final required = bdfdPermissionFlags(parts.skip(2));
             if (guildId != null && required != null) {
               try {
-                final roles = await gateway.guilds[guildId].roles.list();
+                final roles = orderedDiscordRoles(
+                  await readDiscordRoles(gateway, guildId),
+                  guildId,
+                );
                 final matches = roles
                     .where(
-                      (role) => required.every(
-                        (flag) =>
-                            role.permissions.isAdministrator ||
-                            role.permissions.has(flag),
+                      (role) => hasAllRolePermissions(
+                        role.permissions.value,
+                        required.map((flag) => flag.value),
                       ),
                     )
                     .toList();
                 if (matches.isNotEmpty) {
-                  matches.sort((a, b) => a.position.compareTo(b.position));
                   variables['roleBoundaryWithPerms[$contextId]'] =
-                      (parts[1] == 'highest' ? matches.last : matches.first).id
+                      (parts[1] == 'highest' ? matches.first : matches.last).id
                           .toString();
                 }
               } catch (_) {

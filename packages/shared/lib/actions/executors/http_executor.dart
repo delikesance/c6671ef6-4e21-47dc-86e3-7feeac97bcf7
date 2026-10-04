@@ -3,74 +3,10 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../../types/action.dart';
+import '../../services/http_service.dart';
+import '../../engine/execution_budget.dart';
 
 // ─── Private helpers ─────────────────────────────────────────────────────────
-
-dynamic _extractByJsonPath(dynamic data, String rawPath) {
-  var path = rawPath.trim();
-  if (path.isEmpty) return null;
-
-  if (path.startsWith(r'$.')) {
-    path = path.substring(2);
-  } else if (path.startsWith(r'$')) {
-    path = path.substring(1);
-  }
-
-  if (path.isEmpty) return data;
-
-  final segments = <Object>[];
-  final token = StringBuffer();
-
-  void flushToken() {
-    if (token.isNotEmpty) {
-      segments.add(token.toString());
-      token.clear();
-    }
-  }
-
-  for (var i = 0; i < path.length; i++) {
-    final char = path[i];
-    if (char == '.') {
-      flushToken();
-      continue;
-    }
-    if (char == '[') {
-      flushToken();
-      final closing = path.indexOf(']', i + 1);
-      if (closing == -1) return null;
-      final indexText = path.substring(i + 1, closing).trim();
-      final index = int.tryParse(indexText);
-      if (index == null) return null;
-      segments.add(index);
-      i = closing;
-      continue;
-    }
-    token.write(char);
-  }
-  flushToken();
-
-  dynamic current = data;
-  for (final segment in segments) {
-    if (segment is String) {
-      if (segment.isEmpty) continue;
-      if (current is Map && current.containsKey(segment)) {
-        current = current[segment];
-      } else {
-        return null;
-      }
-      continue;
-    }
-    if (segment is int) {
-      if (current is List && segment >= 0 && segment < current.length) {
-        current = current[segment];
-      } else {
-        return null;
-      }
-    }
-  }
-
-  return current;
-}
 
 String _normalizeMethod(
   dynamic rawMethod,
@@ -124,6 +60,7 @@ Future<bool> executeHttpAction({
   required void Function(String message)? onLog,
   required Future<void> Function(String key, String value) setGlobalVariable,
   http.Client? httpClient,
+  CommandExecutionBudget? executionBudget,
 }) async {
   if (type != BotCreatorActionType.httpRequest) return false;
 
@@ -175,104 +112,80 @@ Future<bool> executeHttpAction({
     }
   }
 
-  final uri = Uri.tryParse(resolvedUrl);
-  if (uri == null) {
-    throw Exception('Invalid URL for httpRequest: $resolvedUrl');
-  }
-  if (!['http', 'https'].contains(uri.scheme)) {
-    throw Exception('Only http and https schemes are allowed');
+  final response = await HttpService(client: httpClient, onLog: onLog).request(
+    method: method,
+    url: resolvedUrl,
+    headers: headers,
+    body: requestBody?.toString(),
+    budget: executionBudget,
+  );
+  final responseBody = response.body;
+  final status = response.status;
+
+  final extractionResult = responseBody;
+  results[resultKey] = extractionResult;
+  variables['http.status'] = '$status';
+  variables['http.body'] = responseBody;
+  variables['action.$resultKey'] = extractionResult;
+  variables['action.$resultKey.status'] = '$status';
+  variables['action.$resultKey.body'] = responseBody;
+  variables[resultKey] = extractionResult;
+  variables['$resultKey.status'] = '$status';
+  variables['$resultKey.body'] = responseBody;
+
+  final saveBodyTo = resolveValue(
+    (payload['saveBodyToGlobalVar'] ?? '').toString(),
+  ).trim();
+  if (saveBodyTo.isNotEmpty) {
+    executionBudget?.check();
+    await setGlobalVariable(saveBodyTo, responseBody);
   }
 
-  final request = http.Request(method, uri);
-  request.headers.addAll(headers);
-  if (requestBody != null && requestBody.toString().isNotEmpty) {
-    request.body = requestBody.toString();
+  final saveStatusTo = resolveValue(
+    (payload['saveStatusToGlobalVar'] ?? '').toString(),
+  ).trim();
+  if (saveStatusTo.isNotEmpty) {
+    executionBudget?.check();
+    await setGlobalVariable(saveStatusTo, '$status');
   }
 
-  onLog?.call('HTTP: $method $resolvedUrl');
-  if (headers.isNotEmpty) {
-    onLog?.call('HTTP Headers: $headers');
-  }
-  if (request.body.isNotEmpty) {
-    onLog?.call('HTTP Payload sent: ${request.body}');
-  }
-
-  final client = httpClient ?? http.Client();
-  try {
-    final streamed = await client.send(request);
-    final responseBody = await streamed.stream.bytesToString();
-    final status = streamed.statusCode;
-
-    onLog?.call('HTTP Response: $status (${responseBody.length} bytes)');
-    if (responseBody.isNotEmpty) {
-      onLog?.call('HTTP Payload received: $responseBody');
+  final extractPath = resolveValue(
+    (payload['extractJsonPath'] ?? '').toString(),
+  ).trim();
+  if (extractPath.isNotEmpty) {
+    dynamic decoded;
+    try {
+      decoded = jsonDecode(responseBody);
+    } catch (_) {
+      decoded = null;
     }
 
-    final extractionResult = responseBody;
-    results[resultKey] = extractionResult;
-    variables['http.status'] = '$status';
-    variables['http.body'] = responseBody;
-    variables['action.$resultKey'] = extractionResult;
-    variables['action.$resultKey.status'] = '$status';
-    variables['action.$resultKey.body'] = responseBody;
-    variables[resultKey] = extractionResult;
-    variables['$resultKey.status'] = '$status';
-    variables['$resultKey.body'] = responseBody;
-
-    final saveBodyTo = resolveValue(
-      (payload['saveBodyToGlobalVar'] ?? '').toString(),
-    ).trim();
-    if (saveBodyTo.isNotEmpty) {
-      await setGlobalVariable(saveBodyTo, responseBody);
-    }
-
-    final saveStatusTo = resolveValue(
-      (payload['saveStatusToGlobalVar'] ?? '').toString(),
-    ).trim();
-    if (saveStatusTo.isNotEmpty) {
-      await setGlobalVariable(saveStatusTo, '$status');
-    }
-
-    final extractPath = resolveValue(
-      (payload['extractJsonPath'] ?? '').toString(),
-    ).trim();
-    if (extractPath.isNotEmpty) {
-      dynamic decoded;
-      try {
-        decoded = jsonDecode(responseBody);
-      } catch (_) {
-        decoded = null;
-      }
-
-      if (decoded != null) {
-        final extracted = _extractByJsonPath(decoded, extractPath);
+    if (decoded != null) {
+      final extracted = extractHttpJsonPath(decoded, extractPath);
+      onLog?.call(
+        'HTTP extractJsonPath: $extractPath → ${extracted != null ? "found (${extracted.toString().length} chars)" : "null"}',
+      );
+      if (extracted != null) {
+        final extractedAsString = extracted is String
+            ? extracted
+            : (extracted is num || extracted is bool)
+            ? extracted.toString()
+            : jsonEncode(extracted);
+        // Update the primary result to the extracted value so
+        // ((action.<key>)) resolves to the useful text, not the raw body.
+        results[resultKey] = extractedAsString;
+        variables['action.$resultKey'] = extractedAsString;
+        variables[resultKey] = extractedAsString;
+        variables['http.jsonPath'] = extractedAsString;
+        variables['action.$resultKey.jsonPath'] = extractedAsString;
+        variables['$resultKey.jsonPath'] = extractedAsString;
         onLog?.call(
-          'HTTP extractJsonPath: $extractPath → ${extracted != null ? "found (${extracted.toString().length} chars)" : "null"}',
+          'HTTP jsonPath stored as action.$resultKey.jsonPath = $extractedAsString',
         );
-        if (extracted != null) {
-          final extractedAsString = extracted is String
-              ? extracted
-              : (extracted is num || extracted is bool)
-              ? extracted.toString()
-              : jsonEncode(extracted);
-          // Update the primary result to the extracted value so
-          // ((action.<key>)) resolves to the useful text, not the raw body.
-          results[resultKey] = extractedAsString;
-          variables['action.$resultKey'] = extractedAsString;
-          variables[resultKey] = extractedAsString;
-          variables['http.jsonPath'] = extractedAsString;
-          variables['action.$resultKey.jsonPath'] = extractedAsString;
-          variables['$resultKey.jsonPath'] = extractedAsString;
-          onLog?.call(
-            'HTTP jsonPath stored as action.$resultKey.jsonPath = $extractedAsString',
-          );
-          // Note: saveJsonPathToGlobalVar removed — use {{resultKey.jsonPath}}
-        }
+        // Note: saveJsonPathToGlobalVar removed — use {{resultKey.jsonPath}}
       }
     }
-
-    return true;
-  } finally {
-    if (httpClient == null) client.close();
   }
+
+  return true;
 }

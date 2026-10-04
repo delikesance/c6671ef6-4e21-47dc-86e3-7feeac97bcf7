@@ -1,9 +1,37 @@
 import 'package:bot_creator_shared/actions/executors/control_flow_executor.dart';
 import 'package:bot_creator_shared/types/action.dart';
+import 'package:bot_creator_shared/utils/template_resolver.dart';
 import 'package:test/test.dart';
 
 void main() {
   group('executeControlFlowAction runBdfdScript', () {
+    test(
+      'unresolved explicit kick target does not become the author',
+      () async {
+        final variables = <String, String>{'author.id': '999'};
+        List<Action> captured = [];
+        await executeControlFlowAction(
+          type: BotCreatorActionType.runBdfdScript,
+          payload: {'scriptContent': r'$kick[((opts.target));Raid]'},
+          resultKey: 'bdfd',
+          results: {},
+          variables: variables,
+          botId: 'test',
+          resolveValue: (input) =>
+              resolveTemplatePlaceholders(input, variables),
+          onLog: null,
+          activeWorkflowStack: {},
+          getWorkflowByName: (_) async => null,
+          executeActions: (actions) async {
+            captured = actions;
+            return {};
+          },
+        );
+        expect(captured.single.type, BotCreatorActionType.kickUser);
+        expect(captured.single.payload['userId'], '');
+      },
+    );
+
     Future<bool> runBdfdScript({
       required Map<String, dynamic> payload,
       required Map<String, String> results,
@@ -426,19 +454,16 @@ void main() {
             executedTypes.addAll(actions.map((a) => a.type.name));
             return <String, String>{};
           },
-          nestedActionsPreprocessor:
-              (actions) =>
-                  actions
-                      .map(
-                        (a) =>
-                            a.type == BotCreatorActionType.respondWithMessage
-                                ? Action(
-                                  type: BotCreatorActionType.sendMessage,
-                                  payload: Map<String, dynamic>.from(a.payload),
-                                )
-                                : a,
+          nestedActionsPreprocessor: (actions) => actions
+              .map(
+                (a) => a.type == BotCreatorActionType.respondWithMessage
+                    ? Action(
+                        type: BotCreatorActionType.sendMessage,
+                        payload: Map<String, dynamic>.from(a.payload),
                       )
-                      .toList(),
+                    : a,
+              )
+              .toList(),
           botId: 'test-bot',
         );
 

@@ -2,9 +2,10 @@ import 'package:nyxx/nyxx.dart';
 
 import '../../types/action.dart';
 import '../create_channel.dart';
-import '../permission_checks.dart';
+import '../permission_checks.dart' show BotPermissionCache;
 import '../remove_channel.dart';
 import '../slowmode.dart';
+import '../../engine/execution_budget.dart';
 import '../update_channel.dart';
 
 Snowflake? _toSnowflake(dynamic value) {
@@ -26,6 +27,7 @@ Future<bool> executeChannelsAction({
   required Map<String, String> results,
   required String Function(String input) resolveValue,
   BotPermissionCache? permissionCache,
+  CommandExecutionBudget? budget,
 }) async {
   switch (type) {
     case BotCreatorActionType.createChannel:
@@ -38,6 +40,7 @@ Future<bool> executeChannelsAction({
         guildId: guildId,
         payload: payload,
         resolve: resolveValue,
+        budget: budget,
       );
 
       // Robust error handling: handle non-null and empty error messages
@@ -54,23 +57,11 @@ Future<bool> executeChannelsAction({
       return true;
 
     case BotCreatorActionType.updateChannel:
-      if (guildId != null) {
-        final permError = await checkBotGuildPermission(
-          client,
-          guildId: guildId,
-          requiredPermissions: [Permissions.manageChannels],
-          actionLabel: 'update channels',
-          cache: permissionCache,
-        );
-        if (permError != null) {
-          throw Exception(permError);
-        }
-      }
-
       final Map<String, String> updateResult = await updateChannelAction(
         client,
         payload: payload,
         resolve: resolveValue,
+        budget: budget,
       );
 
       if ((updateResult['error'] ?? '').toString().isNotEmpty) {
@@ -86,25 +77,14 @@ Future<bool> executeChannelsAction({
       return true;
 
     case BotCreatorActionType.removeChannel:
-      if (guildId != null) {
-        final permError = await checkBotGuildPermission(
-          client,
-          guildId: guildId,
-          requiredPermissions: [Permissions.manageChannels],
-          actionLabel: 'delete channels',
-          cache: permissionCache,
-        );
-        if (permError != null) {
-          throw Exception(permError);
-        }
-      }
-
       final rawIds = payload['channelIds'];
       final rawNames = payload['channelNames'];
       final channelIds = <Snowflake>[];
       if (rawNames is List) {
         if (guildId == null) throw Exception('Channel names require a guild');
+        budget?.check();
         final guildChannels = await client.guilds[guildId].fetchChannels();
+        budget?.check();
         for (final rawName in rawNames) {
           final name = resolveValue(rawName.toString());
           channelIds.addAll(
@@ -127,7 +107,11 @@ Future<bool> executeChannelsAction({
         throw Exception('No matching channels found for removeChannel');
       }
       for (final channelId in channelIds.toSet()) {
-        final removeResult = await removeChannel(client, channelId);
+        final removeResult = await removeChannel(
+          client,
+          channelId,
+          budget: budget,
+        );
         if (removeResult.containsKey('error')) {
           throw Exception(removeResult['error'] ?? 'Failed to delete channel');
         }
@@ -149,6 +133,7 @@ Future<bool> executeChannelsAction({
         guildId: guildId,
         payload: payload,
         resolve: resolveValue,
+        budget: budget,
       );
 
       if ((slowmodeResult['error'] ?? '').toString().isNotEmpty) {

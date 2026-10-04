@@ -1,58 +1,41 @@
 import 'package:nyxx/nyxx.dart';
-import 'package:bot_creator_shared/utils/bdfd_duration_parser.dart';
-import 'handler_utils.dart';
-import 'permission_checks.dart';
+import '../engine/execution_budget.dart';
+import '../utils/bdfd_duration_parser.dart';
+import '../services/bot_channel_mutation_service.dart';
 
 Future<Map<String, String>> slowmodeAction(
   NyxxGateway client, {
   required Snowflake guildId,
   required Map<String, dynamic> payload,
   required String Function(String) resolve,
+  CommandExecutionBudget? budget,
 }) async {
-  final channelId = parseSnowflake(
-    resolve(payload['channelId']?.toString() ?? ''),
+  final id = resolve(payload['channelId']?.toString() ?? '');
+  final duration = parseBdfdDuration(
+    resolve(payload['duration']?.toString() ?? '0s'),
   );
-  if (channelId == null) {
-    return {'error': 'Invalid channelId'};
-  }
-
-  final permError = await checkBotGuildPermission(
-    client,
-    guildId: guildId,
-    requiredPermissions: [Permissions.manageChannels],
-    actionLabel: 'set slowmode',
-  );
-  if (permError != null) {
-    return {'error': permError};
-  }
-
-  final durationStr = resolve(payload['duration']?.toString() ?? '0s');
-  final duration = parseBdfdDuration(durationStr);
-  if (duration == null || duration > const Duration(hours: 6)) {
+  final reason = resolve(payload['reason']?.toString() ?? '');
+  if (duration == null ||
+      duration.isNegative ||
+      duration > const Duration(hours: 6)) {
     return {'error': 'Slowmode duration must be between 0 and 6 hours'};
   }
-  resolve(payload['reason']?.toString() ?? '');
-
   try {
-    final channel = await client.channels.fetch(channelId);
-    if (channel is GuildTextChannel) {
-      await channel.update(
-        GuildTextChannelUpdateBuilder(rateLimitPerUser: duration),
-      );
-    } else if (channel is ForumChannel) {
-      await channel.update(
-        ForumChannelUpdateBuilder(rateLimitPerUser: duration),
-      );
-    } else if (channel is Thread) {
-      await channel.update(ThreadUpdateBuilder(rateLimitPerUser: duration));
-    } else {
-      return {'error': 'Slowmode is not supported for this channel type'};
-    }
+    final change = SlowmodeChange(
+      channelId: id,
+      seconds: duration.inSeconds,
+      reason: reason.isEmpty ? null : reason,
+    );
+    await DiscordBotChannelMutationService(
+      client,
+    ).setSlowmode(change, budget: budget ?? CommandExecutionBudget());
     return {
-      'channelId': channelId.toString(),
-      'duration': duration.inSeconds.toString(),
+      'channelId': '${int.parse(id.trim())}',
+      'duration': '${change.seconds}',
     };
-  } catch (e) {
-    return {'error': 'Failed to set slowmode: $e'};
+  } on CommandExecutionTimeout {
+    rethrow;
+  } catch (error) {
+    return {'error': 'Failed to set slowmode: $error'};
   }
 }

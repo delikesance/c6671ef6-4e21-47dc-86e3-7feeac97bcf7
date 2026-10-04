@@ -6,6 +6,8 @@ import 'package:bot_creator_shared/utils/template_resolver.dart';
 import 'package:nyxx/nyxx.dart';
 
 import '../../types/action.dart';
+import '../../services/variable_service.dart';
+import '../../services/json_document.dart';
 import '../../utils/runtime_access_checks.dart';
 import 'control_flow_executor.dart';
 import 'image_executor.dart';
@@ -44,75 +46,6 @@ bool _isEffectivelyEmpty(dynamic value) {
     return trimmed.isEmpty || trimmed == '""';
   }
   return false;
-}
-
-String _scopedStorageKey(String rawKey) {
-  final key = rawKey.trim();
-  if (key.isEmpty) {
-    throw Exception('key is required for scoped variables');
-  }
-  if (key.startsWith('bc_')) {
-    if (key.length <= 3) {
-      throw Exception('key is required for scoped variables');
-    }
-    return key.substring(3);
-  }
-  return key;
-}
-
-String _scopedReferenceKey(String rawKey) {
-  final key = rawKey.trim();
-  if (key.isEmpty) {
-    throw Exception('key is required for scoped variables');
-  }
-  return key.startsWith('bc_') ? key : 'bc_$key';
-}
-
-String _inferDefinitionValueType(dynamic value) {
-  if (value is num) {
-    return 'number';
-  }
-  if (value is bool) {
-    return 'bool';
-  }
-  if (value is List || value is Map<String, dynamic>) {
-    return 'json';
-  }
-  return 'string';
-}
-
-Future<void> _ensureScopedDefinitionExists({
-  required BotDataStore store,
-  required String botId,
-  required String scope,
-  required String storageKey,
-  required dynamic defaultValue,
-}) async {
-  final definitions = await store.getScopedVariableDefinitions(botId);
-  final exists = definitions.any((entry) {
-    final entryScope = (entry['scope'] ?? '').toString().trim().toLowerCase();
-    final entryKeyRaw = (entry['key'] ?? '').toString().trim().toLowerCase();
-    if (entryScope != scope.toLowerCase() || entryKeyRaw.isEmpty) {
-      return false;
-    }
-    try {
-      return _scopedStorageKey(entryKeyRaw).toLowerCase() ==
-          storageKey.toLowerCase();
-    } catch (_) {
-      return false;
-    }
-  });
-  if (exists) {
-    return;
-  }
-
-  await store.setScopedVariableDefinition(
-    botId,
-    storageKey,
-    scope,
-    defaultValue,
-    valueType: _inferDefinitionValueType(defaultValue),
-  );
 }
 
 dynamic _resolveVariableValuePayload(
@@ -238,19 +171,6 @@ _resolveRuntimeVariableWriteValue({
     fallbackResolved: fallbackResolved,
     directFallbackResolved: directFallbackResolved,
   );
-}
-
-String _stringifyRuntimeValue(dynamic value) {
-  if (value == null) {
-    return '';
-  }
-  if (value is String) {
-    return value;
-  }
-  if (value is List || value is Map) {
-    return jsonEncode(value);
-  }
-  return value.toString();
 }
 
 bool _looksLikeJsonPayload(String value) {
@@ -584,8 +504,8 @@ _resolveScopedBinding({
   }
 
   final rawKey = resolveValue((payload['key'] ?? '').toString()).trim();
-  final storageKey = _scopedStorageKey(rawKey);
-  final referenceKey = _scopedReferenceKey(rawKey);
+  final storageKey = scopedStorageKey(rawKey);
+  final referenceKey = scopedReferenceKey(rawKey);
   final explicitContextId = resolveValue(
     (payload['contextId'] ?? '').toString(),
   ).trim();
@@ -608,30 +528,6 @@ _resolveScopedBinding({
     storageKey: storageKey,
     referenceKey: referenceKey,
   );
-}
-
-List<String> _legacyContextIdsForScope(
-  String scope,
-  String canonicalContextId,
-) {
-  switch (scope) {
-    case 'user':
-      return const <String>['Unknown User'];
-    case 'guild':
-    case 'channel':
-      return const <String>['DM'];
-    case 'guildMember':
-      final parts = canonicalContextId.split(':');
-      final guild = parts.isNotEmpty ? parts.first.trim() : '';
-      final user = parts.length > 1 ? parts[1].trim() : '';
-      return <String>{
-        'DM:Unknown User',
-        if (guild.isNotEmpty) '$guild:Unknown User',
-        if (user.isNotEmpty) 'DM:$user',
-      }.toList(growable: false);
-    default:
-      return const <String>[];
-  }
 }
 
 Future<dynamic> _readPersistedVariable({
@@ -702,7 +598,7 @@ Future<dynamic> _readPersistedVariable({
       if (entryKeyRaw.isEmpty) continue;
       String entryStorage;
       try {
-        entryStorage = _scopedStorageKey(entryKeyRaw).toLowerCase();
+        entryStorage = scopedStorageKey(entryKeyRaw).toLowerCase();
       } catch (_) {
         continue;
       }
@@ -741,7 +637,7 @@ Future<dynamic> _readPersistedVariable({
       );
     }
     if (value == null || _isEffectivelyEmpty(value)) {
-      await _ensureScopedDefinitionExists(
+      await ensureScopedDefinitionExists(
         store: store,
         botId: botId,
         scope: binding.scope,
@@ -771,7 +667,7 @@ Future<void> _writePersistedVariable({
       throw Exception('key is required for global variables');
     }
     await store.setGlobalVariable(botId, key, value);
-    variables['global.$key'] = _stringifyRuntimeValue(value);
+    variables['global.$key'] = stringifyVariableValue(value);
     return;
   }
 
@@ -790,14 +686,14 @@ Future<void> _writePersistedVariable({
     binding.storageKey,
     value,
   );
-  await _ensureScopedDefinitionExists(
+  await ensureScopedDefinitionExists(
     store: store,
     botId: botId,
     scope: binding.scope,
     storageKey: binding.storageKey,
     defaultValue: value,
   );
-  final runtimeValue = _stringifyRuntimeValue(value);
+  final runtimeValue = stringifyVariableValue(value);
   variables['${binding.scope}.${binding.referenceKey}'] = runtimeValue;
   if ((payload['key'] ?? '').toString().trim() != binding.referenceKey) {
     variables['${binding.scope}.${(payload['key'] ?? '').toString().trim()}'] =
@@ -818,7 +714,7 @@ void _storeArrayOutputs({
   variables['action.$resultKey.length'] = length;
   variables['$resultKey.length'] = length;
   if (removed != null) {
-    final removedValue = _stringifyRuntimeValue(removed);
+    final removedValue = stringifyVariableValue(removed);
     variables['action.$resultKey.removed'] = removedValue;
     variables['$resultKey.removed'] = removedValue;
   }
@@ -1029,15 +925,15 @@ Future<bool> executeVariablesAction({
     case BotCreatorActionType.setTemporaryVariable:
       final rawKey = resolveValue((payload['key'] ?? '').toString()).trim();
       final storageKey = rawKey.toLowerCase().startsWith('bc_')
-          ? _scopedStorageKey(rawKey.substring(3))
-          : _scopedStorageKey(rawKey);
+          ? scopedStorageKey(rawKey.substring(3))
+          : scopedStorageKey(rawKey);
       final resolvedWrite = _resolveRuntimeVariableWriteValue(
         payload: payload,
         resolveValue: resolveValue,
         variables: variables,
         results: results,
       );
-      final runtimeValue = _stringifyRuntimeValue(resolvedWrite.value);
+      final runtimeValue = stringifyVariableValue(resolvedWrite.value);
       final equivalentKeys = variables.keys
           .where(
             (key) =>
@@ -1087,8 +983,8 @@ Future<bool> executeVariablesAction({
       }
 
       final rawKey = resolveValue((payload['key'] ?? '').toString()).trim();
-      final storageKey = _scopedStorageKey(rawKey);
-      final referenceKey = _scopedReferenceKey(rawKey);
+      final storageKey = scopedStorageKey(rawKey);
+      final referenceKey = scopedReferenceKey(rawKey);
       final explicitContextId = resolveValue(
         (payload['contextId'] ?? '').toString(),
       ).trim();
@@ -1159,8 +1055,8 @@ Future<bool> executeVariablesAction({
           contextId,
           storageKey,
         );
-        final expectedRuntimeValue = _stringifyRuntimeValue(value);
-        if ((_stringifyRuntimeValue(persisted).isEmpty) &&
+        final expectedRuntimeValue = stringifyVariableValue(value);
+        if ((stringifyVariableValue(persisted).isEmpty) &&
             expectedRuntimeValue.isNotEmpty) {
           await store.setScopedVariable(
             botId,
@@ -1177,7 +1073,7 @@ Future<bool> executeVariablesAction({
             storageKey,
           );
         }
-        await _ensureScopedDefinitionExists(
+        await ensureScopedDefinitionExists(
           store: store,
           botId: botId,
           scope: scope,
@@ -1192,7 +1088,7 @@ Future<bool> executeVariablesAction({
           interaction: interaction,
         );
 
-        final runtimeValue = _stringifyRuntimeValue(
+        final runtimeValue = stringifyVariableValue(
           persisted ?? expectedRuntimeValue,
         );
 
@@ -1244,8 +1140,8 @@ Future<bool> executeVariablesAction({
       }
 
       final rawKey = resolveValue((payload['key'] ?? '').toString()).trim();
-      final storageKey = _scopedStorageKey(rawKey);
-      final referenceKey = _scopedReferenceKey(rawKey);
+      final storageKey = scopedStorageKey(rawKey);
+      final referenceKey = scopedReferenceKey(rawKey);
       final explicitContextId = resolveValue(
         (payload['contextId'] ?? '').toString(),
       ).trim();
@@ -1262,141 +1158,13 @@ Future<bool> executeVariablesAction({
         throw Exception('Unable to resolve context ID for scope "$scope"');
       }
 
-      var value = await store.getScopedVariable(
+      final read = await VariableService(
+        store,
         botId,
-        scope,
-        contextId,
-        storageKey,
-      );
-      if (value == null) {
-        final legacyContextIds = _legacyContextIdsForScope(scope, contextId);
-        for (final legacyContextId in legacyContextIds) {
-          value = await store.getScopedVariable(
-            botId,
-            scope,
-            legacyContextId,
-            storageKey,
-          );
-          if (value != null) {
-            // Legacy compatibility: copy forward to canonical context, keep legacy data untouched.
-            await store.setScopedVariable(
-              botId,
-              scope,
-              contextId,
-              storageKey,
-              value,
-            );
-            break;
-          }
-        }
-      }
-      if (value == null && referenceKey != storageKey) {
-        value = await store.getScopedVariable(
-          botId,
-          scope,
-          contextId,
-          referenceKey,
-        );
-        if (value != null) {
-          await store.setScopedVariable(
-            botId,
-            scope,
-            contextId,
-            storageKey,
-            value,
-          );
-        }
-      }
-      if (value == null && referenceKey != storageKey) {
-        final legacyContextIds = _legacyContextIdsForScope(scope, contextId);
-        for (final legacyContextId in legacyContextIds) {
-          value = await store.getScopedVariable(
-            botId,
-            scope,
-            legacyContextId,
-            referenceKey,
-          );
-          if (value != null) {
-            await store.setScopedVariable(
-              botId,
-              scope,
-              contextId,
-              storageKey,
-              value,
-            );
-            break;
-          }
-        }
-      }
-      bool isValueEmpty(dynamic v) {
-        if (v == null) return true;
-        final s = v.toString().trim();
-        return s.isEmpty || s == 'null' || s == 'empty/null';
-      }
-
-      var defaulted = false;
-      if (isValueEmpty(value)) {
-        // Resolve definition default value
-        dynamic defaultValue = '';
-        var hasDef = false;
-        try {
-          final definitions = await store.getScopedVariableDefinitions(botId);
-          final def = definitions.firstWhere((entry) {
-            final entryScope = (entry['scope'] ?? '')
-                .toString()
-                .trim()
-                .toLowerCase();
-            final entryKeyRaw = (entry['key'] ?? '')
-                .toString()
-                .trim()
-                .toLowerCase();
-            return entryScope == scope.toLowerCase() &&
-                _scopedStorageKey(entryKeyRaw).toLowerCase() ==
-                    storageKey.toLowerCase();
-          }, orElse: () => const <String, dynamic>{});
-          if (def.containsKey('defaultValue')) {
-            defaultValue = def['defaultValue'];
-            hasDef = true;
-          } else if (def.containsKey('default_value')) {
-            defaultValue = def['default_value'];
-            hasDef = true;
-          }
-        } catch (_) {}
-
-        // If the current value is missing/empty, and the definition has a non-empty/non-null default value,
-        // we apply the definition-based default value.
-        if (hasDef && !isValueEmpty(defaultValue)) {
-          value = defaultValue;
-          defaulted = true;
-          await store.setScopedVariable(
-            botId,
-            scope,
-            contextId,
-            storageKey,
-            value,
-          );
-          await _ensureScopedDefinitionExists(
-            store: store,
-            botId: botId,
-            scope: scope,
-            storageKey: storageKey,
-            defaultValue: value,
-          );
-        } else if (value == null) {
-          // If no non-empty default value definition exists, but value was completely null,
-          // we fallback to empty string and write it.
-          value = '';
-          defaulted = true;
-          await store.setScopedVariable(
-            botId,
-            scope,
-            contextId,
-            storageKey,
-            value,
-          );
-        }
-      }
-      final runtimeValue = _stringifyRuntimeValue(value);
+      ).readScoped(scope: scope, contextId: contextId, key: rawKey);
+      final value = read.value;
+      final defaulted = read.defaulted;
+      final runtimeValue = stringifyVariableValue(value);
       final storeAs = resolveValue(
         (payload['storeAs'] ?? '$scope.$referenceKey').toString(),
       ).trim();
@@ -1445,8 +1213,8 @@ Future<bool> executeVariablesAction({
       }
 
       final rawKey = resolveValue((payload['key'] ?? '').toString()).trim();
-      final storageKey = _scopedStorageKey(rawKey);
-      final referenceKey = _scopedReferenceKey(rawKey);
+      final storageKey = scopedStorageKey(rawKey);
+      final referenceKey = scopedReferenceKey(rawKey);
       if (payload['resetAllContexts'] == true) {
         if (scope != 'guildMember' ||
             payload['resetToDefault'] != true ||
@@ -1575,7 +1343,7 @@ Future<bool> executeVariablesAction({
         };
         for (final alias in aliases) {
           if (hasDefault) {
-            variables['$scope[$contextId].$alias'] = _stringifyRuntimeValue(
+            variables['$scope[$contextId].$alias'] = stringifyVariableValue(
               defaultValue,
             );
           } else {
@@ -1583,7 +1351,7 @@ Future<bool> executeVariablesAction({
           }
           if (contextId == defaultContextId) {
             if (hasDefault) {
-              variables['$scope.$alias'] = _stringifyRuntimeValue(defaultValue);
+              variables['$scope.$alias'] = stringifyVariableValue(defaultValue);
             } else {
               variables.remove('$scope.$alias');
             }
@@ -1616,10 +1384,10 @@ Future<bool> executeVariablesAction({
       final newRawKey = resolveValue(
         (payload['newKey'] ?? '').toString(),
       ).trim();
-      final oldStorageKey = _scopedStorageKey(oldRawKey);
-      final newStorageKey = _scopedStorageKey(newRawKey);
-      final oldReferenceKey = _scopedReferenceKey(oldRawKey);
-      final newReferenceKey = _scopedReferenceKey(newRawKey);
+      final oldStorageKey = scopedStorageKey(oldRawKey);
+      final newStorageKey = scopedStorageKey(newRawKey);
+      final oldReferenceKey = scopedReferenceKey(oldRawKey);
+      final newReferenceKey = scopedReferenceKey(newRawKey);
       final contextId = resolveScopeContextId(
         scope: scope,
         variables: variables,
@@ -1687,7 +1455,7 @@ Future<bool> executeVariablesAction({
       }
 
       final rawKey = resolveValue((payload['key'] ?? '').toString()).trim();
-      final storageKey = _scopedStorageKey(rawKey);
+      final storageKey = scopedStorageKey(rawKey);
       final offset =
           int.tryParse(
             resolveValue((payload['offset'] ?? '0').toString()).trim(),
@@ -2129,13 +1897,13 @@ Future<bool> executeVariablesAction({
         ttl: payload['ttl']?.toString(),
       );
       dynamic persisted = await store.getGlobalVariable(botId, key);
-      final expectedRuntimeValue = _stringifyRuntimeValue(value);
-      if ((_stringifyRuntimeValue(persisted).isEmpty) &&
+      final expectedRuntimeValue = stringifyVariableValue(value);
+      if ((stringifyVariableValue(persisted).isEmpty) &&
           expectedRuntimeValue.isNotEmpty) {
         await store.setGlobalVariable(botId, key, expectedRuntimeValue);
         persisted = await store.getGlobalVariable(botId, key);
       }
-      final runtimeValue = _stringifyRuntimeValue(
+      final runtimeValue = stringifyVariableValue(
         persisted ?? expectedRuntimeValue,
       );
       variables['global.$key'] = runtimeValue;
@@ -2161,7 +1929,7 @@ Future<bool> executeVariablesAction({
         value = '';
         await store.setGlobalVariable(botId, key, value);
       }
-      final valueAsString = _stringifyRuntimeValue(value);
+      final valueAsString = stringifyVariableValue(value);
       final storeAs = resolveValue(
         (payload['storeAs'] ?? 'global.$key').toString(),
       ).trim();
@@ -2277,28 +2045,11 @@ void _executeRuntimeJsonBlock({
 
   final rawSource = (payload['source'] ?? '').toString();
   final resolvedSource = resolveRuntimeJsonInput(rawSource).trim();
-  dynamic jsonCtx;
-  if (resolvedSource.isEmpty) {
-    // Empty source means variable not initialized yet. Bootstrap with an
-    // object so jsonSet/jsonArrayAppend can materialize paths.
-    jsonCtx = <String, dynamic>{};
-  } else {
-    try {
-      jsonCtx = jsonDecode(resolvedSource);
-      // Scalars (number/string/bool/null) cannot host object paths like
-      // `items`. Promote to an empty object so runtime JSON ops can recover.
-      if (jsonCtx is! Map && jsonCtx is! List) {
-        jsonCtx = <String, dynamic>{};
-      }
-    } catch (_) {
-      // Corrupted or non-JSON payload: recover by reinitializing as object.
-      jsonCtx = <String, dynamic>{};
-    }
-  }
+  final document = JsonDocument.fromSource(resolvedSource);
 
   final operations = payload['operations'];
   if (operations is! List) {
-    final encoded = jsonEncode(jsonCtx);
+    final encoded = jsonEncode(document.value);
     results[resultKey] = encoded;
     variables[resultKey] = encoded;
     return;
@@ -2315,358 +2066,55 @@ void _executeRuntimeJsonBlock({
         .map(resolveRuntimeJsonInput)
         .toList(growable: false);
 
-    switch (op) {
-      case 'get':
-        final readIndex = rawOp['readIndex'];
-        final value = _rtJsonGetPath(jsonCtx, resolvedPath);
-        final stringified = _rtJsonStringifyValue(value);
-        if (readIndex != null) {
-          results['$resultKey.json_$readIndex'] = stringified;
-          variables['$resultKey.json_$readIndex'] = stringified;
-        }
-        break;
-
-      case 'set':
-        final rawValue = resolveRuntimeJsonInput(
-          (rawOp['value'] ?? '').toString(),
-        );
-        final forceString = rawOp['forceString'] == true;
-        final value = forceString ? rawValue : _rtCoerceJsonValue(rawValue);
-        jsonCtx = _rtJsonSetPath(jsonCtx, resolvedPath, value);
-        break;
-
-      case 'unset':
-        jsonCtx = _rtJsonRemovePath(jsonCtx, resolvedPath);
-        break;
-
-      case 'clear':
-        jsonCtx = <String, dynamic>{};
-        break;
-
-      case 'exists':
-        final readIndex = rawOp['readIndex'];
-        final exists = _rtJsonPathExists(jsonCtx, resolvedPath);
-        if (readIndex != null) {
-          results['$resultKey.json_$readIndex'] = exists ? 'true' : 'false';
-          variables['$resultKey.json_$readIndex'] = exists ? 'true' : 'false';
-        }
-        break;
-
-      case 'stringify':
-        final readIndex = rawOp['readIndex'];
-        final value = jsonCtx != null ? jsonEncode(jsonCtx) : '';
-        if (readIndex != null) {
-          results['$resultKey.json_$readIndex'] = value;
-          variables['$resultKey.json_$readIndex'] = value;
-        }
-        break;
-
-      case 'pretty':
-        final readIndex = rawOp['readIndex'];
-        final indentRaw = resolveRuntimeJsonInput(
-          (rawOp['indent'] ?? '').toString(),
-        );
-        final indent = int.tryParse(indentRaw);
-        final spaces = (indent == null || indent < 0) ? 2 : indent;
-        final value = jsonCtx != null
-            ? const JsonEncoder.withIndent(
-                '  ',
-              ).convert(jsonCtx).replaceAll('  ', ' ' * spaces)
-            : '';
-        if (readIndex != null) {
-          results['$resultKey.json_$readIndex'] = value;
-          variables['$resultKey.json_$readIndex'] = value;
-        }
-        break;
-
-      case 'initArray':
-        // BDFD wiki: $jsonArray[key;separator?] splits the existing string
-        // value by the separator and stores the resulting array.
-        final arraySeparator = resolveRuntimeJsonInput(
-          (rawOp['separator'] ?? ',').toString(),
-        );
-        final existingVal = _rtJsonGetPath(jsonCtx, resolvedPath);
-        if (existingVal is String && existingVal.isNotEmpty) {
-          final parts = arraySeparator.isEmpty
-              ? <dynamic>[existingVal]
-              : existingVal.split(arraySeparator);
-          jsonCtx = _rtJsonSetPath(jsonCtx, resolvedPath, parts);
-        } else if (existingVal is List) {
-          // Already an array — keep as-is.
-        } else {
-          jsonCtx = _rtJsonSetPath(jsonCtx, resolvedPath, <dynamic>[]);
-        }
-        break;
-
-      case 'arrayAppend':
-        final rawValue = resolveRuntimeJsonInput(
-          (rawOp['value'] ?? '').toString(),
-        );
-        final value = _rtCoerceJsonValue(rawValue);
-        final list = _rtJsonEnsureArray(jsonCtx, resolvedPath);
-        list.add(value);
-        break;
-
-      case 'arrayUnshift':
-        final rawValue = resolveRuntimeJsonInput(
-          (rawOp['value'] ?? '').toString(),
-        );
-        final value = _rtCoerceJsonValue(rawValue);
-        final list = _rtJsonEnsureArray(jsonCtx, resolvedPath);
-        list.insert(0, value);
-        break;
-
-      case 'arrayPop':
-        final readIndex = rawOp['readIndex'];
-        final list = _rtJsonEnsureArray(jsonCtx, resolvedPath);
-        final removed = list.isNotEmpty
-            ? _rtJsonStringifyValue(list.removeLast())
-            : '';
-        if (readIndex != null) {
-          results['$resultKey.json_$readIndex'] = removed;
-          variables['$resultKey.json_$readIndex'] = removed;
-        }
-        break;
-
-      case 'arrayShift':
-        final readIndex = rawOp['readIndex'];
-        final list = _rtJsonEnsureArray(jsonCtx, resolvedPath);
-        final removed = list.isNotEmpty
-            ? _rtJsonStringifyValue(list.removeAt(0))
-            : '';
-        if (readIndex != null) {
-          results['$resultKey.json_$readIndex'] = removed;
-          variables['$resultKey.json_$readIndex'] = removed;
-        }
-        break;
-
-      case 'arraySort':
-        final sortDescending = rawOp.containsKey('order')
-            ? resolveRuntimeJsonInput(
-                    rawOp['order'].toString(),
-                  ).trim().toLowerCase() ==
-                  'desc'
-            : rawOp['descending'] == true;
-        final sortList = _rtJsonEnsureArray(jsonCtx, resolvedPath);
-        sortList.sort((a, b) {
-          final aNum = a is num ? a : num.tryParse(a.toString());
-          final bNum = b is num ? b : num.tryParse(b.toString());
-          if (aNum != null && bNum != null) {
-            return sortDescending ? bNum.compareTo(aNum) : aNum.compareTo(bNum);
-          }
-          if (aNum != null) return sortDescending ? 1 : -1;
-          if (bNum != null) return sortDescending ? -1 : 1;
-          return sortDescending
-              ? b.toString().compareTo(a.toString())
-              : a.toString().compareTo(b.toString());
-        });
-        break;
-
-      case 'arrayReverse':
-        final list = _rtJsonEnsureArray(jsonCtx, resolvedPath);
-        final reversed = list.reversed.toList(growable: false);
-        list
-          ..clear()
-          ..addAll(reversed);
-        break;
-
-      case 'arrayCount':
-        final readIndex = rawOp['readIndex'];
-        final value = _rtJsonGetPath(jsonCtx, resolvedPath);
-        final count = value is List ? value.length.toString() : '0';
-        if (readIndex != null) {
-          results['$resultKey.json_$readIndex'] = count;
-          variables['$resultKey.json_$readIndex'] = count;
-        }
-        break;
-
-      case 'arrayIndex':
-        final readIndex = rawOp['readIndex'];
-        final expected = _rtCoerceJsonValue(
-          resolveRuntimeJsonInput((rawOp['value'] ?? '').toString()),
-        );
-        final list = _rtJsonGetPath(jsonCtx, resolvedPath);
-        final index = list is List
-            ? list.indexWhere((item) => item == expected).toString()
-            : '-1';
-        if (readIndex != null) {
-          results['$resultKey.json_$readIndex'] = index;
-          variables['$resultKey.json_$readIndex'] = index;
-        }
-        break;
-
-      case 'joinArray':
-        final readIndex = rawOp['readIndex'];
-        final separator = resolveRuntimeJsonInput(
-          (rawOp['separator'] ?? '').toString(),
-        );
-        final value = _rtJsonGetPath(jsonCtx, resolvedPath);
-        final joined = value is List
-            ? value.map(_rtJsonStringifyValue).join(separator)
-            : '';
-        if (readIndex != null) {
-          results['$resultKey.json_$readIndex'] = joined;
-          variables['$resultKey.json_$readIndex'] = joined;
-        }
-        break;
-
-      case 'keys':
-        final readIndex = rawOp['readIndex'];
-        final separator = resolveRuntimeJsonInput(
-          (rawOp['separator'] ?? ',').toString(),
-        );
-        final value = _rtJsonGetPath(jsonCtx, resolvedPath);
-        final keys = value is Map
-            ? value.keys.map((k) => k.toString()).join(separator)
-            : '';
-        if (readIndex != null) {
-          results['$resultKey.json_$readIndex'] = keys;
-          variables['$resultKey.json_$readIndex'] = keys;
-        }
-        break;
+    final operation = JsonOperation.values.asNameMap()[op];
+    if (operation == null) continue;
+    // Resolve only inputs used by this operation, preserving effect order.
+    final readsValue = {
+      JsonOperation.set,
+      JsonOperation.arrayAppend,
+      JsonOperation.arrayUnshift,
+      JsonOperation.arrayIndex,
+    }.contains(operation);
+    final readsSeparator = {
+      JsonOperation.initArray,
+      JsonOperation.joinArray,
+      JsonOperation.keys,
+    }.contains(operation);
+    final defaultSeparator = operation == JsonOperation.joinArray ? '' : ',';
+    final value = document.apply(
+      operation,
+      path: resolvedPath,
+      value: readsValue
+          ? resolveRuntimeJsonInput((rawOp['value'] ?? '').toString())
+          : '',
+      forceString: rawOp['forceString'] == true,
+      separator: readsSeparator
+          ? resolveRuntimeJsonInput(
+              (rawOp['separator'] ?? defaultSeparator).toString(),
+            )
+          : ',',
+      descending:
+          operation == JsonOperation.arraySort &&
+          (rawOp.containsKey('order')
+              ? resolveRuntimeJsonInput(
+                      rawOp['order'].toString(),
+                    ).trim().toLowerCase() ==
+                    'desc'
+              : rawOp['descending'] == true),
+      indent: operation == JsonOperation.pretty
+          ? int.tryParse(
+              resolveRuntimeJsonInput((rawOp['indent'] ?? '').toString()),
+            )
+          : null,
+    );
+    final readIndex = rawOp['readIndex'];
+    if (value != null && readIndex != null) {
+      results['$resultKey.json_$readIndex'] = value;
+      variables['$resultKey.json_$readIndex'] = value;
     }
   }
 
-  final encodedRoot = jsonCtx != null ? jsonEncode(jsonCtx) : '';
+  final encodedRoot = document.stringify();
   results[resultKey] = encodedRoot;
   variables[resultKey] = encodedRoot;
-}
-
-// ── Runtime JSON helpers ────────────────────────────────────────────────────
-
-dynamic _rtJsonGetPath(dynamic root, List<String> path) {
-  dynamic current = root;
-  for (final segment in path) {
-    final index = int.tryParse(segment);
-    if (index != null && current is List) {
-      if (index < 0 || index >= current.length) return null;
-      current = current[index];
-    } else if (current is Map) {
-      if (!current.containsKey(segment)) return null;
-      current = current[segment];
-    } else {
-      return null;
-    }
-  }
-  return current;
-}
-
-bool _rtJsonPathExists(dynamic root, List<String> path) {
-  dynamic current = root;
-  for (final segment in path) {
-    final index = int.tryParse(segment);
-    if (index != null && current is List) {
-      if (index < 0 || index >= current.length) return false;
-      current = current[index];
-    } else if (current is Map) {
-      if (!current.containsKey(segment)) return false;
-      current = current[segment];
-    } else {
-      return false;
-    }
-  }
-  return true;
-}
-
-dynamic _rtJsonSetPath(dynamic root, List<String> path, dynamic value) {
-  if (path.isEmpty) return value;
-  final nextIsNumeric = path.length > 1 && int.tryParse(path[0]) != null;
-  root ??= nextIsNumeric ? <dynamic>[] : <String, dynamic>{};
-  dynamic current = root;
-  for (var i = 0; i < path.length - 1; i++) {
-    final segment = path[i];
-    final index = int.tryParse(segment);
-    final nextSegment = path[i + 1];
-    final nextIndex = int.tryParse(nextSegment);
-    if (index != null) {
-      if (current is! List || index < 0) return root;
-      while (current.length <= index) {
-        current.add(null);
-      }
-      current[index] ??= nextIndex != null ? <dynamic>[] : <String, dynamic>{};
-      current = current[index];
-    } else if (current is Map) {
-      if (!current.containsKey(segment) || current[segment] == null) {
-        current[segment] = nextIndex != null
-            ? <dynamic>[]
-            : <String, dynamic>{};
-      }
-      current = current[segment];
-    } else {
-      return root;
-    }
-  }
-  final lastSegment = path.last;
-  final lastIndex = int.tryParse(lastSegment);
-  if (lastIndex != null) {
-    if (current is! List || lastIndex < 0) return root;
-    while (current.length <= lastIndex) {
-      current.add(null);
-    }
-    current[lastIndex] = value;
-  } else if (current is Map) {
-    current[lastSegment] = value;
-  }
-  return root;
-}
-
-dynamic _rtJsonRemovePath(dynamic root, List<String> path) {
-  if (path.isEmpty) return null;
-  dynamic current = root;
-  for (var i = 0; i < path.length - 1; i++) {
-    final segment = path[i];
-    final index = int.tryParse(segment);
-    if (index != null && current is List) {
-      if (index < 0 || index >= current.length) return root;
-      current = current[index];
-    } else if (current is Map) {
-      if (!current.containsKey(segment)) return root;
-      current = current[segment];
-    } else {
-      return root;
-    }
-  }
-  final lastSegment = path.last;
-  final lastIndex = int.tryParse(lastSegment);
-  if (lastIndex != null && current is List) {
-    if (lastIndex >= 0 && lastIndex < current.length) {
-      current.removeAt(lastIndex);
-    }
-  } else if (current is Map) {
-    current.remove(lastSegment);
-  }
-  return root;
-}
-
-List<dynamic> _rtJsonEnsureArray(dynamic root, List<String> path) {
-  final existing = _rtJsonGetPath(root, path);
-  if (existing is List<dynamic>) return existing;
-  _rtJsonSetPath(root, path, <dynamic>[]);
-  final resolved = _rtJsonGetPath(root, path);
-  return resolved is List<dynamic> ? resolved : <dynamic>[];
-}
-
-dynamic _rtCoerceJsonValue(String raw) {
-  final trimmed = raw.trim();
-  if (trimmed.isEmpty) return '';
-  if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
-    try {
-      return jsonDecode(trimmed);
-    } catch (_) {}
-  }
-  if (trimmed.toLowerCase() == 'true') return true;
-  if (trimmed.toLowerCase() == 'false') return false;
-  if (trimmed.toLowerCase() == 'null') return null;
-  final asInt = int.tryParse(trimmed);
-  if (asInt != null) return asInt;
-  final asDouble = double.tryParse(trimmed);
-  if (asDouble != null) return asDouble;
-  return raw;
-}
-
-String _rtJsonStringifyValue(dynamic value) {
-  if (value == null) return '';
-  if (value is String) return value;
-  if (value is num || value is bool) return value.toString();
-  return jsonEncode(value);
 }
