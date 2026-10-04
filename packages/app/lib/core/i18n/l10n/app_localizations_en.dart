@@ -930,7 +930,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get action_name_forLoop => 'For Loop';
 
   @override
-  String get action_name_getGlobalVariable => 'Get Global Variable';
+  String get action_name_getGlobalVariable => 'Get variable (whole bot)';
 
   @override
   String get action_name_getGuildOnboarding => 'Get Guild Onboarding';
@@ -948,7 +948,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get action_name_getMusicInfo => 'Get Music Info';
 
   @override
-  String get action_name_getScopedVariable => 'Get Scoped Variable';
+  String get action_name_getScopedVariable =>
+      'Get variable (per server, member…)';
 
   @override
   String get action_name_getWebhook => 'Get Webhook';
@@ -985,7 +986,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get action_name_listScopedVariableIndex =>
-      'List Scoped Variable Index';
+      'List a variable’s values (per server, member…)';
 
   @override
   String get action_name_listWebhooks => 'List Webhooks';
@@ -1036,7 +1037,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get action_name_removeChannel => 'Remove Channel';
 
   @override
-  String get action_name_removeGlobalVariable => 'Remove Global Variable';
+  String get action_name_removeGlobalVariable => 'Remove variable (whole bot)';
 
   @override
   String get action_name_removeReaction => 'Remove Reaction';
@@ -1045,13 +1046,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get action_name_removeRole => 'Remove Role';
 
   @override
-  String get action_name_removeScopedVariable => 'Remove Scoped Variable';
+  String get action_name_removeScopedVariable =>
+      'Remove variable (per server, member…)';
 
   @override
   String get action_name_removeThreadMember => 'Remove Thread Member';
 
   @override
-  String get action_name_renameScopedVariable => 'Rename Scoped Variable';
+  String get action_name_renameScopedVariable =>
+      'Rename variable (per server, member…)';
 
   @override
   String get action_name_respondWithAutocomplete => 'Respond with Autocomplete';
@@ -1102,7 +1105,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get action_name_serverMuteMember => 'Server Mute Member';
 
   @override
-  String get action_name_setGlobalVariable => 'Set Global Variable';
+  String get action_name_setGlobalVariable => 'Set variable (whole bot)';
 
   @override
   String get action_name_setMusicLoop => 'Set Music Loop';
@@ -1114,7 +1117,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get action_name_setNickname => 'Set Nickname';
 
   @override
-  String get action_name_setScopedVariable => 'Set Scoped Variable';
+  String get action_name_setScopedVariable =>
+      'Set variable (per server, member…)';
 
   @override
   String get action_name_setTemporaryVariable => 'Set Temporary Variable';
@@ -1253,7 +1257,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get action_status_enabled => 'Enabled';
 
   @override
-  String get action_store_results => 'Store results in global variables';
+  String get action_store_results => 'Store results in variables';
 
   @override
   String actions_active_route(String label) {
@@ -1285,7 +1289,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get actions_description => 'Build runtime actions for this command';
 
   @override
-  String get actions_global_variables => 'Global Variables';
+  String get actions_global_variables => 'Variables';
 
   @override
   String actions_key_label(String key) {
@@ -4262,7 +4266,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get export_file_picker_busy => 'File picker is already open';
 
   @override
-  String get export_global_variables => 'Global Variables';
+  String get export_global_variables => 'Variables';
 
   @override
   String get export_import_title => 'Export / Import';
@@ -4284,10 +4288,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get globals_add => 'Add Variable';
 
   @override
-  String get globals_add_global => 'Add Global Variable';
+  String get globals_add_global => 'Add a whole-bot variable';
 
   @override
-  String get globals_add_scoped => 'Add Scoped Variable';
+  String get globals_add_scoped => 'Add a per-server / member variable';
 
   @override
   String get globals_copy_value => 'Copy value';
@@ -4302,7 +4306,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get globals_dialog_global_desc =>
-      'Global variables are shared across all commands and servers.';
+      'A single value for the whole bot, read and changed by every command and server.';
 
   @override
   String globals_dialog_ref_preview(String ref) {
@@ -4311,32 +4315,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String globals_dialog_scoped_desc(String scope) {
-    return 'A scoped variable stores a separate value per $scope context.';
+    return 'This variable keeps a separate value for: $scope.';
   }
 
   @override
   String get globals_edit => 'Edit Variable';
 
   @override
-  String get globals_edit_global => 'Edit Global Variable';
+  String get globals_edit_global => 'Edit variable (whole bot)';
 
   @override
-  String get globals_edit_scoped => 'Edit Scoped Variable';
+  String get globals_edit_scoped => 'Edit variable (per server, member…)';
 
   @override
-  String get globals_empty => 'No global variables yet';
+  String get globals_empty => 'No whole-bot variables yet';
 
   @override
   String get globals_empty_subtitle =>
-      'Add a variable to store persistent data accessible by all commands.';
+      'A whole-bot variable keeps a single value that every command can read and change.';
 
   @override
   String get globals_help_global =>
-      'Shared across all commands. Access via \$getVar[key].';
+      'A single value for the whole bot. Read with \$getVar[name].';
 
   @override
   String get globals_help_scoped =>
-      'Stored per context (server, user, channel…). Each entry keeps a distinct value per Discord context.';
+      'A separate value per server, member, user, channel or message: the bot picks the right one automatically depending on who runs the command.';
 
   @override
   String get globals_key => 'Key';
@@ -4345,10 +4349,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get globals_key_hint => 'e.g. prefix, level, welcome_message';
 
   @override
-  String get globals_mode_global => 'Global';
+  String get globals_mode_global => 'Whole bot';
 
   @override
-  String get globals_mode_scoped => 'Scoped';
+  String get globals_mode_scoped => 'Per server, member…';
 
   @override
   String get globals_no_default => 'No default value';
@@ -4360,19 +4364,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get globals_retry => 'Retry';
 
   @override
-  String get globals_scope_channel => 'channel';
+  String get globals_scope_channel => 'Each channel';
 
   @override
-  String get globals_scope_guild => 'guild';
+  String get globals_scope_guild => 'Each server';
 
   @override
-  String get globals_scope_guildMember => 'Server member';
+  String get globals_scope_guildMember => 'Each member (per server)';
 
   @override
-  String get globals_scope_message => 'message';
+  String get globals_scope_message => 'Each message';
 
   @override
-  String get globals_scope_user => 'Global user';
+  String get globals_scope_user => 'Each user (all servers)';
 
   @override
   String get globals_search => 'Search variables…';
@@ -4386,13 +4390,49 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get globals_tab => 'Globals';
+  String get globals_tab => 'Variables';
 
   @override
   String get globals_tab_short => 'Vars';
 
   @override
   String get globals_title => 'Variables';
+
+  @override
+  String get globals_scope_global => 'Whole bot';
+
+  @override
+  String get globals_audience_title => 'Who is this variable for?';
+
+  @override
+  String get globals_audience_global_desc =>
+      'A single value for the whole bot (e.g. the number of commands run).';
+
+  @override
+  String get globals_audience_guild_desc =>
+      'One value per server (e.g. the server prefix).';
+
+  @override
+  String get globals_audience_guildMember_desc =>
+      'One value per member and per server (e.g. their warnings or XP on this server).';
+
+  @override
+  String get globals_audience_user_desc =>
+      'One value per user, shared across all servers (e.g. their profile).';
+
+  @override
+  String get globals_audience_channel_desc =>
+      'One value per channel (e.g. the channel mode).';
+
+  @override
+  String get globals_audience_message_desc =>
+      'One value per message (e.g. the votes on a message).';
+
+  @override
+  String get globals_section_global => 'Whole bot';
+
+  @override
+  String get globals_section_scoped => 'Per server, member…';
 
   @override
   String get globals_value => 'Value';
@@ -5049,7 +5089,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get marketplace_no_variables => 'No global variables defined.';
+  String get marketplace_no_variables => 'No variables defined.';
 
   @override
   String get marketplace_publish_add_variable => 'Add custom variable';
@@ -5169,7 +5209,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get marketplace_publish_variable_name_label => 'Variable name';
 
   @override
-  String get marketplace_publish_variables => 'Global Variables';
+  String get marketplace_publish_variables => 'Variables';
 
   @override
   String get marketplace_publish_variables_hint =>
@@ -6408,11 +6448,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Value present in the bot data without a declared definition. Shown as-is; nothing is invented.';
 
   @override
-  String get scoped_empty => 'No scoped variables defined';
+  String get scoped_empty => 'No per-server or per-member variables';
 
   @override
   String get scoped_empty_subtitle =>
-      'Scoped variables store a value per Discord context (user, server…). They are populated by the bot at runtime.';
+      'They store one value per server, member, user, channel or message. The bot fills them in at runtime.';
 
   @override
   String get scoped_explore_runtime => 'Explore runtime data';
@@ -6448,14 +6488,14 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get scoped_scope => 'Scope';
+  String get scoped_scope => 'Who is it for?';
 
   @override
   String get scoped_scope_help =>
-      'The entity level at which the variable is stored.';
+      'Who owns the value: each server, each member, etc.';
 
   @override
-  String get scoped_title => 'Scoped Variables';
+  String get scoped_title => 'Per-server / member variables';
 
   @override
   String get scratch_add_block => 'Add block';
@@ -11075,7 +11115,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get modules_desc_workflows => 'Automate your actions and events';
 
   @override
-  String get modules_desc_globals => 'Shared across all commands';
+  String get modules_desc_globals =>
+      'Remembered data: whole bot, server, member…';
 
   @override
   String get modules_desc_emojis => 'The bot\'s application emojis';

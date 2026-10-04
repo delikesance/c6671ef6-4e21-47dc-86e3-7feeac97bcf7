@@ -113,6 +113,25 @@ class BotReconciliationService {
     );
   }
 
+  /// The remote document minus the commands deleted locally and not yet confirmed in the cloud: a
+  /// stale cloud copy must not resurrect them.
+  static Future<Map<String, dynamic>> _withoutPendingDeletions(
+    AppManager mgr,
+    String botId,
+    Map<String, dynamic> remoteConfig,
+  ) async {
+    final pending = await mgr.pendingCommandDeletions(botId);
+    final commands = remoteConfig['commands'];
+    if (pending.isEmpty || commands is! List) return remoteConfig;
+    return {
+      ...remoteConfig,
+      'commands': AppManager.withoutPendingCommandDeletions(
+        commands,
+        pending.keys,
+      ),
+    };
+  }
+
   /// Overwrites local state with Cloud config, preserving credentials and refreshing indexes.
   static Future<void> applyCloudToLocal({
     required String botId,
@@ -120,6 +139,7 @@ class BotReconciliationService {
     AppManager? appManager,
   }) async {
     final mgr = appManager ?? AppManager();
+    remoteConfig = await _withoutPendingDeletions(mgr, botId, remoteConfig);
     final existingApp = await mgr.getApp(botId);
     final existingToken = (existingApp['token'] ?? '').toString().trim();
     final remoteToken = (remoteConfig['token'] ?? '').toString().trim();
@@ -175,6 +195,7 @@ class BotReconciliationService {
     String? botName,
   }) async {
     final mgr = appManager ?? AppManager();
+    remoteConfig = await _withoutPendingDeletions(mgr, botId, remoteConfig);
     final endRemoteSync = AppManager.beginRemoteSync();
     try {
       await applyManagerRuntimeMetadataToLocal(

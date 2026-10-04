@@ -3513,8 +3513,14 @@ class ActionCard extends StatelessWidget {
       'Message content': 'Contenu du message',
       'Audit log reason': 'Raison du journal d\'audit',
       'Global variable key': 'Clé de variable globale',
-      'Scoped variable key (bc_ optional)':
-          'Clé de variable scopée (bc_ optionnel)',
+      'Variable name': 'Nom de la variable',
+      'Scoped variable key (bc_ optional)': 'Nom de la variable',
+      'Who is it for: each server, each member (per server), each user (all servers), each channel or each message':
+          'Pour qui : chaque serveur, chaque membre (par serveur), chaque utilisateur (tous serveurs), chaque salon ou chaque message',
+      'Advanced: leave empty for the current server / member / channel / message. For someone else: member = serverId:userId, other kinds = their ID':
+          'Avancé : laisser vide pour le serveur / membre / salon / message courant. Pour quelqu\'un d\'autre : membre = idServeur:idUtilisateur, autres = leur identifiant',
+      'Advanced: leave empty for the current server / member / channel / message':
+          'Avancé : laisser vide pour le serveur / membre / salon / message courant',
       'Saved workflow name to execute': 'Nom du workflow enregistré à exécuter',
       'Optional entry point override (defaults to workflow entry)':
           'Surcharge optionnelle du point d\'entrée (par défaut: entrée du workflow)',

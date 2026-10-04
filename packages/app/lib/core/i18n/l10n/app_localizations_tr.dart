@@ -4417,6 +4417,42 @@ class AppLocalizationsTr extends AppLocalizations {
   String get globals_title => 'Değişkenler';
 
   @override
+  String get globals_scope_global => 'Whole bot';
+
+  @override
+  String get globals_audience_title => 'Who is this variable for?';
+
+  @override
+  String get globals_audience_global_desc =>
+      'A single value for the whole bot (e.g. the number of commands run).';
+
+  @override
+  String get globals_audience_guild_desc =>
+      'One value per server (e.g. the server prefix).';
+
+  @override
+  String get globals_audience_guildMember_desc =>
+      'One value per member and per server (e.g. their warnings or XP on this server).';
+
+  @override
+  String get globals_audience_user_desc =>
+      'One value per user, shared across all servers (e.g. their profile).';
+
+  @override
+  String get globals_audience_channel_desc =>
+      'One value per channel (e.g. the channel mode).';
+
+  @override
+  String get globals_audience_message_desc =>
+      'One value per message (e.g. the votes on a message).';
+
+  @override
+  String get globals_section_global => 'Whole bot';
+
+  @override
+  String get globals_section_scoped => 'Per server, member…';
+
+  @override
   String get globals_value => 'Değer';
 
   @override

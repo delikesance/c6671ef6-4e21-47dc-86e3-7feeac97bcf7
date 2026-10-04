@@ -15,13 +15,24 @@ Future<int> syncManagedBotsAfterDiscordLogin({
   required String accessToken,
 }) async {
   final client = MainApiClient(baseUrl: baseUrl, accessToken: accessToken);
+  // Finish the deletions that never reached the cloud BEFORE importing anything: otherwise a bot
+  // deleted offline would be re-created from the manager's list right here.
+  final stillPending = await appManager.retryPendingRemoteBotDeletions(client);
   final bots = await client.listBots();
   var synced = 0;
 
   for (final bot in bots) {
     final botId = (bot['bot_id'] ?? '').toString().trim();
-    if (botId.isEmpty) {
+    if (botId.isEmpty || stillPending.contains(botId)) {
       continue;
+    }
+    try {
+      await appManager.retryPendingCommandDeletions(botId, client);
+    } catch (e) {
+      developer.log(
+        'Queued command deletions not replayed for $botId: $e',
+        name: 'MainApiAccountBootstrap',
+      );
     }
     var botName = (bot['bot_name'] ?? 'Unnamed Bot').toString();
     final token = (bot['bot_token'] ?? '').toString();
@@ -123,6 +134,7 @@ Future<int> syncManagedBotsAfterDiscordLogin({
         .map((b) => (b['bot_id'] ?? '').toString().trim())
         .where((id) => id.isNotEmpty)
         .toSet();
+    // A bot whose cloud deletion is still pending is gone locally: it is never re-listed here.
     final localApps = await appManager.getAllApps();
     for (final rawApp in localApps) {
       if (rawApp is! Map) continue;

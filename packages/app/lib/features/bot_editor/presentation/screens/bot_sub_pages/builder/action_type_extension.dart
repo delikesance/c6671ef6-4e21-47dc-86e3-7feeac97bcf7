@@ -1553,7 +1553,8 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             key: 'scope',
             type: ParameterType.multiSelect,
             defaultValue: 'guild',
-            hint: 'Scope: guild, user, channel, guildMember, message',
+            hint:
+                'Who is it for: each server, each member (per server), each user (all servers), each channel or each message',
             options: ['guild', 'user', 'channel', 'guildMember', 'message'],
             required: true,
           ),
@@ -1562,13 +1563,13 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             type: ParameterType.string,
             defaultValue: '',
             hint:
-                'Optional: target ID (user ID, channel ID, etc. - uses current context if empty)',
+                'Advanced: leave empty for the current server / member / channel / message. For someone else: member = serverId:userId, other kinds = their ID',
           ),
           ParameterDefinition(
             key: 'key',
             type: ParameterType.string,
             defaultValue: '',
-            hint: 'Scoped variable key (bc_ optional)',
+            hint: 'Variable name',
             required: true,
           ),
           ParameterDefinition(
@@ -1627,7 +1628,8 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             key: 'scope',
             type: ParameterType.multiSelect,
             defaultValue: 'guild',
-            hint: 'Scope: guild, user, channel, guildMember, message',
+            hint:
+                'Who is it for: each server, each member (per server), each user (all servers), each channel or each message',
             options: ['guild', 'user', 'channel', 'guildMember', 'message'],
             required: true,
           ),
@@ -1636,13 +1638,13 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             type: ParameterType.string,
             defaultValue: '',
             hint:
-                'Optional: target ID (user ID, channel ID, etc. - uses current context if empty)',
+                'Advanced: leave empty for the current server / member / channel / message. For someone else: member = serverId:userId, other kinds = their ID',
           ),
           ParameterDefinition(
             key: 'key',
             type: ParameterType.string,
             defaultValue: '',
-            hint: 'Scoped variable key (bc_ optional)',
+            hint: 'Variable name',
             required: true,
           ),
           ParameterDefinition(
@@ -1658,7 +1660,8 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             key: 'scope',
             type: ParameterType.multiSelect,
             defaultValue: 'guild',
-            hint: 'Scope: guild, user, channel, guildMember, message',
+            hint:
+                'Who is it for: each server, each member (per server), each user (all servers), each channel or each message',
             options: ['guild', 'user', 'channel', 'guildMember', 'message'],
             required: true,
           ),
@@ -1667,13 +1670,13 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             type: ParameterType.string,
             defaultValue: '',
             hint:
-                'Optional: target ID (user ID, channel ID, etc. - uses current context if empty)',
+                'Advanced: leave empty for the current server / member / channel / message. For someone else: member = serverId:userId, other kinds = their ID',
           ),
           ParameterDefinition(
             key: 'key',
             type: ParameterType.string,
             defaultValue: '',
-            hint: 'Scoped variable key (bc_ optional)',
+            hint: 'Variable name',
             required: true,
           ),
         ];
@@ -1683,7 +1686,8 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             key: 'scope',
             type: ParameterType.multiSelect,
             defaultValue: 'guild',
-            hint: 'Scope: guild, user, channel, guildMember, message',
+            hint:
+                'Who is it for: each server, each member (per server), each user (all servers), each channel or each message',
             options: ['guild', 'user', 'channel', 'guildMember', 'message'],
             required: true,
           ),
@@ -1692,7 +1696,7 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             type: ParameterType.string,
             defaultValue: '',
             hint:
-                'Optional: target ID (user ID, channel ID, etc. - uses current context if empty)',
+                'Advanced: leave empty for the current server / member / channel / message. For someone else: member = serverId:userId, other kinds = their ID',
           ),
           ParameterDefinition(
             key: 'oldKey',
@@ -1715,7 +1719,8 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             key: 'scope',
             type: ParameterType.multiSelect,
             defaultValue: 'user',
-            hint: 'Scope: guild, user, channel, guildMember, message',
+            hint:
+                'Who is it for: each server, each member (per server), each user (all servers), each channel or each message',
             options: ['guild', 'user', 'channel', 'guildMember', 'message'],
             required: true,
           ),
@@ -1777,7 +1782,8 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             key: 'contextId',
             type: ParameterType.string,
             defaultValue: '',
-            hint: 'Optional: target ID (uses current context if empty)',
+            hint:
+                'Advanced: leave empty for the current server / member / channel / message',
             visibleWhen: <String, List<String>>{
               'target': <String>['scoped'],
             },
@@ -1859,7 +1865,8 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             key: 'contextId',
             type: ParameterType.string,
             defaultValue: '',
-            hint: 'Optional: target ID (uses current context if empty)',
+            hint:
+                'Advanced: leave empty for the current server / member / channel / message',
             visibleWhen: <String, List<String>>{
               'target': <String>['scoped'],
             },

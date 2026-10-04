@@ -59,7 +59,6 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
   /// n'existent que pour rendre visible ce que le bot a réellement écrit.
   List<Map<String, dynamic>> _detectedDefinitions = <Map<String, dynamic>>[];
 
-  _VariableMode _mode = _VariableMode.global;
   _VariablesSource _source = _VariablesSource.local;
   List<RunnerConnectionConfig> _runners = const [];
   String? _activeRunnerId;
@@ -150,7 +149,6 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
     }
   }
 
-  bool get _isScopedMode => _mode == _VariableMode.scoped;
   bool get _isRunnerMode => _source == _VariablesSource.runner;
 
   bool get _isMobile {
@@ -630,7 +628,10 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
 
   // ─── Scoped variable definition add / edit ────────────────────────────────
 
-  Future<void> _editScopedDefinition({Map<String, dynamic>? existing}) async {
+  Future<void> _editScopedDefinition({
+    Map<String, dynamic>? existing,
+    String? presetScope,
+  }) async {
     final oldKey = existing?['key']?.toString();
     final keyCtrl = TextEditingController(text: oldKey ?? '');
     final rawDefault = existing?['defaultValue'];
@@ -640,6 +641,9 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
     String scope =
         (existing?['scope']?.toString().isNotEmpty == true
             ? existing!['scope'].toString()
+            : null) ??
+        (presetScope != null && _scopes.contains(presetScope)
+            ? presetScope
             : null) ??
         _scopes.first;
 
@@ -670,7 +674,9 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  context.tr.globals_dialog_scoped_desc(scope),
+                  context.tr.globals_dialog_scoped_desc(
+                    scopedVariableScopeLabel(context, scope),
+                  ),
                   style: Theme.of(ctx).textTheme.bodySmall?.copyWith(
                     color: Theme.of(ctx).colorScheme.onSurfaceVariant,
                   ),
@@ -1211,127 +1217,86 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
     );
   }
 
-  Widget _buildModeToggle() {
-    final tokens = HomeTokens.of(context);
-    final scheme = Theme.of(context).colorScheme;
-    Widget segment(_VariableMode value, IconData icon, String label) {
-      final selected = _mode == value;
-      return Expanded(
-        child: Semantics(
-          button: true,
-          selected: selected,
-          label: label,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(9),
-            onTap: () {
-              if (value == _mode) return;
-              setState(() {
-                _mode = value;
-                _searchQuery = '';
-              });
-            },
-            child: Container(
-              height: 38,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: selected ? tokens.navSelected : Colors.transparent,
-                borderRadius: BorderRadius.circular(9),
-              ),
-              child: ExcludeSemantics(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    AppIcon.fromMaterial(
-                      icon,
-                      size: 16,
-                      color: selected ? scheme.onSurface : tokens.muted,
-                    ),
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: Text(
-                        label,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 13.5,
-                          fontWeight: selected
-                              ? FontWeight.w700
-                              : FontWeight.w600,
-                          color: selected ? scheme.onSurface : tokens.muted,
-                        ),
-                      ),
-                    ),
-                  ],
+  /// "Who is this variable for?": the single entry point to create a variable. It replaces the
+  /// global/scoped switch: the user picks an audience in plain language, and the right kind of
+  /// variable (whole bot, or per server / member / user / channel / message) is created for it.
+  Future<void> _addVariable() async {
+    final audiences = <String>['global', ..._scopes];
+    final chosen = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                child: Text(
+                  ctx.tr.globals_audience_title,
+                  style: Theme.of(ctx).textTheme.titleMedium,
                 ),
               ),
-            ),
+              for (final audience in audiences)
+                ListTile(
+                  leading: AppIcon.fromMaterial(
+                    audience == 'global'
+                        ? Icons.public
+                        : scopedVariableScopeIcon(audience),
+                  ),
+                  title: Text(scopedVariableScopeLabel(ctx, audience)),
+                  subtitle: Text(scopedVariableScopeDescription(ctx, audience)),
+                  onTap: () => Navigator.of(ctx).pop(audience),
+                ),
+            ],
           ),
         ),
-      );
+      ),
+    );
+    if (chosen == null || !mounted) return;
+    if (chosen == 'global') {
+      await _editGlobalVariable();
+    } else {
+      await _editScopedDefinition(presetScope: chosen);
     }
+  }
 
+  Widget _sectionHeader(String label, IconData icon) {
     return Padding(
-      padding: const EdgeInsets.only(top: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.fromLTRB(4, 14, 4, 8),
+      child: Row(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: tokens.card,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: tokens.ghostBorder),
-                  ),
-                  child: Row(
-                    children: [
-                      segment(
-                        _VariableMode.global,
-                        Icons.public,
-                        context.tr.globals_mode_global,
-                      ),
-                      const SizedBox(width: 4),
-                      segment(
-                        _VariableMode.scoped,
-                        Icons.account_tree_outlined,
-                        context.tr.globals_mode_scoped,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              if (_source == _VariablesSource.local && _isScopedMode)
-                IconButton(
-                  tooltip: context.tr.variables_migration_title,
-                  onPressed: _migrating ? null : _migrateLegacyUsers,
-                  icon: const AppIcon.fromMaterial(
-                    Icons.drive_file_move_outlined,
-                  ),
-                ),
-            ],
+          AppIcon.fromMaterial(icon, size: 16, color: BlockFamily.data.color),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              label.toUpperCase(),
+              style: BlockFamily.data.overlineStyle(),
+            ),
           ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              AppIcon.fromMaterial(
-                Icons.info_outline,
-                size: 14,
-                color: tokens.muted,
-              ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  _isScopedMode
-                      ? context.tr.globals_help_scoped
-                      : context.tr.globals_help_global,
-                  style: TextStyle(fontSize: 12.5, color: tokens.muted),
-                ),
-              ),
-            ],
+        ],
+      ),
+    );
+  }
+
+  /// Compact (phone) layout: ONE scrollable list — "whole bot" first, then per server / member…
+  Widget _buildUnifiedList() {
+    return RefreshIndicator(
+      onRefresh: _load,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: EdgeInsets.only(
+          bottom: FloatingGlassNavBar.contentClearanceOf(context) + 24,
+        ),
+        children: [
+          _sectionHeader(context.tr.globals_section_global, Icons.public),
+          _buildGlobalList(embedded: true),
+          _sectionHeader(
+            context.tr.globals_section_scoped,
+            Icons.account_tree_outlined,
           ),
-          const SizedBox(height: 8),
+          _buildScopedList(embedded: true),
         ],
       ),
     );
@@ -1373,15 +1338,96 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
     );
   }
 
-  Widget _buildGlobalList() {
+  Widget _globalRow(MapEntry<String, dynamic> entry) {
+    final valueText = (entry.value?.toString() ?? 'null').replaceAll(
+      RegExp(r'\s+'),
+      ' ',
+    );
+    return ModuleRowCard(
+      key: ValueKey(entry.key),
+      family: BlockFamily.data,
+      icon: Icons.data_object_rounded,
+      title: entry.key,
+      titleMono: true,
+      summary: valueText,
+      onTap: () => _editGlobalVariable(key: entry.key),
+      trailing: [
+        moduleMoreButton<String>(
+          context: context,
+          tooltip: context.tr.more_options_title,
+          itemBuilder: (ctx) => [
+            moduleMenuItem<String>(
+              ctx,
+              value: 'edit',
+              icon: Icons.edit_outlined,
+              label: context.tr.globals_edit,
+            ),
+            moduleMenuItem<String>(
+              ctx,
+              value: 'copy',
+              icon: Icons.copy,
+              label: context.tr.globals_copy_value,
+            ),
+            const PopupMenuDivider(),
+            moduleMenuItem<String>(
+              ctx,
+              value: 'delete',
+              icon: Icons.delete_outline,
+              label: context.tr.delete,
+              danger: true,
+            ),
+          ],
+          onSelected: (action) {
+            switch (action) {
+              case 'edit':
+                _editGlobalVariable(key: entry.key);
+              case 'copy':
+                Clipboard.setData(
+                  ClipboardData(text: formatScopedVariableValue(entry.value)),
+                );
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(context.tr.globals_copy_value)),
+                );
+              case 'delete':
+                _deleteGlobalVariable(entry.key);
+            }
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGlobalList({bool embedded = false}) {
     final entries = _filteredGlobalEntries;
 
     if (_globalVariables.isEmpty) {
+      if (embedded) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+          child: Text(
+            context.tr.globals_empty_subtitle,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        );
+      }
       return VariablesEmptyState(
         icon: Icons.dataset_outlined,
         title: context.tr.globals_empty,
         subtitle: context.tr.globals_empty_subtitle,
         onAdd: () => _editGlobalVariable(),
+      );
+    }
+
+    if (embedded) {
+      return Column(
+        children: [
+          for (final entry in entries) ...[
+            _globalRow(entry),
+            const SizedBox(height: 8),
+          ],
+        ],
       );
     }
 
@@ -1401,72 +1447,13 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
       physics: const AlwaysScrollableScrollPhysics(),
       itemCount: entries.length,
       separatorBuilder: (_, _) => const SizedBox(height: 8),
-      itemBuilder: (ctx, i) {
-        final entry = entries[i];
-        final valueText = (entry.value?.toString() ?? 'null').replaceAll(
-          RegExp(r'\s+'),
-          ' ',
-        );
-        return ModuleRowCard(
-          key: ValueKey(entry.key),
-          family: BlockFamily.data,
-          icon: Icons.data_object_rounded,
-          title: entry.key,
-          titleMono: true,
-          summary: valueText,
-          onTap: () => _editGlobalVariable(key: entry.key),
-          trailing: [
-            moduleMoreButton<String>(
-              context: context,
-              tooltip: context.tr.more_options_title,
-              itemBuilder: (ctx) => [
-                moduleMenuItem<String>(
-                  ctx,
-                  value: 'edit',
-                  icon: Icons.edit_outlined,
-                  label: context.tr.globals_edit,
-                ),
-                moduleMenuItem<String>(
-                  ctx,
-                  value: 'copy',
-                  icon: Icons.copy,
-                  label: context.tr.globals_copy_value,
-                ),
-                const PopupMenuDivider(),
-                moduleMenuItem<String>(
-                  ctx,
-                  value: 'delete',
-                  icon: Icons.delete_outline,
-                  label: context.tr.delete,
-                  danger: true,
-                ),
-              ],
-              onSelected: (action) {
-                switch (action) {
-                  case 'edit':
-                    _editGlobalVariable(key: entry.key);
-                  case 'copy':
-                    Clipboard.setData(
-                      ClipboardData(
-                        text: formatScopedVariableValue(entry.value),
-                      ),
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(context.tr.globals_copy_value)),
-                    );
-                  case 'delete':
-                    _deleteGlobalVariable(entry.key);
-                }
-              },
-            ),
-          ],
-        );
-      },
+      itemBuilder: (ctx, i) => _globalRow(entries[i]),
     );
   }
 
-  Widget _buildScopedList() {
+  Widget _buildScopedList({bool embedded = false}) {
     return ScopedVariablesList(
+      embedded: embedded,
       // Déclarations d'abord, variables détectées ensuite : l'utilisateur
       // retrouve ses définitions en tête de chaque portée.
       definitions: mergeScopedDefinitions(
@@ -1500,18 +1487,12 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
       );
     }
 
-    // Mobile: single panel driven by _mode toggle.
+    // Phone: a single list, no mode switch.
     return Column(
       children: [
-        _buildModeToggle(),
         if (_error != null) _buildError(),
         _buildSearchBar(),
-        Expanded(
-          child: RefreshIndicator(
-            onRefresh: _load,
-            child: _isScopedMode ? _buildScopedList() : _buildGlobalList(),
-          ),
-        ),
+        Expanded(child: _buildUnifiedList()),
       ],
     );
   }
@@ -1571,9 +1552,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
               ],
             ),
           ),
-          if (_error != null &&
-              ((isGlobal && !_isScopedMode) || (!isGlobal && _isScopedMode)))
-            _buildError(),
+          if (_error != null && isGlobal) _buildError(),
           Expanded(
             child: RefreshIndicator(
               onRefresh: _load,
@@ -1656,10 +1635,15 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
           ],
           onSelected: (id) => unawaited(_switchSource(id)),
         ),
+      if (_source == _VariablesSource.local)
+        IconButton(
+          tooltip: context.tr.variables_migration_title,
+          onPressed: _migrating ? null : _migrateLegacyUsers,
+          icon: const AppIcon.fromMaterial(Icons.drive_file_move_outlined),
+        ),
       IconButton(
         tooltip: context.tr.globals_add,
-        onPressed: () =>
-            _isScopedMode ? _editScopedDefinition() : _editGlobalVariable(),
+        onPressed: _addVariable,
         icon: const AppIcon.fromMaterial(Icons.add_rounded),
       ),
       IconButton(
