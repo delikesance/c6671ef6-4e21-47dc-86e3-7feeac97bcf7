@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
-import '../utils/math_parser.dart';
+import '../../../types/action.dart';
+import '../../../utils/math_parser.dart';
 
 // `MathExpressionParser.format` returns a num (or a string for NaN/infinity);
 // the result map is typed `Map<String, String>`, so storing it unconverted
@@ -149,4 +150,31 @@ Future<Map<String, String>> calculateAction({
   } catch (e) {
     return {'error': 'Calculate error: $e', 'result': ''};
   }
+}
+
+
+Future<bool> executeCalculate({
+  required BotCreatorActionType type,
+  required Map<String, dynamic> payload,
+  required String resultKey,
+  required Map<String, String> results,
+  required Map<String, String> variables,
+  required String Function(String input) resolveValue,
+}) async {
+  if (type != BotCreatorActionType.calculate) {
+    return false;
+  }
+
+  final calcResult = await calculateAction(
+    payload: payload,
+    resolve: resolveValue,
+  );
+  if (calcResult['error'] != null) {
+    throw Exception(calcResult['error']);
+  }
+
+  final calcValue = calcResult['result'] ?? '';
+  results[resultKey] = calcValue;
+  variables['$resultKey.result'] = calcValue;
+  return true;
 }

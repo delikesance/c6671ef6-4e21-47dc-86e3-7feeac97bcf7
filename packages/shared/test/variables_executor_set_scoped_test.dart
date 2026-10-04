@@ -1,4 +1,4 @@
-import 'package:bot_creator_shared/actions/executors/variables_executor.dart';
+import 'package:bot_creator_shared/engine/bdfd/visual/variable_logic.dart';
 import 'package:bot_creator_shared/types/action.dart';
 import 'package:bot_creator_shared/utils/template_resolver.dart';
 import 'package:nyxx/nyxx.dart';
@@ -7,7 +7,7 @@ import 'package:test/test.dart';
 import 'helpers/variables_test_helpers.dart';
 
 void main() {
-  group('executeVariablesAction - set scoped variable', () {
+  group('executeVariableAction - set scoped variable', () {
     test(
       'setScopedVariable falls back to merged variables/results for placeholders',
       () async {
@@ -17,7 +17,7 @@ void main() {
         };
         final variables = <String, String>{'guildId': 'guild-1'};
 
-        final handled = await executeVariablesAction(
+        final handled = await executeVariableAction(
           type: BotCreatorActionType.setScopedVariable,
           store: store,
           botId: 'bot-1',
@@ -55,7 +55,7 @@ void main() {
         final results = <String, String>{'rtImage_0': 'Zm9vYmFy'};
         final variables = <String, String>{'guildId': 'guild-1'};
 
-        final handled = await executeVariablesAction(
+        final handled = await executeVariableAction(
           type: BotCreatorActionType.setScopedVariable,
           store: store,
           botId: 'bot-1',
@@ -94,7 +94,7 @@ void main() {
         };
         final variables = <String, String>{'guildId': 'guild-1'};
 
-        final handled = await executeVariablesAction(
+        final handled = await executeVariableAction(
           type: BotCreatorActionType.setScopedVariable,
           store: store,
           botId: 'bot-1',
@@ -131,7 +131,7 @@ void main() {
         final results = <String, String>{'rtJson_0': '{"items":["axe"]}'};
         final variables = <String, String>{'guildId': 'guild-1'};
 
-        final handled = await executeVariablesAction(
+        final handled = await executeVariableAction(
           type: BotCreatorActionType.setScopedVariable,
           store: store,
           botId: 'bot-1',
@@ -172,7 +172,7 @@ void main() {
         };
         final variables = <String, String>{'guildId': 'guild-1'};
 
-        final handled = await executeVariablesAction(
+        final handled = await executeVariableAction(
           type: BotCreatorActionType.setScopedVariable,
           store: store,
           botId: 'bot-1',
@@ -214,7 +214,7 @@ void main() {
         };
         final variables = <String, String>{'guildId': 'guild-1'};
 
-        final handled = await executeVariablesAction(
+        final handled = await executeVariableAction(
           type: BotCreatorActionType.setScopedVariable,
           store: store,
           botId: 'bot-1',
@@ -250,7 +250,7 @@ void main() {
         final results = <String, String>{'rtJson_0': '{"items":["hammer"]}'};
         final variables = <String, String>{'guildId': 'guild-1'};
 
-        final handled = await executeVariablesAction(
+        final handled = await executeVariableAction(
           type: BotCreatorActionType.setScopedVariable,
           store: store,
           botId: 'bot-1',

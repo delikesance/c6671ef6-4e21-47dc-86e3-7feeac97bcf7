@@ -1,23 +1,15 @@
-import '../../../actions/executors/calculate_executor.dart';
-import '../../../actions/executors/http_executor.dart';
-import '../../../actions/executors/variables_executor.dart';
 import '../../../types/action.dart';
 import 'action_environment.dart';
+import 'calculate_logic.dart';
+import 'http_logic.dart';
+import 'variable_logic.dart';
 
 /// Variable, JSON, HTTP and calculation actions on the native engine.
 ///
-/// Parity strategy: these blocks have no narrower BDFD counterpart that keeps
-/// their payload (scoped variables with `ttl`, typed values and the
-/// `variables['<scope>.<key>']` / `<scope>[<id>].<key>` mirrors; `bodyJson`,
-/// `extractJsonPath` and the `<key>.status/.body/.jsonPath` results; the
-/// `<key>.json_<n>` sub-results of `runtimeJsonBlock`; ...). The hidden
-/// `bc_<type>` functions therefore run the very same implementations the
-/// historical loop uses (`executeVariablesAction`, `executeHttpAction`,
-/// `executeCalculateAction`), over the shared VariableService /
-/// `JsonDocument` / [HttpService] stores and the native result list
-/// ([ActionCall.sink]) instead of the loop's own `results` map, so effects,
-/// results keys, mirrored variables, ttl, typing and error text are identical
-/// by construction.
+/// The logic lives in `variable_logic.dart`, `http_logic.dart` and
+/// `calculate_logic.dart` (no dependency on the historical loop); the hidden
+/// `bc_<type>` handlers run it over the shared stores and the native result
+/// list ([ActionCall.sink]).
 
 /// Every payload of these types is covered natively.
 bool supportsVariableAction(Action action) =>
@@ -73,7 +65,7 @@ Future<String?> variableAction(ActionCall call) async {
   if (store == null) {
     throw StateError('A data store is required for variable actions.');
   }
-  final handled = await executeVariablesAction(
+  final handled = await executeVariableAction(
     type: call.type,
     store: store,
     botId: env.botId,
@@ -99,7 +91,7 @@ Future<String?> httpRequestAction(ActionCall call) async {
   if (store == null) {
     throw StateError('A data store is required for httpRequest.');
   }
-  await executeHttpAction(
+  await executeHttp(
     type: call.type,
     payload: call.payload,
     resultKey: call.key,
@@ -116,7 +108,7 @@ Future<String?> httpRequestAction(ActionCall call) async {
 }
 
 Future<String?> calculateBlockAction(ActionCall call) async {
-  await executeCalculateAction(
+  await executeCalculate(
     type: call.type,
     payload: call.payload,
     resultKey: call.key,
