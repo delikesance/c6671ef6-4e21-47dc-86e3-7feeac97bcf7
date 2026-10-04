@@ -13,6 +13,7 @@ import '../engine/bdfd/visual/action_functions.dart';
 import '../engine/bdfd/visual/action_results.dart';
 import '../engine/bdfd/visual/action_runner.dart';
 import '../engine/bdfd/visual/action_translator.dart';
+import '../engine/bdfd/visual/control_flow_state.dart';
 import '../services/bot_message_service.dart';
 import '../services/http_service.dart';
 import '../services/runtime_temporary_variables.dart';
@@ -116,6 +117,10 @@ Future<Map<String, String>> handleActions(
   /// Chooses, per action, between the native engine and the historical
   /// executors. `const ActionTranslator.none()` keeps everything historical.
   ActionTranslator? actionTranslator,
+
+  /// Step limit of each natively translated program (`null`: the default,
+  /// [defaultVisualMaxSteps]). Blocks historically only had the time budget.
+  int? visualMaxSteps,
 }) async {
   final budget = executionBudget ?? CommandExecutionBudget();
   return budget.run(
@@ -148,6 +153,7 @@ Future<Map<String, String>> handleActions(
       throwOnError: throwOnError,
       executionBudget: budget,
       actionTranslator: actionTranslator,
+      visualMaxSteps: visualMaxSteps,
     ),
   );
 }
@@ -199,6 +205,7 @@ Future<Map<String, String>> _handleActions(
   bool throwOnError = false,
   required CommandExecutionBudget executionBudget,
   ActionTranslator? actionTranslator,
+  int? visualMaxSteps,
 }) async {
   executionPolicy?.checkBudget();
   final results = <String, String>{};
@@ -218,9 +225,16 @@ Future<Map<String, String>> _handleActions(
         activeWorkflows: activeWorkflowStack,
       );
 
+  // Where the native visual runner keeps the action behind each line of its
+  // synthetic programs (set once the first one runs), for replay frames.
+  Map<String, Map<int, ({String key, String type})>>? visualReplayRefs;
   final nativeReplayCapture = onReplayCaptured == null
       ? null
-      : BdfdReplayCapture();
+      : BdfdReplayCapture(
+          variables: variables,
+          describe: (location) =>
+              visualReplayRefs?[location.source]?[location.line],
+        );
   final previousNativeObserver = nativeContext.onTrace;
   if (nativeReplayCapture != null) {
     nativeContext.onTrace = (event) {
@@ -260,6 +274,7 @@ Future<Map<String, String>> _handleActions(
     executionBudget: executionBudget,
     lavalinkService: lavalinkService,
     actionTranslator: actionTranslator,
+    visualMaxSteps: visualMaxSteps,
   );
 
   // Placeholders naming a result of this list win, then the template resolver
@@ -297,10 +312,98 @@ Future<Map<String, String>> _handleActions(
         key,
       );
 
+  // `runBdfdScript` on the native engine (shared by the historical executor
+  // and the native visual runner).
+  Future<Map<String, String>> executeNativeScript(String source) async {
+    // A script started by the historical executor begins a fresh invocation.
+    // Run from a native visual program the interpreter's depth is not zero, so
+    // do the same when no script is active around it.
+    if (nativeContext.depth == (visualProgramDepth[nativeContext] ?? 0)) {
+      nativeContext.startScript();
+    }
+    if (executionPolicy != null && (bdfdMessages == null || bdfdHttp == null)) {
+      throw StateError(
+        'Native BDFD requires message and HTTP adapters for this execution policy.',
+      );
+    }
+    final execution = BdfdScriptExecution(
+      store: store,
+      botId: botId,
+      variables: variables,
+      context: nativeContext,
+      http: bdfdHttp,
+      music: lavalinkService == null || guildId == null
+          ? null
+          : DiscordBotMusicService(
+              client: client,
+              guildId: guildId,
+              lavalink: lavalinkService,
+            ),
+      components:
+          bdfdComponents ??
+          (executionPolicy == null
+              ? DiscordBotComponentService(
+                  client: client,
+                  channelId: resolvedFallbackChannelId,
+                  interaction: interaction,
+                )
+              : null),
+      timing: bdfdTiming,
+      delays: bdfdDelays,
+      commandQueries:
+          bdfdCommandQueries ??
+          (executionPolicy == null
+              ? DiscordBotCommandQueryService(
+                  client: client,
+                  store: store,
+                  botId: botId,
+                  guildId: guildId,
+                )
+              : null),
+      // Policies must explicitly provide effects adapters; a missing
+      // moderation adapter leaves these calls unsupported at preflight.
+      moderation:
+          bdfdModeration ??
+          (executionPolicy == null
+              ? DiscordBotModerationService(
+                  client: client,
+                  guildId: guildId,
+                  store: store,
+                  botId: botId,
+                )
+              : null),
+      runVisualWorkflow: (workflow, context) => executeNestedActions(
+        ((workflow['actions'] as List?) ?? [])
+            .whereType<Map>()
+            .map((json) => Action.fromJson(Map<String, dynamic>.from(json)))
+            .toList(),
+        protected: true,
+      ),
+      messages:
+          bdfdMessages ??
+          DiscordBotMessageService(
+            botId: botId,
+            client: client,
+            interaction: interaction,
+            channelId: resolvedFallbackChannelId,
+            guildId: guildId?.toString(),
+            messageId: int.tryParse(variables['message.id'] ?? '') == null
+                ? null
+                : Snowflake.parse(variables['message.id']!),
+          ),
+    );
+    await execution.execute(source, backend: 'native-v1');
+    return {
+      ...nativeContext.results,
+      if (nativeContext.stopped) '__stopped__': 'true',
+    };
+  }
+
   // Visual actions the translator supports run on the native engine; the rest
   // stays on the historical executors below. Decided per action, statically.
   final visualRunner = BdfdActionRunner(
     translator: actionTranslator ?? const ActionTranslator(),
+    maxSteps: visualMaxSteps ?? defaultVisualMaxSteps,
   );
   final visualSink = ResultSink(results: results, variables: variables);
   // Permission cache – shared across all actions in this execution
@@ -350,7 +453,6 @@ Future<Map<String, String>> _handleActions(
         },
       );
 
-
   // Debug profiling state
   Stopwatch? debugStopwatch;
   List<_DebugTraceEntry>? debugTrace;
@@ -368,6 +470,55 @@ Future<Map<String, String>> _handleActions(
 
   // Execution timer for ((execution.time)) resolution.
   final executionStopwatch = Stopwatch()..start();
+
+  // The native environment plus what control-flow actions need from this
+  // execution: workflow/script adapters, the `execution.time` clock.
+  ActionRunEnvironment visualEnv() {
+    final env = nativeVisualEnvironment();
+    visualReplayRefs = env.flow.replayRefs;
+    env.flow
+      ..adapter ??= VisualControlAdapter(
+        activeWorkflowStack: activeWorkflowStack,
+        getWorkflowByName: (name) => store.getWorkflowByName(botId, name),
+        executeActions: executeNestedActions,
+        executeProtectedActions: (nested) =>
+            executeNestedActions(nested, protected: true),
+        executeNativeBdfdScript: executeNativeScript,
+        nestedActionsPreprocessor: nestedActionsPreprocessor,
+      )
+      ..refreshExecutionTime ??= () {
+        variables['execution.time'] =
+            '${executionStopwatch.elapsedMilliseconds}ms';
+      };
+    return env;
+  }
+
+  // Applies `__skipCount__` / `__jumpToTargetKey__` left in [results] by the
+  // action at index [i] and returns the index the loop continues from.
+  int consumeFlowSignals(int i) {
+    if (results.containsKey('__skipCount__')) {
+      final count = int.tryParse(results.remove('__skipCount__')!) ?? 0;
+      return count > 0 ? i + count : i;
+    }
+    if (results.containsKey('__jumpToTargetKey__')) {
+      final targetKey = results.remove('__jumpToTargetKey__')!;
+      // Match by action key, action ID, or 1-indexed position
+      final targetIndex = actions.indexWhere(
+        (a) =>
+            (a.key != null && a.key == targetKey) ||
+            a.payload['_actionId'] == targetKey,
+      );
+      if (targetIndex < 0) {
+        final indexNum = int.tryParse(targetKey);
+        if (indexNum != null && indexNum >= 1 && indexNum <= actions.length) {
+          return indexNum - 2; // -1 for 0-based, -1 because loop increments
+        }
+      } else if (targetIndex > i) {
+        return targetIndex - 1; // -1 because loop increments
+      }
+    }
+    return i;
+  }
 
   Action? currentAction;
   String? currentResultKey;
@@ -507,12 +658,10 @@ Future<Map<String, String>> _handleActions(
 
         // A block's nested actions are not intercepted by a policy on the
         // historical path; keep blocks there whenever one is set.
-        if (visualRunner.supports(action) &&
-            (action.type != BotCreatorActionType.ifBlock ||
-                executionPolicy == null)) {
+        if (visualRunner.routes(action, underPolicy: executionPolicy != null)) {
           await visualRunner.runAction(
             action,
-            env: nativeVisualEnvironment(),
+            env: visualEnv(),
             context: nativeContext,
             index: i,
           );
@@ -522,6 +671,9 @@ Future<Map<String, String>> _handleActions(
               replayTrace != null) {
             recordTrace();
           }
+          // stop / skipActions / jumpToAction leave the historical signals.
+          if (results.containsKey('__stopped__')) return results;
+          i = consumeFlowSignals(i);
           continue;
         }
 
@@ -831,89 +983,7 @@ Future<Map<String, String>> _handleActions(
               store.getWorkflowByName(botId, workflowName),
           nestedActionsPreprocessor: nestedActionsPreprocessor,
           getScopedVariableTtl: scopedVariableTtl,
-          executeNativeBdfdScript: (source) async {
-            if (executionPolicy != null &&
-                (bdfdMessages == null || bdfdHttp == null)) {
-              throw StateError(
-                'Native BDFD requires message and HTTP adapters for this execution policy.',
-              );
-            }
-            final execution = BdfdScriptExecution(
-              store: store,
-              botId: botId,
-              variables: variables,
-              context: nativeContext,
-              http: bdfdHttp,
-              music: lavalinkService == null || guildId == null
-                  ? null
-                  : DiscordBotMusicService(
-                      client: client,
-                      guildId: guildId,
-                      lavalink: lavalinkService,
-                    ),
-              components:
-                  bdfdComponents ??
-                  (executionPolicy == null
-                      ? DiscordBotComponentService(
-                          client: client,
-                          channelId: resolvedFallbackChannelId,
-                          interaction: interaction,
-                        )
-                      : null),
-              timing: bdfdTiming,
-              delays: bdfdDelays,
-              commandQueries:
-                  bdfdCommandQueries ??
-                  (executionPolicy == null
-                      ? DiscordBotCommandQueryService(
-                          client: client,
-                          store: store,
-                          botId: botId,
-                          guildId: guildId,
-                        )
-                      : null),
-              // Policies must explicitly provide effects adapters; a missing
-              // moderation adapter leaves these calls unsupported at preflight.
-              moderation:
-                  bdfdModeration ??
-                  (executionPolicy == null
-                      ? DiscordBotModerationService(
-                          client: client,
-                          guildId: guildId,
-                          store: store,
-                          botId: botId,
-                        )
-                      : null),
-              runVisualWorkflow: (workflow, context) => executeNestedActions(
-                ((workflow['actions'] as List?) ?? [])
-                    .whereType<Map>()
-                    .map(
-                      (json) =>
-                          Action.fromJson(Map<String, dynamic>.from(json)),
-                    )
-                    .toList(),
-                protected: true,
-              ),
-              messages:
-                  bdfdMessages ??
-                  DiscordBotMessageService(
-                    botId: botId,
-                    client: client,
-                    interaction: interaction,
-                    channelId: resolvedFallbackChannelId,
-                    guildId: guildId?.toString(),
-                    messageId:
-                        int.tryParse(variables['message.id'] ?? '') == null
-                        ? null
-                        : Snowflake.parse(variables['message.id']!),
-                  ),
-            );
-            await execution.execute(source, backend: 'native-v1');
-            return {
-              ...nativeContext.results,
-              if (nativeContext.stopped) '__stopped__': 'true',
-            };
-          },
+          executeNativeBdfdScript: executeNativeScript,
           checkExecutionBudget: executionBudget.check,
           executeActions: executeNestedActions,
           executeProtectedActions: (nestedActions) =>
@@ -924,33 +994,7 @@ Future<Map<String, String>> _handleActions(
           if (results.containsKey('__stopped__')) {
             return results;
           }
-          if (results.containsKey('__skipCount__')) {
-            final count = int.tryParse(results.remove('__skipCount__')!) ?? 0;
-            if (count > 0) {
-              i += count;
-            }
-            continue;
-          }
-          if (results.containsKey('__jumpToTargetKey__')) {
-            final targetKey = results.remove('__jumpToTargetKey__')!;
-            // Match by action key, action ID, or 1-indexed position
-            final targetIndex = actions.indexWhere(
-              (a) =>
-                  (a.key != null && a.key == targetKey) ||
-                  a.payload['_actionId'] == targetKey,
-            );
-            if (targetIndex < 0) {
-              final indexNum = int.tryParse(targetKey);
-              if (indexNum != null &&
-                  indexNum >= 1 &&
-                  indexNum <= actions.length) {
-                i = indexNum - 2; // -1 for 0-based, -1 because loop increments
-              }
-            } else if (targetIndex > i) {
-              i = targetIndex - 1; // -1 because loop increments
-            }
-            continue;
-          }
+          i = consumeFlowSignals(i);
           continue;
         }
 

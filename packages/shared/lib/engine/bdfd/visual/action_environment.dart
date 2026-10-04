@@ -12,6 +12,7 @@ import '../../../types/action.dart';
 import '../../execution_budget.dart';
 import '../runtime.dart';
 import 'action_results.dart';
+import 'control_flow_state.dart';
 
 /// Resolves `((...))` in [value] with the precedence of the historical handler
 /// (`resolveValue` in actions/handler.dart): a placeholder naming a result of
@@ -104,6 +105,10 @@ class ActionRunEnvironment {
   /// Owned by the runner: the interpreter registered with these functions.
   BdfdRuntime? runtime;
 
+  /// Control-flow bookkeeping (loops, try blocks, stop/skip/jump signals) and
+  /// the adapters the control-flow actions need; see control_flow_state.dart.
+  final VisualFlowState flow = VisualFlowState();
+
   /// `resolveValue` for an action living in the list at [path].
   String Function(String) resolverFor(List<String> path) =>
       (value) => resolveActionValue(value, sink.scope(path), resolveTemplate);
@@ -118,6 +123,8 @@ class ActionCall {
     required this.key,
     required this.path,
     required this.payload,
+    this.rawPath = const [],
+    this.options = const {},
   });
 
   final BdfdInvocation invocation;
@@ -130,6 +137,23 @@ class ActionCall {
 
   /// The payload exactly as stored in the editor JSON (placeholders intact).
   final Map<String, dynamic> payload;
+
+  /// [path] before the loop-iteration markers were resolved.
+  final List<String> rawPath;
+
+  /// The call options written by the translator (`path`, `mode`, ...).
+  final Map<String, dynamic> options;
+
+  /// Flow requests a handler makes; applied by the wrapper after the result is
+  /// recorded (see `bc_*` in action_functions.dart).
+  bool stopRequested = false;
+  int? skipRequested;
+  int? jumpOrdinalRequested;
+  String? jumpKeyRequested;
+  void requestStop() => stopRequested = true;
+  void requestSkip(int count) => skipRequested = count;
+  void requestJumpToOrdinal(int ordinal) => jumpOrdinalRequested = ordinal;
+  void requestJumpToKey(String key) => jumpKeyRequested = key;
 
   BdfdContext get context => invocation.context;
   CommandExecutionBudget get budget => env.budget;

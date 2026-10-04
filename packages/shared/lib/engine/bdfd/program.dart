@@ -63,9 +63,25 @@ class BdfdJsonForEach extends BdfdStatement {
 }
 
 class BdfdTry extends BdfdStatement {
-  const BdfdTry(super.node, this.body, this.catchBody);
+  const BdfdTry(
+    super.node,
+    this.body,
+    this.catchBody, {
+    this.enter,
+    this.onCatch,
+    this.exit,
+  });
   final List<BdfdStatement> body;
   final List<BdfdStatement> catchBody;
+
+  /// Optional lifecycle calls for adapters that build programs (never produced
+  /// by parsing). They are evaluated, in this statement's frame and without
+  /// counting as statements of any list: [enter] before the body, [onCatch]
+  /// when a failure is caught and before the catch body, [exit] once the
+  /// statement completed (body or catch body finished) without failing.
+  final BdfdFunctionCallAst? enter;
+  final BdfdFunctionCallAst? onCatch;
+  final BdfdFunctionCallAst? exit;
 }
 
 class BdfdFunctionDefinition extends BdfdStatement {

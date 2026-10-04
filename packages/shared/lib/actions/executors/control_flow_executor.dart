@@ -432,49 +432,12 @@ Future<bool> executeControlFlowAction({
         return true;
       }
 
-      // Resolve the JSON source from the variables/results context.
-      // Look for the latest runtimeJsonBlock result in variables.
-      dynamic jsonCtx;
-      final mergedContext = <String, String>{...variables, ...results};
-      var jsonSource = _findLatestJsonContext(mergedContext);
-      // Fall back to the compile-time source embedded in the payload.
-      if (jsonSource.isEmpty) {
-        jsonSource = (payload['source'] as String?) ?? '';
-      }
-      if (jsonSource.isNotEmpty) {
-        try {
-          jsonCtx = jsonDecode(jsonSource);
-        } catch (_) {
-          jsonCtx = null;
-        }
-      }
-
-      // Navigate the path.
-      if (jsonCtx != null && pathSegments.isNotEmpty) {
-        for (final segment in pathSegments) {
-          final index = int.tryParse(segment);
-          if (index != null && jsonCtx is List) {
-            if (index < 0 || index >= jsonCtx.length) {
-              jsonCtx = null;
-              break;
-            }
-            jsonCtx = jsonCtx[index];
-          } else if (jsonCtx is Map) {
-            if (!jsonCtx.containsKey(segment)) {
-              jsonCtx = null;
-              break;
-            }
-            jsonCtx = jsonCtx[segment];
-          } else {
-            jsonCtx = null;
-            break;
-          }
-        }
-      }
-
-      // Project JSON foreach extension: use the same immutable iteration
-      // snapshot as native BDFD. Body mutations cannot extend this traversal.
-      final entries = JsonDocument(jsonCtx).iterationSnapshot(const []);
+      final entries = resolveJsonForEachEntries(
+        payload: payload,
+        pathSegments: pathSegments,
+        variables: variables,
+        results: results,
+      );
       if (entries.isEmpty) {
         results[resultKey] = 'JSONFE_0';
         return true;
@@ -632,14 +595,7 @@ Future<bool> _executeCStyleForLoop({
   final templateActions = _decodeActionList(bodyActionsRaw);
 
   // Parse init: "i=0, j=10" where values may now be runtime-resolved.
-  final loopVars = <String, int>{};
-  for (final part in initRaw.split(',')) {
-    final eqIndex = part.indexOf('=');
-    if (eqIndex < 0) continue;
-    final name = part.substring(0, eqIndex).trim().toLowerCase();
-    final valueStr = resolveValue(part.substring(eqIndex + 1).trim());
-    loopVars[name] = int.tryParse(valueStr) ?? 0;
-  }
+  final loopVars = parseCStyleLoopInit(initRaw, resolveValue);
 
   if (templateActions.isEmpty) {
     results[resultKey] = 'LOOP_0';
@@ -853,6 +809,98 @@ void _applyRuntimeCStyleUpdate(
     }
   }
 }
+
+/// The immutable snapshot a `jsonForEachLoop` iterates: the JSON source is
+/// looked up in the variables/results context (latest runtime JSON block), then
+/// in the payload's compile-time `source`, and navigated by [pathSegments].
+/// Shared by the historical executor and the native visual runner.
+List<MapEntry<String, String>> resolveJsonForEachEntries({
+  required Map<String, dynamic> payload,
+  required List<String> pathSegments,
+  required Map<String, String> variables,
+  required Map<String, String> results,
+}) {
+  dynamic jsonCtx;
+  final mergedContext = <String, String>{...variables, ...results};
+  var jsonSource = _findLatestJsonContext(mergedContext);
+  // Fall back to the compile-time source embedded in the payload.
+  if (jsonSource.isEmpty) {
+    jsonSource = (payload['source'] as String?) ?? '';
+  }
+  if (jsonSource.isNotEmpty) {
+    try {
+      jsonCtx = jsonDecode(jsonSource);
+    } catch (_) {
+      jsonCtx = null;
+    }
+  }
+
+  // Navigate the path.
+  if (jsonCtx != null && pathSegments.isNotEmpty) {
+    for (final segment in pathSegments) {
+      final index = int.tryParse(segment);
+      if (index != null && jsonCtx is List) {
+        if (index < 0 || index >= jsonCtx.length) {
+          jsonCtx = null;
+          break;
+        }
+        jsonCtx = jsonCtx[index];
+      } else if (jsonCtx is Map) {
+        if (!jsonCtx.containsKey(segment)) {
+          jsonCtx = null;
+          break;
+        }
+        jsonCtx = jsonCtx[segment];
+      } else {
+        jsonCtx = null;
+        break;
+      }
+    }
+  }
+
+  // Project JSON foreach extension: use the same immutable iteration
+  // snapshot as native BDFD. Body mutations cannot extend this traversal.
+  return JsonDocument(jsonCtx).iterationSnapshot(const []);
+}
+
+/// C-style `forLoop` helpers, shared with the native visual runner.
+///
+/// Parses the resolved `init` ("i=0, j=10") into the loop variables.
+Map<String, int> parseCStyleLoopInit(
+  String initRaw,
+  String Function(String input) resolveValue,
+) {
+  final loopVars = <String, int>{};
+  for (final part in initRaw.split(',')) {
+    final eqIndex = part.indexOf('=');
+    if (eqIndex < 0) continue;
+    final name = part.substring(0, eqIndex).trim().toLowerCase();
+    final valueStr = resolveValue(part.substring(eqIndex + 1).trim());
+    loopVars[name] = int.tryParse(valueStr) ?? 0;
+  }
+  return loopVars;
+}
+
+/// Whether the C-style [conditionTemplate] still holds for [loopVars].
+bool evaluateCStyleLoopCondition(
+  String conditionTemplate,
+  Map<String, int> loopVars,
+  String Function(String input) resolveValue,
+) => _evaluateSimpleCondition(
+  _resolveLoopExpression(
+    conditionTemplate,
+    loopVars,
+    resolveValue,
+    replaceIdentifiers: true,
+  ),
+);
+
+/// Applies the C-style [updateTemplate] (`i++`, `i += 2`, ...) to [loopVars].
+void applyCStyleLoopUpdate(
+  String updateTemplate,
+  Map<String, int> loopVars,
+  String Function(String input) resolveValue,
+) => _applyRuntimeCStyleUpdate(updateTemplate, loopVars, resolveValue);
 
 /// Finds the latest runtime JSON context value from merged variables/results.
 String _findLatestJsonContext(Map<String, String> mergedContext) {

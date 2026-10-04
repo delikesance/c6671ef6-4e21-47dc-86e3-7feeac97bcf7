@@ -151,7 +151,9 @@ void main() {
           _if(
             'i',
             then: [_role('a')],
-            otherwise: [Action(type: BotCreatorActionType.stop, payload: {})],
+            otherwise: [
+              Action(type: BotCreatorActionType.respondWithMessage, payload: {}),
+            ],
           ),
         ),
         isFalse,
@@ -188,21 +190,31 @@ void main() {
       );
     });
 
-    test('blocks with their own error handling stay historical', () {
-      expect(translator.supports(_if('i', extra: {'tryCatch': true})), isFalse);
+    test('blocks with their own error handling are native too', () {
+      expect(translator.supports(_if('i', extra: {'tryCatch': true})), isTrue);
       expect(
         translator.supports(_if('i', extra: {'suppressErrors': true})),
-        isFalse,
+        isTrue,
       );
+      for (final mode in [
+        {'mode': 'skip', 'skipCount': '1'},
+        {'mode': 'jump', 'jumpToActionId': 'z'},
+        {'mode': 'continue'},
+      ]) {
+        expect(translator.supports(_if('i')..error.addAll(mode)), isTrue);
+      }
+      // Still all-or-nothing: an unsupported child keeps the block historical.
       expect(
         translator.supports(
-          _if('i')..error.addAll({'mode': 'skip', 'skipCount': '1'}),
+          _if(
+            'i',
+            extra: {'tryCatch': true},
+            otherwise: [
+              Action(type: BotCreatorActionType.respondWithMessage, payload: {}),
+            ],
+          ),
         ),
         isFalse,
-      );
-      expect(
-        translator.supports(_if('i')..error.addAll({'mode': 'continue'})),
-        isTrue,
       );
     });
 
