@@ -10,6 +10,7 @@ import 'action_environment.dart';
 import 'channel_actions.dart';
 import 'control_flow_actions.dart';
 import 'guild_actions.dart';
+import 'message_actions.dart';
 import 'moderation_actions.dart';
 import 'role_actions.dart';
 import 'variable_actions.dart';
@@ -35,13 +36,17 @@ final Map<BotCreatorActionType, ActionHandler> bdfdVisualActionHandlers =
       ...guildActionHandlers,
       ...channelActionHandlers,
       ...controlActionHandlers,
+      ...messageActionHandlers,
     });
 
 /// Native types whose historical counterpart records its trace only while a
 /// debug profile or replay capture runs (see `guildProfilingOnlyTraceTypes`):
 /// no numeric "last message" bookkeeping for them otherwise.
 final Set<BotCreatorActionType> bdfdVisualProfilingOnlyTraceTypes =
-    Set.unmodifiable({...guildProfilingOnlyTraceTypes});
+    Set.unmodifiable({
+      ...guildProfilingOnlyTraceTypes,
+      ...messageProfilingOnlyTraceTypes,
+    });
 
 const String bdfdVisualTemplateFunction = 'bc_tpl';
 const String bdfdVisualConditionFunction = 'bc_cond';

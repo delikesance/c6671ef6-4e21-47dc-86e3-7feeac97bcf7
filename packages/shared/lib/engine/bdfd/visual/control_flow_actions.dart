@@ -15,6 +15,7 @@ import '../program.dart' show BdfdNativeError;
 import '../runtime.dart';
 import 'action_environment.dart';
 import 'control_flow_state.dart';
+import 'message_actions.dart' show visualRespondWithMessage;
 
 /// Control flow on the native engine, parity with `executeControlFlowAction`
 /// (actions/executors/control_flow_executor.dart) and `log`
@@ -518,19 +519,18 @@ Map<String, BdfdNativeFunction> bdfdVisualControlFunctions(
         final message = (payload['suppressErrorsMessage'] ?? '').toString();
         final embed = payload['suppressErrorsEmbed'];
         if (message.isNotEmpty || embed != null) {
-          final adapter = env.flow.adapter;
-          if (adapter == null) {
-            throw StateError('suppressErrors needs a workflow adapter.');
-          }
-          await adapter.executeActions([
-            Action(
-              type: BotCreatorActionType.respondWithMessage,
-              payload: <String, dynamic>{
-                if (message.isNotEmpty) 'content': message,
-                if (embed != null) 'embeds': [embed],
-              },
-            ),
-          ]);
+          // Native, immediate and non-draft: the very body of a
+          // `respondWithMessage` block (the historical path ran a nested
+          // one-action list).
+          await visualRespondWithMessage(
+            env,
+            call.context,
+            path: [...path, key],
+            payload: <String, dynamic>{
+              if (message.isNotEmpty) 'content': message,
+              if (embed != null) 'embeds': [embed],
+            },
+          );
         }
         return '';
       }),

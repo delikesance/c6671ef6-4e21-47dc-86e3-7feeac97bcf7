@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:nyxx/nyxx.dart' show Interaction, Snowflake;
+import 'package:nyxx/nyxx.dart' show Interaction, NyxxGateway, Snowflake;
 
 import '../../../actions/handler_utils.dart' show resolvePayloadValues;
 import '../../../bot/bot_data_store.dart';
@@ -8,6 +8,7 @@ import '../../../services/bot_block_action_service.dart';
 import '../../../services/bot_moderation_service.dart';
 import '../../../services/permission_checks.dart' show BotPermissionCache;
 import '../../../services/http_service.dart';
+import '../../../services/lavalink_service.dart';
 import '../../../types/action.dart';
 import '../../execution_budget.dart';
 import '../runtime.dart';
@@ -70,6 +71,8 @@ class ActionRunEnvironment {
     this.onLog,
     this.blockActions,
     this.permissionCache,
+    this.client,
+    this.lavalinkService,
   });
 
   final Map<String, String> variables;
@@ -101,6 +104,11 @@ class ActionRunEnvironment {
   /// the per-execution bot permission cache the historical loop shares.
   final BotBlockActionService? blockActions;
   final BotPermissionCache? permissionCache;
+
+  /// Gateway and music service of the execution, for the component and
+  /// listener blocks (the same values the historical loop hands them).
+  final NyxxGateway? client;
+  final LavalinkService? lavalinkService;
 
   /// Owned by the runner: the interpreter registered with these functions.
   BdfdRuntime? runtime;
