@@ -7,6 +7,7 @@ import 'package:nyxx/nyxx.dart';
 import '../../bot/bot_data_store.dart';
 import '../../services/bot_message_service.dart';
 import '../../services/bot_moderation_service.dart';
+import '../../services/bot_music_service.dart';
 import '../../services/http_service.dart';
 import '../execution_budget.dart';
 import '../../utils/interaction_ack_state.dart';
@@ -47,6 +48,7 @@ class BdfdScriptExecution {
     BotTimingService? timing,
     BotDelayService delays = const RuntimeBotDelayService(),
     HttpService? http,
+    BotMusicService? music,
     BdfdVisualWorkflowRunner? runVisualWorkflow,
     CommandExecutionBudget? budget,
     BdfdContext? context,
@@ -62,6 +64,7 @@ class BdfdScriptExecution {
          timing: timing,
          delays: delays,
          http: http,
+         music: music,
          runVisualWorkflow: runVisualWorkflow,
          legacyUserVariables: variables['bdfd.userVariableSemantics'] == '1',
        ),

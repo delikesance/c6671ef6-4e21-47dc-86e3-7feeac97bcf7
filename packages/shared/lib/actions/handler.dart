@@ -1,3 +1,4 @@
+import '../services/bot_music_service.dart';
 import '../services/bot_component_service.dart';
 import '../services/bot_cooldown_service.dart';
 import '../services/bot_timing_service.dart';
@@ -774,6 +775,13 @@ Future<Map<String, String>> _handleActions(
               variables: variables,
               context: nativeContext,
               http: bdfdHttp,
+              music: lavalinkService == null || guildId == null
+                  ? null
+                  : DiscordBotMusicService(
+                      client: client,
+                      guildId: guildId,
+                      lavalink: lavalinkService,
+                    ),
               components:
                   bdfdComponents ??
                   (executionPolicy == null
@@ -803,6 +811,8 @@ Future<Map<String, String>> _handleActions(
                       ? DiscordBotModerationService(
                           client: client,
                           guildId: guildId,
+        store: store,
+        botId: botId,
                         )
                       : null),
               runVisualWorkflow: (workflow, context) => executeNestedActions(

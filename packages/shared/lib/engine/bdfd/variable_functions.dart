@@ -92,14 +92,17 @@ Map<String, BdfdNativeFunction> bdfdVariableFunctions(
       minArguments: 1,
       // Member-scoped resets also accept an optional guild ID (extension used
       // by migrated scripts): $resetGuildMemberVar[name;userID;guildID].
-      maxArguments: forUser ? (entry.value == 'guildMember' ? 3 : 2) : 1,
+      maxArguments: switch (entry.key) {
+        'resetmembervar' || 'resetguildmembervar' => 3,
+        _ => forUser ? 2 : 1,
+      },
       handler: (call) async {
         final key = (await call.argument(0)).trim();
         if (key.isEmpty) {
           throw BdfdNativeError('A variable name is required.', call.location);
         }
         String? userId;
-        if (call.argumentCount == 2) {
+        if (call.argumentCount >= 2) {
           userId = (await call.argument(1)).trim();
           final id = BigInt.tryParse(userId);
           if (!RegExp(r'^[0-9]+$').hasMatch(userId) ||

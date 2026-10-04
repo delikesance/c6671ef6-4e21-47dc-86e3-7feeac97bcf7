@@ -1,3 +1,4 @@
+import '../services/bot_music_service.dart';
 import '../services/bot_component_service.dart';
 import 'dart:async';
 import '../services/bot_command_query_service.dart';
@@ -262,6 +263,13 @@ class CommandExecutor {
         guildId: interaction.guildId,
       ),
       interaction: interaction,
+      music: _workflowExecutor.lavalinkService == null
+          ? null
+          : DiscordBotMusicService(
+              client: gateway,
+              guildId: interaction.guildId,
+              lavalink: _workflowExecutor.lavalinkService!,
+            ),
       runVisualWorkflow: (workflow, nativeContext) =>
           _workflowExecutor.executeActions(
             actions: ((workflow['actions'] as List?) ?? [])
@@ -279,6 +287,8 @@ class CommandExecutor {
       moderation: DiscordBotModerationService(
         client: gateway,
         guildId: interaction.guildId,
+        store: store,
+        botId: botId,
       ),
       messages: DiscordBotMessageService(
         botId: botId,

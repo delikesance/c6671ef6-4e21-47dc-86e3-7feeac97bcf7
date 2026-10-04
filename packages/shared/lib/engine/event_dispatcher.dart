@@ -1003,6 +1003,8 @@ class EventDispatcher {
       moderation: DiscordBotModerationService(
         client: gateway,
         guildId: context.guildId,
+        store: store,
+        botId: botId,
       ),
       messages: DiscordBotMessageService(
         botId: botId,

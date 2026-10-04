@@ -16,6 +16,7 @@ import '../services/bot_channel_mutation_service.dart';
 import '../services/bot_channel_query_service.dart';
 import 'dart:async';
 import '../services/bot_moderation_service.dart';
+import '../services/bot_music_service.dart';
 import '../services/bot_role_query_service.dart';
 import '../services/permission_checks.dart';
 import 'dart:convert';
@@ -470,6 +471,7 @@ Future<Map<String, dynamic>> _run(Map<String, dynamic> input) async {
         timing: timing,
         delays: delays,
         http: httpService,
+        music: _SandboxMusic(policy, variables),
         runVisualWorkflow: (workflow, _) => runActions(
           ((workflow['actions'] as List?) ?? [])
               .whereType<Map>()
@@ -4410,6 +4412,53 @@ class _SandboxCommandQueries implements BotCommandQueryService {
       'guild_id': id,
       'simulated': true,
     });
+  }
+}
+
+class _SandboxMusic implements BotMusicService {
+  _SandboxMusic(this.policy, this.variables);
+  final _SandboxPolicy policy;
+  final Map<String, String> variables;
+  @override
+  Future<void> perform(
+    BotMusicRequest request, {
+    required CommandExecutionBudget budget,
+  }) async {
+    budget.check();
+    final fixture = policy.musicFixture;
+    if (fixture == null) {
+      throw StateError('Music simulation requires a music fixture');
+    }
+    final type = switch (request.operation) {
+      BotMusicOperation.join => BotCreatorActionType.joinVoice,
+      BotMusicOperation.leave => BotCreatorActionType.leaveVoice,
+      BotMusicOperation.play => BotCreatorActionType.playMusic,
+      BotMusicOperation.pause => BotCreatorActionType.pauseMusic,
+      BotMusicOperation.resume => BotCreatorActionType.resumeMusic,
+      BotMusicOperation.skip => BotCreatorActionType.skipMusic,
+      BotMusicOperation.stop => BotCreatorActionType.stopMusic,
+      BotMusicOperation.volume => BotCreatorActionType.setMusicVolume,
+      BotMusicOperation.loop => BotCreatorActionType.setMusicLoop,
+      BotMusicOperation.seek => BotCreatorActionType.seekMusic,
+    };
+    policy.actions++;
+    policy.checkBudget();
+    fixture.apply(
+      type,
+      {
+        if (request.query.isNotEmpty) 'query': request.query,
+        if (request.channelId.isNotEmpty) 'channelId': request.channelId,
+        if (request.userId.isNotEmpty) 'userId': request.userId,
+        if (request.volume != null) 'volume': request.volume,
+        if (request.loop.isNotEmpty) 'loop': request.loop,
+        if (request.positionSeconds != null) ...{
+          'position': request.positionSeconds,
+          'positionUnit': 'seconds',
+        },
+      },
+      variables,
+      policy.effects,
+    );
   }
 }
 
