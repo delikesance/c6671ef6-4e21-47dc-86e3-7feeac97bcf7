@@ -9,12 +9,9 @@ final _nativeValidator = BdfdEngine.validation();
 List<BdfdCompileDiagnostic> bdfdDiagnosticsFor(
   String source, {
   Object? backend,
-  BdfdCompiler? legacyCompiler,
 }) {
   try {
-    if (BdfdBackend.parse(backend) == BdfdBackend.legacy) {
-      return (legacyCompiler ?? BdfdCompiler()).compile(source).diagnostics;
-    }
+    BdfdBackend.parse(backend);
     _nativeValidator.prepare(source);
     return const [];
   } on BdfdNativeError catch (error) {

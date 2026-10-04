@@ -838,7 +838,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
         bdfdScriptContent:
             (workflow['bdfdScriptContent'] ?? workflow['scriptContent'] ?? '')
                 .toString(),
-        bdfdBackend: (workflow['bdfdBackend'] ?? 'legacy-v1').toString(),
+        bdfdBackend: (workflow['bdfdBackend'] ?? 'native-v1').toString(),
         entryPoint: normalizeWorkflowEntryPoint(workflow['entryPoint']),
         arguments: serializeWorkflowArgumentDefinitions(
           parseWorkflowArgumentDefinitions(workflow['arguments']),

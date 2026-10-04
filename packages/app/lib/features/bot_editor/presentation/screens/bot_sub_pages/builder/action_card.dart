@@ -1039,7 +1039,7 @@ class ActionCard extends StatelessWidget {
   ) {
     if (action.type == BotCreatorActionType.runBdfdScript &&
         paramDef.key == 'bdfdBackend') {
-      final backend = (currentValue ?? 'legacy-v1').toString();
+      final backend = (currentValue ?? 'native-v1').toString();
       return DropdownButtonFormField<String>(
         key: ValueKey('bdfd-backend-${action.id}-$backend'),
         initialValue: backend,
@@ -1050,9 +1050,8 @@ class ActionCard extends StatelessWidget {
         ),
         items: [
           for (final option in [
-            'legacy-v1',
             'native-v1',
-            if (!['legacy-v1', 'native-v1'].contains(backend)) backend,
+            if (backend != 'native-v1') backend,
           ])
             DropdownMenuItem(value: option, child: Text(option)),
         ],
@@ -1433,7 +1432,7 @@ class ActionCard extends StatelessWidget {
           key: _parameterInputKey(paramDef.key),
           currentValue: (currentValue ?? paramDef.defaultValue).toString(),
           hint: _localizeHint(paramDef.hint),
-          backend: (action.parameters['bdfdBackend'] ?? 'legacy-v1').toString(),
+          backend: (action.parameters['bdfdBackend'] ?? 'native-v1').toString(),
           onChanged: (newValue) => onParameterChanged(paramDef.key, newValue),
         );
 
@@ -5299,7 +5298,6 @@ class _BdfdScriptParameterField extends StatefulWidget {
 
 class _BdfdScriptParameterFieldState extends State<_BdfdScriptParameterField> {
   late final TextEditingController _controller;
-  final BdfdCompiler _compiler = BdfdCompiler();
   List<BdfdCompileDiagnostic> _diagnostics = const [];
 
   @override
@@ -5331,7 +5329,6 @@ class _BdfdScriptParameterFieldState extends State<_BdfdScriptParameterField> {
     _diagnostics = bdfdDiagnosticsFor(
       _controller.text,
       backend: widget.backend,
-      legacyCompiler: _compiler,
     );
   }
 

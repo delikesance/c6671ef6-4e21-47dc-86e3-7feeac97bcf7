@@ -1990,8 +1990,8 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
           ParameterDefinition(
             key: 'bdfdBackend',
             type: ParameterType.string,
-            defaultValue: 'legacy-v1',
-            options: ['legacy-v1', 'native-v1'],
+            defaultValue: 'native-v1',
+            options: ['native-v1'],
             hint: 'BDFD engine',
             allowDynamic: false,
           ),

@@ -40,7 +40,7 @@ class CommandEditorState {
     this.editorMode = 'advanced',
     this.executionMode = 'workflow',
     this.bdfdScriptContent = '',
-    this.bdfdBackend = 'legacy-v1',
+    this.bdfdBackend = 'native-v1',
     this.bdfdNativeDiagnostics = const [],
     this.jsScriptContent = '',
     this.bdfdCompileResult,
@@ -122,9 +122,7 @@ class CommandEditorState {
   bool get isBdfdScriptMode => executionMode == 'bdfd_script';
   bool get isJsScriptMode => false;
 
-  List<BdfdCompileDiagnostic> get bdfdDiagnostics => bdfdBackend == 'legacy-v1'
-      ? bdfdCompileResult?.diagnostics ?? const <BdfdCompileDiagnostic>[]
-      : bdfdNativeDiagnostics;
+  List<BdfdCompileDiagnostic> get bdfdDiagnostics => bdfdNativeDiagnostics;
 
   bool get hasBdfdCompileErrors => bdfdDiagnostics.any(
     (d) => d.severity == BdfdCompileDiagnosticSeverity.error,
