@@ -157,11 +157,15 @@ class _Gateway extends VisualGateway {
 }
 
 class _Store extends MemoryBotDataStore {
+  /// Saved workflows by name; empty by default (the listener answers "not
+  /// found").
+  static Map<String, Map<String, dynamic>> workflows = {};
+
   @override
   Future<Map<String, dynamic>?> getWorkflowByName(
     String botId,
     String name,
-  ) async => null; // No saved workflow: the listener answers "not found".
+  ) async => workflows[name];
 }
 
 // ---------------------------------------------------------------------------
@@ -282,7 +286,10 @@ Map<String, dynamic> _modal({
 };
 
 void main() {
-  tearDown(() => InteractionListenerRegistry.instance.removeAllForBot('bot'));
+  tearDown(() {
+    _Store.workflows = {};
+    InteractionListenerRegistry.instance.removeAllForBot('bot');
+  });
 
   group('respondWithModal parity', () {
     const type = BotCreatorActionType.respondWithModal;
@@ -361,7 +368,6 @@ void main() {
                 'onSubmitWorkflow': 'handle',
                 'onSubmitEntryPoint': 'start',
                 'onSubmitArguments': {'a': '((v))'},
-                'messageId': '55',
               },
             ),
           }),
@@ -369,9 +375,117 @@ void main() {
         interaction: _Command.new,
         variables: {'v': '1'},
       );
-      // Historical quirk kept as is: the legacy workflow shorthand is turned
-      // into a `callWorkflow` action no action type matches.
-      expect(out.errorText, contains('Invalid action type: callWorkflow'));
+      // The shorthand is converted into a `runWorkflow` inline action, the
+      // existing action type, with the legacy payload contract.
+      expect(out.error, isNull);
+      final registry = (out.effects as List)[1] as Map;
+      final entry = registry.values.single as Map;
+      expect(entry['oneShot'], true);
+      expect(entry['inline'], [
+        {
+          'type': 'runWorkflow',
+          'payload': {
+            'workflowName': 'handle',
+            'entryPoint': 'start',
+            'arguments': {'a': '((v))'},
+          },
+          'key': null,
+          'depend_on': isA<List>(),
+          'error': isA<Map>(),
+          'enabled': true,
+        },
+      ]);
+    });
+
+    Map<String, dynamic> workflowOf(List<Action> actions) => {
+      'entryPoint': 'main',
+      'actions': actions.map((a) => a.toJson()).toList(),
+    };
+
+    /// Registers the modal, then plays the submit: the registered inline
+    /// actions run through handleActions, as `runListenerInlineActions` does.
+    Future<List<Action>> registeredActions(String customId) async {
+      final entry = InteractionListenerRegistry.instance.getMatching(
+        customId,
+        ListenerMatchRequest(
+          botId: 'bot',
+          type: 'modal',
+          guildId: '10',
+          channelId: '30',
+        ),
+      );
+      return entry!.inlineActions!;
+    }
+
+    test('modal submit runs the named workflow with its arguments', () async {
+      _Store.workflows = {
+        'handle': workflowOf([
+          _a(BotCreatorActionType.setTemporaryVariable, {
+            'key': 'got',
+            'value': 'arg=((arg.a))',
+          }, key: 'w1'),
+        ]),
+      };
+      final registered = await _parity(
+        [
+          _a(type, {
+            'modal': _modal(
+              customId: 'wf2',
+              extra: {
+                'onSubmitWorkflow': 'handle',
+                'onSubmitArguments': {'a': '((v))'},
+              },
+            ),
+          }),
+        ],
+        interaction: _Command.new,
+        variables: {'v': '42'},
+      );
+      expect(registered.error, isNull);
+
+      // Play the submit with the registered actions, historical vs native.
+      final submit = await _parity(
+        await registeredActions('wf2'),
+        variables: {'v': '42'},
+      );
+      expect(submit.error, isNull);
+      expect(submit.results!['action_0'], 'WORKFLOW_OK:main');
+      expect(submit.results!['action_0.w1'], isNotNull);
+      expect(submit.variables['workflow.response'], 'WORKFLOW_OK:main');
+      expect(submit.variables['workflow.args'], '{"a":"42"}');
+      expect(submit.variables['temp.got'], 'arg=42');
+    });
+
+    test(
+      'modal submit with a missing workflow fails like runWorkflow',
+      () async {
+        await _parity([
+          _a(type, {
+            'modal': _modal(
+              customId: 'wf3',
+              extra: {'onSubmitWorkflow': 'ghost'},
+            ),
+          }),
+        ], interaction: _Command.new);
+        final submit = await _parity(await registeredActions('wf3'));
+        expect(submit.errorText, contains('Workflow not found: ghost'));
+      },
+    );
+
+    test('actions take precedence over the legacy shorthand', () async {
+      final out = await _parity([
+        _a(type, {
+          'modal': _modal(
+            customId: 'wf4',
+            extra: {
+              'onSubmitWorkflow': 'ignored',
+              'actions': [_inlineLog],
+            },
+          ),
+        }),
+      ], interaction: _Command.new);
+      final inline = ((out.effects as List)[1] as Map).values.single as Map;
+      expect((inline['inline'] as List).single['type'], 'log');
     });
 
     test('without an interaction the result carries the error text', () async {
