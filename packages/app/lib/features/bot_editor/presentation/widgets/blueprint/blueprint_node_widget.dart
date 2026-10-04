@@ -1,3 +1,4 @@
+import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'blueprint_models.dart';
 
@@ -38,6 +39,7 @@ class BlueprintNodeWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accent = HomeTokens.of(context).accentRing;
     return GestureDetector(
       onTap: onSelect,
       onPanUpdate: onDragDelta != null
@@ -51,14 +53,14 @@ class BlueprintNodeWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isSelected
-                ? const Color(0xFF7C5CF0)
+                ? accent
                 : Colors.white.withValues(alpha: 0.12),
             width: isSelected ? 1.5 : 1.0,
           ),
           boxShadow: [
             BoxShadow(
               color: isSelected
-                  ? const Color(0xFF7C5CF0).withValues(alpha: 0.3)
+                  ? accent.withValues(alpha: 0.3)
                   : Colors.black.withValues(alpha: 0.4),
               blurRadius: isSelected ? 12 : 6,
               offset: const Offset(0, 3),
@@ -136,7 +138,7 @@ class BlueprintNodeWidget extends StatelessWidget {
   }
 
   Widget _buildHeader(BuildContext context) {
-    final accent = data.headerColor;
+    final tint = data.headerColor;
     return Container(
       height: headerHeight,
       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -151,12 +153,12 @@ class BlueprintNodeWidget extends StatelessWidget {
             width: 26,
             height: 26,
             decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.16),
+              color: tint.withValues(alpha: 0.16),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: accent.withValues(alpha: 0.35)),
+              border: Border.all(color: tint.withValues(alpha: 0.35)),
             ),
             child: Center(
-              child: AppIcon.fromMaterial(data.icon, size: 15, color: accent),
+              child: AppIcon.fromMaterial(data.icon, size: 15, color: tint),
             ),
           ),
           const SizedBox(width: 8),
