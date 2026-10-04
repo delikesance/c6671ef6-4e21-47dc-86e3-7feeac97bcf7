@@ -64,6 +64,21 @@ Future<Map<String, String>> editChannelPermissionsAction(
   Snowflake? fallbackChannelId,
   required String Function(String) resolve,
   CommandExecutionBudget? budget,
+}) => editChannelPermissionsActionWith(
+  DiscordBotChannelPermissionService(client),
+  payload: payload,
+  fallbackChannelId: fallbackChannelId,
+  resolve: resolve,
+  budget: budget,
+);
+
+/// [editChannelPermissionsAction] over any [BotChannelPermissionService].
+Future<Map<String, String>> editChannelPermissionsActionWith(
+  BotChannelPermissionService service, {
+  required Map<String, dynamic> payload,
+  Snowflake? fallbackChannelId,
+  required String Function(String) resolve,
+  CommandExecutionBudget? budget,
 }) async {
   try {
     final rawChannel = resolve((payload['channelId'] ?? '').toString()).trim();
@@ -78,18 +93,17 @@ Future<Map<String, String>> editChannelPermissionsAction(
         ? null
         : resolve((payload['targetId'] ?? '').toString()).trim();
     final masks = _resolvePermissionBitmasks(payload, resolve);
-    final result = await DiscordBotChannelPermissionService(client)
-        .editPermissions(
-          ChannelPermissionChange(
-            channelId: channel,
-            targetId: targetId,
-            targetType: targetType,
-            allow: masks.$1.value,
-            deny: masks.$2.value,
-            replace: true,
-          ),
-          budget: budget ?? CommandExecutionBudget(),
-        );
+    final result = await service.editPermissions(
+      ChannelPermissionChange(
+        channelId: channel,
+        targetId: targetId,
+        targetType: targetType,
+        allow: masks.$1.value,
+        deny: masks.$2.value,
+        replace: true,
+      ),
+      budget: budget ?? CommandExecutionBudget(),
+    );
     return {
       'channelId': result.channelId,
       'targetId': result.targetId,

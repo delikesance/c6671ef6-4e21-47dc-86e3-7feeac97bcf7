@@ -33,6 +33,8 @@ class FakeGuildManager implements GuildManager {
   }
 
   @override
+  PartialGuild operator [](Snowflake id) => guild;
+  @override
   Future<List<Ban>> listBans(
     Snowflake id, {
     int? limit,
@@ -209,6 +211,8 @@ class FakeMembers implements MemberManager {
     return FakeMember(id, this);
   }
 
+  @override
+  Future<Member> fetch(Snowflake id) => get(id);
   @override
   PartialMember operator [](Snowflake id) => FakeMember(id, this);
   @override

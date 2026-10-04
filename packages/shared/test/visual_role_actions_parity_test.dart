@@ -413,7 +413,7 @@ void main() {
         expect(outcome.results, {'role': '222'});
       });
 
-      test('role definitions stay on the historical executor', () async {
+      test('role definitions run natively too', () async {
         final outcome = await _parity([
           Action(
             type: type,
@@ -425,8 +425,8 @@ void main() {
               'color': '#ff0000',
             },
           ),
-        ], expectNative: false);
-        expect(outcome.native, 0);
+        ]);
+        expect(outcome.native, greaterThan(0));
       });
     });
   }

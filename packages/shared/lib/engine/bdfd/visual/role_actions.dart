@@ -1,5 +1,5 @@
 import '../../../actions/role_definition_actions.dart'
-    show isRoleDefinitionPayload;
+    show isRoleDefinitionPayload, roleDefinitionRequest;
 import '../../../services/bot_moderation_service.dart';
 import '../../../services/role_definition.dart';
 import '../../../types/action.dart';
@@ -13,13 +13,13 @@ import 'action_environment.dart';
 /// the shared [BotModerationService], the service BDFD's `$giveRole`/`$takeRole`
 /// already use; only the request differs from the narrower BDFD signatures.
 ///
-/// Role *definitions* (`createNew`, `deleteRole`, `modify`, ...) are not
-/// handled here: [supportsRoleAction] is false for them and they stay on the
-/// historical executor.
+/// Role *definitions* (`createNew`, `deleteRole`, `modify`, `updateColor`,
+/// `modifyPermissions`) are the third usage of the two blocks: same service, a
+/// `createRole` / `updateRole` / `deleteRole` request built by the shared
+/// [roleDefinitionRequest], same `results[key]` (the role id) and same errors.
 bool supportsRoleAction(Action action) =>
-    (action.type == BotCreatorActionType.addRole ||
-        action.type == BotCreatorActionType.removeRole) &&
-    !isRoleDefinitionPayload(action.payload);
+    action.type == BotCreatorActionType.addRole ||
+    action.type == BotCreatorActionType.removeRole;
 
 Future<String?> addRoleAction(ActionCall call) => _roleAction(call, add: true);
 Future<String?> removeRoleAction(ActionCall call) =>
@@ -43,6 +43,9 @@ Future<String?> _roleAction(ActionCall call, {required bool add}) async {
   } catch (error) {
     // The `Failed to ...` wrapper of the historical action function.
     throw Exception('Failed to ${add ? 'add' : 'remove'} role: $error');
+  }
+  if (isRoleDefinitionPayload(payload)) {
+    return _roleDefinition(call, payload, add: add);
   }
   final userId =
       (int.tryParse(payload['userId']?.toString() ?? '') ??
@@ -77,6 +80,27 @@ Future<String?> _roleAction(ActionCall call, {required bool add}) async {
   } on StateError catch (error) {
     // The service reports a refused request as StateError(message); the visual
     // block has always surfaced it as Exception(message).
+    throw Exception(error.message);
+  }
+}
+
+Future<String?> _roleDefinition(
+  ActionCall call,
+  Map<String, dynamic> payload, {
+  required bool add,
+}) async {
+  final service = call.env.moderation!;
+  final ({BotModerationRequest? request, String? error}) built;
+  try {
+    built = roleDefinitionRequest(payload);
+  } catch (error) {
+    // Same wrapper as executeRoleDefinitionAction.
+    throw Exception('Failed to modify role: $error');
+  }
+  if (built.error != null) throw Exception(built.error);
+  try {
+    return await service.moderate(built.request!, budget: call.budget);
+  } on StateError catch (error) {
     throw Exception(error.message);
   }
 }

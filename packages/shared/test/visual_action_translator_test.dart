@@ -127,18 +127,18 @@ void main() {
       );
     });
 
-    test('role definitions and other types are not supported', () {
+    test('role definitions are native; unmigrated types are not', () {
       expect(
         translator.supports(_role('a', payload: {'createNew': true})),
-        isFalse,
+        isTrue,
       );
       expect(
         translator.supports(_role('a', payload: {'modify': true})),
-        isFalse,
+        isTrue,
       );
       expect(
         translator.supports(
-          Action(type: BotCreatorActionType.banUser, payload: {}),
+          Action(type: BotCreatorActionType.updateGuild, payload: {}),
         ),
         isFalse,
       );
@@ -165,7 +165,7 @@ void main() {
                 'variable': 'a',
                 'actions': [
                   Action(
-                    type: BotCreatorActionType.banUser,
+                    type: BotCreatorActionType.updateGuild,
                     payload: {},
                   ).toJson(),
                 ],
@@ -360,7 +360,7 @@ void main() {
     test('an unsupported action cannot be translated', () {
       expect(
         () => translator.translate([
-          Action(type: BotCreatorActionType.banUser, payload: {}),
+          Action(type: BotCreatorActionType.updateGuild, payload: {}),
         ]),
         throwsArgumentError,
       );

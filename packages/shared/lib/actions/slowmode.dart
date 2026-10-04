@@ -9,6 +9,19 @@ Future<Map<String, String>> slowmodeAction(
   required Map<String, dynamic> payload,
   required String Function(String) resolve,
   CommandExecutionBudget? budget,
+}) => slowmodeActionWith(
+  DiscordBotChannelMutationService(client),
+  payload: payload,
+  resolve: resolve,
+  budget: budget,
+);
+
+/// [slowmodeAction] over any [BotChannelMutationService].
+Future<Map<String, String>> slowmodeActionWith(
+  BotChannelMutationService service, {
+  required Map<String, dynamic> payload,
+  required String Function(String) resolve,
+  CommandExecutionBudget? budget,
 }) async {
   final id = resolve(payload['channelId']?.toString() ?? '');
   final duration = parseBdfdDuration(
@@ -26,9 +39,10 @@ Future<Map<String, String>> slowmodeAction(
       seconds: duration.inSeconds,
       reason: reason.isEmpty ? null : reason,
     );
-    await DiscordBotChannelMutationService(
-      client,
-    ).setSlowmode(change, budget: budget ?? CommandExecutionBudget());
+    await service.setSlowmode(
+      change,
+      budget: budget ?? CommandExecutionBudget(),
+    );
     return {
       'channelId': '${int.parse(id.trim())}',
       'duration': '${change.seconds}',

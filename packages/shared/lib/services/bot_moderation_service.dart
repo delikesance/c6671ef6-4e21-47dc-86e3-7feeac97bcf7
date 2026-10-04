@@ -527,7 +527,12 @@ Future<Map<String, String>> executeDiscordModeration(
         final result = await setNicknameAction(
           client,
           guildId: guildId,
-          payload: {'userId': request.userId, 'nickname': request.nickname},
+          payload: {
+            'userId': request.userId,
+            'nickname': request.nickname,
+            // BDFD passes none; the visual block forwards its audit reason.
+            if (request.reason.isNotEmpty) 'reason': request.reason,
+          },
         );
         budget?.check();
         if (result['error'] != null) return {'error': result['error']!};

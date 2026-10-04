@@ -4,7 +4,9 @@ import 'package:nyxx/nyxx.dart' show Interaction, Snowflake;
 
 import '../../../actions/handler_utils.dart' show resolvePayloadValues;
 import '../../../bot/bot_data_store.dart';
+import '../../../services/bot_block_action_service.dart';
 import '../../../services/bot_moderation_service.dart';
+import '../../../services/permission_checks.dart' show BotPermissionCache;
 import '../../../services/http_service.dart';
 import '../../../types/action.dart';
 import '../../execution_budget.dart';
@@ -65,6 +67,8 @@ class ActionRunEnvironment {
     this.fallbackChannelId,
     this.http,
     this.onLog,
+    this.blockActions,
+    this.permissionCache,
   });
 
   final Map<String, String> variables;
@@ -91,6 +95,11 @@ class ActionRunEnvironment {
   /// Transport of `httpRequest`; null builds a plain [HttpService].
   final HttpService? http;
   final void Function(String message)? onLog;
+
+  /// Block-only Discord operations (threads, self user, guild commands...) and
+  /// the per-execution bot permission cache the historical loop shares.
+  final BotBlockActionService? blockActions;
+  final BotPermissionCache? permissionCache;
 
   /// Owned by the runner: the interpreter registered with these functions.
   BdfdRuntime? runtime;

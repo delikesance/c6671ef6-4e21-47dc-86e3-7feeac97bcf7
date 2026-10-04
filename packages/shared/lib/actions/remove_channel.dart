@@ -7,9 +7,22 @@ Future<Map<String, String>> removeChannel(
   Snowflake channelId, {
   CommandExecutionBudget? budget,
   String? reason,
+}) => removeChannelWith(
+  DiscordBotChannelMutationService(client),
+  channelId,
+  budget: budget,
+  reason: reason,
+);
+
+/// [removeChannel] over any [BotChannelMutationService].
+Future<Map<String, String>> removeChannelWith(
+  BotChannelMutationService service,
+  Snowflake channelId, {
+  CommandExecutionBudget? budget,
+  String? reason,
 }) async {
   try {
-    await DiscordBotChannelMutationService(client).deleteChannel(
+    await service.deleteChannel(
       ChannelDeletion(channelId: '$channelId', reason: reason),
       budget: budget ?? CommandExecutionBudget(),
     );

@@ -7,6 +7,9 @@ import '../../execution_budget.dart';
 import '../program.dart' show BdfdNativeError;
 import '../runtime.dart';
 import 'action_environment.dart';
+import 'channel_actions.dart';
+import 'guild_actions.dart';
+import 'moderation_actions.dart';
 import 'role_actions.dart';
 import 'variable_actions.dart';
 
@@ -27,7 +30,16 @@ final Map<BotCreatorActionType, ActionHandler> bdfdVisualActionHandlers =
       BotCreatorActionType.addRole: addRoleAction,
       BotCreatorActionType.removeRole: removeRoleAction,
       ...variableActionHandlers,
+      ...moderationActionHandlers,
+      ...guildActionHandlers,
+      ...channelActionHandlers,
     });
+
+/// Native types whose historical counterpart records its trace only while a
+/// debug profile or replay capture runs (see `guildProfilingOnlyTraceTypes`):
+/// no numeric "last message" bookkeeping for them otherwise.
+final Set<BotCreatorActionType> bdfdVisualProfilingOnlyTraceTypes =
+    Set.unmodifiable({...guildProfilingOnlyTraceTypes});
 
 const String bdfdVisualTemplateFunction = 'bc_tpl';
 const String bdfdVisualConditionFunction = 'bc_cond';
@@ -96,7 +108,9 @@ Map<String, BdfdNativeFunction> bdfdVisualFunctions(
         ),
       );
       if (result != null) env.sink.set(path, key, result);
-      env.sink.noteNumeric(path, key);
+      if (!bdfdVisualProfilingOnlyTraceTypes.contains(type)) {
+        env.sink.noteNumeric(path, key);
+      }
       return '';
     } on CommandExecutionTimeout {
       // Never an action error: it ends the whole execution, like today.
