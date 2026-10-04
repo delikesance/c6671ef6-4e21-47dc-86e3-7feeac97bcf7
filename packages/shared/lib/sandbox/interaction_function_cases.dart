@@ -50,35 +50,33 @@ final sandboxInteractionFunctionCases = <SandboxFunctionCase>[
   ),
   const SandboxFunctionCase(
     'message',
-    r'$message[((opts.index))]',
+    r'$message[$message[1]]',
     0,
-    'two',
-    label: 'runtime position',
+    'zero',
+    label: 'runtime position read from another argument',
     scenario: {
-      'options': {'index': 2},
-      'variables': {'message.content': 'one two three'},
+      'variables': {'message.content': '2 zero two'},
     },
   ),
   const SandboxFunctionCase(
     'message',
-    r'$message[((opts.start));((opts.end))]',
+    r'$message[$message[1];$message[2]]',
     0,
-    'two three',
-    label: 'runtime range',
+    '3 two',
+    label: 'runtime range read from other arguments',
     scenario: {
-      'options': {'start': 2, 'end': 3},
-      'variables': {'message.content': 'one two three four'},
+      'variables': {'message.content': '2 3 two three'},
     },
   ),
   const SandboxFunctionCase(
     'mentionedchannels',
-    r'$mentionedChannels[((opts.index));((opts.fallback))]',
+    r'$mentionedChannels[$message[1];$message[2]]',
     0,
     '666',
-    label: 'runtime index',
+    label: 'runtime index and fallback',
     scenario: {
-      'options': {'index': 2, 'fallback': true},
       'variables': {
+        'message.content': '2 no',
         'message.channelMentions': '555,666',
         'message.channelMentions[1]': '666',
       },
@@ -86,13 +84,13 @@ final sandboxInteractionFunctionCases = <SandboxFunctionCase>[
   ),
   const SandboxFunctionCase(
     'mentioned',
-    r'$mentioned[((opts.index));((opts.fallback))]',
+    r'$mentioned[$message[1];$message[2]]',
     0,
     '222',
-    label: 'runtime index',
+    label: 'runtime index and fallback',
     scenario: {
-      'options': {'index': 2, 'fallback': false},
       'variables': {
+        'message.content': '2 no',
         'message.mentions': '111,222',
         'message.mentions[1]': '222',
       },
@@ -100,13 +98,12 @@ final sandboxInteractionFunctionCases = <SandboxFunctionCase>[
   ),
   const SandboxFunctionCase(
     'ismentioned',
-    r'$isMentioned[((opts.user))]',
+    r'$isMentioned[$message[1]]',
     0,
     'true',
     label: 'dynamically selected user is mentioned',
     scenario: {
-      'options': {'user': '222'},
-      'variables': {'message.mentions': '111,222'},
+      'variables': {'message.content': '222', 'message.mentions': '111,222'},
     },
   ),
   const SandboxFunctionCase(
@@ -159,7 +156,7 @@ final sandboxInteractionFunctionCases = <SandboxFunctionCase>[
     for (final index in [1, 2, 4])
       SandboxFunctionCase(
         entry.$1,
-        '\$${entry.$1}[((opts.index))]',
+        '\$var[index;$index]\$${entry.$1}[\$var[index]]',
         0,
         index == 1
             ? '111'
@@ -168,8 +165,8 @@ final sandboxInteractionFunctionCases = <SandboxFunctionCase>[
             : '',
         label: 'runtime index $index',
         scenario: {
-          'options': {'index': index},
           'variables': {
+            'interaction.type': '3',
             '${entry.$3}.${entry.$4}': '111',
             '${entry.$3}.${entry.$4}[1]': '111',
             '${entry.$3}.${entry.$4}[2]': '222',
@@ -179,34 +176,44 @@ final sandboxInteractionFunctionCases = <SandboxFunctionCase>[
       ),
     SandboxFunctionCase(
       entry.$2,
-      '\$${entry.$2}[((opts.separator))]',
+      '\$var[separator;|]\$${entry.$2}[\$var[separator]]',
       0,
       '111|222',
       label: 'runtime separator',
       scenario: {
-        'options': {'separator': '|'},
         'variables': {
+          'interaction.type': '3',
           '${entry.$3}.${entry.$5}': '111,222',
+          '__collection.${entry.$3}.${entry.$4}': '["111","222"]',
           '__collection.${entry.$3}.${entry.$5}': '["111","222"]',
         },
       },
     ),
   ],
   for (final entry in const [
-    ('getstringselectvalues', 'interaction.stringSelect.values'),
-    ('getchannelselectchannelids', 'interaction.channelSelect.channelIds'),
+    (
+      'getstringselectvalues',
+      'interaction.stringSelect.value',
+      'interaction.stringSelect.values',
+    ),
+    (
+      'getchannelselectchannelids',
+      'interaction.channelSelect.channelId',
+      'interaction.channelSelect.channelIds',
+    ),
   ])
     SandboxFunctionCase(
       entry.$1,
-      '\$${entry.$1}[((opts.separator));((opts.limit))]',
+      '\$var[separator;|]\$var[limit;1]\$${entry.$1}[\$var[separator];\$var[limit]]',
       0,
       '111',
       label: 'runtime limit',
       scenario: {
-        'options': {'separator': '|', 'limit': 1},
         'variables': {
-          entry.$2: '111,222',
+          'interaction.type': '3',
+          entry.$3: '111,222',
           '__collection.${entry.$2}': '["111","222"]',
+          '__collection.${entry.$3}': '["111","222"]',
         },
       },
     ),
@@ -248,9 +255,9 @@ final sandboxInteractionFunctionCases = <SandboxFunctionCase>[
   ),
   const SandboxFunctionCase(
     'mentionedroles',
-    r'$mentionedRoles',
+    r'$mentionedRoles[1]|$mentionedRoles[2]',
     0,
-    '333,444',
+    '333|444',
     scenario: {
       'variables': {'message.roleMentions': '333,444'},
     },

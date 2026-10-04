@@ -36,11 +36,12 @@ const sandboxGuildLookupFunctionCases = [
   ),
   SandboxFunctionCase(
     'guildexists',
-    r'$guildExists[((opts.target))]',
+    r'$guildExists[$message[target]]',
     0,
     'true',
     label: 'dynamic guild ID',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'target': '11'},
       'entities': _guilds,
     },
@@ -55,23 +56,34 @@ const sandboxGuildLookupFunctionCases = [
   ),
   SandboxFunctionCase(
     'getinviteinfo',
-    r'$getInviteInfo[xyz]',
+    r'$getInviteInfo[xyz;uses]|$getInviteInfo[xyz;inviter]',
     0,
-    'Invite xyz info',
+    '7|20',
     scenario: {
-      'variables': {'invite[xyz].info': 'Invite xyz info'},
+      'variables': {'invite[xyz].uses': '7', 'invite[xyz].inviter': '20'},
     },
-    label: 'returns invite metadata',
+    label: 'returns the requested invite property',
+  ),
+  SandboxFunctionCase(
+    'getinviteinfo',
+    r'$getInviteInfo[xyz;color]',
+    0,
+    '',
+    label: 'unknown invite property is an error',
+    expectedValues: {
+      '/success': false,
+      '/error': r'BDFD L1:1 $getInviteInfo: Unknown invite property.',
+    },
   ),
   SandboxFunctionCase(
     'getserverinvite',
-    r'$getServerInvite[10]',
+    r'$getServerInvite',
     0,
     'https://discord.gg/test',
     scenario: {
-      'variables': {'guild[10].invite': 'https://discord.gg/test'},
+      'variables': {'guild.invite': 'https://discord.gg/test'},
     },
-    label: 'returns server invite link',
+    label: 'returns the current server invite link',
   ),
   SandboxFunctionCase(
     'serverinfo',
