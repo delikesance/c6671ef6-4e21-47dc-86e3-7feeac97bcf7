@@ -1,4 +1,7 @@
 import 'dart:async';
+import '../services/bot_message_service.dart';
+import '../services/bot_moderation_service.dart';
+import 'bdfd/runtime.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:nyxx_lavalink/nyxx_lavalink.dart';
 import 'package:bot_creator_shared/bot/bot_data_store.dart';
@@ -14,7 +17,15 @@ import 'package:bot_creator_shared/utils/interaction_ack_state.dart';
 
 /// Helper to execute visual workflows or BDFD actions for both interactions and events.
 class WorkflowExecutor {
-  WorkflowExecutor({required this.store, required this.callbacks});
+  WorkflowExecutor({
+    required this.store,
+    required this.callbacks,
+    this.bdfdMessages,
+    this.bdfdModeration,
+  });
+
+  final BotMessageService? bdfdMessages;
+  final BotModerationService? bdfdModeration;
 
   final BotDataStore store;
   final BotEngineCallbacks callbacks;
@@ -32,6 +43,7 @@ class WorkflowExecutor {
     Snowflake? fallbackChannelId,
     Snowflake? fallbackGuildId,
     String? replayLabel,
+    BdfdContext? bdfdContext,
   }) async {
     callbacks.onDebugLog?.call(
       'executeActions started with ${actions.length} actions',
@@ -60,6 +72,12 @@ class WorkflowExecutor {
         store: store,
         botId: botId,
         variables: runtimeVariables,
+        bdfdMessages: bdfdMessages,
+        bdfdModeration: bdfdModeration,
+        bdfdContext: bdfdContext,
+        executionBudget: bdfdContext?.budget,
+        workflowStack: bdfdContext?.activeWorkflows,
+        throwOnError: bdfdContext != null,
         lavalinkService: lavalinkService,
         resolveTemplate: (input) {
           _populateLavalinkVariables(
@@ -365,6 +383,10 @@ class WorkflowExecutor {
         }
         return value;
       } else if (value is Map) {
+        if (value['bdfdBackend'] == 'native-v1' &&
+            value.containsKey('scriptContent')) {
+          return Map<String, dynamic>.from(value);
+        }
         return Map<String, dynamic>.from(
           value.map((k, v) => MapEntry(k.toString(), processValue(v))),
         );

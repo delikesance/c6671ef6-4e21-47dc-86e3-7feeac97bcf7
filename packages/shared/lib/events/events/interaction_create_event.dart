@@ -38,24 +38,49 @@ List<String> _extractResolvedEntityIds(dynamic resolvedEntityMap) {
 }
 
 String? _normalizeSelectComponentType(dynamic rawType) {
+  if (rawType == ComponentType.stringSelect || rawType == 3) {
+    return 'string';
+  }
+  if (rawType == ComponentType.channelSelect || rawType == 8) {
+    return 'channel';
+  }
+  if (rawType == ComponentType.userSelect || rawType == 5) {
+    return 'user';
+  }
+  if (rawType == ComponentType.roleSelect || rawType == 6) {
+    return 'role';
+  }
+  if (rawType == ComponentType.mentionableSelect || rawType == 7) {
+    return 'mentionable';
+  }
+
+  if (rawType is ComponentType) {
+    final val = rawType.value;
+    if (val == 3) return 'string';
+    if (val == 5) return 'user';
+    if (val == 6) return 'role';
+    if (val == 7) return 'mentionable';
+    if (val == 8) return 'channel';
+  }
+
   final normalized = rawType.toString().toLowerCase().replaceAll(
     RegExp(r'[^a-z]'),
     '',
   );
 
-  if (normalized.contains('stringselect')) {
+  if (normalized.contains('stringselect') || normalized == 'string') {
     return 'string';
   }
-  if (normalized.contains('channelselect')) {
+  if (normalized.contains('channelselect') || normalized == 'channel') {
     return 'channel';
   }
-  if (normalized.contains('userselect')) {
+  if (normalized.contains('userselect') || normalized == 'user') {
     return 'user';
   }
-  if (normalized.contains('roleselect')) {
+  if (normalized.contains('roleselect') || normalized == 'role') {
     return 'role';
   }
-  if (normalized.contains('mentionableselect')) {
+  if (normalized.contains('mentionableselect') || normalized == 'mentionable') {
     return 'mentionable';
   }
 
@@ -167,11 +192,15 @@ Map<String, String> buildInteractionRuntimeVariables(Interaction interaction) {
   if (modalComponents is Iterable) {
     for (final component in modalComponents) {
       final type = _safeRead(component, () => component.type);
-      if (type == ComponentType.label || type == 18 || (type is ComponentType && type.value == 18)) {
+      if (type == ComponentType.label ||
+          type == 18 ||
+          (type is ComponentType && type.value == 18)) {
         // V2 Label wrapper
         final inner = _safeRead(component, () => component.component);
         if (inner != null) {
-          final key = (_safeRead(inner, () => inner.customId) ?? '').toString().trim();
+          final key = (_safeRead(inner, () => inner.customId) ?? '')
+              .toString()
+              .trim();
           if (key.isNotEmpty) {
             String val = '';
             final values = _safeRead(inner, () => inner.values);
@@ -188,10 +217,15 @@ Map<String, String> buildInteractionRuntimeVariables(Interaction interaction) {
         }
       } else {
         // Legacy Action Row wrapper
-        final innerComponents = _safeRead(component, () => component.components);
+        final innerComponents = _safeRead(
+          component,
+          () => component.components,
+        );
         if (innerComponents is Iterable) {
           for (final inner in innerComponents) {
-            final key = (_safeRead(inner, () => inner.customId) ?? '').toString().trim();
+            final key = (_safeRead(inner, () => inner.customId) ?? '')
+                .toString()
+                .trim();
             if (key.isEmpty) {
               continue;
             }
@@ -214,10 +248,8 @@ Map<String, String> buildInteractionRuntimeVariables(Interaction interaction) {
 
   final userId =
       _idString(_safeRead(interaction, () => interaction.user?.id)) != ''
-          ? _idString(_safeRead(interaction, () => interaction.user?.id))
-          : _idString(
-            _safeRead(interaction, () => interaction.member?.user?.id),
-          );
+      ? _idString(_safeRead(interaction, () => interaction.user?.id))
+      : _idString(_safeRead(interaction, () => interaction.member?.user?.id));
   final channelId = _idString(
     _safeRead(interaction, () => interaction.channelId) ??
         _safeRead(interaction, () => interaction.channel?.id),
@@ -230,18 +262,20 @@ Map<String, String> buildInteractionRuntimeVariables(Interaction interaction) {
     _safeRead(interaction, () => interaction.message?.id),
   );
 
-  final kind =
-      interaction is MessageComponentInteraction
-          ? ((values.isNotEmpty) ? 'select' : 'button')
-          : interaction is ModalSubmitInteraction
-          ? 'modal'
-          : interaction is ApplicationCommandInteraction
-          ? 'command'
-          : interaction is ApplicationCommandAutocompleteInteraction
-          ? 'autocomplete'
-          : interaction.type.toString();
+  final kind = interaction is MessageComponentInteraction
+      ? ((values.isNotEmpty) ? 'select' : 'button')
+      : interaction is ModalSubmitInteraction
+      ? 'modal'
+      : interaction is ApplicationCommandInteraction
+      ? 'command'
+      : interaction is ApplicationCommandAutocompleteInteraction
+      ? 'autocomplete'
+      : interaction.type.toString();
 
   final variables = <String, String>{
+    'interaction.type': '${interaction.type.value}',
+    'interaction.isSlash':
+        '${interaction.type == InteractionType.applicationCommand && (commandType == ApplicationCommandType.chatInput || commandType == 1)}',
     'interaction.kind': kind,
     'interaction.customId': customId,
     'interaction.values': values.join(','),
@@ -295,10 +329,9 @@ EventExecutionContext buildInteractionCreateEventContext(
     'interaction.id': interaction.id.toString(),
     'interaction.token': interaction.token,
     'interaction.applicationId': interaction.applicationId.toString(),
-    'interaction.data.type':
-        (interaction is ModalSubmitInteraction)
-            ? ''
-            : _safeRead(data, () => data.type)?.toString() ?? '',
+    'interaction.data.type': (interaction is ModalSubmitInteraction)
+        ? ''
+        : _safeRead(data, () => data.type)?.toString() ?? '',
   };
 
   // Enrich with member details when available (guild interactions).
@@ -321,7 +354,9 @@ EventExecutionContext buildInteractionCreateEventContext(
       extra.addAll(_messageContentExtra(message));
       // Overwrite message.content with clicked values so $message matches the select option / button customId
       if (interaction is MessageComponentInteraction) {
-        final interactionVariables = buildInteractionRuntimeVariables(interaction);
+        final interactionVariables = buildInteractionRuntimeVariables(
+          interaction,
+        );
         final values = interactionVariables['interaction.values'] ?? '';
         final customId = interactionVariables['interaction.customId'] ?? '';
         final clickedValue = values.isNotEmpty ? values : customId;

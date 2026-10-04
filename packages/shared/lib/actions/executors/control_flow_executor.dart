@@ -1,8 +1,10 @@
+import '../../services/json_document.dart';
 import 'dart:convert';
 
 import 'package:bot_creator_shared/utils/bdfd_duration_parser.dart';
 
 import '../../types/action.dart';
+import '../../engine/bdfd/execution.dart';
 import '../execution_budget.dart';
 import '../../utils/bdfd_compiler.dart';
 import '../../utils/workflow_call.dart';
@@ -304,6 +306,7 @@ Future<bool> executeControlFlowAction({
   required Future<Map<String, String>> Function(List<Action> actions)
   executeActions,
   void Function()? checkExecutionBudget,
+  Future<Map<String, String>> Function(String source)? executeNativeBdfdScript,
   Future<Map<String, String>> Function(List<Action> actions)?
   executeProtectedActions,
 
@@ -318,6 +321,32 @@ Future<bool> executeControlFlowAction({
   final checkBudget = checkExecutionBudget ?? CommandExecutionBudget().check;
   switch (type) {
     case BotCreatorActionType.runBdfdScript:
+      final backend = BdfdBackend.parse(payload['bdfdBackend']);
+      if (backend == BdfdBackend.native) {
+        checkBudget();
+        final source = (payload['scriptContent'] ?? '').toString();
+        if (source.trim().isEmpty) {
+          results[resultKey] = 'BDFD_EMPTY';
+          return true;
+        }
+        if (executeNativeBdfdScript == null) {
+          throw StateError(
+            'Native BDFD execution is not available in this adapter.',
+          );
+        }
+        // Stored source is parsed before any data interpolation. Explicit eval
+        // is handled inside the native interpreter, never by resolveValue.
+        final nativeResults = await executeNativeBdfdScript(source);
+        checkBudget();
+        for (final entry in nativeResults.entries) {
+          results['$resultKey.${entry.key}'] = entry.value;
+        }
+        if (nativeResults.containsKey('__stopped__')) {
+          results['__stopped__'] = 'true';
+        }
+        results[resultKey] = 'BDFD_OK';
+        return true;
+      }
       final bdfdSource = resolveValue(
         (payload['scriptContent'] ?? '').toString(),
       );
@@ -433,20 +462,53 @@ Future<bool> executeControlFlowAction({
         providedArguments: workflowCallArguments,
       );
 
-      final workflowActions = List<Action>.from(
-        ((workflow['actions'] as List?) ?? const <dynamic>[])
-            .whereType<Map>()
-            .map((json) => Action.fromJson(Map<String, dynamic>.from(json))),
+      final workflowData = Map<String, dynamic>.from(
+        (workflow['data'] as Map?) ?? workflow,
       );
-      final preprocessedWorkflowActions =
-          nestedActionsPreprocessor?.call(workflowActions) ?? workflowActions;
-
+      final source =
+          (workflowData['bdfdScriptContent'] ??
+                  workflowData['scriptContent'] ??
+                  workflowData['bdfdScript'] ??
+                  '')
+              .toString();
+      final isScript =
+          workflowData['executionMode'] == 'bdfd_script' ||
+          source.trim().isNotEmpty;
       activeWorkflowStack.add(stackKey);
       late final Map<String, String> workflowResults;
       try {
-        workflowResults = await executeActions(preprocessedWorkflowActions);
+        if (isScript) {
+          workflowResults = {};
+          await executeControlFlowAction(
+            type: BotCreatorActionType.runBdfdScript,
+            payload: {
+              'scriptContent': source,
+              'bdfdBackend': workflowData['bdfdBackend'],
+            },
+            resultKey: 'script',
+            results: workflowResults,
+            variables: variables,
+            botId: botId,
+            resolveValue: resolveValue,
+            onLog: onLog,
+            activeWorkflowStack: activeWorkflowStack,
+            getWorkflowByName: getWorkflowByName,
+            executeActions: executeActions,
+            checkExecutionBudget: checkBudget,
+            executeNativeBdfdScript: executeNativeBdfdScript,
+            nestedActionsPreprocessor: nestedActionsPreprocessor,
+          );
+        } else {
+          final workflowActions = _decodeActionList(workflowData['actions']);
+          workflowResults = await executeActions(
+            nestedActionsPreprocessor?.call(workflowActions) ?? workflowActions,
+          );
+        }
       } finally {
         activeWorkflowStack.remove(stackKey);
+      }
+      if (workflowResults.containsKey('__stopped__')) {
+        results['__stopped__'] = 'true';
       }
 
       for (final entry in workflowResults.entries) {
@@ -712,41 +774,19 @@ Future<bool> executeControlFlowAction({
         }
       }
 
-      // BDFD wiki: $jsonForEach supports both objects and arrays.
-      // - Object: $jsonKey = key, $jsonValue = value
-      // - Array: $jsonIndex = 0-based index, $jsonValue = element
-      final isObject = jsonCtx is Map;
-      final isArray = jsonCtx is List;
-
-      if (!isObject && !isArray) {
+      // Project JSON foreach extension: use the same immutable iteration
+      // snapshot as native BDFD. Body mutations cannot extend this traversal.
+      final entries = JsonDocument(jsonCtx).iterationSnapshot(const []);
+      if (entries.isEmpty) {
         results[resultKey] = 'JSONFE_0';
         return true;
       }
-
-      final int itemCount;
-      if (isObject) {
-        itemCount = jsonCtx.length;
-      } else {
-        itemCount = jsonCtx.length;
-      }
-      final capped2 = itemCount;
-
+      final capped2 = entries.length;
       for (var i = 0; i < capped2; i++) {
         checkBudget();
         if (i % 32 == 0) await Future<void>.delayed(Duration.zero);
-        String key;
-        String value;
-        if (isObject) {
-          final map = jsonCtx;
-          key = map.keys.elementAt(i).toString();
-          value = _jsonStringifyForEach(map[map.keys.elementAt(i)]);
-        } else {
-          final list = jsonCtx;
-          // For arrays, jsonKey returns the index as a string so that
-          // $jsonKey and $jsonIndex are consistent.
-          key = i.toString();
-          value = _jsonStringifyForEach(list[i]);
-        }
+        final key = entries[i].key;
+        final value = entries[i].value;
         variables['_loop.var.jsonkey'] = key;
         variables['_loop.var.jsonvalue'] = value;
         variables['_loop.var.jsonindex'] = i.toString();
@@ -1145,11 +1185,4 @@ bool _looksLikeJson(String value) {
   final trimmed = value.trim();
   return (trimmed.startsWith('{') && trimmed.endsWith('}')) ||
       (trimmed.startsWith('[') && trimmed.endsWith(']'));
-}
-
-String _jsonStringifyForEach(dynamic value) {
-  if (value == null) return '';
-  if (value is String) return value;
-  if (value is num || value is bool) return value.toString();
-  return jsonEncode(value);
 }

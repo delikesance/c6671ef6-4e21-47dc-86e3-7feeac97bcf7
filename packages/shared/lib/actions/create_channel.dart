@@ -1,14 +1,6 @@
-﻿import 'package:nyxx/nyxx.dart';
-import 'package:bot_creator_shared/utils/global.dart';
-import 'permission_checks.dart';
-
-Snowflake? _toSnowflake(dynamic value) {
-  final parsed = int.tryParse(value?.toString() ?? '');
-  if (parsed == null) {
-    return null;
-  }
-  return Snowflake(parsed);
-}
+import 'package:nyxx/nyxx.dart';
+import '../engine/execution_budget.dart';
+import '../services/bot_channel_mutation_service.dart';
 
 bool? _toBool(dynamic value) {
   if (value is bool) {
@@ -81,39 +73,33 @@ ChannelType _channelTypeFromRaw(String raw) {
   }
 }
 
+String _typeName(ChannelType type) => switch (type) {
+  ChannelType.guildText => 'text',
+  ChannelType.guildVoice => 'voice',
+  ChannelType.guildStageVoice => 'stage',
+  ChannelType.guildForum => 'forum',
+  ChannelType.guildCategory => 'category',
+  ChannelType.guildAnnouncement => 'announcement',
+  _ => throw ArgumentError('Unsupported channel type.'),
+};
+
 Future<Map<String, String>> createChannel(
   NyxxGateway client,
   String name, {
   required Snowflake guildId,
   ChannelType type = ChannelType.guildText,
+  CommandExecutionBudget? budget,
 }) async {
   try {
-    if (name.trim().isEmpty) {
-      return {'error': 'Channel name is required', 'channelId': ''};
-    }
-
-    final permError = await checkBotGuildPermission(
-      client,
-      guildId: guildId,
-      requiredPermissions: [Permissions.manageChannels],
-      actionLabel: 'create channels',
+    final id = await DiscordBotChannelMutationService(client).createChannel(
+      ChannelCreation(guildId: '$guildId', name: name, type: _typeName(type)),
+      budget: budget ?? CommandExecutionBudget(),
     );
-    if (permError != null) {
-      return {'error': permError, 'channelId': ''};
-    }
-
-    final guild = await fetchGuildCached(client, guildId);
-    if (guild == null) return {'error': 'Guild not found', 'channelId': ''};
-
-    GuildChannelBuilder channelBuilder = GuildChannelBuilder(
-      name: name,
-      type: type,
-    );
-    final channel = await guild.createChannel(channelBuilder);
-
-    return {"channelId": channel.id.toString()};
-  } catch (e) {
-    return {"error": "Failed to create channel: $e", "channelId": ""};
+    return {'channelId': id};
+  } on CommandExecutionTimeout {
+    rethrow;
+  } catch (error) {
+    return {'error': 'Failed to create channel: $error', 'channelId': ''};
   }
 }
 
@@ -122,86 +108,44 @@ Future<Map<String, String>> createChannelAction(
   required Snowflake guildId,
   required Map<String, dynamic> payload,
   required String Function(String) resolve,
+  CommandExecutionBudget? budget,
 }) async {
-  final resolvedName = resolve((payload['name'] ?? '').toString()).trim();
-  final resolvedType = resolve((payload['type'] ?? 'text').toString());
-  final resolvedCategory = resolve((payload['categoryId'] ?? '').toString());
-  final resolvedTopic = resolve((payload['topic'] ?? '').toString()).trim();
-  final resolvedSlowmode = resolve((payload['slowmode'] ?? '').toString());
-  final resolvedNsfw = resolve((payload['nsfw'] ?? '').toString());
-
-  final categoryId = _toSnowflake(resolvedCategory);
-  final topic = resolvedTopic.isEmpty ? null : resolvedTopic;
-  final isNsfw = _toBool(resolvedNsfw);
-  final slowmode = _parseDuration(resolvedSlowmode);
-
-  final created = await createChannel(
-    client,
-    resolvedName,
-    guildId: guildId,
-    type: _channelTypeFromRaw(resolvedType),
+  final name = resolve((payload['name'] ?? '').toString()).trim();
+  final type = _typeName(
+    _channelTypeFromRaw(resolve((payload['type'] ?? 'text').toString())),
   );
-  if (created['error'] != null) {
-    return created;
-  }
-
-  final channelId = _toSnowflake(created['channelId']);
-  if (channelId == null) {
-    return {'error': 'Failed to resolve created channel ID', 'channelId': ''};
-  }
-
-  if (categoryId == null &&
-      topic == null &&
-      isNsfw == null &&
-      slowmode == null) {
-    return created;
-  }
-
+  final category = resolve((payload['categoryId'] ?? '').toString()).trim();
+  final topic = resolve((payload['topic'] ?? '').toString()).trim();
+  final slowmode = _parseDuration(
+    resolve((payload['slowmode'] ?? '').toString()),
+  );
+  final nsfw = _toBool(resolve((payload['nsfw'] ?? '').toString()));
+  final reason = resolve((payload['reason'] ?? '').toString());
   try {
-    final channel = await fetchChannelCached(client, channelId);
-    if (channel is GuildTextChannel) {
-      await channel.update(
-        GuildTextChannelUpdateBuilder(
-          topic: topic,
-          isNsfw: isNsfw,
-          rateLimitPerUser: slowmode,
-          parentId: categoryId,
-        ),
-      );
-    } else if (channel is GuildAnnouncementChannel) {
-      await channel.update(
-        GuildAnnouncementChannelUpdateBuilder(
-          topic: topic,
-          isNsfw: isNsfw,
-          parentId: categoryId,
-        ),
-      );
-    } else if (channel is ForumChannel) {
-      await channel.update(
-        ForumChannelUpdateBuilder(
-          topic: topic,
-          isNsfw: isNsfw,
-          rateLimitPerUser: slowmode,
-          parentId: categoryId,
-        ),
-      );
-    } else if (channel is GuildVoiceChannel) {
-      await channel.update(
-        GuildVoiceChannelUpdateBuilder(isNsfw: isNsfw, parentId: categoryId),
-      );
-    } else if (channel is GuildStageChannel) {
-      await channel.update(
-        GuildStageChannelUpdateBuilder(isNsfw: isNsfw, parentId: categoryId),
-      );
-    } else if (channel is GuildCategory) {
-      // No extra fields supported for category after creation.
-    }
-  } catch (e) {
-    return {
-      'error': 'Channel created but failed to apply options: $e',
-      'channelId': created['channelId'] ?? '',
-    };
+    final id = await DiscordBotChannelMutationService(client).createChannel(
+      ChannelCreation(
+        guildId: '$guildId',
+        name: name,
+        type: type,
+        categoryId: category.isEmpty || type == 'category' ? null : category,
+        topic:
+            topic.isEmpty ||
+                !const ['text', 'forum', 'announcement'].contains(type)
+            ? null
+            : topic,
+        isNsfw: type == 'category' ? null : nsfw,
+        slowmodeSeconds:
+            const ['text', 'forum', 'voice', 'stage'].contains(type)
+            ? slowmode?.inSeconds
+            : null,
+        reason: reason.isEmpty ? null : reason,
+      ),
+      budget: budget ?? CommandExecutionBudget(),
+    );
+    return {'channelId': id};
+  } on CommandExecutionTimeout {
+    rethrow;
+  } catch (error) {
+    return {'error': 'Failed to create channel: $error', 'channelId': ''};
   }
-
-  return created;
 }

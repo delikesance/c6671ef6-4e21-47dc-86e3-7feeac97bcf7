@@ -1,4 +1,10 @@
+import '../services/bot_component_service.dart';
 import 'dart:async';
+import '../services/bot_command_query_service.dart';
+import '../utils/command_invocation_metadata.dart';
+import '../services/bot_moderation_service.dart';
+import 'bdfd/execution.dart';
+import '../services/bot_message_service.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:bot_creator_shared/bot/bot_data_store.dart';
 import 'package:bot_creator_shared/actions/interaction_response.dart';
@@ -149,7 +155,8 @@ class CommandExecutor {
     _injectBaseVariables(runtimeVariables, botId: botId, startedAt: startedAt);
     sessionVariableInjector?.call(runtimeVariables);
 
-    runtimeVariables['interaction.isSlash'] = 'true';
+    runtimeVariables['interaction.isSlash'] =
+        '${commandData.type == ApplicationCommandType.chatInput}';
 
     final contextIds = _resolveContextIds(interaction, runtimeVariables);
 
@@ -172,6 +179,15 @@ class CommandExecutor {
 
     final subcommandRoute = resolveSubcommandRoute(commandData.options);
     runtimeVariables['interaction.command.route'] = subcommandRoute ?? '';
+    runtimeVariables.addAll(
+      buildCommandInvocationMetadata(
+        normalized,
+        trigger:
+            '/${commandData.name}${subcommandRoute == null ? '' : ' ${subcommandRoute.replaceAll('/', ' ')}'}',
+      ),
+    );
+    runtimeVariables['interaction.command.id'] = commandData.id.toString();
+    runtimeVariables['interaction.command.name'] = commandData.name;
 
     final routePayload = (subcommandRoute == null)
         ? null
@@ -197,8 +213,9 @@ class CommandExecutor {
         executionMode == 'bdfd_script' || scriptSource.trim().isNotEmpty;
 
     if (shouldCompileFromBdfdSource) {
-      await _executeBdfdScript(
+      await _executeSelectedBdfdScript(
         scriptSource,
+        backend: executionValue['bdfdBackend'] ?? value['bdfdBackend'],
         interaction: interaction,
         gateway: gateway,
         botId: botId,
@@ -211,6 +228,87 @@ class CommandExecutor {
         gateway: gateway,
         botId: botId,
         runtimeVariables: runtimeVariables,
+      );
+    }
+  }
+
+  Future<void> _executeSelectedBdfdScript(
+    String scriptSource, {
+    Object? backend,
+    required ApplicationCommandInteraction interaction,
+    required NyxxGateway gateway,
+    required String botId,
+    required Map<String, String> runtimeVariables,
+  }) async {
+    final execution = BdfdScriptExecution(
+      onReplayCaptured: (callbacks.isDebugReplayCapturing?.call(botId) ?? false)
+          ? (frames, totalMs) => callbacks.onReplayCaptured?.call(
+              botId,
+              '/${interaction.data.name}',
+              frames,
+              totalMs,
+            )
+          : null,
+      store: store,
+      botId: botId,
+      variables: runtimeVariables,
+      components: DiscordBotComponentService(
+        client: gateway,
+        channelId: interaction.channelId,
+        interaction: interaction,
+      ),
+      commandQueries: DiscordBotCommandQueryService(
+        client: gateway,
+        store: store,
+        botId: botId,
+        guildId: interaction.guildId,
+      ),
+      interaction: interaction,
+      runVisualWorkflow: (workflow, nativeContext) =>
+          _workflowExecutor.executeActions(
+            actions: ((workflow['actions'] as List?) ?? [])
+                .whereType<Map>()
+                .map((json) => Action.fromJson(Map<String, dynamic>.from(json)))
+                .toList(),
+            context: interaction,
+            gateway: gateway,
+            botId: botId,
+            runtimeVariables: runtimeVariables,
+            bdfdContext: nativeContext,
+            fallbackChannelId: interaction.channelId,
+            fallbackGuildId: interaction.guildId,
+          ),
+      moderation: DiscordBotModerationService(
+        client: gateway,
+        guildId: interaction.guildId,
+      ),
+      messages: DiscordBotMessageService(
+        botId: botId,
+        client: gateway,
+        interaction: interaction,
+        channelId: interaction.channelId,
+        guildId: interaction.guildId?.toString(),
+      ),
+    );
+    try {
+      await execution.execute(
+        scriptSource,
+        backend: backend,
+        executeLegacy: (source) => _executeBdfdScript(
+          source,
+          interaction: interaction,
+          gateway: gateway,
+          botId: botId,
+          runtimeVariables: runtimeVariables,
+        ),
+      );
+    } catch (error) {
+      callbacks.onLog?.call('BDFD execution failed: $error', botId: botId);
+      await _sendErrorResponse(
+        interaction,
+        error.toString(),
+        botId,
+        runtimeVariables,
       );
     }
   }
@@ -354,8 +452,9 @@ class CommandExecutor {
             if (raw is! Map) continue;
             final name = (raw['name'] ?? '').toString().trim();
             if (name.isEmpty) continue;
-            if (query.isNotEmpty && !name.toLowerCase().contains(query))
+            if (query.isNotEmpty && !name.toLowerCase().contains(query)) {
               continue;
+            }
             final value = raw['value'];
             choices.add(
               CommandOptionChoiceBuilder<dynamic>(
@@ -618,8 +717,9 @@ class CommandExecutor {
       final trimmed = (v ?? '').trim();
       if (trimmed.isEmpty ||
           trimmed.toLowerCase() == 'unknown user' ||
-          trimmed.toLowerCase() == 'dm')
+          trimmed.toLowerCase() == 'dm') {
         return null;
+      }
       return trimmed;
     }
 

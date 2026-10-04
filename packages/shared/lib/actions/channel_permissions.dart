@@ -1,5 +1,7 @@
 import 'package:nyxx/nyxx.dart';
 import 'package:bot_creator_shared/utils/global.dart';
+import '../engine/execution_budget.dart';
+import '../services/bot_channel_permission_service.dart';
 import 'package:bot_creator_shared/utils/permission_flags.dart'
     show computeAllowBitmask, computeDenyBitmask;
 
@@ -61,66 +63,42 @@ Future<Map<String, String>> editChannelPermissionsAction(
   required Map<String, dynamic> payload,
   Snowflake? fallbackChannelId,
   required String Function(String) resolve,
+  CommandExecutionBudget? budget,
 }) async {
   try {
-    final channelId =
-        _toSnowflake(resolve((payload['channelId'] ?? '').toString())) ??
-        fallbackChannelId;
-    if (channelId == null) {
-      return {'error': 'channelId is required for editChannelPermissions'};
-    }
-
-    final targetTypeRaw = resolve(
+    final rawChannel = resolve((payload['channelId'] ?? '').toString()).trim();
+    final channel = rawChannel.isEmpty
+        ? fallbackChannelId?.toString() ?? ''
+        : rawChannel;
+    var targetType = resolve(
       (payload['targetType'] ?? 'member').toString(),
     ).trim().toLowerCase();
-    final isEveryone = targetTypeRaw == 'everyone';
-
-    // For @everyone, the target ID is the guild/server ID.
-    // Otherwise use the value from the payload.
-    final String resolvedTargetId;
-    if (isEveryone) {
-      resolvedTargetId = resolve('((guild.id))');
-    } else {
-      resolvedTargetId = resolve((payload['targetId'] ?? '').toString());
-    }
-    final targetId = _toSnowflake(resolvedTargetId);
-    if (targetId == null) {
-      return {'error': 'targetId is required for editChannelPermissions'};
-    }
-
-    final allowDeny = _resolvePermissionBitmasks(payload, resolve);
-    final allow = allowDeny.$1;
-    final deny = allowDeny.$2;
-
-    final channel = await fetchChannelCached(client, channelId);
-    if (channel is! GuildChannel) {
-      return {'error': 'Channel is not a guild channel'};
-    }
-    var isMember =
-        !isEveryone && (targetTypeRaw == 'member' || targetTypeRaw == 'user');
-    if (targetTypeRaw == 'auto') {
-      final roles = await client.guilds[channel.guildId].roles.list();
-      isMember = !roles.any((role) => role.id == targetId);
-    }
-
-    await channel.updatePermissionOverwrite(
-      PermissionOverwriteBuilder(
-        id: targetId,
-        type: isMember
-            ? PermissionOverwriteType.member
-            : PermissionOverwriteType.role,
-        allow: allow,
-        deny: deny,
-      ),
-    );
-
+    if (targetType == 'user') targetType = 'member';
+    final targetId = targetType == 'everyone'
+        ? null
+        : resolve((payload['targetId'] ?? '').toString()).trim();
+    final masks = _resolvePermissionBitmasks(payload, resolve);
+    final result = await DiscordBotChannelPermissionService(client)
+        .editPermissions(
+          ChannelPermissionChange(
+            channelId: channel,
+            targetId: targetId,
+            targetType: targetType,
+            allow: masks.$1.value,
+            deny: masks.$2.value,
+            replace: true,
+          ),
+          budget: budget ?? CommandExecutionBudget(),
+        );
     return {
-      'channelId': channelId.toString(),
-      'targetId': targetId.toString(),
+      'channelId': result.channelId,
+      'targetId': result.targetId,
       'status': 'updated',
     };
-  } catch (e) {
-    return {'error': 'Failed to edit channel permissions: $e'};
+  } on CommandExecutionTimeout {
+    rethrow;
+  } catch (error) {
+    return {'error': 'Failed to edit channel permissions: $error'};
   }
 }
 

@@ -1,4 +1,15 @@
+import '../services/bot_component_service.dart';
+import '../services/bot_cooldown_service.dart';
+import '../services/bot_timing_service.dart';
+import '../services/bot_command_query_service.dart';
 import 'execution_budget.dart';
+import '../services/bot_moderation_service.dart';
+import '../engine/bdfd/execution.dart';
+import '../engine/bdfd/runtime.dart';
+import '../engine/bdfd/replay.dart';
+import '../services/bot_message_service.dart';
+import '../services/http_service.dart';
+import '../services/runtime_temporary_variables.dart';
 import 'dart:convert';
 
 import 'package:bot_creator_shared/actions/pin_message.dart';
@@ -85,6 +96,14 @@ Future<Map<String, String>> handleActions(
   /// When provided, enables Lavalink music actions (playMusic, pauseMusic, etc).
   LavalinkService? lavalinkService,
   ActionExecutionPolicy? executionPolicy,
+  BdfdContext? bdfdContext,
+  BotMessageService? bdfdMessages,
+  BotModerationService? bdfdModeration,
+  BotCommandQueryService? bdfdCommandQueries,
+  BotComponentService? bdfdComponents,
+  BotTimingService? bdfdTiming,
+  BotDelayService bdfdDelays = const RuntimeBotDelayService(),
+  HttpService? bdfdHttp,
   bool throwOnError = false,
   CommandExecutionBudget? executionBudget,
 }) async {
@@ -108,6 +127,14 @@ Future<Map<String, String>> handleActions(
       hydratedActions: hydratedActions,
       lavalinkService: lavalinkService,
       executionPolicy: executionPolicy,
+      bdfdContext: bdfdContext,
+      bdfdMessages: bdfdMessages,
+      bdfdModeration: bdfdModeration,
+      bdfdCommandQueries: bdfdCommandQueries,
+      bdfdComponents: bdfdComponents,
+      bdfdTiming: bdfdTiming,
+      bdfdDelays: bdfdDelays,
+      bdfdHttp: bdfdHttp,
       throwOnError: throwOnError,
       executionBudget: budget,
     ),
@@ -150,6 +177,14 @@ Future<Map<String, String>> _handleActions(
   /// When provided, enables Lavalink music actions (playMusic, pauseMusic, etc).
   LavalinkService? lavalinkService,
   ActionExecutionPolicy? executionPolicy,
+  BdfdContext? bdfdContext,
+  BotMessageService? bdfdMessages,
+  BotModerationService? bdfdModeration,
+  BotCommandQueryService? bdfdCommandQueries,
+  BotComponentService? bdfdComponents,
+  BotTimingService? bdfdTiming,
+  BotDelayService bdfdDelays = const RuntimeBotDelayService(),
+  HttpService? bdfdHttp,
   bool throwOnError = false,
   required CommandExecutionBudget executionBudget,
 }) async {
@@ -162,6 +197,25 @@ Future<Map<String, String>> _handleActions(
   final activeWorkflowStack = workflowStack ?? <String>{};
   final activeEntityCache = entityCache ?? <String, dynamic>{};
   final activeHydratedActions = hydratedActions ?? <dynamic>{};
+  final nativeContext =
+      bdfdContext ??
+      BdfdContext(
+        variables: variables,
+        temporaryVariables: RuntimeTemporaryVariables(variables),
+        budget: executionBudget,
+        activeWorkflows: activeWorkflowStack,
+      );
+
+  final nativeReplayCapture = onReplayCaptured == null
+      ? null
+      : BdfdReplayCapture();
+  final previousNativeObserver = nativeContext.onTrace;
+  if (nativeReplayCapture != null) {
+    nativeContext.onTrace = (event) {
+      nativeReplayCapture.record(event);
+      previousNativeObserver?.call(event);
+    };
+  }
 
   Future<Map<String, String>> executeNestedActions(
     List<Action> nestedActions, {
@@ -182,6 +236,14 @@ Future<Map<String, String>> _handleActions(
     entityCache: activeEntityCache,
     hydratedActions: activeHydratedActions,
     executionPolicy: executionPolicy,
+    bdfdContext: nativeContext,
+    bdfdMessages: bdfdMessages,
+    bdfdModeration: bdfdModeration,
+    bdfdCommandQueries: bdfdCommandQueries,
+    bdfdComponents: bdfdComponents,
+    bdfdTiming: bdfdTiming,
+    bdfdDelays: bdfdDelays,
+    bdfdHttp: bdfdHttp,
     throwOnError: protected || throwOnError,
     executionBudget: executionBudget,
     lavalinkService: lavalinkService,
@@ -424,6 +486,7 @@ Future<Map<String, String>> _handleActions(
               resultKey: resultKey,
               results: results,
               resolveValue: resolveValue,
+              budget: executionBudget,
             );
         if (handledByModerationRolesExecutor) {
           recordTrace();
@@ -530,6 +593,7 @@ Future<Map<String, String>> _handleActions(
           results: results,
           resolveValue: resolveValue,
           permissionCache: permCache,
+          budget: executionBudget,
         );
         if (handledByChannelsExecutor) {
           if (closingTicket && closingTicketId != null) {
@@ -625,6 +689,7 @@ Future<Map<String, String>> _handleActions(
 
         final handledByComponentsInteractionsExecutor =
             await executeComponentsInteractionsAction(
+              responseState: nativeContext.response,
               type: action.type,
               client: client,
               interaction: interaction,
@@ -696,6 +761,86 @@ Future<Map<String, String>> _handleActions(
                     '',
                 key,
               ),
+          executeNativeBdfdScript: (source) async {
+            if (executionPolicy != null &&
+                (bdfdMessages == null || bdfdHttp == null)) {
+              throw StateError(
+                'Native BDFD requires message and HTTP adapters for this execution policy.',
+              );
+            }
+            final execution = BdfdScriptExecution(
+              store: store,
+              botId: botId,
+              variables: variables,
+              context: nativeContext,
+              http: bdfdHttp,
+              components:
+                  bdfdComponents ??
+                  (executionPolicy == null
+                      ? DiscordBotComponentService(
+                          client: client,
+                          channelId: resolvedFallbackChannelId,
+                          interaction: interaction,
+                        )
+                      : null),
+              timing: bdfdTiming,
+              delays: bdfdDelays,
+              commandQueries:
+                  bdfdCommandQueries ??
+                  (executionPolicy == null
+                      ? DiscordBotCommandQueryService(
+                          client: client,
+                          store: store,
+                          botId: botId,
+                          guildId: guildId,
+                        )
+                      : null),
+              // Policies must explicitly provide effects adapters; a missing
+              // moderation adapter leaves these calls unsupported at preflight.
+              moderation:
+                  bdfdModeration ??
+                  (executionPolicy == null
+                      ? DiscordBotModerationService(
+                          client: client,
+                          guildId: guildId,
+                        )
+                      : null),
+              runVisualWorkflow: (workflow, context) => executeNestedActions(
+                ((workflow['actions'] as List?) ?? [])
+                    .whereType<Map>()
+                    .map(
+                      (json) =>
+                          Action.fromJson(Map<String, dynamic>.from(json)),
+                    )
+                    .toList(),
+                protected: true,
+              ),
+              messages:
+                  bdfdMessages ??
+                  DiscordBotMessageService(
+                    botId: botId,
+                    client: client,
+                    interaction: interaction,
+                    channelId: resolvedFallbackChannelId,
+                    guildId: guildId?.toString(),
+                    messageId:
+                        int.tryParse(variables['message.id'] ?? '') == null
+                        ? null
+                        : Snowflake.parse(variables['message.id']!),
+                  ),
+            );
+            await execution.execute(
+              source,
+              backend: 'native-v1',
+              executeLegacy: (_) async => throw StateError(
+                'Native BDFD cannot fall back to visual actions.',
+              ),
+            );
+            return {
+              ...nativeContext.results,
+              if (nativeContext.stopped) '__stopped__': 'true',
+            };
+          },
           checkExecutionBudget: executionBudget.check,
           executeActions: executeNestedActions,
           executeProtectedActions: (nestedActions) =>
@@ -744,6 +889,7 @@ Future<Map<String, String>> _handleActions(
           variables: variables,
           resolveValue: resolveValue,
           onLog: onLog,
+          executionBudget: executionBudget,
           setGlobalVariable: (key, value) =>
               store.setGlobalVariable(botId, key, value),
         );
@@ -1455,21 +1601,12 @@ Future<Map<String, String>> _handleActions(
 
           // ─── Channel permissions ──────────────────────────────────────────
           case BotCreatorActionType.editChannelPermissions:
-            if (guildId != null) {
-              final permError = await checkBotGuildPermission(
-                client,
-                guildId: guildId,
-                requiredPermissions: [Permissions.manageRoles],
-                actionLabel: 'edit channel permissions',
-                cache: permCache,
-              );
-              if (permError != null) throw Exception(permError);
-            }
             final ecpResult = await editChannelPermissionsAction(
               client,
               payload: action.payload,
               fallbackChannelId: resolvedFallbackChannelId,
               resolve: resolveValue,
+              budget: executionBudget,
             );
             if (ecpResult['error'] != null) {
               throw Exception(ecpResult['error']);
@@ -1638,28 +1775,33 @@ Future<Map<String, String>> _handleActions(
     }
     rethrow;
   } finally {
+    if (nativeReplayCapture != null) {
+      nativeContext.onTrace = previousNativeObserver;
+      nativeReplayCapture.finish(null);
+    }
     // Replay capture callback — fires after the embed (if any) is sent.
     if (onReplayCaptured != null && replayTrace != null) {
       replayStopwatch?.stop();
       final totalMs = replayStopwatch?.elapsedMilliseconds ?? 0;
       onReplayCaptured(
-        replayTrace
-            .map(
-              (entry) => <String, dynamic>{
-                'actionType': entry.actionType,
-                'startMs': entry.startMs,
-                'durationMs': entry.endMs - entry.startMs,
-                if (entry.result != null) 'result': entry.result,
-                if (entry.loopDepth != null) 'loopDepth': entry.loopDepth,
-                if (entry.loopIteration != null)
-                  'loopIteration': entry.loopIteration,
-                if (entry.variablesBefore != null)
-                  'variablesBefore': entry.variablesBefore,
-                if (entry.variablesAfter != null)
-                  'variablesAfter': entry.variablesAfter,
-              },
-            )
-            .toList(growable: false),
+        [
+          ...?nativeReplayCapture?.frames,
+          ...replayTrace.map(
+            (entry) => <String, dynamic>{
+              'actionType': entry.actionType,
+              'startMs': entry.startMs,
+              'durationMs': entry.endMs - entry.startMs,
+              if (entry.result != null) 'result': entry.result,
+              if (entry.loopDepth != null) 'loopDepth': entry.loopDepth,
+              if (entry.loopIteration != null)
+                'loopIteration': entry.loopIteration,
+              if (entry.variablesBefore != null)
+                'variablesBefore': entry.variablesBefore,
+              if (entry.variablesAfter != null)
+                'variablesAfter': entry.variablesAfter,
+            },
+          ),
+        ]..sort((a, b) => (a['startMs'] as int).compareTo(b['startMs'] as int)),
         totalMs,
       );
     }
@@ -1681,6 +1823,14 @@ Future<Map<String, String>> handleListenerWorkflowActions(
   Interaction? interaction,
   LavalinkService? lavalinkService,
   ActionExecutionPolicy? executionPolicy,
+  BdfdContext? bdfdContext,
+  BotMessageService? bdfdMessages,
+  BotModerationService? bdfdModeration,
+  BotCommandQueryService? bdfdCommandQueries,
+  BotComponentService? bdfdComponents,
+  BotTimingService? bdfdTiming,
+  BotDelayService bdfdDelays = const RuntimeBotDelayService(),
+  HttpService? bdfdHttp,
 }) async {
   return handleActions(
     client,
@@ -1692,6 +1842,14 @@ Future<Map<String, String>> handleListenerWorkflowActions(
     resolveTemplate: resolveTemplate,
     lavalinkService: lavalinkService,
     executionPolicy: executionPolicy,
+    bdfdContext: bdfdContext,
+    bdfdMessages: bdfdMessages,
+    bdfdModeration: bdfdModeration,
+    bdfdCommandQueries: bdfdCommandQueries,
+    bdfdComponents: bdfdComponents,
+    bdfdTiming: bdfdTiming,
+    bdfdDelays: bdfdDelays,
+    bdfdHttp: bdfdHttp,
   );
 }
 

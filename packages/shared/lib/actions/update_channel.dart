@@ -1,5 +1,6 @@
 import 'package:nyxx/nyxx.dart';
-import 'package:bot_creator_shared/utils/global.dart';
+import '../engine/execution_budget.dart';
+import '../services/bot_channel_mutation_service.dart';
 
 Snowflake? _toSnowflake(dynamic value) {
   final parsed = int.tryParse(value?.toString() ?? '');
@@ -84,121 +85,41 @@ Future<Map<String, String>> updateChannelAction(
   NyxxGateway client, {
   required Map<String, dynamic> payload,
   String Function(String)? resolve,
+  CommandExecutionBudget? budget,
 }) async {
   resolve ??= (s) => s;
   try {
-    final channelId = _toSnowflake(
-      resolve((payload['channelId'] ?? '').toString()),
-    );
-    if (channelId == null) {
-      return {'error': 'Missing or invalid channelId', 'channelId': ''};
-    }
-
-    final channel = await fetchChannelCached(client, channelId);
-
-    final name = resolve((payload['name'] ?? '').toString()).trim();
-    final topic = resolve((payload['topic'] ?? '').toString());
-    final nsfw = _toBool(resolve((payload['nsfw'] ?? '').toString()));
-    final position = int.tryParse(
-      resolve((payload['position'] ?? '').toString()),
-    );
-    final categoryId = _toSnowflake(
-      resolve((payload['categoryId'] ?? '').toString()),
-    );
-    final slowmode = _parseDuration(
-      resolve((payload['slowmode'] ?? '').toString()),
-    );
-    final archived = _toBool(resolve((payload['archived'] ?? '').toString()));
-    final locked = _toBool(resolve((payload['locked'] ?? '').toString()));
-    final archiveMinutes = _parseArchiveMinutes(
-      resolve((payload['autoArchiveDuration'] ?? '').toString()),
-    );
-
-    if (channel is Thread) {
-      final builder = ThreadUpdateBuilder(
-        name: name.isNotEmpty ? name : null,
+    String value(String key) => resolve!((payload[key] ?? '').toString());
+    final channelId = value('channelId').trim();
+    final name = value('name').trim();
+    final topic = value('topic');
+    final nsfw = _toBool(value('nsfw'));
+    final position = int.tryParse(value('position'));
+    final category = _toSnowflake(value('categoryId'));
+    final slowmode = _parseDuration(value('slowmode'));
+    final archived = _toBool(value('archived'));
+    final locked = _toBool(value('locked'));
+    final archiveMinutes = _parseArchiveMinutes(value('autoArchiveDuration'));
+    final reason = value('reason');
+    await DiscordBotChannelMutationService(client).modifyChannel(
+      ChannelModification(
+        channelId: channelId,
+        name: name.isEmpty || name == '!unchanged' ? null : name,
+        topic: topic.isEmpty || topic == '!unchanged' ? null : topic,
+        isNsfw: nsfw,
+        position: position,
+        categoryId: category?.toString(),
+        slowmodeSeconds: slowmode?.inSeconds,
         isArchived: archived,
         isLocked: locked,
-        autoArchiveDuration: archiveMinutes == null
-            ? null
-            : Duration(minutes: archiveMinutes),
-      );
-      if (slowmode != null) {
-        builder.rateLimitPerUser = slowmode;
-      }
-      await channel.update(builder);
-    } else if (channel is GuildTextChannel) {
-      await channel.update(
-        GuildTextChannelUpdateBuilder(
-          name: name.isNotEmpty ? name : null,
-          position: position,
-          topic: topic.isNotEmpty ? topic : null,
-          isNsfw: nsfw,
-          parentId: categoryId,
-          rateLimitPerUser: slowmode,
-        ),
-      );
-    } else if (channel is GuildAnnouncementChannel) {
-      await channel.update(
-        GuildAnnouncementChannelUpdateBuilder(
-          name: name.isNotEmpty ? name : null,
-          position: position,
-          topic: topic.isNotEmpty ? topic : null,
-          isNsfw: nsfw,
-          parentId: categoryId,
-        ),
-      );
-    } else if (channel is ForumChannel) {
-      await channel.update(
-        ForumChannelUpdateBuilder(
-          name: name.isNotEmpty ? name : null,
-          position: position,
-          topic: topic.isNotEmpty ? topic : null,
-          isNsfw: nsfw,
-          parentId: categoryId,
-          rateLimitPerUser: slowmode,
-        ),
-      );
-    } else if (channel is GuildVoiceChannel) {
-      await channel.update(
-        GuildVoiceChannelUpdateBuilder(
-          name: name.isNotEmpty ? name : null,
-          position: position,
-          isNsfw: nsfw,
-          parentId: categoryId,
-        ),
-      );
-    } else if (channel is GuildStageChannel) {
-      await channel.update(
-        GuildStageChannelUpdateBuilder(
-          name: name.isNotEmpty ? name : null,
-          position: position,
-          isNsfw: nsfw,
-          parentId: categoryId,
-        ),
-      );
-    } else if (channel is GuildCategory) {
-      await channel.update(
-        GuildCategoryUpdateBuilder(
-          name: name.isNotEmpty ? name : null,
-          position: position,
-        ),
-      );
-    } else if (channel is GuildChannel) {
-      await channel.update(
-        GuildChannelUpdateBuilder<GuildChannel>(
-          name: name.isNotEmpty ? name : null,
-          position: position,
-        ),
-      );
-    } else {
-      return {
-        'error': 'Unsupported channel type for update: ${channel.runtimeType}',
-        'channelId': '',
-      };
-    }
-
-    return {'channelId': channelId.toString(), 'status': 'updated'};
+        autoArchiveMinutes: archiveMinutes,
+        reason: reason.isEmpty ? null : reason,
+      ),
+      budget: budget ?? CommandExecutionBudget(),
+    );
+    return {'channelId': '${int.parse(channelId)}', 'status': 'updated'};
+  } on CommandExecutionTimeout {
+    rethrow;
   } catch (error) {
     return {'error': 'Failed to update channel: $error', 'channelId': ''};
   }

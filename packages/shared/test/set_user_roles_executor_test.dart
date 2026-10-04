@@ -43,9 +43,13 @@ class _Guild implements Guild {
   @override
   Snowflake get id => Snowflake(10);
   @override
+  Snowflake get ownerId => Snowflake(999);
+  @override
   List<Role> get roleList => [
     _Role(Snowflake(10), const Permissions(0)),
     _Role(Snowflake(63), Permissions(Permissions.manageRoles.value)),
+    _Role(Snowflake(60), const Permissions(0)),
+    _Role(Snowflake(62), const Permissions(0)),
   ];
   @override
   MemberManager get members => memberManager;
@@ -95,6 +99,14 @@ class _Role implements Role {
   @override
   final Permissions permissions;
   @override
+  int get position => id == Snowflake(63)
+      ? 10
+      : id == Snowflake(10)
+      ? 0
+      : 1;
+  @override
+  RoleTags? get tags => null;
+  @override
   dynamic noSuchMethod(Invocation invocation) =>
       throw StateError('Unexpected role access');
 }
@@ -116,7 +128,7 @@ class _BotMember implements Member {
   @override
   final Snowflake id;
   @override
-  List<Snowflake> get roleIds => [Snowflake(63)];
+  List<Snowflake> get roleIds => id == Snowflake(500) ? [Snowflake(63)] : [];
   @override
   dynamic noSuchMethod(Invocation invocation) =>
       throw StateError('Unexpected bot member access');

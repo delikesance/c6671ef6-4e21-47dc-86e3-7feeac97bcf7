@@ -11,6 +11,11 @@ class EntityFixtureGateway implements NyxxGateway {
   final requests = <Map<String, String>>[];
   final errors = <String>[];
   @override
+  GatewayClientOptions get options => const GatewayClientOptions();
+  @override
+  GatewayApiOptions get apiOptions =>
+      GatewayApiOptions(token: 'sandbox', intents: GatewayIntents.none);
+  @override
   ChannelManager get channels => _Channels(this);
   @override
   GuildManager get guilds => _Guilds(this);
@@ -25,6 +30,53 @@ class EntityFixtureGateway implements NyxxGateway {
 class _Users implements UserManager {
   _Users(this.gateway);
   final EntityFixtureGateway gateway;
+  @override
+  NyxxGateway get client => gateway;
+  @override
+  Future<List<UserGuild>> listCurrentUserGuilds({
+    Snowflake? after,
+    Snowflake? before,
+    int? limit,
+    bool? withCounts,
+  }) async {
+    gateway.requests.add({
+      'operation': 'users.guilds',
+      if (after != null) 'after': '$after',
+      if (before != null) 'before': '$before',
+    });
+    final raw = gateway.fixtures['guilds'];
+    if (raw is! Map) throw StateError('Missing sandbox guilds fixture');
+    final entries = raw.entries.toList()
+      ..sort(
+        (a, b) => BigInt.parse(
+          a.key.toString(),
+        ).compareTo(BigInt.parse(b.key.toString())),
+      );
+    return entries
+        .where((entry) {
+          final id = Snowflake.parse(entry.key.toString());
+          return (after == null || id.value > after.value) &&
+              (before == null || id.value < before.value);
+        })
+        .take(limit ?? 200)
+        .map((entry) {
+          final row = entry.value as Map;
+          return UserGuild(
+            id: Snowflake.parse(entry.key.toString()),
+            manager: gateway.guilds,
+            name: row['name']?.toString() ?? 'guild-${entry.key}',
+            iconHash: row['icon']?.toString(),
+            bannerHash: row['banner']?.toString(),
+            isOwnedByCurrentUser: false,
+            currentUserPermissions: const Permissions(0),
+            features: const GuildFeatures(0),
+            approximateMemberCount: null,
+            approximatePresenceCount: null,
+          );
+        })
+        .toList();
+  }
+
   @override
   Future<User> fetch(Snowflake id) async {
     gateway.requests.add({'operation': 'users.fetch', 'user_id': '$id'});
@@ -46,8 +98,10 @@ class _Users implements UserManager {
       isBot: raw['bot'] == true,
       isSystem: false,
       hasMfaEnabled: false,
-      bannerHash: null,
-      accentColor: null,
+      bannerHash: raw['banner']?.toString(),
+      accentColor: raw['accent_color'] == null
+          ? null
+          : DiscordColor(int.parse(raw['accent_color'].toString())),
       locale: null,
       flags: null,
       nitroType: NitroType.none,
@@ -70,6 +124,8 @@ class _Guilds implements GuildManager {
   PartialGuild operator [](Snowflake id) => _Guild(gateway, id);
   @override
   Cache<Guild> get cache => _FixtureGuildCache(gateway);
+  @override
+  Future<Guild> get(Snowflake id) => fetch(id);
   @override
   Future<Ban> fetchBan(Snowflake id, Snowflake userId) async {
     gateway.requests.add({
@@ -103,7 +159,7 @@ class _Guilds implements GuildManager {
       throw StateError(error);
     }
     if (!guilds.containsKey(id.toString())) {
-      throw StateError('Guild $id is absent from sandbox fixture');
+      throw const DiscordEntityNotFound();
     }
     return _FixtureGuild(gateway, id);
   }
@@ -127,6 +183,47 @@ class _FixtureGuild implements Guild {
   final EntityFixtureGateway gateway;
   @override
   final Snowflake id;
+  Map get _row => (gateway.fixtures['guilds'] as Map)[id.toString()] as Map;
+  @override
+  String get name => _row['name']?.toString() ?? 'guild-$id';
+  @override
+  String? get description => _row['description']?.toString();
+  @override
+  String? get iconHash => _row['icon']?.toString();
+  @override
+  String? get bannerHash => _row['banner']?.toString();
+  @override
+  VerificationLevel get verificationLevel => VerificationLevel(
+    int.parse((_row['verification_level'] ?? 0).toString()),
+  );
+  @override
+  int? get premiumSubscriptionCount =>
+      _row['premium_subscription_count'] == null
+      ? null
+      : int.parse(_row['premium_subscription_count'].toString());
+  @override
+  PremiumTier get premiumTier =>
+      PremiumTier(int.parse((_row['premium_tier'] ?? 0).toString()));
+  @override
+  Duration get afkTimeout =>
+      Duration(seconds: int.parse((_row['afk_timeout'] ?? 300).toString()));
+  Snowflake? _channelSetting(String key) {
+    final guild = (gateway.fixtures['guilds'] as Map)[id.toString()] as Map;
+    final raw = guild[key];
+    if (raw == null) return null;
+    final parsed = int.tryParse(raw.toString());
+    if (parsed == null || parsed <= 0) {
+      throw StateError('Invalid sandbox guild channel ID: $key.');
+    }
+    return Snowflake(parsed);
+  }
+
+  @override
+  Snowflake? get afkChannelId => _channelSetting('afk_channel_id');
+  @override
+  Snowflake? get rulesChannelId => _channelSetting('rules_channel_id');
+  @override
+  Snowflake? get systemChannelId => _channelSetting('system_channel_id');
   @override
   Snowflake get ownerId {
     final guild = (gateway.fixtures['guilds'] as Map?)?[id.toString()];
@@ -135,6 +232,8 @@ class _FixtureGuild implements Guild {
 
   @override
   List<Role> get roleList => _Roles(gateway, id).read();
+  @override
+  MemberManager get members => _Members(gateway, id);
   @override
   dynamic noSuchMethod(Invocation invocation) =>
       throw StateError('Sandbox guild operation denied');
@@ -175,6 +274,29 @@ class _Guild implements PartialGuild {
   }
 
   @override
+  Future<ThreadList> listActiveThreads() async {
+    gateway.requests.add({
+      'operation': 'guild.activeThreads',
+      'guild_id': '$id',
+    });
+    final guild = (gateway.fixtures['guilds'] as Map?)?['$id'];
+    if (guild is! Map || guild['threads'] is! List) {
+      throw StateError('Missing sandbox active thread fixture for guild $id');
+    }
+    final threads = (guild['threads'] as List)
+        .map(
+          (raw) => _FixtureThread(
+            Map<String, dynamic>.from(raw as Map),
+            id,
+            gateway,
+          ),
+        )
+        .where((t) => !t.isArchived)
+        .toList();
+    return ThreadList(threads: threads, members: const [], hasMore: false);
+  }
+
+  @override
   dynamic noSuchMethod(Invocation invocation) =>
       throw StateError('Sandbox guild operation denied');
 }
@@ -201,13 +323,28 @@ class _FixtureGuildEmojis implements GuildEmojiManager {
         manager: this,
         name: row['name']?.toString(),
         roleIds: null,
-        user: null,
+        user: row['creator_id'] == null
+            ? null
+            : _FixtureBanUser(Snowflake.parse(row['creator_id'].toString())),
         requiresColons: true,
         isManaged: false,
         isAnimated: row['animated'] == true,
         isAvailable: true,
       );
     }).toList();
+  }
+
+  @override
+  Future<GuildEmoji> fetch(Snowflake id) async {
+    gateway.requests.add({
+      'operation': 'guild.emojis.fetch',
+      'guild_id': '$guildId',
+      'emoji_id': '$id',
+    });
+    for (final emoji in await list()) {
+      if (emoji.id == id) return emoji;
+    }
+    throw StateError('Missing sandbox emoji fixture $id in guild $guildId');
   }
 
   @override
@@ -245,14 +382,131 @@ class _Channels implements ChannelManager {
           isNsfw: row['nsfw'] == true,
           name: row['name'].toString(),
           parentId: parent,
-          permissionOverwrites: const [],
+          permissionOverwrites: _fixtureOverwrites(row),
           position: (_asNum(row['position']) ?? 0).toInt(),
+        );
+      }
+      if (type == 'announcement') {
+        return _FixtureGuildAnnouncementChannel(
+          gateway: gateway,
+          id: id,
+          manager: this,
+          guildId: guildId,
+          name: row['name'].toString(),
+          topic: row['topic']?.toString(),
+          parentId: parent,
+          position: (_asNum(row['position']) ?? 0).toInt(),
+          isNsfw: row['nsfw'] == true,
+          permissionOverwrites: _fixtureOverwrites(row),
+          defaultAutoArchiveDuration: const Duration(days: 1),
+          defaultThreadRateLimitPerUser: null,
+          rateLimitPerUser: Duration(
+            seconds: (_asNum(row['slowmode']) ?? 0).toInt(),
+          ),
+          lastMessageId: row['last_message_id'] == null
+              ? null
+              : Snowflake.parse(row['last_message_id'].toString()),
+          lastPinTimestamp: row['last_pin_timestamp'] == null
+              ? null
+              : DateTime.fromMillisecondsSinceEpoch(
+                  int.parse(row['last_pin_timestamp'].toString()),
+                  isUtc: true,
+                ),
+        );
+      }
+      if (type == 'voice' || type == 'stage') {
+        if (type == 'voice') {
+          return _FixtureGuildVoiceChannel(
+            gateway: gateway,
+            id: id,
+            manager: this,
+            guildId: guildId,
+            name: row['name'].toString(),
+            parentId: parent,
+            position: (_asNum(row['position']) ?? 0).toInt(),
+            isNsfw: row['nsfw'] == true,
+            permissionOverwrites: _fixtureOverwrites(row),
+            bitrate: 64000,
+            userLimit: 0,
+            rtcRegion: null,
+            videoQualityMode: VideoQualityMode.auto,
+            rateLimitPerUser: Duration(
+              seconds: (_asNum(row['slowmode']) ?? 0).toInt(),
+            ),
+            lastMessageId: row['last_message_id'] == null
+                ? null
+                : Snowflake.parse(row['last_message_id'].toString()),
+            lastPinTimestamp: row['last_pin_timestamp'] == null
+                ? null
+                : DateTime.fromMillisecondsSinceEpoch(
+                    int.parse(row['last_pin_timestamp'].toString()),
+                    isUtc: true,
+                  ),
+          );
+        }
+        return _FixtureGuildStageChannel(
+          gateway: gateway,
+          id: id,
+          manager: this,
+          guildId: guildId,
+          name: row['name'].toString(),
+          parentId: parent,
+          position: (_asNum(row['position']) ?? 0).toInt(),
+          isNsfw: row['nsfw'] == true,
+          permissionOverwrites: _fixtureOverwrites(row),
+          bitrate: 64000,
+          userLimit: 0,
+          rtcRegion: null,
+          videoQualityMode: VideoQualityMode.auto,
+          rateLimitPerUser: Duration(
+            seconds: (_asNum(row['slowmode']) ?? 0).toInt(),
+          ),
+          lastMessageId: row['last_message_id'] == null
+              ? null
+              : Snowflake.parse(row['last_message_id'].toString()),
+          lastPinTimestamp: row['last_pin_timestamp'] == null
+              ? null
+              : DateTime.fromMillisecondsSinceEpoch(
+                  int.parse(row['last_pin_timestamp'].toString()),
+                  isUtc: true,
+                ),
+        );
+      }
+      if (type == 'forum') {
+        return ForumChannel(
+          id: id,
+          manager: this,
+          guildId: guildId,
+          name: row['name'].toString(),
+          topic: row['topic']?.toString(),
+          parentId: parent,
+          position: (_asNum(row['position']) ?? 0).toInt(),
+          isNsfw: row['nsfw'] == true,
+          permissionOverwrites: _fixtureOverwrites(row),
+          defaultLayout: ForumLayout(0),
+          rateLimitPerUser: Duration(
+            seconds: (_asNum(row['slowmode']) ?? 0).toInt(),
+          ),
+          lastThreadId: null,
+          lastPinTimestamp: row['last_pin_timestamp'] == null
+              ? null
+              : DateTime.fromMillisecondsSinceEpoch(
+                  int.parse(row['last_pin_timestamp'].toString()),
+                  isUtc: true,
+                ),
+          flags: ChannelFlags(0),
+          availableTags: const [],
+          defaultReaction: null,
+          defaultSortOrder: null,
+          defaultAutoArchiveDuration: const Duration(days: 1),
+          defaultThreadRateLimitPerUser: null,
         );
       }
       if (type != 'text') {
         throw StateError('Unsupported sandbox channel type: $type');
       }
-      return GuildTextChannel(
+      return _FixtureGuildTextChannel(
+        gateway: gateway,
         id: id,
         manager: this,
         guildId: guildId,
@@ -275,7 +529,7 @@ class _Channels implements ChannelManager {
                 (_asNum(row['last_pin_timestamp']) ?? 0).toInt(),
                 isUtc: true,
               ),
-        permissionOverwrites: const [],
+        permissionOverwrites: _fixtureOverwrites(row),
       );
     }).toList();
   }
@@ -294,13 +548,176 @@ class _Channels implements ChannelManager {
       for (final channel in read(guildId)) {
         if (channel.id == id) return channel;
       }
+      final threads = (guilds[rawGuildId] as Map)['threads'];
+      if (threads is List) {
+        for (final row in threads) {
+          final thread = _FixtureThread(
+            Map<String, dynamic>.from(row as Map),
+            guildId,
+            gateway,
+          );
+          if (thread.id == id) return thread;
+        }
+      }
     }
-    throw StateError('Channel $id is absent from fixture');
+    throw const DiscordEntityNotFound();
   }
 
   @override
   dynamic noSuchMethod(Invocation invocation) =>
       throw StateError('Sandbox channel write denied');
+}
+
+class _FixtureGuildTextChannel extends GuildTextChannel {
+  _FixtureGuildTextChannel({
+    required this.gateway,
+    required super.id,
+    required super.manager,
+    required super.guildId,
+    required super.name,
+    required super.topic,
+    required super.parentId,
+    required super.position,
+    required super.isNsfw,
+    required super.permissionOverwrites,
+    required super.defaultAutoArchiveDuration,
+    required super.defaultThreadRateLimitPerUser,
+    required super.rateLimitPerUser,
+    required super.lastMessageId,
+    required super.lastPinTimestamp,
+  });
+  final EntityFixtureGateway gateway;
+  @override
+  MessageManager get messages => _FixtureMessages(gateway, id);
+}
+
+class _FixtureGuildAnnouncementChannel extends GuildAnnouncementChannel {
+  _FixtureGuildAnnouncementChannel({
+    required this.gateway,
+    required super.id,
+    required super.manager,
+    required super.guildId,
+    required super.name,
+    required super.topic,
+    required super.parentId,
+    required super.position,
+    required super.isNsfw,
+    required super.permissionOverwrites,
+    required super.defaultAutoArchiveDuration,
+    required super.defaultThreadRateLimitPerUser,
+    required super.rateLimitPerUser,
+    required super.lastMessageId,
+    required super.lastPinTimestamp,
+  });
+  final EntityFixtureGateway gateway;
+  @override
+  MessageManager get messages => _FixtureMessages(gateway, id);
+}
+
+class _FixtureGuildVoiceChannel extends GuildVoiceChannel {
+  _FixtureGuildVoiceChannel({
+    required this.gateway,
+    required super.id,
+    required super.manager,
+    required super.guildId,
+    required super.name,
+    required super.parentId,
+    required super.position,
+    required super.isNsfw,
+    required super.permissionOverwrites,
+    required super.bitrate,
+    required super.userLimit,
+    required super.rtcRegion,
+    required super.videoQualityMode,
+    required super.rateLimitPerUser,
+    required super.lastMessageId,
+    required super.lastPinTimestamp,
+  });
+  final EntityFixtureGateway gateway;
+  @override
+  MessageManager get messages => _FixtureMessages(gateway, id);
+}
+
+class _FixtureGuildStageChannel extends GuildStageChannel {
+  _FixtureGuildStageChannel({
+    required this.gateway,
+    required super.id,
+    required super.manager,
+    required super.guildId,
+    required super.name,
+    required super.parentId,
+    required super.position,
+    required super.isNsfw,
+    required super.permissionOverwrites,
+    required super.bitrate,
+    required super.userLimit,
+    required super.rtcRegion,
+    required super.videoQualityMode,
+    required super.rateLimitPerUser,
+    required super.lastMessageId,
+    required super.lastPinTimestamp,
+  });
+  final EntityFixtureGateway gateway;
+  @override
+  MessageManager get messages => _FixtureMessages(gateway, id);
+}
+
+class _FixtureThread implements Thread {
+  @override
+  Duration? get rateLimitPerUser =>
+      Duration(seconds: (_asNum(row['slowmode']) ?? 0).toInt());
+  @override
+  int get position => 0;
+  _FixtureThread(this.row, this.guildId, this.gateway);
+  final EntityFixtureGateway gateway;
+  @override
+  MessageManager get messages => _FixtureMessages(gateway, id);
+  @override
+  Snowflake? get lastMessageId => row['last_message_id'] == null
+      ? null
+      : Snowflake.parse(row['last_message_id'].toString());
+  @override
+  DateTime? get lastPinTimestamp => row['last_pin_timestamp'] == null
+      ? null
+      : DateTime.fromMillisecondsSinceEpoch(
+          int.parse(row['last_pin_timestamp'].toString()),
+          isUtc: true,
+        );
+  @override
+  final Snowflake guildId;
+  @override
+  ChannelType get type => switch (row['type']?.toString()) {
+    'private_thread' || 'privateThread' || '12' => ChannelType.privateThread,
+    'announcement_thread' ||
+    'announcementThread' ||
+    '10' => ChannelType.announcementThread,
+    _ => ChannelType.publicThread,
+  };
+  @override
+  String get name => row['name']?.toString() ?? 'thread-$id';
+  @override
+  bool get isNsfw => row['nsfw'] == true;
+  final Map<String, dynamic> row;
+  @override
+  Snowflake get id => Snowflake.parse(row['id'].toString());
+  @override
+  Snowflake? get parentId => row['parent_id'] == null
+      ? null
+      : Snowflake.parse(row['parent_id'].toString());
+  @override
+  bool get isArchived => row['archived'] == true;
+  @override
+  bool get isLocked => row['locked'] == true;
+  @override
+  Snowflake get ownerId => Snowflake.parse((row['owner_id'] ?? 0).toString());
+  @override
+  int get messageCount => int.parse((row['message_count'] ?? 0).toString());
+  @override
+  int get approximateMemberCount =>
+      int.parse((row['member_count'] ?? 0).toString());
+  @override
+  dynamic noSuchMethod(Invocation invocation) =>
+      throw StateError('Sandbox thread operation denied');
 }
 
 class _FixtureTextChannel extends PartialTextChannel {
@@ -317,6 +734,57 @@ class _FixtureMessages implements MessageManager {
   final EntityFixtureGateway gateway;
   @override
   final Snowflake channelId;
+
+  @override
+  Future<List<User>> fetchReactions(
+    Snowflake id,
+    ReactionBuilder emoji, {
+    Snowflake? after,
+    int? limit,
+  }) async {
+    gateway.requests.add({
+      'operation': 'messages.fetchReactions',
+      'channel_id': '$channelId',
+      'message_id': '$id',
+      'emoji': emoji.build(),
+      if (after != null) 'after': '$after',
+      if (limit != null) 'limit': '$limit',
+    });
+    final messages = gateway.fixtures['messages'];
+    final channel = messages is Map ? messages['$channelId'] : null;
+    final raw = channel is Map ? channel['$id'] : null;
+    if (raw is! Map) throw StateError('Reaction message fixture is required.');
+    final reactions = raw['reactions'] ?? const [];
+    if (reactions is! List) {
+      throw StateError('Reaction list fixture is required.');
+    }
+    final ids = <int>{};
+    for (final value in reactions) {
+      if (value is! Map) throw StateError('Invalid reaction fixture.');
+      final matches = emoji.id != null
+          ? value['id']?.toString() == '${emoji.id}'
+          : (value['id'] == null || value['id'].toString() == '0') &&
+                value['emoji']?.toString() == emoji.name;
+      if (!matches) continue;
+      final users = value['users'];
+      if (users is! List) {
+        throw StateError('Reaction users fixture is required.');
+      }
+      for (final rawId in users) {
+        final userId = int.tryParse(rawId.toString());
+        if (userId == null || userId <= 0) {
+          throw StateError('Invalid reaction user fixture.');
+        }
+        if (after == null || userId > after.value) ids.add(userId);
+      }
+    }
+    final sorted = ids.toList()..sort();
+    final users = <User>[];
+    for (final user in sorted.take(limit ?? 25)) {
+      users.add(await _Users(gateway).fetch(Snowflake(user)));
+    }
+    return users;
+  }
 
   @override
   Future<Message> fetch(Snowflake id) async {
@@ -363,6 +831,8 @@ class _FixtureMessages implements MessageManager {
                 _readEmbed(Map<String, dynamic>.from(rawEmbed as Map)),
           )
           .toList(),
+      raw,
+      this,
     );
   }
 
@@ -380,7 +850,43 @@ class _FixtureMessage implements Message {
     this.attachments,
     this.reactions,
     this.embeds,
+    this.row,
+    this.fixtureManager,
   );
+  final Map row;
+  final MessageManager fixtureManager;
+  @override
+  List<Component>? get components => (row['components'] as List?)
+      ?.map((raw) => _fixtureComponent(Map<String, dynamic>.from(raw as Map)))
+      .toList();
+
+  @override
+  DateTime? get editedTimestamp => row['edited_timestamp'] == null
+      ? null
+      : DateTime.parse(row['edited_timestamp'].toString());
+  @override
+  MessageType get type => row['type'] == 'reply'
+      ? MessageType.reply
+      : MessageType((row['type'] as num?)?.toInt() ?? 0);
+  @override
+  MessageReference? get reference {
+    final raw = row['message_reference'];
+    if (raw is! Map) return null;
+    return MessageReference(
+      manager: fixtureManager,
+      type: MessageReferenceType.defaultType,
+      messageId: raw['message_id'] == null
+          ? null
+          : Snowflake.parse(raw['message_id'].toString()),
+      channelId: raw['channel_id'] == null
+          ? channelId
+          : Snowflake.parse(raw['channel_id'].toString()),
+      guildId: raw['guild_id'] == null
+          ? null
+          : Snowflake.parse(raw['guild_id'].toString()),
+    );
+  }
+
   @override
   final Snowflake id;
   @override
@@ -404,8 +910,10 @@ class _FixtureMessage implements Message {
 }
 
 Embed _readEmbed(Map<String, dynamic> raw) {
-  final footer = raw['footer']?.toString();
-  final image = raw['image']?.toString();
+  final rawFooter = raw['footer'];
+  final footer = (rawFooter is Map ? rawFooter['text'] : rawFooter)?.toString();
+  final rawImage = raw['image'];
+  final image = (rawImage is Map ? rawImage['url'] : rawImage)?.toString();
   final color = raw['color'];
   return Embed(
     title: raw['title']?.toString(),
@@ -494,7 +1002,12 @@ class _Members implements MemberManager {
   _Members(this.gateway, this.guildId);
   final EntityFixtureGateway gateway;
   @override
+  NyxxGateway get client => gateway;
+  @override
   final Snowflake guildId;
+
+  @override
+  Future<Member> get(Snowflake id) => fetch(id);
 
   @override
   Future<List<Member>> list({int? limit, Snowflake? after}) async {
@@ -510,8 +1023,16 @@ class _Members implements MemberManager {
     }
     final ids =
         members.keys
-            .map((id) => int.tryParse(id.toString()))
-            .whereType<int>()
+            .map((raw) {
+              final text = raw.toString();
+              final id = RegExp(r'^[0-9]+$').hasMatch(text)
+                  ? int.tryParse(text)
+                  : null;
+              if (id == null || id <= 0) {
+                throw StateError('Invalid sandbox member ID: $text');
+              }
+              return id;
+            })
             .where((id) => after == null || id > after.value)
             .toList()
           ..sort();
@@ -576,12 +1097,14 @@ class _Members implements MemberManager {
           ? await _Users(gateway).fetch(id)
           : null,
       nick: row['nick']?.toString(),
-      avatarHash: null,
+      avatarHash: row['avatar']?.toString(),
       bannerHash: null,
       roleIds: (row['roles'] as List? ?? const [])
           .map((roleId) => Snowflake.parse(roleId.toString()))
           .toList(),
-      joinedAt: DateTime.utc(2025),
+      joinedAt: row['joined_at'] == null
+          ? DateTime.utc(2025)
+          : DateTime.parse(row['joined_at'].toString()),
       premiumSince: row['premium_since'] == null
           ? null
           : DateTime.parse(row['premium_since'].toString()),
@@ -592,9 +1115,13 @@ class _Members implements MemberManager {
       permissions: row['permissions'] == null
           ? null
           : Permissions(int.parse(row['permissions'].toString())),
-      communicationDisabledUntil: row['timeout_until'] == null
+      communicationDisabledUntil:
+          (row['communication_disabled_until'] ?? row['timeout_until']) == null
           ? null
-          : DateTime.parse(row['timeout_until'].toString()),
+          : DateTime.parse(
+              (row['communication_disabled_until'] ?? row['timeout_until'])
+                  .toString(),
+            ),
       avatarDecorationData: null,
       avatarDecorationHash: null,
     );
@@ -634,7 +1161,16 @@ class _Roles implements RoleManager {
           int.parse((row['permissions'] ?? '0').toString()),
         ),
         isMentionable: row['mentionable'] == true,
-        tags: null,
+        tags: row['managed'] == true
+            ? RoleTags(
+                botId: null,
+                integrationId: Snowflake(1),
+                isPremiumSubscriber: false,
+                subscriptionListingId: null,
+                isAvailableForPurchase: false,
+                isLinkedRole: false,
+              )
+            : null,
         flags: RoleFlags(0),
       );
     }).toList();
@@ -662,4 +1198,115 @@ class _Roles implements RoleManager {
   @override
   dynamic noSuchMethod(Invocation invocation) =>
       throw StateError('Sandbox role write denied');
+}
+
+List<PermissionOverwrite> _fixtureOverwrites(Map<String, dynamic> channel) {
+  final raw = channel['permission_overwrites'];
+  if (raw == null) return const [];
+  if (raw is! List) throw StateError('Invalid sandbox permission overwrites.');
+  int mask(Object? value) {
+    final parsed = int.tryParse(value?.toString() ?? '0');
+    if (parsed == null || parsed < 0) {
+      throw StateError('Invalid sandbox permission mask.');
+    }
+    return parsed;
+  }
+
+  return List.unmodifiable(
+    raw.map((entry) {
+      final row = Map<String, dynamic>.from(entry as Map);
+      final type = switch (row['type']) {
+        0 || '0' || 'role' => PermissionOverwriteType.role,
+        1 || '1' || 'member' => PermissionOverwriteType.member,
+        _ => throw StateError('Invalid sandbox permission overwrite type.'),
+      };
+      return PermissionOverwrite(
+        id: Snowflake.parse(row['id'].toString()),
+        type: type,
+        allow: Permissions(mask(row['allow'])),
+        deny: Permissions(mask(row['deny'])),
+      );
+    }),
+  );
+}
+
+Component _fixtureComponent(Map<String, dynamic> raw) {
+  final id = (raw['id'] as num?)?.toInt() ?? 0;
+  final type = ComponentType((raw['type'] as num).toInt());
+  Emoji? emoji(dynamic value) {
+    if (value is! Map) return null;
+    return _FixtureEmoji(
+      value['id'] == null
+          ? Snowflake.zero
+          : Snowflake.parse(value['id'].toString()),
+      value['name']?.toString() ?? '',
+    );
+  }
+
+  if (type == ComponentType.actionRow) {
+    return ActionRowComponent(
+      id: id,
+      components: (raw['components'] as List)
+          .map(
+            (child) =>
+                _fixtureComponent(Map<String, dynamic>.from(child as Map)),
+          )
+          .toList(),
+    );
+  }
+  if (type == ComponentType.button) {
+    return ButtonComponent(
+      id: id,
+      style: ButtonStyle((raw['style'] as num).toInt()),
+      label: raw['label']?.toString(),
+      emoji: emoji(raw['emoji']),
+      customId: raw['custom_id']?.toString(),
+      skuId: raw['sku_id'] == null
+          ? null
+          : Snowflake.parse(raw['sku_id'].toString()),
+      url: raw['url'] == null ? null : Uri.parse(raw['url'].toString()),
+      isDisabled: raw['disabled'] as bool?,
+    );
+  }
+  if (const [
+    ComponentType.stringSelect,
+    ComponentType.userSelect,
+    ComponentType.roleSelect,
+    ComponentType.mentionableSelect,
+    ComponentType.channelSelect,
+  ].contains(type)) {
+    return SelectMenuComponent(
+      id: id,
+      type: type,
+      customId: raw['custom_id'].toString(),
+      options: (raw['options'] as List?)
+          ?.map(
+            (option) => SelectMenuOption(
+              label: option['label'].toString(),
+              value: option['value'].toString(),
+              description: option['description']?.toString(),
+              emoji: emoji(option['emoji']),
+              isDefault: option['default'] as bool?,
+            ),
+          )
+          .toList(),
+      channelTypes: (raw['channel_types'] as List?)
+          ?.map((v) => ChannelType((v as num).toInt()))
+          .toList(),
+      placeholder: raw['placeholder']?.toString(),
+      defaultValues: (raw['default_values'] as List?)
+          ?.map(
+            (v) => SelectMenuDefaultValue(
+              id: Snowflake.parse(v['id'].toString()),
+              type: SelectMenuDefaultValueType(v['type'].toString()),
+            ),
+          )
+          .toList(),
+      minValues: raw['min_values'] as int?,
+      maxValues: raw['max_values'] as int?,
+      isDisabled: raw['disabled'] as bool?,
+      isRequired: raw['required'] as bool?,
+    );
+  }
+  return UnknownComponent(type: type, id: id);
 }
