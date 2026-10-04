@@ -10522,4 +10522,32 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get history_action_failed => '履歴の操作を完了できませんでした。もう一度お試しください。';
+
+  @override
+  String get bot_create_title => 'Botを作成';
+
+  @override
+  String get bot_create_description => 'Discord Botを接続して、作成方法を選択します。';
+
+  @override
+  String get bot_create_visual_title => 'ブロック & BDFD';
+
+  @override
+  String get bot_create_visual_description => 'ビジュアルアクションやBDFDスクリプトで作成します。';
+
+  @override
+  String get bot_create_javascript_description =>
+      'Discord.jsを使ってJavaScriptでBotを作成します。';
+
+  @override
+  String get editor_section_creation => '作成';
+
+  @override
+  String get editor_section_automation => '自動化';
+
+  @override
+  String get editor_section_management => '管理';
+
+  @override
+  String get bot_create_mode => '作成モード';
 }

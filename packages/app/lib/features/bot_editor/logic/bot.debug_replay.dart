@@ -11,6 +11,7 @@ class DebugActionFrame {
   final int? loopIteration;
   final Map<String, String>? variablesBefore;
   final Map<String, String>? variablesAfter;
+  final Map<String, dynamic>? nativeMetadata;
 
   const DebugActionFrame({
     required this.actionType,
@@ -21,9 +22,24 @@ class DebugActionFrame {
     this.loopIteration,
     this.variablesBefore,
     this.variablesAfter,
+    this.nativeMetadata,
   });
 
-  bool get isError => result != null && result!.startsWith('Error:');
+  bool get isNative => nativeMetadata?['backend'] == 'native-v1';
+  bool get isError =>
+      nativeMetadata?['nativeStatus'] == 'error' ||
+      nativeMetadata?['nativeStatus'] == 'timeout' ||
+      (result != null && result!.startsWith('Error:'));
+
+  String get displayName => isNative
+      ? actionType
+      : actionType
+            .replaceAllMapped(RegExp(r'([A-Z])'), (m) => ' ${m.group(0)}')
+            .trimLeft()
+            .replaceFirstMapped(
+              RegExp(r'^.'),
+              (m) => m.group(0)!.toUpperCase(),
+            );
 
   factory DebugActionFrame.fromJson(Map<String, dynamic> json) =>
       DebugActionFrame(
@@ -35,9 +51,27 @@ class DebugActionFrame {
         loopIteration: json['loopIteration'] as int?,
         variablesBefore: _castStringMap(json['variablesBefore']),
         variablesAfter: _castStringMap(json['variablesAfter']),
+        nativeMetadata: json['backend'] == 'native-v1'
+            ? Map.unmodifiable({
+                for (final key in [
+                  'backend',
+                  'nativeKind',
+                  'nativeStatus',
+                  'line',
+                  'column',
+                  'scriptDepth',
+                  'functionDepth',
+                  'branch',
+                  'eventsDropped',
+                  'valueTruncated',
+                ])
+                  if (json.containsKey(key)) key: json[key],
+              })
+            : null,
       );
 
   Map<String, dynamic> toJson() => <String, dynamic>{
+    ...?nativeMetadata,
     'actionType': actionType,
     'startMs': startMs,
     'durationMs': durationMs,
@@ -76,16 +110,14 @@ class DebugReplayRecord {
 
   factory DebugReplayRecord.fromJson(Map<String, dynamic> json) {
     final rawFrames = json['frames'];
-    final frames =
-        (rawFrames is List)
-            ? rawFrames
-                .whereType<Map>()
-                .map(
-                  (f) =>
-                      DebugActionFrame.fromJson(Map<String, dynamic>.from(f)),
-                )
-                .toList(growable: false)
-            : const <DebugActionFrame>[];
+    final frames = (rawFrames is List)
+        ? rawFrames
+              .whereType<Map>()
+              .map(
+                (f) => DebugActionFrame.fromJson(Map<String, dynamic>.from(f)),
+              )
+              .toList(growable: false)
+        : const <DebugActionFrame>[];
     return DebugReplayRecord(
       commandLabel: (json['commandLabel'] ?? '').toString(),
       triggeredAt:
@@ -171,5 +203,3 @@ void clearDebugReplays() {
 }
 
 // ─── Service-isolate → main-isolate bridge ───────────────────────────────────
-
-

@@ -1,3 +1,5 @@
+import 'package:bot_creator/core/bdfd_editor/bdfd_validation.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bdfd_editor_page.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -123,6 +125,9 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
   List<String> _existingFolders = const [];
 
   String _executionMode = workflowExecutionModeWorkflow;
+  late final TextEditingController _bdfdScriptController;
+  String _bdfdBackend = 'legacy-v1';
+  bool get _isBdfdMode => _executionMode == workflowExecutionModeBdfd;
   late final TextEditingController _jsScriptController;
   String _jsScriptContent = '';
   bool _supportsJavascriptMode = false;
@@ -243,6 +248,14 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
       normalized?['jsScriptContent'],
     );
     _jsScriptController = TextEditingController(text: _jsScriptContent);
+    _bdfdScriptController = TextEditingController(
+      text:
+          (normalized?['bdfdScriptContent'] ??
+                  normalized?['scriptContent'] ??
+                  '')
+              .toString(),
+    );
+    _bdfdBackend = (normalized?['bdfdBackend'] ?? 'legacy-v1').toString();
     _executionMode = normalizeWorkflowExecutionMode(
       normalized?['executionMode'],
       supportsJavascript: true,
@@ -270,6 +283,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
     _folderController.dispose();
     _entryPointController.dispose();
     _jsScriptController.dispose();
+    _bdfdScriptController.dispose();
     super.dispose();
   }
 
@@ -433,6 +447,24 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
       ).showSnackBar(SnackBar(content: Text(context.tr.workflows_name)));
       return;
     }
+    if (_isBdfdMode) {
+      final diagnostics = bdfdDiagnosticsFor(
+        _bdfdScriptController.text,
+        backend: _bdfdBackend,
+      );
+      if (_bdfdScriptController.text.trim().isEmpty || diagnostics.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              diagnostics.isNotEmpty
+                  ? diagnostics.first.message
+                  : context.tr.bdfd_editor_empty,
+            ),
+          ),
+        );
+        return;
+      }
+    }
     setState(() => _saving = true);
 
     final oldName = widget.initial?['name']?.toString();
@@ -478,6 +510,8 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
           ? workflowExecutionModeJavascript
           : _executionMode,
       jsScriptContent: _jsScriptController.text,
+      bdfdScriptContent: _isBdfdMode ? _bdfdScriptController.text : '',
+      bdfdBackend: _bdfdBackend,
     );
 
     // Dynamic Refresh: apply changes immediately to running bot.
@@ -595,7 +629,8 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                 );
               }
 
-              final isBlueprint = _desktopViewMode == 'blueprint';
+              final isBlueprint =
+                  _desktopViewMode == 'blueprint' && !_isBdfdMode;
 
               final allActionItems = List<ActionItem>.generate(
                 _actions.length,
@@ -1088,6 +1123,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                                     ),
                                     ButtonSegment<String>(
                                       value: 'blueprint',
+                                      enabled: !_isBdfdMode,
                                       icon: AppIcon.fromMaterial(
                                         Icons.hub_outlined,
                                         size: 16,
@@ -1098,7 +1134,9 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                                       ),
                                     ),
                                   ],
-                                  selected: {_desktopViewMode},
+                                  selected: {
+                                    _isBdfdMode ? 'linear' : _desktopViewMode,
+                                  },
                                   onSelectionChanged: (val) {
                                     if (val.isNotEmpty) {
                                       setState(() {
@@ -1173,8 +1211,11 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
 
       // ── Entry Point block ──
       _buildEntryPointBlock(),
+      if (!_isJavascriptOnlyBot) _buildBdfdWorkflowMode(),
 
-      if (_isJavascriptMode && _showJavascriptExecutionMode) ...[
+      if (_isBdfdMode) ...[
+        _buildBdfdWorkflowEditor(),
+      ] else if (_isJavascriptMode && _showJavascriptExecutionMode) ...[
         _buildJavascriptEditorTile(),
       ] else ...[
         // ── Action blocks ──
@@ -2071,6 +2112,109 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildBdfdWorkflowMode() => DropdownButtonFormField<String>(
+    key: ValueKey('workflow-mode-$_executionMode'),
+    initialValue: _executionMode,
+    decoration: InputDecoration(labelText: context.tr.cmd_execution_mode_title),
+    items: [
+      DropdownMenuItem(
+        value: workflowExecutionModeWorkflow,
+        child: Text(context.tr.cmd_execution_mode_workflow),
+      ),
+      DropdownMenuItem(
+        value: workflowExecutionModeBdfd,
+        child: Text(context.tr.cmd_execution_mode_bdfd),
+      ),
+      if (_isJavascriptMode)
+        DropdownMenuItem(
+          value: workflowExecutionModeJavascript,
+          child: Text(context.tr.cmd_execution_mode_javascript),
+        ),
+    ],
+    onChanged: (value) {
+      if (value != null) setState(() => _executionMode = value);
+    },
+  );
+
+  Widget _buildBdfdWorkflowEditor() {
+    final diagnostics = bdfdDiagnosticsFor(
+      _bdfdScriptController.text,
+      backend: _bdfdBackend,
+    );
+    final french = Localizations.localeOf(context).languageCode == 'fr';
+    return ScratchBlock(
+      color: Theme.of(context).colorScheme.primary,
+      title: context.tr.cmd_execution_mode_bdfd,
+      icon: Icons.code,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          DropdownButtonFormField<String>(
+            key: ValueKey('workflow-backend-$_bdfdBackend'),
+            initialValue: _bdfdBackend,
+            decoration: InputDecoration(
+              labelText: french ? 'Moteur BDFD' : 'BDFD engine',
+            ),
+            items: [
+              const DropdownMenuItem(
+                value: 'legacy-v1',
+                child: Text('BDFD legacy'),
+              ),
+              DropdownMenuItem(
+                value: 'native-v1',
+                child: Text(
+                  french
+                      ? 'BDFD natif (en migration)'
+                      : 'Native BDFD (migration in progress)',
+                ),
+              ),
+              if (!['legacy-v1', 'native-v1'].contains(_bdfdBackend))
+                DropdownMenuItem(
+                  value: _bdfdBackend,
+                  child: Text(_bdfdBackend),
+                ),
+            ],
+            onChanged: (value) {
+              if (value != null) setState(() => _bdfdBackend = value);
+            },
+          ),
+          const SizedBox(height: 12),
+          InkWell(
+            onTap: () async {
+              final code = await Navigator.push<String>(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => BdfdEditorPage(
+                    initialCode: _bdfdScriptController.text,
+                    bdfdBackend: _bdfdBackend,
+                  ),
+                ),
+              );
+              if (code != null && mounted) {
+                setState(() => _bdfdScriptController.text = code);
+              }
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Text(
+                _bdfdScriptController.text.isEmpty
+                    ? context.tr.bdfd_editor_tap_hint
+                    : _bdfdScriptController.text,
+                maxLines: 8,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+          for (final diagnostic in diagnostics)
+            Text(
+              '${diagnostic.line == null ? '' : 'L${diagnostic.line}:${diagnostic.column} '}${diagnostic.message}',
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+        ],
+      ),
     );
   }
 

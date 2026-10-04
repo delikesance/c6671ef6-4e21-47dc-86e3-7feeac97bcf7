@@ -535,13 +535,49 @@ class _AppEditPageState extends State<AppEditPage>
     ]);
   }
 
-  /// Regroupe les entrées de l'éditeur par catégorie, dans l'ordre historique
-  /// (accueil, commandes, modules, système) : la sidebar extraite ne connaît
-  /// que des sections prêtes à rendre. Les catégories vides sont omises.
+  /// Desktop groups pages by usage; compact mobile navigation keeps its
+  /// existing categories. Empty sections are omitted after runtime gating.
   List<EditorSidebarSection> _buildSidebarSections(
     BuildContext context,
     List<_AppPageEntry> entries,
   ) {
+    if (ResponsiveHelper.isDesktopPlatform() ||
+        MediaQuery.sizeOf(context).width >= AppTheme.desktopBreakpoint) {
+      final groups = <String, List<String>>{
+        context.tr.home_tab: ['home'],
+        context.tr.editor_section_creation: [
+          'copilot',
+          'commands',
+          'workflows',
+          'globals',
+          'emojis',
+        ],
+        context.tr.editor_section_automation: ['scheduler', 'webhooks'],
+        context.tr.editor_section_management: [
+          'team',
+          'guilds',
+          'dashboard',
+          'settings',
+          'offline_token',
+        ],
+      };
+      return [
+        for (final group in groups.entries)
+          if (entries.any((entry) => group.value.contains(entry.id)))
+            EditorSidebarSection(
+              title: group.key.toUpperCase(),
+              items: [
+                for (final id in group.value)
+                  for (final entry in entries.where((entry) => entry.id == id))
+                    EditorSidebarItem(
+                      id: entry.id,
+                      icon: entry.icon,
+                      label: entry.label,
+                    ),
+              ],
+            ),
+      ];
+    }
     final titles = <String, String>{
       'overview': context.tr.home_tab.toUpperCase(),
       'commands': context.tr.commands_tab.toUpperCase(),

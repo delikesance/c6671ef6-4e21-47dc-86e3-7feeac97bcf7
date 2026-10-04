@@ -2094,6 +2094,8 @@ class AppManager implements BotDataStore {
     Map<String, String>? eventVariableAliases,
     String? executionMode,
     String? jsScriptContent,
+    String? bdfdScriptContent,
+    String? bdfdBackend,
   }) async {
     final app = Map<String, dynamic>.from(await getApp(id));
     final workflows = _coerceWorkflowList(app['workflows']);
@@ -2144,6 +2146,11 @@ class AppManager implements BotDataStore {
       'entryPoint': normalizedEntryPoint,
       'arguments': normalizedArguments,
       'executionMode': resolvedExecutionMode,
+      if (bdfdScriptContent != null || existing?['bdfdScriptContent'] != null)
+        'bdfdScriptContent':
+            bdfdScriptContent ?? existing!['bdfdScriptContent'],
+      if (bdfdBackend != null || existing?['bdfdBackend'] != null)
+        'bdfdBackend': bdfdBackend ?? existing!['bdfdBackend'],
       'updatedAt': DateTime.now().toIso8601String(),
       if (resolvedFolder.isNotEmpty) 'folder': resolvedFolder,
       if (resolvedAliases != null && resolvedAliases.isNotEmpty)

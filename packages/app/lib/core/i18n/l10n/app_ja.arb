@@ -10999,5 +10999,14 @@
   "bot_config_versions_remote_authority": "クラウドのバージョンでローカル設定を置き換えます。クラウドにないコマンドとワークフローはローカルから削除されます。",
   "history_preview": "内容を表示",
   "history_delete_confirm": "この保存済みバージョンを完全に削除しますか？現在の設定は変更されません。",
-  "history_action_failed": "履歴の操作を完了できませんでした。もう一度お試しください。"
+  "history_action_failed": "履歴の操作を完了できませんでした。もう一度お試しください。",
+  "bot_create_title": "Botを作成",
+  "bot_create_description": "Discord Botを接続して、作成方法を選択します。",
+  "bot_create_visual_title": "ブロック & BDFD",
+  "bot_create_visual_description": "ビジュアルアクションやBDFDスクリプトで作成します。",
+  "bot_create_javascript_description": "Discord.jsを使ってJavaScriptでBotを作成します。",
+  "editor_section_creation": "作成",
+  "editor_section_automation": "自動化",
+  "editor_section_management": "管理",
+  "bot_create_mode": "作成モード"
 }

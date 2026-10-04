@@ -55,39 +55,39 @@ void main() {
     required String commandId,
     required bool includeSubcommands,
     bool legacyModeEnabled = false,
+    String? bdfdBackend,
   }) async {
-    final options =
-        includeSubcommands
-            ? serializeCommandOptions(<CommandOptionBuilder>[
-              CommandOptionBuilder(
-                  type: CommandOptionType.subCommandGroup,
-                  name: 'config',
-                  description: 'Configuration routes',
-                  isRequired: false,
-                )
-                ..options = <CommandOptionBuilder>[
-                  CommandOptionBuilder(
-                    type: CommandOptionType.subCommand,
-                    name: 'status',
-                    description: 'Status route',
-                    isRequired: false,
-                  ),
-                  CommandOptionBuilder(
-                    type: CommandOptionType.subCommand,
-                    name: 'logchannel',
-                    description: 'Log route',
-                    isRequired: false,
-                  ),
-                ],
-            ])
-            : serializeCommandOptions(<CommandOptionBuilder>[
-              CommandOptionBuilder(
-                type: CommandOptionType.string,
-                name: 'target',
-                description: 'Target value',
+    final options = includeSubcommands
+        ? serializeCommandOptions(<CommandOptionBuilder>[
+            CommandOptionBuilder(
+                type: CommandOptionType.subCommandGroup,
+                name: 'config',
+                description: 'Configuration routes',
                 isRequired: false,
-              ),
-            ]);
+              )
+              ..options = <CommandOptionBuilder>[
+                CommandOptionBuilder(
+                  type: CommandOptionType.subCommand,
+                  name: 'status',
+                  description: 'Status route',
+                  isRequired: false,
+                ),
+                CommandOptionBuilder(
+                  type: CommandOptionType.subCommand,
+                  name: 'logchannel',
+                  description: 'Log route',
+                  isRequired: false,
+                ),
+              ],
+          ])
+        : serializeCommandOptions(<CommandOptionBuilder>[
+            CommandOptionBuilder(
+              type: CommandOptionType.string,
+              name: 'target',
+              description: 'Target value',
+              isRequired: false,
+            ),
+          ]);
 
     final workflow = <String, dynamic>{
       'workflowMode': 'visual',
@@ -105,7 +105,10 @@ void main() {
       'data': <String, dynamic>{
         'commandType': 'chatInput',
         'editorMode': 'advanced',
-        'executionMode': 'workflow',
+        'executionMode': bdfdBackend == null ? 'workflow' : 'bdfd_script',
+        'bdfdBackend': ?bdfdBackend,
+        if (bdfdBackend != null)
+          'bdfdScriptContent': r'$sendMessage[hello;yes]',
         'legacyModeEnabled': legacyModeEnabled,
         'defaultMemberPermissions': '',
         'options': options,
@@ -211,20 +214,19 @@ void main() {
     await pumpCreatePage(
       tester,
       page: Builder(
-        builder:
-            (context) => Scaffold(
-              body: Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute<void>(builder: (_) => page),
-                    );
-                  },
-                  child: const Text('Open'),
-                ),
-              ),
+        builder: (context) => Scaffold(
+          body: Center(
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(builder: (_) => page),
+                );
+              },
+              child: const Text('Open'),
             ),
+          ),
+        ),
       ),
     );
 
@@ -274,61 +276,125 @@ void main() {
     });
 
     for (final discordId in [Snowflake.zero, Snowflake(777)]) {
-    testWidgets('saving keeps the storage identity ($discordId)', (
-      tester,
-    ) async {
-      final botId = 'bot-edit-save-$discordId';
-      const commandId = 'local-edit-save';
-      await seedLocalCommand(
-        botId: botId,
-        commandId: commandId,
-        includeSubcommands: false,
-      );
-
-      await openPageFromHost(
-        tester,
-        page: CommandCreatePage(botId: botId, localCommandId: commandId, id: discordId),
-      );
-
-      // Make the page dirty by editing the command name
-      await tester.enterText(
-        find.byType(TextFormField).first,
-        'settingsmodified',
-      );
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
-
-      // Trigger save inside runAsync so async I/O can complete
-      await tester.runAsync(() async {
-        final saveButton = tester.widget<FloatingActionButton>(
-          find.byType(FloatingActionButton),
-        );
-        saveButton.onPressed?.call();
-        final deadline = DateTime.now().add(const Duration(seconds: 2));
-        while (DateTime.now().isBefore(deadline)) {
-          await tester.pump();
-          try {
-            final saved = await readLocalCommand(
+      testWidgets(
+        'saving a native command preserves its selected engine and source ($discordId)',
+        (tester) async {
+          const botId = 'bot-native-save';
+          const commandId = 'local-native-save';
+          await seedLocalCommand(
+            botId: botId,
+            commandId: commandId,
+            includeSubcommands: false,
+            bdfdBackend: 'native-v1',
+          );
+          await openPageFromHost(
+            tester,
+            page: CommandCreatePage(
               botId: botId,
-              commandId: commandId,
-            );
-            if (saved.containsKey('updatedAt')) {
-              return;
+              localCommandId: commandId,
+              id: Snowflake.zero,
+            ),
+          );
+          expect(
+            find.text('Native BDFD (migration in progress)'),
+            findsWidgets,
+          );
+          await tester.enterText(
+            find.byType(TextFormField).first,
+            'settingsnative',
+          );
+          await tester.pump();
+          await tester.runAsync(() async {
+            tester
+                .widget<FloatingActionButton>(find.byType(FloatingActionButton))
+                .onPressed
+                ?.call();
+            final deadline = DateTime.now().add(const Duration(seconds: 2));
+            while (DateTime.now().isBefore(deadline)) {
+              await tester.pump();
+              final saved = await readLocalCommand(
+                botId: botId,
+                commandId: commandId,
+              );
+              if (saved.containsKey('updatedAt')) return;
+              await Future<void>.delayed(const Duration(milliseconds: 50));
             }
-          } catch (_) {}
-          await Future<void>.delayed(const Duration(milliseconds: 50));
+          });
+          await tester.pump(const Duration(milliseconds: 800));
+          final saved = await readLocalCommand(
+            botId: botId,
+            commandId: commandId,
+          );
+          expect(saved.containsKey('updatedAt'), true);
+          expect(saved['data']['bdfdBackend'], 'native-v1');
+          expect(
+            saved['data']['bdfdScriptContent'],
+            r'$sendMessage[hello;yes]',
+          );
+        },
+      );
+
+      testWidgets('saving keeps the storage identity ($discordId)', (
+        tester,
+      ) async {
+        final botId = 'bot-edit-save-$discordId';
+        const commandId = 'local-edit-save';
+        await seedLocalCommand(
+          botId: botId,
+          commandId: commandId,
+          includeSubcommands: false,
+        );
+
+        await openPageFromHost(
+          tester,
+          page: CommandCreatePage(
+            botId: botId,
+            localCommandId: commandId,
+            id: discordId,
+          ),
+        );
+
+        // Make the page dirty by editing the command name
+        await tester.enterText(
+          find.byType(TextFormField).first,
+          'settingsmodified',
+        );
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+
+        // Trigger save inside runAsync so async I/O can complete
+        await tester.runAsync(() async {
+          final saveButton = tester.widget<FloatingActionButton>(
+            find.byType(FloatingActionButton),
+          );
+          saveButton.onPressed?.call();
+          final deadline = DateTime.now().add(const Duration(seconds: 2));
+          while (DateTime.now().isBefore(deadline)) {
+            await tester.pump();
+            try {
+              final saved = await readLocalCommand(
+                botId: botId,
+                commandId: commandId,
+              );
+              if (saved.containsKey('updatedAt')) {
+                return;
+              }
+            } catch (_) {}
+            await Future<void>.delayed(const Duration(milliseconds: 50));
+          }
+        });
+        await tester.pump(const Duration(milliseconds: 800));
+
+        final saved = await readLocalCommand(
+          botId: botId,
+          commandId: commandId,
+        );
+        expect(saved['id'], commandId);
+        if (!discordId.isZero) {
+          expect(saved['discordId'], discordId.toString());
         }
+        expect(saved.containsKey('updatedAt'), isTrue);
       });
-      await tester.pump(const Duration(milliseconds: 800));
-
-      final saved = await readLocalCommand(botId: botId, commandId: commandId);
-      expect(saved['id'], commandId);
-      if (!discordId.isZero) {
-        expect(saved['discordId'], discordId.toString());
-      }
-      expect(saved.containsKey('updatedAt'), isTrue);
-    });
-
     }
 
     testWidgets(

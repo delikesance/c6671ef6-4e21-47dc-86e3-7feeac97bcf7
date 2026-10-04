@@ -1,3 +1,4 @@
+import 'package:bot_creator/core/bdfd_editor/bdfd_validation.dart';
 import 'dart:convert';
 
 import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
@@ -1036,6 +1037,30 @@ class ActionCard extends StatelessWidget {
     ParameterDefinition paramDef,
     dynamic currentValue,
   ) {
+    if (action.type == BotCreatorActionType.runBdfdScript &&
+        paramDef.key == 'bdfdBackend') {
+      final backend = (currentValue ?? 'legacy-v1').toString();
+      return DropdownButtonFormField<String>(
+        key: ValueKey('bdfd-backend-${action.id}-$backend'),
+        initialValue: backend,
+        decoration: InputDecoration(
+          labelText: Localizations.localeOf(context).languageCode == 'fr'
+              ? 'Moteur BDFD'
+              : 'BDFD engine',
+        ),
+        items: [
+          for (final option in [
+            'legacy-v1',
+            'native-v1',
+            if (!['legacy-v1', 'native-v1'].contains(backend)) backend,
+          ])
+            DropdownMenuItem(value: option, child: Text(option)),
+        ],
+        onChanged: (value) {
+          if (value != null) onParameterChanged(paramDef.key, value);
+        },
+      );
+    }
     switch (paramDef.type) {
       case ParameterType.boolean:
         return Column(
@@ -1408,6 +1433,7 @@ class ActionCard extends StatelessWidget {
           key: _parameterInputKey(paramDef.key),
           currentValue: (currentValue ?? paramDef.defaultValue).toString(),
           hint: _localizeHint(paramDef.hint),
+          backend: (action.parameters['bdfdBackend'] ?? 'legacy-v1').toString(),
           onChanged: (newValue) => onParameterChanged(paramDef.key, newValue),
         );
 
@@ -5258,11 +5284,13 @@ class _BdfdScriptParameterField extends StatefulWidget {
     required this.currentValue,
     required this.onChanged,
     this.hint,
+    required this.backend,
   });
 
   final String currentValue;
   final ValueChanged<String> onChanged;
   final String? hint;
+  final String backend;
 
   @override
   State<_BdfdScriptParameterField> createState() =>
@@ -5272,7 +5300,7 @@ class _BdfdScriptParameterField extends StatefulWidget {
 class _BdfdScriptParameterFieldState extends State<_BdfdScriptParameterField> {
   late final TextEditingController _controller;
   final BdfdCompiler _compiler = BdfdCompiler();
-  BdfdCompileResult? _compileResult;
+  List<BdfdCompileDiagnostic> _diagnostics = const [];
 
   @override
   void initState() {
@@ -5294,20 +5322,18 @@ class _BdfdScriptParameterFieldState extends State<_BdfdScriptParameterField> {
         _controller.text != widget.currentValue) {
       _controller.text = widget.currentValue;
       _recompile();
+    } else if (oldWidget.backend != widget.backend) {
+      _recompile();
     }
   }
 
   void _recompile() {
-    final source = _controller.text;
-    if (source.trim().isEmpty) {
-      _compileResult = null;
-      return;
-    }
-    _compileResult = _compiler.compile(source);
+    _diagnostics = bdfdDiagnosticsFor(
+      _controller.text,
+      backend: widget.backend,
+      legacyCompiler: _compiler,
+    );
   }
-
-  List<BdfdCompileDiagnostic> get _diagnostics =>
-      _compileResult?.diagnostics ?? const <BdfdCompileDiagnostic>[];
 
   bool get _hasErrors => _diagnostics.any(
     (d) => d.severity == BdfdCompileDiagnosticSeverity.error,
@@ -5355,7 +5381,10 @@ class _BdfdScriptParameterFieldState extends State<_BdfdScriptParameterField> {
             final result = await Navigator.push<String>(
               context,
               MaterialPageRoute<String>(
-                builder: (_) => BdfdEditorPage(initialCode: _controller.text),
+                builder: (_) => BdfdEditorPage(
+                  initialCode: _controller.text,
+                  bdfdBackend: widget.backend,
+                ),
               ),
             );
             if (result != null && mounted) {

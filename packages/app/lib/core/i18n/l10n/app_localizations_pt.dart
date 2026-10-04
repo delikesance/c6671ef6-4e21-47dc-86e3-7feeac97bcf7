@@ -11127,4 +11127,34 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get history_action_failed =>
       'Não foi possível concluir esta ação no histórico. Tente novamente.';
+
+  @override
+  String get bot_create_title => 'Criar um bot';
+
+  @override
+  String get bot_create_description =>
+      'Conecte seu bot do Discord e escolha como criá-lo.';
+
+  @override
+  String get bot_create_visual_title => 'Blocos & BDFD';
+
+  @override
+  String get bot_create_visual_description =>
+      'Crie com ações visuais ou scripts BDFD.';
+
+  @override
+  String get bot_create_javascript_description =>
+      'Programe seu bot em JavaScript com Discord.js.';
+
+  @override
+  String get editor_section_creation => 'Criação';
+
+  @override
+  String get editor_section_automation => 'Automação';
+
+  @override
+  String get editor_section_management => 'Gestão';
+
+  @override
+  String get bot_create_mode => 'Modo de criação';
 }

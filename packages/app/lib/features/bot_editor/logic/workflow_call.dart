@@ -5,12 +5,17 @@ const String workflowTypeEvent = 'event';
 
 const String workflowExecutionModeWorkflow = 'workflow';
 const String workflowExecutionModeJavascript = 'javascript';
+const String workflowExecutionModeBdfd = 'bdfd_script';
 
 String normalizeWorkflowExecutionMode(
   dynamic raw, {
   bool supportsJavascript = true,
 }) {
-  final value = (raw ?? workflowExecutionModeWorkflow).toString().trim().toLowerCase();
+  final value = (raw ?? workflowExecutionModeWorkflow)
+      .toString()
+      .trim()
+      .toLowerCase();
+  if (value == workflowExecutionModeBdfd) return workflowExecutionModeBdfd;
   if (value == workflowExecutionModeJavascript && supportsJavascript) {
     return workflowExecutionModeJavascript;
   }
@@ -81,17 +86,17 @@ Map<String, dynamic> normalizeWorkflowEventTrigger(
 
   final category =
       (source['category'] ?? fallbackCategory).toString().trim().isEmpty
-          ? fallbackCategory
-          : (source['category'] ?? fallbackCategory).toString().trim();
+      ? fallbackCategory
+      : (source['category'] ?? fallbackCategory).toString().trim();
   final event =
       (source['event'] ?? source['listenFor'] ?? fallbackEvent)
-              .toString()
-              .trim()
-              .isEmpty
-          ? fallbackEvent
-          : (source['event'] ?? source['listenFor'] ?? fallbackEvent)
-              .toString()
-              .trim();
+          .toString()
+          .trim()
+          .isEmpty
+      ? fallbackEvent
+      : (source['event'] ?? source['listenFor'] ?? fallbackEvent)
+            .toString()
+            .trim();
 
   final customIdFilter = (source['customIdFilter'] ?? '').toString().trim();
 
@@ -195,9 +200,25 @@ Map<String, dynamic> normalizeStoredWorkflowDefinition(
   final jsScriptContent = normalizeWorkflowJsScriptContent(
     normalized['jsScriptContent'] ?? normalized['script'],
   );
-  var executionMode = normalizeWorkflowExecutionMode(normalized['executionMode']);
-  if (jsScriptContent.trim().isNotEmpty && executionMode == workflowExecutionModeWorkflow) {
+  var executionMode = normalizeWorkflowExecutionMode(
+    normalized['executionMode'],
+  );
+  if (jsScriptContent.trim().isNotEmpty &&
+      executionMode == workflowExecutionModeWorkflow) {
     executionMode = workflowExecutionModeJavascript;
+  }
+  final bdfdSource =
+      normalized['bdfdScriptContent'] ??
+      normalized['scriptContent'] ??
+      normalized['bdfdScript'];
+  if (bdfdSource != null) {
+    normalized['bdfdScriptContent'] = bdfdSource.toString();
+  }
+  if (normalized['executionMode'] == null &&
+      bdfdSource != null &&
+      bdfdSource.toString().trim().isNotEmpty &&
+      jsScriptContent.trim().isEmpty) {
+    executionMode = workflowExecutionModeBdfd;
   }
   normalized['executionMode'] = executionMode;
   if (jsScriptContent.isNotEmpty) {
@@ -258,8 +279,9 @@ Map<String, String> resolveWorkflowInvocationArguments({
 
   for (final definition in definitions) {
     final fromProvided = providedByLowercase[definition.name.toLowerCase()];
-    final value =
-        fromProvided != null ? fromProvided.value : definition.defaultValue;
+    final value = fromProvided != null
+        ? fromProvided.value
+        : definition.defaultValue;
     if (enforceRequired && definition.required && value.trim().isEmpty) {
       throw Exception(
         'Missing required workflow argument "${definition.name}"',
