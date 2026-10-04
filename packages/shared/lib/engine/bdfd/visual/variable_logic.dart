@@ -546,6 +546,7 @@ _resolveScopedBinding({
   if (contextId == null || contextId.trim().isEmpty) {
     throw Exception('Unable to resolve context ID for scope "$scope"');
   }
+  requireGuildMemberContext(scope, contextId);
 
   return (
     scope: scope,
