@@ -872,8 +872,6 @@ extension _CommandBlockEditor on _CommandCreatePageState {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _buildBdfdBackendSelector(),
-          const SizedBox(height: 12),
           // ── Preview / tap-to-edit ──
           GestureDetector(
             behavior: HitTestBehavior.opaque,
