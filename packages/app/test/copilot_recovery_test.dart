@@ -203,7 +203,7 @@ void main() {
       });
       await _mount(tester, api, size: const Size(320, 900), textScale: 1.5);
 
-      for (final amount in ['97.09575', '2.90425', '100']) {
+      for (final amount in ['9,710']) {
         final found = find.text(amount);
         expect(found, findsOneWidget);
         final paragraph = tester.renderObject<RenderParagraph>(found);

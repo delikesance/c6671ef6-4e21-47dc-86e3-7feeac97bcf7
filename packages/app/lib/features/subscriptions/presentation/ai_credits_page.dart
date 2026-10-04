@@ -5,10 +5,13 @@ import 'dart:math' as math;
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/network/main_api_client.dart';
 import 'package:bot_creator/core/network/main_api_settings.dart';
+import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/features/copilot/presentation/copilot_page.dart';
 import 'package:bot_creator/features/subscriptions/logic/ai_credit_format.dart';
 import 'package:bot_creator/features/subscriptions/logic/ai_reward_ad.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart' show DateFormat;
+import 'package:reicon_flutter/reicon_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:bot_creator/core/widgets/app_icon.dart';
@@ -175,11 +178,11 @@ class _AICreditsPageState extends State<AICreditsPage> {
         setState(
           () => _turns =
               _turns.floor() +
-              5 -
+              6 -
               (math.max(0, index) + .5) / math.max(1, prizes.length),
         );
       }
-      await Future<void>.delayed(const Duration(milliseconds: 2400));
+      await Future<void>.delayed(const Duration(milliseconds: 4400));
       _pendingSpinKey = null;
       if (mounted) {
         setState(() => _result = result);
@@ -201,86 +204,119 @@ class _AICreditsPageState extends State<AICreditsPage> {
     value,
     locale: Localizations.localeOf(context).toString(),
   );
+
+  /// "Today, 23:02" / "Yesterday, 23:02" / "4 Oct, 23:02" in the user's timezone.
+  String _when(Object? raw) {
+    final parsed = DateTime.tryParse(raw?.toString() ?? '')?.toLocal();
+    if (parsed == null) return raw?.toString() ?? '';
+    final locale = Localizations.localeOf(context);
+    final fr = locale.languageCode == 'fr';
+    final now = DateTime.now();
+    final day = DateTime(parsed.year, parsed.month, parsed.day);
+    final today = DateTime(now.year, now.month, now.day);
+    final time = DateFormat.Hm(locale.toString()).format(parsed);
+    final diff = today.difference(day).inDays;
+    if (diff == 0) return '${fr ? "Aujourd’hui" : "Today"}, $time';
+    if (diff == 1) return '${fr ? "Hier" : "Yesterday"}, $time';
+    final date = parsed.year == now.year
+        ? DateFormat.MMMd(locale.toString())
+        : DateFormat.yMMMd(locale.toString());
+    return '${date.format(parsed)}, $time';
+  }
+
   Widget _balanceCard() {
     final colors = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.all(22),
+      padding: const EdgeInsets.fromLTRB(22, 22, 22, 24),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            colors.primaryContainer.withValues(alpha: .45),
-            colors.surfaceContainerLow,
-          ],
+        gradient: const LinearGradient(
+          colors: [Color(0xFF1C1A2E), AppTheme.homeCard],
+          stops: [0, .7],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        border: Border.all(color: colors.primary.withValues(alpha: .2)),
+        border: Border.all(color: AppTheme.homeClusterBorder),
         borderRadius: BorderRadius.circular(24),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text(
+            context.tr.ai_credits_wallet_card_title,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              color: AppTheme.homeMuted,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 18),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              AppIcon.fromMaterial(
-                Icons.toll_outlined,
-                size: 18,
-                color: colors.primary,
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: AppTheme.actionViolet.withValues(alpha: .18),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Center(
+                  child: AppIcon(
+                    Reicon.outline.coin,
+                    size: 30,
+                    color: AppTheme.actionVioletSoft,
+                  ),
+                ),
               ),
-              const SizedBox(width: 8),
-              Text(
-                context.tr.ai_credits_wallet_card_title,
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: colors.onSurfaceVariant,
+              const SizedBox(width: 14),
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    _credits(_wallet!['available'] ?? _wallet!['balance']),
+                    maxLines: 1,
+                    style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -1.5,
+                      height: 1,
+                    ),
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
-          Text(
-            _credits(_wallet!['available'] ?? _wallet!['balance']),
-            style: Theme.of(context).textTheme.displaySmall?.copyWith(
-              fontWeight: FontWeight.w600,
-              letterSpacing: -1,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            context.tr.ai_credits_available,
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
-          ),
-          const SizedBox(height: 22),
-          Row(
-            children: [
-              for (final item in [
-                (context.tr.ai_credits_label_total, _wallet!['balance']),
-                (
-                  context.tr.ai_credits_label_reserved,
-                  _wallet!['reserved'] ?? 0,
-                ),
-              ])
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item.$1,
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: colors.onSurfaceVariant,
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                      Text(
-                        _credits(item.$2),
-                        style: Theme.of(context).textTheme.titleMedium,
+          if (((_wallet!['reserved'] as num?) ?? 0) > 0) ...[
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: AppTheme.actionVioletSoft,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.actionVioletSoft.withValues(alpha: .2),
+                        spreadRadius: 4,
                       ),
                     ],
                   ),
                 ),
-            ],
-          ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    Localizations.localeOf(context).languageCode == 'fr'
+                        ? '${_credits(_wallet!['reserved'])} crédits en cours d’utilisation'
+                        : '${_credits(_wallet!['reserved'])} credits being used right now',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
           if (_wallet!['blocked'] == true) ...[
             const SizedBox(height: 18),
             Row(
@@ -342,134 +378,349 @@ class _AICreditsPageState extends State<AICreditsPage> {
             if (_wallet != null) ...[
               _balanceCard(),
               const SizedBox(height: 18),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
+              Row(
                 children: [
-                  for (final item in [
+                  for (final (index, item) in [
                     (
+                      Reicon.outline.bag,
                       context.tr.ai_credits_label_purchased,
                       _wallet!['purchased'],
                     ),
                     (
+                      Reicon.outline.wheel,
                       context.tr.ai_credits_label_rewarded,
                       _wallet!['rewarded'],
                     ),
-                    (context.tr.ai_credits_label_granted, _wallet!['granted']),
-                  ])
-                    Chip(
-                      side: BorderSide.none,
-                      backgroundColor: Theme.of(
-                        context,
-                      ).colorScheme.surfaceContainerLow,
-                      label: Text(
-                        '${item.$1} · ${_credits(item.$2)}',
-                        style: Theme.of(context).textTheme.labelSmall,
+                    (
+                      Reicon.outline.gift,
+                      context.tr.ai_credits_label_granted,
+                      _wallet!['granted'],
+                    ),
+                  ].indexed) ...[
+                    if (index > 0) const SizedBox(width: 8),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.fromLTRB(12, 12, 12, 13),
+                        decoration: BoxDecoration(
+                          color: AppTheme.homeCard,
+                          border: Border.all(color: AppTheme.homeCardBorder),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                AppIcon(
+                                  item.$1,
+                                  size: 15,
+                                  color: AppTheme.actionVioletSoft,
+                                ),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: Text(
+                                    item.$2,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelSmall
+                                        ?.copyWith(
+                                          color: AppTheme.homeMuted,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                _credits(item.$3),
+                                maxLines: 1,
+                                style: Theme.of(context).textTheme.titleMedium
+                                    ?.copyWith(fontWeight: FontWeight.w800),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
+                  ],
                 ],
               ),
               const SizedBox(height: 12),
-              if (mobile) Text(context.tr.ai_credits_spins_available(spins)),
-              Text(context.tr.ai_credits_usage_hint),
-              if (mobile) Text(context.tr.ai_credits_daily_ad_limit_hint),
-              const SizedBox(height: 24),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppTheme.homeCard,
+                  border: Border.all(color: AppTheme.homeCardBorder),
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (mobile)
+                      Text(
+                        context.tr.ai_credits_spins_available(spins),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w700),
+                      ),
+                    if (mobile) const SizedBox(height: 6),
+                    Text(
+                      context.tr.ai_credits_usage_hint,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    if (mobile)
+                      Text(
+                        context.tr.ai_credits_daily_ad_limit_hint,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 28),
               if (prizes.isNotEmpty)
                 Center(
                   child: SizedBox(
-                    width: 260,
-                    height: 280,
+                    width: 350,
+                    height: 366,
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
-                        AnimatedRotation(
-                          turns: _turns,
-                          duration: const Duration(milliseconds: 2400),
-                          curve: Curves.easeOutCubic,
-                          child: CustomPaint(
-                            size: const Size(260, 260),
-                            painter: _RoulettePainter(
-                              prizes,
-                              Localizations.localeOf(context).toString(),
+                        Positioned(
+                          top: 40,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppTheme.actionViolet.withValues(
+                                    alpha: .12,
+                                  ),
+                                  blurRadius: 56,
+                                ),
+                              ],
+                            ),
+                            child: const SizedBox(width: 320, height: 320),
+                          ),
+                        ),
+                        Positioned(
+                          top: 40,
+                          child: AnimatedRotation(
+                            turns: _turns,
+                            duration: const Duration(milliseconds: 4400),
+                            curve: const Cubic(.12, .72, .08, 1),
+                            child: CustomPaint(
+                              size: const Size(320, 320),
+                              painter: _RoulettePainter(
+                                prizes,
+                                Localizations.localeOf(context).toString(),
+                              ),
                             ),
                           ),
                         ),
-                        const Positioned(
-                          top: 0,
-                          child: AppIcon.fromMaterial(
-                            Icons.arrow_drop_down,
-                            size: 40,
+                        Positioned(
+                          top: 40 + 160 - 28,
+                          child: Container(
+                            width: 56,
+                            height: 56,
+                            decoration: BoxDecoration(
+                              color: AppTheme.scaffoldDark,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: AppTheme.actionViolet,
+                                width: 2,
+                              ),
+                            ),
+                            child: Center(
+                              child: AppIcon(
+                                Reicon.outline.coin,
+                                size: 24,
+                                color: AppTheme.actionVioletSoft,
+                              ),
+                            ),
                           ),
                         ),
+                        const Positioned(top: 4, child: _WheelPointer()),
                       ],
                     ),
                   ),
                 ),
               if (_result != null)
-                Text(
-                  (_result!['bonus_spins'] as num) > 0
-                      ? context.tr.ai_credits_result_spins(
-                          (_result!['bonus_spins'] as num).toInt(),
-                        )
-                      : context.tr.ai_credits_result_credits(
-                          _credits(_result!['credits']),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppTheme.homeCard,
+                    border: Border.all(color: AppTheme.homeGhostBorder),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    children: [
+                      AppIcon(
+                        Reicon.outline.coin,
+                        size: 26,
+                        color: AppTheme.actionVioletSoft,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          (_result!['bonus_spins'] as num) > 0
+                              ? context.tr.ai_credits_result_spins(
+                                  (_result!['bonus_spins'] as num).toInt(),
+                                )
+                              : context.tr.ai_credits_result_credits(
+                                  _credits(_result!['credits']),
+                                ),
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w800),
                         ),
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                    ],
+                  ),
                 ),
               if (mobile)
-                FilledButton(
+                FilledButton.icon(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppTheme.actionViolet,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size.fromHeight(54),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  icon: const AppIcon.fromMaterial(Icons.casino_outlined),
                   onPressed:
                       _busy ||
                           (spins <= 0 && _pendingSpinKey == null) ||
                           prizes.isEmpty
                       ? null
                       : () => _spin(prizes),
-                  child: Text(context.tr.ai_credits_button_spin),
+                  label: Text(context.tr.ai_credits_button_spin),
                 ),
+              if (mobile) const SizedBox(height: 14),
               if (mobile)
-                OutlinedButton(
+                OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: AppTheme.homeGhostBorder),
+                    minimumSize: const Size.fromHeight(54),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  icon: const AppIcon.fromMaterial(
+                    Icons.play_circle_outline_rounded,
+                  ),
                   onPressed: _busy || !supportsAds || remaining <= 0
                       ? null
                       : _ad,
-                  child: Text(context.tr.ai_credits_button_watch_ad(remaining)),
+                  label: Text(context.tr.ai_credits_button_watch_ad(remaining)),
                 ),
               if (_busy) const Center(child: CircularProgressIndicator()),
             ],
             if (_wallet != null) ...[
-              const SizedBox(height: 24),
+              const SizedBox(height: 28),
               Text(
                 context.tr.ai_credits_history_title,
-                style: Theme.of(context).textTheme.titleLarge,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 8),
               if (_ledger.isEmpty) Text(context.tr.ai_credits_history_empty),
               for (final e in _ledger)
-                ExpansionTile(
-                  title: Text(
-                    '${(e['delta'] as num) > 0 ? '+' : ''}${_credits(e['delta'])} · ${_origin(context, e['source'] as String)}',
-                  ),
-                  subtitle: Text(e['created_at'].toString()),
-                  children: [
-                    SelectableText(
-                      '${context.tr.ai_credits_reference} : ${e['reference']}',
+                DecoratedBox(
+                  decoration: const BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(color: Color(0xFF1B1E26)),
                     ),
-                    if ((e['reason'] ?? '') != '') Text(e['reason'] as String),
-                    if ((e['conversation_id'] ?? '') != '')
-                      TextButton(
-                        onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => CopilotPage(
-                              api: _client,
-                              initialConversationId:
-                                  e['conversation_id'] as String,
+                  ),
+                  child: ExpansionTile(
+                    tilePadding: EdgeInsets.zero,
+                    shape: const Border(),
+                    collapsedShape: const Border(),
+                    leading: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: (e['delta'] as num) > 0
+                            ? AppTheme.statusOnline.withValues(alpha: .12)
+                            : AppTheme.homeMuted.withValues(alpha: .1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Center(
+                        child: AppIcon(
+                          Reicon.outline.coin,
+                          size: 20,
+                          color: (e['delta'] as num) > 0
+                              ? AppTheme.statusOnline
+                              : AppTheme.homeMuted,
+                        ),
+                      ),
+                    ),
+                    title: Text(
+                      _origin(context, e['source'] as String),
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    subtitle: Text(
+                      _when(e['created_at']),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppTheme.homeMuted,
+                      ),
+                    ),
+                    trailing: Text(
+                      '${(e['delta'] as num) > 0 ? '+' : ''}${_credits(e['delta']).replaceFirst('-', '−')}',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: (e['delta'] as num) > 0
+                            ? AppTheme.statusOnline
+                            : null,
+                      ),
+                    ),
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: SelectableText(
+                          '${context.tr.ai_credits_reference} : ${e['reference']}',
+                        ),
+                      ),
+                      if ((e['reason'] ?? '') != '')
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(e['reason'] as String),
+                        ),
+                      if ((e['conversation_id'] ?? '') != '')
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: TextButton(
+                            onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => CopilotPage(
+                                  api: _client,
+                                  initialConversationId:
+                                      e['conversation_id'] as String,
+                                ),
+                              ),
+                            ),
+                            child: Text(
+                              context.tr.ai_credits_open_conversation,
                             ),
                           ),
                         ),
-                        child: Text(context.tr.ai_credits_open_conversation),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
               if (_offset > 0 || _more)
                 Row(
@@ -508,45 +759,132 @@ class _AICreditsPageState extends State<AICreditsPage> {
   }
 }
 
+class _WheelPointer extends StatelessWidget {
+  const _WheelPointer();
+  @override
+  Widget build(BuildContext context) =>
+      CustomPaint(size: const Size(44, 58), painter: _PointerPainter());
+}
+
+class _PointerPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width / 44, h = size.height / 58;
+    final path = Path()
+      ..moveTo(22 * w, 56 * h)
+      ..lineTo(5 * w, 20 * h)
+      ..quadraticBezierTo(22 * w, -4 * h, 39 * w, 20 * h)
+      ..close();
+    canvas.drawPath(path, Paint()..color = AppTheme.actionVioletSoft);
+    canvas.drawPath(
+      path,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3
+        ..strokeJoin = StrokeJoin.round
+        ..color = AppTheme.scaffoldDark,
+    );
+    canvas.drawCircle(
+      Offset(22 * w, 21 * h),
+      6,
+      Paint()..color = AppTheme.scaffoldDark,
+    );
+    canvas.drawCircle(
+      Offset(22 * w, 21 * h),
+      2.5,
+      Paint()..color = AppTheme.actionVioletSoft,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_PointerPainter oldDelegate) => false;
+}
+
 class _RoulettePainter extends CustomPainter {
   _RoulettePainter(this.prizes, this.locale);
   final List<Map<String, dynamic>> prizes;
   final String locale;
+
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2;
+    final outer = size.width / 2;
+    final radius = outer * .8;
+    final rect = Rect.fromCircle(center: center, radius: radius);
     final sweep = 2 * math.pi / prizes.length;
+    // Thin flat ring, like the app's cards.
+    canvas.drawCircle(
+      center,
+      outer - 4,
+      Paint()..color = AppTheme.homeContainerLowest,
+    );
+    canvas.drawCircle(
+      center,
+      outer - 4,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2
+        ..color = AppTheme.homeGhostBorder,
+    );
     for (var i = 0; i < prizes.length; i++) {
       final angle = -math.pi / 2 + i * sweep;
+      final isSpin = prizes[i]['kind'] == 'spins';
+      final edge = i % 2 == 0
+          ? const Color(0xFF1D2029)
+          : const Color(0xFF252935);
       canvas.drawArc(
-        Rect.fromCircle(center: center, radius: radius),
+        rect,
         angle,
         sweep,
         true,
-        Paint()..color = Colors.primaries[i % Colors.primaries.length].shade700,
+        Paint()
+          ..shader = RadialGradient(
+            colors: isSpin
+                ? [const Color(0xFF5B3FD0), AppTheme.actionViolet]
+                : [const Color(0xFF0F1116), edge],
+            stops: const [.2, 1],
+          ).createShader(rect),
       );
+    }
+    // Separators.
+    for (var i = 0; i < prizes.length; i++) {
+      final angle = -math.pi / 2 + i * sweep;
+      canvas.drawLine(
+        center,
+        center + Offset(math.cos(angle), math.sin(angle)) * radius,
+        Paint()
+          ..strokeWidth = 2
+          ..color = AppTheme.homeContainerLowest,
+      );
+    }
+    for (var i = 0; i < prizes.length; i++) {
+      final angle = -math.pi / 2 + i * sweep;
       final prize = prizes[i];
-      final label = prize['kind'] == 'spins'
+      final isSpin = prize['kind'] == 'spins';
+      final label = isSpin
           ? '+${prize['bonus_spins']} ↻'
           : formatAiCredits(prize['credits'], locale: locale);
       final text = TextPainter(
         text: TextSpan(
           text: label,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
+          style: TextStyle(
+            color: isSpin ? Colors.white : AppTheme.dataAccent,
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
           ),
         ),
         textDirection: TextDirection.ltr,
       )..layout();
-      final position =
-          center +
-          Offset(math.cos(angle + sweep / 2), math.sin(angle + sweep / 2)) *
-              radius *
-              .65;
-      text.paint(canvas, position - Offset(text.width / 2, text.height / 2));
+      final mid = angle + sweep / 2;
+      canvas.save();
+      canvas.translate(
+        center.dx + math.cos(mid) * radius * .69,
+        center.dy + math.sin(mid) * radius * .69,
+      );
+      // Read along the radius, flipped on the left half so it is never upside down.
+      canvas.rotate(math.cos(mid) < 0 ? mid + math.pi : mid);
+      text.paint(canvas, Offset(-text.width / 2, -text.height / 2));
+      canvas.restore();
     }
   }
 
