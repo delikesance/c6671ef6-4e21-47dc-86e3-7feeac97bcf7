@@ -7,9 +7,11 @@ import '../loop_syntax.dart';
 import '../program.dart';
 import 'action_functions.dart';
 import 'channel_actions.dart';
+import 'component_actions.dart';
 import 'control_flow_actions.dart';
 import 'control_flow_state.dart';
 import 'guild_actions.dart';
+import 'listener_actions.dart';
 import 'message_actions.dart';
 import 'moderation_actions.dart';
 import 'role_actions.dart';
@@ -102,6 +104,8 @@ class ActionTranslator {
     ...channelLeafPredicates,
     ...controlLeafPredicates,
     ...messageLeafPredicates,
+    ...componentLeafPredicates,
+    ...listenerLeafPredicates,
   };
 
   /// Whether [action] runs on the native engine. A leaf needs a handler (and a
