@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:nyxx/nyxx.dart';
 import '../engine/execution_budget.dart';
+import '../actions/respond_modal.dart' show buildModalResponse;
+import '../types/component.dart' show ModalDefinition;
 import '../utils/interaction_ack_state.dart';
 import 'bot_message_query_service.dart' show messageQuerySnowflake;
 
@@ -150,6 +152,8 @@ ComponentBuilder nativeComponentBuilder(Map<String, dynamic> node) {
     'roleSelect',
     'mentionableSelect',
     'channelSelect',
+    'categorySelect',
+    'voiceSelect',
   ].contains(type)) {
     payload = {
       'type': const {
@@ -158,6 +162,8 @@ ComponentBuilder nativeComponentBuilder(Map<String, dynamic> node) {
         'roleSelect': 6,
         'mentionableSelect': 7,
         'channelSelect': 8,
+        'categorySelect': 8,
+        'voiceSelect': 8,
       }[type],
       'custom_id': node['customId'],
       'min_values': node['minValues'],
@@ -179,7 +185,12 @@ ComponentBuilder nativeComponentBuilder(Map<String, dynamic> node) {
               },
             )
             .toList(),
-      if (node['channelTypes'] != null) 'channel_types': node['channelTypes'],
+      if (type == 'categorySelect')
+        'channel_types': [4]
+      else if (type == 'voiceSelect')
+        'channel_types': [2]
+      else if (node['channelTypes'] != null)
+        'channel_types': _channelTypes(node['channelTypes']),
       if (node['defaultValues'] != null)
         'default_values': node['defaultValues'],
     };
@@ -245,36 +256,76 @@ ComponentBuilder nativeComponentBuilder(Map<String, dynamic> node) {
   return _RawComponentBuilder(payload);
 }
 
+/// Discord expects channel_types as a list of integers; BDFD scripts supply a
+/// single value or a comma-separated list.
+List<int> _channelTypes(Object? raw) {
+  final values = raw is Iterable
+      ? raw
+      : raw.toString().split(RegExp(r'[,;\s]+'));
+  return [
+    for (final value in values)
+      if (int.tryParse(value.toString().trim()) != null)
+        int.parse(value.toString().trim()),
+  ];
+}
+
+/// Plain `$addTextInput` modals keep the classic action-row text inputs. As
+/// soon as a modal uses Components V2 inputs (`$addModal*`), the staged native
+/// modal is translated into the product modal definition and serialised with
+/// the same builder as visual modal actions: inputs become Label-wrapped
+/// components, static text stays a standalone display.
 ModalBuilder nativeModalBuilder(Map<String, dynamic> modal) {
   final inputs = (modal['inputs'] as List).cast<Map<String, dynamic>>();
   if (inputs.isEmpty || inputs.length > 5) {
     throw ArgumentError('A modal requires 1 to 5 inputs.');
   }
-  return ModalBuilder(
-    customId: modal['customId'] as String,
-    title: modal['title'] as String,
-    components: inputs
-        .map(
-          (input) => _RawComponentBuilder({
-            'type': 1,
-            'components': [
-              {
-                'type': 4,
-                'custom_id': input['customId'],
-                'label': input['label'],
-                'style': input['style'] == 'paragraph' ? 2 : 1,
-                'min_length': input['minLength'],
-                'max_length': input['maxLength'],
-                'required': input['required'],
-                if ((input['value'] ?? '').toString().isNotEmpty)
-                  'value': input['value'],
-                if ((input['placeholder'] ?? '').toString().isNotEmpty)
-                  'placeholder': input['placeholder'],
-              },
-            ],
-          }),
-        )
-        .toList(),
+  if (inputs.every((input) => input['type'] == null)) {
+    return ModalBuilder(
+      customId: modal['customId'] as String,
+      title: modal['title'] as String,
+      components: inputs
+          .map(
+            (input) => _RawComponentBuilder({
+              'type': 1,
+              'components': [
+                {
+                  'type': 4,
+                  'custom_id': input['customId'],
+                  'label': input['label'],
+                  'style': input['style'] == 'paragraph' ? 2 : 1,
+                  'min_length': input['minLength'],
+                  'max_length': input['maxLength'],
+                  'required': input['required'],
+                  if ((input['value'] ?? '').toString().isNotEmpty)
+                    'value': input['value'],
+                  if ((input['placeholder'] ?? '').toString().isNotEmpty)
+                    'placeholder': input['placeholder'],
+                },
+              ],
+            }),
+          )
+          .toList(),
+    );
+  }
+  final components = <Map<String, dynamic>>[
+    for (final input in inputs)
+      if (input['type'] == 'textDisplay')
+        {'type': 'textDisplay', 'content': input['content'] ?? ''}
+      else
+        {
+          'type': 'label',
+          'label': input['label'] ?? '',
+          'description': input['description'] ?? '',
+          'component': {...input, 'type': input['type'] ?? 'textInput'},
+        },
+  ];
+  return buildModalResponse(
+    ModalDefinition.fromJson({
+      'title': modal['title'],
+      'customId': modal['customId'],
+      'components': components,
+    }),
+    (value) => value,
   );
 }
 

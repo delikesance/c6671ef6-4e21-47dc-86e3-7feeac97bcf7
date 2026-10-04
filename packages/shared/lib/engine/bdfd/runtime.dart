@@ -106,6 +106,14 @@ class BdfdContext {
   final BdfdResponseState response;
   final Set<String> activeWorkflows;
 
+  /// Optional hook mapping a canvas image source to loadable bytes (data URL
+  /// or base64). Hosts such as the sandbox use it to supply local fixtures.
+  Future<String> Function(String source)? imageSourceResolver;
+
+  /// Callbacks run once, before the buffered output is flushed (for example to
+  /// render canvases that must be attached to the response).
+  final List<Future<void> Function()> beforeFlush = [];
+
   /// Shared by nested execution; injectable to reproduce random choices in tests.
   final math.Random random;
   final BdfdTimeState time;
@@ -468,6 +476,9 @@ class BdfdRuntime {
         output.write(message);
         context.output?.discard();
         _appendError(context, message, error.message);
+      }
+      while (context.beforeFlush.isNotEmpty) {
+        await context.beforeFlush.removeAt(0)();
       }
       await context.output?.flush(
         context,

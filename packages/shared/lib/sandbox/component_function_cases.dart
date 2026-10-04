@@ -4,11 +4,12 @@ import 'function_suite.dart';
 const sandboxComponentFunctionCases = [
   SandboxFunctionCase(
     'addbutton',
-    r'$addButton[no;press;((opts.label));primary;((opts.disabled))]',
+    r'$addButton[no;press;$message[label];primary;$message[disabled]]',
     0,
     '',
     label: 'runtime values',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'label': 'Click', 'disabled': true},
     },
     expectedValues: {
@@ -19,11 +20,12 @@ const sandboxComponentFunctionCases = [
   ),
   SandboxFunctionCase(
     'addbuttoncv2',
-    r'$addButtonCV2[press;((opts.label));success;((opts.disabled))]',
+    r'$addButtonCV2[press;$message[label];success;$message[disabled]]',
     0,
     '',
     label: 'runtime values',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'label': 'Click', 'disabled': true},
     },
     expectedValues: {
@@ -33,11 +35,12 @@ const sandboxComponentFunctionCases = [
   ),
   SandboxFunctionCase(
     'addbutton',
-    r'$addButton[no;((opts.url));Link;((opts.Style));false]',
+    r'$addButton[no;$message[url];Link;$message[Style];false]',
     0,
     '',
     label: 'dynamic link style',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'url': 'https://example.com', 'Style': 'link'},
     },
     expectedValues: {
@@ -58,11 +61,12 @@ const sandboxComponentFunctionCases = [
   ),
   SandboxFunctionCase(
     'adduserselect',
-    r'$adduserselect[menu;Choose;((opts.min));((opts.max));((opts.disabled))]',
+    r'$adduserselect[menu;Choose;$message[min];$message[max];$message[disabled]]',
     0,
     '',
     label: 'runtime values',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'min': 2, 'max': 3, 'disabled': true},
     },
     expectedValues: {
@@ -74,11 +78,12 @@ const sandboxComponentFunctionCases = [
   ),
   SandboxFunctionCase(
     'addroleselect',
-    r'$addroleselect[menu;Choose;((opts.min));((opts.max));((opts.disabled))]',
+    r'$addroleselect[menu;Choose;$message[min];$message[max];$message[disabled]]',
     0,
     '',
     label: 'runtime values',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'min': 2, 'max': 3, 'disabled': true},
     },
     expectedValues: {
@@ -90,11 +95,12 @@ const sandboxComponentFunctionCases = [
   ),
   SandboxFunctionCase(
     'addmentionableselect',
-    r'$addmentionableselect[menu;Choose;((opts.min));((opts.max));((opts.disabled))]',
+    r'$addmentionableselect[menu;Choose;$message[min];$message[max];$message[disabled]]',
     0,
     '',
     label: 'runtime values',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'min': 2, 'max': 3, 'disabled': true},
     },
     expectedValues: {
@@ -106,11 +112,12 @@ const sandboxComponentFunctionCases = [
   ),
   SandboxFunctionCase(
     'addchannelselect',
-    r'$addchannelselect[menu;Choose;((opts.min));((opts.max));((opts.disabled))]',
+    r'$addchannelselect[menu;Choose;$message[min];$message[max];$message[disabled]]',
     0,
     '',
     label: 'runtime values',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'min': 2, 'max': 3, 'disabled': true},
     },
     expectedValues: {
@@ -122,11 +129,12 @@ const sandboxComponentFunctionCases = [
   ),
   SandboxFunctionCase(
     'addcategoryselect',
-    r'$addcategoryselect[menu;Choose;((opts.min));((opts.max));((opts.disabled))]',
+    r'$addcategoryselect[menu;Choose;$message[min];$message[max];$message[disabled]]',
     0,
     '',
     label: 'runtime values',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'min': 2, 'max': 3, 'disabled': true},
     },
     expectedValues: {
@@ -139,11 +147,12 @@ const sandboxComponentFunctionCases = [
   ),
   SandboxFunctionCase(
     'addvoiceselect',
-    r'$addvoiceselect[menu;Choose;((opts.min));((opts.max));((opts.disabled))]',
+    r'$addvoiceselect[menu;Choose;$message[min];$message[max];$message[disabled]]',
     0,
     '',
     label: 'runtime values',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'min': 2, 'max': 3, 'disabled': true},
     },
     expectedValues: {
@@ -156,11 +165,12 @@ const sandboxComponentFunctionCases = [
   ),
   SandboxFunctionCase(
     'addstringselect',
-    r'$addstringselect[menu;Choose;((opts.min));((opts.max));((opts.disabled))]$addStringSelectOption[One;one;;;true]',
+    r'$addstringselect[menu;Choose;$message[min];$message[max];$message[disabled]]$addStringSelectOption[One;one;;;true]$addStringSelectOption[Two;two]$addStringSelectOption[Three;three]',
     0,
     '',
     label: 'runtime values',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'min': 2, 'max': 3, 'disabled': true},
     },
     expectedValues: {
@@ -172,11 +182,12 @@ const sandboxComponentFunctionCases = [
   ),
   SandboxFunctionCase(
     'newselectmenu',
-    r'$newSelectMenu[menu;((opts.min));((opts.max));Choose]$addSelectMenuOption[menu;One;one;;true]',
+    r'$newSelectMenu[menu;$message[min];$message[max];Choose]$addSelectMenuOption[menu;One;one;;true]$addSelectMenuOption[menu;Two;two;]',
     0,
     '',
     label: 'runtime values',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'min': 0, 'max': 2},
     },
     expectedValues: {
@@ -188,11 +199,12 @@ const sandboxComponentFunctionCases = [
   ),
   SandboxFunctionCase(
     'addselectmenuoption',
-    r'$newSelectMenu[menu;1;1;Choose]$addSelectMenuOption[menu;((opts.label));one;First choice;((opts.selected))]',
+    r'$newSelectMenu[menu;1;1;Choose]$addSelectMenuOption[menu;$message[label];one;First choice;$message[selected]]',
     0,
     '',
     label: 'runtime values',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'label': 'One', 'selected': true},
     },
     expectedValues: {
@@ -202,11 +214,12 @@ const sandboxComponentFunctionCases = [
   ),
   SandboxFunctionCase(
     'addstringselectoption',
-    r'$addStringSelect[menu;Choose;1;1;false]$addStringSelectOption[One;one;First choice;;((opts.selected))]',
+    r'$addStringSelect[menu;Choose;1;1;false]$addStringSelectOption[One;one;First choice;;$message[selected]]',
     0,
     '',
     label: 'runtime values',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'selected': true},
     },
     expectedValues: {
@@ -215,11 +228,12 @@ const sandboxComponentFunctionCases = [
   ),
   SandboxFunctionCase(
     'editbutton',
-    r'$addButton[no;press;Old;primary;false]$editButton[press;New;danger;((opts.disabled))]',
+    r'$addButton[no;press;Old;primary;false]$editButton[press;New;danger;$message[disabled]]',
     0,
     '',
     label: 'runtime values',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'disabled': true},
     },
     expectedValues: {
@@ -230,11 +244,12 @@ const sandboxComponentFunctionCases = [
   ),
   SandboxFunctionCase(
     'editselectmenu',
-    r'$newSelectMenu[menu;1;1;Old]$addSelectMenuOption[menu;One;one]$editSelectMenu[menu;((opts.min));((opts.max));New]',
+    r'$newSelectMenu[menu;1;1;Old]$addSelectMenuOption[menu;One;one;]$addSelectMenuOption[menu;Two;two;]$editSelectMenu[menu;$message[min];$message[max];New]',
     0,
     '',
     label: 'runtime values',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'min': 0, 'max': 2},
     },
     expectedValues: {
@@ -245,22 +260,23 @@ const sandboxComponentFunctionCases = [
   ),
   SandboxFunctionCase(
     'editselectmenuoption',
-    r'$newSelectMenu[menu;1;1;Choose]$addSelectMenuOption[menu;Old;old]$editSelectMenuOption[menu;New;new;Description;((opts.selected))]',
+    r'$newSelectMenu[menu;1;1;Choose]$addSelectMenuOption[menu;Old;old;]$editSelectMenuOption[menu;New;old;Description;$message[selected]]',
     0,
     '',
     label: 'runtime values',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'selected': true},
     },
     expectedValues: {
       '/responses/0/api_components/0/components/0/options/0/label': 'New',
-      '/responses/0/api_components/0/components/0/options/0/value': 'new',
+      '/responses/0/api_components/0/components/0/options/0/value': 'old',
       '/responses/0/api_components/0/components/0/options/0/default': true,
     },
   ),
   SandboxFunctionCase(
     'addselectmenuoption',
-    r'$newSelectMenu[first;1;1;First]$newSelectMenu[second;1;1;Second]$addSelectMenuOption[first;One;one]$addSelectMenuOption[second;Two;two]',
+    r'$newSelectMenu[first;1;1;First]$newSelectMenu[second;1;1;Second]$addSelectMenuOption[first;One;one;]$addSelectMenuOption[second;Two;two;]',
     0,
     '',
     label: 'target earlier menu',
@@ -272,11 +288,12 @@ const sandboxComponentFunctionCases = [
   ),
   SandboxFunctionCase(
     'addtextdisplay',
-    r'$addTextDisplay[((opts.text))]',
+    r'$addTextDisplay[$message[text]]',
     0,
     '',
     label: 'runtime values',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'text': 'Hello'},
     },
     expectedValues: {
@@ -286,11 +303,12 @@ const sandboxComponentFunctionCases = [
   ),
   SandboxFunctionCase(
     'addseparator',
-    r'$addSeparator[((opts.divider));((opts.spacing))]',
+    r'$addSeparator[$message[divider];$message[spacing]]',
     0,
     '',
     label: 'runtime values',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'divider': true, 'spacing': 2},
     },
     expectedValues: {
@@ -301,11 +319,12 @@ const sandboxComponentFunctionCases = [
   ),
   SandboxFunctionCase(
     'addcontainer',
-    r'$addContainer[card;#00ff00;((opts.spoiler))]$addTextDisplay[Hello]',
+    r'$addContainer[card;#00ff00;$message[spoiler]]$addTextDisplay[Hello]',
     0,
     '',
     label: 'runtime values',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'spoiler': true},
     },
     expectedValues: {
@@ -330,11 +349,12 @@ const sandboxComponentFunctionCases = [
   ),
   SandboxFunctionCase(
     'addthumbnail',
-    r'$addSection$addTextDisplay[Hello]$addThumbnail[https://example.com/image.png;Picture;((opts.spoiler))]',
+    r'$addSection$addTextDisplay[Hello]$addThumbnail[https://example.com/image.png;Picture;$message[spoiler]]',
     0,
     '',
     label: 'runtime values',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'spoiler': true},
     },
     expectedValues: {
@@ -359,11 +379,12 @@ const sandboxComponentFunctionCases = [
   ),
   SandboxFunctionCase(
     'addmediagalleryitem',
-    r'$addMediaGalleryItem[https://example.com/image.png;Picture;((opts.spoiler))]',
+    r'$addMediaGalleryItem[https://example.com/image.png;Picture;$message[spoiler]]',
     0,
     '',
     label: 'runtime values',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'spoiler': true},
     },
     expectedValues: {
@@ -373,11 +394,12 @@ const sandboxComponentFunctionCases = [
   ),
   SandboxFunctionCase(
     'addfile',
-    r'$addFile[attachment://report.txt;((opts.spoiler))]',
+    r'$addFile[attachment://report.txt;$message[spoiler]]',
     0,
     '',
     label: 'runtime values',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'spoiler': true},
     },
     expectedValues: {
@@ -392,7 +414,10 @@ const sandboxComponentFunctionCases = [
     0,
     '',
     label: 'header before fields',
-    scenario: {'options': {}},
+    scenario: {
+      'variables': {'interaction.type': '2'},
+      'options': {},
+    },
     expectedValues: {
       '/responses/0/api_modal/title': 'Profile',
       '/responses/0/api_modal/custom_id': 'form',
@@ -401,26 +426,28 @@ const sandboxComponentFunctionCases = [
   ),
   SandboxFunctionCase(
     'addtextinput',
-    r'$addTextInput[name;short;Name;((opts.min));((opts.max));((opts.required));Alice;Write a name]$newModal[form;Profile]',
+    r'$newModal[form;Profile]$addTextInput[name;short;Name;$message[min];$message[max];$message[required];Alice;Write a name]',
     0,
     '',
     label: 'runtime values',
     scenario: {
+      'variables': {'interaction.isSlash': 'true', 'interaction.type': '2'},
       'options': {'min': 2, 'max': 20, 'required': false},
     },
     expectedValues: {
-      '/responses/0/api_modal/components/0/component/min_length': 2,
-      '/responses/0/api_modal/components/0/component/max_length': 20,
-      '/responses/0/api_modal/components/0/component/required': false,
+      '/responses/0/api_modal/components/0/components/0/min_length': 2,
+      '/responses/0/api_modal/components/0/components/0/max_length': 20,
+      '/responses/0/api_modal/components/0/components/0/required': false,
     },
   ),
   SandboxFunctionCase(
     'addmodaltextinput',
-    r'$addModalTextInput[Name;;name;paragraph;((opts.min));((opts.max));((opts.required));Alice;Write a name]$newModal[form;Profile]',
+    r'$newModal[form;Profile]$addModalTextInput[Name;;name;paragraph;$message[min];$message[max];$message[required];Alice;Write a name]',
     0,
     '',
     label: 'runtime values',
     scenario: {
+      'variables': {'interaction.isSlash': 'true', 'interaction.type': '2'},
       'options': {'min': 2, 'max': 20, 'required': false},
     },
     expectedValues: {
@@ -432,11 +459,12 @@ const sandboxComponentFunctionCases = [
   ),
   SandboxFunctionCase(
     'addmodaltextdisplay',
-    r'$addModalTextDisplay[((opts.instructions))]$addModalTextInput[Name;;name;short;0;100;true;;]$newModal[form;Profile]',
+    r'$newModal[form;Profile]$addModalTextDisplay[$message[instructions]]$addModalTextInput[Name;;name;short;0;100;true;;]',
     0,
     '',
     label: 'standalone resolved text',
     scenario: {
+      'variables': {'interaction.isSlash': 'true', 'interaction.type': '2'},
       'options': {'instructions': 'Enter your profile name'},
     },
     expectedValues: {
@@ -447,11 +475,12 @@ const sandboxComponentFunctionCases = [
   ),
   SandboxFunctionCase(
     'addmodalselect',
-    r'$addModalSelect[user;People;;people;Choose;1;2;((opts.required));false]$newModal[form;Profile]',
+    r'$newModal[form;Profile]$addModalSelect[user;People;;people;Choose;1;2;$message[required];false]',
     0,
     '',
     label: 'runtime values',
     scenario: {
+      'variables': {'interaction.isSlash': 'true', 'interaction.type': '2'},
       'options': {'required': false},
     },
     expectedValues: {
@@ -461,11 +490,12 @@ const sandboxComponentFunctionCases = [
   ),
   SandboxFunctionCase(
     'addmodalfileupload',
-    r'$addModalFileUpload[Files;;files;0;2;((opts.required))]$newModal[form;Profile]',
+    r'$newModal[form;Profile]$addModalFileUpload[Files;;files;0;2;$message[required]]',
     0,
     '',
     label: 'runtime values',
     scenario: {
+      'variables': {'interaction.isSlash': 'true', 'interaction.type': '2'},
       'options': {'required': false},
     },
     expectedValues: {
@@ -476,11 +506,14 @@ const sandboxComponentFunctionCases = [
   ),
   SandboxFunctionCase(
     'addmodalradiogroup',
-    r'$addmodalradiogroup[Plan;;plan;true]$addRadioGroupOption[plan;Basic;basic;Basic plan;true]$newModal[form;Profile]',
+    r'$newModal[form;Profile]$addmodalradiogroup[Plan;;plan;true]$addRadioGroupOption[plan;Basic;basic;Basic plan;true]',
     0,
     '',
     label: 'runtime values',
-    scenario: {'options': {}},
+    scenario: {
+      'variables': {'interaction.type': '2'},
+      'options': {},
+    },
     expectedValues: {
       '/responses/0/api_modal/components/0/component/type': 21,
       '/responses/0/api_modal/components/0/component/options/0/value': 'basic',
@@ -488,22 +521,28 @@ const sandboxComponentFunctionCases = [
   ),
   SandboxFunctionCase(
     'addradiogroupoption',
-    r'$addmodalradiogroup[Plan;;plan;true]$addRadioGroupOption[plan;Basic;basic;Basic plan;true]$newModal[form;Profile]',
+    r'$newModal[form;Profile]$addmodalradiogroup[Plan;;plan;true]$addRadioGroupOption[plan;Basic;basic;Basic plan;true]',
     0,
     '',
     label: 'runtime values',
-    scenario: {'options': {}},
+    scenario: {
+      'variables': {'interaction.type': '2'},
+      'options': {},
+    },
     expectedValues: {
       '/responses/0/api_modal/components/0/component/options/0/default': true,
     },
   ),
   SandboxFunctionCase(
     'addmodalcheckboxgroup',
-    r'$addmodalcheckboxgroup[Plan;;plan;0;2;false]$addCheckboxGroupOption[plan;Basic;basic;Basic plan;true]$newModal[form;Profile]',
+    r'$newModal[form;Profile]$addmodalcheckboxgroup[Plan;;plan;0;2;false]$addCheckboxGroupOption[plan;Basic;basic;Basic plan;true]',
     0,
     '',
     label: 'runtime values',
-    scenario: {'options': {}},
+    scenario: {
+      'variables': {'interaction.type': '2'},
+      'options': {},
+    },
     expectedValues: {
       '/responses/0/api_modal/components/0/component/type': 22,
       '/responses/0/api_modal/components/0/component/options/0/value': 'basic',
@@ -511,22 +550,26 @@ const sandboxComponentFunctionCases = [
   ),
   SandboxFunctionCase(
     'addcheckboxgroupoption',
-    r'$addmodalcheckboxgroup[Plan;;plan;0;2;false]$addCheckboxGroupOption[plan;Basic;basic;Basic plan;true]$newModal[form;Profile]',
+    r'$newModal[form;Profile]$addmodalcheckboxgroup[Plan;;plan;0;2;false]$addCheckboxGroupOption[plan;Basic;basic;Basic plan;true]',
     0,
     '',
     label: 'runtime values',
-    scenario: {'options': {}},
+    scenario: {
+      'variables': {'interaction.type': '2'},
+      'options': {},
+    },
     expectedValues: {
       '/responses/0/api_modal/components/0/component/options/0/default': true,
     },
   ),
   SandboxFunctionCase(
     'addmodalcheckbox',
-    r'$addModalCheckbox[Terms;;terms;((opts.checked))]$newModal[form;Profile]',
+    r'$newModal[form;Profile]$addModalCheckbox[Terms;;terms;$message[checked]]',
     0,
     '',
     label: 'runtime values',
     scenario: {
+      'variables': {'interaction.isSlash': 'true', 'interaction.type': '2'},
       'options': {'checked': true},
     },
     expectedValues: {

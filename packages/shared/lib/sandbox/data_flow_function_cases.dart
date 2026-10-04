@@ -4,11 +4,12 @@ import 'function_suite.dart';
 final sandboxDataFlowFunctionCases = [
   SandboxFunctionCase(
     'jsonforeach',
-    r'$var[total;0]$jsonParse[((opts.data))]$jsonForEach[]$var[total;$sum[$var[total];1]]$endJsonForEach$var[total]',
+    r'$var[total;0]$jsonParse[$message[data]]$jsonForEach[]$var[total;$sum[$var[total];1]]$endJsonForEach$var[total]',
     0,
     '250',
     label: '250 JSON elements',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'data': '[${List.generate(250, (i) => '$i').join(',')}]'},
     },
   ),
@@ -23,10 +24,10 @@ final sandboxDataFlowFunctionCases = [
   ),
   for (final loop in [
     r"$for[250]",
-    r"$for[((opts.count))]",
+    r"$for[$message[count]]",
     r"$for[i=0;i<250;i++]",
     r"$for[i=0;i<250;i=i+1]",
-    r"$for[i=0;i<250;i+=((opts.step))]",
+    r"$for[i=0;i<250;i+=$message[step]]",
   ])
     SandboxFunctionCase(
       "for",
@@ -37,166 +38,184 @@ final sandboxDataFlowFunctionCases = [
       "250",
       label: "beyond 100: $loop",
       scenario: {
+        "variables": {"interaction.isSlash": "true"},
         "options": {"count": 250, "step": 1},
       },
     ),
   SandboxFunctionCase(
     'jsonarray',
-    r'$jsonParse[{"values":"one|two"}]$jsonArray[values;((opts.separator))]$jsonJoinArray[values;,]',
+    r'$jsonParse[{"values":"one|two"}]$jsonArray[values;$message[separator]]$jsonJoinArray[values;,]',
     0,
     'one,two',
     label: 'literal document and runtime separator',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'separator': '|'},
     },
   ),
   SandboxFunctionCase(
     'jsonarraysort',
-    r'$jsonParse[{"values":[2,10,3]}]$jsonArraySort[values;((opts.order))]$jsonJoinArray[values;,]',
+    r'$jsonParse[{"values":[2,10,3]}]$jsonArraySort[values;$message[order]]$jsonJoinArray[values;,]',
     0,
     '10,3,2',
     label: 'literal document and runtime direction',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'order': 'DESC'},
     },
   ),
   SandboxFunctionCase(
     'jsonkeys',
-    r'$jsonParse[{"nested":{"one":1,"two":2}}]$jsonKeys[((opts.path));((opts.separator))]',
+    r'$jsonParse[{"nested":{"one":1,"two":2}}]$jsonKeys[$message[path];$message[separator]]',
     0,
     'one|two',
     label: 'literal document and runtime path',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'path': 'nested', 'separator': '|'},
     },
   ),
   SandboxFunctionCase(
     'jsonset',
-    r'$jsonParse[{"old":1}]$jsonSet[((opts.path));((opts.value))]$jsonStringify',
+    r'$jsonParse[{"old":1}]$jsonSet[$message[path];$message[value]]$jsonStringify',
     7,
     '{"old":1,"new":7}',
     label: 'literal document and runtime write',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'path': 'new', 'value': 7},
     },
   ),
   SandboxFunctionCase(
     'sort',
-    r'$sort[((opts.a));((opts.b));((opts.c))]',
+    r'$sort[$message[a];$message[b];$message[c]]',
     0,
     'apple;pear;zebra',
     label: 'runtime text',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'a': 'zebra', 'b': 'pear', 'c': 'apple'},
     },
   ),
   SandboxFunctionCase(
     'jsonarray',
-    r'$jsonParse[((opts.data))]$jsonArray[new]$jsonStringify',
+    r'$jsonParse[$message[data]]$jsonArray[new]$jsonStringify',
     0,
     '{"old":1,"new":[]}',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'data': '{"old":1}'},
     },
   ),
   SandboxFunctionCase(
     'jsonarrayindex',
-    r'$jsonParse[((opts.data))]$jsonArrayIndex[values;((opts.target))]',
+    r'$jsonParse[$message[data]]$jsonArrayIndex[values;$message[target]]',
     0,
     '1',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'data': '{"values":[2,10,3]}', 'target': 10},
     },
   ),
   SandboxFunctionCase(
     'jsonarrayindex',
-    r'$jsonParse[((opts.data))]$jsonArrayIndex[values;missing]',
+    r'$jsonParse[$message[data]]$jsonArrayIndex[values;missing]',
     0,
     '-1',
     label: 'absent value',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'data': '{"values":[2,10,3]}'},
     },
   ),
   SandboxFunctionCase(
     'jsonarraysort',
-    r'$jsonParse[((opts.data))]$jsonArraySort[values;desc]$jsonJoinArray[values;,]',
+    r'$jsonParse[$message[data]]$jsonArraySort[values;desc]$jsonJoinArray[values;,]',
     0,
     '10,3,2',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'data': '{"values":[2,10,3]}'},
     },
   ),
   SandboxFunctionCase(
     'jsonarraysort',
-    r'$jsonParse[((opts.data))]$jsonArraySort[values;((opts.order))]$jsonJoinArray[values;,]',
+    r'$jsonParse[$message[data]]$jsonArraySort[values;$message[order]]$jsonJoinArray[values;,]',
     0,
     '10,3,2',
     label: 'runtime direction',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'data': '{"values":[2,10,3]}', 'order': 'desc'},
     },
   ),
   SandboxFunctionCase(
     'jsonjoinarray',
-    r'$jsonParse[((opts.data))]$jsonJoinArray[values;((opts.separator))]',
+    r'$jsonParse[$message[data]]$jsonJoinArray[values;$message[separator]]',
     0,
     'one|two',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'data': '{"values":["one","two"]}', 'separator': '|'},
     },
   ),
   SandboxFunctionCase(
     'jsonkeys',
-    r'$jsonParse[((opts.data))]$jsonKeys[nested;((opts.separator))]',
+    r'$jsonParse[$message[data]]$jsonKeys[nested;$message[separator]]',
     0,
     'one|two',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'data': '{"nested":{"one":1,"two":2}}', 'separator': '|'},
     },
   ),
   SandboxFunctionCase(
     'jsonpretty',
-    r'$jsonParse[((opts.data))]$jsonPretty[2]',
+    r'$jsonParse[$message[data]]$jsonPretty[2]',
     0,
     '{\n  "name": "two  spaces"\n}',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'data': '{"name":"two  spaces"}'},
     },
   ),
   SandboxFunctionCase(
     'jsonforeach',
-    r'$jsonParse[((opts.data))]$jsonForEach[]$jsonKey=$jsonValue$endJsonForEach',
+    r'$jsonParse[$message[data]]$jsonForEach[]$jsonKey=$jsonValue$endJsonForEach',
     0,
     'a=1\nb=2',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'data': '{"a":1,"b":2}'},
     },
   ),
   SandboxFunctionCase(
     'jsonkey',
-    r'$jsonParse[((opts.data))]$jsonForEach[]$jsonKey$endJsonForEach',
+    r'$jsonParse[$message[data]]$jsonForEach[]$jsonKey$endJsonForEach',
     0,
     'a\nb',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'data': '{"a":1,"b":2}'},
     },
   ),
   SandboxFunctionCase(
     'jsonindex',
-    r'$jsonParse[((opts.data))]$jsonForEach[]$jsonIndex$endJsonForEach',
+    r'$jsonParse[$message[data]]$jsonForEach[]$jsonIndex$endJsonForEach',
     0,
     '0\n1',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'data': '{"a":1,"b":2}'},
     },
   ),
   SandboxFunctionCase(
     'endjsonforeach',
-    r'$jsonParse[((opts.data))]$jsonForEach[]$jsonValue$endJsonForEach$setVar[after;yes]done',
+    r'$jsonParse[$message[data]]$jsonForEach[]$jsonValue$endJsonForEach$setVar[after;yes]done',
     0,
     '1\n2\ndone',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'data': '[1,2]'},
     },
     expectedValues: {'/storage_after/global/after': 'yes'},
@@ -204,43 +223,52 @@ final sandboxDataFlowFunctionCases = [
   SandboxFunctionCase('sort', r'$sort[10;2;3]', 0, '2;3;10'),
   SandboxFunctionCase(
     'sort',
-    r'$sort[((opts.a));((opts.b));((opts.c))]',
+    r'$sort[$message[a];$message[b];$message[c]]',
     0,
     '2;3;10',
     label: 'runtime numbers',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'a': 10, 'b': 2, 'c': 3},
     },
   ),
   SandboxFunctionCase(
     'unescape',
-    r'$unescape[((opts.text))]',
+    r'$unescape[$message[text]]',
     0,
     'a;b',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'text': 'a;b'},
     },
   ),
   SandboxFunctionCase(
     'eval',
-    r'$eval[((opts.source))]',
+    r'$eval[$message[source]]',
     0,
     '5',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'source': r'$sum[2;3]'},
     },
   ),
   SandboxFunctionCase(
     'func',
-    r'$func[double;x]$funcReturn[$sum[$funcArg[x];$funcArg[x]]]$funcEnd$funcCall[double;((opts.value))]',
+    r'$func[double;x]$funcReturn[$sum[$funcArg[x];$funcArg[x]]]$funcEnd$funcCall[double;$message[value]]',
     3,
     '6',
+    scenario: {
+      'variables': {'interaction.isSlash': 'true'},
+    },
   ),
   SandboxFunctionCase(
     'funcarg',
-    r'$func[tag;x]$funcReturn[<$funcArg[x]>]$funcEnd$funcCall[tag;((opts.value))]',
+    r'$func[tag;x]$funcReturn[<$funcArg[x]>]$funcEnd$funcCall[tag;$message[value]]',
     'value',
     '<value>',
+    scenario: {
+      'variables': {'interaction.isSlash': 'true'},
+    },
   ),
   SandboxFunctionCase(
     'funcreturn',
@@ -256,59 +284,91 @@ final sandboxDataFlowFunctionCases = [
   ),
   SandboxFunctionCase(
     'funccall',
-    r'$func[tag;x]$funcReturn[<$funcArg[x]>]$funcEnd$func[wrap;x]$funcReturn[$funcCall[tag;$funcArg[x]]]$funcEnd$funcCall[wrap;((opts.value))]',
+    r'$func[tag;x]$funcReturn[<$funcArg[x]>]$funcEnd$func[wrap;x]$funcReturn[$funcCall[tag;$funcArg[x]]]$funcEnd$funcCall[wrap;$message[value]]',
     'nested',
     '<nested>',
+    scenario: {
+      'variables': {'interaction.isSlash': 'true'},
+    },
   ),
-  SandboxFunctionCase('i', r'$for[((opts.count))]$i$endfor', 0, '0\n1'),
   SandboxFunctionCase(
-    'loopindex',
-    r'$for[((opts.count))]$loopIndex$endfor',
+    'i',
+    r'$for[$message[count]]$i$endfor',
     0,
     '0\n1',
+    scenario: {
+      'variables': {'interaction.isSlash': 'true'},
+    },
+  ),
+  SandboxFunctionCase(
+    'loopindex',
+    r'$for[$message[count]]$loopIndex$endfor',
+    0,
+    '0\n1',
+    scenario: {
+      'variables': {'interaction.isSlash': 'true'},
+    },
   ),
   SandboxFunctionCase(
     'loopiteration',
-    r'$for[((opts.count))]$loopIteration$endfor',
+    r'$for[$message[count]]$loopIteration$endfor',
     0,
     '0\n1',
+    scenario: {
+      'variables': {'interaction.isSlash': 'true'},
+    },
   ),
   SandboxFunctionCase(
     'loopcount',
-    r'$for[((opts.count))]$loopCount$endfor',
+    r'$for[$message[count]]$loopCount$endfor',
     0,
     '1\n2',
+    scenario: {
+      'variables': {'interaction.isSlash': 'true'},
+    },
   ),
   SandboxFunctionCase(
     'endfor',
-    r'$for[((opts.count))]$setVar[touched;$i]$endfor$setVar[after;yes]done',
+    r'$for[$message[count]]$setVar[touched;$i]$endfor$setVar[after;yes]done',
     0,
     'done',
     expectedValues: {
       '/storage_after/global/touched': '1',
       '/storage_after/global/after': 'yes',
+    },
+    scenario: {
+      'variables': {'interaction.isSlash': 'true'},
     },
   ),
   SandboxFunctionCase(
     'endloop',
-    r'$loop[((opts.count))]$setVar[touched;$i]$endloop$setVar[after;yes]done',
+    r'$loop[$message[count]]$setVar[touched;$i]$endloop$setVar[after;yes]done',
     0,
     'done',
     expectedValues: {
       '/storage_after/global/touched': '1',
       '/storage_after/global/after': 'yes',
     },
+    scenario: {
+      'variables': {'interaction.isSlash': 'true'},
+    },
   ),
   SandboxFunctionCase(
     'else',
-    r'$if[((opts.value))==yes]wrong$else correct$endif',
+    r'$if[$message[value]==yes]wrong$else correct$endif',
     'no',
     ' correct',
+    scenario: {
+      'variables': {'interaction.isSlash': 'true'},
+    },
   ),
   SandboxFunctionCase(
     'endif',
-    r'$if[((opts.value))==yes]wrong$endif after',
+    r'$if[$message[value]==yes]wrong$endif after',
     'no',
     ' after',
+    scenario: {
+      'variables': {'interaction.isSlash': 'true'},
+    },
   ),
 ];

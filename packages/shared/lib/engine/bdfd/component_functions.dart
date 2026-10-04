@@ -468,13 +468,12 @@ Map<String, BdfdNativeFunction> bdfdComponentFunctions(
       if (min > max) throw ArgumentError('Minimum cannot exceed maximum.');
       final disabled = a.length > 4 ? boolean(a[4]) : false;
       final node = {
-        'type': 'channelSelect',
+        'type': 'categorySelect',
         'customId': a[0],
         'minValues': min,
         'maxValues': max,
         'disabled': '$disabled',
         if (placeholder.isNotEmpty) 'placeholder': placeholder,
-        'channelTypes': '4',
       };
       await mutate(call, message(a, 5), (rows) => addRow(rows, node));
       return '';
@@ -487,13 +486,12 @@ Map<String, BdfdNativeFunction> bdfdComponentFunctions(
       if (min > max) throw ArgumentError('Minimum cannot exceed maximum.');
       final disabled = a.length > 4 ? boolean(a[4]) : false;
       final node = {
-        'type': 'channelSelect',
+        'type': 'voiceSelect',
         'customId': a[0],
         'minValues': min,
         'maxValues': max,
         'disabled': '$disabled',
         if (placeholder.isNotEmpty) 'placeholder': placeholder,
-        'channelTypes': '2',
       };
       await mutate(call, message(a, 5), (rows) => addRow(rows, node));
       return '';

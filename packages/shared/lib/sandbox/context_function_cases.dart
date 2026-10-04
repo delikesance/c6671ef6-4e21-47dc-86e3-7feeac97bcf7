@@ -177,11 +177,12 @@ final sandboxContextFunctionCases = [
     ),
   SandboxFunctionCase(
     'url',
-    r'$url[encode;((opts.text))]',
+    r'$url[encode;$message[text]]',
     0,
     'a+%26+b',
     label: 'encode runtime text',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'text': 'a & b'},
     },
   ),
