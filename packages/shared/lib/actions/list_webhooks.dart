@@ -18,7 +18,7 @@ Map<String, dynamic> _toSimpleWebhook(Webhook webhook) {
     'channelId': webhook.channelId?.toString(),
     'guildId': webhook.guildId?.toString(),
     'type': webhook.type.value,
-    'url': webhook.url,
+    'url': webhook.url?.toString(),
     'hasToken': webhook.token != null,
   };
 }

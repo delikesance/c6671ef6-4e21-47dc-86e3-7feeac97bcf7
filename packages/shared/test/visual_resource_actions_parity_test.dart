@@ -86,6 +86,11 @@ void main() {
         variables: {'id': '70'},
       );
       expect(outcome.results!['get'], contains('"name":"hook"'));
+      // The webhook URL is a `Uri`: it must be serialized as a string.
+      expect(
+        outcome.results!['get'],
+        contains('"url":"https://discord.com/api/webhooks/70/tok"'),
+      );
       expect(outcome.results!['del'], '70');
     });
 
@@ -98,6 +103,10 @@ void main() {
           _a(BotCreatorActionType.listWebhooks, {'guildId': '10'}, key: 'h'),
         ]);
         expect(outcome.results!['c'], contains('"id":"70"'));
+        expect(
+          outcome.results!['c'],
+          contains('"url":"https://discord.com/api/webhooks/70/tok"'),
+        );
         await resourceParity([
           _a(BotCreatorActionType.listWebhooks, {}, key: 'f'),
         ], fallbackChannelId: Snowflake(30));

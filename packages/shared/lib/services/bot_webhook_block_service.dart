@@ -80,7 +80,8 @@ Map<String, dynamic> _simpleWebhook(Webhook webhook) => {
   'channelId': webhook.channelId?.toString(),
   'guildId': webhook.guildId?.toString(),
   'type': webhook.type.value,
-  'url': webhook.url,
+  // `Webhook.url` is a `Uri`, which `jsonEncode` cannot serialize.
+  'url': webhook.url?.toString(),
   'hasToken': webhook.token != null,
 };
 
