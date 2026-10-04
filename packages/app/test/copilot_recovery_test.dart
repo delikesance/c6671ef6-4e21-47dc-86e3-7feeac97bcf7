@@ -410,7 +410,8 @@ void main() {
       expect(turns, 1);
       expect(summaries, 0);
       expect(find.text('Configuration retained'), findsOneWidget);
-      expect(find.text('Summarized context'), findsOneWidget);
+      // The summary is model-only context: it is never shown to the user.
+      expect(find.text('Summarized context'), findsNothing);
       expect(_draft(tester), isEmpty);
       expect(tester.takeException(), isNull);
     },
