@@ -400,7 +400,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
         .toString();
     switch (type) {
       case 'user':
-        return Icons.person_outline_rounded;
+        return Icons.person_outline;
       case 'message':
         return Icons.chat_bubble_outline_rounded;
       default:
