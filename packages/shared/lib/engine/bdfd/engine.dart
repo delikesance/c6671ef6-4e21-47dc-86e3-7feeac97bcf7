@@ -255,7 +255,21 @@ class BdfdEngine {
            ...bdfdCanvasFunctions(),
            ...bdfdAdvancedLanguageFunctions(),
            ...bdfdAwaitFunctions(store, botId),
-           ...bdfdLeaderboardFunctions(),
+           ...bdfdLeaderboardFunctions(
+             store: store,
+             botId: botId,
+             legacyUserVariables: legacyUserVariables,
+             users:
+                 userQueries ??
+                 (moderation is BotUserQueryService
+                     ? moderation as BotUserQueryService
+                     : null),
+             guilds:
+                 guildQueries ??
+                 (moderation is BotGuildQueryService
+                     ? moderation as BotGuildQueryService
+                     : null),
+           ),
            ...bdfdMusicFunctions(),
            ...functions,
          },

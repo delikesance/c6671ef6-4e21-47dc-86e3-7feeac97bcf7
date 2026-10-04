@@ -23,11 +23,25 @@ const _membersAndRoles = {
         '23': {
           'roles': ['62'],
         },
+        '24': {
+          'roles': ['60', '62'],
+        },
         '99': {'roles': <String>[]},
       },
     },
   },
+  'users': {
+    '20': {'username': 'alice', 'discriminator': '0'},
+    '21': {'username': 'bob', 'discriminator': '0'},
+    '22': {'username': 'carol', 'discriminator': '0'},
+    '23': {'username': 'dave', 'discriminator': '0'},
+    '24': {'username': 'erin', 'discriminator': '0'},
+    '99': {'username': 'owner', 'discriminator': '0'},
+  },
 };
+
+/// Permission queries need a numeric bot ID besides the entity fixtures.
+const _bot = {'bot.id': '98'};
 
 final sandboxMemberRoleFunctionCases = [
   SandboxFunctionCase(
@@ -83,7 +97,7 @@ final sandboxMemberRoleFunctionCases = [
     'userswithrole',
     r'$usersWithRole[61]',
     0,
-    '<@20>, <@21>',
+    '20, 21',
     scenario: {'entities': _membersAndRoles},
     expectedValues: {'/entity_requests/0/operation': 'members.list'},
   ),
@@ -91,7 +105,7 @@ final sandboxMemberRoleFunctionCases = [
     'userswithrole',
     r'$usersWithRole[60; | ;10]',
     0,
-    '<@20>',
+    '20 | 24',
     label: 'explicit guild and separator',
     scenario: {'entities': _membersAndRoles},
   ),
@@ -105,11 +119,12 @@ final sandboxMemberRoleFunctionCases = [
   ),
   SandboxFunctionCase(
     'hasrole',
-    r'$hasRole[((opts.user));((opts.role))]',
+    r'$hasRole[$message[user];$message[role]]',
     0,
     'true',
     label: 'dynamic user and role IDs',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'user': '20', 'role': '60'},
       'entities': _membersAndRoles,
     },
@@ -145,7 +160,7 @@ final sandboxMemberRoleFunctionCases = [
     0,
     'true',
     label: 'administrator role',
-    scenario: {'entities': _membersAndRoles},
+    scenario: {'entities': _membersAndRoles, 'variables': _bot},
   ),
   SandboxFunctionCase(
     'isadmin',
@@ -153,7 +168,7 @@ final sandboxMemberRoleFunctionCases = [
     0,
     'false',
     label: 'ordinary role',
-    scenario: {'entities': _membersAndRoles},
+    scenario: {'entities': _membersAndRoles, 'variables': _bot},
   ),
   SandboxFunctionCase(
     'isadmin',
@@ -161,17 +176,15 @@ final sandboxMemberRoleFunctionCases = [
     0,
     'true',
     label: 'guild owner has implicit administrator permission',
-    scenario: {'entities': _membersAndRoles},
+    scenario: {'entities': _membersAndRoles, 'variables': _bot},
   ),
   SandboxFunctionCase(
     'isadmin',
-    r'$isAdmin[20]',
+    r'$isAdmin[$authorID]',
     0,
     'true',
-    label: 'current member event context without an entity fixture',
-    scenario: {
-      'variables': {'member.isAdmin': 'true'},
-    },
+    label: 'the invoking author resolved through \$authorID',
+    scenario: {'entities': _membersAndRoles, 'variables': _bot},
   ),
   SandboxFunctionCase(
     'userroles',
@@ -216,11 +229,12 @@ final sandboxMemberRoleFunctionCases = [
   ),
   SandboxFunctionCase(
     'lowestrole',
-    r'$lowestRole[((opts.user))]',
+    r'$lowestRole[$message[user]]',
     0,
-    '61',
-    label: 'dynamic member ID',
+    '10',
+    label: 'dynamic member ID; everyone is always the lowest role held',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'user': '21'},
       'entities': _membersAndRoles,
     },
@@ -235,19 +249,20 @@ final sandboxMemberRoleFunctionCases = [
   ),
   SandboxFunctionCase(
     'userperms',
-    r'$userPerms[20;2;|]',
+    r'$userPerms[24;2;|]',
     0,
-    'ADD_REACTIONS|ADMINISTRATOR',
-    label: 'permissions from the requested member’s role',
+    'ADMINISTRATOR|ADD_REACTIONS',
+    label: 'permissions from the requested member’s roles in bit order',
     scenario: {'entities': _membersAndRoles},
   ),
   SandboxFunctionCase(
     'userperms',
-    r'$userPerms[((opts.user));1;|]',
+    r'$userPerms[$message[user];1;|]',
     0,
     'ADD_REACTIONS',
     label: 'dynamic member ID and limited return amount',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'user': '23'},
       'entities': _membersAndRoles,
     },
@@ -265,12 +280,13 @@ final sandboxMemberRoleFunctionCases = [
   ),
   SandboxFunctionCase(
     'userperms',
-    r'$userPerms[20;1;|]',
+    r'$userPerms[$authorID;1;|]',
     0,
     'ADD_REACTIONS',
-    label: 'current author permissions from event context',
+    label: 'current author permissions through \$authorID',
     scenario: {
-      'variables': {'member.permissions': 'addreactions'},
+      'entities': _membersAndRoles,
+      'variables': {'author.id': '23'},
     },
   ),
   for (final name in ['authorperms', 'memberperms'])
@@ -278,19 +294,21 @@ final sandboxMemberRoleFunctionCases = [
       name,
       '\$$name',
       0,
-      'ADD_REACTIONS, ADMINISTRATOR',
-      label: 'maps the invoking member permissions to BDFD names',
+      'addreactions,administrator',
+      label:
+          'returns the permission list the event context supplies for the invoking member',
       scenario: {
         'variables': {'member.permissions': 'addreactions,administrator'},
       },
     ),
   SandboxFunctionCase(
     'highestrolewithperms',
-    r'$highestRoleWithPerms[((opts.permission))]',
+    r'$highestRoleWithPerms[$message[permission]]',
     0,
     '60',
     label: 'highest server role with requested permission',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'options': {'permission': 'addreactions'},
       'entities': _membersAndRoles,
     },
@@ -316,7 +334,11 @@ final sandboxMemberRoleFunctionCases = [
     r'$highestRoleWithPerms[notapermission]',
     0,
     '',
-    label: 'unknown permission does not match every role',
+    label: 'unknown permission is an error and never matches every role',
     scenario: {'entities': _membersAndRoles},
+    expectedValues: {
+      '/success': false,
+      '/error': r'BDFD L1:1 $highestRoleWithPerms: Invalid role permissions.',
+    },
   ),
 ];
