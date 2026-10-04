@@ -1988,14 +1988,6 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
       case BotCreatorActionType.runBdfdScript:
         return [
           ParameterDefinition(
-            key: 'bdfdBackend',
-            type: ParameterType.string,
-            defaultValue: 'legacy-v1',
-            options: ['legacy-v1', 'native-v1'],
-            hint: 'BDFD engine',
-            allowDynamic: false,
-          ),
-          ParameterDefinition(
             key: 'scriptContent',
             type: ParameterType.bdfdScript,
             defaultValue: '',

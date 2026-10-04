@@ -429,11 +429,7 @@ void main() {
         variables: {},
         moderation: service,
       );
-      await execution.execute(
-        r'$kick[222]',
-        backend: 'native-v1',
-        executeLegacy: (_) async => legacy = true,
-      );
+      await execution.execute(r'$kick[222]', backend: 'native-v1');
       expect(legacy, false);
       expect(service.requests.single.userId, '222');
     },

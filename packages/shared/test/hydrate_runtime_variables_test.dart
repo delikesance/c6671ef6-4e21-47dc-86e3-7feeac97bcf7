@@ -188,39 +188,38 @@ void main() {
       },
     );
 
-    test(
-      'does NOT persist empty-string default to store',
-      () async {
-        final store = _FakeBotDataStore(
-          globalVariables: const <String, dynamic>{},
-          // No stored value for 'nickname'
-          scopedVariables: <String, Map<String, Map<String, dynamic>>>{},
-          scopedDefinitions: const <Map<String, dynamic>>[
-            <String, dynamic>{
-              'scope': 'guild',
-              'key': 'nickname',
-              'defaultValue': '',
-            },
-          ],
-        );
+    test('does NOT persist empty-string default to store', () async {
+      final store = _FakeBotDataStore(
+        globalVariables: const <String, dynamic>{},
+        // No stored value for 'nickname'
+        scopedVariables: <String, Map<String, Map<String, dynamic>>>{},
+        scopedDefinitions: const <Map<String, dynamic>>[
+          <String, dynamic>{
+            'scope': 'guild',
+            'key': 'nickname',
+            'defaultValue': '',
+          },
+        ],
+      );
 
-        final runtimeVariables = <String, String>{};
-        await hydrateRuntimeVariables(
-          store: store,
-          botId: 'bot-1',
-          runtimeVariables: runtimeVariables,
-          guildContextId: 'guild-1',
-        );
+      final runtimeVariables = <String, String>{};
+      await hydrateRuntimeVariables(
+        store: store,
+        botId: 'bot-1',
+        runtimeVariables: runtimeVariables,
+        guildContextId: 'guild-1',
+      );
 
-        // Runtime should still get the empty string default
-        expect(runtimeVariables['guild.nickname'], '');
+      // Runtime should still get the empty string default
+      expect(runtimeVariables['guild.nickname'], '');
 
-        // But it should NOT be persisted to the store (no unnecessary write)
-        final guildContext =
-            store.scopedVariables['guild']?['guild-1'];
-        expect(guildContext == null || guildContext.containsKey('nickname') == false, isTrue);
-      },
-    );
+      // But it should NOT be persisted to the store (no unnecessary write)
+      final guildContext = store.scopedVariables['guild']?['guild-1'];
+      expect(
+        guildContext == null || guildContext.containsKey('nickname') == false,
+        isTrue,
+      );
+    });
   });
 }
 
@@ -443,22 +442,33 @@ class _FakeBotDataStore implements BotDataStore {
   }
 
   @override
-  Future<Map<String, dynamic>> getApp(String botId) async => throw UnsupportedError('Not used');
+  Future<Map<String, dynamic>> getApp(String botId) async =>
+      throw UnsupportedError('Not used');
 
   @override
-  Future<List<Map<String, dynamic>>> getWorkflows(String botId) async => throw UnsupportedError('Not used');
+  Future<List<Map<String, dynamic>>> getWorkflows(String botId) async =>
+      throw UnsupportedError('Not used');
 
   @override
-  Future<List<Map<String, dynamic>>> listAppCommands(String botId, {bool forceRefresh = false}) async => throw UnsupportedError('Not used');
+  Future<List<Map<String, dynamic>>> listAppCommands(
+    String botId, {
+    bool forceRefresh = false,
+  }) async => throw UnsupportedError('Not used');
 
   @override
-  Future<void> saveAppCommand(String botId, String commandId, Map<String, dynamic> data) async => throw UnsupportedError('Not used');
+  Future<void> saveAppCommand(
+    String botId,
+    String commandId,
+    Map<String, dynamic> data,
+  ) async => throw UnsupportedError('Not used');
 
   @override
-  Future<void> updateGuildCount(String botId, int count) async => throw UnsupportedError('Not used');
+  Future<void> updateGuildCount(String botId, int count) async =>
+      throw UnsupportedError('Not used');
 
   @override
-  Future<void> recordCommandExecution(String botId, String commandName) async => throw UnsupportedError('Not used');
+  Future<void> recordCommandExecution(String botId, String commandName) async =>
+      throw UnsupportedError('Not used');
 
   @override
   Map<String, dynamic> normalizeCommandData(Map<String, dynamic> raw) => raw;

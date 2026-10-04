@@ -342,9 +342,9 @@ bool _executionUsesOption(Map data, List path, String name) {
     if (value is Map) {
       final source = value['bdfdScriptContent'];
       if (source is String && source.trim().isNotEmpty) {
-        // Source is retained in BDFD mode; derive references using the same
-        // compiler as execution, including $message[argument] expressions.
-        texts.add(jsonEncode(compileCopilotCommand(source)));
+        // Source is retained in BDFD mode and executed natively; the raw
+        // source text is scanned for option references.
+        texts.add(source);
       }
       for (final child in value.values) {
         inspect(child);
@@ -363,9 +363,17 @@ bool _executionUsesOption(Map data, List path, String name) {
   };
   return names.any(
     (option) => texts.any(
-      (text) => RegExp(
-        'opts\\.${RegExp.escape(option)}(?![A-Za-z0-9_])',
-      ).hasMatch(text),
+      (text) =>
+          RegExp(
+            'opts\\.${RegExp.escape(option)}(?![A-Za-z0-9_])',
+          ).hasMatch(text) ||
+          // Native BDFD: $message[name], or positional/bare $message, may
+          // address any option, so they conservatively count as references.
+          RegExp(
+            '\\\$message(?:\\[\\s*(?:${RegExp.escape(option)}|\\d+[^\\]]*)\\s*\\])?'
+            r'(?![A-Za-z0-9_])',
+            caseSensitive: false,
+          ).hasMatch(text),
     ),
   );
 }
@@ -412,10 +420,11 @@ Map<String, dynamic> buildCopilotWorkflow(
     copy['jsScriptContent'] = script;
     actions = [];
   } else if (mode == 'bdfd_script') {
-    actions = compileCopilotCommand(
-      args['script'] as String? ?? '',
-      legacyUserVariables: legacyUserVariables,
-    );
+    final script = args['script'] as String? ?? '';
+    checkCopilotBdfd(script, legacyUserVariables: legacyUserVariables);
+    copy['bdfdScriptContent'] = script;
+    copy['bdfdBackend'] = 'native-v1';
+    actions = [];
   } else if (mode == 'workflow') {
     final raw = args['actions'] ?? copy['actions'];
     if (raw is! List || raw.isEmpty || raw.length > 80) {
@@ -433,7 +442,11 @@ Map<String, dynamic> buildCopilotWorkflow(
   copy.addAll({
     'name': args['name'],
     'actions': actions,
-    'executionMode': mode == 'javascript' ? 'javascript' : 'workflow',
+    'executionMode': mode == 'javascript'
+        ? 'javascript'
+        : mode == 'bdfd_script'
+        ? 'bdfd_script'
+        : 'workflow',
     'workflowType': args['workflow_type'] ?? copy['workflowType'] ?? 'general',
     'entryPoint': args['entry_point'] ?? copy['entryPoint'] ?? 'main',
     'arguments': args['arguments'] ?? copy['arguments'] ?? [],

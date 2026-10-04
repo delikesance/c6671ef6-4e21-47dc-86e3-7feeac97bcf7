@@ -79,51 +79,63 @@ class _Message implements Message {
 }
 
 void main() {
-  test('versioned selection rejects unknown values instead of guessing', () {
-    expect(BdfdBackend.parse(null), BdfdBackend.legacy);
-    expect(BdfdBackend.parse('legacy-v1'), BdfdBackend.legacy);
+  test('unset and native-v1 select native; anything else is unknown', () {
+    expect(BdfdBackend.parse(null), BdfdBackend.native);
     expect(BdfdBackend.parse('native-v1'), BdfdBackend.native);
-    for (final value in ['native', 'v2', false, 123]) {
+    for (final value in ['legacy-v1', 'native', 'v2', false, 123]) {
       expect(() => BdfdBackend.parse(value), throwsFormatException);
     }
   });
-  test(
-    'unset or explicit legacy backend retains the original raw source',
-    () async {
+  test('unset or explicit native backend runs the script natively', () async {
+    final source = r'$unknown[$sendMessage[no]] ((argument))';
+    for (final backend in [null, 'native-v1']) {
       final messages = _Messages();
-      final source = r'$unknown[$sendMessage[no]] ((argument))';
+      var prepared = 0;
       final execution = BdfdScriptExecution(
         store: MemoryBotDataStore(),
         botId: 'bot',
         variables: {},
         messages: messages,
       );
-      final legacySources = <String>[];
-      var prepared = 0;
-      for (final backend in [null, 'legacy-v1']) {
-        expect(
-          await execution.execute(
-            source,
-            backend: backend,
-            executeLegacy: (source) async {
-              legacySources.add(source);
-            },
-            onNativePrepared: () async {
-              prepared++;
-            },
-          ),
-          isNull,
-        );
-      }
-      expect(legacySources, [source, source]);
-      expect(prepared, 0);
-      expect(messages.requests, isEmpty);
-    },
-  );
+      await execution.execute(
+        source,
+        backend: backend,
+        onNativePrepared: () async {
+          prepared++;
+        },
+      );
+      expect(prepared, 1, reason: '$backend');
+      expect(messages.requests.single.payload['content'], source);
+    }
+  });
+  test('the removed legacy-v1 backend is rejected before any effect', () async {
+    final messages = _Messages();
+    final interaction = _Interaction();
+    var prepared = 0;
+    final execution = BdfdScriptExecution(
+      store: MemoryBotDataStore(),
+      botId: 'bot',
+      variables: {},
+      messages: messages,
+      interaction: interaction,
+    );
+    await expectLater(
+      execution.execute(
+        r'$sendMessage[never]',
+        backend: 'legacy-v1',
+        onNativePrepared: () async {
+          prepared++;
+        },
+      ),
+      throwsFormatException,
+    );
+    expect(prepared, 0);
+    expect(messages.requests, isEmpty);
+    expect(interaction.acknowledgements, 0);
+  });
   test('native prepares before acknowledgement then executes directly', () async {
     final messages = _Messages();
     final store = MemoryBotDataStore();
-    var legacy = 0;
     var prepared = 0;
     final variables = <String, String>{
       'guild.id': '10',
@@ -139,9 +151,6 @@ void main() {
     await execution.execute(
       r'$textSplit[$message; ]$setUserVar[word;$splitText[2]]$sendMessage[$getUserVar[word];yes]',
       backend: 'native-v1',
-      executeLegacy: (_) async {
-        legacy++;
-      },
       onNativePrepared: () async {
         expect(messages.requests, isEmpty);
         expect(store.scopedVariables, isEmpty);
@@ -149,7 +158,6 @@ void main() {
       },
     );
     expect(prepared, 1);
-    expect(legacy, 0);
     expect(messages.requests.map((r) => r.payload['content']), ['world', '1']);
     expect(store.scopedVariables['guildMember']!['10:20']!['word'], 'world');
   });
@@ -157,7 +165,6 @@ void main() {
     'unsupported native capabilities fail before acknowledgement or effects',
     () async {
       final messages = _Messages();
-      var legacy = 0;
       var prepared = 0;
       final execution = BdfdScriptExecution(
         store: MemoryBotDataStore(),
@@ -169,9 +176,6 @@ void main() {
         execution.execute(
           r'$sendMessage[must not send]$ban[123]',
           backend: 'native-v1',
-          executeLegacy: (_) async {
-            legacy++;
-          },
           onNativePrepared: () async {
             prepared++;
           },
@@ -179,7 +183,6 @@ void main() {
         throwsA(isA<BdfdNativeError>()),
       );
       expect(prepared, 0);
-      expect(legacy, 0);
       expect(messages.requests, isEmpty);
     },
   );
@@ -187,7 +190,6 @@ void main() {
     'unknown functions are opaque and accepted on the native entry point',
     () async {
       final messages = _Messages();
-      var legacy = 0;
       final source = r'$unknown[$sendMessage[must not send]]';
       final execution = BdfdScriptExecution(
         store: MemoryBotDataStore(),
@@ -195,14 +197,7 @@ void main() {
         variables: {},
         messages: messages,
       );
-      await execution.execute(
-        source,
-        backend: 'native-v1',
-        executeLegacy: (_) async {
-          legacy++;
-        },
-      );
-      expect(legacy, 0);
+      await execution.execute(source, backend: 'native-v1');
       expect(messages.requests.single.payload['content'], source);
     },
   );
@@ -210,7 +205,6 @@ void main() {
     'native effects are never replayed on the legacy backend after failure',
     () async {
       final messages = _Messages()..fail = true;
-      var legacy = 0;
       final execution = BdfdScriptExecution(
         store: MemoryBotDataStore(),
         botId: 'bot',
@@ -221,46 +215,34 @@ void main() {
         execution.execute(
           r'$sendMessage[once]$sendMessage[never]',
           backend: 'native-v1',
-          executeLegacy: (_) async {
-            legacy++;
-          },
         ),
         throwsA(isA<BdfdNativeError>()),
       );
-      expect(legacy, 0);
       expect(messages.requests.map((r) => r.payload['content']), ['once']);
     },
   );
-  test(
-    'unknown backend fails before either execution path or acknowledgement',
-    () async {
-      final messages = _Messages();
-      var legacy = 0;
-      var prepared = 0;
-      final execution = BdfdScriptExecution(
-        store: MemoryBotDataStore(),
-        botId: 'bot',
-        variables: {},
-        messages: messages,
-      );
-      await expectLater(
-        execution.execute(
-          r'$sendMessage[never]',
-          backend: 'invalid',
-          executeLegacy: (_) async {
-            legacy++;
-          },
-          onNativePrepared: () async {
-            prepared++;
-          },
-        ),
-        throwsFormatException,
-      );
-      expect(legacy, 0);
-      expect(prepared, 0);
-      expect(messages.requests, isEmpty);
-    },
-  );
+  test('unknown backend fails before preparation or acknowledgement', () async {
+    final messages = _Messages();
+    var prepared = 0;
+    final execution = BdfdScriptExecution(
+      store: MemoryBotDataStore(),
+      botId: 'bot',
+      variables: {},
+      messages: messages,
+    );
+    await expectLater(
+      execution.execute(
+        r'$sendMessage[never]',
+        backend: 'invalid',
+        onNativePrepared: () async {
+          prepared++;
+        },
+      ),
+      throwsFormatException,
+    );
+    expect(prepared, 0);
+    expect(messages.requests, isEmpty);
+  });
   test(
     'native preparation hook consumes the same deadline as the script',
     () async {
@@ -279,7 +261,6 @@ void main() {
         execution.execute(
           r'$sendMessage[never]',
           backend: 'native-v1',
-          executeLegacy: (_) async {},
           onNativePrepared: () =>
               Future<void>.delayed(const Duration(milliseconds: 50)),
         ),
@@ -304,9 +285,6 @@ void main() {
       await execution.execute(
         r'$sendMessage[one]$sendMessage[two]',
         backend: 'native-v1',
-        executeLegacy: (_) async {
-          fail('Unexpected legacy execution');
-        },
       );
       expect(interaction.acknowledgements, 1);
       expect(interaction.deletions, 1);
@@ -330,13 +308,7 @@ void main() {
           interaction: interaction,
         ),
       );
-      await execution.execute(
-        'visible',
-        backend: 'native-v1',
-        executeLegacy: (_) async {
-          fail('Unexpected legacy execution');
-        },
-      );
+      await execution.execute('visible', backend: 'native-v1');
       expect(interaction.acknowledgements, 1);
       expect(interaction.deletions, 0);
       expect(interaction.updates.single.content, 'visible');
@@ -357,13 +329,7 @@ void main() {
           interaction: interaction,
         ),
       );
-      await execution.execute(
-        r'$ephemeral private',
-        backend: 'native-v1',
-        executeLegacy: (_) async {
-          fail('Unexpected legacy execution');
-        },
-      );
+      await execution.execute(r'$ephemeral private', backend: 'native-v1');
       expect(interaction.deletions, 1);
       expect(interaction.followups.single.content, ' private');
       expect(execution.context.response.originalResponseCompleted, false);
@@ -380,11 +346,7 @@ void main() {
         messages: _Messages(),
         interaction: interaction,
       );
-      await execution.execute(
-        r'$sendMessage[one]',
-        backend: 'native-v1',
-        executeLegacy: (_) async {},
-      );
+      await execution.execute(r'$sendMessage[one]', backend: 'native-v1');
       expect(interaction.acknowledgements, 0);
       expect(interaction.deletions, 0);
     },
@@ -404,9 +366,6 @@ void main() {
         execution.execute(
           r'$sendMessage[never]$ban[123]',
           backend: 'native-v1',
-          executeLegacy: (_) async {
-            fail('Unexpected legacy execution');
-          },
         ),
         throwsA(isA<BdfdNativeError>()),
       );
@@ -429,13 +388,7 @@ void main() {
         interaction: interaction,
       );
       await expectLater(
-        execution.execute(
-          r'$sendMessage[never]',
-          backend: 'native-v1',
-          executeLegacy: (_) async {
-            fail('Unexpected legacy execution');
-          },
-        ),
+        execution.execute(r'$sendMessage[never]', backend: 'native-v1'),
         throwsA(isA<CommandExecutionTimeout>()),
       );
       await Future<void>.delayed(const Duration(milliseconds: 70));

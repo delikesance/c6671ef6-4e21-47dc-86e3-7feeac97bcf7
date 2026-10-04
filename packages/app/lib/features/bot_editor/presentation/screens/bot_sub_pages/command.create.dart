@@ -185,8 +185,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
   final TextEditingController _bdfdScriptController = TextEditingController();
   final TextEditingController _jsScriptController = TextEditingController();
   String _botRuntimeEngine = runtimeEngineDart;
-  final BdfdCompiler _bdfdCompiler = BdfdCompiler();
-  String _bdfdBackend = 'legacy-v1';
+  String _bdfdBackend = 'native-v1';
   List<BdfdCompileDiagnostic> _bdfdDiagnosticsValue = const [];
   bool _legacyModeEnabled = false;
   bool _restoredHybridTrigger = false;
@@ -272,11 +271,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
 
   void _refreshBdfdCompileResult({bool notify = true}) {
     final source = _bdfdScriptController.text;
-    final nextResult = bdfdDiagnosticsFor(
-      source,
-      backend: _bdfdBackend,
-      legacyCompiler: _bdfdCompiler,
-    );
+    final nextResult = bdfdDiagnosticsFor(source, backend: _bdfdBackend);
     if (!notify || !mounted) {
       _bdfdScriptContent = source;
       _bdfdDiagnosticsValue = nextResult;
@@ -1630,7 +1625,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
           _jsScriptContent = (normalizedData['jsScriptContent'] ?? '')
               .toString();
           _jsScriptController.text = _jsScriptContent;
-          _bdfdBackend = (normalizedData['bdfdBackend'] ?? 'legacy-v1')
+          _bdfdBackend = (normalizedData['bdfdBackend'] ?? 'native-v1')
               .toString();
           _refreshBdfdCompileResult(notify: false);
           _restoredHybridTrigger = normalizedData['triggerType'] == 'hybrid';
@@ -1750,7 +1745,7 @@ class _CommandCreatePageState extends State<CommandCreatePage> {
             _jsScriptContent = (normalizedData['jsScriptContent'] ?? '')
                 .toString();
             _jsScriptController.text = _jsScriptContent;
-            _bdfdBackend = (normalizedData['bdfdBackend'] ?? 'legacy-v1')
+            _bdfdBackend = (normalizedData['bdfdBackend'] ?? 'native-v1')
                 .toString();
             _refreshBdfdCompileResult(notify: false);
             _restoredHybridTrigger = normalizedData['triggerType'] == 'hybrid';

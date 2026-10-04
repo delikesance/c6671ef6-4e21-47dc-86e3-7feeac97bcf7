@@ -1,46 +1,97 @@
 import 'function_suite.dart';
 
+/// Nicknames are changed through the production moderation checks against
+/// guild member fixtures; the bot needs a numeric ID.
+const _nicknameFixture = {
+  'guilds': {
+    '10': {
+      'owner_id': '99',
+      'roles': [
+        {'id': '10', 'name': '@everyone', 'position': 0, 'permissions': '0'},
+        {'id': '70', 'name': 'Bot', 'position': 1, 'permissions': '8'},
+      ],
+      'members': {
+        '20': {'roles': <String>[], 'nick': 'Old'},
+        '21': {'roles': <String>[]},
+        '98': {
+          'roles': ['70'],
+        },
+        '99': {'roles': <String>[]},
+      },
+    },
+  },
+  'users': {
+    '20': {'username': 'alice', 'discriminator': '0'},
+    '21': {'username': 'bob', 'discriminator': '0'},
+  },
+};
+
 const sandboxMiscFunctionCases = [
   SandboxFunctionCase(
     'changeusername',
-    r'$changeUsername[NewBot]$botName',
-    0,
-    'NewBot',
-    scenario: {
-      'variables': {'bot.username': 'OldBot'},
-    },
-    expectedValues: {
-      '/effects/0/type': 'updateSelfUser',
-      '/effects/0/before': 'OldBot',
-      '/effects/0/after': 'NewBot',
-    },
-  ),
-  SandboxFunctionCase(
-    'changeusernamewithid',
-    r'$changeUsernameWithID[999;Renamed]$botName',
-    0,
-    'Renamed',
-    scenario: {
-      'variables': {'bot.id': '999', 'bot.username': 'OldBot'},
-    },
-    expectedValues: {'/effects/0/user_id': '999'},
-    label: 'the supplied ID may select the bot itself',
-  ),
-  SandboxFunctionCase(
-    'changeusernamewithid',
-    r'$changeUsernameWithID[21;WrongName]',
+    r'$changeUsername[NewNick]',
     0,
     '',
+    label: 'without a mention it changes the nickname of the command author',
     scenario: {
-      'variables': {'bot.id': '999'},
+      'entities': _nicknameFixture,
+      'variables': {'bot.id': '98'},
+    },
+    expectedValues: {
+      '/effects/0/type': 'setNickname',
+      '/effects/0/user_id': '20',
+      '/effects/0/before': 'Old',
+      '/effects/0/after': 'NewNick',
+    },
+  ),
+  SandboxFunctionCase(
+    'changeusername',
+    r'$changeUsername[Mentioned]',
+    0,
+    '',
+    label: 'changes the nickname of the mentioned user',
+    scenario: {
+      'entities': _nicknameFixture,
+      'variables': {'bot.id': '98', 'message.mentions': '21'},
+    },
+    expectedValues: {
+      '/effects/0/type': 'setNickname',
+      '/effects/0/user_id': '21',
+      '/effects/0/after': 'Mentioned',
+    },
+  ),
+  SandboxFunctionCase(
+    'changeusernamewithid',
+    r'$changeUsernameWithID[21;Hello %username%]',
+    0,
+    '',
+    label: '%username% is replaced by the real username',
+    scenario: {
+      'entities': _nicknameFixture,
+      'variables': {'bot.id': '98'},
+    },
+    expectedValues: {
+      '/effects/0/type': 'setNickname',
+      '/effects/0/user_id': '21',
+      '/effects/0/after': 'Hello bob',
+    },
+  ),
+  SandboxFunctionCase(
+    'changeusernamewithid',
+    r'$changeUsernameWithID[21;This nickname is far longer than thirty-two characters]',
+    0,
+    '',
+    label: 'nicknames beyond 32 characters are an error',
+    scenario: {
+      'entities': _nicknameFixture,
+      'variables': {'bot.id': '98'},
     },
     expectedValues: {
       '/success': false,
       '/error':
-          'Bad state: A bot token cannot change another user’s global username',
+          r'BDFD L1:1 $changeUsernameWithID: Nickname must contain 1 to 32 characters.',
       '/effects': [],
     },
-    label: 'another user’s global username is outside bot-token capability',
   ),
   SandboxFunctionCase(
     'botleave',
@@ -73,14 +124,11 @@ const sandboxMiscFunctionCases = [
   ),
   SandboxFunctionCase(
     'debug',
-    r'$debug$setVar[after;yes]done',
+    r'$debug[on]$setVar[after;yes]done',
     0,
     'done',
-    label: 'debug profiling leaves subsequent execution intact',
-    expectedValues: {
-      '/trace/0/actionType': 'debugProfile',
-      '/storage_after/global/after': 'yes',
-    },
+    label: 'debug leaves subsequent execution intact',
+    expectedValues: {'/storage_after/global/after': 'yes'},
   ),
   SandboxFunctionCase(
     'alternativeparsing',
@@ -105,10 +153,13 @@ const sandboxMiscFunctionCases = [
   ),
   SandboxFunctionCase(
     'botnode',
-    r'$botNode OK',
+    r"The bot's node ID: $botNode",
     0,
-    ' OK',
-    label: 'bot node placeholder returns empty compatibility text',
+    "The bot's node ID: 21",
+    label: 'returns the node the bot runs on',
+    scenario: {
+      'variables': {'bot.node': '21'},
+    },
   ),
   SandboxFunctionCase(
     'disableinnerspaceremoval',

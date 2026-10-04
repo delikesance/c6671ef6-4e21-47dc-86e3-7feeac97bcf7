@@ -39,6 +39,7 @@ void main() {
     final result = await testCommandInSandbox({
       'script':
           r'$newModal[form;Profile] $addModalRadioGroup[Choice;;choice;false]$addRadioGroupOption[choice;One;one;;true]',
+      'variables': {'interaction.type': '2'},
     });
     expect(result['success'], true, reason: '$result');
     final child =
@@ -50,6 +51,7 @@ void main() {
     final result = await testCommandInSandbox({
       'script':
           r'$newModal[form;Profile]$addModalSelect[string;Choice;;choice;;0;1;false]$addSelectMenuOption[choice;One;one;;true]',
+      'variables': {'interaction.type': '2'},
     });
     expect(result['success'], true, reason: '$result');
     final child =
@@ -64,7 +66,8 @@ void main() {
     test('thumbnail spoiler uses runtime $value', () async {
       final result = await testCommandInSandbox({
         'script':
-            r'$addSection$addTextDisplay[Text]$addThumbnail[https://example.com/image.png;Image;((opts.spoiler))]',
+            r'$addSection$addTextDisplay[Text]$addThumbnail[https://example.com/image.png;Image;$message[spoiler]]',
+        'variables': {'interaction.isSlash': 'true'},
         'options': {'spoiler': value},
       });
       expect(result['success'], true, reason: '$result');

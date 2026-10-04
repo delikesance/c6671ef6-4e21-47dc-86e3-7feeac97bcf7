@@ -47,17 +47,15 @@ void main() {
 
     test('resolves ((variable)) placeholders in loadImage URL', () async {
       // loadImage with a variable URL that resolves to a data URL
-      final testDataUrl = 'data:image/png;base64,'
+      final testDataUrl =
+          'data:image/png;base64,'
           '${base64Encode(img.encodePng(img.Image(width: 10, height: 10)))}';
 
       await executeRuntimeImageBlock(
         payload: {
           'operations': [
             {'op': 'create', 'width': '100', 'height': '100', 'color': 'red'},
-            {
-              'op': 'loadImage',
-              'url': '((image.url))',
-            },
+            {'op': 'loadImage', 'url': '((image.url))'},
           ],
         },
         resultKey: 'resolved_url',

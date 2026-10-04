@@ -8,7 +8,9 @@ void main() {
     });
 
     test('command without data key returns false', () {
-      final commands = [<String, dynamic>{'name': 'test'}];
+      final commands = [
+        <String, dynamic>{'name': 'test'},
+      ];
       expect(stripMigratedCommandData(commands), isFalse);
     });
 
@@ -44,7 +46,10 @@ void main() {
         <String, dynamic>{
           'name': 'test',
           'data': <String, dynamic>{
-            'response': <String, dynamic>{'_migrated': true, 'content': 'hello'},
+            'response': <String, dynamic>{
+              '_migrated': true,
+              'content': 'hello',
+            },
             'simpleConfig': 'stuff',
             'otherKey': 42,
           },
@@ -73,22 +78,25 @@ void main() {
       expect(data.containsKey('simpleConfig'), isFalse);
     });
 
-    test('only response removed when _migrated present but no simpleConfig', () {
-      final commands = [
-        <String, dynamic>{
-          'name': 'test',
-          'data': <String, dynamic>{
-            'response': <String, dynamic>{'_migrated': true},
-            'otherKey': 'preserved',
+    test(
+      'only response removed when _migrated present but no simpleConfig',
+      () {
+        final commands = [
+          <String, dynamic>{
+            'name': 'test',
+            'data': <String, dynamic>{
+              'response': <String, dynamic>{'_migrated': true},
+              'otherKey': 'preserved',
+            },
           },
-        },
-      ];
-      expect(stripMigratedCommandData(commands), isTrue);
-      final data = commands[0]['data'] as Map<String, dynamic>;
-      expect(data.containsKey('response'), isFalse);
-      expect(data.containsKey('simpleConfig'), isFalse);
-      expect(data['otherKey'], equals('preserved'));
-    });
+        ];
+        expect(stripMigratedCommandData(commands), isTrue);
+        final data = commands[0]['data'] as Map<String, dynamic>;
+        expect(data.containsKey('response'), isFalse);
+        expect(data.containsKey('simpleConfig'), isFalse);
+        expect(data['otherKey'], equals('preserved'));
+      },
+    );
 
     test('multiple commands, only migrated ones are stripped', () {
       final commands = [
@@ -133,10 +141,7 @@ void main() {
 
     test('data is not a map → skipped', () {
       final commands = [
-        <String, dynamic>{
-          'name': 'test',
-          'data': 'not-a-map',
-        },
+        <String, dynamic>{'name': 'test', 'data': 'not-a-map'},
       ];
       expect(stripMigratedCommandData(commands), isFalse);
     });

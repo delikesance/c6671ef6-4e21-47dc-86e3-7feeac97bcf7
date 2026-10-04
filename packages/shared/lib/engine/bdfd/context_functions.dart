@@ -31,10 +31,27 @@ Map<String, BdfdNativeFunction> bdfdContextFunctions() {
           return '';
         },
       ),
+    // Wiki: $error[Type] inside $catch (command, message, source, row,
+    // column). Without a type the full error text is returned.
     'error': BdfdNativeFunction(
       minArguments: 0,
-      maxArguments: 0,
-      handler: (call) => call.context.results['error.message'] ?? '',
+      maxArguments: 1,
+      handler: (call) async {
+        final results = call.context.results;
+        if (call.argumentCount == 0) return results['error.message'] ?? '';
+        final type = await call.argument(0);
+        return switch (type) {
+          'command' => results['error.command'] ?? '',
+          'message' => results['error.rawMessage'] ?? '',
+          'source' => results['error.source'] ?? '',
+          'row' => results['error.row'] ?? '',
+          'column' => results['error.column'] ?? '',
+          _ => throw BdfdNativeError(
+            'Error type must be command, message, source, row or column.',
+            call.location,
+          ),
+        };
+      },
     ),
   };
   void add(String name, int min, int max, BdfdFunctionHandler handler) {

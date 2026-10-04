@@ -18,7 +18,10 @@ void main() {
       expect(current, isNotNull);
       expect(now!.isBefore(after) || now.isAtSameMomentAs(after), isTrue);
       expect(now.isAfter(before) || now.isAtSameMomentAs(before), isTrue);
-      expect(current!.isBefore(after) || current.isAtSameMomentAs(after), isTrue);
+      expect(
+        current!.isBefore(after) || current.isAtSameMomentAs(after),
+        isTrue,
+      );
     });
 
     test('parses ISO8601 strings', () {
@@ -28,12 +31,18 @@ void main() {
 
     test('parses unix seconds', () {
       final parsed = parseEmbedTimestamp('1700000000');
-      expect(parsed, DateTime.fromMillisecondsSinceEpoch(1700000000000, isUtc: true));
+      expect(
+        parsed,
+        DateTime.fromMillisecondsSinceEpoch(1700000000000, isUtc: true),
+      );
     });
 
     test('parses unix milliseconds', () {
       final parsed = parseEmbedTimestamp('1700000000000');
-      expect(parsed, DateTime.fromMillisecondsSinceEpoch(1700000000000, isUtc: true));
+      expect(
+        parsed,
+        DateTime.fromMillisecondsSinceEpoch(1700000000000, isUtc: true),
+      );
     });
   });
 }

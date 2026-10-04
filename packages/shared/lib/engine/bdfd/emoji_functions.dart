@@ -67,8 +67,22 @@ Map<String, BdfdNativeFunction> bdfdEmojiFunctions(BotEmojiService service) {
     'emojicount': BdfdNativeFunction(
       minArguments: 0,
       maxArguments: 1,
-      handler: (call) async =>
-          '${(await call.context.budget.run(() => service.emojis(budget: call.context.budget))).length}',
+      handler: (call) async {
+        String? guildId;
+        if (call.argumentCount == 1) {
+          final raw = (await call.argument(0)).trim();
+          if (raw.isNotEmpty) {
+            guildId = id(raw);
+            if (guildId == null) {
+              throw BdfdNativeError('Invalid guild ID.', call.location);
+            }
+          }
+        }
+        final emojis = await call.context.budget.run(
+          () => service.emojis(guildId: guildId, budget: call.context.budget),
+        );
+        return '${emojis.length}';
+      },
     ),
     'stickercount': BdfdNativeFunction(
       minArguments: 0,

@@ -175,6 +175,7 @@ Map<String, BdfdNativeFunction> bdfdTimingFunctions({
             : '';
         final isEphemeral = ephemeral == 'yes' || ephemeral == 'true';
         call.context.response.acknowledged = true;
+        call.context.response.deferred = true;
         if (isEphemeral) {
           call.context.response.ephemeral = true;
         }
@@ -203,8 +204,13 @@ Map<String, BdfdNativeFunction> bdfdTimingFunctions({
     'uptime': BdfdNativeFunction(
       minArguments: 0,
       maxArguments: 0,
+      // Wiki: Hour:Minute:Second. `bot.uptime` holds milliseconds.
       handler: (call) async {
-        return call.context.variables['bot.uptime'] ?? '0';
+        final millis =
+            int.tryParse(call.context.variables['bot.uptime'] ?? '') ?? 0;
+        final seconds = (millis < 0 ? 0 : millis) ~/ 1000;
+        String two(int value) => value.toString().padLeft(2, '0');
+        return '${two(seconds ~/ 3600)}:${two(seconds % 3600 ~/ 60)}:${two(seconds % 60)}';
       },
     ),
     'hostingexpiretime': BdfdNativeFunction(

@@ -19,7 +19,14 @@ void main() {
   group('migrateCommandDataResponse — subcommand workflows', () {
     test('subcommand with legacy response → migrated', () {
       final data = commandWithSubcommand(
-        rootResponse: {'type': 'normal', 'text': '', 'workflow': {'visibility': 'public', 'conditional': {'enabled': false}}},
+        rootResponse: {
+          'type': 'normal',
+          'text': '',
+          'workflow': {
+            'visibility': 'public',
+            'conditional': {'enabled': false},
+          },
+        },
         subcommandWorkflows: {
           'ban': {
             'response': {
@@ -42,7 +49,14 @@ void main() {
 
     test('subcommand with heavy action → defer forced', () {
       final data = commandWithSubcommand(
-        rootResponse: {'type': 'normal', 'text': '', 'workflow': {'visibility': 'public', 'conditional': {'enabled': false}}},
+        rootResponse: {
+          'type': 'normal',
+          'text': '',
+          'workflow': {
+            'visibility': 'public',
+            'conditional': {'enabled': false},
+          },
+        },
         subcommandWorkflows: {
           'ban': {
             'response': {
@@ -64,11 +78,16 @@ void main() {
 
     test('subcommand without response → no migration', () {
       final data = commandWithSubcommand(
-        rootResponse: {'type': 'normal', 'text': '', 'workflow': {'visibility': 'public', 'conditional': {'enabled': false}}},
-        subcommandWorkflows: {
-          'ban': {
-            'actions': [],
+        rootResponse: {
+          'type': 'normal',
+          'text': '',
+          'workflow': {
+            'visibility': 'public',
+            'conditional': {'enabled': false},
           },
+        },
+        subcommandWorkflows: {
+          'ban': {'actions': []},
         },
       );
       migrateCommandDataResponse(data);
@@ -79,7 +98,14 @@ void main() {
 
     test('subcommand with _migrated sentinel → skipped', () {
       final data = commandWithSubcommand(
-        rootResponse: {'type': 'normal', 'text': '', 'workflow': {'visibility': 'public', 'conditional': {'enabled': false}}},
+        rootResponse: {
+          'type': 'normal',
+          'text': '',
+          'workflow': {
+            'visibility': 'public',
+            'conditional': {'enabled': false},
+          },
+        },
         subcommandWorkflows: {
           'ban': {
             'response': {
@@ -99,7 +125,14 @@ void main() {
 
     test('multiple subcommands → all migrated', () {
       final data = commandWithSubcommand(
-        rootResponse: {'type': 'normal', 'text': '', 'workflow': {'visibility': 'public', 'conditional': {'enabled': false}}},
+        rootResponse: {
+          'type': 'normal',
+          'text': '',
+          'workflow': {
+            'visibility': 'public',
+            'conditional': {'enabled': false},
+          },
+        },
         subcommandWorkflows: {
           'ban': {
             'response': {

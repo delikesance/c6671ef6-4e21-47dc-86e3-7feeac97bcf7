@@ -17,7 +17,6 @@ import 'package:bot_creator_shared/engine/command_executor.dart';
 import 'package:bot_creator_shared/engine/workflow_executor.dart';
 import 'package:bot_creator_shared/actions/interaction_response.dart';
 import 'package:bot_creator_shared/actions/send_message.dart';
-import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 import 'package:bot_creator_shared/events/event_contexts.dart';
 import 'package:bot_creator_shared/utils/interaction_listener_registry.dart';
 import 'package:bot_creator_shared/utils/interaction_ack_state.dart';
@@ -1004,6 +1003,8 @@ class EventDispatcher {
       moderation: DiscordBotModerationService(
         client: gateway,
         guildId: context.guildId,
+        store: store,
+        botId: botId,
       ),
       messages: DiscordBotMessageService(
         botId: botId,
@@ -1019,56 +1020,7 @@ class EventDispatcher {
     await execution.execute(
       scriptSource,
       backend: backend,
-      executeLegacy: (source) => _executeLegacyBdfdScriptInEvent(
-        source,
-        context: context,
-        gateway: gateway,
-        botId: botId,
-        runtimeVariables: runtimeVariables,
-      ),
     );
-  }
-
-  Future<void> _executeLegacyBdfdScriptInEvent(
-    String scriptSource, {
-    required EventExecutionContext context,
-    required NyxxGateway gateway,
-    required String botId,
-    required Map<String, String> runtimeVariables,
-  }) async {
-    final compileResult = BdfdCompiler(
-      legacyUserVariables:
-          runtimeVariables['bdfd.userVariableSemantics'] == '1',
-    ).compile(scriptSource);
-
-    if (compileResult.hasErrors) {
-      callbacks.onLog?.call(
-        'ERROR: BDFD Compilation failed: ${compileResult.diagnostics.map((d) => d.message).join(', ')}',
-        botId: botId,
-      );
-      return;
-    }
-
-    final actions = compileResult.actions;
-    callbacks.onDebugLog?.call(
-      'BDFD compiled into ${actions.length} actions',
-      botId: botId,
-    );
-
-    if (actions.isNotEmpty) {
-      final cmdName = runtimeVariables['0'];
-      final label = cmdName != null ? '!$cmdName' : 'BDFD Script';
-      await _workflowExecutor.executeActions(
-        actions: actions,
-        context: context.interaction,
-        gateway: gateway,
-        botId: botId,
-        runtimeVariables: runtimeVariables,
-        fallbackChannelId: context.channelId,
-        fallbackGuildId: context.guildId,
-        replayLabel: label,
-      );
-    }
   }
 
   Future<void> _executeEventWorkflow(

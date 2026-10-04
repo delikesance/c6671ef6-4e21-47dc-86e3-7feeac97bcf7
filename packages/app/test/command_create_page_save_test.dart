@@ -295,10 +295,6 @@ void main() {
               id: Snowflake.zero,
             ),
           );
-          expect(
-            find.text('Native BDFD (migration in progress)'),
-            findsWidgets,
-          );
           await tester.enterText(
             find.byType(TextFormField).first,
             'settingsnative',

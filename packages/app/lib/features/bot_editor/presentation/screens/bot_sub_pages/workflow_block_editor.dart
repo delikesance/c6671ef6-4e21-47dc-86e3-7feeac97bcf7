@@ -126,7 +126,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
 
   String _executionMode = workflowExecutionModeWorkflow;
   late final TextEditingController _bdfdScriptController;
-  String _bdfdBackend = 'legacy-v1';
+  String _bdfdBackend = 'native-v1';
   bool get _isBdfdMode => _executionMode == workflowExecutionModeBdfd;
   late final TextEditingController _jsScriptController;
   String _jsScriptContent = '';
@@ -255,7 +255,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                   '')
               .toString(),
     );
-    _bdfdBackend = (normalized?['bdfdBackend'] ?? 'legacy-v1').toString();
+    _bdfdBackend = (normalized?['bdfdBackend'] ?? 'native-v1').toString();
     _executionMode = normalizeWorkflowExecutionMode(
       normalized?['executionMode'],
       supportsJavascript: true,
@@ -2144,7 +2144,6 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
       _bdfdScriptController.text,
       backend: _bdfdBackend,
     );
-    final french = Localizations.localeOf(context).languageCode == 'fr';
     return ScratchBlock(
       color: Theme.of(context).colorScheme.primary,
       title: context.tr.cmd_execution_mode_bdfd,
@@ -2152,36 +2151,6 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          DropdownButtonFormField<String>(
-            key: ValueKey('workflow-backend-$_bdfdBackend'),
-            initialValue: _bdfdBackend,
-            decoration: InputDecoration(
-              labelText: french ? 'Moteur BDFD' : 'BDFD engine',
-            ),
-            items: [
-              const DropdownMenuItem(
-                value: 'legacy-v1',
-                child: Text('BDFD legacy'),
-              ),
-              DropdownMenuItem(
-                value: 'native-v1',
-                child: Text(
-                  french
-                      ? 'BDFD natif (en migration)'
-                      : 'Native BDFD (migration in progress)',
-                ),
-              ),
-              if (!['legacy-v1', 'native-v1'].contains(_bdfdBackend))
-                DropdownMenuItem(
-                  value: _bdfdBackend,
-                  child: Text(_bdfdBackend),
-                ),
-            ],
-            onChanged: (value) {
-              if (value != null) setState(() => _bdfdBackend = value);
-            },
-          ),
-          const SizedBox(height: 12),
           InkWell(
             onTap: () async {
               final code = await Navigator.push<String>(

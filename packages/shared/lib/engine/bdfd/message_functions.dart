@@ -78,6 +78,10 @@ class BdfdMessageOutput
   }
 
   void flag(String name, dynamic value) => _flags[name] = value;
+  dynamic flagValue(String name) => _flags[name];
+
+  /// `$dm` redirects the response draft to a direct message.
+  String? dmUserId;
 
   @override
   void replaceErrorEmbed(Map<String, dynamic> embed) {
@@ -94,6 +98,7 @@ class BdfdMessageOutput
     _text = StringBuffer();
     _embeds = [];
     _flags = {};
+    dmUserId = null;
     _pin = false;
     _reactions = [];
     _timedMutations = [];
@@ -167,19 +172,29 @@ class BdfdMessageOutput
       discard();
       return;
     }
+    final dmUser = dmUserId;
     final request = BotMessageRequest(
-      destination:
-          channelId != null ||
-              _flags['replyToMessage'] == true ||
-              _flags['targetType'] == 'reply'
+      destination: dmUser != null
+          ? BotMessageDestination.user
+          : channelId != null ||
+                _flags['replyToMessage'] == true ||
+                _flags['targetType'] == 'reply'
           ? BotMessageDestination.channel
           : BotMessageDestination.response,
       payload: {
+        if (dmUser != null) 'userId': dmUser,
         'content': context.removeLinks
             ? removeBdfdLinks(_text.toString())
             : _text.toString(),
+        // Rich (Components V2) rows are flat staged items, so they keep the
+        // `items` form whose hierarchy ComponentV2Definition reconstructs.
         if (componentState.rows.isNotEmpty)
-          'components': {'components': componentState.rows},
+          'components': {
+            componentState.rows.any(_isRichComponentRow)
+                    ? 'items'
+                    : 'components':
+                componentState.rows,
+          },
         'embeds': embeds,
         'ephemeral': false,
         if (channelId != null) 'channelId': channelId,
@@ -433,10 +448,69 @@ Map<String, BdfdNativeFunction> bdfdMessageFunctions() {
     output(call).flag('allowedMentions', {'parse': <String>[]});
     return '';
   });
-  add('allowmention', 0, 0, (call) {
-    output(call).flag('allowedMentions', {
-      'parse': ['users', 'roles'],
+  // Mentions listed explicitly cannot also be requested through `parse`.
+  void restrictMentions(BdfdInvocation call, String kind, List<String> ids) {
+    final sink = output(call);
+    final current = sink.flagValue('allowedMentions');
+    final parse = <String>[
+      ...((current is Map ? current['parse'] : null) as List? ??
+              const ['users', 'roles'])
+          .map((value) => value.toString()),
+    ]..remove(kind);
+    final next = <String, dynamic>{
+      if (current is Map) ...Map<String, dynamic>.from(current),
+      'parse': parse,
+    };
+    next[kind] = ids;
+    sink.flag('allowedMentions', next);
+  }
+
+  for (final entry in {
+    'allowusermentions': 'users',
+    'allowrolementions': 'roles',
+  }.entries) {
+    add(entry.key, 0, 1 << 30, (call) async {
+      final ids = <String>{};
+      for (var i = 0; i < call.argumentCount; i++) {
+        call.context.budget.check();
+        final value = (await call.argument(i)).trim();
+        if (value.isEmpty) continue;
+        if (!RegExp(r'^[0-9]+$').hasMatch(value) || int.parse(value) <= 0) {
+          throw BdfdNativeError('Invalid Discord ID.', call.location);
+        }
+        ids.add(value);
+      }
+      restrictMentions(call, entry.value, ids.toList());
+      return '';
     });
+  }
+  // Wiki: disables replacing mentions in $message with text. The native
+  // $message returns the raw mention text, so there is nothing to disable.
+  add('allowmention', 0, 0, (call) => '');
+  // Wiki: tells Discord the bot is typing in the current channel.
+  add('bottyping', 0, 0, (call) async {
+    await output(call).send(
+      BotMessageRequest(
+        destination: BotMessageDestination.channel,
+        payload: {'targetType': 'typing', 'content': ''},
+      ),
+      call.context,
+      call.location,
+    );
+    return '';
+  });
+  add('dm', 0, 1, (call) async {
+    final raw = call.argumentCount == 1 ? (await call.argument(0)).trim() : '';
+    final id = raw.isEmpty
+        ? (call.context.variables['author.id'] ??
+                  call.context.variables['user.id'] ??
+                  '')
+              .trim()
+        : raw;
+    if (!RegExp(r'^[0-9]+$').hasMatch(id) || int.parse(id) <= 0) {
+      throw BdfdNativeError('Invalid user ID.', call.location);
+    }
+    output(call).dmUserId = id;
     return '';
   });
   add('reply', 0, 2, (call) async {
@@ -530,27 +604,100 @@ Map<String, BdfdNativeFunction> bdfdMessageFunctions() {
     sink.channelId = channel;
     return '';
   });
-  add('sendembedmessage', 2, 4, (call) async {
+  // Wiki: $sendEmbedMessage[Channel ID;Content;(Title;Title URL;Description;
+  // Color hex;Author;Author icon;Footer;Footer icon;Thumbnail;Image;
+  // Add timestamp?;Return ID?)]. Every field after Content is vacantable.
+  add('sendembedmessage', 2, 14, (call) async {
     final channel = (await call.argument(0)).trim();
     final content = await call.argument(1);
+    if (channel.isEmpty || !RegExp(r'^[0-9]+$').hasMatch(channel)) {
+      throw BdfdNativeError('Invalid Discord ID.', call.location);
+    }
+    Future<String> field(int index) async =>
+        index < call.argumentCount ? await call.argument(index) : '';
+    Future<bool> flag(int index, String name) async {
+      final raw = (await field(index)).trim().toLowerCase();
+      if (raw.isEmpty) return false;
+      if (!const ['yes', 'no', 'true', 'false'].contains(raw)) {
+        throw BdfdNativeError('$name must be yes or no.', call.location);
+      }
+      return _yes(raw);
+    }
+
+    final title = await field(2),
+        titleUrl = await field(3),
+        description = await field(4),
+        rawColor = (await field(5)).trim(),
+        author = await field(6),
+        authorIcon = await field(7),
+        footer = await field(8),
+        footerIcon = await field(9),
+        thumbnail = await field(10),
+        image = await field(11);
+    final timestamp = await flag(12, 'Add timestamp');
+    final returnId = await flag(13, 'Return ID');
+    boundedText(call, title, 256);
+    boundedText(call, description, 4096);
+    boundedText(call, author, 256);
+    boundedText(call, footer, 2048);
+    final embed = <String, dynamic>{
+      if (title.isNotEmpty) 'title': title,
+      if (title.isNotEmpty && titleUrl.isNotEmpty) 'url': titleUrl,
+      if (description.isNotEmpty) 'description': description,
+      if (rawColor.isNotEmpty)
+        'color': RegExp(r'^#?[0-9a-fA-F]{6}$').hasMatch(rawColor)
+            ? '#${rawColor.replaceFirst('#', '')}'
+            : rawColor,
+      if (author.isNotEmpty)
+        'author': {
+          'name': author,
+          if (authorIcon.isNotEmpty) 'icon_url': authorIcon,
+        },
+      if (footer.isNotEmpty)
+        'footer': {
+          'text': footer,
+          if (footerIcon.isNotEmpty) 'icon_url': footerIcon,
+        },
+      if (thumbnail.isNotEmpty) 'thumbnail': {'url': thumbnail},
+      if (image.isNotEmpty) 'image': {'url': image},
+      if (timestamp)
+        'timestamp': call.context.time.instant.toUtc().toIso8601String(),
+    };
     final sink = output(call);
     await sink.flush(call.context, call.location);
-    await sink.send(
+    final id = await sink.send(
       BotMessageRequest(
         destination: BotMessageDestination.channel,
         payload: {
           'channelId': channel,
           'content': content,
+          'embeds': embed.isEmpty ? <Map<String, dynamic>>[] : [embed],
           'targetType': 'channel',
+          ...sink.mentions,
         },
       ),
       call.context,
       call.location,
     );
-    return '';
+    return returnId ? id : '';
   });
   return functions;
 }
 
 bool _yes(String value) =>
     const ['true', 'yes', '1'].contains(value.trim().toLowerCase());
+
+bool _isRichComponentRow(Map<String, dynamic> row) {
+  if (row['type'] != 'actionRow') return true;
+  const interactive = {
+    'button',
+    'stringSelect',
+    'userSelect',
+    'roleSelect',
+    'mentionableSelect',
+    'channelSelect',
+  };
+  return ((row['components'] as List?) ?? const []).any(
+    (child) => child is Map && !interactive.contains(child['type']),
+  );
+}

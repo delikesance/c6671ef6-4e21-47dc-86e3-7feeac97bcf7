@@ -1,12 +1,8 @@
-import 'package:bot_creator_shared/actions/execution_policy.dart';
-import 'package:bot_creator_shared/actions/handler.dart';
 import 'package:bot_creator_shared/engine/bdfd/engine.dart';
 import 'package:bot_creator_shared/engine/bdfd/program.dart';
 import 'package:bot_creator_shared/engine/bdfd/runtime.dart';
 import 'package:bot_creator_shared/engine/execution_budget.dart';
 import 'package:bot_creator_shared/services/bot_message_service.dart';
-import 'package:bot_creator_shared/types/action.dart';
-import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:test/test.dart';
 import 'helpers/variables_test_helpers.dart';
@@ -34,12 +30,6 @@ class _Messages implements BotMessageService {
 
 BdfdEngine _engine(BotMessageService service) =>
     BdfdEngine(store: MemoryBotDataStore(), botId: 'bot', messages: service);
-
-class _Gateway implements NyxxGateway {
-  @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw StateError('Unexpected Discord access');
-}
 
 class _ChannelGateway implements NyxxGateway {
   final manager = _Channels();
@@ -72,40 +62,6 @@ class _Channel implements TextChannel {
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
-
-class _Capture implements ActionExecutionPolicy {
-  final payloads = <Map<String, dynamic>>[];
-  @override
-  bool get allowDiscordHydration => false;
-  @override
-  void checkBudget() {}
-  @override
-  void record(Map<String, dynamic> frame) {}
-  @override
-  Future<bool> intercept({
-    required Action action,
-    required String resultKey,
-    required Map<String, String> results,
-    required Map<String, String> variables,
-    required String Function(String) resolveValue,
-  }) async {
-    if (action.type != BotCreatorActionType.respondWithMessage &&
-        action.type != BotCreatorActionType.sendMessage) {
-      return false;
-    }
-    dynamic resolve(dynamic value) {
-      if (value is String) return resolveValue(value);
-      if (value is List) return value.map(resolve).toList();
-      if (value is Map) {
-        return value.map((key, item) => MapEntry(key, resolve(item)));
-      }
-      return value;
-    }
-
-    payloads.add(Map<String, dynamic>.from(resolve(action.payload) as Map));
-    return true;
-  }
 }
 
 class _Interaction implements MessageResponse {
@@ -445,33 +401,27 @@ void main() {
       expect(gateway.manager.requested.last, Snowflake(30));
     },
   );
-  test('native text and embeds match actual legacy action execution', () async {
+  test('native text and embeds are sent with the documented payload', () async {
     for (final source in [
       r'$title[Report]$description[Details]$footer[By bot]hello',
       r'$title[Other]$description[Second]content',
     ]) {
-      final legacy = BdfdCompiler().compile(source);
-      expect(legacy.hasErrors, false);
-      final capture = _Capture();
-      await handleActions(
-        _Gateway(),
-        null,
-        actions: legacy.actions,
-        store: MemoryBotDataStore(),
-        botId: 'bot',
-        variables: {},
-        resolveTemplate: (text) => text,
-        executionPolicy: capture,
-      );
       final messages = _Messages();
       await _engine(messages).execute(source);
+      final payload = messages.sent.single.payload;
       expect(
-        messages.sent.map((m) => m.payload['content']).toList(),
-        capture.payloads.map((p) => p['content']).toList(),
+        payload['content'],
+        source.endsWith('hello') ? 'hello' : 'content',
+      );
+      final embed = (payload['embeds'] as List).single as Map;
+      expect(embed['title'], source.contains('Report') ? 'Report' : 'Other');
+      expect(
+        embed['description'],
+        source.contains('Details') ? 'Details' : 'Second',
       );
       expect(
-        messages.sent.map((m) => m.payload['embeds']).toList(),
-        capture.payloads.map((p) => p['embeds']).toList(),
+        (embed['footer'] as Map?)?['text'],
+        source.contains('footer') ? 'By bot' : null,
       );
     }
   });

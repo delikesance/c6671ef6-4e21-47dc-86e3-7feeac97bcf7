@@ -5,25 +5,26 @@ import 'package:test/test.dart';
 
 void main() {
   group('editInteractionMessageAction', () {
-    test('updates message directly on unacknowledged component interaction', () async {
-      final mockInteraction = MockMessageComponentInteraction();
-      expect(isInteractionAcknowledged(mockInteraction), isFalse);
+    test(
+      'updates message directly on unacknowledged component interaction',
+      () async {
+        final mockInteraction = MockMessageComponentInteraction();
+        expect(isInteractionAcknowledged(mockInteraction), isFalse);
 
-      final result = await editInteractionMessageAction(
-        mockInteraction,
-        payload: <String, dynamic>{
-          'content': 'Hello, updated!',
-        },
-        resolve: (val) => val,
-      );
+        final result = await editInteractionMessageAction(
+          mockInteraction,
+          payload: <String, dynamic>{'content': 'Hello, updated!'},
+          resolve: (val) => val,
+        );
 
-      expect(result['error'], isNull);
-      expect(mockInteraction.didRespond, isTrue);
-      expect(mockInteraction.updateMessageCalled, isTrue);
-      expect(mockInteraction.updateOriginalResponseCalled, isFalse);
-      expect(isInteractionAcknowledged(mockInteraction), isTrue);
-      expect(result['messageId'], equals('12345'));
-    });
+        expect(result['error'], isNull);
+        expect(mockInteraction.didRespond, isTrue);
+        expect(mockInteraction.updateMessageCalled, isTrue);
+        expect(mockInteraction.updateOriginalResponseCalled, isFalse);
+        expect(isInteractionAcknowledged(mockInteraction), isTrue);
+        expect(result['messageId'], equals('12345'));
+      },
+    );
 
     test('supports editing components using componentV2 payload key', () async {
       final mockInteraction = MockMessageComponentInteraction();
@@ -42,9 +43,9 @@ void main() {
                     'customId': 'btn1',
                     'label': 'Click me',
                     'style': 1,
-                  }
-                ]
-              }
+                  },
+                ],
+              },
             ],
           },
         },
@@ -57,65 +58,69 @@ void main() {
       expect(result['messageId'], equals('12345'));
     });
 
-    test('updates original response on already acknowledged component interaction', () async {
-      final mockInteraction = MockMessageComponentInteraction();
-      markInteractionAcknowledged(mockInteraction);
-      expect(isInteractionAcknowledged(mockInteraction), isTrue);
+    test(
+      'updates original response on already acknowledged component interaction',
+      () async {
+        final mockInteraction = MockMessageComponentInteraction();
+        markInteractionAcknowledged(mockInteraction);
+        expect(isInteractionAcknowledged(mockInteraction), isTrue);
 
-      final result = await editInteractionMessageAction(
-        mockInteraction,
-        payload: <String, dynamic>{
-          'content': 'Hello, updated again!',
-        },
-        resolve: (val) => val,
-      );
+        final result = await editInteractionMessageAction(
+          mockInteraction,
+          payload: <String, dynamic>{'content': 'Hello, updated again!'},
+          resolve: (val) => val,
+        );
 
-      expect(result['error'], isNull);
-      expect(mockInteraction.didRespond, isFalse);
-      expect(mockInteraction.updateOriginalResponseCalled, isTrue);
-      expect(result['messageId'], equals('12345'));
-    });
+        expect(result['error'], isNull);
+        expect(mockInteraction.didRespond, isFalse);
+        expect(mockInteraction.updateOriginalResponseCalled, isTrue);
+        expect(result['messageId'], equals('12345'));
+      },
+    );
 
-    test('falls back to _FakeMessage if message is null and fetchOriginalResponse throws', () async {
-      final mockInteraction = ExceptionMockMessageComponentInteraction();
-      expect(isInteractionAcknowledged(mockInteraction), isFalse);
+    test(
+      'falls back to _FakeMessage if message is null and fetchOriginalResponse throws',
+      () async {
+        final mockInteraction = ExceptionMockMessageComponentInteraction();
+        expect(isInteractionAcknowledged(mockInteraction), isFalse);
 
-      final result = await editInteractionMessageAction(
-        mockInteraction,
-        payload: <String, dynamic>{
-          'content': 'Hello, updated!',
-        },
-        resolve: (val) => val,
-      );
+        final result = await editInteractionMessageAction(
+          mockInteraction,
+          payload: <String, dynamic>{'content': 'Hello, updated!'},
+          resolve: (val) => val,
+        );
 
-      expect(result['error'], isNull);
-      expect(mockInteraction.didRespond, isTrue);
-      expect(mockInteraction.updateMessageCalled, isTrue);
-      expect(isInteractionAcknowledged(mockInteraction), isTrue);
-      expect(result['messageId'], equals('0'));
-    });
+        expect(result['error'], isNull);
+        expect(mockInteraction.didRespond, isTrue);
+        expect(mockInteraction.updateMessageCalled, isTrue);
+        expect(isInteractionAcknowledged(mockInteraction), isTrue);
+        expect(result['messageId'], equals('0'));
+      },
+    );
 
-    test('falls back to _FakeMessage if message is null and updateOriginalResponse throws', () async {
-      final mockInteraction = ExceptionMockMessageComponentInteraction();
-      markInteractionAcknowledged(mockInteraction);
-      expect(isInteractionAcknowledged(mockInteraction), isTrue);
+    test(
+      'falls back to _FakeMessage if message is null and updateOriginalResponse throws',
+      () async {
+        final mockInteraction = ExceptionMockMessageComponentInteraction();
+        markInteractionAcknowledged(mockInteraction);
+        expect(isInteractionAcknowledged(mockInteraction), isTrue);
 
-      final result = await editInteractionMessageAction(
-        mockInteraction,
-        payload: <String, dynamic>{
-          'content': 'Hello, updated again!',
-        },
-        resolve: (val) => val,
-      );
+        final result = await editInteractionMessageAction(
+          mockInteraction,
+          payload: <String, dynamic>{'content': 'Hello, updated again!'},
+          resolve: (val) => val,
+        );
 
-      expect(result['error'], isNull);
-      expect(mockInteraction.didRespond, isFalse);
-      expect(result['messageId'], equals('0'));
-    });
+        expect(result['error'], isNull);
+        expect(mockInteraction.didRespond, isFalse);
+        expect(result['messageId'], equals('0'));
+      },
+    );
   });
 }
 
-class ExceptionMockMessageComponentInteraction extends MockMessageComponentInteraction {
+class ExceptionMockMessageComponentInteraction
+    extends MockMessageComponentInteraction {
   @override
   Message? get message => null;
 
@@ -129,7 +134,6 @@ class ExceptionMockMessageComponentInteraction extends MockMessageComponentInter
     throw Exception('Simulated updateOriginalResponse error');
   }
 }
-
 
 class MockMessageComponentInteraction implements MessageComponentInteraction {
   bool didRespond = false;

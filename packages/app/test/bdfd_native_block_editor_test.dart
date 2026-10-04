@@ -72,7 +72,7 @@ void main() {
     },
   );
   testWidgets(
-    'block diagnostics change with backend and preserve opaque unknown calls',
+    'block shows native diagnostics and preserves opaque unknown calls',
     (tester) async {
       final item = ActionItem(
         id: 'script',
@@ -80,7 +80,7 @@ void main() {
         actionKey: '',
         parameters: {
           'scriptContent': r'$kickMention',
-          'bdfdBackend': 'legacy-v1',
+          'bdfdBackend': 'native-v1',
         },
       );
       late StateSetter rebuild;
@@ -111,12 +111,6 @@ void main() {
           ),
         ),
       );
-      await tester.pumpAndSettle();
-      expect(find.textContaining('Unsupported native function'), findsNothing);
-      await tester.tap(find.text('legacy-v1').last);
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('native-v1').last);
-      expect(item.parameters['bdfdBackend'], 'native-v1');
       await tester.pumpAndSettle();
       expect(
         find.textContaining(r'Invalid argument count for $kickMention'),

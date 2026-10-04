@@ -1,5 +1,6 @@
 import '../../services/bot_user_query_service.dart';
 import '../../services/go_time_format.dart';
+import 'message_functions.dart' show BdfdMessageOutput;
 import 'program.dart';
 import 'runtime.dart';
 
@@ -195,16 +196,47 @@ Map<String, BdfdNativeFunction> bdfdUserQueryFunctions(
         return call.context.variables['user.badges'] ?? '';
       },
     ),
+    // Wiki: $userInfo[Message] formats the first mentioned user into the embed
+    // description with {username}, {ID}, {BOT} and {discriminator}.
     'userinfo': BdfdNativeFunction(
       minArguments: 1,
-      maxArguments: 2,
+      maxArguments: 1,
       handler: (call) async {
-        await target(call);
-        final prop = call.argumentCount > 1
-            ? (await call.argument(1)).trim().toLowerCase()
-            : '';
-        if (prop.isEmpty) return call.context.variables['user.info'] ?? '';
-        return call.context.variables['user.info_$prop'] ?? '';
+        final format = await call.argument(0);
+        final variables = call.context.variables;
+        final encoded = variables['message.mentions'];
+        final mentioned = encoded == null
+            ? variables['message.mentions[0]']
+            : encoded.split(',').where((id) => id.isNotEmpty).firstOrNull;
+        final targetId = mentioned == null || mentioned.trim().isEmpty
+            ? author(call)
+            : id(call, mentioned);
+        final value = await user(call, targetId);
+        final values = {
+          'username': value.username,
+          'id': value.id,
+          'bot': '${value.isBot}',
+          'discriminator': value.discriminator,
+        };
+        final description = format.replaceAllMapped(
+          RegExp(r'\{(username|id|bot|discriminator)\}', caseSensitive: false),
+          (m) => values[m.group(1)!.toLowerCase()]!,
+        );
+        if (description.length > 4096) {
+          throw BdfdNativeError(
+            'Description cannot exceed 4096 characters.',
+            call.location,
+          );
+        }
+        final sink = call.context.output;
+        if (sink is! BdfdMessageOutput) {
+          throw BdfdNativeError(
+            'No message service configured.',
+            call.location,
+          );
+        }
+        sink.embed(0)['description'] = description;
+        return '';
       },
     ),
     'isuserdmenabled': BdfdNativeFunction(

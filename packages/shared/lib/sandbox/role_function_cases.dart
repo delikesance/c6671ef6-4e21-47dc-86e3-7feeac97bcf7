@@ -30,11 +30,12 @@ const roleEntityFixture = {
 final sandboxRoleFunctionCases = [
   SandboxFunctionCase(
     'rolename',
-    r'$for[id;((opts.a));((opts.b))]$roleName[$id]$endfor',
+    r'$for[id;$message[a];$message[b]]$roleName[$id]$endfor',
     0,
-    'Cor Branca\nCor Preta',
+    'Cor BrancaCor Preta',
     label: 'target changes on each iteration',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'entities': roleEntityFixture,
       'options': {'a': '60', 'b': '61'},
     },
@@ -43,19 +44,13 @@ final sandboxRoleFunctionCases = [
     ('roleid', r'$roleID[Cor Branca]', '60'),
     ('findrole', r'$findRole[Cor Preta]', '61'),
     ('rolename', r'$roleName[60]', 'Cor Branca'),
-    ('roleperms', r'$rolePerms[60]', '8'),
-    ('roleposition', r'$rolePosition[60]', '4'),
-    ('getrolecolor', r'$getRoleColor[60]', 'ffffff'),
+    ('roleperms', r'$rolePerms[10;60]', 'Administrator'),
+    ('roleposition', r'$rolePosition[60]', '1'),
+    ('getrolecolor', r'$getRoleColor[60]', 'FFFFFF'),
     ('ishoisted', r'$isHoisted[60]', 'true'),
     ('ismentionable', r'$isMentionable[60]', 'false'),
     ('roleexists', r'$roleExists[60]', 'true'),
     ('roleexists', r'$roleExists[999]', 'false'),
-    ('roleinfo', r'$roleInfo[60;name]', 'Cor Branca'),
-    (
-      'roleinfo',
-      r'$roleInfo[60]',
-      '{"id":"60","name":"Cor Branca","color":"ffffff","position":4,"permissions":"8","mentionable":false,"hoist":true}',
-    ),
   ])
     SandboxFunctionCase(
       item.$1,
@@ -66,23 +61,40 @@ final sandboxRoleFunctionCases = [
       scenario: {'entities': roleEntityFixture},
     ),
   SandboxFunctionCase(
+    'roleinfo',
+    r'$roleInfo[Name: {name} | ID: {ID} | Hoisted: {hoist} | Mentionable: {mentionable} | Color: {color} | Position: {position}]',
+    0,
+    '',
+    label: 'formats the mentioned role into the embed description',
+    scenario: {
+      'variables': {'message.roleMentions[0]': '60'},
+      'entities': roleEntityFixture,
+    },
+    expectedValues: {
+      '/responses/0/payload/embeds/0/description':
+          'Name: Cor Branca | ID: 60 | Hoisted: true | Mentionable: false | Color: FFFFFF | Position: 1',
+    },
+  ),
+  SandboxFunctionCase(
     'roleid',
-    r'$roleID[((opts.name))]',
+    r'$roleID[$message[name]]',
     0,
     '60',
     label: 'runtime name',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'entities': roleEntityFixture,
       'options': {'name': 'Cor Branca'},
     },
   ),
   SandboxFunctionCase(
     'rolename',
-    r'$roleName[((opts.role))]',
+    r'$roleName[$message[role]]',
     0,
     'Cor Preta',
     label: 'runtime ID',
     scenario: {
+      'variables': {'interaction.isSlash': 'true'},
       'entities': roleEntityFixture,
       'options': {'role': '61'},
     },

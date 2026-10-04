@@ -149,8 +149,7 @@ BotSession _session({
     ),
     lavalinkProbe: probe,
     lavalinkConnectionTester: tester,
-    lavalinkSelectionTimeout:
-        selectionTimeout ?? const Duration(seconds: 4),
+    lavalinkSelectionTimeout: selectionTimeout ?? const Duration(seconds: 4),
   );
 }
 
@@ -165,7 +164,11 @@ void main() {
         const Duration(seconds: 4),
         reason: 'borne dure de la phase Lavalink avant la connexion Discord',
       );
-      expect(logs, isEmpty, reason: 'construire une session ne journalise rien');
+      expect(
+        logs,
+        isEmpty,
+        reason: 'construire une session ne journalise rien',
+      );
     });
 
     test('une liste qui ne rend jamais la main est COUPÉE au budget', () async {
@@ -266,71 +269,87 @@ void main() {
 
       expect(plugin, isNull);
       expect(probe.calls, 0, reason: 'interrupteur à off => on ne sonde rien');
-      expect(BotSession.buildGatewayPlugins(lavalinkPlugin: plugin), hasLength(2));
-    });
-
-    test('aucune configuration Lavalink : aucun sondage, aucun plugin', () async {
-      final probe = _FixedProbe(null);
-      final session = _session(probe: probe);
-
-      expect(await session.prepareLavalinkPlugin(null), isNull);
-      expect(probe.calls, 0);
-    });
-
-    test('un serveur qui ne répond pas au test REST ne donne aucun plugin', () async {
-      final target = LavalinkProbeTarget.custom(
-        host: 'lavalink.perso',
-        port: 2333,
-        password: 'mot-de-passe',
-      );
-      final tester = _FakeTester((_) => 'Connexion refusée');
-      final logs = <String>[];
-      final session = _session(
-        probe: _FixedProbe(target),
-        tester: tester.call,
-        logs: logs,
-      );
-
-      final plugin = await session.prepareLavalinkPlugin(
-        _configWithPersonalServer(),
-      );
-
-      expect(plugin, isNull);
-      expect(tester.calls, hasLength(1), reason: 'le repli est revérifié en REST');
-      expect(session.selectedServer, isNull);
-      expect(logs.join('\n'), contains('musique indisponible'));
-    });
-
-    test('un serveur qui répond est retenu et transmis à la passerelle', () async {
-      final target = LavalinkProbeTarget.custom(
-        host: 'lavalink.perso',
-        port: 2333,
-        password: 'mot-de-passe',
-      );
-      final tester = _FakeTester((_) => null);
-      final logs = <String>[];
-      final session = _session(
-        probe: _FixedProbe(target),
-        tester: tester.call,
-        logs: logs,
-      );
-
-      final plugin = await session.prepareLavalinkPlugin(
-        _configWithPersonalServer(),
-      );
-
-      expect(plugin, isNotNull);
-      expect(session.selectedServer?.endpoint, 'lavalink.perso:2333');
-      expect(tester.calls.single.host, 'lavalink.perso');
-      expect(logs.join('\n'), contains('plugin prêt'));
-
-      final plugins = BotSession.buildGatewayPlugins(lavalinkPlugin: plugin);
       expect(
-        plugins.whereType<LavalinkPlugin>(),
-        hasLength(1),
-        reason: 'le contrôle par whereType n\'est pas vide par construction',
+        BotSession.buildGatewayPlugins(lavalinkPlugin: plugin),
+        hasLength(2),
       );
     });
+
+    test(
+      'aucune configuration Lavalink : aucun sondage, aucun plugin',
+      () async {
+        final probe = _FixedProbe(null);
+        final session = _session(probe: probe);
+
+        expect(await session.prepareLavalinkPlugin(null), isNull);
+        expect(probe.calls, 0);
+      },
+    );
+
+    test(
+      'un serveur qui ne répond pas au test REST ne donne aucun plugin',
+      () async {
+        final target = LavalinkProbeTarget.custom(
+          host: 'lavalink.perso',
+          port: 2333,
+          password: 'mot-de-passe',
+        );
+        final tester = _FakeTester((_) => 'Connexion refusée');
+        final logs = <String>[];
+        final session = _session(
+          probe: _FixedProbe(target),
+          tester: tester.call,
+          logs: logs,
+        );
+
+        final plugin = await session.prepareLavalinkPlugin(
+          _configWithPersonalServer(),
+        );
+
+        expect(plugin, isNull);
+        expect(
+          tester.calls,
+          hasLength(1),
+          reason: 'le repli est revérifié en REST',
+        );
+        expect(session.selectedServer, isNull);
+        expect(logs.join('\n'), contains('musique indisponible'));
+      },
+    );
+
+    test(
+      'un serveur qui répond est retenu et transmis à la passerelle',
+      () async {
+        final target = LavalinkProbeTarget.custom(
+          host: 'lavalink.perso',
+          port: 2333,
+          password: 'mot-de-passe',
+        );
+        final tester = _FakeTester((_) => null);
+        final logs = <String>[];
+        final session = _session(
+          probe: _FixedProbe(target),
+          tester: tester.call,
+          logs: logs,
+        );
+
+        final plugin = await session.prepareLavalinkPlugin(
+          _configWithPersonalServer(),
+        );
+
+        expect(plugin, isNotNull);
+        expect(session.selectedServer?.endpoint, 'lavalink.perso:2333');
+        expect(tester.calls.single.host, 'lavalink.perso');
+        expect(logs.join('\n'), contains('plugin prêt'));
+
+        final plugins = BotSession.buildGatewayPlugins(lavalinkPlugin: plugin);
+        expect(
+          plugins.whereType<LavalinkPlugin>(),
+          hasLength(1),
+          reason: 'le contrôle par whereType n\'est pas vide par construction',
+        );
+      },
+    );
   });
 
   group('buildGatewayPlugins — le plugin Lavalink est optionnel', () {
@@ -338,7 +357,11 @@ void main() {
       final plugins = BotSession.buildGatewayPlugins();
 
       expect(plugins.whereType<LavalinkPlugin>(), isEmpty);
-      expect(plugins, hasLength(2), reason: 'logging + cliIntegration seulement');
+      expect(
+        plugins,
+        hasLength(2),
+        reason: 'logging + cliIntegration seulement',
+      );
     });
 
     test('sans serveur retenu explicite (null) : même résultat', () {

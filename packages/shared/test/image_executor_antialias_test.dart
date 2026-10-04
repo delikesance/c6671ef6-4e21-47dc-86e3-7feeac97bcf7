@@ -23,12 +23,7 @@ void main() {
       await executeRuntimeImageBlock(
         payload: {
           'operations': [
-            {
-              'op': 'create',
-              'width': '20',
-              'height': '20',
-              'color': 'white',
-            },
+            {'op': 'create', 'width': '20', 'height': '20', 'color': 'white'},
           ],
         },
         resultKey: 'white',
@@ -40,12 +35,7 @@ void main() {
       await executeRuntimeImageBlock(
         payload: {
           'operations': [
-            {
-              'op': 'create',
-              'width': '40',
-              'height': '40',
-              'color': 'black',
-            },
+            {'op': 'create', 'width': '40', 'height': '40', 'color': 'black'},
             {
               'op': 'compositeImage',
               'url': 'data:image/png;base64,${srcResults['white']}',
@@ -96,10 +86,14 @@ void main() {
           break;
         }
       }
-      expect(foundGray, isTrue,
-          reason: 'Expected anti-aliased circle to have gray edge pixels '
-              '(0 < luminance < 765) where white fades into black. '
-              'Scanned pixels (35-39, 20).');
+      expect(
+        foundGray,
+        isTrue,
+        reason:
+            'Expected anti-aliased circle to have gray edge pixels '
+            '(0 < luminance < 765) where white fades into black. '
+            'Scanned pixels (35-39, 20).',
+      );
     });
   });
 }

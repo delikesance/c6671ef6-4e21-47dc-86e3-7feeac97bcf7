@@ -1,19 +1,7 @@
-import 'package:bot_creator_shared/actions/handler.dart';
 import 'package:bot_creator_shared/engine/bdfd/program.dart';
 import 'package:bot_creator_shared/engine/bdfd/runtime.dart';
 import 'package:bot_creator_shared/engine/execution_budget.dart';
-import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
-import 'package:bot_creator_shared/utils/template_resolver.dart';
-import 'package:nyxx/nyxx.dart';
 import 'package:test/test.dart';
-
-import 'helpers/variables_test_helpers.dart';
-
-class _NoDiscord implements NyxxGateway {
-  @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw StateError('$invocation');
-}
 
 void main() {
   test(
@@ -159,28 +147,14 @@ void main() {
   });
 
   test(
-    'final variables match the real block handler for runtime C-style and list loops',
+    'final variables are correct for runtime C-style and list loops',
     () async {
       const source =
           r'$var[limit;4]$var[trace;]'
           r'$for[x=0;x<$var[limit];x+=1]$var[trace;$var[trace]$x,]$endfor'
           r'$for[item;red;blue]$var[trace;$var[trace]$item,]$endfor';
-      final compiled = BdfdCompiler().compile(source);
-      expect(compiled.hasErrors, isFalse);
-      final variables = <String, String>{};
-      final result = await handleActions(
-        _NoDiscord(),
-        null,
-        actions: compiled.actions,
-        store: MemoryBotDataStore(),
-        botId: 'native-loops-parity',
-        variables: variables,
-        resolveTemplate: (text) => resolveTemplatePlaceholders(text, variables),
-      );
-      expect(result['error'], isNull, reason: '$result');
       final context = BdfdContext();
       await BdfdRuntime().execute(source, context: context);
-      expect(context.temporaryVariables['trace'], variables['temp.trace']);
       expect(context.temporaryVariables['trace'], '0,1,2,3,red,blue,');
     },
   );

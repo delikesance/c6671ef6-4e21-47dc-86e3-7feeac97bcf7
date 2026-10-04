@@ -72,7 +72,9 @@ class _Harness {
   );
   Future<String> run(String s) => runtime.execute(s, context: context);
   List<Map<String, dynamic>> get rows =>
-      (messages.sent.single.payload['components']['components'] as List)
+      // Rich (Components V2) rows are staged under `items`.
+      ((messages.sent.single.payload['components'] as Map).values.single
+              as List)
           .cast<Map<String, dynamic>>();
 }
 

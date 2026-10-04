@@ -30,6 +30,21 @@ class ChannelDeletion {
   }
 }
 
+/// Explicit permission overwrite for a newly created channel. Masks are raw
+/// Discord permission bits; [isMember] selects member instead of role scope.
+class ChannelOverwriteSpec {
+  const ChannelOverwriteSpec({
+    required this.id,
+    this.isMember = false,
+    this.allow = 0,
+    this.deny = 0,
+  });
+  final String id;
+  final bool isMember;
+  final int allow;
+  final int deny;
+}
+
 class ChannelCreation {
   const ChannelCreation({
     required this.guildId,
@@ -40,10 +55,12 @@ class ChannelCreation {
     this.isNsfw,
     this.slowmodeSeconds,
     this.reason,
+    this.overwrites,
   });
   final String guildId;
   final String name;
   final String type;
+  final List<ChannelOverwriteSpec>? overwrites;
   final String? categoryId;
   final String? topic;
   final bool? isNsfw;
@@ -112,6 +129,16 @@ class _ChannelCreationBuilder extends GuildChannelBuilder<GuildChannel> {
     if (_change.isNsfw != null) 'nsfw': _change.isNsfw,
     if (_change.slowmodeSeconds != null)
       'rate_limit_per_user': _change.slowmodeSeconds,
+    if (_change.overwrites != null)
+      'permission_overwrites': [
+        for (final value in _change.overwrites!)
+          {
+            'id': '${Snowflake.parse(value.id.trim())}',
+            'type': value.isMember ? 1 : 0,
+            'allow': '${value.allow}',
+            'deny': '${value.deny}',
+          },
+      ],
   };
 }
 

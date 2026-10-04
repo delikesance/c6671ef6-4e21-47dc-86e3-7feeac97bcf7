@@ -16,17 +16,15 @@ void main() {
       });
       expect(result['success'], false);
       expect(result['error'], contains('Missing sandbox channel fixture'));
-      expect(
-        (result['responses'] as List).single['payload']['content'],
-        'false',
-      );
+      // A failed native execution sends nothing instead of a fake 'false'.
+      expect(result['responses'], isEmpty);
     },
   );
 
   test('channel lookups read fixtures through the production fetcher', () async {
     final result = await testCommandInSandbox({
       'script':
-          r'$channelIDFromName[general]|$findChannel[TICKET]|$serverChannelExists[partner;11]|$getSlowmode[31]',
+          r'$channelIDFromName[general]|$findChannel[TICKET]|$serverChannelExists[ticket-123]|$getSlowmode[31]',
       'entities': channelEntityFixture,
     });
     expect(result['success'], true);
