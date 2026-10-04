@@ -543,7 +543,9 @@ class _ScratchBlockPaletteState extends State<ScratchBlockPalette> {
                       visualDensity: VisualDensity.compact,
                     )
                   : null,
-              border: const OutlineInputBorder(),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+              ),
               isDense: true,
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 12,
@@ -619,30 +621,16 @@ class _ScratchBlockPaletteState extends State<ScratchBlockPalette> {
                     final type = allMatchingActions[index];
                     final cat = getCategoryForAction(type);
                     final color = getCategoryColor(cat);
-                    final card = Card(
-                      margin: const EdgeInsets.symmetric(vertical: 3),
-                      child: ListTile(
-                        dense: true,
-                        leading: AppIcon.fromMaterial(
-                          type.icon,
-                          size: 20,
-                          color: color,
-                        ),
-                        title: Text(
-                          type.displayName(context),
-                          style: const TextStyle(fontSize: 13),
-                        ),
-                        subtitle: Text(
-                          localizeCategory(context, cat),
-                          style: TextStyle(fontSize: 11, color: color),
-                        ),
-                        onTap: () {
-                          widget.onActionSelected(type);
-                          if (widget.popOnSelect) {
-                            Navigator.pop(context);
-                          }
-                        },
-                      ),
+                    final card = _PaletteActionRow(
+                      type: type,
+                      color: color,
+                      caption: localizeCategory(context, cat),
+                      onTap: () {
+                        widget.onActionSelected(type);
+                        if (widget.popOnSelect) {
+                          Navigator.pop(context);
+                        }
+                      },
                     );
                     if (!canDrag) return card;
                     return Draggable<BotCreatorActionType>(
@@ -651,7 +639,7 @@ class _ScratchBlockPaletteState extends State<ScratchBlockPalette> {
                         color: Colors.transparent,
                         child: Opacity(
                           opacity: 0.85,
-                          child: SizedBox(width: 200, child: card),
+                          child: SizedBox(width: 220, child: card),
                         ),
                       ),
                       child: card,
@@ -661,11 +649,14 @@ class _ScratchBlockPaletteState extends State<ScratchBlockPalette> {
               : ListView(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                   children: [
-                    for (final entry in actionsByCategory.entries)
+                    for (final (index, entry)
+                        in actionsByCategory.entries.indexed)
                       _CategorySection(
+                        key: ValueKey('palette-category-${entry.key}'),
                         category: entry.key,
                         actions: entry.value,
                         enableDrag: canDrag,
+                        initiallyExpanded: index == 0,
                         onActionSelected: (type) {
                           widget.onActionSelected(type);
                           if (widget.popOnSelect) {
@@ -693,75 +684,187 @@ class _ScratchBlockPaletteState extends State<ScratchBlockPalette> {
   }
 }
 
-class _CategorySection extends StatelessWidget {
+class _CategorySection extends StatefulWidget {
   const _CategorySection({
+    super.key,
     required this.category,
     required this.actions,
     required this.onActionSelected,
     this.enableDrag = true,
+    this.initiallyExpanded = false,
   });
 
   final String category;
   final List<BotCreatorActionType> actions;
   final ValueChanged<BotCreatorActionType> onActionSelected;
   final bool enableDrag;
+  final bool initiallyExpanded;
+
+  @override
+  State<_CategorySection> createState() => _CategorySectionState();
+}
+
+class _CategorySectionState extends State<_CategorySection> {
+  late bool _expanded = widget.initiallyExpanded;
 
   @override
   Widget build(BuildContext context) {
-    final color = getCategoryColor(category);
-    final icon = getCategoryIcon(category);
+    final color = getCategoryColor(widget.category);
+    final icon = getCategoryIcon(widget.category);
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: 12, bottom: 6),
-          child: Row(
-            children: [
-              AppIcon.fromMaterial(icon, size: 16, color: color),
-              const SizedBox(width: 6),
-              Text(
-                localizeCategory(context, category),
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: color,
+          padding: const EdgeInsets.only(top: 8),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+            onTap: () => setState(() => _expanded = !_expanded),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 44),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Row(
+                  children: [
+                    AppIcon.fromMaterial(
+                      _expanded
+                          ? Icons.expand_more_rounded
+                          : Icons.chevron_right_rounded,
+                      size: 18,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 4),
+                    AppIcon.fromMaterial(icon, size: 16, color: color),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        localizeCategory(context, widget.category),
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: color,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      '${widget.actions.length}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
         ),
-        ...actions.map((type) {
-          final cardWidget = Card(
-            margin: const EdgeInsets.symmetric(vertical: 2),
-            child: ListTile(
-              dense: true,
-              leading: AppIcon.fromMaterial(type.icon, size: 20, color: color),
-              title: Text(
-                type.displayName(context),
-                style: const TextStyle(fontSize: 13),
-              ),
-              onTap: () => onActionSelected(type),
-            ),
-          );
+        if (_expanded)
+          ...widget.actions.map((type) {
+            final row = _PaletteActionRow(
+              type: type,
+              color: color,
+              onTap: () => widget.onActionSelected(type),
+            );
 
-          if (!enableDrag) {
-            return cardWidget;
-          }
+            if (!widget.enableDrag) {
+              return row;
+            }
 
-          return Draggable<BotCreatorActionType>(
-            data: type,
-            feedback: Material(
-              color: Colors.transparent,
-              child: Opacity(
-                opacity: 0.85,
-                child: SizedBox(width: 200, child: cardWidget),
+            return Draggable<BotCreatorActionType>(
+              data: type,
+              feedback: Material(
+                color: Colors.transparent,
+                child: Opacity(
+                  opacity: 0.85,
+                  child: SizedBox(width: 220, child: row),
+                ),
               ),
-            ),
-            child: cardWidget,
-          );
-        }),
+              child: row,
+            );
+          }),
       ],
+    );
+  }
+}
+
+/// One action in the palette: a category-tinted icon tile and its name.
+class _PaletteActionRow extends StatelessWidget {
+  const _PaletteActionRow({
+    required this.type,
+    required this.color,
+    required this.onTap,
+    this.caption,
+  });
+
+  final BotCreatorActionType type;
+  final Color color;
+  final VoidCallback onTap;
+
+  /// Optional second line (category name in search results).
+  final String? caption;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        onTap: onTap,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 44),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+            child: Row(
+              children: [
+                Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.14),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                    border: Border.all(color: color.withValues(alpha: 0.32)),
+                  ),
+                  child: Center(
+                    child: AppIcon.fromMaterial(
+                      type.icon,
+                      size: 16,
+                      color: color,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        type.displayName(context),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w600,
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                      if (caption != null)
+                        Text(
+                          caption!,
+                          style: TextStyle(fontSize: 11, color: color),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

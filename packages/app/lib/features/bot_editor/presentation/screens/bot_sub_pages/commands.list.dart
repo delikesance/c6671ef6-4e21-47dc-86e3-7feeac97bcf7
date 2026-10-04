@@ -164,94 +164,13 @@ class _AppCommandsPageState extends State<AppCommandsPage>
     final templateId = (templateOrigin?['templateId'] ?? '').toString();
     final name = (command['name'] ?? 'unknown').toString();
 
+    final colorScheme = Theme.of(context).colorScheme;
     final cardWidget = Card(
-      child: ListTile(
-        leading: _isSelectMode
-            ? Checkbox(
-                value: _selectedCommandIds.contains(commandId),
-                onChanged: (selected) {
-                  setState(() {
-                    if (selected == true) {
-                      _selectedCommandIds.add(commandId);
-                    } else {
-                      _selectedCommandIds.remove(commandId);
-                    }
-                  });
-                },
-              )
-            : null,
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (!_isSelectMode) ...[
-              IconButton(
-                icon: const AppIcon.fromMaterial(
-                  Icons.drive_file_move_outlined,
-                  size: 20,
-                ),
-                tooltip: context.tr.commands_move_to_folder,
-                onPressed: () => _showMoveCommandDialog(command),
-              ),
-              IconButton(
-                icon: AppIcon.fromMaterial(
-                  Icons.delete_outline,
-                  size: 20,
-                  color: Theme.of(context).colorScheme.error,
-                ),
-                tooltip: context.tr.delete,
-                onPressed: () => _deleteCommand(commandId, name),
-              ),
-            ],
-            const AppIcon.fromMaterial(Icons.arrow_forward_ios_outlined),
-          ],
-        ),
-        title: Row(
-          children: [
-            Expanded(
-              child: Text(
-                (command['name'] ?? 'unknown').toString(),
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            if (templateId.isNotEmpty)
-              Container(
-                margin: const EdgeInsets.only(left: 8),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.tertiaryContainer,
-                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    AppIcon.fromMaterial(
-                      Icons.auto_awesome,
-                      size: 12,
-                      color: Theme.of(context).colorScheme.onTertiaryContainer,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      templateId,
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onTertiaryContainer,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-          ],
-        ),
-        subtitle: _buildCommandSubtitle(command),
-        isThreeLine: false,
-        minVerticalPadding: 8,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        dense: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+        side: BorderSide(color: colorScheme.outlineVariant),
+      ),
+      child: InkWell(
         onLongPress: () {
           if (!_isReorderMode) _enterReorderMode();
         },
@@ -272,6 +191,142 @@ class _AppCommandsPageState extends State<AppCommandsPage>
           }
           _load();
         },
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 10, 4, 10),
+          child: Row(
+            children: [
+              if (_isSelectMode)
+                Checkbox(
+                  value: _selectedCommandIds.contains(commandId),
+                  onChanged: (selected) {
+                    setState(() {
+                      if (selected == true) {
+                        _selectedCommandIds.add(commandId);
+                      } else {
+                        _selectedCommandIds.remove(commandId);
+                      }
+                    });
+                  },
+                )
+              else
+                _CommandTypeTile(icon: _commandTypeIcon(command)),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        if (templateId.isNotEmpty)
+                          Container(
+                            margin: const EdgeInsets.only(left: 8),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: colorScheme.tertiaryContainer,
+                              borderRadius: BorderRadius.circular(
+                                AppTheme.radiusPill,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                AppIcon.fromMaterial(
+                                  Icons.auto_awesome,
+                                  size: 12,
+                                  color: colorScheme.onTertiaryContainer,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  templateId,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: colorScheme.onTertiaryContainer,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    _buildCommandSubtitle(command),
+                  ],
+                ),
+              ),
+              if (!_isSelectMode)
+                PopupMenuButton<String>(
+                  tooltip: context.tr.more_options_title,
+                  icon: AppIcon.fromMaterial(
+                    Icons.more_vert_rounded,
+                    size: 20,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                  onSelected: (value) {
+                    if (value == 'move') {
+                      _showMoveCommandDialog(command);
+                    } else if (value == 'delete') {
+                      _deleteCommand(commandId, name);
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'move',
+                      child: Row(
+                        children: [
+                          const AppIcon.fromMaterial(
+                            Icons.drive_file_move_outlined,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(context.tr.commands_move_to_folder),
+                        ],
+                      ),
+                    ),
+                    const PopupMenuDivider(),
+                    PopupMenuItem(
+                      value: 'delete',
+                      child: Row(
+                        children: [
+                          AppIcon.fromMaterial(
+                            Icons.delete_outline,
+                            size: 18,
+                            color: colorScheme.error,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            context.tr.delete,
+                            style: TextStyle(color: colorScheme.error),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: AppIcon.fromMaterial(
+                  Icons.chevron_right_rounded,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
 
@@ -335,6 +390,24 @@ class _AppCommandsPageState extends State<AppCommandsPage>
     );
   }
 
+  /// Icône du type de commande, affichée dans la pastille de gauche.
+  IconData _commandTypeIcon(Map<String, dynamic> command) {
+    final data = (command['data'] as Map?)?.cast<String, dynamic>() ?? const {};
+    if (data['legacyModeEnabled'] == true) {
+      return Icons.text_fields_rounded;
+    }
+    final type = (command['type'] ?? data['commandType'] ?? 'chatInput')
+        .toString();
+    switch (type) {
+      case 'user':
+        return Icons.person_outline_rounded;
+      case 'message':
+        return Icons.chat_bubble_outline_rounded;
+      default:
+        return Icons.terminal_rounded;
+    }
+  }
+
   List<Widget> _buildCommandMetaChips(Map<String, dynamic> command) {
     final data = Map<String, dynamic>.from(
       (command['data'] as Map?)?.cast<String, dynamic>() ?? const {},
@@ -348,17 +421,23 @@ class _AppCommandsPageState extends State<AppCommandsPage>
 
     final chips = <Widget>[
       _CommandMetaChip(
-        icon: legacyLocal ? Icons.history_toggle_off : Icons.bolt_outlined,
+        label: '$optionsCount',
+        icon: Icons.tune,
+        tooltip: context.tr.component_options,
       ),
-      _CommandMetaChip(label: '$optionsCount', icon: Icons.tune),
       _CommandMetaChip(
         label: '$actionsCount',
         icon: Icons.account_tree_outlined,
+        tooltip: context.tr.actions_title,
       ),
     ];
     if (subcommandCount > 0) {
       chips.add(
-        _CommandMetaChip(label: '$subcommandCount', icon: Icons.route_outlined),
+        _CommandMetaChip(
+          label: '$subcommandCount',
+          icon: Icons.route_outlined,
+          tooltip: context.tr.actions_workflows,
+        ),
       );
     }
     if (legacyMode && !legacyLocal) {
@@ -378,14 +457,17 @@ class _AppCommandsPageState extends State<AppCommandsPage>
     final folder = normalizeFolderPath((command['folder'] ?? '').toString());
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Row(
+    return Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         if (folder.isNotEmpty) ...[
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+              borderRadius: BorderRadius.circular(AppTheme.radiusPill),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -407,13 +489,9 @@ class _AppCommandsPageState extends State<AppCommandsPage>
               ],
             ),
           ),
-          const SizedBox(width: 6),
         ],
         ..._buildCommandMetaChips(command),
-        if (aliasChips.isNotEmpty)
-          Flexible(
-            child: Wrap(spacing: 4, runSpacing: 4, children: aliasChips),
-          ),
+        ...aliasChips,
       ],
     );
   }
@@ -2506,35 +2584,71 @@ class CommandFolderHeader extends StatelessWidget {
 }
 
 class _CommandMetaChip extends StatelessWidget {
-  const _CommandMetaChip({this.label, required this.icon});
+  const _CommandMetaChip({this.label, required this.icon, this.tooltip});
 
   final String? label;
   final IconData icon;
+  final String? tooltip;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 8),
+    final colorScheme = Theme.of(context).colorScheme;
+    final chip = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           AppIcon.fromMaterial(
             icon,
             size: 13,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            color: colorScheme.onSurfaceVariant,
           ),
           if (label != null) ...[
-            const SizedBox(width: 3),
+            const SizedBox(width: 4),
             Text(
               label!,
               style: TextStyle(
-                fontSize: 11,
+                fontSize: 11.5,
                 fontWeight: FontWeight.w600,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                color: colorScheme.onSurfaceVariant,
               ),
             ),
           ],
         ],
+      ),
+    );
+    if (tooltip == null) return chip;
+    return Tooltip(message: tooltip!, child: chip);
+  }
+}
+
+/// Pastille d'icône à gauche d'une commande (type de commande).
+class _CommandTypeTile extends StatelessWidget {
+  const _CommandTypeTile({required this.icon});
+
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        border: Border.all(color: colorScheme.outlineVariant),
+      ),
+      child: Center(
+        child: AppIcon.fromMaterial(
+          icon,
+          size: 20,
+          color: colorScheme.onSurfaceVariant,
+        ),
       ),
     );
   }

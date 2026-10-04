@@ -1932,29 +1932,29 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
     final isEvent = workflowType == workflowTypeEvent;
     final compactTile = MediaQuery.of(context).size.width < 420;
 
+    final colorScheme = Theme.of(context).colorScheme;
     final cardWidget = Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+        side: BorderSide(color: colorScheme.outlineVariant),
+      ),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        contentPadding: const EdgeInsets.fromLTRB(12, 6, 4, 6),
         leading: Container(
           width: 40,
           height: 40,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color:
-                (isEvent
-                        ? Theme.of(context).colorScheme.primaryContainer
-                        : Theme.of(context).colorScheme.secondaryContainer)
-                    .withValues(alpha: 0.5),
+            color: colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+            border: Border.all(color: colorScheme.outlineVariant),
           ),
           child: AppIcon.fromMaterial(
             isEvent
                 ? Icons.notifications_active_outlined
                 : Icons.account_tree_outlined,
-            color: isEvent
-                ? Theme.of(context).colorScheme.primary
-                : Theme.of(context).colorScheme.secondary,
-            size: 22,
+            color: colorScheme.onSurfaceVariant,
+            size: 20,
           ),
         ),
         title: Row(
@@ -2047,110 +2047,88 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
             ),
           ),
         ),
-        trailing: compactTile
-            ? PopupMenuButton<String>(
-                onSelected: (value) {
-                  if (value == 'edit') {
-                    _createOrEditWorkflow(initial: workflow);
-                  } else if (value == 'move') {
-                    _showWorkflowMoveToFolderDialog(workflow);
-                  } else if (value == 'delete') {
-                    _deleteWorkflow(name);
-                  } else if (value == 'export') {
-                    _exportSingleWorkflow(workflow);
-                  }
-                },
-                itemBuilder: (context) => [
-                  PopupMenuItem<String>(
-                    value: 'edit',
-                    height: 48,
-                    child: Row(
-                      children: [
-                        const AppIcon.fromMaterial(Icons.edit_outlined),
-                        const SizedBox(width: 8),
-                        Text(context.tr.common_edit),
-                      ],
-                    ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            PopupMenuButton<String>(
+              onSelected: (value) {
+                if (value == 'edit') {
+                  _createOrEditWorkflow(initial: workflow);
+                } else if (value == 'move') {
+                  _showWorkflowMoveToFolderDialog(workflow);
+                } else if (value == 'delete') {
+                  _deleteWorkflow(name);
+                } else if (value == 'export') {
+                  _exportSingleWorkflow(workflow);
+                }
+              },
+              itemBuilder: (context) => [
+                PopupMenuItem<String>(
+                  value: 'edit',
+                  height: 48,
+                  child: Row(
+                    children: [
+                      const AppIcon.fromMaterial(Icons.edit_outlined),
+                      const SizedBox(width: 8),
+                      Text(context.tr.common_edit),
+                    ],
                   ),
-                  PopupMenuItem<String>(
-                    value: 'move',
-                    height: 48,
-                    child: Row(
-                      children: [
-                        const AppIcon.fromMaterial(
-                          Icons.drive_file_move_outlined,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(context.tr.commands_move_to_folder),
-                      ],
-                    ),
+                ),
+                PopupMenuItem<String>(
+                  value: 'move',
+                  height: 48,
+                  child: Row(
+                    children: [
+                      const AppIcon.fromMaterial(
+                        Icons.drive_file_move_outlined,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(context.tr.commands_move_to_folder),
+                    ],
                   ),
-                  PopupMenuItem<String>(
-                    value: 'export',
-                    height: 48,
-                    child: Row(
-                      children: [
-                        const AppIcon.fromMaterial(Icons.ios_share_outlined),
-                        const SizedBox(width: 8),
-                        Text(context.tr.common_export),
-                      ],
-                    ),
+                ),
+                PopupMenuItem<String>(
+                  value: 'export',
+                  height: 48,
+                  child: Row(
+                    children: [
+                      const AppIcon.fromMaterial(Icons.ios_share_outlined),
+                      const SizedBox(width: 8),
+                      Text(context.tr.common_export),
+                    ],
                   ),
-                  PopupMenuItem<String>(
-                    value: 'delete',
-                    height: 48,
-                    child: Row(
-                      children: [
-                        AppIcon.fromMaterial(
-                          Icons.delete_outline,
+                ),
+                PopupMenuItem<String>(
+                  value: 'delete',
+                  height: 48,
+                  child: Row(
+                    children: [
+                      AppIcon.fromMaterial(
+                        Icons.delete_outline,
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        context.tr.common_delete,
+                        style: TextStyle(
                           color: Theme.of(context).colorScheme.error,
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                          context.tr.common_delete,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.error,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              )
-            : Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    onPressed: () => _showWorkflowMoveToFolderDialog(workflow),
-                    tooltip: context.tr.commands_move_to_folder,
-                    icon: const AppIcon.fromMaterial(
-                      Icons.drive_file_move_outlined,
-                      size: 20,
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () => _exportSingleWorkflow(workflow),
-                    tooltip: context.tr.common_export,
-                    icon: const AppIcon.fromMaterial(
-                      Icons.ios_share_outlined,
-                      size: 20,
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () => _deleteWorkflow(name),
-                    tooltip: context.tr.delete,
-                    icon: AppIcon.fromMaterial(
-                      Icons.delete_outline,
-                      size: 20,
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                  ),
-                  const AppIcon.fromMaterial(
-                    Icons.arrow_forward_ios_outlined,
-                    size: 16,
-                  ),
-                ],
+                ),
+              ],
+            ),
+            if (!compactTile)
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: AppIcon.fromMaterial(
+                  Icons.chevron_right_rounded,
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
+          ],
+        ),
         onTap: () => _createOrEditWorkflow(initial: workflow),
         onLongPress: () => _showWorkflowMoveToFolderDialog(workflow),
       ),

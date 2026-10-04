@@ -1093,20 +1093,7 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
                             ),
                             child: Row(
                               children: [
-                                Expanded(
-                                  child: Text(
-                                    isBlueprint
-                                        ? 'Graphe Blueprint 2D (Unreal Engine)'
-                                        : 'Vue Blocs Linéaires (Scratch)',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 13,
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onSurfaceVariant,
-                                    ),
-                                  ),
-                                ),
+                                const Spacer(),
                                 SegmentedButton<String>(
                                   showSelectedIcon: false,
                                   segments: [

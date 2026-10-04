@@ -96,7 +96,7 @@ class _BlueprintContextMenuState extends State<BlueprintContextMenu> {
                       padding: EdgeInsets.only(left: 8, right: 6),
                       child: AppIcon.fromMaterial(
                         Icons.search,
-                        color: Colors.cyanAccent,
+                        color: Colors.white54,
                         size: 16,
                       ),
                     ),

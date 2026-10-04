@@ -748,20 +748,7 @@ extension _CommandBlockEditor on _CommandCreatePageState {
                           ),
                         )
                       else
-                        Expanded(
-                          child: Text(
-                            isBlueprint
-                                ? 'Graphe Blueprint 2D (Unreal Engine)'
-                                : 'Vue Blocs Linéaires (Scratch)',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13,
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ),
+                        const Spacer(),
 
                       // Segmented Button / Toggle
                       SegmentedButton<String>(
