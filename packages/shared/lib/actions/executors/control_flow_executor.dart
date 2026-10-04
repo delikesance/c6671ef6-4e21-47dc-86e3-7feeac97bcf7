@@ -6,7 +6,6 @@ import 'package:bot_creator_shared/utils/bdfd_duration_parser.dart';
 import '../../types/action.dart';
 import '../../engine/bdfd/execution.dart';
 import '../execution_budget.dart';
-import '../../utils/bdfd_compiler.dart';
 import '../../utils/workflow_call.dart';
 import '../../utils/math_parser.dart';
 import '../../utils/runtime_access_checks.dart';
@@ -321,98 +320,26 @@ Future<bool> executeControlFlowAction({
   final checkBudget = checkExecutionBudget ?? CommandExecutionBudget().check;
   switch (type) {
     case BotCreatorActionType.runBdfdScript:
-      final backend = BdfdBackend.parse(payload['bdfdBackend']);
-      if (backend == BdfdBackend.native) {
-        checkBudget();
-        final source = (payload['scriptContent'] ?? '').toString();
-        if (source.trim().isEmpty) {
-          results[resultKey] = 'BDFD_EMPTY';
-          return true;
-        }
-        if (executeNativeBdfdScript == null) {
-          throw StateError(
-            'Native BDFD execution is not available in this adapter.',
-          );
-        }
-        // Stored source is parsed before any data interpolation. Explicit eval
-        // is handled inside the native interpreter, never by resolveValue.
-        final nativeResults = await executeNativeBdfdScript(source);
-        checkBudget();
-        for (final entry in nativeResults.entries) {
-          results['$resultKey.${entry.key}'] = entry.value;
-        }
-        if (nativeResults.containsKey('__stopped__')) {
-          results['__stopped__'] = 'true';
-        }
-        results[resultKey] = 'BDFD_OK';
-        return true;
-      }
-      final bdfdSource = resolveValue(
-        (payload['scriptContent'] ?? '').toString(),
-      );
-      if (bdfdSource.trim().isEmpty) {
+      BdfdBackend.parse(payload['bdfdBackend']);
+      checkBudget();
+      final source = (payload['scriptContent'] ?? '').toString();
+      if (source.trim().isEmpty) {
         results[resultKey] = 'BDFD_EMPTY';
         return true;
       }
-
-      final compileResult = BdfdCompiler(
-        legacyUserVariables: variables['bdfd.userVariableSemantics'] == '1',
-      ).compile(bdfdSource);
-      if (compileResult.hasErrors) {
-        // If $suppressErrors is present in the source, suppress compile errors
-        // and optionally send the custom error message/embed.
-        final hasSuppressErrors = RegExp(
-          r'\$suppresserrors\b',
-          caseSensitive: false,
-        ).hasMatch(bdfdSource);
-        if (hasSuppressErrors) {
-          // Extract custom error message: $suppressErrors[message]
-          final suppressMsgMatch = RegExp(
-            r'\$suppresserrors\[([^\]]*)\]',
-            caseSensitive: false,
-          ).firstMatch(bdfdSource);
-          final suppressMessage = resolveValue(
-            suppressMsgMatch?.group(1) ?? '',
-          );
-
-          if (suppressMessage.isNotEmpty) {
-            await executeActions([
-              Action(
-                type: BotCreatorActionType.respondWithMessage,
-                payload: <String, dynamic>{'content': suppressMessage},
-              ),
-            ]);
-          }
-          results[resultKey] = 'BDFD_SUPPRESSED';
-          return true;
-        }
-
-        final summary = compileResult.diagnostics
-            .where((d) => d.severity == BdfdCompileDiagnosticSeverity.error)
-            .take(5)
-            .map((d) {
-              final loc = d.line != null
-                  ? 'L${d.line}${d.column != null ? ':${d.column}' : ''}'
-                  : '';
-              return loc.isNotEmpty ? '$loc: ${d.message}' : d.message;
-            })
-            .join('; ');
-        throw Exception('BDFD compile error: $summary');
+      if (executeNativeBdfdScript == null) {
+        throw StateError(
+          'Native BDFD execution is not available in this adapter.',
+        );
       }
-
-      if (compileResult.actions.isEmpty) {
-        results[resultKey] = 'BDFD_NO_ACTIONS';
-        return true;
-      }
-
-      final preprocessedActions =
-          nestedActionsPreprocessor?.call(compileResult.actions) ??
-          compileResult.actions;
-      final bdfdResults = await executeActions(preprocessedActions);
-      for (final entry in bdfdResults.entries) {
+      // Stored source is parsed before any data interpolation. Explicit eval
+      // is handled inside the native interpreter, never by resolveValue.
+      final nativeResults = await executeNativeBdfdScript(source);
+      checkBudget();
+      for (final entry in nativeResults.entries) {
         results['$resultKey.${entry.key}'] = entry.value;
       }
-      if (bdfdResults.containsKey('__stopped__')) {
+      if (nativeResults.containsKey('__stopped__')) {
         results['__stopped__'] = 'true';
       }
       results[resultKey] = 'BDFD_OK';

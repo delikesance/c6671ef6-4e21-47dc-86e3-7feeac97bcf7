@@ -43,7 +43,6 @@ import '../actions/execution_policy.dart';
 import '../actions/role_definition_actions.dart';
 import '../actions/handler.dart';
 import '../types/action.dart';
-import '../utils/bdfd_compiler.dart';
 import '../utils/bdfd_duration_parser.dart';
 import '../utils/runtime_variables.dart';
 import '../utils/message_runtime.dart';
@@ -115,7 +114,7 @@ Future<Map<String, dynamic>> _run(Map<String, dynamic> input) async {
   final script = (input['script'] ?? '').toString();
   if (script.length > 100000) throw StateError('Script size limit exceeded');
   final backend = BdfdBackend.parse(input['bdfdBackend']);
-  final nativeScript = input['script'] != null && backend == BdfdBackend.native;
+  final nativeScript = input['script'] != null;
   final diagnostics = <Map<String, dynamic>>[];
   final semantics = input['bdfdUserVariableSemantics'] ?? 2;
   if (semantics != 1 && semantics != 2) {
@@ -124,32 +123,10 @@ Future<Map<String, dynamic>> _run(Map<String, dynamic> input) async {
   final List<Action> actions;
   if (nativeScript) {
     actions = const [];
-  } else if (input['actions'] is List) {
+  } else {
     actions = (input['actions'] as List)
         .map((a) => Action.fromJson(Map<String, dynamic>.from(a as Map)))
         .toList();
-  } else {
-    final compiled = BdfdCompiler(
-      legacyUserVariables: semantics == 1,
-    ).compile(script);
-    diagnostics.addAll(
-      compiled.diagnostics.map(
-        (d) => {
-          'message': d.message,
-          'severity': d.severity.name,
-          'line': d.line,
-          'column': d.column,
-        },
-      ),
-    );
-    if (compiled.hasErrors) {
-      return {
-        'success': false,
-        'diagnostics': diagnostics,
-        'error': 'Compilation failed',
-      };
-    }
-    actions = compiled.actions;
   }
   final scopedDefinitions = <Map<String, dynamic>>[];
   final rawDefinitions = input['definitions'];
@@ -482,8 +459,6 @@ Future<Map<String, dynamic>> _run(Map<String, dynamic> input) async {
         final output = await execution.execute(
           script,
           backend: backend.id,
-          executeLegacy: (_) async =>
-              throw StateError('Unexpected legacy execution'),
         );
         results = {
           ...context.results,

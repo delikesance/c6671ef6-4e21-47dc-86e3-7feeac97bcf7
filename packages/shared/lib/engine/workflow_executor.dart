@@ -10,7 +10,6 @@ import 'package:bot_creator_shared/actions/interaction_response.dart';
 import 'package:bot_creator_shared/services/lavalink_service.dart';
 import 'package:bot_creator_shared/types/action.dart';
 import 'package:bot_creator_shared/utils/template_resolver.dart';
-import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 import 'package:bot_creator_shared/utils/runtime_variables.dart';
 import 'package:bot_creator_shared/engine/bot_engine_callbacks.dart';
 import 'package:bot_creator_shared/utils/interaction_ack_state.dart';
@@ -179,7 +178,6 @@ class WorkflowExecutor {
     }
 
     var actions = actionsJson.map(Action.fromJson).toList();
-    actions = _transpileVisualActions(actions, runtimeVariables);
     callbacks.onDebugLog?.call(
       'Parsed ${actions.length} actions for visual workflow',
       botId: botId,
@@ -315,7 +313,6 @@ class WorkflowExecutor {
     }
 
     var actions = actionsJson.map(Action.fromJson).toList();
-    actions = _transpileVisualActions(actions, runtimeVariables);
 
     callbacks.onDebugLog?.call(
       'Executing ${actions.length} actions in general workflow',
@@ -348,65 +345,6 @@ class WorkflowExecutor {
         runtimeVariables: runtimeVariables,
       );
     }
-  }
-
-  /// Helper to transpile any inline BDFD syntax found in visual workflow action payloads.
-  List<Action> _transpileVisualActions(
-    List<Action> actions,
-    Map<String, String> runtimeVariables,
-  ) {
-    dynamic processValue(dynamic value) {
-      if (value is String) {
-        if (value.contains(r'$')) {
-          // It might contain BDFD inline functions
-          final compileResult = BdfdCompiler(
-            legacyUserVariables:
-                runtimeVariables['bdfd.userVariableSemantics'] == '1',
-          ).compile(value);
-          // If the compilation produced a single action that is just appending text,
-          // we can replace the value with the transpiled text (which now has placeholders).
-          // Action type 'sendMessage' with 'content' is the default for raw text in our compiler.
-          if (!compileResult.hasErrors && compileResult.actions.isNotEmpty) {
-            final firstAction = compileResult.actions.first;
-            if ((firstAction.type == BotCreatorActionType.sendMessage ||
-                    firstAction.type ==
-                        BotCreatorActionType.respondWithMessage) &&
-                firstAction.payload.containsKey('content') &&
-                compileResult.actions.length == 1) {
-              // Fix 4: guard against null content
-              final compiledContent = firstAction.payload['content'];
-              if (compiledContent != null) {
-                return compiledContent;
-              }
-            }
-          }
-        }
-        return value;
-      } else if (value is Map) {
-        if (value['bdfdBackend'] == 'native-v1' &&
-            value.containsKey('scriptContent')) {
-          return Map<String, dynamic>.from(value);
-        }
-        return Map<String, dynamic>.from(
-          value.map((k, v) => MapEntry(k.toString(), processValue(v))),
-        );
-      } else if (value is List) {
-        return value.map((item) => processValue(item)).toList();
-      }
-      return value;
-    }
-
-    return actions.map((action) {
-      final newPayload = processValue(action.payload);
-      return Action(
-          type: action.type,
-          key: action.key,
-          enabled: action.enabled,
-          payload: Map<String, dynamic>.from(newPayload as Map),
-        )
-        ..dependOn.addAll(action.dependOn)
-        ..error.addAll(action.error);
-    }).toList();
   }
 
   void _populateLavalinkVariables(

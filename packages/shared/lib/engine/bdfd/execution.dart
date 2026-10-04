@@ -16,14 +16,15 @@ import 'runtime.dart';
 import 'workflow_functions.dart';
 
 enum BdfdBackend {
-  legacy('legacy-v1'),
   native(BdfdEngine.backendId);
 
   const BdfdBackend(this.id);
   final String id;
 
+  /// `native-v1` is the only BDFD backend. Absent values select it; any other
+  /// version is rejected before effects instead of being guessed.
   static BdfdBackend parse(Object? value) {
-    if (value == null || value == '') return legacy;
+    if (value == null || value == '') return native;
     for (final backend in values) {
       if (value == backend.id) return backend;
     }
@@ -75,15 +76,13 @@ class BdfdScriptExecution {
   Future<String?> execute(
     String source, {
     Object? backend,
-    required Future<void> Function(String source) executeLegacy,
     Future<void> Function()? onNativePrepared,
   }) async {
-    if (onReplayCaptured == null ||
-        BdfdBackend.parse(backend) != BdfdBackend.native) {
+    BdfdBackend.parse(backend);
+    if (onReplayCaptured == null) {
       return _executeSelected(
         source,
         backend: backend,
-        executeLegacy: executeLegacy,
         onNativePrepared: onNativePrepared,
       );
     }
@@ -99,7 +98,6 @@ class BdfdScriptExecution {
       output = await _executeSelected(
         source,
         backend: backend,
-        executeLegacy: executeLegacy,
         onNativePrepared: onNativePrepared,
       );
       return output;
@@ -120,14 +118,9 @@ class BdfdScriptExecution {
   Future<String?> _executeSelected(
     String source, {
     Object? backend,
-    required Future<void> Function(String source) executeLegacy,
     Future<void> Function()? onNativePrepared,
   }) async {
-    final selected = BdfdBackend.parse(backend);
-    if (selected == BdfdBackend.legacy) {
-      await executeLegacy(source);
-      return null;
-    }
+    BdfdBackend.parse(backend);
     final program = engine.prepare(source);
     context.budget.check();
     var deferredHere = false;
