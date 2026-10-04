@@ -81,7 +81,10 @@ void main() {
       });
 
       test('complex parenthesized', () {
-        expect(MathExpressionParser.evaluate('(10 - 3) * (2 + 1)'), equals(21.0));
+        expect(
+          MathExpressionParser.evaluate('(10 - 3) * (2 + 1)'),
+          equals(21.0),
+        );
       });
     });
 

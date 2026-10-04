@@ -4,7 +4,7 @@ void main() {
   final source = r'**[$$getVar[daily_reward_cash]\]($getVar[botlink])**';
 
   final result = BdfdLexer().tokenize(source);
-  
+
   print('Source: $source');
   print('');
   print('Tokens:');

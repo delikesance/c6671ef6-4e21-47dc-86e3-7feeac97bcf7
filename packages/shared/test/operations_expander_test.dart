@@ -9,7 +9,14 @@ void main() {
     test('passes through concrete operations unchanged', () {
       final ops = [
         {'op': 'create', 'width': '100', 'height': '100', 'color': 'red'},
-        {'op': 'drawText', 'text': 'Hello', 'x': '10', 'y': '20', 'fontSize': '14', 'color': 'white'},
+        {
+          'op': 'drawText',
+          'text': 'Hello',
+          'x': '10',
+          'y': '20',
+          'fontSize': '14',
+          'color': 'white',
+        },
       ];
 
       final expanded = expandCanvasOperations(ops, resolve);
@@ -32,7 +39,14 @@ void main() {
             'color': 'white',
             'condition': '((isPremium))',
           },
-          {'op': 'drawRect', 'x': '0', 'y': '0', 'width': '50', 'height': '50', 'color': 'blue'},
+          {
+            'op': 'drawRect',
+            'x': '0',
+            'y': '0',
+            'width': '50',
+            'height': '50',
+            'color': 'blue',
+          },
         ];
 
         final expanded = expandCanvasOperations(
@@ -95,7 +109,8 @@ void main() {
           {'op': 'create', 'width': '200', 'height': '300', 'color': '#2c2f33'},
           {
             'op': 'forEach',
-            'list': '[{"rank":1,"name":"Alice"},{"rank":2,"name":"Bob"},{"rank":3,"name":"Carol"}]',
+            'list':
+                '[{"rank":1,"name":"Alice"},{"rank":2,"name":"Bob"},{"rank":3,"name":"Carol"}]',
             'itemTemplate': {
               'op': 'drawText',
               'text': '((item.rank)). ((item.name))',
@@ -194,10 +209,7 @@ void main() {
         final ops = [
           {
             'composition': 'welcomeCard',
-            'slots': {
-              'username': '((author.name))',
-              'memberCount': '42',
-            },
+            'slots': {'username': '((author.name))', 'memberCount': '42'},
           },
         ];
 
@@ -251,7 +263,14 @@ void main() {
         final ops = [
           {'op': 'create', 'width': '100', 'height': '100', 'color': 'red'},
           null, // Should be skipped
-          {'op': 'drawRect', 'x': '0', 'y': '0', 'width': '50', 'height': '50', 'color': 'blue'},
+          {
+            'op': 'drawRect',
+            'x': '0',
+            'y': '0',
+            'width': '50',
+            'height': '50',
+            'color': 'blue',
+          },
         ];
 
         final expanded = expandCanvasOperations(ops, resolve);
@@ -263,7 +282,14 @@ void main() {
         final ops = [
           {'op': 'create', 'width': '100', 'height': '100', 'color': 'red'},
           'not a map', // Should be skipped
-          {'op': 'drawRect', 'x': '0', 'y': '0', 'width': '50', 'height': '50', 'color': 'blue'},
+          {
+            'op': 'drawRect',
+            'x': '0',
+            'y': '0',
+            'width': '50',
+            'height': '50',
+            'color': 'blue',
+          },
         ];
 
         final expanded = expandCanvasOperations(ops, resolve);

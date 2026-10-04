@@ -45,6 +45,16 @@ BdfdCompileResult checkCopilotBdfd(
       );
     }
   }
+  // The lexer keeps unknown names as literal text (the runtime preserves them),
+  // so Copilot, which must never save a hallucinated function, checks every
+  // bracketed call itself.
+  for (final match in RegExp(r'(?<!\\)\$([A-Za-z_]\w*)\[').allMatches(script)) {
+    if (!allBdfdFunctions.contains(match.group(1)!.toLowerCase())) {
+      throw FormatException(
+        'Unknown function \$${match.group(1)}; use the local block registry',
+      );
+    }
+  }
   final result = BdfdCompiler(
     legacyUserVariables: legacyUserVariables,
   ).compile(script);
