@@ -8,6 +8,10 @@ import '../services/bot_moderation_service.dart';
 import '../engine/bdfd/execution.dart';
 import '../engine/bdfd/runtime.dart';
 import '../engine/bdfd/replay.dart';
+import '../engine/bdfd/visual/action_functions.dart';
+import '../engine/bdfd/visual/action_results.dart';
+import '../engine/bdfd/visual/action_runner.dart';
+import '../engine/bdfd/visual/action_translator.dart';
 import '../services/bot_message_service.dart';
 import '../services/http_service.dart';
 import '../services/runtime_temporary_variables.dart';
@@ -107,6 +111,10 @@ Future<Map<String, String>> handleActions(
   HttpService? bdfdHttp,
   bool throwOnError = false,
   CommandExecutionBudget? executionBudget,
+
+  /// Chooses, per action, between the native engine and the historical
+  /// executors. `const ActionTranslator.none()` keeps everything historical.
+  ActionTranslator? actionTranslator,
 }) async {
   final budget = executionBudget ?? CommandExecutionBudget();
   return budget.run(
@@ -138,6 +146,7 @@ Future<Map<String, String>> handleActions(
       bdfdHttp: bdfdHttp,
       throwOnError: throwOnError,
       executionBudget: budget,
+      actionTranslator: actionTranslator,
     ),
   );
 }
@@ -188,6 +197,7 @@ Future<Map<String, String>> _handleActions(
   HttpService? bdfdHttp,
   bool throwOnError = false,
   required CommandExecutionBudget executionBudget,
+  ActionTranslator? actionTranslator,
 }) async {
   executionPolicy?.checkBudget();
   final results = <String, String>{};
@@ -248,33 +258,80 @@ Future<Map<String, String>> _handleActions(
     throwOnError: protected || throwOnError,
     executionBudget: executionBudget,
     lavalinkService: lavalinkService,
+    actionTranslator: actionTranslator,
   );
 
-  String resolveValue(String value) {
-    // Resolve action result placeholders FIRST (e.g. ((_bdfd_createemoji_0.tag)))
-    // before the template resolver, because resolveTemplatePlaceholders replaces
-    // unknown ((...)) with empty strings, leaving nothing for fallback matching.
-    String result = value.replaceAllMapped(RegExp(r'\(\(([^)]+)\)\)'), (match) {
-      var key = match.group(1)!;
-      // Direct match (e.g. legacy action_message style, or _bdfd_createemoji_0.tag)
-      if (results.containsKey(key)) {
-        return results[key]!;
-      }
-      // Strip 'action.' prefix to match results keyed by action.key
-      if (key.startsWith('action.')) {
-        final stripped = key.substring('action.'.length);
-        if (results.containsKey(stripped)) {
-          return results[stripped]!;
-        }
-      }
-      return match.group(0)!; // Keep original if not found
-    });
+  // Placeholders naming a result of this list win, then the template resolver
+  // (see resolveActionValue; the native visual functions share it).
+  String resolveValue(String value) =>
+      resolveActionValue(value, results, resolveTemplate);
 
-    // Then resolve template variables (runtimeVariables, interaction context, etc.)
-    result = resolveTemplate(result);
+  // Entity hydration, shared by the historical loop and the native visual
+  // actions (which hydrate their nested actions with it).
+  final Future<void> Function(String, String, Map<String, String>)?
+  discordFetcher = executionPolicy?.allowDiscordHydration == false
+      ? null
+      : (scope, contextId, vars) async {
+          await DiscordEntityFetcher.hydrateEntity(
+            client,
+            scope,
+            contextId,
+            vars,
+            cache: activeEntityCache,
+          );
+        };
 
-    return result;
-  }
+  Future<int?> scopedVariableTtl(String scope, String key) async =>
+      await store.getScopedVariableTtl(
+        botId,
+        scope,
+        resolveScopeContextId(
+              scope: scope,
+              variables: variables,
+              interaction: interaction,
+              guildId: guildId,
+              channelId: resolvedFallbackChannelId,
+            ) ??
+            '',
+        key,
+      );
+
+  // Visual actions the translator supports run on the native engine; the rest
+  // stays on the historical executors below. Decided per action, statically.
+  final visualRunner = BdfdActionRunner(
+    translator: actionTranslator ?? const ActionTranslator(),
+  );
+  final visualSink = ResultSink(results: results, variables: variables);
+  ActionRunEnvironment? visualEnvironment;
+  ActionRunEnvironment nativeVisualEnvironment() =>
+      visualEnvironment ??= ActionRunEnvironment(
+        variables: variables,
+        sink: visualSink,
+        resolveTemplate: resolveTemplate,
+        budget: executionBudget,
+        moderation:
+            bdfdModeration ??
+            DiscordBotModerationService(
+              client: client,
+              guildId: guildId,
+              store: store,
+              botId: botId,
+            ),
+        guildId: guildId?.toString(),
+        throwOnError: throwOnError,
+        getScopedVariableTtl: scopedVariableTtl,
+        // The loop below already hydrated the routed top-level action.
+        prepare: (type, key, payload, path) async {
+          if (path.isEmpty) return;
+          await hydrateActionPlaceholders(
+            store: store,
+            botId: botId,
+            actions: [Action(type: type, key: key, payload: payload)],
+            variables: variables,
+            discordFetcher: discordFetcher,
+          );
+        },
+      );
 
   // Permission cache – shared across all actions in this execution
   final permCache = BotPermissionCache();
@@ -327,17 +384,7 @@ Future<Map<String, String>> _handleActions(
           botId: botId,
           actions: [action],
           variables: variables,
-          discordFetcher: executionPolicy?.allowDiscordHydration == false
-              ? null
-              : (scope, contextId, vars) async {
-                  await DiscordEntityFetcher.hydrateEntity(
-                    client,
-                    scope,
-                    contextId,
-                    vars,
-                    cache: activeEntityCache,
-                  );
-                },
+          discordFetcher: discordFetcher,
         );
       }
       final payload = Map<String, dynamic>.from(action.payload);
@@ -440,6 +487,21 @@ Future<Map<String, String>> _handleActions(
           debugCompilationMs = action.payload['compilationMs'] as int?;
           debugSourceLength = action.payload['sourceLength'] as int?;
           debugActionCount = action.payload['actionCount'] as int?;
+          continue;
+        }
+
+        // A block's nested actions are not intercepted by a policy on the
+        // historical path; keep blocks there whenever one is set.
+        if (visualRunner.supports(action) &&
+            (action.type != BotCreatorActionType.ifBlock ||
+                executionPolicy == null)) {
+          await visualRunner.runAction(
+            action,
+            env: nativeVisualEnvironment(),
+            context: nativeContext,
+            index: i,
+          );
+          recordTrace();
           continue;
         }
 
@@ -748,20 +810,7 @@ Future<Map<String, String>> _handleActions(
           getWorkflowByName: (workflowName) =>
               store.getWorkflowByName(botId, workflowName),
           nestedActionsPreprocessor: nestedActionsPreprocessor,
-          getScopedVariableTtl: (scope, key) async =>
-              await store.getScopedVariableTtl(
-                botId,
-                scope,
-                resolveScopeContextId(
-                      scope: scope,
-                      variables: variables,
-                      interaction: interaction,
-                      guildId: guildId,
-                      channelId: resolvedFallbackChannelId,
-                    ) ??
-                    '',
-                key,
-              ),
+          getScopedVariableTtl: scopedVariableTtl,
           executeNativeBdfdScript: (source) async {
             if (executionPolicy != null &&
                 (bdfdMessages == null || bdfdHttp == null)) {
@@ -811,8 +860,8 @@ Future<Map<String, String>> _handleActions(
                       ? DiscordBotModerationService(
                           client: client,
                           guildId: guildId,
-        store: store,
-        botId: botId,
+                          store: store,
+                          botId: botId,
                         )
                       : null),
               runVisualWorkflow: (workflow, context) => executeNestedActions(
@@ -839,10 +888,7 @@ Future<Map<String, String>> _handleActions(
                         : Snowflake.parse(variables['message.id']!),
                   ),
             );
-            await execution.execute(
-              source,
-              backend: 'native-v1',
-            );
+            await execution.execute(source, backend: 'native-v1');
             return {
               ...nativeContext.results,
               if (nativeContext.stopped) '__stopped__': 'true',

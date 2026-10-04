@@ -1,8 +1,8 @@
 {
   "scope": "Production registry registration only; no behavior verification.",
-  "catalogueCount": 554,
-  "registeredCount": 564,
-  "registeredCatalogueCount": 554,
+  "catalogueCount": 553,
+  "registeredCount": 568,
+  "registeredCatalogueCount": 553,
   "unregisteredCatalogueCount": 0,
   "registeredCatalogueFunctions": [
     "addactionrow",
@@ -67,7 +67,6 @@
     "ban",
     "banid",
     "blacklistids",
-    "blacklistroleids",
     "blacklistroles",
     "blacklistrolesids",
     "blacklistservers",
@@ -562,6 +561,11 @@
   ],
   "unregisteredCatalogueFunctions": [],
   "registeredOutsideCatalogue": [
+    "bc_addrole",
+    "bc_blockerr",
+    "bc_cond",
+    "bc_removerole",
+    "bc_tpl",
     "break",
     "continue",
     "endwhile",
