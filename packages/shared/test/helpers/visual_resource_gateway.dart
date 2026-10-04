@@ -48,9 +48,10 @@ class FakeWebhook implements Webhook {
   @override
   WebhookType get type => WebhookType.incoming;
   @override
-  // Null on purpose: the blocks `jsonEncode` the webhook and a real `Uri`
-  // is not encodable (historical behaviour, kept by the native path).
-  Uri? get url => null;
+  // A real `Uri`, like nyxx's incoming webhooks: the blocks serialize it.
+  Uri? get url => token == null
+      ? null
+      : Uri.parse('https://discord.com/api/webhooks/$id/$token');
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

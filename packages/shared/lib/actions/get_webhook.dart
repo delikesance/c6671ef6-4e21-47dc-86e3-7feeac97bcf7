@@ -70,7 +70,7 @@ Future<Map<String, String>> getWebhookAction(
         'channelId': webhook.channelId?.toString(),
         'guildId': webhook.guildId?.toString(),
         'type': webhook.type.value,
-        'url': webhook.url,
+        'url': webhook.url?.toString(),
         'hasToken': webhook.token != null,
       }),
       'webhookId': webhook.id.toString(),
