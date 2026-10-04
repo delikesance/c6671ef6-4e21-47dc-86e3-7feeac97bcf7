@@ -658,7 +658,6 @@ const Map<String, List<String>> bdfdSignatureHints = <String, List<String>>{
   'webhooktitle': ['text'],
   'webhookusername': ['name'],
   'blacklistids': ['User IDs', '...', 'Error message'],
-  'blacklistroleids': ['roleID1', 'roleID2 (opt)', '...'],
   'blacklistroles': ['roleName1', 'roleName2 (opt)', '...'],
   'blacklistrolesids': ['roleID1', 'roleID2 (opt)', '...'],
   'blacklistservers': ['Server IDs', '...', 'Error message'],
