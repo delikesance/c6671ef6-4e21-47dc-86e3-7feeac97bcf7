@@ -25,7 +25,11 @@ class ScratchBlock extends StatelessWidget {
     this.trailing,
     this.dragHandle,
     this.flat = false,
+    this.overline,
   });
+
+  /// Small category label shown above the title (in the category color).
+  final String? overline;
 
   /// Optional drag handle widget shown in the header for reordering.
   final Widget? dragHandle;
@@ -79,12 +83,9 @@ class ScratchBlock extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
-    final surfaceColor = isDark
-        ? Color.alphaBlend(color.withAlpha(25), colorScheme.surface)
-        : Color.alphaBlend(color.withAlpha(15), colorScheme.surface);
-    final headerColor = isDark
-        ? Color.alphaBlend(color.withAlpha(50), colorScheme.surface)
-        : Color.alphaBlend(color.withAlpha(30), colorScheme.surface);
+    final bodyColor = isDark
+        ? Color.alphaBlend(Colors.white.withAlpha(6), colorScheme.surface)
+        : colorScheme.surface;
 
     if (flat) {
       return Padding(
@@ -122,104 +123,120 @@ class ScratchBlock extends StatelessWidget {
       );
     }
 
-    return Card(
-      margin: EdgeInsets.zero,
-      clipBehavior: Clip.antiAlias,
-      elevation: 1,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-        side: BorderSide(color: color.withAlpha(80), width: 1.5),
+    return Container(
+      decoration: BoxDecoration(
+        color: bodyColor,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+        border: Border.all(color: colorScheme.outlineVariant, width: 1),
       ),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // ── Header ──
-          Material(
-            color: headerColor,
-            child: InkWell(
-              onTap: onToggleCollapse,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 10,
-                ),
-                child: Row(
-                  children: [
-                    // Color strip indicator
-                    Container(
-                      width: 4,
-                      height: 24,
-                      decoration: BoxDecoration(
-                        color: color,
-                        borderRadius: BorderRadius.circular(2),
-                      ),
+          InkWell(
+            onTap: onToggleCollapse,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 10, 4, 10),
+              child: Row(
+                children: [
+                  if (dragHandle != null) ...[
+                    dragHandle!,
+                    const SizedBox(width: 6),
+                  ],
+                  // Category icon tile
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: color.withAlpha(36),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                      border: Border.all(color: color.withAlpha(82)),
                     ),
-                    const SizedBox(width: 8),
-                    if (dragHandle != null) ...[
-                      dragHandle!,
-                      const SizedBox(width: 6),
-                    ],
-                    AppIcon.fromMaterial(icon, color: color, size: 20),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Flexible(
-                            child: Text(
-                              title,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                                color: colorScheme.onSurface,
-                              ),
-                              overflow: TextOverflow.ellipsis,
+                    child: Center(
+                      child: AppIcon.fromMaterial(icon, color: color, size: 20),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (overline != null)
+                          Text(
+                            overline!.toUpperCase(),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.8,
+                              color: color,
                             ),
                           ),
-                          if (badge != null) ...[
-                            const SizedBox(width: 6),
-                            badge!,
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                title,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 15,
+                                  color: colorScheme.onSurface,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            if (badge != null) ...[
+                              const SizedBox(width: 6),
+                              badge!,
+                            ],
                           ],
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                    ?trailing,
-                    // Reorder buttons (only for non-required blocks)
-                    if (onMoveUp != null || onMoveDown != null) ...[
-                      if (onMoveUp != null)
-                        _HeaderIconButton(
-                          icon: Icons.arrow_upward,
-                          onPressed: onMoveUp!,
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                      if (onMoveDown != null)
-                        _HeaderIconButton(
-                          icon: Icons.arrow_downward,
-                          onPressed: onMoveDown!,
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                    ],
-                    if (!required && onDelete != null)
-                      _HeaderIconButton(
-                        icon: Icons.close,
-                        onPressed: onDelete!,
-                        color: colorScheme.error,
-                      ),
-                    if (onToggleCollapse != null)
-                      AppIcon.fromMaterial(
+                  ),
+                  ?trailing,
+                  if (onMoveUp != null)
+                    _HeaderIconButton(
+                      icon: Icons.arrow_upward,
+                      onPressed: onMoveUp!,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  if (onMoveDown != null)
+                    _HeaderIconButton(
+                      icon: Icons.arrow_downward,
+                      onPressed: onMoveDown!,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  if (!required && onDelete != null)
+                    _HeaderIconButton(
+                      icon: Icons.delete_outline,
+                      onPressed: onDelete!,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  if (onToggleCollapse != null)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      child: AppIcon.fromMaterial(
                         collapsed ? Icons.expand_more : Icons.expand_less,
                         color: colorScheme.onSurfaceVariant,
                         size: 20,
                       ),
-                  ],
-                ),
+                    ),
+                ],
               ),
             ),
           ),
           // ── Body ──
           if (!collapsed)
             Container(
-              color: surfaceColor,
-              padding: const EdgeInsets.all(AppTheme.spacingMd),
+              padding: const EdgeInsets.fromLTRB(
+                AppTheme.spacingMd,
+                0,
+                AppTheme.spacingMd,
+                AppTheme.spacingMd,
+              ),
               child: child,
             ),
         ],
@@ -242,8 +259,8 @@ class _HeaderIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 28,
-      height: 28,
+      width: 36,
+      height: 36,
       child: IconButton(
         padding: EdgeInsets.zero,
         constraints: const BoxConstraints(),

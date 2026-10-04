@@ -48,17 +48,17 @@ class BlueprintNodeWidget extends StatelessWidget {
         width: data.size.width,
         decoration: BoxDecoration(
           color: const Color(0xFF1E2128), // Node dark container
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isSelected
-                ? Colors.cyanAccent
-                : Colors.white.withValues(alpha: 0.15),
-            width: isSelected ? 2.0 : 1.0,
+                ? const Color(0xFF7C5CF0)
+                : Colors.white.withValues(alpha: 0.12),
+            width: isSelected ? 1.5 : 1.0,
           ),
           boxShadow: [
             BoxShadow(
               color: isSelected
-                  ? Colors.cyanAccent.withValues(alpha: 0.3)
+                  ? const Color(0xFF7C5CF0).withValues(alpha: 0.3)
                   : Colors.black.withValues(alpha: 0.4),
               blurRadius: isSelected ? 12 : 6,
               offset: const Offset(0, 3),
@@ -136,20 +136,30 @@ class BlueprintNodeWidget extends StatelessWidget {
   }
 
   Widget _buildHeader(BuildContext context) {
+    final accent = data.headerColor;
     return Container(
       height: headerHeight,
       padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
-        color: data.headerColor.withValues(alpha: 0.85),
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(8),
-          topRight: Radius.circular(8),
+        border: Border(
+          bottom: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
         ),
       ),
       child: Row(
         children: [
-          AppIcon.fromMaterial(data.icon, size: 16, color: Colors.white),
-          const SizedBox(width: 6),
+          Container(
+            width: 26,
+            height: 26,
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.16),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: accent.withValues(alpha: 0.35)),
+            ),
+            child: Center(
+              child: AppIcon.fromMaterial(data.icon, size: 15, color: accent),
+            ),
+          ),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(
               data.title,
@@ -157,20 +167,20 @@ class BlueprintNodeWidget extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                 color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
               ),
             ),
           ),
-          if (!data.isEntryPoint && onDelete != null)
+          if (!data.isEntryPoint && onDelete != null && isSelected)
             InkWell(
               onTap: onDelete,
-              borderRadius: BorderRadius.circular(4),
+              borderRadius: BorderRadius.circular(6),
               child: const Padding(
-                padding: EdgeInsets.all(2),
+                padding: EdgeInsets.all(4),
                 child: AppIcon.fromMaterial(
-                  Icons.close,
-                  size: 14,
+                  Icons.delete_outline,
+                  size: 16,
                   color: Colors.white70,
                 ),
               ),
@@ -207,17 +217,9 @@ class BlueprintNodeWidget extends StatelessWidget {
           width: 14,
           height: 14,
           decoration: BoxDecoration(
-            color: pinColor,
-            shape: BoxShape.rectangle,
-            borderRadius: BorderRadius.circular(3),
-            boxShadow: [
-              BoxShadow(color: pinColor.withValues(alpha: 0.5), blurRadius: 4),
-            ],
-          ),
-          child: const AppIcon.fromMaterial(
-            Icons.play_arrow,
-            size: 11,
-            color: Color(0xFF1E2128),
+            color: const Color(0xFF1E2128),
+            shape: BoxShape.circle,
+            border: Border.all(color: pinColor, width: 2.5),
           ),
         ),
       ),
