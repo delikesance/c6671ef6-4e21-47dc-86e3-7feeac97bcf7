@@ -42,7 +42,7 @@
         },
         "scenario": {
           "type": "object",
-          "description": "Fixtures only: options, variables, global, scoped (scope/context/key), definitions, http, entities. Role entities use {guilds:{guildId:{roles:[{id,name,color,position,permissions,hoist,mentionable}]}}} and run through the production fetcher; all Discord writes remain denied. HTTP fixtures are consumed once and must match method and URL; each fixture accepts status, body, headers, error and optional expectedRequest (body/headers). Example: http=[{method:\"GET\",url:\"https://example.com/data\",status:200,body:{value:42}}]. No external requests are allowed."
+          "description": "Fixtures only: options, variables, global, scoped (scope/context/key), definitions, http, entities, music. Blocks touching Discord read entities.guilds.<guildId> with members (map by user id; members.<id>.voice={channel_id} for voice), channels, roles, messages (by channel id), emojis, invites, webhooks, automod_rules, onboarding; music blocks read music:{userVoiceChannels,tracks,current,queue}. A missing fixture returns the exact key and shape to provide. Role entities use {guilds:{guildId:{roles:[{id,name,color,position,permissions,hoist,mentionable}]}}} and run through the production fetcher; all Discord writes remain denied. HTTP fixtures are consumed once and must match method and URL; each fixture accepts status, body, headers, error and optional expectedRequest (body/headers). Example: http=[{method:\"GET\",url:\"https://example.com/data\",status:200,body:{value:42}}]. No external requests are allowed."
         },
         "expected_content": {
           "type": "string",

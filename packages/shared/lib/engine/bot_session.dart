@@ -147,12 +147,10 @@ class BotSession {
   ///
   /// Le plugin Lavalink n'y figure QUE si un serveur a été retenu : la
   /// passerelle se connecte donc toujours, musique ou pas.
-  static List<NyxxPlugin> buildGatewayPlugins({LavalinkPlugin? lavalinkPlugin}) {
-    return <NyxxPlugin>[
-      logging,
-      cliIntegration,
-      ?lavalinkPlugin,
-    ];
+  static List<NyxxPlugin> buildGatewayPlugins({
+    LavalinkPlugin? lavalinkPlugin,
+  }) {
+    return <NyxxPlugin>[logging, cliIntegration, ?lavalinkPlugin];
   }
 
   /// Demande au sondeur le serveur à utiliser, puis construit le plugin.
@@ -216,10 +214,9 @@ class BotSession {
       if (remaining <= Duration.zero) {
         return _lavalinkUnavailable('budget de sélection épuisé');
       }
-      final error = await _testLavalinkConnection(retained).timeout(
-        remaining,
-        onTimeout: () => 'budget épuisé',
-      );
+      final error = await _testLavalinkConnection(
+        retained,
+      ).timeout(remaining, onTimeout: () => 'budget épuisé');
       if (error != null) {
         _selectedServer = null;
         callbacks.onLog?.call(

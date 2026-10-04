@@ -85,12 +85,13 @@ Future<void> sendWorkflowResponse({
   );
 
   final useCondition = workflowConditional['enabled'] == true;
-  final conditionVariable =
-      (workflowConditional['variable'] ?? '').toString().trim();
-  final whenTrueType =
-      (workflowConditional['whenTrueType'] ?? 'normal').toString();
-  final whenFalseType =
-      (workflowConditional['whenFalseType'] ?? 'normal').toString();
+  final conditionVariable = (workflowConditional['variable'] ?? '')
+      .toString()
+      .trim();
+  final whenTrueType = (workflowConditional['whenTrueType'] ?? 'normal')
+      .toString();
+  final whenFalseType = (workflowConditional['whenFalseType'] ?? 'normal')
+      .toString();
   final whenTrueText = (workflowConditional['whenTrueText'] ?? '').toString();
   final whenFalseText = (workflowConditional['whenFalseText'] ?? '').toString();
   final whenTrueEmbeds = List<Map<String, dynamic>>.from(
@@ -117,9 +118,7 @@ Future<void> sendWorkflowResponse({
     } catch (_) {}
   }
 
-  autoUpgradeType(
-    (response['components'] as Map?)?.cast<String, dynamic>(),
-  );
+  autoUpgradeType((response['components'] as Map?)?.cast<String, dynamic>());
   var activeModalJson = Map<String, dynamic>.from(
     (response['modal'] as Map?)?.cast<String, dynamic>() ?? const {},
   );
@@ -127,23 +126,21 @@ Future<void> sendWorkflowResponse({
     (response['components'] as Map?)?.cast<String, dynamic>() ?? const {},
   );
   String responseText = (response["text"] ?? "").toString();
-  var embedsRaw =
-      (response['embeds'] is List)
-          ? List<Map<String, dynamic>>.from(
-            (response['embeds'] as List).whereType<Map>().map(
-              (embed) => Map<String, dynamic>.from(embed),
-            ),
-          )
-          : <Map<String, dynamic>>[];
+  var embedsRaw = (response['embeds'] is List)
+      ? List<Map<String, dynamic>>.from(
+          (response['embeds'] as List).whereType<Map>().map(
+            (embed) => Map<String, dynamic>.from(embed),
+          ),
+        )
+      : <Map<String, dynamic>>[];
 
   if (useCondition && conditionVariable.isNotEmpty) {
-    final variableValue =
-        conditionVariable.contains('((')
-            ? resolveTemplatePlaceholders(
-              conditionVariable,
-              runtimeVariables,
-            ).trim()
-            : (runtimeVariables[conditionVariable] ?? '').trim();
+    final variableValue = conditionVariable.contains('((')
+        ? resolveTemplatePlaceholders(
+            conditionVariable,
+            runtimeVariables,
+          ).trim()
+        : (runtimeVariables[conditionVariable] ?? '').trim();
     final conditionMatched = variableValue.isNotEmpty;
     onDebugLog?.call(
       'Condition variable=$conditionVariable matched=$conditionMatched',
@@ -216,44 +213,40 @@ Future<void> sendWorkflowResponse({
             definition.customId,
             runtimeVariables,
           ),
-          components:
-              definition.inputs.map((input) {
-                return ActionRowBuilder(
-                  components: [
-                    TextInputBuilder(
-                      customId: resolveTemplatePlaceholders(
-                        input.customId,
-                        runtimeVariables,
-                      ),
-                      label: resolveTemplatePlaceholders(
-                        input.label,
-                        runtimeVariables,
-                      ),
-                      style:
-                          input.style == BcTextInputStyle.paragraph
-                              ? TextInputStyle.paragraph
-                              : TextInputStyle.short,
-                      placeholder:
-                          input.placeholder.isNotEmpty
-                              ? resolveTemplatePlaceholders(
-                                input.placeholder,
-                                runtimeVariables,
-                              )
-                              : null,
-                      value:
-                          input.defaultValue.isNotEmpty
-                              ? resolveTemplatePlaceholders(
-                                input.defaultValue,
-                                runtimeVariables,
-                              )
-                              : null,
-                      isRequired: input.required,
-                      minLength: input.minLength,
-                      maxLength: input.maxLength,
-                    ),
-                  ],
-                );
-              }).toList(),
+          components: definition.inputs.map((input) {
+            return ActionRowBuilder(
+              components: [
+                TextInputBuilder(
+                  customId: resolveTemplatePlaceholders(
+                    input.customId,
+                    runtimeVariables,
+                  ),
+                  label: resolveTemplatePlaceholders(
+                    input.label,
+                    runtimeVariables,
+                  ),
+                  style: input.style == BcTextInputStyle.paragraph
+                      ? TextInputStyle.paragraph
+                      : TextInputStyle.short,
+                  placeholder: input.placeholder.isNotEmpty
+                      ? resolveTemplatePlaceholders(
+                          input.placeholder,
+                          runtimeVariables,
+                        )
+                      : null,
+                  value: input.defaultValue.isNotEmpty
+                      ? resolveTemplatePlaceholders(
+                          input.defaultValue,
+                          runtimeVariables,
+                        )
+                      : null,
+                  isRequired: input.required,
+                  minLength: input.minLength,
+                  maxLength: input.maxLength,
+                ),
+              ],
+            );
+          }).toList(),
         );
 
         if (interaction is ApplicationCommandInteraction) {
@@ -273,13 +266,12 @@ Future<void> sendWorkflowResponse({
         // Auto-register listener if inline actions are provided
         if (definition.actions.isNotEmpty) {
           InteractionListenerRegistry.instance.register(
-            resolveTemplatePlaceholders(
-              definition.customId,
-              runtimeVariables,
-            ),
+            resolveTemplatePlaceholders(definition.customId, runtimeVariables),
             ListenerEntry(
               botId: botId,
-              inlineActions: definition.actions.map((a) => Action.fromJson(a)).toList(),
+              inlineActions: definition.actions
+                  .map((a) => Action.fromJson(a))
+                  .toList(),
               expiresAt: DateTime.now().add(const Duration(hours: 1)),
               type: 'modal',
               oneShot: true,
@@ -318,11 +310,10 @@ Future<void> sendWorkflowResponse({
     }
 
     Uri? resolveEmbedUri(dynamic raw) {
-      final resolved =
-          resolveTemplatePlaceholders(
-            (raw ?? '').toString(),
-            runtimeVariables,
-          ).trim();
+      final resolved = resolveTemplatePlaceholders(
+        (raw ?? '').toString(),
+        runtimeVariables,
+      ).trim();
       if (resolved.isEmpty) {
         return null;
       }
@@ -360,11 +351,10 @@ Future<void> sendWorkflowResponse({
       );
       if (timestamp != null) embed.timestamp = timestamp;
 
-      final colorRaw =
-          resolveTemplatePlaceholders(
-            (embedJson['color'] ?? '').toString(),
-            runtimeVariables,
-          ).trim();
+      final colorRaw = resolveTemplatePlaceholders(
+        (embedJson['color'] ?? '').toString(),
+        runtimeVariables,
+      ).trim();
       if (colorRaw.isNotEmpty) {
         int? colorInt;
         if (colorRaw.startsWith('#')) {
@@ -435,8 +425,8 @@ Future<void> sendWorkflowResponse({
 
       final resolvedFields = buildResolvedEmbedFields(
         embedJson: embedJson,
-        resolve:
-            (input) => resolveTemplatePlaceholders(input, runtimeVariables),
+        resolve: (input) =>
+            resolveTemplatePlaceholders(input, runtimeVariables),
       );
       if (resolvedFields.isNotEmpty) {
         embed.fields = resolvedFields;
@@ -472,7 +462,8 @@ Future<void> sendWorkflowResponse({
       }
     }
 
-    final isResponded = interaction != null && isInteractionAcknowledged(interaction);
+    final isResponded =
+        interaction != null && isInteractionAcknowledged(interaction);
 
     final hasCustomResponse =
         responseText.isNotEmpty ||
@@ -484,7 +475,10 @@ Future<void> sendWorkflowResponse({
     // 2. If it's a prefix command/event (interaction is null), we don't need a default fallback message.
     if (!hasCustomResponse) {
       if (isResponded || interaction == null) {
-        onLog?.call('No custom response defined, skipping fallback', botId: botId);
+        onLog?.call(
+          'No custom response defined, skipping fallback',
+          botId: botId,
+        );
         return;
       }
     }
@@ -495,11 +489,11 @@ Future<void> sendWorkflowResponse({
 
     final finalText =
         responseText.isEmpty &&
-                embeds.isEmpty &&
-                (componentNodes?.isEmpty ?? true) &&
-                !useV2Flag // Don't add default text if in V2 mode
-            ? 'No response outputted.'
-            : responseText;
+            embeds.isEmpty &&
+            (componentNodes?.isEmpty ?? true) &&
+            !useV2Flag // Don't add default text if in V2 mode
+        ? 'No response outputted.'
+        : responseText;
 
     if (interaction == null) {
       if (gateway == null || fallbackChannelId == null) {
@@ -510,20 +504,25 @@ Future<void> sendWorkflowResponse({
         return;
       }
       try {
-        final channel = await gateway.channels.get(fallbackChannelId).catchError((e) => gateway.channels.fetch(fallbackChannelId));
+        final channel = await gateway.channels
+            .get(fallbackChannelId)
+            .catchError((e) => gateway.channels.fetch(fallbackChannelId));
         if (channel is! TextChannel) {
-          onLog?.call('Error: Fallback channel is not a text channel', botId: botId);
+          onLog?.call(
+            'Error: Fallback channel is not a text channel',
+            botId: botId,
+          );
           return;
         }
 
         if (useV2Flag) {
           if (activeComponentDefinition != null) {
-             final builder = buildComponentMessage(
-               definition: activeComponentDefinition,
-               resolve: (s) => resolveTemplatePlaceholders(s, runtimeVariables),
-             );
-             final message = await channel.sendMessage(builder);
-             responseMessageId = message.id.toString();
+            final builder = buildComponentMessage(
+              definition: activeComponentDefinition,
+              resolve: (s) => resolveTemplatePlaceholders(s, runtimeVariables),
+            );
+            final message = await channel.sendMessage(builder);
+            responseMessageId = message.id.toString();
           }
         } else {
           final builder = MessageBuilder(
@@ -536,7 +535,10 @@ Future<void> sendWorkflowResponse({
         }
         onLog?.call('Response sent to fallback channel', botId: botId);
       } catch (e) {
-        onLog?.call('Error sending response to fallback channel: $e', botId: botId);
+        onLog?.call(
+          'Error sending response to fallback channel: $e',
+          botId: botId,
+        );
       }
     } else if (didDefer) {
       final updateBuilder = CustomMessageUpdateBuilder(
@@ -591,8 +593,8 @@ Future<void> sendWorkflowResponse({
         );
         markInteractionAcknowledged(interaction);
         try {
-          final responseMessage =
-              await (interaction as dynamic).fetchOriginalResponse();
+          final responseMessage = await (interaction as dynamic)
+              .fetchOriginalResponse();
           responseMessageId = responseMessage.id.toString();
         } catch (_) {}
         onLog?.call('Response sent', botId: botId);
@@ -600,8 +602,9 @@ Future<void> sendWorkflowResponse({
         try {
           await (interaction as dynamic).respond(
             MessageBuilder(
-              content:
-                  useV2Flag ? null : (finalText.isEmpty ? null : finalText),
+              content: useV2Flag
+                  ? null
+                  : (finalText.isEmpty ? null : finalText),
               embeds: useV2Flag ? null : (embeds.isEmpty ? null : embeds),
               components: componentNodes,
               flags: flagValue > 0 ? MessageFlags(flagValue) : null,

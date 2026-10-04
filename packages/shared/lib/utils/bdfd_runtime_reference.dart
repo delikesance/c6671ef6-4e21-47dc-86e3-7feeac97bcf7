@@ -75,7 +75,7 @@ Map<String, dynamic> bdfdRuntimeReference({
       'get': r'$getVar[key;userID]',
       'set': r'$setVar[key;value;userID]',
       'reset':
-          r'$resetGlobalUserVar[key;optionalUserID] is a Bot Creator extension. It resets only that user (author by default), not all users.',
+          r'$resetGlobalUserVar[key;optionalUserID] is a Bot Creator extension. With a user ID it resets only that user; WITHOUT one it resets the variable for EVERY user, so pass $authorID to reset only the author.',
     },
     'guildMember': {
       'meaning': 'A separate value for each server/member pair.',

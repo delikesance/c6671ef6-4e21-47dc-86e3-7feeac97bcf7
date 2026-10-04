@@ -299,10 +299,7 @@ class CommandExecutor {
       ),
     );
     try {
-      await execution.execute(
-        scriptSource,
-        backend: backend,
-      );
+      await execution.execute(scriptSource, backend: backend);
     } catch (error) {
       callbacks.onLog?.call('BDFD execution failed: $error', botId: botId);
       await _sendErrorResponse(

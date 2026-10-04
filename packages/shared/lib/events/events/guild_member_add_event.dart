@@ -5,7 +5,7 @@ EventExecutionContext buildGuildMemberAddEventContext(
 ) {
   final member = event.member;
   final user = member.user;
-  
+
   return _baseEventContext(
     eventName: 'guildMemberAdd',
     guildId: event.guildId,

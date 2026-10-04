@@ -34,7 +34,8 @@ class BotEngineCallbacks {
     String commandLabel,
     List<Map<String, dynamic>> frames,
     int totalMs,
-  )? onReplayCaptured;
+  )?
+  onReplayCaptured;
 
   /// Returns whether debug replay capturing is enabled for a bot.
   final bool Function(String botId)? isDebugReplayCapturing;

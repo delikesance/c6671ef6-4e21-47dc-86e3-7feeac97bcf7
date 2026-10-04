@@ -67,10 +67,7 @@ Future<bool> executeWebhooksAction({
       return true;
 
     case BotCreatorActionType.getWebhook:
-      final result = await service.get(
-        payload: payload,
-        resolve: resolveValue,
-      );
+      final result = await service.get(payload: payload, resolve: resolveValue);
       if (result['error'] != null) {
         throw Exception(result['error']);
       }

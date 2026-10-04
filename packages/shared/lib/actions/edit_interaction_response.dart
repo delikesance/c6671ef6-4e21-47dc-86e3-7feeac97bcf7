@@ -26,16 +26,15 @@ Future<Map<String, dynamic>> editInteractionMessageAction(
     final clearEmbeds = payload['clearEmbeds'] == true;
     final clearComponents = payload['clearComponents'] == true;
 
-    final embedsRaw =
-        (payload['embeds'] is List)
-            ? List<Map<String, dynamic>>.from(
-              (payload['embeds'] as List).whereType<Map>().map(
-                (embed) => Map<String, dynamic>.from(
-                  embed.map((key, value) => MapEntry(key.toString(), value)),
-                ),
+    final embedsRaw = (payload['embeds'] is List)
+        ? List<Map<String, dynamic>>.from(
+            (payload['embeds'] as List).whereType<Map>().map(
+              (embed) => Map<String, dynamic>.from(
+                embed.map((key, value) => MapEntry(key.toString(), value)),
               ),
-            )
-            : <Map<String, dynamic>>[];
+            ),
+          )
+        : <Map<String, dynamic>>[];
     final shouldUpdateEmbeds = clearEmbeds || payload['embeds'] is List;
     final embeds = <EmbedBuilder>[];
     if (!clearEmbeds) {
@@ -99,7 +98,9 @@ Future<Map<String, dynamic>> editInteractionMessageAction(
           (authorJson['author_icon_url'] ?? authorJson['icon_url'] ?? '')
               .toString(),
         );
-        if (authorName.isNotEmpty || authorUrl.isNotEmpty || authorIcon.isNotEmpty) {
+        if (authorName.isNotEmpty ||
+            authorUrl.isNotEmpty ||
+            authorIcon.isNotEmpty) {
           embed.author = EmbedAuthorBuilder(
             name: authorName.isEmpty ? '\u200B' : authorName,
             url: authorUrl.isNotEmpty ? Uri.tryParse(authorUrl) : null,
@@ -167,7 +168,8 @@ Future<Map<String, dynamic>> editInteractionMessageAction(
     }
 
     final Message message;
-    if (interaction is MessageComponentInteraction && !isInteractionAcknowledged(interaction)) {
+    if (interaction is MessageComponentInteraction &&
+        !isInteractionAcknowledged(interaction)) {
       await interaction.respond(builder, updateMessage: true);
       markInteractionAcknowledged(interaction);
       Message? tempMsg = interaction.message;
@@ -188,7 +190,9 @@ Future<Map<String, dynamic>> editInteractionMessageAction(
       }
       Message tempMsg;
       try {
-        tempMsg = await (msgInteraction as dynamic).updateOriginalResponse(builder) as Message;
+        tempMsg =
+            await (msgInteraction as dynamic).updateOriginalResponse(builder)
+                as Message;
       } catch (_) {
         tempMsg = interaction.message ?? _FakeMessage(id: Snowflake(0));
       }

@@ -8,6 +8,50 @@ const _leaderUsers = {
 };
 
 final sandboxVariableFunctionCases = [
+  SandboxFunctionCase(
+    'resetglobaluservar',
+    r'$resetGlobalUserVar[score;20]|$getVar[score;20]|$getVar[score;21]',
+    0,
+    '|7|80',
+    label: 'with a user ID, resets only that user in the global-user storage',
+    scenario: {
+      'scoped': {
+        'user': {
+          '20': {'score': 9},
+          '21': {'score': 80},
+        },
+      },
+      'definitions': [
+        {'scope': 'user', 'key': 'score', 'defaultValue': 7},
+      ],
+    },
+    expectedValues: {
+      '/storage_after/scoped/user/20/score': 7,
+      '/storage_after/scoped/user/21/score': 80,
+    },
+  ),
+  SandboxFunctionCase(
+    'resetglobaluservar',
+    r'$resetGlobalUserVar[score]|$getVar[score;20]|$getVar[score;21]',
+    0,
+    '|7|7',
+    label: 'without a user ID, resets the variable for every user',
+    scenario: {
+      'scoped': {
+        'user': {
+          '20': {'score': 9},
+          '21': {'score': 80},
+        },
+      },
+      'definitions': [
+        {'scope': 'user', 'key': 'score', 'defaultValue': 7},
+      ],
+    },
+    expectedValues: {
+      '/storage_after/scoped/user/20/score': 7,
+      '/storage_after/scoped/user/21/score': 7,
+    },
+  ),
   // Wiki: resets to the app-declared default for every context (or only the
   // provided user for user-scoped functions).
   for (final item in [

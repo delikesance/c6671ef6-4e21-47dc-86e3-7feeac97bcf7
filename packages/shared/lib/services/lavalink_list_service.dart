@@ -55,8 +55,8 @@ class LavalinkServerEntry {
 
   /// Badge URL for this server's status.
   Uri badgeUrl(String type) => Uri.parse(
-        'https://lavalink-list-api.ajieblogs.eu.org/$uniqueId/badge/$type',
-      );
+    'https://lavalink-list-api.ajieblogs.eu.org/$uniqueId/badge/$type',
+  );
 }
 
 /// Service that fetches the public Lavalink server list.
@@ -80,7 +80,9 @@ class LavalinkListService {
   DateTime? _lastFetch;
 
   /// Returns cached servers if less than 5 minutes old, otherwise fetches fresh.
-  Future<List<LavalinkServerEntry>> getServers({bool forceRefresh = false}) async {
+  Future<List<LavalinkServerEntry>> getServers({
+    bool forceRefresh = false,
+  }) async {
     if (!forceRefresh && _cached != null && _lastFetch != null) {
       final age = DateTime.now().difference(_lastFetch!);
       if (age < const Duration(minutes: 5)) {

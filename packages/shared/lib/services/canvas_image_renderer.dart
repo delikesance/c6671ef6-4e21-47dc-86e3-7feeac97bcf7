@@ -111,7 +111,10 @@ Future<void> executeRuntimeImageBlock({
       if (op is! Map) continue;
       final opName = (op['op'] ?? '').toString();
       if (opName == 'loadImage' || opName == 'compositeImage') {
-        final source = resolveTemplatePlaceholders((op['url'] ?? op['dataUrl'] ?? '').toString(), context).trim();
+        final source = resolveTemplatePlaceholders(
+          (op['url'] ?? op['dataUrl'] ?? '').toString(),
+          context,
+        ).trim();
         if (source.startsWith('http://') || source.startsWith('https://')) {
           if (!preloadedImages.containsKey(source)) {
             final bytes = await resolveImageSource(source);
@@ -126,7 +129,9 @@ Future<void> executeRuntimeImageBlock({
 
   // Offload CPU-bound rendering to separate isolate to avoid blocking main event loop
   // and release all allocated image memory (spikes) back to OS when isolate exits.
-  final result = await Isolate.run(() => _executeImageBlockInIsolate(payload, context, preloadedImages));
+  final result = await Isolate.run(
+    () => _executeImageBlockInIsolate(payload, context, preloadedImages),
+  );
 
   final base64Png = result.base64Png;
   if (base64Png.isNotEmpty) {
@@ -189,12 +194,24 @@ Future<({String base64Png, String imageName})> _executeImageBlockInIsolate(
           canvas = _opCreate(adjustedOp, resolveValue);
           break;
         case 'loadImage':
-          canvas = await _opLoadImage(adjustedOp, resolveValue, canvas,
-              urlCache: urlCache, client: client, preloadedImages: preloadedImages);
+          canvas = await _opLoadImage(
+            adjustedOp,
+            resolveValue,
+            canvas,
+            urlCache: urlCache,
+            client: client,
+            preloadedImages: preloadedImages,
+          );
           break;
         case 'compositeImage':
-          canvas = await _opCompositeImage(adjustedOp, resolveValue, canvas,
-              urlCache: urlCache, client: client, preloadedImages: preloadedImages);
+          canvas = await _opCompositeImage(
+            adjustedOp,
+            resolveValue,
+            canvas,
+            urlCache: urlCache,
+            client: client,
+            preloadedImages: preloadedImages,
+          );
           break;
         case 'drawText':
           canvas = _opDrawText(adjustedOp, resolveValue, canvas);
@@ -269,8 +286,12 @@ Future<void> executeAttachImage({
   required Map<String, String> variables,
   required String Function(String input) resolveValue,
 }) async {
-  final imageName = resolveValue((payload['imageName'] ?? '').toString()).trim();
-  final imageSource = resolveValue((payload['imageSource'] ?? '').toString()).trim();
+  final imageName = resolveValue(
+    (payload['imageName'] ?? '').toString(),
+  ).trim();
+  final imageSource = resolveValue(
+    (payload['imageSource'] ?? '').toString(),
+  ).trim();
 
   if (imageName.isEmpty) {
     throw Exception('attachImage: imageName is required');
@@ -305,14 +326,20 @@ String _resolve(dynamic raw, String Function(String) resolveValue) {
   return s;
 }
 
-int _parseInt(dynamic raw, String Function(String) resolveValue,
-    {int defaultValue = 0}) {
+int _parseInt(
+  dynamic raw,
+  String Function(String) resolveValue, {
+  int defaultValue = 0,
+}) {
   final s = _resolve(raw, resolveValue);
   return int.tryParse(s) ?? defaultValue;
 }
 
-bool _parseBool(dynamic raw, String Function(String) resolveValue,
-    {bool defaultValue = false}) {
+bool _parseBool(
+  dynamic raw,
+  String Function(String) resolveValue, {
+  bool defaultValue = false,
+}) {
   final s = _resolve(raw, resolveValue).toLowerCase().trim();
   if (s == 'true' || s == 'yes' || s == '1') return true;
   if (s == 'false' || s == 'no' || s == '0') return false;
@@ -415,8 +442,12 @@ Future<Uint8List?> resolveImageSource(
     }
     try {
       final response = client != null
-          ? await client.get(Uri.parse(source)).timeout(const Duration(seconds: 15))
-          : await http.get(Uri.parse(source)).timeout(const Duration(seconds: 15));
+          ? await client
+                .get(Uri.parse(source))
+                .timeout(const Duration(seconds: 15))
+          : await http
+                .get(Uri.parse(source))
+                .timeout(const Duration(seconds: 15));
       if (response.statusCode == 200 && response.bodyBytes.isNotEmpty) {
         urlCache?[source] = response.bodyBytes;
         return response.bodyBytes;
@@ -450,10 +481,16 @@ Future<Uint8List?> resolveImageSource(
 // ─── Operation Handlers ───────────────────────────────────────────────────────
 
 img.Image _opCreate(Map rawOp, String Function(String) resolveValue) {
-  final width = _parseInt(rawOp['width'], resolveValue, defaultValue: 400)
-      .clamp(1, _kMaxCanvasDimension);
-  final height = _parseInt(rawOp['height'], resolveValue, defaultValue: 300)
-      .clamp(1, _kMaxCanvasDimension);
+  final width = _parseInt(
+    rawOp['width'],
+    resolveValue,
+    defaultValue: 400,
+  ).clamp(1, _kMaxCanvasDimension);
+  final height = _parseInt(
+    rawOp['height'],
+    resolveValue,
+    defaultValue: 300,
+  ).clamp(1, _kMaxCanvasDimension);
   final color = _parseColor(rawOp['color'], resolveValue);
 
   final canvas = img.Image(width: width, height: height);
@@ -470,11 +507,15 @@ Future<img.Image?> _opLoadImage(
   Map<String, Uint8List>? preloadedImages,
 }) async {
   // Support both 'url' (preferred) and 'dataUrl' (legacy) keys.
-  final source =
-      _resolve(rawOp['url'] ?? rawOp['dataUrl'], resolveValue);
+  final source = _resolve(rawOp['url'] ?? rawOp['dataUrl'], resolveValue);
   if (source.isEmpty) return current;
 
-  final bytes = await resolveImageSource(source, urlCache: urlCache, client: client, preloadedImages: preloadedImages);
+  final bytes = await resolveImageSource(
+    source,
+    urlCache: urlCache,
+    client: client,
+    preloadedImages: preloadedImages,
+  );
   if (bytes == null) return current;
 
   var decoded = img.decodeImage(bytes);
@@ -483,10 +524,12 @@ Future<img.Image?> _opLoadImage(
   // ── Position + resize (editor parity) ──────────────────────────────
   final x = _parseInt(rawOp['x'], resolveValue);
   final y = _parseInt(rawOp['y'], resolveValue);
-  final targetWidth =
-      _parseInt(rawOp['width'], resolveValue, defaultValue: -1);
-  final targetHeight =
-      _parseInt(rawOp['height'], resolveValue, defaultValue: -1);
+  final targetWidth = _parseInt(rawOp['width'], resolveValue, defaultValue: -1);
+  final targetHeight = _parseInt(
+    rawOp['height'],
+    resolveValue,
+    defaultValue: -1,
+  );
 
   if (targetWidth > 0 && targetHeight > 0) {
     decoded = img.copyResize(decoded, width: targetWidth, height: targetHeight);
@@ -512,25 +555,34 @@ Future<img.Image?> _opCompositeImage(
 }) async {
   if (current == null) return null;
 
-  final source =
-      _resolve(rawOp['url'] ?? rawOp['dataUrl'], resolveValue);
+  final source = _resolve(rawOp['url'] ?? rawOp['dataUrl'], resolveValue);
   final x = _parseInt(rawOp['x'], resolveValue);
   final y = _parseInt(rawOp['y'], resolveValue);
-  final targetWidth =
-      _parseInt(rawOp['width'], resolveValue, defaultValue: -1);
-  final targetHeight =
-      _parseInt(rawOp['height'], resolveValue, defaultValue: -1);
+  final targetWidth = _parseInt(rawOp['width'], resolveValue, defaultValue: -1);
+  final targetHeight = _parseInt(
+    rawOp['height'],
+    resolveValue,
+    defaultValue: -1,
+  );
   final shape = _resolve(rawOp['shape'], resolveValue).toLowerCase().trim();
   final blend = _resolve(rawOp['blend'], resolveValue).toLowerCase().trim();
 
-  final bytes = await resolveImageSource(source, urlCache: urlCache, client: client, preloadedImages: preloadedImages);
+  final bytes = await resolveImageSource(
+    source,
+    urlCache: urlCache,
+    client: client,
+    preloadedImages: preloadedImages,
+  );
   if (bytes == null) return current;
 
   var overlay = img.decodeImage(bytes);
   if (overlay != null) {
     if (targetWidth > 0 && targetHeight > 0) {
-      overlay =
-          img.copyResize(overlay, width: targetWidth, height: targetHeight);
+      overlay = img.copyResize(
+        overlay,
+        width: targetWidth,
+        height: targetHeight,
+      );
     }
     if (shape == 'circle' ||
         shape == 'round' ||
@@ -710,8 +762,14 @@ img.Image _makeCircular(img.Image src) {
       if (alpha > 0) {
         final srcPixel = src.getPixel(x, y);
         final a = (srcPixel.a * alpha).round();
-        circular.setPixelRgba(x, y,
-            srcPixel.r.toInt(), srcPixel.g.toInt(), srcPixel.b.toInt(), a);
+        circular.setPixelRgba(
+          x,
+          y,
+          srcPixel.r.toInt(),
+          srcPixel.g.toInt(),
+          srcPixel.b.toInt(),
+          a,
+        );
       } else {
         circular.setPixelRgba(x, y, 0, 0, 0, 0);
       }
@@ -797,7 +855,10 @@ img.Image _makeTriangle(img.Image src) {
 }
 
 img.Image? _opDrawText(
-    Map rawOp, String Function(String) resolveValue, img.Image? current) {
+  Map rawOp,
+  String Function(String) resolveValue,
+  img.Image? current,
+) {
   if (current == null) return null;
 
   final text = _resolve(rawOp['text'], resolveValue);
@@ -805,10 +866,12 @@ img.Image? _opDrawText(
 
   final x = _parseInt(rawOp['x'], resolveValue);
   final y = _parseInt(rawOp['y'], resolveValue);
-  final fontSize =
-      _parseInt(rawOp['fontSize'], resolveValue, defaultValue: 14);
+  final fontSize = _parseInt(rawOp['fontSize'], resolveValue, defaultValue: 14);
   final color = _parseColor(rawOp['color'], resolveValue);
-  final textAlign = _resolve(rawOp['textAlign'], resolveValue).toLowerCase().trim();
+  final textAlign = _resolve(
+    rawOp['textAlign'],
+    resolveValue,
+  ).toLowerCase().trim();
   final maxWidth = _parseInt(rawOp['maxWidth'], resolveValue, defaultValue: -1);
 
   final font = _selectFont(fontSize);
@@ -843,7 +906,10 @@ int _measureTextWidth(String text, img.BitmapFont font) {
 }
 
 img.Image? _opDrawCircle(
-    Map rawOp, String Function(String) resolveValue, img.Image? current) {
+  Map rawOp,
+  String Function(String) resolveValue,
+  img.Image? current,
+) {
   if (current == null) return null;
 
   final x = _parseInt(rawOp['x'], resolveValue);
@@ -887,7 +953,10 @@ img.Image? _opDrawCircle(
 }
 
 img.Image? _opDrawRect(
-    Map rawOp, String Function(String) resolveValue, img.Image? current) {
+  Map rawOp,
+  String Function(String) resolveValue,
+  img.Image? current,
+) {
   if (current == null) return null;
 
   final x = _parseInt(rawOp['x'], resolveValue);
@@ -906,11 +975,9 @@ img.Image? _opDrawRect(
   if (blend.isEmpty || blend == 'normal' || blend == 'srcover') {
     // Fast path: standard fill/draw via the image package.
     if (fill) {
-      img.fillRect(current,
-          x1: x1, y1: y1, x2: x2, y2: y2, color: color);
+      img.fillRect(current, x1: x1, y1: y1, x2: x2, y2: y2, color: color);
     } else {
-      img.drawRect(current,
-          x1: x1, y1: y1, x2: x2, y2: y2, color: color);
+      img.drawRect(current, x1: x1, y1: y1, x2: x2, y2: y2, color: color);
     }
   } else {
     // Blended path: per-pixel blend.
@@ -939,7 +1006,10 @@ img.Image? _opDrawRect(
 /// - `thickness` (int, default 1): Line width in pixels
 /// - `blend` (string, optional): Blend mode (multiply, screen, overlay, etc.)
 img.Image? _opDrawLine(
-    Map rawOp, String Function(String) resolveValue, img.Image? current) {
+  Map rawOp,
+  String Function(String) resolveValue,
+  img.Image? current,
+) {
   if (current == null) return null;
 
   var x1 = _parseInt(rawOp['x1'], resolveValue);
@@ -947,8 +1017,11 @@ img.Image? _opDrawLine(
   final x2 = _parseInt(rawOp['x2'], resolveValue);
   final y2 = _parseInt(rawOp['y2'], resolveValue);
   final color = _parseColor(rawOp['color'], resolveValue);
-  final thickness =
-      _parseInt(rawOp['thickness'], resolveValue, defaultValue: 1).clamp(1, 100);
+  final thickness = _parseInt(
+    rawOp['thickness'],
+    resolveValue,
+    defaultValue: 1,
+  ).clamp(1, 100);
   final blend = _resolve(rawOp['blend'], resolveValue).toLowerCase().trim();
   final useBlend = blend.isNotEmpty && blend != 'normal' && blend != 'srcover';
 
@@ -1000,12 +1073,9 @@ img.Image? _opDrawLine(
     final perpDy = len > 0 ? (lineDx / len * 1000).round() : 0;
 
     // Normalize perpendicular
-    final perpLen =
-        (perpDx * perpDx + perpDy * perpDy).toDouble();
-    final normX =
-        perpLen > 0 ? (perpDx / perpLen * halfThick).round() : 0;
-    final normY =
-        perpLen > 0 ? (perpDy / perpLen * halfThick).round() : 0;
+    final perpLen = (perpDx * perpDx + perpDy * perpDy).toDouble();
+    final normX = perpLen > 0 ? (perpDx / perpLen * halfThick).round() : 0;
+    final normY = perpLen > 0 ? (perpDy / perpLen * halfThick).round() : 0;
 
     for (final pt in points) {
       final px = pt.$1;
@@ -1060,7 +1130,15 @@ bool _isInsideRoundRect(int px, int py, int x, int y, int w, int h, int r) {
   return true;
 }
 
-void _fillRoundRect(img.Image dst, int x, int y, int w, int h, int r, img.Color color) {
+void _fillRoundRect(
+  img.Image dst,
+  int x,
+  int y,
+  int w,
+  int h,
+  int r,
+  img.Color color,
+) {
   if (r <= 0) {
     img.fillRect(dst, x1: x, y1: y, x2: x + w, y2: y + h, color: color);
     return;
@@ -1073,7 +1151,14 @@ void _fillRoundRect(img.Image dst, int x, int y, int w, int h, int r, img.Color 
   // Left side rect
   img.fillRect(dst, x1: x, y1: y + r, x2: x + r, y2: y + h - r, color: color);
   // Right side rect
-  img.fillRect(dst, x1: x + w - r, y1: y + r, x2: x + w, y2: y + h - r, color: color);
+  img.fillRect(
+    dst,
+    x1: x + w - r,
+    y1: y + r,
+    x2: x + w,
+    y2: y + h - r,
+    color: color,
+  );
 
   // Four corners
   img.fillCircle(dst, x: x + r, y: y + r, radius: r, color: color);
@@ -1082,8 +1167,19 @@ void _fillRoundRect(img.Image dst, int x, int y, int w, int h, int r, img.Color 
   img.fillCircle(dst, x: x + w - r, y: y + h - r, radius: r, color: color);
 }
 
-void _fillRoundRectClipped(img.Image dst, int rx, int ry, int rw, int rh, int r,
-    int fx, int fy, int fw, int fh, img.Color color) {
+void _fillRoundRectClipped(
+  img.Image dst,
+  int rx,
+  int ry,
+  int rw,
+  int rh,
+  int r,
+  int fx,
+  int fy,
+  int fw,
+  int fh,
+  img.Color color,
+) {
   final minX = fx;
   final maxX = fx + fw;
   final minY = fy;
@@ -1097,16 +1193,39 @@ void _fillRoundRectClipped(img.Image dst, int rx, int ry, int rw, int rh, int r,
   }
 }
 
-void _drawRoundRectOutline(img.Image dst, int x, int y, int w, int h, int r, int bw, img.Color color) {
+void _drawRoundRectOutline(
+  img.Image dst,
+  int x,
+  int y,
+  int w,
+  int h,
+  int r,
+  int bw,
+  img.Color color,
+) {
   if (r <= 0) {
     // Top
     img.fillRect(dst, x1: x, y1: y, x2: x + w, y2: y + bw, color: color);
     // Bottom
-    img.fillRect(dst, x1: x, y1: y + h - bw, x2: x + w, y2: y + h, color: color);
+    img.fillRect(
+      dst,
+      x1: x,
+      y1: y + h - bw,
+      x2: x + w,
+      y2: y + h,
+      color: color,
+    );
     // Left
     img.fillRect(dst, x1: x, y1: y, x2: x + bw, y2: y + h, color: color);
     // Right
-    img.fillRect(dst, x1: x + w - bw, y1: y, x2: x + w, y2: y + h, color: color);
+    img.fillRect(
+      dst,
+      x1: x + w - bw,
+      y1: y,
+      x2: x + w,
+      y2: y + h,
+      color: color,
+    );
     return;
   }
   final minX = x;
@@ -1116,7 +1235,15 @@ void _drawRoundRectOutline(img.Image dst, int x, int y, int w, int h, int r, int
   for (var py = minY; py < maxY; py++) {
     for (var px = minX; px < maxX; px++) {
       final inOuter = _isInsideRoundRect(px, py, x, y, w, h, r);
-      final inInner = _isInsideRoundRect(px, py, x + bw, y + bw, w - 2 * bw, h - 2 * bw, r - bw);
+      final inInner = _isInsideRoundRect(
+        px,
+        py,
+        x + bw,
+        y + bw,
+        w - 2 * bw,
+        h - 2 * bw,
+        r - bw,
+      );
       if (inOuter && !inInner) {
         dst.setPixelRgba(px, py, color.r, color.g, color.b, color.a);
       }
@@ -1139,38 +1266,53 @@ void _drawRoundRectOutline(img.Image dst, int x, int y, int w, int h, int r, int
 /// - `fontSize` (default 14) — percentage label size
 /// - `borderRadius` (default 0) — corners rounding radius
 img.Image? _opProgressBar(
-    Map rawOp, String Function(String) resolveValue, img.Image? current) {
+  Map rawOp,
+  String Function(String) resolveValue,
+  img.Image? current,
+) {
   if (current == null) return null;
 
   final x = _parseInt(rawOp['x'], resolveValue);
   final y = _parseInt(rawOp['y'], resolveValue);
   final width = _parseInt(rawOp['width'], resolveValue, defaultValue: 100);
   final height = _parseInt(rawOp['height'], resolveValue, defaultValue: 20);
-  var percentage =
-      _parseInt(rawOp['percentage'], resolveValue, defaultValue: 0);
+  var percentage = _parseInt(
+    rawOp['percentage'],
+    resolveValue,
+    defaultValue: 0,
+  );
   if (percentage < 0) percentage = 0;
   if (percentage > 100) percentage = 100;
   final barColor = _parseColor(rawOp['barColor'], resolveValue);
   final trackColor = _parseColor(rawOp['trackColor'], resolveValue);
   final textColor = _parseColor(rawOp['textColor'], resolveValue);
-  final borderWidth =
-      _parseInt(rawOp['borderWidth'], resolveValue, defaultValue: 0)
-          .clamp(0, 50);
+  final borderWidth = _parseInt(
+    rawOp['borderWidth'],
+    resolveValue,
+    defaultValue: 0,
+  ).clamp(0, 50);
   final vertical =
       _resolve(rawOp['orientation'], resolveValue).toLowerCase().trim() ==
-          'vertical';
-  final fontSize =
-      _parseInt(rawOp['fontSize'], resolveValue, defaultValue: 14);
-  final borderRadius =
-      _parseInt(rawOp['borderRadius'], resolveValue, defaultValue: 0)
-          .clamp(0, 500);
+      'vertical';
+  final fontSize = _parseInt(rawOp['fontSize'], resolveValue, defaultValue: 14);
+  final borderRadius = _parseInt(
+    rawOp['borderRadius'],
+    resolveValue,
+    defaultValue: 0,
+  ).clamp(0, 500);
 
   // Track (full bar area).
   if (borderRadius > 0) {
     _fillRoundRect(current, x, y, width, height, borderRadius, trackColor);
   } else {
-    img.fillRect(current,
-        x1: x, y1: y, x2: x + width, y2: y + height, color: trackColor);
+    img.fillRect(
+      current,
+      x1: x,
+      y1: y,
+      x2: x + width,
+      y2: y + height,
+      color: trackColor,
+    );
   }
 
   // Filled portion.
@@ -1179,26 +1321,56 @@ img.Image? _opProgressBar(
     final fillH = (height * fill).round();
     if (fillH > 0) {
       if (borderRadius > 0) {
-        _fillRoundRectClipped(current, x, y, width, height, borderRadius,
-            x, y + height - fillH, width, fillH, barColor);
+        _fillRoundRectClipped(
+          current,
+          x,
+          y,
+          width,
+          height,
+          borderRadius,
+          x,
+          y + height - fillH,
+          width,
+          fillH,
+          barColor,
+        );
       } else {
-        img.fillRect(current,
-            x1: x,
-            y1: y + height - fillH,
-            x2: x + width,
-            y2: y + height,
-            color: barColor);
+        img.fillRect(
+          current,
+          x1: x,
+          y1: y + height - fillH,
+          x2: x + width,
+          y2: y + height,
+          color: barColor,
+        );
       }
     }
   } else {
     final fillW = (width * fill).round();
     if (fillW > 0) {
       if (borderRadius > 0) {
-        _fillRoundRectClipped(current, x, y, width, height, borderRadius,
-            x, y, fillW, height, barColor);
+        _fillRoundRectClipped(
+          current,
+          x,
+          y,
+          width,
+          height,
+          borderRadius,
+          x,
+          y,
+          fillW,
+          height,
+          barColor,
+        );
       } else {
-        img.fillRect(current,
-            x1: x, y1: y, x2: x + fillW, y2: y + height, color: barColor);
+        img.fillRect(
+          current,
+          x1: x,
+          y1: y,
+          x2: x + fillW,
+          y2: y + height,
+          color: barColor,
+        );
       }
     }
   }
@@ -1206,25 +1378,50 @@ img.Image? _opProgressBar(
   // Border frame (in barColor by default — BDFD has no separate border color arg).
   if (borderWidth > 0) {
     if (borderRadius > 0) {
-      _drawRoundRectOutline(current, x, y, width, height, borderRadius, borderWidth, barColor);
+      _drawRoundRectOutline(
+        current,
+        x,
+        y,
+        width,
+        height,
+        borderRadius,
+        borderWidth,
+        barColor,
+      );
     } else {
       final bw = borderWidth;
-      img.fillRect(current,
-          x1: x, y1: y, x2: x + width, y2: y + bw, color: barColor);
-      img.fillRect(current,
-          x1: x,
-          y1: y + height - bw,
-          x2: x + width,
-          y2: y + height,
-          color: barColor);
-      img.fillRect(current,
-          x1: x, y1: y, x2: x + bw, y2: y + height, color: barColor);
-      img.fillRect(current,
-          x1: x + width - bw,
-          y1: y,
-          x2: x + width,
-          y2: y + height,
-          color: barColor);
+      img.fillRect(
+        current,
+        x1: x,
+        y1: y,
+        x2: x + width,
+        y2: y + bw,
+        color: barColor,
+      );
+      img.fillRect(
+        current,
+        x1: x,
+        y1: y + height - bw,
+        x2: x + width,
+        y2: y + height,
+        color: barColor,
+      );
+      img.fillRect(
+        current,
+        x1: x,
+        y1: y,
+        x2: x + bw,
+        y2: y + height,
+        color: barColor,
+      );
+      img.fillRect(
+        current,
+        x1: x + width - bw,
+        y1: y,
+        x2: x + width,
+        y2: y + height,
+        color: barColor,
+      );
     }
   }
 
@@ -1244,7 +1441,10 @@ img.Image? _opProgressBar(
 /// Sets a single pixel to [color].
 /// Signature: $canvasSetPixel[x;y;color]
 img.Image? _opSetPixel(
-    Map rawOp, String Function(String) resolveValue, img.Image? current) {
+  Map rawOp,
+  String Function(String) resolveValue,
+  img.Image? current,
+) {
   if (current == null) return null;
   final x = _parseInt(rawOp['x'], resolveValue);
   final y = _parseInt(rawOp['y'], resolveValue);
@@ -1257,7 +1457,10 @@ img.Image? _opSetPixel(
 
 /// Inverts the colors of the whole canvas (RGB channels).
 img.Image? _opInvert(
-    Map rawOp, String Function(String) resolveValue, img.Image? current) {
+  Map rawOp,
+  String Function(String) resolveValue,
+  img.Image? current,
+) {
   if (current == null) return null;
   img.invert(current);
   return current;
@@ -1265,7 +1468,10 @@ img.Image? _opInvert(
 
 /// Converts the whole canvas to grayscale.
 img.Image? _opGrayscale(
-    Map rawOp, String Function(String) resolveValue, img.Image? current) {
+  Map rawOp,
+  String Function(String) resolveValue,
+  img.Image? current,
+) {
   if (current == null) return null;
   img.grayscale(current);
   return current;
@@ -1274,7 +1480,10 @@ img.Image? _opGrayscale(
 /// Rotates the whole canvas by [angle] degrees (returns a new image).
 /// Signature: $canvasRotate[degrees]
 img.Image? _opRotate(
-    Map rawOp, String Function(String) resolveValue, img.Image? current) {
+  Map rawOp,
+  String Function(String) resolveValue,
+  img.Image? current,
+) {
   if (current == null) return null;
   final angle = double.tryParse(_resolve(rawOp['angle'], resolveValue)) ?? 0;
   if (angle == 0) return current;
@@ -1285,8 +1494,13 @@ img.Image? _opRotate(
 /// the named [blendMode] (multiply, screen, overlay, darken, lighten,
 /// difference, hardLight, softLight). Alpha is applied from the source
 /// color's alpha channel.
-void _blendPixel(img.Image dst, int dx, int dy, img.ColorRgba8 src,
-    String blendMode) {
+void _blendPixel(
+  img.Image dst,
+  int dx,
+  int dy,
+  img.ColorRgba8 src,
+  String blendMode,
+) {
   final dp = dst.getPixel(dx, dy);
   final sr = src.r.toInt(), sg = src.g.toInt(), sb = src.b.toInt();
   final dr = dp.r.toInt(), dg = dp.g.toInt(), db = dp.b.toInt();
@@ -1362,7 +1576,10 @@ class _ContainerInfo {
 /// Registers a container from a `container` operation so subsequent
 /// operations can reference it via `container: name`.
 void _registerContainer(
-    Map rawOp, String Function(String) resolveValue, Map<String, _ContainerInfo> containers) {
+  Map rawOp,
+  String Function(String) resolveValue,
+  Map<String, _ContainerInfo> containers,
+) {
   final name = _resolve(rawOp['name'], resolveValue).trim();
   if (name.isEmpty) return;
   final x = _parseInt(rawOp['x'], resolveValue);

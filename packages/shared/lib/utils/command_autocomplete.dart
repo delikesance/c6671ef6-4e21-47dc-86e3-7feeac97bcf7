@@ -60,9 +60,9 @@ Map<String, dynamic>? normalizeSerializedAutocompleteConfig(dynamic raw) {
   if (source['staticChoices'] is List) {
     for (final raw in (source['staticChoices'] as List)) {
       if (raw is! Map) continue;
-      staticChoices.add(Map<String, dynamic>.from(
-        raw.map((k, v) => MapEntry(k.toString(), v)),
-      ));
+      staticChoices.add(
+        Map<String, dynamic>.from(raw.map((k, v) => MapEntry(k.toString(), v))),
+      );
     }
   }
 
@@ -70,9 +70,9 @@ Map<String, dynamic>? normalizeSerializedAutocompleteConfig(dynamic raw) {
   if (source['inlineActions'] is List) {
     for (final raw in (source['inlineActions'] as List)) {
       if (raw is! Map) continue;
-      inlineActions.add(Map<String, dynamic>.from(
-        raw.map((k, v) => MapEntry(k.toString(), v)),
-      ));
+      inlineActions.add(
+        Map<String, dynamic>.from(raw.map((k, v) => MapEntry(k.toString(), v))),
+      );
     }
   }
 
