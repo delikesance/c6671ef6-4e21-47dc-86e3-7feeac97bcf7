@@ -10,13 +10,17 @@ import 'channel_actions.dart';
 import 'component_actions.dart';
 import 'control_flow_actions.dart';
 import 'control_flow_state.dart';
+import 'emoji_actions.dart';
 import 'guild_actions.dart';
+import 'invite_actions.dart';
 import 'listener_actions.dart';
+import 'member_actions.dart';
 import 'message_actions.dart';
 import 'moderation_actions.dart';
 import 'music_actions.dart';
 import 'role_actions.dart';
 import 'variable_actions.dart';
+import 'webhook_actions.dart';
 
 /// Where a statement of a translated program comes from, for diagnostics and
 /// error bookkeeping.
@@ -107,6 +111,10 @@ class ActionTranslator {
     ...messageLeafPredicates,
     ...componentLeafPredicates,
     ...listenerLeafPredicates,
+    ...webhookLeafPredicates,
+    ...emojiLeafPredicates,
+    ...memberLeafPredicates,
+    ...inviteLeafPredicates,
     ...musicLeafPredicates,
   };
 
