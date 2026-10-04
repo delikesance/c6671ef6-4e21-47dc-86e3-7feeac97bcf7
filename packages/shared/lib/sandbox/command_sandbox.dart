@@ -751,15 +751,17 @@ class _SandboxModeration
 
   Map get _webhookFixtures {
     final fixtures = policy.entityGateway?.fixtures;
-    if (fixtures == null)
+    if (fixtures == null) {
       throw StateError('Native webhooks require entity fixtures.');
+    }
     return fixtures.putIfAbsent('webhooks', () => <String, dynamic>{}) as Map;
   }
 
   Map _webhook(BotWebhookReference ref) {
     final row = _webhookFixtures[ref.id];
-    if (row is! Map || row['token'] != ref.token)
+    if (row is! Map || row['token'] != ref.token) {
       throw StateError('Webhook fixture is absent or token does not match.');
+    }
     return row;
   }
 
@@ -839,8 +841,8 @@ class _SandboxModeration
     policy.effects.add({
       'type': 'editWebhook',
       'webhook_id': webhook.id,
-      if (name != null) 'name': name,
-      if (avatarUrl != null) 'avatar_url': avatarUrl,
+      'name': ?name,
+      'avatar_url': ?avatarUrl,
       'simulated': true,
     });
   }
@@ -4513,8 +4515,9 @@ class _SandboxComponents implements BotComponentService {
     budget.check();
     _message(messageId);
     final gateway = policy.entityGateway;
-    if (gateway == null)
+    if (gateway == null) {
       throw StateError('Component edits require entity fixtures.');
+    }
     final bot = _snowflake(variables['bot.id']);
     if (bot == null) {
       throw StateError('Component edits require a numeric bot ID.');

@@ -182,7 +182,7 @@ class BdfdMessageOutput
           ? BotMessageDestination.channel
           : BotMessageDestination.response,
       payload: {
-        if (dmUser != null) 'userId': dmUser,
+        'userId': ?dmUser,
         'content': context.removeLinks
             ? removeBdfdLinks(_text.toString())
             : _text.toString(),

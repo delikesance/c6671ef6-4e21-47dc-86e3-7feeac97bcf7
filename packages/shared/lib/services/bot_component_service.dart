@@ -419,21 +419,27 @@ void validateComponentRows(List<Map<String, dynamic>> rows) {
       continue;
     }
     final children = (row['components'] as List).cast<Map<String, dynamic>>();
-    if (children.isEmpty || children.length > 5)
+    if (children.isEmpty || children.length > 5) {
       throw ArgumentError('Invalid component row size.');
+    }
     for (final child in children) {
       final id = child['customId']?.toString() ?? '';
-      if (id.isNotEmpty && !ids.add(id))
+      if (id.isNotEmpty && !ids.add(id)) {
         throw ArgumentError('Duplicate component custom ID.');
-      if (child['type'] != 'button' && children.length != 1)
+      }
+      if (child['type'] != 'button' && children.length != 1) {
         throw ArgumentError('Select menus require their own row.');
+      }
       if (child['type'] == 'stringSelect') {
         final options = child['options'] as List;
         final maximum = child['maxValues'] as int;
-        if (options.isEmpty || options.length > 25 || maximum > options.length)
+        if (options.isEmpty ||
+            options.length > 25 ||
+            maximum > options.length) {
           throw ArgumentError(
             'Select menu option count does not support its selection bounds.',
           );
+        }
       }
     }
   }

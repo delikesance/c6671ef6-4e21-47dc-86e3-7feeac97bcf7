@@ -70,12 +70,15 @@ MessageBuilder buildBotWebhookMessage(Map<String, dynamic> payload) {
       : <String, dynamic>{};
   final builder = EmbedBuilder();
   if (embed['title'] != null) builder.title = embed['title'] as String;
-  if (embed['description'] != null)
+  if (embed['description'] != null) {
     builder.description = embed['description'] as String;
-  if (embed['url'] != null && embed['title'] != null)
+  }
+  if (embed['url'] != null && embed['title'] != null) {
     builder.url = Uri.parse(embed['url'] as String);
-  if (embed['color'] != null)
+  }
+  if (embed['color'] != null) {
     builder.color = DiscordColor(embed['color'] as int);
+  }
   if (embed['author'] is Map) {
     final author = embed['author'] as Map;
     builder.author = EmbedAuthorBuilder(
@@ -94,14 +97,17 @@ MessageBuilder buildBotWebhookMessage(Map<String, dynamic> payload) {
           : Uri.parse(footer['icon_url'] as String),
     );
   }
-  if (embed['thumbnail'] != null)
+  if (embed['thumbnail'] != null) {
     builder.thumbnail = EmbedThumbnailBuilder(
       url: Uri.parse(embed['thumbnail'] as String),
     );
-  if (embed['image'] != null)
+  }
+  if (embed['image'] != null) {
     builder.image = EmbedImageBuilder(url: Uri.parse(embed['image'] as String));
-  if (embed['timestamp'] != null)
+  }
+  if (embed['timestamp'] != null) {
     builder.timestamp = DateTime.parse(embed['timestamp'] as String);
+  }
   final content = payload['content'] as String? ?? '';
   return MessageBuilder(
     content: content.isEmpty ? null : content,
@@ -111,8 +117,9 @@ MessageBuilder buildBotWebhookMessage(Map<String, dynamic> payload) {
 }
 
 void validateWebhookName(String name) {
-  if (name.trim().length < 2 || name.length > 80)
+  if (name.trim().length < 2 || name.length > 80) {
     throw ArgumentError('Webhook name must contain 2–80 characters.');
+  }
 }
 
 Uri webhookImageUrl(String raw) {
@@ -152,8 +159,9 @@ class DiscordBotWebhookService implements BotWebhookService {
         final buffer = BytesBuilder(copy: false);
         await for (final chunk in response.stream) {
           budget.check();
-          if (buffer.length + chunk.length > 8 * 1024 * 1024)
+          if (buffer.length + chunk.length > 8 * 1024 * 1024) {
             throw StateError('Webhook avatar exceeds 8 MiB.');
+          }
           buffer.add(chunk);
         }
         final bytes = buffer.takeBytes();
@@ -164,8 +172,9 @@ class DiscordBotWebhookService implements BotWebhookService {
           'image/gif': 'gif',
           'image/webp': 'webp',
         }[type];
-        if (bytes.isEmpty || format == null)
+        if (bytes.isEmpty || format == null) {
           throw StateError('Unsupported webhook avatar image.');
+        }
         return ImageBuilder(data: bytes, format: format);
       });
     } finally {
@@ -195,8 +204,9 @@ class DiscordBotWebhookService implements BotWebhookService {
       WebhookBuilder(name: name, channelId: id, avatar: avatar),
     );
     budget.check();
-    if (result.token == null)
+    if (result.token == null) {
       throw StateError('Created webhook has no usable token.');
+    }
     return BotWebhookReference(result.id.toString(), result.token!).url;
   });
 

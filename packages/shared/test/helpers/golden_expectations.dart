@@ -8,8 +8,8 @@ import 'package:test/test.dart';
 /// the historical path it was compared against is gone.
 ///
 /// Every scenario snapshot (effects, results, final variables, error text) is
-/// compared with the stored value; regenerate with `UPDATE_GOLDEN=1 dart test
-/// <file>` and review the diff. Strings over 160 characters (rendered PNGs) are
+/// compared with the stored value; regenerate with
+/// `UPDATE_GOLDEN=1 dart test <file>` and review the diff. Strings over 160 characters (rendered PNGs) are
 /// stored as `<len>:<fnv1a64 hex>` digests.
 
 late String _suite;
@@ -60,7 +60,8 @@ String _digest(String value) {
 }
 
 Object? _normalize(Object? value) {
-  if (value is String) return value.length > 160 ? 'digest:${_digest(value)}' : value;
+  if (value is String)
+    return value.length > 160 ? 'digest:${_digest(value)}' : value;
   if (value is Map) {
     return {for (final e in value.entries) '${e.key}': _normalize(e.value)};
   }

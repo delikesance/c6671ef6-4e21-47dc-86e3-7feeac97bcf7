@@ -93,11 +93,12 @@ Map<String, BdfdNativeFunction> bdfdWebhookFunctions(
         (embed['description'] as String? ?? '').length +
         ((embed['author'] as Map?)?['name'] as String? ?? '').length +
         ((embed['footer'] as Map?)?['text'] as String? ?? '').length;
-    if (length > 6000)
+    if (length > 6000) {
       throw BdfdNativeError(
         'Webhook embed text exceeds 6000 characters.',
         call.location,
       );
+    }
   }
 
   BdfdNativeFunction setter(String field, int limit) => BdfdNativeFunction(
@@ -125,8 +126,9 @@ Map<String, BdfdNativeFunction> bdfdWebhookFunctions(
       handler: (call) async {
         final raw = (await call.argument(0)).trim();
         final id = RegExp(r'^[0-9]+$').hasMatch(raw) ? int.tryParse(raw) : null;
-        if (id == null || id <= 0)
+        if (id == null || id <= 0) {
           throw BdfdNativeError('Invalid channel ID.', call.location);
+        }
         final name = await call.argument(1);
         validateWebhookName(name);
         final avatar = call.argumentCount == 3 ? await call.argument(2) : '';
@@ -216,31 +218,36 @@ Map<String, BdfdNativeFunction> bdfdWebhookFunctions(
         if (at(2).isNotEmpty) embed['url'] = url(at(2), call);
         if (at(3).isNotEmpty) embed['description'] = text(at(3), 4096, call);
         if (at(4).isNotEmpty) embed['color'] = color(at(4), call);
-        if (at(5).isNotEmpty)
+        if (at(5).isNotEmpty) {
           embed['author'] = {
             'name': text(at(5), 256, call),
             if (at(6).isNotEmpty) 'icon_url': url(at(6), call),
           };
-        if (at(7).isNotEmpty)
+        }
+        if (at(7).isNotEmpty) {
           embed['footer'] = {
             'text': text(at(7), 2048, call),
             if (at(8).isNotEmpty) 'icon_url': url(at(8), call),
           };
+        }
         if (at(9).isNotEmpty) embed['thumbnail'] = url(at(9), call);
         if (at(10).isNotEmpty) embed['image'] = url(at(10), call);
         if (at(11).isNotEmpty) {
           final flag = at(11).toLowerCase();
-          if (!{'yes', 'no', 'true', 'false'}.contains(flag))
+          if (!{'yes', 'no', 'true', 'false'}.contains(flag)) {
             throw BdfdNativeError('Invalid timestamp boolean.', call.location);
-          if (flag == 'yes' || flag == 'true')
+          }
+          if (flag == 'yes' || flag == 'true') {
             embed['timestamp'] = call.context.time.instant.toIso8601String();
+          }
         }
         validate(draft, call);
-        if (!_hasMessage(draft))
+        if (!_hasMessage(draft)) {
           throw BdfdNativeError(
             'Webhook message cannot be empty.',
             call.location,
           );
+        }
         await call.context.budget.run(
           () => service.send(ref, draft, budget: call.context.budget),
         );

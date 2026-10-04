@@ -76,7 +76,7 @@ class BdfdEngine {
     BotMessageService? messages,
     BotModerationService? moderation,
     BotComponentService? components,
-    BotTimingService? timing,
+    this._timing,
     BotDelayService delays = const RuntimeBotDelayService(),
     BotWebhookService? webhooks,
     BotCommandQueryService? commandQueries,
@@ -96,7 +96,6 @@ class BdfdEngine {
     BdfdVisualWorkflowRunner? runVisualWorkflow,
     Map<String, BdfdNativeFunction> functions = const {},
   }) : _components = components,
-       _timing = timing,
        _webhooks =
            webhooks ??
            (moderation is BotWebhookService
