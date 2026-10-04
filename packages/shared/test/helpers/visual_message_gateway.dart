@@ -460,6 +460,11 @@ Future<MessageOutcome> messageParity(
     historical.interaction?.calls,
     reason: 'interaction calls',
   );
+  expect(
+    [native.context.response.acknowledged, native.context.response.originalResponseCompleted],
+    [historical.context.response.acknowledged, historical.context.response.originalResponseCompleted],
+    reason: 'host response state',
+  );
   expect(native.results, historical.results, reason: 'results');
   expect(native.variables, historical.variables, reason: 'variables');
   expect(native.errorText, historical.errorText, reason: 'error');
