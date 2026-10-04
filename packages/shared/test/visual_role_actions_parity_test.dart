@@ -7,6 +7,7 @@ import 'package:bot_creator_shared/utils/template_resolver.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:test/test.dart';
 
+import 'helpers/visual_golden.dart';
 import 'helpers/fake_role_gateway.dart';
 import 'helpers/variables_test_helpers.dart';
 
@@ -149,9 +150,10 @@ Future<_Outcome> _parity(
     policy: policy,
     limit: limit,
   );
-  final historical = await run(false);
+  // The historical run goes first: the native outcome is compared as soon as
+  // it is back (a delayed lookup keeps writing into its variables).
+  final historical = parityWithHistorical ? await run(false) : null;
   final native = await run(true);
-  expect(historical.native, 0);
   if (nativePrograms != null) {
     expect(native.native, nativePrograms);
   } else if (expectNative) {
@@ -159,6 +161,19 @@ Future<_Outcome> _parity(
   } else {
     expect(native.native, 0, reason: 'must stay historical');
   }
+  // Explicit expectations of the native path alone (test/golden).
+  _golden.expectSnapshot({
+    'effects': native.effects,
+    'results': native.results,
+    // A timed-out run keeps writing its error variables on its own schedule.
+    'variables': {
+      for (final e in native.variables.entries)
+        if (limit == null || !e.key.startsWith('error.')) e.key: e.value,
+    },
+    'error': native.errorText,
+  });
+  if (historical == null) return native;
+  expect(historical.native, 0);
   expect(native.effects, historical.effects, reason: 'effects');
   expect(native.results, historical.results, reason: 'results');
   expect(native.variables, historical.variables, reason: 'variables');
@@ -171,6 +186,8 @@ Map<String, String> _conditionOn(String variable, String value) => {
   'operator': 'equals',
   'value': value,
 };
+
+final _golden = GoldenFile('visual_role_actions');
 
 void main() {
   for (final type in [

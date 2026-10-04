@@ -1,0 +1,376 @@
+{
+ "createNew creates a role and returns its id #0": {
+  "effects": {
+   "writes": [
+    {
+     "operation": "create",
+     "name": "Staff",
+     "hoist": true,
+     "mentionable": false,
+     "colors": {
+      "primary_color": 16711680
+     },
+     "reason": "Because"
+    }
+   ],
+   "lookups": 2
+  },
+  "results": {
+   "role": "65"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "65",
+   "lastMessageId": "65"
+  },
+  "error": null
+ },
+ "definitions send no default audit reason #0": {
+  "effects": {
+   "writes": [
+    {
+     "operation": "create",
+     "name": "Staff",
+     "hoist": false,
+     "mentionable": false,
+     "colors": {
+      "primary_color": 65280
+     },
+     "reason": null
+    }
+   ],
+   "lookups": 2
+  },
+  "results": {
+   "action_0": "65"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "65",
+   "lastMessageId": "65"
+  },
+  "error": null
+ },
+ "failures a field of the wrong type is wrapped like the executor #0": {
+  "effects": {
+   "writes": [],
+   "lookups": 0
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to modify role: type 'String' is not a subtype of type 'int?' in type cast",
+   "error.command": "addRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to modify role: type 'String' is not a subtype of type 'int?' in type cast"
+ },
+ "failures continue mode records the failure and goes on #0": {
+  "effects": {
+   "writes": [
+    {
+     "operation": "create",
+     "name": "X",
+     "hoist": false,
+     "mentionable": false,
+     "colors": {
+      "primary_color": 16711680
+     },
+     "reason": null
+    }
+   ],
+   "lookups": 2
+  },
+  "results": {
+   "bad": "Error: Exception: Invalid role color",
+   "ok": "65"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Invalid role color",
+   "error.command": "addRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": "",
+   "lastSentMessageId": "65",
+   "lastMessageId": "65"
+  },
+  "error": null
+ },
+ "failures invalid color and permissions #0": {
+  "effects": {
+   "writes": [],
+   "lookups": 0
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Invalid role color",
+   "error.command": "addRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Invalid role color"
+ },
+ "failures invalid color and permissions #1": {
+  "effects": {
+   "writes": [],
+   "lookups": 0
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Invalid role permissions",
+   "error.command": "addRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Invalid role permissions"
+ },
+ "failures invalid color and permissions #2": {
+  "effects": {
+   "writes": [],
+   "lookups": 0
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Invalid role permissions",
+   "error.command": "addRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Invalid role permissions"
+ },
+ "failures missing permission, refusal and missing guild #0": {
+  "effects": {
+   "writes": [],
+   "lookups": 1
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: I do not have permission to create roles. Missing: Manage Roles.",
+   "error.command": "addRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: I do not have permission to create roles. Missing: Manage Roles."
+ },
+ "failures missing permission, refusal and missing guild #1": {
+  "effects": {
+   "writes": [],
+   "lookups": 2
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to createRole user: Bad state: Discord refused creation",
+   "error.command": "addRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to createRole user: Bad state: Discord refused creation"
+ },
+ "failures missing permission, refusal and missing guild #2": {
+  "effects": {
+   "writes": [],
+   "lookups": 0
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: User action requires a guild context",
+   "error.command": "addRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: User action requires a guild context"
+ },
+ "failures service validation errors #0": {
+  "effects": {
+   "writes": [],
+   "lookups": 0
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Invalid role name",
+   "error.command": "addRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Invalid role name"
+ },
+ "failures service validation errors #1": {
+  "effects": {
+   "writes": [],
+   "lookups": 0
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Invalid role ID",
+   "error.command": "removeRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Invalid role ID"
+ },
+ "modify and updateColor update the role #0": {
+  "effects": {
+   "writes": [
+    {
+     "operation": "update",
+     "id": "64",
+     "name": "Renamed",
+     "reason": null
+    },
+    {
+     "operation": "update",
+     "id": "64",
+     "colors": {
+      "primary_color": 1122867
+     },
+     "reason": null
+    }
+   ],
+   "lookups": 4
+  },
+  "results": {
+   "a": "64",
+   "b": "64"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "64",
+   "lastMessageId": "64"
+  },
+  "error": null
+ },
+ "modifyPermissions toggles the named permissions #0": {
+  "effects": {
+   "writes": [
+    {
+     "operation": "update",
+     "id": "64",
+     "permissions": "2048",
+     "reason": null
+    }
+   ],
+   "lookups": 2
+  },
+  "results": {
+   "action_0": "64"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "64",
+   "lastMessageId": "64"
+  },
+  "error": null
+ },
+ "placeholders are resolved before the request is built #0": {
+  "effects": {
+   "writes": [
+    {
+     "operation": "create",
+     "name": "Staff",
+     "hoist": false,
+     "mentionable": false,
+     "colors": {
+      "primary_color": 16711680
+     },
+     "reason": null
+    },
+    {
+     "operation": "delete",
+     "id": "64",
+     "reason": null
+    }
+   ],
+   "lookups": 4
+  },
+  "results": {
+   "a": "65",
+   "b": "64"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "rid": "64",
+   "lastSentMessageId": "64",
+   "lastMessageId": "64"
+  },
+  "error": null
+ },
+ "removeRole carries deleteRole and the same definitions #0": {
+  "effects": {
+   "writes": [
+    {
+     "operation": "delete",
+     "id": "64",
+     "reason": "Bye"
+    }
+   ],
+   "lookups": 2
+  },
+  "results": {
+   "action_0": "64"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "64",
+   "lastMessageId": "64"
+  },
+  "error": null
+ },
+ "removeRole carries deleteRole and the same definitions #1": {
+  "effects": {
+   "writes": [
+    {
+     "operation": "update",
+     "id": "64",
+     "name": "X",
+     "reason": null
+    }
+   ],
+   "lookups": 2
+  },
+  "results": {
+   "action_0": "64"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "64",
+   "lastMessageId": "64"
+  },
+  "error": null
+ }
+}

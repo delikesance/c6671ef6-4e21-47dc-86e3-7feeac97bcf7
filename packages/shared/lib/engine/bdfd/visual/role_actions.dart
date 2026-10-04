@@ -1,4 +1,4 @@
-import '../../../actions/role_definition_actions.dart'
+import '../../../services/bot_moderation_blocks.dart'
     show isRoleDefinitionPayload, roleDefinitionRequest;
 import '../../../services/bot_moderation_service.dart';
 import '../../../services/role_definition.dart';
@@ -6,8 +6,8 @@ import '../../../types/action.dart';
 import '../../execution_budget.dart';
 import 'action_environment.dart';
 
-/// Role actions on the native engine, parity with `addRoleAction` /
-/// `removeRoleAction` (actions/add_role.dart, remove_role.dart): same payload
+/// Role actions on the native engine, parity with the historical `addRoleAction` /
+/// `removeRoleAction` (now services/bot_moderation_blocks.dart): same payload
 /// keys, same request (historical default audit reason included), same result
 /// (`results[key]` = affected user id) and same failure messages. The effect is
 /// the shared [BotModerationService], the service BDFD's `$giveRole`/`$takeRole`

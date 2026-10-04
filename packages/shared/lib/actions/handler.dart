@@ -21,24 +21,18 @@ import '../services/runtime_temporary_variables.dart';
 import 'dart:convert';
 
 import 'package:bot_creator_shared/actions/message_block_actions.dart';
-import 'package:bot_creator_shared/actions/update_automod.dart';
-import 'package:bot_creator_shared/actions/update_guild.dart';
 import 'package:bot_creator_shared/actions/list_members.dart';
 import 'package:bot_creator_shared/actions/get_member.dart';
-import 'package:bot_creator_shared/actions/poll_management.dart';
 import 'package:bot_creator_shared/actions/invite_management.dart';
-import 'package:bot_creator_shared/actions/voice_management.dart';
 import 'package:bot_creator_shared/actions/emoji_management.dart';
-import 'package:bot_creator_shared/actions/automod_management.dart';
-import 'package:bot_creator_shared/actions/guild_onboarding.dart';
-import 'package:bot_creator_shared/actions/update_self_user.dart';
-import 'package:bot_creator_shared/actions/thread_management.dart';
-import 'package:bot_creator_shared/actions/channel_permissions.dart';
-import 'package:bot_creator_shared/actions/ticket_management.dart';
-import 'package:bot_creator_shared/actions/register_guild_commands.dart';
-import 'package:bot_creator_shared/actions/unregister_guild_commands.dart';
 import 'package:bot_creator_shared/actions/send_message.dart';
 import 'package:bot_creator_shared/actions/permission_checks.dart';
+import 'package:bot_creator_shared/services/bot_automod_service.dart';
+import 'package:bot_creator_shared/services/bot_block_discord_actions.dart';
+import 'package:bot_creator_shared/services/bot_channel_blocks.dart';
+import 'package:bot_creator_shared/services/bot_guild_admin_service.dart';
+import 'package:bot_creator_shared/services/bot_poll_service.dart';
+import 'package:bot_creator_shared/services/bot_voice_service.dart';
 import 'package:bot_creator_shared/actions/executors/messaging_executor.dart';
 import 'package:bot_creator_shared/actions/executors/moderation_roles_executor.dart';
 import 'package:bot_creator_shared/actions/executors/reactions_executor.dart';
@@ -61,16 +55,16 @@ import '../utils/component_runtime.dart';
 
 // Helper functions for common action patterns
 
-/// Transitional switch: `handleActions` forwards to the native
-/// [BdfdActionRunner.runList] instead of its historical loop. Off by default;
-/// the historical loop and this flag are deleted together.
-bool handleActionsForwardsToRunList = false;
-
 Snowflake? _resolveSnowflake(String? value) {
   if (value == null || value.trim().isEmpty) return null;
   final parsed = int.tryParse(value.trim());
   return parsed != null ? Snowflake(parsed) : null;
 }
+
+/// Transitional switch: `handleActions` forwards to the native
+/// [BdfdActionRunner.runList] instead of its historical loop. Off by default;
+/// the historical loop and this flag are deleted together.
+bool handleActionsForwardsToRunList = false;
 
 Future<Map<String, String>> handleActions(
   NyxxGateway client,
@@ -120,6 +114,12 @@ Future<Map<String, String>> handleActions(
   CommandExecutionBudget? executionBudget,
 
   /// Chooses, per action, between the native engine and the historical
+  /// executors. `const ActionTranslator.none()` keeps everything historical.
+  ActionTranslator? actionTranslator,
+
+  /// Step limit of each natively translated program (`null`: the default,
+  /// [defaultVisualMaxSteps]). Blocks historically only had the time budget.
+  int? visualMaxSteps,
 
   /// Acknowledgement of the interaction by the root list (see
   /// [VisualAcknowledgement]).
@@ -127,7 +127,7 @@ Future<Map<String, String>> handleActions(
 
   /// Deterministic stopwatch of `debugProfile` lists (tests).
   int Function() Function()? startProfileClock,
-  /// executors. `const ActionTranslator.none()` keeps everything historical.
+}) async {
   if (handleActionsForwardsToRunList) {
     return BdfdActionRunner(
       translator: actionTranslator ?? const ActionTranslator(),
@@ -164,12 +164,6 @@ Future<Map<String, String>> handleActions(
     );
   }
   await acknowledgement?.apply(actions);
-  ActionTranslator? actionTranslator,
-
-  /// Step limit of each natively translated program (`null`: the default,
-  /// [defaultVisualMaxSteps]). Blocks historically only had the time budget.
-  int? visualMaxSteps,
-}) async {
   final budget = executionBudget ?? CommandExecutionBudget();
   return budget.run(
     () => _handleActions(
@@ -783,7 +777,7 @@ Future<Map<String, String>> _handleActions(
         if (action.type == BotCreatorActionType.createChannel &&
             action.payload['isTicket'] == true) {
           if (guildId == null) throw StateError('Tickets require a server');
-          final ticket = await createTicketChannel(
+          final ticket = await createTicketChannelAction(
             client,
             guildId: guildId,
             payload: action.payload,
@@ -1189,23 +1183,21 @@ Future<Map<String, String>> _handleActions(
                 action.payload['ruleId'].toString(),
               );
             }
-            final result = await updateAutoModAction(
+            final result = await DiscordBotAutoModService(
               client,
-              guildId: guildId,
-              payload: resolvedPayload,
-            );
+            ).updateAutoMod(guildId: guildId, payload: resolvedPayload);
             if (result['error'] != null) {
               throw Exception(result['error']);
             }
             results[resultKey] = result['status'] ?? 'OK';
             break;
           case BotCreatorActionType.updateGuild:
-            final result = await updateGuildAction(
-              client,
-              guildId: guildId,
-              payload: action.payload,
-              resolve: resolveValue,
-            );
+            final result = await DiscordBotGuildAdminService(client)
+                .updateGuild(
+                  guildId: guildId,
+                  payload: action.payload,
+                  resolve: resolveValue,
+                );
             if (result['error'] != null) {
               throw Exception(result['error']);
             }
@@ -1215,12 +1207,12 @@ Future<Map<String, String>> _handleActions(
             final resolvedGuildId = _resolveSnowflake(
               resolveValue((action.payload['guildId'] ?? '').toString()),
             );
-            final result = await updateGuildAction(
-              client,
-              guildId: resolvedGuildId ?? guildId,
-              payload: <String, dynamic>{'leave': true},
-              resolve: resolveValue,
-            );
+            final result = await DiscordBotGuildAdminService(client)
+                .updateGuild(
+                  guildId: resolvedGuildId ?? guildId,
+                  payload: <String, dynamic>{'leave': true},
+                  resolve: resolveValue,
+                );
             if (result['error'] != null) {
               throw Exception(result['error']);
             }
@@ -1300,8 +1292,7 @@ Future<Map<String, String>> _handleActions(
               );
               if (permError != null) throw Exception(permError);
             }
-            final pollResult = await createPollAction(
-              client,
+            final pollResult = await DiscordBotPollService(client).createPoll(
               payload: action.payload,
               fallbackChannelId: resolvedFallbackChannelId,
               resolve: resolveValue,
@@ -1338,8 +1329,7 @@ Future<Map<String, String>> _handleActions(
                 action.payload['messageId'].toString(),
               );
             }
-            final endPollResult = await endPollAction(
-              client,
+            final endPollResult = await DiscordBotPollService(client).endPoll(
               payload: resolvedEndPollPayload,
               fallbackChannelId: resolvedFallbackChannelId,
               resolve: resolveValue,
@@ -1416,12 +1406,12 @@ Future<Map<String, String>> _handleActions(
 
           // ─── Voice management ─────────────────────────────────────────────
           case BotCreatorActionType.moveToVoiceChannel:
-            final mvResult = await moveToVoiceChannelAction(
-              client,
-              guildId: guildId,
-              payload: action.payload,
-              resolve: resolveValue,
-            );
+            final mvResult = await DiscordBotVoiceService(client)
+                .moveToVoiceChannel(
+                  guildId: guildId,
+                  payload: action.payload,
+                  resolve: resolveValue,
+                );
             if (mvResult['error'] != null) {
               throw Exception(mvResult['error']);
             }
@@ -1429,12 +1419,12 @@ Future<Map<String, String>> _handleActions(
             break;
 
           case BotCreatorActionType.disconnectFromVoice:
-            final dvResult = await disconnectFromVoiceAction(
-              client,
-              guildId: guildId,
-              payload: action.payload,
-              resolve: resolveValue,
-            );
+            final dvResult = await DiscordBotVoiceService(client)
+                .disconnectFromVoice(
+                  guildId: guildId,
+                  payload: action.payload,
+                  resolve: resolveValue,
+                );
             if (dvResult['error'] != null) {
               throw Exception(dvResult['error']);
             }
@@ -1442,12 +1432,12 @@ Future<Map<String, String>> _handleActions(
             break;
 
           case BotCreatorActionType.serverMuteMember:
-            final smResult = await serverMuteMemberAction(
-              client,
-              guildId: guildId,
-              payload: action.payload,
-              resolve: resolveValue,
-            );
+            final smResult = await DiscordBotVoiceService(client)
+                .serverMuteMember(
+                  guildId: guildId,
+                  payload: action.payload,
+                  resolve: resolveValue,
+                );
             if (smResult['error'] != null) {
               throw Exception(smResult['error']);
             }
@@ -1455,12 +1445,12 @@ Future<Map<String, String>> _handleActions(
             break;
 
           case BotCreatorActionType.serverDeafenMember:
-            final sdResult = await serverDeafenMemberAction(
-              client,
-              guildId: guildId,
-              payload: action.payload,
-              resolve: resolveValue,
-            );
+            final sdResult = await DiscordBotVoiceService(client)
+                .serverDeafenMember(
+                  guildId: guildId,
+                  payload: action.payload,
+                  resolve: resolveValue,
+                );
             if (sdResult['error'] != null) {
               throw Exception(sdResult['error']);
             }
@@ -1520,12 +1510,12 @@ Future<Map<String, String>> _handleActions(
 
           // ─── AutoMod management ───────────────────────────────────────────
           case BotCreatorActionType.createAutoModRule:
-            final camResult = await createAutoModRuleAction(
-              client,
-              guildId: guildId,
-              payload: action.payload,
-              resolve: resolveValue,
-            );
+            final camResult = await DiscordBotAutoModService(client)
+                .createAutoModRule(
+                  guildId: guildId,
+                  payload: action.payload,
+                  resolve: resolveValue,
+                );
             if (camResult['error'] != null) {
               throw Exception(camResult['error']);
             }
@@ -1535,12 +1525,12 @@ Future<Map<String, String>> _handleActions(
             break;
 
           case BotCreatorActionType.deleteAutoModRule:
-            final damResult = await deleteAutoModRuleAction(
-              client,
-              guildId: guildId,
-              payload: action.payload,
-              resolve: resolveValue,
-            );
+            final damResult = await DiscordBotAutoModService(client)
+                .deleteAutoModRule(
+                  guildId: guildId,
+                  payload: action.payload,
+                  resolve: resolveValue,
+                );
             if (damResult['error'] != null) {
               throw Exception(damResult['error']);
             }
@@ -1548,10 +1538,9 @@ Future<Map<String, String>> _handleActions(
             break;
 
           case BotCreatorActionType.listAutoModRules:
-            final lamResult = await listAutoModRulesAction(
+            final lamResult = await DiscordBotAutoModService(
               client,
-              guildId: guildId,
-            );
+            ).listAutoModRules(guildId: guildId);
             if (lamResult['error'] != null) {
               throw Exception(lamResult['error']);
             }
@@ -1562,10 +1551,9 @@ Future<Map<String, String>> _handleActions(
 
           // ─── Guild Onboarding ─────────────────────────────────────────────
           case BotCreatorActionType.getGuildOnboarding:
-            final goResult = await getGuildOnboardingAction(
+            final goResult = await DiscordBotGuildAdminService(
               client,
-              guildId: guildId,
-            );
+            ).getGuildOnboarding(guildId: guildId);
             if (goResult['error'] != null) {
               throw Exception(goResult['error']);
             }
@@ -1576,12 +1564,12 @@ Future<Map<String, String>> _handleActions(
             break;
 
           case BotCreatorActionType.updateGuildOnboarding:
-            final ugoResult = await updateGuildOnboardingAction(
-              client,
-              guildId: guildId,
-              payload: action.payload,
-              resolve: resolveValue,
-            );
+            final ugoResult = await DiscordBotGuildAdminService(client)
+                .updateGuildOnboarding(
+                  guildId: guildId,
+                  payload: action.payload,
+                  resolve: resolveValue,
+                );
             if (ugoResult['error'] != null) {
               throw Exception(ugoResult['error']);
             }

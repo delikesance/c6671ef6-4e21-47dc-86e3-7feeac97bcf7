@@ -114,6 +114,9 @@ class VisualGateway implements NyxxGateway {
   /// `guilds.fetch` returns a guild that records `leave()`.
   bool leaveOnFetch = false;
 
+  /// `guilds.fetch` returns a guild whose `createChannel` is recorded.
+  bool createChannelOnGuild = false;
+
   void record(String operation, Map<String, Object?> data) {
     writes.add({'operation': operation, ...data});
     final failure = failures.remove(operation);
@@ -157,6 +160,36 @@ class _LeavingGuild implements Guild {
   final Snowflake id;
   @override
   Future<void> leave() => gateway.users.leaveGuild(id);
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+/// The fixture guild, whose `createChannel` (private tickets) hits the recorder.
+class _CreatingGuild implements Guild {
+  _CreatingGuild(this.gateway, this.base);
+  final VisualGateway gateway;
+  final Guild base;
+  @override
+  Snowflake get id => base.id;
+  @override
+  Snowflake get ownerId => base.ownerId;
+  @override
+  String get name => base.name;
+  @override
+  List<Role> get roleList => base.roleList;
+  @override
+  RoleManager get roles => base.roles;
+  @override
+  MemberManager get members => base.members;
+  @override
+  Future<T> createChannel<T extends GuildChannel>(
+    GuildChannelBuilder<T> builder, {
+    String? auditLogReason,
+  }) => gateway.guildManager.createGuildChannel<T>(
+    id,
+    builder,
+    auditLogReason: auditLogReason,
+  );
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
@@ -232,7 +265,13 @@ class VisualGuilds implements GuildManager {
       await Future<void>.delayed(gateway.delay);
     }
     if (gateway.leaveOnFetch) return _LeavingGuild(gateway, id);
-    return gateway.fixture.guilds.fetch(id, withCounts: withCounts);
+    final guild = await gateway.fixture.guilds.fetch(
+      id,
+      withCounts: withCounts,
+    );
+    return gateway.createChannelOnGuild
+        ? _CreatingGuild(gateway, guild)
+        : guild;
   }
 
   @override

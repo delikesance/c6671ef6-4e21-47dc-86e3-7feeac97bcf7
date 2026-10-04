@@ -1,0 +1,2213 @@
+{
+ "addThreadMember parity changes the member and mirrors threadId / userId #0": {
+  "effects": [
+   {
+    "operation": "addThreadMember",
+    "thread": "80",
+    "user": "222"
+   }
+  ],
+  "results": {
+   "m": "ADDED"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "m.threadId": "80",
+   "m.userId": "222"
+  },
+  "error": null
+ },
+ "addThreadMember parity reports its failures #0": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: threadId and userId are required for threadAddMember",
+   "error.command": "addThreadMember",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: threadId and userId are required for threadAddMember"
+ },
+ "addThreadMember parity reports its failures #1": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Provided channel is not a thread",
+   "error.command": "addThreadMember",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Provided channel is not a thread"
+ },
+ "addThreadMember parity reports its failures #2": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: I do not have permission to add thread members. Missing: Permission(17179869184).",
+   "error.command": "addThreadMember",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: I do not have permission to add thread members. Missing: Permission(17179869184)."
+ },
+ "addThreadMember parity reports its failures #3": {
+  "effects": [
+   {
+    "operation": "addThreadMember",
+    "thread": "80",
+    "user": "222"
+   }
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to add thread member: Bad state: refused",
+   "error.command": "addThreadMember",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to add thread member: Bad state: refused"
+ },
+ "addThreadMember parity resolves placeholders #0": {
+  "effects": [
+   {
+    "operation": "addThreadMember",
+    "thread": "80",
+    "user": "333"
+   }
+  ],
+  "results": {
+   "action_0": "ADDED"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "t": "80",
+   "u": "333",
+   "action_0.threadId": "80",
+   "action_0.userId": "333"
+  },
+  "error": null
+ },
+ "createChannel parity adapts the options to each channel type #0": {
+  "effects": [
+   {
+    "operation": "createChannel",
+    "guild": "10",
+    "payload": {
+     "name": "x",
+     "type": 2,
+     "parent_id": "31",
+     "nsfw": true,
+     "rate_limit_per_user": 5
+    },
+    "reason": null
+   }
+  ],
+  "results": {
+   "action_0": "800"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "800",
+   "lastMessageId": "800"
+  },
+  "error": null
+ },
+ "createChannel parity adapts the options to each channel type #1": {
+  "effects": [
+   {
+    "operation": "createChannel",
+    "guild": "10",
+    "payload": {
+     "name": "x",
+     "type": 5,
+     "parent_id": "31",
+     "topic": "t",
+     "nsfw": true
+    },
+    "reason": null
+   }
+  ],
+  "results": {
+   "action_0": "800"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "800",
+   "lastMessageId": "800"
+  },
+  "error": null
+ },
+ "createChannel parity adapts the options to each channel type #2": {
+  "effects": [
+   {
+    "operation": "createChannel",
+    "guild": "10",
+    "payload": {
+     "name": "x",
+     "type": 13,
+     "parent_id": "31",
+     "nsfw": true,
+     "rate_limit_per_user": 5
+    },
+    "reason": null
+   }
+  ],
+  "results": {
+   "action_0": "800"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "800",
+   "lastMessageId": "800"
+  },
+  "error": null
+ },
+ "createChannel parity adapts the options to each channel type #3": {
+  "effects": [
+   {
+    "operation": "createChannel",
+    "guild": "10",
+    "payload": {
+     "name": "x",
+     "type": 15,
+     "parent_id": "31",
+     "topic": "t",
+     "nsfw": true,
+     "rate_limit_per_user": 5
+    },
+    "reason": null
+   }
+  ],
+  "results": {
+   "action_0": "800"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "800",
+   "lastMessageId": "800"
+  },
+  "error": null
+ },
+ "createChannel parity adapts the options to each channel type #4": {
+  "effects": [
+   {
+    "operation": "createChannel",
+    "guild": "10",
+    "payload": {
+     "name": "x",
+     "type": 4
+    },
+    "reason": null
+   }
+  ],
+  "results": {
+   "action_0": "800"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "800",
+   "lastMessageId": "800"
+  },
+  "error": null
+ },
+ "createChannel parity adapts the options to each channel type #5": {
+  "effects": [
+   {
+    "operation": "createChannel",
+    "guild": "10",
+    "payload": {
+     "name": "x",
+     "type": 0,
+     "parent_id": "31",
+     "topic": "t",
+     "nsfw": true,
+     "rate_limit_per_user": 5
+    },
+    "reason": null
+   }
+  ],
+  "results": {
+   "action_0": "800"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "800",
+   "lastMessageId": "800"
+  },
+  "error": null
+ },
+ "createChannel parity creates a text channel with every option #0": {
+  "effects": [
+   {
+    "operation": "createChannel",
+    "guild": "10",
+    "payload": {
+     "name": "general",
+     "type": 0,
+     "parent_id": "31",
+     "topic": "Topic",
+     "nsfw": true,
+     "rate_limit_per_user": 120
+    },
+    "reason": "Setup"
+   }
+  ],
+  "results": {
+   "c": "800"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "800",
+   "lastMessageId": "800"
+  },
+  "error": null
+ },
+ "createChannel parity reports its failures #0": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to create channel: Invalid argument(s): Channel name must contain 1 to 100 characters.",
+   "error.command": "createChannel",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to create channel: Invalid argument(s): Channel name must contain 1 to 100 characters."
+ },
+ "createChannel parity reports its failures #1": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: This action requires a guild context",
+   "error.command": "createChannel",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: This action requires a guild context"
+ },
+ "createChannel parity reports its failures #2": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to create channel: Bad state: I do not have permission to create channels. Missing: Manage Channels.",
+   "error.command": "createChannel",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to create channel: Bad state: I do not have permission to create channels. Missing: Manage Channels."
+ },
+ "createChannel parity reports its failures #3": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to create channel: Invalid argument(s): Parent must be a category in the target guild.",
+   "error.command": "createChannel",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to create channel: Invalid argument(s): Parent must be a category in the target guild."
+ },
+ "createChannel parity reports its failures #4": {
+  "effects": [
+   {
+    "operation": "createChannel",
+    "guild": "10",
+    "payload": {
+     "name": "x",
+     "type": 0
+    },
+    "reason": null
+   }
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to create channel: Bad state: refused",
+   "error.command": "createChannel",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to create channel: Bad state: refused"
+ },
+ "createChannel parity resolves placeholders and reads earlier results #0": {
+  "effects": [
+   {
+    "operation": "createChannel",
+    "guild": "10",
+    "payload": {
+     "name": "room",
+     "type": 0
+    },
+    "reason": null
+   },
+   {
+    "operation": "createChannel",
+    "guild": "10",
+    "payload": {
+     "name": "copy-800",
+     "type": 0
+    },
+    "reason": null
+   }
+  ],
+  "results": {
+   "first": "800",
+   "action_1": "801"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "n": "room",
+   "lastSentMessageId": "801",
+   "lastMessageId": "801"
+  },
+  "error": null
+ },
+ "createChannel parity ticket creates a private channel and marks it in the store #0": {
+  "effects": [
+   {
+    "operation": "createChannel",
+    "guild": "10",
+    "payload": {
+     "name": "ticket-1",
+     "type": 0,
+     "permission_overwrites": [
+      {
+       "id": "10",
+       "type": 0,
+       "deny": "1024"
+      },
+      {
+       "id": "20",
+       "type": 1,
+       "allow": "68608"
+      }
+     ],
+     "parent_id": "31"
+    },
+    "reason": null
+   }
+  ],
+  "results": {
+   "tk": "800"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "800",
+   "lastMessageId": "800"
+  },
+  "error": null
+ },
+ "createChannel parity ticket reports its failures #0": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Bad state: Tickets require a server",
+   "error.command": "createChannel",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "StateError: Bad state: Tickets require a server"
+ },
+ "createChannel parity ticket reports its failures #1": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Bad state: Ticket requires category ID, creator ID and name",
+   "error.command": "createChannel",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "StateError: Bad state: Ticket requires category ID, creator ID and name"
+ },
+ "createChannel parity ticket reports its failures #2": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Bad state: Ticket category not found in this server",
+   "error.command": "createChannel",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "StateError: Bad state: Ticket category not found in this server"
+ },
+ "createThread parity creates a public thread and mirrors its results #0": {
+  "effects": [
+   {
+    "operation": "createThread",
+    "channel": "30",
+    "payload": {
+     "name": "Talk",
+     "auto_archive_duration": 1440,
+     "type": 11
+    },
+    "reason": null
+   }
+  ],
+  "results": {
+   "t": "700"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "t.threadId": "700",
+   "t.name": "Talk",
+   "t.parentId": "30",
+   "thread.lastId": "700",
+   "thread.lastName": "Talk"
+  },
+  "error": null
+ },
+ "createThread parity creates a thread on a message #0": {
+  "effects": [
+   {
+    "operation": "createThreadFromMessage",
+    "channel": "30",
+    "message": "55",
+    "payload": {
+     "name": "On message",
+     "auto_archive_duration": 1440
+    },
+    "reason": null
+   }
+  ],
+  "results": {
+   "action_0": "701"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "action_0.threadId": "701",
+   "action_0.name": "On message",
+   "action_0.parentId": "30",
+   "thread.lastId": "701",
+   "thread.lastName": "On message"
+  },
+  "error": null
+ },
+ "createThread parity error modes and disabled actions behave the same #0": {
+  "effects": [
+   {
+    "operation": "createThread",
+    "channel": "30",
+    "payload": {
+     "name": "ok",
+     "auto_archive_duration": 1440,
+     "type": 11
+    },
+    "reason": null
+   }
+  ],
+  "results": {
+   "bad": "Error: Exception: channelId is required for createThread",
+   "ok": "700"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: channelId is required for createThread",
+   "error.command": "createThread",
+   "error.source": "",
+   "error.row": "",
+   "error.column": "",
+   "ok.threadId": "700",
+   "ok.name": "ok",
+   "ok.parentId": "30",
+   "thread.lastId": "700",
+   "thread.lastName": "ok"
+  },
+  "error": null
+ },
+ "createThread parity forwards type, slowmode, archive duration and reason #0": {
+  "effects": [
+   {
+    "operation": "createThread",
+    "channel": "30",
+    "payload": {
+     "name": "Private",
+     "auto_archive_duration": 4320,
+     "type": 12,
+     "rate_limit_per_user": 10
+    },
+    "reason": "Because"
+   }
+  ],
+  "results": {
+   "action_0": "700"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "action_0.threadId": "700",
+   "action_0.name": "Private",
+   "action_0.parentId": "30",
+   "thread.lastId": "700",
+   "thread.lastName": "Private"
+  },
+  "error": null
+ },
+ "createThread parity later actions read earlier results #0": {
+  "effects": [
+   {
+    "operation": "createThread",
+    "channel": "30",
+    "payload": {
+     "name": "One",
+     "auto_archive_duration": 1440,
+     "type": 11
+    },
+    "reason": null
+   },
+   {
+    "operation": "createThread",
+    "channel": "30",
+    "payload": {
+     "name": "Thread 700",
+     "auto_archive_duration": 1440,
+     "type": 11
+    },
+    "reason": null
+   }
+  ],
+  "results": {
+   "one": "700",
+   "two": "700"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "one.threadId": "700",
+   "one.name": "One",
+   "one.parentId": "30",
+   "thread.lastId": "700",
+   "thread.lastName": "Thread 700",
+   "two.threadId": "700",
+   "two.name": "Thread 700",
+   "two.parentId": "30"
+  },
+  "error": null
+ },
+ "createThread parity reports its failures like the historical branch #0": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: channelId is required for createThread",
+   "error.command": "createThread",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: channelId is required for createThread"
+ },
+ "createThread parity reports its failures like the historical branch #1": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: name is required for createThread",
+   "error.command": "createThread",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: name is required for createThread"
+ },
+ "createThread parity reports its failures like the historical branch #2": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Channel does not support threads",
+   "error.command": "createThread",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Channel does not support threads"
+ },
+ "createThread parity reports its failures like the historical branch #3": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: I do not have permission to create threads. Missing: Create Public Threads.",
+   "error.command": "createThread",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: I do not have permission to create threads. Missing: Create Public Threads."
+ },
+ "createThread parity reports its failures like the historical branch #4": {
+  "effects": [
+   {
+    "operation": "createThread",
+    "channel": "30",
+    "payload": {
+     "name": "x",
+     "auto_archive_duration": 1440,
+     "type": 11
+    },
+    "reason": null
+   }
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to create thread: Bad state: refused",
+   "error.command": "createThread",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to create thread: Bad state: refused"
+ },
+ "createThread parity uses the fallback channel and resolves placeholders #0": {
+  "effects": [
+   {
+    "operation": "createThread",
+    "channel": "30",
+    "payload": {
+     "name": "From var",
+     "auto_archive_duration": 1440,
+     "type": 11
+    },
+    "reason": null
+   }
+  ],
+  "results": {
+   "action_0": "700"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "title": "From var",
+   "action_0.threadId": "700",
+   "action_0.name": "From var",
+   "action_0.parentId": "30",
+   "thread.lastId": "700",
+   "thread.lastName": "From var"
+  },
+  "error": null
+ },
+ "createThread parity works without a guild context (no permission pre-check) #0": {
+  "effects": [
+   {
+    "operation": "createThread",
+    "channel": "30",
+    "payload": {
+     "name": "x",
+     "auto_archive_duration": 1440,
+     "type": 11
+    },
+    "reason": null
+   }
+  ],
+  "results": {
+   "action_0": "700"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "action_0.threadId": "700",
+   "action_0.name": "x",
+   "action_0.parentId": "30",
+   "thread.lastId": "700",
+   "thread.lastName": "x"
+  },
+  "error": null
+ },
+ "deleteChannelPermission parity deletes an overwrite #0": {
+  "effects": [
+   {
+    "operation": "deletePermission",
+    "id": "30",
+    "target": "64"
+   }
+  ],
+  "results": {
+   "d": "deleted"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "deleteChannelPermission parity reports its failures #0": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: channelId is required for deleteChannelPermission",
+   "error.command": "deleteChannelPermission",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: channelId is required for deleteChannelPermission"
+ },
+ "deleteChannelPermission parity reports its failures #1": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: targetId is required for deleteChannelPermission",
+   "error.command": "deleteChannelPermission",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: targetId is required for deleteChannelPermission"
+ },
+ "deleteChannelPermission parity reports its failures #2": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: I do not have permission to delete channel permissions. Missing: Manage Roles.",
+   "error.command": "deleteChannelPermission",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: I do not have permission to delete channel permissions. Missing: Manage Roles."
+ },
+ "deleteChannelPermission parity reports its failures #3": {
+  "effects": [
+   {
+    "operation": "deletePermission",
+    "id": "30",
+    "target": "64"
+   }
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to delete channel permission: Bad state: refused",
+   "error.command": "deleteChannelPermission",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to delete channel permission: Bad state: refused"
+ },
+ "deleteChannelPermission parity reports its failures #4": {
+  "effects": [
+   {
+    "operation": "deletePermission",
+    "id": "30",
+    "target": "64"
+   }
+  ],
+  "results": {
+   "action_0": "deleted"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "deleteChannelPermission parity targets everyone, resolves placeholders and the fallback #0": {
+  "effects": [
+   {
+    "operation": "deletePermission",
+    "id": "30",
+    "target": "10"
+   }
+  ],
+  "results": {
+   "action_0": "deleted"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "deleteChannelPermission parity targets everyone, resolves placeholders and the fallback #1": {
+  "effects": [
+   {
+    "operation": "deletePermission",
+    "id": "30",
+    "target": "20"
+   }
+  ],
+  "results": {
+   "action_0": "deleted"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "t": "20"
+  },
+  "error": null
+ },
+ "editChannelPermissions parity edits an overwrite from allow / deny masks #0": {
+  "effects": [
+   {
+    "operation": "editPermissions",
+    "id": "30",
+    "payload": {
+     "id": "64",
+     "type": 0,
+     "allow": "1024",
+     "deny": "2048"
+    }
+   }
+  ],
+  "results": {
+   "p": "updated"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "editChannelPermissions parity edits an overwrite from the permission map #0": {
+  "effects": [
+   {
+    "operation": "editPermissions",
+    "id": "30",
+    "payload": {
+     "id": "20",
+     "type": 1,
+     "allow": "1024",
+     "deny": "2048"
+    }
+   }
+  ],
+  "results": {
+   "action_0": "updated"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "state": "deny"
+  },
+  "error": null
+ },
+ "editChannelPermissions parity reports its failures #0": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to edit channel permissions: Invalid argument(s): Invalid Discord ID.",
+   "error.command": "editChannelPermissions",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to edit channel permissions: Invalid argument(s): Invalid Discord ID."
+ },
+ "editChannelPermissions parity reports its failures #1": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to edit channel permissions: Invalid argument(s): Invalid Discord ID.",
+   "error.command": "editChannelPermissions",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to edit channel permissions: Invalid argument(s): Invalid Discord ID."
+ },
+ "editChannelPermissions parity reports its failures #2": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to edit channel permissions: Invalid argument(s): Invalid permission masks.",
+   "error.command": "editChannelPermissions",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to edit channel permissions: Invalid argument(s): Invalid permission masks."
+ },
+ "editChannelPermissions parity reports its failures #3": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to edit channel permissions: Bad state: I do not have permission to edit channel permissions. Missing: View Channel, Manage Roles.",
+   "error.command": "editChannelPermissions",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to edit channel permissions: Bad state: I do not have permission to edit channel permissions. Missing: View Channel, Manage Roles."
+ },
+ "editChannelPermissions parity reports its failures #4": {
+  "effects": [
+   {
+    "operation": "editPermissions",
+    "id": "30",
+    "payload": {
+     "id": "64",
+     "type": 0,
+     "allow": "0",
+     "deny": "0"
+    }
+   }
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to edit channel permissions: Bad state: refused",
+   "error.command": "editChannelPermissions",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to edit channel permissions: Bad state: refused"
+ },
+ "editChannelPermissions parity targets everyone and the fallback channel #0": {
+  "effects": [
+   {
+    "operation": "editPermissions",
+    "id": "30",
+    "payload": {
+     "id": "10",
+     "type": 0,
+     "allow": "1024",
+     "deny": "0"
+    }
+   }
+  ],
+  "results": {
+   "action_0": "updated"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "guild commands parity filters by name, never resolving the name list #0": {
+  "effects": [
+   {
+    "operation": "createCommand",
+    "guild": "10",
+    "name": "beta"
+   }
+  ],
+  "results": {
+   "action_0": "1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "guild commands parity filters by name, never resolving the name list #1": {
+  "effects": [],
+  "results": {
+   "action_0": "0"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "name": "alpha"
+  },
+  "error": null
+ },
+ "guild commands parity registers every local-only command #0": {
+  "effects": [
+   {
+    "operation": "createCommand",
+    "guild": "10",
+    "name": "alpha"
+   },
+   {
+    "operation": "createCommand",
+    "guild": "10",
+    "name": "beta"
+   }
+  ],
+  "results": {
+   "r": "2"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "guild commands parity reports its failures #0": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: No guildId provided",
+   "error.command": "registerGuildCommands",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: No guildId provided"
+ },
+ "guild commands parity reports its failures #1": {
+  "effects": [
+   {
+    "operation": "createCommand",
+    "guild": "10",
+    "name": "alpha"
+   }
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to register alpha: Bad state: refused",
+   "error.command": "registerGuildCommands",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to register alpha: Bad state: refused"
+ },
+ "guild commands parity targets the guild of the payload, else the current one #0": {
+  "effects": [
+   {
+    "operation": "createCommand",
+    "guild": "77",
+    "name": "alpha"
+   },
+   {
+    "operation": "createCommand",
+    "guild": "77",
+    "name": "beta"
+   }
+  ],
+  "results": {
+   "action_0": "2"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "g": "77"
+  },
+  "error": null
+ },
+ "guild commands parity unregisters all or only the named commands #0": {
+  "effects": [
+   {
+    "operation": "deleteCommand",
+    "guild": "10",
+    "id": "1"
+   },
+   {
+    "operation": "deleteCommand",
+    "guild": "10",
+    "id": "2"
+   }
+  ],
+  "results": {
+   "u": "2"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "guild commands parity unregisters all or only the named commands #1": {
+  "effects": [
+   {
+    "operation": "deleteCommand",
+    "guild": "10",
+    "id": "2"
+   }
+  ],
+  "results": {
+   "action_0": "1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "guild commands parity unregisters all or only the named commands #2": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: No guildId provided",
+   "error.command": "unregisterGuildCommands",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: No guildId provided"
+ },
+ "guild commands parity unregisters all or only the named commands #3": {
+  "effects": [
+   {
+    "operation": "deleteCommand",
+    "guild": "10",
+    "id": "1"
+   }
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to unregister commands: Bad state: refused",
+   "error.command": "unregisterGuildCommands",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to unregister commands: Bad state: refused"
+ },
+ "inside blocks and policies a failing nested child ends the block like the historical loop #0": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "flag": "yes",
+   "error.message": "Exception: channelId is required for createThread",
+   "error.command": "ifBlock",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: channelId is required for createThread"
+ },
+ "inside blocks and policies a policy that does not intercept still runs it natively #0": {
+  "effects": [
+   {
+    "operation": "createThread",
+    "channel": "30",
+    "payload": {
+     "name": "x",
+     "auto_archive_duration": 1440,
+     "type": 11
+    },
+    "reason": null
+   },
+   {
+    "operation": "updateChannel",
+    "id": "30",
+    "payload": {
+     "rate_limit_per_user": 5
+    },
+    "reason": null
+   }
+  ],
+  "results": {
+   "action_0": "700",
+   "action_1": "30"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "action_0.threadId": "700",
+   "action_0.name": "x",
+   "action_0.parentId": "30",
+   "thread.lastId": "700",
+   "thread.lastName": "x",
+   "lastSentMessageId": "30",
+   "lastMessageId": "30"
+  },
+  "error": null
+ },
+ "inside blocks and policies native children publish results and mirrors under the block #0": {
+  "effects": [
+   {
+    "operation": "createThread",
+    "channel": "30",
+    "payload": {
+     "name": "Nested",
+     "auto_archive_duration": 1440,
+     "type": 11
+    },
+    "reason": null
+   },
+   {
+    "operation": "updateChannel",
+    "id": "30",
+    "payload": {
+     "name": "n"
+    },
+    "reason": null
+   },
+   {
+    "operation": "deleteChannel",
+    "id": "33",
+    "reason": null
+   }
+  ],
+  "results": {
+   "gate": "IF_TRUE",
+   "gate.thread": "700",
+   "gate.chan": "30",
+   "gate.gone": "33"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "flag": "yes",
+   "thread.threadId": "700",
+   "thread.name": "Nested",
+   "thread.parentId": "30",
+   "thread.lastId": "700",
+   "thread.lastName": "Nested",
+   "lastSentMessageId": "33",
+   "lastMessageId": "33"
+  },
+  "error": null
+ },
+ "leaveGuild parity fails without any guild and when Discord refuses #0": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Missing guildId",
+   "error.command": "leaveGuild",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing guildId"
+ },
+ "leaveGuild parity fails without any guild and when Discord refuses #1": {
+  "effects": [
+   {
+    "operation": "leaveGuild",
+    "guild": "10"
+   }
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to update guild: Bad state: refused",
+   "error.command": "leaveGuild",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to update guild: Bad state: refused"
+ },
+ "leaveGuild parity leaves the current guild or the named one #0": {
+  "effects": [
+   {
+    "operation": "leaveGuild",
+    "guild": "10"
+   }
+  ],
+  "results": {
+   "l": "10"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "leaveGuild parity leaves the current guild or the named one #1": {
+  "effects": [
+   {
+    "operation": "leaveGuild",
+    "guild": "77"
+   }
+  ],
+  "results": {
+   "action_0": "77"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "g": "77"
+  },
+  "error": null
+ },
+ "removeChannel parity deletes a list of ids, once each, returning the last #0": {
+  "effects": [
+   {
+    "operation": "deleteChannel",
+    "id": "30",
+    "reason": null
+   },
+   {
+    "operation": "deleteChannel",
+    "id": "33",
+    "reason": null
+   },
+   {
+    "operation": "deleteChannel",
+    "id": "34",
+    "reason": null
+   }
+  ],
+  "results": {
+   "action_0": "34"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "extra": "34",
+   "lastSentMessageId": "34",
+   "lastMessageId": "34"
+  },
+  "error": null
+ },
+ "removeChannel parity deletes channels by name (every match) #0": {
+  "effects": [
+   {
+    "operation": "deleteChannel",
+    "id": "33",
+    "reason": null
+   },
+   {
+    "operation": "deleteChannel",
+    "id": "34",
+    "reason": null
+   },
+   {
+    "operation": "deleteChannel",
+    "id": "30",
+    "reason": null
+   }
+  ],
+  "results": {
+   "action_0": "30"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "n": "chat",
+   "lastSentMessageId": "30",
+   "lastMessageId": "30"
+  },
+  "error": null
+ },
+ "removeChannel parity deletes one channel and returns its id #0": {
+  "effects": [
+   {
+    "operation": "deleteChannel",
+    "id": "30",
+    "reason": null
+   }
+  ],
+  "results": {
+   "r": "30"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "30",
+   "lastMessageId": "30"
+  },
+  "error": null
+ },
+ "removeChannel parity reports its failures #0": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Missing or invalid channelId for removeChannel",
+   "error.command": "removeChannel",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing or invalid channelId for removeChannel"
+ },
+ "removeChannel parity reports its failures #1": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: No matching channels found for removeChannel",
+   "error.command": "removeChannel",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: No matching channels found for removeChannel"
+ },
+ "removeChannel parity reports its failures #2": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Channel names require a guild",
+   "error.command": "removeChannel",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Channel names require a guild"
+ },
+ "removeChannel parity reports its failures #3": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to delete channel: Bad state: I do not have permission to delete channels. Missing: View Channel, Manage Channels.",
+   "error.command": "removeChannel",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to delete channel: Bad state: I do not have permission to delete channels. Missing: View Channel, Manage Channels."
+ },
+ "removeChannel parity reports its failures #4": {
+  "effects": [
+   {
+    "operation": "deleteChannel",
+    "id": "30",
+    "reason": null
+   }
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to delete channel: Bad state: refused",
+   "error.command": "removeChannel",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to delete channel: Bad state: refused"
+ },
+ "removeChannel parity reports its failures #5": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Missing or invalid channelId for removeChannel",
+   "error.command": "removeChannel",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing or invalid channelId for removeChannel"
+ },
+ "removeChannel parity ticket close a channel that is not a ticket fails or answers #0": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Bad state: This channel is not a ticket",
+   "error.command": "removeChannel",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "StateError: Bad state: This channel is not a ticket"
+ },
+ "removeChannel parity ticket close a channel that is not a ticket fails or answers #1": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to send message: NoSuchMethodError: Class 'VisualChannels' has no instance getter 'client'.\nReceiver: Instance of 'VisualChannels'\nTried calling: client",
+   "error.command": "removeChannel",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to send message: NoSuchMethodError: Class 'VisualChannels' has no instance getter 'client'.\nReceiver: Instance of 'VisualChannels'\nTried calling: client"
+ },
+ "removeChannel parity ticket close a stranger cannot close it #0": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "author.id": "77",
+   "error.message": "Bad state: Only the ticket creator or staff can close it",
+   "error.command": "removeChannel",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "StateError: Bad state: Only the ticket creator or staff can close it"
+ },
+ "removeChannel parity ticket close staff can close it #0": {
+  "effects": [
+   {
+    "operation": "deleteChannel",
+    "id": "30",
+    "reason": null
+   }
+  ],
+  "results": {
+   "action_0": "30"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "author.id": "77",
+   "member.permissions": "ManageChannels",
+   "channel.isTicket": "false",
+   "lastSentMessageId": "30",
+   "lastMessageId": "30"
+  },
+  "error": null
+ },
+ "removeChannel parity ticket close the creator closes it and the markers go away #0": {
+  "effects": [
+   {
+    "operation": "deleteChannel",
+    "id": "30",
+    "reason": null
+   }
+  ],
+  "results": {
+   "c": "30"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "author.id": "20",
+   "channel.isTicket": "false",
+   "lastSentMessageId": "30",
+   "lastMessageId": "30"
+  },
+  "error": null
+ },
+ "removeThreadMember parity changes the member and mirrors threadId / userId #0": {
+  "effects": [
+   {
+    "operation": "removeThreadMember",
+    "thread": "80",
+    "user": "222"
+   }
+  ],
+  "results": {
+   "m": "REMOVED"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "m.threadId": "80",
+   "m.userId": "222"
+  },
+  "error": null
+ },
+ "removeThreadMember parity reports its failures #0": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: threadId and userId are required for threadRemoveMember",
+   "error.command": "removeThreadMember",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: threadId and userId are required for threadRemoveMember"
+ },
+ "removeThreadMember parity reports its failures #1": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Provided channel is not a thread",
+   "error.command": "removeThreadMember",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Provided channel is not a thread"
+ },
+ "removeThreadMember parity reports its failures #2": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: I do not have permission to remove thread members. Missing: Permission(17179869184).",
+   "error.command": "removeThreadMember",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: I do not have permission to remove thread members. Missing: Permission(17179869184)."
+ },
+ "removeThreadMember parity reports its failures #3": {
+  "effects": [
+   {
+    "operation": "removeThreadMember",
+    "thread": "80",
+    "user": "222"
+   }
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to remove thread member: Bad state: refused",
+   "error.command": "removeThreadMember",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to remove thread member: Bad state: refused"
+ },
+ "removeThreadMember parity resolves placeholders #0": {
+  "effects": [
+   {
+    "operation": "removeThreadMember",
+    "thread": "80",
+    "user": "333"
+   }
+  ],
+  "results": {
+   "action_0": "REMOVED"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "t": "80",
+   "u": "333",
+   "action_0.threadId": "80",
+   "action_0.userId": "333"
+  },
+  "error": null
+ },
+ "slowmode parity reports its failures #0": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Slowmode duration must be between 0 and 6 hours",
+   "error.command": "slowmode",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Slowmode duration must be between 0 and 6 hours"
+ },
+ "slowmode parity reports its failures #1": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to set slowmode: Invalid argument(s): Invalid channel ID.",
+   "error.command": "slowmode",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to set slowmode: Invalid argument(s): Invalid channel ID."
+ },
+ "slowmode parity reports its failures #2": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to set slowmode: Bad state: Slowmode is unsupported for this channel type.",
+   "error.command": "slowmode",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to set slowmode: Bad state: Slowmode is unsupported for this channel type."
+ },
+ "slowmode parity reports its failures #3": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: This action requires a guild context",
+   "error.command": "slowmode",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: This action requires a guild context"
+ },
+ "slowmode parity reports its failures #4": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to set slowmode: Bad state: I do not have permission to set slowmode. Missing: View Channel, Manage Channels.",
+   "error.command": "slowmode",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to set slowmode: Bad state: I do not have permission to set slowmode. Missing: View Channel, Manage Channels."
+ },
+ "slowmode parity resolves placeholders and defaults the duration to zero #0": {
+  "effects": [
+   {
+    "operation": "updateChannel",
+    "id": "30",
+    "payload": {
+     "rate_limit_per_user": 0
+    },
+    "reason": null
+   }
+  ],
+  "results": {
+   "action_0": "30"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "c": "30",
+   "lastSentMessageId": "30",
+   "lastMessageId": "30"
+  },
+  "error": null
+ },
+ "slowmode parity sets the slowmode of a channel #0": {
+  "effects": [
+   {
+    "operation": "updateChannel",
+    "id": "30",
+    "payload": {
+     "rate_limit_per_user": 5
+    },
+    "reason": "Calm"
+   }
+  ],
+  "results": {
+   "action_0": "30"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "30",
+   "lastMessageId": "30"
+  },
+  "error": null
+ },
+ "slowmode parity sets the slowmode of a channel #1": {
+  "effects": [
+   {
+    "operation": "updateChannel",
+    "id": "30",
+    "payload": {
+     "rate_limit_per_user": 10
+    },
+    "reason": "Calm"
+   }
+  ],
+  "results": {
+   "action_0": "30"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "30",
+   "lastMessageId": "30"
+  },
+  "error": null
+ },
+ "slowmode parity sets the slowmode of a channel #2": {
+  "effects": [
+   {
+    "operation": "updateChannel",
+    "id": "30",
+    "payload": {
+     "rate_limit_per_user": 120
+    },
+    "reason": "Calm"
+   }
+  ],
+  "results": {
+   "action_0": "30"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "30",
+   "lastMessageId": "30"
+  },
+  "error": null
+ },
+ "slowmode parity sets the slowmode of a channel #3": {
+  "effects": [
+   {
+    "operation": "updateChannel",
+    "id": "30",
+    "payload": {
+     "rate_limit_per_user": 3600
+    },
+    "reason": "Calm"
+   }
+  ],
+  "results": {
+   "action_0": "30"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "30",
+   "lastMessageId": "30"
+  },
+  "error": null
+ },
+ "slowmode parity sets the slowmode of a channel #4": {
+  "effects": [
+   {
+    "operation": "updateChannel",
+    "id": "30",
+    "payload": {
+     "rate_limit_per_user": 0
+    },
+    "reason": "Calm"
+   }
+  ],
+  "results": {
+   "action_0": "30"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "30",
+   "lastMessageId": "30"
+  },
+  "error": null
+ },
+ "updateChannel parity reports its failures #0": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to update channel: Invalid argument(s): Invalid channel ID.",
+   "error.command": "updateChannel",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to update channel: Invalid argument(s): Invalid channel ID."
+ },
+ "updateChannel parity reports its failures #1": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to update channel: Invalid argument(s): Archive options require a thread.",
+   "error.command": "updateChannel",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to update channel: Invalid argument(s): Archive options require a thread."
+ },
+ "updateChannel parity reports its failures #2": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to update channel: Bad state: I do not have permission to modify channels. Missing: View Channel, Manage Channels.",
+   "error.command": "updateChannel",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to update channel: Bad state: I do not have permission to modify channels. Missing: View Channel, Manage Channels."
+ },
+ "updateChannel parity reports its failures #3": {
+  "effects": [
+   {
+    "operation": "updateChannel",
+    "id": "30",
+    "payload": {
+     "name": "x"
+    },
+    "reason": null
+   }
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to update channel: Bad state: refused",
+   "error.command": "updateChannel",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to update channel: Bad state: refused"
+ },
+ "updateChannel parity reports its failures #4": {
+  "effects": [
+   {
+    "operation": "updateChannel",
+    "id": "30",
+    "payload": {
+     "name": "x"
+    },
+    "reason": null
+   },
+   {
+    "operation": "updateChannel",
+    "id": "30",
+    "payload": {
+     "name": "y"
+    },
+    "reason": null
+   }
+  ],
+  "results": {
+   "action_0": "Error: Exception: Failed to update channel: Bad state: refused",
+   "after": "30"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to update channel: Bad state: refused",
+   "error.command": "updateChannel",
+   "error.source": "",
+   "error.row": "",
+   "error.column": "",
+   "lastSentMessageId": "30",
+   "lastMessageId": "30"
+  },
+  "error": null
+ },
+ "updateChannel parity resolves placeholders #0": {
+  "effects": [
+   {
+    "operation": "updateChannel",
+    "id": "30",
+    "payload": {
+     "name": "fromvar"
+    },
+    "reason": null
+   }
+  ],
+  "results": {
+   "action_0": "30"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "c": "30",
+   "n": "fromvar",
+   "lastSentMessageId": "30",
+   "lastMessageId": "30"
+  },
+  "error": null
+ },
+ "updateChannel parity the unchanged sentinel and empty fields change nothing #0": {
+  "effects": [],
+  "results": {
+   "action_0": "30",
+   "empty": "30"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "30",
+   "lastMessageId": "30"
+  },
+  "error": null
+ },
+ "updateChannel parity updates the named fields and returns the id #0": {
+  "effects": [
+   {
+    "operation": "updateChannel",
+    "id": "30",
+    "payload": {
+     "name": "renamed",
+     "position": 2,
+     "topic": "new topic",
+     "nsfw": true,
+     "rate_limit_per_user": 3600,
+     "parent_id": "31"
+    },
+    "reason": "Tidy"
+   }
+  ],
+  "results": {
+   "u": "30"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "30",
+   "lastMessageId": "30"
+  },
+  "error": null
+ },
+ "updateSelfUser parity accepts the bot itself as target and an avatar payload #0": {
+  "effects": [
+   {
+    "operation": "updateSelfUser",
+    "payload": {
+     "username": "Neo",
+     "avatar": null
+    }
+   }
+  ],
+  "results": {
+   "action_0": "updated"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "action_0.username": "Neo",
+   "action_0.userId": "500"
+  },
+  "error": null
+ },
+ "updateSelfUser parity changes the username and mirrors the result #0": {
+  "effects": [
+   {
+    "operation": "updateSelfUser",
+    "payload": {
+     "username": "Neo",
+     "avatar": null
+    }
+   }
+  ],
+  "results": {
+   "me": "updated"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "me.username": "Neo",
+   "me.userId": "500"
+  },
+  "error": null
+ },
+ "updateSelfUser parity refuses another user and an empty update #0": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Bad state: A bot token cannot change another user’s global username",
+   "error.command": "updateSelfUser",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "StateError: Bad state: A bot token cannot change another user’s global username"
+ },
+ "updateSelfUser parity refuses another user and an empty update #1": {
+  "effects": [],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: At least one of username, avatarUrl, or avatarBase64 must be provided",
+   "error.command": "updateSelfUser",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: At least one of username, avatarUrl, or avatarBase64 must be provided"
+ },
+ "updateSelfUser parity refuses another user and an empty update #2": {
+  "effects": [
+   {
+    "operation": "updateSelfUser",
+    "payload": {
+     "username": "Neo",
+     "avatar": null
+    }
+   }
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to update self user: Bad state: refused",
+   "error.command": "updateSelfUser",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to update self user: Bad state: refused"
+ }
+}

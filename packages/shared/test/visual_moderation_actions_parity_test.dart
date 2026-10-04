@@ -3,6 +3,7 @@ import 'package:nyxx/nyxx.dart';
 import 'package:test/test.dart';
 
 import 'helpers/fake_role_gateway.dart';
+import 'helpers/visual_golden.dart';
 import 'helpers/visual_parity_harness.dart';
 
 /// Parity of banUser / unbanUser / kickUser / muteUser / unmuteUser /
@@ -58,21 +59,26 @@ Future<Outcome<FakeGateway>> _parity(
   bool throwOnError = false,
   Duration? limit,
   bool normalizeTimeouts = true,
-}) => visualParity<FakeGateway>(
-  actions,
-  makeGateway: _gateway,
-  effects: normalizeTimeouts
-      ? _effects
-      : (g) => {
-          ...(_effects(g)! as Map<String, Object?>),
-          'updates': g.guild.memberManager.updates,
-        },
-  setup: setup,
-  variables: variables,
-  guild: guild,
-  throwOnError: throwOnError,
-  limit: limit,
-);
+}) async {
+  final outcome = await visualParity<FakeGateway>(
+    actions,
+    makeGateway: _gateway,
+    effects: normalizeTimeouts
+        ? _effects
+        : (g) => {
+            ...(_effects(g)! as Map<String, Object?>),
+            'updates': g.guild.memberManager.updates,
+          },
+    setup: setup,
+    variables: variables,
+    guild: guild,
+    throwOnError: throwOnError,
+    limit: limit,
+    compareHistorical: parityWithHistorical,
+  );
+  _golden.expectOutcome(outcome);
+  return outcome;
+}
 
 Action _mod(
   BotCreatorActionType type, {
@@ -87,6 +93,8 @@ Action _mod(
   error: error,
   payload: {'userId': '222', ...payload},
 );
+
+final _golden = GoldenFile('visual_moderation_actions');
 
 void main() {
   group('banUser parity', () {
