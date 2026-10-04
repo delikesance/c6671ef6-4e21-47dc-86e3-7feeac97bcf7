@@ -832,9 +832,6 @@ Future<Map<String, String>> _handleActions(
             await execution.execute(
               source,
               backend: 'native-v1',
-              executeLegacy: (_) async => throw StateError(
-                'Native BDFD cannot fall back to visual actions.',
-              ),
             );
             return {
               ...nativeContext.results,
