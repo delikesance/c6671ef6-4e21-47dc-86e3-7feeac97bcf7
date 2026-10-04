@@ -152,7 +152,6 @@ Future<Map<String, String>> calculateAction({
   }
 }
 
-
 Future<bool> executeCalculate({
   required BotCreatorActionType type,
   required Map<String, dynamic> payload,
