@@ -1,12 +1,5 @@
 import 'dart:convert';
 
-import '../../../actions/executors/control_flow_executor.dart'
-    show
-        applyCStyleLoopUpdate,
-        evaluateCStyleLoopCondition,
-        executeControlFlowAction,
-        parseCStyleLoopInit,
-        resolveJsonForEachEntries;
 import '../../../services/action_condition.dart';
 import '../../../types/action.dart';
 import '../../../utils/bdfd_duration_parser.dart';
@@ -14,6 +7,7 @@ import '../../execution_budget.dart';
 import '../program.dart' show BdfdNativeError;
 import '../runtime.dart';
 import 'action_environment.dart';
+import 'control_flow_logic.dart';
 import 'control_flow_state.dart';
 import 'message_actions.dart' show visualRespondWithMessage;
 
@@ -40,6 +34,7 @@ final Map<BotCreatorActionType, ActionHandler> controlActionHandlers = {
   BotCreatorActionType.log: logAction,
   BotCreatorActionType.runWorkflow: runWorkflowAction,
   BotCreatorActionType.runBdfdScript: runBdfdScriptAction,
+  BotCreatorActionType.cooldown: cooldownAction,
 };
 
 final Map<BotCreatorActionType, bool Function(Action)> controlLeafPredicates = {
@@ -121,6 +116,12 @@ int? _jumpOrdinal(ActionCall call, String target) {
   final position = int.tryParse(target);
   if (position != null && position >= 1 && position <= count) {
     if (position > own) return position;
+    if (!call.env.flow.routed && call.path.isEmpty) {
+      // The historical root loop really jumps back (and loops until the budget
+      // ends); the runner restarts its program from there.
+      call.requestRestart(position - 1);
+      return null;
+    }
     // Historically a numeric target may point backwards; the interpreter (like
     // `$jumpToAction`) only continues forwards.
     throw Exception('jumpToAction can only jump to a later action: $target');
@@ -148,36 +149,65 @@ Future<String?> logAction(ActionCall call) async {
   return 'LOGGED';
 }
 
-Future<String?> runWorkflowAction(ActionCall call) => _historicalControl(call);
-Future<String?> runBdfdScriptAction(ActionCall call) =>
-    _historicalControl(call);
-
-Future<String?> _historicalControl(ActionCall call) async {
+VisualControlAdapter _adapter(ActionCall call) {
   final adapter = call.env.flow.adapter;
   if (adapter == null) {
     throw StateError('${call.type.name} needs a workflow adapter.');
   }
+  return adapter;
+}
+
+Future<String?> runWorkflowAction(ActionCall call) async {
+  final adapter = _adapter(call);
   final results = call.sink.scope(call.path);
-  await executeControlFlowAction(
-    type: call.type,
+  await runWorkflowBlock(
+    payload: call.payload,
+    resultKey: call.key,
+    results: results,
+    variables: call.env.variables,
+    resolveValue: call.resolve,
+    activeWorkflowStack: adapter.activeWorkflowStack,
+    getWorkflowByName: adapter.getWorkflowByName,
+    executeActions: adapter.executeActions,
+    executeNativeBdfdScript: adapter.executeNativeBdfdScript,
+    checkBudget: call.budget.check,
+    nestedActionsPreprocessor: adapter.nestedActionsPreprocessor,
+  );
+  if (results.containsKey('__stopped__')) call.requestStop();
+  return null; // The shared code wrote the results itself.
+}
+
+Future<String?> runBdfdScriptAction(ActionCall call) async {
+  final adapter = _adapter(call);
+  final results = call.sink.scope(call.path);
+  await runBdfdScriptBlock(
+    payload: call.payload,
+    resultKey: call.key,
+    results: results,
+    executeNativeBdfdScript: adapter.executeNativeBdfdScript,
+    checkBudget: call.budget.check,
+  );
+  if (results.containsKey('__stopped__')) call.requestStop();
+  return null;
+}
+
+/// `cooldown`: RAM cooldowns of the process (`RuntimeCooldowns`), exactly the
+/// historical block. An active cooldown stops the list; its error message is
+/// sent by a nested one-action list.
+Future<String?> cooldownAction(ActionCall call) async {
+  final adapter = _adapter(call);
+  final results = call.sink.scope(call.path);
+  await cooldownBlock(
     payload: call.payload,
     resultKey: call.key,
     results: results,
     variables: call.env.variables,
     botId: call.env.botId,
     resolveValue: call.resolve,
-    onLog: call.env.onLog,
-    activeWorkflowStack: adapter.activeWorkflowStack,
-    getWorkflowByName: adapter.getWorkflowByName,
     executeActions: adapter.executeActions,
-    executeProtectedActions: adapter.executeProtectedActions,
-    executeNativeBdfdScript: adapter.executeNativeBdfdScript,
-    nestedActionsPreprocessor: adapter.nestedActionsPreprocessor,
-    checkExecutionBudget: call.budget.check,
-    getScopedVariableTtl: call.env.getScopedVariableTtl,
   );
   if (results.containsKey('__stopped__')) call.requestStop();
-  return null; // The shared code wrote the results itself.
+  return null;
 }
 
 // ---------------------------------------------------------------------------
@@ -206,6 +236,11 @@ void applyFlowRequests(ActionCall call) {
     }
     if (!topLevel) call.invocation.stop();
     return;
+  }
+  final restart = call.restartRequested;
+  if (restart != null) {
+    env.flow.restartAt = restart;
+    call.invocation.stop(); // Ends this run of the program; see the runner.
   }
   final skip = call.skipRequested;
   if (skip != null && skip > 0) {

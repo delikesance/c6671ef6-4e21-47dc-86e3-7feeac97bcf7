@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:nyxx/nyxx.dart' show Interaction, NyxxGateway, Snowflake;
 
+import '../../../actions/execution_policy.dart';
 import '../../../actions/handler_utils.dart' show resolvePayloadValues;
 import '../../../bot/bot_data_store.dart';
 import '../../../services/bot_automod_service.dart';
@@ -81,6 +82,9 @@ class ActionRunEnvironment {
     this.voiceService,
     this.autoModService,
     this.guildAdminService,
+    this.policy,
+    this.replayCapturing = false,
+    this.startProfileClock,
   });
 
   final Map<String, String> variables;
@@ -124,6 +128,20 @@ class ActionRunEnvironment {
   final BotVoiceService? voiceService;
   final BotAutoModService? autoModService;
   final BotGuildAdminService? guildAdminService;
+
+  /// Optional execution boundary (the sandbox): checked before every action,
+  /// given the chance to simulate one ([ActionExecutionPolicy.intercept], a
+  /// transitional seam until policies supply simulated services) and handed a
+  /// frame per executed action.
+  final ActionExecutionPolicy? policy;
+
+  /// The root list is captured for replay: the historical loop then also
+  /// records the numeric "last message" of its switch-handled types.
+  final bool replayCapturing;
+
+  /// Starts the stopwatch of a `debugProfile` list (milliseconds elapsed since
+  /// the call); null uses a real [Stopwatch]. Tests inject a deterministic one.
+  final int Function() Function()? startProfileClock;
 
   /// Owned by the runner: the interpreter registered with these functions.
   BdfdRuntime? runtime;
@@ -170,10 +188,15 @@ class ActionCall {
   /// Flow requests a handler makes; applied by the wrapper after the result is
   /// recorded (see `bc_*` in action_functions.dart).
   bool stopRequested = false;
+  int? restartRequested;
   int? skipRequested;
   int? jumpOrdinalRequested;
   String? jumpKeyRequested;
   void requestStop() => stopRequested = true;
+
+  /// Continue the ROOT list from the 0-based action [index], a position that
+  /// is not after this action (the runner restarts its program there).
+  void requestRestart(int index) => restartRequested = index;
   void requestSkip(int count) => skipRequested = count;
   void requestJumpToOrdinal(int ordinal) => jumpOrdinalRequested = ordinal;
   void requestJumpToKey(String key) => jumpKeyRequested = key;

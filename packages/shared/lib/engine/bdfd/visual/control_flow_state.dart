@@ -75,6 +75,45 @@ class VisualLoopState {
   bool finished = false;
 }
 
+/// One action recorded by a `debugProfile` list (see `debug_profile_actions.dart`).
+class VisualProfileEntry {
+  const VisualProfileEntry({
+    required this.actionType,
+    required this.startMs,
+    required this.endMs,
+    this.result,
+    this.loopDepth,
+    this.loopIteration,
+  });
+
+  final String actionType;
+  final int startMs;
+  final int endMs;
+  final String? result;
+  final int? loopDepth;
+  final int? loopIteration;
+}
+
+/// The trace of one action list that ran `debugProfile`: a stopwatch started at
+/// the action, one entry per later action of THAT list (a nested block's own
+/// list has its own profile, as every list had its own state historically) and
+/// the compilation metadata of the action. The embed is sent when the list ends.
+class VisualListProfile {
+  VisualListProfile({
+    required this.elapsedMs,
+    this.compilationMs,
+    this.sourceLength,
+    this.actionCount,
+  });
+
+  /// Milliseconds since `debugProfile` ran.
+  final int Function() elapsedMs;
+  final int? compilationMs;
+  final int? sourceLength;
+  final int? actionCount;
+  final List<VisualProfileEntry> entries = [];
+}
+
 /// Mutable bookkeeping of the control-flow blocks of one visual execution.
 class VisualFlowState {
   VisualControlAdapter? adapter;
@@ -91,6 +130,15 @@ class VisualFlowState {
   /// results instead of being applied to the (one-statement) program.
   bool routed = false;
 
+  /// Active `debugProfile` lists, by resolved list path ([profileKey]).
+  final Map<String, VisualListProfile> profiles = {};
+
+  static String profileKey(List<String> path) => path.join('\u0000');
+
+  /// A root `jumpToAction` to a position that is not after it: the 0-based
+  /// index the runner restarts the root list from (consumed by the runner).
+  int? restartAt;
+
   final Map<String, VisualLoopState> loops = {};
   final Map<String, int> iterations = {};
   final Map<String, Map<String, String>> savedErrors = {};
@@ -102,6 +150,7 @@ class VisualFlowState {
   void reset() {
     loops.clear();
     iterations.clear();
+    profiles.clear();
     savedErrors.clear();
   }
 

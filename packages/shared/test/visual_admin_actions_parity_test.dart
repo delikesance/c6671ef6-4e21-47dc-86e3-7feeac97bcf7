@@ -764,12 +764,12 @@ void main() {
       }
     });
 
-    test('debugProfile stays on the historical loop', () {
+    test('debugProfile runs on the native runner', () {
       expect(
         const ActionTranslator().supports(
           Action(type: BotCreatorActionType.debugProfile, payload: const {}),
         ),
-        isFalse,
+        isTrue,
       );
     });
   });

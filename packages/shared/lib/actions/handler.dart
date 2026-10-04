@@ -9,6 +9,7 @@ import '../services/bot_moderation_service.dart';
 import '../engine/bdfd/execution.dart';
 import '../engine/bdfd/runtime.dart';
 import '../engine/bdfd/replay.dart';
+import '../engine/bdfd/visual/action_execution.dart';
 import '../engine/bdfd/visual/action_functions.dart';
 import '../engine/bdfd/visual/action_results.dart';
 import '../engine/bdfd/visual/action_runner.dart';
@@ -59,6 +60,11 @@ import 'execution_policy.dart';
 import '../utils/component_runtime.dart';
 
 // Helper functions for common action patterns
+
+/// Transitional switch: `handleActions` forwards to the native
+/// [BdfdActionRunner.runList] instead of its historical loop. Off by default;
+/// the historical loop and this flag are deleted together.
+bool handleActionsForwardsToRunList = false;
 
 Snowflake? _resolveSnowflake(String? value) {
   if (value == null || value.trim().isEmpty) return null;
@@ -114,7 +120,50 @@ Future<Map<String, String>> handleActions(
   CommandExecutionBudget? executionBudget,
 
   /// Chooses, per action, between the native engine and the historical
+
+  /// Acknowledgement of the interaction by the root list (see
+  /// [VisualAcknowledgement]).
+  VisualAcknowledgement? acknowledgement,
+
+  /// Deterministic stopwatch of `debugProfile` lists (tests).
+  int Function() Function()? startProfileClock,
   /// executors. `const ActionTranslator.none()` keeps everything historical.
+  if (handleActionsForwardsToRunList) {
+    return BdfdActionRunner(
+      translator: actionTranslator ?? const ActionTranslator(),
+      maxSteps: visualMaxSteps ?? defaultVisualMaxSteps,
+    ).runList(
+      client,
+      interaction,
+      actions: actions,
+      store: store,
+      botId: botId,
+      variables: variables,
+      resolveTemplate: resolveTemplate,
+      fallbackChannelId: fallbackChannelId,
+      fallbackGuildId: fallbackGuildId,
+      workflowStack: workflowStack,
+      onLog: onLog,
+      onReplayCaptured: onReplayCaptured,
+      nestedActionsPreprocessor: nestedActionsPreprocessor,
+      entityCache: entityCache,
+      lavalinkService: lavalinkService,
+      executionPolicy: executionPolicy,
+      bdfdContext: bdfdContext,
+      bdfdMessages: bdfdMessages,
+      bdfdModeration: bdfdModeration,
+      bdfdCommandQueries: bdfdCommandQueries,
+      bdfdComponents: bdfdComponents,
+      bdfdTiming: bdfdTiming,
+      bdfdDelays: bdfdDelays,
+      bdfdHttp: bdfdHttp,
+      throwOnError: throwOnError,
+      executionBudget: executionBudget,
+      acknowledgement: acknowledgement,
+      startProfileClock: startProfileClock,
+    );
+  }
+  await acknowledgement?.apply(actions);
   ActionTranslator? actionTranslator,
 
   /// Step limit of each natively translated program (`null`: the default,

@@ -7,10 +7,12 @@ import '../../execution_budget.dart';
 import '../program.dart' show BdfdNativeError;
 import '../runtime.dart';
 import 'action_environment.dart';
+import 'action_observer.dart';
 import 'admin_actions.dart';
 import 'channel_actions.dart';
 import 'component_actions.dart';
 import 'control_flow_actions.dart';
+import 'debug_profile_actions.dart';
 import 'emoji_actions.dart';
 import 'guild_actions.dart';
 import 'image_actions.dart';
@@ -45,6 +47,7 @@ final Map<BotCreatorActionType, ActionHandler> bdfdVisualActionHandlers =
       ...guildActionHandlers,
       ...channelActionHandlers,
       ...controlActionHandlers,
+      ...debugProfileActionHandlers,
       ...messageActionHandlers,
       ...componentActionHandlers,
       ...listenerActionHandlers,
@@ -84,6 +87,7 @@ Set<String> bdfdVisualFunctionNames([Iterable<BotCreatorActionType>? types]) =>
         bdfdVisualConditionFunction,
         bdfdVisualBlockErrorFunction,
         ...bdfdVisualControlFunctionNames,
+        bdfdVisualProfileEndFunction,
       ])
         normalizeBdfdFunctionName(name),
       for (final type in types ?? bdfdVisualActionHandlers.keys)
@@ -122,16 +126,45 @@ Map<String, BdfdNativeFunction> bdfdVisualFunctions(
     BdfdInvocation call,
   ) async {
     final key = await call.argument(0);
-    final payload = _object(await call.argument(1));
+    final rawPayload = _object(await call.argument(1));
     final options = _object(await call.argument(2));
     final rawPath = _pathOf(options['path']);
     final path = env.flow.resolvePath(rawPath);
+    final routed = env.flow.routed;
     ActionCall? done;
+    VisualActionObservation? observation;
     try {
-      // The historical loop refreshes `execution.time` before each action; the
-      // loop already did for the action it routed here.
-      if (path.isNotEmpty) env.flow.refreshExecutionTime?.call();
-      await env.prepare?.call(type, key, payload, path);
+      // A historical loop owns the budget check and `execution.time` of the
+      // root action it routed here; nothing else does.
+      if (path.isNotEmpty || !routed) {
+        env.budget.check();
+        env.policy?.checkBudget();
+        env.flow.refreshExecutionTime?.call();
+      }
+      await env.prepare?.call(type, key, rawPayload, path);
+      final payload = !routed && path.isEmpty
+          ? rootActionPayload(type, rawPayload, env.resolverFor(path))
+          : rawPayload;
+      observation = VisualActionObservation.begin(
+        env,
+        type,
+        path,
+        payload,
+        withPolicy: !routed,
+      );
+      final policy = routed ? null : env.policy;
+      if (policy != null &&
+          await policy.intercept(
+            action: Action(type: type, key: key, payload: payload),
+            resultKey: key,
+            results: env.sink.scope(path),
+            variables: env.variables,
+            resolveValue: env.resolverFor(path),
+          )) {
+        env.sink.noteNumeric(path, key);
+        observation.finish(env.sink.scope(path)[key]);
+        return '';
+      }
       final action = ActionCall(
         invocation: call,
         env: env,
@@ -144,15 +177,18 @@ Map<String, BdfdNativeFunction> bdfdVisualFunctions(
       );
       final result = await handler(action);
       if (result != null) env.sink.set(path, key, result);
-      if (!bdfdVisualProfilingOnlyTraceTypes.contains(type)) {
+      if (!bdfdVisualProfilingOnlyTraceTypes.contains(type) ||
+          (!routed && observation.profiling)) {
         env.sink.noteNumeric(path, key);
       }
+      observation.finish(env.sink.scope(path)[key]);
       done = action;
     } on CommandExecutionTimeout {
       // Never an action error: it ends the whole execution, like today.
       rethrow;
     } catch (error) {
       env.sink.recordError(type.name, key, path, error);
+      observation?.finish('Error: $error');
       if (env.throwOnError) throw wrap(call, error);
       switch (options['mode']) {
         case 'continue':
@@ -274,6 +310,7 @@ Map<String, BdfdNativeFunction> bdfdVisualFunctions(
       },
     ),
     ...bdfdVisualControlFunctions(env),
+    ...bdfdVisualProfileFunctions(env),
     for (final entry in (handlers ?? bdfdVisualActionHandlers).entries)
       bdfdVisualFunctionFor(entry.key): BdfdNativeFunction(
         minArguments: 3,
