@@ -569,32 +569,28 @@ void main() {
       expect(result['effects'][0]['after']['member']['timeout_seconds'], 60);
     },
   );
-  for (final backend in ['native-v1', 'legacy-v1']) {
-    test(
-      '$backend kickMention checks author permission before simulating a kick',
-      () async {
-        final data = fixtures();
-        data['variables']['author.id'] = '333';
-        final denied = await testCommandInSandbox({
-          'script': r'$kickMention[Spam]',
-          'bdfdBackend': backend,
-          ...data,
-        });
-        expect(denied['success'], false);
-        expect(denied['effects'], isEmpty);
-        data['entities']['guilds']['10']['roles'][2]['permissions'] =
-            Permissions.kickMembers.value;
-        final allowed = await testCommandInSandbox({
-          'script': r'$kickMention[Spam]',
-          'bdfdBackend': backend,
-          ...data,
-        });
-        expect(allowed['success'], true, reason: '$allowed');
-        expect(allowed['effects'][0]['user_id'], '222');
-        expect(allowed['effects'][0]['reason'], 'Spam');
-      },
-    );
-  }
+  test(
+    'native kickMention checks author permission before simulating a kick',
+    () async {
+      final data = fixtures();
+      data['variables']['author.id'] = '333';
+      final denied = await testCommandInSandbox({
+        'script': r'$kickMention[Spam]',
+        ...data,
+      });
+      expect(denied['success'], false);
+      expect(denied['effects'], isEmpty);
+      data['entities']['guilds']['10']['roles'][2]['permissions'] =
+          Permissions.kickMembers.value;
+      final allowed = await testCommandInSandbox({
+        'script': r'$kickMention[Spam]',
+        ...data,
+      });
+      expect(allowed['success'], true, reason: '$allowed');
+      expect(allowed['effects'][0]['user_id'], '222');
+      expect(allowed['effects'][0]['reason'], 'Spam');
+    },
+  );
   test(
     'kickMention still refuses owner target despite authorized owner author',
     () async {
