@@ -1581,7 +1581,17 @@ class HomePageState extends State<HomePage>
         await Future.wait(listBotsTasks);
       }
 
-      final bots = botsById.values.toList(growable: false);
+      // Bots deleted on this device whose cloud deletion has not been confirmed must stay gone:
+      // replay the deletion first, and never re-import what is still pending.
+      final stillPendingDeletion = await appManager
+          .retryPendingRemoteBotDeletions(remoteClient);
+      final bots = botsById.values
+          .where(
+            (bot) => !stillPendingDeletion.contains(
+              (bot['bot_id'] ?? '').toString().trim(),
+            ),
+          )
+          .toList(growable: false);
       appendBotDebugLog(
         '[syncAllBotsFromManager] Total merged bot payloads=${bots.length}.',
       );

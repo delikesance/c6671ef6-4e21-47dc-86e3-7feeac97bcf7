@@ -35,11 +35,28 @@ IconData scopedVariableScopeIcon(String scope) {
   }
 }
 
+/// Plain-language "who is it for?" label of a variable scope (never the raw scope name).
 String scopedVariableScopeLabel(BuildContext context, String scope) =>
     switch (scope) {
-      'user' => context.tr.globals_scope_user,
+      'global' => context.tr.globals_scope_global,
+      'guild' => context.tr.globals_scope_guild,
       'guildMember' => context.tr.globals_scope_guildMember,
+      'user' => context.tr.globals_scope_user,
+      'channel' => context.tr.globals_scope_channel,
+      'message' => context.tr.globals_scope_message,
       _ => scope,
+    };
+
+/// One-line explanation (with an example) of a scope, shown when choosing who a variable is for.
+String scopedVariableScopeDescription(BuildContext context, String scope) =>
+    switch (scope) {
+      'global' => context.tr.globals_audience_global_desc,
+      'guild' => context.tr.globals_audience_guild_desc,
+      'guildMember' => context.tr.globals_audience_guildMember_desc,
+      'user' => context.tr.globals_audience_user_desc,
+      'channel' => context.tr.globals_audience_channel_desc,
+      'message' => context.tr.globals_audience_message_desc,
+      _ => '',
     };
 
 /// État vide partagé (aucune variable) — il ne s'affiche que lorsque la liste
@@ -119,7 +136,11 @@ class ScopedVariablesList extends StatelessWidget {
     required this.onEdit,
     required this.onDeclare,
     required this.onDelete,
+    this.embedded = false,
   });
+
+  /// Rendered inside another scrollable (the unified variables page): no own scrolling or padding.
+  final bool embedded;
 
   /// Déclarations de l'utilisateur d'abord, variables détectées ensuite (l'ordre
   /// est garanti par `mergeScopedDefinitions`).
@@ -134,6 +155,17 @@ class ScopedVariablesList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (definitions.isEmpty && embedded) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+        child: Text(
+          context.tr.scoped_empty_subtitle,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+      );
+    }
     if (definitions.isEmpty) {
       return VariablesEmptyState(
         icon: Icons.account_tree_outlined,
@@ -149,6 +181,7 @@ class ScopedVariablesList extends StatelessWidget {
       searchQuery: searchQuery,
     );
 
+    if (groups.isEmpty && embedded) return const SizedBox.shrink();
     if (groups.isEmpty) {
       return ListView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -174,6 +207,7 @@ class ScopedVariablesList extends StatelessWidget {
       }
     }
 
+    if (embedded) return Column(children: rows);
     return ListView.builder(
       padding: EdgeInsets.only(
         bottom: FloatingGlassNavBar.contentClearanceOf(context) + 24,

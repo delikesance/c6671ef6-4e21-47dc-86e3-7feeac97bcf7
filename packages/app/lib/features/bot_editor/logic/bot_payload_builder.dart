@@ -120,85 +120,88 @@ void initRunnerAutoReload() {
         _batcher.requestSync(botId, _executeSync);
       };
 
-  AppManager.onAfterCommandDelete =
-      (String botId, String commandId, {String? discordId}) async {
-        if (AppManager.isSyncingFromRemote) return;
+  AppManager
+      .onAfterCommandDelete = (String botId, String commandId, {String? discordId}) async {
+    if (AppManager.isSyncingFromRemote) return;
 
-        var deletedViaRunner = false;
+    // Remember the deletion until the cloud document is confirmed without the command: a failed
+    // or skipped push (offline, expired session, overshrink refusal) must not let the stale
+    // cloud copy bring it back at the next pull.
+    await _appManager.recordPendingCommandDeletion(botId, commandId);
 
-        // 1. Try runner client first.
-        try {
-          final client = await RunnerSettings.createClientForBot(botId);
-          if (client != null) {
-            final botName = await resolveBotName(botId);
-            await client.deleteCommand(botId, botName, commandId);
-            debugPrint(
-              '[AutoReload] Deleted command $commandId for bot $botId via runner.',
-            );
-            deletedViaRunner = true;
-          }
-        } catch (error) {
-          final message = error.toString();
-          if (message.contains('10063') ||
-              message.contains('Unknown application command')) {
-            debugPrint(
-              '[AutoReload] Command $commandId already absent from Discord '
-              '(runner delete skipped).',
-            );
-          } else {
-            debugPrint(
-              '[AutoReload] Command delete on runner failed for $botId: $error',
-            );
-          }
-        }
+    var deletedViaRunner = false;
 
-        // 2. Fallback: delete directly via Discord REST API so the command
-        //    disappears from Discord even when no runner is connected.
-        if (!deletedViaRunner) {
+    // 1. Try runner client first.
+    try {
+      final client = await RunnerSettings.createClientForBot(botId);
+      if (client != null) {
+        final botName = await resolveBotName(botId);
+        await client.deleteCommand(botId, botName, commandId);
+        debugPrint(
+          '[AutoReload] Deleted command $commandId for bot $botId via runner.',
+        );
+        deletedViaRunner = true;
+      }
+    } catch (error) {
+      final message = error.toString();
+      if (message.contains('10063') ||
+          message.contains('Unknown application command')) {
+        debugPrint(
+          '[AutoReload] Command $commandId already absent from Discord '
+          '(runner delete skipped).',
+        );
+      } else {
+        debugPrint(
+          '[AutoReload] Command delete on runner failed for $botId: $error',
+        );
+      }
+    }
+
+    // 2. Fallback: delete directly via Discord REST API so the command
+    //    disappears from Discord even when no runner is connected.
+    if (!deletedViaRunner) {
+      try {
+        final appData = await _appManager.getApp(botId);
+        final token = (appData['token'] ?? '').toString().trim();
+        if (token.isNotEmpty) {
+          final rest = await Nyxx.connectRest(token);
           try {
-            final appData = await _appManager.getApp(botId);
-            final token = (appData['token'] ?? '').toString().trim();
-            if (token.isNotEmpty) {
-              final rest = await Nyxx.connectRest(token);
-              try {
-                await rest.commands.delete(
-                  Snowflake.parse(discordId ?? commandId),
-                );
-                debugPrint(
-                  '[AutoReload] Deleted command $commandId for bot $botId '
-                  'directly from Discord.',
-                );
-              } finally {
-                rest.close();
-              }
-            } else {
-              debugPrint(
-                '[AutoReload] Cannot delete command $commandId: '
-                'no token available for bot $botId.',
-              );
-            }
-          } catch (error) {
-            final message = error.toString();
-            // 10063 = Unknown application command — already deleted from Discord.
-            // This is expected when the command was removed externally or was
-            // never synced; the local delete already succeeded.
-            if (message.contains('10063') ||
-                message.contains('Unknown application command')) {
-              debugPrint(
-                '[AutoReload] Command $commandId already absent from Discord '
-                '(local delete OK).',
-              );
-            } else {
-              debugPrint(
-                '[AutoReload] Direct Discord delete failed for $botId '
-                'command $commandId: $error',
-              );
-            }
+            await rest.commands.delete(Snowflake.parse(discordId ?? commandId));
+            debugPrint(
+              '[AutoReload] Deleted command $commandId for bot $botId '
+              'directly from Discord.',
+            );
+          } finally {
+            rest.close();
           }
+        } else {
+          debugPrint(
+            '[AutoReload] Cannot delete command $commandId: '
+            'no token available for bot $botId.',
+          );
         }
+      } catch (error) {
+        final message = error.toString();
+        // 10063 = Unknown application command — already deleted from Discord.
+        // This is expected when the command was removed externally or was
+        // never synced; the local delete already succeeded.
+        if (message.contains('10063') ||
+            message.contains('Unknown application command')) {
+          debugPrint(
+            '[AutoReload] Command $commandId already absent from Discord '
+            '(local delete OK).',
+          );
+        } else {
+          debugPrint(
+            '[AutoReload] Direct Discord delete failed for $botId '
+            'command $commandId: $error',
+          );
+        }
+      }
+    }
 
-        _batcher.requestSync(botId, _executeSync);
-      };
+    _batcher.requestSync(botId, _executeSync);
+  };
 
   AppManager.onAfterWorkflowSave =
       (String botId, String workflowName, Map<String, dynamic> workflow) async {
@@ -445,6 +448,10 @@ Future<void> _executeSync(String botId) async {
         return;
       }
     }
+    // Deletions recorded BEFORE the payload is built are the only ones this push can confirm.
+    final deletionsInThisPush = (await _appManager.pendingCommandDeletions(
+      botId,
+    )).keys.toList();
     final payload = await buildRemotePayload(botId);
     final app = await _appManager.getApp(botId);
     final botName = (app['username'] ?? app['name'] ?? '').toString().trim();
@@ -504,6 +511,11 @@ Future<void> _executeSync(String botId) async {
               config: payload,
             );
             debugPrint('[AutoReload] Synced bot $botId to cloud (batched).');
+            // The cloud document now lacks the commands deleted before this push.
+            await _appManager.clearPendingCommandDeletions(
+              botId,
+              ids: deletionsInThisPush,
+            );
             // La poussée a été ACCEPTÉE : c'est la preuve la plus fraîche que
             // le manager répond. On en profite pour vider la file hors-ligne,
             // sans l'attendre (voir [onBotDocumentPushed]).
@@ -518,6 +530,12 @@ Future<void> _executeSync(String botId) async {
               );
             }
           }
+        } else {
+          // No cloud account: there is no remote copy that could bring the commands back.
+          await _appManager.clearPendingCommandDeletions(
+            botId,
+            ids: deletionsInThisPush,
+          );
         }
       } catch (error) {
         if (_isTransientNetworkError(error)) {

@@ -1651,7 +1651,7 @@ abstract class AppLocalizations {
   /// Get Global Variable
   ///
   /// In en, this message translates to:
-  /// **'Get Global Variable'**
+  /// **'Get variable (whole bot)'**
   String get action_name_getGlobalVariable;
 
   /// Get Guild Onboarding
@@ -1687,7 +1687,7 @@ abstract class AppLocalizations {
   /// Get Scoped Variable
   ///
   /// In en, this message translates to:
-  /// **'Get Scoped Variable'**
+  /// **'Get variable (per server, member…)'**
   String get action_name_getScopedVariable;
 
   /// Get Webhook
@@ -1759,7 +1759,7 @@ abstract class AppLocalizations {
   /// List Scoped Variable Index
   ///
   /// In en, this message translates to:
-  /// **'List Scoped Variable Index'**
+  /// **'List a variable’s values (per server, member…)'**
   String get action_name_listScopedVariableIndex;
 
   /// List Webhooks
@@ -1861,7 +1861,7 @@ abstract class AppLocalizations {
   /// Remove Global Variable
   ///
   /// In en, this message translates to:
-  /// **'Remove Global Variable'**
+  /// **'Remove variable (whole bot)'**
   String get action_name_removeGlobalVariable;
 
   /// Remove Reaction
@@ -1879,7 +1879,7 @@ abstract class AppLocalizations {
   /// Remove Scoped Variable
   ///
   /// In en, this message translates to:
-  /// **'Remove Scoped Variable'**
+  /// **'Remove variable (per server, member…)'**
   String get action_name_removeScopedVariable;
 
   /// Remove Thread Member
@@ -1891,7 +1891,7 @@ abstract class AppLocalizations {
   /// Rename Scoped Variable
   ///
   /// In en, this message translates to:
-  /// **'Rename Scoped Variable'**
+  /// **'Rename variable (per server, member…)'**
   String get action_name_renameScopedVariable;
 
   /// Respond with Autocomplete
@@ -1993,7 +1993,7 @@ abstract class AppLocalizations {
   /// Set Global Variable
   ///
   /// In en, this message translates to:
-  /// **'Set Global Variable'**
+  /// **'Set variable (whole bot)'**
   String get action_name_setGlobalVariable;
 
   /// Lavalink music key: action_name_setMusicLoop
@@ -2017,7 +2017,7 @@ abstract class AppLocalizations {
   /// Set Scoped Variable
   ///
   /// In en, this message translates to:
-  /// **'Set Scoped Variable'**
+  /// **'Set variable (per server, member…)'**
   String get action_name_setScopedVariable;
 
   /// Set Temporary Variable
@@ -2281,7 +2281,7 @@ abstract class AppLocalizations {
   /// Store results in global variables
   ///
   /// In en, this message translates to:
-  /// **'Store results in global variables'**
+  /// **'Store results in variables'**
   String get action_store_results;
 
   /// Active route: {label}
@@ -2335,7 +2335,7 @@ abstract class AppLocalizations {
   /// Global Variables
   ///
   /// In en, this message translates to:
-  /// **'Global Variables'**
+  /// **'Variables'**
   String get actions_global_variables;
 
   /// Key: {key}
@@ -7646,7 +7646,7 @@ abstract class AppLocalizations {
   /// Global Variables
   ///
   /// In en, this message translates to:
-  /// **'Global Variables'**
+  /// **'Variables'**
   String get export_global_variables;
 
   /// Export / Import
@@ -7688,13 +7688,13 @@ abstract class AppLocalizations {
   /// Add Global Variable
   ///
   /// In en, this message translates to:
-  /// **'Add Global Variable'**
+  /// **'Add a whole-bot variable'**
   String get globals_add_global;
 
   /// Add Scoped Variable
   ///
   /// In en, this message translates to:
-  /// **'Add Scoped Variable'**
+  /// **'Add a per-server / member variable'**
   String get globals_add_scoped;
 
   /// Copy value
@@ -7718,7 +7718,7 @@ abstract class AppLocalizations {
   /// Global variables are shared across all commands and servers.
   ///
   /// In en, this message translates to:
-  /// **'Global variables are shared across all commands and servers.'**
+  /// **'A single value for the whole bot, read and changed by every command and server.'**
   String get globals_dialog_global_desc;
 
   /// Usage: $getVar[{ref}]
@@ -7730,7 +7730,7 @@ abstract class AppLocalizations {
   /// A scoped variable stores a separate value per {scope} context.
   ///
   /// In en, this message translates to:
-  /// **'A scoped variable stores a separate value per {scope} context.'**
+  /// **'This variable keeps a separate value for: {scope}.'**
   String globals_dialog_scoped_desc(String scope);
 
   /// Edit Variable
@@ -7742,37 +7742,37 @@ abstract class AppLocalizations {
   /// Edit Global Variable
   ///
   /// In en, this message translates to:
-  /// **'Edit Global Variable'**
+  /// **'Edit variable (whole bot)'**
   String get globals_edit_global;
 
   /// Edit Scoped Variable
   ///
   /// In en, this message translates to:
-  /// **'Edit Scoped Variable'**
+  /// **'Edit variable (per server, member…)'**
   String get globals_edit_scoped;
 
   /// No global variables yet
   ///
   /// In en, this message translates to:
-  /// **'No global variables yet'**
+  /// **'No whole-bot variables yet'**
   String get globals_empty;
 
   /// Add a variable to store persistent data accessible by all commands.
   ///
   /// In en, this message translates to:
-  /// **'Add a variable to store persistent data accessible by all commands.'**
+  /// **'A whole-bot variable keeps a single value that every command can read and change.'**
   String get globals_empty_subtitle;
 
   /// Shared across all commands. Access via $getVar[key].
   ///
   /// In en, this message translates to:
-  /// **'Shared across all commands. Access via \$getVar[key].'**
+  /// **'A single value for the whole bot. Read with \$getVar[name].'**
   String get globals_help_global;
 
   /// Stored per context (server, user, channel…). Each entry keeps a distinct value per Discord context.
   ///
   /// In en, this message translates to:
-  /// **'Stored per context (server, user, channel…). Each entry keeps a distinct value per Discord context.'**
+  /// **'A separate value per server, member, user, channel or message: the bot picks the right one automatically depending on who runs the command.'**
   String get globals_help_scoped;
 
   /// Key
@@ -7790,13 +7790,13 @@ abstract class AppLocalizations {
   /// Global
   ///
   /// In en, this message translates to:
-  /// **'Global'**
+  /// **'Whole bot'**
   String get globals_mode_global;
 
   /// Scoped
   ///
   /// In en, this message translates to:
-  /// **'Scoped'**
+  /// **'Per server, member…'**
   String get globals_mode_scoped;
 
   /// No default value
@@ -7820,31 +7820,31 @@ abstract class AppLocalizations {
   /// channel
   ///
   /// In en, this message translates to:
-  /// **'channel'**
+  /// **'Each channel'**
   String get globals_scope_channel;
 
   /// guild
   ///
   /// In en, this message translates to:
-  /// **'guild'**
+  /// **'Each server'**
   String get globals_scope_guild;
 
   /// guildMember
   ///
   /// In en, this message translates to:
-  /// **'Server member'**
+  /// **'Each member (per server)'**
   String get globals_scope_guildMember;
 
   /// message
   ///
   /// In en, this message translates to:
-  /// **'message'**
+  /// **'Each message'**
   String get globals_scope_message;
 
   /// user
   ///
   /// In en, this message translates to:
-  /// **'Global user'**
+  /// **'Each user (all servers)'**
   String get globals_scope_user;
 
   /// Search variables…
@@ -7868,7 +7868,7 @@ abstract class AppLocalizations {
   /// Globals
   ///
   /// In en, this message translates to:
-  /// **'Globals'**
+  /// **'Variables'**
   String get globals_tab;
 
   /// Vars
@@ -7882,6 +7882,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Variables'**
   String get globals_title;
+
+  /// No description provided for @globals_scope_global.
+  ///
+  /// In en, this message translates to:
+  /// **'Whole bot'**
+  String get globals_scope_global;
+
+  /// No description provided for @globals_audience_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Who is this variable for?'**
+  String get globals_audience_title;
+
+  /// No description provided for @globals_audience_global_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'A single value for the whole bot (e.g. the number of commands run).'**
+  String get globals_audience_global_desc;
+
+  /// No description provided for @globals_audience_guild_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'One value per server (e.g. the server prefix).'**
+  String get globals_audience_guild_desc;
+
+  /// No description provided for @globals_audience_guildMember_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'One value per member and per server (e.g. their warnings or XP on this server).'**
+  String get globals_audience_guildMember_desc;
+
+  /// No description provided for @globals_audience_user_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'One value per user, shared across all servers (e.g. their profile).'**
+  String get globals_audience_user_desc;
+
+  /// No description provided for @globals_audience_channel_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'One value per channel (e.g. the channel mode).'**
+  String get globals_audience_channel_desc;
+
+  /// No description provided for @globals_audience_message_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'One value per message (e.g. the votes on a message).'**
+  String get globals_audience_message_desc;
+
+  /// No description provided for @globals_section_global.
+  ///
+  /// In en, this message translates to:
+  /// **'Whole bot'**
+  String get globals_section_global;
+
+  /// No description provided for @globals_section_scoped.
+  ///
+  /// In en, this message translates to:
+  /// **'Per server, member…'**
+  String get globals_section_scoped;
 
   /// Value
   ///
@@ -8945,7 +9005,7 @@ abstract class AppLocalizations {
   /// No description provided for @marketplace_no_variables.
   ///
   /// In en, this message translates to:
-  /// **'No global variables defined.'**
+  /// **'No variables defined.'**
   String get marketplace_no_variables;
 
   /// No description provided for @marketplace_publish_add_variable.
@@ -9155,7 +9215,7 @@ abstract class AppLocalizations {
   /// No description provided for @marketplace_publish_variables.
   ///
   /// In en, this message translates to:
-  /// **'Global Variables'**
+  /// **'Variables'**
   String get marketplace_publish_variables;
 
   /// No description provided for @marketplace_publish_variables_hint.
@@ -11114,13 +11174,13 @@ abstract class AppLocalizations {
   /// No scoped variables defined
   ///
   /// In en, this message translates to:
-  /// **'No scoped variables defined'**
+  /// **'No per-server or per-member variables'**
   String get scoped_empty;
 
   /// Scoped variables store a value per Discord context (user, server…). They are populated by the bot at runtime.
   ///
   /// In en, this message translates to:
-  /// **'Scoped variables store a value per Discord context (user, server…). They are populated by the bot at runtime.'**
+  /// **'They store one value per server, member, user, channel or message. The bot fills them in at runtime.'**
   String get scoped_empty_subtitle;
 
   /// Explore runtime data
@@ -11175,19 +11235,19 @@ abstract class AppLocalizations {
   /// Scope
   ///
   /// In en, this message translates to:
-  /// **'Scope'**
+  /// **'Who is it for?'**
   String get scoped_scope;
 
   /// The entity level at which the variable is stored.
   ///
   /// In en, this message translates to:
-  /// **'The entity level at which the variable is stored.'**
+  /// **'Who owns the value: each server, each member, etc.'**
   String get scoped_scope_help;
 
   /// Scoped Variables
   ///
   /// In en, this message translates to:
-  /// **'Scoped Variables'**
+  /// **'Per-server / member variables'**
   String get scoped_title;
 
   /// Add block
@@ -19132,7 +19192,7 @@ abstract class AppLocalizations {
   /// No description provided for @modules_desc_globals.
   ///
   /// In en, this message translates to:
-  /// **'Shared across all commands'**
+  /// **'Remembered data: whole bot, server, member…'**
   String get modules_desc_globals;
 
   /// No description provided for @modules_desc_emojis.
