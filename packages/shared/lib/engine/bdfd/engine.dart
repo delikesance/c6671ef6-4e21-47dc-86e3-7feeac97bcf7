@@ -245,10 +245,16 @@ class BdfdEngine {
                  (moderation is BotChannelMutationService
                      ? moderation as BotChannelMutationService
                      : null),
+             queries:
+                 channelQueries ??
+                 (moderation is BotChannelQueryService
+                     ? moderation as BotChannelQueryService
+                     : null),
            ),
-           ...bdfdBotQueryFunctions(),
+           ...bdfdBotQueryFunctions(moderation: moderation),
            ...bdfdCanvasFunctions(),
            ...bdfdAdvancedLanguageFunctions(),
+           ...bdfdAwaitFunctions(store, botId),
            ...bdfdLeaderboardFunctions(),
            ...bdfdMusicFunctions(),
            ...functions,

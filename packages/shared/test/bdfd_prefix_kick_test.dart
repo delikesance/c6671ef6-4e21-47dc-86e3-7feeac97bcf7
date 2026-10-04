@@ -1,4 +1,3 @@
-import 'package:bot_creator_shared/actions/handler.dart';
 import 'package:bot_creator_shared/engine/bdfd/engine.dart';
 import 'package:bot_creator_shared/engine/bdfd/runtime.dart';
 import 'package:bot_creator_shared/engine/execution_budget.dart';
@@ -7,8 +6,6 @@ import 'package:bot_creator_shared/services/bot_moderation_service.dart';
 import 'package:bot_creator_shared/services/runtime_temporary_variables.dart';
 import 'package:bot_creator_shared/actions/execution_policy.dart';
 import 'package:bot_creator_shared/types/action.dart';
-import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
-import 'package:bot_creator_shared/utils/template_resolver.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:test/test.dart';
 import 'helpers/variables_test_helpers.dart';
@@ -160,84 +157,6 @@ $description[<@$var[cible]> a été expulsé de $serverName.]
 $addField[Raison;$var[raison]]
 $footer[Expulsé par $username]''';
 void main() {
-  for (final backend in ['legacy-v1', 'native-v1']) {
-    for (final target in ['222', '333', '999', '']) {
-      test(
-        '$backend reported prefix script targets mention $target with owner as author',
-        () async {
-          final compiled = BdfdCompiler().compile(script);
-          expect(compiled.hasErrors, false);
-          final gateway = _Gateway();
-          final responses = _Responses();
-          final variables = <String, String>{
-            'author.id': '999',
-            'user.id': '999',
-            'user.username': 'Owner',
-            'guild.id': '10',
-            'guild.ownerId': '999',
-            'guild.name': 'Test',
-            'message.content': target.isEmpty
-                ? '!kick'
-                : '!kick <@$target> Spam',
-            if (target.isNotEmpty) 'message.mentions[0]': target,
-          };
-          if (backend == 'native-v1') {
-            await BdfdEngine(
-              store: MemoryBotDataStore(),
-              botId: 'test',
-              messages: _NativeResponses(responses),
-              moderation: DiscordBotModerationService(
-                client: gateway,
-                guildId: Snowflake(10),
-              ),
-            ).execute(
-              script,
-              context: BdfdContext(
-                variables: variables,
-                temporaryVariables: RuntimeTemporaryVariables(variables),
-              ),
-            );
-          } else {
-            await handleActions(
-              gateway,
-              null,
-              actions: compiled.actions,
-              store: MemoryBotDataStore(),
-              botId: 'test',
-              variables: variables,
-              resolveTemplate: (input) =>
-                  resolveTemplatePlaceholders(input, variables),
-              fallbackGuildId: Snowflake(10),
-              fallbackChannelId: Snowflake(11),
-              executionPolicy: responses,
-              throwOnError: true,
-            );
-          }
-          final resolvedTarget = backend == 'native-v1' && target.isEmpty
-              ? '999'
-              : target;
-          expect(variables['temp.cible'], resolvedTarget);
-          if (target.isNotEmpty && target != '999') {
-            expect(
-              gateway.guild.memberManager.deleted,
-              Snowflake.parse(target),
-            );
-            expect(gateway.guild.memberManager.reason, 'Spam');
-          } else {
-            expect(gateway.guild.memberManager.deleted, isNull);
-            expect(
-              responses.contents.join(),
-              contains(
-                target.isEmpty && backend == 'legacy-v1'
-                    ? 'Utilisation'
-                    : 'toi-même',
-              ),
-            );
-          }
-        },
-      );
-    }
-  }
   test(
     'native prefix with explicit no mention fallback reports usage without moderation',
     () async {

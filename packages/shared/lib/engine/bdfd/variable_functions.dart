@@ -90,7 +90,9 @@ Map<String, BdfdNativeFunction> bdfdVariableFunctions(
     ].contains(entry.key);
     functions[entry.key] = BdfdNativeFunction(
       minArguments: 1,
-      maxArguments: forUser ? 2 : 1,
+      // Member-scoped resets also accept an optional guild ID (extension used
+      // by migrated scripts): $resetGuildMemberVar[name;userID;guildID].
+      maxArguments: forUser ? (entry.value == 'guildMember' ? 3 : 2) : 1,
       handler: (call) async {
         final key = (await call.argument(0)).trim();
         if (key.isEmpty) {
@@ -110,11 +112,22 @@ Map<String, BdfdNativeFunction> bdfdVariableFunctions(
             );
           }
         }
+        String? guildId;
+        if (call.argumentCount == 3) {
+          guildId = (await call.argument(2)).trim();
+          if (!RegExp(r'^[0-9]+$').hasMatch(guildId)) {
+            throw BdfdNativeError(
+              'A valid guild ID is required.',
+              call.location,
+            );
+          }
+        }
         try {
           await service.resetScoped(
             scope: entry.value,
             key: key,
             userId: userId,
+            guildId: guildId,
             checkBudget: call.context.budget.check,
           );
         } on ArgumentError catch (error) {

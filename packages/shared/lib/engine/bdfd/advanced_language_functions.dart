@@ -1,24 +1,11 @@
+import '../../bot/bot_data_store.dart';
+import 'program.dart';
 import 'runtime.dart';
 
 Map<String, BdfdNativeFunction> bdfdAdvancedLanguageFunctions() => {
-  'allowrolementions': BdfdNativeFunction(
-    minArguments: 0,
-    maxArguments: 1000,
-    handler: (call) async => '',
-  ),
-  'allowusermentions': BdfdNativeFunction(
-    minArguments: 0,
-    maxArguments: 1000,
-    handler: (call) async => '',
-  ),
   'alternativeparsing': BdfdNativeFunction(
     minArguments: 0,
     maxArguments: 1,
-    handler: (call) async => '',
-  ),
-  'blacklistroleids': BdfdNativeFunction(
-    minArguments: 2,
-    maxArguments: 1 << 30,
     handler: (call) async => '',
   ),
   'args': BdfdNativeFunction(
@@ -37,17 +24,6 @@ Map<String, BdfdNativeFunction> bdfdAdvancedLanguageFunctions() => {
       return parts[index - 1];
     },
   ),
-  'awaitfunc': BdfdNativeFunction(
-    minArguments: 1,
-    maxArguments: 2,
-    handler: (call) async =>
-        call.argumentCount > 0 ? await call.argument(0) : '',
-  ),
-  'clear': BdfdNativeFunction(
-    minArguments: 1,
-    maxArguments: 2,
-    handler: (call) async => '',
-  ),
   'debug': BdfdNativeFunction(
     minArguments: 1,
     maxArguments: 1,
@@ -63,10 +39,21 @@ Map<String, BdfdNativeFunction> bdfdAdvancedLanguageFunctions() => {
     maxArguments: 0,
     handler: (call) async => '',
   ),
+  // Wiki: $enabled[Enabled;Error message] stops the command with the error
+  // message when the first argument is a false boolean (yes/no).
   'enabled': BdfdNativeFunction(
-    minArguments: 0,
-    maxArguments: 0,
-    handler: (call) async => 'true',
+    minArguments: 1,
+    maxArguments: 2,
+    handler: (call) async {
+      final value = (await call.argument(0)).trim().toLowerCase();
+      if (!const ['yes', 'no', 'true', 'false'].contains(value)) {
+        throw BdfdNativeError('Enabled must be yes or no.', call.location);
+      }
+      if (value == 'no' || value == 'false') {
+        call.stop(call.argumentCount > 1 ? await call.argument(1) : '');
+      }
+      return '';
+    },
   ),
   'ignorelinks': BdfdNativeFunction(
     minArguments: 0,
@@ -134,6 +121,51 @@ Map<String, BdfdNativeFunction> bdfdAdvancedLanguageFunctions() => {
       } catch (_) {
         return text;
       }
+    },
+  ),
+};
+
+/// `$awaitFunc[name;(userID;channelID)]` registers a pending awaited command
+/// for the user (author by default) in the channel (current by default).
+Map<String, BdfdNativeFunction> bdfdAwaitFunctions(
+  BotDataStore store,
+  String botId,
+) => {
+  'awaitfunc': BdfdNativeFunction(
+    minArguments: 1,
+    maxArguments: 3,
+    handler: (call) async {
+      final name = (await call.argument(
+        0,
+      )).trim().toLowerCase().replaceAll(RegExp(r'[^a-z0-9_]'), '_');
+      if (name.isEmpty) {
+        throw BdfdNativeError(
+          'The awaited function name is required.',
+          call.location,
+        );
+      }
+      var userId = call.argumentCount > 1
+          ? (await call.argument(1)).trim()
+          : '';
+      var channelId = call.argumentCount > 2
+          ? (await call.argument(2)).trim()
+          : '';
+      if (userId.isEmpty) userId = call.context.variables['author.id'] ?? '';
+      if (channelId.isEmpty) {
+        channelId = call.context.variables['channel.id'] ?? '';
+      }
+      if (int.tryParse(userId) == null || int.tryParse(channelId) == null) {
+        throw BdfdNativeError('Invalid user or channel ID.', call.location);
+      }
+      await call.context.budget.run(
+        () => store.setScopedVariable(botId, 'user', userId, 'await_$name', {
+          'name': name,
+          'userId': userId,
+          'channelId': channelId,
+          'createdAt': DateTime.now().toUtc().toIso8601String(),
+        }),
+      );
+      return '';
     },
   ),
 };
