@@ -14,6 +14,7 @@ import 'guild_actions.dart';
 import 'listener_actions.dart';
 import 'message_actions.dart';
 import 'moderation_actions.dart';
+import 'music_actions.dart';
 import 'role_actions.dart';
 import 'variable_actions.dart';
 
@@ -106,6 +107,7 @@ class ActionTranslator {
     ...messageLeafPredicates,
     ...componentLeafPredicates,
     ...listenerLeafPredicates,
+    ...musicLeafPredicates,
   };
 
   /// Whether [action] runs on the native engine. A leaf needs a handler (and a

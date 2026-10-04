@@ -103,6 +103,19 @@ Future<bool> executeLavalinkAction({
       return false;
   }
 
+  applyLavalinkResult(result, results, resultKey);
+  return true;
+}
+
+/// Records the outcome of a Lavalink block in [results]: `results[key]` is
+/// `'Error: ...'`, `'OK'` or the JSON of the result, and every property is also
+/// stored as `results['<key>.<prop>']`. Shared by the historical loop and the
+/// native `bc_*` music functions so both write identical keys.
+void applyLavalinkResult(
+  Map<String, String> result,
+  Map<String, String> results,
+  String resultKey,
+) {
   // If there's an error, propagate it as the main result so callers can detect it.
   if (result.containsKey('error')) {
     results[resultKey] = 'Error: ${result['error']}';
@@ -119,5 +132,4 @@ Future<bool> executeLavalinkAction({
   for (final entry in result.entries) {
     results['$resultKey.${entry.key}'] = entry.value;
   }
-  return true;
 }
