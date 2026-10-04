@@ -94,6 +94,8 @@ Future<Outcome<G>> _execute<G extends NyxxGateway>(
   Duration? limit,
   BotDataStore Function()? makeStore,
   Snowflake? fallbackChannelId,
+  Interaction? Function()? makeInteraction,
+  Duration? settle,
 }) async {
   final gateway = makeGateway();
   setup?.call(gateway);
@@ -108,7 +110,7 @@ Future<Outcome<G>> _execute<G extends NyxxGateway>(
   try {
     results = await handleActions(
       gateway,
-      null,
+      makeInteraction?.call(),
       actions: actions,
       store: makeStore?.call() ?? MemoryBotDataStore(),
       botId: 'bot',
@@ -126,6 +128,8 @@ Future<Outcome<G>> _execute<G extends NyxxGateway>(
   } catch (e) {
     error = e;
   }
+  // Fire-and-forget work of the blocks (immediate listener runs) settles first.
+  if (settle != null) await Future<void>.delayed(settle);
   values.remove('execution.time');
   return Outcome<G>(
     gateway,
@@ -151,6 +155,8 @@ Future<Outcome<G>> visualParity<G extends NyxxGateway>(
   Duration? limit,
   BotDataStore Function()? makeStore,
   Snowflake? fallbackChannelId,
+  Interaction? Function()? makeInteraction,
+  Duration? settle,
   bool expectNative = true,
   int? nativePrograms,
 }) async {
@@ -168,6 +174,8 @@ Future<Outcome<G>> visualParity<G extends NyxxGateway>(
     limit: limit,
     makeStore: makeStore,
     fallbackChannelId: fallbackChannelId,
+    makeInteraction: makeInteraction,
+    settle: settle,
   );
   final historical = await run(false);
   final native = await run(true);

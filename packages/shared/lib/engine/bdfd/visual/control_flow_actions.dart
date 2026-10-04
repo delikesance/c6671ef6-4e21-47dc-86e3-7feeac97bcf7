@@ -232,6 +232,11 @@ void _markStopped(
 ) {
   for (var k = path.length; k >= 0; k--) {
     if (k < raw.length && raw[k].startsWith(visualIterationMarker)) continue;
+    // The action's own list keeps the marker it wrote (`AUTOCOMPLETE`).
+    if (k == path.length &&
+        env.sink.scope(path.sublist(0, k)).containsKey('__stopped__')) {
+      continue;
+    }
     env.sink.set(path.sublist(0, k), '__stopped__', 'true');
   }
 }
