@@ -7,6 +7,7 @@ import '../../execution_budget.dart';
 import '../program.dart' show BdfdNativeError;
 import '../runtime.dart';
 import 'action_environment.dart';
+import 'admin_actions.dart';
 import 'channel_actions.dart';
 import 'component_actions.dart';
 import 'control_flow_actions.dart';
@@ -46,6 +47,7 @@ final Map<BotCreatorActionType, ActionHandler> bdfdVisualActionHandlers =
       ...messageActionHandlers,
       ...componentActionHandlers,
       ...listenerActionHandlers,
+      ...adminActionHandlers,
       ...webhookActionHandlers,
       ...emojiActionHandlers,
       ...memberActionHandlers,
@@ -60,6 +62,7 @@ final Set<BotCreatorActionType> bdfdVisualProfilingOnlyTraceTypes =
     Set.unmodifiable({
       ...guildProfilingOnlyTraceTypes,
       ...messageProfilingOnlyTraceTypes,
+      ...adminProfilingOnlyTraceTypes,
       ...emojiProfilingOnlyTraceTypes,
       ...memberProfilingOnlyTraceTypes,
       ...inviteProfilingOnlyTraceTypes,

@@ -1148,7 +1148,7 @@ void main() {
       final outcome = await _parity([
         _simpleLoop('loop', '1', [
           _act(
-            BotCreatorActionType.createPoll,
+            BotCreatorActionType.debugProfile,
             key: 'r',
             payload: {'question': 'x'},
           ),

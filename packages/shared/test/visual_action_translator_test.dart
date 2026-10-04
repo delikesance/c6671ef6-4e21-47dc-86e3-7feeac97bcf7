@@ -138,7 +138,7 @@ void main() {
       );
       expect(
         translator.supports(
-          Action(type: BotCreatorActionType.updateGuild, payload: {}),
+          Action(type: BotCreatorActionType.debugProfile, payload: {}),
         ),
         isFalse,
       );
@@ -152,7 +152,7 @@ void main() {
             'i',
             then: [_role('a')],
             otherwise: [
-              Action(type: BotCreatorActionType.createPoll, payload: {}),
+              Action(type: BotCreatorActionType.debugProfile, payload: {}),
             ],
           ),
         ),
@@ -167,7 +167,7 @@ void main() {
                 'variable': 'a',
                 'actions': [
                   Action(
-                    type: BotCreatorActionType.updateGuild,
+                    type: BotCreatorActionType.debugProfile,
                     payload: {},
                   ).toJson(),
                 ],
@@ -210,7 +210,7 @@ void main() {
             'i',
             extra: {'tryCatch': true},
             otherwise: [
-              Action(type: BotCreatorActionType.createPoll, payload: {}),
+              Action(type: BotCreatorActionType.debugProfile, payload: {}),
             ],
           ),
         ),
@@ -372,7 +372,7 @@ void main() {
     test('an unsupported action cannot be translated', () {
       expect(
         () => translator.translate([
-          Action(type: BotCreatorActionType.updateGuild, payload: {}),
+          Action(type: BotCreatorActionType.debugProfile, payload: {}),
         ]),
         throwsArgumentError,
       );
