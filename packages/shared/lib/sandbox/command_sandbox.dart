@@ -52,6 +52,7 @@ import '../utils/global.dart';
 import '../utils/template_resolver.dart';
 import 'sandbox_store.dart';
 import 'entity_fixture_gateway.dart';
+import 'action_simulations.dart';
 import 'music_fixture.dart';
 
 /// Runs only caller-provided fixtures; never reads the application's real store
@@ -2783,6 +2784,14 @@ class _SandboxPolicy implements ActionExecutionPolicy {
     BotCreatorActionType.randomChoice,
     BotCreatorActionType.skipActions,
     BotCreatorActionType.jumpToAction,
+    // Variable reads and in-memory listeners/images: no Discord access, run as in production.
+    BotCreatorActionType.queryArray,
+    BotCreatorActionType.listScopedVariableIndex,
+    BotCreatorActionType.listenForButtonClick,
+    BotCreatorActionType.listenForSelectMenu,
+    BotCreatorActionType.listenForModalSubmit,
+    BotCreatorActionType.listenAndExecute,
+    BotCreatorActionType.attachImage,
   };
   static const messages = {
     BotCreatorActionType.respondWithMessage,
@@ -4236,10 +4245,23 @@ class _SandboxPolicy implements ActionExecutionPolicy {
       results[resultKey] = 'Sandbox trace enabled';
       return true;
     }
+    if (sandboxSimulatedAdditionalActions.contains(action.type)) {
+      final guild =
+          (entityGateway?.fixtures['guilds'] as Map?)?[variables['guild.id'] ??
+              ''];
+      return simulateAdditionalAction(
+        type: action.type,
+        payload: Map<String, dynamic>.from(resolve(action.payload) as Map),
+        resultKey: resultKey,
+        results: results,
+        variables: variables,
+        effects: effects,
+        responses: responses,
+        guild: guild is Map ? guild : null,
+      );
+    }
     if (pure.contains(action.type)) return false;
-    throw StateError(
-      'Sandbox action ${action.type.name} requires an explicit simulation fixture',
-    );
+    throw StateError(sandboxMissingFixtureMessage(action.type));
   }
 
   String _simulateRoleDefinition(

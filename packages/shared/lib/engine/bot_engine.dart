@@ -7,10 +7,7 @@ import 'package:bot_creator_shared/engine/bot_session.dart';
 /// The central entry point for the Bot Creator bot execution engine.
 /// Manages multiple bot sessions across Desktop, Mobile, or Runner environments.
 class BotEngine {
-  BotEngine({
-    required this.store,
-    required this.callbacks,
-  });
+  BotEngine({required this.store, required this.callbacks});
 
   final BotDataStore store;
   final BotEngineCallbacks callbacks;
@@ -61,7 +58,10 @@ class BotEngine {
         botId: botId,
       );
     } else {
-      callbacks.onLog?.call('No Lavalink config found in app data — music features disabled', botId: botId);
+      callbacks.onLog?.call(
+        'No Lavalink config found in app data — music features disabled',
+        botId: botId,
+      );
     }
 
     final session = BotSession(
@@ -118,7 +118,8 @@ class BotEngine {
   final Map<String, bool> _debugReplayEnabled = {};
   final Map<String, List<Map<String, dynamic>>> _debugReplays = {};
 
-  bool isDebugReplayCapturing(String botId) => _debugReplayEnabled[botId] ?? false;
+  bool isDebugReplayCapturing(String botId) =>
+      _debugReplayEnabled[botId] ?? false;
 
   void setDebugReplayCapturing(String botId, bool enabled) {
     _debugReplayEnabled[botId] = enabled;

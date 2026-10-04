@@ -391,9 +391,11 @@ void main() {
           setup: (g) => g.failures['updateMember'] = StateError('refused'),
         );
       }
-      await _fails(BotCreatorActionType.moveToVoiceChannel, {
-        'targetChannelId': '34',
-      }, 'Exception: userId is required for moveToVoiceChannel');
+      await _fails(
+        BotCreatorActionType.moveToVoiceChannel,
+        {'targetChannelId': '34'},
+        'Exception: userId is required for moveToVoiceChannel',
+      );
     });
 
     test('error modes and disabled actions behave the same', () async {

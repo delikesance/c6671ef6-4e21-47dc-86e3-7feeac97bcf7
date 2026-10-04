@@ -12,10 +12,7 @@ class DiscordTokenUnauthorizedException implements Exception {
 const _gatewayDisallowedIntentsCode = '4014';
 
 /// Returns whether [error] or [reason] indicates disallowed gateway intents (4014).
-bool isDiscordGatewayDisallowedIntents(
-  Object? error, [
-  String? reason,
-]) {
+bool isDiscordGatewayDisallowedIntents(Object? error, [String? reason]) {
   if (error != null) {
     final message = error.toString().toLowerCase();
     if (message.contains('disallowed intent')) {
@@ -72,10 +69,7 @@ Never throwIfDiscordTokenUnauthorized(Object error, {String? context}) {
   }
 
   final prefix = context == null || context.isEmpty ? '' : '$context: ';
-  throw DiscordTokenUnauthorizedException(
-    '$prefix$error',
-    cause: error,
-  );
+  throw DiscordTokenUnauthorizedException('$prefix$error', cause: error);
 }
 
 bool _messageContainsGatewayCode(String message, String code) {

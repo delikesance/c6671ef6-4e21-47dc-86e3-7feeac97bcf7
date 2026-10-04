@@ -1017,10 +1017,7 @@ class EventDispatcher {
         guildId: context.guildId?.toString(),
       ),
     );
-    await execution.execute(
-      scriptSource,
-      backend: backend,
-    );
+    await execution.execute(scriptSource, backend: backend);
   }
 
   Future<void> _executeEventWorkflow(

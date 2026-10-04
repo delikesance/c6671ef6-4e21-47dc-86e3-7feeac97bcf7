@@ -59,7 +59,8 @@ class JsonVariableStore implements VariableDatabase {
   @override
   Future<dynamic> getGlobalVariable(String botId, String key) async {
     final expiresAt = _globalExpirations[key];
-    if (expiresAt != null && expiresAt < DateTime.now().millisecondsSinceEpoch) {
+    if (expiresAt != null &&
+        expiresAt < DateTime.now().millisecondsSinceEpoch) {
       _globalVariables.remove(key);
       _globalExpirations.remove(key);
       return null;
@@ -151,7 +152,8 @@ class JsonVariableStore implements VariableDatabase {
     final byScope = _scopedExpirations[scope];
     final byId = byScope?[contextId];
     final expiresAt = byId?[key];
-    if (expiresAt != null && expiresAt < DateTime.now().millisecondsSinceEpoch) {
+    if (expiresAt != null &&
+        expiresAt < DateTime.now().millisecondsSinceEpoch) {
       removeScopedVariable(botId, scope, contextId, key);
       return null;
     }
@@ -265,15 +267,14 @@ class JsonVariableStore implements VariableDatabase {
     final byScope = _scopedVariables[scope];
     if (byScope == null) return [];
 
-    final contextIds =
-        byScope.entries
-            .where((entry) {
-              if (searchKey == null) return true;
-              // Check if any key in this context starts with searchKey
-              return entry.value.keys.any((k) => k.startsWith(searchKey));
-            })
-            .map((e) => e.key)
-            .toList();
+    final contextIds = byScope.entries
+        .where((entry) {
+          if (searchKey == null) return true;
+          // Check if any key in this context starts with searchKey
+          return entry.value.keys.any((k) => k.startsWith(searchKey));
+        })
+        .map((e) => e.key)
+        .toList();
 
     return contextIds;
   }
@@ -318,12 +319,12 @@ class JsonVariableStore implements VariableDatabase {
     );
 
     final total = items.length;
-    final end =
-        (safeOffset + safeLimit) > total ? total : (safeOffset + safeLimit);
-    final paged =
-        safeOffset >= total
-            ? const <Map<String, dynamic>>[]
-            : items.sublist(safeOffset, end);
+    final end = (safeOffset + safeLimit) > total
+        ? total
+        : (safeOffset + safeLimit);
+    final paged = safeOffset >= total
+        ? const <Map<String, dynamic>>[]
+        : items.sublist(safeOffset, end);
 
     return <String, dynamic>{
       'items': paged,

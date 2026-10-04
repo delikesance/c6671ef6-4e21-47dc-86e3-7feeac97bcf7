@@ -89,8 +89,10 @@ const Map<String, String> _descriptions = {
   'interaction.isslash': 'Whether triggered by a slash command',
   'interaction.command.name': 'Slash command name',
   'interaction.command.id': 'Slash command ID',
-  'interaction.locale': 'Locale of the user who triggered the interaction (e.g. fr, ja)',
-  'interaction.guild_locale': 'Locale of the guild where the interaction was triggered (e.g. en-US)',
+  'interaction.locale':
+      'Locale of the user who triggered the interaction (e.g. fr, ja)',
+  'interaction.guild_locale':
+      'Locale of the guild where the interaction was triggered (e.g. en-US)',
   'target.locale': 'Alias for interaction.locale',
   // Autocomplete
   'autocomplete.query': 'Current autocomplete search text',
@@ -136,13 +138,20 @@ VariableCategory inferCategory(String name) {
 
   // Entity lookup IDs (bare)
   if (lower == 'guildid' || lower == 'guildname') return VariableCategory.guild;
-  if (lower == 'channelid' || lower == 'channelname') return VariableCategory.channel;
-  if (lower == 'userid' || lower == 'username' || lower == 'usertag' ||
-      lower == 'useravatar' || lower == 'userbanner') {
+  if (lower == 'channelid' || lower == 'channelname') {
+    return VariableCategory.channel;
+  }
+  if (lower == 'userid' ||
+      lower == 'username' ||
+      lower == 'usertag' ||
+      lower == 'useravatar' ||
+      lower == 'userbanner') {
     return VariableCategory.user;
   }
   if (lower == 'messageid') return VariableCategory.message;
-  if (lower == 'timestamp' || lower == 'actualtime') return VariableCategory.context_;
+  if (lower == 'timestamp' || lower == 'actualtime') {
+    return VariableCategory.context_;
+  }
 
   // Functions (look like function calls)
   if (lower.contains('(')) return VariableCategory.function_;
@@ -175,200 +184,804 @@ class VariableCatalog {
   // ── Reusable suggestion groups ──
 
   static const _memberCore = [
-    VariableSuggestion(name: 'member.id', kind: VariableSuggestionKind.numeric, category: VariableCategory.member),
-    VariableSuggestion(name: 'member.nick', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.member),
-    VariableSuggestion(name: 'member.displayName', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.member),
-    VariableSuggestion(name: 'member.avatar', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.member),
-    VariableSuggestion(name: 'member.joinedAt', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.member),
-    VariableSuggestion(name: 'member.roles', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.member),
-    VariableSuggestion(name: 'member.roles.count', kind: VariableSuggestionKind.numeric, category: VariableCategory.member),
-    VariableSuggestion(name: 'member.roles[0]', kind: VariableSuggestionKind.numeric, category: VariableCategory.member),
-    VariableSuggestion(name: 'member.roles[1]', kind: VariableSuggestionKind.numeric, category: VariableCategory.member),
-    VariableSuggestion(name: 'member.roles[2]', kind: VariableSuggestionKind.numeric, category: VariableCategory.member),
-    VariableSuggestion(name: 'member.isBooster', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.member),
-    VariableSuggestion(name: 'member.isAdmin', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.member),
-    VariableSuggestion(name: 'member.permissions', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.member),
+    VariableSuggestion(
+      name: 'member.id',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.member,
+    ),
+    VariableSuggestion(
+      name: 'member.nick',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.member,
+    ),
+    VariableSuggestion(
+      name: 'member.displayName',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.member,
+    ),
+    VariableSuggestion(
+      name: 'member.avatar',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.member,
+    ),
+    VariableSuggestion(
+      name: 'member.joinedAt',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.member,
+    ),
+    VariableSuggestion(
+      name: 'member.roles',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.member,
+    ),
+    VariableSuggestion(
+      name: 'member.roles.count',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.member,
+    ),
+    VariableSuggestion(
+      name: 'member.roles[0]',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.member,
+    ),
+    VariableSuggestion(
+      name: 'member.roles[1]',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.member,
+    ),
+    VariableSuggestion(
+      name: 'member.roles[2]',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.member,
+    ),
+    VariableSuggestion(
+      name: 'member.isBooster',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.member,
+    ),
+    VariableSuggestion(
+      name: 'member.isAdmin',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.member,
+    ),
+    VariableSuggestion(
+      name: 'member.permissions',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.member,
+    ),
   ];
 
   static const _memberExtra = [
-    VariableSuggestion(name: 'member.name', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.member),
-    VariableSuggestion(name: 'member.username', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.member),
-    VariableSuggestion(name: 'member.tag', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.member),
-    VariableSuggestion(name: 'member.premiumSince', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.member),
-    VariableSuggestion(name: 'member.mention', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.member),
-    VariableSuggestion(name: 'member.communicationDisabledUntil', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.member),
+    VariableSuggestion(
+      name: 'member.name',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.member,
+    ),
+    VariableSuggestion(
+      name: 'member.username',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.member,
+    ),
+    VariableSuggestion(
+      name: 'member.tag',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.member,
+    ),
+    VariableSuggestion(
+      name: 'member.premiumSince',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.member,
+    ),
+    VariableSuggestion(
+      name: 'member.mention',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.member,
+    ),
+    VariableSuggestion(
+      name: 'member.communicationDisabledUntil',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.member,
+    ),
   ];
 
   static const _userCore = [
-    VariableSuggestion(name: 'user.id', kind: VariableSuggestionKind.numeric, category: VariableCategory.user),
-    VariableSuggestion(name: 'user.username', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.user),
-    VariableSuggestion(name: 'user.globalName', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.user),
-    VariableSuggestion(name: 'user.displayName', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.user),
-    VariableSuggestion(name: 'user.tag', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.user),
-    VariableSuggestion(name: 'user.avatar', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.user),
-    VariableSuggestion(name: 'user.banner', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.user),
-    VariableSuggestion(name: 'user.createdAt', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.user),
-    VariableSuggestion(name: 'user.bannerColor', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.user),
-    VariableSuggestion(name: 'user.mention', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.user),
+    VariableSuggestion(
+      name: 'user.id',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.user,
+    ),
+    VariableSuggestion(
+      name: 'user.username',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.user,
+    ),
+    VariableSuggestion(
+      name: 'user.globalName',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.user,
+    ),
+    VariableSuggestion(
+      name: 'user.displayName',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.user,
+    ),
+    VariableSuggestion(
+      name: 'user.tag',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.user,
+    ),
+    VariableSuggestion(
+      name: 'user.avatar',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.user,
+    ),
+    VariableSuggestion(
+      name: 'user.banner',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.user,
+    ),
+    VariableSuggestion(
+      name: 'user.createdAt',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.user,
+    ),
+    VariableSuggestion(
+      name: 'user.bannerColor',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.user,
+    ),
+    VariableSuggestion(
+      name: 'user.mention',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.user,
+    ),
   ];
 
   static const _userExtended = [
-    VariableSuggestion(name: 'user.accentColor', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.user),
-    VariableSuggestion(name: 'user.flags', kind: VariableSuggestionKind.numeric, category: VariableCategory.user),
-    VariableSuggestion(name: 'user.publicFlags', kind: VariableSuggestionKind.numeric, category: VariableCategory.user),
-    VariableSuggestion(name: 'user.avatarDecoration', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.user),
-    VariableSuggestion(name: 'user.avatarDecorationHash', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.user),
-    VariableSuggestion(name: 'user.avatarDecorationData.skuId', kind: VariableSuggestionKind.numeric, category: VariableCategory.user),
-    VariableSuggestion(name: 'user.avatarDecorationData.asset', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.user),
-    VariableSuggestion(name: 'user.primaryGuild.identityGuildId', kind: VariableSuggestionKind.numeric, category: VariableCategory.user),
-    VariableSuggestion(name: 'user.primaryGuild.identityEnabled', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.user),
-    VariableSuggestion(name: 'user.primaryGuild.tag', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.user),
-    VariableSuggestion(name: 'user.primaryGuild.badge', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.user),
-    VariableSuggestion(name: 'user.verified', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.user),
+    VariableSuggestion(
+      name: 'user.accentColor',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.user,
+    ),
+    VariableSuggestion(
+      name: 'user.flags',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.user,
+    ),
+    VariableSuggestion(
+      name: 'user.publicFlags',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.user,
+    ),
+    VariableSuggestion(
+      name: 'user.avatarDecoration',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.user,
+    ),
+    VariableSuggestion(
+      name: 'user.avatarDecorationHash',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.user,
+    ),
+    VariableSuggestion(
+      name: 'user.avatarDecorationData.skuId',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.user,
+    ),
+    VariableSuggestion(
+      name: 'user.avatarDecorationData.asset',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.user,
+    ),
+    VariableSuggestion(
+      name: 'user.primaryGuild.identityGuildId',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.user,
+    ),
+    VariableSuggestion(
+      name: 'user.primaryGuild.identityEnabled',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.user,
+    ),
+    VariableSuggestion(
+      name: 'user.primaryGuild.tag',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.user,
+    ),
+    VariableSuggestion(
+      name: 'user.primaryGuild.badge',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.user,
+    ),
+    VariableSuggestion(
+      name: 'user.verified',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.user,
+    ),
   ];
 
   static const _authorCore = [
-    VariableSuggestion(name: 'author.id', kind: VariableSuggestionKind.numeric, category: VariableCategory.author),
-    VariableSuggestion(name: 'author.username', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.author),
-    VariableSuggestion(name: 'author.globalName', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.author),
-    VariableSuggestion(name: 'author.tag', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.author),
-    VariableSuggestion(name: 'author.avatar', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.author),
-    VariableSuggestion(name: 'author.banner', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.author),
-    VariableSuggestion(name: 'author.displayName', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.author),
-    VariableSuggestion(name: 'author.isBot', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.author),
+    VariableSuggestion(
+      name: 'author.id',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.author,
+    ),
+    VariableSuggestion(
+      name: 'author.username',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.author,
+    ),
+    VariableSuggestion(
+      name: 'author.globalName',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.author,
+    ),
+    VariableSuggestion(
+      name: 'author.tag',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.author,
+    ),
+    VariableSuggestion(
+      name: 'author.avatar',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.author,
+    ),
+    VariableSuggestion(
+      name: 'author.banner',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.author,
+    ),
+    VariableSuggestion(
+      name: 'author.displayName',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.author,
+    ),
+    VariableSuggestion(
+      name: 'author.isBot',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.author,
+    ),
   ];
 
   static const _authorExtended = [
-    VariableSuggestion(name: 'author.bannerColor', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.author),
-    VariableSuggestion(name: 'author.accentColor', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.author),
-    VariableSuggestion(name: 'author.flags', kind: VariableSuggestionKind.numeric, category: VariableCategory.author),
-    VariableSuggestion(name: 'author.publicFlags', kind: VariableSuggestionKind.numeric, category: VariableCategory.author),
-    VariableSuggestion(name: 'author.avatarDecoration', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.author),
-    VariableSuggestion(name: 'author.avatarDecorationHash', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.author),
-    VariableSuggestion(name: 'author.avatarDecorationData.skuId', kind: VariableSuggestionKind.numeric, category: VariableCategory.author),
-    VariableSuggestion(name: 'author.avatarDecorationData.asset', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.author),
-    VariableSuggestion(name: 'author.primaryGuild.identityGuildId', kind: VariableSuggestionKind.numeric, category: VariableCategory.author),
-    VariableSuggestion(name: 'author.primaryGuild.identityEnabled', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.author),
-    VariableSuggestion(name: 'author.primaryGuild.tag', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.author),
-    VariableSuggestion(name: 'author.primaryGuild.badge', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.author),
-    VariableSuggestion(name: 'author.verified', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.author),
-    VariableSuggestion(name: 'author.mention', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.author),
+    VariableSuggestion(
+      name: 'author.bannerColor',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.author,
+    ),
+    VariableSuggestion(
+      name: 'author.accentColor',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.author,
+    ),
+    VariableSuggestion(
+      name: 'author.flags',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.author,
+    ),
+    VariableSuggestion(
+      name: 'author.publicFlags',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.author,
+    ),
+    VariableSuggestion(
+      name: 'author.avatarDecoration',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.author,
+    ),
+    VariableSuggestion(
+      name: 'author.avatarDecorationHash',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.author,
+    ),
+    VariableSuggestion(
+      name: 'author.avatarDecorationData.skuId',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.author,
+    ),
+    VariableSuggestion(
+      name: 'author.avatarDecorationData.asset',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.author,
+    ),
+    VariableSuggestion(
+      name: 'author.primaryGuild.identityGuildId',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.author,
+    ),
+    VariableSuggestion(
+      name: 'author.primaryGuild.identityEnabled',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.author,
+    ),
+    VariableSuggestion(
+      name: 'author.primaryGuild.tag',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.author,
+    ),
+    VariableSuggestion(
+      name: 'author.primaryGuild.badge',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.author,
+    ),
+    VariableSuggestion(
+      name: 'author.verified',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.author,
+    ),
+    VariableSuggestion(
+      name: 'author.mention',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.author,
+    ),
   ];
 
   static const _guildCore = [
-    VariableSuggestion(name: 'guild.id', kind: VariableSuggestionKind.numeric, category: VariableCategory.guild),
-    VariableSuggestion(name: 'guild.name', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.guild),
-    VariableSuggestion(name: 'guild.memberCount', kind: VariableSuggestionKind.numeric, category: VariableCategory.guild),
-    VariableSuggestion(name: 'guild.count', kind: VariableSuggestionKind.numeric, category: VariableCategory.guild),
-    VariableSuggestion(name: 'guild.ownerId', kind: VariableSuggestionKind.numeric, category: VariableCategory.guild),
-    VariableSuggestion(name: 'guild.preferredLocale', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.guild),
+    VariableSuggestion(
+      name: 'guild.id',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.guild,
+    ),
+    VariableSuggestion(
+      name: 'guild.name',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.guild,
+    ),
+    VariableSuggestion(
+      name: 'guild.memberCount',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.guild,
+    ),
+    VariableSuggestion(
+      name: 'guild.count',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.guild,
+    ),
+    VariableSuggestion(
+      name: 'guild.ownerId',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.guild,
+    ),
+    VariableSuggestion(
+      name: 'guild.preferredLocale',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.guild,
+    ),
   ];
 
   static const _guildExtended = [
-    VariableSuggestion(name: 'guild.description', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.guild),
-    VariableSuggestion(name: 'guild.vanityUrlCode', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.guild),
-    VariableSuggestion(name: 'guild.verificationLevel', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.guild),
-    VariableSuggestion(name: 'guild.mfaLevel', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.guild),
-    VariableSuggestion(name: 'guild.nsfwLevel', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.guild),
-    VariableSuggestion(name: 'guild.premiumTier', kind: VariableSuggestionKind.numeric, category: VariableCategory.guild),
-    VariableSuggestion(name: 'guild.premiumSubscriptionCount', kind: VariableSuggestionKind.numeric, category: VariableCategory.guild),
-    VariableSuggestion(name: 'guild.features', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.guild),
-    VariableSuggestion(name: 'guild.features.count', kind: VariableSuggestionKind.numeric, category: VariableCategory.guild),
-    VariableSuggestion(name: 'guild.systemChannelId', kind: VariableSuggestionKind.numeric, category: VariableCategory.guild),
-    VariableSuggestion(name: 'guild.rulesChannelId', kind: VariableSuggestionKind.numeric, category: VariableCategory.guild),
-    VariableSuggestion(name: 'guild.afkChannelId', kind: VariableSuggestionKind.numeric, category: VariableCategory.guild),
-    VariableSuggestion(name: 'guild.afkTimeout', kind: VariableSuggestionKind.numeric, category: VariableCategory.guild),
-    VariableSuggestion(name: 'guild.icon', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.guild),
-    VariableSuggestion(name: 'guild.roleCount', kind: VariableSuggestionKind.numeric, category: VariableCategory.guild),
-    VariableSuggestion(name: 'guild.roleNames', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.guild),
-    VariableSuggestion(name: 'guild.stickerCount', kind: VariableSuggestionKind.numeric, category: VariableCategory.guild),
-    VariableSuggestion(name: 'guild.emojiCount', kind: VariableSuggestionKind.numeric, category: VariableCategory.guild),
+    VariableSuggestion(
+      name: 'guild.description',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.guild,
+    ),
+    VariableSuggestion(
+      name: 'guild.vanityUrlCode',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.guild,
+    ),
+    VariableSuggestion(
+      name: 'guild.verificationLevel',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.guild,
+    ),
+    VariableSuggestion(
+      name: 'guild.mfaLevel',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.guild,
+    ),
+    VariableSuggestion(
+      name: 'guild.nsfwLevel',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.guild,
+    ),
+    VariableSuggestion(
+      name: 'guild.premiumTier',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.guild,
+    ),
+    VariableSuggestion(
+      name: 'guild.premiumSubscriptionCount',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.guild,
+    ),
+    VariableSuggestion(
+      name: 'guild.features',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.guild,
+    ),
+    VariableSuggestion(
+      name: 'guild.features.count',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.guild,
+    ),
+    VariableSuggestion(
+      name: 'guild.systemChannelId',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.guild,
+    ),
+    VariableSuggestion(
+      name: 'guild.rulesChannelId',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.guild,
+    ),
+    VariableSuggestion(
+      name: 'guild.afkChannelId',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.guild,
+    ),
+    VariableSuggestion(
+      name: 'guild.afkTimeout',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.guild,
+    ),
+    VariableSuggestion(
+      name: 'guild.icon',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.guild,
+    ),
+    VariableSuggestion(
+      name: 'guild.roleCount',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.guild,
+    ),
+    VariableSuggestion(
+      name: 'guild.roleNames',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.guild,
+    ),
+    VariableSuggestion(
+      name: 'guild.stickerCount',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.guild,
+    ),
+    VariableSuggestion(
+      name: 'guild.emojiCount',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.guild,
+    ),
   ];
 
   static const _channelCore = [
-    VariableSuggestion(name: 'channel.id', kind: VariableSuggestionKind.numeric, category: VariableCategory.channel),
-    VariableSuggestion(name: 'channel.name', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.channel),
-    VariableSuggestion(name: 'channel.type', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.channel),
-    VariableSuggestion(name: 'channel.typeValue', kind: VariableSuggestionKind.numeric, category: VariableCategory.channel),
-    VariableSuggestion(name: 'channel.topic', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.channel),
-    VariableSuggestion(name: 'channel.parentId', kind: VariableSuggestionKind.numeric, category: VariableCategory.channel),
-    VariableSuggestion(name: 'channel.categoryId', kind: VariableSuggestionKind.numeric, category: VariableCategory.channel),
-    VariableSuggestion(name: 'channel.position', kind: VariableSuggestionKind.numeric, category: VariableCategory.channel),
-    VariableSuggestion(name: 'channel.nsfw', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.channel),
-    VariableSuggestion(name: 'channel.slowmode', kind: VariableSuggestionKind.numeric, category: VariableCategory.channel),
-    VariableSuggestion(name: 'channel.bitrate', kind: VariableSuggestionKind.numeric, category: VariableCategory.channel),
-    VariableSuggestion(name: 'channel.userLimit', kind: VariableSuggestionKind.numeric, category: VariableCategory.channel),
-    VariableSuggestion(name: 'channel.mention', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.channel),
+    VariableSuggestion(
+      name: 'channel.id',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.channel,
+    ),
+    VariableSuggestion(
+      name: 'channel.name',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.channel,
+    ),
+    VariableSuggestion(
+      name: 'channel.type',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.channel,
+    ),
+    VariableSuggestion(
+      name: 'channel.typeValue',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.channel,
+    ),
+    VariableSuggestion(
+      name: 'channel.topic',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.channel,
+    ),
+    VariableSuggestion(
+      name: 'channel.parentId',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.channel,
+    ),
+    VariableSuggestion(
+      name: 'channel.categoryId',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.channel,
+    ),
+    VariableSuggestion(
+      name: 'channel.position',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.channel,
+    ),
+    VariableSuggestion(
+      name: 'channel.nsfw',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.channel,
+    ),
+    VariableSuggestion(
+      name: 'channel.slowmode',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.channel,
+    ),
+    VariableSuggestion(
+      name: 'channel.bitrate',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.channel,
+    ),
+    VariableSuggestion(
+      name: 'channel.userLimit',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.channel,
+    ),
+    VariableSuggestion(
+      name: 'channel.mention',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.channel,
+    ),
   ];
 
   static const _messageCore = [
-    VariableSuggestion(name: 'message.id', kind: VariableSuggestionKind.numeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.content', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.content[0]', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.content[1]', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.word.count', kind: VariableSuggestionKind.numeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.isBot', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.isDM', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.isSystem', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.type', kind: VariableSuggestionKind.numeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.channelId', kind: VariableSuggestionKind.numeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.timestamp', kind: VariableSuggestionKind.numeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.editedTimestamp', kind: VariableSuggestionKind.numeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.isEdited', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.isPinned', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.attachments', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.attachments.count', kind: VariableSuggestionKind.numeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.embeds.count', kind: VariableSuggestionKind.numeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.mentions', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.mentions[0]', kind: VariableSuggestionKind.numeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.mention.count', kind: VariableSuggestionKind.numeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.roleMentions', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.roleMentions.count', kind: VariableSuggestionKind.numeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.roleMentions[0]', kind: VariableSuggestionKind.numeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.mentionsEveryone', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.referencedMessage.id', kind: VariableSuggestionKind.numeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.url', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.message),
+    VariableSuggestion(
+      name: 'message.id',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.content',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.content[0]',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.content[1]',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.word.count',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.isBot',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.isDM',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.isSystem',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.type',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.channelId',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.timestamp',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.editedTimestamp',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.isEdited',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.isPinned',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.attachments',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.attachments.count',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.embeds.count',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.mentions',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.mentions[0]',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.mention.count',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.roleMentions',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.roleMentions.count',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.roleMentions[0]',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.mentionsEveryone',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.referencedMessage.id',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.url',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.message,
+    ),
   ];
 
   static const _messageIndexedContent = [
-    VariableSuggestion(name: 'message.content[3]', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.content[4]', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.content[5]', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.content[6]', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.content[7]', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.content[8]', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.content[9]', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.message),
+    VariableSuggestion(
+      name: 'message.content[3]',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.content[4]',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.content[5]',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.content[6]',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.content[7]',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.content[8]',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.content[9]',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.message,
+    ),
   ];
 
   static const _messageIndexedMentions = [
-    VariableSuggestion(name: 'message.mentions[1]', kind: VariableSuggestionKind.numeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.mentions[2]', kind: VariableSuggestionKind.numeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.mentions[3]', kind: VariableSuggestionKind.numeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.mentions[4]', kind: VariableSuggestionKind.numeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.mentions[5]', kind: VariableSuggestionKind.numeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.mentions[6]', kind: VariableSuggestionKind.numeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.mentions[7]', kind: VariableSuggestionKind.numeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.mentions[8]', kind: VariableSuggestionKind.numeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.mentions[9]', kind: VariableSuggestionKind.numeric, category: VariableCategory.message),
+    VariableSuggestion(
+      name: 'message.mentions[1]',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.mentions[2]',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.mentions[3]',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.mentions[4]',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.mentions[5]',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.mentions[6]',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.mentions[7]',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.mentions[8]',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.mentions[9]',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.message,
+    ),
   ];
 
   static const _messageIndexedRoleMentions = [
-    VariableSuggestion(name: 'message.roleMentions[1]', kind: VariableSuggestionKind.numeric, category: VariableCategory.message),
-    VariableSuggestion(name: 'message.roleMentions[2]', kind: VariableSuggestionKind.numeric, category: VariableCategory.message),
+    VariableSuggestion(
+      name: 'message.roleMentions[1]',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.message,
+    ),
+    VariableSuggestion(
+      name: 'message.roleMentions[2]',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.message,
+    ),
   ];
 
   // Legacy bare field aliases
   static const _legacyAliases = [
-    VariableSuggestion(name: 'userId', kind: VariableSuggestionKind.numeric, category: VariableCategory.user),
-    VariableSuggestion(name: 'userName', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.user),
-    VariableSuggestion(name: 'userAvatar', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.user),
+    VariableSuggestion(
+      name: 'userId',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.user,
+    ),
+    VariableSuggestion(
+      name: 'userName',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.user,
+    ),
+    VariableSuggestion(
+      name: 'userAvatar',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.user,
+    ),
   ];
 
   static const _interactionUserAliases = [
-    VariableSuggestion(name: 'interaction.user.id', kind: VariableSuggestionKind.numeric, category: VariableCategory.interaction),
-    VariableSuggestion(name: 'interaction.user.username', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.interaction),
-    VariableSuggestion(name: 'interaction.user.tag', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.interaction),
-    VariableSuggestion(name: 'interaction.user.avatar', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.interaction),
+    VariableSuggestion(
+      name: 'interaction.user.id',
+      kind: VariableSuggestionKind.numeric,
+      category: VariableCategory.interaction,
+    ),
+    VariableSuggestion(
+      name: 'interaction.user.username',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.interaction,
+    ),
+    VariableSuggestion(
+      name: 'interaction.user.tag',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.interaction,
+    ),
+    VariableSuggestion(
+      name: 'interaction.user.avatar',
+      kind: VariableSuggestionKind.nonNumeric,
+      category: VariableCategory.interaction,
+    ),
   ];
 
   /// Suggestions that are always available for BDFD expressions or BDFD/visual workflow templates.
@@ -404,48 +1017,180 @@ class VariableCatalog {
         ),
       ],
       // Bot prebuilt details
-      const VariableSuggestion(name: 'bot.id', kind: VariableSuggestionKind.numeric, category: VariableCategory.bot),
-      const VariableSuggestion(name: 'bot.username', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.bot),
-      const VariableSuggestion(name: 'bot.guildCount', kind: VariableSuggestionKind.numeric, category: VariableCategory.bot),
-      const VariableSuggestion(name: 'bot.guildNames', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.bot),
-      const VariableSuggestion(name: 'bot.invite', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.bot),
-      const VariableSuggestion(name: 'bot.ping', kind: VariableSuggestionKind.numeric, category: VariableCategory.bot),
-      const VariableSuggestion(name: 'ping', kind: VariableSuggestionKind.numeric, category: VariableCategory.bot),
-      const VariableSuggestion(name: 'bot.uptime', kind: VariableSuggestionKind.numeric, category: VariableCategory.bot),
-      const VariableSuggestion(name: 'bot.shardId', kind: VariableSuggestionKind.numeric, category: VariableCategory.bot),
-      const VariableSuggestion(name: 'bot.nodeVersion', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.bot),
+      const VariableSuggestion(
+        name: 'bot.id',
+        kind: VariableSuggestionKind.numeric,
+        category: VariableCategory.bot,
+      ),
+      const VariableSuggestion(
+        name: 'bot.username',
+        kind: VariableSuggestionKind.nonNumeric,
+        category: VariableCategory.bot,
+      ),
+      const VariableSuggestion(
+        name: 'bot.guildCount',
+        kind: VariableSuggestionKind.numeric,
+        category: VariableCategory.bot,
+      ),
+      const VariableSuggestion(
+        name: 'bot.guildNames',
+        kind: VariableSuggestionKind.nonNumeric,
+        category: VariableCategory.bot,
+      ),
+      const VariableSuggestion(
+        name: 'bot.invite',
+        kind: VariableSuggestionKind.nonNumeric,
+        category: VariableCategory.bot,
+      ),
+      const VariableSuggestion(
+        name: 'bot.ping',
+        kind: VariableSuggestionKind.numeric,
+        category: VariableCategory.bot,
+      ),
+      const VariableSuggestion(
+        name: 'ping',
+        kind: VariableSuggestionKind.numeric,
+        category: VariableCategory.bot,
+      ),
+      const VariableSuggestion(
+        name: 'bot.uptime',
+        kind: VariableSuggestionKind.numeric,
+        category: VariableCategory.bot,
+      ),
+      const VariableSuggestion(
+        name: 'bot.shardId',
+        kind: VariableSuggestionKind.numeric,
+        category: VariableCategory.bot,
+      ),
+      const VariableSuggestion(
+        name: 'bot.nodeVersion',
+        kind: VariableSuggestionKind.nonNumeric,
+        category: VariableCategory.bot,
+      ),
       // Autocomplete details
-      const VariableSuggestion(name: 'autocomplete.query', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.interaction),
-      const VariableSuggestion(name: 'autocomplete.optionName', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.interaction),
-      const VariableSuggestion(name: 'autocomplete.optionType', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.interaction),
+      const VariableSuggestion(
+        name: 'autocomplete.query',
+        kind: VariableSuggestionKind.nonNumeric,
+        category: VariableCategory.interaction,
+      ),
+      const VariableSuggestion(
+        name: 'autocomplete.optionName',
+        kind: VariableSuggestionKind.nonNumeric,
+        category: VariableCategory.interaction,
+      ),
+      const VariableSuggestion(
+        name: 'autocomplete.optionType',
+        kind: VariableSuggestionKind.nonNumeric,
+        category: VariableCategory.interaction,
+      ),
       // Interaction locale
-      const VariableSuggestion(name: 'interaction.locale', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.interaction),
-      const VariableSuggestion(name: 'interaction.guild_locale', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.interaction),
-      const VariableSuggestion(name: 'target.locale', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.interaction),
+      const VariableSuggestion(
+        name: 'interaction.locale',
+        kind: VariableSuggestionKind.nonNumeric,
+        category: VariableCategory.interaction,
+      ),
+      const VariableSuggestion(
+        name: 'interaction.guild_locale',
+        kind: VariableSuggestionKind.nonNumeric,
+        category: VariableCategory.interaction,
+      ),
+      const VariableSuggestion(
+        name: 'target.locale',
+        kind: VariableSuggestionKind.nonNumeric,
+        category: VariableCategory.interaction,
+      ),
       // Builtin helpers
-      const VariableSuggestion(name: 'length(source)', kind: VariableSuggestionKind.unknown, category: VariableCategory.function_),
-      const VariableSuggestion(name: 'at(source, 0)', kind: VariableSuggestionKind.unknown, category: VariableCategory.function_),
-      const VariableSuggestion(name: 'slice(source, 0, 10)', kind: VariableSuggestionKind.unknown, category: VariableCategory.function_),
-      const VariableSuggestion(name: 'join(source, ", ")', kind: VariableSuggestionKind.unknown, category: VariableCategory.function_),
-      const VariableSuggestion(name: 'formatEach(source, "{value}", ", ")', kind: VariableSuggestionKind.unknown, category: VariableCategory.function_),
-      const VariableSuggestion(name: 'embedFields(source, "{name}", "{value}", true)', kind: VariableSuggestionKind.unknown, category: VariableCategory.function_),
-      const VariableSuggestion(name: 'coin()', kind: VariableSuggestionKind.unknown, category: VariableCategory.function_),
-      const VariableSuggestion(name: 'random()', kind: VariableSuggestionKind.unknown, category: VariableCategory.function_),
-      const VariableSuggestion(name: 'randomchoice("a", "b", "c")', kind: VariableSuggestionKind.unknown, category: VariableCategory.function_),
-      const VariableSuggestion(name: 'randomint(1, 100)', kind: VariableSuggestionKind.unknown, category: VariableCategory.function_),
+      const VariableSuggestion(
+        name: 'length(source)',
+        kind: VariableSuggestionKind.unknown,
+        category: VariableCategory.function_,
+      ),
+      const VariableSuggestion(
+        name: 'at(source, 0)',
+        kind: VariableSuggestionKind.unknown,
+        category: VariableCategory.function_,
+      ),
+      const VariableSuggestion(
+        name: 'slice(source, 0, 10)',
+        kind: VariableSuggestionKind.unknown,
+        category: VariableCategory.function_,
+      ),
+      const VariableSuggestion(
+        name: 'join(source, ", ")',
+        kind: VariableSuggestionKind.unknown,
+        category: VariableCategory.function_,
+      ),
+      const VariableSuggestion(
+        name: 'formatEach(source, "{value}", ", ")',
+        kind: VariableSuggestionKind.unknown,
+        category: VariableCategory.function_,
+      ),
+      const VariableSuggestion(
+        name: 'embedFields(source, "{name}", "{value}", true)',
+        kind: VariableSuggestionKind.unknown,
+        category: VariableCategory.function_,
+      ),
+      const VariableSuggestion(
+        name: 'coin()',
+        kind: VariableSuggestionKind.unknown,
+        category: VariableCategory.function_,
+      ),
+      const VariableSuggestion(
+        name: 'random()',
+        kind: VariableSuggestionKind.unknown,
+        category: VariableCategory.function_,
+      ),
+      const VariableSuggestion(
+        name: 'randomchoice("a", "b", "c")',
+        kind: VariableSuggestionKind.unknown,
+        category: VariableCategory.function_,
+      ),
+      const VariableSuggestion(
+        name: 'randomint(1, 100)',
+        kind: VariableSuggestionKind.unknown,
+        category: VariableCategory.function_,
+      ),
     ];
   }
 
   /// Base hydrated context suggestions for Guild, Channel, and Member details.
   static List<VariableSuggestion> getBaseHydratedSuggestions() {
     return const [
-      VariableSuggestion(name: 'event.name', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.context_),
-      VariableSuggestion(name: 'timestamp', kind: VariableSuggestionKind.numeric, category: VariableCategory.context_),
-      VariableSuggestion(name: 'actualTime', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.context_),
-      VariableSuggestion(name: 'guildId', kind: VariableSuggestionKind.numeric, category: VariableCategory.guild),
-      VariableSuggestion(name: 'channelId', kind: VariableSuggestionKind.numeric, category: VariableCategory.channel),
-      VariableSuggestion(name: 'userId', kind: VariableSuggestionKind.numeric, category: VariableCategory.user),
-      VariableSuggestion(name: 'messageId', kind: VariableSuggestionKind.numeric, category: VariableCategory.message),
+      VariableSuggestion(
+        name: 'event.name',
+        kind: VariableSuggestionKind.nonNumeric,
+        category: VariableCategory.context_,
+      ),
+      VariableSuggestion(
+        name: 'timestamp',
+        kind: VariableSuggestionKind.numeric,
+        category: VariableCategory.context_,
+      ),
+      VariableSuggestion(
+        name: 'actualTime',
+        kind: VariableSuggestionKind.nonNumeric,
+        category: VariableCategory.context_,
+      ),
+      VariableSuggestion(
+        name: 'guildId',
+        kind: VariableSuggestionKind.numeric,
+        category: VariableCategory.guild,
+      ),
+      VariableSuggestion(
+        name: 'channelId',
+        kind: VariableSuggestionKind.numeric,
+        category: VariableCategory.channel,
+      ),
+      VariableSuggestion(
+        name: 'userId',
+        kind: VariableSuggestionKind.numeric,
+        category: VariableCategory.user,
+      ),
+      VariableSuggestion(
+        name: 'messageId',
+        kind: VariableSuggestionKind.numeric,
+        category: VariableCategory.message,
+      ),
 
       // Hydrated Guild
       ..._guildCore,
@@ -453,10 +1198,26 @@ class VariableCatalog {
 
       // Hydrated Channel
       ..._channelCore,
-      VariableSuggestion(name: 'channel.thread.archived', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.channel),
-      VariableSuggestion(name: 'channel.thread.locked', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.channel),
-      VariableSuggestion(name: 'channel.thread.ownerId', kind: VariableSuggestionKind.numeric, category: VariableCategory.channel),
-      VariableSuggestion(name: 'channel.thread.autoArchiveDuration', kind: VariableSuggestionKind.numeric, category: VariableCategory.channel),
+      VariableSuggestion(
+        name: 'channel.thread.archived',
+        kind: VariableSuggestionKind.nonNumeric,
+        category: VariableCategory.channel,
+      ),
+      VariableSuggestion(
+        name: 'channel.thread.locked',
+        kind: VariableSuggestionKind.nonNumeric,
+        category: VariableCategory.channel,
+      ),
+      VariableSuggestion(
+        name: 'channel.thread.ownerId',
+        kind: VariableSuggestionKind.numeric,
+        category: VariableCategory.channel,
+      ),
+      VariableSuggestion(
+        name: 'channel.thread.autoArchiveDuration',
+        kind: VariableSuggestionKind.numeric,
+        category: VariableCategory.channel,
+      ),
 
       // Hydrated Member
       ..._memberCore,
@@ -494,7 +1255,11 @@ class VariableCatalog {
       list.addAll([
         // ── Message fields (_messageExtra) ──
         ..._messageCore,
-        VariableSuggestion(name: 'message.content[2]', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.message),
+        VariableSuggestion(
+          name: 'message.content[2]',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.message,
+        ),
         ..._messageIndexedContent,
         ..._messageIndexedMentions,
         ..._messageIndexedRoleMentions,
@@ -513,49 +1278,177 @@ class VariableCatalog {
         ..._memberExtra,
         // ── Update-specific ──
         if (eventName == 'messageUpdate')
-          VariableSuggestion(name: 'message.oldContent', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.message),
+          VariableSuggestion(
+            name: 'message.oldContent',
+            kind: VariableSuggestionKind.nonNumeric,
+            category: VariableCategory.message,
+          ),
       ]);
 
-    // ═══════════════════════════════════════════════════════════════════
-    // Interaction create event
-    // Runtime: buildInteractionRuntimeVariables
-    // ═══════════════════════════════════════════════════════════════════
+      // ═══════════════════════════════════════════════════════════════════
+      // Interaction create event
+      // Runtime: buildInteractionRuntimeVariables
+      // ═══════════════════════════════════════════════════════════════════
     } else if (eventName == 'interactionCreate') {
       list.addAll([
         // ── Core interaction fields ──
-        VariableSuggestion(name: 'interaction.kind', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.interaction),
-        VariableSuggestion(name: 'interaction.customId', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.interaction),
-        VariableSuggestion(name: 'interaction.values', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.interaction),
-        VariableSuggestion(name: 'interaction.values.count', kind: VariableSuggestionKind.numeric, category: VariableCategory.interaction),
-        VariableSuggestion(name: 'interaction.guildId', kind: VariableSuggestionKind.numeric, category: VariableCategory.interaction),
-        VariableSuggestion(name: 'interaction.channelId', kind: VariableSuggestionKind.numeric, category: VariableCategory.interaction),
-        VariableSuggestion(name: 'interaction.userId', kind: VariableSuggestionKind.numeric, category: VariableCategory.interaction),
-        VariableSuggestion(name: 'interaction.messageId', kind: VariableSuggestionKind.numeric, category: VariableCategory.interaction),
-        VariableSuggestion(name: 'interaction.id', kind: VariableSuggestionKind.numeric, category: VariableCategory.interaction),
-        VariableSuggestion(name: 'interaction.token', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.interaction),
-        VariableSuggestion(name: 'interaction.applicationId', kind: VariableSuggestionKind.numeric, category: VariableCategory.interaction),
-        VariableSuggestion(name: 'interaction.command.name', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.interaction),
-        VariableSuggestion(name: 'interaction.command.id', kind: VariableSuggestionKind.numeric, category: VariableCategory.interaction),
-        VariableSuggestion(name: 'interaction.command.type', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.interaction),
-        VariableSuggestion(name: 'interaction.command.route', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.interaction),
+        VariableSuggestion(
+          name: 'interaction.kind',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.interaction,
+        ),
+        VariableSuggestion(
+          name: 'interaction.customId',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.interaction,
+        ),
+        VariableSuggestion(
+          name: 'interaction.values',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.interaction,
+        ),
+        VariableSuggestion(
+          name: 'interaction.values.count',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.interaction,
+        ),
+        VariableSuggestion(
+          name: 'interaction.guildId',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.interaction,
+        ),
+        VariableSuggestion(
+          name: 'interaction.channelId',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.interaction,
+        ),
+        VariableSuggestion(
+          name: 'interaction.userId',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.interaction,
+        ),
+        VariableSuggestion(
+          name: 'interaction.messageId',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.interaction,
+        ),
+        VariableSuggestion(
+          name: 'interaction.id',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.interaction,
+        ),
+        VariableSuggestion(
+          name: 'interaction.token',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.interaction,
+        ),
+        VariableSuggestion(
+          name: 'interaction.applicationId',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.interaction,
+        ),
+        VariableSuggestion(
+          name: 'interaction.command.name',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.interaction,
+        ),
+        VariableSuggestion(
+          name: 'interaction.command.id',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.interaction,
+        ),
+        VariableSuggestion(
+          name: 'interaction.command.type',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.interaction,
+        ),
+        VariableSuggestion(
+          name: 'interaction.command.route',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.interaction,
+        ),
         // ── Modal fields ──
-        VariableSuggestion(name: 'modal.customId', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
+        VariableSuggestion(
+          name: 'modal.customId',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
         // ── Select menu interaction fields (component interactions) ──
-        VariableSuggestion(name: 'interaction.stringSelect.value', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.interaction),
-        VariableSuggestion(name: 'interaction.stringSelect.values', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.interaction),
-        VariableSuggestion(name: 'interaction.stringSelect.count', kind: VariableSuggestionKind.numeric, category: VariableCategory.interaction),
-        VariableSuggestion(name: 'interaction.channelSelect.channelId', kind: VariableSuggestionKind.numeric, category: VariableCategory.interaction),
-        VariableSuggestion(name: 'interaction.channelSelect.channelIds', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.interaction),
-        VariableSuggestion(name: 'interaction.channelSelect.channelCount', kind: VariableSuggestionKind.numeric, category: VariableCategory.interaction),
-        VariableSuggestion(name: 'interaction.userSelect.userId', kind: VariableSuggestionKind.numeric, category: VariableCategory.interaction),
-        VariableSuggestion(name: 'interaction.userSelect.userIds', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.interaction),
-        VariableSuggestion(name: 'interaction.userSelect.userCount', kind: VariableSuggestionKind.numeric, category: VariableCategory.interaction),
-        VariableSuggestion(name: 'interaction.roleSelect.roleId', kind: VariableSuggestionKind.numeric, category: VariableCategory.interaction),
-        VariableSuggestion(name: 'interaction.roleSelect.roleIds', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.interaction),
-        VariableSuggestion(name: 'interaction.roleSelect.roleCount', kind: VariableSuggestionKind.numeric, category: VariableCategory.interaction),
-        VariableSuggestion(name: 'interaction.mentionableSelect.userId', kind: VariableSuggestionKind.numeric, category: VariableCategory.interaction),
-        VariableSuggestion(name: 'interaction.mentionableSelect.userIds', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.interaction),
-        VariableSuggestion(name: 'interaction.mentionableSelect.userCount', kind: VariableSuggestionKind.numeric, category: VariableCategory.interaction),
+        VariableSuggestion(
+          name: 'interaction.stringSelect.value',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.interaction,
+        ),
+        VariableSuggestion(
+          name: 'interaction.stringSelect.values',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.interaction,
+        ),
+        VariableSuggestion(
+          name: 'interaction.stringSelect.count',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.interaction,
+        ),
+        VariableSuggestion(
+          name: 'interaction.channelSelect.channelId',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.interaction,
+        ),
+        VariableSuggestion(
+          name: 'interaction.channelSelect.channelIds',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.interaction,
+        ),
+        VariableSuggestion(
+          name: 'interaction.channelSelect.channelCount',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.interaction,
+        ),
+        VariableSuggestion(
+          name: 'interaction.userSelect.userId',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.interaction,
+        ),
+        VariableSuggestion(
+          name: 'interaction.userSelect.userIds',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.interaction,
+        ),
+        VariableSuggestion(
+          name: 'interaction.userSelect.userCount',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.interaction,
+        ),
+        VariableSuggestion(
+          name: 'interaction.roleSelect.roleId',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.interaction,
+        ),
+        VariableSuggestion(
+          name: 'interaction.roleSelect.roleIds',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.interaction,
+        ),
+        VariableSuggestion(
+          name: 'interaction.roleSelect.roleCount',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.interaction,
+        ),
+        VariableSuggestion(
+          name: 'interaction.mentionableSelect.userId',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.interaction,
+        ),
+        VariableSuggestion(
+          name: 'interaction.mentionableSelect.userIds',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.interaction,
+        ),
+        VariableSuggestion(
+          name: 'interaction.mentionableSelect.userCount',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.interaction,
+        ),
         // ── User fields (_userExtra) ──
         ..._userCore,
         ..._userExtended,
@@ -576,10 +1469,10 @@ class VariableCatalog {
         ..._legacyAliases,
       ]);
 
-    // ═══════════════════════════════════════════════════════════════════
-    // Guild member events (guildMemberAdd, guildMemberRemove, guildMemberUpdate)
-    // Runtime: _memberExtra(member) + _userExtra(user, enrichAuthor: true)
-    // ═══════════════════════════════════════════════════════════════════
+      // ═══════════════════════════════════════════════════════════════════
+      // Guild member events (guildMemberAdd, guildMemberRemove, guildMemberUpdate)
+      // Runtime: _memberExtra(member) + _userExtra(user, enrichAuthor: true)
+      // ═══════════════════════════════════════════════════════════════════
     } else if (eventName.startsWith('guildMember')) {
       list.addAll([
         // ── Member fields ──
@@ -593,248 +1486,581 @@ class VariableCatalog {
         ..._authorExtended,
         // ── Update-specific: old member ──
         if (eventName == 'guildMemberUpdate') ...[
-          VariableSuggestion(name: 'member.old.nick', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.member),
-          VariableSuggestion(name: 'member.old.roles', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.member),
-          VariableSuggestion(name: 'member.old.displayName', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.member),
+          VariableSuggestion(
+            name: 'member.old.nick',
+            kind: VariableSuggestionKind.nonNumeric,
+            category: VariableCategory.member,
+          ),
+          VariableSuggestion(
+            name: 'member.old.roles',
+            kind: VariableSuggestionKind.nonNumeric,
+            category: VariableCategory.member,
+          ),
+          VariableSuggestion(
+            name: 'member.old.displayName',
+            kind: VariableSuggestionKind.nonNumeric,
+            category: VariableCategory.member,
+          ),
         ],
       ]);
 
-    // ═══════════════════════════════════════════════════════════════════
-    // Channel events (channelCreate, channelDelete, channelUpdate)
-    // Runtime: _channelExtra(channel)
-    // ═══════════════════════════════════════════════════════════════════
+      // ═══════════════════════════════════════════════════════════════════
+      // Channel events (channelCreate, channelDelete, channelUpdate)
+      // Runtime: _channelExtra(channel)
+      // ═══════════════════════════════════════════════════════════════════
     } else if (eventName.startsWith('channel') &&
         !eventName.startsWith('channelPins')) {
       list.addAll([
-        VariableSuggestion(name: 'channel.id', kind: VariableSuggestionKind.numeric, category: VariableCategory.channel),
-        VariableSuggestion(name: 'channel.name', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.channel),
-        VariableSuggestion(name: 'channel.type', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.channel),
+        VariableSuggestion(
+          name: 'channel.id',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.channel,
+        ),
+        VariableSuggestion(
+          name: 'channel.name',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.channel,
+        ),
+        VariableSuggestion(
+          name: 'channel.type',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.channel,
+        ),
         if (eventName == 'channelUpdate')
-          VariableSuggestion(name: 'channel.old.name', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.channel),
+          VariableSuggestion(
+            name: 'channel.old.name',
+            kind: VariableSuggestionKind.nonNumeric,
+            category: VariableCategory.channel,
+          ),
         if (eventName == 'channelUpdate')
-          VariableSuggestion(name: 'channel.old.type', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.channel),
+          VariableSuggestion(
+            name: 'channel.old.type',
+            kind: VariableSuggestionKind.nonNumeric,
+            category: VariableCategory.channel,
+          ),
       ]);
 
-    // ═══════════════════════════════════════════════════════════════════
-    // Guild events (guildCreate, guildDelete, guildUpdate)
-    // Runtime: _guildExtra → guild.id, name, memberCount, systemChannelId, ownerId, preferredLocale
-    // ═══════════════════════════════════════════════════════════════════
+      // ═══════════════════════════════════════════════════════════════════
+      // Guild events (guildCreate, guildDelete, guildUpdate)
+      // Runtime: _guildExtra → guild.id, name, memberCount, systemChannelId, ownerId, preferredLocale
+      // ═══════════════════════════════════════════════════════════════════
     } else if (eventName.startsWith('guild') &&
         !eventName.startsWith('guildMember') &&
         !eventName.startsWith('guildRole') &&
         !eventName.startsWith('guildAudit')) {
       list.addAll([
-        VariableSuggestion(name: 'guild.id', kind: VariableSuggestionKind.numeric, category: VariableCategory.guild),
-        VariableSuggestion(name: 'guild.name', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.guild),
-        VariableSuggestion(name: 'guild.memberCount', kind: VariableSuggestionKind.numeric, category: VariableCategory.guild),
-        VariableSuggestion(name: 'guild.systemChannelId', kind: VariableSuggestionKind.numeric, category: VariableCategory.guild),
-        VariableSuggestion(name: 'guild.ownerId', kind: VariableSuggestionKind.numeric, category: VariableCategory.guild),
-        VariableSuggestion(name: 'guild.preferredLocale', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.guild),
+        VariableSuggestion(
+          name: 'guild.id',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.guild,
+        ),
+        VariableSuggestion(
+          name: 'guild.name',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.guild,
+        ),
+        VariableSuggestion(
+          name: 'guild.memberCount',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.guild,
+        ),
+        VariableSuggestion(
+          name: 'guild.systemChannelId',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.guild,
+        ),
+        VariableSuggestion(
+          name: 'guild.ownerId',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.guild,
+        ),
+        VariableSuggestion(
+          name: 'guild.preferredLocale',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.guild,
+        ),
         if (eventName == 'guildDelete')
-          VariableSuggestion(name: 'guild.unavailable', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.guild),
+          VariableSuggestion(
+            name: 'guild.unavailable',
+            kind: VariableSuggestionKind.nonNumeric,
+            category: VariableCategory.guild,
+          ),
         if (eventName == 'guildUpdate') ...[
-          VariableSuggestion(name: 'guild.oldGuild.name', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.guild),
-          VariableSuggestion(name: 'guild.oldGuild.ownerId', kind: VariableSuggestionKind.numeric, category: VariableCategory.guild),
-          VariableSuggestion(name: 'guild.oldGuild.memberCount', kind: VariableSuggestionKind.numeric, category: VariableCategory.guild),
-          VariableSuggestion(name: 'guild.oldGuild.preferredLocale', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.guild),
-          VariableSuggestion(name: 'guild.oldGuild.systemChannelId', kind: VariableSuggestionKind.numeric, category: VariableCategory.guild),
+          VariableSuggestion(
+            name: 'guild.oldGuild.name',
+            kind: VariableSuggestionKind.nonNumeric,
+            category: VariableCategory.guild,
+          ),
+          VariableSuggestion(
+            name: 'guild.oldGuild.ownerId',
+            kind: VariableSuggestionKind.numeric,
+            category: VariableCategory.guild,
+          ),
+          VariableSuggestion(
+            name: 'guild.oldGuild.memberCount',
+            kind: VariableSuggestionKind.numeric,
+            category: VariableCategory.guild,
+          ),
+          VariableSuggestion(
+            name: 'guild.oldGuild.preferredLocale',
+            kind: VariableSuggestionKind.nonNumeric,
+            category: VariableCategory.guild,
+          ),
+          VariableSuggestion(
+            name: 'guild.oldGuild.systemChannelId',
+            kind: VariableSuggestionKind.numeric,
+            category: VariableCategory.guild,
+          ),
         ],
       ]);
 
-    // ═══════════════════════════════════════════════════════════════════
-    // Invite events (inviteCreate, inviteDelete)
-    // Runtime: _inviteExtra
-    // ═══════════════════════════════════════════════════════════════════
+      // ═══════════════════════════════════════════════════════════════════
+      // Invite events (inviteCreate, inviteDelete)
+      // Runtime: _inviteExtra
+      // ═══════════════════════════════════════════════════════════════════
     } else if (eventName.startsWith('invite')) {
       list.addAll([
-        VariableSuggestion(name: 'invite.code', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'invite.channelId', kind: VariableSuggestionKind.numeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'invite.inviterId', kind: VariableSuggestionKind.numeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'invite.createdAt', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'invite.maxAge', kind: VariableSuggestionKind.numeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'invite.maxUses', kind: VariableSuggestionKind.numeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'invite.isTemporary', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'invite.uses', kind: VariableSuggestionKind.numeric, category: VariableCategory.other),
+        VariableSuggestion(
+          name: 'invite.code',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'invite.channelId',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'invite.inviterId',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'invite.createdAt',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'invite.maxAge',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'invite.maxUses',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'invite.isTemporary',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'invite.uses',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.other,
+        ),
         // ── Inviter user fields (inviteCreate only) ──
         ..._userCore,
       ]);
 
-    // ═══════════════════════════════════════════════════════════════════
-    // Presence update event
-    // Runtime: custom extra with presence.*, user.*
-    // ═══════════════════════════════════════════════════════════════════
+      // ═══════════════════════════════════════════════════════════════════
+      // Presence update event
+      // Runtime: custom extra with presence.*, user.*
+      // ═══════════════════════════════════════════════════════════════════
     } else if (eventName == 'presenceUpdate') {
       list.addAll([
-        VariableSuggestion(name: 'presence.status', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'presence.activity.count', kind: VariableSuggestionKind.numeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'presence.activity[0].name', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'presence.activity[0].type', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'presence.activity[0].typeName', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'presence.activity[0].details', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'presence.activity[0].state', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'presence.activity[0].url', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'presence.client.desktop', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'presence.client.mobile', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'presence.client.web', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'user.name', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.user),
+        VariableSuggestion(
+          name: 'presence.status',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'presence.activity.count',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'presence.activity[0].name',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'presence.activity[0].type',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'presence.activity[0].typeName',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'presence.activity[0].details',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'presence.activity[0].state',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'presence.activity[0].url',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'presence.client.desktop',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'presence.client.mobile',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'presence.client.web',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'user.name',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.user,
+        ),
         ..._userCore,
         ..._userExtended,
       ]);
 
-    // ═══════════════════════════════════════════════════════════════════
-    // Message reaction events (messageReactionAdd, messageReactionRemove, etc.)
-    // Runtime: _reactionEmojiExtra
-    // ═══════════════════════════════════════════════════════════════════
+      // ═══════════════════════════════════════════════════════════════════
+      // Message reaction events (messageReactionAdd, messageReactionRemove, etc.)
+      // Runtime: _reactionEmojiExtra
+      // ═══════════════════════════════════════════════════════════════════
     } else if (eventName.startsWith('messageReaction')) {
       list.addAll([
-        VariableSuggestion(name: 'message.id', kind: VariableSuggestionKind.numeric, category: VariableCategory.message),
-        VariableSuggestion(name: 'reaction.emoji.name', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'reaction.emoji.id', kind: VariableSuggestionKind.numeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'reaction.emoji.animated', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
+        VariableSuggestion(
+          name: 'message.id',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.message,
+        ),
+        VariableSuggestion(
+          name: 'reaction.emoji.name',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'reaction.emoji.id',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'reaction.emoji.animated',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
         // ── Member fields (messageReactionAdd from API; Remove/RemoveAll/RemoveEmoji resolved via cache/fetch hydration) ──
         ..._memberCore,
         // ── User fields (resolved via cache/fetch hydration) ──
         ..._userCore,
       ]);
 
-    // ═══════════════════════════════════════════════════════════════════
-    // Poll vote events (messagePollVoteAdd, messagePollVoteRemove)
-    // Runtime: _pollVoteExtra
-    // ═══════════════════════════════════════════════════════════════════
+      // ═══════════════════════════════════════════════════════════════════
+      // Poll vote events (messagePollVoteAdd, messagePollVoteRemove)
+      // Runtime: _pollVoteExtra
+      // ═══════════════════════════════════════════════════════════════════
     } else if (eventName.startsWith('messagePollVote')) {
       list.addAll([
-        VariableSuggestion(name: 'message.id', kind: VariableSuggestionKind.numeric, category: VariableCategory.message),
-        VariableSuggestion(name: 'poll.answer.id', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'poll.question', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'poll.vote.userId', kind: VariableSuggestionKind.numeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'poll.vote.channelId', kind: VariableSuggestionKind.numeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'poll.vote.guildId', kind: VariableSuggestionKind.numeric, category: VariableCategory.other),
+        VariableSuggestion(
+          name: 'message.id',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.message,
+        ),
+        VariableSuggestion(
+          name: 'poll.answer.id',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'poll.question',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'poll.vote.userId',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'poll.vote.channelId',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'poll.vote.guildId',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.other,
+        ),
         // ── Member fields (resolved via cache/fetch hydration) ──
         ..._memberCore,
         // ── User fields (resolved via cache/fetch hydration) ──
         ..._userCore,
       ]);
 
-    // ═══════════════════════════════════════════════════════════════════
-    // Typing start event
-    // Runtime: custom extra
-    // ═══════════════════════════════════════════════════════════════════
+      // ═══════════════════════════════════════════════════════════════════
+      // Typing start event
+      // Runtime: custom extra
+      // ═══════════════════════════════════════════════════════════════════
     } else if (eventName == 'typingStart') {
       list.addAll([
-        VariableSuggestion(name: 'typing.timestamp', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'typing.member.id', kind: VariableSuggestionKind.numeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'typing.member.name', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
+        VariableSuggestion(
+          name: 'typing.timestamp',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'typing.member.id',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'typing.member.name',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
         // ── Member fields (available when member data present) ──
         ..._memberCore,
         // ── User fields (available when member data present) ──
         ..._userCore,
       ]);
 
-    // ═══════════════════════════════════════════════════════════════════
-    // Voice state update event
-    // Runtime: custom extra
-    // ═══════════════════════════════════════════════════════════════════
+      // ═══════════════════════════════════════════════════════════════════
+      // Voice state update event
+      // Runtime: custom extra
+      // ═══════════════════════════════════════════════════════════════════
     } else if (eventName == 'voiceStateUpdate') {
       list.addAll([
-        VariableSuggestion(name: 'voice.channel.id', kind: VariableSuggestionKind.numeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'voice.user.id', kind: VariableSuggestionKind.numeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'voice.state.sessionId', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'voice.selfMute', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'voice.selfDeafen', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'voice.mute', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'voice.deafen', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
+        VariableSuggestion(
+          name: 'voice.channel.id',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'voice.user.id',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'voice.state.sessionId',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'voice.selfMute',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'voice.selfDeafen',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'voice.mute',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'voice.deafen',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
         // ── Member fields (available when member data present) ──
         ..._memberCore,
         // ── User fields (available when member data present) ──
         ..._userCore,
       ]);
 
-    // ═══════════════════════════════════════════════════════════════════
-    // Voice server update event
-    // ═══════════════════════════════════════════════════════════════════
+      // ═══════════════════════════════════════════════════════════════════
+      // Voice server update event
+      // ═══════════════════════════════════════════════════════════════════
     } else if (eventName == 'voiceServerUpdate') {
       list.addAll([
-        VariableSuggestion(name: 'voice.server.token', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'voice.server.endpoint', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
+        VariableSuggestion(
+          name: 'voice.server.token',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'voice.server.endpoint',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
       ]);
 
-    // ═══════════════════════════════════════════════════════════════════
-    // Voice channel effect send event
-    // ═══════════════════════════════════════════════════════════════════
+      // ═══════════════════════════════════════════════════════════════════
+      // Voice channel effect send event
+      // ═══════════════════════════════════════════════════════════════════
     } else if (eventName == 'voiceChannelEffectSend') {
       list.addAll([
-        VariableSuggestion(name: 'voice.effect.emoji', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'voice.effect.soundId', kind: VariableSuggestionKind.numeric, category: VariableCategory.other),
+        VariableSuggestion(
+          name: 'voice.effect.emoji',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'voice.effect.soundId',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.other,
+        ),
         // ── Member fields (resolved via cache/fetch hydration) ──
         ..._memberCore,
         // ── User fields (resolved via cache/fetch hydration) ──
         ..._userCore,
       ]);
 
-    // ═══════════════════════════════════════════════════════════════════
-    // User update event
-    // Runtime: custom extra with user.* fields
-    // ═══════════════════════════════════════════════════════════════════
+      // ═══════════════════════════════════════════════════════════════════
+      // User update event
+      // Runtime: custom extra with user.* fields
+      // ═══════════════════════════════════════════════════════════════════
     } else if (eventName == 'userUpdate') {
-      list.addAll([
-        ..._userCore,
-        ..._userExtended,
-      ]);
+      list.addAll([..._userCore, ..._userExtended]);
 
-    // ═══════════════════════════════════════════════════════════════════
-    // Guild role events (guildRoleCreate, guildRoleDelete, guildRoleUpdate)
-    // Runtime: _roleExtRra
-    // ═══════════════════════════════════════════════════════════════════
+      // ═══════════════════════════════════════════════════════════════════
+      // Guild role events (guildRoleCreate, guildRoleDelete, guildRoleUpdate)
+      // Runtime: _roleExtRra
+      // ═══════════════════════════════════════════════════════════════════
     } else if (eventName.startsWith('guildRole')) {
       list.addAll([
-        VariableSuggestion(name: 'role.id', kind: VariableSuggestionKind.numeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'role.name', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'role.color', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'role.permissions', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'role.position', kind: VariableSuggestionKind.numeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'role.mentionable', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'role.hoist', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
+        VariableSuggestion(
+          name: 'role.id',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'role.name',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'role.color',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'role.permissions',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'role.position',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'role.mentionable',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'role.hoist',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
       ]);
 
-    // ═══════════════════════════════════════════════════════════════════
-    // Thread events (threadCreate, threadDelete, threadUpdate, threadMemberUpdate, threadMembersUpdate)
-    // Runtime: _threadExtra
-    // ═══════════════════════════════════════════════════════════════════
+      // ═══════════════════════════════════════════════════════════════════
+      // Thread events (threadCreate, threadDelete, threadUpdate, threadMemberUpdate, threadMembersUpdate)
+      // Runtime: _threadExtra
+      // ═══════════════════════════════════════════════════════════════════
     } else if (eventName.startsWith('thread')) {
       list.addAll([
-        VariableSuggestion(name: 'thread.id', kind: VariableSuggestionKind.numeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'thread.name', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'thread.parent.id', kind: VariableSuggestionKind.numeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'thread.owner.id', kind: VariableSuggestionKind.numeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'thread.archived', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'thread.locked', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'thread.autoArchiveDuration', kind: VariableSuggestionKind.numeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'thread.members.added.count', kind: VariableSuggestionKind.numeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'thread.members.removed.count', kind: VariableSuggestionKind.numeric, category: VariableCategory.other),
+        VariableSuggestion(
+          name: 'thread.id',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'thread.name',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'thread.parent.id',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'thread.owner.id',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'thread.archived',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'thread.locked',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'thread.autoArchiveDuration',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'thread.members.added.count',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'thread.members.removed.count',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.other,
+        ),
       ]);
 
-    // ═══════════════════════════════════════════════════════════════════
-    // Channel pins update event
-    // ═══════════════════════════════════════════════════════════════════
+      // ═══════════════════════════════════════════════════════════════════
+      // Channel pins update event
+      // ═══════════════════════════════════════════════════════════════════
     } else if (eventName == 'channelPinsUpdate') {
       list.addAll([
-        VariableSuggestion(name: 'channel.lastPinTimestamp', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.channel),
+        VariableSuggestion(
+          name: 'channel.lastPinTimestamp',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.channel,
+        ),
       ]);
 
-    // ═══════════════════════════════════════════════════════════════════
-    // Guild audit log create event
-    // ═══════════════════════════════════════════════════════════════════
+      // ═══════════════════════════════════════════════════════════════════
+      // Guild audit log create event
+      // ═══════════════════════════════════════════════════════════════════
     } else if (eventName == 'guildAuditLogCreate') {
       list.addAll([
-        VariableSuggestion(name: 'auditLog.action', kind: VariableSuggestionKind.nonNumeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'auditLog.executorId', kind: VariableSuggestionKind.numeric, category: VariableCategory.other),
-        VariableSuggestion(name: 'auditLog.targetId', kind: VariableSuggestionKind.numeric, category: VariableCategory.other),
+        VariableSuggestion(
+          name: 'auditLog.action',
+          kind: VariableSuggestionKind.nonNumeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'auditLog.executorId',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.other,
+        ),
+        VariableSuggestion(
+          name: 'auditLog.targetId',
+          kind: VariableSuggestionKind.numeric,
+          category: VariableCategory.other,
+        ),
       ]);
 
-    // ═══════════════════════════════════════════════════════════════════
-    // Guild ban events (guildBanAdd, guildBanRemove)
-    // Runtime: _userExtra(user, enrichAuthor: true)
-    // ═══════════════════════════════════════════════════════════════════
+      // ═══════════════════════════════════════════════════════════════════
+      // Guild ban events (guildBanAdd, guildBanRemove)
+      // Runtime: _userExtra(user, enrichAuthor: true)
+      // ═══════════════════════════════════════════════════════════════════
     } else if (eventName == 'guildBanAdd' || eventName == 'guildBanRemove') {
       list.addAll([
         // ── User fields ──

@@ -1,14 +1,19 @@
 import 'package:nyxx/nyxx.dart';
 
 /// Parses allowed mentions from a payload using the provided resolver function.
-AllowedMentions? parseAllowedMentions(Map<String, dynamic>? payload, String Function(String) resolve) {
+AllowedMentions? parseAllowedMentions(
+  Map<String, dynamic>? payload,
+  String Function(String) resolve,
+) {
   if (payload == null || !payload.containsKey('allowedMentions')) {
     return null;
   }
   final json = payload['allowedMentions'];
   if (json is! Map) return null;
 
-  final parseList = (json['parse'] as List?)?.map((e) => resolve(e.toString())).toList();
+  final parseList = (json['parse'] as List?)
+      ?.map((e) => resolve(e.toString()))
+      .toList();
   final usersList = (json['users'] as List?)
       ?.map((e) {
         final resolved = resolve(e.toString());
@@ -26,9 +31,5 @@ AllowedMentions? parseAllowedMentions(Map<String, dynamic>? payload, String Func
       .whereType<Snowflake>()
       .toList();
 
-  return AllowedMentions(
-    parse: parseList,
-    users: usersList,
-    roles: rolesList,
-  );
+  return AllowedMentions(parse: parseList, users: usersList, roles: rolesList);
 }

@@ -6,7 +6,7 @@ EventExecutionContext buildGuildMemberUpdateEventContext(
   final member = event.member;
   final user = member.user;
   final oldMember = event.oldMember;
-  
+
   final extra = {
     ..._memberExtra(member),
     if (oldMember != null) ..._memberExtra(oldMember, prefix: 'member.old'),

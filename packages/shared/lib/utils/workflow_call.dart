@@ -67,17 +67,17 @@ Map<String, dynamic> normalizeWorkflowEventTrigger(
 
   final category =
       (source['category'] ?? fallbackCategory).toString().trim().isEmpty
-          ? fallbackCategory
-          : (source['category'] ?? fallbackCategory).toString().trim();
+      ? fallbackCategory
+      : (source['category'] ?? fallbackCategory).toString().trim();
   final event =
       (source['event'] ?? source['listenFor'] ?? fallbackEvent)
-              .toString()
-              .trim()
-              .isEmpty
-          ? fallbackEvent
-          : (source['event'] ?? source['listenFor'] ?? fallbackEvent)
-              .toString()
-              .trim();
+          .toString()
+          .trim()
+          .isEmpty
+      ? fallbackEvent
+      : (source['event'] ?? source['listenFor'] ?? fallbackEvent)
+            .toString()
+            .trim();
 
   return <String, dynamic>{'category': category, 'event': event};
 }
@@ -217,8 +217,9 @@ Map<String, String> resolveWorkflowInvocationArguments({
 
   for (final definition in definitions) {
     final fromProvided = providedByLowercase[definition.name.toLowerCase()];
-    final value =
-        fromProvided != null ? fromProvided.value : definition.defaultValue;
+    final value = fromProvided != null
+        ? fromProvided.value
+        : definition.defaultValue;
     if (enforceRequired && definition.required && value.trim().isEmpty) {
       throw Exception(
         'Missing required workflow argument "${definition.name}"',

@@ -194,10 +194,11 @@ void main() {
         await session
             .skip(); // fin de file : le skip s'arrête, il ne revient pas à a
 
-        expect(output.played.map((t) => t.encoded).toList(), <String>[
-          'encoded-a',
-          'encoded-b',
-        ], reason: 'la boucle est réservée à l\'enchaînement automatique');
+        expect(
+          output.played.map((t) => t.encoded).toList(),
+          <String>['encoded-a', 'encoded-b'],
+          reason: 'la boucle est réservée à l\'enchaînement automatique',
+        );
         expect(output.stopCount, 1, reason: 'file épuisée => arrêt propre');
         expect(session.currentTrack, isNull);
         expect(session.isPlaying, isFalse);
@@ -413,10 +414,11 @@ void main() {
         await session.skip();
         await endAndAdvance('replaced');
 
-        expect(output.played.map((t) => t.encoded).toList(), <String>[
-          'encoded-a',
-          'encoded-b',
-        ], reason: 'pas de double avancement');
+        expect(
+          output.played.map((t) => t.encoded).toList(),
+          <String>['encoded-a', 'encoded-b'],
+          reason: 'pas de double avancement',
+        );
         expect(session.currentTrack, b);
       },
     );

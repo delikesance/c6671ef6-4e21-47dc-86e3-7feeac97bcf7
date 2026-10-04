@@ -171,54 +171,59 @@ void main() {
       );
     });
 
-    test('une liste qui ne rend jamais la main est COUPÉE au budget', () async {
-      final probe = _HangingProbe();
-      final store = _UntouchedBotDataStore();
-      final logs = <String>[];
-      final session = _session(
-        probe: probe,
-        store: store,
-        selectionTimeout: const Duration(milliseconds: 250),
-        logs: logs,
-      );
+    test(
+      'une liste qui ne rend jamais la main est COUPÉE au budget',
+      () async {
+        final probe = _HangingProbe();
+        final store = _UntouchedBotDataStore();
+        final logs = <String>[];
+        final session = _session(
+          probe: probe,
+          store: store,
+          selectionTimeout: const Duration(milliseconds: 250),
+          logs: logs,
+        );
 
-      final stopwatch = Stopwatch()..start();
-      final plugin = await session.prepareLavalinkPlugin(
-        _configWithPersonalServer(),
-      );
-      stopwatch.stop();
+        final stopwatch = Stopwatch()..start();
+        final plugin = await session.prepareLavalinkPlugin(
+          _configWithPersonalServer(),
+        );
+        stopwatch.stop();
 
-      expect(probe.called, isTrue, reason: 'la sélection a bien été lancée');
-      expect(
-        plugin,
-        isNull,
-        reason: 'aucun serveur retenu => musique indisponible, pas d\'erreur',
-      );
-      expect(
-        stopwatch.elapsed,
-        lessThan(const Duration(seconds: 2)),
-        reason: 'l\'appelant rend la main au budget, il n\'attend pas la liste',
-      );
-      expect(
-        probe.isStillPending,
-        isTrue,
-        reason: 'la sélection abandonnée continue en tâche de fond',
-      );
-      expect(session.selectedServer, isNull);
-      expect(store.calls, 0, reason: 'aucune lecture du magasin');
-      expect(
-        logs.join('\n'),
-        contains('musique indisponible'),
-        reason: 'l\'utilisateur doit voir pourquoi la musique est absente',
-      );
-      expect(
-        BotSession.buildGatewayPlugins(
-          lavalinkPlugin: plugin,
-        ).whereType<LavalinkPlugin>(),
-        isEmpty,
-        reason: 'la passerelle Discord part donc SANS plugin Lavalink',
-      );
-    }, timeout: const Timeout(Duration(seconds: 30)));
+        expect(probe.called, isTrue, reason: 'la sélection a bien été lancée');
+        expect(
+          plugin,
+          isNull,
+          reason: 'aucun serveur retenu => musique indisponible, pas d\'erreur',
+        );
+        expect(
+          stopwatch.elapsed,
+          lessThan(const Duration(seconds: 2)),
+          reason:
+              'l\'appelant rend la main au budget, il n\'attend pas la liste',
+        );
+        expect(
+          probe.isStillPending,
+          isTrue,
+          reason: 'la sélection abandonnée continue en tâche de fond',
+        );
+        expect(session.selectedServer, isNull);
+        expect(store.calls, 0, reason: 'aucune lecture du magasin');
+        expect(
+          logs.join('\n'),
+          contains('musique indisponible'),
+          reason: 'l\'utilisateur doit voir pourquoi la musique est absente',
+        );
+        expect(
+          BotSession.buildGatewayPlugins(
+            lavalinkPlugin: plugin,
+          ).whereType<LavalinkPlugin>(),
+          isEmpty,
+          reason: 'la passerelle Discord part donc SANS plugin Lavalink',
+        );
+      },
+      timeout: const Timeout(Duration(seconds: 30)),
+    );
 
     test(
       'avec le budget PAR DÉFAUT (4 s), le démarrage est coupé quand même',

@@ -19,7 +19,8 @@ class EventCatalog {
         category: 'core',
         event: 'interactionCreate',
         label: 'Interaction Create',
-        description: 'User used an interaction, such as an application command.',
+        description:
+            'User used an interaction, such as an application command.',
       ),
       WorkflowEventDefinition(
         category: 'commands',

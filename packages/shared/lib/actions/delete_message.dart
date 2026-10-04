@@ -183,7 +183,7 @@ Future<Map<String, String>> deleteMessage(
 
     return {
       "count": totalDeleted.toString(),
-      "mode": olderCandidates.isEmpty ? "bulk" : "mixed"
+      "mode": olderCandidates.isEmpty ? "bulk" : "mixed",
     };
   } on TimeoutException {
     return actionError(
