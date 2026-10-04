@@ -242,8 +242,11 @@ class MessageGateway extends VisualGateway {
   late final MessageChannels _channels;
   late final MessageUsers _users;
 
-  FakeDm dm(Snowflake user) =>
-      dms.putIfAbsent(user, () => FakeDm(this, 7000 + user.value % 1000));
+  FakeDm dm(Snowflake user) => dms.putIfAbsent(user, () {
+    final channel = FakeDm(this, 7000 + user.value % 1000);
+    textChannels[channel.id] = channel;
+    return channel;
+  });
 
   @override
   ChannelManager get channels => _channels;
