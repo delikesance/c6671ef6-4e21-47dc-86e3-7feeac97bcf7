@@ -26,8 +26,7 @@ void main() {
           resultKey: 'setTemp',
           results: results,
           variables: variables,
-          resolveValue:
-              (input) => input == '((rtJson_0.json_0))' ? '' : input,
+          resolveValue: (input) => input == '((rtJson_0.json_0))' ? '' : input,
           guildId: null,
           fallbackChannelId: null,
           interaction: null,
@@ -62,11 +61,10 @@ void main() {
           resultKey: 'setRoll',
           results: results,
           variables: variables,
-          resolveValue:
-              (input) => resolveTemplatePlaceholders(input, <String, String>{
-                ...variables,
-                ...results,
-              }),
+          resolveValue: (input) => resolveTemplatePlaceholders(
+            input,
+            <String, String>{...variables, ...results},
+          ),
           guildId: null,
           fallbackChannelId: null,
           interaction: null,

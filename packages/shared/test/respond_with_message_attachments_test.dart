@@ -7,7 +7,7 @@ class MockMessageResponse implements MessageResponse {
   bool responded = false;
   bool updated = false;
   bool followedUp = false;
-  
+
   MessageBuilder? respondBuilder;
   MessageUpdateBuilder? updateBuilder;
   MessageBuilder? followupBuilder;
@@ -24,7 +24,11 @@ class MockMessageResponse implements MessageResponse {
   Snowflake? get channelId => Snowflake(2222);
 
   @override
-  Future<InteractionCallbackResponse?> respond(MessageBuilder builder, {bool? isEphemeral, bool? withResponse}) async {
+  Future<InteractionCallbackResponse?> respond(
+    MessageBuilder builder, {
+    bool? isEphemeral,
+    bool? withResponse,
+  }) async {
     responded = true;
     respondBuilder = builder;
     isAcknowledged = true;
@@ -39,7 +43,10 @@ class MockMessageResponse implements MessageResponse {
   }
 
   @override
-  Future<Message> createFollowup(MessageBuilder builder, {bool? isEphemeral}) async {
+  Future<Message> createFollowup(
+    MessageBuilder builder, {
+    bool? isEphemeral,
+  }) async {
     followedUp = true;
     followupBuilder = builder;
     return _MockMessage();
@@ -59,87 +66,108 @@ class _MockMessage implements Message {
 
 void main() {
   group('respondWithMessageAction attachments', () {
-    test('succeeds and attaches canvas files even if text content is empty', () async {
-      final interaction = MockMessageResponse();
-      final variables = {
-        'temp._canvasAttachment_card': base64Encode([1, 2, 3]),
-      };
+    test(
+      'succeeds and attaches canvas files even if text content is empty',
+      () async {
+        final interaction = MockMessageResponse();
+        final variables = {
+          'temp._canvasAttachment_card': base64Encode([1, 2, 3]),
+        };
 
-      final result = await respondWithMessageAction(
-        interaction,
-        payload: {
-          'content': '',
-          'embeds': [],
-          'components': {},
-          'ephemeral': false,
-        },
-        resolve: (val) => val,
-        botId: 'test_bot',
-        variables: variables,
-      );
+        final result = await respondWithMessageAction(
+          interaction,
+          payload: {
+            'content': '',
+            'embeds': [],
+            'components': {},
+            'ephemeral': false,
+          },
+          resolve: (val) => val,
+          botId: 'test_bot',
+          variables: variables,
+        );
 
-      expect(result['error'], isNull);
-      expect(interaction.responded, isTrue);
-      expect(interaction.respondBuilder, isNotNull);
-      expect(interaction.respondBuilder!.content, equals(' ')); // Space fallback for attachments
-      expect(interaction.respondBuilder!.attachments, hasLength(1));
-      expect(interaction.respondBuilder!.attachments!.first.fileName, equals('card.png'));
-      expect(interaction.respondBuilder!.attachments!.first.data, equals([1, 2, 3]));
-    });
+        expect(result['error'], isNull);
+        expect(interaction.responded, isTrue);
+        expect(interaction.respondBuilder, isNotNull);
+        expect(
+          interaction.respondBuilder!.content,
+          equals(' '),
+        ); // Space fallback for attachments
+        expect(interaction.respondBuilder!.attachments, hasLength(1));
+        expect(
+          interaction.respondBuilder!.attachments!.first.fileName,
+          equals('card.png'),
+        );
+        expect(
+          interaction.respondBuilder!.attachments!.first.data,
+          equals([1, 2, 3]),
+        );
+      },
+    );
 
-    test('uses followup for acknowledged interaction when attachments are present', () async {
-      final interaction = MockMessageResponse()..isAcknowledged = true;
-      final variables = {
-        'temp._canvasAttachment_card': base64Encode([4, 5, 6]),
-      };
+    test(
+      'uses followup for acknowledged interaction when attachments are present',
+      () async {
+        final interaction = MockMessageResponse()..isAcknowledged = true;
+        final variables = {
+          'temp._canvasAttachment_card': base64Encode([4, 5, 6]),
+        };
 
-      final result = await respondWithMessageAction(
-        interaction,
-        payload: {
-          'content': 'Test',
-          'embeds': [],
-          'components': {},
-          'ephemeral': false,
-        },
-        resolve: (val) => val,
-        botId: 'test_bot',
-        variables: variables,
-      );
+        final result = await respondWithMessageAction(
+          interaction,
+          payload: {
+            'content': 'Test',
+            'embeds': [],
+            'components': {},
+            'ephemeral': false,
+          },
+          resolve: (val) => val,
+          botId: 'test_bot',
+          variables: variables,
+        );
 
-      expect(result['error'], isNull);
-      expect(interaction.followedUp, isTrue);
-      expect(interaction.followupBuilder, isNotNull);
-      expect(interaction.followupBuilder!.content, equals('Test'));
-      expect(interaction.followupBuilder!.attachments, hasLength(1));
-      expect(interaction.followupBuilder!.attachments!.first.data, equals([4, 5, 6]));
-    });
+        expect(result['error'], isNull);
+        expect(interaction.followedUp, isTrue);
+        expect(interaction.followupBuilder, isNotNull);
+        expect(interaction.followupBuilder!.content, equals('Test'));
+        expect(interaction.followupBuilder!.attachments, hasLength(1));
+        expect(
+          interaction.followupBuilder!.attachments!.first.data,
+          equals([4, 5, 6]),
+        );
+      },
+    );
 
-    test('cleans up temp._canvasAttachment_* keys from variables after collection', () async {
-      final interaction = MockMessageResponse();
-      final variables = {
-        'temp._canvasAttachment_card1': base64Encode([1, 2, 3]),
-        'temp._canvasAttachment_card2': base64Encode([4, 5, 6]),
-        'other_variable': 'keep_me',
-      };
+    test(
+      'cleans up temp._canvasAttachment_* keys from variables after collection',
+      () async {
+        final interaction = MockMessageResponse();
+        final variables = {
+          'temp._canvasAttachment_card1': base64Encode([1, 2, 3]),
+          'temp._canvasAttachment_card2': base64Encode([4, 5, 6]),
+          'other_variable': 'keep_me',
+        };
 
-      await respondWithMessageAction(
-        interaction,
-        payload: {
-          'content': 'Hello',
-          'embeds': [],
-          'components': {},
-          'ephemeral': false,
-        },
-        resolve: (val) => val,
-        botId: 'test_bot',
-        variables: variables,
-      );
+        await respondWithMessageAction(
+          interaction,
+          payload: {
+            'content': 'Hello',
+            'embeds': [],
+            'components': {},
+            'ephemeral': false,
+          },
+          resolve: (val) => val,
+          botId: 'test_bot',
+          variables: variables,
+        );
 
-      // Verify that attachments are gone
-      expect(variables.containsKey('temp._canvasAttachment_card1'), isFalse);
-      expect(variables.containsKey('temp._canvasAttachment_card2'), isFalse);
-      // Verify other variables are kept
-      expect(variables['other_variable'], equals('keep_me'));
-    });
+        // Verify that attachments are gone
+        expect(variables.containsKey('temp._canvasAttachment_card1'), isFalse);
+        expect(variables.containsKey('temp._canvasAttachment_card2'), isFalse);
+        // Verify other variables are kept
+        expect(variables['other_variable'], equals('keep_me'));
+      },
+    );
   });
 }

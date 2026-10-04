@@ -181,10 +181,7 @@ Map<String, BdfdNativeFunction> bdfdModerationFunctions(
               budget: call.context.budget,
             ),
           )
-        : throw BdfdNativeError(
-            'Role lookup is not available.',
-            call.location,
-          );
+        : throw BdfdNativeError('Role lookup is not available.', call.location);
     final matches = roles.where((role) => role.name == name).toList();
     if (matches.isEmpty) {
       throw BdfdNativeError('Role not found: $name.', call.location);
