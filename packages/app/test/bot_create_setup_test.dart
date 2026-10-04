@@ -81,7 +81,8 @@ void main() {
         await tester.tap(find.byType(FilledButton));
         expect(saves, 1);
         expect(tester.takeException(), isNull);
-        if (width == 1280) {
+        final captureDir = Platform.environment['BC_SCREENSHOT_DIR'];
+        if (width == 1280 && captureDir != null) {
           await tester.pumpAndSettle();
           await tester.runAsync(() async {
             final image =
@@ -92,7 +93,7 @@ void main() {
               format: ui.ImageByteFormat.png,
             );
             await File(
-              '/tmp/claude-1000/-home-jeremy-Code-bc/c2520480-9b3f-44b4-a423-2e0fd802d2da/scratchpad/r4/tmp/bc-create-redesign.png',
+              '$captureDir/bc-create-redesign.png',
             ).writeAsBytes(bytes!.buffer.asUint8List());
             image.dispose();
           });
