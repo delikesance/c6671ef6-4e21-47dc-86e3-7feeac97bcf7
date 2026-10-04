@@ -4,6 +4,7 @@ import '../services/bot_cooldown_service.dart';
 import '../services/bot_timing_service.dart';
 import '../services/bot_command_query_service.dart';
 import 'execution_budget.dart';
+import '../services/bot_block_action_service.dart';
 import '../services/bot_moderation_service.dart';
 import '../engine/bdfd/execution.dart';
 import '../engine/bdfd/runtime.dart';
@@ -302,6 +303,9 @@ Future<Map<String, String>> _handleActions(
     translator: actionTranslator ?? const ActionTranslator(),
   );
   final visualSink = ResultSink(results: results, variables: variables);
+  // Permission cache – shared across all actions in this execution
+  final permCache = BotPermissionCache();
+
   ActionRunEnvironment? visualEnvironment;
   ActionRunEnvironment nativeVisualEnvironment() =>
       visualEnvironment ??= ActionRunEnvironment(
@@ -327,6 +331,12 @@ Future<Map<String, String>> _handleActions(
         fallbackChannelId: fallbackChannelId,
         http: bdfdHttp,
         onLog: onLog,
+        blockActions: DiscordBotBlockActionService(
+          client: client,
+          store: store,
+          botId: botId,
+        ),
+        permissionCache: permCache,
         // The loop below already hydrated the routed top-level action.
         prepare: (type, key, payload, path) async {
           if (path.isEmpty) return;
@@ -340,8 +350,6 @@ Future<Map<String, String>> _handleActions(
         },
       );
 
-  // Permission cache – shared across all actions in this execution
-  final permCache = BotPermissionCache();
 
   // Debug profiling state
   Stopwatch? debugStopwatch;
@@ -508,7 +516,12 @@ Future<Map<String, String>> _handleActions(
             context: nativeContext,
             index: i,
           );
-          recordTrace();
+          // Switch-handled types trace only while profiling (historical quirk).
+          if (!bdfdVisualProfilingOnlyTraceTypes.contains(action.type) ||
+              debugTrace != null ||
+              replayTrace != null) {
+            recordTrace();
+          }
           continue;
         }
 

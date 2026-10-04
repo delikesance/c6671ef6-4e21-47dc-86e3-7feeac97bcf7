@@ -86,6 +86,19 @@ Future<Map<String, String>> updateChannelAction(
   required Map<String, dynamic> payload,
   String Function(String)? resolve,
   CommandExecutionBudget? budget,
+}) => updateChannelActionWith(
+  DiscordBotChannelMutationService(client),
+  payload: payload,
+  resolve: resolve,
+  budget: budget,
+);
+
+/// [updateChannelAction] over any [BotChannelMutationService].
+Future<Map<String, String>> updateChannelActionWith(
+  BotChannelMutationService service, {
+  required Map<String, dynamic> payload,
+  String Function(String)? resolve,
+  CommandExecutionBudget? budget,
 }) async {
   resolve ??= (s) => s;
   try {
@@ -101,7 +114,7 @@ Future<Map<String, String>> updateChannelAction(
     final locked = _toBool(value('locked'));
     final archiveMinutes = _parseArchiveMinutes(value('autoArchiveDuration'));
     final reason = value('reason');
-    await DiscordBotChannelMutationService(client).modifyChannel(
+    await service.modifyChannel(
       ChannelModification(
         channelId: channelId,
         name: name.isEmpty || name == '!unchanged' ? null : name,

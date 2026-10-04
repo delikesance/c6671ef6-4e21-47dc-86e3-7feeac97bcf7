@@ -5,6 +5,9 @@ import '../../../types/action.dart';
 import '../../../utils/bdfd_ast.dart';
 import '../program.dart';
 import 'action_functions.dart';
+import 'channel_actions.dart';
+import 'guild_actions.dart';
+import 'moderation_actions.dart';
 import 'role_actions.dart';
 import 'variable_actions.dart';
 
@@ -90,6 +93,9 @@ class ActionTranslator {
     BotCreatorActionType.addRole: supportsRoleAction,
     BotCreatorActionType.removeRole: supportsRoleAction,
     ...variableLeafPredicates,
+    ...moderationLeafPredicates,
+    ...guildLeafPredicates,
+    ...channelLeafPredicates,
   };
 
   /// Whether [action] runs on the native engine. A leaf needs a handler (and a

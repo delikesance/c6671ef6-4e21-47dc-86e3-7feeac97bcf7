@@ -109,6 +109,23 @@ Future<Map<String, String>> createChannelAction(
   required Map<String, dynamic> payload,
   required String Function(String) resolve,
   CommandExecutionBudget? budget,
+}) => createChannelActionWith(
+  DiscordBotChannelMutationService(client),
+  guildId: '$guildId',
+  payload: payload,
+  resolve: resolve,
+  budget: budget,
+);
+
+/// [createChannelAction] over any [BotChannelMutationService]: the historical
+/// executor passes the Discord adapter, the native `bc_createChannel` the
+/// execution's own service.
+Future<Map<String, String>> createChannelActionWith(
+  BotChannelMutationService service, {
+  required String guildId,
+  required Map<String, dynamic> payload,
+  required String Function(String) resolve,
+  CommandExecutionBudget? budget,
 }) async {
   final name = resolve((payload['name'] ?? '').toString()).trim();
   final type = _typeName(
@@ -122,9 +139,9 @@ Future<Map<String, String>> createChannelAction(
   final nsfw = _toBool(resolve((payload['nsfw'] ?? '').toString()));
   final reason = resolve((payload['reason'] ?? '').toString());
   try {
-    final id = await DiscordBotChannelMutationService(client).createChannel(
+    final id = await service.createChannel(
       ChannelCreation(
-        guildId: '$guildId',
+        guildId: guildId,
         name: name,
         type: type,
         categoryId: category.isEmpty || type == 'category' ? null : category,
