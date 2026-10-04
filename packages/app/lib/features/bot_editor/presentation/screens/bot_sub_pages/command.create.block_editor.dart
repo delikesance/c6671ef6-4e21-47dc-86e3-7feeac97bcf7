@@ -1096,9 +1096,9 @@ extension _CommandBlockEditor on _CommandCreatePageState {
         icon: const AppIcon.fromMaterial(Icons.add),
         label: Text(context.tr.scratch_add_block),
         style: OutlinedButton.styleFrom(
-          minimumSize: const Size(double.infinity, 48),
+          minimumSize: const Size(double.infinity, 52),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+            borderRadius: BorderRadius.circular(AppTheme.radiusLg),
           ),
         ),
       ),

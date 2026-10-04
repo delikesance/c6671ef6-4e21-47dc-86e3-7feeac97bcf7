@@ -729,7 +729,7 @@ class _CategorySectionState extends State<_CategorySection> {
                   children: [
                     AppIcon.fromMaterial(
                       _expanded
-                          ? Icons.expand_more_rounded
+                          ? Icons.expand_more
                           : Icons.chevron_right_rounded,
                       size: 18,
                       color: colorScheme.onSurfaceVariant,
