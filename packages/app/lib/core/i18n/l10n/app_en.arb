@@ -2,7 +2,13 @@
   "docs_search": "Search documentation",
   "docs_reset_filters": "Reset filters",
   "docs_result_count": "{count} articles",
-  "@docs_result_count": {"placeholders": {"count": {"type": "int"}}},
+  "@docs_result_count": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "docs_category": "Category",
   "docs_mode": "Mode",
   "docs_no_results": "No matching articles",
@@ -12,7 +18,19 @@
   "variables_migration_confirmation": "Keep user values shared across all servers. Archive and adapt legacy BDFD scripts, then activate official per-server user functions. No variable values or expirations are moved.",
   "variables_migration_stop_bot": "Stop the bot before migrating variables.",
   "variables_migration_result": "{commands} commands, {workflows} workflow groups, {calls} calls adapted",
-  "@variables_migration_result": {"placeholders": {"commands": {"type": "int"}, "workflows": {"type": "int"}, "calls": {"type": "int"}}},
+  "@variables_migration_result": {
+    "placeholders": {
+      "commands": {
+        "type": "int"
+      },
+      "workflows": {
+        "type": "int"
+      },
+      "calls": {
+        "type": "int"
+      }
+    }
+  },
   "@@locale": "en",
   "@app_update_dialog_title": {
     "description": "New version available"
@@ -12865,5 +12883,14 @@
   "bot_config_versions_remote_authority": "The cloud version replaces the local configuration. Commands and workflows absent from the cloud are removed locally.",
   "history_preview": "Preview content",
   "history_delete_confirm": "Delete this saved version permanently? The current configuration will stay unchanged.",
-  "history_action_failed": "Unable to complete this history action. Please try again."
+  "history_action_failed": "Unable to complete this history action. Please try again.",
+  "bot_create_title": "Create a bot",
+  "bot_create_description": "Connect your Discord bot and choose how to build it.",
+  "bot_create_visual_title": "Blocs & BDFD",
+  "bot_create_visual_description": "Build with visual actions or BDFD scripts.",
+  "bot_create_javascript_description": "Write your bot in JavaScript with Discord.js.",
+  "editor_section_creation": "Creation",
+  "editor_section_automation": "Automation",
+  "editor_section_management": "Management",
+  "bot_create_mode": "Build mode"
 }

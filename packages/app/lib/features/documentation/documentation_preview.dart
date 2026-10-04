@@ -2,6 +2,13 @@ import 'dart:convert';
 
 import 'package:bot_creator/core/widgets/app_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:bot_creator_shared/types/action.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder/action_types.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/action_block.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/entry_point_block.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/scratch_block.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/scratch_block_connector.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/scratch_block_palette.dart';
 
 typedef DocumentationMarkdownRenderer = Widget Function(String markdown);
 
@@ -96,92 +103,110 @@ class _DocumentationPreviewState extends State<DocumentationPreview> {
   }
 
   Widget _blockFlow(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
     final blocks = _items(widget.data, 'blocks');
-    Color accent(Map block) => switch (_text(block, 'category')) {
-      'entrypoint' => scheme.tertiary,
-      'messages' => Colors.green.shade400,
-      'channels' => Colors.orange.shade400,
-      'interactions' => Colors.blue.shade400,
-      _ => scheme.primary,
-    };
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (var i = 0; i < blocks.length; i++) ...[
-          if (i > 0)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 6),
-              child: AppIcon.fromMaterial(Icons.arrow_downward, size: 20),
-            ),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: scheme.surfaceContainer,
-              border: Border(
-                left: BorderSide(color: accent(blocks[i]), width: 4),
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  _text(blocks[i], 'title'),
-                  style: Theme.of(
-                    context,
-                  ).textTheme.labelLarge?.copyWith(color: accent(blocks[i])),
-                ),
-                if (_text(blocks[i], 'badge').isNotEmpty)
-                  Text(
-                    _text(blocks[i], 'badge'),
-                    style: Theme.of(context).textTheme.labelSmall,
-                  ),
-                if (_text(blocks[i], 'description').isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: widget.markdown(_text(blocks[i], 'description')),
-                  ),
-                for (final field in _items(blocks[i], 'fields'))
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text(
-                          _text(field, 'label'),
-                          style: Theme.of(context).textTheme.labelSmall
-                              ?.copyWith(color: scheme.onSurfaceVariant),
-                        ),
-                        const SizedBox(height: 4),
-                        widget.markdown(_text(field, 'value')),
-                      ],
-                    ),
-                  ),
-                for (final toggle in _items(blocks[i], 'toggles'))
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            _text(toggle, 'label'),
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                        ),
-                        IgnorePointer(
-                          child: Switch(
-                            value: toggle['enabled'] == true,
-                            onChanged: (_) {},
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-              ],
-            ),
-          ),
+          if (i > 0) const ScratchBlockConnector(),
+          _editorBlock(context, blocks[i], i, blocks.length),
         ],
       ],
+    );
+  }
+
+  Widget _editorBlock(BuildContext context, Map block, int index, int count) {
+    final action = block['action'];
+    if (action is Map &&
+        BotCreatorActionType.values.any(
+          (type) => type.name == action['type'],
+        ) &&
+        action['payload'] is Map) {
+      return ActionBlock(
+        key: ValueKey('docs-action-$index-${action['type']}'),
+        action: ActionItem.fromJson(
+          Map<String, dynamic>.from(action),
+          fallbackId: 'docs-$index',
+        ),
+        index: index,
+        totalCount: count,
+        readOnly: true,
+        onRemove: () {},
+        onParameterChanged: (_, _) {},
+        onSuggestionSelected: (_, _) {},
+        fieldRefreshVersionOf: (_) => 0,
+      );
+    }
+    final trigger = block['trigger'];
+    if (trigger is Map) {
+      return ExcludeFocus(
+        child: IgnorePointer(
+          child: trigger['type'] == 'slash'
+              ? EntryPointBlock(
+                  entryPointType: CommandEntryPointType.interaction,
+                  onEntryPointTypeChanged: (_) {},
+                  commandName: _text(trigger, 'name'),
+                  canEditCommandType: false,
+                )
+              : WorkflowEntryPointBlock(
+                  workflowType: 'event',
+                  selectedEvent: _text(trigger, 'event'),
+                  eventDefinitions: [
+                    WorkflowEventItem(
+                      event: _text(trigger, 'event'),
+                      label: _text(trigger, 'event'),
+                    ),
+                  ],
+                  customIdFilter: _text(trigger, 'customId'),
+                ),
+        ),
+      );
+    }
+    // Older exports still use the shared block shell until their fixtures update.
+    final category = switch (_text(block, 'category')) {
+      'entrypoint' => 'Entry Point',
+      'messages' => 'Messages',
+      'channels' => 'Channels',
+      'interactions' => 'Interactions',
+      'moderation' => 'Moderation',
+      _ => 'Logic',
+    };
+    final color = getCategoryColor(category);
+    return ScratchBlock(
+      color: color,
+      title: _text(block, 'title'),
+      icon: Icons.account_tree_outlined,
+      badge: _text(block, 'badge').isEmpty
+          ? null
+          : ScratchBlockBadge(label: _text(block, 'badge'), color: color),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (_text(block, 'description').isNotEmpty)
+            widget.markdown(_text(block, 'description')),
+          for (final field in _items(block, 'fields'))
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    _text(field, 'label'),
+                    style: Theme.of(context).textTheme.labelSmall,
+                  ),
+                  widget.markdown(_text(field, 'value')),
+                ],
+              ),
+            ),
+          for (final toggle in _items(block, 'toggles'))
+            Row(
+              children: [
+                Expanded(child: Text(_text(toggle, 'label'))),
+                Switch(value: toggle['enabled'] == true, onChanged: null),
+              ],
+            ),
+        ],
+      ),
     );
   }
 

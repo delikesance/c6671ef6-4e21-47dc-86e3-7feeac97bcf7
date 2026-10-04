@@ -363,10 +363,6 @@ final Map<IconData, ({String outline, String filled})> reiconMaterialPaths = {
     outline: Reicon.outline.palette,
     filled: Reicon.filled.palette,
   ),
-  Icons.commit_rounded: (
-    outline: Reicon.outline.branchUp,
-    filled: Reicon.filled.branchUp,
-  ),
   Icons.computer_outlined: (
     outline: Reicon.outline.computer,
     filled: Reicon.filled.computer,
@@ -1475,15 +1471,11 @@ final Map<IconData, ({String outline, String filled})> reiconMaterialPaths = {
     outline: Reicon.outline.eyeOff,
     filled: Reicon.filled.eyeOff,
   ),
-  Icons.visibility_off_rounded: (
+  Icons.visibility_off_outlined: (
     outline: Reicon.outline.eyeOff,
     filled: Reicon.filled.eyeOff,
   ),
   Icons.visibility_outlined: (
-    outline: Reicon.outline.eye,
-    filled: Reicon.filled.eye,
-  ),
-  Icons.visibility_rounded: (
     outline: Reicon.outline.eye,
     filled: Reicon.filled.eye,
   ),

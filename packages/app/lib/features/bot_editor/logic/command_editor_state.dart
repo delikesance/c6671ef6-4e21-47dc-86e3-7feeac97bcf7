@@ -40,6 +40,8 @@ class CommandEditorState {
     this.editorMode = 'advanced',
     this.executionMode = 'workflow',
     this.bdfdScriptContent = '',
+    this.bdfdBackend = 'legacy-v1',
+    this.bdfdNativeDiagnostics = const [],
     this.jsScriptContent = '',
     this.bdfdCompileResult,
     this.legacyModeEnabled = false,
@@ -88,6 +90,8 @@ class CommandEditorState {
   final String editorMode;
   final String executionMode;
   final String bdfdScriptContent;
+  final String bdfdBackend;
+  final List<BdfdCompileDiagnostic> bdfdNativeDiagnostics;
   final String jsScriptContent;
   final BdfdCompileResult? bdfdCompileResult;
 
@@ -118,8 +122,9 @@ class CommandEditorState {
   bool get isBdfdScriptMode => executionMode == 'bdfd_script';
   bool get isJsScriptMode => false;
 
-  List<BdfdCompileDiagnostic> get bdfdDiagnostics =>
-      bdfdCompileResult?.diagnostics ?? const <BdfdCompileDiagnostic>[];
+  List<BdfdCompileDiagnostic> get bdfdDiagnostics => bdfdBackend == 'legacy-v1'
+      ? bdfdCompileResult?.diagnostics ?? const <BdfdCompileDiagnostic>[]
+      : bdfdNativeDiagnostics;
 
   bool get hasBdfdCompileErrors => bdfdDiagnostics.any(
     (d) => d.severity == BdfdCompileDiagnosticSeverity.error,
@@ -181,8 +186,11 @@ class CommandEditorState {
     String? editorMode,
     String? executionMode,
     String? bdfdScriptContent,
+    String? bdfdBackend,
+    List<BdfdCompileDiagnostic>? bdfdNativeDiagnostics,
     String? jsScriptContent,
     BdfdCompileResult? bdfdCompileResult,
+    bool clearBdfdCompileResult = false,
     bool? legacyModeEnabled,
     bool? localOnlyCommand,
     String? folder,
@@ -223,8 +231,13 @@ class CommandEditorState {
       editorMode: editorMode ?? this.editorMode,
       executionMode: executionMode ?? this.executionMode,
       bdfdScriptContent: bdfdScriptContent ?? this.bdfdScriptContent,
+      bdfdBackend: bdfdBackend ?? this.bdfdBackend,
+      bdfdNativeDiagnostics:
+          bdfdNativeDiagnostics ?? this.bdfdNativeDiagnostics,
       jsScriptContent: jsScriptContent ?? this.jsScriptContent,
-      bdfdCompileResult: bdfdCompileResult ?? this.bdfdCompileResult,
+      bdfdCompileResult: clearBdfdCompileResult
+          ? null
+          : bdfdCompileResult ?? this.bdfdCompileResult,
       legacyModeEnabled: legacyModeEnabled ?? this.legacyModeEnabled,
       localOnlyCommand: localOnlyCommand ?? this.localOnlyCommand,
       folder: folder ?? this.folder,

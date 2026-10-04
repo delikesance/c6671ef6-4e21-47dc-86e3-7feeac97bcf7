@@ -831,6 +831,14 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
         widget.botId,
         name: targetName,
         actions: actions,
+        executionMode: normalizeWorkflowExecutionMode(
+          workflow['executionMode'],
+        ),
+        jsScriptContent: (workflow['jsScriptContent'] ?? '').toString(),
+        bdfdScriptContent:
+            (workflow['bdfdScriptContent'] ?? workflow['scriptContent'] ?? '')
+                .toString(),
+        bdfdBackend: (workflow['bdfdBackend'] ?? 'legacy-v1').toString(),
         entryPoint: normalizeWorkflowEntryPoint(workflow['entryPoint']),
         arguments: serializeWorkflowArgumentDefinitions(
           parseWorkflowArgumentDefinitions(workflow['arguments']),

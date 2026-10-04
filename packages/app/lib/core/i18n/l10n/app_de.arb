@@ -10912,5 +10912,14 @@
   "bot_config_versions_remote_authority": "Die Cloud-Version ersetzt die lokale Konfiguration. Befehle und Workflows, die in der Cloud fehlen, werden lokal entfernt.",
   "history_preview": "Inhalt anzeigen",
   "history_delete_confirm": "Diese gespeicherte Version dauerhaft löschen? Die aktuelle Konfiguration bleibt unverändert.",
-  "history_action_failed": "Diese Verlaufsaktion konnte nicht ausgeführt werden. Bitte erneut versuchen."
+  "history_action_failed": "Diese Verlaufsaktion konnte nicht ausgeführt werden. Bitte erneut versuchen.",
+  "bot_create_title": "Bot erstellen",
+  "bot_create_description": "Verbinde deinen Discord-Bot und wähle, wie du ihn erstellen möchtest.",
+  "bot_create_visual_title": "Blöcke & BDFD",
+  "bot_create_visual_description": "Erstelle visuelle Aktionen oder BDFD-Skripte.",
+  "bot_create_javascript_description": "Programmiere deinen Bot in JavaScript mit Discord.js.",
+  "editor_section_creation": "Erstellung",
+  "editor_section_automation": "Automatisierung",
+  "editor_section_management": "Verwaltung",
+  "bot_create_mode": "Erstellungsmodus"
 }

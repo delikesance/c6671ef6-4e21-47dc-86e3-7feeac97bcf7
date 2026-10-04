@@ -10912,5 +10912,14 @@
   "bot_config_versions_remote_authority": "Bulut sürümü yerel yapılandırmanın yerini alır. Bulutta bulunmayan komutlar ve iş akışları yerelden kaldırılır.",
   "history_preview": "İçeriği görüntüle",
   "history_delete_confirm": "Bu kayıtlı sürüm kalıcı olarak silinsin mi? Geçerli yapılandırma değişmeden kalır.",
-  "history_action_failed": "Bu geçmiş işlemi tamamlanamadı. Lütfen tekrar deneyin."
+  "history_action_failed": "Bu geçmiş işlemi tamamlanamadı. Lütfen tekrar deneyin.",
+  "bot_create_title": "Bot oluştur",
+  "bot_create_description": "Discord botunu bağla ve nasıl oluşturacağını seç.",
+  "bot_create_visual_title": "Bloklar & BDFD",
+  "bot_create_visual_description": "Görsel eylemler veya BDFD betikleriyle oluştur.",
+  "bot_create_javascript_description": "Botunu Discord.js ile JavaScript kullanarak programla.",
+  "editor_section_creation": "Oluşturma",
+  "editor_section_automation": "Otomasyon",
+  "editor_section_management": "Yönetim",
+  "bot_create_mode": "Oluşturma modu"
 }

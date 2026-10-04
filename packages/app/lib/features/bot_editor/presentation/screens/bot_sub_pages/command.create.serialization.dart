@@ -42,7 +42,7 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
           ? _CommandCreatePageState._executionModeJavascript
           : _executionMode,
       'bdfdScriptContent': _bdfdScriptController.text,
-      'bdfdBackend': 'native-v1',
+      'bdfdBackend': _bdfdBackend,
       'jsScriptContent': _jsScriptController.text,
       'triggerType': _legacyModeEnabled
           ? 'prefix'
@@ -450,6 +450,8 @@ extension _CommandCreateSerialization on _CommandCreatePageState {
       _executionMode = _normalizeExecutionMode(
         normalizedPayload['executionMode'],
       );
+      _bdfdBackend = (normalizedPayload['bdfdBackend'] ?? 'legacy-v1')
+          .toString();
       _bdfdScriptContent = (normalizedPayload['bdfdScriptContent'] ?? '')
           .toString();
       _bdfdScriptController.text = _bdfdScriptContent;

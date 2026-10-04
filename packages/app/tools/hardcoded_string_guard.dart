@@ -115,6 +115,14 @@ class AllowListEntry {
 }
 
 const List<AllowListEntry> allowListedPatterns = <AllowListEntry>[
+  // ── Moteur BDFD : nom technique de backend et diagnostics du compilateur ──
+  AllowListEntry(
+    pathFragment: 'lib/features/bot_editor/presentation/screens/bot_sub_pages/',
+    snippetPattern: r"BDFD legacy|diagnostic\.message",
+    reason:
+        'Nom technique du backend BDFD et message de diagnostic produit par '
+        'le compilateur, pas des libellés traduisibles.',
+  ),
   // ── Logs / technique : messages internes, jamais des libellés d'UI ──
   AllowListEntry(
     pathFragment: 'lib/core/diagnostics/recovery_manager.dart',
