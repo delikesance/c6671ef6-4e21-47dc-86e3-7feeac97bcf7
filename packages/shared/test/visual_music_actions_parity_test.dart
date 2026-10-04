@@ -12,8 +12,7 @@ import 'package:test/test.dart';
 import 'helpers/golden_expectations.dart';
 import 'helpers/variables_test_helpers.dart';
 import 'helpers/visual_discord_gateway.dart';
-import 'helpers/visual_parity_harness.dart'
-    show SpyTranslator, visualAction;
+import 'helpers/visual_parity_harness.dart' show SpyTranslator, visualAction;
 
 /// Parity of the music and voice blocks between the historical executor
 /// (`executeLavalinkAction`) and `bc_<type>` on the native engine, over the same
@@ -379,7 +378,7 @@ void main() {
             _a(
               BotCreatorActionType.setMusicLoop,
               key: 'l',
-              payload: {if (loop != null) 'loop': loop},
+              payload: {'loop': ?loop},
             ),
           ],
           variables: {'m': 'track'},

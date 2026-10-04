@@ -72,7 +72,7 @@ class BdfdReplayCapture {
       'functionDepth': event.functionDepth,
       if (visual != null) 'actionKey': visual.key,
       if (visual != null) 'visualActionType': visual.type,
-      if (before != null) 'variablesBefore': before,
+      'variablesBefore': ?before,
       if (before != null) 'variablesAfter': snapshotReplayVariables(variables!),
       if (event.branch != null) 'branch': event.branch,
       if (event.iteration != null) 'loopIteration': event.iteration,

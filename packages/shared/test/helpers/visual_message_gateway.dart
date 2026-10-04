@@ -1,9 +1,7 @@
 import 'package:bot_creator_shared/actions/execution_policy.dart';
 import 'package:bot_creator_shared/actions/handler.dart';
-import 'package:bot_creator_shared/bot/bot_data_store.dart';
 import 'package:bot_creator_shared/engine/bdfd/program.dart' show BdfdLocation;
 import 'package:bot_creator_shared/engine/bdfd/runtime.dart';
-import 'package:bot_creator_shared/engine/execution_budget.dart';
 import 'package:bot_creator_shared/types/action.dart';
 import 'package:bot_creator_shared/utils/template_resolver.dart';
 import 'package:nyxx/nyxx.dart';
@@ -262,7 +260,6 @@ class FakeInteraction implements MessageResponse {
   int nextId = 8000;
   bool failAcknowledge = false;
 
-  @override
   bool get isAcknowledged => acknowledged;
   @override
   Snowflake? get guildId => Snowflake(10);
@@ -463,8 +460,14 @@ Future<MessageOutcome> messageParity(
     reason: 'interaction calls',
   );
   expect(
-    [native.context.response.acknowledged, native.context.response.originalResponseCompleted],
-    [historical.context.response.acknowledged, historical.context.response.originalResponseCompleted],
+    [
+      native.context.response.acknowledged,
+      native.context.response.originalResponseCompleted,
+    ],
+    [
+      historical.context.response.acknowledged,
+      historical.context.response.originalResponseCompleted,
+    ],
     reason: 'host response state',
   );
   expect(native.results, historical.results, reason: 'results');

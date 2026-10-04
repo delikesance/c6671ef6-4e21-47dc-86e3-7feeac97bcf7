@@ -2,7 +2,7 @@ import '../../../types/action.dart';
 import '../runtime.dart' show BdfdContext;
 
 /// Marks, inside the `path` of a nested action, "the current iteration of loop
-/// <id>". The translator cannot know the iteration, so it writes the marker and
+/// `<id>`". The translator cannot know the iteration, so it writes the marker and
 /// [VisualFlowState.resolvePath] turns it into `iter<N>` at run time: the
 /// results of an iteration live under `<loopKey>.iter<N>.<childKey>`.
 const String visualIterationMarker = '\u0001iter:';

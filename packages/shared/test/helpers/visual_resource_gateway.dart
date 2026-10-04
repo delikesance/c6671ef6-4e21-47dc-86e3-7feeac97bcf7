@@ -190,8 +190,9 @@ class FakeInvites implements InviteManager {
     Snowflake? scheduledEventId,
   }) async {
     gateway.record('fetchInvite', {'code': code});
-    if (code != 'abc' && code != '12345')
+    if (code != 'abc' && code != '12345') {
       throw StateError('Unknown invite $code');
+    }
     return FakeInvite(
       code,
       FakePartialChannel(Snowflake(30)),

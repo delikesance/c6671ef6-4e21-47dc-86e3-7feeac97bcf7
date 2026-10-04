@@ -263,12 +263,12 @@ Map<String, BdfdNativeFunction> bdfdCanvasFunctions() {
           'percentage': percentage,
           'barColor': barColor,
           'trackColor': trackColor,
-          if (textColor != null) 'textColor': textColor,
-          if (borderWidth != null) 'borderWidth': borderWidth,
-          if (orientation != null) 'orientation': orientation,
-          if (fontSize != null) 'fontSize': fontSize,
+          'textColor': ?textColor,
+          'borderWidth': ?borderWidth,
+          'orientation': ?orientation,
+          'fontSize': ?fontSize,
           if (container != null && container.isNotEmpty) 'container': container,
-          if (borderRadius != null) 'borderRadius': borderRadius,
+          'borderRadius': ?borderRadius,
         });
         return '';
       },
