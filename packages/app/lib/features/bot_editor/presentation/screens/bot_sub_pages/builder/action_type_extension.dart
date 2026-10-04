@@ -1991,7 +1991,7 @@ extension BotCreatorActionTypeExtension on BotCreatorActionType {
             key: 'scriptContent',
             type: ParameterType.bdfdScript,
             defaultValue: '',
-            hint: 'BDFD script source code to compile and execute',
+            hint: 'BDFD script source code to execute (native-v1)',
             required: true,
           ),
         ];

@@ -185,6 +185,7 @@ class _CommandSandboxPageState extends State<CommandSandboxPage> {
       seed.remove('actions');
       final value = await (widget.runner ?? testCommandInSandbox)({
         if (widget.script != null) 'script': source.text,
+        if (widget.script != null) 'bdfdBackend': 'native-v1',
         if (widget.actions != null) 'actions': widget.actions,
         'options': options,
         'variables': {
