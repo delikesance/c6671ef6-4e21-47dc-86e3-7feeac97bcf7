@@ -19050,6 +19050,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Build mode'**
   String get bot_create_mode;
+
+  /// No description provided for @bot_home_hosting_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Hosting'**
+  String get bot_home_hosting_title;
+
+  /// No description provided for @bot_home_logs_filter_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter logs'**
+  String get bot_home_logs_filter_label;
+
+  /// No description provided for @bot_home_logs_filter_info.
+  ///
+  /// In en, this message translates to:
+  /// **'Info'**
+  String get bot_home_logs_filter_info;
+
+  /// No description provided for @bot_home_logs_filter_errors.
+  ///
+  /// In en, this message translates to:
+  /// **'Errors'**
+  String get bot_home_logs_filter_errors;
+
+  /// No description provided for @bot_home_commands_see_all.
+  ///
+  /// In en, this message translates to:
+  /// **'See all {count}'**
+  String bot_home_commands_see_all(int count);
+
+  /// No description provided for @bot_home_actions_count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 action} other{{count} actions}}'**
+  String bot_home_actions_count(int count);
+
+  /// Home page title (title case, unlike the uppercase section label).
+  ///
+  /// In en, this message translates to:
+  /// **'My bots'**
+  String get home_title_my_bots;
+
+  /// Tooltip of the overflow menu on a bot card.
+  ///
+  /// In en, this message translates to:
+  /// **'More actions'**
+  String get home_more_actions;
+
+  /// Heading of the getting-started documentation links on the desktop home.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting started'**
+  String get home_getting_started;
+
+  /// No description provided for @modules_group_create.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get modules_group_create;
+
+  /// No description provided for @modules_group_automation.
+  ///
+  /// In en, this message translates to:
+  /// **'Automation'**
+  String get modules_group_automation;
+
+  /// No description provided for @modules_group_management.
+  ///
+  /// In en, this message translates to:
+  /// **'Management'**
+  String get modules_group_management;
+
+  /// No description provided for @modules_desc_workflows.
+  ///
+  /// In en, this message translates to:
+  /// **'Automate your actions and events'**
+  String get modules_desc_workflows;
+
+  /// No description provided for @modules_desc_globals.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared across all commands'**
+  String get modules_desc_globals;
+
+  /// No description provided for @modules_desc_emojis.
+  ///
+  /// In en, this message translates to:
+  /// **'The bot\'s application emojis'**
+  String get modules_desc_emojis;
+
+  /// No description provided for @modules_desc_scheduler.
+  ///
+  /// In en, this message translates to:
+  /// **'Runs a workflow every X minutes'**
+  String get modules_desc_scheduler;
+
+  /// No description provided for @modules_desc_webhooks.
+  ///
+  /// In en, this message translates to:
+  /// **'HTTP calls routed to a workflow'**
+  String get modules_desc_webhooks;
+
+  /// No description provided for @modules_desc_team.
+  ///
+  /// In en, this message translates to:
+  /// **'Collaborators and team chat'**
+  String get modules_desc_team;
+
+  /// No description provided for @modules_desc_guilds.
+  ///
+  /// In en, this message translates to:
+  /// **'Servers where the bot is present'**
+  String get modules_desc_guilds;
 }
 
 class _AppLocalizationsDelegate

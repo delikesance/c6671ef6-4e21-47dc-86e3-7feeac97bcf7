@@ -376,8 +376,14 @@ class _EmojiCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    final tokens = HomeTokens.of(context);
+    return Material(
+      color: tokens.card,
       clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: tokens.cardBorder),
+      ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -388,10 +394,10 @@ class _EmojiCard extends StatelessWidget {
                 emoji.imageUrl,
                 fit: BoxFit.contain,
                 errorBuilder: (context, error, stackTrace) =>
-                    const AppIcon.fromMaterial(
+                    AppIcon.fromMaterial(
                       Icons.broken_image_outlined,
                       size: 40,
-                      color: AppTheme.grey,
+                      color: tokens.muted,
                     ),
               ),
             ),
@@ -410,8 +416,13 @@ class _EmojiCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(bottom: 2),
               child: Text(
-                context.tr.emojis_animated_label,
-                style: TextStyle(fontSize: 10, color: AppTheme.info),
+                context.tr.emojis_animated_label.toUpperCase(),
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.6,
+                  color: tokens.muted,
+                ),
               ),
             ),
           Row(
@@ -428,7 +439,7 @@ class _EmojiCard extends StatelessWidget {
                 icon: const AppIcon.fromMaterial(
                   Icons.delete_outline,
                   size: 18,
-                  color: AppTheme.error,
+                  color: AppTheme.statusErrorText,
                 ),
                 tooltip: context.tr.common_delete,
                 onPressed: onDelete,

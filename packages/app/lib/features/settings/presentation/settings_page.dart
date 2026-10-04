@@ -3674,13 +3674,8 @@ class _SupportDiscordCard extends StatelessWidget {
     return Card(
       clipBehavior: Clip.antiAlias,
       child: DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [_discordColor, AppTheme.discordLight],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
+        // Surface plate (pas de dégradé) : couleur de marque Discord unie.
+        decoration: const BoxDecoration(color: _discordColor),
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(

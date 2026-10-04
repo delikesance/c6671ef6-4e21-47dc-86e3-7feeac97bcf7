@@ -215,6 +215,8 @@ void main() {
         isNull,
       );
       await tester.ensureVisible(find.text('Add embed').first);
+      // Les blocs refondus sont plus hauts : laisser le défilement se matérialiser.
+      await tester.pump();
       await tester.tap(find.text('Add embed').first);
       await tester.pumpAndSettle();
       await tester.tap(find.text('Add embed'));
@@ -245,6 +247,8 @@ void main() {
         page: const CommandCreatePage(botId: botId, localCommandId: commandId),
       );
       await tester.ensureVisible(find.text('Add embed').first);
+      // Les blocs refondus sont plus hauts : laisser le défilement se matérialiser.
+      await tester.pump();
       await tester.tap(find.text('Add embed').first);
       await tester.pumpAndSettle();
       await tester.tap(find.byTooltip('OK'));

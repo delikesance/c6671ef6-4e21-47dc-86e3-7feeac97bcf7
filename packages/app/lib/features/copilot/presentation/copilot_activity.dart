@@ -48,7 +48,8 @@ class _CopilotActivityState extends State<CopilotActivity>
               onPressed: () => setState(() => _expanded = !_expanded),
               style: TextButton.styleFrom(
                 foregroundColor: colors.onSurfaceVariant,
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                minimumSize: const Size(0, 44),
+                padding: const EdgeInsets.symmetric(horizontal: 4),
                 alignment: Alignment.centerLeft,
               ),
               child: Row(
@@ -71,13 +72,29 @@ class _CopilotActivityState extends State<CopilotActivity>
                   Expanded(
                     child: Text(
                       widget.title,
-                      style: Theme.of(context).textTheme.bodySmall,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13.5,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Text(
-                    '${widget.steps.length}',
-                    style: Theme.of(context).textTheme.labelSmall,
+                  // Pastille neutre : nombre d'étapes.
+                  Container(
+                    height: 22,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1F222C),
+                      borderRadius: BorderRadius.circular(11),
+                    ),
+                    child: Text(
+                      '${widget.steps.length}',
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: const Color(0xFFB4B9C6),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 8),
                   AppIcon(

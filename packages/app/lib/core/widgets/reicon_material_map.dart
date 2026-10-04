@@ -102,13 +102,13 @@ final Map<IconData, ({String outline, String filled})> reiconMaterialPaths = {
     outline: Reicon.outline.arrowRight,
     filled: Reicon.filled.arrowRight,
   ),
-  Icons.arrow_forward_ios_outlined: (
-    outline: Reicon.outline.chevronRight,
-    filled: Reicon.filled.chevronRight,
-  ),
   Icons.arrow_forward_rounded: (
     outline: Reicon.outline.arrowRight,
     filled: Reicon.filled.arrowRight,
+  ),
+  Icons.arrow_outward_rounded: (
+    outline: Reicon.outline.arrowUpRight,
+    filled: Reicon.filled.arrowUpRight,
   ),
   Icons.arrow_right: (
     outline: Reicon.outline.arrowRight,
@@ -556,7 +556,15 @@ final Map<IconData, ({String outline, String filled})> reiconMaterialPaths = {
     outline: Reicon.outline.chevronUp,
     filled: Reicon.filled.chevronUp,
   ),
+  Icons.expand_less_rounded: (
+    outline: Reicon.outline.chevronUp,
+    filled: Reicon.filled.chevronUp,
+  ),
   Icons.expand_more: (
+    outline: Reicon.outline.chevronDown,
+    filled: Reicon.filled.chevronDown,
+  ),
+  Icons.expand_more_rounded: (
     outline: Reicon.outline.chevronDown,
     filled: Reicon.filled.chevronDown,
   ),
@@ -1201,6 +1209,10 @@ final Map<IconData, ({String outline, String filled})> reiconMaterialPaths = {
     filled: Reicon.filled.flask,
   ),
   Icons.search: (
+    outline: Reicon.outline.searchNormal2,
+    filled: Reicon.filled.searchNormal2,
+  ),
+  Icons.search_rounded: (
     outline: Reicon.outline.searchNormal2,
     filled: Reicon.filled.searchNormal2,
   ),

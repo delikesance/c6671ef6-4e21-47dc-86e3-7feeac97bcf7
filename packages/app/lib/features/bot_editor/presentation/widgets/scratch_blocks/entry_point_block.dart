@@ -1,5 +1,6 @@
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/core/theme/block_category.dart';
 import 'package:bot_creator_shared/utils/legacy_command_triggers.dart';
 import 'package:flutter/material.dart';
 import 'package:nyxx/nyxx.dart' hide Builder;
@@ -333,45 +334,52 @@ class _EntryPointBlockState extends State<EntryPointBlock> {
         for (final alias in normalizeLegacyCommandAliases(widget.legacyAliases))
           '!$alias',
     ].join(', ');
-    final blockTitle = triggerLabel.isEmpty
-        ? context.tr.scratch_block_entry_point
-        : '${context.tr.scratch_block_entry_point} ($triggerLabel)';
+    // Anatomie alignée sur les autres blocs : pastille Événements, surtitre,
+    // titre complet, résumé mono des déclencheurs, menu de débordement.
+    const family = BlockFamily.events;
+    final settingsLabel = (cmdName != null && cmdName.isNotEmpty)
+        ? '${context.tr.edit_shell_command_settings} ($prefix$cmdName)'
+        : context.tr.edit_shell_command_settings;
 
     return ScratchBlock(
-      color: getCategoryColor('EntryPoint'),
-      title: blockTitle,
+      color: family.color,
+      title: context.tr.scratch_block_entry_point,
+      overline: family.label(context),
+      summary: triggerLabel,
       icon: Icons.play_circle_outline,
       required: true,
       collapsed: _collapsed,
       onToggleCollapse: () => setState(() => _collapsed = !_collapsed),
-      badge: ScratchBlockBadge(
-        label: _typeBadgeLabel(),
-        color: getCategoryColor('EntryPoint'),
-      ),
+      badge: ScratchBlockBadge(label: _typeBadgeLabel(), color: family.color),
+      trailing: widget.onOpenSettings == null
+          ? null
+          : PopupMenuButton<String>(
+              icon: AppIcon.fromMaterial(
+                Icons.more_vert,
+                color: colorScheme.onSurfaceVariant,
+                size: 20,
+              ),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              tooltip: MaterialLocalizations.of(context).showMenuTooltip,
+              onSelected: (_) => widget.onOpenSettings?.call(),
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: 'settings',
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const AppIcon.fromMaterial(Icons.tune_rounded, size: 18),
+                      const SizedBox(width: 12),
+                      Text(settingsLabel),
+                    ],
+                  ),
+                ),
+              ],
+            ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (widget.onOpenSettings != null) ...[
-            FilledButton.tonalIcon(
-              onPressed: widget.onOpenSettings,
-              icon: const AppIcon.fromMaterial(Icons.tune_rounded, size: 16),
-              label: Text(
-                (cmdName != null && cmdName.isNotEmpty)
-                    ? '${context.tr.edit_shell_command_settings} ($prefix$cmdName)'
-                    : context.tr.edit_shell_command_settings,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 12.5,
-                ),
-              ),
-              style: FilledButton.styleFrom(
-                minimumSize: const Size(0, 38),
-                backgroundColor: colorScheme.surfaceContainerHighest,
-                foregroundColor: colorScheme.onSurface,
-              ),
-            ),
-            const SizedBox(height: 12),
-          ],
           // ── Entry point type selector (Slash, Prefix, User, Message) ──
           Text(
             context.tr.scratch_entry_point_listen,

@@ -27,6 +27,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/core/theme/block_category.dart';
 
 import 'package:bot_creator/core/utils/external_link.dart';
 import 'package:bot_creator/core/network/remote_runtime.dart';
@@ -165,10 +166,12 @@ class _AppCommandsPageState extends State<AppCommandsPage>
     final name = (command['name'] ?? 'unknown').toString();
 
     final colorScheme = Theme.of(context).colorScheme;
+    final tokens = HomeTokens.of(context);
     final cardWidget = Card(
+      color: tokens.card,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-        side: BorderSide(color: colorScheme.outlineVariant),
+        side: BorderSide(color: tokens.clusterBorder),
       ),
       child: InkWell(
         onLongPress: () {
@@ -192,7 +195,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
           _load();
         },
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 10, 4, 10),
+          padding: const EdgeInsets.fromLTRB(16, 16, 8, 16),
           child: Row(
             children: [
               if (_isSelectMode)
@@ -209,7 +212,10 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                   },
                 )
               else
-                _CommandTypeTile(icon: _commandTypeIcon(command)),
+                _CommandTypeTile(
+                  icon: _commandTypeIcon(command),
+                  family: _commandFamily(command),
+                ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -223,7 +229,9 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                             name,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
+                            // Nom de commande en monospace (identifiant).
                             style: const TextStyle(
+                              fontFamily: 'JetBrainsMono',
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
                             ),
@@ -263,7 +271,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
                           ),
                       ],
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 8),
                     _buildCommandSubtitle(command),
                   ],
                 ),
@@ -408,6 +416,15 @@ class _AppCommandsPageState extends State<AppCommandsPage>
     }
   }
 
+  /// Famille de couleur de la pastille : texte/préfixe = événements,
+  /// commandes slash/contextuelles = messages.
+  BlockFamily _commandFamily(Map<String, dynamic> command) {
+    final data = (command['data'] as Map?)?.cast<String, dynamic>() ?? const {};
+    return data['legacyModeEnabled'] == true
+        ? BlockFamily.events
+        : BlockFamily.messages;
+  }
+
   List<Widget> _buildCommandMetaChips(Map<String, dynamic> command) {
     final data = Map<String, dynamic>.from(
       (command['data'] as Map?)?.cast<String, dynamic>() ?? const {},
@@ -420,14 +437,13 @@ class _AppCommandsPageState extends State<AppCommandsPage>
     final legacyLocal = data['legacyLocalOnly'] == true;
 
     final chips = <Widget>[
+      if (optionsCount > 0)
+        _CommandMetaChip(
+          label: context.tr.review_options_count(optionsCount),
+          tooltip: context.tr.component_options,
+        ),
       _CommandMetaChip(
-        label: '$optionsCount',
-        icon: Icons.tune,
-        tooltip: context.tr.component_options,
-      ),
-      _CommandMetaChip(
-        label: '$actionsCount',
-        icon: Icons.account_tree_outlined,
+        label: context.tr.bot_home_actions_count(actionsCount),
         tooltip: context.tr.actions_title,
       ),
     ];
@@ -1774,7 +1790,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
       for (final command in rootCmds) {
         children.add(
           Padding(
-            padding: const EdgeInsets.only(bottom: 6),
+            padding: const EdgeInsets.only(bottom: 12),
             child: _buildReorderCommandTile(command),
           ),
         );
@@ -1830,7 +1846,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
       for (final command in folderCommands) {
         children.add(
           Padding(
-            padding: EdgeInsets.only(left: indentPadding, bottom: 6),
+            padding: EdgeInsets.only(left: indentPadding, bottom: 12),
             child: _buildReorderCommandTile(command),
           ),
         );
@@ -1855,7 +1871,7 @@ class _AppCommandsPageState extends State<AppCommandsPage>
     void addCommandCard(Map<String, dynamic> command, {double indent = 0}) {
       children.add(
         Padding(
-          padding: EdgeInsets.only(left: indent, bottom: 6),
+          padding: EdgeInsets.only(left: indent, bottom: 12),
           child: _buildCommandCard(command),
         ),
       );
@@ -2584,31 +2600,33 @@ class CommandFolderHeader extends StatelessWidget {
 }
 
 class _CommandMetaChip extends StatelessWidget {
-  const _CommandMetaChip({this.label, required this.icon, this.tooltip});
+  const _CommandMetaChip({this.label, this.icon, this.tooltip});
 
   final String? label;
-  final IconData icon;
+  final IconData? icon;
   final String? tooltip;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final chip = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      constraints: const BoxConstraints(minHeight: 22),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+        color: HomeTokens.of(context).navSelected,
+        borderRadius: BorderRadius.circular(11),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          AppIcon.fromMaterial(
-            icon,
-            size: 13,
-            color: colorScheme.onSurfaceVariant,
-          ),
+          if (icon != null)
+            AppIcon.fromMaterial(
+              icon!,
+              size: 13,
+              color: colorScheme.onSurfaceVariant,
+            ),
           if (label != null) ...[
-            const SizedBox(width: 4),
+            if (icon != null) const SizedBox(width: 4),
             Text(
               label!,
               style: TextStyle(
@@ -2628,29 +2646,14 @@ class _CommandMetaChip extends StatelessWidget {
 
 /// Pastille d'icône à gauche d'une commande (type de commande).
 class _CommandTypeTile extends StatelessWidget {
-  const _CommandTypeTile({required this.icon});
+  const _CommandTypeTile({required this.icon, required this.family});
 
   final IconData icon;
+  final BlockFamily family;
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-        border: Border.all(color: colorScheme.outlineVariant),
-      ),
-      child: Center(
-        child: AppIcon.fromMaterial(
-          icon,
-          size: 20,
-          color: colorScheme.onSurfaceVariant,
-        ),
-      ),
-    );
+    return family.pastille(icon, size: 40, iconSize: 20);
   }
 }
 

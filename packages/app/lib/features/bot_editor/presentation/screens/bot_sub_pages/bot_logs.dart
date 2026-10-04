@@ -754,7 +754,8 @@ class _BotLogsPageState extends State<BotLogsPage> {
                                                   maxLines: expanded ? null : 3,
                                                   style: textTheme.bodySmall
                                                       ?.copyWith(
-                                                        fontFamily: 'monospace',
+                                                        fontFamily:
+                                                            'JetBrainsMono',
                                                         fontSize:
                                                             compactRawFontSize,
                                                         height: 1.35,
@@ -825,7 +826,7 @@ class _BotLogsPageState extends State<BotLogsPage> {
                                             overflow: TextOverflow.ellipsis,
                                             style: textTheme.bodySmall
                                                 ?.copyWith(
-                                                  fontFamily: 'monospace',
+                                                  fontFamily: 'JetBrainsMono',
                                                   fontSize: _rawFontSize,
                                                   height: 1.3,
                                                   color: _rawLevelColor(
@@ -920,7 +921,7 @@ class _BotLogsPageState extends State<BotLogsPage> {
                                       SelectableText(
                                         visibleMessage,
                                         style: textTheme.bodyMedium?.copyWith(
-                                          fontFamily: 'monospace',
+                                          fontFamily: 'JetBrainsMono',
                                           height: 1.35,
                                         ),
                                       ),
@@ -1229,14 +1230,17 @@ class _BotLogsPageState extends State<BotLogsPage> {
     return out.toString().replaceAll(RegExp(r'\n{3,}'), '\n\n').trim();
   }
 
+  // Couleurs de niveau de la refonte : les couleurs de statut ne servent qu'à
+  // l'état (erreur / avertissement) ; INFO et le reste restent neutres.
   Color _rawLevelColor(BuildContext context, String level, bool isDebug) {
     final scheme = Theme.of(context).colorScheme;
     final upper = level.toUpperCase();
+    final dark = Theme.of(context).brightness == Brightness.dark;
     if (upper == 'SEVERE' || upper == 'ERROR') {
-      return scheme.error;
+      return dark ? AppTheme.statusErrorText : scheme.error;
     }
     if (upper == 'WARNING' || upper == 'WARN') {
-      return scheme.tertiary;
+      return dark ? AppTheme.statusWarning : scheme.tertiary;
     }
     if (isDebug || upper == 'FINE' || upper == 'FINER' || upper == 'FINEST') {
       return scheme.onSurface.withValues(alpha: 0.55);
@@ -1247,17 +1251,16 @@ class _BotLogsPageState extends State<BotLogsPage> {
   Color _levelBackground(BuildContext context, String level, bool isDebug) {
     final scheme = Theme.of(context).colorScheme;
     final upper = level.toUpperCase();
+    final dark = Theme.of(context).brightness == Brightness.dark;
     if (upper == 'SEVERE' || upper == 'ERROR') {
-      return scheme.errorContainer;
+      return dark
+          ? AppTheme.statusError.withValues(alpha: 0.14)
+          : scheme.errorContainer;
     }
     if (upper == 'WARNING' || upper == 'WARN') {
-      return scheme.tertiaryContainer;
-    }
-    if (upper == 'INFO') {
-      return scheme.primaryContainer;
-    }
-    if (isDebug || upper == 'FINE' || upper == 'FINER' || upper == 'FINEST') {
-      return scheme.secondaryContainer;
+      return dark
+          ? AppTheme.statusWarning.withValues(alpha: 0.14)
+          : scheme.tertiaryContainer;
     }
     return scheme.surfaceContainerHighest;
   }
@@ -1265,17 +1268,15 @@ class _BotLogsPageState extends State<BotLogsPage> {
   Color _levelForeground(BuildContext context, String level, bool isDebug) {
     final scheme = Theme.of(context).colorScheme;
     final upper = level.toUpperCase();
+    final dark = Theme.of(context).brightness == Brightness.dark;
     if (upper == 'SEVERE' || upper == 'ERROR') {
-      return scheme.onErrorContainer;
+      return dark ? AppTheme.statusErrorText : scheme.onErrorContainer;
     }
     if (upper == 'WARNING' || upper == 'WARN') {
-      return scheme.onTertiaryContainer;
-    }
-    if (upper == 'INFO') {
-      return scheme.onPrimaryContainer;
+      return dark ? AppTheme.statusWarning : scheme.onTertiaryContainer;
     }
     if (isDebug || upper == 'FINE' || upper == 'FINER' || upper == 'FINEST') {
-      return scheme.onSecondaryContainer;
+      return scheme.onSurfaceVariant.withValues(alpha: 0.8);
     }
     return scheme.onSurfaceVariant;
   }

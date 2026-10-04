@@ -226,6 +226,16 @@ class _MetadataBlockState extends State<MetadataBlock> {
     return count;
   }
 
+  /// Masque le compteur « n/100 » : il réservait une ligne vide sous chaque
+  /// champ et écartait inutilement Nom, Description et Dossier. La limite reste
+  /// appliquée par `maxLength`.
+  static Widget? _hideCounter(
+    BuildContext context, {
+    required int currentLength,
+    required bool isFocused,
+    required int? maxLength,
+  }) => null;
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -244,24 +254,67 @@ class _MetadataBlockState extends State<MetadataBlock> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // ── Command name ──
-          TextFormField(
-            controller: _nameController,
-            autocorrect: false,
-            validator: widget.nameValidator,
-            maxLength: widget.nameMaxLength,
-            decoration: InputDecoration(
-              labelText: context.tr.command_name_label,
-              hintText: context.tr.scratch_meta_name_hint,
-              prefixIcon: const AppIcon.fromMaterial(Icons.tag),
-              border: const OutlineInputBorder(),
-            ),
-            onChanged: widget.onNameChanged,
+          // ── Nom + description : côte à côte quand la place le permet ──
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final nameField = TextFormField(
+                controller: _nameController,
+                autocorrect: false,
+                validator: widget.nameValidator,
+                maxLength: widget.nameMaxLength,
+                buildCounter: _hideCounter,
+                decoration: InputDecoration(
+                  labelText: context.tr.command_name_label,
+                  hintText: context.tr.scratch_meta_name_hint,
+                  prefixIcon: const AppIcon.fromMaterial(Icons.tag),
+                  border: const OutlineInputBorder(),
+                  isDense: true,
+                ),
+                onChanged: widget.onNameChanged,
+              );
+              final descriptionField = TextFormField(
+                autocorrect: false,
+                maxLength: 100,
+                maxLines: 2,
+                minLines: 1,
+                buildCounter: _hideCounter,
+                initialValue: widget.commandDescription,
+                decoration: InputDecoration(
+                  labelText: context.tr.common_description,
+                  hintText: context.tr.scratch_meta_desc_hint,
+                  prefixIcon: const AppIcon.fromMaterial(Icons.short_text),
+                  border: const OutlineInputBorder(),
+                  isDense: true,
+                ),
+                onChanged: widget.onDescriptionChanged,
+              );
+              final showDescription = widget.showDescriptionField;
+              if (showDescription && constraints.maxWidth >= 560) {
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(flex: 2, child: nameField),
+                    const SizedBox(width: 12),
+                    Expanded(flex: 3, child: descriptionField),
+                  ],
+                );
+              }
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  nameField,
+                  if (showDescription) ...[
+                    const SizedBox(height: 10),
+                    descriptionField,
+                  ],
+                ],
+              );
+            },
           ),
 
           // ── Aliases (Prefix Commands only) ──
           if (widget.isLegacyCommand) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             TextFormField(
               controller: _aliasesController,
               autocorrect: false,
@@ -275,6 +328,7 @@ class _MetadataBlockState extends State<MetadataBlock> {
                   size: 20,
                 ),
                 border: const OutlineInputBorder(),
+                isDense: true,
               ),
               validator: (val) {
                 if (val == null || val.trim().isEmpty) return null;
@@ -296,25 +350,6 @@ class _MetadataBlockState extends State<MetadataBlock> {
               onChanged: (text) {
                 widget.onLegacyAliasesChanged?.call(_parseAliases(text));
               },
-            ),
-          ],
-
-          // ── Description ──
-          if (widget.showDescriptionField) ...[
-            const SizedBox(height: 12),
-            TextFormField(
-              autocorrect: false,
-              maxLength: 100,
-              maxLines: 2,
-              minLines: 1,
-              initialValue: widget.commandDescription,
-              decoration: InputDecoration(
-                labelText: context.tr.common_description,
-                hintText: context.tr.scratch_meta_desc_hint,
-                prefixIcon: const AppIcon.fromMaterial(Icons.short_text),
-                border: const OutlineInputBorder(),
-              ),
-              onChanged: widget.onDescriptionChanged,
             ),
           ],
 
@@ -423,7 +458,7 @@ class _MetadataBlockState extends State<MetadataBlock> {
 
           // ── Folder ──
           if (widget.folderController != null) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             Autocomplete<String>(
               optionsBuilder: (TextEditingValue textEditingValue) {
                 if (_existingFolders.isEmpty) {
@@ -517,6 +552,7 @@ class _MetadataBlockState extends State<MetadataBlock> {
                       controller: controller,
                       focusNode: focusNode,
                       decoration: InputDecoration(
+                        isDense: true,
                         labelText: context.tr.commands_folder_label,
                         hintText: context.tr.commands_folder_hint,
                         prefixIcon: const AppIcon.fromMaterial(
@@ -551,7 +587,6 @@ class _MetadataBlockState extends State<MetadataBlock> {
                               )
                             : null,
                         border: const OutlineInputBorder(),
-                        isDense: true,
                       ),
                       onSubmitted: (_) => onFieldSubmitted(),
                     );
@@ -594,47 +629,110 @@ class _MetadataBlockState extends State<MetadataBlock> {
     }
   }
 
+  /// Résumé d'une ligne des réglages avancés : type · contextes · permissions.
+  String _advancedSummary() {
+    final tr = context.tr;
+    final type = _commandTypeSegmentValue();
+    final typeLabel = type == 'legacy'
+        ? tr.command_type_legacy
+        : type == 'user'
+        ? tr.command_type_user
+        : type == 'message'
+        ? tr.command_type_message
+        : tr.command_type_slash;
+    final contextsLabel = <String>[
+      if (widget.contexts.contains(InteractionContextType.guild))
+        tr.command_context_guild,
+      if (widget.contexts.contains(InteractionContextType.botDm))
+        tr.command_context_bot_dm,
+      if (widget.contexts.contains(InteractionContextType.privateChannel))
+        tr.command_context_group_dm,
+    ].join(' + ');
+    return <String>[
+      typeLabel,
+      if (contextsLabel.isNotEmpty) contextsLabel,
+      if (widget.defaultMemberPermissions.isNotEmpty)
+        tr.command_permissions_label,
+    ].join(' · ');
+  }
+
   Widget _buildAdvancedSection(ColorScheme colorScheme) {
     final advancedCount = _advancedSettingsCount;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        InkWell(
-          onTap: () => setState(() => _advancedExpanded = !_advancedExpanded),
-          borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Row(
-              children: [
-                AppIcon.fromMaterial(
-                  _advancedExpanded ? Icons.expand_less : Icons.expand_more,
-                  size: 20,
-                  color: colorScheme.onSurfaceVariant,
+        // Ligne de divulgation : tuile d'icône 36, titre, résumé mono, chevron.
+        Material(
+          color: HomeTokens.of(context).card,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+            side: BorderSide(color: HomeTokens.of(context).clusterBorder),
+          ),
+          child: InkWell(
+            onTap: () => setState(() => _advancedExpanded = !_advancedExpanded),
+            customBorder: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+            ),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 56),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: HomeTokens.of(context).navSelected,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: AppIcon.fromMaterial(
+                        Icons.tune,
+                        size: 18,
+                        color: colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            context.tr.scratch_meta_advanced,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                            ),
+                          ),
+                          Text(
+                            _advancedSummary(),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontFamily: 'JetBrainsMono',
+                              fontSize: 12,
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (advancedCount > 0) ...[
+                      ScratchBlockBadge(
+                        label: '$advancedCount',
+                        color: colorScheme.primary,
+                      ),
+                      const SizedBox(width: 4),
+                    ],
+                    AppIcon.fromMaterial(
+                      _advancedExpanded ? Icons.expand_less : Icons.expand_more,
+                      size: 22,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 4),
-                AppIcon.fromMaterial(
-                  Icons.tune,
-                  size: 16,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  context.tr.scratch_meta_advanced,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                if (advancedCount > 0) ...[
-                  const SizedBox(width: 8),
-                  ScratchBlockBadge(
-                    label: '$advancedCount',
-                    color: colorScheme.primary,
-                  ),
-                ],
-              ],
+              ),
             ),
           ),
         ),

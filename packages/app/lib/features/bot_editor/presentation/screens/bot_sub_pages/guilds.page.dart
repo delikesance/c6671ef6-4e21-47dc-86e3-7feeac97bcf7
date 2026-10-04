@@ -2,10 +2,12 @@ import 'dart:async';
 
 import 'package:bot_creator/core/i18n/i18n.dart';
 import 'package:bot_creator/core/storage/database.dart';
+import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/features/home/presentation/guild_avatar.dart';
 import 'package:bot_creator/features/home/presentation/home_ui.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/settings_group_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:nyxx/nyxx.dart';
 
@@ -124,16 +126,10 @@ class _GuildsPageState extends State<GuildsPage> {
     return ValueListenableBuilder<GuildsLoadState>(
       valueListenable: _directory.watch(widget.botId),
       builder: (context, state, _) {
-        final cs = Theme.of(context).colorScheme;
         return Scaffold(
           appBar: AppBar(
             title: Text(context.tr.guilds_tab),
             actions: [
-              if (state.guilds.isNotEmpty)
-                Text(
-                  context.tr.guilds_server_count_other(state.guilds.length),
-                  style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
-                ),
               const SizedBox(width: 8),
               IconButton(
                 icon: const AppIcon.fromMaterial(Icons.refresh, size: 20),
@@ -159,49 +155,56 @@ class _GuildsPageState extends State<GuildsPage> {
     if (guilds.isNotEmpty) {
       return RefreshIndicator(
         onRefresh: _refresh,
-        child: ListView.separated(
+        child: ListView(
           padding: EdgeInsets.only(
             top: 8,
             bottom: FloatingGlassNavBar.contentClearanceOf(context) + 24,
           ),
           physics: const AlwaysScrollableScrollPhysics(),
-          itemCount: guilds.length,
-          separatorBuilder: (_, i2) => const Divider(height: 1),
-          itemBuilder: (ctx, i) {
-            final guild = guilds[i];
-            final isLeaving = _leavingGuilds.contains(guild.id);
-            return ListTile(
-              leading: HomeBotAvatar(
-                imageUrl: guild.iconUrl,
-                size: 40,
-                fallbackLabel: guildAvatarInitial(guild.name),
-              ),
-              title: Text(guild.name ?? guild.id),
-              subtitle: Text(
-                [
-                  'ID: ${guild.id}',
-                  if (guild.memberCount != null)
-                    context.tr.guilds_members_count_other(guild.memberCount!),
-                  if (guild.isOwner) context.tr.guilds_owner_label,
-                ].join(' · '),
-                style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
-              ),
-              trailing: IconButton(
-                icon: isLeaving
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const AppIcon.fromMaterial(
-                        Icons.exit_to_app,
-                        color: Colors.red,
-                      ),
-                tooltip: context.tr.guilds_leave_tooltip,
-                onPressed: isLeaving ? null : () => _leaveGuild(guild),
-              ),
-            );
-          },
+          children: [
+            SettingsSectionHeader(
+              context.tr.guilds_server_count_other(guilds.length),
+            ),
+            SettingsGroupCard(
+              children: [
+                for (final guild in guilds)
+                  SettingsRow(
+                    key: ValueKey('guild-row-${guild.id}'),
+                    minHeight: 64,
+                    leading: HomeBotAvatar(
+                      imageUrl: guild.iconUrl,
+                      size: 40,
+                      fallbackLabel: guildAvatarInitial(guild.name),
+                    ),
+                    title: guild.name ?? guild.id,
+                    subtitle: [
+                      'ID: ${guild.id}',
+                      if (guild.memberCount != null)
+                        context.tr.guilds_members_count_other(
+                          guild.memberCount!,
+                        ),
+                      if (guild.isOwner) context.tr.guilds_owner_label,
+                    ].join(' · '),
+                    trailing: IconButton(
+                      icon: _leavingGuilds.contains(guild.id)
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : AppIcon.fromMaterial(
+                              Icons.exit_to_app,
+                              color: AppTheme.statusErrorText,
+                            ),
+                      tooltip: context.tr.guilds_leave_tooltip,
+                      onPressed: _leavingGuilds.contains(guild.id)
+                          ? null
+                          : () => _leaveGuild(guild),
+                    ),
+                  ),
+              ],
+            ),
+          ],
         ),
       );
     }

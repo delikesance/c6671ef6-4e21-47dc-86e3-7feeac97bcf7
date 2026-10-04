@@ -19,7 +19,7 @@ import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/utils/duration_formatter.dart';
 import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/utils/string_sanitizer.dart';
-import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
+import 'package:bot_creator/core/widgets/flat_nav_bar.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/features/ads/logic/ad_consent_service.dart';
 import 'package:bot_creator/features/ads/logic/ad_reward_service.dart';
@@ -47,6 +47,7 @@ import 'package:bot_creator/features/containers/presentation/container_detail_pa
 import 'package:bot_creator/features/containers/presentation/home_turnkey_container_card.dart';
 import 'package:bot_creator/features/discord_rpc/logic/discord_rpc_service.dart';
 import 'package:bot_creator/features/documentation/documentation_navigation.dart';
+import 'package:bot_creator/features/documentation/documentation_urls.dart';
 import 'package:bot_creator/features/home/logic/bot_run_source.dart';
 import 'package:bot_creator/features/home/logic/bot_runtime_affinity.dart';
 import 'package:bot_creator/features/home/logic/bot_start_branch.dart';
@@ -3312,8 +3313,10 @@ class HomePageState extends State<HomePage>
         return LayoutBuilder(
           builder: (context, constraints) {
             final width = constraints.maxWidth;
-            final isWide = width >= AppTheme.desktopBreakpoint;
-            final columns = isWide ? 2 : 1;
+            // Le seuil porte sur la fenêtre (comme le shell de `main.dart`) et
+            // non sur la zone de contenu : le rail desktop (84 px) la réduit.
+            final isWide =
+                MediaQuery.sizeOf(context).width >= AppTheme.desktopBreakpoint;
             // Largeur réellement rendue par [PageContent] : bornée par la
             // largeur commune puis réduite des marges de la zone disponible.
             final contentWidth = width > AppPageLayout.maxContentWidth
@@ -3321,6 +3324,11 @@ class HomePageState extends State<HomePage>
                 : width;
             final innerWidth =
                 contentWidth - 2 * AppPageLayout.horizontalPaddingFor(width);
+            // Grille responsive : autant de colonnes de >= 360 px que la zone
+            // en contient (1 à 3) ; une seule colonne en compact.
+            final columns = isWide
+                ? ((innerWidth + 20) / (360 + 20)).floor().clamp(1, 3)
+                : 1;
 
             void openCreate() {
               Navigator.push(
@@ -3343,7 +3351,9 @@ class HomePageState extends State<HomePage>
                     MaterialPageRoute(builder: (_) => const SettingPage()),
                   );
                 },
-                showShellActions: isWide,
+                // Sur desktop, Documentation / Paramètres vivent dans le rail.
+                showShellActions: false,
+                onCreate: isWide ? openCreate : null,
               ),
               const SizedBox(height: 16),
               ValueListenableBuilder<Announcement?>(
@@ -3359,7 +3369,12 @@ class HomePageState extends State<HomePage>
                   );
                 },
               ),
-              _CreateBotCard(onTap: openCreate),
+              // Une seule porte d'entrée : tuile sur mobile, bouton d'en-tête sur
+              // desktop (pas de doublon).
+              if (!isWide) ...[
+                _CreateBotCard(onTap: openCreate),
+                const SizedBox(height: 8),
+              ],
               const SizedBox(height: 20),
             ];
 
@@ -3457,7 +3472,12 @@ class HomePageState extends State<HomePage>
                 if (index > 0) {
                   children.add(const SizedBox(height: 28));
                 }
-                children.add(_HomeSectionTitle(label: sections[index].title));
+                children.add(
+                  _HomeSectionTitle(
+                    label: sections[index].title,
+                    count: sections[index].cards.length,
+                  ),
+                );
                 _addHomeCards(
                   children,
                   sections[index].cards,
@@ -3465,6 +3485,13 @@ class HomePageState extends State<HomePage>
                   innerWidth,
                 );
               }
+            }
+
+            // « Premiers pas » : liens de documentation déjà présents dans l'app
+            // (tutoriel token, guide, docs), desktop uniquement.
+            if (isWide && snapshot.error == null && apps != null) {
+              children.add(const SizedBox(height: 32));
+              children.add(const _GettingStartedSection());
             }
 
             return RefreshIndicator(
@@ -3483,9 +3510,7 @@ class HomePageState extends State<HomePage>
                     0,
                     24,
                     0,
-                    isWide
-                        ? 40
-                        : FloatingGlassNavBar.contentClearanceOf(context) + 24,
+                    isWide ? 40 : FlatNavBar.contentClearanceOf(context) + 16,
                   ),
                   physics: const AlwaysScrollableScrollPhysics(),
                   children: children,
@@ -3722,15 +3747,187 @@ class HomePageState extends State<HomePage>
 /// le MÊME style que le surtitre « MY PROJECTS » ([homeSectionLabelStyle]), donc
 /// aucune hiérarchie visuelle inventée pour la séparation.
 class _HomeSectionTitle extends StatelessWidget {
-  const _HomeSectionTitle({required this.label});
+  const _HomeSectionTitle({required this.label, this.count});
 
   final String label;
 
+  /// Nombre de cartes de la section, affiché dans une puce (`null` = aucune).
+  final int? count;
+
   @override
   Widget build(BuildContext context) {
+    final tokens = HomeTokens.of(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Text(label, style: homeSectionLabelStyle(context)),
+      child: Row(
+        children: [
+          Text(label.toUpperCase(), style: homeSectionLabelStyle(context)),
+          if (count != null) ...[
+            const SizedBox(width: 8),
+            Container(
+              height: 20,
+              padding: const EdgeInsets.symmetric(horizontal: 7),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: const Color(0xFF1F222C),
+                borderRadius: BorderRadius.circular(11),
+              ),
+              child: Text(
+                '$count',
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: tokens.muted,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Liens « Premiers pas » du desktop : uniquement des destinations déjà
+/// proposées ailleurs dans l'app (voir `documentation_urls.dart`).
+class _GettingStartedSection extends StatelessWidget {
+  const _GettingStartedSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final tr = context.tr;
+    final links = <({IconData icon, String title, String url, bool mono})>[
+      (
+        icon: Icons.vpn_key_outlined,
+        title: tr.app_how_to_create_token,
+        url: botTokenTutorialUrl,
+        mono: false,
+      ),
+      (
+        icon: Icons.description_outlined,
+        title: tr.docs_tab_guide,
+        url: guideBaseUrl,
+        mono: true,
+      ),
+      (
+        icon: Icons.menu_book_outlined,
+        title: tr.docs_tab_bot_creator,
+        url: botCreatorDocsBaseUrl,
+        mono: true,
+      ),
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _HomeSectionTitle(label: tr.home_getting_started),
+        Wrap(
+          spacing: 16,
+          runSpacing: 16,
+          children: [
+            for (final link in links)
+              SizedBox(
+                width: 340,
+                child: _GettingStartedLink(
+                  icon: link.icon,
+                  title: link.title,
+                  subtitle: link.mono
+                      ? link.url.replaceFirst('https://', '')
+                      : null,
+                  onTap: () => openAppLink(context, Uri.parse(link.url)),
+                ),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _GettingStartedLink extends StatelessWidget {
+  const _GettingStartedLink({
+    required this.icon,
+    required this.title,
+    required this.onTap,
+    this.subtitle,
+  });
+
+  final IconData icon;
+  final String title;
+  final String? subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = HomeTokens.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    return Material(
+      color: tokens.card,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 72),
+          padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: tokens.clusterBorder),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: tokens.clusterBg,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: tokens.clusterBorder),
+                ),
+                child: AppIcon.fromMaterial(
+                  icon,
+                  size: 20,
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: homeDisplayStyle(
+                        14,
+                        weight: FontWeight.w700,
+                        color: scheme.onSurface,
+                      ),
+                    ),
+                    if (subtitle != null)
+                      Text(
+                        subtitle!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.jetBrainsMono(
+                          fontSize: 12,
+                          color: tokens.muted,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              AppIcon.fromMaterial(
+                Icons.arrow_outward_rounded,
+                size: 18,
+                color: tokens.muted,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -3742,6 +3939,7 @@ class _HomeHeader extends StatelessWidget {
     required this.onSettings,
 
     this.showShellActions = true,
+    this.onCreate,
   });
 
   final VoidCallback onRefresh;
@@ -3749,6 +3947,10 @@ class _HomeHeader extends StatelessWidget {
   final VoidCallback onSettings;
 
   final bool showShellActions;
+
+  /// Bouton principal « Créer un bot » de l'en-tête (desktop) ; `null` = absent
+  /// (mobile : la tuile sous l'en-tête fait ce travail).
+  final VoidCallback? onCreate;
 
   @override
   Widget build(BuildContext context) {
@@ -3759,22 +3961,23 @@ class _HomeHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                context.tr.home_overline,
+                context.tr.home_overline.toUpperCase(),
                 style: homeSectionLabelStyle(context),
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: 6),
               FittedBox(
                 fit: BoxFit.scaleDown,
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  context.tr.app_title,
+                  context.tr.home_title_my_bots,
                   maxLines: 1,
                   softWrap: false,
-                  style: GoogleFonts.getFont(
-                    'Alexandria',
-                    fontSize: 32,
-                    fontWeight: FontWeight.w900,
-                    height: 1.22,
+                  style: GoogleFonts.inter(
+                    fontSize: 30,
+                    // Inter embarquée s'arrête à Bold (700) : pas de w800.
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.6,
+                    height: 1.1,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
@@ -3786,10 +3989,31 @@ class _HomeHeader extends StatelessWidget {
 
         HomeHeaderIconButton(
           icon: Icons.sync_rounded,
-          iconSize: 13,
+          iconSize: 18,
           tooltip: context.tr.common_refresh,
           onTap: onRefresh,
         ),
+        if (onCreate != null) ...[
+          const SizedBox(width: 12),
+          FilledButton.icon(
+            onPressed: onCreate,
+            icon: const AppIcon.fromMaterial(Icons.add_rounded, size: 18),
+            label: Text(context.tr.home_create_bot_title),
+            style: FilledButton.styleFrom(
+              minimumSize: const Size(0, 44),
+              padding: const EdgeInsets.symmetric(horizontal: 18),
+              backgroundColor: HomeTokens.of(context).accent,
+              foregroundColor: HomeTokens.of(context).onAccent,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              textStyle: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
         if (showShellActions) ...[
           const SizedBox(width: 10),
           HomeHeaderIconButton(
@@ -3946,40 +4170,74 @@ class HomeBotCardState extends State<HomeBotCard> {
     return !SubscriptionService.isSubscribed;
   }
 
-  /// Ligne d'échéance de l'hébergement (« Expire le … ») ou de réserve en pause.
+  /// Boîte d'hébergement (surtitre, valeur, précision) ou `null` quand elle n'a
+  /// pas lieu d'être.
   ///
-  /// N'est appelée que lorsque la ligne a le droit d'exister : un solde cloud
-  /// converti en date n'a de sens que pour un bot exécuté par les serveurs.
-  String _hostingExpirationLabel(BuildContext context) {
-    if (widget.freeMinutes <= 0) {
-      return context.tr.home_hosting_status_paused;
+  /// On montre le TEMPS RESTANT, jamais une date calculée : `maintenant + solde`
+  /// donnait des échéances fantaisistes (année 2038 pour un solde illimité). Une
+  /// date d'expiration ne s'affiche que si le serveur en fournit une.
+  ({String overline, String value, String? detail})? _hostingBox(
+    BuildContext context,
+  ) {
+    if (!widget.showsHostingExpiration) return null;
+    // Abonné : la puce « illimité » dit déjà tout, un solde n'a plus de sens.
+    if (widget.showPremiumLabels && SubscriptionService.isSubscribed) {
+      return null;
     }
-    final expiresAt = DateTime.now().add(Duration(minutes: widget.freeMinutes));
-    return formatSessionExpiration(context, expiresAt);
+    final tr = context.tr;
+    if (widget.isRunning) {
+      return (
+        overline: tr.home_hosting_remaining_overline,
+        value: widget.freeMinutes <= 0
+            ? tr.home_hosting_expired
+            : formatHostingDuration(context, widget.freeMinutes),
+        detail: tr.home_hosting_status_active,
+      );
+    }
+    return (
+      overline: tr.home_hosting_time_preserved_overline,
+      value: widget.freeMinutes <= 0
+          ? tr.home_hosting_status_paused
+          : tr.home_hosting_banked(
+              formatHostingDuration(context, widget.freeMinutes),
+            ),
+      detail: tr.home_hosting_time_preserved,
+    );
+  }
+
+  /// Menu « Plus d'actions » : ce qui n'a pas sa place dans la rangée principale.
+  List<PopupMenuEntry<String>> _overflowEntries(
+    BuildContext context, {
+    required bool teamInMenu,
+  }) {
+    final tr = context.tr;
+    return [
+      if (_showAddHosting)
+        PopupMenuItem<String>(
+          value: 'add_time',
+          enabled: widget.canToggle && widget.onAddTime != null,
+          child: Text(tr.home_add_time),
+        ),
+      if (widget.onLogs != null)
+        PopupMenuItem<String>(value: 'logs', child: Text(tr.home_logs_tooltip)),
+      if (teamInMenu)
+        PopupMenuItem<String>(value: 'team', child: Text(tr.team_tab)),
+    ];
   }
 
   Widget _buildExpandedContent(BuildContext context, ColorScheme scheme) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final tokens = HomeTokens.of(context);
-    // Ligne d'échéance / de réserve : absente du layout dès que la source n'est
-    // pas les serveurs Bot Creator (`null` = rien à afficher, la ligne entière
-    // disparaît — voir `_ServerPresenceRow`).
-    final String? expirationLabel = widget.showsHostingExpiration
-        ? _hostingExpirationLabel(context)
-        : null;
     // La source vivante (« Ce poste », « Serveurs Bot Creator ») porte l'état ;
     // sans source, on retombe sur l'ancien libellé mobile.
     final badge =
         widget.runtimeBadgeLabel ??
         (widget.isRunning ? context.tr.home_synced_active : null);
-    final String? statusLabel;
-    if (badge == null) {
-      statusLabel = expirationLabel;
-    } else {
-      statusLabel = expirationLabel == null
-          ? badge
-          : '$badge • $expirationLabel';
-    }
+    final hosting = _hostingBox(context);
+    // Le chemin vers l'équipe reste un bouton tant que « Gérer » est absent ;
+    // sinon il rejoint le menu pour ne pas écraser la rangée d'actions.
+    final teamInMenu = widget.onTeam != null && widget.onManage != null;
+    final overflow = _overflowEntries(context, teamInMenu: teamInMenu);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -3995,9 +4253,17 @@ class HomeBotCardState extends State<HomeBotCard> {
           botId: widget.id,
           guildCount: widget.guildCount,
           title: _serverCountLabel(context),
-          statusLabel: statusLabel,
+          statusLabel: badge,
           isRunning: widget.isRunning,
         ),
+        if (hosting != null) ...[
+          const SizedBox(height: 12),
+          _HostingBox(
+            overline: hosting.overline,
+            value: hosting.value,
+            detail: hosting.detail,
+          ),
+        ],
         if (widget.showPremiumLabels && SubscriptionService.isSubscribed) ...[
           const SizedBox(height: 10),
           _InfoChip(
@@ -4035,7 +4301,7 @@ class HomeBotCardState extends State<HomeBotCard> {
             // Chemin vers l'équipe : offert même sans droit d'édition, c'est
             // l'usage principal d'un collaborateur. MÊME libellé que l'onglet du
             // même nom dans l'éditeur du bot.
-            if (widget.onTeam != null) ...[
+            if (widget.onTeam != null && !teamInMenu) ...[
               const SizedBox(width: 10),
               Expanded(
                 child: HomeCardActionButton(
@@ -4046,32 +4312,25 @@ class HomeBotCardState extends State<HomeBotCard> {
                 ),
               ),
             ],
+            if (overflow.isNotEmpty) ...[
+              const SizedBox(width: 10),
+              _OverflowMenuButton(
+                tooltip: context.tr.home_more_actions,
+                entries: overflow,
+                onSelected: (value) {
+                  switch (value) {
+                    case 'add_time':
+                      widget.onAddTime?.call();
+                    case 'logs':
+                      widget.onLogs?.call();
+                    case 'team':
+                      widget.onTeam?.call();
+                  }
+                },
+              ),
+            ],
           ],
         ),
-        if (_showAddHosting) ...[
-          const SizedBox(height: 10),
-          SizedBox(
-            width: double.infinity,
-            child: HomeCardActionButton(
-              icon: Icons.add_rounded,
-              iconSize: 14,
-              label: context.tr.home_add_time,
-              onTap: widget.canToggle ? widget.onAddTime : null,
-            ),
-          ),
-        ],
-        if (widget.onLogs != null) ...[
-          const SizedBox(height: 10),
-          SizedBox(
-            width: double.infinity,
-            child: HomeCardActionButton(
-              icon: Icons.article_outlined,
-              iconSize: 14,
-              label: context.tr.home_logs_tooltip,
-              onTap: widget.onLogs,
-            ),
-          ),
-        ],
         // La reprise du jeton est devenue AUTOMATIQUE (synchro + démarrage sur ce poste) :
         // offrir un bouton « Importer le jeton depuis mon compte » obligeait l'utilisateur
         // à comprendre un détail d'implémentation pour que son bot démarre. Il ne reste
@@ -4085,11 +4344,19 @@ class HomeBotCardState extends State<HomeBotCard> {
     final scheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final tokens = HomeTokens.of(context);
-    final cardColor = isDark ? tokens.card : scheme.surfaceContainer;
-    final borderColor = isDark ? tokens.cardBorder : scheme.outlineVariant;
+    // Carte = surface « panneau » ; les blocs internes (serveurs, hébergement)
+    // sont en « raised » : surfaces PLATES, le survol ne change que la bordure.
+    final cardColor = isDark ? tokens.clusterBg : scheme.surfaceContainer;
+    final borderColor = isDark
+        ? (_hovered ? tokens.clusterBorder : tokens.cardBorder)
+        : scheme.outlineVariant;
+    // Desktop : la carte est toujours dépliée (pas de chevron).
+    final wide = MediaQuery.sizeOf(context).width >= AppTheme.desktopBreakpoint;
+    // Mobile, carte repliée d'un bot arrêté : « Démarrer » reste à portée.
+    final showInlineStart = !wide && !_expanded && !widget.isRunning;
 
     return MouseRegion(
-      cursor: SystemMouseCursors.click,
+      cursor: wide ? MouseCursor.defer : SystemMouseCursors.click,
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
       child: AnimatedContainer(
@@ -4098,30 +4365,20 @@ class HomeBotCardState extends State<HomeBotCard> {
           color: cardColor,
           borderRadius: BorderRadius.circular(AppTheme.radiusCard),
           border: Border.all(color: borderColor),
-          boxShadow: _hovered
-              ? [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.45),
-                    blurRadius: 28,
-                    spreadRadius: -4,
-                    offset: const Offset(0, 14),
-                  ),
-                ]
-              : null,
         ),
         child: Material(
           type: MaterialType.transparency,
           child: InkWell(
-            onTap: _toggleExpanded,
+            onTap: wide ? null : _toggleExpanded,
             borderRadius: BorderRadius.circular(AppTheme.radiusCard),
             child: Padding(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(wide ? 20 : 18),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      HomeBotAvatar(imageUrl: widget.avatar),
+                      HomeBotAvatar(imageUrl: widget.avatar, size: 44),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
@@ -4136,7 +4393,8 @@ class HomeBotCardState extends State<HomeBotCard> {
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: homeDisplayStyle(
-                                      16,
+                                      wide ? 18 : 15.5,
+                                      weight: FontWeight.w700,
                                       color: scheme.onSurface,
                                     ),
                                   ),
@@ -4175,6 +4433,13 @@ class HomeBotCardState extends State<HomeBotCard> {
                                 ],
                               ],
                             ),
+                            if (!wide) ...[
+                              const SizedBox(height: 6),
+                              HomeStatusPill(
+                                isRunning: widget.isRunning,
+                                pulseController: widget.pulseController,
+                              ),
+                            ],
                             if (widget.ownerLabel != null) ...[
                               const SizedBox(height: 2),
                               Text(
@@ -4194,18 +4459,48 @@ class HomeBotCardState extends State<HomeBotCard> {
                         ),
                       ),
                       const SizedBox(width: 10),
-                      HomeStatusPill(
-                        isRunning: widget.isRunning,
-                        pulseController: widget.pulseController,
-                      ),
-                      const SizedBox(width: 10),
-                      AppIcon.fromMaterial(
-                        _expanded
-                            ? Icons.keyboard_arrow_up_rounded
-                            : Icons.keyboard_arrow_down_rounded,
-                        color: isDark ? tokens.muted : scheme.onSurfaceVariant,
-                        size: 16,
-                      ),
+                      if (wide)
+                        HomeStatusPill(
+                          isRunning: widget.isRunning,
+                          pulseController: widget.pulseController,
+                        ),
+                      if (showInlineStart) ...[
+                        SizedBox(
+                          width: 104,
+                          child: HomeCardActionButton(
+                            icon: Icons.play_arrow_rounded,
+                            label: _startLabel(context),
+                            onTap: widget.canToggle ? widget.onToggle : null,
+                            loading: widget.isTogglingThisBot,
+                          ),
+                        ),
+                      ],
+                      if (!wide)
+                        // Cible tactile 44 px ; l'état de dépliage est annoncé.
+                        Semantics(
+                          button: true,
+                          expanded: _expanded,
+                          label: widget.name,
+                          excludeSemantics: true,
+                          onTap: _toggleExpanded,
+                          // Toute la carte est cliquable : le chevron n'a besoin que
+                          // de 36 px de large, la hauteur reste à 44.
+                          child: SizedBox(
+                            width: 36,
+                            height: 44,
+                            child: Center(
+                              child: AppIcon.fromMaterial(
+                                _expanded
+                                    ? Icons.keyboard_arrow_up_rounded
+                                    : Icons.keyboard_arrow_down_rounded,
+                                color: isDark
+                                    ? tokens.muted
+                                    : scheme.onSurfaceVariant,
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                   AnimatedCrossFade(
@@ -4398,88 +4693,192 @@ class CreateBotCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final scheme = Theme.of(context).colorScheme;
     final tokens = HomeTokens.of(context);
-    final fill = isDark
-        ? tokens.accent.withValues(alpha: 0.30)
-        : scheme.surfaceContainerHighest;
-    final border = isDark ? tokens.accent : scheme.primary;
-    final avatarFill = tokens.accent;
-    final avatarIconColor = isDark ? Colors.white : tokens.onAccent;
+    // Rangée NEUTRE surélevée : seule la pastille porte la teinte d'action.
+    final fill = isDark ? tokens.card : scheme.surfaceContainerHighest;
+    final border = isDark ? tokens.clusterBorder : scheme.outlineVariant;
+    final accent = tokens.accent;
+    // Violet doux pour l'icône sur le preset par défaut ; les autres presets
+    // gardent leur propre accent (éclairci en sombre pour rester lisible).
+    final iconColor = !isDark
+        ? tokens.onAccent == Colors.white
+              ? accent
+              : scheme.primary
+        : (accent == AppTheme.actionViolet
+              ? AppTheme.actionVioletSoft
+              : Color.alphaBlend(Colors.white.withValues(alpha: 0.35), accent));
 
-    return Stack(
-      children: [
-        Material(
-          color: fill,
-          borderRadius: BorderRadius.circular(AppTheme.radiusCard),
-          clipBehavior: Clip.antiAlias,
-          child: InkWell(
-            onTap: onTap,
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Row(
-                children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: avatarFill,
-                      shape: BoxShape.circle,
-                    ),
-                    child: AppIcon.fromMaterial(
-                      Icons.add_rounded,
-                      size: 26,
-                      color: avatarIconColor,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          context.tr.home_create_bot_title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: homeDisplayStyle(16, color: scheme.onSurface),
-                        ),
-                        Text(
-                          context.tr.home_create_bot_subtitle,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: homeDisplayStyle(
-                            12,
-                            weight: FontWeight.w400,
-                            color: isDark
-                                ? Colors.white.withValues(alpha: 0.30)
-                                : scheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  AppIcon.fromMaterial(
-                    Icons.chevron_right_rounded,
-                    size: 18,
-                    color: isDark
-                        ? tokens.muted
-                        : Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ],
+    return Material(
+      color: fill,
+      borderRadius: BorderRadius.circular(16),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 72),
+          padding: const EdgeInsets.fromLTRB(14, 14, 8, 14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: border),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: 0.16),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: accent.withValues(alpha: 0.40)),
+                ),
+                child: AppIcon.fromMaterial(
+                  Icons.add_rounded,
+                  size: 20,
+                  color: iconColor,
+                ),
               ),
-            ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      context.tr.home_create_bot_title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: homeDisplayStyle(
+                        15,
+                        weight: FontWeight.w700,
+                        color: scheme.onSurface,
+                      ),
+                    ),
+                    Text(
+                      context.tr.home_create_bot_subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: homeDisplayStyle(
+                        12.5,
+                        weight: FontWeight.w400,
+                        color: isDark ? tokens.muted : scheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(
+                width: 32,
+                child: AppIcon.fromMaterial(
+                  Icons.chevron_right_rounded,
+                  size: 20,
+                  color: isDark ? tokens.muted : scheme.onSurfaceVariant,
+                ),
+              ),
+            ],
           ),
         ),
-        Positioned.fill(
-          child: IgnorePointer(
-            child: CustomPaint(
-              painter: HomeDashedRoundedRectPainter(
-                color: border,
-                radius: AppTheme.radiusCard,
-              ),
+      ),
+    );
+  }
+}
+
+/// Boîte d'hébergement d'une carte bot : surtitre, valeur, précision. Fond
+/// « raised » neutre, rayon 16 ; aucune couleur de statut.
+class _HostingBox extends StatelessWidget {
+  const _HostingBox({required this.overline, required this.value, this.detail});
+
+  final String overline;
+  final String value;
+  final String? detail;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = HomeTokens.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final muted = isDark ? tokens.muted : scheme.onSurfaceVariant;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: isDark ? tokens.card : scheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark ? tokens.clusterBorder : scheme.outlineVariant,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            overline.toUpperCase(),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: homeSectionLabelStyle(context),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: homeDisplayStyle(
+              15,
+              weight: FontWeight.w700,
+              color: scheme.onSurface,
             ),
           ),
+          if (detail != null) ...[
+            const SizedBox(height: 2),
+            Text(
+              detail!,
+              style: GoogleFonts.inter(fontSize: 12.5, color: muted),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Bouton « ⋮ » 44×44 d'une carte bot : ouvre le menu des actions secondaires.
+class _OverflowMenuButton extends StatelessWidget {
+  const _OverflowMenuButton({
+    required this.tooltip,
+    required this.entries,
+    required this.onSelected,
+  });
+
+  final String tooltip;
+  final List<PopupMenuEntry<String>> entries;
+  final ValueChanged<String> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = HomeTokens.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        color: isDark ? tokens.card : Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isDark ? tokens.clusterBorder : scheme.outline,
         ),
-      ],
+      ),
+      child: PopupMenuButton<String>(
+        tooltip: tooltip,
+        padding: EdgeInsets.zero,
+        icon: AppIcon.fromMaterial(
+          Icons.more_vert_rounded,
+          size: 20,
+          color: isDark ? tokens.muted : scheme.onSurfaceVariant,
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        onSelected: onSelected,
+        itemBuilder: (_) => entries,
+      ),
     );
   }
 }
@@ -4507,7 +4906,8 @@ class _ServerPresenceRow extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final scheme = Theme.of(context).colorScheme;
     final tokens = HomeTokens.of(context);
-    final clusterBg = isDark ? tokens.clusterBg : scheme.surfaceContainerLow;
+    // Bloc « raised » dans une carte « panneau » (voir HomeBotCardState.build).
+    final clusterBg = isDark ? tokens.card : scheme.surfaceContainerLow;
     final clusterBorder = isDark ? tokens.clusterBorder : scheme.outlineVariant;
     // Serveurs réels du bot qui tourne dans ce processus (synchrone, gratuit).
     // `null`/vide hors desktop ou bot à l'arrêt : `GuildAvatarStrip` bascule
@@ -4522,10 +4922,10 @@ class _ServerPresenceRow extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: clusterBg,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: clusterBorder),
       ),
       child: Row(
@@ -4552,39 +4952,22 @@ class _ServerPresenceRow extends StatelessWidget {
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: isDark
-                        ? tokens.dataAccent
-                        : Theme.of(context).colorScheme.onSurface,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
+                // Source d'exécution (« Serveurs Bot Creator », « Ce poste »).
+                // Texte secondaire : le vert est réservé à la pastille d'état.
                 if (statusLabel != null) ...[
                   const SizedBox(height: 2),
-                  Row(
-                    children: [
-                      Container(
-                        width: 6,
-                        height: 6,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: isRunning ? AppTheme.online : tokens.muted,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Flexible(
-                        child: Text(
-                          statusLabel!,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.inter(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w400,
-                            color: isDark
-                                ? tokens.muted
-                                : scheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ),
-                    ],
+                  Text(
+                    statusLabel!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.inter(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w400,
+                      color: isDark ? tokens.muted : scheme.onSurfaceVariant,
+                    ),
                   ),
                 ],
               ],

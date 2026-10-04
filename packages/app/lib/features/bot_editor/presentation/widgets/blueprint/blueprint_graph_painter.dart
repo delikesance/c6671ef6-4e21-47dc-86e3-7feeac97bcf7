@@ -55,7 +55,8 @@ class BlueprintGraphPainter extends CustomPainter {
         canvas: canvas,
         start: startPos,
         end: endPos,
-        color: conn.color,
+        // Arêtes à la couleur de famille du nœud source.
+        color: fromNode.headerColor,
         isHighlighted: isConnSelected || isNodeSelected,
         isSelectedCable: isConnSelected,
       );
@@ -98,14 +99,12 @@ class BlueprintGraphPainter extends CustomPainter {
       ..moveTo(start.dx, start.dy)
       ..cubicTo(cp1.dx, cp1.dy, cp2.dx, cp2.dy, end.dx, end.dy);
 
-    // Glow / outline if highlighted or selected
-    if (isHighlighted || isSelectedCable) {
+    // Câble sélectionné : simple contour plat (pas de halo diffus).
+    if (isSelectedCable) {
       final glowPaint = Paint()
-        ..color = isSelectedCable
-            ? accentColor.withValues(alpha: 0.6)
-            : accentColor.withValues(alpha: 0.35)
+        ..color = accentColor.withValues(alpha: 0.35)
         ..style = PaintingStyle.stroke
-        ..strokeWidth = isSelectedCable ? 8.0 : 6.0
+        ..strokeWidth = 7.0
         ..strokeCap = StrokeCap.round;
       canvas.drawPath(path, glowPaint);
     }
@@ -116,9 +115,7 @@ class BlueprintGraphPainter extends CustomPainter {
           ? accentColor
           : (isSelectedCable
                 ? accentColor
-                : (isHighlighted
-                      ? Colors.white
-                      : color.withValues(alpha: 0.85)))
+                : (isHighlighted ? color : color.withValues(alpha: 0.7)))
       ..style = PaintingStyle.stroke
       ..strokeWidth = isSelectedCable ? 3.5 : (isHighlighted ? 3.0 : 2.5)
       ..strokeCap = StrokeCap.round;

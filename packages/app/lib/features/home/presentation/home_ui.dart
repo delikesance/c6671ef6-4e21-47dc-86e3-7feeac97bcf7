@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:bot_creator/core/widgets/app_icon.dart';
+import 'package:bot_creator/core/widgets/status_pill.dart';
 
 /// Shared display text style used across the Home redesign.
 TextStyle homeDisplayStyle(
@@ -24,11 +25,12 @@ TextStyle homeSectionLabelStyle(BuildContext context) {
   final muted = isDark
       ? tokens.muted
       : Theme.of(context).colorScheme.onSurfaceVariant;
-  return GoogleFonts.spaceGrotesk(
+  // Surtitre de la refonte : Inter 10.5 / 700 / 0.08em (à passer en MAJUSCULES).
+  return GoogleFonts.inter(
     color: muted,
-    fontSize: 11,
+    fontSize: 10.5,
     fontWeight: FontWeight.w700,
-    letterSpacing: 0.8,
+    letterSpacing: 0.84,
     height: 1.27,
   );
 }
@@ -56,7 +58,7 @@ class HomeHeaderIconButton extends StatelessWidget {
         ? tokens.card
         : Theme.of(context).colorScheme.surfaceContainerHigh;
     final border = isDark
-        ? tokens.cardBorder
+        ? tokens.clusterBorder
         : Theme.of(context).colorScheme.outlineVariant;
     final fg = isDark
         ? Colors.white
@@ -74,8 +76,9 @@ class HomeHeaderIconButton extends StatelessWidget {
           child: InkWell(
             onTap: onTap,
             child: Container(
-              width: 40,
-              height: 40,
+              // Cible tactile 44 px minimum.
+              width: 44,
+              height: 44,
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
@@ -295,7 +298,10 @@ class _DiskCachedAvatarImageState extends State<_DiskCachedAvatarImage> {
   }
 }
 
-/// Online / Offline status pill from the Home bot cards.
+/// Pastille d'état d'un bot (en ligne / arrêté) : plate, sans halo.
+///
+/// [pulseController] est conservé pour compatibilité d'appel mais n'anime plus
+/// rien : la refonte n'autorise aucun glow.
 class HomeStatusPill extends StatelessWidget {
   const HomeStatusPill({
     super.key,
@@ -308,59 +314,9 @@ class HomeStatusPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color color = isRunning ? AppTheme.online : AppTheme.danger;
-    final label = isRunning
-        ? context.tr.home_status_online
-        : context.tr.home_status_offline;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: isRunning ? 0.10 : 0.08),
-        borderRadius: BorderRadius.circular(AppTheme.radiusPill),
-        border: Border.all(
-          color: color.withValues(alpha: isRunning ? 0.30 : 0.20),
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AnimatedBuilder(
-            animation: pulseController,
-            builder: (_, _) {
-              final glow = isRunning ? 0.4 + 0.6 * pulseController.value : 0.0;
-              return Container(
-                width: 6,
-                height: 6,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: color,
-                  boxShadow: isRunning
-                      ? [
-                          BoxShadow(
-                            color: AppTheme.online.withValues(
-                              alpha: 0.8 * glow,
-                            ),
-                            blurRadius: 7,
-                            spreadRadius: 1,
-                          ),
-                        ]
-                      : null,
-                ),
-              );
-            },
-          ),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: GoogleFonts.inter(
-              color: color,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
+    return isRunning
+        ? StatusPill.online(label: context.tr.home_status_online)
+        : StatusPill.stopped(label: context.tr.container_state_stopped);
   }
 }
 
@@ -392,13 +348,19 @@ class HomeCardActionButton extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final tokens = HomeTokens.of(context);
-    final Color fg = accent ?? scheme.onSurface;
+    // Danger : texte rouge lisible (#FB8A9D), le point/anneau gardent le rouge.
+    final Color fg = accent == null
+        ? scheme.onSurface
+        : (accent == AppTheme.danger ? AppTheme.statusErrorText : accent!);
+    final Color tint = accent == AppTheme.danger
+        ? AppTheme.statusError
+        : (accent ?? Colors.transparent);
     final Color borderColor = accent != null
-        ? accent!.withValues(alpha: 0.20)
-        : (isDark ? tokens.ghostBorder : scheme.outline);
+        ? tint.withValues(alpha: 0.40)
+        : (isDark ? tokens.clusterBorder : scheme.outline);
     final Color bg = accent != null
-        ? accent!.withValues(alpha: 0.08)
-        : Colors.white.withValues(alpha: isDark ? 0.02 : 0.40);
+        ? tint.withValues(alpha: 0.08)
+        : (isDark ? tokens.card : Colors.white.withValues(alpha: 0.40));
     final bool enabled = onTap != null && !loading;
 
     return Opacity(

@@ -4,6 +4,7 @@ import 'package:bot_creator_shared/types/action.dart' show BotCreatorActionType;
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder/action_types.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder/action_type_extension.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/scratch_blocks/scratch_block_palette.dart';
+import 'package:bot_creator/core/theme/block_category.dart';
 import 'blueprint_models.dart';
 
 /// Result produced by layout engine containing nodes and connection wires.
@@ -17,7 +18,7 @@ class BlueprintGraphData {
 /// Automatically computes 2D coordinates and flow connections for actions.
 class BlueprintLayoutEngine {
   static const double nodeWidth = 240.0;
-  static const double nodeHeight = 110.0;
+  static const double nodeHeight = 124.0;
   static const double horizontalSpacing = 80.0;
   static const double verticalSpacing = 40.0;
   static const double startX = 0.0;
@@ -46,7 +47,8 @@ class BlueprintLayoutEngine {
           ? 'Discord Slash Command'
           : 'Message Text Command',
       icon: isInteraction ? Icons.terminal : Icons.chat_bubble_outline,
-      headerColor: const Color(0xFF5865F2), // Discord Blurple
+      headerColor: BlockFamily.events.color,
+      overline: BlockFamily.events.label(context),
       isEntryPoint: true,
       inPins: const [],
       outPins: const [
@@ -72,7 +74,7 @@ class BlueprintLayoutEngine {
       final action = actions[i];
       final actionId = action.id;
       final category = getCategoryForAction(action.type);
-      final catColor = getCategoryColor(category);
+      final catColor = BlockFamily.fromCategoryName(category).color;
 
       final isIf = action.type == BotCreatorActionType.ifBlock;
       final isFinal = isFinalAction(action.type);
@@ -180,6 +182,7 @@ class BlueprintLayoutEngine {
         subtitle: subtitle,
         icon: action.type.icon,
         headerColor: catColor,
+        overline: localizeCategory(context, category),
         isEntryPoint: false,
         actionType: action.type,
         actionItem: action,
@@ -221,7 +224,7 @@ class BlueprintLayoutEngine {
             );
             final subNodeId = tItem.id;
             final subCat = getCategoryForAction(tItem.type);
-            final subColor = getCategoryColor(subCat);
+            final subColor = BlockFamily.fromCategoryName(subCat).color;
             final subPos =
                 customPositions?[subNodeId] ??
                 Offset(branchX, branchY + (t * (nodeHeight + 20)));
@@ -233,6 +236,7 @@ class BlueprintLayoutEngine {
                 subtitle: _computeActionSubtitle(tItem),
                 icon: tItem.type.icon,
                 headerColor: subColor,
+                overline: localizeCategory(context, subCat),
                 actionType: tItem.type,
                 actionItem: tItem,
                 inPins: const [
@@ -297,7 +301,7 @@ class BlueprintLayoutEngine {
               );
               final subNodeId = aItem.id;
               final subCat = getCategoryForAction(aItem.type);
-              final subColor = getCategoryColor(subCat);
+              final subColor = BlockFamily.fromCategoryName(subCat).color;
               final subPos =
                   customPositions?[subNodeId] ??
                   Offset(branchX, branchY + (a * (nodeHeight + 20)));
@@ -309,6 +313,7 @@ class BlueprintLayoutEngine {
                   subtitle: _computeActionSubtitle(aItem),
                   icon: aItem.type.icon,
                   headerColor: subColor,
+                  overline: localizeCategory(context, subCat),
                   actionType: aItem.type,
                   actionItem: aItem,
                   inPins: const [
@@ -366,7 +371,7 @@ class BlueprintLayoutEngine {
             );
             final subNodeId = eItem.id;
             final subCat = getCategoryForAction(eItem.type);
-            final subColor = getCategoryColor(subCat);
+            final subColor = BlockFamily.fromCategoryName(subCat).color;
             final subPos =
                 customPositions?[subNodeId] ??
                 Offset(branchX, branchY + (e * (nodeHeight + 20)));
@@ -378,6 +383,7 @@ class BlueprintLayoutEngine {
                 subtitle: _computeActionSubtitle(eItem),
                 icon: eItem.type.icon,
                 headerColor: subColor,
+                overline: localizeCategory(context, subCat),
                 actionType: eItem.type,
                 actionItem: eItem,
                 inPins: const [

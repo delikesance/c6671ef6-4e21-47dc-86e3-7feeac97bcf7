@@ -38,6 +38,9 @@ class BlueprintNodeData {
   final String? subtitle;
   final IconData icon;
   final Color headerColor;
+
+  /// Surtitre de catégorie (affiché en majuscules au-dessus du titre).
+  final String? overline;
   final bool isEntryPoint;
   final BotCreatorActionType? actionType;
   final ActionItem? actionItem;
@@ -57,6 +60,7 @@ class BlueprintNodeData {
     this.subtitle,
     required this.icon,
     required this.headerColor,
+    this.overline,
     this.isEntryPoint = false,
     this.actionType,
     this.actionItem,
@@ -67,10 +71,14 @@ class BlueprintNodeData {
     this.size = const Size(240, 100),
   });
 
+  /// Hauteur de l'en-tête de nœud (pastille 30 + marges), partagée avec le widget.
+  static const double headerHeight = 46.0;
+
   /// Calculates the local offset of a pin relative to this node.
   Offset getPinOffset(String pinId) {
-    // Header height is 32, pin vertical padding is 6, each pin is 24px high centered at 12px
-    const headerH = 32.0;
+    // En-tête : pastille + surtitre + titre (voir [headerHeight]), marge
+    // verticale de 6, chaque broche fait 24px de haut centrée à 12px.
+    const headerH = headerHeight;
     const padTop = 6.0;
     const pinH = 24.0;
     const halfPin = pinH / 2; // 12px

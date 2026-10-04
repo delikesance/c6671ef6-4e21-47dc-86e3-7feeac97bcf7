@@ -33,6 +33,10 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pag
 import 'dart:developer' as developer;
 
 import 'package:bot_creator/core/widgets/app_icon.dart';
+import 'package:bot_creator/core/network/main_api_owner_sync.dart';
+import 'package:bot_creator/core/network/remote_runtime.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_config_versions_page.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/settings_group_widgets.dart';
 
 class AppSettingsPage extends StatefulWidget {
   final NyxxRest client;
@@ -967,7 +971,8 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     );
   }
 
-  Widget _buildGeneralTab() {
+  /// Gabarit commun d'un onglet de réglages : défilement + largeur de page.
+  Widget _settingsTabScaffold(List<Widget> children) {
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: _tabContentPadding(context),
@@ -975,479 +980,519 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
         child: PageContent(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildProfilePreviewCard(),
-
-              // Token Update Section
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Text(
-                  context.tr.bot_settings_token_title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              if (!_isEditingToken) ...[
-                Text(
-                  context.tr.bot_settings_token_hidden_desc,
-                  style: const TextStyle(fontSize: 12, color: AppTheme.grey),
-                ),
-                const SizedBox(height: 8),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      setState(() {
-                        _tokenController.text = _savedToken;
-                        _isEditingToken = true;
-                      });
-                    },
-                    icon: const AppIcon.fromMaterial(Icons.edit_outlined),
-                    label: Text(context.tr.bot_settings_edit_token_btn),
-                  ),
-                ),
-              ] else ...[
-                TextField(
-                  controller: _tokenController,
-                  decoration: InputDecoration(
-                    labelText: context.tr.bot_settings_update_token,
-                    border: const OutlineInputBorder(),
-                    contentPadding: const EdgeInsets.all(8),
-                    hintText: context.tr.bot_settings_token_hint,
-                  ),
-                  obscureText: true,
-                ),
-                const SizedBox(height: 8),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: _isSavingToken
-                        ? null
-                        : () {
-                            setState(() {
-                              _tokenController.text = _savedToken;
-                              _isEditingToken = false;
-                            });
-                          },
-                    icon: const AppIcon.fromMaterial(Icons.close),
-                    label: Text(context.tr.bot_settings_cancel_token_edit_btn),
-                  ),
-                ),
-              ],
-              const SizedBox(height: 12),
-              Text(
-                context.tr.bot_settings_save_token_caption,
-                style: const TextStyle(fontSize: 12, color: AppTheme.grey),
-              ),
-              const SizedBox(height: 8),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: (_isSavingToken || !_isEditingToken)
-                      ? null
-                      : () async {
-                          try {
-                            await _saveTokenOnly();
-                          } catch (e) {
-                            developer.log(
-                              'Error saving token: $e',
-                              name: 'AppSettingsPage',
-                            );
-                            if (!mounted) return;
-                            final dialog = AlertDialog(
-                              title: Text(context.tr.error),
-                              content: Text(e.toString()),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: Text(context.tr.ok),
-                                ),
-                              ],
-                            );
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return dialog;
-                              },
-                            );
-                          }
-                        },
-                  icon: const AppIcon.fromMaterial(Icons.vpn_key_outlined),
-                  label: Text(context.tr.bot_settings_save_token_only_btn),
-                ),
-              ),
-
-              const SizedBox(height: 24),
-              const Divider(),
-              const SizedBox(height: 12),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Text(
-                  context.tr.import_engine_title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              DropdownButtonFormField<String>(
-                initialValue: _runtimeEngine,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  helperText:
-                      'JavaScript bots require a JS runner (embedded or external).',
-                ),
-                items: const [
-                  DropdownMenuItem(
-                    value: runtimeEngineDart,
-                    child: Text('Bot Creator (Dart / blocks)'),
-                  ),
-                  DropdownMenuItem(
-                    value: runtimeEngineJavascript,
-                    child: Text('JavaScript (runner-js)'),
-                  ),
-                ],
-                onChanged: _isSwitchingRuntimeEngine
-                    ? null
-                    : _onRuntimeEngineChanged,
-              ),
-              const SizedBox(height: 24),
-              const Divider(),
-              const SizedBox(height: 12),
-
-              // Prefix Management Section
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Text(
-                  context.tr.settings_legacy_prefix,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              TextField(
-                controller: _prefixController,
-                decoration: InputDecoration(
-                  labelText: context.tr.settings_legacy_prefix,
-                  border: const OutlineInputBorder(),
-                  hintText: context.tr.settings_legacy_prefix_hint,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                context.tr.settings_legacy_prefix_helper,
-                style: const TextStyle(fontSize: 12, color: AppTheme.grey),
-              ),
-              const SizedBox(height: 12),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(context.tr.settings_builtin_help),
-                subtitle: Text(context.tr.settings_builtin_help_subtitle),
-                value: _builtInLegacyHelpEnabled,
-                onChanged: (value) {
-                  setState(() {
-                    _builtInLegacyHelpEnabled = value;
-                  });
-                },
-              ),
-              const SizedBox(height: 8),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: _isSavingPrefix ? null : _savePrefixOnly,
-                  icon: _isSavingPrefix
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const AppIcon.fromMaterial(Icons.save_outlined),
-                  label: Text(context.tr.save),
-                ),
-              ),
-            ],
+            children: children,
           ),
         ),
       ),
     );
   }
 
-  Widget _buildPresenceTab() {
-    return SingleChildScrollView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      padding: _tabContentPadding(context),
-      child: Center(
-        child: PageContent(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildProfilePreviewCard(),
+  /// Champ de saisie plat des cartes de réglages (rayon 12).
+  InputDecoration _settingsFieldDecoration({String? label, String? hint}) {
+    return InputDecoration(
+      labelText: label,
+      hintText: hint,
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+    );
+  }
 
-              // Profile Section
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Text(
-                  context.tr.bot_settings_profile_title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              TextField(
-                decoration: InputDecoration(
-                  labelText: context.tr.bot_settings_username_override,
-                  border: const OutlineInputBorder(),
-                  contentPadding: const EdgeInsets.all(8),
-                  hintText: context.tr.bot_settings_username_hint,
-                ),
-                controller: _usernameController,
-                onChanged: (_) {
-                  setState(() {});
+  /// Boîte de dialogue d'erreur commune aux enregistrements.
+  void _showSettingsErrorDialog(Object e) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: Text(context.tr.error),
+        content: Text(e.toString()),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(context.tr.ok),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGeneralTab() {
+    final tokens = HomeTokens.of(context);
+    return _settingsTabScaffold([
+      _buildProfilePreviewCard(),
+      const SizedBox(height: 14),
+
+      // ── Token ──
+      SettingsSection(
+        title: context.tr.bot_settings_token_title,
+        children: [
+          if (!_isEditingToken)
+            SettingsRow(
+              minHeight: 58,
+              leading: const SettingsRowIcon(Icons.vpn_key_outlined),
+              title: context.tr.bot_settings_token_title,
+              subtitle: '••••••••••••',
+              monoSubtitle: true,
+              trailing: OutlinedButton(
+                onPressed: () {
+                  setState(() {
+                    _tokenController.text = _savedToken;
+                    _isEditingToken = true;
+                  });
                 },
-              ),
-              const SizedBox(height: 16),
-
-              Card(
-                color: Theme.of(context).colorScheme.surfaceContainer,
-                shape: RoundedRectangleBorder(
-                  side: BorderSide(
-                    color: Theme.of(context).colorScheme.outlineVariant,
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(0, 44),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  borderRadius: BorderRadius.circular(12),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                child: Text(context.tr.bot_settings_edit_token_btn),
+              ),
+            )
+          else
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TextField(
+                    controller: _tokenController,
+                    decoration: _settingsFieldDecoration(
+                      label: context.tr.bot_settings_update_token,
+                      hint: context.tr.bot_settings_token_hint,
+                    ),
+                    obscureText: true,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    context.tr.bot_settings_save_token_caption,
+                    style: TextStyle(fontSize: 12.5, color: tokens.muted),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
                     children: [
-                      Text(
-                        context.tr.bot_settings_avatar_preview_label,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Stack(
-                            children: [
-                              Container(
-                                width: 64,
-                                height: 64,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: AppTheme.discordBorder,
-                                    width: 2,
-                                  ),
-                                ),
-                                child: ClipOval(
-                                  child: _selectedAvatarPath != null
-                                      ? Image.file(
-                                          File(_selectedAvatarPath!),
-                                          fit: BoxFit.cover,
-                                        )
-                                      : Image.network(
-                                          (widget.client.user as User)
-                                              .avatar
-                                              .url
-                                              .toString(),
-                                          fit: BoxFit.cover,
-                                          errorBuilder:
-                                              (
-                                                context,
-                                                error,
-                                                stackTrace,
-                                              ) => Container(
-                                                color: AppTheme.discordBorder,
-                                                child:
-                                                    const AppIcon.fromMaterial(
-                                                      Icons.person,
-                                                      color: Colors.white,
-                                                      size: 32,
-                                                    ),
-                                              ),
-                                        ),
-                                ),
-                              ),
-                              if (_selectedAvatarPath != null)
-                                Positioned(
-                                  right: 0,
-                                  top: 0,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(2),
-                                    decoration: const BoxDecoration(
-                                      color: AppTheme.success,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const AppIcon.fromMaterial(
-                                      Icons.check,
-                                      color: Colors.white,
-                                      size: 12,
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    ElevatedButton.icon(
-                                      onPressed: _pickAvatarFile,
-                                      icon: const AppIcon.fromMaterial(
-                                        Icons.photo_library_outlined,
-                                        size: 16,
-                                      ),
-                                      style: ElevatedButton.styleFrom(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                          vertical: 8,
-                                        ),
-                                      ),
-                                      label: Text(
-                                        context.tr.bot_settings_browse,
-                                      ),
-                                    ),
-                                    if (_selectedAvatarPath != null) ...[
-                                      const SizedBox(width: 8),
-                                      OutlinedButton.icon(
-                                        onPressed: () {
-                                          setState(() {
-                                            _selectedAvatarPath = null;
-                                          });
-                                        },
-                                        style: OutlinedButton.styleFrom(
-                                          foregroundColor: AppTheme.error,
-                                          side: const BorderSide(
-                                            color: AppTheme.error,
-                                          ),
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 8,
-                                          ),
-                                        ),
-                                        icon: const AppIcon.fromMaterial(
-                                          Icons.clear,
-                                          size: 16,
-                                        ),
-                                        label: Text(
-                                          context
-                                              .tr
-                                              .bot_settings_avatar_clear_selection,
-                                        ),
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                if (_selectedAvatarPath != null) ...[
-                                  Text(
-                                    context.tr.bot_settings_avatar_selected,
-                                    style: const TextStyle(
-                                      color: AppTheme.success,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  SelectableText(
-                                    Uri.file(
-                                      _selectedAvatarPath!,
-                                    ).pathSegments.last,
-                                    style: const TextStyle(
-                                      fontSize: 11,
-                                      fontFamily: 'monospace',
-                                    ),
-                                  ),
-                                ] else
-                                  Text(
-                                    context
-                                        .tr
-                                        .bot_settings_avatar_none_selected,
-                                    style: const TextStyle(
-                                      color: AppTheme.grey,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AppTheme.discord.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: AppTheme.discord.withValues(alpha: 0.2),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: _isSavingToken
+                              ? null
+                              : () {
+                                  setState(() {
+                                    _tokenController.text = _savedToken;
+                                    _isEditingToken = false;
+                                  });
+                                },
+                          icon: const AppIcon.fromMaterial(Icons.close),
+                          label: Text(
+                            context.tr.bot_settings_cancel_token_edit_btn,
                           ),
                         ),
-                        child: Row(
-                          children: [
-                            const AppIcon.fromMaterial(
-                              Icons.info_outline,
-                              color: AppTheme.discord,
-                              size: 16,
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                context.tr.bot_settings_avatar_important_note,
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  color: AppTheme.discordText,
-                                ),
-                              ),
-                            ),
-                          ],
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: FilledButton.icon(
+                          onPressed: _isSavingToken
+                              ? null
+                              : () async {
+                                  try {
+                                    await _saveTokenOnly();
+                                  } catch (e) {
+                                    developer.log(
+                                      'Error saving token: $e',
+                                      name: 'AppSettingsPage',
+                                    );
+                                    if (!mounted) return;
+                                    _showSettingsErrorDialog(e);
+                                  }
+                                },
+                          icon: const AppIcon.fromMaterial(
+                            Icons.vpn_key_outlined,
+                          ),
+                          label: Text(
+                            context.tr.bot_settings_save_token_only_btn,
+                          ),
                         ),
                       ),
                     ],
                   ),
-                ),
+                ],
               ),
+            ),
+        ],
+      ),
 
-              const SizedBox(height: 24),
-              const Divider(),
-              const SizedBox(height: 12),
+      // ── Moteur d'exécution ──
+      SettingsSection(
+        title: context.tr.import_engine_title,
+        padding: const EdgeInsets.all(16),
+        children: [
+          DropdownButtonFormField<String>(
+            initialValue: _runtimeEngine,
+            decoration: _settingsFieldDecoration().copyWith(
+              helperText:
+                  'JavaScript bots require a JS runner (embedded or external).',
+              helperMaxLines: 2,
+            ),
+            items: const [
+              DropdownMenuItem(
+                value: runtimeEngineDart,
+                child: Text('Bot Creator (Dart / blocks)'),
+              ),
+              DropdownMenuItem(
+                value: runtimeEngineJavascript,
+                child: Text('JavaScript (runner-js)'),
+              ),
+            ],
+            onChanged: _isSwitchingRuntimeEngine
+                ? null
+                : _onRuntimeEngineChanged,
+          ),
+        ],
+      ),
 
-              // Presence Section
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
+      // ── Préfixe legacy ──
+      SettingsSection(
+        title: context.tr.settings_legacy_prefix,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextField(
+                  controller: _prefixController,
+                  decoration: _settingsFieldDecoration(
+                    label: context.tr.settings_legacy_prefix,
+                    hint: context.tr.settings_legacy_prefix_hint,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  context.tr.settings_legacy_prefix_helper,
+                  style: TextStyle(fontSize: 12.5, color: tokens.muted),
+                ),
+              ],
+            ),
+          ),
+          SettingsToggleRow(
+            title: context.tr.settings_builtin_help,
+            subtitle: context.tr.settings_builtin_help_subtitle,
+            value: _builtInLegacyHelpEnabled,
+            onChanged: (value) {
+              setState(() {
+                _builtInLegacyHelpEnabled = value;
+              });
+            },
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: FilledButton.icon(
+              onPressed: _isSavingPrefix ? null : _savePrefixOnly,
+              icon: _isSavingPrefix
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const AppIcon.fromMaterial(Icons.save_outlined),
+              label: Text(context.tr.save),
+            ),
+          ),
+        ],
+      ),
+    ]);
+  }
+
+  Widget _buildPresenceTab() {
+    final tokens = HomeTokens.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    return _settingsTabScaffold([
+      _buildProfilePreviewCard(),
+      const SizedBox(height: 14),
+
+      // ── Profil : nom + avatar ──
+      SettingsSection(
+        title: context.tr.bot_settings_profile_title,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: TextField(
+              decoration: _settingsFieldDecoration(
+                label: context.tr.bot_settings_username_override,
+                hint: context.tr.bot_settings_username_hint,
+              ),
+              controller: _usernameController,
+              onChanged: (_) {
+                setState(() {});
+              },
+            ),
+          ),
+          SettingsRow(
+            minHeight: 72,
+            leading: ClipRRect(
+              borderRadius: BorderRadius.circular(14),
+              child: SizedBox(
+                width: 44,
+                height: 44,
+                child: _selectedAvatarPath != null
+                    ? Image.file(File(_selectedAvatarPath!), fit: BoxFit.cover)
+                    : Image.network(
+                        (widget.client.user as User).avatar.url.toString(),
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          color: tokens.clusterBorder,
+                          child: const AppIcon.fromMaterial(
+                            Icons.person,
+                            size: 24,
+                          ),
+                        ),
+                      ),
+              ),
+            ),
+            title: context.tr.bot_settings_avatar_preview_label,
+            subtitle: _selectedAvatarPath != null
+                ? Uri.file(_selectedAvatarPath!).pathSegments.last
+                : context.tr.bot_settings_avatar_none_selected,
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (_selectedAvatarPath != null)
+                  IconButton(
+                    tooltip: context.tr.bot_settings_avatar_clear_selection,
+                    constraints: const BoxConstraints(
+                      minWidth: 44,
+                      minHeight: 44,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _selectedAvatarPath = null;
+                      });
+                    },
+                    icon: const AppIcon.fromMaterial(Icons.clear),
+                  ),
+                OutlinedButton(
+                  onPressed: _pickAvatarFile,
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(0, 44),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(context.tr.bot_settings_browse),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 14),
+            child: Text(
+              context.tr.bot_settings_avatar_important_note,
+              style: TextStyle(fontSize: 12, color: tokens.muted),
+            ),
+          ),
+        ],
+      ),
+
+      // ── Présence + rotation des activités ──
+      SettingsSection(
+        title: context.tr.bot_settings_presence_status_title,
+        children: [
+          SettingsRow(
+            minHeight: 56,
+            title: context.tr.bot_settings_presence_status_label,
+            trailing: SizedBox(
+              width: 176,
+              child: DropdownButtonFormField<String>(
+                initialValue: _presenceStatus,
+                isExpanded: true,
+                decoration: _settingsFieldDecoration(),
+                items: _presenceStatuses
+                    .map(
+                      (status) => DropdownMenuItem<String>(
+                        value: status,
+                        child: Text(
+                          _presenceStatusLabel(status),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    )
+                    .toList(growable: false),
+                onChanged: (value) {
+                  if (value == null) {
+                    return;
+                  }
+                  setState(() {
+                    _presenceStatus = value;
+                  });
+                },
+              ),
+            ),
+          ),
+          if (_capabilities.supportsStatusRotation) ...[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
+              child: Semantics(
+                header: true,
                 child: Text(
-                  context.tr.bot_settings_presence_status_title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                  context.tr.bot_settings_status_rotation_title.toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.84,
+                    color: tokens.muted,
                   ),
                 ),
               ),
+            ),
+            if (_statusDrafts.isEmpty)
               Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: DropdownButtonFormField<String>(
-                  initialValue: _presenceStatus,
-                  decoration: InputDecoration(
-                    labelText: context.tr.bot_settings_presence_status_label,
-                    border: const OutlineInputBorder(),
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 14),
+                child: Text(
+                  context.tr.bot_settings_no_activities,
+                  style: TextStyle(color: tokens.muted),
+                ),
+              ),
+            for (var index = 0; index < _statusDrafts.length; index++)
+              _buildStatusDraftRow(index, scheme, tokens),
+            SettingsNavRow(
+              title: context.tr.bot_settings_add_status,
+              leading: const SettingsRowIcon(Icons.add),
+              onTap: () {
+                setState(() {
+                  _statusDrafts.add(_StatusDraft.empty()..expanded = true);
+                });
+              },
+            ),
+          ],
+        ],
+      ),
+
+      Padding(
+        padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
+        child: Text(
+          context.tr.bot_settings_save_profile_caption,
+          style: TextStyle(fontSize: 12.5, color: tokens.muted),
+        ),
+      ),
+      FilledButton.icon(
+        onPressed: _isSavingProfile
+            ? null
+            : () async {
+                try {
+                  await _saveProfileAndStatuses();
+                } catch (e) {
+                  developer.log(
+                    'Error saving profile/statuses: $e',
+                    name: 'AppSettingsPage',
+                  );
+                  if (!mounted) return;
+                  _showSettingsErrorDialog(e);
+                }
+              },
+        icon: const AppIcon.fromMaterial(Icons.save_outlined),
+        label: Text(context.tr.bot_settings_save_profile_status_btn),
+      ),
+    ]);
+  }
+
+  /// Ligne d'une activité de la rotation : puce de type, titre, nom +
+  /// intervalle min–max, suppression ; un appui déplie l'édition complète.
+  Widget _buildStatusDraftRow(
+    int index,
+    ColorScheme scheme,
+    HomeTokens tokens,
+  ) {
+    final draft = _statusDrafts[index];
+    final name = draft.textController.text.trim();
+    final minS = draft.minController.text.trim();
+    final maxS = draft.maxController.text.trim();
+    final interval = minS == maxS || maxS.isEmpty ? '$minS s' : '$minS–$maxS s';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (index > 0) Divider(height: 1, color: tokens.cardBorder),
+        InkWell(
+          onTap: () => setState(() => draft.expanded = !draft.expanded),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 52),
+            child: Padding(
+              padding: const EdgeInsets.only(left: 16, right: 2),
+              child: Row(
+                children: [
+                  SettingsChip(_statusTypeLabel(draft.type), minWidth: 64),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.tr.bot_settings_status_item_title(index + 1),
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: scheme.onSurface,
+                          ),
+                        ),
+                        Text.rich(
+                          TextSpan(
+                            children: [
+                              if (name.isNotEmpty) TextSpan(text: '$name · '),
+                              TextSpan(
+                                text: interval,
+                                style: const TextStyle(
+                                  fontFamily: 'JetBrainsMono',
+                                ),
+                              ),
+                            ],
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: 12.5, color: tokens.muted),
+                        ),
+                      ],
+                    ),
                   ),
-                  items: _presenceStatuses
+                  IconButton(
+                    tooltip: context.tr.bot_settings_remove_status,
+                    constraints: const BoxConstraints(
+                      minWidth: 44,
+                      minHeight: 44,
+                    ),
+                    onPressed: () async {
+                      final shouldDelete = await AppTheme.showConfirmDialog(
+                        context,
+                        title: context.tr.bot_settings_remove_status,
+                        content: context.tr.settings_status_remove_confirm,
+                        confirmLabel: context.tr.delete,
+                        isDestructive: true,
+                      );
+                      if (!shouldDelete) {
+                        return;
+                      }
+                      setState(() {
+                        final removed = _statusDrafts.removeAt(index);
+                        removed.dispose();
+                      });
+                    },
+                    icon: const AppIcon.fromMaterial(Icons.delete_outline),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        if (draft.expanded)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                DropdownButtonFormField<String>(
+                  initialValue: draft.type,
+                  decoration: _settingsFieldDecoration(
+                    label: context.tr.bot_settings_status_type_label,
+                  ),
+                  items: _statusTypes
                       .map(
-                        (status) => DropdownMenuItem<String>(
-                          value: status,
-                          child: Text(_presenceStatusLabel(status)),
+                        (type) => DropdownMenuItem<String>(
+                          value: type,
+                          child: Text(_statusTypeLabel(type)),
                         ),
                       )
                       .toList(growable: false),
@@ -1456,258 +1501,63 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       return;
                     }
                     setState(() {
-                      _presenceStatus = value;
+                      draft.type = value;
                     });
                   },
                 ),
-              ),
-
-              if (_capabilities.supportsStatusRotation) ...[
-                const SizedBox(height: 24),
-                const Divider(),
-                const SizedBox(height: 12),
-
-                // Status Rotation Section
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  child: Text(
-                    context.tr.bot_settings_status_rotation_title,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Text(
-                    context.tr.bot_settings_status_rotation_desc,
-                    style: const TextStyle(fontSize: 12, color: AppTheme.grey),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      setState(() {
-                        _statusDrafts.add(_StatusDraft.empty());
-                      });
-                    },
-                    icon: const AppIcon.fromMaterial(Icons.add),
-                    label: Text(context.tr.bot_settings_add_status),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: draft.textController,
+                  onChanged: (_) => setState(() {}),
+                  decoration: _settingsFieldDecoration(
+                    label: context.tr.bot_settings_status_text_label,
                   ),
                 ),
                 const SizedBox(height: 8),
-                if (_statusDrafts.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    child: Center(
-                      child: Column(
-                        children: [
-                          AppIcon.fromMaterial(
-                            Icons.info_outline,
-                            color: AppTheme.grey.withValues(alpha: 0.5),
-                            size: 48,
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            context.tr.bot_settings_no_activities,
-                            style: const TextStyle(color: AppTheme.grey),
-                          ),
-                        ],
-                      ),
-                    ),
+                TextField(
+                  controller: draft.stateController,
+                  decoration: _settingsFieldDecoration(
+                    label: context.tr.bot_settings_activity_state_label,
                   ),
-                ...List.generate(_statusDrafts.length, (index) {
-                  final draft = _statusDrafts[index];
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 10),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  context.tr.bot_settings_status_item_title(
-                                    index + 1,
-                                  ),
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                              IconButton(
-                                tooltip: context.tr.bot_settings_remove_status,
-                                onPressed: () async {
-                                  final shouldDelete =
-                                      await AppTheme.showConfirmDialog(
-                                        context,
-                                        title: context
-                                            .tr
-                                            .bot_settings_remove_status,
-                                        content: context
-                                            .tr
-                                            .settings_status_remove_confirm,
-                                        confirmLabel: context.tr.delete,
-                                        isDestructive: true,
-                                      );
-                                  if (!shouldDelete) {
-                                    return;
-                                  }
-                                  setState(() {
-                                    final removed = _statusDrafts.removeAt(
-                                      index,
-                                    );
-                                    removed.dispose();
-                                  });
-                                },
-                                icon: const AppIcon.fromMaterial(
-                                  Icons.delete_outline,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          DropdownButtonFormField<String>(
-                            initialValue: draft.type,
-                            decoration: InputDecoration(
-                              labelText:
-                                  context.tr.bot_settings_status_type_label,
-                              border: const OutlineInputBorder(),
-                            ),
-                            items: _statusTypes
-                                .map(
-                                  (type) => DropdownMenuItem<String>(
-                                    value: type,
-                                    child: Text(_statusTypeLabel(type)),
-                                  ),
-                                )
-                                .toList(growable: false),
-                            onChanged: (value) {
-                              if (value == null) {
-                                return;
-                              }
-                              setState(() {
-                                draft.type = value;
-                              });
-                            },
-                          ),
-                          const SizedBox(height: 8),
-                          TextField(
-                            controller: draft.textController,
-                            decoration: InputDecoration(
-                              labelText:
-                                  context.tr.bot_settings_status_text_label,
-                              border: const OutlineInputBorder(),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          TextField(
-                            controller: draft.stateController,
-                            decoration: InputDecoration(
-                              labelText:
-                                  context.tr.bot_settings_activity_state_label,
-                              border: const OutlineInputBorder(),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          TextField(
-                            controller: draft.urlController,
-                            decoration: InputDecoration(
-                              labelText:
-                                  context.tr.bot_settings_activity_url_label,
-                              border: const OutlineInputBorder(),
-                            ),
-                            keyboardType: TextInputType.url,
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: TextField(
-                                  controller: draft.minController,
-                                  keyboardType: TextInputType.number,
-                                  decoration: InputDecoration(
-                                    labelText: context
-                                        .tr
-                                        .bot_settings_status_min_interval,
-                                    border: const OutlineInputBorder(),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: TextField(
-                                  controller: draft.maxController,
-                                  keyboardType: TextInputType.number,
-                                  decoration: InputDecoration(
-                                    labelText: context
-                                        .tr
-                                        .bot_settings_status_max_interval,
-                                    border: const OutlineInputBorder(),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: draft.urlController,
+                  decoration: _settingsFieldDecoration(
+                    label: context.tr.bot_settings_activity_url_label,
+                  ),
+                  keyboardType: TextInputType.url,
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: draft.minController,
+                        keyboardType: TextInputType.number,
+                        onChanged: (_) => setState(() {}),
+                        decoration: _settingsFieldDecoration(
+                          label: context.tr.bot_settings_status_min_interval,
+                        ),
                       ),
                     ),
-                  );
-                }),
-              ],
-
-              const SizedBox(height: 12),
-              Text(
-                context.tr.bot_settings_save_profile_caption,
-                style: const TextStyle(fontSize: 12, color: AppTheme.grey),
-              ),
-              const SizedBox(height: 8),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: _isSavingProfile
-                      ? null
-                      : () async {
-                          try {
-                            await _saveProfileAndStatuses();
-                          } catch (e) {
-                            developer.log(
-                              'Error saving profile/statuses: $e',
-                              name: 'AppSettingsPage',
-                            );
-                            if (!mounted) return;
-                            final dialog = AlertDialog(
-                              title: Text(context.tr.error),
-                              content: Text(e.toString()),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: Text(context.tr.ok),
-                                ),
-                              ],
-                            );
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return dialog;
-                              },
-                            );
-                          }
-                        },
-                  icon: const AppIcon.fromMaterial(Icons.save_outlined),
-                  label: Text(context.tr.bot_settings_save_profile_status_btn),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextField(
+                        controller: draft.maxController,
+                        keyboardType: TextInputType.number,
+                        onChanged: (_) => setState(() {}),
+                        decoration: _settingsFieldDecoration(
+                          label: context.tr.bot_settings_status_max_interval,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ),
+      ],
     );
   }
 
@@ -2051,184 +1901,160 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     );
   }
 
-  Widget _buildAdvancedTab() {
-    return SingleChildScrollView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      padding: _tabContentPadding(context),
-      child: Center(
-        child: PageContent(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Utility Cards
-              Card(
-                child: ListTile(
-                  leading: const AppIcon.fromMaterial(Icons.menu_book_outlined),
-                  title: Text(context.tr.bot_settings_workflow_docs),
-                  subtitle: Text(context.tr.bot_settings_workflow_docs_desc),
-                  trailing: const AppIcon.fromMaterial(Icons.chevron_right),
-                  onTap: () {
-                    openDocumentationHub(
-                      context,
-                      showDiscordJsTab:
-                          _runtimeEngine == runtimeEngineJavascript,
-                    );
-                  },
-                ),
+  /// Ouvre l'historique des versions cloud (mêmes règles que la Home :
+  /// token local requis, client résolu via la session Manager).
+  Future<void> _openVersionHistory() async {
+    final botId = widget.client.user.id.toString();
+    final app = await appManager.getApp(botId);
+    final token = (app['token'] ?? '').toString().trim();
+    if (token.isEmpty || !mounted) return;
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => BotConfigVersionsPage(
+          botId: botId,
+          botToken: token,
+          resolveClient: (id, tok) =>
+              MainApiOwnerSyncHelper(
+                resolveRuntime:
+                    ({
+                      getTimeout = const Duration(seconds: 30),
+                      postTimeout = const Duration(seconds: 25),
+                    }) => resolveRemoteRuntime(
+                      supportsManagerRuntime: _supportsManagerRuntime,
+                      botId: id,
+                      getTimeout: getTimeout,
+                      postTimeout: postTimeout,
+                    ),
+                loadLocalBotById: (id) async => await appManager.getApp(id),
+                log: (msg) => developer.log(msg, name: 'AppSettingsPage'),
+              ).resolveMainApiClientForBot(
+                botId: id,
+                botToken: tok,
+                attemptSessionRestore: true,
               ),
-              const SizedBox(height: 12),
-              Card(
-                child: ListTile(
-                  leading: const AppIcon.fromMaterial(Icons.import_export),
-                  title: Text(context.tr.bot_settings_export_import),
-                  subtitle: Text(context.tr.bot_settings_export_import_desc),
-                  trailing: const AppIcon.fromMaterial(Icons.chevron_right),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => BotExportImportPage(
-                          botId: widget.client.application.id.toString(),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 24),
-              const Divider(),
-              const SizedBox(height: 12),
-
-              // Force Sync Section
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Text(
-                  context.tr.settings_sync_title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Card(
-                shape: RoundedRectangleBorder(
-                  side: BorderSide(color: AppTheme.grey.withValues(alpha: 0.2)),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        context.tr.settings_sync_force_title,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        context.tr.settings_sync_force_desc,
-                        style: const TextStyle(fontSize: 13),
-                      ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton.icon(
-                          onPressed: _isForceSyncing
-                              ? null
-                              : _forceSyncDiscordCommands,
-                          icon: _isForceSyncing
-                              ? const SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : const AppIcon.fromMaterial(Icons.sync),
-                          label: Text(context.tr.settings_sync_force_button),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 24),
-              const Divider(),
-              const SizedBox(height: 12),
-
-              // Danger Zone
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Text(
-                  context.tr.bot_settings_danger_zone,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.error,
-                  ),
-                ),
-              ),
-              Card(
-                color: AppTheme.error.withValues(alpha: 0.05),
-                shape: RoundedRectangleBorder(
-                  side: BorderSide(
-                    color: AppTheme.error.withValues(alpha: 0.2),
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        context.tr.bot_settings_delete_bot,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.error,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        context.tr.bot_settings_delete_bot_desc,
-                        style: const TextStyle(fontSize: 13),
-                      ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton.icon(
-                          onPressed: _isDeletingBot ? null : _deleteBot,
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: AppTheme.error,
-                            side: const BorderSide(color: AppTheme.error),
-                          ),
-                          icon: _isDeletingBot
-                              ? const SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      AppTheme.error,
-                                    ),
-                                  ),
-                                )
-                              : const AppIcon.fromMaterial(
-                                  Icons.delete_forever,
-                                ),
-                          label: Text(context.tr.bot_settings_delete_bot_btn),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );
+  }
+
+  Widget _buildAdvancedTab() {
+    final tokens = HomeTokens.of(context);
+    return _settingsTabScaffold([
+      // ── Ressources ──
+      SettingsSection(
+        title: context.tr.bot_settings_tab_advanced,
+        children: [
+          SettingsNavRow(
+            leading: const SettingsRowIcon(Icons.menu_book_outlined),
+            title: context.tr.bot_settings_workflow_docs,
+            subtitle: context.tr.bot_settings_workflow_docs_desc,
+            onTap: () {
+              openDocumentationHub(
+                context,
+                showDiscordJsTab: _runtimeEngine == runtimeEngineJavascript,
+              );
+            },
+          ),
+          SettingsNavRow(
+            leading: const SettingsRowIcon(Icons.import_export),
+            title: context.tr.bot_settings_export_import,
+            subtitle: context.tr.bot_settings_export_import_desc,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => BotExportImportPage(
+                    botId: widget.client.application.id.toString(),
+                  ),
+                ),
+              );
+            },
+          ),
+          SettingsNavRow(
+            leading: const SettingsRowIcon(Icons.history),
+            title: context.tr.bot_config_versions_title,
+            onTap: _openVersionHistory,
+          ),
+        ],
+      ),
+
+      // ── Synchronisation forcée ──
+      SettingsSection(
+        title: context.tr.settings_sync_title,
+        divided: false,
+        padding: const EdgeInsets.all(16),
+        children: [
+          Text(
+            context.tr.settings_sync_force_title,
+            style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            context.tr.settings_sync_force_desc,
+            style: TextStyle(fontSize: 12.5, height: 1.5, color: tokens.muted),
+          ),
+          const SizedBox(height: 14),
+          OutlinedButton.icon(
+            onPressed: _isForceSyncing ? null : _forceSyncDiscordCommands,
+            icon: _isForceSyncing
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const AppIcon.fromMaterial(Icons.sync),
+            label: Text(context.tr.settings_sync_force_button),
+          ),
+        ],
+      ),
+
+      // ── Zone de danger : carte séparée ──
+      SettingsSection(
+        title: context.tr.bot_settings_danger_zone,
+        danger: true,
+        divided: false,
+        padding: const EdgeInsets.all(16),
+        children: [
+          Text(
+            context.tr.bot_settings_delete_bot,
+            style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            context.tr.bot_settings_delete_bot_desc,
+            style: TextStyle(fontSize: 12.5, height: 1.5, color: tokens.muted),
+          ),
+          const SizedBox(height: 14),
+          OutlinedButton.icon(
+            onPressed: _isDeletingBot ? null : _deleteBot,
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppTheme.statusErrorText,
+              backgroundColor: AppTheme.statusError.withValues(alpha: 0.08),
+              side: BorderSide(
+                color: AppTheme.statusError.withValues(alpha: 0.4),
+              ),
+              minimumSize: const Size.fromHeight(44),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            icon: _isDeletingBot
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        AppTheme.statusErrorText,
+                      ),
+                    ),
+                  )
+                : const AppIcon.fromMaterial(Icons.delete_forever),
+            label: Text(context.tr.bot_settings_delete_bot_btn),
+          ),
+        ],
+      ),
+    ]);
   }
 
   @override
@@ -2696,6 +2522,8 @@ class _StatusDraft {
   final TextEditingController urlController;
   final TextEditingController minController;
   final TextEditingController maxController;
+  // Édition dépliée dans la liste de rotation (état purement visuel).
+  bool expanded = false;
 
   _StatusDraft({
     required this.type,

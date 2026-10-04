@@ -11,6 +11,7 @@ import 'package:bot_creator/core/network/main_api_settings.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/utils/responsive.dart';
+import 'package:bot_creator/core/widgets/flat_nav_bar.dart';
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/features/bot_editor/logic/js_runner_capabilities.dart';
@@ -27,6 +28,7 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pag
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/settings.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/workflows.page.dart';
 import 'package:bot_creator/features/bot_editor/presentation/widgets/editor_sidebar.dart';
+import 'package:bot_creator/features/bot_editor/presentation/widgets/modules_list.dart';
 import 'package:bot_creator/features/home/presentation/home_page.dart';
 import 'package:bot_creator/features/team/presentation/team_chat_page.dart';
 import 'package:bot_creator/main.dart';
@@ -87,12 +89,14 @@ class _AppEditPageState extends State<AppEditPage>
 
   String _activeSectionId = 'home';
   String _activeModuleId = 'workflows';
+
+  /// Mobile : le pilier « Modules » affiche d'abord la liste groupée ; ouvrir un
+  /// module bascule sur sa page (le retour système / le pilier ramène à la liste).
+  bool _modulesListOpen = true;
   String _activeSettingsSubTab = 'settings';
 
   bool _beginnerMode = false;
   bool _beginnerModeLoaded = false;
-  bool _sidebarCollapsed = false;
-  bool _sidebarCollapsedLoaded = false;
   String _runtimeEngine = runtimeEngineDart;
 
   /// Icône du bot pour l'en-tête du rail : URL fournie par l'appelant, sinon
@@ -155,9 +159,6 @@ class _AppEditPageState extends State<AppEditPage>
       parameters: {"app_name": widget.appName, "app_id": widget.id.toString()},
     );
 
-    // Préférence « sidebar repliée » : chargée avant le premier rendu qui peut
-    // afficher la sidebar, pour ne jamais montrer le mauvais état une frame.
-    await _loadSidebarCollapsed();
     try {
       final app = await appManager.getApp(widget.id.toString());
       // En-tête du rail : l'URL de l'appelant prime, sinon celle de
@@ -275,38 +276,6 @@ class _AppEditPageState extends State<AppEditPage>
     AppAnalytics.logEvent(
       name: 'beginner_mode_toggled',
       parameters: {'enabled': value.toString(), 'bot_id': _botId},
-    );
-  }
-
-  static const String _sidebarCollapsedKey = 'editor_sidebar_collapsed';
-
-  Future<void> _loadSidebarCollapsed() async {
-    var collapsed = false;
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      collapsed = prefs.getBool(_sidebarCollapsedKey) ?? false;
-    } catch (e) {
-      developer.log('Failed to load sidebar state: $e', name: 'AppEditPage');
-    }
-    if (!mounted) {
-      return;
-    }
-    setState(() {
-      _sidebarCollapsed = collapsed;
-      _sidebarCollapsedLoaded = true;
-    });
-  }
-
-  Future<void> _toggleSidebarCollapsed() async {
-    final value = !_sidebarCollapsed;
-    setState(() {
-      _sidebarCollapsed = value;
-    });
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_sidebarCollapsedKey, value);
-    AppAnalytics.logEvent(
-      name: 'sidebar_collapsed_toggled',
-      parameters: {'collapsed': value.toString(), 'bot_id': _botId},
     );
   }
 
@@ -436,7 +405,16 @@ class _AppEditPageState extends State<AppEditPage>
         compactLabel: context.tr.home_tab,
         category: 'overview',
         beginnerEssential: true,
-        page: AppHomePage(client: client!, onExit: widget.onExit),
+        page: AppHomePage(
+          client: client!,
+          onExit: widget.onExit,
+          // Les cartes de la home desktop ouvrent la section correspondante.
+          onOpenSection: (sectionId) => setState(() {
+            _activeSectionId = sectionId;
+            _modulesListOpen = false;
+            _loadedPageIds.add(sectionId);
+          }),
+        ),
       ),
       _AppPageEntry(
         id: 'commands',
@@ -535,110 +513,95 @@ class _AppEditPageState extends State<AppEditPage>
     ]);
   }
 
-  /// Desktop groups pages by usage; compact mobile navigation keeps its
-  /// existing categories. Empty sections are omitted after runtime gating.
-  List<EditorSidebarSection> _buildSidebarSections(
+  /// Rail desktop PLAT : Accueil, Copilote IA, Commandes, puis chaque module à
+  /// plat, puis Tableau de bord ; « Paramètres » est épinglé en bas du rail.
+  /// Les groupes sont séparés par un filet ; les sections vides sont omises
+  /// après le filtrage par capacités du runtime.
+  List<EditorSidebarSection> _buildRailSections(
     BuildContext context,
     List<_AppPageEntry> entries,
   ) {
-    if (ResponsiveHelper.isDesktopPlatform() ||
-        MediaQuery.sizeOf(context).width >= AppTheme.desktopBreakpoint) {
-      final groups = <String, List<String>>{
-        context.tr.home_tab: ['home'],
-        context.tr.editor_section_creation: [
-          'copilot',
-          'commands',
-          'workflows',
-          'globals',
-          'emojis',
-        ],
-        context.tr.editor_section_automation: ['scheduler', 'webhooks'],
-        context.tr.editor_section_management: [
-          'team',
-          'guilds',
-          'dashboard',
-          'settings',
-          'offline_token',
-        ],
-      };
-      return [
-        for (final group in groups.entries)
-          if (entries.any((entry) => group.value.contains(entry.id)))
-            EditorSidebarSection(
-              title: group.key.toUpperCase(),
-              items: [
-                for (final id in group.value)
-                  for (final entry in entries.where((entry) => entry.id == id))
-                    EditorSidebarItem(
-                      id: entry.id,
-                      icon: entry.icon,
-                      label: entry.label,
-                    ),
-              ],
-            ),
-      ];
-    }
-    final titles = <String, String>{
-      'overview': context.tr.home_tab.toUpperCase(),
-      'commands': context.tr.commands_tab.toUpperCase(),
-      'modules': context.tr.bot_home_section_modules,
-      'system': context.tr.settings_tab.toUpperCase(),
+    const groups = <List<String>>[
+      ['home', 'copilot', 'commands'],
+      [
+        'workflows',
+        'globals',
+        'scheduler',
+        'webhooks',
+        'emojis',
+        'team',
+        'guilds',
+      ],
+      ['dashboard', 'offline_token'],
+    ];
+    // Libellés complets pour les piliers ; libellés courts pour les modules
+    // (« Vars », « Planif »…), comme dans le rail de la maquette.
+    const fullLabelIds = {
+      'home',
+      'copilot',
+      'commands',
+      'workflows',
+      'dashboard',
+      'offline_token',
+      'settings',
     };
-
+    EditorSidebarItem itemOf(_AppPageEntry entry) => EditorSidebarItem(
+      id: entry.id,
+      icon: entry.icon,
+      label: fullLabelIds.contains(entry.id) ? entry.label : entry.compactLabel,
+      tooltip: entry.label,
+    );
     return [
-      for (final section in titles.entries)
-        if (entries.any((e) => e.category == section.key))
-          EditorSidebarSection(
-            title: section.value,
-            items: [
-              for (final item in entries.where(
-                (e) => e.category == section.key,
-              ))
-                EditorSidebarItem(
-                  id: item.id,
-                  icon: item.icon,
-                  label: item.label,
-                ),
-            ],
-          ),
+      for (final ids in groups)
+        EditorSidebarSection(
+          title: '',
+          items: [
+            for (final id in ids)
+              for (final entry in entries.where((entry) => entry.id == id))
+                itemOf(entry),
+          ],
+        ),
     ];
   }
 
-  /// Sidebar partagée desktop/tiroir : le parent garde l'état (préférence
-  /// repliée persistée, section active) et reçoit les intentions.
-  Widget _buildSidebar(
+  /// Entrée « Paramètres » épinglée en bas du rail desktop.
+  EditorSidebarItem? _railPinnedItem(List<_AppPageEntry> entries) {
+    for (final entry in entries) {
+      if (entry.id == 'settings') {
+        return EditorSidebarItem(
+          id: entry.id,
+          icon: entry.icon,
+          label: entry.label,
+        );
+      }
+    }
+    return null;
+  }
+
+  /// Rail de navigation desktop : le parent garde l'état (section active) et
+  /// reçoit les intentions.
+  Widget _buildRail(
     BuildContext context,
     List<_AppPageEntry> entries,
-    String activeId, {
-    required bool isDrawer,
-  }) {
-    return EditorSidebar(
+    String activeId,
+  ) {
+    return EditorRail(
       appName: widget.appName,
       botId: _botId,
       avatarUrl: _avatarUrl,
-      sections: _buildSidebarSections(context, entries),
+      sections: _buildRailSections(context, entries),
+      pinnedItem: _railPinnedItem(entries),
       activeItemId: activeId,
-      collapsed: !isDrawer && _sidebarCollapsed,
-      onToggleCollapsed: _toggleSidebarCollapsed,
-      onSelectItem: (itemId) =>
-          _onSidebarItemSelected(entries, itemId, isDrawer: isDrawer),
-      onBack: () => _exitEditor(closeDrawerFirst: isDrawer),
-      showBackButton: isDrawer || !ResponsiveHelper.isDesktopPlatform(),
-      isDrawer: isDrawer,
+      onSelectItem: (itemId) => _onSidebarItemSelected(entries, itemId),
+      onBack: _exitEditor,
+      showBackButton: !ResponsiveHelper.isDesktopPlatform(),
       showBeginnerMode: _beginnerModeLoaded && client != null,
       beginnerMode: _beginnerMode,
       onBeginnerModeChanged: _toggleBeginnerMode,
     );
   }
 
-  void _onSidebarItemSelected(
-    List<_AppPageEntry> entries,
-    String itemId, {
-    required bool isDrawer,
-  }) {
-    if (isDrawer) {
-      Navigator.of(context).pop();
-    }
+  void _onSidebarItemSelected(List<_AppPageEntry> entries, String itemId) {
     HapticFeedback.selectionClick();
     final entry = entries.firstWhere(
       (e) => e.id == itemId,
@@ -652,6 +615,70 @@ class _AppEditPageState extends State<AppEditPage>
         _activeSettingsSubTab = itemId;
       }
     });
+  }
+
+  /// Liste groupée des modules (maquette « Modules » mobile) : mêmes pages
+  /// que le bandeau de pastilles, seuls les modules disponibles apparaissent.
+  Widget _buildModulesList(List<_AppPageEntry> moduleEntries) {
+    final tr = context.tr;
+    final descriptions = <String, String>{
+      'workflows': tr.modules_desc_workflows,
+      'globals': tr.modules_desc_globals,
+      'emojis': tr.modules_desc_emojis,
+      'scheduler': tr.modules_desc_scheduler,
+      'webhooks': tr.modules_desc_webhooks,
+      'team': tr.modules_desc_team,
+      'guilds': tr.modules_desc_guilds,
+    };
+    final layout = <(String, List<String>)>[
+      (tr.modules_group_create, ['workflows', 'globals', 'emojis']),
+      (tr.modules_group_automation, ['scheduler', 'webhooks']),
+      (tr.modules_group_management, ['team', 'guilds']),
+    ];
+    ModuleListEntry toListEntry(_AppPageEntry e) => ModuleListEntry(
+      id: e.id,
+      icon: e.icon,
+      title: e.label,
+      subtitle: descriptions[e.id],
+      onTap: () {
+        HapticFeedback.selectionClick();
+        setState(() {
+          _activeModuleId = e.id;
+          _activeSectionId = e.id;
+          _modulesListOpen = false;
+          _loadedPageIds.add(e.id);
+        });
+      },
+    );
+    final known = layout.expand((g) => g.$2).toSet();
+    final groups = [
+      for (final (title, ids) in layout)
+        ModuleListGroup(
+          title: title,
+          entries: [
+            for (final e in moduleEntries)
+              if (ids.contains(e.id)) toListEntry(e),
+          ],
+        ),
+    ];
+    // Filet de sécurité : un module futur non classé reste accessible.
+    final others = [
+      for (final e in moduleEntries)
+        if (!known.contains(e.id)) toListEntry(e),
+    ];
+    if (others.isNotEmpty) {
+      groups.add(
+        ModuleListGroup(title: tr.bot_home_section_tools, entries: others),
+      );
+    }
+    return ModulesListView(
+      title: _sentenceCased(tr.bot_home_section_modules),
+      overline: widget.appName,
+      searchHint: tr.common_search,
+      groups: groups,
+      // Réserve la place de la barre plate du bas (84 px) + zone sûre.
+      bottomPadding: 84 + MediaQuery.paddingOf(context).bottom + 16,
+    );
   }
 
   Widget _buildModulesView(
@@ -672,6 +699,8 @@ class _AppEditPageState extends State<AppEditPage>
       (e) => e.id == activeModuleEntry.id,
     );
     final validIndex = activeIndex >= 0 ? activeIndex : 0;
+
+    if (_modulesListOpen) return _buildModulesList(moduleEntries);
 
     return Column(
       children: [
@@ -713,13 +742,11 @@ class _AppEditPageState extends State<AppEditPage>
     );
   }
 
-  /// Bandeau de sous-navigation de l'éditeur (pastilles modules/système) rendu
-  /// par le composant partagé [FloatingGlassNavBar] : c'est le même design que
-  /// la nav flottante du bas et que la Home, en variante inline.
-  ///
-  /// [scrollable] est activé quand les entrées sont nombreuses (modules) pour
-  /// que les libellés ne soient pas comprimés ; sinon les items se partagent la
-  /// largeur disponible.
+  /// En-tête plat de sous-navigation (maquette « Modules » mobile) : ligne
+  /// retour (« Modules » -> liste) + titre 20/800, puis, si [entries] en
+  /// compte plusieurs, une rangée défilante de pastilles plates (36 px, rayon
+  /// 12, sélection = fond relevé + anneau violet) pour passer d'un module à
+  /// l'autre.
   Widget _buildEntriesNavBar({
     required ColorScheme colorScheme,
     required List<_AppPageEntry> entries,
@@ -727,27 +754,132 @@ class _AppEditPageState extends State<AppEditPage>
     required bool scrollable,
     required void Function(_AppPageEntry entry) onSelect,
   }) {
+    final active = entries.firstWhere(
+      (e) => e.id == activeId,
+      orElse: () => entries.first,
+    );
+    final backLabel = _sentenceCased(context.tr.bot_home_section_modules);
     return Material(
       color: colorScheme.surface,
       child: SafeArea(
         bottom: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: FloatingGlassNavBar.inlineHorizontalMargin,
-            vertical: FloatingGlassNavBar.inlineVerticalMargin,
-          ),
-          child: FloatingGlassNavBar.inline(
-            scrollable: scrollable,
-            items: [
-              for (final entry in entries)
-                FloatingGlassNavItem(
-                  icon: entry.icon,
-                  label: entry.compactLabel,
-                  selected: entry.id == activeId,
-                  onTap: () => onSelect(entry),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 4, 16, 0),
+              child: Row(
+                children: [
+                  Semantics(
+                    button: true,
+                    label: backLabel,
+                    child: InkWell(
+                      key: const ValueKey('entries-back-to-modules'),
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        setState(() => _modulesListOpen = true);
+                      },
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          minHeight: 44,
+                          minWidth: 44,
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const AppIcon.fromMaterial(
+                                Icons.chevron_left,
+                                size: 24,
+                                color: AppTheme.actionVioletSoft,
+                              ),
+                              Text(
+                                backLabel,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppTheme.actionVioletSoft,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: Text(
+                active.label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
                 ),
-            ],
-          ),
+              ),
+            ),
+            if (entries.length > 1)
+              SizedBox(
+                height: 36,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: entries.length,
+                  separatorBuilder: (_, _) => const SizedBox(width: 8),
+                  itemBuilder: (context, i) {
+                    final entry = entries[i];
+                    final selected = entry.id == activeId;
+                    return Semantics(
+                      button: true,
+                      selected: selected,
+                      label: entry.compactLabel,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () => onSelect(entry),
+                        child: Container(
+                          height: 36,
+                          alignment: Alignment.center,
+                          padding: const EdgeInsets.symmetric(horizontal: 14),
+                          decoration: BoxDecoration(
+                            color: selected
+                                ? colorScheme.surfaceContainerHighest
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: selected
+                                  ? AppTheme.actionViolet
+                                  : AppTheme.homeCardBorder,
+                              width: selected ? 1.5 : 1,
+                            ),
+                          ),
+                          child: Text(
+                            entry.compactLabel,
+                            maxLines: 1,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: selected
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                              color: selected
+                                  ? Colors.white
+                                  : AppTheme.homeMuted,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            const SizedBox(height: 8),
+          ],
         ),
       ),
     );
@@ -833,6 +965,7 @@ class _AppEditPageState extends State<AppEditPage>
         _activeSectionId = 'commands';
       } else if (pillarId == 'modules') {
         _activeSectionId = _activeModuleId;
+        _modulesListOpen = true;
       } else if (pillarId == 'settings') {
         _activeSectionId = _activeSettingsSubTab;
       }
@@ -850,7 +983,7 @@ class _AppEditPageState extends State<AppEditPage>
       entries = entries.where((e) => e.beginnerEssential).toList();
     }
 
-    if (_isLoading || !_sidebarCollapsedLoaded || entries.isEmpty) {
+    if (_isLoading || entries.isEmpty) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
@@ -870,7 +1003,7 @@ class _AppEditPageState extends State<AppEditPage>
       return Scaffold(
         body: Row(
           children: [
-            _buildSidebar(context, entries, activeId, isDrawer: false),
+            _buildRail(context, entries, activeId),
             Expanded(
               child: IndexedStack(
                 index: validIndex,
@@ -939,6 +1072,11 @@ class _AppEditPageState extends State<AppEditPage>
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
+        // Depuis la page d'un module, le retour ramène à la liste des modules.
+        if (activePillarIndex == 2 && !_modulesListOpen) {
+          setState(() => _modulesListOpen = true);
+          return;
+        }
         _exitEditor();
       },
       child: Scaffold(
@@ -947,13 +1085,12 @@ class _AppEditPageState extends State<AppEditPage>
         body: Stack(
           children: [
             Positioned.fill(child: activeMobileBody),
+            // Barre PLATE collée en bas (84 px, filet haut) : plus de nav flottante.
             Positioned(
-              left: FloatingGlassNavBar.margin,
-              right: FloatingGlassNavBar.margin,
-              bottom: FloatingGlassNavBar.bottomOffsetOf(context),
-              child: FloatingGlassNavBar(
-                items: _buildMobileNavItems(context, activeId),
-              ),
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: FlatNavBar(items: _buildMobileNavItems(context, activeId)),
             ),
           ],
         ),

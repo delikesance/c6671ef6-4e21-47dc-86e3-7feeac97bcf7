@@ -13,6 +13,7 @@ import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/editor_sub_page_ui.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/settings_group_widgets.dart';
 import 'package:bot_creator/features/team/logic/team_models.dart';
 import 'package:bot_creator/main.dart';
 import 'package:flutter/material.dart';
@@ -801,8 +802,6 @@ class _TeamChatPageState extends State<TeamChatPage> {
       );
     }
 
-    final scheme = Theme.of(context).colorScheme;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -820,26 +819,7 @@ class _TeamChatPageState extends State<TeamChatPage> {
                 _buildCollaboratorsCard(),
                 if (_portalMetadata != null) _buildPortalTeamSection(),
                 const SizedBox(height: AppTheme.spacingLg),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: AppTheme.spacingMd),
-                  child: Row(
-                    children: [
-                      const AppIcon.fromMaterial(
-                        Icons.chat_bubble_outline_rounded,
-                        size: 16,
-                        color: AppTheme.discord,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        context.tr.team_chat_title,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                SettingsSectionHeader(context.tr.team_chat_title),
                 if (_messages.isEmpty && _pendingMessages.isEmpty)
                   Padding(
                     padding: const EdgeInsets.symmetric(
@@ -851,14 +831,14 @@ class _TeamChatPageState extends State<TeamChatPage> {
                         AppIcon.fromMaterial(
                           Icons.forum_outlined,
                           size: 44,
-                          color: scheme.outline.withValues(alpha: 0.35),
+                          color: HomeTokens.of(context).muted,
                         ),
                         const SizedBox(height: 12),
                         Text(
                           context.tr.team_chat_empty,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: AppTheme.grey,
+                          style: TextStyle(
+                            color: HomeTokens.of(context).muted,
                             fontSize: 13,
                             height: 1.4,
                           ),
@@ -894,160 +874,120 @@ class _TeamChatPageState extends State<TeamChatPage> {
     );
   }
 
-  Widget _buildCollaboratorsCard() {
-    final scheme = Theme.of(context).colorScheme;
-    return Container(
-      decoration: BoxDecoration(
-        color: scheme.surfaceContainer,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: scheme.outlineVariant.withValues(alpha: 0.6)),
+  Widget _addCollaboratorButton({bool compact = false}) {
+    return TextButton.icon(
+      onPressed: _client == null ? null : _showAddCollaboratorDialog,
+      icon: const AppIcon.fromMaterial(
+        Icons.person_add_alt_1_outlined,
+        size: 18,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: scheme.surfaceContainerHighest.withValues(alpha: 0.4),
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(15),
-              ),
-            ),
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final isCompact = constraints.maxWidth < 460;
-                final titleRow = Row(
-                  children: [
-                    const AppIcon.fromMaterial(
-                      Icons.group_outlined,
-                      color: AppTheme.discord,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      context.tr.team_collaborators_title,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 7,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppTheme.discord.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        '${_collaborators.length}',
-                        style: const TextStyle(
-                          color: AppTheme.discord,
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    if (!isCompact) ...[
-                      const Spacer(),
-                      if (_canManageTeam)
-                        TextButton.icon(
-                          onPressed: _client == null
-                              ? null
-                              : _showAddCollaboratorDialog,
-                          icon: const AppIcon.fromMaterial(
-                            Icons.person_add_alt_1_outlined,
-                            size: 18,
-                          ),
-                          label: Text(context.tr.team_add_by_discord_id),
-                        ),
-                    ],
-                  ],
-                );
-
-                if (!isCompact) return titleRow;
-
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    titleRow,
-                    if (_canManageTeam) ...[
-                      const SizedBox(height: 6),
-                      TextButton.icon(
-                        onPressed: _client == null
-                            ? null
-                            : _showAddCollaboratorDialog,
-                        icon: const AppIcon.fromMaterial(
-                          Icons.person_add_alt_1_outlined,
-                          size: 18,
-                        ),
-                        label: Text(context.tr.team_add_by_discord_id),
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 4,
-                            vertical: 4,
-                          ),
-                          visualDensity: VisualDensity.compact,
-                        ),
-                      ),
-                    ],
-                  ],
-                );
-              },
-            ),
-          ),
-          if (_collaborators.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  AppIcon.fromMaterial(
-                    Icons.people_outline_rounded,
-                    size: 36,
-                    color: AppTheme.discord.withValues(alpha: 0.4),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    context.tr.team_collaborators_empty,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: AppTheme.grey,
-                      height: 1.4,
-                    ),
-                  ),
-                ],
-              ),
+      label: Text(context.tr.team_add_by_discord_id),
+      style: compact
+          ? TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+              visualDensity: VisualDensity.compact,
             )
-          else
-            for (var i = 0; i < _collaborators.length; i++) ...[
-              if (i > 0)
-                Divider(
-                  height: 1,
-                  thickness: 1,
-                  color: scheme.outlineVariant.withValues(alpha: 0.3),
+          : null,
+    );
+  }
+
+  Widget _buildCollaboratorsCard() {
+    final tokens = HomeTokens.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final isCompact = constraints.maxWidth < 460;
+            final titleRow = Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(4, 0, 4, 8),
+                    child: Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            context.tr.team_collaborators_title,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.84,
+                              color: tokens.muted,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        SettingsChip('${_collaborators.length}'),
+                      ],
+                    ),
+                  ),
                 ),
-              _CollaboratorTile(
-                collaborator: _collaborators[i],
-                resolvedName: _userDisplayNames[_collaborators[i].userId],
-                resolvedAvatar: _resolveAuthorAvatarUrl(
-                  _collaborators[i].userId,
+                if (!isCompact && _canManageTeam) _addCollaboratorButton(),
+              ],
+            );
+            if (!isCompact || !_canManageTeam) return titleRow;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [titleRow, _addCollaboratorButton(compact: true)],
+            );
+          },
+        ),
+        SettingsGroupCard(
+          children: [
+            if (_collaborators.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 22,
                 ),
-                onRemove: _canManageTeam && !_collaborators[i].isOwner
-                    ? () => _confirmRemove(_collaborators[i])
-                    : null,
-              ),
-            ],
-        ],
-      ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AppIcon.fromMaterial(
+                      Icons.people_outline_rounded,
+                      size: 36,
+                      color: tokens.muted,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      context.tr.team_collaborators_empty,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: tokens.muted,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            else
+              for (var i = 0; i < _collaborators.length; i++)
+                _CollaboratorTile(
+                  collaborator: _collaborators[i],
+                  resolvedName: _userDisplayNames[_collaborators[i].userId],
+                  resolvedAvatar: _resolveAuthorAvatarUrl(
+                    _collaborators[i].userId,
+                  ),
+                  onRemove: _canManageTeam && !_collaborators[i].isOwner
+                      ? () => _confirmRemove(_collaborators[i])
+                      : null,
+                ),
+          ],
+        ),
+      ],
     );
   }
 
   Widget _buildComposer() {
+    final tokens = HomeTokens.of(context);
     final scheme = Theme.of(context).colorScheme;
+    OutlineInputBorder border(Color c) => OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: BorderSide(color: c),
+    );
     return Padding(
       padding: EdgeInsets.only(
         bottom: FloatingGlassNavBar.contentClearanceOf(context),
@@ -1065,49 +1005,34 @@ class _TeamChatPageState extends State<TeamChatPage> {
               decoration: InputDecoration(
                 hintText: context.tr.team_chat_input_hint,
                 filled: true,
-                fillColor: scheme.surfaceContainerHighest.withValues(
-                  alpha: 0.35,
-                ),
+                fillColor: tokens.clusterBg,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,
-                  vertical: 12,
+                  vertical: 14,
                 ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24),
-                  borderSide: BorderSide(
-                    color: scheme.outlineVariant.withValues(alpha: 0.6),
-                  ),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24),
-                  borderSide: BorderSide(
-                    color: scheme.outlineVariant.withValues(alpha: 0.6),
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24),
-                  borderSide: const BorderSide(
-                    color: AppTheme.discord,
-                    width: 1.5,
-                  ),
-                ),
+                border: border(tokens.clusterBorder),
+                enabledBorder: border(tokens.clusterBorder),
+                focusedBorder: border(scheme.primary),
               ),
             ),
           ),
           const SizedBox(width: AppTheme.spacingMd),
           IconButton.filled(
             style: IconButton.styleFrom(
-              backgroundColor: AppTheme.discord,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.all(12),
+              backgroundColor: scheme.primary,
+              foregroundColor: scheme.onPrimary,
+              minimumSize: const Size(48, 48),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             icon: _sending
-                ? const SizedBox(
+                ? SizedBox(
                     width: 18,
                     height: 18,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: Colors.white,
+                      color: scheme.onPrimary,
                     ),
                   )
                 : const AppIcon.fromMaterial(Icons.send_rounded, size: 20),
@@ -1131,114 +1056,91 @@ class _TeamChatPageState extends State<TeamChatPage> {
       return const SizedBox.shrink();
     }
     final hasTeam = meta.teamId.isNotEmpty;
+    final tokens = HomeTokens.of(context);
     final scheme = Theme.of(context).colorScheme;
+    final labelStyle = TextStyle(color: tokens.muted, fontSize: 13);
+    final valueStyle = TextStyle(
+      color: scheme.onSurface,
+      fontWeight: FontWeight.w700,
+      fontSize: 14,
+    );
+    final idStyle = TextStyle(
+      color: tokens.muted,
+      fontFamily: 'monospace',
+      fontSize: 12,
+    );
+    Widget overline(String text) => Text(
+      text.toUpperCase(),
+      style: TextStyle(
+        fontSize: 10.5,
+        fontWeight: FontWeight.w700,
+        letterSpacing: 0.84,
+        color: tokens.muted,
+      ),
+    );
 
     return Padding(
       padding: const EdgeInsets.only(top: AppTheme.spacingMd),
-      child: Container(
-        decoration: BoxDecoration(
-          color: scheme.surfaceContainer,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: scheme.outlineVariant.withValues(alpha: 0.6),
-          ),
+      child: Material(
+        color: tokens.card,
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: tokens.cardBorder),
         ),
         child: Theme(
           data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
           child: ExpansionTile(
-            tilePadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 4,
-            ),
-            collapsedShape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            leading: AppIcon.fromMaterial(
+            tilePadding: const EdgeInsets.symmetric(horizontal: 16),
+            minTileHeight: kSettingsRowMinHeight,
+            collapsedShape: const RoundedRectangleBorder(),
+            shape: const RoundedRectangleBorder(),
+            leading: SettingsRowIcon(
               hasTeam ? Icons.groups_outlined : Icons.person_outline,
-              color: AppTheme.discord,
             ),
             title: Text(
               hasTeam
                   ? context.tr.settings_team_ownership
                   : context.tr.settings_personal_ownership,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 15,
-                color: Colors.white,
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 14.5,
+                color: scheme.onSurface,
               ),
             ),
             subtitle: Text(
               context.tr.team_portal_section_title,
-              style: const TextStyle(fontSize: 11, color: AppTheme.grey),
+              style: TextStyle(fontSize: 12.5, color: tokens.muted),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: (hasTeam ? AppTheme.discord : AppTheme.success)
-                        .withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: (hasTeam ? AppTheme.discord : AppTheme.success)
-                          .withValues(alpha: 0.3),
-                    ),
-                  ),
-                  child: Text(
-                    hasTeam
-                        ? context.tr.settings_team_pill
-                        : context.tr.settings_solo_pill,
-                    style: TextStyle(
-                      color: hasTeam ? AppTheme.discord : AppTheme.success,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 10,
-                    ),
-                  ),
+                SettingsChip(
+                  hasTeam
+                      ? context.tr.settings_team_pill
+                      : context.tr.settings_solo_pill,
                 ),
                 const SizedBox(width: 4),
                 const AppIcon.fromMaterial(Icons.expand_more, size: 20),
               ],
             ),
             children: [
-              Divider(
-                height: 1,
-                thickness: 1,
-                color: scheme.outlineVariant.withValues(alpha: 0.3),
-              ),
-              // Visual Content
+              Divider(height: 1, thickness: 1, color: tokens.cardBorder),
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (hasTeam) ...[
-                      // Team Name
                       Row(
                         children: [
                           Text(
                             context.tr.settings_team_name_label,
-                            style: const TextStyle(
-                              color: AppTheme.discordText,
-                              fontSize: 13,
-                            ),
+                            style: labelStyle,
                           ),
-                          Text(
-                            meta.teamName,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                          ),
+                          Text(meta.teamName, style: valueStyle),
                         ],
                       ),
                       const SizedBox(height: 4),
@@ -1246,47 +1148,29 @@ class _TeamChatPageState extends State<TeamChatPage> {
                         children: [
                           Text(
                             context.tr.settings_team_id_label,
-                            style: const TextStyle(
-                              color: AppTheme.discordText,
-                              fontSize: 13,
-                            ),
+                            style: labelStyle,
                           ),
-                          SelectableText(
-                            meta.teamId,
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontFamily: 'monospace',
-                              fontSize: 12,
-                            ),
-                          ),
+                          SelectableText(meta.teamId, style: idStyle),
                         ],
                       ),
                       const SizedBox(height: 16),
-
-                      // Team Owner
-                      Text(
-                        context.tr.settings_team_owner_label,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                          color: AppTheme.discordText,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
+                      overline(context.tr.settings_team_owner_label),
+                      const SizedBox(height: 8),
                       Container(
-                        padding: const EdgeInsets.all(10),
+                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: AppTheme.discordDarkBg,
-                          borderRadius: BorderRadius.circular(8),
+                          color: tokens.clusterBg,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: tokens.clusterBorder),
                         ),
                         child: Row(
                           children: [
-                            const AppIcon.fromMaterial(
+                            AppIcon.fromMaterial(
                               Icons.stars,
-                              color: Colors.amber,
+                              color: tokens.muted,
                               size: 20,
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 10),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1295,83 +1179,43 @@ class _TeamChatPageState extends State<TeamChatPage> {
                                     meta.teamOwnerUsername.isNotEmpty
                                         ? meta.teamOwnerUsername
                                         : context.tr.settings_owner_fallback,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                    style: valueStyle,
                                   ),
                                   SelectableText(
                                     meta.teamOwnerUserId,
-                                    style: const TextStyle(
-                                      fontFamily: 'monospace',
-                                      fontSize: 11,
-                                      color: AppTheme.discordText,
-                                    ),
+                                    style: idStyle.copyWith(fontSize: 11),
                                   ),
                                 ],
                               ),
                             ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.amber.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Text(
-                                context.tr.settings_owner_badge,
-                                style: const TextStyle(
-                                  color: Colors.amber,
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
+                            SettingsChip(context.tr.settings_owner_badge),
                           ],
                         ),
                       ),
-
                       const SizedBox(height: 16),
-
-                      // Team Members
-                      Text(
+                      overline(
                         context.tr.settings_team_members_label(
                           meta.teamMembersInfo.length,
                         ),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                          color: AppTheme.discordText,
-                        ),
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 8),
                       for (final member in meta.teamMembersInfo)
                         _PortalTeamMemberTile(
                           member: member,
                           isOwner: member['id'] == meta.teamOwnerUserId,
                         ),
                     ] else ...[
-                      // Personal Owner info
                       Row(
                         children: [
                           Text(
                             context.tr.settings_personal_owner_label,
-                            style: const TextStyle(
-                              color: AppTheme.discordText,
-                              fontSize: 13,
-                            ),
+                            style: labelStyle,
                           ),
                           Text(
                             meta.ownerUsername.isNotEmpty
                                 ? meta.ownerUsername
                                 : context.tr.settings_personal_owner_fallback,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
+                            style: valueStyle,
                           ),
                         ],
                       ),
@@ -1380,19 +1224,9 @@ class _TeamChatPageState extends State<TeamChatPage> {
                         children: [
                           Text(
                             context.tr.settings_personal_owner_id_label,
-                            style: const TextStyle(
-                              color: AppTheme.discordText,
-                              fontSize: 13,
-                            ),
+                            style: labelStyle,
                           ),
-                          SelectableText(
-                            meta.ownerId,
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontFamily: 'monospace',
-                              fontSize: 12,
-                            ),
-                          ),
+                          SelectableText(meta.ownerId, style: idStyle),
                         ],
                       ),
                     ],
@@ -1416,29 +1250,32 @@ class _PortalTeamMemberTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tokens = HomeTokens.of(context);
+    final scheme = Theme.of(context).colorScheme;
     final avatarId = member['avatar']?.toString() ?? '';
     return Container(
       margin: const EdgeInsets.only(bottom: 6),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: AppTheme.discordDarkBg.withValues(alpha: 0.6),
-        borderRadius: BorderRadius.circular(8),
+        color: tokens.clusterBg,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: tokens.clusterBorder),
       ),
       child: Row(
         children: [
           CircleAvatar(
-            radius: 12,
-            backgroundColor: AppTheme.discord,
+            radius: 14,
+            backgroundColor: tokens.card,
             backgroundImage: avatarId.isEmpty
                 ? null
                 : NetworkImage(
                     makeAvatarUrl(member['id'].toString(), avatarId: avatarId),
                   ),
             child: avatarId.isEmpty
-                ? const AppIcon.fromMaterial(
+                ? AppIcon.fromMaterial(
                     Icons.person,
                     size: 14,
-                    color: Colors.white,
+                    color: tokens.muted,
                   )
                 : null,
           ),
@@ -1449,42 +1286,28 @@ class _PortalTeamMemberTile extends StatelessWidget {
               children: [
                 Text(
                   member['username']?.toString() ?? '',
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: scheme.onSurface,
                     fontWeight: FontWeight.w600,
                     fontSize: 13,
                   ),
                 ),
                 SelectableText(
                   member['id']?.toString() ?? '',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'monospace',
-                    fontSize: 10,
-                    color: AppTheme.discordText,
+                    fontSize: 10.5,
+                    color: tokens.muted,
                   ),
                 ),
               ],
             ),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              color: (isOwner ? Colors.amber : AppTheme.discord).withValues(
-                alpha: 0.15,
-              ),
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Text(
-              isOwner
-                  ? context.tr.settings_owner_badge
-                  : member['role']?.toString().toUpperCase() ??
-                        context.tr.settings_member_badge,
-              style: TextStyle(
-                color: isOwner ? Colors.amber : AppTheme.discord,
-                fontSize: 8,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+          SettingsChip(
+            isOwner
+                ? context.tr.settings_owner_badge
+                : member['role']?.toString().toUpperCase() ??
+                      context.tr.settings_member_badge,
           ),
         ],
       ),
@@ -1517,11 +1340,14 @@ class _CollaboratorTile extends StatelessWidget {
               : collaborator.userId);
     final onRemove = this.onRemove;
     final avatar = resolvedAvatar;
+    final tokens = HomeTokens.of(context);
+    final scheme = Theme.of(context).colorScheme;
     return ListTile(
-      dense: true,
+      minTileHeight: 60,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
       leading: CircleAvatar(
-        radius: 16,
-        backgroundColor: AppTheme.discord.withValues(alpha: 0.15),
+        radius: 18,
+        backgroundColor: tokens.clusterBg,
         backgroundImage: avatar != null && avatar.isNotEmpty
             ? NetworkImage(avatar)
             : null,
@@ -1529,35 +1355,40 @@ class _CollaboratorTile extends StatelessWidget {
             ? (displayName.isNotEmpty && displayName != collaborator.userId
                   ? Text(
                       displayName[0].toUpperCase(),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
                         fontSize: 13,
-                        color: AppTheme.discord,
+                        color: scheme.onSurface,
                       ),
                     )
-                  : const AppIcon.fromMaterial(Icons.person_outline, size: 18))
+                  : AppIcon.fromMaterial(
+                      Icons.person_outline,
+                      size: 18,
+                      color: tokens.muted,
+                    ))
             : null,
       ),
       title: Text(
         displayName,
-        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14.5),
       ),
       subtitle: displayName == collaborator.userId
           ? null
           : Text(
               collaborator.userId,
-              style: const TextStyle(fontSize: 11, fontFamily: 'monospace'),
+              style: TextStyle(
+                fontSize: 12,
+                fontFamily: 'monospace',
+                color: tokens.muted,
+              ),
             ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (collaborator.isOwner)
-            _TeamPill(label: context.tr.team_owner_badge, color: Colors.amber)
+            _TeamPill(label: context.tr.team_owner_badge)
           else if (collaborator.inDiscordTeam)
-            _TeamPill(
-              label: context.tr.settings_team_pill,
-              color: AppTheme.discord,
-            ),
+            _TeamPill(label: context.tr.settings_team_pill),
           if (onRemove != null)
             IconButton(
               icon: const AppIcon.fromMaterial(
@@ -1589,6 +1420,7 @@ class _ChatMessageTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tokens = HomeTokens.of(context);
     final scheme = Theme.of(context).colorScheme;
     final avatarUrl = authorAvatarUrl;
     return Padding(
@@ -1598,16 +1430,16 @@ class _ChatMessageTile extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 17,
-            backgroundColor: AppTheme.discord,
+            backgroundColor: tokens.clusterBg,
             backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty
                 ? NetworkImage(avatarUrl)
                 : null,
             child: avatarUrl == null || avatarUrl.isEmpty
                 ? Text(
                     authorName.isNotEmpty ? authorName[0].toUpperCase() : '?',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                    style: TextStyle(
+                      color: scheme.onSurface,
+                      fontWeight: FontWeight.w700,
                       fontSize: 14,
                     ),
                   )
@@ -1625,10 +1457,10 @@ class _ChatMessageTile extends StatelessWidget {
                     Flexible(
                       child: Text(
                         authorName,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
                           fontSize: 13,
-                          color: Colors.white,
+                          color: scheme.onSurface,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -1636,35 +1468,24 @@ class _ChatMessageTile extends StatelessWidget {
                     const SizedBox(width: 8),
                     Text(
                       timeLabel,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: AppTheme.grey,
-                      ),
+                      style: TextStyle(fontSize: 11, color: tokens.muted),
                     ),
                   ],
                 ),
                 const SizedBox(height: 4),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
+                    horizontal: 14,
+                    vertical: 10,
                   ),
                   decoration: BoxDecoration(
-                    color: scheme.surfaceContainerHighest.withValues(
-                      alpha: 0.4,
-                    ),
-                    borderRadius: const BorderRadius.only(
-                      topRight: Radius.circular(12),
-                      bottomLeft: Radius.circular(12),
-                      bottomRight: Radius.circular(12),
-                    ),
-                    border: Border.all(
-                      color: scheme.outlineVariant.withValues(alpha: 0.4),
-                    ),
+                    color: tokens.card,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: tokens.cardBorder),
                   ),
                   child: SelectableText(
                     message.content,
-                    style: const TextStyle(fontSize: 13, height: 1.35),
+                    style: const TextStyle(fontSize: 13.5, height: 1.4),
                   ),
                 ),
               ],
@@ -1708,12 +1529,13 @@ class _PortalTeamWarningBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tokens = HomeTokens.of(context);
     return Container(
       padding: const EdgeInsets.all(AppTheme.spacingMd),
       decoration: BoxDecoration(
-        color: AppTheme.warning.withValues(alpha: 0.12),
+        color: tokens.clusterBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.warning.withValues(alpha: 0.35)),
+        border: Border.all(color: tokens.clusterBorder),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1721,7 +1543,7 @@ class _PortalTeamWarningBanner extends StatelessWidget {
           const AppIcon.fromMaterial(
             Icons.info_outline,
             size: 18,
-            color: AppTheme.warning,
+            color: AppTheme.statusWarning,
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -1736,31 +1558,14 @@ class _PortalTeamWarningBanner extends StatelessWidget {
   }
 }
 
-/// Badge compact d'état (« OWNER », « TEAM »).
+/// Badge compact neutre (« OWNER », « TEAM »).
 class _TeamPill extends StatelessWidget {
-  const _TeamPill({required this.label, required this.color});
+  const _TeamPill({required this.label});
 
   final String label;
-  final Color color;
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: color,
-          fontSize: 9,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => SettingsChip(label.toUpperCase());
 }
 
 /// Brouillon validé par la modale d'ajout d'un collaborateur.
@@ -1801,6 +1606,7 @@ class _PendingChatMessageTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tokens = HomeTokens.of(context);
     final scheme = Theme.of(context).colorScheme;
     final isFailed = pending.isFailed;
 
@@ -1811,11 +1617,11 @@ class _PendingChatMessageTile extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 16,
-            backgroundColor: isFailed ? AppTheme.error : AppTheme.discord,
+            backgroundColor: isFailed ? AppTheme.statusError : tokens.clusterBg,
             child: AppIcon.fromMaterial(
               isFailed ? Icons.error_outline : Icons.person,
               size: 18,
-              color: Colors.white,
+              color: isFailed ? Colors.white : tokens.muted,
             ),
           ),
           const SizedBox(width: 10),
@@ -1830,10 +1636,10 @@ class _PendingChatMessageTile extends StatelessWidget {
                     Flexible(
                       child: Text(
                         authorName.isNotEmpty ? authorName : 'Moi',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
                           fontSize: 13,
-                          color: Colors.white,
+                          color: scheme.onSurface,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -1843,7 +1649,9 @@ class _PendingChatMessageTile extends StatelessWidget {
                       isFailed ? 'Échec d\'envoi' : 'Envoi...',
                       style: TextStyle(
                         fontSize: 11,
-                        color: isFailed ? AppTheme.error : AppTheme.grey,
+                        color: isFailed
+                            ? AppTheme.statusErrorText
+                            : tokens.muted,
                         fontWeight: isFailed
                             ? FontWeight.w500
                             : FontWeight.normal,
@@ -1858,18 +1666,12 @@ class _PendingChatMessageTile extends StatelessWidget {
                     vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: isFailed
-                        ? AppTheme.error.withValues(alpha: 0.1)
-                        : scheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                    borderRadius: const BorderRadius.only(
-                      topRight: Radius.circular(12),
-                      bottomLeft: Radius.circular(12),
-                      bottomRight: Radius.circular(12),
-                    ),
+                    color: tokens.card,
+                    borderRadius: BorderRadius.circular(16),
                     border: Border.all(
                       color: isFailed
-                          ? AppTheme.error.withValues(alpha: 0.5)
-                          : scheme.outlineVariant.withValues(alpha: 0.4),
+                          ? AppTheme.statusError
+                          : tokens.cardBorder,
                     ),
                   ),
                   child: SelectableText(
@@ -1877,9 +1679,7 @@ class _PendingChatMessageTile extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 13,
                       height: 1.35,
-                      color: isFailed
-                          ? Colors.white.withValues(alpha: 0.8)
-                          : null,
+                      color: isFailed ? tokens.muted : null,
                     ),
                   ),
                 ),
@@ -1891,7 +1691,7 @@ class _PendingChatMessageTile extends StatelessWidget {
                         style: TextButton.styleFrom(
                           visualDensity: VisualDensity.compact,
                           padding: const EdgeInsets.symmetric(horizontal: 8),
-                          foregroundColor: AppTheme.discord,
+                          foregroundColor: scheme.primary,
                         ),
                         icon: const AppIcon.fromMaterial(
                           Icons.refresh,
@@ -1908,7 +1708,7 @@ class _PendingChatMessageTile extends StatelessWidget {
                         style: TextButton.styleFrom(
                           visualDensity: VisualDensity.compact,
                           padding: const EdgeInsets.symmetric(horizontal: 8),
-                          foregroundColor: AppTheme.grey,
+                          foregroundColor: tokens.muted,
                         ),
                         icon: const AppIcon.fromMaterial(Icons.close, size: 14),
                         label: Text(

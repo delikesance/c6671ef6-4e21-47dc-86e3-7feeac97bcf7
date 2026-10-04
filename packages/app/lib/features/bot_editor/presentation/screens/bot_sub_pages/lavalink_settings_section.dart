@@ -22,6 +22,7 @@ import 'package:bot_creator/features/subscriptions/presentation/subscription_pag
 import 'package:flutter/material.dart';
 
 import 'package:bot_creator/core/widgets/app_icon.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/settings_group_widgets.dart';
 
 class LavalinkSettingsSection extends StatefulWidget {
   const LavalinkSettingsSection({
@@ -222,30 +223,32 @@ class _LavalinkSettingsSectionState extends State<LavalinkSettingsSection> {
         ],
 
         // Volet 1 — l'interrupteur : la seule chose que l'utilisateur pilote.
-        Card(
-          child: SwitchListTile(
-            key: const Key('lavalink_enabled_switch'),
-            secondary: AppIcon.fromMaterial(
-              isPremium ? Icons.music_note : Icons.lock,
-              color: isPremium ? AppTheme.discord : AppTheme.grey,
+        SettingsGroupCard(
+          children: [
+            SwitchListTile(
+              key: const Key('lavalink_enabled_switch'),
+              secondary: AppIcon.fromMaterial(
+                isPremium ? Icons.music_note : Icons.lock,
+                color: isPremium ? AppTheme.discord : AppTheme.grey,
+              ),
+              title: Text(
+                tr.bot_settings_lavalink_enable_title,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text(
+                tr.bot_settings_lavalink_enable_subtitle,
+                style: const TextStyle(fontSize: 12, color: AppTheme.grey),
+              ),
+              value: _enabled,
+              onChanged: isPremium
+                  ? (value) {
+                      setState(() {
+                        _enabled = value;
+                      });
+                    }
+                  : null,
             ),
-            title: Text(
-              tr.bot_settings_lavalink_enable_title,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            subtitle: Text(
-              tr.bot_settings_lavalink_enable_subtitle,
-              style: const TextStyle(fontSize: 12, color: AppTheme.grey),
-            ),
-            value: _enabled,
-            onChanged: isPremium
-                ? (value) {
-                    setState(() {
-                      _enabled = value;
-                    });
-                  }
-                : null,
-          ),
+          ],
         ),
         const SizedBox(height: 20),
 
@@ -340,104 +343,113 @@ class _LavalinkSettingsSectionState extends State<LavalinkSettingsSection> {
   }) {
     final tr = context.tr;
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                if (!isPremium)
-                  const Padding(
-                    padding: EdgeInsets.only(right: 8),
-                    child: AppIcon.fromMaterial(
-                      Icons.lock,
-                      size: 16,
-                      color: AppTheme.grey,
+    // Carte plate (jetons de thème) plutôt que `Card` Material.
+    // Material : les ListTile enfants peignent leur encre dessus.
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Material(
+        color: HomeTokens.of(context).card,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: HomeTokens.of(context).cardBorder),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  if (!isPremium)
+                    const Padding(
+                      padding: EdgeInsets.only(right: 8),
+                      child: AppIcon.fromMaterial(
+                        Icons.lock,
+                        size: 16,
+                        color: AppTheme.grey,
+                      ),
+                    ),
+                  Expanded(
+                    child: Text(
+                      tr.bot_settings_lavalink_server_number(index + 1),
+                      style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ),
-                Expanded(
-                  child: Text(
-                    tr.bot_settings_lavalink_server_number(index + 1),
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  IconButton(
+                    key: Key('lavalink_remove_server_$index'),
+                    onPressed: isPremium ? () => _removeServer(index) : null,
+                    icon: const AppIcon.fromMaterial(Icons.delete_outline),
+                    tooltip: tr.bot_settings_lavalink_remove_fallback,
                   ),
-                ),
-                IconButton(
-                  key: Key('lavalink_remove_server_$index'),
-                  onPressed: isPremium ? () => _removeServer(index) : null,
-                  icon: const AppIcon.fromMaterial(Icons.delete_outline),
-                  tooltip: tr.bot_settings_lavalink_remove_fallback,
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(tr.bot_settings_lavalink_host),
-            const SizedBox(height: 6),
-            TextField(
-              key: Key('lavalink_server_host_$index'),
-              controller: server.hostController,
-              enabled: isPremium,
-              decoration: inputDecoration.copyWith(
-                hintText: tr.bot_settings_lavalink_host_hint,
+                ],
               ),
-            ),
-            const SizedBox(height: 12),
-            Text(tr.bot_settings_lavalink_port),
-            const SizedBox(height: 6),
-            TextField(
-              key: Key('lavalink_server_port_$index'),
-              controller: server.portController,
-              enabled: isPremium,
-              keyboardType: TextInputType.number,
-              decoration: inputDecoration.copyWith(
-                hintText: tr.bot_settings_lavalink_port_hint,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(tr.bot_settings_lavalink_password),
-            const SizedBox(height: 6),
-            TextField(
-              key: Key('lavalink_server_password_$index'),
-              controller: server.passwordController,
-              enabled: isPremium,
-              obscureText: !server.passwordVisible,
-              decoration: inputDecoration.copyWith(
-                hintText: tr.bot_settings_lavalink_password_hint,
-                suffixIcon: IconButton(
-                  onPressed: () {
-                    setState(() {
-                      server.passwordVisible = !server.passwordVisible;
-                    });
-                  },
-                  icon: AppIcon.fromMaterial(
-                    server.passwordVisible
-                        ? Icons.visibility_off
-                        : Icons.visibility,
-                  ),
+              const SizedBox(height: 8),
+              Text(tr.bot_settings_lavalink_host),
+              const SizedBox(height: 6),
+              TextField(
+                key: Key('lavalink_server_host_$index'),
+                controller: server.hostController,
+                enabled: isPremium,
+                decoration: inputDecoration.copyWith(
+                  hintText: tr.bot_settings_lavalink_host_hint,
                 ),
               ),
-            ),
-            SwitchListTile(
-              key: Key('lavalink_server_secure_$index'),
-              contentPadding: EdgeInsets.zero,
-              title: Text(tr.bot_settings_lavalink_ssl),
-              subtitle: Text(
-                tr.bot_settings_lavalink_ssl_subtitle,
-                style: const TextStyle(fontSize: 12, color: AppTheme.grey),
+              const SizedBox(height: 12),
+              Text(tr.bot_settings_lavalink_port),
+              const SizedBox(height: 6),
+              TextField(
+                key: Key('lavalink_server_port_$index'),
+                controller: server.portController,
+                enabled: isPremium,
+                keyboardType: TextInputType.number,
+                decoration: inputDecoration.copyWith(
+                  hintText: tr.bot_settings_lavalink_port_hint,
+                ),
               ),
-              value: server.secure,
-              onChanged: isPremium
-                  ? (value) {
+              const SizedBox(height: 12),
+              Text(tr.bot_settings_lavalink_password),
+              const SizedBox(height: 6),
+              TextField(
+                key: Key('lavalink_server_password_$index'),
+                controller: server.passwordController,
+                enabled: isPremium,
+                obscureText: !server.passwordVisible,
+                decoration: inputDecoration.copyWith(
+                  hintText: tr.bot_settings_lavalink_password_hint,
+                  suffixIcon: IconButton(
+                    onPressed: () {
                       setState(() {
-                        server.secure = value;
+                        server.passwordVisible = !server.passwordVisible;
                       });
-                    }
-                  : null,
-              controlAffinity: ListTileControlAffinity.trailing,
-            ),
-          ],
+                    },
+                    icon: AppIcon.fromMaterial(
+                      server.passwordVisible
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                    ),
+                  ),
+                ),
+              ),
+              SwitchListTile(
+                key: Key('lavalink_server_secure_$index'),
+                contentPadding: EdgeInsets.zero,
+                title: Text(tr.bot_settings_lavalink_ssl),
+                subtitle: Text(
+                  tr.bot_settings_lavalink_ssl_subtitle,
+                  style: const TextStyle(fontSize: 12, color: AppTheme.grey),
+                ),
+                value: server.secure,
+                onChanged: isPremium
+                    ? (value) {
+                        setState(() {
+                          server.secure = value;
+                        });
+                      }
+                    : null,
+                controlAffinity: ListTileControlAffinity.trailing,
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -58,23 +58,23 @@ abstract final class AppTheme {
   // teinte violette (donc les ratios de contraste) en annulant sa saturation.
 
   /// Fond scaffold sombre de la refonte (graphite neutre ; ex-Figma #111117).
-  static const scaffoldDark = Color(0xFF111111);
+  static const scaffoldDark = Color(0xFF0E0F13);
 
   /// Surface des cartes home (graphite neutre ; ex-Figma #1F1A2D).
-  static const homeCard = Color(0xFF1D1D1D);
+  static const homeCard = Color(0xFF16181E);
 
   /// Bordure des cartes home (graphite neutre ; ex-Figma #2C2540).
-  static const homeCardBorder = Color(0xFF292929);
+  static const homeCardBorder = Color(0xFF222631);
 
   /// Fond de la barre d'onglets flottante (graphite neutre ; ex-Figma #120F1C).
   ///
   /// Une unité plus sombre que [scaffoldDark] (même famille de luminance) pour
   /// rester une signature de couleur unique : les tests de navigation
   /// identifient la barre flottante par `BoxDecoration.color == homeNavBar`.
-  static const homeNavBar = Color(0xFF101010);
+  static const homeNavBar = Color(0xFF12141A);
 
   /// Fond de l'onglet sélectionné (graphite neutre ; ex-Figma #2A2140).
-  static const homeNavSelected = Color(0xFF262626);
+  static const homeNavSelected = Color(0xFF1E212A);
 
   /// CTA « créer un bot » (fond + avatar).
   static const homeCreateFill = homeNavSelected;
@@ -87,20 +87,20 @@ abstract final class AppTheme {
   static const homeCreateBorder = Color(0xFFAAAAAA);
 
   /// Fond du bloc serveurs dans une carte bot (graphite neutre ; ex #151226).
-  static const homeClusterBg = Color(0xFF151515);
+  static const homeClusterBg = Color(0xFF12141A);
 
   /// Bordure du bloc serveurs (graphite neutre ; ex #2B264D).
-  static const homeClusterBorder = Color(0xFF2B2B2B);
+  static const homeClusterBorder = Color(0xFF272B36);
 
   /// Fond le plus bas de la refonte (rôle M3 surfaceContainerLowest, graphite
   /// neutre ; ex-Figma #0C0B12).
-  static const homeContainerLowest = Color(0xFF0C0C0C);
+  static const homeContainerLowest = Color(0xFF0B0C10);
 
   /// Bordure des boutons ghost (Manage / Add time) — graphite neutre (#333333).
-  static const homeGhostBorder = Color(0xFF333333);
+  static const homeGhostBorder = Color(0xFF3A3F4F);
 
   /// Texte secondaire home (graphite neutre de même luminance que #8A84A3).
-  static const homeMuted = Color(0xFF888888);
+  static const homeMuted = Color(0xFF9AA0AF);
 
   /// Gris moyen pour métadonnées (WCAG-friendly sur fond sombre).
   static const metaText = homeMuted;
@@ -113,6 +113,30 @@ abstract final class AppTheme {
 
   /// Rouge danger / arrêt de la refonte (Figma #FF4D4D).
   static const danger = Color(0xFFFF4D4D);
+
+  // ─── Statuts du bot (refonte) ────────────────────────────────────────────
+  // Réservés à l'ÉTAT du bot (en ligne / arrêté / attention / erreur) : jamais
+  // en décoration. `*Text` = variante lisible (≥ 4.5:1) sur les surfaces sombres.
+
+  /// Vert « en ligne » (#4ADE80).
+  static const statusOnline = Color(0xFF4ADE80);
+
+  /// Ambre « attention » (#FBBF24).
+  static const statusWarning = Color(0xFFFBBF24);
+
+  /// Rouge « erreur » (#F0647C).
+  static const statusError = Color(0xFFF0647C);
+
+  /// Texte rouge lisible pour l'état erreur (#FB8A9D).
+  static const statusErrorText = Color(0xFFFB8A9D);
+
+  /// Gris « arrêté » (même valeur que le texte secondaire).
+  static const statusStopped = homeMuted;
+
+  /// Violet d'action unique de la refonte (bouton principal, anneau de
+  /// sélection) et sa variante claire pour icônes/libellés sélectionnés.
+  static const actionViolet = Color(0xFF7C5CF0);
+  static const actionVioletSoft = Color(0xFFA78BFA);
 
   // ─── Couleurs neutres ──────────────────────────────────────────────────
 
