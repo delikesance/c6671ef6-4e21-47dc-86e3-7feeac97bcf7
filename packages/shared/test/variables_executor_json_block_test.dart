@@ -1,11 +1,11 @@
-import 'package:bot_creator_shared/actions/executors/variables_executor.dart';
+import 'package:bot_creator_shared/engine/bdfd/visual/variable_logic.dart';
 import 'package:bot_creator_shared/types/action.dart';
 import 'package:test/test.dart';
 
 import 'helpers/variables_test_helpers.dart';
 
 void main() {
-  group('executeVariablesAction - runtime JSON block', () {
+  group('executeVariableAction - runtime JSON block', () {
     test(
       'runtimeJsonBlock bootstraps empty source and supports append/index',
       () async {
@@ -13,7 +13,7 @@ void main() {
         final results = <String, String>{};
         final variables = <String, String>{};
 
-        final handled = await executeVariablesAction(
+        final handled = await executeVariableAction(
           type: BotCreatorActionType.runtimeJsonBlock,
           store: store,
           botId: 'bot-1',
@@ -56,7 +56,7 @@ void main() {
         final results = <String, String>{};
         final variables = <String, String>{};
 
-        final handled = await executeVariablesAction(
+        final handled = await executeVariableAction(
           type: BotCreatorActionType.runtimeJsonBlock,
           store: store,
           botId: 'bot-1',
@@ -110,7 +110,7 @@ void main() {
         final parentResults = <String, String>{};
         final variables = <String, String>{};
 
-        final parentHandled = await executeVariablesAction(
+        final parentHandled = await executeVariableAction(
           type: BotCreatorActionType.runtimeJsonBlock,
           store: store,
           botId: 'bot-1',
@@ -144,7 +144,7 @@ void main() {
         // Simulate nested if/else execution where branch actions get a fresh
         // results map but still share the same variables map.
         final branchResults = <String, String>{};
-        final branchHandled = await executeVariablesAction(
+        final branchHandled = await executeVariableAction(
           type: BotCreatorActionType.runtimeJsonBlock,
           store: store,
           botId: 'bot-1',
@@ -183,7 +183,7 @@ void main() {
           '_loop.index': '1',
         };
 
-        final handled = await executeVariablesAction(
+        final handled = await executeVariableAction(
           type: BotCreatorActionType.runtimeJsonBlock,
           store: store,
           botId: 'bot-1',
@@ -233,7 +233,7 @@ void main() {
           '_loop.index': '0',
         };
 
-        final handled = await executeVariablesAction(
+        final handled = await executeVariableAction(
           type: BotCreatorActionType.runtimeJsonBlock,
           store: store,
           botId: 'bot-1',
@@ -288,7 +288,7 @@ void main() {
         final results = <String, String>{};
         final variables = <String, String>{};
 
-        final handled = await executeVariablesAction(
+        final handled = await executeVariableAction(
           type: BotCreatorActionType.runtimeJsonBlock,
           store: store,
           botId: 'bot-1',

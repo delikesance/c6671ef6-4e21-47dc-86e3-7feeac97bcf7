@@ -1,6 +1,6 @@
 import 'package:test/test.dart';
 
-import 'package:bot_creator_shared/actions/executors/image_executor.dart';
+import 'package:bot_creator_shared/services/canvas_image_renderer.dart';
 
 void main() {
   group('Image Executor — Blend Modes', () {

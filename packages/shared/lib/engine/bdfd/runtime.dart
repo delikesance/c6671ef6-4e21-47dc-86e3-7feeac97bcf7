@@ -135,7 +135,9 @@ class BdfdContext {
   int _captureDepth = 0;
   BdfdOutput? output;
   void Function(BdfdTraceEvent event)? onTrace;
-  final int maxSteps;
+
+  /// Adapters may tighten it around a nested program (see [steps]).
+  int maxSteps;
   final int maxDepth;
   final List<BdfdLocation> _calls = [];
   final List<int> _loops = [];
@@ -145,7 +147,39 @@ class BdfdContext {
   int _steps = 0;
   int? _pendingSkip;
   int? _pendingJump;
+  int? _outerSkip;
+  int? _outerJump;
   int _depth = 0;
+
+  /// Same effect as `$skipActions`/`$jumpToAction` for adapters whose
+  /// statements carry their own error policy. Consumed by the statement list
+  /// that is executing the calling statement.
+  ///
+  /// With [outer], issued from the catch body of a `BdfdTry`: the request is
+  /// not consumed by that body's own statement list but handed to the list that
+  /// contains the try statement (how an adapter applies a block's own
+  /// jump/skip error mode).
+  void requestSkip(int count, {bool outer = false}) =>
+      outer ? _outerSkip = count : _pendingSkip = count;
+  void requestJump(int ordinal, {bool outer = false}) =>
+      outer ? _outerJump = ordinal : _pendingJump = ordinal;
+
+  /// Steps consumed so far by every program sharing this context.
+  int get steps => _steps;
+
+  /// Programs currently executing on this context (nested ones included).
+  int get depth => _depth;
+
+  /// Forget what a previous script left behind (user functions, error
+  /// handling flags, the stop flag): what the outermost execution does.
+  void startScript() {
+    stopped = false;
+    _userFunctions.clear();
+    _suppressedError = null;
+    _errorEmbed = null;
+    suppressErrorLogging = false;
+    removeLinks = false;
+  }
 
   String? loopVariable(String name) {
     for (final frame in _loopVariables.reversed) {
@@ -342,12 +376,7 @@ class BdfdRuntime {
 
   void _startInvocation(BdfdContext context) {
     if (context._depth != 0) return;
-    context.stopped = false;
-    context._userFunctions.clear();
-    context._suppressedError = null;
-    context._errorEmbed = null;
-    context.suppressErrorLogging = false;
-    context.removeLinks = false;
+    context.startScript();
   }
 
   BdfdLocation _location(BdfdProgram program, BdfdAstNode node) => BdfdLocation(
@@ -438,6 +467,13 @@ class BdfdRuntime {
               'jsonindex',
             });
           case BdfdTry():
+            for (final hook in [
+              statement.enter,
+              statement.onCatch,
+              statement.exit,
+            ]) {
+              if (hook != null) expressions([hook], 0, loopBindings);
+            }
             statements(statement.body, loopBindings);
             statements(statement.catchBody, loopBindings);
           case BdfdFunctionDefinition():
@@ -612,6 +648,9 @@ class BdfdRuntime {
         case BdfdJsonForEach():
           await _jsonForEach(statement, program, context, output);
         case BdfdTry():
+          if (statement.enter != null) {
+            await _evaluate([statement.enter!], program, context);
+          }
           try {
             await _statements(statement.body, program, context, output);
           } on BdfdNativeError catch (error) {
@@ -623,8 +662,18 @@ class BdfdRuntime {
             );
             context.results['error.message'] = error.toString();
             _recordErrorDetails(context, error);
+            if (statement.onCatch != null) {
+              await _evaluate([statement.onCatch!], program, context);
+            }
             await _statements(statement.catchBody, program, context, output);
           }
+          if (statement.exit != null) {
+            await _evaluate([statement.exit!], program, context);
+          }
+          // A request issued with `outer` from the catch body lands here.
+          context._pendingSkip = context._outerSkip ?? context._pendingSkip;
+          context._pendingJump = context._outerJump ?? context._pendingJump;
+          context._outerSkip = context._outerJump = null;
       }
       final skip = context._pendingSkip, jump = context._pendingJump;
       context._pendingSkip = context._pendingJump = null;

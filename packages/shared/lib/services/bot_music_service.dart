@@ -1,6 +1,8 @@
+import 'dart:convert';
+
 import 'package:nyxx/nyxx.dart';
 
-import '../actions/lavalink_music.dart';
+import 'lavalink_music_actions.dart';
 import '../engine/execution_budget.dart';
 import 'lavalink_service.dart';
 
@@ -45,8 +47,25 @@ abstract interface class BotMusicService {
   });
 }
 
+/// Block-style music operations: the payload is the raw (resolved) block
+/// payload and the outcome is the result map of the shared Lavalink actions
+/// (`title`, `author`, ... on success, an `error` key on failure), never a
+/// thrown error. This is what the visual `playMusic`, `pauseMusic`, ...,
+/// `getMusicInfo`, `joinVoice` and `leaveVoice` blocks expose as
+/// `((action.key.title))` and friends. [BotMusicService.perform] keeps its own
+/// throwing contract for BDFD.
+abstract interface class BotMusicBlockService {
+  Future<Map<String, String>> execute(
+    BotMusicOperation operation,
+    Map<String, dynamic> payload,
+  );
+
+  /// Playback state of the current track (`isPlaying`, `title`, ...).
+  Future<Map<String, String>> info(Map<String, dynamic> payload);
+}
+
 /// Production adapter over the shared Lavalink actions.
-class DiscordBotMusicService implements BotMusicService {
+class DiscordBotMusicService implements BotMusicService, BotMusicBlockService {
   const DiscordBotMusicService({
     required this.client,
     required this.guildId,
@@ -104,4 +123,70 @@ class DiscordBotMusicService implements BotMusicService {
     budget.check();
     if (result['error'] != null) throw StateError(result['error']!);
   });
+
+  @override
+  Future<Map<String, String>> execute(
+    BotMusicOperation operation,
+    Map<String, dynamic> payload,
+  ) {
+    final guild = guildId;
+    if (guild == null) {
+      // The historical loop dereferences the guild unconditionally.
+      throw StateError('Music requires a server.');
+    }
+    final action = switch (operation) {
+      BotMusicOperation.join => joinVoiceAction,
+      BotMusicOperation.leave => leaveVoiceAction,
+      BotMusicOperation.play => playMusicAction,
+      BotMusicOperation.pause => pauseMusicAction,
+      BotMusicOperation.resume => resumeMusicAction,
+      BotMusicOperation.skip => skipMusicAction,
+      BotMusicOperation.stop => stopMusicAction,
+      BotMusicOperation.volume => setMusicVolumeAction,
+      BotMusicOperation.loop => setMusicLoopAction,
+      BotMusicOperation.seek => seekMusicAction,
+    };
+    return action(
+      client: client,
+      guildId: guild,
+      payload: payload,
+      lavalinkService: lavalink,
+    );
+  }
+
+  @override
+  Future<Map<String, String>> info(Map<String, dynamic> payload) {
+    final guild = guildId;
+    if (guild == null) throw StateError('Music requires a server.');
+    return getMusicInfoAction(
+      client: client,
+      guildId: guild,
+      payload: payload,
+      lavalinkService: lavalink,
+    );
+  }
+}
+
+/// Records the outcome of a Lavalink block in [results]: `results[key]` is
+/// `'Error: ...'`, `'OK'` or the JSON of the result, and every property is also
+/// stored as `results['<key>.<prop>']`.
+void applyLavalinkResult(
+  Map<String, String> result,
+  Map<String, String> results,
+  String resultKey,
+) {
+  if (result.containsKey('error')) {
+    // Propagated as the main result so callers can detect it.
+    results[resultKey] = 'Error: ${result['error']}';
+  } else if (result.isEmpty) {
+    // pause/resume/stop/skip return an empty map on success.
+    results[resultKey] = 'OK';
+  } else {
+    // Full JSON so ((action.<key>)) is parseable.
+    results[resultKey] = jsonEncode(result);
+  }
+  // ((action.<key>.<prop>)) works directly, e.g. ((action.play.title)).
+  for (final entry in result.entries) {
+    results['$resultKey.${entry.key}'] = entry.value;
+  }
 }
