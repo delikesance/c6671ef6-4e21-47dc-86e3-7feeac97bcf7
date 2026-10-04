@@ -6,6 +6,15 @@ import 'package:bot_creator_shared/utils/bdfd_compiler.dart';
 import 'package:flutter/material.dart';
 import 'package:reicon_flutter/reicon_flutter.dart';
 
+/// Whether a tool call carries a script worth previewing: both the creation and the
+/// execution update of a command, except visual workflows (no script to show).
+bool copilotActionHasCode(String toolName, Object? script, String mode) =>
+    (toolName == 'local_update_command_execution' ||
+        toolName == 'local_create_command') &&
+    script is String &&
+    script.isNotEmpty &&
+    mode != 'workflow';
+
 /// Nature d'une ligne de l'aperçu : inchangée, ajoutée ou retirée.
 enum CopilotDiffKind { same, add, del }
 
