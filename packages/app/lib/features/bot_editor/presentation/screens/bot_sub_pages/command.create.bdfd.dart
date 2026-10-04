@@ -99,8 +99,6 @@ extension _CommandCreateBdfd on _CommandCreatePageState {
             ),
             if (includeInlineEditor && _isBdfdScriptMode) ...[
               const SizedBox(height: 12),
-              _buildBdfdBackendSelector(),
-              const SizedBox(height: 12),
               _buildBdfdEditorTile(),
               const SizedBox(height: 12),
               _buildBdfdDiagnosticsPanel(),
@@ -114,36 +112,6 @@ extension _CommandCreateBdfd on _CommandCreatePageState {
       ),
     );
   }
-
-  Widget _buildBdfdBackendSelector() => DropdownButtonFormField<String>(
-    key: ValueKey(_bdfdBackend),
-    initialValue: _bdfdBackend,
-    decoration: InputDecoration(
-      labelText: Localizations.localeOf(context).languageCode == 'fr'
-          ? 'Moteur BDFD'
-          : 'BDFD engine',
-    ),
-    items: [
-      DropdownMenuItem(
-        value: 'native-v1',
-        child: Text(
-          Localizations.localeOf(context).languageCode == 'fr'
-              ? 'BDFD natif (en migration)'
-              : 'Native BDFD (migration in progress)',
-        ),
-      ),
-      if (_bdfdBackend != 'native-v1')
-        DropdownMenuItem(value: _bdfdBackend, child: Text(_bdfdBackend)),
-    ],
-    onChanged: (value) {
-      if (value != null) {
-        _applyStateUpdate(() {
-          _bdfdBackend = value;
-          _refreshBdfdCompileResult(notify: false);
-        });
-      }
-    },
-  );
 
   Widget _buildBdfdEditorTile() {
     final code = _bdfdScriptController.text;
