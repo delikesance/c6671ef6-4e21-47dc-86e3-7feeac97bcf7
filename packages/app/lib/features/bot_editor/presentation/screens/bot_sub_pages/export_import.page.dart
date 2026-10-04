@@ -7,6 +7,8 @@ import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/core/theme/block_category.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/settings_group_widgets.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
@@ -285,9 +287,7 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _buildExportSection(),
-                const SizedBox(height: 24),
-                const Divider(),
-                const SizedBox(height: 24),
+                const SizedBox(height: 28),
                 _buildImportSection(),
               ],
             ),
@@ -297,36 +297,68 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
     );
   }
 
+  Widget _sectionIntro(String title, String desc) {
+    final tokens = HomeTokens.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SettingsSectionHeader(title),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Text(
+              desc,
+              style: TextStyle(
+                fontSize: 12.5,
+                height: 18 / 12.5,
+                color: tokens.muted,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildExportSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
+        _sectionIntro(
           context.tr.export_section_title,
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        const SizedBox(height: 4),
-        Text(
           context.tr.export_section_desc,
-          style: Theme.of(context).textTheme.bodySmall,
         ),
-        const SizedBox(height: 12),
-        _buildExportCommandsSection(),
-        _buildExportWorkflowsSection(),
-        CheckboxListTile(
-          value: _exportStatus,
-          onChanged: (v) => setState(() => _exportStatus = v ?? false),
-          title: Text(context.tr.export_status),
-          dense: true,
+        SettingsGroupCard(
+          children: [
+            _buildExportCommandsSection(),
+            _buildExportWorkflowsSection(),
+            CheckboxListTile(
+              value: _exportStatus,
+              onChanged: (v) => setState(() => _exportStatus = v ?? false),
+              title: Text(context.tr.export_status),
+              secondary: const SettingsRowIcon(Icons.circle_outlined),
+            ),
+            CheckboxListTile(
+              value: _exportGlobalVariables,
+              onChanged: (v) =>
+                  setState(() => _exportGlobalVariables = v ?? false),
+              title: Text(context.tr.export_global_variables),
+              secondary: SettingsRowIcon(
+                Icons.data_object_rounded,
+                family: BlockFamily.data,
+              ),
+            ),
+          ],
         ),
-        CheckboxListTile(
-          value: _exportGlobalVariables,
-          onChanged: (v) => setState(() => _exportGlobalVariables = v ?? false),
-          title: Text(context.tr.export_global_variables),
-          dense: true,
-        ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
         FilledButton.icon(
+          style: FilledButton.styleFrom(
+            minimumSize: const Size.fromHeight(48),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
           onPressed: _isExporting || _selectedExportSections.isEmpty
               ? null
               : _performExport,
@@ -378,7 +410,10 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
           subtitle: Text(
             '${_selectedCommandIds.length} / ${_localCommands.length}',
           ),
-          dense: true,
+          secondary: SettingsRowIcon(
+            Icons.terminal_rounded,
+            family: BlockFamily.messages,
+          ),
         ),
         if (_exportCommands)
           ...List.generate(_localCommands.length, (i) {
@@ -399,7 +434,13 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
                     _exportCommands = _selectedCommandIds.isNotEmpty;
                   });
                 },
-                title: Text(name, style: const TextStyle(fontSize: 14)),
+                title: Text(
+                  name,
+                  style: const TextStyle(
+                    fontSize: 13.5,
+                    fontFamily: 'JetBrainsMono',
+                  ),
+                ),
                 dense: true,
                 controlAffinity: ListTileControlAffinity.leading,
               ),
@@ -444,7 +485,10 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
           subtitle: Text(
             '${_selectedWorkflowNames.length} / ${_localWorkflows.length}',
           ),
-          dense: true,
+          secondary: SettingsRowIcon(
+            Icons.account_tree_outlined,
+            family: BlockFamily.events,
+          ),
         ),
         if (_exportWorkflows)
           ...List.generate(_localWorkflows.length, (i) {
@@ -464,7 +508,13 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
                     _exportWorkflows = _selectedWorkflowNames.isNotEmpty;
                   });
                 },
-                title: Text(name, style: const TextStyle(fontSize: 14)),
+                title: Text(
+                  name,
+                  style: const TextStyle(
+                    fontSize: 13.5,
+                    fontFamily: 'JetBrainsMono',
+                  ),
+                ),
                 dense: true,
                 controlAffinity: ListTileControlAffinity.leading,
               ),
@@ -478,29 +528,37 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
+        _sectionIntro(
           context.tr.import_section_title,
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        const SizedBox(height: 4),
-        Text(
           context.tr.import_section_desc,
-          style: Theme.of(context).textTheme.bodySmall,
         ),
-        const SizedBox(height: 12),
         if (_importPreview == null) ...[
           OutlinedButton.icon(
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size.fromHeight(48),
+              side: BorderSide(color: HomeTokens.of(context).ghostBorder),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
             onPressed: _pickAndParseZip,
             icon: const AppIcon.fromMaterial(Icons.folder_open),
             label: Text(context.tr.import_pick_file),
           ),
         ] else ...[
           _buildImportPreview(),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
                 child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(48),
+                    side: BorderSide(color: HomeTokens.of(context).ghostBorder),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                   onPressed: () => setState(() => _importPreview = null),
                   child: Text(context.tr.cancel),
                 ),
@@ -508,6 +566,12 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
               const SizedBox(width: 12),
               Expanded(
                 child: FilledButton.icon(
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size.fromHeight(48),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                   onPressed: _isImporting ? null : _performImport,
                   icon: _isImporting
                       ? const SizedBox(
@@ -532,44 +596,65 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _buildImportEngineSection(preview),
-        const SizedBox(height: 8),
-        if (preview.hasCommands) ...[
-          CheckboxListTile(
-            value: _importCommands,
-            onChanged: (v) => setState(() => _importCommands = v ?? false),
-            title: Text(
-              '${context.tr.export_commands} (${preview.commands.length})',
-            ),
-            dense: true,
-          ),
-          if (_importCommands) ..._buildCommandConflicts(preview),
-        ],
-        if (preview.hasWorkflows) ...[
-          CheckboxListTile(
-            value: _importWorkflows,
-            onChanged: (v) => setState(() => _importWorkflows = v ?? false),
-            title: Text(
-              '${context.tr.export_workflows} (${preview.workflows.length})',
-            ),
-            dense: true,
-          ),
-          if (_importWorkflows) ..._buildWorkflowConflicts(preview),
-        ],
-        if (preview.hasStatus)
-          CheckboxListTile(
-            value: _importStatus,
-            onChanged: (v) => setState(() => _importStatus = v ?? false),
-            title: Text(context.tr.export_status),
-            dense: true,
-          ),
-        if (preview.hasGlobalVariables)
-          CheckboxListTile(
-            value: _importGlobalVariables,
-            onChanged: (v) =>
-                setState(() => _importGlobalVariables = v ?? false),
-            title: Text(context.tr.export_global_variables),
-            dense: true,
-          ),
+        const SizedBox(height: 12),
+        SettingsGroupCard(
+          children: [
+            if (preview.hasCommands)
+              Column(
+                children: [
+                  CheckboxListTile(
+                    value: _importCommands,
+                    onChanged: (v) =>
+                        setState(() => _importCommands = v ?? false),
+                    title: Text(
+                      '${context.tr.export_commands} (${preview.commands.length})',
+                    ),
+                    secondary: SettingsRowIcon(
+                      Icons.terminal_rounded,
+                      family: BlockFamily.messages,
+                    ),
+                  ),
+                  if (_importCommands) ..._buildCommandConflicts(preview),
+                ],
+              ),
+            if (preview.hasWorkflows)
+              Column(
+                children: [
+                  CheckboxListTile(
+                    value: _importWorkflows,
+                    onChanged: (v) =>
+                        setState(() => _importWorkflows = v ?? false),
+                    title: Text(
+                      '${context.tr.export_workflows} (${preview.workflows.length})',
+                    ),
+                    secondary: SettingsRowIcon(
+                      Icons.account_tree_outlined,
+                      family: BlockFamily.events,
+                    ),
+                  ),
+                  if (_importWorkflows) ..._buildWorkflowConflicts(preview),
+                ],
+              ),
+            if (preview.hasStatus)
+              CheckboxListTile(
+                value: _importStatus,
+                onChanged: (v) => setState(() => _importStatus = v ?? false),
+                title: Text(context.tr.export_status),
+                secondary: const SettingsRowIcon(Icons.circle_outlined),
+              ),
+            if (preview.hasGlobalVariables)
+              CheckboxListTile(
+                value: _importGlobalVariables,
+                onChanged: (v) =>
+                    setState(() => _importGlobalVariables = v ?? false),
+                title: Text(context.tr.export_global_variables),
+                secondary: SettingsRowIcon(
+                  Icons.data_object_rounded,
+                  family: BlockFamily.data,
+                ),
+              ),
+          ],
+        ),
       ],
     );
   }
@@ -588,11 +673,13 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
         normalizeRuntimeEngine(_importEngine) !=
         normalizeRuntimeEngine(_botEngine);
 
+    final tokens = HomeTokens.of(context);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        border: Border.all(color: theme.dividerColor),
-        borderRadius: BorderRadius.circular(8),
+        color: tokens.containerLowest,
+        border: Border.all(color: tokens.cardBorder),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -602,10 +689,15 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
               AppIcon.fromMaterial(
                 Icons.memory,
                 size: 18,
-                color: theme.colorScheme.primary,
+                color: BlockFamily.data.color,
               ),
               const SizedBox(width: 8),
-              Text(tr.import_engine_title, style: theme.textTheme.titleSmall),
+              Expanded(
+                child: Text(
+                  tr.import_engine_title.toUpperCase(),
+                  style: BlockFamily.data.overlineStyle(),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 6),
@@ -678,13 +770,13 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
       final resolution = _commandResolutions[nameLower]!;
       conflicts.add(
         Padding(
-          padding: const EdgeInsets.only(left: 32, bottom: 4),
+          padding: const EdgeInsets.fromLTRB(16, 0, 12, 10),
           child: Row(
             children: [
               AppIcon.fromMaterial(
                 Icons.warning_amber,
                 size: 16,
-                color: AppTheme.warning,
+                color: AppTheme.statusWarning,
               ),
               const SizedBox(width: 8),
               Expanded(child: Text(name, style: const TextStyle(fontSize: 13))),
@@ -727,13 +819,13 @@ class _BotExportImportPageState extends State<BotExportImportPage> {
       final resolution = _workflowResolutions[name]!;
       conflicts.add(
         Padding(
-          padding: const EdgeInsets.only(left: 32, bottom: 4),
+          padding: const EdgeInsets.fromLTRB(16, 0, 12, 10),
           child: Row(
             children: [
               AppIcon.fromMaterial(
                 Icons.warning_amber,
                 size: 16,
-                color: AppTheme.warning,
+                color: AppTheme.statusWarning,
               ),
               const SizedBox(width: 8),
               Expanded(child: Text(name, style: const TextStyle(fontSize: 13))),

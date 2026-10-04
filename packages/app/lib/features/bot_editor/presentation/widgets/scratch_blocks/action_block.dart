@@ -5,6 +5,8 @@ import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pag
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder/action_type_extension.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/builder/action_card.dart';
 import 'package:bot_creator/core/models/types/variable_suggestion.dart';
+import 'package:bot_creator/core/theme/block_category.dart';
+import 'action_block_summary.dart';
 import 'scratch_block.dart';
 import 'scratch_block_palette.dart';
 
@@ -39,6 +41,9 @@ class ActionBlock extends StatefulWidget {
     this.onOpenDocs,
     this.dragHandle,
     this.readOnly = false,
+    this.selected = false,
+    this.hasError = false,
+    this.dragging = false,
   });
 
   final ActionItem action;
@@ -70,6 +75,11 @@ class ActionBlock extends StatefulWidget {
   /// Displays the real editor block without editing or management controls.
   final bool readOnly;
 
+  /// États visuels du bloc (anneau violet, bordure rouge, soulevé).
+  final bool selected;
+  final bool hasError;
+  final bool dragging;
+
   @override
   State<ActionBlock> createState() => _ActionBlockState();
 }
@@ -80,7 +90,7 @@ class _ActionBlockState extends State<ActionBlock> {
   @override
   Widget build(BuildContext context) {
     final category = getCategoryForAction(widget.action.type);
-    final color = getCategoryColor(category);
+    final color = BlockFamily.fromCategoryName(category).color;
     final finalBlock = isFinalAction(widget.action.type);
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -260,7 +270,12 @@ class _ActionBlockState extends State<ActionBlock> {
       isFinal: finalBlock,
       collapsed: _collapsed,
       onToggleCollapse: () => setState(() => _collapsed = !_collapsed),
-      overline: category,
+      overline: localizeCategory(context, category),
+      summary: summarizeActionBlock(widget.action),
+      selected: widget.selected,
+      hasError: widget.hasError,
+      disabled: !widget.action.enabled,
+      dragging: widget.dragging,
       trailing: widget.readOnly ? null : trailingWidget,
       dragHandle: widget.readOnly ? null : widget.dragHandle,
       child: ExcludeFocus(

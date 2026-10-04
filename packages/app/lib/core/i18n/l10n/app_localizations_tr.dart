@@ -11086,4 +11086,73 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get bot_create_mode => 'Oluşturma modu';
+
+  @override
+  String get bot_home_hosting_title => 'Barındırma';
+
+  @override
+  String get bot_home_logs_filter_label => 'Günlükleri filtrele';
+
+  @override
+  String get bot_home_logs_filter_info => 'Bilgi';
+
+  @override
+  String get bot_home_logs_filter_errors => 'Hatalar';
+
+  @override
+  String bot_home_commands_see_all(int count) {
+    return '$count öğenin tümünü gör';
+  }
+
+  @override
+  String bot_home_actions_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count eylem',
+      one: '1 eylem',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get home_title_my_bots => 'Botlarım';
+
+  @override
+  String get home_more_actions => 'Diğer eylemler';
+
+  @override
+  String get home_getting_started => 'Başlarken';
+
+  @override
+  String get modules_group_create => 'Oluşturma';
+
+  @override
+  String get modules_group_automation => 'Otomasyon';
+
+  @override
+  String get modules_group_management => 'Yönetim';
+
+  @override
+  String get modules_desc_workflows =>
+      'Eylemlerini ve olaylarını otomatikleştir';
+
+  @override
+  String get modules_desc_globals => 'Tüm komutlar arasında paylaşılır';
+
+  @override
+  String get modules_desc_emojis => 'Botun uygulama emojileri';
+
+  @override
+  String get modules_desc_scheduler => 'Her X dakikada bir workflow çalıştırır';
+
+  @override
+  String get modules_desc_webhooks =>
+      'Bir workflow\'a yönlendirilen HTTP çağrıları';
+
+  @override
+  String get modules_desc_team => 'Ortaklar ve ekip sohbeti';
+
+  @override
+  String get modules_desc_guilds => 'Botun bulunduğu sunucular';
 }

@@ -1,3 +1,4 @@
+import 'package:bot_creator/core/i18n/extensions.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -24,21 +25,21 @@ class MiniBlockContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final tokens = HomeTokens.of(context);
+    final deleteLabel = context.tr.common_delete;
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-        border: Border.all(color: theme.colorScheme.outlineVariant),
+        color: tokens.card,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+        border: Border.all(color: tokens.clusterBorder),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            color: theme.colorScheme.surfaceContainerHighest.withValues(
-              alpha: 0.5,
-            ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 6, 4, 6),
             child: Row(
               children: [
                 AppIcon.fromMaterial(
@@ -56,22 +57,24 @@ class MiniBlockContainer extends StatelessWidget {
                     ),
                   ),
                 ),
+                // Suppression rangée dans un menu ⋮ (plus de croix isolée).
                 if (onRemove != null)
-                  InkWell(
-                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                    onTap: onRemove,
-                    child: Padding(
-                      padding: EdgeInsets.all(AppTheme.spacingXs),
-                      child: AppIcon.fromMaterial(
-                        Icons.close,
-                        size: 16,
-                        color: Theme.of(context).colorScheme.outlineVariant,
-                      ),
+                  PopupMenuButton<String>(
+                    tooltip: MaterialLocalizations.of(context).showMenuTooltip,
+                    icon: AppIcon.fromMaterial(
+                      Icons.more_vert,
+                      size: 18,
+                      color: tokens.muted,
                     ),
+                    onSelected: (_) => onRemove?.call(),
+                    itemBuilder: (_) => [
+                      PopupMenuItem(value: 'delete', child: Text(deleteLabel)),
+                    ],
                   ),
               ],
             ),
           ),
+          Divider(height: 1, color: tokens.clusterBorder),
           Padding(
             padding: const EdgeInsets.all(AppTheme.spacingSm),
             child: Material(type: MaterialType.transparency, child: child),

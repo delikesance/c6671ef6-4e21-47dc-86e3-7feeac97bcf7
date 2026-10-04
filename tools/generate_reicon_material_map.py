@@ -25,7 +25,7 @@ ALIASES = {
     'alternate_email': 'atSign', 'analytics': 'chartLine',
     'arrow_back': 'arrowLeft', 'arrow_downward': 'arrowDown',
     'arrow_drop_down': 'chevronDown', 'arrow_forward': 'arrowRight',
-    'arrow_forward_ios': 'chevronRight', 'arrow_right': 'arrowRight',
+    'arrow_forward_ios': 'chevronRight', 'arrow_outward': 'arrowUpRight', 'arrow_right': 'arrowRight',
     'arrow_upward': 'arrowUp', 'article': 'documentText',
     'aspect_ratio': 'aspectRatioSquare', 'attach_file': 'paperclip',
     'auto_awesome': 'sparkles', 'auto_fix_high': 'magicWand',

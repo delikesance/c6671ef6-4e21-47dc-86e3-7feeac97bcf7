@@ -15,6 +15,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nyxx/nyxx.dart' hide Builder;
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/core/theme/block_category.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/module_list_widgets.dart';
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/features/bot_editor/logic/scoped_variable_orphans.dart';
@@ -544,7 +546,9 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                     Icons.vpn_key_outlined,
                     size: 20,
                   ),
-                  border: const OutlineInputBorder(),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -557,7 +561,9 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                   labelText: context.tr.globals_value,
                   helperText: context.tr.globals_value_auto_type_hint,
                   helperMaxLines: 2,
-                  border: const OutlineInputBorder(),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
             ],
@@ -676,7 +682,9 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                     labelText: context.tr.scoped_scope,
                     helperText: context.tr.scoped_scope_help,
                     helperMaxLines: 2,
-                    border: const OutlineInputBorder(),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   items: _scopes
                       .map(
@@ -713,7 +721,9 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                       Icons.vpn_key_outlined,
                       size: 20,
                     ),
-                    border: const OutlineInputBorder(),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   onChanged: (_) => setInner(() {}),
                 ),
@@ -727,7 +737,9 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                     hintText: context.tr.scoped_default_value_hint,
                     helperText: context.tr.globals_value_auto_type_hint,
                     helperMaxLines: 2,
-                    border: const OutlineInputBorder(),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ),
                 if (keyCtrl.text.trim().isNotEmpty) ...[
@@ -1023,7 +1035,9 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                               ),
                             ),
                             isDense: true,
-                            border: const OutlineInputBorder(),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                             contentPadding: const EdgeInsets.symmetric(
                               horizontal: 12,
                               vertical: 10,
@@ -1149,24 +1163,40 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
   }
 
   Widget _buildSearchBar() {
+    final tokens = HomeTokens.of(context);
+    final fieldBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(14),
+      borderSide: BorderSide(color: tokens.ghostBorder),
+    );
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+      padding: const EdgeInsets.fromLTRB(0, 4, 0, 12),
       child: TextField(
         decoration: InputDecoration(
           hintText: context.tr.globals_search,
           prefixIconConstraints: const BoxConstraints(
-            minWidth: 36,
-            minHeight: 36,
+            minWidth: 40,
+            minHeight: 40,
           ),
-          prefixIcon: const Padding(
-            padding: EdgeInsets.only(left: 10, right: 8),
-            child: AppIcon.fromMaterial(Icons.search, size: 18),
+          prefixIcon: Padding(
+            padding: const EdgeInsets.only(left: 14, right: 8),
+            child: AppIcon.fromMaterial(
+              Icons.search,
+              size: 18,
+              color: tokens.muted,
+            ),
           ),
           isDense: true,
-          border: const OutlineInputBorder(),
+          filled: true,
+          fillColor: tokens.card,
+          border: fieldBorder,
+          enabledBorder: fieldBorder,
+          focusedBorder: fieldBorder.copyWith(
+            borderSide: BorderSide(color: tokens.accent),
+          ),
+          constraints: const BoxConstraints(minHeight: 48),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 12,
-            vertical: 10,
+            vertical: 14,
           ),
           suffixIcon: _searchQuery.isNotEmpty
               ? IconButton(
@@ -1182,40 +1212,94 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
   }
 
   Widget _buildModeToggle() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+    final tokens = HomeTokens.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    Widget segment(_VariableMode value, IconData icon, String label) {
+      final selected = _mode == value;
+      return Expanded(
+        child: Semantics(
+          button: true,
+          selected: selected,
+          label: label,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(9),
+            onTap: () {
+              if (value == _mode) return;
+              setState(() {
+                _mode = value;
+                _searchQuery = '';
+              });
+            },
+            child: Container(
+              height: 38,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: selected ? tokens.navSelected : Colors.transparent,
+                borderRadius: BorderRadius.circular(9),
+              ),
+              child: ExcludeSemantics(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AppIcon.fromMaterial(
+                      icon,
+                      size: 16,
+                      color: selected ? scheme.onSurface : tokens.muted,
+                    ),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 13.5,
+                          fontWeight: selected
+                              ? FontWeight.w700
+                              : FontWeight.w600,
+                          color: selected ? scheme.onSurface : tokens.muted,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Expanded(
-                child: SegmentedButton<_VariableMode>(
-                  segments: [
-                    ButtonSegment<_VariableMode>(
-                      value: _VariableMode.global,
-                      label: Text(context.tr.globals_mode_global),
-                      icon: const AppIcon.fromMaterial(Icons.public, size: 18),
-                    ),
-                    ButtonSegment<_VariableMode>(
-                      value: _VariableMode.scoped,
-                      label: Text(context.tr.globals_mode_scoped),
-                      icon: const AppIcon.fromMaterial(
-                        Icons.account_tree_outlined,
-                        size: 18,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: tokens.card,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: tokens.ghostBorder),
+                  ),
+                  child: Row(
+                    children: [
+                      segment(
+                        _VariableMode.global,
+                        Icons.public,
+                        context.tr.globals_mode_global,
                       ),
-                    ),
-                  ],
-                  selected: <_VariableMode>{_mode},
-                  onSelectionChanged: (selection) async {
-                    final next = selection.first;
-                    if (next == _mode) return;
-                    setState(() {
-                      _mode = next;
-                      _searchQuery = '';
-                    });
-                  },
+                      const SizedBox(width: 4),
+                      segment(
+                        _VariableMode.scoped,
+                        Icons.account_tree_outlined,
+                        context.tr.globals_mode_scoped,
+                      ),
+                    ],
+                  ),
                 ),
               ),
               if (_source == _VariablesSource.local && _isScopedMode)
@@ -1228,13 +1312,13 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                 ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Row(
             children: [
               AppIcon.fromMaterial(
                 Icons.info_outline,
                 size: 14,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                color: tokens.muted,
               ),
               const SizedBox(width: 6),
               Expanded(
@@ -1242,43 +1326,48 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
                   _isScopedMode
                       ? context.tr.globals_help_scoped
                       : context.tr.globals_help_global,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
+                  style: TextStyle(fontSize: 12.5, color: tokens.muted),
                 ),
               ),
             ],
           ),
+          const SizedBox(height: 8),
         ],
       ),
     );
   }
 
   Widget _buildError() {
+    final scheme = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.all(12),
-      child: Material(
-        color: Theme.of(context).colorScheme.errorContainer,
-        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            children: [
-              const AppIcon.fromMaterial(Icons.error_outline, size: 20),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  _error!,
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              TextButton(
-                onPressed: _load,
-                child: Text(context.tr.globals_retry),
-              ),
-            ],
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(14, 8, 8, 8),
+        decoration: BoxDecoration(
+          color: AppTheme.statusError.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: AppTheme.statusError.withValues(alpha: 0.4),
           ),
+        ),
+        child: Row(
+          children: [
+            AppIcon.fromMaterial(
+              Icons.error_outline,
+              size: 20,
+              color: AppTheme.statusErrorText,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                _error!,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: scheme.onSurface),
+              ),
+            ),
+            TextButton(onPressed: _load, child: Text(context.tr.globals_retry)),
+          ],
         ),
       ),
     );
@@ -1311,82 +1400,66 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
       ),
       physics: const AlwaysScrollableScrollPhysics(),
       itemCount: entries.length,
-      separatorBuilder: (_, _) => const Divider(height: 1),
+      separatorBuilder: (_, _) => const SizedBox(height: 8),
       itemBuilder: (ctx, i) {
         final entry = entries[i];
-        return ListTile(
+        final valueText = (entry.value?.toString() ?? 'null').replaceAll(
+          RegExp(r'\s+'),
+          ' ',
+        );
+        return ModuleRowCard(
           key: ValueKey(entry.key),
-          title: Text(
-            entry.key,
-            style: const TextStyle(
-              fontFamily: 'monospace',
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
-            ),
-          ),
-          subtitle: Text(
-            entry.value?.toString() ?? 'null',
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
-          ),
+          family: BlockFamily.data,
+          icon: Icons.data_object_rounded,
+          title: entry.key,
+          titleMono: true,
+          summary: valueText,
           onTap: () => _editGlobalVariable(key: entry.key),
-          trailing: PopupMenuButton<String>(
-            itemBuilder: (ctx) => [
-              PopupMenuItem<String>(
-                value: 'edit',
-                child: ListTile(
-                  leading: const AppIcon.fromMaterial(
-                    Icons.edit_outlined,
-                    size: 20,
-                  ),
-                  title: Text(context.tr.globals_edit),
-                  dense: true,
-                  contentPadding: EdgeInsets.zero,
+          trailing: [
+            moduleMoreButton<String>(
+              context: context,
+              tooltip: context.tr.more_options_title,
+              itemBuilder: (ctx) => [
+                moduleMenuItem<String>(
+                  ctx,
+                  value: 'edit',
+                  icon: Icons.edit_outlined,
+                  label: context.tr.globals_edit,
                 ),
-              ),
-              PopupMenuItem<String>(
-                value: 'copy',
-                child: ListTile(
-                  leading: const AppIcon.fromMaterial(Icons.copy, size: 20),
-                  title: Text(context.tr.globals_copy_value),
-                  dense: true,
-                  contentPadding: EdgeInsets.zero,
+                moduleMenuItem<String>(
+                  ctx,
+                  value: 'copy',
+                  icon: Icons.copy,
+                  label: context.tr.globals_copy_value,
                 ),
-              ),
-              PopupMenuItem<String>(
-                value: 'delete',
-                child: ListTile(
-                  leading: AppIcon.fromMaterial(
-                    Icons.delete_outline,
-                    size: 20,
-                    color: Theme.of(ctx).colorScheme.error,
-                  ),
-                  title: Text(
-                    context.tr.delete,
-                    style: TextStyle(color: Theme.of(ctx).colorScheme.error),
-                  ),
-                  dense: true,
-                  contentPadding: EdgeInsets.zero,
+                const PopupMenuDivider(),
+                moduleMenuItem<String>(
+                  ctx,
+                  value: 'delete',
+                  icon: Icons.delete_outline,
+                  label: context.tr.delete,
+                  danger: true,
                 ),
-              ),
-            ],
-            onSelected: (action) {
-              switch (action) {
-                case 'edit':
-                  _editGlobalVariable(key: entry.key);
-                case 'copy':
-                  Clipboard.setData(
-                    ClipboardData(text: formatScopedVariableValue(entry.value)),
-                  );
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(context.tr.globals_copy_value)),
-                  );
-                case 'delete':
-                  _deleteGlobalVariable(entry.key);
-              }
-            },
-          ),
+              ],
+              onSelected: (action) {
+                switch (action) {
+                  case 'edit':
+                    _editGlobalVariable(key: entry.key);
+                  case 'copy':
+                    Clipboard.setData(
+                      ClipboardData(
+                        text: formatScopedVariableValue(entry.value),
+                      ),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(context.tr.globals_copy_value)),
+                    );
+                  case 'delete':
+                    _deleteGlobalVariable(entry.key);
+                }
+              },
+            ),
+          ],
         );
       },
     );
@@ -1421,7 +1494,7 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(child: _buildPanel(_VariableMode.global)),
-          const VerticalDivider(width: 1),
+          VerticalDivider(width: 1, color: HomeTokens.of(context).cardBorder),
           Expanded(child: _buildPanel(_VariableMode.scoped)),
         ],
       );
@@ -1445,77 +1518,70 @@ class _GlobalVariablesPageState extends State<GlobalVariablesPage>
 
   Widget _buildPanel(_VariableMode mode) {
     final isGlobal = mode == _VariableMode.global;
+    final tokens = HomeTokens.of(context);
     final title = isGlobal
         ? context.tr.globals_mode_global
         : context.tr.globals_mode_scoped;
     final help = isGlobal
         ? context.tr.globals_help_global
         : context.tr.globals_help_scoped;
-    return Column(
-      children: [
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      child: Column(
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  AppIcon.fromMaterial(
-                    isGlobal ? Icons.public : Icons.account_tree_outlined,
-                    size: 18,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    icon: const AppIcon.fromMaterial(Icons.add, size: 20),
-                    tooltip: context.tr.globals_add,
-                    onPressed: isGlobal
-                        ? () => _editGlobalVariable()
-                        : () => _editScopedDefinition(),
-                  ),
-                ],
+              AppIcon.fromMaterial(
+                isGlobal ? Icons.public : Icons.account_tree_outlined,
+                size: 16,
+                color: BlockFamily.data.color,
               ),
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  AppIcon.fromMaterial(
-                    Icons.info_outline,
-                    size: 13,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      help,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ),
-                ],
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  title.toUpperCase(),
+                  style: BlockFamily.data.overlineStyle(),
+                ),
+              ),
+              IconButton(
+                icon: const AppIcon.fromMaterial(Icons.add, size: 20),
+                tooltip: context.tr.globals_add,
+                onPressed: isGlobal
+                    ? () => _editGlobalVariable()
+                    : () => _editScopedDefinition(),
               ),
             ],
           ),
-        ),
-        if (_error != null &&
-            ((isGlobal && !_isScopedMode) || (!isGlobal && _isScopedMode)))
-          _buildError(),
-        Expanded(
-          child: RefreshIndicator(
-            onRefresh: _load,
-            child: isGlobal ? _buildGlobalList() : _buildScopedList(),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Row(
+              children: [
+                AppIcon.fromMaterial(
+                  Icons.info_outline,
+                  size: 13,
+                  color: tokens.muted,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    help,
+                    style: TextStyle(fontSize: 12.5, color: tokens.muted),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+          if (_error != null &&
+              ((isGlobal && !_isScopedMode) || (!isGlobal && _isScopedMode)))
+            _buildError(),
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: _load,
+              child: isGlobal ? _buildGlobalList() : _buildScopedList(),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

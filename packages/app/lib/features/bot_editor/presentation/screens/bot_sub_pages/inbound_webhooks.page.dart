@@ -15,6 +15,9 @@ import 'package:bot_creator/features/bot_editor/logic/workflow_call.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
 import 'package:bot_creator/core/widgets/app_icon.dart';
+import 'package:bot_creator/core/theme/block_category.dart';
+import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/module_list_widgets.dart';
 
 class InboundWebhooksPage extends StatefulWidget {
   const InboundWebhooksPage({super.key, required this.botId});
@@ -324,33 +327,13 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
   }
 
   Widget _buildUpsellCard() {
-    return Card(
-      margin: const EdgeInsets.all(12),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                AppIcon.fromMaterial(
-                  Icons.workspace_premium_rounded,
-                  color: AppTheme.premiumGold,
-                ),
-                SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    context.tr.subscription_feature_webhooks_title,
-                    style: TextStyle(fontWeight: FontWeight.w700),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(context.tr.subscription_feature_webhooks_desc),
-            const SizedBox(height: 12),
-            if (PremiumCapabilities.canShowPurchaseUI)
-              FilledButton.icon(
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: ModuleUpsellCard(
+        title: context.tr.subscription_feature_webhooks_title,
+        description: context.tr.subscription_feature_webhooks_desc,
+        action: PremiumCapabilities.canShowPurchaseUI
+            ? FilledButton.icon(
                 onPressed: () async {
                   await SubscriptionPage.show(context);
                   if (!mounted) {
@@ -363,13 +346,8 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                 ),
                 label: Text(context.tr.premium_card_button),
               )
-            else
-              // Verrou de FORMULE, pas de plateforme : la cause est la formule du compte,
-              // et « non disponible sur cette plateforme » decrivait l'achat en parlant de
-              // la fonction (voir PremiumLockedHint).
-              const PremiumLockedHint(),
-          ],
-        ),
+            // Verrou de FORMULE, pas de plateforme (voir PremiumLockedHint).
+            : const PremiumLockedHint(),
       ),
     );
   }
@@ -417,18 +395,12 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                       ),
                       child: Align(
                         alignment: Alignment.centerLeft,
-                        child: Text(
+                        child: ModuleOverline(
                           context.tr.webhooks_count(
                             _webhooks.length,
                             limit > 0 ? ' / $limit' : '',
                           ),
-                          style: Theme.of(context).textTheme.labelMedium
-                              ?.copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurfaceVariant,
-                                fontWeight: AppTheme.fontWeightSemiBold,
-                              ),
+                          family: BlockFamily.http,
                         ),
                       ),
                     ),
@@ -446,9 +418,16 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                               onAction: _hasCapability ? _showEditor : null,
                             )
                           : ListView.separated(
+                              padding: EdgeInsets.only(
+                                bottom:
+                                    FloatingGlassNavBar.contentClearanceOf(
+                                      context,
+                                    ) +
+                                    24,
+                              ),
                               itemCount: _webhooks.length,
                               separatorBuilder: (_, _) =>
-                                  const Divider(height: 1),
+                                  const SizedBox(height: 8),
                               itemBuilder: (context, index) {
                                 final webhook = _webhooks[index];
                                 final path = (webhook['path'] ?? '').toString();
@@ -457,166 +436,126 @@ class _InboundWebhooksPageState extends State<InboundWebhooksPage> {
                                 final secret = (webhook['secret'] ?? '')
                                     .toString();
                                 final enabled = webhook['enabled'] != false;
-                                return ListTile(
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 4,
+                                return ModuleRowCard(
+                                  key: ValueKey(
+                                    'inbound_webhook_${webhook['id']}',
                                   ),
-                                  title: Text('/$path'),
-                                  subtitle: Text(
-                                    context.tr.webhooks_workflow_subtitle(
-                                      workflow,
+                                  family: BlockFamily.http,
+                                  icon: Icons.webhook_rounded,
+                                  title: '/$path',
+                                  titleMono: true,
+                                  summary: context.tr
+                                      .webhooks_workflow_subtitle(workflow),
+                                  monoSummary: false,
+                                  dimmed: !enabled,
+                                  trailing: [
+                                    Switch.adaptive(
+                                      value: enabled,
+                                      onChanged: _hasCapability
+                                          ? (value) async {
+                                              await appManager
+                                                  .saveInboundWebhook(
+                                                    widget.botId,
+                                                    path: path,
+                                                    workflowName: workflow,
+                                                    secret: secret,
+                                                    enabled: value,
+                                                    webhookId:
+                                                        (webhook['id'] ?? '')
+                                                            .toString(),
+                                                  );
+                                              await _load();
+                                            }
+                                          : null,
                                     ),
-                                  ),
-                                  trailing: PopupMenuButton<String>(
-                                    itemBuilder: (BuildContext context) => [
-                                      PopupMenuItem<String>(
-                                        value: 'copy_url',
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            const AppIcon.fromMaterial(
-                                              Icons.content_copy_outlined,
-                                              size: 18,
-                                            ),
-                                            const SizedBox(width: 12),
-                                            Text(context.tr.webhooks_copy_url),
-                                          ],
-                                        ),
-                                        onTap: () =>
-                                            _copyFullWebhookUrl(webhook),
-                                      ),
-                                      PopupMenuItem<String>(
-                                        value: 'copy_path',
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            const AppIcon.fromMaterial(
-                                              Icons.link_outlined,
-                                              size: 18,
-                                            ),
-                                            const SizedBox(width: 12),
-                                            Text(context.tr.webhooks_copy_path),
-                                          ],
-                                        ),
-                                        onTap: () async {
-                                          await Clipboard.setData(
-                                            ClipboardData(text: '/$path'),
-                                          );
-                                          if (!mounted) {
-                                            return;
-                                          }
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                context.tr.webhooks_path_copied,
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                      PopupMenuItem<String>(
-                                        value: 'copy_secret',
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            const AppIcon.fromMaterial(
-                                              Icons.key_outlined,
-                                              size: 18,
-                                            ),
-                                            const SizedBox(width: 12),
-                                            Text(
-                                              context.tr.webhooks_copy_secret,
-                                            ),
-                                          ],
-                                        ),
-                                        onTap: () async {
-                                          await Clipboard.setData(
-                                            ClipboardData(text: secret),
-                                          );
-                                          if (!mounted) {
-                                            return;
-                                          }
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                context
-                                                    .tr
-                                                    .webhooks_secret_copied,
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                      if (_hasCapability) ...[
-                                        PopupMenuItem<String>(
-                                          value: 'edit',
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              const AppIcon.fromMaterial(
-                                                Icons.edit_outlined,
-                                                size: 18,
-                                              ),
-                                              const SizedBox(width: 12),
-                                              Text(context.tr.common_edit),
-                                            ],
-                                          ),
+                                    moduleMoreButton<String>(
+                                      context: context,
+                                      tooltip: context.tr.webhooks_actions,
+                                      itemBuilder: (context) => [
+                                        moduleMenuItem<String>(
+                                          context,
+                                          value: 'copy_url',
+                                          icon: Icons.content_copy_outlined,
+                                          label: context.tr.webhooks_copy_url,
                                           onTap: () =>
-                                              _showEditor(initial: webhook),
+                                              _copyFullWebhookUrl(webhook),
                                         ),
-                                        PopupMenuItem<String>(
-                                          value: 'delete',
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              const AppIcon.fromMaterial(
-                                                Icons.delete_outline,
-                                                size: 18,
-                                                color: AppTheme.error,
-                                              ),
-                                              const SizedBox(width: 12),
-                                              Text(
-                                                context.tr.common_delete,
-                                                style: TextStyle(
-                                                  color: AppTheme.error,
+                                        moduleMenuItem<String>(
+                                          context,
+                                          value: 'copy_path',
+                                          icon: Icons.link_outlined,
+                                          label: context.tr.webhooks_copy_path,
+                                          onTap: () async {
+                                            await Clipboard.setData(
+                                              ClipboardData(text: '/$path'),
+                                            );
+                                            if (!mounted) {
+                                              return;
+                                            }
+                                            ScaffoldMessenger.of(
+                                              this.context,
+                                            ).showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  this
+                                                      .context
+                                                      .tr
+                                                      .webhooks_path_copied,
                                                 ),
                                               ),
-                                            ],
-                                          ),
-                                          onTap: () => _deleteWebhook(webhook),
-                                        ),
-                                      ],
-                                    ],
-                                    child: IconButton(
-                                      icon: const AppIcon.fromMaterial(
-                                        Icons.more_vert,
-                                      ),
-                                      tooltip: context.tr.webhooks_actions,
-                                      onPressed: null,
-                                    ),
-                                  ),
-                                  leading: Switch.adaptive(
-                                    value: enabled,
-                                    onChanged: _hasCapability
-                                        ? (value) async {
-                                            await appManager.saveInboundWebhook(
-                                              widget.botId,
-                                              path: path,
-                                              workflowName: workflow,
-                                              secret: secret,
-                                              enabled: value,
-                                              webhookId: (webhook['id'] ?? '')
-                                                  .toString(),
                                             );
-                                            await _load();
-                                          }
-                                        : null,
-                                  ),
+                                          },
+                                        ),
+                                        moduleMenuItem<String>(
+                                          context,
+                                          value: 'copy_secret',
+                                          icon: Icons.key_outlined,
+                                          label:
+                                              context.tr.webhooks_copy_secret,
+                                          onTap: () async {
+                                            await Clipboard.setData(
+                                              ClipboardData(text: secret),
+                                            );
+                                            if (!mounted) {
+                                              return;
+                                            }
+                                            ScaffoldMessenger.of(
+                                              this.context,
+                                            ).showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  this
+                                                      .context
+                                                      .tr
+                                                      .webhooks_secret_copied,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                        if (_hasCapability) ...[
+                                          moduleMenuItem<String>(
+                                            context,
+                                            value: 'edit',
+                                            icon: Icons.edit_outlined,
+                                            label: context.tr.common_edit,
+                                            onTap: () =>
+                                                _showEditor(initial: webhook),
+                                          ),
+                                          const PopupMenuDivider(),
+                                          moduleMenuItem<String>(
+                                            context,
+                                            value: 'delete',
+                                            icon: Icons.delete_outline,
+                                            label: context.tr.common_delete,
+                                            danger: true,
+                                            onTap: () =>
+                                                _deleteWebhook(webhook),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                  ],
                                 );
                               },
                             ),

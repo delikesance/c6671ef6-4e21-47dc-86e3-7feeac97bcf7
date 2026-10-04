@@ -7,6 +7,7 @@ import 'package:bot_creator/features/bot_editor/presentation/widgets/folder_pick
 import 'package:flutter/foundation.dart';
 import 'package:bot_creator/main.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/core/theme/block_category.dart';
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/features/home/presentation/home_ui.dart';
@@ -31,6 +32,7 @@ import 'package:flutter/services.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/editor_sub_page_ui.dart';
 
 import 'package:bot_creator/core/widgets/app_icon.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/module_list_widgets.dart';
 
 class WorkflowsPage extends StatefulWidget {
   const WorkflowsPage({
@@ -600,7 +602,9 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
             minLines: compact ? 8 : 6,
             maxLines: compact ? 14 : 12,
             decoration: InputDecoration(
-              border: const OutlineInputBorder(),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               hintText: context.tr.workflows_import_input_hint,
             ),
           ),
@@ -894,8 +898,15 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
                     ? 'Event'
                     : 'General';
                 final exists = usedNames.contains(wfName);
-                return Card(
+                return Container(
                   margin: const EdgeInsets.symmetric(vertical: 3),
+                  decoration: BoxDecoration(
+                    color: HomeTokens.of(context).card,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: HomeTokens.of(context).cardBorder,
+                    ),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(10),
                     child: Row(
@@ -977,7 +988,9 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
             initialValue: selectedFolder.isEmpty ? null : selectedFolder,
             decoration: InputDecoration(
               labelText: context.tr.workflows_folder_destination_optional,
-              border: const OutlineInputBorder(),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               isDense: true,
             ),
             items: [
@@ -1191,7 +1204,9 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
             autofocus: true,
             decoration: InputDecoration(
               hintText: context.tr.commands_new_folder_hint,
-              border: const OutlineInputBorder(),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             onSubmitted: (v) {
               final t = v.trim();
@@ -1247,7 +1262,9 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
             autofocus: true,
             decoration: InputDecoration(
               hintText: context.tr.commands_new_folder_hint,
-              border: const OutlineInputBorder(),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             onSubmitted: (v) {
               final t = v.trim();
@@ -1581,7 +1598,7 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
       }) {
         workflowChildren.add(
           Padding(
-            padding: EdgeInsets.only(left: indent, bottom: 6),
+            padding: EdgeInsets.only(left: indent, bottom: 8),
             child: _buildWorkflowTile(workflow),
           ),
         );
@@ -1930,208 +1947,67 @@ class _WorkflowsPageState extends State<WorkflowsPage> {
     final templateOrigin = workflow['templateOrigin'] as Map<String, dynamic>?;
     final templateId = (templateOrigin?['templateId'] ?? '').toString();
     final isEvent = workflowType == workflowTypeEvent;
-    final compactTile = MediaQuery.of(context).size.width < 420;
 
-    final colorScheme = Theme.of(context).colorScheme;
-    final cardWidget = Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-        side: BorderSide(color: colorScheme.outlineVariant),
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.fromLTRB(12, 6, 4, 6),
-        leading: Container(
-          width: 40,
-          height: 40,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-            border: Border.all(color: colorScheme.outlineVariant),
-          ),
-          child: AppIcon.fromMaterial(
-            isEvent
-                ? Icons.notifications_active_outlined
-                : Icons.account_tree_outlined,
-            color: colorScheme.onSurfaceVariant,
-            size: 20,
-          ),
-        ),
-        title: Row(
-          children: [
-            Expanded(
-              child: Text(
-                name,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
+    final cardWidget = ModuleRowCard(
+      // Pastille de famille : les workflows relèvent de la famille Événements.
+      family: BlockFamily.events,
+      icon: isEvent
+          ? Icons.notifications_active_outlined
+          : Icons.account_tree_outlined,
+      title: name,
+      titleMono: true,
+      summary: subtitle,
+      chips: [
+        ModuleChip(_workflowTypeBadgeLabel(workflowType)),
+        if (folder.isNotEmpty) ModuleChip(folder),
+        if (templateId.isNotEmpty) ModuleChip(templateId, mono: true),
+      ],
+      onTap: () => _createOrEditWorkflow(initial: workflow),
+      trailing: [
+        moduleMoreButton<String>(
+          context: context,
+          tooltip: context.tr.more_options_title,
+          onSelected: (value) {
+            if (value == 'edit') {
+              _createOrEditWorkflow(initial: workflow);
+            } else if (value == 'move') {
+              _showWorkflowMoveToFolderDialog(workflow);
+            } else if (value == 'delete') {
+              _deleteWorkflow(name);
+            } else if (value == 'export') {
+              _exportSingleWorkflow(workflow);
+            }
+          },
+          itemBuilder: (context) => [
+            moduleMenuItem<String>(
+              context,
+              value: 'edit',
+              icon: Icons.edit_outlined,
+              label: context.tr.common_edit,
             ),
-            Container(
-              margin: const EdgeInsets.only(left: 8),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(AppTheme.radiusPill),
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              ),
-              child: Text(
-                _workflowTypeBadgeLabel(workflowType),
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
+            moduleMenuItem<String>(
+              context,
+              value: 'move',
+              icon: Icons.drive_file_move_outlined,
+              label: context.tr.commands_move_to_folder,
             ),
-            if (folder.isNotEmpty)
-              Container(
-                margin: const EdgeInsets.only(left: 6),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(AppTheme.radiusPill),
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                ),
-                child: Text(
-                  folder,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ),
-            if (templateId.isNotEmpty)
-              Container(
-                margin: const EdgeInsets.only(left: 6),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(AppTheme.radiusPill),
-                  color: Theme.of(context).colorScheme.tertiaryContainer,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    AppIcon.fromMaterial(
-                      Icons.auto_awesome,
-                      size: 12,
-                      color: Theme.of(context).colorScheme.onTertiaryContainer,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      templateId,
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onTertiaryContainer,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            moduleMenuItem<String>(
+              context,
+              value: 'export',
+              icon: Icons.ios_share_outlined,
+              label: context.tr.common_export,
+            ),
+            const PopupMenuDivider(),
+            moduleMenuItem<String>(
+              context,
+              value: 'delete',
+              icon: Icons.delete_outline,
+              label: context.tr.common_delete,
+              danger: true,
+            ),
           ],
         ),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 4),
-          child: Text(
-            subtitle,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 12,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            PopupMenuButton<String>(
-              onSelected: (value) {
-                if (value == 'edit') {
-                  _createOrEditWorkflow(initial: workflow);
-                } else if (value == 'move') {
-                  _showWorkflowMoveToFolderDialog(workflow);
-                } else if (value == 'delete') {
-                  _deleteWorkflow(name);
-                } else if (value == 'export') {
-                  _exportSingleWorkflow(workflow);
-                }
-              },
-              itemBuilder: (context) => [
-                PopupMenuItem<String>(
-                  value: 'edit',
-                  height: 48,
-                  child: Row(
-                    children: [
-                      const AppIcon.fromMaterial(Icons.edit_outlined),
-                      const SizedBox(width: 8),
-                      Text(context.tr.common_edit),
-                    ],
-                  ),
-                ),
-                PopupMenuItem<String>(
-                  value: 'move',
-                  height: 48,
-                  child: Row(
-                    children: [
-                      const AppIcon.fromMaterial(
-                        Icons.drive_file_move_outlined,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(context.tr.commands_move_to_folder),
-                    ],
-                  ),
-                ),
-                PopupMenuItem<String>(
-                  value: 'export',
-                  height: 48,
-                  child: Row(
-                    children: [
-                      const AppIcon.fromMaterial(Icons.ios_share_outlined),
-                      const SizedBox(width: 8),
-                      Text(context.tr.common_export),
-                    ],
-                  ),
-                ),
-                PopupMenuItem<String>(
-                  value: 'delete',
-                  height: 48,
-                  child: Row(
-                    children: [
-                      AppIcon.fromMaterial(
-                        Icons.delete_outline,
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        context.tr.common_delete,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            if (!compactTile)
-              Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: AppIcon.fromMaterial(
-                  Icons.chevron_right_rounded,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-          ],
-        ),
-        onTap: () => _createOrEditWorkflow(initial: workflow),
-        onLongPress: () => _showWorkflowMoveToFolderDialog(workflow),
-      ),
+      ],
     );
 
     final isDesktop =
@@ -2205,13 +2081,8 @@ class _WorkflowSectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
-      child: Text(
-        title,
-        style: Theme.of(
-          context,
-        ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-      ),
+      padding: const EdgeInsets.only(top: 12),
+      child: ModuleOverline(title, family: BlockFamily.events),
     );
   }
 }
@@ -2310,7 +2181,7 @@ class _WorkflowFolderHeader extends StatelessWidget {
             AppIcon.fromMaterial(
               isExpanded ? Icons.folder_open : Icons.folder,
               size: 18,
-              color: Theme.of(context).colorScheme.primary,
+              color: HomeTokens.of(context).muted,
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -2324,21 +2195,7 @@ class _WorkflowFolderHeader extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 6),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(AppTheme.radiusPill),
-              ),
-              child: Text(
-                '$count',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ),
+            ModuleChip('$count'),
             PopupMenuButton<String>(
               icon: AppIcon.fromMaterial(
                 Icons.more_vert,

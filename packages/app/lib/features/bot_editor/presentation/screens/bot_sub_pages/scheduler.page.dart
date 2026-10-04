@@ -13,6 +13,8 @@ import 'package:bot_creator/features/bot_editor/logic/workflow_call.dart';
 import 'package:bot_creator/core/i18n/i18n.dart';
 
 import 'package:bot_creator/core/widgets/app_icon.dart';
+import 'package:bot_creator/core/theme/block_category.dart';
+import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/module_list_widgets.dart';
 
 class SchedulerPage extends StatefulWidget {
   const SchedulerPage({super.key, required this.botId});
@@ -267,33 +269,13 @@ class _SchedulerPageState extends State<SchedulerPage> {
   }
 
   Widget _buildUpsellCard() {
-    return Card(
-      margin: const EdgeInsets.all(12),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                AppIcon.fromMaterial(
-                  Icons.workspace_premium_rounded,
-                  color: AppTheme.premiumGold,
-                ),
-                SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    context.tr.subscription_feature_scheduler_title,
-                    style: TextStyle(fontWeight: FontWeight.w700),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(context.tr.subscription_feature_scheduler_desc),
-            const SizedBox(height: 12),
-            if (PremiumCapabilities.canShowPurchaseUI)
-              FilledButton.icon(
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: ModuleUpsellCard(
+        title: context.tr.subscription_feature_scheduler_title,
+        description: context.tr.subscription_feature_scheduler_desc,
+        action: PremiumCapabilities.canShowPurchaseUI
+            ? FilledButton.icon(
                 onPressed: () async {
                   await SubscriptionPage.show(context);
                   if (!mounted) {
@@ -306,13 +288,8 @@ class _SchedulerPageState extends State<SchedulerPage> {
                 ),
                 label: Text(context.tr.premium_card_button),
               )
-            else
-              // Verrou de FORMULE, pas de plateforme : la cause est la formule du compte,
-              // et « non disponible sur cette plateforme » decrivait l'achat en parlant de
-              // la fonction (voir PremiumLockedHint).
-              const PremiumLockedHint(),
-          ],
-        ),
+            // Verrou de FORMULE, pas de plateforme (voir PremiumLockedHint).
+            : const PremiumLockedHint(),
       ),
     );
   }
@@ -360,18 +337,12 @@ class _SchedulerPageState extends State<SchedulerPage> {
                       ),
                       child: Align(
                         alignment: Alignment.centerLeft,
-                        child: Text(
+                        child: ModuleOverline(
                           context.tr.scheduler_triggers_count(
                             _triggers.length,
                             limit > 0 ? ' / $limit' : '',
                           ),
-                          style: Theme.of(context).textTheme.labelMedium
-                              ?.copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurfaceVariant,
-                                fontWeight: AppTheme.fontWeightSemiBold,
-                              ),
+                          family: BlockFamily.logic,
                         ),
                       ),
                     ),
@@ -400,7 +371,7 @@ class _SchedulerPageState extends State<SchedulerPage> {
                               ),
                               itemCount: _triggers.length,
                               separatorBuilder: (_, _) =>
-                                  const Divider(height: 1),
+                                  const SizedBox(height: 8),
                               itemBuilder: (context, index) {
                                 final trigger = _triggers[index];
                                 final label =
@@ -417,45 +388,58 @@ class _SchedulerPageState extends State<SchedulerPage> {
                                     ) ??
                                     60;
                                 final enabled = trigger['enabled'] != false;
-                                return ListTile(
-                                  title: Text(label),
-                                  subtitle: Text(
-                                    context.tr.scheduler_subtitle(
-                                      workflowName,
-                                      everyMinutes,
+                                return ModuleRowCard(
+                                  key: ValueKey(
+                                    'scheduler_trigger_${trigger['id']}',
+                                  ),
+                                  family: BlockFamily.logic,
+                                  icon: Icons.schedule_rounded,
+                                  title: label,
+                                  summary: context.tr.scheduler_subtitle(
+                                    workflowName,
+                                    everyMinutes,
+                                  ),
+                                  dimmed: !enabled,
+                                  onTap: _hasSchedulerCapability
+                                      ? () => _showEditor(initial: trigger)
+                                      : null,
+                                  trailing: [
+                                    Switch.adaptive(
+                                      value: enabled,
+                                      onChanged: _hasSchedulerCapability
+                                          ? (value) =>
+                                                _toggleTrigger(trigger, value)
+                                          : null,
                                     ),
-                                  ),
-                                  leading: Switch.adaptive(
-                                    value: enabled,
-                                    onChanged: _hasSchedulerCapability
-                                        ? (value) =>
-                                              _toggleTrigger(trigger, value)
-                                        : null,
-                                  ),
-                                  trailing: Wrap(
-                                    spacing: 4,
-                                    children: [
-                                      IconButton(
-                                        tooltip: context.tr.common_edit,
-                                        onPressed: _hasSchedulerCapability
-                                            ? () =>
-                                                  _showEditor(initial: trigger)
-                                            : null,
-                                        icon: const AppIcon.fromMaterial(
-                                          Icons.edit_outlined,
-                                        ),
+                                    if (_hasSchedulerCapability)
+                                      moduleMoreButton<String>(
+                                        context: context,
+                                        tooltip: context.tr.more_options_title,
+                                        onSelected: (value) {
+                                          if (value == 'edit') {
+                                            _showEditor(initial: trigger);
+                                          } else if (value == 'delete') {
+                                            _deleteTrigger(trigger);
+                                          }
+                                        },
+                                        itemBuilder: (context) => [
+                                          moduleMenuItem<String>(
+                                            context,
+                                            value: 'edit',
+                                            icon: Icons.edit_outlined,
+                                            label: context.tr.common_edit,
+                                          ),
+                                          const PopupMenuDivider(),
+                                          moduleMenuItem<String>(
+                                            context,
+                                            value: 'delete',
+                                            icon: Icons.delete_outline,
+                                            label: context.tr.delete,
+                                            danger: true,
+                                          ),
+                                        ],
                                       ),
-                                      IconButton(
-                                        tooltip: context.tr.delete,
-                                        onPressed: _hasSchedulerCapability
-                                            ? () => _deleteTrigger(trigger)
-                                            : null,
-                                        icon: const AppIcon.fromMaterial(
-                                          Icons.delete_outline,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                  ],
                                 );
                               },
                             ),

@@ -52,6 +52,8 @@ import 'package:bot_creator/core/utils/global.dart';
 import 'package:bot_creator/core/utils/responsive.dart';
 import 'package:bot_creator/core/widgets/desktop_title_bar.dart';
 import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
+import 'package:bot_creator/core/widgets/flat_nav_bar.dart';
+import 'package:bot_creator/features/documentation/documentation_navigation.dart';
 import 'package:bot_creator/features/auth/presentation/mobile_account_gate_shell.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:bot_creator/features/documentation/documentation_hub_page.dart';
@@ -842,12 +844,25 @@ class _MyMainPageState extends State<MyMainPage> {
         MediaQuery.sizeOf(context).width >= AppTheme.desktopBreakpoint;
 
     if (isWide) {
+      final content = SafeArea(
+        bottom: false,
+        top: !ResponsiveHelper.isDesktopPlatform(),
+        child: _homeOrManage(),
+      );
       return Scaffold(
-        body: SafeArea(
-          bottom: false,
-          top: !ResponsiveHelper.isDesktopPlatform(),
-          child: _homeOrManage(),
-        ),
+        // Rail gauche (84 px) sur l'accueil ; l'éditeur d'un bot embarqué garde
+        // toute la largeur et sa propre navigation.
+        body: _managingBotId != null
+            ? content
+            : Row(
+                children: [
+                  FlatNavRail(
+                    leading: const _RailBrandMark(),
+                    items: _railNavItems(context),
+                  ),
+                  Expanded(child: content),
+                ],
+              ),
       );
     }
 
@@ -874,10 +889,10 @@ class _MyMainPageState extends State<MyMainPage> {
           ),
           if (_managingBotId == null)
             Positioned(
-              left: FloatingGlassNavBar.margin,
-              right: FloatingGlassNavBar.margin,
-              bottom: FloatingGlassNavBar.bottomOffsetOf(context),
-              child: FloatingGlassNavBar(items: _shellNavItems(context)),
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: FlatNavBar(items: _shellNavItems(context)),
             ),
         ],
       ),
@@ -893,11 +908,41 @@ class _MyMainPageState extends State<MyMainPage> {
   /// cumuler les deux ajouterait un vide en fin de liste.
   Widget _aboveFloatingNav(Widget child) {
     return Padding(
-      padding: EdgeInsets.only(
-        bottom: FloatingGlassNavBar.contentClearanceOf(context),
-      ),
+      padding: EdgeInsets.only(bottom: FlatNavBar.contentClearanceOf(context)),
       child: child,
     );
+  }
+
+  /// Rail desktop : Accueil (page courante) ; Documentation et Paramètres
+  /// ouvrent leur page par-dessus, comme les anciens boutons d'en-tête.
+  List<FloatingGlassNavItem> _railNavItems(BuildContext context) {
+    final tr = context.tr;
+    return [
+      FloatingGlassNavItem(
+        icon: Icons.home_outlined,
+        selectedIcon: Icons.home_rounded,
+        label: tr.home_tab,
+        selected: true,
+        onTap: () {},
+      ),
+      FloatingGlassNavItem(
+        icon: Icons.menu_book_outlined,
+        selectedIcon: Icons.menu_book_rounded,
+        label: tr.docs_hub_title,
+        selected: false,
+        onTap: () => openDocumentationHub(context, showDiscordJsTab: true),
+      ),
+      FloatingGlassNavItem(
+        icon: Icons.settings_outlined,
+        selectedIcon: Icons.settings_rounded,
+        label: tr.settings_tab,
+        selected: false,
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const SettingPage()),
+        ),
+      ),
+    ];
   }
 
   /// Les 3 destinations du shell : Accueil / Documentation / Réglages.
@@ -926,6 +971,38 @@ class _MyMainPageState extends State<MyMainPage> {
         onTap: () => setState(() => _compactTabIndex = 2),
       ),
     ];
+  }
+}
+
+/// Sigle de marque (non traduisible).
+const String _railBrandLabel = 'BC';
+
+/// Marque « BC » en tête du rail desktop : pastille d'action neutre (14 %).
+class _RailBrandMark extends StatelessWidget {
+  const _RailBrandMark();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 44,
+      height: 44,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: AppTheme.actionViolet.withValues(alpha: 0.16),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: AppTheme.actionViolet.withValues(alpha: 0.40),
+        ),
+      ),
+      child: const Text(
+        _railBrandLabel,
+        style: TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w800,
+          color: AppTheme.actionVioletSoft,
+        ),
+      ),
+    );
   }
 }
 

@@ -17,6 +17,8 @@ import 'package:bot_creator/core/network/remote_runtime.dart';
 import 'package:bot_creator/core/network/runner_client.dart';
 import 'package:bot_creator/core/network/runner_settings.dart';
 import 'package:bot_creator/core/theme/app_theme.dart';
+import 'package:bot_creator/core/theme/block_category.dart';
+import 'package:bot_creator/core/widgets/status_pill.dart';
 import 'package:bot_creator/core/utils/duration_formatter.dart';
 import 'package:bot_creator/core/utils/external_link.dart';
 import 'package:bot_creator/core/utils/global.dart';
@@ -26,10 +28,12 @@ import 'package:bot_creator/features/ads/logic/ad_reward_service.dart';
 import 'package:bot_creator/features/ads/logic/ad_ssv_context.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_payload_builder.dart';
+import 'package:bot_creator/features/bot_editor/logic/bot_config_refresh.dart';
 import 'package:bot_creator/features/bot_editor/logic/bot_reconciliation_service.dart';
 import 'package:bot_creator/features/bot_editor/logic/js_bot_payload_builder.dart';
 import 'package:bot_creator/features/bot_editor/logic/js_runner_capabilities.dart';
 import 'package:bot_creator/features/bot_editor/logic/runtime_engine.dart';
+import 'package:bot_creator/features/bot_editor/logic/workflow_call.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/ad_history_sheet.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/bot_logs.dart';
 import 'package:bot_creator/features/bot_editor/presentation/screens/bot_sub_pages/bot_stats.dart';
@@ -42,7 +46,7 @@ import 'package:bot_creator/features/home/logic/hosting_time_offer.dart';
 import 'package:bot_creator/features/home/presentation/home_ui.dart';
 import 'package:bot_creator/features/subscriptions/logic/premium_capabilities.dart';
 import 'package:bot_creator/features/subscriptions/logic/subscription_service.dart';
-import 'package:bot_creator/core/widgets/floating_glass_nav_bar.dart';
+import 'package:bot_creator/core/widgets/flat_nav_bar.dart';
 import 'package:bot_creator/core/widgets/page_layout.dart';
 import 'package:bot_creator/main.dart';
 import 'package:flutter/foundation.dart';
@@ -62,7 +66,16 @@ class AppHomePage extends StatefulWidget {
   final NyxxRest client;
   final VoidCallback? onExit;
 
-  const AppHomePage({super.key, required this.client, this.onExit});
+  /// Ouvre une section de l'éditeur (`commands`, `workflows`…) depuis les cartes
+  /// de la home desktop. `null` : les cartes restent informatives.
+  final void Function(String sectionId)? onOpenSection;
+
+  const AppHomePage({
+    super.key,
+    required this.client,
+    this.onExit,
+    this.onOpenSection,
+  });
 
   @override
   State<AppHomePage> createState() => _AppHomePageState();
@@ -90,6 +103,9 @@ class _AppHomePageState extends State<AppHomePage>
   DateTime? _lastReconcileCheckAt;
   DiscordApplicationOwnerMetadata? _ownerMetadata;
   BotRuntimeCapabilities _runtimeCapabilities = BotRuntimeCapabilities.dart;
+  // Aperçus de la home desktop (cartes Commandes / Workflows).
+  List<Map<String, dynamic>> _homeCommands = const [];
+  List<Map<String, dynamic>> _homeWorkflows = const [];
   void _setState(VoidCallback fn) {
     if (!mounted) return;
     setState(fn);
@@ -267,6 +283,8 @@ class _AppHomePageState extends State<AppHomePage>
       duration: const Duration(milliseconds: 900),
     );
     WidgetsBinding.instance.addObserver(this);
+    BotConfigRefreshNotifier.instance.addListener(_onConfigReplaced);
+    unawaited(_loadHomePreviews());
     if (_supportsForegroundTask) {
       _taskDataCallback = (Object data) {
         consumeForegroundTaskDataForBotLogs(data);
@@ -339,6 +357,7 @@ class _AppHomePageState extends State<AppHomePage>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    BotConfigRefreshNotifier.instance.removeListener(_onConfigReplaced);
     _statusPulseController.dispose();
     _runtimeBalanceTimer?.cancel();
     unawaited(_gatewayEventsSub?.cancel());
@@ -358,6 +377,32 @@ class _AppHomePageState extends State<AppHomePage>
       }
     }
     super.dispose();
+  }
+
+  void _onConfigReplaced() {
+    if (!mounted ||
+        BotConfigRefreshNotifier.instance.botId !=
+            widget.client.user.id.toString()) {
+      return;
+    }
+    unawaited(_loadHomePreviews());
+  }
+
+  /// Relit les commandes et workflows pour les cartes d'aperçu desktop. Une
+  /// erreur de lecture laisse simplement les cartes vides : la home ne casse pas.
+  Future<void> _loadHomePreviews() async {
+    final botId = widget.client.user.id.toString();
+    try {
+      final commands = await appManager.listAppCommands(botId);
+      final workflows = await appManager.getWorkflows(botId);
+      if (!mounted) return;
+      _setState(() {
+        _homeCommands = commands;
+        _homeWorkflows = workflows;
+      });
+    } catch (error) {
+      developer.log('Home previews unavailable: $error');
+    }
   }
 
   Future<void> _showAdHistoryDialog() async {

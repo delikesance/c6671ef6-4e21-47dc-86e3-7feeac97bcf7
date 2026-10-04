@@ -11178,4 +11178,73 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get bot_create_mode => 'Erstellungsmodus';
+
+  @override
+  String get bot_home_hosting_title => 'Hosting';
+
+  @override
+  String get bot_home_logs_filter_label => 'Logs filtern';
+
+  @override
+  String get bot_home_logs_filter_info => 'Infos';
+
+  @override
+  String get bot_home_logs_filter_errors => 'Fehler';
+
+  @override
+  String bot_home_commands_see_all(int count) {
+    return 'Alle $count anzeigen';
+  }
+
+  @override
+  String bot_home_actions_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Aktionen',
+      one: '1 Aktion',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get home_title_my_bots => 'Meine Bots';
+
+  @override
+  String get home_more_actions => 'Weitere Aktionen';
+
+  @override
+  String get home_getting_started => 'Erste Schritte';
+
+  @override
+  String get modules_group_create => 'Erstellen';
+
+  @override
+  String get modules_group_automation => 'Automatisierung';
+
+  @override
+  String get modules_group_management => 'Verwaltung';
+
+  @override
+  String get modules_desc_workflows =>
+      'Automatisiere deine Aktionen und Ereignisse';
+
+  @override
+  String get modules_desc_globals => 'Für alle Befehle gemeinsam genutzt';
+
+  @override
+  String get modules_desc_emojis => 'Anwendungs-Emojis des Bots';
+
+  @override
+  String get modules_desc_scheduler => 'Führt alle X Min. einen Workflow aus';
+
+  @override
+  String get modules_desc_webhooks =>
+      'HTTP-Aufrufe, die an einen Workflow geleitet werden';
+
+  @override
+  String get modules_desc_team => 'Mitarbeitende und Team-Chat';
+
+  @override
+  String get modules_desc_guilds => 'Server, auf denen der Bot ist';
 }

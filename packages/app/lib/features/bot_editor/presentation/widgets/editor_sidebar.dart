@@ -15,6 +15,7 @@ class EditorSidebarItem {
     required this.id,
     required this.icon,
     required this.label,
+    this.tooltip,
   });
 
   /// Identifiant stable de la cible (ex. `workflows`), renvoyé tel quel par
@@ -26,6 +27,10 @@ class EditorSidebarItem {
 
   /// Libellé localisé : affiché déplié, exposé via `Tooltip` replié.
   final String label;
+
+  /// Libellé complet exposé en tooltip / sémantique quand [label] est une
+  /// forme courte (rail desktop). Absent : [label] sert aux deux.
+  final String? tooltip;
 }
 
 /// Un groupe d'items (ex. « ACCUEIL », « MODULES ») avec son titre localisé.
@@ -530,4 +535,258 @@ class _SidebarItemTile extends StatelessWidget {
     }
     return Tooltip(message: message, child: tile);
   }
+}
+
+/// Rail de navigation PLAT du desktop (refonte) : 84 px, fond panneau, filet
+/// droit. Chaque item = icône + libellé de 10 px dessous ; l'actif porte une
+/// barre violette de 3 px à gauche, une icône violette douce et un libellé
+/// blanc. Les sections sont séparées par un filet ; [pinnedItem] (Paramètres)
+/// reste en bas du rail, hors du défilement.
+///
+/// Comme [EditorSidebar], c'est une vue pure : l'état vit chez le parent.
+class EditorRail extends StatelessWidget {
+  const EditorRail({
+    super.key,
+    required this.appName,
+    required this.botId,
+    this.avatarUrl,
+    required this.sections,
+    required this.activeItemId,
+    required this.onSelectItem,
+    required this.onBack,
+    this.pinnedItem,
+    this.showBackButton = false,
+    this.showBeginnerMode = false,
+    this.beginnerMode = false,
+    this.onBeginnerModeChanged,
+  });
+
+  /// Largeur du rail.
+  static const double width = 84;
+
+  final String appName;
+  final String botId;
+  final String? avatarUrl;
+  final List<EditorSidebarSection> sections;
+  final EditorSidebarItem? pinnedItem;
+  final String activeItemId;
+  final void Function(String itemId) onSelectItem;
+  final VoidCallback onBack;
+  final bool showBackButton;
+  final bool showBeginnerMode;
+  final bool beginnerMode;
+  final ValueChanged<bool>? onBeginnerModeChanged;
+
+  String get _initials {
+    final words = appName
+        .trim()
+        .split(RegExp(r'[\s\-_]+'))
+        .where((w) => w.isNotEmpty)
+        .toList();
+    if (words.isEmpty) return '?';
+    final raw = words.length > 1
+        ? '${String.fromCharCode(words[0].runes.first)}${String.fromCharCode(words[1].runes.first)}'
+        : String.fromCharCodes(words[0].runes.take(2));
+    return raw.toUpperCase();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tr = context.tr;
+    final url = avatarUrl?.trim() ?? '';
+    final badge = url.isEmpty
+        ? Container(
+            width: 44,
+            height: 44,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: const Color(0xFF38BDF8).withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: const Color(0xFF38BDF8).withValues(alpha: 0.32),
+              ),
+            ),
+            child: Text(
+              _initials,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF38BDF8),
+              ),
+            ),
+          )
+        : HomeBotAvatar(imageUrl: url, size: 44, fallbackLabel: _initials);
+
+    final children = <Widget>[];
+    for (final section in sections) {
+      if (section.items.isEmpty) continue;
+      if (children.isNotEmpty) children.add(const _RailDivider());
+      for (final item in section.items) {
+        children.add(
+          _RailItem(
+            item: item,
+            selected: item.id == activeItemId,
+            onTap: () => onSelectItem(item.id),
+          ),
+        );
+      }
+    }
+
+    return Material(
+      color: AppTheme.homeNavBar,
+      child: Container(
+        width: width,
+        decoration: const BoxDecoration(
+          border: Border(right: BorderSide(color: AppTheme.homeCardBorder)),
+        ),
+        child: SafeArea(
+          right: false,
+          child: Column(
+            children: [
+              const SizedBox(height: 16),
+              Semantics(
+                image: true,
+                label: appName,
+                child: Tooltip(message: '$appName\nID $botId', child: badge),
+              ),
+              if (showBackButton)
+                _RailItem(
+                  item: EditorSidebarItem(
+                    id: '_back',
+                    icon: Icons.arrow_back_rounded,
+                    label: tr.common_back,
+                  ),
+                  selected: false,
+                  onTap: onBack,
+                ),
+              const _RailDivider(),
+              Expanded(
+                child: ListView(padding: EdgeInsets.zero, children: children),
+              ),
+              if (showBeginnerMode)
+                _RailItem(
+                  item: EditorSidebarItem(
+                    id: '_beginner',
+                    icon: Icons.school_rounded,
+                    label: tr.beginner_mode_label,
+                  ),
+                  selected: beginnerMode,
+                  onTap: () => onBeginnerModeChanged?.call(!beginnerMode),
+                ),
+              if (pinnedItem != null)
+                _RailItem(
+                  item: pinnedItem!,
+                  selected: pinnedItem!.id == activeItemId,
+                  onTap: () => onSelectItem(pinnedItem!.id),
+                ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _RailDivider extends StatelessWidget {
+  const _RailDivider();
+
+  @override
+  Widget build(BuildContext context) => const Padding(
+    padding: EdgeInsets.symmetric(vertical: 4),
+    child: SizedBox(
+      width: 28,
+      height: 1,
+      child: ColoredBox(color: AppTheme.homeCardBorder),
+    ),
+  );
+}
+
+class _RailItem extends StatelessWidget {
+  const _RailItem({
+    required this.item,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final EditorSidebarItem item;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final iconColor = selected ? AppTheme.actionVioletSoft : AppTheme.homeMuted;
+    final fullLabel = item.tooltip ?? item.label;
+    return Tooltip(
+      message: fullLabel,
+      child: Semantics(
+        button: true,
+        selected: selected,
+        label: fullLabel,
+        child: ExcludeSemantics(
+          child: InkWell(
+            borderRadius: BorderRadius.circular(14),
+            onTap: onTap,
+            child: SizedBox(
+              width: width,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 56),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Positioned(
+                      left: 0,
+                      child: Container(
+                        width: 3,
+                        height: 28,
+                        decoration: BoxDecoration(
+                          color: selected
+                              ? AppTheme.actionViolet
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 6,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          AppIcon.fromMaterial(
+                            item.icon,
+                            size: 22,
+                            color: iconColor,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            item.label,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 10,
+                              height: 12 / 10,
+                              fontWeight: FontWeight.w700,
+                              color: selected
+                                  ? Colors.white
+                                  : AppTheme.homeMuted,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  static const double width = EditorRail.width - 8;
 }

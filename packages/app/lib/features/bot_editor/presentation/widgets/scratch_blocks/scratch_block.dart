@@ -26,7 +26,27 @@ class ScratchBlock extends StatelessWidget {
     this.dragHandle,
     this.flat = false,
     this.overline,
+    this.summary,
+    this.selected = false,
+    this.hasError = false,
+    this.disabled = false,
+    this.dragging = false,
   });
+
+  /// Résumé monospace sur une ligne sous le titre (ex. `score.a ← GET /scores/a`).
+  final String? summary;
+
+  /// État « sélectionné » : anneau violet d'action.
+  final bool selected;
+
+  /// État « erreur de configuration » : bordure rouge.
+  final bool hasError;
+
+  /// État « désactivé » : bloc à 50 % d'opacité.
+  final bool disabled;
+
+  /// État « glissement » : bloc soulevé (ombre + légère rotation).
+  final bool dragging;
 
   /// Small category label shown above the title (in the category color).
   final String? overline;
@@ -82,10 +102,17 @@ class ScratchBlock extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
-    final bodyColor = isDark
-        ? Color.alphaBlend(Colors.white.withAlpha(6), colorScheme.surface)
-        : colorScheme.surface;
+    final tokens = HomeTokens.of(context);
+    // Fond NEUTRE : la couleur de catégorie ne vit que dans la pastille et
+    // le surtitre.
+    final bodyColor = tokens.card;
+    final borderColor = hasError
+        ? AppTheme.statusError
+        : selected
+        ? tokens.accentRing
+        : dragging
+        ? tokens.ghostBorder
+        : tokens.clusterBorder;
 
     if (flat) {
       return Padding(
@@ -123,11 +150,23 @@ class ScratchBlock extends StatelessWidget {
       );
     }
 
-    return Container(
+    final block = Container(
       decoration: BoxDecoration(
         color: bodyColor,
         borderRadius: BorderRadius.circular(AppTheme.radiusLg),
-        border: Border.all(color: colorScheme.outlineVariant, width: 1),
+        border: Border.all(
+          color: borderColor,
+          width: selected || hasError ? 2 : 1,
+        ),
+        boxShadow: dragging
+            ? const [
+                BoxShadow(
+                  color: Color(0x80000000),
+                  blurRadius: 28,
+                  offset: Offset(0, 12),
+                ),
+              ]
+            : null,
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -139,6 +178,7 @@ class ScratchBlock extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(10, 10, 4, 10),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   if (dragHandle != null) ...[
                     dragHandle!,
@@ -174,25 +214,37 @@ class ScratchBlock extends StatelessWidget {
                               color: color,
                             ),
                           ),
-                        Row(
+                        // Titre complet, sans troncature (il passe à la ligne).
+                        Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: 6,
                           children: [
-                            Flexible(
-                              child: Text(
-                                title,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 15,
-                                  color: colorScheme.onSurface,
-                                ),
-                                overflow: TextOverflow.ellipsis,
+                            Text(
+                              title,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 15,
+                                height: 1.33,
+                                color: colorScheme.onSurface,
                               ),
                             ),
-                            if (badge != null) ...[
-                              const SizedBox(width: 6),
-                              badge!,
-                            ],
+                            ?badge,
                           ],
                         ),
+                        if (summary != null && summary!.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: Text(
+                              summary!,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontFamily: 'JetBrainsMono',
+                                fontSize: 12.5,
+                                color: tokens.muted,
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -242,6 +294,15 @@ class ScratchBlock extends StatelessWidget {
         ],
       ),
     );
+
+    Widget result = block;
+    if (dragging) {
+      result = Transform.rotate(angle: -0.026, child: result);
+    }
+    if (disabled) {
+      result = Opacity(opacity: 0.5, child: result);
+    }
+    return result;
   }
 }
 

@@ -10550,4 +10550,70 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get bot_create_mode => '作成モード';
+
+  @override
+  String get bot_home_hosting_title => 'ホスティング';
+
+  @override
+  String get bot_home_logs_filter_label => 'ログを絞り込む';
+
+  @override
+  String get bot_home_logs_filter_info => '情報';
+
+  @override
+  String get bot_home_logs_filter_errors => 'エラー';
+
+  @override
+  String bot_home_commands_see_all(int count) {
+    return '$count件すべて表示';
+  }
+
+  @override
+  String bot_home_actions_count(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count件のアクション',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get home_title_my_bots => 'マイボット';
+
+  @override
+  String get home_more_actions => 'その他の操作';
+
+  @override
+  String get home_getting_started => 'はじめに';
+
+  @override
+  String get modules_group_create => '作成';
+
+  @override
+  String get modules_group_automation => '自動化';
+
+  @override
+  String get modules_group_management => '管理';
+
+  @override
+  String get modules_desc_workflows => 'アクションやイベントを自動化';
+
+  @override
+  String get modules_desc_globals => 'すべてのコマンドで共有';
+
+  @override
+  String get modules_desc_emojis => 'ボットのアプリケーション絵文字';
+
+  @override
+  String get modules_desc_scheduler => 'X 分ごとにワークフローを実行';
+
+  @override
+  String get modules_desc_webhooks => 'ワークフローにルーティングされる HTTP 呼び出し';
+
+  @override
+  String get modules_desc_team => 'コラボレーターとチームチャット';
+
+  @override
+  String get modules_desc_guilds => 'ボットが参加しているサーバー';
 }
