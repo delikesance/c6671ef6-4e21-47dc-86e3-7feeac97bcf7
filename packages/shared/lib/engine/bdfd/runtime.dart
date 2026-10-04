@@ -147,6 +147,12 @@ class BdfdContext {
   int? _pendingJump;
   int _depth = 0;
 
+  /// Same effect as `$skipActions`/`$jumpToAction` for adapters whose
+  /// statements carry their own error policy. Consumed by the statement list
+  /// that is executing the calling statement.
+  void requestSkip(int count) => _pendingSkip = count;
+  void requestJump(int ordinal) => _pendingJump = ordinal;
+
   String? loopVariable(String name) {
     for (final frame in _loopVariables.reversed) {
       if (frame.containsKey(name)) return frame[name];

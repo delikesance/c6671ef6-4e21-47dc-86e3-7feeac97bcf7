@@ -102,6 +102,17 @@ class BdfdProgram {
     'funcend',
   };
   BdfdProgram._(this.source, this.statements);
+
+  /// Builds a program from statements assembled by an adapter instead of
+  /// parsed from BDFD text. [source] only backs diagnostics: every node's
+  /// `start`/`end` must be an offset range inside it, because locations,
+  /// error details and replay frames are derived from that text (it is never
+  /// parsed or executed). A program parsed from text is unchanged.
+  factory BdfdProgram.fromStatements(
+    String source,
+    List<BdfdStatement> statements,
+  ) => BdfdProgram._(source, List.unmodifiable(statements));
+
   final String source;
   final List<BdfdStatement> statements;
 
