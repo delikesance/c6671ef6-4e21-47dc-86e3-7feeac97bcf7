@@ -60,25 +60,18 @@ Map<String, BdfdNativeFunction> bdfdAdvancedLanguageFunctions() => {
     maxArguments: 0,
     handler: (call) async => '',
   ),
-  'jumptoaction': BdfdNativeFunction(
-    minArguments: 1,
-    maxArguments: 1,
-    handler: (call) async => '',
-  ),
   'log': BdfdNativeFunction(
     minArguments: 1,
     maxArguments: 1,
-    handler: (call) async => '',
+    handler: (call) async {
+      call.context.onLog?.call(await call.argument(0));
+      return '';
+    },
   ),
   'logquota': BdfdNativeFunction(
     minArguments: 0,
     maxArguments: 0,
     handler: (call) async => call.context.variables['log.quota'] ?? '1000',
-  ),
-  'loopiteration': BdfdNativeFunction(
-    minArguments: 0,
-    maxArguments: 0,
-    handler: (call) async => call.context.variables['_loop.index'] ?? '1',
   ),
   'optoff': BdfdNativeFunction(
     minArguments: 0,
@@ -97,29 +90,26 @@ Map<String, BdfdNativeFunction> bdfdAdvancedLanguageFunctions() => {
   'scriptlanguage': BdfdNativeFunction(
     minArguments: 0,
     maxArguments: 0,
-    handler: (call) async => 'BDFD',
+    // Wiki: possible outputs are BDScript, BDScript 2 and BDScript Unstable;
+    // the native interpreter implements BDScript 2.
+    handler: (call) async => 'BDScript 2',
   ),
-  'skipactions': BdfdNativeFunction(
-    minArguments: 1,
-    maxArguments: 1,
-    handler: (call) async => '',
-  ),
+  // Wiki: $url[Mode;Text] encodes or decodes URL (query component) text.
   'url': BdfdNativeFunction(
-    minArguments: 1,
+    minArguments: 2,
     maxArguments: 2,
     handler: (call) async {
-      if (call.argumentCount == 1) {
-        return Uri.encodeQueryComponent(await call.argument(0));
-      }
       final mode = (await call.argument(0)).trim().toLowerCase();
       final text = await call.argument(1);
+      if (mode != 'encode' && mode != 'decode') {
+        throw BdfdNativeError('Mode must be encode or decode.', call.location);
+      }
       try {
-        if (mode == 'decode') {
-          return Uri.decodeQueryComponent(text);
-        }
-        return Uri.encodeQueryComponent(text);
-      } catch (_) {
-        return text;
+        return mode == 'decode'
+            ? Uri.decodeQueryComponent(text)
+            : Uri.encodeQueryComponent(text);
+      } on FormatException {
+        throw BdfdNativeError('Text is not valid URL encoding.', call.location);
       }
     },
   ),

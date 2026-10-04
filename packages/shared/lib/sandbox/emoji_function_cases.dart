@@ -3,6 +3,14 @@ import 'function_suite.dart';
 const _emojiGuilds = {
   'guilds': {
     '10': {
+      'roles': [
+        {'id': '80', 'name': 'Bot', 'permissions': '8'},
+      ],
+      'members': {
+        '98': {
+          'roles': ['80'],
+        },
+      },
       'emojis': [
         {'id': '70', 'name': 'Wave', 'animated': false},
         {'id': '71', 'name': 'Dance', 'animated': true},
@@ -21,36 +29,59 @@ const sandboxEmojiFunctionCases = [
     'addemoji',
     r'$addEmoji[TestSmile;https://example.invalid/smile.png;yes]',
     0,
-    '<:TestSmile:8000>',
+    '<:TestSmile:300000>',
     label:
         'creates an emoji from an explicit image fixture and returns its tag',
     scenario: {
+      'variables': {'bot.id': '98'},
       'entities': {
         'guilds': {
-          '10': {'emojis': <Map<String, dynamic>>[]},
+          '10': {
+            'roles': [
+              {'id': '80', 'name': 'Bot', 'permissions': '8'},
+            ],
+            'members': {
+              '98': {
+                'roles': ['80'],
+              },
+            },
+            'emojis': <Map<String, dynamic>>[],
+          },
         },
       },
-      'imageSources': {
-        'https://example.invalid/smile.png':
-            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4z8DwHwAFAAH/iZk9HQAAAABJRU5ErkJggg==',
-      },
+      // The production image loader fetches the URL; the fixture serves a
+      // 1x1 PNG.
+      'http': [
+        {
+          'url': 'https://example.invalid/smile.png',
+          'headers': {'content-type': 'image/png'},
+          'bodyBase64':
+              'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4z8DwHwAFAAH/iZk9HQAAAABJRU5ErkJggg==',
+        },
+      ],
     },
     expectedValues: {
-      '/effects/0/type': 'createEmoji',
-      '/effects/0/emoji/name': 'TestSmile',
-      '/effects/0/image_width': 1,
+      '/effects/0/type': 'httpRequest',
+      '/effects/1/type': 'createEmoji',
+      '/effects/1/after/name': 'TestSmile',
+      '/effects/1/after/animated': false,
+      '/effects/1/image_url': 'https://example.invalid/smile.png',
     },
   ),
   SandboxFunctionCase(
     'removeemoji',
-    r'$removeEmoji[Wave]',
+    r'$removeEmoji[70]',
     0,
     '',
-    label: 'removes an emoji by name',
-    scenario: {'entities': _emojiGuilds},
+    label: 'removes an emoji by ID',
+    scenario: {
+      'variables': {'bot.id': '98'},
+      'entities': _emojiGuilds,
+    },
     expectedValues: {
       '/effects/0/type': 'deleteEmoji',
-      '/effects/0/emoji/id': '70',
+      '/effects/0/emoji_id': '70',
+      '/effects/0/before/name': 'Wave',
     },
   ),
   SandboxFunctionCase(
@@ -125,15 +156,23 @@ const sandboxEmojiFunctionCases = [
     'Other',
     label: 'ID from another guild accessible to the bot',
     scenario: {'entities': _emojiGuilds},
-    expectedValues: {'/entity_requests/1/guild_id': '11'},
+    expectedValues: {
+      '/entity_requests/0/operation': 'guild.emojis',
+      '/entity_requests/1/operation': 'users.guilds',
+      '/entity_requests/2/guild_id': '11',
+    },
   ),
   SandboxFunctionCase(
     'emojiname',
     r'$emojiName[999]',
     0,
     '',
-    label: 'unknown ID has no name',
+    label: 'unknown ID is an error',
     scenario: {'entities': _emojiGuilds},
+    expectedValues: {
+      '/success': false,
+      '/error': r'BDFD L1:1 $emojiName: Emoji not found.',
+    },
   ),
   SandboxFunctionCase(
     'isemojianimated',

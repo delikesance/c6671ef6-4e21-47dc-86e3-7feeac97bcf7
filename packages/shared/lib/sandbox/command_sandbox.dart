@@ -401,6 +401,7 @@ Future<Map<String, dynamic>> _run(Map<String, dynamic> input) async {
       maxSteps: 10000,
       onTrace: policy.recordNative,
     );
+    context.onLog = logs.add;
     context.imageSourceResolver = (source) async {
       final uri = Uri.tryParse(source);
       if (uri != null && (uri.scheme == 'http' || uri.scheme == 'https')) {
@@ -503,6 +504,13 @@ Future<Map<String, dynamic>> _run(Map<String, dynamic> input) async {
       results = await runActions(actions);
     }
     await timing.drain();
+    if (context.response.deferred) {
+      policy.effects.add({
+        'type': 'deferInteraction',
+        'ephemeral': context.response.ephemeral,
+        'simulated': true,
+      });
+    }
     error = variables['error.message'];
     if (error == null &&
         entityGateway != null &&

@@ -290,10 +290,8 @@ Map<String, BdfdNativeFunction> bdfdComponentFunctions(
         length(a[3], 100, 'Description', empty: true);
         final isDefault = a.length > 4 ? boolean(a[4]) : false;
         final emoji = a.length > 5 ? a[5] : '';
-        await mutate(call, message(a, 6), (rows) {
-          final target = find(rows, a[0], type: 'stringSelect');
-          final options = (target['options'] as List)
-              .cast<Map<String, dynamic>>();
+        // Adds or edits the option on the select menu's option list.
+        List<Map<String, dynamic>> apply(List<Map<String, dynamic>> options) {
           final index = options.indexWhere((o) => o['value'] == a[2]);
           if (edit && index < 0) {
             throw ArgumentError('Select option not found.');
@@ -322,7 +320,38 @@ Map<String, BdfdNativeFunction> bdfdComponentFunctions(
           if (options.length > 25) {
             throw ArgumentError('A select menu supports at most 25 options.');
           }
-          target['options'] = options;
+          return options;
+        }
+
+        // A string select of the modal being built takes its options the same
+        // way as a message select menu.
+        final modalInputs =
+            (output(call).componentState.modal?['inputs'] as List?)
+                ?.cast<Map<String, dynamic>>();
+        final modalSelect = message(a, 6) != null
+            ? null
+            : modalInputs
+                  ?.where(
+                    (input) =>
+                        input['type'] == 'selectMenu' &&
+                        input['customId'] == a[0],
+                  )
+                  .firstOrNull;
+        if (modalSelect != null) {
+          if (modalSelect['menuType'] != 'string') {
+            throw ArgumentError('Only string selects take options.');
+          }
+          modalSelect['options'] = apply(
+            ((modalSelect['options'] as List?) ?? <Map<String, dynamic>>[])
+                .cast<Map<String, dynamic>>(),
+          );
+          return '';
+        }
+        await mutate(call, message(a, 6), (rows) {
+          final target = find(rows, a[0], type: 'stringSelect');
+          target['options'] = apply(
+            (target['options'] as List).cast<Map<String, dynamic>>(),
+          );
         });
         return '';
       }),
