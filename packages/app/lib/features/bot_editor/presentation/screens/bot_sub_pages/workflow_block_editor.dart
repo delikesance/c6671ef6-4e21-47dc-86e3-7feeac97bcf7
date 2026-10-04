@@ -2144,7 +2144,6 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
       _bdfdScriptController.text,
       backend: _bdfdBackend,
     );
-    final french = Localizations.localeOf(context).languageCode == 'fr';
     return ScratchBlock(
       color: Theme.of(context).colorScheme.primary,
       title: context.tr.cmd_execution_mode_bdfd,
@@ -2152,28 +2151,6 @@ class _WorkflowBlockEditorState extends State<WorkflowBlockEditor> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          DropdownButtonFormField<String>(
-            key: ValueKey('workflow-backend-$_bdfdBackend'),
-            initialValue: _bdfdBackend,
-            decoration: InputDecoration(
-              labelText: french ? 'Moteur BDFD' : 'BDFD engine',
-            ),
-            items: [
-              DropdownMenuItem(
-                value: 'native-v1',
-                child: Text(french ? 'BDFD natif' : 'Native BDFD'),
-              ),
-              if (_bdfdBackend != 'native-v1')
-                DropdownMenuItem(
-                  value: _bdfdBackend,
-                  child: Text(_bdfdBackend),
-                ),
-            ],
-            onChanged: (value) {
-              if (value != null) setState(() => _bdfdBackend = value);
-            },
-          ),
-          const SizedBox(height: 12),
           InkWell(
             onTap: () async {
               final code = await Navigator.push<String>(

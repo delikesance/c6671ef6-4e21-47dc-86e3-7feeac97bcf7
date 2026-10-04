@@ -95,7 +95,6 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text('Native BDFD'), findsWidgets);
       expect(
         find.textContaining(r'Invalid argument count for $kickMention'),
         findsOneWidget,
