@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:test/test.dart';
 
-import 'package:bot_creator_shared/actions/executors/image_executor.dart';
+import 'package:bot_creator_shared/services/canvas_image_renderer.dart';
 import 'package:bot_creator_shared/utils/template_resolver.dart';
 
 void main() {

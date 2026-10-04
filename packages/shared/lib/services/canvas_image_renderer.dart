@@ -6,7 +6,7 @@ import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:image/image.dart' as img;
 
-import '../../utils/template_resolver.dart';
+import '../utils/template_resolver.dart';
 
 // ─── Memory Constants ─────────────────────────────────────────────────────
 

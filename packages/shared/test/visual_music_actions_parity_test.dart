@@ -9,15 +9,21 @@ import 'package:nyxx/nyxx.dart';
 import 'package:nyxx_lavalink/nyxx_lavalink.dart';
 import 'package:test/test.dart';
 
+import 'helpers/golden_expectations.dart';
 import 'helpers/variables_test_helpers.dart';
 import 'helpers/visual_discord_gateway.dart';
 import 'helpers/visual_parity_harness.dart'
-    show SpyTranslator, visualAction, visualFixtures;
+    show SpyTranslator, visualAction;
 
 /// Parity of the music and voice blocks between the historical executor
 /// (`executeLavalinkAction`) and `bc_<type>` on the native engine, over the same
 /// simulated Lavalink service: calls made, `results` (including the swallowed
 /// `'Error: ...'` results and `<key>.<prop>` keys), final variables and errors.
+///
+/// The native outcome is also checked against explicit expectations
+/// (test/golden/music.json), so the test stays meaningful when the historical
+/// path is removed: then set [parityWithHistorical] to false.
+const parityWithHistorical = true;
 
 Track _track(String id) => Track.fromJson(<String, Object?>{
   'encoded': 'encoded-$id',
@@ -180,14 +186,22 @@ Future<_Outcome> _parity(
     lavalink: lavalink,
     guild: guild,
   );
-  final historical = await run(false);
   final native = await run(true);
-  expect(historical.native, 0);
   expect(native.native, greaterThan(0), reason: 'must run natively');
-  expect(native.service.calls, historical.service.calls, reason: 'calls');
-  expect(native.results, historical.results, reason: 'results');
-  expect(native.variables, historical.variables, reason: 'variables');
-  expect(native.errorText, historical.errorText, reason: 'error');
+  expectGolden({
+    'calls': native.service.calls,
+    'results': native.results,
+    'variables': native.variables,
+    'error': native.errorText,
+  });
+  if (parityWithHistorical) {
+    final historical = await run(false);
+    expect(historical.native, 0);
+    expect(native.service.calls, historical.service.calls, reason: 'calls');
+    expect(native.results, historical.results, reason: 'results');
+    expect(native.variables, historical.variables, reason: 'variables');
+    expect(native.errorText, historical.errorText, reason: 'error');
+  }
   return native;
 }
 
@@ -199,8 +213,9 @@ Action _a(
 }) => visualAction(type, key: key, payload: payload, error: error);
 
 void main() {
+  useGolden('music');
   group('playMusic', () {
-    test('explicit channel: track data as JSON and sub-keys', () async {
+    gtest('explicit channel: track data as JSON and sub-keys', () async {
       final outcome = await _parity(
         [
           _a(
@@ -217,7 +232,7 @@ void main() {
       expect(outcome.results!['p'], contains('"author":"auteur"'));
     });
 
-    test('empty query is a swallowed error result', () async {
+    gtest('empty query is a swallowed error result', () async {
       final outcome = await _parity([
         _a(
           BotCreatorActionType.playMusic,
@@ -231,7 +246,7 @@ void main() {
       expect(outcome.results!['after'], 'OK');
     });
 
-    test('user not in a voice channel / no channel at all', () async {
+    gtest('user not in a voice channel / no channel at all', () async {
       await _parity(
         [
           _a(BotCreatorActionType.playMusic, key: 'p', payload: {'query': 'x'}),
@@ -253,7 +268,7 @@ void main() {
       );
     });
 
-    test('author fallbacks for the injected user id', () async {
+    gtest('author fallbacks for the injected user id', () async {
       for (final variables in [
         {'author.id': '5'},
         {'userId': '6'},
@@ -265,7 +280,7 @@ void main() {
       }
     });
 
-    test('no track found, service failure', () async {
+    gtest('no track found, service failure', () async {
       await _parity([
         _a(
           BotCreatorActionType.playMusic,
@@ -286,7 +301,7 @@ void main() {
       expect(outcome.results!.containsKey('next'), isTrue);
     });
 
-    test('invalid channel id is swallowed as well', () async {
+    gtest('invalid channel id is swallowed as well', () async {
       await _parity([
         _a(
           BotCreatorActionType.playMusic,
@@ -298,7 +313,7 @@ void main() {
   });
 
   group('controls', () {
-    test('pause, resume, skip, stop, leave', () async {
+    gtest('pause, resume, skip, stop, leave', () async {
       final outcome = await _parity([
         _a(BotCreatorActionType.pauseMusic, key: 'a'),
         _a(BotCreatorActionType.resumeMusic, key: 'b'),
@@ -315,7 +330,7 @@ void main() {
       });
     });
 
-    test('Lavalink errors never fail the block nor stop the list', () async {
+    gtest('Lavalink errors never fail the block nor stop the list', () async {
       final outcome = await _parity(
         [
           _a(BotCreatorActionType.pauseMusic, key: 'a'),
@@ -331,7 +346,7 @@ void main() {
       expect(outcome.results!['b'], 'Error: boom');
     });
 
-    test('volume: number, string, template, missing, invalid', () async {
+    gtest('volume: number, string, template, missing, invalid', () async {
       for (final volume in <Object?>[80, '120', '((v))', '', null, 'loud']) {
         await _parity(
           [
@@ -346,7 +361,7 @@ void main() {
       }
     });
 
-    test('loop modes and invalid mode', () async {
+    gtest('loop modes and invalid mode', () async {
       for (final loop in <Object?>[
         'off',
         'TRACK',
@@ -372,7 +387,7 @@ void main() {
       }
     });
 
-    test('seek: milliseconds, seconds, missing', () async {
+    gtest('seek: milliseconds, seconds, missing', () async {
       for (final payload in <Map<String, dynamic>>[
         {'position': 5000},
         {'position': '30', 'positionUnit': 'seconds'},
@@ -389,7 +404,7 @@ void main() {
   });
 
   group('joinVoice and getMusicInfo', () {
-    test('join explicit, author injected, failure', () async {
+    gtest('join explicit, author injected, failure', () async {
       await _parity([
         _a(
           BotCreatorActionType.joinVoice,
@@ -411,14 +426,14 @@ void main() {
       ], setup: (s) => s.failures['connect'] = Exception('no lavalink'));
     });
 
-    test('info without a session', () async {
+    gtest('info without a session', () async {
       final outcome = await _parity([
         _a(BotCreatorActionType.getMusicInfo, key: 'i'),
       ]);
       expect(outcome.results!['i.isPlaying'], 'false');
     });
 
-    test('info of a playing session', () async {
+    gtest('info of a playing session', () async {
       final outcome = await _parity(
         [_a(BotCreatorActionType.getMusicInfo, key: 'i')],
         setup: (s) {
@@ -432,7 +447,7 @@ void main() {
       expect(outcome.results!['i.position'], '12000');
     });
 
-    test('info failure', () async {
+    gtest('info failure', () async {
       await _parity([
         _a(BotCreatorActionType.getMusicInfo, key: 'i'),
       ], setup: (s) => s.current = _BrokenSession());
@@ -440,7 +455,7 @@ void main() {
   });
 
   group('environment edge cases', () {
-    test('without a Lavalink service the historical error is kept', () async {
+    gtest('without a Lavalink service the historical error is kept', () async {
       for (final mode in ['stop', 'continue', '']) {
         final outcome = await _parity([
           _a(
@@ -457,13 +472,13 @@ void main() {
       }
     });
 
-    test('without a guild', () async {
+    gtest('without a guild', () async {
       await _parity([
         _a(BotCreatorActionType.stopMusic, key: 'a'),
       ], guild: false);
     });
 
-    test('results are usable by later actions', () async {
+    gtest('results are usable by later actions', () async {
       final outcome = await _parity([
         _a(
           BotCreatorActionType.playMusic,

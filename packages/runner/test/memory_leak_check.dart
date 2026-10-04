@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:bot_creator_shared/bot_creator_shared.dart';
-import 'package:bot_creator_shared/actions/executors/image_executor.dart';
+import 'package:bot_creator_shared/services/canvas_image_renderer.dart';
 
 void main() async {
   print('Initial RSS: ${ProcessInfo.currentRss / (1024 * 1024)} MB');
