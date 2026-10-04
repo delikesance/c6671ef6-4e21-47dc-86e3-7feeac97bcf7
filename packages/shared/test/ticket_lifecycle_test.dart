@@ -1,4 +1,4 @@
-import 'package:bot_creator_shared/actions/ticket_management.dart';
+import 'package:bot_creator_shared/services/bot_block_discord_actions.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:test/test.dart';
 

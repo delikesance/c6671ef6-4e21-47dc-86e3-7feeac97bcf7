@@ -1,0 +1,609 @@
+{
+  "explicit channel: track data as JSON and sub-keys#0": {
+    "calls": [
+      "play(10,34,lofi)"
+    ],
+    "results": {
+      "p": "{\"title\":\"titre-found\",\"author\":\"auteur\",\"duration\":\"183000\",\"uri\":\"https://example.com/found\",\"thumbnail\":\"https://example.com/found.png\"}",
+      "p.title": "titre-found",
+      "p.author": "auteur",
+      "p.duration": "183000",
+      "p.uri": "https://example.com/found",
+      "p.thumbnail": "https://example.com/found.png"
+    },
+    "variables": {
+      "guild.id": "10",
+      "song": "lofi"
+    },
+    "error": null
+  },
+  "empty query is a swallowed error result#0": {
+    "calls": [
+      "pause()"
+    ],
+    "results": {
+      "p": "Error: Query cannot be empty",
+      "p.error": "Query cannot be empty",
+      "after": "OK"
+    },
+    "variables": {
+      "guild.id": "10"
+    },
+    "error": null
+  },
+  "user not in a voice channel / no channel at all#0": {
+    "calls": [],
+    "results": {
+      "p": "Error: NoSuchMethodError: Class 'VisualGateway' has no instance getter 'logger'.\nReceiver: Instance of 'VisualGateway'\nTried calling: logger",
+      "p.error": "NoSuchMethodError: Class 'VisualGateway' has no instance getter 'logger'.\nReceiver: Instance of 'VisualGateway'\nTried calling: logger"
+    },
+    "variables": {
+      "guild.id": "10",
+      "user.id": "222"
+    },
+    "error": null
+  },
+  "user not in a voice channel / no channel at all#1": {
+    "calls": [],
+    "results": {
+      "p": "Error: No voice channel specified and user is not in a voice channel",
+      "p.error": "No voice channel specified and user is not in a voice channel"
+    },
+    "variables": {
+      "guild.id": "10"
+    },
+    "error": null
+  },
+  "user not in a voice channel / no channel at all#2": {
+    "calls": [],
+    "results": {
+      "p": "Error: NoSuchMethodError: Class 'VisualGateway' has no instance getter 'logger'.\nReceiver: Instance of 'VisualGateway'\nTried calling: logger",
+      "p.error": "NoSuchMethodError: Class 'VisualGateway' has no instance getter 'logger'.\nReceiver: Instance of 'VisualGateway'\nTried calling: logger"
+    },
+    "variables": {
+      "guild.id": "10",
+      "who": "222"
+    },
+    "error": null
+  },
+  "author fallbacks for the injected user id#0": {
+    "calls": [],
+    "results": {
+      "p": "Error: NoSuchMethodError: Class 'VisualGateway' has no instance getter 'logger'.\nReceiver: Instance of 'VisualGateway'\nTried calling: logger",
+      "p.error": "NoSuchMethodError: Class 'VisualGateway' has no instance getter 'logger'.\nReceiver: Instance of 'VisualGateway'\nTried calling: logger"
+    },
+    "variables": {
+      "guild.id": "10",
+      "author.id": "5"
+    },
+    "error": null
+  },
+  "author fallbacks for the injected user id#1": {
+    "calls": [],
+    "results": {
+      "p": "Error: NoSuchMethodError: Class 'VisualGateway' has no instance getter 'logger'.\nReceiver: Instance of 'VisualGateway'\nTried calling: logger",
+      "p.error": "NoSuchMethodError: Class 'VisualGateway' has no instance getter 'logger'.\nReceiver: Instance of 'VisualGateway'\nTried calling: logger"
+    },
+    "variables": {
+      "guild.id": "10",
+      "userId": "6"
+    },
+    "error": null
+  },
+  "author fallbacks for the injected user id#2": {
+    "calls": [],
+    "results": {
+      "p": "Error: No voice channel specified and user is not in a voice channel",
+      "p.error": "No voice channel specified and user is not in a voice channel"
+    },
+    "variables": {
+      "guild.id": "10",
+      "user.id": "",
+      "author.id": "7"
+    },
+    "error": null
+  },
+  "no track found, service failure#0": {
+    "calls": [
+      "play(10,34,x)"
+    ],
+    "results": {
+      "p": "Error: No track found for query: x",
+      "p.error": "No track found for query: x"
+    },
+    "variables": {
+      "guild.id": "10"
+    },
+    "error": null
+  },
+  "no track found, service failure#1": {
+    "calls": [
+      "play(10,34,x)",
+      "stop()"
+    ],
+    "results": {
+      "p": "Error: Exception: lavalink down",
+      "p.error": "Exception: lavalink down",
+      "next": "OK"
+    },
+    "variables": {
+      "guild.id": "10"
+    },
+    "error": null
+  },
+  "invalid channel id is swallowed as well#0": {
+    "calls": [],
+    "results": {
+      "p": "Error: FormatException: Invalid radix-10 number (at character 1)\nabc\n^\n",
+      "p.error": "FormatException: Invalid radix-10 number (at character 1)\nabc\n^\n"
+    },
+    "variables": {
+      "guild.id": "10"
+    },
+    "error": null
+  },
+  "pause, resume, skip, stop, leave#0": {
+    "calls": [
+      "pause()",
+      "resume()",
+      "skip()",
+      "stop()",
+      "disconnect(10)"
+    ],
+    "results": {
+      "a": "OK",
+      "b": "OK",
+      "c": "OK",
+      "d": "OK",
+      "e": "OK"
+    },
+    "variables": {
+      "guild.id": "10"
+    },
+    "error": null
+  },
+  "Lavalink errors never fail the block nor stop the list#0": {
+    "calls": [
+      "pause()",
+      "skip()"
+    ],
+    "results": {
+      "a": "Error: Bad state: no player",
+      "a.error": "Bad state: no player",
+      "b": "Error: boom",
+      "b.error": "boom"
+    },
+    "variables": {
+      "guild.id": "10"
+    },
+    "error": null
+  },
+  "volume: number, string, template, missing, invalid#0": {
+    "calls": [
+      "setVolume(80)"
+    ],
+    "results": {
+      "v": "OK"
+    },
+    "variables": {
+      "guild.id": "10",
+      "v": "55"
+    },
+    "error": null
+  },
+  "volume: number, string, template, missing, invalid#1": {
+    "calls": [
+      "setVolume(120)"
+    ],
+    "results": {
+      "v": "OK"
+    },
+    "variables": {
+      "guild.id": "10",
+      "v": "55"
+    },
+    "error": null
+  },
+  "volume: number, string, template, missing, invalid#2": {
+    "calls": [
+      "setVolume(55)"
+    ],
+    "results": {
+      "v": "OK"
+    },
+    "variables": {
+      "guild.id": "10",
+      "v": "55"
+    },
+    "error": null
+  },
+  "volume: number, string, template, missing, invalid#3": {
+    "calls": [],
+    "results": {
+      "v": "Error: Missing volume parameter",
+      "v.error": "Missing volume parameter"
+    },
+    "variables": {
+      "guild.id": "10",
+      "v": "55"
+    },
+    "error": null
+  },
+  "volume: number, string, template, missing, invalid#4": {
+    "calls": [],
+    "results": {
+      "v": "Error: Missing volume parameter",
+      "v.error": "Missing volume parameter"
+    },
+    "variables": {
+      "guild.id": "10",
+      "v": "55"
+    },
+    "error": null
+  },
+  "volume: number, string, template, missing, invalid#5": {
+    "calls": [],
+    "results": {
+      "v": "Error: Missing volume parameter",
+      "v.error": "Missing volume parameter"
+    },
+    "variables": {
+      "guild.id": "10",
+      "v": "55"
+    },
+    "error": null
+  },
+  "loop modes and invalid mode#0": {
+    "calls": [
+      "setLoopMode(off)"
+    ],
+    "results": {
+      "l": "OK"
+    },
+    "variables": {
+      "guild.id": "10",
+      "m": "track"
+    },
+    "error": null
+  },
+  "loop modes and invalid mode#1": {
+    "calls": [
+      "setLoopMode(track)"
+    ],
+    "results": {
+      "l": "OK"
+    },
+    "variables": {
+      "guild.id": "10",
+      "m": "track"
+    },
+    "error": null
+  },
+  "loop modes and invalid mode#2": {
+    "calls": [
+      "setLoopMode(queue)"
+    ],
+    "results": {
+      "l": "OK"
+    },
+    "variables": {
+      "guild.id": "10",
+      "m": "track"
+    },
+    "error": null
+  },
+  "loop modes and invalid mode#3": {
+    "calls": [
+      "setLoopMode(queue)"
+    ],
+    "results": {
+      "l": "OK"
+    },
+    "variables": {
+      "guild.id": "10",
+      "m": "track"
+    },
+    "error": null
+  },
+  "loop modes and invalid mode#4": {
+    "calls": [
+      "setLoopMode(queue)"
+    ],
+    "results": {
+      "l": "OK"
+    },
+    "variables": {
+      "guild.id": "10",
+      "m": "track"
+    },
+    "error": null
+  },
+  "loop modes and invalid mode#5": {
+    "calls": [
+      "setLoopMode(off)"
+    ],
+    "results": {
+      "l": "OK"
+    },
+    "variables": {
+      "guild.id": "10",
+      "m": "track"
+    },
+    "error": null
+  },
+  "loop modes and invalid mode#6": {
+    "calls": [
+      "setLoopMode(off)"
+    ],
+    "results": {
+      "l": "OK"
+    },
+    "variables": {
+      "guild.id": "10",
+      "m": "track"
+    },
+    "error": null
+  },
+  "loop modes and invalid mode#7": {
+    "calls": [],
+    "results": {
+      "l": "Error: Loop mode must be off, track, or queue",
+      "l.error": "Loop mode must be off, track, or queue"
+    },
+    "variables": {
+      "guild.id": "10",
+      "m": "track"
+    },
+    "error": null
+  },
+  "loop modes and invalid mode#8": {
+    "calls": [
+      "setLoopMode(off)"
+    ],
+    "results": {
+      "l": "OK"
+    },
+    "variables": {
+      "guild.id": "10",
+      "m": "track"
+    },
+    "error": null
+  },
+  "loop modes and invalid mode#9": {
+    "calls": [
+      "setLoopMode(track)"
+    ],
+    "results": {
+      "l": "OK"
+    },
+    "variables": {
+      "guild.id": "10",
+      "m": "track"
+    },
+    "error": null
+  },
+  "seek: milliseconds, seconds, missing#0": {
+    "calls": [
+      "seekTo(5000)"
+    ],
+    "results": {
+      "s": "OK"
+    },
+    "variables": {
+      "guild.id": "10",
+      "p": "9"
+    },
+    "error": null
+  },
+  "seek: milliseconds, seconds, missing#1": {
+    "calls": [
+      "seekTo(30000)"
+    ],
+    "results": {
+      "s": "OK"
+    },
+    "variables": {
+      "guild.id": "10",
+      "p": "9"
+    },
+    "error": null
+  },
+  "seek: milliseconds, seconds, missing#2": {
+    "calls": [
+      "seekTo(9000)"
+    ],
+    "results": {
+      "s": "OK"
+    },
+    "variables": {
+      "guild.id": "10",
+      "p": "9"
+    },
+    "error": null
+  },
+  "seek: milliseconds, seconds, missing#3": {
+    "calls": [],
+    "results": {
+      "s": "Error: Missing position parameter",
+      "s.error": "Missing position parameter"
+    },
+    "variables": {
+      "guild.id": "10",
+      "p": "9"
+    },
+    "error": null
+  },
+  "seek: milliseconds, seconds, missing#4": {
+    "calls": [],
+    "results": {
+      "s": "Error: Missing position parameter",
+      "s.error": "Missing position parameter"
+    },
+    "variables": {
+      "guild.id": "10",
+      "p": "9"
+    },
+    "error": null
+  },
+  "join explicit, author injected, failure#0": {
+    "calls": [
+      "connect(10,34)"
+    ],
+    "results": {
+      "j": "OK"
+    },
+    "variables": {
+      "guild.id": "10"
+    },
+    "error": null
+  },
+  "join explicit, author injected, failure#1": {
+    "calls": [],
+    "results": {
+      "j": "Error: NoSuchMethodError: Class 'VisualGateway' has no instance getter 'logger'.\nReceiver: Instance of 'VisualGateway'\nTried calling: logger",
+      "j.error": "NoSuchMethodError: Class 'VisualGateway' has no instance getter 'logger'.\nReceiver: Instance of 'VisualGateway'\nTried calling: logger"
+    },
+    "variables": {
+      "guild.id": "10",
+      "user.id": "222"
+    },
+    "error": null
+  },
+  "join explicit, author injected, failure#2": {
+    "calls": [],
+    "results": {
+      "j": "Error: No voice channel specified",
+      "j.error": "No voice channel specified"
+    },
+    "variables": {
+      "guild.id": "10"
+    },
+    "error": null
+  },
+  "join explicit, author injected, failure#3": {
+    "calls": [
+      "connect(10,34)"
+    ],
+    "results": {
+      "j": "Error: Exception: no lavalink",
+      "j.error": "Exception: no lavalink"
+    },
+    "variables": {
+      "guild.id": "10"
+    },
+    "error": null
+  },
+  "info without a session#0": {
+    "calls": [],
+    "results": {
+      "i": "{\"isPlaying\":\"false\"}",
+      "i.isPlaying": "false"
+    },
+    "variables": {
+      "guild.id": "10"
+    },
+    "error": null
+  },
+  "info of a playing session#0": {
+    "calls": [],
+    "results": {
+      "i": "digest:205:68bba318e3879d22",
+      "i.isPlaying": "true",
+      "i.title": "titre-a",
+      "i.author": "auteur",
+      "i.duration": "183000",
+      "i.position": "12000",
+      "i.queueSize": "0",
+      "i.volume": "100",
+      "i.isPaused": "false",
+      "i.isLooping": "false",
+      "i.thumbnail": "https://example.com/a.png"
+    },
+    "variables": {
+      "guild.id": "10"
+    },
+    "error": null
+  },
+  "info failure#0": {
+    "calls": [],
+    "results": {
+      "i": "Error: Bad state: broken session",
+      "i.error": "Bad state: broken session"
+    },
+    "variables": {
+      "guild.id": "10"
+    },
+    "error": null
+  },
+  "without a Lavalink service the historical error is kept#0": {
+    "calls": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "error.message": "Bad state: Action pauseMusic should have been handled by an executor before switch dispatch.",
+      "error.command": "pauseMusic",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "StateError: Bad state: Action pauseMusic should have been handled by an executor before switch dispatch."
+  },
+  "without a Lavalink service the historical error is kept#1": {
+    "calls": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "error.message": "Bad state: Action skipMusic should have been handled by an executor before switch dispatch.",
+      "error.command": "skipMusic",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "StateError: Bad state: Action skipMusic should have been handled by an executor before switch dispatch."
+  },
+  "without a Lavalink service the historical error is kept#2": {
+    "calls": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "error.message": "Bad state: Action pauseMusic should have been handled by an executor before switch dispatch.",
+      "error.command": "pauseMusic",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "StateError: Bad state: Action pauseMusic should have been handled by an executor before switch dispatch."
+  },
+  "without a guild#0": {
+    "calls": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "error.message": "Null check operator used on a null value",
+      "error.command": "stopMusic",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_TypeError: Null check operator used on a null value"
+  },
+  "results are usable by later actions#0": {
+    "calls": [
+      "play(10,34,x)",
+      "setVolume(183000)"
+    ],
+    "results": {
+      "p": "{\"title\":\"titre-found\",\"author\":\"auteur\",\"duration\":\"183000\",\"uri\":\"https://example.com/found\",\"thumbnail\":\"https://example.com/found.png\"}",
+      "p.title": "titre-found",
+      "p.author": "auteur",
+      "p.duration": "183000",
+      "p.uri": "https://example.com/found",
+      "p.thumbnail": "https://example.com/found.png",
+      "v": "OK"
+    },
+    "variables": {
+      "guild.id": "10"
+    },
+    "error": null
+  }
+}

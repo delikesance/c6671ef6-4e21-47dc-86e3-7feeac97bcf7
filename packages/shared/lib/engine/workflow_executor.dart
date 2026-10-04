@@ -6,6 +6,8 @@ import 'package:nyxx/nyxx.dart';
 import 'package:nyxx_lavalink/nyxx_lavalink.dart';
 import 'package:bot_creator_shared/bot/bot_data_store.dart';
 import 'package:bot_creator_shared/actions/handler.dart';
+import 'package:bot_creator_shared/engine/bdfd/visual/action_execution.dart'
+    show VisualAcknowledgement;
 import 'package:bot_creator_shared/actions/interaction_response.dart';
 import 'package:bot_creator_shared/services/lavalink_service.dart';
 import 'package:bot_creator_shared/types/action.dart';
@@ -43,6 +45,10 @@ class WorkflowExecutor {
     Snowflake? fallbackGuildId,
     String? replayLabel,
     BdfdContext? bdfdContext,
+
+    /// Acknowledgement of the interaction by the root list (the native runner
+    /// decides, see `VisualAcknowledgement`).
+    VisualAcknowledgement? acknowledgement,
   }) async {
     callbacks.onDebugLog?.call(
       'executeActions started with ${actions.length} actions',
@@ -77,6 +83,7 @@ class WorkflowExecutor {
         executionBudget: bdfdContext?.budget,
         workflowStack: bdfdContext?.activeWorkflows,
         throwOnError: bdfdContext != null,
+        acknowledgement: acknowledgement,
         lavalinkService: lavalinkService,
         resolveTemplate: (input) {
           _populateLavalinkVariables(
@@ -183,63 +190,34 @@ class WorkflowExecutor {
       botId: botId,
     );
 
-    // Defer if needed
-    var isEphemeral =
-        workflow['visibility']?.toString().toLowerCase() == 'ephemeral';
-    // If any respondWithMessage action has ephemeral:true, the initial
-    // defer must also be ephemeral — Discord does not allow changing
-    // ephemerality on updateOriginalResponse after a non-ephemeral defer.
-    if (!isEphemeral) {
-      isEphemeral = actions.any(
-        (a) =>
-            a.type == BotCreatorActionType.respondWithMessage &&
-            a.payload['ephemeral'] == true,
-      );
-    }
-    // If a deferInteraction action was injected by CommandMigration, skip the
-    // legacy auto-defer so we don't double-acknowledge the interaction.
-    final hasDeferAction = actions.any(
-      (a) => a.type == BotCreatorActionType.deferInteraction,
-    );
-    // If a respondWithModal action is present, skip the auto-defer entirely
-    // — Discord requires modals to be the FIRST response to an interaction.
-    // Deferring first would make the modal respond fail silently.
-    final hasModalAction = actions.any(
-      (a) => a.type == BotCreatorActionType.respondWithModal,
-    );
-    final shouldDefer =
-        !hasDeferAction &&
-        !hasModalAction &&
-        actions.isNotEmpty &&
-        workflow['autoDeferIfActions'] != false;
-    var didDefer = false;
+    // Visibility of the response: the workflow's, or an ephemeral
+    // respondWithMessage (Discord does not allow changing it after a defer).
+    final isEphemeral =
+        workflow['visibility']?.toString().toLowerCase() == 'ephemeral' ||
+        actions.any(
+          (a) =>
+              a.type == BotCreatorActionType.respondWithMessage &&
+              a.payload['ephemeral'] == true,
+        );
 
-    if (shouldDefer) {
-      callbacks.onDebugLog?.call(
-        'Attempting to defer interaction',
-        botId: botId,
-      );
-      try {
+    // The runner acknowledges (defers) before the first action unless the list
+    // acknowledges itself (deferInteraction), opens a modal (it must be the
+    // first response) or the workflow disables it; the deferral is ephemeral
+    // when the workflow is or a respondWithMessage of the list is.
+    final acknowledgement = VisualAcknowledgement(
+      enabled: workflow['autoDeferIfActions'] != false,
+      ephemeral:
+          workflow['visibility']?.toString().toLowerCase() == 'ephemeral',
+      onLog: (message) => callbacks.onDebugLog?.call(message, botId: botId),
+      acknowledge: ({required bool ephemeral}) async {
         if (interaction is MessageResponse) {
-          await interaction.acknowledge(isEphemeral: isEphemeral);
+          await interaction.acknowledge(isEphemeral: ephemeral);
         } else {
-          await (interaction as dynamic).acknowledge(isEphemeral: isEphemeral);
+          await (interaction as dynamic).acknowledge(isEphemeral: ephemeral);
         }
         markInteractionAcknowledged(interaction);
-        // Fix 3: only set didDefer on success
-        didDefer = true;
-        callbacks.onDebugLog?.call(
-          'Interaction acknowledged successfully',
-          botId: botId,
-        );
-      } catch (e) {
-        callbacks.onDebugLog?.call(
-          'Failed to acknowledge interaction: $e',
-          botId: botId,
-        );
-        // didDefer remains false, correct fallback in sendWorkflowResponse
-      }
-    }
+      },
+    );
 
     if (actions.isNotEmpty) {
       callbacks.onDebugLog?.call(
@@ -252,6 +230,7 @@ class WorkflowExecutor {
         gateway: gateway,
         botId: botId,
         runtimeVariables: runtimeVariables,
+        acknowledgement: acknowledgement,
         replayLabel: workflowName.isNotEmpty
             ? workflowName
             : (interaction is ApplicationCommandInteraction
@@ -273,7 +252,7 @@ class WorkflowExecutor {
       response: response,
       runtimeVariables: runtimeVariables,
       botId: botId,
-      didDefer: didDefer,
+      didDefer: acknowledgement.didDefer,
       isEphemeral: isEphemeral,
       onLog: (msg, {required botId}) async =>
           callbacks.onLog?.call(msg, botId: botId),

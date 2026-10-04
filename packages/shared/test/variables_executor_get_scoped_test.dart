@@ -1,11 +1,11 @@
-import 'package:bot_creator_shared/actions/executors/variables_executor.dart';
+import 'package:bot_creator_shared/engine/bdfd/visual/variable_logic.dart';
 import 'package:bot_creator_shared/types/action.dart';
 import 'package:test/test.dart';
 
 import 'helpers/variables_test_helpers.dart';
 
 void main() {
-  group('executeVariablesAction - get scoped variable', () {
+  group('executeVariableAction - get scoped variable', () {
     test(
       'getScopedVariable resolves user scope from fallback runtime identity keys',
       () async {
@@ -22,7 +22,7 @@ void main() {
           'interaction.user.id': 'user-42',
         };
 
-        final handled = await executeVariablesAction(
+        final handled = await executeVariableAction(
           type: BotCreatorActionType.getScopedVariable,
           store: store,
           botId: 'bot-1',
@@ -58,7 +58,7 @@ void main() {
         final results = <String, String>{};
         final variables = <String, String>{'userId': 'user-99'};
 
-        final handled = await executeVariablesAction(
+        final handled = await executeVariableAction(
           type: BotCreatorActionType.getScopedVariable,
           store: store,
           botId: 'bot-1',
@@ -97,7 +97,7 @@ void main() {
         final results = <String, String>{};
         final variables = <String, String>{'userId': 'user-100'};
 
-        final handled = await executeVariablesAction(
+        final handled = await executeVariableAction(
           type: BotCreatorActionType.getScopedVariable,
           store: store,
           botId: 'bot-1',
@@ -134,7 +134,7 @@ void main() {
         final results = <String, String>{};
         final variables = <String, String>{'userId': 'user-100'};
 
-        final handled = await executeVariablesAction(
+        final handled = await executeVariableAction(
           type: BotCreatorActionType.getScopedVariable,
           store: store,
           botId: 'bot-1',
@@ -181,7 +181,7 @@ void main() {
         final resultsA = <String, String>{};
         final variablesA = <String, String>{'userId': 'user-1'};
 
-        final handledA = await executeVariablesAction(
+        final handledA = await executeVariableAction(
           type: BotCreatorActionType.getScopedVariable,
           store: store,
           botId: 'bot-1',
@@ -203,7 +203,7 @@ void main() {
         final resultsB = <String, String>{};
         final variablesB = <String, String>{'userId': 'user-2'};
 
-        final handledB = await executeVariablesAction(
+        final handledB = await executeVariableAction(
           type: BotCreatorActionType.getScopedVariable,
           store: store,
           botId: 'bot-1',

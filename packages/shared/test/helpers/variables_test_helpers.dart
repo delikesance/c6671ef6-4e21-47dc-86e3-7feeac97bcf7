@@ -1,5 +1,5 @@
 import 'package:bot_creator_shared/actions/executors/control_flow_executor.dart';
-import 'package:bot_creator_shared/actions/executors/variables_executor.dart';
+import 'package:bot_creator_shared/engine/bdfd/visual/variable_logic.dart';
 import 'package:bot_creator_shared/bot/bot_data_store.dart';
 import 'package:bot_creator_shared/types/action.dart';
 import 'package:bot_creator_shared/utils/template_resolver.dart';
@@ -34,7 +34,7 @@ Future<Map<String, String>> executeCompiledActions({
       );
     }
 
-    final handledVariable = await executeVariablesAction(
+    final handledVariable = await executeVariableAction(
       type: action.type,
       store: store,
       botId: 'bot-1',

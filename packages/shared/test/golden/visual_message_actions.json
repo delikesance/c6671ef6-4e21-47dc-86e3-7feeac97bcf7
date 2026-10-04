@@ -1,0 +1,1692 @@
+{
+ "addReaction parity a Discord failure on the second emoji aggregates #0": {
+  "writes": [
+   {
+    "operation": "react",
+    "channel": "30",
+    "message": "40",
+    "emoji": "👍:null"
+   },
+   {
+    "operation": "react",
+    "channel": "30",
+    "message": "40",
+    "emoji": "🔥:null"
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to add some reactions: 👍: Failed to add reaction: Bad state: rate limited",
+   "error.command": "addReaction",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to add some reactions: 👍: Failed to add reaction: Bad state: rate limited"
+ },
+ "addReaction parity adds one emoji and a list, custom emoji escaping cleaned #0": {
+  "writes": [
+   {
+    "operation": "react",
+    "channel": "30",
+    "message": "40",
+    "emoji": "👍:null"
+   },
+   {
+    "operation": "react",
+    "channel": "30",
+    "message": "40",
+    "emoji": "party:123"
+   },
+   {
+    "operation": "react",
+    "channel": "30",
+    "message": "40",
+    "emoji": "🎉:null"
+   },
+   {
+    "operation": "react",
+    "channel": "30",
+    "message": "40",
+    "emoji": "🔥:null"
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "one": "OK",
+   "many": "OK"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "addReaction parity error modes continue, skip and jump behave like the loop #0": {
+  "writes": [
+   {
+    "operation": "react",
+    "channel": "30",
+    "message": "40",
+    "emoji": "1:null"
+   },
+   {
+    "operation": "react",
+    "channel": "30",
+    "message": "41",
+    "emoji": "2:null"
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "action_0": "Error: Exception: Failed to add reaction: Bad state: Unknown message 999",
+   "skipped": "OK",
+   "end": "OK"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to add reaction: Bad state: Unknown message 999",
+   "error.command": "addReaction",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": null
+ },
+ "addReaction parity error modes continue, skip and jump behave like the loop #1": {
+  "writes": [
+   {
+    "operation": "react",
+    "channel": "30",
+    "message": "41",
+    "emoji": "2:null"
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "action_0": "Error: Exception: Failed to add reaction: Bad state: Unknown message 999",
+   "end": "OK"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to add reaction: Bad state: Unknown message 999",
+   "error.command": "addReaction",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": null
+ },
+ "addReaction parity error modes continue, skip and jump behave like the loop #2": {
+  "writes": [
+   {
+    "operation": "react",
+    "channel": "30",
+    "message": "41",
+    "emoji": "2:null"
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "action_0": "Error: Exception: Failed to add reaction: Bad state: Unknown message 999",
+   "end": "OK"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to add reaction: Bad state: Unknown message 999",
+   "error.command": "addReaction",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": null
+ },
+ "addReaction parity errors: missing ids, bad emoji, unknown message, partial failure #0": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Missing channelId/messageId",
+   "error.command": "addReaction",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing channelId/messageId"
+ },
+ "addReaction parity errors: missing ids, bad emoji, unknown message, partial failure #1": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Missing channelId/messageId",
+   "error.command": "addReaction",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing channelId/messageId"
+ },
+ "addReaction parity errors: missing ids, bad emoji, unknown message, partial failure #2": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Invalid emoji format",
+   "error.command": "addReaction",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Invalid emoji format"
+ },
+ "addReaction parity errors: missing ids, bad emoji, unknown message, partial failure #3": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Channel is not a text channel",
+   "error.command": "addReaction",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Channel is not a text channel"
+ },
+ "addReaction parity errors: missing ids, bad emoji, unknown message, partial failure #4": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to add reaction: Bad state: Unknown message 999",
+   "error.command": "addReaction",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to add reaction: Bad state: Unknown message 999"
+ },
+ "addReaction parity inside an ifBlock the block is native too #0": {
+  "writes": [
+   {
+    "operation": "react",
+    "channel": "30",
+    "message": "40",
+    "emoji": "👍:null"
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "cond": "IF_TRUE",
+   "cond.r": "OK"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "x": "1"
+  },
+  "error": null
+ },
+ "addReaction parity permission pre-check #0": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: I do not have permission to add reactions. Missing: Add Reactions, Read Message History.",
+   "error.command": "addReaction",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: I do not have permission to add reactions. Missing: Add Reactions, Read Message History."
+ },
+ "addReaction parity templates, fallback channel and result placeholders #0": {
+  "writes": [
+   {
+    "operation": "react",
+    "channel": "30",
+    "message": "41",
+    "emoji": "❤:null"
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "r": "OK"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "msg": "41",
+   "e": "❤"
+  },
+  "error": null
+ },
+ "clearAllReactions parity clears everything, or one emoji #0": {
+  "writes": [
+   {
+    "operation": "deleteAllReactions",
+    "channel": "30",
+    "message": "40"
+   },
+   {
+    "operation": "deleteAllReactions",
+    "channel": "30",
+    "message": "40"
+   },
+   {
+    "operation": "deleteReaction",
+    "channel": "30",
+    "message": "40",
+    "emoji": "🔥:null",
+    "user": "null"
+   },
+   {
+    "operation": "deleteReaction",
+    "channel": "30",
+    "message": "40",
+    "emoji": "x:7",
+    "user": "null"
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "a": "OK",
+   "b": "OK",
+   "c": "OK",
+   "d": "OK"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "clearAllReactions parity errors and permission #0": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Missing channelId/messageId",
+   "error.command": "clearAllReactions",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing channelId/messageId"
+ },
+ "clearAllReactions parity errors and permission #1": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Channel is not a text channel",
+   "error.command": "clearAllReactions",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Channel is not a text channel"
+ },
+ "clearAllReactions parity errors and permission #2": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to clear reactions: Bad state: Unknown message 123",
+   "error.command": "clearAllReactions",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to clear reactions: Bad state: Unknown message 123"
+ },
+ "clearAllReactions parity errors and permission #3": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: I do not have permission to clear reactions. Missing: Manage Messages.",
+   "error.command": "clearAllReactions",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: I do not have permission to clear reactions. Missing: Manage Messages."
+ },
+ "deleteMessages parity delayed deletion is scheduled #0": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "d": "scheduled"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "action.d.status": "scheduled"
+  },
+  "error": null
+ },
+ "deleteMessages parity errors #0": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Missing or invalid channelId for deleteMessages",
+   "error.command": "deleteMessages",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing or invalid channelId for deleteMessages"
+ },
+ "deleteMessages parity errors #1": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: $clear amount must be between 1 and 100",
+   "error.command": "deleteMessages",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: $clear amount must be between 1 and 100"
+ },
+ "deleteMessages parity errors #2": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: $clear amount must be between 1 and 100",
+   "error.command": "deleteMessages",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: $clear amount must be between 1 and 100"
+ },
+ "deleteMessages parity errors #3": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: [invalid_channel_type] Channel is not a text channel",
+   "error.command": "deleteMessages",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: [invalid_channel_type] Channel is not a text channel"
+ },
+ "deleteMessages parity errors #4": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: [invalid_count] Count must be greater than 0",
+   "error.command": "deleteMessages",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: [invalid_count] Count must be greater than 0"
+ },
+ "deleteMessages parity errors #5": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: I do not have permission to delete messages. Missing: Manage Messages, Read Message History.",
+   "error.command": "deleteMessages",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: I do not have permission to delete messages. Missing: Manage Messages, Read Message History."
+ },
+ "deleteMessages parity mirrors count and mode into variables #0": {
+  "writes": [
+   {
+    "operation": "bulkDelete",
+    "channel": "30",
+    "ids": [
+     "43",
+     "42",
+     "41"
+    ]
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "d": "3"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "action.d.count": "3",
+   "d.count": "3",
+   "action.d.mode": "bulk",
+   "d.mode": "bulk",
+   "action.d.deleteItself": "true",
+   "d.deleteItself": "true",
+   "action.d.deleteResponse": "true",
+   "d.deleteResponse": "true",
+   "lastSentMessageId": "3",
+   "lastMessageId": "3"
+  },
+  "error": null
+ },
+ "deleteMessages parity single message, bulk count, filters and flags #0": {
+  "writes": [
+   {
+    "operation": "delete",
+    "channel": "30",
+    "message": "40"
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "d": "1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "n": "2",
+   "action.d.count": "1",
+   "d.count": "1",
+   "action.d.mode": "single",
+   "d.mode": "single",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "deleteMessages parity single message, bulk count, filters and flags #1": {
+  "writes": [
+   {
+    "operation": "bulkDelete",
+    "channel": "30",
+    "ids": [
+     "43",
+     "42",
+     "41"
+    ]
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "d": "3"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "n": "2",
+   "action.d.count": "3",
+   "d.count": "3",
+   "action.d.mode": "bulk",
+   "d.mode": "bulk",
+   "lastSentMessageId": "3",
+   "lastMessageId": "3"
+  },
+  "error": null
+ },
+ "deleteMessages parity single message, bulk count, filters and flags #10": {
+  "writes": [
+   {
+    "operation": "bulkDelete",
+    "channel": "30",
+    "ids": [
+     "43",
+     "42"
+    ]
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "d": "2"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "n": "2",
+   "action.d.count": "2",
+   "d.count": "2",
+   "action.d.mode": "bulk",
+   "d.mode": "bulk",
+   "lastSentMessageId": "2",
+   "lastMessageId": "2"
+  },
+  "error": null
+ },
+ "deleteMessages parity single message, bulk count, filters and flags #2": {
+  "writes": [
+   {
+    "operation": "bulkDelete",
+    "channel": "30",
+    "ids": [
+     "43",
+     "42"
+    ]
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "d": "2"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "n": "2",
+   "action.d.count": "2",
+   "d.count": "2",
+   "action.d.mode": "bulk",
+   "d.mode": "bulk",
+   "lastSentMessageId": "2",
+   "lastMessageId": "2"
+  },
+  "error": null
+ },
+ "deleteMessages parity single message, bulk count, filters and flags #3": {
+  "writes": [
+   {
+    "operation": "delete",
+    "channel": "30",
+    "message": "41"
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "d": "1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "n": "2",
+   "action.d.count": "1",
+   "d.count": "1",
+   "action.d.mode": "mixed",
+   "d.mode": "mixed",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "deleteMessages parity single message, bulk count, filters and flags #4": {
+  "writes": [
+   {
+    "operation": "bulkDelete",
+    "channel": "30",
+    "ids": [
+     "43",
+     "42",
+     "40"
+    ]
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "d": "3"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "n": "2",
+   "action.d.count": "3",
+   "d.count": "3",
+   "action.d.mode": "bulk",
+   "d.mode": "bulk",
+   "lastSentMessageId": "3",
+   "lastMessageId": "3"
+  },
+  "error": null
+ },
+ "deleteMessages parity single message, bulk count, filters and flags #5": {
+  "writes": [
+   {
+    "operation": "bulkDelete",
+    "channel": "30",
+    "ids": [
+     "43",
+     "41",
+     "40"
+    ]
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "d": "3"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "n": "2",
+   "action.d.count": "3",
+   "d.count": "3",
+   "action.d.mode": "bulk",
+   "d.mode": "bulk",
+   "lastSentMessageId": "3",
+   "lastMessageId": "3"
+  },
+  "error": null
+ },
+ "deleteMessages parity single message, bulk count, filters and flags #6": {
+  "writes": [
+   {
+    "operation": "bulkDelete",
+    "channel": "30",
+    "ids": [
+     "42",
+     "41"
+    ]
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "d": "2"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "n": "2",
+   "action.d.count": "2",
+   "d.count": "2",
+   "action.d.mode": "bulk",
+   "d.mode": "bulk",
+   "lastSentMessageId": "2",
+   "lastMessageId": "2"
+  },
+  "error": null
+ },
+ "deleteMessages parity single message, bulk count, filters and flags #7": {
+  "writes": [
+   {
+    "operation": "bulkDelete",
+    "channel": "30",
+    "ids": [
+     "42",
+     "41",
+     "43"
+    ]
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "d": "3"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "n": "2",
+   "action.d.count": "3",
+   "d.count": "3",
+   "action.d.mode": "bulk",
+   "d.mode": "bulk",
+   "action.d.deleteItself": "true",
+   "d.deleteItself": "true",
+   "action.d.deleteResponse": "true",
+   "d.deleteResponse": "true",
+   "lastSentMessageId": "3",
+   "lastMessageId": "3"
+  },
+  "error": null
+ },
+ "deleteMessages parity single message, bulk count, filters and flags #8": {
+  "writes": [
+   {
+    "operation": "bulkDelete",
+    "channel": "30",
+    "ids": [
+     "43",
+     "42"
+    ]
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "d": "2"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "n": "2",
+   "action.d.count": "2",
+   "d.count": "2",
+   "action.d.mode": "bulk",
+   "d.mode": "bulk",
+   "lastSentMessageId": "2",
+   "lastMessageId": "2"
+  },
+  "error": null
+ },
+ "deleteMessages parity single message, bulk count, filters and flags #9": {
+  "writes": [
+   {
+    "operation": "bulkDelete",
+    "channel": "30",
+    "ids": [
+     "43",
+     "42"
+    ]
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "d": "2"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "n": "2",
+   "action.d.count": "2",
+   "d.count": "2",
+   "action.d.mode": "bulk",
+   "d.mode": "bulk",
+   "lastSentMessageId": "2",
+   "lastMessageId": "2"
+  },
+  "error": null
+ },
+ "deleteTrigger parity NOT_FOUND, INVALID_CHANNEL and swallowed failures #0": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "t": "NOT_FOUND"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "deleteTrigger parity NOT_FOUND, INVALID_CHANNEL and swallowed failures #1": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "t": "INVALID_CHANNEL"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "message.id": "40",
+   "channel.id": "31"
+  },
+  "error": null
+ },
+ "deleteTrigger parity NOT_FOUND, INVALID_CHANNEL and swallowed failures #2": {
+  "writes": [
+   {
+    "operation": "delete",
+    "channel": "30",
+    "message": "999"
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "t": "999"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "message.id": "999",
+   "channel.id": "30",
+   "lastSentMessageId": "999",
+   "lastMessageId": "999"
+  },
+  "error": null
+ },
+ "deleteTrigger parity NOT_FOUND, INVALID_CHANNEL and swallowed failures #3": {
+  "writes": [
+   {
+    "operation": "delete",
+    "channel": "30",
+    "message": "40"
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "t": "40"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "messageId": "40",
+   "lastSentMessageId": "40",
+   "lastMessageId": "40"
+  },
+  "error": null
+ },
+ "deleteTrigger parity deletes the trigger message #0": {
+  "writes": [
+   {
+    "operation": "delete",
+    "channel": "30",
+    "message": "40"
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "t": "40"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "message.id": "40",
+   "channel.id": "30",
+   "lastSentMessageId": "40",
+   "lastMessageId": "40"
+  },
+  "error": null
+ },
+ "getMessage parity placeholders and errors #0": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "m": "40"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "id": "40",
+   "m.messageId": "40",
+   "m.content": "message 40",
+   "m.authorId": "20",
+   "m.authorUsername": "author",
+   "m.timestamp": "<timestamp>",
+   "lastSentMessageId": "40",
+   "lastMessageId": "40"
+  },
+  "error": null
+ },
+ "getMessage parity placeholders and errors #1": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: channelId is required for getMessage",
+   "error.command": "getMessage",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: channelId is required for getMessage"
+ },
+ "getMessage parity placeholders and errors #2": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: messageId is required for getMessage",
+   "error.command": "getMessage",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: messageId is required for getMessage"
+ },
+ "getMessage parity placeholders and errors #3": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Channel is not a text channel",
+   "error.command": "getMessage",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Channel is not a text channel"
+ },
+ "getMessage parity placeholders and errors #4": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to get message: Bad state: Unknown message 999",
+   "error.command": "getMessage",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to get message: Bad state: Unknown message 999"
+ },
+ "getMessage parity stores every field #0": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "m": "41"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "m.messageId": "41",
+   "m.content": "message 41",
+   "m.authorId": "500",
+   "m.authorUsername": "author",
+   "m.timestamp": "<timestamp>",
+   "lastSentMessageId": "41",
+   "lastMessageId": "41"
+  },
+  "error": null
+ },
+ "lot a mixed with control flow suppressErrors swallows a failing reaction natively #0": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "cond": "IF_TRUE"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "x": "1"
+  },
+  "error": null
+ },
+ "lot a mixed with control flow try/catch exposes the error text #0": {
+  "writes": [
+   {
+    "operation": "react",
+    "channel": "30",
+    "message": "40",
+    "emoji": "Exception: Failed to pin message: Bad state: Unknown message 999:null"
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "try": "TRY_CAUGHT",
+   "try.r": "OK"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "pinMessage / unpinMessage parity errors and permissions #0": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Missing channelId/messageId",
+   "error.command": "pinMessage",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing channelId/messageId"
+ },
+ "pinMessage / unpinMessage parity errors and permissions #1": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Missing channelId/messageId",
+   "error.command": "pinMessage",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing channelId/messageId"
+ },
+ "pinMessage / unpinMessage parity errors and permissions #2": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Channel is not a text channel",
+   "error.command": "pinMessage",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Channel is not a text channel"
+ },
+ "pinMessage / unpinMessage parity errors and permissions #3": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: I do not have permission to pin messages. Missing: Manage Messages.",
+   "error.command": "pinMessage",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: I do not have permission to pin messages. Missing: Manage Messages."
+ },
+ "pinMessage / unpinMessage parity errors and permissions #4": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: messageId is required for unpinMessage",
+   "error.command": "unpinMessage",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: messageId is required for unpinMessage"
+ },
+ "pinMessage / unpinMessage parity errors and permissions #5": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: channelId is required for unpinMessage",
+   "error.command": "unpinMessage",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: channelId is required for unpinMessage"
+ },
+ "pinMessage / unpinMessage parity errors and permissions #6": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Channel is not a text channel",
+   "error.command": "unpinMessage",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Channel is not a text channel"
+ },
+ "pinMessage / unpinMessage parity errors and permissions #7": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: I do not have permission to unpin messages. Missing: Manage Messages.",
+   "error.command": "unpinMessage",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: I do not have permission to unpin messages. Missing: Manage Messages."
+ },
+ "pinMessage / unpinMessage parity nested in a loop the block is native #0": {
+  "writes": [
+   {
+    "operation": "pin",
+    "channel": "30",
+    "message": "40",
+    "reason": "Pin via BotCreator action"
+   },
+   {
+    "operation": "pin",
+    "channel": "30",
+    "message": "40",
+    "reason": "Pin via BotCreator action"
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "loop.iter0.p": "40",
+   "loop.iter1.p": "40",
+   "loop": "LOOP_2"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "pinMessage / unpinMessage parity pin and unpin with and without a reason #0": {
+  "writes": [
+   {
+    "operation": "pin",
+    "channel": "30",
+    "message": "40",
+    "reason": "Pin via BotCreator action"
+   },
+   {
+    "operation": "pin",
+    "channel": "30",
+    "message": "41",
+    "reason": "why"
+   },
+   {
+    "operation": "unpin",
+    "channel": "30",
+    "message": "42",
+    "reason": null
+   },
+   {
+    "operation": "unpin",
+    "channel": "30",
+    "message": "43",
+    "reason": "bye"
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "p1": "40",
+   "p2": "41",
+   "u1": "unpinned",
+   "u2": "unpinned"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "pinMessage / unpinMessage parity the loop fallback channel differs: pin raw, unpin resolved #0": {
+  "writes": [
+   {
+    "operation": "pin",
+    "channel": "30",
+    "message": "40",
+    "reason": "Pin via BotCreator action"
+   },
+   {
+    "operation": "unpin",
+    "channel": "30",
+    "message": "42",
+    "reason": null
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "p": "40",
+   "u": "unpinned"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "pinMessage / unpinMessage parity with an interaction channel only unpin finds it #0": {
+  "writes": [],
+  "interaction": [],
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Missing channelId/messageId",
+   "error.command": "pinMessage",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing channelId/messageId"
+ },
+ "pinMessage / unpinMessage parity with an interaction channel only unpin finds it #1": {
+  "writes": [],
+  "interaction": [],
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: channelId is required for unpinMessage",
+   "error.command": "unpinMessage",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: channelId is required for unpinMessage"
+ },
+ "removeReaction parity does not run the guild permission pre-check #0": {
+  "writes": [
+   {
+    "operation": "deleteReaction",
+    "channel": "30",
+    "message": "40",
+    "emoji": "👍:null",
+    "user": "null"
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "action_0": "OK"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "removeReaction parity errors #0": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Missing channelId/messageId",
+   "error.command": "removeReaction",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing channelId/messageId"
+ },
+ "removeReaction parity errors #1": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Invalid emoji format",
+   "error.command": "removeReaction",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Invalid emoji format"
+ },
+ "removeReaction parity errors #2": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Channel is not a text channel",
+   "error.command": "removeReaction",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Channel is not a text channel"
+ },
+ "removeReaction parity errors #3": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: Failed to remove reaction: Bad state: Unknown message 123",
+   "error.command": "removeReaction",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Failed to remove reaction: Bad state: Unknown message 123"
+ },
+ "removeReaction parity removes a reaction of a user, of anybody, or the bot own #0": {
+  "writes": [
+   {
+    "operation": "deleteReaction",
+    "channel": "30",
+    "message": "40",
+    "emoji": "👍:null",
+    "user": "20"
+   },
+   {
+    "operation": "deleteReaction",
+    "channel": "30",
+    "message": "40",
+    "emoji": "wave:99",
+    "user": "null"
+   },
+   {
+    "operation": "deleteOwnReaction",
+    "channel": "30",
+    "message": "40",
+    "emoji": "🔥:null"
+   },
+   {
+    "operation": "deleteReaction",
+    "channel": "30",
+    "message": "40",
+    "emoji": "🔥:null",
+    "user": "20"
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "u": "OK",
+   "all": "OK",
+   "own": "OK",
+   "both": "OK"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ }
+}

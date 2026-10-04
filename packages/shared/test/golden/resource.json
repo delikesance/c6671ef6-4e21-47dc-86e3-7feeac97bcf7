@@ -1,0 +1,1080 @@
+{
+  "sendWebhook by id+token, by url, with templates#0": {
+    "effects": [
+      {
+        "operation": "executeWebhook",
+        "id": "70",
+        "token": "tok",
+        "wait": true,
+        "thread": "null",
+        "username": "Bot",
+        "avatar": null,
+        "payload": {
+          "content": "hello world",
+          "embeds": [
+            {
+              "title": "T",
+              "description": "D",
+              "color": 16711680
+            }
+          ]
+        }
+      },
+      {
+        "operation": "executeWebhook",
+        "id": "71",
+        "token": "tok2",
+        "wait": false,
+        "thread": "30",
+        "username": null,
+        "avatar": null,
+        "payload": {
+          "content": "x"
+        }
+      }
+    ],
+    "results": {
+      "a": "70",
+      "b": "71"
+    },
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "who": "world",
+      "lastSentMessageId": "71",
+      "lastMessageId": "71"
+    },
+    "error": null
+  },
+  "sendWebhook errors#0": {
+    "effects": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: Missing webhookId/token (or webhookUrl)",
+      "error.command": "sendWebhook",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_Exception: Exception: Missing webhookId/token (or webhookUrl)"
+  },
+  "sendWebhook errors#1": {
+    "effects": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: Missing webhookId/token (or webhookUrl)",
+      "error.command": "sendWebhook",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_Exception: Exception: Missing webhookId/token (or webhookUrl)"
+  },
+  "editWebhook, deleteWebhook and getWebhook#0": {
+    "effects": [
+      {
+        "operation": "updateWebhook",
+        "id": "70",
+        "payload": {
+          "name": "renamed",
+          "channel_id": "30"
+        },
+        "token": "tok",
+        "reason": "because"
+      },
+      {
+        "operation": "fetchWebhook",
+        "id": "70",
+        "token": "tok"
+      },
+      {
+        "operation": "deleteWebhook",
+        "id": "70",
+        "token": null,
+        "reason": "bye"
+      }
+    ],
+    "results": {
+      "edit": "https://discord.com/api/webhooks/70/tok",
+      "get": "{\"id\":\"70\",\"name\":\"hook\",\"channelId\":\"30\",\"guildId\":\"10\",\"type\":1,\"url\":\"https://discord.com/api/webhooks/70/tok\",\"hasToken\":true}",
+      "del": "70"
+    },
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "id": "70",
+      "lastSentMessageId": "70",
+      "lastMessageId": "70"
+    },
+    "error": null
+  },
+  "listWebhooks by channel, by guild and with the fallback channel#0": {
+    "effects": [
+      {
+        "operation": "channelWebhooks",
+        "channel": "30"
+      },
+      {
+        "operation": "guildWebhooks",
+        "guild": "10"
+      },
+      {
+        "operation": "guildWebhooks",
+        "guild": "10"
+      }
+    ],
+    "results": {
+      "c": "[{\"id\":\"70\",\"name\":\"hook\",\"channelId\":\"30\",\"guildId\":\"10\",\"type\":1,\"url\":\"https://discord.com/api/webhooks/70/tok\",\"hasToken\":true}]",
+      "g": "[{\"id\":\"70\",\"name\":\"hook\",\"channelId\":\"30\",\"guildId\":\"10\",\"type\":1,\"url\":\"https://discord.com/api/webhooks/70/tok\",\"hasToken\":true}]",
+      "h": "[{\"id\":\"70\",\"name\":\"hook\",\"channelId\":\"30\",\"guildId\":\"10\",\"type\":1,\"url\":\"https://discord.com/api/webhooks/70/tok\",\"hasToken\":true}]"
+    },
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500"
+    },
+    "error": null
+  },
+  "listWebhooks by channel, by guild and with the fallback channel#1": {
+    "effects": [
+      {
+        "operation": "channelWebhooks",
+        "channel": "30"
+      }
+    ],
+    "results": {
+      "f": "[{\"id\":\"70\",\"name\":\"hook\",\"channelId\":\"30\",\"guildId\":\"10\",\"type\":1,\"url\":\"https://discord.com/api/webhooks/70/tok\",\"hasToken\":true}]"
+    },
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500"
+    },
+    "error": null
+  },
+  "listWebhooks by channel, by guild and with the fallback channel#2": {
+    "effects": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: Missing channelId/guildId",
+      "error.command": "listWebhooks",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_Exception: Exception: Missing channelId/guildId"
+  },
+  "permission pre-check of listWebhooks#0": {
+    "effects": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: I do not have permission to list webhooks. Missing: Manage Webhooks.",
+      "error.command": "listWebhooks",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_Exception: Exception: I do not have permission to list webhooks. Missing: Manage Webhooks."
+  },
+  "failures: unknown webhook, missing ids#0": {
+    "effects": [
+      {
+        "operation": "fetchWebhook",
+        "id": "999",
+        "token": null
+      }
+    ],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: Failed to get webhook: Bad state: Unknown webhook 999",
+      "error.command": "getWebhook",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_Exception: Exception: Failed to get webhook: Bad state: Unknown webhook 999"
+  },
+  "failures: unknown webhook, missing ids#1": {
+    "effects": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: Missing webhookId (or webhookUrl)",
+      "error.command": "getWebhook",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_Exception: Exception: Missing webhookId (or webhookUrl)"
+  },
+  "failures: unknown webhook, missing ids#2": {
+    "effects": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: Missing webhookId (or webhookUrl)",
+      "error.command": "editWebhook",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_Exception: Exception: Missing webhookId (or webhookUrl)"
+  },
+  "failures: unknown webhook, missing ids#3": {
+    "effects": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: Missing webhookId (or webhookUrl)",
+      "error.command": "deleteWebhook",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_Exception: Exception: Missing webhookId (or webhookUrl)"
+  },
+  "failures: unknown webhook, missing ids#4": {
+    "effects": [
+      {
+        "operation": "deleteWebhook",
+        "id": "70",
+        "token": null,
+        "reason": null
+      }
+    ],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: Failed to delete webhook: Bad state: denied",
+      "error.command": "deleteWebhook",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_Exception: Exception: Failed to delete webhook: Bad state: denied"
+  },
+  "error modes behave like the loop#0": {
+    "effects": [
+      {
+        "operation": "fetchWebhook",
+        "id": "999",
+        "token": null
+      },
+      {
+        "operation": "fetchWebhook",
+        "id": "70",
+        "token": null
+      },
+      {
+        "operation": "fetchWebhook",
+        "id": "70",
+        "token": null
+      }
+    ],
+    "results": {
+      "action_0": "Error: Exception: Failed to get webhook: Bad state: Unknown webhook 999",
+      "skipped": "{\"id\":\"70\",\"name\":\"hook\",\"channelId\":\"30\",\"guildId\":\"10\",\"type\":1,\"url\":\"https://discord.com/api/webhooks/70/tok\",\"hasToken\":true}",
+      "end": "{\"id\":\"70\",\"name\":\"hook\",\"channelId\":\"30\",\"guildId\":\"10\",\"type\":1,\"url\":\"https://discord.com/api/webhooks/70/tok\",\"hasToken\":true}"
+    },
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: Failed to get webhook: Bad state: Unknown webhook 999",
+      "error.command": "getWebhook",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": null
+  },
+  "error modes behave like the loop#1": {
+    "effects": [
+      {
+        "operation": "fetchWebhook",
+        "id": "999",
+        "token": null
+      },
+      {
+        "operation": "fetchWebhook",
+        "id": "70",
+        "token": null
+      }
+    ],
+    "results": {
+      "action_0": "Error: Exception: Failed to get webhook: Bad state: Unknown webhook 999",
+      "end": "{\"id\":\"70\",\"name\":\"hook\",\"channelId\":\"30\",\"guildId\":\"10\",\"type\":1,\"url\":\"https://discord.com/api/webhooks/70/tok\",\"hasToken\":true}"
+    },
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: Failed to get webhook: Bad state: Unknown webhook 999",
+      "error.command": "getWebhook",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": null
+  },
+  "error modes behave like the loop#2": {
+    "effects": [
+      {
+        "operation": "fetchWebhook",
+        "id": "999",
+        "token": null
+      },
+      {
+        "operation": "fetchWebhook",
+        "id": "70",
+        "token": null
+      }
+    ],
+    "results": {
+      "action_0": "Error: Exception: Failed to get webhook: Bad state: Unknown webhook 999",
+      "end": "{\"id\":\"70\",\"name\":\"hook\",\"channelId\":\"30\",\"guildId\":\"10\",\"type\":1,\"url\":\"https://discord.com/api/webhooks/70/tok\",\"hasToken\":true}"
+    },
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: Failed to get webhook: Bad state: Unknown webhook 999",
+      "error.command": "getWebhook",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": null
+  },
+  "inside an ifBlock the block is native too#0": {
+    "effects": [
+      {
+        "operation": "channelWebhooks",
+        "channel": "30"
+      }
+    ],
+    "results": {
+      "cond": "IF_TRUE",
+      "cond.l": "[{\"id\":\"70\",\"name\":\"hook\",\"channelId\":\"30\",\"guildId\":\"10\",\"type\":1,\"url\":\"https://discord.com/api/webhooks/70/tok\",\"hasToken\":true}]"
+    },
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "x": "1"
+    },
+    "error": null
+  },
+  "createEmoji, updateEmoji and deleteEmoji#0": {
+    "effects": [
+      {
+        "operation": "createEmoji",
+        "name": "party",
+        "bytes": 70,
+        "roles": [
+          "64"
+        ],
+        "reason": "new"
+      },
+      {
+        "operation": "updateEmoji",
+        "id": "80",
+        "payload": {
+          "name": "renamed",
+          "roles": [
+            "64",
+            "65"
+          ]
+        },
+        "reason": null
+      },
+      {
+        "operation": "deleteEmoji",
+        "id": "80",
+        "reason": null
+      },
+      {
+        "operation": "deleteEmoji",
+        "id": "80",
+        "reason": null
+      }
+    ],
+    "results": {
+      "c.emojiId": "81",
+      "c.name": "party",
+      "c.animated": "false",
+      "c.status": "created",
+      "c.tag": "<:party:81>",
+      "c": "{\"emojiId\":\"81\",\"name\":\"party\",\"animated\":\"false\",\"status\":\"created\",\"tag\":\"<:party:81>\"}",
+      "u.emojiId": "80",
+      "u.name": "renamed",
+      "u.status": "updated",
+      "u": "{\"emojiId\":\"80\",\"name\":\"renamed\",\"status\":\"updated\"}",
+      "d.emojiId": "80",
+      "d.status": "deleted",
+      "d": "{\"emojiId\":\"80\",\"status\":\"deleted\"}",
+      "dn.emojiId": "80",
+      "dn.status": "deleted",
+      "dn": "{\"emojiId\":\"80\",\"status\":\"deleted\"}"
+    },
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "n": "renamed"
+    },
+    "error": null
+  },
+  "errors: guild, name, image, id, unknown name, permission#0": {
+    "effects": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: name is required for createEmoji",
+      "error.command": "createEmoji",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_Exception: Exception: name is required for createEmoji"
+  },
+  "errors: guild, name, image, id, unknown name, permission#1": {
+    "effects": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: Either imageBase64 or imageUrl must be provided for createEmoji",
+      "error.command": "createEmoji",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_Exception: Exception: Either imageBase64 or imageUrl must be provided for createEmoji"
+  },
+  "errors: guild, name, image, id, unknown name, permission#2": {
+    "effects": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: emojiId is required for updateEmoji",
+      "error.command": "updateEmoji",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_Exception: Exception: emojiId is required for updateEmoji"
+  },
+  "errors: guild, name, image, id, unknown name, permission#3": {
+    "effects": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: emojiId is required for deleteEmoji",
+      "error.command": "deleteEmoji",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_Exception: Exception: emojiId is required for deleteEmoji"
+  },
+  "errors: guild, name, image, id, unknown name, permission#4": {
+    "effects": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: Emoji not found: nope",
+      "error.command": "deleteEmoji",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_Exception: Exception: Emoji not found: nope"
+  },
+  "errors: guild, name, image, id, unknown name, permission#5": {
+    "effects": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: deleteEmoji requires a guild context",
+      "error.command": "deleteEmoji",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_Exception: Exception: deleteEmoji requires a guild context"
+  },
+  "errors: guild, name, image, id, unknown name, permission#6": {
+    "effects": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: I do not have permission to manage emojis. Missing: Manage Expressions.",
+      "error.command": "deleteEmoji",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_Exception: Exception: I do not have permission to manage emojis. Missing: Manage Expressions."
+  },
+  "errors: guild, name, image, id, unknown name, permission#7": {
+    "effects": [
+      {
+        "operation": "deleteEmoji",
+        "id": "80",
+        "reason": null
+      }
+    ],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: Failed to delete emoji: Bad state: rate limited",
+      "error.command": "deleteEmoji",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_Exception: Exception: Failed to delete emoji: Bad state: rate limited"
+  },
+  "error modes behave like the loop@1#0": {
+    "effects": [
+      {
+        "operation": "deleteEmoji",
+        "id": "80",
+        "reason": null
+      },
+      {
+        "operation": "deleteEmoji",
+        "id": "80",
+        "reason": null
+      }
+    ],
+    "results": {
+      "action_0": "Error: Exception: emojiId is required for deleteEmoji",
+      "skipped.emojiId": "80",
+      "skipped.status": "deleted",
+      "skipped": "{\"emojiId\":\"80\",\"status\":\"deleted\"}",
+      "end.emojiId": "80",
+      "end.status": "deleted",
+      "end": "{\"emojiId\":\"80\",\"status\":\"deleted\"}"
+    },
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: emojiId is required for deleteEmoji",
+      "error.command": "deleteEmoji",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": null
+  },
+  "error modes behave like the loop@1#1": {
+    "effects": [
+      {
+        "operation": "deleteEmoji",
+        "id": "80",
+        "reason": null
+      }
+    ],
+    "results": {
+      "action_0": "Error: Exception: emojiId is required for deleteEmoji",
+      "end.emojiId": "80",
+      "end.status": "deleted",
+      "end": "{\"emojiId\":\"80\",\"status\":\"deleted\"}"
+    },
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: emojiId is required for deleteEmoji",
+      "error.command": "deleteEmoji",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": null
+  },
+  "error modes behave like the loop@1#2": {
+    "effects": [
+      {
+        "operation": "deleteEmoji",
+        "id": "80",
+        "reason": null
+      }
+    ],
+    "results": {
+      "action_0": "Error: Exception: emojiId is required for deleteEmoji",
+      "end.emojiId": "80",
+      "end.status": "deleted",
+      "end": "{\"emojiId\":\"80\",\"status\":\"deleted\"}"
+    },
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: emojiId is required for deleteEmoji",
+      "error.command": "deleteEmoji",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": null
+  },
+  "listMembers lists, limits, searches, paginates#0": {
+    "effects": [],
+    "results": {
+      "all": "digest:703:24dd15453c5665d4",
+      "one": "digest:243:2417b8da11f5f659",
+      "after": "digest:461:7761da75bcd00c50",
+      "q": "digest:243:2417b8da11f5f659"
+    },
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "n": "1"
+    },
+    "error": null
+  },
+  "listMembers errors: no guild#0": {
+    "effects": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: Missing guildId",
+      "error.command": "listMembers",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_Exception: Exception: Missing guildId"
+  },
+  "getMember by userId, memberId, template; errors#0": {
+    "effects": [],
+    "results": {
+      "u": "digest:241:77eb06176388b97b",
+      "m": "digest:227:626c9b6f2b6c18af"
+    },
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "m": "222"
+    },
+    "error": null
+  },
+  "getMember by userId, memberId, template; errors#1": {
+    "effects": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: Missing or invalid userId/memberId",
+      "error.command": "getMember",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_Exception: Exception: Missing or invalid userId/memberId"
+  },
+  "getMember by userId, memberId, template; errors#2": {
+    "effects": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: Failed to get member: Instance of 'DiscordEntityNotFound'",
+      "error.command": "getMember",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_Exception: Exception: Failed to get member: Instance of 'DiscordEntityNotFound'"
+  },
+  "error modes behave like the loop@2#0": {
+    "effects": [],
+    "results": {
+      "action_0": "Error: Exception: Missing or invalid userId/memberId",
+      "skipped": "digest:241:77eb06176388b97b",
+      "end": "digest:241:77eb06176388b97b"
+    },
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: Missing or invalid userId/memberId",
+      "error.command": "getMember",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": null
+  },
+  "error modes behave like the loop@2#1": {
+    "effects": [],
+    "results": {
+      "action_0": "Error: Exception: Missing or invalid userId/memberId",
+      "end": "digest:241:77eb06176388b97b"
+    },
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: Missing or invalid userId/memberId",
+      "error.command": "getMember",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": null
+  },
+  "error modes behave like the loop@2#2": {
+    "effects": [],
+    "results": {
+      "action_0": "Error: Exception: Missing or invalid userId/memberId",
+      "end": "digest:241:77eb06176388b97b"
+    },
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: Missing or invalid userId/memberId",
+      "error.command": "getMember",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": null
+  },
+  "createInvite mirrors its fields into variables#0": {
+    "effects": [
+      {
+        "operation": "createInvite",
+        "channel": "30",
+        "payload": {
+          "max_age": 3600,
+          "max_uses": 5,
+          "temporary": true,
+          "unique": true
+        },
+        "reason": "r"
+      },
+      {
+        "operation": "createInvite",
+        "channel": "30",
+        "payload": {
+          "max_age": 86400,
+          "max_uses": 0,
+          "temporary": false,
+          "unique": false
+        },
+        "reason": null
+      }
+    ],
+    "results": {
+      "inv": "newcode",
+      "fallback": "newcode"
+    },
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "inv.inviteCode": "newcode",
+      "inv.invite_url": "https://discord.gg/newcode",
+      "inv.url": "https://discord.gg/newcode",
+      "inv.channelId": "30",
+      "inv.guildId": "10",
+      "fallback.inviteCode": "newcode",
+      "fallback.invite_url": "https://discord.gg/newcode",
+      "fallback.url": "https://discord.gg/newcode",
+      "fallback.channelId": "30",
+      "fallback.guildId": "10"
+    },
+    "error": null
+  },
+  "getInvite and deleteInvite#0": {
+    "effects": [
+      {
+        "operation": "fetchInvite",
+        "code": "abc"
+      },
+      {
+        "operation": "deleteInvite",
+        "code": "abc",
+        "reason": "x"
+      }
+    ],
+    "results": {
+      "g": "abc",
+      "d": "deleted"
+    },
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "c": "abc",
+      "g.inviteCode": "abc",
+      "g.guildId": "10",
+      "g.channelId": "30",
+      "g.expiresAt": "2030-01-02T00:00:00.000Z"
+    },
+    "error": null
+  },
+  "errors: channel, code, permission, discord failure#0": {
+    "effects": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: Missing or invalid channelId for createInvite",
+      "error.command": "createInvite",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_Exception: Exception: Missing or invalid channelId for createInvite"
+  },
+  "errors: channel, code, permission, discord failure#1": {
+    "effects": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: Failed to create invite: Bad state: Sandbox channel write denied",
+      "error.command": "createInvite",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_Exception: Exception: Failed to create invite: Bad state: Sandbox channel write denied"
+  },
+  "errors: channel, code, permission, discord failure#2": {
+    "effects": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: inviteCode is required for getInvite",
+      "error.command": "getInvite",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_Exception: Exception: inviteCode is required for getInvite"
+  },
+  "errors: channel, code, permission, discord failure#3": {
+    "effects": [
+      {
+        "operation": "fetchInvite",
+        "code": "zzz"
+      }
+    ],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: Failed to get invite: Bad state: Unknown invite zzz",
+      "error.command": "getInvite",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_Exception: Exception: Failed to get invite: Bad state: Unknown invite zzz"
+  },
+  "errors: channel, code, permission, discord failure#4": {
+    "effects": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: inviteCode is required for deleteInvite",
+      "error.command": "deleteInvite",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_Exception: Exception: inviteCode is required for deleteInvite"
+  },
+  "errors: channel, code, permission, discord failure#5": {
+    "effects": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: I do not have permission to create invites. Missing: Create Instant Invite.",
+      "error.command": "createInvite",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_Exception: Exception: I do not have permission to create invites. Missing: Create Instant Invite."
+  },
+  "errors: channel, code, permission, discord failure#6": {
+    "effects": [],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: I do not have permission to delete invites. Missing: Manage Channels.",
+      "error.command": "deleteInvite",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_Exception: Exception: I do not have permission to delete invites. Missing: Manage Channels."
+  },
+  "errors: channel, code, permission, discord failure#7": {
+    "effects": [
+      {
+        "operation": "deleteInvite",
+        "code": "abc",
+        "reason": null
+      }
+    ],
+    "results": null,
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: Failed to delete invite: Bad state: nope",
+      "error.command": "deleteInvite",
+      "error.source": "",
+      "error.row": "",
+      "error.column": ""
+    },
+    "error": "_Exception: Exception: Failed to delete invite: Bad state: nope"
+  },
+  "error modes behave like the loop@3#0": {
+    "effects": [
+      {
+        "operation": "fetchInvite",
+        "code": "abc"
+      },
+      {
+        "operation": "fetchInvite",
+        "code": "abc"
+      }
+    ],
+    "results": {
+      "action_0": "Error: Exception: inviteCode is required for getInvite",
+      "skipped": "abc",
+      "end": "abc"
+    },
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: inviteCode is required for getInvite",
+      "error.command": "getInvite",
+      "error.source": "",
+      "error.row": "",
+      "error.column": "",
+      "skipped.inviteCode": "abc",
+      "skipped.guildId": "10",
+      "skipped.channelId": "30",
+      "skipped.expiresAt": "2030-01-02T00:00:00.000Z",
+      "end.inviteCode": "abc",
+      "end.guildId": "10",
+      "end.channelId": "30",
+      "end.expiresAt": "2030-01-02T00:00:00.000Z"
+    },
+    "error": null
+  },
+  "error modes behave like the loop@3#1": {
+    "effects": [
+      {
+        "operation": "fetchInvite",
+        "code": "abc"
+      }
+    ],
+    "results": {
+      "action_0": "Error: Exception: inviteCode is required for getInvite",
+      "end": "abc"
+    },
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: inviteCode is required for getInvite",
+      "error.command": "getInvite",
+      "error.source": "",
+      "error.row": "",
+      "error.column": "",
+      "end.inviteCode": "abc",
+      "end.guildId": "10",
+      "end.channelId": "30",
+      "end.expiresAt": "2030-01-02T00:00:00.000Z"
+    },
+    "error": null
+  },
+  "error modes behave like the loop@3#2": {
+    "effects": [
+      {
+        "operation": "fetchInvite",
+        "code": "abc"
+      }
+    ],
+    "results": {
+      "action_0": "Error: Exception: inviteCode is required for getInvite",
+      "end": "abc"
+    },
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "error.message": "Exception: inviteCode is required for getInvite",
+      "error.command": "getInvite",
+      "error.source": "",
+      "error.row": "",
+      "error.column": "",
+      "end.inviteCode": "abc",
+      "end.guildId": "10",
+      "end.channelId": "30",
+      "end.expiresAt": "2030-01-02T00:00:00.000Z"
+    },
+    "error": null
+  },
+  "a numeric result is the \"last message\" only where the loop did#0": {
+    "effects": [
+      {
+        "operation": "deleteWebhook",
+        "id": "70",
+        "token": null,
+        "reason": null
+      }
+    ],
+    "results": {
+      "action_0": "70"
+    },
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "lastSentMessageId": "70",
+      "lastMessageId": "70"
+    },
+    "error": null
+  },
+  "a numeric result is the \"last message\" only where the loop did#1": {
+    "effects": [
+      {
+        "operation": "fetchInvite",
+        "code": "12345"
+      }
+    ],
+    "results": {
+      "action_0": "12345"
+    },
+    "variables": {
+      "guild.id": "10",
+      "bot.id": "500",
+      "action_0.inviteCode": "12345",
+      "action_0.guildId": "10",
+      "action_0.channelId": "30",
+      "action_0.expiresAt": "2030-01-02T00:00:00.000Z"
+    },
+    "error": null
+  }
+}

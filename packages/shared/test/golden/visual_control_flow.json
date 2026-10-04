@@ -1,0 +1,2278 @@
+{
+ "error modes on blocks a backward or unknown jump fails like stop #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "flag": "yes",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "ifBlock",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing or invalid userId/roleId"
+ },
+ "error modes on blocks a loop failing under skip mode keeps its finished iterations #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "loop": "Error: Exception: Missing or invalid userId/roleId",
+   "kept": "1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "fail": "",
+   "_loop.index": "0",
+   "_loop.count": "1",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "forLoop",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": null
+ },
+ "error modes on blocks jump continues at the named later action #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "g": "Error: Exception: Missing or invalid userId/roleId",
+   "end": "1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "flag": "yes",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "ifBlock",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": null
+ },
+ "error modes on blocks skip drops the actions after the block #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "g": "Error: Exception: Missing or invalid userId/roleId",
+   "kept": "1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "flag": "yes",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "ifBlock",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": null
+ },
+ "error modes on blocks skip on a block nested in a branch #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "outer": "IF_TRUE",
+   "outer.inner": "Error: Exception: Missing or invalid userId/roleId",
+   "outer.kept": "1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "flag": "yes",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "ifBlock",
+   "error.source": "",
+   "error.row": "",
+   "error.column": "",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "forLoop list and cstyle an empty list #0": {
+  "effects": {
+   "roleChanges": [],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "loop": "LOOP_0"
+  },
+  "variables": {
+   "guild.id": "10"
+  },
+  "error": null
+ },
+ "forLoop list and cstyle cstyle loop counts with its variable #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "2",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "3",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "loop.iter0.a": "1",
+   "loop.iter1.a": "2",
+   "loop.iter2.a": "3",
+   "loop": "LOOP_3"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "3",
+   "lastMessageId": "3"
+  },
+  "error": null
+ },
+ "forLoop list and cstyle cstyle with a false first condition and an invalid update #0": {
+  "effects": {
+   "roleChanges": [],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "loop": "LOOP_0"
+  },
+  "variables": {
+   "guild.id": "10"
+  },
+  "error": null
+ },
+ "forLoop list and cstyle cstyle with a false first condition and an invalid update #1": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "_loop.var.i": "1",
+   "_loop.index": "0",
+   "_loop.count": "1",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1",
+   "error.message": "FormatException: Invalid loop update: i ?? 2",
+   "error.command": "forLoop",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "FormatException: FormatException: Invalid loop update: i ?? 2"
+ },
+ "forLoop list and cstyle cstyle with compound update and templated bounds #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "2",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "4",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "6",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "8",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "loop.iter0.a": "2",
+   "loop.iter1.a": "4",
+   "loop.iter2.a": "6",
+   "loop.iter3.a": "8",
+   "loop": "LOOP_4"
+  },
+  "variables": {
+   "guild.id": "10",
+   "start": "2",
+   "end": "9",
+   "lastSentMessageId": "8",
+   "lastMessageId": "8"
+  },
+  "error": null
+ },
+ "forLoop list and cstyle list loop binds the item #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "5",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "6",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "7",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "loop.iter0.a": "5",
+   "loop.iter1.a": "6",
+   "loop.iter2.a": "7",
+   "loop": "LOOP_3"
+  },
+  "variables": {
+   "guild.id": "10",
+   "n": "6",
+   "lastSentMessageId": "7",
+   "lastMessageId": "7"
+  },
+  "error": null
+ },
+ "forLoop list and cstyle stop inside a cstyle loop does not count the stopped iteration #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "2",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "loop.iter0.a": "1",
+   "loop.iter0.g": "IF_FALSE",
+   "loop.iter1.a": "2",
+   "loop.iter1.g": "IF_TRUE",
+   "loop.iter1.__stopped__": "true",
+   "loop.iter1.g.halt": "STOPPED",
+   "loop.iter1.g.__stopped__": "true",
+   "__stopped__": "true",
+   "loop": "LOOP_1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "2",
+   "lastMessageId": "2"
+  },
+  "error": null
+ },
+ "forLoop list and cstyle stop inside a simple loop keeps the full count #0": {
+  "effects": {
+   "roleChanges": [],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "loop.iter0.halt": "STOPPED",
+   "loop.iter0.__stopped__": "true",
+   "__stopped__": "true",
+   "loop": "LOOP_4"
+  },
+  "variables": {
+   "guild.id": "10"
+  },
+  "error": null
+ },
+ "forLoop simple a failing body action stops the loop #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "_loop.index": "0",
+   "_loop.count": "1",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "forLoop",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing or invalid userId/roleId"
+ },
+ "forLoop simple a loop inside a branch #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "2",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "g": "IF_TRUE",
+   "g.loop": "LOOP_2",
+   "g.loop.iter0.a": "1",
+   "g.loop.iter1.a": "2"
+  },
+  "variables": {
+   "guild.id": "10",
+   "flag": "yes",
+   "lastSentMessageId": "2",
+   "lastMessageId": "2"
+  },
+  "error": null
+ },
+ "forLoop simple an empty body #0": {
+  "effects": {
+   "roleChanges": [],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "loop": "LOOP_0"
+  },
+  "variables": {
+   "guild.id": "10"
+  },
+  "error": null
+ },
+ "forLoop simple body actions read only the results of their own iteration #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "2",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "2",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "loop.iter0.a": "1",
+   "loop.iter0.b": "1",
+   "loop.iter1.a": "2",
+   "loop.iter1.b": "2",
+   "loop": "LOOP_2"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "2",
+   "lastMessageId": "2"
+  },
+  "error": null
+ },
+ "forLoop simple continue mode on the body action keeps looping #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "loop.iter0.bad": "Error: Exception: Missing or invalid userId/roleId",
+   "loop.iter0.good": "1",
+   "loop.iter1.bad": "Error: Exception: Missing or invalid userId/roleId",
+   "loop.iter1.good": "1",
+   "loop": "LOOP_2"
+  },
+  "variables": {
+   "guild.id": "10",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "addRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": "",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "forLoop simple disabled body actions keep their ordinal #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "loop.iter0.s": "SKIPPED_1",
+   "loop.iter0.kept": "1",
+   "loop.iter1.s": "SKIPPED_1",
+   "loop.iter1.kept": "1",
+   "loop": "LOOP_2"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "forLoop simple nested loops publish with the full path #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "2",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "2",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "outer.iter0.inner": "LOOP_2",
+   "outer.iter0.inner.iter0.leaf": "1",
+   "outer.iter0.inner.iter1.leaf": "2",
+   "outer.iter1.inner": "LOOP_2",
+   "outer.iter1.inner.iter0.leaf": "1",
+   "outer.iter1.inner.iter1.leaf": "2",
+   "outer": "LOOP_2"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "2",
+   "lastMessageId": "2"
+  },
+  "error": null
+ },
+ "forLoop simple runs the body and publishes iteration results #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "2",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "2",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "3",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "3",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "loop.iter0.a": "1",
+   "loop.iter0.b": "1",
+   "loop.iter1.a": "2",
+   "loop.iter1.b": "2",
+   "loop.iter2.a": "3",
+   "loop.iter2.b": "3",
+   "loop": "LOOP_3"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "3",
+   "lastMessageId": "3"
+  },
+  "error": null
+ },
+ "forLoop simple zero, negative, invalid and templated counts #0": {
+  "effects": {
+   "roleChanges": [],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "loop": "LOOP_0"
+  },
+  "variables": {
+   "guild.id": "10",
+   "n": "2"
+  },
+  "error": null
+ },
+ "forLoop simple zero, negative, invalid and templated counts #1": {
+  "effects": {
+   "roleChanges": [],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "loop": "LOOP_0"
+  },
+  "variables": {
+   "guild.id": "10",
+   "n": "2"
+  },
+  "error": null
+ },
+ "forLoop simple zero, negative, invalid and templated counts #2": {
+  "effects": {
+   "roleChanges": [],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "loop": "LOOP_0"
+  },
+  "variables": {
+   "guild.id": "10",
+   "n": "2"
+  },
+  "error": null
+ },
+ "forLoop simple zero, negative, invalid and templated counts #3": {
+  "effects": {
+   "roleChanges": [],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "loop": "LOOP_0"
+  },
+  "variables": {
+   "guild.id": "10",
+   "n": "2"
+  },
+  "error": null
+ },
+ "forLoop simple zero, negative, invalid and templated counts #4": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "loop.iter0.a": "1",
+   "loop.iter1.a": "1",
+   "loop": "LOOP_2"
+  },
+  "variables": {
+   "guild.id": "10",
+   "n": "2",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "ifBlock suppressErrors a branch that works publishes its results #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "s": "IF_TRUE",
+   "s.ok": "1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "flag": "yes",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "ifBlock suppressErrors a failing branch is swallowed #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "s": "IF_TRUE",
+   "after": "1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "flag": "yes",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "ifBlock suppressErrors an empty branch has nothing to suppress #0": {
+  "effects": {
+   "roleChanges": [],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "s": "IF_TRUE"
+  },
+  "variables": {
+   "guild.id": "10",
+   "flag": "yes"
+  },
+  "error": null
+ },
+ "ifBlock suppressErrors nested children ignore their error modes #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "s": "IF_TRUE",
+   "after": "1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "flag": "yes",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "ifBlock suppressErrors the error response goes through respondWithMessage #0": {
+  "effects": {
+   "roleChanges": [],
+   "messages": [],
+   "logs": []
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "flag": "yes",
+   "error.message": "Exception: No channelId available for respondWithMessage fallback",
+   "error.command": "ifBlock",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: No channelId available for respondWithMessage fallback"
+ },
+ "ifBlock tryCatch a body that succeeds #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "t": "TRY_OK",
+   "t.a": "1",
+   "after": "1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "ifBlock tryCatch a failing body runs the catch list and drops body results #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "9",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "t": "TRY_CAUGHT",
+   "t.rescue": "9",
+   "after": "1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "ifBlock tryCatch a failing catch list fails the block #0": {
+  "effects": {
+   "roleChanges": [],
+   "messages": [],
+   "logs": []
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "ifBlock",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing or invalid userId/roleId"
+ },
+ "ifBlock tryCatch a try inside a loop restarts cleanly each iteration #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "2",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "3",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "loop.iter0.t": "TRY_CAUGHT",
+   "loop.iter0.t.r": "1",
+   "loop.iter1.t": "TRY_CAUGHT",
+   "loop.iter1.t.r": "2",
+   "loop.iter2.t": "TRY_CAUGHT",
+   "loop.iter2.t.r": "3",
+   "loop": "LOOP_3"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "3",
+   "lastMessageId": "3"
+  },
+  "error": null
+ },
+ "ifBlock tryCatch children ignore their own error modes inside a try #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "t": "TRY_CAUGHT",
+   "t.rescue": "1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "ifBlock tryCatch outer error variables are restored #0": {
+  "effects": {
+   "roleChanges": [],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "bad": "Error: Exception: Missing or invalid userId/roleId",
+   "t": "TRY_CAUGHT"
+  },
+  "variables": {
+   "guild.id": "10",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "addRole",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": null
+ },
+ "ifBlock tryCatch skip and stop inside a try body #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "t": "TRY_OK",
+   "t.s": "SKIPPED_1",
+   "t.kept": "1",
+   "u": "TRY_OK",
+   "u.halt": "STOPPED",
+   "u.__stopped__": "true",
+   "__stopped__": "true"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "ifBlock tryCatch the block error mode applies to a failing catch list #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "t": "Error: Exception: Missing or invalid userId/roleId",
+   "after": "1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "ifBlock",
+   "error.source": "",
+   "error.row": "",
+   "error.column": "",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "ifBlock tryCatch the catch list sees the error variables #0": {
+  "effects": {
+   "roleChanges": [],
+   "messages": [],
+   "logs": [
+    "addRole: Exception: Missing or invalid userId/roleId"
+   ]
+  },
+  "results": {
+   "t": "TRY_CAUGHT",
+   "t.l": "LOGGED"
+  },
+  "variables": {
+   "guild.id": "10"
+  },
+  "error": null
+ },
+ "jsonForEachLoop an empty body and a bad source #0": {
+  "effects": {
+   "roleChanges": [],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "each": "JSONFE_0"
+  },
+  "variables": {
+   "guild.id": "10"
+  },
+  "error": null
+ },
+ "jsonForEachLoop an empty body and a bad source #1": {
+  "effects": {
+   "roleChanges": [],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "each": "JSONFE_0"
+  },
+  "variables": {
+   "guild.id": "10"
+  },
+  "error": null
+ },
+ "jsonForEachLoop binds the key, value and index #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "10",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "20",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": [
+    "0/0",
+    "1/1"
+   ]
+  },
+  "results": {
+   "each.iter0.u": "10",
+   "each.iter0.l": "LOGGED",
+   "each.iter1.u": "20",
+   "each.iter1.l": "LOGGED",
+   "each": "JSONFE_2"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "20",
+   "lastMessageId": "20"
+  },
+  "error": null
+ },
+ "jsonForEachLoop follows a path and handles a missing one #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "each.iter0.u": "1",
+   "each.iter1.u": "1",
+   "each.iter2.u": "1",
+   "each": "JSONFE_3"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "jsonForEachLoop follows a path and handles a missing one #1": {
+  "effects": {
+   "roleChanges": [],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "each": "JSONFE_0"
+  },
+  "variables": {
+   "guild.id": "10"
+  },
+  "error": null
+ },
+ "jsonForEachLoop iterates the payload source #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "2",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "each.iter0.u": "1",
+   "each.iter1.u": "2",
+   "each": "JSONFE_2"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "2",
+   "lastMessageId": "2"
+  },
+  "error": null
+ },
+ "jsonForEachLoop reads the latest JSON result of its list #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "5",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "rtjson_1": "5",
+   "each.iter0.u": "1",
+   "each": "JSONFE_1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "routing a block holding a debugProfile runs natively #0": {
+  "effects": {
+   "roleChanges": [],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "loop": "LOOP_1"
+  },
+  "variables": {
+   "guild.id": "10"
+  },
+  "error": null
+ },
+ "routing a policy no longer keeps blocks historical #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "2",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "loop.iter0.a": "1",
+   "loop.iter1.a": "2",
+   "loop": "LOOP_2",
+   "halt": "STOPPED",
+   "__stopped__": "true"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "2",
+   "lastMessageId": "2"
+  },
+  "error": null
+ },
+ "routing protected executions ignore error modes (throwOnError) #0": {
+  "effects": {
+   "roleChanges": [],
+   "messages": [],
+   "logs": []
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "_loop.index": "0",
+   "_loop.count": "1",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "forLoop",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing or invalid userId/roleId"
+ },
+ "runBdfdScript / runWorkflow a script error fails the action #0": {
+  "effects": {
+   "roleChanges": [],
+   "messages": [],
+   "logs": []
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "error.message": "BDFD L1:1 $sendMessage: Invalid argument count for $sendMessage: 6.",
+   "error.command": "runBdfdScript",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "BdfdNativeError: BDFD L1:1 $sendMessage: Invalid argument count for $sendMessage: 6."
+ },
+ "runBdfdScript / runWorkflow a script that stops ends the execution #0": {
+  "effects": {
+   "roleChanges": [],
+   "messages": [
+    "one"
+   ],
+   "logs": []
+  },
+  "results": {
+   "s.last.response.id": "1",
+   "s.__stopped__": "true",
+   "__stopped__": "true",
+   "s": "BDFD_OK"
+  },
+  "variables": {
+   "guild.id": "10"
+  },
+  "error": null
+ },
+ "runBdfdScript / runWorkflow a stop inside the workflow stops the caller #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "7",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "__stopped__": "true",
+   "call.w1": "7",
+   "call.h": "STOPPED",
+   "call.__stopped__": "true",
+   "call": "WORKFLOW_OK:main"
+  },
+  "variables": {
+   "guild.id": "10",
+   "workflow.name": "halts",
+   "workflow.entryPoint": "main",
+   "workflow.args": "{}",
+   "lastSentMessageId": "7",
+   "lastMessageId": "7",
+   "workflow.response.w1": "7",
+   "workflow.response.h": "STOPPED",
+   "workflow.response.__stopped__": "true",
+   "workflow.response": "WORKFLOW_OK:main"
+  },
+  "error": null
+ },
+ "runBdfdScript / runWorkflow an empty script #0": {
+  "effects": {
+   "roleChanges": [],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "s": "BDFD_EMPTY"
+  },
+  "variables": {
+   "guild.id": "10"
+  },
+  "error": null
+ },
+ "runBdfdScript / runWorkflow runWorkflow inside a loop #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "7",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "8",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "7",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "8",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "loop.iter0.call.w1": "7",
+   "loop.iter0.call.w2": "8",
+   "loop.iter0.call": "WORKFLOW_OK:main",
+   "loop.iter1.call.w1": "7",
+   "loop.iter1.call.w2": "8",
+   "loop.iter1.call": "WORKFLOW_OK:main",
+   "loop": "LOOP_2"
+  },
+  "variables": {
+   "guild.id": "10",
+   "workflow.name": "greet",
+   "workflow.entryPoint": "main",
+   "workflow.args": "{}",
+   "lastSentMessageId": "8",
+   "lastMessageId": "8",
+   "workflow.response.w1": "7",
+   "workflow.response.w2": "8",
+   "workflow.response": "WORKFLOW_OK:main"
+  },
+  "error": null
+ },
+ "runBdfdScript / runWorkflow runWorkflow keeps the results and workflow.response contract #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "7",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "8",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "call.w1": "7",
+   "call.w2": "8",
+   "call": "WORKFLOW_OK:main",
+   "a": "1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "workflow.name": "greet",
+   "workflow.entryPoint": "main",
+   "workflow.args": "{}",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1",
+   "workflow.response.w1": "7",
+   "workflow.response.w2": "8",
+   "workflow.response": "WORKFLOW_OK:main"
+  },
+  "error": null
+ },
+ "runBdfdScript / runWorkflow runs a script and prefixes its results #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [
+    "one"
+   ],
+   "logs": []
+  },
+  "results": {
+   "s.last.response.id": "1",
+   "s": "BDFD_OK",
+   "a": "1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "runBdfdScript / runWorkflow scripts inside a block #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [
+    "nested"
+   ],
+   "logs": []
+  },
+  "results": {
+   "g": "IF_TRUE",
+   "g.s.last.response.id": "1",
+   "g.s": "BDFD_OK",
+   "g.a": "1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "flag": "yes",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "runBdfdScript / runWorkflow two scripts do not share user functions #0": {
+  "effects": {
+   "roleChanges": [],
+   "messages": [
+    "$hi"
+   ],
+   "logs": []
+  },
+  "results": {
+   "one": "BDFD_OK",
+   "two.last.response.id": "1",
+   "two": "BDFD_OK"
+  },
+  "variables": {
+   "guild.id": "10"
+  },
+  "error": null
+ },
+ "runBdfdScript / runWorkflow unknown workflows and failures #0": {
+  "effects": {
+   "roleChanges": [],
+   "messages": [],
+   "logs": []
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "error.message": "Exception: Workflow not found: missing",
+   "error.command": "runWorkflow",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Workflow not found: missing"
+ },
+ "runBdfdScript / runWorkflow unknown workflows and failures #1": {
+  "effects": {
+   "roleChanges": [],
+   "messages": [],
+   "logs": []
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "workflow.name": "broken",
+   "workflow.entryPoint": "main",
+   "workflow.args": "{}",
+   "error.message": "Exception: Missing or invalid userId/roleId",
+   "error.command": "runWorkflow",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: Missing or invalid userId/roleId"
+ },
+ "skipActions / jumpToAction a backward target stays a no-op at the top level #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": [
+    "x"
+   ]
+  },
+  "results": {
+   "first": "LOGGED",
+   "j": "JUMP_TO_first",
+   "after": "1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "skipActions / jumpToAction a templated or invalid count #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "s": "SKIPPED_1",
+   "b": "1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "n": "1",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "skipActions / jumpToAction a templated or invalid count #1": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "s": "SKIPPED_0",
+   "a": "1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "skipActions / jumpToAction an empty target only leaves the result #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "j": "JUMP_TO_",
+   "a": "1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "skipActions / jumpToAction an unknown target does not jump #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "j": "JUMP_TO_nope",
+   "a": "1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "skipActions / jumpToAction jumpToAction by key, id, position and template #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "j": "JUMP_TO_end",
+   "end": "1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "t": "end",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "skipActions / jumpToAction jumpToAction by key, id, position and template #1": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "j": "JUMP_TO_e1",
+   "end": "1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "t": "end",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "skipActions / jumpToAction jumpToAction by key, id, position and template #2": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "j": "JUMP_TO_4",
+   "end": "1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "t": "end",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "skipActions / jumpToAction jumpToAction by key, id, position and template #3": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "j": "JUMP_TO_end",
+   "end": "1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "t": "end",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "skipActions / jumpToAction jumpToAction inside a branch resolves among its siblings #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "g": "IF_TRUE",
+   "g.j": "JUMP_TO_end",
+   "g.end": "1",
+   "after": "1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "flag": "yes",
+   "t": "end",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "skipActions / jumpToAction jumpToAction inside a branch resolves among its siblings #1": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "g": "IF_TRUE",
+   "g.j": "JUMP_TO_3",
+   "g.end": "1",
+   "after": "1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "flag": "yes",
+   "t": "end",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "skipActions / jumpToAction jumpToAction inside a branch resolves among its siblings #2": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "g": "IF_TRUE",
+   "g.j": "JUMP_TO_end",
+   "g.end": "1",
+   "after": "1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "flag": "yes",
+   "t": "end",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "skipActions / jumpToAction skipActions drops the next actions of its list #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "s": "SKIPPED_2",
+   "c": "1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "skipActions / jumpToAction skipActions inside a branch counts the branch actions #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "g": "IF_TRUE",
+   "g.s": "SKIPPED_1",
+   "g.b": "1",
+   "after": "1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "flag": "yes",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "stop / stopUnless stop ends the execution at the top level #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "a": "1",
+   "halt": "STOPPED",
+   "__stopped__": "true"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "stop / stopUnless stop inside nested blocks marks every list like the historical code #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "outer": "IF_TRUE",
+   "outer.a": "1",
+   "outer.inner": "IF_TRUE",
+   "outer.__stopped__": "true",
+   "outer.inner.halt": "STOPPED",
+   "outer.inner.__stopped__": "true",
+   "__stopped__": "true"
+  },
+  "variables": {
+   "guild.id": "10",
+   "flag": "yes",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "stop / stopUnless stopUnless lets a passing condition through #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "gate": "PASSED",
+   "a": "1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "flag": "yes",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "stop / stopUnless stopUnless stops on a failing condition #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "a": "1",
+   "gate": "STOPPED",
+   "__stopped__": "true"
+  },
+  "variables": {
+   "guild.id": "10",
+   "flag": "no",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ },
+ "stop / stopUnless stopUnless that fails inside a loop ends loop and execution #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    },
+    {
+     "operation": "add",
+     "user": "2",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "loop.iter0.a": "1",
+   "loop.iter0.gate": "PASSED",
+   "loop.iter1.a": "2",
+   "loop.iter1.gate": "STOPPED",
+   "loop.iter1.__stopped__": "true",
+   "__stopped__": "true",
+   "loop": "LOOP_5"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "2",
+   "lastMessageId": "2"
+  },
+  "error": null
+ },
+ "wait / log an invalid duration fails the same way #0": {
+  "effects": {
+   "roleChanges": [],
+   "messages": [],
+   "logs": []
+  },
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "error.message": "FormatException: Invalid wait duration: soon",
+   "error.command": "wait",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "FormatException: FormatException: Invalid wait duration: soon"
+ },
+ "wait / log log writes the resolved message #0": {
+  "effects": {
+   "roleChanges": [],
+   "messages": [],
+   "logs": [
+    "hello world"
+   ]
+  },
+  "results": {
+   "l": "LOGGED",
+   "empty": "LOGGED"
+  },
+  "variables": {
+   "guild.id": "10",
+   "who": "world"
+  },
+  "error": null
+ },
+ "wait / log wait pauses and reports #0": {
+  "effects": {
+   "roleChanges": [
+    {
+     "operation": "add",
+     "user": "1",
+     "role": "64",
+     "reason": "Add role via BotCreator action"
+    }
+   ],
+   "messages": [],
+   "logs": []
+  },
+  "results": {
+   "w": "WAITED",
+   "a": "1"
+  },
+  "variables": {
+   "guild.id": "10",
+   "lastSentMessageId": "1",
+   "lastMessageId": "1"
+  },
+  "error": null
+ }
+}

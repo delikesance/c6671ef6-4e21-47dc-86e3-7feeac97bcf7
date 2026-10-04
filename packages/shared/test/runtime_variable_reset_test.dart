@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:bot_creator_shared/actions/executors/variables_executor.dart';
+import 'package:bot_creator_shared/engine/bdfd/visual/variable_logic.dart';
 import 'package:bot_creator_shared/sandbox/sandbox_store.dart';
 import 'package:bot_creator_shared/types/action.dart';
 import 'package:bot_creator_shared/utils/template_resolver.dart';
@@ -10,7 +10,7 @@ Future<void> remove(
   Map<String, String> vars, {
   bool reset = true,
   String contextId = '20',
-}) => executeVariablesAction(
+}) => executeVariableAction(
   type: BotCreatorActionType.removeScopedVariable,
   store: store,
   botId: 'bot',

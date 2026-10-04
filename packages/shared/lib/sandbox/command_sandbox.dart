@@ -27,7 +27,7 @@ import 'package:nyxx/nyxx.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:image/image.dart' as img;
-import '../actions/executors/http_executor.dart';
+import '../engine/bdfd/visual/http_logic.dart';
 import '../engine/bdfd/execution.dart';
 import '../engine/bdfd/program.dart';
 import '../engine/bdfd/runtime.dart';
@@ -38,10 +38,11 @@ import '../services/http_service.dart';
 import '../services/runtime_temporary_variables.dart';
 import '../actions/send_component_v2.dart';
 import '../actions/respond_modal.dart';
-import '../actions/send_webhook.dart';
+import '../services/bot_webhook_block_service.dart' show buildWebhookMessage;
 import '../types/component.dart';
 import '../actions/execution_policy.dart';
-import '../actions/role_definition_actions.dart';
+import '../services/bot_moderation_blocks.dart'
+    show isRoleDefinitionPayload, parseBdfdRoleColor;
 import '../actions/handler.dart';
 import '../types/action.dart';
 import '../utils/bdfd_duration_parser.dart';
@@ -4004,7 +4005,7 @@ class _SandboxPolicy implements ActionExecutionPolicy {
     if (action.type == BotCreatorActionType.httpRequest) {
       final client = httpClient();
       try {
-        return await executeHttpAction(
+        return await executeHttp(
           type: action.type,
           payload: action.payload,
           resultKey: resultKey,

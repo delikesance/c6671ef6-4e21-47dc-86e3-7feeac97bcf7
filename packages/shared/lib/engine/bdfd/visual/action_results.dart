@@ -1,0 +1,150 @@
+/// Result bookkeeping for visual actions executed on the native engine.
+///
+/// The historical handler gives every action list its own `results` map: an
+/// action only reads the results of its own list, and a nested block (`ifBlock`)
+/// hands its children's results to the parent as `<blockKey>.<childKey>` once
+/// the branch finished successfully. Actions also mirror some results into the
+/// shared `variables` map. [ResultSink] reproduces exactly those keys.
+class ResultSink {
+  ResultSink({required this.results, required this.variables});
+
+  /// Results of the list being executed (what `handleActions` returns).
+  final Map<String, String> results;
+
+  /// Variables shared by every nesting level.
+  final Map<String, String> variables;
+
+  // Nested lists, keyed by the chain of enclosing block keys. A nested list is
+  // created on first write and merged into its parent by [commit]; a failed
+  // block drops its lists ([discard]) like the historical code never copies the
+  // results of a branch that threw.
+  final Map<String, List<String>> _paths = {};
+  final Map<String, Map<String, String>> _scopes = {};
+
+  /// The last error recorded by [recordError], as the original exception.
+  Object? lastError;
+
+  static String _id(List<String> path) => path.join('\u0000');
+
+  /// Results visible to an action living at [path] (empty for the root list).
+  /// Reading the root list first publishes the finished nested lists, so a
+  /// later top-level action sees `<blockKey>.<childKey>` like it does today.
+  Map<String, String> scope(List<String> path) {
+    if (path.isEmpty) {
+      commit();
+      return results;
+    }
+    final id = _id(path);
+    _paths[id] = List.unmodifiable(path);
+    return _scopes.putIfAbsent(id, () => <String, String>{});
+  }
+
+  /// The value at [key] of the list at [path], without creating or publishing
+  /// anything.
+  String? peek(List<String> path, String key) =>
+      path.isEmpty ? results[key] : _scopes[_id(path)]?[key];
+
+  /// `results[key] = value` in the list at [path].
+  void set(List<String> path, String key, String value) {
+    scope(path)[key] = value;
+  }
+
+  /// Result sub-field plus its variable mirrors: `results['key.sub']`,
+  /// `variables['key.sub']` and, with [actionPrefix], `variables['action.key.sub']`.
+  void field(
+    List<String> path,
+    String key,
+    String sub,
+    String value, {
+    bool actionPrefix = false,
+  }) {
+    scope(path)['$key.$sub'] = value;
+    variables['$key.$sub'] = value;
+    if (actionPrefix) variables['action.$key.$sub'] = value;
+  }
+
+  /// The historical `recordTrace` quirk: a purely numeric result (a message id,
+  /// but also the user id returned by moderation actions) becomes the "last
+  /// sent message".
+  void noteNumeric(List<String> path, String key) {
+    final value = scope(path)[key];
+    if (value != null &&
+        RegExp(r'^\d+$').hasMatch(value) &&
+        !value.startsWith('Error:')) {
+      variables['lastSentMessageId'] = value;
+      variables['lastMessageId'] = value;
+    }
+  }
+
+  /// What a failing action leaves behind: the `error.*` variables read by
+  /// `((error.message))` and `results[key] = 'Error: ...'`.
+  void recordError(
+    String command,
+    String key,
+    List<String> path,
+    Object error,
+  ) {
+    variables['error.message'] = error.toString();
+    variables['error.command'] = command;
+    variables['error.source'] = '';
+    variables['error.row'] = '';
+    variables['error.column'] = '';
+    scope(path)[key] = 'Error: $error';
+    lastError = error;
+  }
+
+  /// Publish every finished nested list into its parent, deepest first.
+  void commit() {
+    // A list's parent may only exist because of it (a block whose own list
+    // wrote nothing, a loop's `<key>` namespace): pick the deepest list until
+    // none is left, so parents created on the way are published too.
+    while (_scopes.isNotEmpty) {
+      var id = _scopes.keys.first;
+      for (final candidate in _scopes.keys) {
+        if (_paths[candidate]!.length > _paths[id]!.length) id = candidate;
+      }
+      final path = _paths.remove(id)!;
+      final child = _scopes.remove(id)!;
+      final parentPath = path.sublist(0, path.length - 1);
+      final parent = parentPath.isEmpty
+          ? results
+          : _scopes.putIfAbsent(_id(parentPath), () {
+              _paths[_id(parentPath)] = List.unmodifiable(parentPath);
+              return <String, String>{};
+            });
+      for (final entry in child.entries) {
+        parent['${path.last}.${entry.key}'] = entry.value;
+      }
+    }
+  }
+
+  /// Forget the nested lists of an aborted block (everything at or below
+  /// [prefix]), or all of them when omitted.
+  ///
+  /// Lists at or under one of [keep] survive: the finished iterations of a loop
+  /// the historical code had already published when the loop failed.
+  void discard([
+    List<String> prefix = const [],
+    List<List<String>> keep = const [],
+  ]) {
+    bool under(List<String> path, List<String> base) =>
+        path.length >= base.length &&
+        [
+          for (var i = 0; i < base.length; i++) path[i] == base[i],
+        ].every((e) => e);
+    final doomed = [
+      for (final entry in _paths.entries)
+        if (!keep.any((base) => under(entry.value, base)) &&
+            entry.value.length >= prefix.length &&
+            [
+              for (var i = 0; i < prefix.length; i++)
+                entry.value[i] == prefix[i],
+            ].every((same) => same))
+          entry.key,
+    ];
+    for (final id in doomed) {
+      _scopes.remove(id);
+      _paths.remove(id);
+    }
+  }
+}

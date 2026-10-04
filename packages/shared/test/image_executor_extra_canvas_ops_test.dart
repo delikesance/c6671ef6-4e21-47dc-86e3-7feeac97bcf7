@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:image/image.dart' as img;
 import 'package:test/test.dart';
 
-import 'package:bot_creator_shared/actions/executors/image_executor.dart';
+import 'package:bot_creator_shared/services/canvas_image_renderer.dart';
 
 /// Runtime tests for the extra canvas operations:
 /// progressBar, setPixel, invert, grayscale, rotate.
