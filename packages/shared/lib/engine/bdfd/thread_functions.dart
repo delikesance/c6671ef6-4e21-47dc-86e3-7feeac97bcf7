@@ -36,9 +36,10 @@ Map<String, BdfdNativeFunction> bdfdThreadFunctions(BotThreadService service) {
         final name = await call.argument(0),
             channel = await call.argument(1),
             message = (await call.argument(2)).trim();
-        final archive = call.argumentCount > 3
-            ? integer(await call.argument(3))
-            : 60;
+        final rawArchive = call.argumentCount > 3
+            ? (await call.argument(3)).trim()
+            : '';
+        final archive = rawArchive.isEmpty ? 60 : integer(rawArchive);
         final returns = call.argumentCount > 4
             ? boolean(await call.argument(4))
             : false;

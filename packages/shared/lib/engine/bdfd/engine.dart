@@ -57,6 +57,7 @@ import 'role_functions.dart';
 import 'role_query_functions.dart';
 import 'program.dart';
 import 'runtime.dart';
+import '../../services/bot_music_service.dart';
 import 'text_functions.dart';
 import 'text_utility_functions.dart';
 import 'variable_functions.dart';
@@ -91,6 +92,7 @@ class BdfdEngine {
     BotReactionService? reactions,
     BotMemberQueryService? memberQueries,
     BotEmojiService? emojis,
+    BotMusicService? music,
     BdfdVisualWorkflowRunner? runVisualWorkflow,
     Map<String, BdfdNativeFunction> functions = const {},
   }) : _components = components,
@@ -270,7 +272,7 @@ class BdfdEngine {
                      ? moderation as BotGuildQueryService
                      : null),
            ),
-           ...bdfdMusicFunctions(),
+           ...bdfdMusicFunctions(music),
            ...functions,
          },
        );

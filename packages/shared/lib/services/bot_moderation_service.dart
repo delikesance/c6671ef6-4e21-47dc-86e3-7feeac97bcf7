@@ -9,6 +9,12 @@ import 'bot_channel_mutation_service.dart';
 import 'bot_channel_query_service.dart';
 import 'package:nyxx/nyxx.dart';
 
+import '../actions/delete_message.dart';
+import '../actions/register_guild_commands.dart';
+import '../actions/set_nickname.dart';
+import '../actions/unregister_guild_commands.dart';
+import '../bot/bot_data_store.dart';
+
 import '../engine/execution_budget.dart';
 import '../utils/global.dart';
 import 'permission_checks.dart';
@@ -30,6 +36,12 @@ enum BotModerationOperation {
   updateRole,
   deleteRole,
   setUserRoles,
+  clearMessages,
+  setNickname,
+  registerGuildCommands,
+  unregisterGuildCommands,
+  isBanned,
+  banReason,
 }
 
 /// Evaluated moderation data. No script or block placeholders are interpreted.
@@ -48,9 +60,23 @@ class BotModerationRequest {
     this.until,
     this.clampTimeout = true,
     this.kickPermissionActorId,
+    this.count = 0,
+    this.onlyUserId = '',
+    this.removePinned = true,
+    this.nickname = '',
+    this.targetGuildId = '',
+    this.channelId = '',
   });
 
   final BotModerationOperation operation;
+  // Message clearing: amount, optional author filter and pinned policy.
+  final int count;
+  final String onlyUserId;
+  final bool removePinned;
+  final String nickname;
+  // Explicit guild override for bans lookups; empty means the current guild.
+  final String targetGuildId;
+  final String channelId;
   final String userId;
   final String reason;
   final String username;
@@ -99,6 +125,12 @@ class BotModerationRequest {
       BotModerationOperation.timeout => 'Timeout via BotCreator action',
       BotModerationOperation.untimeout =>
         'Remove timeout via BotCreator action',
+      BotModerationOperation.clearMessages => null,
+      BotModerationOperation.setNickname => null,
+      BotModerationOperation.registerGuildCommands => null,
+      BotModerationOperation.unregisterGuildCommands => null,
+      BotModerationOperation.isBanned => null,
+      BotModerationOperation.banReason => null,
     };
   }
 }
@@ -127,7 +159,16 @@ class DiscordBotModerationService
         BotMemberQueryService,
         BotEmojiService,
         BotWebhookService {
-  const DiscordBotModerationService({required this.client, this.guildId});
+  const DiscordBotModerationService({
+    required this.client,
+    this.guildId,
+    this.store,
+    this.botId,
+  });
+
+  /// Needed only by guild command registration.
+  final BotDataStore? store;
+  final String? botId;
 
   DiscordBotWebhookService get _webhooks =>
       DiscordBotWebhookService(client: client);
@@ -429,8 +470,11 @@ class DiscordBotModerationService
       guildId: guildId,
       request: request,
       budget: budget,
+      store: store,
+      botId: botId,
     );
     budget.check();
+    if (result['value'] != null) return result['value']!;
     if (result['error'] != null) throw StateError(result['error']!);
     return result['userId'] ?? result['roleId']!;
   });
@@ -444,11 +488,107 @@ Future<Map<String, String>> executeDiscordModeration(
   required Snowflake? guildId,
   required BotModerationRequest request,
   CommandExecutionBudget? budget,
+  BotDataStore? store,
+  String? botId,
 }) async {
   final label = request.operation.name;
   try {
     budget?.check();
     if (guildId == null) return {'error': 'Missing guildId', 'userId': ''};
+    switch (request.operation) {
+      case BotModerationOperation.clearMessages:
+        final channel = int.tryParse(request.channelId.trim());
+        if (channel == null || channel <= 0) {
+          return {'error': 'Missing or invalid channelId'};
+        }
+        final permError = await checkBotGuildPermission(
+          client,
+          guildId: guildId,
+          requiredPermissions: [
+            Permissions.manageMessages,
+            Permissions.readMessageHistory,
+          ],
+          actionLabel: 'delete messages',
+        );
+        budget?.check();
+        if (permError != null) return {'error': permError};
+        final deleted = await deleteMessage(
+          client,
+          Snowflake(channel),
+          count: request.count,
+          onlyThisUserID: request.onlyUserId,
+          deletePinned: request.removePinned,
+          reason: request.reason,
+        );
+        budget?.check();
+        if (deleted['error'] != null) return {'error': deleted['error']!};
+        return {'value': ''};
+      case BotModerationOperation.setNickname:
+        final result = await setNicknameAction(
+          client,
+          guildId: guildId,
+          payload: {'userId': request.userId, 'nickname': request.nickname},
+        );
+        budget?.check();
+        if (result['error'] != null) return {'error': result['error']!};
+        return {'userId': request.userId};
+      case BotModerationOperation.registerGuildCommands:
+      case BotModerationOperation.unregisterGuildCommands:
+        if (store == null || botId == null) {
+          return {'error': 'Guild command registration is not configured'};
+        }
+        final target = int.tryParse(request.targetGuildId.trim());
+        final scope = target == null ? guildId : Snowflake(target);
+        final result =
+            request.operation == BotModerationOperation.registerGuildCommands
+            ? await registerGuildCommandsAction(
+                client,
+                botId: botId,
+                store: store,
+                guildId: scope,
+                payload: const {},
+              )
+            : await unregisterGuildCommandsAction(
+                client,
+                botId: botId,
+                store: store,
+                guildId: scope,
+                payload: const {},
+              );
+        budget?.check();
+        if (result['error'] != null) return {'error': result['error']!};
+        return {'value': ''};
+      case BotModerationOperation.isBanned:
+      case BotModerationOperation.banReason:
+        final user = int.tryParse(request.userId.trim());
+        if (user == null || user <= 0) {
+          return {'error': 'Missing or invalid userId'};
+        }
+        final scope = int.tryParse(request.targetGuildId.trim());
+        final guild = scope == null ? guildId : Snowflake(scope);
+        final permError = await checkBotGuildPermission(
+          client,
+          guildId: guild,
+          requiredPermissions: [Permissions.banMembers],
+          actionLabel: 'read bans',
+        );
+        budget?.check();
+        if (permError != null) return {'error': permError};
+        Ban? ban;
+        try {
+          ban = await client.guilds.fetchBan(guild, Snowflake(user));
+        } on HttpResponseError catch (error) {
+          if (error.statusCode != 404) rethrow;
+        }
+        budget?.check();
+        return {
+          'value': request.operation == BotModerationOperation.isBanned
+              ? '${ban != null}'
+              : (ban?.reason ?? ''),
+        };
+      default:
+        break;
+    }
     if (request.operation == BotModerationOperation.setUserRoles) {
       return await _replaceRoles(client, guildId, request, budget);
     }
