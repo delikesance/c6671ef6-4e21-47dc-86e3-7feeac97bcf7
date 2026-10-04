@@ -386,7 +386,7 @@ Types : `respondWithComponentV2`, `sendComponentV2`, `editComponentV2`, `respond
 - Règles d'acquittement conservées : le modal doit être la première réponse (`BdfdActionProgram.hasModal` supprime l'auto-defer), `respondWithModal` marque l'interaction acquittée, aucune réponse après un modal n'est ajoutée par le moteur. `respondWithAutocomplete` stoppe la liste : `__stopped__` vaut `AUTOCOMPLETE` au niveau de l'action et `true` aux niveaux englobants, comme aujourd'hui.
 - Le futur envoi/réponse de message (vague 3, `message_actions.dart`) n'est pas utilisé : les V2 passent déjà par `respondWithComponentV2Action` / `sendComponentV2Action` / `editComponentV2Action`, services partagés avec le transport du natif.
 
-## 8. Vague 3 : messagerie et interactions (réalisée)
+## 9. Vague 3 : messagerie et interactions (réalisée)
 
 Fichiers : `actions/message_block_actions.dart` (corps partagés `pinMessageBlock`, `unpinMessageBlock`, `respondWithMessageBlock`, `editInteractionMessageBlock`, extraits de la boucle et de l'exécuteur composants), `engine/bdfd/visual/message_actions.dart` (handlers `bc_<type>` + helpers stables), tests `visual_message_actions_parity_test.dart` (réactions, épingle, deleteMessages/deleteTrigger/getMessage), `visual_message_send_parity_test.dart` (sendMessage, sendDm, editMessage), `visual_interaction_actions_parity_test.dart` (deferInteraction, respondWithMessage, editInteractionMessage, brouillon, métadonnées d'ack), doubles dans `test/helpers/visual_message_gateway.dart`.
 
