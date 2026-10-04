@@ -1,0 +1,850 @@
+{
+ "deferInteraction parity acknowledges immediately, ephemeral or not #0": {
+  "writes": [],
+  "interaction": [
+   {
+    "op": "acknowledge",
+    "ephemeral": false
+   }
+  ],
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "d": "deferred"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "e": "true",
+   "action.d.status": "deferred"
+  },
+  "error": null
+ },
+ "deferInteraction parity acknowledges immediately, ephemeral or not #1": {
+  "writes": [],
+  "interaction": [
+   {
+    "op": "acknowledge",
+    "ephemeral": false
+   }
+  ],
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "d": "deferred"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "e": "true",
+   "action.d.status": "deferred"
+  },
+  "error": null
+ },
+ "deferInteraction parity acknowledges immediately, ephemeral or not #2": {
+  "writes": [],
+  "interaction": [
+   {
+    "op": "acknowledge",
+    "ephemeral": true
+   }
+  ],
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "d": "deferred"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "e": "true",
+   "action.d.status": "deferred"
+  },
+  "error": null
+ },
+ "deferInteraction parity acknowledges immediately, ephemeral or not #3": {
+  "writes": [],
+  "interaction": [
+   {
+    "op": "acknowledge",
+    "ephemeral": true
+   }
+  ],
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "d": "deferred"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "e": "true",
+   "action.d.status": "deferred"
+  },
+  "error": null
+ },
+ "deferInteraction parity acknowledges immediately, ephemeral or not #4": {
+  "writes": [],
+  "interaction": [
+   {
+    "op": "acknowledge",
+    "ephemeral": true
+   }
+  ],
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "d": "deferred"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "e": "true",
+   "action.d.status": "deferred"
+  },
+  "error": null
+ },
+ "deferInteraction parity ephemeral flag reaches the acknowledgement #0": {
+  "writes": [],
+  "interaction": [
+   {
+    "op": "acknowledge",
+    "ephemeral": true
+   }
+  ],
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "d": "deferred"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "e": "true",
+   "action.d.status": "deferred"
+  },
+  "error": null
+ },
+ "deferInteraction parity nested in a block it still acknowledges first #0": {
+  "writes": [],
+  "interaction": [
+   {
+    "op": "acknowledge",
+    "ephemeral": true
+   },
+   {
+    "op": "followup",
+    "ephemeral": true,
+    "payload": {
+     "content": "done"
+    }
+   }
+  ],
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "cond": "IF_TRUE",
+   "cond.d": "deferred",
+   "r": "8000"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "x": "1",
+   "action.d.status": "deferred",
+   "last.response.id": "8000",
+   "lastSentMessageId": "8000",
+   "lastMessageId": "8000"
+  },
+  "error": null
+ },
+ "deferInteraction parity without an interaction, or when it already answered #0": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "d": "skipped"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "deferInteraction parity without an interaction, or when it already answered #1": {
+  "writes": [],
+  "interaction": [
+   {
+    "op": "acknowledge",
+    "ephemeral": false
+   }
+  ],
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "d": "skipped"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "action.d.status": "skipped"
+  },
+  "error": null
+ },
+ "editInteractionMessage parity acknowledges first when the interaction was not answered #0": {
+  "writes": [],
+  "interaction": [
+   {
+    "op": "acknowledge",
+    "ephemeral": null
+   },
+   {
+    "op": "updateOriginal",
+    "payload": {
+     "content": "x"
+    }
+   }
+  ],
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "a": "8000"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "lastSentMessageId": "8000",
+   "lastMessageId": "8000"
+  },
+  "error": null
+ },
+ "editInteractionMessage parity edits the response: content, embeds, components, clearing #0": {
+  "writes": [],
+  "interaction": [
+   {
+    "op": "updateOriginal",
+    "payload": {
+     "content": "edited Ana"
+    }
+   },
+   {
+    "op": "updateOriginal",
+    "payload": {
+     "embeds": [
+      {
+       "title": "Hello Ana",
+       "description": "Body",
+       "fields": [
+        {
+         "name": "a",
+         "value": "Ana",
+         "inline": false
+        }
+       ]
+      }
+     ],
+     "components": [
+      {
+       "type": 1,
+       "id": null,
+       "components": [
+        {
+         "type": 2,
+         "id": null,
+         "style": 1,
+         "label": "Go",
+         "custom_id": "go"
+        }
+       ]
+      }
+     ],
+     "flags": 32768
+    }
+   },
+   {
+    "op": "updateOriginal",
+    "payload": {
+     "embeds": [],
+     "components": []
+    }
+   }
+  ],
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "a": "8000",
+   "b": "8001",
+   "c": "8002"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "name": "Ana",
+   "lastSentMessageId": "8002",
+   "lastMessageId": "8002"
+  },
+  "error": null
+ },
+ "editInteractionMessage parity without an interaction the result carries the error text #0": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "a": "Error: editInteractionMessage requires an interaction context"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "respondWithMessage parity a failure surfaces and applies the error mode #0": {
+  "writes": [
+   {
+    "operation": "send",
+    "channel": "30",
+    "payload": {
+     "content": "after"
+    },
+    "attachments": []
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "action_0": "Error: Exception: No channelId available for respondWithMessage fallback",
+   "after": "9000"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: No channelId available for respondWithMessage fallback",
+   "error.command": "respondWithMessage",
+   "error.source": "",
+   "error.row": "",
+   "error.column": "",
+   "last.response.id": "9000",
+   "lastSentMessageId": "9000",
+   "lastMessageId": "9000"
+  },
+  "error": null
+ },
+ "respondWithMessage parity after a defer: edit original, or follow-up when ephemeral #0": {
+  "writes": [],
+  "interaction": [
+   {
+    "op": "acknowledge",
+    "ephemeral": false
+   },
+   {
+    "op": "updateOriginal",
+    "payload": {
+     "content": "edit",
+     "embeds": []
+    }
+   },
+   {
+    "op": "followup",
+    "ephemeral": true,
+    "payload": {
+     "content": "hidden"
+    }
+   }
+  ],
+  "host": [
+   true,
+   true
+  ],
+  "results": {
+   "d": "deferred",
+   "a": "8000",
+   "b": "8001"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "action.d.status": "deferred",
+   "last.response.id": "8001",
+   "lastSentMessageId": "8001",
+   "lastMessageId": "8001"
+  },
+  "error": null
+ },
+ "respondWithMessage parity an already acknowledged interaction (auto-defer) #0": {
+  "writes": [],
+  "interaction": [
+   {
+    "op": "updateOriginal",
+    "payload": {
+     "content": "x",
+     "embeds": []
+    }
+   }
+  ],
+  "host": [
+   true,
+   true
+  ],
+  "results": {
+   "a": "8000"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "last.response.id": "8000",
+   "lastSentMessageId": "8000",
+   "lastMessageId": "8000"
+  },
+  "error": null
+ },
+ "respondWithMessage parity canvas attachments force a follow-up once acknowledged #0": {
+  "writes": [],
+  "interaction": [
+   {
+    "op": "followup",
+    "ephemeral": false,
+    "payload": {
+     "content": " ",
+     "attachments": [
+      {
+       "filename": "card.png"
+      }
+     ]
+    }
+   },
+   {
+    "op": "updateOriginal",
+    "payload": {
+     "content": "later",
+     "embeds": []
+    }
+   }
+  ],
+  "host": [
+   true,
+   true
+  ],
+  "results": {
+   "a": "8000",
+   "b": "8001"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "last.response.id": "8001",
+   "lastSentMessageId": "8001",
+   "lastMessageId": "8001"
+  },
+  "error": null
+ },
+ "respondWithMessage parity embeds, legacy embed, components, allowed mentions #0": {
+  "writes": [],
+  "interaction": [
+   {
+    "op": "respond",
+    "payload": {
+     "content": "c",
+     "embeds": [
+      {
+       "title": "Hello Ana",
+       "description": "Body",
+       "fields": [
+        {
+         "name": "a",
+         "value": "Ana",
+         "inline": false
+        }
+       ]
+      }
+     ],
+     "allowed_mentions": {
+      "parse": []
+     },
+     "components": [
+      {
+       "type": 1,
+       "id": null,
+       "components": [
+        {
+         "type": 2,
+         "id": null,
+         "style": 1,
+         "label": "Go",
+         "custom_id": "go"
+        }
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "op": "fetchOriginal"
+   },
+   {
+    "op": "updateOriginal",
+    "payload": {
+     "content": null,
+     "embeds": [
+      {
+       "title": "Hello Ana",
+       "description": "Body",
+       "fields": [
+        {
+         "name": "a",
+         "value": "Ana",
+         "inline": false
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "host": [
+   true,
+   true
+  ],
+  "results": {
+   "a": "8000",
+   "b": "8001"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "name": "Ana",
+   "last.response.id": "8001",
+   "lastSentMessageId": "8001",
+   "lastMessageId": "8001"
+  },
+  "error": null
+ },
+ "respondWithMessage parity empty fallback response keeps the host state untouched #0": {
+  "writes": [
+   {
+    "operation": "send",
+    "channel": "30",
+    "payload": {
+     "content": "x"
+    },
+    "attachments": []
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "action_0": "9000"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "last.response.id": "9000",
+   "lastSentMessageId": "9000",
+   "lastMessageId": "9000"
+  },
+  "error": null
+ },
+ "respondWithMessage parity empty responses are skipped; rich V2 components refused #0": {
+  "writes": [],
+  "interaction": [],
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "a": ""
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500"
+  },
+  "error": null
+ },
+ "respondWithMessage parity empty responses are skipped; rich V2 components refused #1": {
+  "writes": [],
+  "interaction": [],
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: respondWithMessage supports only normal components (buttons/select menus). Use respondWithComponentV2 for rich V2 components.",
+   "error.command": "respondWithMessage",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: respondWithMessage supports only normal components (buttons/select menus). Use respondWithComponentV2 for rich V2 components."
+ },
+ "respondWithMessage parity first response, then edits the original / follows up #0": {
+  "writes": [],
+  "interaction": [
+   {
+    "op": "respond",
+    "payload": {
+     "content": "one Ana"
+    }
+   },
+   {
+    "op": "fetchOriginal"
+   },
+   {
+    "op": "updateOriginal",
+    "payload": {
+     "content": "two",
+     "embeds": []
+    }
+   },
+   {
+    "op": "followup",
+    "ephemeral": true,
+    "payload": {
+     "content": "three"
+    }
+   }
+  ],
+  "host": [
+   true,
+   true
+  ],
+  "results": {
+   "a": "8000",
+   "b": "8001",
+   "c": "8002"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "name": "Ana",
+   "last.response.id": "8002",
+   "lastSentMessageId": "8002",
+   "lastMessageId": "8002"
+  },
+  "error": null
+ },
+ "respondWithMessage parity inside a loop, try/catch and with throwOnError #0": {
+  "writes": [],
+  "interaction": [
+   {
+    "op": "respond",
+    "payload": {
+     "content": "i=0",
+     "components": [
+      {
+       "type": 1,
+       "id": null,
+       "components": [
+        {
+         "type": 2,
+         "id": null,
+         "style": 1,
+         "label": "Go",
+         "custom_id": "go"
+        }
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "op": "fetchOriginal"
+   },
+   {
+    "op": "updateOriginal",
+    "payload": {
+     "content": "i=1",
+     "embeds": [],
+     "components": [
+      {
+       "type": 1,
+       "id": null,
+       "components": [
+        {
+         "type": 2,
+         "id": null,
+         "style": 1,
+         "label": "Go",
+         "custom_id": "go"
+        }
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "op": "updateOriginal",
+    "payload": {
+     "content": "i=2",
+     "embeds": [],
+     "components": [
+      {
+       "type": 1,
+       "id": null,
+       "components": [
+        {
+         "type": 2,
+         "id": null,
+         "style": 1,
+         "label": "Go",
+         "custom_id": "go"
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ],
+  "host": [
+   true,
+   true
+  ],
+  "results": {
+   "loop.iter0.r": "8000",
+   "loop.iter1.r": "8001",
+   "loop.iter2.r": "8002",
+   "loop": "LOOP_3"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "last.response.id": "8002",
+   "lastSentMessageId": "8002",
+   "lastMessageId": "8002"
+  },
+  "error": null
+ },
+ "respondWithMessage parity inside a loop, try/catch and with throwOnError #1": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: No channelId available for respondWithMessage fallback",
+   "error.command": "ifBlock",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: No channelId available for respondWithMessage fallback"
+ },
+ "respondWithMessage parity without an interaction: fallback channel and reply #0": {
+  "writes": [
+   {
+    "operation": "send",
+    "channel": "30",
+    "payload": {
+     "content": "hi",
+     "message_reference": {
+      "type": 0,
+      "message_id": "41"
+     }
+    },
+    "attachments": []
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "a": "9000"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "message.id": "41",
+   "last.response.id": "9000",
+   "lastSentMessageId": "9000",
+   "lastMessageId": "9000"
+  },
+  "error": null
+ },
+ "respondWithMessage parity without an interaction: fallback channel and reply #1": {
+  "writes": [
+   {
+    "operation": "send",
+    "channel": "35",
+    "payload": {
+     "content": "x"
+    },
+    "attachments": []
+   }
+  ],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": {
+   "a": "9000"
+  },
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "c": "35",
+   "last.response.id": "9000",
+   "lastSentMessageId": "9000",
+   "lastMessageId": "9000"
+  },
+  "error": null
+ },
+ "respondWithMessage parity without an interaction: fallback channel and reply #2": {
+  "writes": [],
+  "interaction": null,
+  "host": [
+   false,
+   false
+  ],
+  "results": null,
+  "variables": {
+   "guild.id": "10",
+   "bot.id": "500",
+   "error.message": "Exception: No channelId available for respondWithMessage fallback",
+   "error.command": "respondWithMessage",
+   "error.source": "",
+   "error.row": "",
+   "error.column": ""
+  },
+  "error": "_Exception: Exception: No channelId available for respondWithMessage fallback"
+ }
+}

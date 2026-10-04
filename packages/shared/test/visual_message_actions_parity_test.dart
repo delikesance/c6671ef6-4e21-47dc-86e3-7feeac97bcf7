@@ -2,8 +2,41 @@ import 'package:bot_creator_shared/types/action.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:test/test.dart';
 
-import 'helpers/visual_message_gateway.dart';
+import 'helpers/visual_golden.dart';
+import 'helpers/visual_message_gateway.dart' hide messageParity;
+import 'helpers/visual_message_gateway.dart' as gw show messageParity;
 import 'helpers/visual_parity_harness.dart' show visualAction;
+
+final _golden = GoldenFile('visual_message_actions');
+
+Future<MessageOutcome> messageParity(
+  List<Action> actions, {
+  int permissions = 8,
+  void Function(MessageGateway gateway)? setup,
+  FakeInteraction Function()? makeInteraction,
+  Map<String, String>? variables,
+  bool guild = true,
+  bool throwOnError = false,
+  Snowflake? fallbackChannelId,
+  bool expectNative = true,
+  int? nativePrograms,
+}) async {
+  final outcome = await gw.messageParity(
+    actions,
+    permissions: permissions,
+    setup: setup,
+    makeInteraction: makeInteraction,
+    variables: variables,
+    guild: guild,
+    throwOnError: throwOnError,
+    fallbackChannelId: fallbackChannelId,
+    expectNative: expectNative,
+    nativePrograms: nativePrograms,
+    compareHistorical: parityWithHistorical,
+  );
+  _golden.expectMessage(outcome);
+  return outcome;
+}
 
 /// Parity of the messaging blocks (wave 3, lot a) between the historical
 /// executors and `bc_<type>` on the native engine, over the same recording

@@ -159,6 +159,7 @@ Future<Outcome<G>> visualParity<G extends NyxxGateway>(
   Duration? settle,
   bool expectNative = true,
   int? nativePrograms,
+  bool compareHistorical = true,
 }) async {
   Future<Outcome<G>> run(bool native) => _execute<G>(
     // Action objects are rebuilt from JSON: no state shared between the runs.
@@ -177,9 +178,7 @@ Future<Outcome<G>> visualParity<G extends NyxxGateway>(
     makeInteraction: makeInteraction,
     settle: settle,
   );
-  final historical = await run(false);
   final native = await run(true);
-  expect(historical.native, 0);
   if (nativePrograms != null) {
     expect(native.native, nativePrograms);
   } else if (expectNative) {
@@ -187,6 +186,9 @@ Future<Outcome<G>> visualParity<G extends NyxxGateway>(
   } else {
     expect(native.native, 0, reason: 'must stay historical');
   }
+  if (!compareHistorical) return native;
+  final historical = await run(false);
+  expect(historical.native, 0);
   expect(native.effects, historical.effects, reason: 'effects');
   expect(native.results, historical.results, reason: 'results');
   expect(native.variables, historical.variables, reason: 'variables');

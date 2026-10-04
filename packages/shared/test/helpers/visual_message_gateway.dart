@@ -431,6 +431,7 @@ Future<MessageOutcome> messageParity(
   Snowflake? fallbackChannelId,
   bool expectNative = true,
   int? nativePrograms,
+  bool compareHistorical = true,
 }) async {
   Future<MessageOutcome> run(bool native) => _run(
     actions.map((a) => Action.fromJson(a.toJson())).toList(),
@@ -444,9 +445,7 @@ Future<MessageOutcome> messageParity(
     throwOnError: throwOnError,
     fallbackChannelId: fallbackChannelId,
   );
-  final historical = await run(false);
   final native = await run(true);
-  expect(historical.native, 0);
   if (nativePrograms != null) {
     expect(native.native, nativePrograms);
   } else if (expectNative) {
@@ -454,6 +453,9 @@ Future<MessageOutcome> messageParity(
   } else {
     expect(native.native, 0, reason: 'must stay historical');
   }
+  if (!compareHistorical) return native;
+  final historical = await run(false);
+  expect(historical.native, 0);
   expect(native.writes, historical.writes, reason: 'effects');
   expect(
     native.interaction?.calls,
