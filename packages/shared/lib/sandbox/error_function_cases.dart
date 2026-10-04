@@ -8,7 +8,7 @@ const _failure = {
 final sandboxErrorFunctionCases = [
   SandboxFunctionCase(
     'log',
-    r'$log[$message[message];info]done',
+    r'$log[$message[message]]done',
     0,
     'done',
     label: 'captures the resolved log without Discord',
@@ -25,7 +25,7 @@ final sandboxErrorFunctionCases = [
       name,
       r'$try$httpGet[https://example.com/data]$setVar[unreachable;yes]$catch$setVar[caught;yes]recovered$endtry$sendMessage[after]',
       0,
-      'recovered\nafter',
+      'after\nrecovered',
       label: 'failure is caught',
       scenario: _failure,
       expectedValues: {
@@ -36,7 +36,7 @@ final sandboxErrorFunctionCases = [
     'try',
     r'$try$setVar[ok;yes]success$catch wrong$endtry$sendMessage[after]',
     0,
-    'success\nafter',
+    'after\nsuccess',
     label: 'successful body',
     expectedValues: {
       '/storage_after/global': {'ok': 'yes'},
@@ -59,6 +59,27 @@ final sandboxErrorFunctionCases = [
     scenario: _failure,
   ),
   SandboxFunctionCase(
+    'error',
+    r'$try$httpGet[https://example.com/data]$catch$error[command]|$error[row]|$error[source]$endtry',
+    0,
+    r'$httpGet|1|$try$httpGet[https://example.com/data]$catch$error[command]|$error[row]|$error[source]$endtry',
+    label: 'command, row and source of the failing function',
+    scenario: _failure,
+  ),
+  SandboxFunctionCase(
+    'error',
+    r'$try$httpGet[https://example.com/data]$catch$error[other]$endtry',
+    0,
+    '',
+    label: 'unknown error type',
+    scenario: _failure,
+    expectedValues: {
+      '/success': false,
+      '/error':
+          r'BDFD L1:45 $error: Error type must be command, message, source, row or column.',
+    },
+  ),
+  SandboxFunctionCase(
     'suppresserrors',
     r'$suppressErrors[custom error]$httpGet[https://example.com/data]$setVar[unreachable;yes]',
     0,
@@ -77,7 +98,7 @@ final sandboxErrorFunctionCases = [
   ),
   SandboxFunctionCase(
     'embedsuppresserrors',
-    r'$embedSuppressErrors[Error;Failed;FF0000;Author;Footer;https://example.com/icon.png]$httpGet[https://example.com/data]',
+    r'$embedSuppressErrors[Error;Failed;#FF0000;Author;Footer;https://example.com/icon.png]$httpGet[https://example.com/data]',
     0,
     '',
     scenario: _failure,

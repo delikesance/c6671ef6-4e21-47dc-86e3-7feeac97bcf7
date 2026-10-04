@@ -177,6 +177,24 @@ Map<String, BdfdNativeFunction> bdfdGuildQueryAliases([
         return call.context.variables['bot.guildCount'] ?? '1';
       },
     ),
+    // Wiki: $serverName[Guild ID]. Without an ID the hydrated current guild
+    // name is used.
+    for (final name in const ['servername', 'guildname'])
+      name: BdfdNativeFunction(
+        minArguments: 0,
+        maxArguments: 1,
+        handler: (call) async {
+          if (call.argumentCount == 0) {
+            final hydrated = call.context.variables['guild.name'];
+            if (hydrated != null) return hydrated;
+          }
+          final g = await guild(call, requiredId: call.argumentCount == 1);
+          if (g == null) {
+            throw BdfdNativeError('Guild not found.', call.location);
+          }
+          return g.name;
+        },
+      ),
     'guildicon': BdfdNativeFunction(
       minArguments: 0,
       maxArguments: 1,

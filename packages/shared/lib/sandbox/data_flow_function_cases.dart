@@ -88,13 +88,35 @@ final sandboxDataFlowFunctionCases = [
   ),
   SandboxFunctionCase(
     'sort',
-    r'$sort[$message[a];$message[b];$message[c]]',
+    r'$sort[$message[a];$message[b];$message[c];$message[order];$message[amount];$message[separator]]',
     0,
-    'apple;pear;zebra',
-    label: 'runtime text',
+    '10 - 3',
+    label: 'runtime direction, amount and separator',
     scenario: {
       'variables': {'interaction.isSlash': 'true'},
-      'options': {'a': 'zebra', 'b': 'pear', 'c': 'apple'},
+      'options': {
+        'a': 10,
+        'b': 2,
+        'c': 3,
+        'order': 'desc',
+        'amount': 2,
+        'separator': ' - ',
+      },
+    },
+  ),
+  SandboxFunctionCase(
+    'sort',
+    r'$sort[$message[a];$message[b];asc;-1;,]',
+    0,
+    '',
+    label: 'runtime text is not sortable (wiki: numbers only)',
+    scenario: {
+      'variables': {'interaction.isSlash': 'true'},
+      'options': {'a': 'zebra', 'b': 'pear'},
+    },
+    expectedValues: {
+      '/success': false,
+      '/error': r'BDFD L1:1 $sort: Sort requires finite numbers.',
     },
   ),
   SandboxFunctionCase(
@@ -183,7 +205,7 @@ final sandboxDataFlowFunctionCases = [
     'jsonforeach',
     r'$jsonParse[$message[data]]$jsonForEach[]$jsonKey=$jsonValue$endJsonForEach',
     0,
-    'a=1\nb=2',
+    'a=1b=2',
     scenario: {
       'variables': {'interaction.isSlash': 'true'},
       'options': {'data': '{"a":1,"b":2}'},
@@ -193,7 +215,7 @@ final sandboxDataFlowFunctionCases = [
     'jsonkey',
     r'$jsonParse[$message[data]]$jsonForEach[]$jsonKey$endJsonForEach',
     0,
-    'a\nb',
+    'ab',
     scenario: {
       'variables': {'interaction.isSlash': 'true'},
       'options': {'data': '{"a":1,"b":2}'},
@@ -203,7 +225,7 @@ final sandboxDataFlowFunctionCases = [
     'jsonindex',
     r'$jsonParse[$message[data]]$jsonForEach[]$jsonIndex$endJsonForEach',
     0,
-    '0\n1',
+    '01',
     scenario: {
       'variables': {'interaction.isSlash': 'true'},
       'options': {'data': '{"a":1,"b":2}'},
@@ -213,19 +235,19 @@ final sandboxDataFlowFunctionCases = [
     'endjsonforeach',
     r'$jsonParse[$message[data]]$jsonForEach[]$jsonValue$endJsonForEach$setVar[after;yes]done',
     0,
-    '1\n2\ndone',
+    '12done',
     scenario: {
       'variables': {'interaction.isSlash': 'true'},
       'options': {'data': '[1,2]'},
     },
     expectedValues: {'/storage_after/global/after': 'yes'},
   ),
-  SandboxFunctionCase('sort', r'$sort[10;2;3]', 0, '2;3;10'),
+  SandboxFunctionCase('sort', r'$sort[10;2;3;asc;-1;,]', 0, '2,3,10'),
   SandboxFunctionCase(
     'sort',
-    r'$sort[$message[a];$message[b];$message[c]]',
+    r'$sort[$message[a];$message[b];$message[c];asc;-1;,]',
     0,
-    '2;3;10',
+    '2,3,10',
     label: 'runtime numbers',
     scenario: {
       'variables': {'interaction.isSlash': 'true'},
@@ -295,7 +317,7 @@ final sandboxDataFlowFunctionCases = [
     'i',
     r'$for[$message[count]]$i$endfor',
     0,
-    '0\n1',
+    '01',
     scenario: {
       'variables': {'interaction.isSlash': 'true'},
     },
@@ -304,7 +326,7 @@ final sandboxDataFlowFunctionCases = [
     'loopindex',
     r'$for[$message[count]]$loopIndex$endfor',
     0,
-    '0\n1',
+    '01',
     scenario: {
       'variables': {'interaction.isSlash': 'true'},
     },
@@ -313,7 +335,7 @@ final sandboxDataFlowFunctionCases = [
     'loopiteration',
     r'$for[$message[count]]$loopIteration$endfor',
     0,
-    '0\n1',
+    '01',
     scenario: {
       'variables': {'interaction.isSlash': 'true'},
     },
@@ -322,7 +344,7 @@ final sandboxDataFlowFunctionCases = [
     'loopcount',
     r'$for[$message[count]]$loopCount$endfor',
     0,
-    '1\n2',
+    '12',
     scenario: {
       'variables': {'interaction.isSlash': 'true'},
     },

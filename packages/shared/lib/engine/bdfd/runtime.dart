@@ -21,6 +21,9 @@ String removeBdfdLinks(String text) =>
 /// Shared by nested scripts; adapters own the actual Discord acknowledgement.
 class BdfdResponseState {
   bool acknowledged = false;
+
+  /// Set by an explicit `$defer`; the adapter owns the Discord acknowledgement.
+  bool deferred = false;
   bool originalResponseCompleted = false;
   bool ephemeral = false;
   String? messageId;
@@ -114,6 +117,9 @@ class BdfdContext {
   /// render canvases that must be attached to the response).
   final List<Future<void> Function()> beforeFlush = [];
 
+  /// Receives `$log` messages; hosts decide where diagnostics go.
+  void Function(String message)? onLog;
+
   /// Shared by nested execution; injectable to reproduce random choices in tests.
   final math.Random random;
   final BdfdTimeState time;
@@ -137,6 +143,8 @@ class BdfdContext {
   List<BdfdLocation> get callStack => List.unmodifiable(_calls);
   bool stopped = false;
   int _steps = 0;
+  int? _pendingSkip;
+  int? _pendingJump;
   int _depth = 0;
 
   String? loopVariable(String name) {
@@ -538,8 +546,21 @@ class BdfdRuntime {
     BdfdContext context,
     StringBuffer output,
   ) async {
+    // `$skipActions` / `$jumpToAction` count function-call statements of this
+    // list: skipping drops the next N, jumping continues at the Nth (1-based).
+    var actionNumber = 0, skipping = 0, jumpTarget = 0;
     for (final statement in statements) {
       context._check(_location(program, statement.node));
+      if (statement.node is BdfdFunctionCallAst &&
+          statement is! BdfdFunctionDefinition) {
+        actionNumber++;
+        if (skipping > 0) {
+          skipping--;
+          continue;
+        }
+        if (jumpTarget > actionNumber) continue;
+        jumpTarget = 0;
+      }
       switch (statement) {
         case BdfdExpression():
           final text = await _evaluate([statement.node], program, context);
@@ -601,10 +622,36 @@ class BdfdRuntime {
               value: error.toString(),
             );
             context.results['error.message'] = error.toString();
+            _recordErrorDetails(context, error);
             await _statements(statement.catchBody, program, context, output);
           }
       }
+      final skip = context._pendingSkip, jump = context._pendingJump;
+      context._pendingSkip = context._pendingJump = null;
+      if (skip != null) skipping = skip;
+      if (jump != null) {
+        if (jump <= actionNumber) {
+          throw BdfdNativeError(
+            r'$jumpToAction can only jump to a later action.',
+            _location(program, statement.node),
+          );
+        }
+        jumpTarget = jump;
+      }
     }
+  }
+
+  /// Details for `$error[Type]`: command, message, source, row and column.
+  void _recordErrorDetails(BdfdContext context, BdfdNativeError error) {
+    final location = error.location;
+    final lines = location.source.split('\n');
+    context.results['error.command'] = location.functionName ?? '';
+    context.results['error.rawMessage'] = error.message;
+    context.results['error.source'] = location.line <= lines.length
+        ? lines[location.line - 1].trim()
+        : '';
+    context.results['error.row'] = '${location.line}';
+    context.results['error.column'] = '${location.column}';
   }
 
   Future<void> _jsonForEach(
@@ -1100,13 +1147,35 @@ class BdfdRuntime {
       }
       throw _Break();
     });
+    add('skipactions', 1, 1, (call) async {
+      final count = int.tryParse((await call.argument(0)).trim());
+      if (count == null || count < 0) {
+        throw BdfdNativeError(
+          'Expected a non-negative action count.',
+          call.location,
+        );
+      }
+      call.context._pendingSkip = count;
+      return '';
+    });
+    add('jumptoaction', 1, 1, (call) async {
+      final target = int.tryParse((await call.argument(0)).trim());
+      if (target == null || target < 1) {
+        throw BdfdNativeError(
+          'Expected a positive action number.',
+          call.location,
+        );
+      }
+      call.context._pendingJump = target;
+      return '';
+    });
     add('continue', 0, 0, (call) {
       if (call.context._loops.isEmpty) {
         throw BdfdNativeError('Continue outside a loop.', call.location);
       }
       throw _Continue();
     });
-    for (final name in ['i', 'loopindex', 'loopcount']) {
+    for (final name in ['i', 'loopindex', 'loopiteration', 'loopcount']) {
       add(name, 0, 0, (call) {
         if (call.context._loops.isEmpty) {
           throw BdfdNativeError('Loop index outside a loop.', call.location);
