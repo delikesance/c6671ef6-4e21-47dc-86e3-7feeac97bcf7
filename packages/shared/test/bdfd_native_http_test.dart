@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:bot_creator_shared/actions/executors/http_executor.dart';
+import 'package:bot_creator_shared/engine/bdfd/visual/http_logic.dart';
 import 'package:bot_creator_shared/types/action.dart';
 
 import 'package:bot_creator_shared/engine/bdfd/http_functions.dart';
@@ -227,7 +227,7 @@ void main() {
       final variables = <String, String>{};
       final persisted = <String>[];
       await expectLater(
-        executeHttpAction(
+        executeHttp(
           type: BotCreatorActionType.httpRequest,
           payload: {
             'url': 'https://unit.test/items',

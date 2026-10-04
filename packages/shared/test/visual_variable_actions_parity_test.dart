@@ -10,7 +10,8 @@ import 'package:bot_creator_shared/engine/execution_budget.dart';
 import 'package:bot_creator_shared/types/action.dart';
 import 'package:bot_creator_shared/utils/template_resolver.dart';
 import 'package:nyxx/nyxx.dart';
-import 'package:test/test.dart';
+import 'package:test/test.dart' hide test, group;
+import 'package:test/test.dart' as t show test, group;
 
 import 'helpers/fake_role_gateway.dart';
 import 'helpers/variables_test_helpers.dart';
@@ -20,6 +21,62 @@ import 'helpers/variables_test_helpers.dart';
 /// (`bc_<type>`): the same actions run through both paths over equal stores
 /// and the same local HTTP server; effects (store contents, ttl, requests),
 /// `results`, final variables and error text are compared.
+
+/// While the historical engine exists every scenario also runs through it and
+/// must match. The native outcome is always checked against the golden file
+/// `test/golden/visual_variable_actions.json` (explicit expected effects,
+/// results, variables and error text recorded from the verified-equal runs),
+/// so the file keeps its meaning once the historical path is deleted.
+/// Regenerate with `UPDATE_GOLDEN=1 dart test test/visual_variable_actions_parity_test.dart`.
+const parityWithHistorical = true;
+
+final _names = <String>[];
+void group(String name, void Function() body) {
+  _names.add(name);
+  t.group(name, body);
+  _names.removeLast();
+}
+
+void test(String name, dynamic Function() body, {Timeout? timeout}) {
+  final full = [..._names, name].join(' > ');
+  t.test(full, () async {
+    _currentTest = full;
+    _goldenCounter = 0;
+    await body();
+  }, timeout: timeout);
+}
+
+String _currentTest = '';
+int _goldenCounter = 0;
+final _goldenFile = File('test/golden/visual_variable_actions.json');
+final _goldenWrites = <String, Object?>{};
+Map<String, Object?>? _goldenRead;
+
+Object? _json(Object? v) => jsonDecode(
+  jsonEncode(v)
+      .replaceAll(RegExp(r'port = \d+'), 'port = N')
+      .replaceAll(RegExp(r'127\.0\.0\.1:\d+'), '127.0.0.1:N'),
+);
+
+void _checkGolden(_Outcome native) {
+  final key = '$_currentTest #${_goldenCounter++}';
+  final snapshot = _json({
+    'store': _stable(native.store.state),
+    'requests': native.requests,
+    'results': native.results,
+    'variables': native.variables,
+    'error': native.errorText,
+  });
+  if (Platform.environment['UPDATE_GOLDEN'] == '1') {
+    _goldenWrites[key] = snapshot;
+    return;
+  }
+  _goldenRead ??= Map<String, Object?>.from(
+    jsonDecode(_goldenFile.readAsStringSync()) as Map,
+  );
+  expect(_goldenRead!.containsKey(key), isTrue, reason: 'no golden for $key');
+  expect(snapshot, _goldenRead![key], reason: 'golden $key');
+}
 
 class _Spy extends ActionTranslator {
   _Spy() : super();
@@ -263,8 +320,16 @@ Future<_Outcome> _parity(
     return outcome;
   }
 
-  final historical = await run(false);
   final native = await run(true);
+  // Deadline races (limit) are timing dependent: no golden for those.
+  if (limit == null) _checkGolden(native);
+  if (!parityWithHistorical) {
+    if (expectNative) {
+      expect(native.native, greaterThan(0), reason: 'must run natively');
+    }
+    return native;
+  }
+  final historical = await run(false);
   // A timeout may be raised by the outer deadline before the failing action
   // records its bookkeeping: let both runs settle.
   if (limit != null) {
@@ -311,7 +376,15 @@ const _rmGlobal = BotCreatorActionType.removeGlobalVariable;
 
 void main() {
   setUpAll(_startServer);
-  tearDownAll(() => _server.close(force: true));
+  tearDownAll(() {
+    _server.close(force: true);
+    if (Platform.environment['UPDATE_GOLDEN'] == '1') {
+      _goldenFile.createSync(recursive: true);
+      _goldenFile.writeAsStringSync(
+        '${const JsonEncoder.withIndent(' ').convert(_goldenWrites)}\n',
+      );
+    }
+  });
 
   group('routing', () {
     test('every migrated type is supported and has a hidden function', () {

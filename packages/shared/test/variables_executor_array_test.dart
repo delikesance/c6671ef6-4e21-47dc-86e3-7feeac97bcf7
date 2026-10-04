@@ -1,4 +1,4 @@
-import 'package:bot_creator_shared/actions/executors/variables_executor.dart';
+import 'package:bot_creator_shared/engine/bdfd/visual/variable_logic.dart';
 import 'package:bot_creator_shared/types/action.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:test/test.dart';
@@ -6,13 +6,13 @@ import 'package:test/test.dart';
 import 'helpers/variables_test_helpers.dart';
 
 void main() {
-  group('executeVariablesAction - array operations', () {
+  group('executeVariableAction - array operations', () {
     test('appendArrayElement appends to a global root array', () async {
       final store = MemoryBotDataStore();
       final results = <String, String>{};
       final variables = <String, String>{};
 
-      final handled = await executeVariablesAction(
+      final handled = await executeVariableAction(
         type: BotCreatorActionType.appendArrayElement,
         store: store,
         botId: 'bot-1',
@@ -58,7 +58,7 @@ void main() {
         final variables = <String, String>{'guildId': 'guild-1'};
         final appendResults = <String, String>{};
 
-        await executeVariablesAction(
+        await executeVariableAction(
           type: BotCreatorActionType.appendArrayElement,
           store: store,
           botId: 'bot-1',
@@ -91,7 +91,7 @@ void main() {
         expect(variables['appendScoped.length'], '2');
 
         final removeResults = <String, String>{};
-        await executeVariablesAction(
+        await executeVariableAction(
           type: BotCreatorActionType.removeArrayElement,
           store: store,
           botId: 'bot-1',
@@ -132,7 +132,7 @@ void main() {
         final results = <String, String>{};
         final variables = <String, String>{};
 
-        final handled = await executeVariablesAction(
+        final handled = await executeVariableAction(
           type: BotCreatorActionType.queryArray,
           store: store,
           botId: 'bot-1',

@@ -1,7 +1,8 @@
-import 'package:bot_creator_shared/actions/calculate.dart';
-
+import '../../engine/bdfd/visual/calculate_logic.dart';
 import '../../types/action.dart';
 
+/// Historical delegator; the logic lives in
+/// `engine/bdfd/visual/calculate_logic.dart`.
 Future<bool> executeCalculateAction({
   required BotCreatorActionType type,
   required Map<String, dynamic> payload,
@@ -9,21 +10,11 @@ Future<bool> executeCalculateAction({
   required Map<String, String> results,
   required Map<String, String> variables,
   required String Function(String input) resolveValue,
-}) async {
-  if (type != BotCreatorActionType.calculate) {
-    return false;
-  }
-
-  final calcResult = await calculateAction(
-    payload: payload,
-    resolve: resolveValue,
-  );
-  if (calcResult['error'] != null) {
-    throw Exception(calcResult['error']);
-  }
-
-  final calcValue = calcResult['result'] ?? '';
-  results[resultKey] = calcValue;
-  variables['$resultKey.result'] = calcValue;
-  return true;
-}
+}) => executeCalculate(
+  type: type,
+  payload: payload,
+  resultKey: resultKey,
+  results: results,
+  variables: variables,
+  resolveValue: resolveValue,
+);
