@@ -1,5 +1,3 @@
-import '../../../actions/executors/lavalink_executor.dart'
-    show applyLavalinkResult;
 import '../../../services/bot_music_service.dart';
 import '../../../types/action.dart';
 import 'action_environment.dart';
@@ -20,7 +18,7 @@ import 'action_environment.dart';
 ///   - without a Lavalink service the historical loop reaches its dispatch
 ///     `switch` and throws the same [StateError] text.
 /// The effects go through [BotMusicBlockService] (the production adapter runs
-/// the shared `lavalink_music.dart` actions that BDFD's `$playMusic` family
+/// the shared `lavalink_music_actions.dart` actions that BDFD's `$playMusic` family
 /// uses as well), so BDFD's own throwing contract is untouched.
 final Map<BotCreatorActionType, ActionHandler> musicActionHandlers = {
   for (final type in musicActionTypes) type: _music,

@@ -1,6 +1,8 @@
+import 'dart:convert';
+
 import 'package:nyxx/nyxx.dart';
 
-import '../actions/lavalink_music.dart';
+import 'lavalink_music_actions.dart';
 import '../engine/execution_budget.dart';
 import 'lavalink_service.dart';
 
@@ -162,5 +164,29 @@ class DiscordBotMusicService implements BotMusicService, BotMusicBlockService {
       payload: payload,
       lavalinkService: lavalink,
     );
+  }
+}
+
+/// Records the outcome of a Lavalink block in [results]: `results[key]` is
+/// `'Error: ...'`, `'OK'` or the JSON of the result, and every property is also
+/// stored as `results['<key>.<prop>']`.
+void applyLavalinkResult(
+  Map<String, String> result,
+  Map<String, String> results,
+  String resultKey,
+) {
+  if (result.containsKey('error')) {
+    // Propagated as the main result so callers can detect it.
+    results[resultKey] = 'Error: ${result['error']}';
+  } else if (result.isEmpty) {
+    // pause/resume/stop/skip return an empty map on success.
+    results[resultKey] = 'OK';
+  } else {
+    // Full JSON so ((action.<key>)) is parseable.
+    results[resultKey] = jsonEncode(result);
+  }
+  // ((action.<key>.<prop>)) works directly, e.g. ((action.play.title)).
+  for (final entry in result.entries) {
+    results['$resultKey.${entry.key}'] = entry.value;
   }
 }

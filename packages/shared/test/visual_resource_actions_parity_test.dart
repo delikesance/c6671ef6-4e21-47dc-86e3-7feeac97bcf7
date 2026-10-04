@@ -2,6 +2,7 @@ import 'package:bot_creator_shared/types/action.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:test/test.dart';
 
+import 'helpers/golden_expectations.dart';
 import 'helpers/visual_parity_harness.dart' show visualAction;
 import 'helpers/visual_resource_gateway.dart';
 
@@ -27,8 +28,9 @@ const _errorModes = [
 ];
 
 void main() {
+  useGolden('resource');
   group('webhook blocks', () {
-    test('sendWebhook by id+token, by url, with templates', () async {
+    gtest('sendWebhook by id+token, by url, with templates', () async {
       final outcome = await resourceParity(
         [
           _a(BotCreatorActionType.sendWebhook, {
@@ -53,7 +55,7 @@ void main() {
       expect(outcome.gateway.writes, hasLength(2));
     });
 
-    test('sendWebhook errors', () async {
+    gtest('sendWebhook errors', () async {
       for (final payload in [
         {'content': 'x'},
         {'webhookId': '70', 'content': 'x'},
@@ -65,7 +67,7 @@ void main() {
       }
     });
 
-    test('editWebhook, deleteWebhook and getWebhook', () async {
+    gtest('editWebhook, deleteWebhook and getWebhook', () async {
       final outcome = await resourceParity(
         [
           _a(BotCreatorActionType.editWebhook, {
@@ -94,7 +96,7 @@ void main() {
       expect(outcome.results!['del'], '70');
     });
 
-    test(
+    gtest(
       'listWebhooks by channel, by guild and with the fallback channel',
       () async {
         final outcome = await resourceParity([
@@ -116,7 +118,7 @@ void main() {
       },
     );
 
-    test('permission pre-check of listWebhooks', () async {
+    gtest('permission pre-check of listWebhooks', () async {
       final outcome = await resourceParity([
         _a(BotCreatorActionType.listWebhooks, {'channelId': '30'}),
       ], permissions: 0);
@@ -124,7 +126,7 @@ void main() {
       expect(outcome.gateway.writes, isEmpty);
     });
 
-    test('failures: unknown webhook, missing ids', () async {
+    gtest('failures: unknown webhook, missing ids', () async {
       for (final action in [
         _a(BotCreatorActionType.getWebhook, {'webhookId': '999'}),
         _a(BotCreatorActionType.getWebhook, {}),
@@ -140,7 +142,7 @@ void main() {
       expect(failing.errorText, contains('Failed to delete webhook'));
     });
 
-    test('error modes behave like the loop', () async {
+    gtest('error modes behave like the loop', () async {
       for (final error in _errorModes) {
         final outcome = await resourceParity([
           _a(BotCreatorActionType.getWebhook, {
@@ -155,7 +157,7 @@ void main() {
       }
     });
 
-    test('inside an ifBlock the block is native too', () async {
+    gtest('inside an ifBlock the block is native too', () async {
       final outcome = await resourceParity(
         [
           _a(BotCreatorActionType.ifBlock, {
@@ -176,7 +178,7 @@ void main() {
   });
 
   group('emoji blocks', () {
-    test('createEmoji, updateEmoji and deleteEmoji', () async {
+    gtest('createEmoji, updateEmoji and deleteEmoji', () async {
       final outcome = await resourceParity(
         [
           _a(BotCreatorActionType.createEmoji, {
@@ -201,7 +203,7 @@ void main() {
       expect(outcome.results!['dn.emojiId'], '80');
     });
 
-    test('errors: guild, name, image, id, unknown name, permission', () async {
+    gtest('errors: guild, name, image, id, unknown name, permission', () async {
       for (final action in [
         _a(BotCreatorActionType.createEmoji, {'imageBase64': _png}),
         _a(BotCreatorActionType.createEmoji, {'name': 'x'}),
@@ -226,7 +228,7 @@ void main() {
       expect(failing.errorText, contains('Failed to delete emoji'));
     });
 
-    test('error modes behave like the loop', () async {
+    gtest('error modes behave like the loop', () async {
       for (final error in _errorModes) {
         final outcome = await resourceParity([
           _a(BotCreatorActionType.deleteEmoji, {}, error: error),
@@ -241,7 +243,7 @@ void main() {
   });
 
   group('member blocks', () {
-    test('listMembers lists, limits, searches, paginates', () async {
+    gtest('listMembers lists, limits, searches, paginates', () async {
       final outcome = await resourceParity(
         [
           _a(BotCreatorActionType.listMembers, {}, key: 'all'),
@@ -254,14 +256,14 @@ void main() {
       expect(outcome.results!['all'], contains('"userId":"20"'));
     });
 
-    test('listMembers errors: no guild', () async {
+    gtest('listMembers errors: no guild', () async {
       final outcome = await resourceParity([
         _a(BotCreatorActionType.listMembers, {}),
       ], guild: false);
       expect(outcome.errorText, contains('Missing guildId'));
     });
 
-    test('getMember by userId, memberId, template; errors', () async {
+    gtest('getMember by userId, memberId, template; errors', () async {
       final outcome = await resourceParity(
         [
           _a(BotCreatorActionType.getMember, {'userId': '20'}, key: 'u'),
@@ -281,7 +283,7 @@ void main() {
       }
     });
 
-    test('error modes behave like the loop', () async {
+    gtest('error modes behave like the loop', () async {
       for (final error in _errorModes) {
         final outcome = await resourceParity([
           _a(BotCreatorActionType.getMember, {}, error: error),
@@ -294,7 +296,7 @@ void main() {
   });
 
   group('invite blocks', () {
-    test('createInvite mirrors its fields into variables', () async {
+    gtest('createInvite mirrors its fields into variables', () async {
       final outcome = await resourceParity([
         _a(BotCreatorActionType.createInvite, {
           'channelId': '30',
@@ -310,7 +312,7 @@ void main() {
       expect(outcome.variables['inv.url'], 'https://discord.gg/newcode');
     });
 
-    test('getInvite and deleteInvite', () async {
+    gtest('getInvite and deleteInvite', () async {
       final outcome = await resourceParity(
         [
           _a(BotCreatorActionType.getInvite, {'inviteCode': '((c))'}, key: 'g'),
@@ -325,7 +327,7 @@ void main() {
       expect(outcome.variables['g.expiresAt'], '2030-01-02T00:00:00.000Z');
     });
 
-    test('errors: channel, code, permission, discord failure', () async {
+    gtest('errors: channel, code, permission, discord failure', () async {
       for (final action in [
         _a(BotCreatorActionType.createInvite, {}),
         _a(BotCreatorActionType.createInvite, {'channelId': '31'}),
@@ -349,7 +351,7 @@ void main() {
       expect(failing.errorText, contains('Failed to delete invite'));
     });
 
-    test('error modes behave like the loop', () async {
+    gtest('error modes behave like the loop', () async {
       for (final error in _errorModes) {
         final outcome = await resourceParity([
           _a(BotCreatorActionType.getInvite, {}, error: error),
@@ -364,7 +366,7 @@ void main() {
   });
 
   group('trace bookkeeping', () {
-    test(
+    gtest(
       'a numeric result is the "last message" only where the loop did',
       () async {
         // deleteWebhook traces always (webhook executor); getInvite is a

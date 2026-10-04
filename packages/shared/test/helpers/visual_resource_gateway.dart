@@ -1,3 +1,4 @@
+import 'golden_expectations.dart';
 import 'package:bot_creator_shared/actions/handler.dart';
 import 'package:bot_creator_shared/engine/bdfd/visual/action_translator.dart';
 import 'package:bot_creator_shared/types/action.dart';
@@ -341,6 +342,10 @@ class ResourceGateway extends VisualGateway {
   GuildManager get guilds => resourceGuilds;
 }
 
+/// Set to false once the historical executors are gone: the native outcome is
+/// still checked against the golden expectations.
+const parityWithHistorical = true;
+
 /// Runs [actions] through the historical executors and the native engine over
 /// the same recording Discord and compares effects, results, variables and
 /// error. Returns the native outcome.
@@ -394,9 +399,7 @@ Future<Outcome<ResourceGateway>> resourceParity(
     );
   }
 
-  final historical = await run(false);
   final native = await run(true);
-  expect(historical.native, 0);
   if (nativePrograms != null) {
     expect(native.native, nativePrograms);
   } else if (expectNative) {
@@ -404,9 +407,20 @@ Future<Outcome<ResourceGateway>> resourceParity(
   } else {
     expect(native.native, 0, reason: 'must stay historical');
   }
-  expect(native.effects, historical.effects, reason: 'effects');
-  expect(native.results, historical.results, reason: 'results');
-  expect(native.variables, historical.variables, reason: 'variables');
-  expect(native.errorText, historical.errorText, reason: 'error');
+  // Explicit expectations of the native path (test/golden/resource.json).
+  expectGolden({
+    'effects': native.effects,
+    'results': native.results,
+    'variables': native.variables,
+    'error': native.errorText,
+  });
+  if (parityWithHistorical) {
+    final historical = await run(false);
+    expect(historical.native, 0);
+    expect(native.effects, historical.effects, reason: 'effects');
+    expect(native.results, historical.results, reason: 'results');
+    expect(native.variables, historical.variables, reason: 'variables');
+    expect(native.errorText, historical.errorText, reason: 'error');
+  }
   return native;
 }

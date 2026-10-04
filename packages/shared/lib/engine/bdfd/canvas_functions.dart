@@ -1,4 +1,4 @@
-import '../../actions/executors/image_executor.dart';
+import '../../services/canvas_image_renderer.dart';
 import 'program.dart';
 import 'runtime.dart';
 

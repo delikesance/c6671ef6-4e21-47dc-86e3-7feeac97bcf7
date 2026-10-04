@@ -1,4 +1,4 @@
-import 'package:bot_creator_shared/actions/invite_management.dart';
+import 'package:bot_creator_shared/services/bot_invite_service.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:test/test.dart';
 

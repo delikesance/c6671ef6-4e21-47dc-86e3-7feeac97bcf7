@@ -7,6 +7,7 @@ import 'package:image/image.dart' as img;
 import 'package:test/test.dart';
 
 import 'helpers/fake_role_gateway.dart';
+import 'helpers/golden_expectations.dart';
 import 'helpers/visual_message_gateway.dart';
 import 'helpers/visual_parity_harness.dart';
 
@@ -63,10 +64,24 @@ Future<Outcome<FakeGateway>> _parity(
     variables: variables,
     throwOnError: throwOnError,
   );
+  // Explicit expectations of the native path (test/golden/image.json). The
+  // historical comparison above is done by [visualParity]; once it is native
+  // only, this snapshot is what keeps the test meaningful.
+  expectGolden(
+    {
+      'effects': outcome.effects,
+      'results': outcome.results,
+      'variables': outcome.variables,
+      'error': outcome.errorText,
+    },
+    // The test server port changes on every run.
+    mask: {_base: 'http://BASE'},
+  );
   return outcome;
 }
 
 void main() {
+  useGolden('image');
   setUpAll(() async {
     _server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
     final bytes = base64Decode(_png(6, 4, img.ColorRgba8(0, 0, 255, 255)));
@@ -84,7 +99,7 @@ void main() {
   tearDownAll(() => _server.close(force: true));
 
   group('runtimeImageBlock parity', () {
-    test('creates, draws and publishes the named attachment', () async {
+    gtest('creates, draws and publishes the named attachment', () async {
       final outcome = await _parity(
         [
           _a(_block, {
@@ -148,7 +163,7 @@ void main() {
       );
     });
 
-    test('without an image name no attachment variable', () async {
+    gtest('without an image name no attachment variable', () async {
       final outcome = await _parity([
         _a(_block, {
           'operations': [
@@ -162,7 +177,7 @@ void main() {
       );
     });
 
-    test('no operations or no canvas gives an empty result', () async {
+    gtest('no operations or no canvas gives an empty result', () async {
       final outcome = await _parity([
         _a(_block, {'imageName': 'a', 'operations': <Object>[]}, key: 'none'),
         _a(_block, {
@@ -176,7 +191,7 @@ void main() {
       expect(outcome.results!['nocanvas'], '');
     });
 
-    test('loads and composites from URL, data URL and raw base64', () async {
+    gtest('loads and composites from URL, data URL and raw base64', () async {
       final data =
           'data:image/png;base64,${_png(3, 3, img.ColorRgba8(255, 0, 0, 255))}';
       final raw = _png(2, 2, img.ColorRgba8(0, 255, 0, 255));
@@ -203,7 +218,7 @@ void main() {
       expect(outcome.effects, ['/a.png']);
     });
 
-    test('an unreachable source follows the executor behaviour', () async {
+    gtest('an unreachable source follows the executor behaviour', () async {
       await _parity([
         _a(_block, {
           'imageName': 'bad',
@@ -220,7 +235,7 @@ void main() {
       ]);
     });
 
-    test(
+    gtest(
       'result placeholders of earlier actions and variables resolve',
       () async {
         await _parity(
@@ -246,7 +261,7 @@ void main() {
       },
     );
 
-    test('error modes of the block: continue, skip, stop', () async {
+    gtest('error modes of the block: continue, skip, stop', () async {
       await _parity([
         _a(
           _attach,
@@ -267,7 +282,7 @@ void main() {
       ]);
     });
 
-    test('inside a protected execution (throwOnError)', () async {
+    gtest('inside a protected execution (throwOnError)', () async {
       await _parity([
         _a(_attach, {'imageName': 'n', 'imageSource': ''}, key: 'e'),
       ], throwOnError: true);
@@ -275,7 +290,7 @@ void main() {
   });
 
   group('attachImage parity', () {
-    test('stores a data URL, raw base64 and URL source', () async {
+    gtest('stores a data URL, raw base64 and URL source', () async {
       final outcome = await _parity(
         [
           _a(_attach, {
@@ -307,7 +322,7 @@ void main() {
       expect(outcome.effects, ['/pic.png']);
     });
 
-    test('missing name or source, undecodable and 404 sources', () async {
+    gtest('missing name or source, undecodable and 404 sources', () async {
       for (final payload in [
         {'imageName': '', 'imageSource': 'abc'},
         {'imageName': 'n', 'imageSource': ''},
@@ -319,7 +334,7 @@ void main() {
       }
     });
 
-    test('a disabled action stays a no-op', () async {
+    gtest('a disabled action stays a no-op', () async {
       await _parity([
         _a(
           _attach,
@@ -332,7 +347,7 @@ void main() {
   });
 
   group('canvas sub-block types parity', () {
-    test('never executable on their own, with the historical error', () async {
+    gtest('never executable on their own, with the historical error', () async {
       for (final type in [
         BotCreatorActionType.canvasCreateBlock,
         BotCreatorActionType.canvasLoadImageBlock,
@@ -351,7 +366,7 @@ void main() {
       }
     });
 
-    test('error mode continue lets the next action run', () async {
+    gtest('error mode continue lets the next action run', () async {
       final outcome = await _parity([
         _a(
           BotCreatorActionType.canvasCreateBlock,
@@ -369,7 +384,7 @@ void main() {
   });
 
   group('attachment consumed by a following send', () {
-    test('attachImage then sendMessage attaches the png', () async {
+    gtest('attachImage then sendMessage attaches the png', () async {
       final outcome = await messageParity([
         _a(_attach, {
           'imageName': 'card',

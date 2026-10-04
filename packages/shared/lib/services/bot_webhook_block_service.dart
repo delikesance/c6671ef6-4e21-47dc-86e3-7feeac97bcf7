@@ -1,9 +1,12 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
+import 'package:http/http.dart' as http;
 import 'package:nyxx/nyxx.dart';
 
 import '../actions/handler_utils.dart' show resolvePayloadValues;
-import '../actions/send_webhook.dart' show sendWebhookAction;
+import '../actions/send_component_v2.dart';
+import '../types/component.dart';
 
 /// Webhook operations of the visual blocks `sendWebhook`, `editWebhook`,
 /// `deleteWebhook`, `listWebhooks` and `getWebhook`. Each returns the block's
@@ -89,13 +92,13 @@ class DiscordBotWebhookBlockService implements BotWebhookBlockService {
   const DiscordBotWebhookBlockService(this.client);
   final NyxxGateway client;
 
-  /// Message construction (embeds, components, avatar) stays in
-  /// send_webhook.dart: `buildWebhookMessage` is shared with the sandbox.
+  /// Message construction (embeds, components) is [buildWebhookMessage],
+  /// shared with the sandbox preview.
   @override
   Future<Map<String, String>> send({
     required Map<String, dynamic> payload,
     required String Function(String) resolve,
-  }) => sendWebhookAction(client, payload: payload, resolve: resolve);
+  }) => _sendWebhook(client, payload: payload, resolve: resolve);
 
   @override
   Future<Map<String, String>> edit({
@@ -221,5 +224,239 @@ class DiscordBotWebhookBlockService implements BotWebhookBlockService {
         'webhooks': jsonEncode(<Map<String, dynamic>>[]),
       };
     }
+  }
+}
+
+({Snowflake? id, String? token}) _extractSendWebhookRef(
+  String webhookUrl,
+  String webhookId,
+  String token,
+) {
+  final directId = _toSnowflake(webhookId);
+  final directToken = token.trim();
+
+  if (directId != null && directToken.isNotEmpty) {
+    return (id: directId, token: directToken);
+  }
+
+  final uri = Uri.tryParse(webhookUrl.trim());
+  if (uri == null) {
+    return (id: directId, token: directToken);
+  }
+
+  final segments = uri.pathSegments;
+  final webhooksIndex = segments.indexOf('webhooks');
+  if (webhooksIndex == -1 || webhooksIndex + 2 >= segments.length) {
+    return (id: directId, token: directToken);
+  }
+
+  final parsedId = _toSnowflake(segments[webhooksIndex + 1]);
+  final parsedToken = segments[webhooksIndex + 2].trim();
+
+  return (
+    id: parsedId ?? directId,
+    token: parsedToken.isNotEmpty ? parsedToken : directToken,
+  );
+}
+
+Future<Map<String, String>> _sendWebhook(
+  NyxxGateway client, {
+  required Map<String, dynamic> payload,
+  String Function(String)? resolve,
+}) async {
+  resolve ??= (s) => s;
+  if (payload['createWebhook'] == true) {
+    return _createWebhook(client, payload: payload, resolve: resolve);
+  }
+  try {
+    final webhookUrl = resolve((payload['webhookUrl'] ?? '').toString()).trim();
+    final webhookId = resolve((payload['webhookId'] ?? '').toString()).trim();
+    final token = resolve((payload['token'] ?? '').toString()).trim();
+    final ref = _extractSendWebhookRef(webhookUrl, webhookId, token);
+    if (ref.id == null || ref.token == null || ref.token!.isEmpty) {
+      return {
+        'error': 'Missing webhookId/token (or webhookUrl)',
+        'messageId': '',
+      };
+    }
+
+    final username = resolve((payload['username'] ?? '').toString()).trim();
+    final avatarUrl = resolve((payload['avatarUrl'] ?? '').toString()).trim();
+    final waitRaw = resolve((payload['wait'] ?? '').toString());
+    final wait = payload['wait'] is bool
+        ? payload['wait'] as bool
+        : waitRaw.toLowerCase() == 'true';
+    final threadId = _toSnowflake(
+      resolve((payload['threadId'] ?? '').toString()),
+    );
+
+    final builder = buildWebhookMessage(payload, resolve);
+
+    final message = await client.webhooks.execute(
+      ref.id!,
+      builder,
+      token: ref.token!,
+      wait: wait,
+      threadId: threadId,
+      username: username.isNotEmpty ? username : null,
+      avatarUrl: avatarUrl.isNotEmpty ? avatarUrl : null,
+    );
+
+    return {
+      'messageId': message?.id.toString() ?? '',
+      'webhookId': ref.id.toString(),
+      'status': wait ? 'sent' : 'queued',
+    };
+  } catch (error) {
+    return {'error': 'Failed to send webhook message: $error', 'messageId': ''};
+  }
+}
+
+/// Builds the same Discord payload for production sends and sandbox previews.
+MessageBuilder buildWebhookMessage(
+  Map<String, dynamic> payload,
+  String Function(String) resolve,
+) {
+  final content = resolve((payload['content'] ?? '').toString());
+  final embeds = <EmbedBuilder>[];
+  for (final raw in (payload['embeds'] as List? ?? const []).take(10)) {
+    if (raw is! Map) continue;
+    final json = Map<String, dynamic>.from(raw);
+    final embed = EmbedBuilder();
+    final title = resolve((json['title'] ?? '').toString());
+    final description = resolve((json['description'] ?? '').toString());
+    if (title.isNotEmpty) embed.title = title;
+    if (description.isNotEmpty) embed.description = description;
+    final colorRaw = resolve((json['color'] ?? '').toString()).trim();
+    if (colorRaw.isNotEmpty) {
+      final color = colorRaw.startsWith('#')
+          ? int.tryParse(colorRaw.substring(1), radix: 16)
+          : int.tryParse(colorRaw, radix: 16);
+      if (color != null) {
+        embed.color = DiscordColor.fromRgb(
+          (color >> 16) & 0xff,
+          (color >> 8) & 0xff,
+          color & 0xff,
+        );
+      }
+    }
+    final footer = json['footer'];
+    final footerText = footer is Map
+        ? resolve((footer['text'] ?? '').toString())
+        : resolve((footer ?? '').toString());
+    if (footerText.isNotEmpty) {
+      embed.footer = EmbedFooterBuilder(text: footerText);
+    }
+    if (embed.build().isNotEmpty) embeds.add(embed);
+  }
+
+  List<ComponentBuilder>? components;
+  bool isRichV2 = false;
+  final componentPayload = payload['componentV2'] ?? payload['components'];
+  if (componentPayload is Map) {
+    try {
+      final def = ComponentV2Definition.fromJson(
+        Map<String, dynamic>.from(componentPayload),
+      );
+      isRichV2 = def.isRichV2;
+      components = buildComponentNodes(definition: def, resolve: resolve);
+    } catch (_) {}
+  }
+
+  return MessageBuilder(
+    content: content.isNotEmpty ? content : null,
+    embeds: embeds.isEmpty ? null : embeds,
+    components: components,
+    flags: isRichV2 ? MessageFlags(32768) : null,
+  );
+}
+
+const _maxAvatarBytes = 8 * 1024 * 1024;
+
+Future<ImageBuilder?> _webhookAvatar(String source) async {
+  if (source.isEmpty) return null;
+  final uri = Uri.tryParse(source);
+  if (uri == null) throw const FormatException('Invalid webhook avatar URL');
+
+  List<int> bytes;
+  String format;
+  if (uri.scheme == 'data') {
+    final comma = source.indexOf(',');
+    if (comma < 0 || !source.substring(0, comma).contains(';base64')) {
+      throw const FormatException('Webhook avatar must be base64 image data');
+    }
+    format = source.substring(5, comma).split(';').first.split('/').last;
+    bytes = base64Decode(source.substring(comma + 1));
+  } else if (uri.scheme == 'http' || uri.scheme == 'https') {
+    final client = http.Client();
+    try {
+      final response = await client
+          .send(http.Request('GET', uri))
+          .timeout(const Duration(seconds: 10));
+      if (response.statusCode != 200) {
+        throw StateError('Webhook avatar download failed');
+      }
+      format = (response.headers['content-type'] ?? '')
+          .split(';')
+          .first
+          .split('/')
+          .last;
+      final buffer = BytesBuilder(copy: false);
+      await for (final chunk in response.stream.timeout(
+        const Duration(seconds: 10),
+      )) {
+        buffer.add(chunk);
+        if (buffer.length > _maxAvatarBytes) {
+          throw StateError('Webhook avatar exceeds 8 MB');
+        }
+      }
+      bytes = buffer.takeBytes();
+    } finally {
+      client.close();
+    }
+  } else {
+    throw const FormatException('Webhook avatar must use HTTPS or data URL');
+  }
+  if (bytes.isEmpty || bytes.length > _maxAvatarBytes) {
+    throw StateError('Webhook avatar must be between 1 byte and 8 MB');
+  }
+  if (format == 'jpg') format = 'jpeg';
+  if (!{'png', 'jpeg', 'gif', 'webp'}.contains(format)) {
+    throw const FormatException('Unsupported webhook avatar format');
+  }
+  return ImageBuilder(data: bytes, format: format);
+}
+
+Future<Map<String, String>> _createWebhook(
+  NyxxGateway client, {
+  required Map<String, dynamic> payload,
+  required String Function(String) resolve,
+}) async {
+  try {
+    final channelId = int.tryParse(
+      resolve((payload['channelId'] ?? '').toString()),
+    );
+    final name = resolve((payload['name'] ?? '').toString()).trim();
+    if (channelId == null || name.length < 2 || name.length > 80) {
+      return {'error': 'Webhook needs a channel ID and a 2–80 character name'};
+    }
+    final avatar = await _webhookAvatar(
+      resolve((payload['avatarUrl'] ?? '').toString()).trim(),
+    );
+    final webhook = await client.webhooks.create(
+      WebhookBuilder(
+        name: name,
+        channelId: Snowflake(channelId),
+        avatar: avatar,
+      ),
+    );
+    final url =
+        webhook.url?.toString() ??
+        (webhook.token == null
+            ? ''
+            : 'https://discord.com/api/webhooks/${webhook.id}/${webhook.token}');
+    return {'webhookId': webhook.id.toString(), 'url': url};
+  } catch (error) {
+    return {'error': 'Failed to create webhook: $error'};
   }
 }
